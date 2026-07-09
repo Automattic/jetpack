@@ -12,13 +12,14 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\RTC\REST_Connection_Log;
 use Automattic\Jetpack\RTC\REST_Pinghub_Token;
+use Automattic\Jetpack\RTC\REST_RTC_Notices;
 
 /**
  * Main RTC class.
  */
 class RTC {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Option names for the RTC setting.
@@ -47,7 +48,8 @@ class RTC {
 		self::$initialized = true;
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'register_providers' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_notices' ) );
 		add_action( 'load-options-writing.php', array( __CLASS__, 'unregister_rtc_setting' ) );
 		add_action( 'load-options-writing.php', array( __CLASS__, 'override_rtc_setting_default' ) );
 
@@ -104,12 +106,14 @@ class RTC {
 
 		$allowed_providers = array( 'http-polling', 'pinghub' );
 
+		$default_providers = array( 'pinghub' );
+
 		/**
 		 * Filter the list of RTC providers.
 		 *
 		 * @param string[] $providers List of provider identifiers.
 		 */
-		$providers = apply_filters( 'jetpack_rtc_providers', array( 'pinghub' ) );
+		$providers = apply_filters( 'jetpack_rtc_providers', $default_providers );
 		if ( ! is_array( $providers ) ) {
 			return array();
 		}
@@ -131,6 +135,7 @@ class RTC {
 	 */
 	public static function register_rest_routes() {
 		( new REST_Pinghub_Token() )->register_routes();
+		( new REST_RTC_Notices() )->register_routes();
 
 		if ( function_exists( 'log2logstash' ) ) {
 			( new REST_Connection_Log() )->register_routes();
@@ -138,11 +143,11 @@ class RTC {
 	}
 
 	/**
-	 * Enqueue block editor assets for RTC.
+	 * Enqueue the assets that extend the RTC providers.
 	 *
 	 * @return void
 	 */
-	public static function enqueue_assets() {
+	public static function register_providers() {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
@@ -156,11 +161,11 @@ class RTC {
 			return;
 		}
 
-		$handle = 'jetpack-rtc';
+		$handle = 'jetpack-rtc-providers';
 
 		Assets::register_script(
 			$handle,
-			'../build/rtc.js',
+			'../build/rtc-providers.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
@@ -173,6 +178,8 @@ class RTC {
 			array(
 				'providers'         => $providers,
 				'connectionLogging' => function_exists( 'log2logstash' ),
+				'currentPostType'   => get_post_type() ? get_post_type() : null,
+				'currentPostId'     => get_the_ID() ? get_the_ID() : null,
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
@@ -299,5 +306,112 @@ class RTC {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Get the maximum number of peers allowed per room.
+	 *
+	 * @return int Max peers per room.
+	 */
+	public static function get_max_peers_per_room() {
+		return (int) apply_filters( 'jetpack_rtc_max_peers_per_room', 3 );
+	}
+
+	/**
+	 * Check if the current user is the plan owner for this site.
+	 * Works on Simple sites (via wpcom_get_blog_owner) and Atomic sites
+	 * (via Jetpack connection master_user). Returns false on self-hosted
+	 * since there is no WP.com plan to upgrade.
+	 *
+	 * @return bool
+	 */
+	public static function is_plan_owner() {
+		$current_user_id = get_current_user_id();
+
+		// Simple sites: wpcom_get_blog_owner is the canonical source.
+		if ( function_exists( 'wpcom_get_blog_owner' ) ) {
+			$owner_id = wpcom_get_blog_owner( get_wpcom_blog_id() );
+			return (int) $current_user_id === (int) $owner_id;
+		}
+
+		// Atomic sites: the Jetpack connection master_user is the plan owner.
+		if ( class_exists( 'Jetpack_Options' ) ) {
+			$master_user = \Jetpack_Options::get_option( 'master_user' );
+			if ( $master_user ) {
+				return (int) $current_user_id === (int) $master_user;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the site slug for use in WP.com URLs.
+	 *
+	 * @return string
+	 */
+	private static function get_site_slug() {
+		if ( function_exists( 'wpcom_get_site_slug' ) ) {
+			return wpcom_get_site_slug();
+		}
+
+		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+			$jetpack_status = new \Automattic\Jetpack\Status();
+			return $jetpack_status->get_site_suffix();
+		}
+
+		return '';
+	}
+
+	/**
+	 * Enqueue the assets that handle the RTC notices.
+	 *
+	 * @return void
+	 */
+	public static function load_notices() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
+		$handle = 'jetpack-rtc-notices';
+
+		Assets::register_script(
+			$handle,
+			'../build/rtc-notices.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-rtc',
+				'enqueue'    => true,
+			)
+		);
+
+		$is_admin_user = current_user_can( 'manage_options' );
+		$is_plan_owner = self::is_plan_owner();
+		$post_type     = get_post_type();
+
+		$data = wp_json_encode(
+			array(
+				'assetsUrl'          => plugins_url( '../build/', __FILE__ ),
+				'isAdmin'            => $is_admin_user,
+				'isPlanOwner'        => $is_plan_owner,
+				'postId'             => get_the_ID(),
+				'postType'           => $post_type ? $post_type : null,
+				'userId'             => get_current_user_id(),
+				'postTitle'          => get_the_title(),
+				'postEditUrl'        => get_edit_post_link( get_the_ID(), 'raw' ),
+				'postsListUrl'       => admin_url( 'edit.php' ),
+				'siteSlug'           => self::get_site_slug(),
+				'maxPeersPerRoom'    => self::get_max_peers_per_room(),
+				'enableLimitNotices' => apply_filters( 'jetpack_rtc_enable_limit_notices', false ),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		wp_add_inline_script(
+			$handle,
+			"var jetpackRtcNotices = $data;",
+			'before'
+		);
 	}
 }

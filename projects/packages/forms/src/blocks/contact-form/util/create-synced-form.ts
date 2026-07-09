@@ -30,7 +30,7 @@ export interface JetpackFormPost {
  * @return {Promise<number>} Created post ID
  */
 export async function createSyncedForm(
-	blockData: Block,
+	blockData: Pick< Block, 'attributes' | 'innerBlocks' >,
 	pageTitle: string,
 	currentPostId: number
 ): Promise< number > {
@@ -39,7 +39,7 @@ export async function createSyncedForm(
 			name: FORM_BLOCK_NAME,
 			attributes: blockData?.attributes,
 			innerBlocks: blockData?.innerBlocks,
-		},
+		} as Block,
 	] );
 
 	// detect if currentPostId is valid before passing it to the saveEntityRecord

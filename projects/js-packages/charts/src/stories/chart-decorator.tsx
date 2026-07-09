@@ -1,4 +1,5 @@
 import { setLocale } from '@automattic/number-formatters';
+import { ThemeProvider } from '@wordpress/theme';
 import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
@@ -115,11 +116,13 @@ const isValidHexColor = ( color: string ): boolean => {
 
 /**
  * Provider wrapper for Storybook chart stories
- * Handles theme setup, CSS variables for custom theme, locale initialization, and GlobalChartsProvider
+ * Handles theme setup, WPDS ThemeProvider, locale initialization, and GlobalChartsProvider.
+ * Always wraps in ThemeProvider to mirror the real WordPress environment where
+ * design-system tokens are expected to be available.
  * @param root0             - Props object
  * @param root0.children    - Child components to render
  * @param root0.themeName   - Theme name to apply
- * @param root0.accentColor - Accent color for custom theme (injected as CSS variable)
+ * @param root0.accentColor - Accent color fed to WPDS ThemeProvider as primary seed
  * @return JSX element with chart environment setup and GlobalChartsProvider
  */
 const StoryChartProvider = ( {
@@ -142,32 +145,32 @@ const StoryChartProvider = ( {
 
 	const theme = CHART_THEME_MAP[ themeName ];
 
-	// Sanitize accent color to prevent XSS via CSS injection
-	// Falls back to default if invalid hex color is provided
+	// Only seed a custom primary color when the custom theme is active.
+	// Other themes use ThemeProvider's built-in default.
 	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
+	const themeProviderColor = themeName === 'custom' ? { primary: sanitizedAccentColor } : undefined;
 
 	// Force GlobalChartsProvider to remount when accent color changes for custom theme
 	// This ensures CSS variables are re-resolved after the DOM updates
 	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
 
 	return (
-		<>
-			{ themeName === 'custom' && (
-				<style>
-					{
-						// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Seems to be thinking this is a use, not a redefinition.
-						`
-						:root {
-							--wpds-color-bg-interactive-brand-weak: ${ sanitizedAccentColor };
-						}
-					`
-					}
-				</style>
-			) }
-			<GlobalChartsProvider key={ providerKey } theme={ theme }>
-				{ children }
-			</GlobalChartsProvider>
-		</>
+		<ThemeProvider color={ themeProviderColor }>
+			{ /*
+				Storybook acts as a WPDS-themed host application so charts
+				inherit the design system body font through normal CSS
+				cascade.
+			*/ }
+			<div
+				style={ {
+					fontFamily: 'var(--wpds-typography-font-family-body, sans-serif)',
+				} }
+			>
+				<GlobalChartsProvider key={ providerKey } theme={ theme }>
+					{ children }
+				</GlobalChartsProvider>
+			</div>
+		</ThemeProvider>
 	);
 };
 

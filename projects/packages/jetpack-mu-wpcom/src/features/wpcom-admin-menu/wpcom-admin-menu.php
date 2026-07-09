@@ -9,8 +9,8 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
+use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 
@@ -89,6 +89,15 @@ function wpcom_can_link_to_calypso() {
  */
 function wpcom_add_my_home_menu() {
 	if ( ! wpcom_can_link_to_calypso() ) {
+		return;
+	}
+
+	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
+	if (
+		current_user_can( 'manage_options' )
+		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
+		&& wpcom_ai_launchpad_is_eligible()
+	) {
 		return;
 	}
 
@@ -275,11 +284,13 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 	$ordered_submenu = array();
 
-	// Re-add submenu items in the desired order.
+	// Re-add submenu items in the desired order. Dedupe because a slug in
+	// $desired_order can be a substring of another item's URL, which would
+	// otherwise match the same item twice.
 	foreach ( $desired_order as $submenu_slug ) {
 		foreach ( $submenu[ $menu_slug ] as $item ) {
 			$clean_url = str_replace( $domain, '', $item[2] );
-			if ( str_contains( $clean_url, $submenu_slug ) ) {
+			if ( str_contains( $clean_url, $submenu_slug ) && ! in_array( $item, $ordered_submenu, true ) ) {
 				$ordered_submenu[] = $item;
 			}
 		}
@@ -347,21 +358,6 @@ function wpcom_add_jetpack_submenu() {
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 
-		// Jetpack > Newsletter (Calypso).
-		// When the new wp-admin newsletter settings page is enabled, the menu item is added
-		// by the newsletter package's Settings::add_wp_admin_menu() for Atomic sites.
-		// Otherwise, link to Calypso for atomic Personal/Premium sites.
-		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
-		if ( ! apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
-			add_submenu_page(
-				'jetpack',
-				esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
-				__( 'Newsletter', 'jetpack-mu-wpcom' ),
-				'manage_options',
-				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
-				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			);
-		}
 	}
 	// @codeCoverageIgnoreEnd
 
@@ -400,9 +396,21 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Subscribers.
-	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+
+	// The unified Newsletter page now owns the Subscribers tab on every site: the
+	// legacy Calypso "Subscribers" submenu is retired and replaced by a transitional
+	// announcement page that points there. (The wp-admin subscriber-management variant
+	// was removed with the subscribers-dashboard package and isn't restored.) Hosts
+	// (and a11ns who want the legacy view back) can still force the old submenu back
+	// with add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' ).
+	//
+	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
+	// Subscribers entry, so the announcement page is registered here for both
+	// platforms; the standalone plugin's subscriptions module defers to it on
+	// wpcom to avoid a duplicate.
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
@@ -411,40 +419,23 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	} else {
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard->add_wp_admin_submenu();
+	} elseif ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple, standalone plugin on Atomic).
+		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
-	// Jetpack > Podcasting
-	add_submenu_page(
-		'jetpack',
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/settings/podcasting/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	Podcast_Admin_Page::add_wp_admin_submenu();
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
-		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
-		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
-			// Register the in-admin Newsletter settings page (with its own render callback
-			// and admin hooks). This must be done here (at priority 999999) because the
-			// Jetpack menu is created by this function and doesn't exist at earlier priorities.
+		// Register the in-admin Newsletter settings page (with its own render callback
+		// and admin hooks). This must be done here (at priority 999999) because the
+		// Jetpack menu is created by this function and doesn't exist at earlier priorities.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			$newsletter_settings = new Newsletter_Settings();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			$newsletter_settings->add_wp_admin_submenu();
-		} else {
-			// No local settings page — just add a menu link that points to Calypso.
-			add_submenu_page(
-				'jetpack',
-				__( 'Newsletter', 'jetpack-mu-wpcom' ),
-				__( 'Newsletter', 'jetpack-mu-wpcom' ),
-				'manage_options',
-				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
-				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			);
 		}
 
 		// Jetpack > Traffic
@@ -458,8 +449,9 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	// Jetpack > Activity Log.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
+	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
+	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 	add_submenu_page(
 		'jetpack',
 		/** "Activity Log" is a product name, do not translate. */
@@ -486,7 +478,7 @@ function wpcom_add_jetpack_submenu() {
 			'search',
 			'subscribers',
 			'newsletter',
-			'podcasting',
+			'podcast',
 			'traffic',
 			'jetpack#/settings',
 		)
@@ -788,7 +780,6 @@ function wpcom_add_settings_menu() {
 			'crowdsignal',
 			'rating',
 			'newsletter',
-			'podcasting',
 		)
 	);
 }

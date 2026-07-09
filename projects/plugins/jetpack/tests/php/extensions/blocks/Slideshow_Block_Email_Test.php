@@ -50,7 +50,7 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 		$test_ids = $this->test_attachment_ids;
 		add_filter(
 			'wp_get_attachment_image_url',
-			function ( $url, $attachment_id ) use ( $test_ids ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			function ( $url, $attachment_id ) use ( $test_ids ) {
 				if ( ! empty( $test_ids ) && in_array( $attachment_id, $test_ids, true ) ) {
 					$test_urls = array(
 						$test_ids[0] => 'http://example.com/wp-content/uploads/test-image-1.jpg',

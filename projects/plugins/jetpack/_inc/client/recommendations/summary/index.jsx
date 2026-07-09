@@ -1,9 +1,9 @@
+import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
@@ -69,7 +69,7 @@ const SummaryComponent = props => {
 	};
 
 	const mainContent = isFetchingMainData ? (
-		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
+		<Spinner />
 	) : (
 		<>
 			<div className="jp-recommendations-summary__configuration">
@@ -148,13 +148,11 @@ const SummaryComponent = props => {
 	let undersideCards;
 
 	if ( isFetchingSidebarData ) {
-		sidebarCards = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+		sidebarCards = <Spinner />;
 	} else {
 		switch ( sidebarCardsSlug ) {
 			case 'loading':
-				sidebarCards = (
-					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
-				);
+				sidebarCards = <Spinner />;
 				break;
 			case 'upsell':
 				sidebarCards = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;

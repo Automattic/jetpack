@@ -1,13 +1,12 @@
 {
 	"name": "automattic/jetpack-wp-build-polyfills",
-	"description": "Polyfills for WordPress Core packages not available in WP < 7.0",
+	"description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0"
@@ -36,11 +35,15 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+		"test-js": [
+			"pnpm run build",
+			"pnpm run test"
 		],
-		"test-php": [
-			"@composer phpunit"
+		"test-js-coverage": [
+			"pnpm run build",
+			"pnpm run test-coverage"
 		]
 	},
 	"config": {
@@ -58,7 +61,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		}
 	}
 }

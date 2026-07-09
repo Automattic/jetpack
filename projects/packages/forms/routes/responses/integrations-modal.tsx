@@ -9,7 +9,6 @@ import {
 	Modal,
 	Card,
 	Button,
-	ExternalLink,
 	Spinner,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
@@ -19,6 +18,7 @@ import {
 import { useState, useCallback, useMemo, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronUp, chevronDown } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -138,7 +138,7 @@ const IntegrationCardComponent = ( {
 			return (
 				<p style={ { color: '#50575e', margin: 0 } }>
 					{ createInterpolateElement( message, {
-						a: <ExternalLink href={ marketingUrl } />,
+						a: <Link openInNewTab href={ marketingUrl } />,
 					} ) }
 				</p>
 			);
@@ -177,7 +177,7 @@ const IntegrationCardComponent = ( {
 										'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 										'jetpack-forms'
 									),
-									{ a: <ExternalLink href={ settingsUrl } /> }
+									{ a: <Link openInNewTab href={ settingsUrl } /> }
 							  )
 							: __( 'Setup is required to complete the integration.', 'jetpack-forms' ) }
 					</p>
@@ -214,15 +214,15 @@ const IntegrationCardComponent = ( {
 			<VStack spacing="3">
 				<p style={ { color: '#50575e', margin: 0 } }>{ message }</p>
 				<HStack spacing="2" justify="start">
-					<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+					<Link openInNewTab href={ settingsUrl }>
 						{ __( 'View settings', 'jetpack-forms' ) }
-					</Button>
+					</Link>
 					{ id === 'akismet' && (
 						<>
 							<span>|</span>
-							<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
+							<Link openInNewTab href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 								{ __( 'Learn about Akismet', 'jetpack-forms' ) }
-							</ExternalLink>
+							</Link>
 						</>
 					) }
 				</HStack>

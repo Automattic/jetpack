@@ -14,10 +14,16 @@ import { isFatalError } from '../lib/critical-css-errors';
 export default function CriticalCssMeta() {
 	const [ cssState ] = useCriticalCssState();
 	const [ { data: regenerateReason } ] = useRegenerationReason();
-	const { progress } = useLocalCriticalCssGenerator();
+	const { isGenerating, progress } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
 
-	if ( cssState.status === 'pending' || cssState.status === 'not_generated' ) {
+	// Keep the progress bar visible while the local generator is still finishing,
+	// even if the server status has already flipped to 'generated'.  This ensures
+	// the bar has time to visually reach 100% before switching to the completed view.
+	const showProgressBar =
+		cssState.status === 'pending' || cssState.status === 'not_generated' || isGenerating;
+
+	if ( showProgressBar ) {
 		return (
 			<div className="jb-critical-css-progress">
 				<div className={ styles[ 'progress-label' ] }>

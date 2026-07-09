@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.35] - 2026-07-09
+### Changed
+- Update dependencies. [#49431]
+
+## [0.4.34] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.4.33] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [0.4.32] - 2026-06-24
+### Changed
+- Defer ExPlat REST controller instantiation so the controller class only loads on REST API requests. [#49803]
+
+## [0.4.31] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.4.30] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [0.4.29] - 2026-06-10
+### Changed
+- Update package dependencies. [#49273] [#49492]
+
+## [0.4.28] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [0.4.27] - 2026-06-05
+### Changed
+- Update dependencies. [#49354]
+
+## [0.4.26] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [0.4.25] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.4.24] - 2026-05-14
+### Changed
+- Update dependencies. [#48778]
+
+## [0.4.23] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## [0.4.22] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.4.21] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [0.4.20] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
 ## [0.4.19] - 2026-04-06
 ### Changed
 - Launch Site: Implement direct site launch from the WP Admin masterbar button via an ExPlat experiment, with a shared mutation hook and celebration modal for use across launch entry points. [#47705]
@@ -326,6 +391,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled) [#38327]
 - Updated package dependencies. [#38132]
 
+[0.4.35]: https://github.com/Automattic/jetpack-explat/compare/v0.4.34...v0.4.35
+[0.4.34]: https://github.com/Automattic/jetpack-explat/compare/v0.4.33...v0.4.34
+[0.4.33]: https://github.com/Automattic/jetpack-explat/compare/v0.4.32...v0.4.33
+[0.4.32]: https://github.com/Automattic/jetpack-explat/compare/v0.4.31...v0.4.32
+[0.4.31]: https://github.com/Automattic/jetpack-explat/compare/v0.4.30...v0.4.31
+[0.4.30]: https://github.com/Automattic/jetpack-explat/compare/v0.4.29...v0.4.30
+[0.4.29]: https://github.com/Automattic/jetpack-explat/compare/v0.4.28...v0.4.29
+[0.4.28]: https://github.com/Automattic/jetpack-explat/compare/v0.4.27...v0.4.28
+[0.4.27]: https://github.com/Automattic/jetpack-explat/compare/v0.4.26...v0.4.27
+[0.4.26]: https://github.com/Automattic/jetpack-explat/compare/v0.4.25...v0.4.26
+[0.4.25]: https://github.com/Automattic/jetpack-explat/compare/v0.4.24...v0.4.25
+[0.4.24]: https://github.com/Automattic/jetpack-explat/compare/v0.4.23...v0.4.24
+[0.4.23]: https://github.com/Automattic/jetpack-explat/compare/v0.4.22...v0.4.23
+[0.4.22]: https://github.com/Automattic/jetpack-explat/compare/v0.4.21...v0.4.22
+[0.4.21]: https://github.com/Automattic/jetpack-explat/compare/v0.4.20...v0.4.21
+[0.4.20]: https://github.com/Automattic/jetpack-explat/compare/v0.4.19...v0.4.20
 [0.4.19]: https://github.com/Automattic/jetpack-explat/compare/v0.4.18...v0.4.19
 [0.4.18]: https://github.com/Automattic/jetpack-explat/compare/v0.4.17...v0.4.18
 [0.4.17]: https://github.com/Automattic/jetpack-explat/compare/v0.4.16...v0.4.17

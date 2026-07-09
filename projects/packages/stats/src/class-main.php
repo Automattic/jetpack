@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Stats\Abilities\Stats_Abilities;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Visitor;
 use WP_User;
@@ -75,7 +76,21 @@ class Main {
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
 
 		XMLRPC_Provider::init();
-		REST_Provider::init();
+
+		/*
+		 * REST_Provider only registers its routes on REST init, so defer
+		 * constructing it (and autoloading the class) until a REST request is
+		 * served. A closure is used because rest_api_init passes the REST server
+		 * to callbacks, which would otherwise be read as REST_Provider::init()'s
+		 * $new_instance argument.
+		 */
+		add_action(
+			'rest_api_init',
+			static function () {
+				REST_Provider::init();
+			},
+			0
+		);
 		Transient_Cleanup::init();
 
 		// Clean up transient cron on module deactivation.
@@ -83,6 +98,12 @@ class Main {
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
+
+		// Register WP Abilities API surface. Gated behind the
+		// `jetpack_wp_abilities_enabled` filter inside Registrar::init(),
+		// which defaults to false — so this call is safe to make unconditionally
+		// and still opt-in per-site until the flag is flipped.
+		Stats_Abilities::init();
 	}
 
 	/**

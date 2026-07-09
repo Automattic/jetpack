@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.13] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [0.7.12] - 2026-06-05
+### Changed
+- Internal updates.
+
+## [0.7.11] - 2026-05-21
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [0.7.10] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.7.9] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
 ## [0.7.8] - 2026-02-23
 ### Changed
 - Update dependencies. [#44736]
@@ -164,6 +184,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#37894]
 
+[0.7.13]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.12...v0.7.13
+[0.7.12]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.11...v0.7.12
+[0.7.11]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.10...v0.7.11
+[0.7.10]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.9...v0.7.10
+[0.7.9]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.8...v0.7.9
 [0.7.8]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.7...v0.7.8
 [0.7.7]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.6...v0.7.7
 [0.7.6]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.5...v0.7.6

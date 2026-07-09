@@ -9,9 +9,12 @@ const babelOpts = {
 			{
 				pragma: 'h',
 				pragmaFrag: 'Fragment',
+				runtime: 'classic',
+				useSpread: true,
 			},
 		],
 	],
+	targets: require( '@automattic/jetpack-webpack-config/targets' ),
 	presets: [ [ '@automattic/jetpack-webpack-config/babel/preset' ] ],
 };
 

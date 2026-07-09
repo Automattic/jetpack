@@ -19,7 +19,6 @@ use WP_Admin_Bar;
  */
 #[CoversClass( Reader_Link::class )]
 class Reader_Link_Test extends BaseTestCase {
-
 	/**
 	 * Set up before each test.
 	 */
@@ -39,6 +38,32 @@ class Reader_Link_Test extends BaseTestCase {
 		remove_all_actions( 'admin_bar_menu' );
 		remove_all_actions( 'wp_enqueue_scripts' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+
+		// Mirror production conditions required by Reader_Link::init().
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'newsletter_reader_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'newsletter-reader-admin-' . wp_rand() . '@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		if ( is_wp_error( $user_id ) ) {
+			$this->fail( $user_id->get_error_message() );
+		}
+		wp_set_current_user( $user_id );
+		show_admin_bar( true );
+		add_filter( 'show_admin_bar', '__return_true' );
+	}
+
+	/**
+	 * Tear down after each test.
+	 */
+	public function tear_down() {
+		remove_filter( 'show_admin_bar', '__return_true' );
+		wp_set_current_user( 0 );
+
+		parent::tear_down();
 	}
 
 	/**
@@ -85,22 +110,13 @@ class Reader_Link_Test extends BaseTestCase {
 		$second_instance = $this->get_reader_link_instance();
 
 		// Should be the same instance (init didn't run twice).
+		$this->assertInstanceOf( Reader_Link::class, $first_instance );
 		$this->assertSame( $first_instance, $second_instance );
-
-		// Verify hooks were only added once by checking callback count.
-		global $wp_filter;
-		$admin_bar_callbacks = 0;
-		if ( isset( $wp_filter['admin_bar_menu'] ) ) {
-			foreach ( $wp_filter['admin_bar_menu']->callbacks as $callbacks ) {
-				foreach ( $callbacks as $callback ) {
-					if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Reader_Link ) {
-						++$admin_bar_callbacks;
-					}
-				}
-			}
-		}
-
-		$this->assertSame( 1, $admin_bar_callbacks, 'Hook should only be registered once' );
+		$this->assertSame(
+			11,
+			has_action( 'admin_bar_menu', array( $first_instance, 'add_reader_menu' ) ),
+			'Hook should only be registered once'
+		);
 	}
 
 	/**
@@ -108,6 +124,7 @@ class Reader_Link_Test extends BaseTestCase {
 	 */
 	public function test_add_reader_menu_adds_menu_item() {
 		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		wp_set_current_user( 0 );
 
 		$wp_admin_bar = new WP_Admin_Bar();
 		$wp_admin_bar->initialize();
@@ -129,6 +146,7 @@ class Reader_Link_Test extends BaseTestCase {
 	 */
 	public function test_add_reader_menu_title_structure() {
 		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		wp_set_current_user( 0 );
 
 		$wp_admin_bar = new WP_Admin_Bar();
 		$wp_admin_bar->initialize();
@@ -186,7 +204,7 @@ class Reader_Link_Test extends BaseTestCase {
 		// Create a temporary CSS file if it doesn't exist.
 		$created_file = ! file_exists( $css_file );
 		if ( $created_file ) {
-			file_put_contents( $css_file, '/* test */' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $css_file, '/* test */' );
 		}
 
 		try {

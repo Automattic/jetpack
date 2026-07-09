@@ -1,0 +1,94 @@
+/* No outer padding: the host frames the widget and owns the padding. */
+.root {
+	container-type: inline-size;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.yearLabel {
+	color: var(--wpds-color-foreground-content-neutral);
+	font-variant-numeric: tabular-nums;
+}
+
+.navButton {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+/* Dim the arrow to signal the year-range boundary. The button stays focusable
+ * when disabled, so it carries data-disabled / aria-disabled rather than the
+ * native :disabled state; cover all three so the styling holds either way. */
+.navButton:disabled,
+.navButton[data-disabled],
+.navButton[aria-disabled="true"] {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.tile {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-md, 12px);
+	padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-lg, 16px);
+	border: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg, 8px);
+}
+
+.tileHeader {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-width: 0;
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.tileIcon {
+	flex: 0 0 auto;
+}
+
+.tileLabel {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+/* MetricValue emits the font-size token without a fallback, and the dashboard
+ * runtime does not always inject the WPDS typography tokens, so pin the metric
+ * total here with explicit fallbacks. */
+.tileValue span {
+	font-size: var(--wpds-typography-font-size-xl, 20px);
+	line-height: var(--wpds-typography-line-height-xl, 32px);
+}
+
+.placeholder {
+	height: 100%;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}
+
+/* Wide widths: lay the tiles out four across with the value stacked below the
+ * icon and label. */
+@container (min-width: 640px) {
+
+	.grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.tile {
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-start;
+		gap: var(--wpds-dimension-gap-lg, 16px);
+	}
+
+	.tileHeader {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}

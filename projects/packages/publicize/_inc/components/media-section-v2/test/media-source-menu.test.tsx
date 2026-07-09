@@ -3,6 +3,14 @@ import userEvent from '@testing-library/user-event';
 import MediaSourceMenu from '../media-source-menu';
 import { getMediaSourceDescription } from '../utils/media-source-options';
 
+jest.mock(
+	'@automattic/jetpack-ai-client',
+	() => ( {
+		AiSVG: 'svg',
+	} ),
+	{ virtual: true }
+);
+
 jest.mock( '../../../utils', () => ( {
 	getSocialScriptData: jest.fn( () => ( {
 		plugin_info: {
@@ -12,13 +20,39 @@ jest.mock( '../../../utils', () => ( {
 } ) );
 
 describe( 'getMediaSourceDescription', () => {
-	it( 'should return default message when sourceType is null', () => {
-		expect( getMediaSourceDescription( null ) ).toBe( "Your post won't show an image." );
+	it( 'should describe Default as featured image when sourceType is null and a featured image exists', () => {
+		expect( getMediaSourceDescription( null, { featuredImageId: 123 } ) ).toBe(
+			'You are using the featured image for the link preview.'
+		);
+	} );
+
+	it( 'should describe Default as social image template when sourceType is null and SIG is enabled', () => {
+		expect( getMediaSourceDescription( null, { sigEnabled: true } ) ).toBe(
+			'You are using the social image template for the link preview.'
+		);
+	} );
+
+	it( 'should prefer SIG over featured image when both are available in Default mode', () => {
+		expect( getMediaSourceDescription( null, { sigEnabled: true, featuredImageId: 123 } ) ).toBe(
+			'You are using the social image template for the link preview.'
+		);
+	} );
+
+	it( 'should return no-image warning when sourceType is null and no fallback is available', () => {
+		expect(
+			getMediaSourceDescription( null, { featuredImageId: undefined, sigEnabled: false } )
+		).toBe( "Your post won't show an image." );
 	} );
 
 	it( 'should return featured image description', () => {
 		expect( getMediaSourceDescription( 'featured-image' ) ).toBe(
 			'You are using your post featured image.'
+		);
+	} );
+
+	it( 'should return no-image fallback when featured-image is selected without a featured image', () => {
+		expect( getMediaSourceDescription( 'featured-image', { featuredImageId: undefined } ) ).toBe(
+			"Your post won't show an image."
 		);
 	} );
 
@@ -72,22 +106,29 @@ describe( 'MediaSourceMenu', () => {
 				currentSource={ null }
 				onSelect={ mockOnSelect }
 				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
+				includeDefaultOption
 			/>
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 		// Check that menu groups are rendered
-		expect( screen.getByText( 'For link preview' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'For attachment' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Link preview' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Attachment' ) ).toBeInTheDocument();
 
 		// Check that menu items are rendered
-		expect( screen.getByRole( 'menuitem', { name: 'Use featured image' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'Use template' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Default' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Featured image' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'Social image template' } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'From Media Library' } )
+		).toBeInTheDocument();
 	} );
 
-	it( 'should call onSelect when Use featured image is clicked', async () => {
+	it( 'should hide Default option by default (global mode)', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -100,12 +141,29 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Use featured image' } ) );
+
+		expect( screen.queryByRole( 'menuitem', { name: 'Default' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'should call onSelect when Featured image is clicked', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<MediaSourceMenu
+				currentSource={ null }
+				onSelect={ mockOnSelect }
+				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Featured image' } ) );
 
 		expect( mockOnSelect ).toHaveBeenCalledWith( 'featured-image' );
 	} );
 
-	it( 'should call onSelect when Use template is clicked', async () => {
+	it( 'should call onSelect when Social image template is clicked', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -117,7 +175,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Use template' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 		expect( mockOnSelect ).toHaveBeenCalledWith( 'sig' );
 	} );
@@ -134,7 +192,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'From Media Library' } ) );
 
 		expect( mockOnMediaLibraryClick ).toHaveBeenCalledTimes( 1 );
 		expect( mockOnSelect ).not.toHaveBeenCalled();
@@ -151,6 +209,7 @@ describe( 'MediaSourceMenu', () => {
 				currentSource={ null }
 				onSelect={ mockOnSelect }
 				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
 			>
 				{ mockChildren }
 			</MediaSourceMenu>
@@ -169,10 +228,10 @@ describe( 'MediaSourceMenu', () => {
 
 		// Clicking custom trigger should open dropdown
 		await user.click( screen.getByRole( 'button', { name: 'Custom Trigger' } ) );
-		expect( screen.getByText( 'For link preview' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Link preview' ) ).toBeInTheDocument();
 	} );
 
-	it( 'should disable the current source item', async () => {
+	it( 'should mark the current source as the radio-checked item and not re-fire onSelect', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -186,13 +245,74 @@ describe( 'MediaSourceMenu', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
-		// Verify the menu renders with the current source item disabled
-		const featuredImageItem = screen.getByRole( 'menuitem', { name: 'Use featured image' } );
+		const featuredImageItem = screen.getByRole( 'menuitemradio', { name: 'Featured image' } );
 		expect( featuredImageItem ).toBeInTheDocument();
-		expect( featuredImageItem ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( featuredImageItem ).toBeChecked();
 
-		// Verify clicking the disabled item does not trigger onSelect
+		// Re-clicking the active option must not call onSelect (it's a no-op).
 		await user.click( featuredImageItem );
 		expect( mockOnSelect ).not.toHaveBeenCalled();
+	} );
+
+	it( 'should hide Featured image option when no featured image exists', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<MediaSourceMenu
+				currentSource={ null }
+				onSelect={ mockOnSelect }
+				onMediaLibraryClick={ mockOnMediaLibraryClick }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+
+		expect( screen.queryByRole( 'menuitem', { name: 'Featured image' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'should show Default option regardless of featured image presence when opted in', async () => {
+		const user = userEvent.setup();
+
+		const { rerender } = render(
+			<MediaSourceMenu
+				currentSource={ null }
+				onSelect={ mockOnSelect }
+				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				includeDefaultOption
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Default' } ) ).toBeInTheDocument();
+
+		rerender(
+			<MediaSourceMenu
+				currentSource={ null }
+				onSelect={ mockOnSelect }
+				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
+				includeDefaultOption
+			/>
+		);
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Default' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'should call onSelect with null when Default is clicked', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<MediaSourceMenu
+				currentSource="sig"
+				onSelect={ mockOnSelect }
+				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				includeDefaultOption
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Default' } ) );
+
+		expect( mockOnSelect ).toHaveBeenCalledWith( null );
 	} );
 } );

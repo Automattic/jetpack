@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import SimpleNotice from 'components/notice';
 
@@ -27,7 +27,7 @@ export default function BlockThemeNotice( { isModuleActive, redirectSlug } ) {
 					'jetpack'
 				),
 				{
-					a: <ExternalLink href={ supportUrl } />,
+					a: <Link openInNewTab href={ supportUrl } />,
 				}
 		  )
 		: createInterpolateElement(
@@ -36,7 +36,7 @@ export default function BlockThemeNotice( { isModuleActive, redirectSlug } ) {
 					'jetpack'
 				),
 				{
-					a: <ExternalLink href={ supportUrl } />,
+					a: <Link openInNewTab href={ supportUrl } />,
 				}
 		  );
 

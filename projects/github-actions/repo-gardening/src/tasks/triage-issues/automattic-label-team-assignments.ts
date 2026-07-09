@@ -118,12 +118,6 @@ export const automatticAssignments: Record< string, TeamAssignment > = {
 		slack_id: 'C05PV073SG3',
 		board_id: 'https://github.com/orgs/Automattic/projects/778',
 	},
-	CRM: {
-		team: 'Avengers',
-		labels: [ '[Plugin] CRM' ],
-		slack_id: 'CTXBP902X',
-		board_id: 'https://github.com/orgs/Automattic/projects/524',
-	},
 	'Monorepo tooling': {
 		team: 'Jetpack Monorepo',
 		labels: [ '[Tools] Development CLI', 'Actions', '[Package] Autoloader' ],

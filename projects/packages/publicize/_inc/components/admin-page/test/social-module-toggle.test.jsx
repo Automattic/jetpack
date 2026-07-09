@@ -16,6 +16,11 @@ describe( 'SocialModuleToggle', () => {
 		clearMockedScriptData();
 	} );
 
+	// @wordpress/ui Notice triggers @wordpress/a11y speak() which renders the
+	// same description text into a visually-hidden .a11y-speak-region. Exclude
+	// that region from text queries so the assertions target the visible Notice.
+	const ignoreA11ySpeak = { ignore: 'script, style, .a11y-speak-region' };
+
 	it( 'should render connection management component by default', () => {
 		render( <SocialModuleToggle /> );
 
@@ -25,7 +30,9 @@ describe( 'SocialModuleToggle', () => {
 	it( 'should show upgrade trigger when no paid features', () => {
 		render( <SocialModuleToggle /> );
 
-		expect( screen.getByText( /Unlock advanced sharing options/i ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( /Unlock advanced sharing options/i, ignoreA11ySpeak )
+		).toBeInTheDocument();
 	} );
 
 	it( 'should not show upgrade trigger with paid features', () => {
@@ -40,6 +47,8 @@ describe( 'SocialModuleToggle', () => {
 		} );
 		render( <SocialModuleToggle /> );
 
-		expect( screen.queryByText( /Unlock advanced sharing options/i ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( /Unlock advanced sharing options/i, ignoreA11ySpeak )
+		).not.toBeInTheDocument();
 	} );
 } );

@@ -49,5 +49,6 @@ export const getSocialSettings = createRegistrySelector( select => () => {
 				...data.jetpack_social_notes_config,
 			},
 		},
+		messageTemplate: data.jetpack_social_message_template ?? settings.messageTemplate,
 	} satisfies SocialSettings;
 } );

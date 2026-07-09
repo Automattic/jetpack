@@ -11,6 +11,12 @@ const CHUNK_HEADER_LEN = 5; // magic(1) + msgId(2) + totalChunks(1) + chunkIndex
 const MAX_PAYLOAD_BEFORE_CHUNK = 1024;
 const MAX_CHUNK_BUFFERS = 256;
 
+/** Null byte used to separate the room tag from the payload. */
+const ROOM_TAG_SEPARATOR = 0x00;
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
 /**
  * Decode a base64 string back into a Uint8Array.
  *
@@ -121,6 +127,39 @@ function getBlogId(): number | null {
 	return null;
 }
 
+/**
+ * Prepend the room name (UTF-8) and a null separator to the payload.
+ *
+ * @param room - Room name.
+ * @param data - Original payload bytes.
+ * @return Tagged payload: [roomBytes, 0x00, ...data].
+ */
+function tagPayload( room: string, data: Uint8Array ): Uint8Array {
+	const roomBytes = textEncoder.encode( room );
+	const out = new Uint8Array( roomBytes.length + 1 + data.length );
+	out.set( roomBytes, 0 );
+	out[ roomBytes.length ] = ROOM_TAG_SEPARATOR;
+	out.set( data, roomBytes.length + 1 );
+	return out;
+}
+
+/**
+ * Extract the room name and payload from a tagged message.
+ *
+ * @param data - Tagged payload bytes.
+ * @return Room and payload, or null if no separator found.
+ */
+function untagPayload( data: Uint8Array ): { room: string; payload: Uint8Array } | null {
+	const idx = data.indexOf( ROOM_TAG_SEPARATOR );
+	if ( idx === -1 ) {
+		return null;
+	}
+	return {
+		room: textDecoder.decode( data.subarray( 0, idx ) ),
+		payload: data.subarray( idx + 1 ),
+	};
+}
+
 const JWT_CACHE_TTL_MS = 60 * 1000; // 1 minute
 const MAX_JWT_FETCH_FAILURES = 5;
 const JWT_BACKOFF_BASE_MS = 1000;
@@ -205,19 +244,27 @@ export function logConnectionEvent(
 	} ).catch( () => {} );
 }
 
+/**
+ * PingHub bridge that multiplexes all rooms over a single WebSocket.
+ *
+ * All rooms share one PingHub channel scoped to the post being edited.
+ * Messages are tagged with the room name inside the binary payload so
+ * the bridge can demultiplex incoming messages to the correct handlers.
+ */
 export class PingHubBridge {
 	private openHandlers = new Map< string, Set< () => void > >();
 	private closeHandlers = new Map< string, Set< ( code: number, reason: string ) => void > >();
 	private messageHandlers = new Map< string, Set< ( data: Uint8Array ) => void > >();
-	/** Active WebSocket per room. */
-	private sockets = new Map< string, WebSocket >();
-	/** Waiters for an in-flight connect per room. */
-	private connectingWaiters = new Map<
-		string,
-		Array< { resolve: () => void; reject: ( err: Error ) => void } >
-	>();
-	/** Per-room message ID for chunked sends. */
-	private chunkMsgIdByRoom = new Map< string, number >();
+	/** The single shared WebSocket connection. */
+	private ws: WebSocket | null = null;
+	/** State of the shared connection. */
+	private wsState: 'idle' | 'connecting' | 'open' = 'idle';
+	/** Rooms currently registered on this bridge. */
+	private registeredRooms = new Set< string >();
+	/** Waiters for the shared WebSocket to open. */
+	private connectingWaiters: Array< { resolve: () => void; reject: ( err: Error ) => void } > = [];
+	/** Global message ID counter for chunked sends. */
+	private chunkMsgId = 0;
 	/** Cached JWT for PingHub authentication. */
 	private cachedJwt: string | null = null;
 	private cachedJwtTimestamp = 0;
@@ -232,19 +279,25 @@ export class PingHubBridge {
 		string,
 		{ totalChunks: number; chunks: Map< number, Uint8Array > }
 	>();
+	/** Timestamp when the shared WebSocket started connecting. */
+	private wsConnectStart = 0;
 
 	/**
-	 * Build the full PingHub path for a room name.
+	 * Build the shared PingHub channel path for this editing session.
 	 *
-	 * @param room - Short room identifier (e.g. "postType-post-42").
-	 * @return Full PingHub channel path.
+	 * @return Full WebSocket URL for the shared channel.
 	 */
-	private fullPath( room: string ): string {
+	private channelPath(): string {
 		const blogId = getBlogId();
 		if ( ! blogId ) {
 			throw new Error( 'Cannot determine blog ID for PingHub bridge' );
 		}
-		return `wss://public-api.wordpress.com/pinghub/wpcom/rtc/${ blogId }/${ room }`;
+		const postType = window.jetpackRTC?.currentPostType;
+		const postId = window.jetpackRTC?.currentPostId;
+		if ( ! postType || ! postId ) {
+			throw new Error( 'Cannot determine current post for PingHub bridge' );
+		}
+		return `wss://public-api.wordpress.com/pinghub/wpcom/rtc/${ blogId }/editor/${ postType }/${ postId }`;
 	}
 
 	/**
@@ -271,12 +324,15 @@ export class PingHubBridge {
 	/**
 	 * Buffer incoming chunks and dispatch the reassembled message when all chunks have arrived.
 	 *
-	 * @param room               - Room name.
-	 * @param parsed             - Parsed chunk header and payload.
+	 * Each chunk's payload already contains the room tag. The room is extracted from the first
+	 * chunk and used as part of the reassembly buffer key.
+	 *
+	 * @param room               - Room name (extracted from the chunk's tagged payload).
+	 * @param parsed             - Parsed chunk header and stripped payload (without room tag).
 	 * @param parsed.msgId       - Message identifier shared across all chunks of one message.
 	 * @param parsed.totalChunks - Total number of chunks expected.
 	 * @param parsed.chunkIndex  - Zero-based index of this chunk.
-	 * @param parsed.payload     - Payload bytes for this chunk.
+	 * @param parsed.payload     - Payload bytes for this chunk (room tag already stripped).
 	 */
 	private reassembleChunk(
 		room: string,
@@ -383,110 +439,89 @@ export class PingHubBridge {
 			return null;
 		}
 		const start = Date.now();
+		let response: { token: string } | undefined;
 		try {
-			const response = await apiFetch< { token: string } >( {
+			response = await apiFetch< { token: string } >( {
 				path: '/wpcom/v2/rtc/pinghub-token',
 				method: 'POST',
 			} );
-			this.cachedJwt = response?.token ?? null;
-			this.cachedJwtTimestamp = Date.now();
-			this.resetJwtState();
-			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
-			return this.cachedJwt;
 		} catch {
+			const elapsed = Date.now() - start;
 			this.jwtFetchFailures++;
 			this.jwtBackoffUntil = Date.now() + this.jwtBackoffDelay;
 			this.jwtBackoffDelay = Math.min( this.jwtBackoffDelay * 2, JWT_BACKOFF_MAX_MS );
-			const elapsed = Date.now() - start;
-			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
 			logConnectionEvent( 'jwt_fetch_error', {
 				duration_ms: elapsed,
 				failure_count: this.jwtFetchFailures,
 			} );
 			return null;
 		}
+		this.cachedJwt = response?.token ?? null;
+		this.cachedJwtTimestamp = Date.now();
+		this.resetJwtState();
+		return this.cachedJwt;
 	}
 
 	/**
-	 * Open a direct WebSocket connection to PingHub for the given room.
-	 *
-	 * Fetches a short-lived JWT from the REST endpoint and appends it as
-	 * ?jwt=<token> so pinghub-auth.php can authenticate the connection when
-	 * WPCOM cookies are absent (third-party cookie blocking on custom-domain
-	 * Jetpack/Atomic sites).
-	 *
-	 * @param room - Room name.
-	 * @return Promise
+	 * Open the shared WebSocket if it isn't already open or connecting.
 	 */
-	async connect( room: string ): Promise< void > {
-		// Already open: fire open handlers and return.
-		const existing = this.sockets.get( room );
-		if ( existing?.readyState === WebSocket.OPEN ) {
-			this.openHandlers.get( room )?.forEach( h => h() );
-			return Promise.resolve();
+	private async openSharedSocket(): Promise< void > {
+		if ( this.wsState !== 'idle' ) {
+			return;
 		}
+		this.wsState = 'connecting';
 
-		// Connect already in flight: wait for it instead of opening another socket.
-		const existingWaiters = this.connectingWaiters.get( room );
-		if ( existingWaiters ) {
-			return new Promise( ( resolve, reject ) => existingWaiters.push( { resolve, reject } ) );
-		}
-
-		const waiters: Array< { resolve: () => void; reject: ( err: Error ) => void } > = [];
-		this.connectingWaiters.set( room, waiters );
-
-		// Fetch a short-lived JWT for authentication. Without it the
-		// connection cannot authenticate, so bail out early.
 		const jwt = await this.fetchPinghubJwt();
-		if ( ! jwt ) {
-			this.connectingWaiters.delete( room );
-			const err = new Error( 'PingHub JWT fetch failed' );
-			waiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
-			return Promise.reject( err );
+		let wsUrl = this.channelPath();
+		if ( jwt ) {
+			wsUrl += '?jwt=' + encodeURIComponent( jwt );
 		}
 
-		const wsUrl = this.fullPath( room ) + '?jwt=' + encodeURIComponent( jwt );
 		const ws = new WebSocket( wsUrl );
 		ws.binaryType = 'arraybuffer';
-		this.sockets.set( room, ws );
-
-		const start = Date.now();
+		this.ws = ws;
+		this.wsConnectStart = Date.now();
 
 		ws.addEventListener( 'open', () => {
-			const elapsed = Date.now() - start;
+			const elapsed = Date.now() - this.wsConnectStart;
+			this.wsState = 'open';
 			pixel( 'pinghub.conn_open', elapsed, 'ms' );
-			pixel( 'pinghub.rtc.conn_open', elapsed, 'ms' );
 			logConnectionEvent( 'connected', {
-				room,
 				time_to_connect_ms: elapsed,
+				active_rooms: this.registeredRooms.size,
+				channel: `editor/${ window.jetpackRTC?.currentPostType }/${ window.jetpackRTC?.currentPostId }`,
 			} );
-			this.connectingWaiters.delete( room );
-			waiters.splice( 0 ).forEach( ( { resolve } ) => resolve() );
-			this.openHandlers.get( room )?.forEach( h => h() );
+			this.connectingWaiters.splice( 0 ).forEach( ( { resolve } ) => resolve() );
+			for ( const room of this.registeredRooms ) {
+				this.openHandlers.get( room )?.forEach( h => h() );
+			}
 		} );
 
 		ws.addEventListener( 'close', event => {
-			const elapsed = Date.now() - start;
+			const elapsed = Date.now() - this.wsConnectStart;
 			pixel( 'pinghub.conn_close_code.' + event.code, elapsed, 'ms' );
-			pixel( 'pinghub.rtc.conn_close_code.' + event.code, elapsed, 'ms' );
 			logConnectionEvent( 'disconnected', {
-				room,
 				close_code: event.code,
 				close_reason: event.reason,
+				was_clean: event.wasClean,
 				connection_lifetime_ms: elapsed,
+				active_rooms: this.registeredRooms.size,
+				jwt_age_ms: this.cachedJwtTimestamp > 0 ? Date.now() - this.cachedJwtTimestamp : -1,
 			} );
-			this.sockets.delete( room );
-			if ( this.connectingWaiters.has( room ) ) {
-				this.connectingWaiters.delete( room );
+			const wasConnecting = this.wsState === 'connecting';
+			this.ws = null;
+			this.wsState = 'idle';
+			if ( wasConnecting ) {
 				const err = new Error( 'PingHub connect failed' );
-				waiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
+				this.connectingWaiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
 			}
-			this.closeHandlers.get( room )?.forEach( h => h( event.code, event.reason ) );
+			for ( const room of this.registeredRooms ) {
+				this.closeHandlers.get( room )?.forEach( h => h( event.code, event.reason ) );
+			}
 		} );
 
 		ws.addEventListener( 'error', () => {
-			pixel( 'pinghub.conn_err', Date.now() - start, 'ms' );
-			pixel( 'pinghub.rtc.conn_err', Date.now() - start, 'ms' );
+			pixel( 'pinghub.conn_err', Date.now() - this.wsConnectStart, 'ms' );
 		} );
 
 		ws.addEventListener( 'message', event => {
@@ -503,65 +538,120 @@ export class PingHubBridge {
 			} else {
 				return;
 			}
+
 			const parsed = parseChunkHeader( u8 );
 			if ( parsed ) {
-				this.reassembleChunk( room, parsed );
+				// Each chunk's payload is room-tagged. Extract the room,
+				// strip the tag, and reassemble with clean payloads.
+				const tagged = untagPayload( parsed.payload );
+				if ( ! tagged || ! this.registeredRooms.has( tagged.room ) ) {
+					return;
+				}
+				this.reassembleChunk( tagged.room, {
+					msgId: parsed.msgId,
+					totalChunks: parsed.totalChunks,
+					chunkIndex: parsed.chunkIndex,
+					payload: tagged.payload,
+				} );
 			} else {
-				this.messageHandlers.get( room )?.forEach( h => h( u8 ) );
+				const tagged = untagPayload( u8 );
+				if ( ! tagged || ! this.registeredRooms.has( tagged.room ) ) {
+					return;
+				}
+				this.messageHandlers.get( tagged.room )?.forEach( h => h( tagged.payload ) );
 			}
-		} );
-
-		return new Promise( ( resolve, reject ) => {
-			waiters.push( { resolve, reject } );
 		} );
 	}
 
 	/**
-	 * Close the WebSocket for the given room.
+	 * Register a room on the shared WebSocket connection.
+	 *
+	 * If the WebSocket is already open, the room's open handlers fire
+	 * immediately. If it is not yet open, it is opened (or the room
+	 * waits for the in-flight connection to complete).
+	 *
+	 * @param room - Room name.
+	 * @return Promise that resolves when the connection is open.
+	 */
+	async connect( room: string ): Promise< void > {
+		this.registeredRooms.add( room );
+
+		if ( this.wsState === 'open' ) {
+			this.openHandlers.get( room )?.forEach( h => h() );
+			return;
+		}
+
+		const promise = new Promise< void >( ( resolve, reject ) => {
+			this.connectingWaiters.push( { resolve, reject } );
+		} );
+
+		this.openSharedSocket();
+
+		return promise;
+	}
+
+	/**
+	 * Unregister a room. If no rooms remain, close the shared WebSocket.
 	 *
 	 * @param room - Room name.
 	 */
 	async disconnect( room: string ): Promise< void > {
-		const ws = this.sockets.get( room );
-		this.sockets.delete( room );
-		this.connectingWaiters.delete( room );
-		if ( ws && ws.readyState !== WebSocket.CLOSED && ws.readyState !== WebSocket.CLOSING ) {
-			ws.close( 1000, 'disconnect' );
+		this.registeredRooms.delete( room );
+
+		// Clean up chunk buffers for this room.
+		for ( const key of this.chunkBuffers.keys() ) {
+			if ( key.startsWith( room + ':' ) ) {
+				this.chunkBuffers.delete( key );
+			}
+		}
+
+		if ( this.registeredRooms.size === 0 && this.ws ) {
+			if ( this.ws.readyState !== WebSocket.CLOSED && this.ws.readyState !== WebSocket.CLOSING ) {
+				this.ws.close( 1000, 'disconnect' );
+			}
+			this.ws = null;
+			this.wsState = 'idle';
 		}
 	}
 
 	/**
 	 * Send binary data to peers in the given room.
 	 *
-	 * Messages larger than MAX_PAYLOAD_BEFORE_CHUNK bytes are split into chunks
-	 * so all peers (regardless of transport) can reassemble them.
+	 * Small messages are sent as a single room-tagged frame. Larger messages
+	 * are split into chunks, with each chunk individually room-tagged so the
+	 * receiver can demultiplex every chunk independently before reassembly.
 	 *
 	 * @param room - Room name.
 	 * @param data - Payload to send.
 	 */
 	send( room: string, data: Uint8Array ): void {
-		const ws = this.sockets.get( room );
-		if ( ! ws || ws.readyState !== WebSocket.OPEN ) {
-			pixel( 'pinghub.rtc.send_drop', 1, 'c' );
+		if ( ! this.ws || this.ws.readyState !== WebSocket.OPEN ) {
 			return;
 		}
 
-		const sendOne = ( payload: Uint8Array ) => ws.send( uint8ArrayToBase64( payload ) );
+		const tagged = tagPayload( room, data );
+		const sendOne = ( payload: Uint8Array ) => this.ws!.send( uint8ArrayToBase64( payload ) );
 
-		if ( data.length <= MAX_PAYLOAD_BEFORE_CHUNK ) {
-			sendOne( data );
+		if ( tagged.length <= MAX_PAYLOAD_BEFORE_CHUNK ) {
+			sendOne( tagged );
 			return;
 		}
 
+		// Each chunk is demultiplexed independently on receive by reading its
+		// room tag, so every chunk must carry one. Chunk the RAW payload and
+		// re-tag each slice as room\0<slice>; tagging once and slicing the
+		// tagged buffer would leave later chunks without a room prefix, so the
+		// receiver would drop them and the message would never reassemble.
+		const roomTagLength = textEncoder.encode( room ).length + 1; // room bytes + separator
+		const chunkSize = MAX_PAYLOAD_BEFORE_CHUNK - CHUNK_HEADER_LEN - roomTagLength;
 		// eslint-disable-next-line no-bitwise
-		const msgId = ( this.chunkMsgIdByRoom.get( room ) ?? 0 ) & 0xffff;
-		this.chunkMsgIdByRoom.set( room, msgId + 1 );
-		const chunkSize = MAX_PAYLOAD_BEFORE_CHUNK - CHUNK_HEADER_LEN;
+		const msgId = this.chunkMsgId & 0xffff;
+		this.chunkMsgId++;
 		const totalChunks = Math.ceil( data.length / chunkSize );
 		for ( let i = 0; i < totalChunks; i++ ) {
 			const start = i * chunkSize;
-			const payload = data.subarray( start, Math.min( start + chunkSize, data.length ) );
-			sendOne( buildChunk( msgId, totalChunks, i, payload ) );
+			const slice = data.subarray( start, Math.min( start + chunkSize, data.length ) );
+			sendOne( buildChunk( msgId, totalChunks, i, tagPayload( room, slice ) ) );
 		}
 	}
 }

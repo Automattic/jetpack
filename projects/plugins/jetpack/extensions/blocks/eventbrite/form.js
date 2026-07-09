@@ -1,8 +1,10 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { Placeholder, Button, ExternalLink } from '@wordpress/components';
+import { Placeholder, Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import metadata from './block.json';
+
 import {} from './utils';
 
 const icon = getBlockIconComponent( metadata );
@@ -38,9 +40,9 @@ const EmbedForm = ( { className, noticeUI, editedUrl, onChange, onSubmit } ) => 
 				</form>
 
 				<div className="components-placeholder__learn-more">
-					<ExternalLink href={ supportLink }>
+					<Link openInNewTab href={ supportLink }>
 						{ __( 'Learn more about Eventbrite embeds', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</div>
 			</Placeholder>
 		</div>

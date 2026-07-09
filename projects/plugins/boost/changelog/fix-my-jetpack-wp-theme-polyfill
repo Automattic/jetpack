@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a blank Boost admin page on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle the embedded My Jetpack app depends on was otherwise unregistered.

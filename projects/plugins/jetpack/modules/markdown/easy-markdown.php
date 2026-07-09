@@ -540,7 +540,7 @@ jQuery( function() {
 	 */
 	public function wp_insert_post_data( $post_data, $postarr ) {
 		// $post_data array is slashed!
-		$post_id = isset( $postarr['ID'] ) ? $postarr['ID'] : false;
+		$post_id = $postarr['ID'] ?? false;
 		// bail early if markdown is disabled or this post type is unsupported.
 		if ( ! $this->is_posting_enabled() || ! post_type_supports( $post_data['post_type'], self::POST_TYPE_SUPPORT ) ) {
 			// it's disabled, but maybe this *was* a markdown post before.

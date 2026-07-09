@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
-import { Button, Spinner } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { Button } from '@automattic/jetpack-components';
+import { Modal, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './styles.module.scss';

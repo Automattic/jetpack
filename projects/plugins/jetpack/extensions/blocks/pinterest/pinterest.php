@@ -147,8 +147,8 @@ function render_amp_pin( $attr ) {
 
 	if ( is_array( $info ) ) {
 		$image       = $info['images']['237x'];
-		$title       = isset( $info['rich_metadata']['title'] ) ? $info['rich_metadata']['title'] : null;
-		$description = isset( $info['rich_metadata']['description'] ) ? $info['rich_metadata']['description'] : null;
+		$title       = $info['rich_metadata']['title'] ?? null;
+		$description = $info['rich_metadata']['description'] ?? null;
 
 		// This placeholder will appear while waiting for the amp-pinterest component to initialize (or if it fails to initialize due to JS being disabled).
 		$placeholder = sprintf(
@@ -228,6 +228,7 @@ function load_assets( $attr, $content ) {
 	if ( ! Request::is_frontend() ) {
 		return $content;
 	}
+	$attr['url'] = $attr['url'] ?? '';
 	if ( Blocks::is_amp_request() ) {
 		return render_amp_pin( $attr );
 	} else {

@@ -1,7 +1,6 @@
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	Disabled,
-	ExternalLink,
 	SelectControl,
 	TextareaControl,
 	TextControl,
@@ -11,6 +10,7 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import clsx from 'clsx';
 import { validate as emailValidatorValidate } from 'email-validator';
@@ -536,9 +536,9 @@ export const SimplePaymentsEdit = ( {
 							"Enter the email address associated with your PayPal account. Don't have an account?",
 							'jetpack-paypal-payments'
 						) + ' ' }
-						<ExternalLink href="https://www.paypal.com/">
+						<Link openInNewTab href="https://www.paypal.com/">
 							{ __( 'Create one on PayPal', 'jetpack-paypal-payments' ) }
-						</ExternalLink>
+						</Link>
 					</HelpMessage>
 				</div>
 			</Wrapper>

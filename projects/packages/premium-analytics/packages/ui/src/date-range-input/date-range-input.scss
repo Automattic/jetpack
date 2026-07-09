@@ -1,0 +1,38 @@
+.input-date-control {
+	flex: 1;
+	font-size: var(--wpds-typography-font-size-sm);
+
+	@supports selector( &::-webkit-calendar-picker-indicator ) {
+
+		input[type="date"] {
+			// Removes extra spaces for the calendar icon.
+			width: fit-content;
+			padding-right: 0;
+
+			appearance: none;
+			-webkit-appearance: none;
+			background: none;
+
+			font-size: var(--wpds-typography-font-size-md);
+
+			// Removes the calendar icon.
+			&::-webkit-calendar-picker-indicator {
+				display: none;
+			}
+		}
+	}
+
+	@supports not selector( &::-webkit-calendar-picker-indicator ) {
+
+		input[type="date"] {
+			padding: 0; // We'll control input's inner spacing manually
+
+			min-width: fit-content; // Prevent extra space on smaller screens
+
+			// Use flex to center the input's content horizontally
+			display: flex;
+			width: calc(100% - 20px); // Take almost all the space
+			margin-inline: auto; // Keep things centered
+		}
+	}
+}

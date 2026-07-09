@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Agents_Manager\WP_REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
@@ -19,6 +20,8 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Menu_Badges\Menu_Badges;
+use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
@@ -26,6 +29,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack;
 use WP_Error;
 
@@ -39,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.34.1';
+	const PACKAGE_VERSION = '5.40.6';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -95,17 +99,15 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
-		// This is later than the admin-ui package, which runs on 1000
-		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
+		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
+		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
 
 		// Set up the ExPlat package endpoints
 		ExPlat::init();
 
 		// Sets up JITMS.
 		JITM::configure();
-
-		// Add "Activity Log" menu item.
-		Activitylog::init();
 
 		// Add "Jetpack Manage" menu item.
 		Jetpack_Manage::init();
@@ -247,11 +249,36 @@ class Initializer {
 	}
 
 	/**
+	 * Register polyfills for the wp-notices / wp-private-apis / wp-theme handles the
+	 * My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships with an
+	 * incomplete allowlist).
+	 *
+	 * @return void
+	 */
+	public static function register_wp_build_polyfills() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array( 'wp-notices', 'wp-private-apis', 'wp-theme' )
+		);
+	}
+
+	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		// Register the wp-build-polyfills shim before the extension hook below or
+		// the app script can enqueue against wp-theme / wp-private-apis / wp-notices.
+		// WP_Build_Polyfills registers synchronously on its first caller, so calling
+		// it after a hook consumer would leave our handles recorded but unregistered
+		// for this request.
+		self::register_wp_build_polyfills();
+
 		/**
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
@@ -326,7 +353,9 @@ class Initializer {
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
+				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
+				'seoOptIn'               => self::get_seo_opt_in_state(),
 			)
 		);
 
@@ -446,6 +475,45 @@ class Initializer {
 	}
 
 	/**
+	 * Build the state the My Jetpack "try the new SEO experience" opt-in card hydrates from.
+	 *
+	 * The card invites an existing self-hosted install to switch over to the new Jetpack SEO
+	 * dashboard (JETPACK-1700). Gating lives server-side, where the signals actually are. The
+	 * card shows only when all of:
+	 *
+	 * - the new SEO product is available — the `rsm_jetpack_seo` feature filter is on (the SEO
+	 *   package autoloads regardless, so `class_exists()` alone isn't enough; the filter is the
+	 *   real availability switch and the same one the SEO package gates its own surface behind);
+	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
+	 *   the opt-in card is for self-hosted installs only;
+	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
+	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
+	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
+	 *   explicitly for clarity.
+	 *
+	 * Referenced through `class_exists()` rather than a hard composer dependency: both packages
+	 * ship inside the Jetpack plugin and the SEO surface is feature-flagged, so a guarded read of
+	 * its public API keeps this from adding plumbing to consumers that don't load SEO.
+	 *
+	 * The on-success destination is computed by the opt-in endpoint itself; we only seed the card
+	 * with the same admin URL so the button has a sensible fallback before the request resolves.
+	 *
+	 * @return array{showCard: bool, redirect: string}
+	 */
+	public static function get_seo_opt_in_state() {
+		// Guard with method_exists rather than class_exists: an older bundled SEO package can ship
+		// the Initializer class without this method, and class_exists alone would still fatal.
+		$seo_initializer = 'Automattic\Jetpack\SEO\Initializer';
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional SEO package, guarded by method_exists.
+		$show_card = method_exists( $seo_initializer, 'is_optin_available' ) && $seo_initializer::is_optin_available();
+
+		return array(
+			'showCard' => $show_card,
+			'redirect' => admin_url( 'admin.php?page=jetpack-seo' ),
+		);
+	}
+
+	/**
 	 * Echoes the admin page content.
 	 *
 	 * @return void
@@ -467,7 +535,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
-		new REST_AI();
+		( new WP_REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 
 		Products::register_product_endpoints();
@@ -696,7 +764,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function maybe_show_red_bubble() {
-		global $menu, $pagenow;
+		global $pagenow;
 
 		// Don't show red bubble alerts for non-admin users
 		// These alerts are generally only actionable for admins
@@ -725,7 +793,18 @@ class Initializer {
 			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
 
 			if ( false === $cached_alerts ) {
-				// No cache - fetch asynchronously via JS.
+				// No cache: warm it asynchronously via JS. Register a hidden zero-count
+				// placeholder so Menu_Renderer emits a `my-jetpack` badge element the
+				// warmer can reveal (see async-notification-bubble.ts) without a reload.
+				Menu_Badges::init(); // idempotent; wires the renderer.
+				Notification_Counts::register(
+					'my-jetpack',
+					array(
+						'menu_slug' => 'my-jetpack',
+						'count'     => 0,
+						'type'      => 'count',
+					)
+				);
 				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
 				return;
 			}
@@ -741,14 +820,24 @@ class Initializer {
 			}
 		);
 
-		// The Jetpack menu item should be on index 3
-		if (
-			! empty( $red_bubble_alerts ) &&
-			isset( $menu[3] ) &&
-			$menu[3][0] === 'Jetpack'
-		) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
+		// Report each non-silent alert to the central menu-badges registry as an
+		// attention entry (count 1). The registry + renderer own the badge.
+		Menu_Badges::init(); // idempotent; wires the renderer.
+		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
+			// Protect reports its own count directly to the registry, but only when its
+			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
+			// If the standalone plugin isn't active, nobody else registers this count, so we
+			// must not skip it here or the alert silently disappears from the menu total.
+			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+				continue;
+			}
+			Notification_Counts::register(
+				'my-jetpack-' . $slug,
+				array(
+					'menu_slug' => 'my-jetpack',
+					'type'      => 'attention',
+				)
+			);
 		}
 	}
 

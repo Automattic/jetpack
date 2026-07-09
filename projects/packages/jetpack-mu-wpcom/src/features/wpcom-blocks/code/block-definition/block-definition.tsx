@@ -2,8 +2,7 @@
 import { extensionToLang } from '@@codemirrorLanguageData@@';
 // @ts-expect-error No types.
 import * as wpBlockEditor from '@wordpress/block-editor';
-// @ts-expect-error No types.
-import * as wpBlocks from '@wordpress/blocks';
+import { registerBlockStyle } from '@wordpress/blocks';
 import {
 	Button,
 	Dropdown,
@@ -35,8 +34,6 @@ const {
 	useBlockProps,
 	withColors,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
-
-const { registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;

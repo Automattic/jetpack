@@ -18,7 +18,7 @@ class Help_Center {
 	/**
 	 * Class instance.
 	 *
-	 * @var Help_Center
+	 * @var Help_Center|null
 	 */
 	private static $instance = null;
 
@@ -68,7 +68,6 @@ class Help_Center {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
-		add_action( 'next_admin_init', array( $this, 'enqueue_wp_admin_scripts' ), 1000 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
 	}
 
@@ -177,6 +176,15 @@ class Help_Center {
 	}
 
 	/**
+	 * Returns the singleton instance, or null if init() hasn't run or short-circuited.
+	 *
+	 * @return self|null
+	 */
+	public static function get_instance(): ?self {
+		return self::$instance;
+	}
+
+	/**
 	 * Enqueue Help Center assets.
 	 *
 	 * @param string $variant The variant of the asset file to get.
@@ -186,7 +194,7 @@ class Help_Center {
 	public function enqueue_script( $variant, $dependencies, $version ) {
 		$script_dependencies = $dependencies ?? array();
 
-		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
+		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' || $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) {
@@ -256,43 +264,23 @@ class Help_Center {
 			$version
 		);
 
+		// In the block editor the Help Center is already present in the editor toolbar
+		// via SlotFill at viewports >= 600px. Hide the admin bar item at those widths
+		// to avoid showing it in two places; keep it visible on mobile where the admin
+		// bar is the primary navigation and the SlotFill button is hidden.
+		if ( $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
+			wp_add_inline_style(
+				'help-center-' . $variant . '-style',
+				'@media (min-width:600px){#wpadminbar #wp-admin-bar-help-center{display:none!important;}}'
+			);
+		}
+
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			$user_id            = get_current_user_id();
-			$user_data          = get_userdata( $user_id );
-			$username           = $user_data ? $user_data->user_login : null;
-			$user_email         = $user_data ? $user_data->user_email : null;
-			$display_name       = $user_data ? $user_data->display_name : null;
-			$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
-			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
-
-			if ( $this->is_forum_site ) {
-				$section_name = 'wp.com/forums';
-			} elseif ( $this->is_support_site ) {
-				$section_name = 'wp.com/support';
-			} else {
-				$section_name = $variant;
-			}
-
 			wp_add_inline_script(
 				'help-center',
 				'if ( typeof helpCenterData === "undefined" ) { var helpCenterData = ' . wp_json_encode(
-					array(
-						'isProxied'        => boolval( self::is_proxied() ),
-						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
-						'isSSP'            => isset( $_COOKIE['ssp'] ),
-						'sectionName'      => $section_name,
-						'isCommerceGarden' => $is_commerce_garden,
-						'currentUser'      => array(
-							'ID'           => $user_id,
-							'username'     => $username,
-							'display_name' => $display_name,
-							'avatar_URL'   => $avatar_url,
-							'email'        => $user_email,
-						),
-						'site'             => $this->get_current_site(),
-						'locale'           => self::determine_iso_639_locale(),
-					),
+					$this->get_help_center_data( $variant ),
 					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				) . '; }',
 				'before'
@@ -410,6 +398,64 @@ class Help_Center {
 		);
 
 		return $return_data;
+	}
+
+	/**
+	 * Build the helpCenterData payload for the connected Help Center bundles.
+	 *
+	 * Exposed so frontend consumers can mount Help Center outside the
+	 * admin-only enqueue path without re-implementing the payload
+	 * field-for-field.
+	 *
+	 * Note: this is the payload for the *connected* bundles. The disconnected
+	 * variants ('wp-admin-disconnected', 'gutenberg-disconnected') do not
+	 * consume helpCenterData and are not valid input here.
+	 *
+	 * @param string $variant   Bundle variant driving the default sectionName.
+	 *                          One of 'wp-admin', 'logged-out', 'customizer',
+	 *                          'gutenberg'.
+	 * @param array  $overrides Shallow-merged onto the result via array_replace
+	 *                          (e.g. array( 'sectionName' => 'landpack' )).
+	 *                          Replacing a sub-array (e.g. 'currentUser')
+	 *                          replaces it whole — no deep merge.
+	 * @return array            JSON-ready associative array.
+	 */
+	public function get_help_center_data( string $variant = 'wp-admin', array $overrides = array() ): array {
+		$user_id            = get_current_user_id();
+		$user_data          = get_userdata( $user_id );
+		$username           = $user_data ? $user_data->user_login : null;
+		$user_email         = $user_data ? $user_data->user_email : null;
+		$display_name       = $user_data ? $user_data->display_name : null;
+		$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
+		$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
+
+		if ( $this->is_forum_site ) {
+			$section_name = 'wp.com/forums';
+		} elseif ( $this->is_support_site ) {
+			$section_name = 'wp.com/support';
+		} else {
+			$section_name = $variant;
+		}
+
+		$data = array(
+			'isProxied'        => boolval( self::is_proxied() ),
+			'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+			'isSSP'            => isset( $_COOKIE['ssp'] ),
+			'sectionName'      => $section_name,
+			'isCommerceGarden' => $is_commerce_garden,
+			'currentUser'      => array(
+				'ID'           => $user_id,
+				'username'     => $username,
+				'display_name' => $display_name,
+				'avatar_URL'   => $avatar_url,
+				'email'        => $user_email,
+				'is_a11n'      => function_exists( '\is_automattician' ) && \is_automattician( $user_id ),
+			),
+			'site'             => $this->get_current_site(),
+			'locale'           => self::determine_iso_639_locale(),
+		);
+
+		return array_replace( $data, $overrides );
 	}
 
 	/**
@@ -614,7 +660,6 @@ class Help_Center {
 		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
-		$is_next_admin = (bool) did_action( 'next_admin_init' );
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
@@ -630,33 +675,14 @@ class Help_Center {
 			return;
 		}
 
-		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
-		if ( ! is_user_logged_in() ) {
-			if ( ! $this->is_support_site ) {
-				return;
-			}
-
-			$experiment_variation = null;
-			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
-				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v3' );
-			} else {
-				log2logstash(
-					array(
-						'feature' => 'help-center',
-						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
-					)
-				);
-			}
-			if ( $experiment_variation !== 'treatment' ) {
-				return;
-			}
+		// Do not load Help Center for logged-out users if we are not on support sites.
+		if ( ! is_user_logged_in() && ! $this->is_support_site ) {
+			return;
 		}
 
 		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
-		if ( $is_next_admin ) {
-			$variant = 'ciab-admin' . $suffix;
-		} elseif ( $this->is_support_site ) {
+		if ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
 			} else {

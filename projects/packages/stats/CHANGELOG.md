@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.7] - 2026-06-25
+### Changed
+- Defer loading the Stats REST API provider until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
+
+## [0.19.6] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [0.19.5] - 2026-06-10
+### Changed
+- Add `fetchpriority="low"` to the Stats script and remove `dns-prefetch` for `stats.wp.com` to improve LCP in Safari and Firefox. [#47936]
+
+## [0.19.4] - 2026-06-08
+### Fixed
+- Abilities: Allow readonly stats abilities with optional input to run when no input is sent. [#49370]
+
+## [0.19.3] - 2026-06-01
+### Changed
+- Internal updates.
+
+## [0.19.2] - 2026-05-25
+### Fixed
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [0.19.1] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.19.0] - 2026-05-04
+### Added
+- Abilities API: Register jetpack-stats abilities for site overview, top content, post views, visits, followers, and stats configuration. [#48286]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
 ## [0.18.1] - 2026-02-26
 ### Added
 - Add `AGENTS.md` for coding agent guidelines compliance. [#47330]
@@ -312,6 +347,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.19.7]: https://github.com/Automattic/jetpack-stats/compare/v0.19.6...v0.19.7
+[0.19.6]: https://github.com/Automattic/jetpack-stats/compare/v0.19.5...v0.19.6
+[0.19.5]: https://github.com/Automattic/jetpack-stats/compare/v0.19.4...v0.19.5
+[0.19.4]: https://github.com/Automattic/jetpack-stats/compare/v0.19.3...v0.19.4
+[0.19.3]: https://github.com/Automattic/jetpack-stats/compare/v0.19.2...v0.19.3
+[0.19.2]: https://github.com/Automattic/jetpack-stats/compare/v0.19.1...v0.19.2
+[0.19.1]: https://github.com/Automattic/jetpack-stats/compare/v0.19.0...v0.19.1
+[0.19.0]: https://github.com/Automattic/jetpack-stats/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/Automattic/jetpack-stats/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/Automattic/jetpack-stats/compare/v0.17.8...v0.18.0
 [0.17.8]: https://github.com/Automattic/jetpack-stats/compare/v0.17.7...v0.17.8

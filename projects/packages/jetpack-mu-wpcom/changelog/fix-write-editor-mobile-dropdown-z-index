@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Fix heading and color dropdowns being trapped inside the toolbar on iOS Safari.

@@ -1,9 +1,8 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
-import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { SVG, Path } from '@wordpress/primitives';
 import { VERTICAL_LAYOUT } from '../shared/util/constants.js';
 
 const variations = [
@@ -11,14 +10,14 @@ const variations = [
 		name: 'regular-form',
 		title: __( 'Form', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<Path d="m13 7.5 h 5 v 1.5 h -5 v -1.5z" />
 					<Path d="m13 15 h 5 v 1.5 h -5 v -1.5z" />
 					<Path d="m19.01,3H4.99c-1.1,0-1.99.89-1.99,1.99v14.02c0,1.1.89,1.99,1.99,1.99h14.02c1.1,0,1.99-.89,1.99-1.99V4.99c0-1.1-.89-1.99-1.99-1.99Zm.49,15.99c0,.28-.23.51-.51.51H5.01c-.28,0-.51-.23-.51-.51V5.01c0-.28.23-.51.51-.51h13.98c.28,0,.51.23.51.51v13.98Z" />
 					<Path d="m9.46,13h-1.92c-.85,0-1.54.69-1.54,1.54v1.92c0,.85.69,1.54,1.54,1.54h1.92c.85,0,1.54-.69,1.54-1.54v-1.92c0-.85-.69-1.54-1.54-1.54Zm.04,3.5h-2v-2h2v2Z" />
 					<Path d="m9.46,6h-1.92c-.85,0-1.54.69-1.54,1.54v1.92c0,.85.69,1.54,1.54,1.54h1.92c.85,0,1.54-.69,1.54-1.54v-1.92c0-.85-.69-1.54-1.54-1.54Zm.04,3.5h-2v-2h2v2Z" />
-				</>
+				</SVG>
 			),
 		},
 		attributes: {
@@ -33,8 +32,8 @@ const variations = [
 		title: __( 'Contact Form', 'jetpack-forms' ),
 		description: __( 'Add a contact form to your page.', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -45,7 +44,7 @@ const variations = [
 						clipRule="evenodd"
 						d="M4 18V9H5.5V18C5.5 18.4142 5.83579 18.75 6.25 18.75H17.75C18.1642 18.75 18.5 18.4142 18.5 18V9H20V18C20 19.2426 18.9926 20.25 17.75 20.25H6.25C5.00736 20.25 4 19.2426 4 18Z"
 					/>
-				</>
+				</SVG>
 			),
 		},
 		innerBlocks: [
@@ -86,8 +85,8 @@ const variations = [
 		title: __( 'RSVP Form', 'jetpack-forms' ),
 		description: __( 'Add an RSVP form to your page', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -98,7 +97,7 @@ const variations = [
 						clipRule="evenodd"
 						d="M15.6087 7.93847L11.4826 13.6692L8.45898 10.5196L9.54107 9.48084L11.3175 11.3313L14.3914 7.06201L15.6087 7.93847Z"
 					/>
-				</>
+				</SVG>
 			),
 		},
 		innerBlocks: [
@@ -232,8 +231,8 @@ const variations = [
 		title: __( 'Registration Form', 'jetpack-forms' ),
 		description: __( 'Add a Registration form to your page', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -245,7 +244,7 @@ const variations = [
 						clipRule="evenodd"
 						d="M14.5 9C14.5 10.3807 13.3807 11.5 12 11.5C10.6193 11.5 9.5 10.3807 9.5 9C9.5 7.61929 10.6193 6.5 12 6.5C13.3807 6.5 14.5 7.61929 14.5 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z"
 					/>
-				</>
+				</SVG>
 			),
 		},
 		innerBlocks: [
@@ -416,8 +415,8 @@ const variations = [
 		title: __( 'Appointment Form', 'jetpack-forms' ),
 		description: __( 'Add an Appointment booking form to your page', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<Path d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V8H4V6Z" />
 					<Path d="M7 9.25H11V13.25H7V9.25Z" />
 					<Path
@@ -431,7 +430,7 @@ const variations = [
 						clipRule="evenodd"
 						d="M15 17.25L21 17.25L21 18.75L15 18.75L15 17.25Z"
 					/>
-				</>
+				</SVG>
 			),
 		},
 		innerBlocks: [
@@ -591,8 +590,8 @@ const variations = [
 		title: __( 'Feedback Form', 'jetpack-forms' ),
 		description: __( 'Add a feedback form to your page', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -614,7 +613,7 @@ const variations = [
 						clipRule="evenodd"
 						d="M8.16492 14.6566L7.41431 13.7183L8.58561 12.7812L9.33622 13.7195C9.98358 14.5287 10.9637 14.9998 12 14.9998C13.0362 14.9998 14.0163 14.5287 14.6637 13.7195L15.4143 12.7812L16.5856 13.7183L15.835 14.6566C14.903 15.8216 13.4919 16.4998 12 16.4998C10.508 16.4998 9.09693 15.8216 8.16492 14.6566Z"
 					/>
-				</>
+				</SVG>
 			),
 		},
 		innerBlocks: [
@@ -709,35 +708,31 @@ const variations = [
 		title: __( 'Multistep Form', 'jetpack-forms' ),
 		description: __( 'Create a form that spans multiple steps.', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<Path
 						d="M7.3501 12C7.3501 10.7574 6.34274 9.75 5.1001 9.75C3.85746 9.75 2.8501 10.7574 2.8501 12C2.8501 13.2426 3.85746 14.25 5.1001 14.25C6.34274 14.25 7.3501 13.2426 7.3501 12Z"
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
-						className="icon-filler"
 					/>
 					<Path
 						d="M14.3501 12C14.3501 10.7574 13.3427 9.75 12.1001 9.75C10.8575 9.75 9.8501 10.7574 9.8501 12C9.8501 13.2426 10.8575 14.25 12.1001 14.25C13.3427 14.25 14.3501 13.2426 14.3501 12Z"
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
-						className="icon-filler"
 					/>
 					<Path
 						d="M21.3501 12C21.3501 10.7574 20.3427 9.75 19.1001 9.75C17.8575 9.75 16.8501 10.7574 16.8501 12C16.8501 13.2426 17.8575 14.25 19.1001 14.25C20.3427 14.25 21.3501 13.2426 21.3501 12Z"
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
-						className="icon-filler"
 					/>
 					<Path
 						d="M19.1001 18.8636C19.1001 21.1364 17.4668 22.5 15.6001 22.5C13.7334 22.5 12.1001 21.5 12.1001 18.8636V16.5"
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
-						className="icon-filler"
 					/>
 					<Path d="M21.6001 19H20.1001H18.6001H16.6001L19.1001 16L21.6001 19Z" />
 					<Path
@@ -745,10 +740,9 @@ const variations = [
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
-						className="icon-filler"
 					/>
 					<Path d="M14.6001 5H13.1001H11.6001H9.6001L12.1001 8L14.6001 5Z" />
-				</>
+				</SVG>
 			),
 		},
 		innerBlocks: [

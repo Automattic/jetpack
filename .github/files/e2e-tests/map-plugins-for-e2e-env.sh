@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [[ -z "$BUILD_DIR" ]]; then
 	echo "::error::BUILD_DIR must be set"
 	exit 1

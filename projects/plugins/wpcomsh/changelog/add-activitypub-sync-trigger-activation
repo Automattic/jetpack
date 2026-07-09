@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-ActivityPub: add new feature plugin, handling a custom sync event triggered when the plugin is activated.

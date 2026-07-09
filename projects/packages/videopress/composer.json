@@ -10,11 +10,11 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"brain/monkey": "^2.6.2",
 		"automattic/phpunit-select-config": "@dev"
@@ -31,15 +31,12 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
-		"test-php": [
-			"@composer phpunit"
-		],
-		"test-js": [
-			"pnpm run test"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-production": [
-			"NODE_ENV=production BABEL_ENV=production pnpm run build"
+			"pnpm run build-production"
 		],
 		"build-development": [
 			"pnpm run build"
@@ -67,7 +64,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.36.x-dev"
+			"dev-trunk": "0.40.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-package-version.php"

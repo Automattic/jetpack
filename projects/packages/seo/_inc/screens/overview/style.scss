@@ -1,0 +1,90 @@
+// Centered content column. Wider than the Settings tab (which is a single 660px
+// form column) because the Overview lays cards out side-by-side — matches the
+// My Jetpack page's content width.
+.jetpack-seo-overview {
+	max-inline-size: 1128px;
+	margin-inline: auto;
+}
+
+.jetpack-seo-overview__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	align-items: stretch;
+}
+
+// Make each Overview card a flex column so its body stretches and equal-height
+// cards line up across the row. Targets Card.Root's last child (Card.Content),
+// since @wordpress/ui uses hashed (non-stable) class names.
+.jetpack-seo-overview__grid > * {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.jetpack-seo-overview__grid > * > *:last-child {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+}
+
+// A status row in the Site verification card: indicator + label on the left,
+// "Verified"/"Not set" on the right.
+.jetpack-seo-overview__stat-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--wpds-dimension-gap-xs, 4px) 0;
+}
+
+// Card action row (Manage button), pinned to the bottom-right of the card.
+.jetpack-seo-overview__card-footer {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: auto;
+	padding-top: var(--wpds-dimension-gap-md, 12px);
+}
+
+// Content SEO card: factual coverage rings. An auto-fit grid (matching the
+// Overview card grid above) so the rings flow into as many columns as fit
+// (up to four) and stack down to a single column as the screen narrows —
+// rather than shrinking to share a single row at every width.
+.jetpack-seo-overview__coverage-rings {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: var(--wpds-dimension-gap-lg, 16px);
+}
+
+.jetpack-seo-overview__coverage-ring {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	// Let the cell shrink below its content width so long labels wrap inside
+	// the grid track instead of forcing the column wider.
+	min-width: 0;
+}
+
+.jetpack-seo-overview__coverage-count {
+	font-weight: 600;
+}
+
+.jetpack-seo-overview__coverage-label {
+	// Inherit the card's text color rather than the muted `-neutral-weak` variant,
+	// so the metric labels match the rest of the text on the page.
+	font-size: 12px;
+}
+
+// The Content SEO card sits below the two status cards, spanning the full
+// width of its own row. Margin matches the grid gap above it.
+.jetpack-seo-overview__content-card {
+	margin-top: var(--wpds-dimension-gap-lg, 16px);
+}
+
+// Low-emphasis "disable SEO tools" off-ramp at the foot of the Overview.
+.jetpack-seo-overview__disable {
+	margin-top: var(--wpds-dimension-gap-lg, 16px);
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	font-size: 13px;
+}

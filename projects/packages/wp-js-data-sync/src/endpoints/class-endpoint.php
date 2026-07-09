@@ -148,7 +148,7 @@ class Endpoint {
 			'status' => 'success',
 			'JSON'   => $data,
 		);
-		if ( true === DS_Utils::is_debug() ) {
+		if ( DS_Utils::is_debug() ) {
 			$response['log'] = $this->entry->get_parser()->get_log();
 		}
 		return rest_ensure_response( $response );
@@ -179,7 +179,7 @@ class Endpoint {
 
 		try {
 			$params = $request->get_json_params();
-			$data   = isset( $params['JSON'] ) ? $params['JSON'] : null;
+			$data   = $params['JSON'] ?? null;
 			$result = $this->entry->$entry_method( $data );
 
 			if ( true === DS_Utils::debug_disable( $this->route_base ) ) {

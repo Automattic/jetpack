@@ -10,7 +10,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
@@ -34,12 +33,8 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
@@ -64,7 +59,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.7.x-dev"
+			"dev-trunk": "0.9.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

@@ -1,10 +1,13 @@
 .tooltip {
-	padding: 0.5rem;
+	padding: var(--wpds-dimension-padding-sm, 8px);
+	// No WPDS token fits a translucent dark tooltip surface:
+	// bg-interactive-neutral-strong is opaque, and there is no
+	// white-on-dark content foreground token.
 	background-color: rgba(0, 0, 0, 0.85);
 	color: #fff;
-	border-radius: 4px;
-	font-size: 14px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	border-radius: var(--wpds-border-radius-md, 4px);
+	font-size: var(--wpds-typography-font-size-md, 13px);
+	box-shadow: var(--wpds-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
 	position: absolute;
 	pointer-events: none;
 	transform: translate(-50%, -100%);

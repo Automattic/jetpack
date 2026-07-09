@@ -1,0 +1,21 @@
+.site-activity-logs__actor {
+
+	> [class^="site-activity-logs__actor-icon-"] {
+		border-radius: 50%;
+		height: 24px;
+		width: 24px;
+	}
+
+	.site-activity-logs__actor-icon-server,
+	.site-activity-logs__actor-icon-default {
+		background-color: var(--wpds-color-background-surface-neutral-weak, #dcdcde);
+		fill: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+	}
+
+	.site-activity-logs__actor-mcp {
+		display: block;
+		font-size: 0.75rem;
+		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+		margin-block-start: 2px;
+	}
+}

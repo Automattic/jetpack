@@ -1,6 +1,12 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	// List all sources and source-containing subdirs.
-	"include": [ "./src/client", "./declarations.d.ts" ],
+	"include": [
+		"./src/client",
+		"./src/dashboard",
+		"routes/**/*",
+		"./declarations.d.ts",
+		"./wordpress-augmentations.d.ts"
+	],
 	"files": [ "./global.d.ts" ]
 }

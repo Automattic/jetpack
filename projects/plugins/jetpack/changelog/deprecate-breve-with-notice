@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-AI Assistant: Add an "Update on Write Brief (Beta)" link in the sidebar when Write Brief is disabled. When re-enabled via the 'breve_enabled' filter, the full UI is shown instead.

@@ -7,6 +7,8 @@ import {
 	getTitleFromDescription,
 	preparePreviewText,
 } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
+import { MediaImage } from '../shared/media-image';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { FooterActions } from './footer-actions';
 import { ChevronIcon } from './icons/chevron-icon';
@@ -23,6 +25,7 @@ import './style.scss';
  */
 export function NextdoorPostPreview( {
 	image,
+	imageFocalPoint,
 	name,
 	profileImage,
 	description,
@@ -59,20 +62,15 @@ export function NextdoorPostPreview( {
 						{ description ? (
 							<div className="nextdoor-preview__caption">
 								<span>
-									{ preparePreviewText( description, {
-										platform: 'nextdoor',
-										maxChars: FEED_TEXT_MAX_LENGTH,
-									} ) }
+									<ExpandableText text={ description }>
+										{ visibleText =>
+											preparePreviewText( visibleText, {
+												platform: 'nextdoor',
+												maxChars: FEED_TEXT_MAX_LENGTH,
+											} )
+										}
+									</ExpandableText>
 								</span>
-								{ ! hasMedia && url && (
-									<>
-										<br />
-										<br />
-										<a href={ url } rel="nofollow noopener noreferrer" target="_blank">
-											{ url }
-										</a>
-									</>
-								) }
 							</div>
 						) : null }
 						{ hasMedia ? (
@@ -102,7 +100,12 @@ export function NextdoorPostPreview( {
 							} ) }
 						>
 							{ image ? (
-								<img className="nextdoor-preview__image" src={ image } alt="" />
+								<MediaImage
+									className="nextdoor-preview__image"
+									src={ image }
+									alt=""
+									focalPoint={ imageFocalPoint }
+								/>
 							) : (
 								<DefaultImage />
 							) }

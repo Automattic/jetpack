@@ -255,7 +255,7 @@
 
 	.block-editor-block-variation-picker__variation {
 
-		svg path:not(.icon-filler) {
+		svg path:not([fill="none"]) {
 			fill: currentColor;
 		}
 	}
@@ -381,7 +381,6 @@
 	.required {
 		word-break: normal;
 		color: unset;
-		opacity: 0.6;
 		font-size: 72%;
 		margin-inline-start: 0.25em;
 		font-weight: 400;
@@ -865,10 +864,6 @@
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-				// For some reason, when keeping the rule below together with the above
-				// selector, on production builds, the attributes are being reordered,
-				// causing side-effects.
-				// stylelint-disable-next-line no-duplicate-selectors
 				border-left: none !important;
 				border-right: none !important;
 				box-sizing: content-box;
@@ -1253,6 +1248,13 @@
 /* Status notice for synced forms with non-publish status */
 .jetpack-contact-form__status-notice {
 	margin-bottom: 16px;
+}
+
+/* Inline warning shown in the form settings sidebar when the form isn't
+   collecting responses. It renders outside a panel body, so give it the same
+   16px spacing a panel body would have. */
+.jetpack-contact-form__not-collecting-notice {
+	margin: 16px;
 }
 
 /* "Other" option text input styles */

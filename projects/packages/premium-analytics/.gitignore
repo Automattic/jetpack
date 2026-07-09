@@ -1,0 +1,6 @@
+vendor/
+node_modules/
+build/
+build-module/
+composer.lock
+.phpunit.cache/

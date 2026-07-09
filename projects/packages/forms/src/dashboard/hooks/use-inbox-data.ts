@@ -248,6 +248,9 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 		if ( currentQuery?.parent ) {
 			params.parent = currentQuery.parent;
 		}
+		if ( currentQuery?.source ) {
+			params.source = currentQuery.source;
+		}
 		if ( currentQuery?.before ) {
 			params.before = currentQuery.before;
 		}
@@ -256,6 +259,9 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 		}
 		if ( currentQuery?.is_unread !== undefined ) {
 			params.is_unread = currentQuery.is_unread;
+		}
+		if ( currentQuery?.is_test !== undefined ) {
+			params.is_test = currentQuery.is_test;
 		}
 
 		return params;

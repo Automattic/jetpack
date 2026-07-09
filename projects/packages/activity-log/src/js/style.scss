@@ -1,0 +1,113 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "sass:meta";
+// Component styles are forwarded from this main entry rather than
+// imported via per-component side-effect imports in each .tsx file —
+// that way they live in the same emitted chunk as the wrapper rules
+// below and can't get dropped by chunk splitting.
+@use "./components/ActivityLog/upsell-callout";
+
+// DataViews is a bundled (not externalized) @wordpress package in
+// jetpack-webpack-config, so its stylesheet must be brought in alongside
+// the JS. See projects/packages/forms/routes/shared.scss for the same pattern.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+
+body.toplevel_page_jetpack-activity-log,
+body.jetpack_page_jetpack-activity-log {
+
+	@include jetpack-admin-page-layout;
+}
+
+// AdminPage provides the Jetpack header + footer + viewport-pinned
+// scroll column; let the DataViews table live full-bleed inside it with
+// no extra inset.
+.jp-activity-log__dataviews-wrapper {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	flex: 1 1 auto;
+	padding: 0;
+
+	// Free-tier visual: a teaser of the table dissolves into the upsell
+	// card sitting directly below it. The mask gradient softens the
+	// bottom edge of the events list so the transition reads as a
+	// single connected surface (rather than a hard cut between table
+	// and card). `mask-image` is the standard property; the
+	// `-webkit-` prefix keeps Safari ≤ 15.4 in line. Capping the
+	// container height at a fixed pixel value prevents the table from
+	// claiming the full inner height and pushing the upsell off-screen.
+	&--free-tier .dataviews-layout__container {
+		max-height: 280px;
+		overflow: hidden;
+		mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+		-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+	}
+
+	// On free tier, let DataViews size to its content (so it doesn't
+	// claim the full inner height via its own `height: 100%`) and let
+	// the inner wrapper carry the page's local scroll surface for short
+	// viewports. The fade + cap above keeps the natural total below
+	// most viewports, so this scroll rarely fires.
+	&--free-tier .jp-activity-log__inner {
+		overflow: auto;
+
+		> .dataviews-wrapper {
+			height: auto;
+			flex: 0 0 auto;
+		}
+	}
+
+	// Visual half of the free-tier "overlay" approach: the effect in
+	// ActivityLog/index.tsx marks DataViews' real `.dataviews__search`
+	// cluster (search input + filter toggle) `inert` and adds a `title`
+	// for the upgrade tooltip. `inert` natively blocks pointer +
+	// keyboard interaction and hides descendants from a11y, so this
+	// rule only carries the visual disabled state.
+	.dataviews__search[inert] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	// DataViews renders its own surface; don't double-pad it.
+	.dataviews-wrapper {
+		margin: 0;
+	}
+
+	// DataViews always renders the Activity-layout description slot,
+	// even when our renderer returns `null` for entries with no
+	// description payload (e.g. "User removed"). The empty
+	// `<div class="dataviews-view-activity__item-description">` then
+	// participates in the column stack's gap and leaves a visible
+	// blank line under the title. Collapse the row when the slot has
+	// no children so the layout flows tightly.
+	.dataviews-view-activity__item-description:empty {
+		display: none;
+	}
+
+	// DataViews shows a small "modified" dot on the cog whenever the
+	// current view differs from the default (driven by our `onReset`
+	// prop). Hide it: the same signal already gates the Reset view
+	// button inside the popover, which is enough — the cog dot just
+	// adds visual noise on a page where users routinely toggle sort
+	// order, density, or filters.
+	.dataviews-view-config__modified-indicator {
+		display: none;
+	}
+
+	// Activity-layout meta row ([date] … [actor]). DataViews renders
+	// this as a flex row with the default `align-items: stretch`, which
+	// left-aligns the date text to the top while the actor's icon+name
+	// HStack sits centered — producing a visible baseline mismatch
+	// (`Apr 24 …` at top, avatar+name in the middle). Center the row
+	// so every cell shares a single vertical midline, and push the
+	// trailing cell (Actor) to the far right so the date anchors left
+	// and the actor anchors right.
+	.dataviews-view-activity__item-fields {
+		align-items: center;
+
+		.dataviews-view-activity__item-field:last-child {
+			margin-inline-start: auto;
+		}
+	}
+}
+

@@ -4,7 +4,13 @@ import {
 	getCurrencyObject as getCurrencyObjectFromCurrencyFormatter,
 } from './number-format-currency/index.ts';
 import { numberFormat, numberFormatCompact } from './number-format.ts';
-import type { CurrencyObject, FormatCurrency, FormatNumber, GetCurrencyObject } from './types.ts';
+import type {
+	CurrencyObject,
+	CurrencyOverride,
+	FormatCurrency,
+	FormatNumber,
+	GetCurrencyObject,
+} from './types.ts';
 
 declare global {
 	interface Window {
@@ -32,6 +38,24 @@ export interface NumberFormatters {
 	 * @param geoLocation - The geo location to use for formatting
 	 */
 	setGeoLocation( geoLocation: string ): void;
+
+	/**
+	 * Sets a dynamic map of per-currency overrides used by currency formatting.
+	 *
+	 * Typical use: load `{ "IDR": { "decimal": 0 } }` from the WPCOM currencies
+	 * endpoint at app boot and pass the parsed object here. Each entry can carry
+	 * a `symbol` and/or `decimal` (the smallest-unit exponent), and additional
+	 * fields may be added to `CurrencyOverride` in the future.
+	 *
+	 * If this setter is never called, the package falls back to the hard-coded
+	 * defaults shipped with the package, preserving previous behavior.
+	 *
+	 * When called with a partial map, missing currencies or fields fall back to
+	 * the hard-coded defaults — passing `{ IDR: { decimal: 0 } }` does not clear
+	 * the default IDR symbol, for example.
+	 * @param overrides - Map of currency code to override settings
+	 */
+	setCurrencyOverrides( overrides: Record< string, CurrencyOverride > ): void;
 
 	/**
 	 * Formats numbers using locale settings and/or passed options.
@@ -150,6 +174,7 @@ export interface NumberFormatters {
 function createNumberFormatters(): NumberFormatters {
 	let localeState: string | undefined;
 	let geoLocationState: string | undefined;
+	let currencyOverridesState: Record< string, CurrencyOverride > | undefined;
 
 	const setLocale = ( locale: string ): void => {
 		/**
@@ -158,6 +183,10 @@ function createNumberFormatters(): NumberFormatters {
 		 * should all be valid inputs for the constructor.
 		 */
 		localeState = locale;
+	};
+
+	const setCurrencyOverrides = ( overrides: Record< string, CurrencyOverride > ): void => {
+		currencyOverridesState = overrides;
 	};
 
 	/**
@@ -242,6 +271,7 @@ function createNumberFormatters(): NumberFormatters {
 			signForPositive,
 			geoLocation: geoLocationState,
 			forceLatin,
+			currencyOverrides: currencyOverridesState,
 		} );
 	};
 
@@ -259,12 +289,14 @@ function createNumberFormatters(): NumberFormatters {
 			signForPositive,
 			geoLocation: geoLocationState,
 			forceLatin,
+			currencyOverrides: currencyOverridesState,
 		} );
 	};
 
 	return {
 		setLocale,
 		setGeoLocation,
+		setCurrencyOverrides,
 		formatNumber,
 		formatNumberCompact,
 		formatCurrency,

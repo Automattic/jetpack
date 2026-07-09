@@ -1,0 +1,17 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@types/react": "18.3.28",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/ui": "0.17.0"
+	},
+	"route": {
+		"path": "/",
+		"page": "jetpack-subscribers-announcement"
+	}
+}

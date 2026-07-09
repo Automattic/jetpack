@@ -26,7 +26,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -54,6 +54,7 @@ jobs:
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
       WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
+      COVERAGE_GROUP: ${{ matrix.coverage-group }}
     strategy:
       fail-fast: false
       matrix:
@@ -62,10 +63,11 @@ jobs:
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
       did-coverage: ${{ case( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
-      coverage-status: ${{ case( matrix.script == 'test-coverage', steps.run-tests.conclusion, '' ) }}
+      php-coverage-status: ${{ case( matrix.coverage-group == 'php', steps.run-tests.conclusion, '' ) }}
+      js-coverage-status: ${{ case( matrix.coverage-group == 'js', steps.run-tests.conclusion, '' ) }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           # Test coverage checks require a fetch depth > 1.
           fetch-depth: 2
@@ -82,7 +84,7 @@ jobs:
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
-          coverage: ${{ case( matrix.script == 'test-coverage', 'pcov', 'none' ) }}
+          coverage: ${{ case( matrix.coverage-group == 'php', 'pcov', 'none' ) }}
           node: ${{ matrix.node }}
 
       - name: Monorepo install
@@ -121,7 +123,7 @@ jobs:
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
-          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-php-coverage" ) ]]; then
             echo "::group::Clear composer cache for roots/wordpress"
             DIR=$(composer config cache-files-dir)
             rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
@@ -131,7 +133,7 @@ jobs:
           echo "::group::Composer"
           composer install --working-dir=tools/php-test-env
 
-          if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
+          if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-php-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
             VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
             if [[ -n "$VER" ]]; then
               INSVER=$WORDPRESS_TAG
@@ -146,6 +148,7 @@ jobs:
 
           echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
           for SLUG in $( jq -r 'keys[]' <<<"$CHANGED" ); do
+            [[ "$SLUG" == "monorepo" ]] && continue
             PKGS=()
             readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "projects/$SLUG/composer.json" )
             if [[ ${#PKGS[@]} -gt 0 ]]; then
@@ -178,7 +181,7 @@ jobs:
           MAXPIDS=$( nproc )
           FAILED=()
           mkdir artifacts
-          [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
+          [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
           for P in composer.json projects/*/*/composer.json; do
             if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
               if ! wait -fn -p PID "${!PIDS[@]}"; then
@@ -226,26 +229,20 @@ jobs:
               echo "Running tests for $SLUG"
               {
                 # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
-                if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
-                  if [[ "$TEST_SCRIPT" == "test-coverage" ]] &&
-                    ! jq -e '.scripts["test-php"]' "$DIR/composer.json" &>/dev/null
-                  then
-                    echo "Skipping composer install, assuming test-coverage is only JS because the project has no test-php."
-                  else
-                    if [[ ! -f "$DIR/composer.lock" ]]; then
-                      echo 'No composer.lock, running `composer update`'
-                      composer --working-dir="$DIR" update
-                    elif composer --working-dir="$DIR" check-platform-reqs --lock; then
-                      echo 'Platform reqs pass, running `composer install`'
-                      composer --working-dir="$DIR" install
-                      if [[ "$TEST_SCRIPT" == "test-php" ]] && composer info --locked phpunit/phpunit &>/dev/null; then
-                        echo 'Updating PHPUnit in case a newer version than locked is usable'
-                        composer --working-dir="$DIR" update -W phpunit/phpunit
-                      fi
-                    else
-                      echo 'Platform reqs failed, running `composer update`'
-                      composer --working-dir="$DIR" update
+                if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-php-coverage" ) ]]; then
+                  if [[ ! -f "$DIR/composer.lock" ]]; then
+                    echo 'No composer.lock, running `composer update`'
+                    composer --working-dir="$DIR" update
+                  elif composer --working-dir="$DIR" check-platform-reqs --lock; then
+                    echo 'Platform reqs pass, running `composer install`'
+                    composer --working-dir="$DIR" install
+                    if composer info --locked phpunit/phpunit &>/dev/null; then
+                      echo 'Updating PHPUnit in case a newer version than locked is usable'
+                      composer --working-dir="$DIR" update -W phpunit/phpunit
                     fi
+                  else
+                    echo 'Platform reqs failed, running `composer update`'
+                    composer --working-dir="$DIR" update
                   fi
                 fi
 
@@ -255,7 +252,7 @@ jobs:
 
                 mkdir -p "artifacts/$SLUG"
                 export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
-                if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
+                if [[ -n "$COVERAGE_GROUP" ]]; then
                   mkdir -p "coverage/$SLUG"
                   export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
                 fi
@@ -298,7 +295,7 @@ jobs:
         id: process-coverage
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
-        if: matrix.script == 'test-coverage' && always()
+        if: matrix.coverage-group != '' && always()
         run: .github/files/coverage-munger/process-coverage.sh
 
       - name: Check for artifacts
@@ -329,7 +326,7 @@ jobs:
     needs: run-tests
     if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -342,17 +339,26 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Download coverage artifact
+      - name: Download coverage artifacts
         uses: actions/download-artifact@v8
         with:
-          name: 'Code coverage'
-          path: coverage
+          pattern: 'Code coverage (*)'
+          path: coverage_dl
+          merge-multiple: true # This extracts all artifacts into the same dir (but beware of file collisons, where last one wins).
+
+      - name: Merge coverage artifacts
+        run: |
+          mkdir coverage
+          sort coverage_dl/summary-*.tsv > coverage/summary.tsv
+          rm coverage_dl/summary-*.tsv
+          mv coverage_dl/* coverage/
 
       - name: Upload coverage results
         env:
           PR_ID: ${{ case( github.event_name != 'pull_request', 'trunk', github.event.pull_request.number ) }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
-          STATUS: ${{ needs.run-tests.outputs.coverage-status }}
+          PHP_COVERAGE_STATUS: ${{ needs.run-tests.outputs.php-coverage-status }}
+          JS_COVERAGE_STATUS: ${{ needs.run-tests.outputs.js-coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
           POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/upload-coverage.sh
@@ -362,7 +368,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2025-11-20: Takes about 4 minutes
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -374,6 +380,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       - name: Monorepo install
         run: |
@@ -412,7 +420,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # 2025-11-20: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:

@@ -104,6 +104,7 @@ export function SubscriptionEdit( props ) {
 	} = validatedAttributes;
 
 	const activeStyleName = getActiveStyleName( metadata.styles, className );
+	const isButtonOnlyStyle = activeStyleName === 'button';
 
 	const { subscriberCount, subscriberCountString } = useSelect( select => {
 		const { totalSubscribers, socialFollowers } =
@@ -270,6 +271,7 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					isButtonOnlyStyle={ isButtonOnlyStyle }
 					selectedNewsletterCategoryIds={ selectedNewsletterCategoryIds }
 					subscribePlaceholder={ subscribePlaceholder }
 					submitButtonText={ submitButtonText }

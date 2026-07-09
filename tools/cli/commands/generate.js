@@ -804,7 +804,7 @@ async function createComposerJson( composerJson, answers ) {
 			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm run test-coverage' ],
+				'test-js-coverage': [ 'pnpm run test-coverage' ],
 			};
 			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				composerJson.scripts = {
@@ -1002,9 +1002,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.8\n' +
+		'Requires at least: 6.9\n' +
 		'Requires PHP: 7.2\n' +
-		'Tested up to: 6.9\n' +
+		'Tested up to: 7.0\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

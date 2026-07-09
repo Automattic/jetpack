@@ -1,0 +1,23 @@
+.dashboard {
+	min-block-size: 0;
+}
+
+.content {
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+	// Reserve paint space for the widget host's outer focus outline.
+	padding-block-start: calc(var(--wpds-border-width-focus, 2px) + 2px);
+	// Match the horizontal padding of the page header and the section tabs so the
+	// widget grid lines up with them instead of sitting flush to the edge.
+	padding-block-end: 24px;
+	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+}
+
+.dateFilters {
+	// Sits below the section tabs and above the widgets. The tab list already
+	// adds a bottom margin, so only pad below here to keep the spacing even.
+	// Inline padding matches the tabs and widget grid so it lines up.
+	padding-block-end: var(--wpds-dimension-gap-lg, 16px);
+	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+}

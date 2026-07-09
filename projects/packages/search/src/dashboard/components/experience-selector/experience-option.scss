@@ -1,0 +1,175 @@
+@use "scss/variables";
+
+.jp-search-experience-option {
+	position: relative;
+	padding: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	transition: border-color 120ms ease, box-shadow 120ms ease;
+
+	// WP admin has no global `box-sizing: border-box` reset, so children that
+	// use `width: 100%` plus padding/border (like the previews) end up wider
+	// than their parent's content box and bleed into the card's right padding.
+	&,
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-interactive-neutral);
+	}
+
+	// Active = the currently-saved experience. Tinted brand surface + brand
+	// border so the eye lands on it without needing to find the small "Active"
+	// badge. `bg-interactive-brand-weak` is intentionally transparent in WPDS
+	// (it's a hover wash, not a fill) — `bg-surface-brand` is the named token
+	// for a soft brand-tinted surface, which is what we actually want here.
+	&.is-active {
+		background: var(--wpds-color-background-surface-brand);
+		border-color: var(--wpds-color-stroke-interactive-brand);
+	}
+
+	&.is-disabled {
+		opacity: 0.55;
+
+		&:hover {
+			border-color: var(--wpds-color-stroke-surface-neutral);
+		}
+	}
+}
+
+.jp-search-experience-option__active-badge {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-md);
+	inset-inline-end: var(--wpds-dimension-padding-md);
+	z-index: 3;
+	pointer-events: none;
+}
+
+// Card title — `<h3>` (subordinate to the page-level `<h2>`). Uses the
+// `lg` WPDS font-size token (15px) so it sits clearly below the page
+// heading's `xl` (20px) instead of competing with it.
+.jp-search-experience-option__title {
+	margin: 0;
+	font-size: var(--wpds-typography-font-size-lg);
+	font-weight: 600;
+	line-height: var(--wpds-typography-line-height-sm);
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.jp-search-experience-option__description {
+	margin: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+// Pushes the action row to the bottom of the card so cards in the same
+// grid row align along their action baseline even when descriptions
+// differ in length.
+.jp-search-experience-option__content {
+	flex: 1 1 auto;
+}
+
+.jp-search-experience-option__loss-list {
+	list-style: none;
+	margin: var(--wpds-dimension-gap-xs) 0 0;
+	padding: 0;
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-sm);
+		padding-block: var(--wpds-dimension-padding-xs);
+
+		strong {
+			color: var(--wpds-color-foreground-content-neutral);
+			font-weight: 600;
+		}
+	}
+}
+
+.jp-search-experience-option__loss-icon {
+	fill: var(--wpds-color-foreground-content-error);
+	flex: 0 0 auto;
+}
+
+.jp-search-experience-option__action {
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+.jp-search-experience-option__action-link {
+	color: var(--wpds-color-foreground-interactive-brand);
+	font-size: var(--wpds-typography-font-size-md);
+	font-weight: 500;
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible {
+		color: var(--wpds-color-foreground-interactive-brand-active);
+		text-decoration: underline;
+	}
+
+	&.is-disabled {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		cursor: not-allowed;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}
+
+// Click-anywhere overlay for inactive cards. The whole card behaves as a
+// button — this transparent <button> is stretched over the card to capture
+// clicks regardless of where the pointer lands. Underlying text (h3,
+// description, loss list, muted action labels) is non-interactive on
+// inactive cards, so the overlay doesn't compete with anything. Active
+// cards skip this overlay; their action links remain reachable.
+// `z-index: 1` sits above content but below the `Active` badge (z-index 3).
+.jp-search-experience-option__commit-overlay {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	border-radius: inherit;
+	cursor: pointer;
+	appearance: none;
+	z-index: 1;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
+		outline-offset: calc(var(--wpds-border-width-md) * -1);
+	}
+
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+	}
+}
+
+// Respect the user's motion preference — the card's border-color
+// transition is decorative.
+@media (prefers-reduced-motion: reduce) {
+
+	.jp-search-experience-option {
+		transition: none;
+	}
+}
+
+@include variables.for-phone-down {
+
+	.jp-search-experience-option__actions {
+		flex-wrap: wrap;
+	}
+}

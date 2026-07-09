@@ -1,0 +1,115 @@
+// While listing services we anchor the Dialog to a fixed top inset and let it
+// keep its natural (content) height, capped at the viewport — instead of the
+// Dialog's default vertical centering. Two reasons not to center:
+//   1. The Dialog is built for the block editor and is unaware of wp-admin's
+//      fixed `#wpadminbar`; centering tucks the top under the bar.
+//      `--wp-admin--admin-bar--height` (WordPress keeps it in sync — 32px
+//      desktop, 46px ≤782px, 0 when absent) plus the 24px gutter give the top
+//      inset, and the same terms cap `max-height` to the visible viewport.
+//   2. Top-anchoring means expanding a disclosure row grows the frame
+//      downward rather than re-centering it, so the header and the rows above
+//      the expansion stay put; past the cap `Dialog.Content` scrolls. Integer
+//      insets also avoid the ~1px scrollbar misalignment half-pixel centering
+//      causes.
+// `translateX(-50%)` keeps the frame horizontally centered against `left: 50%`.
+.services-list {
+	top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wpds-dimension-padding-2xl, 24px));
+	max-height: calc(100dvh - var(--wp-admin--admin-bar--height, 0px) - 2 * var(--wpds-dimension-padding-2xl, 24px));
+	transform: translateX(-50%);
+}
+
+// ===== BEGIN admin-menu workaround — remove when fixed upstream =======
+// TODO (upstream): REMOVE THIS ENTIRE SECTION once the @wordpress/ui Dialog
+// is made wp-admin-aware in WordPress/gutenberg. The Dialog is viewport-fixed
+// and centers/sizes (`large` = 960px) against the whole window, ignoring
+// wp-admin's fixed admin menu — so on both Jetpack (160px sidebar) and WP.com
+// Simple (272px, body.is-nav-unification) the connections modal tucks under
+// the sidebar and overflows the viewport at narrow content widths. Until the
+// Dialog accounts for the menu itself, this section re-anchors the frame onto
+// the content column by mirroring the chassis sidebar-width matrix in
+// base-styles/admin-page-layout.scss (160 wp-admin / 272 nav-unification /
+// 36 folded / 0 off-canvas). Deleting everything between the BEGIN and END
+// markers reverts both views to the Dialog's centering; the `menu-aware`
+// class on the confirmation popup (index-modern.tsx) then becomes a no-op —
+// drop that branch too when convenient. The real fix belongs in @wordpress/ui;
+// file the issue and link it here.
+
+// Applies to both modal views: the services list (`services-list`, which also
+// gets the vertical pin above) and the post-connect confirmation
+// (`menu-aware`). `large` caps width at 960px via `max-inline-size`. In
+// horizontal writing mode `max-width` and `max-inline-size` resolve to the
+// same physical constraint, so our `max-width` replaces (rather than adds
+// to) the Dialog's 960px ceiling — `min()` reinstates it while also capping
+// to the content column. `left: 50% + half-menu` shifts the anchor;
+// the popup's `translateX(-50%)` (explicit on `services-list`, inherited from
+// the Dialog's default transform on `menu-aware`) then centers it there.
+.services-list,
+.menu-aware {
+	--jetpack-social-admin-menu-width: 160px;
+
+	left: calc(50% + var(--jetpack-social-admin-menu-width) / 2);
+	max-width: min(960px, calc(100dvw - var(--jetpack-social-admin-menu-width) - 2 * var(--wpds-dimension-padding-2xl, 24px)));
+}
+
+// The sidebar width varies by environment and menu state; mirror the chassis
+// matrix exactly. Order matters — the ≤782px reset comes last so its `0`
+// outranks the equal-specificity folded/auto-fold rules above it.
+
+// "Collapse menu" preference narrows the sidebar to 36px at desktop widths.
+:global(body.folded) .services-list,
+:global(body.folded) .menu-aware {
+	--jetpack-social-admin-menu-width: 36px;
+}
+
+// Auto-fold (≤960px): the menu collapses to icons.
+@media screen and (max-width: 960px) {
+
+	:global(body.auto-fold) .services-list,
+	:global(body.auto-fold) .menu-aware {
+		--jetpack-social-admin-menu-width: 36px;
+	}
+}
+
+// WP.com wp-admin (`body.is-nav-unification`) renders a 272px sidebar at
+// expanded widths; `:not(.folded)` lets the collapse rule keep winning.
+@media screen and (min-width: 961px) {
+
+	:global(body.is-nav-unification:not(.folded)) .services-list,
+	:global(body.is-nav-unification:not(.folded)) .menu-aware {
+		--jetpack-social-admin-menu-width: 272px;
+	}
+}
+
+// Off-canvas (≤782px): the menu overlays content, which spans full width.
+@media screen and (max-width: 782px) {
+
+	.services-list,
+	.menu-aware,
+	:global(body.folded) .services-list,
+	:global(body.folded) .menu-aware,
+	:global(body.auto-fold) .services-list,
+	:global(body.auto-fold) .menu-aware {
+		--jetpack-social-admin-menu-width: 0px;
+	}
+}
+// ===== END admin-menu workaround =====================================
+
+// `Dialog.Content` owns the scroll, but `Dialog.Header` stays a shrinkable
+// flex child (`flex-shrink: 1`, `min-height: 32px`) even alongside it — WPDS
+// "pins" the header to the top (non-scrolling) but doesn't stop it
+// compressing. Pin it so an overflowing body scrolls instead of squishing
+// the header padding (~7px).
+.modal-header {
+	flex-shrink: 0;
+}
+
+// `Dialog.Content` defaults to `scrollbar-gutter: auto`; reserve the gutter
+// on both edges so rows don't shift when a disclosure (e.g. the Instagram
+// preview) makes the body overflow + scroll.
+.modal-content {
+	scrollbar-gutter: stable both-edges;
+}
+
+.manual-share {
+	padding-block: 2rem;
+}

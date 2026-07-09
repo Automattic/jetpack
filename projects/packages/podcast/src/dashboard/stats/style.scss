@@ -1,0 +1,312 @@
+@use "@automattic/charts/dist/index.css";
+
+// @automattic/date-range-picker uses Calypso dashboard CSS variables we don't
+// have here; re-color its trigger button with wp-admin tokens, and hide the
+// calendar's bounded month-nav chevrons (the API never serves dates beyond
+// today or older than a year, so the disabled arrows are dead weight).
+.daterange-input__field.components-button {
+	background: #fff;
+	border-color: #949494;
+}
+
+.daterange-input__field svg,
+.daterange-input__text {
+	color: #1e1e1e;
+}
+
+.daterange-calendar button[aria-disabled="true"] {
+	visibility: hidden;
+}
+
+$text: #1e1e1e;
+$muted: #757575;
+
+// Studio Blue, matching the rest of Calypso's defaults. We intentionally don't
+// follow the user's wp-admin color scheme: Calypso Stats doesn't either, and
+// this dashboard only renders on WP.com Simple + WoA, so the wp-admin scheme
+// signal isn't a strong enough match to justify the extra plumbing.
+$bar-fill: #3858e9;
+
+.podcast-stats {
+	padding-block-start: 16px;
+	padding-block-end: 32px;
+	padding-inline: 16px;
+
+	@media (min-width: 783px) {
+		padding-inline: 24px;
+	}
+
+	&--stack {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	&__header {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	&__section-header {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	&__period-heading {
+		margin: 0;
+		font-size: 24px;
+		font-weight: 400;
+		line-height: 1.2;
+		color: $text;
+	}
+
+	&__episode-heading {
+		font-size: 22px;
+	}
+
+	&__section-description {
+		margin: 0;
+		color: $muted;
+	}
+
+	&__back-link {
+		align-self: flex-start;
+	}
+
+	&__module-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 16px;
+	}
+
+	&__section-card {
+		min-width: 0;
+
+		// Calypso Stats card-module look: real border, no shadow, larger header,
+		// 24px content padding. Scoped off the Downloads chart card.
+		&:not(.podcast-stats-chart) {
+			background: #fff;
+			border: 1px solid #dcdcde;
+			border-radius: 5px;
+			box-shadow: none;
+
+			.components-card__header {
+				padding-block: 24px 12px;
+				padding-inline: 24px;
+				border-block-end: 0;
+				min-height: 0;
+			}
+
+			.components-card__body {
+				padding-block: 0 24px;
+				padding-inline: 24px;
+			}
+
+			.podcast-stats__section-title {
+				font-size: 20px;
+				font-weight: 500;
+				line-height: 1.3;
+			}
+		}
+
+		// Downloads chart card shares SectionCard but stays compact —
+		// no heavy CardHeader divider, tighter header padding.
+		&.podcast-stats-chart .components-card__header {
+			border-block-end: 0;
+			padding-block: 10px;
+			min-height: 0;
+		}
+	}
+
+	&__section-title {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 600;
+		line-height: 1.3;
+		color: $text;
+	}
+
+	&__section-loading {
+		display: flex;
+		justify-content: center;
+		padding: 24px 0;
+	}
+
+	&__section-empty {
+		margin: 0;
+		color: $muted;
+	}
+
+	&__section-metric {
+		margin: 0;
+		color: $muted;
+		font-size: 12px;
+	}
+}
+
+// Inline metric tiles. Display-only; typography is owned by Heading/Text,
+// so only layout lives here.
+.podcast-stats-summary {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 0;
+
+	&__tile {
+		padding: 12px 20px;
+		min-width: 0;
+
+		&:not(:first-child) {
+			border-inline-start: 1px solid #e0e0e0;
+		}
+	}
+}
+
+.podcast-stats-chart {
+
+	// No min-height — fights the chart's ResizeObserver.
+	&__chart {
+		position: relative;
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 280px;
+	}
+
+	&__tooltip {
+		padding: 8px 10px;
+		background: $text;
+		color: #fff;
+		border-radius: 4px;
+	}
+
+	&__tooltip-value {
+		display: block;
+	}
+
+	&__summary {
+		margin-top: 16px;
+	}
+}
+
+// Self-contained — shared base rule isn't in the lazy stats chunk.
+.podcast-stats .podcast__empty-state {
+	padding: 64px 16px;
+	text-align: center;
+	color: $muted;
+
+	.podcast__section-heading {
+		margin: 0 0 8px;
+		font-weight: 500;
+	}
+
+	p {
+		margin: 0 auto;
+		max-width: 420px;
+		color: $muted;
+	}
+}
+
+.podcast-stats-locations {
+
+	&__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+		gap: 24px;
+		align-items: start;
+
+		@media (max-width: 720px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	// No min-height — fights the chart's ResizeObserver.
+	&__map {
+		position: relative;
+	}
+
+	&__list-title {
+		margin: 0 0 8px;
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: $muted;
+	}
+}
+
+.podcast-stats-bar-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+
+	&__item {
+		margin: 0;
+	}
+
+	&__row {
+		position: relative;
+		padding: 6px 8px;
+		border-radius: 4px;
+		width: 100%;
+		text-align: start;
+		// Reset UA <button> grey on clickable rows (Top episodes); is-clickable
+		// hover/focus rules override.
+		background: transparent;
+		border: 0;
+		cursor: default;
+
+		&.is-clickable {
+			cursor: pointer;
+
+			&:hover {
+				background: color-mix(in sRGB, $bar-fill 6%, transparent);
+			}
+
+			&:focus-visible {
+				background: color-mix(in sRGB, $bar-fill 6%, transparent);
+				outline: 2px solid $bar-fill;
+				outline-offset: 2px;
+			}
+		}
+	}
+
+	&__content {
+		position: relative;
+	}
+
+	&__leading {
+		display: inline-flex;
+		flex: 0 0 auto;
+	}
+
+	&__label {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__value {
+		flex: 0 0 auto;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__bar {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 0;
+		background: $bar-fill;
+		opacity: 0.18;
+		border-radius: 4px;
+		pointer-events: none;
+	}
+}

@@ -22,7 +22,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'rest_route'                           => '/posts',
-		'rest_min_jp_version'                  => '14.5-a.2',
+		'rest_min_jp_version'                  => '15.9',
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 
@@ -188,7 +188,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		// let's be explicit about defaulting to 'post'.
-		$args['type'] = isset( $args['type'] ) ? $args['type'] : 'post';
+		$args['type'] = $args['type'] ?? 'post';
 
 		// make sure the user can read or edit the requested post type(s).
 		if ( is_array( $args['type'] ) ) {
@@ -219,7 +219,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			'orderby'        => $args['order_by'],
 			'post_type'      => $args['type'],
 			'post_status'    => $status,
-			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
+			'post_parent'    => $args['parent_id'] ?? null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
 			'fields'         => 'ids',

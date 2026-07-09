@@ -80,6 +80,7 @@ export function setCurrentQuery( currentQuery ) {
 			previousQuery.search !== queryWithFormat.search ||
 			previousQuery.is_unread !== queryWithFormat.is_unread ||
 			previousQuery.parent !== queryWithFormat.parent ||
+			previousQuery.source !== queryWithFormat.source ||
 			previousQuery.before !== queryWithFormat.before ||
 			previousQuery.after !== queryWithFormat.after;
 

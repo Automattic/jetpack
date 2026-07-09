@@ -4,7 +4,6 @@ import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
-import { JetpackFooter } from '@automattic/jetpack-components';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router';
@@ -101,7 +100,6 @@ const GettingStarted: FC = () => {
 						</div>
 					</div>
 				</div>
-				<JetpackFooter />
 			</div>
 		</BoostAdminPage>
 	);

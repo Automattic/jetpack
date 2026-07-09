@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Adopt the shared Jetpack admin-page-layout mixin: pinned header, scrolling middle, pinned footer, no window-level scroll.

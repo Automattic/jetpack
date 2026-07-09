@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/proceed_p.sh"
@@ -97,7 +97,7 @@ for FILE in $(git ls-files "projects/$SLUG/"); do
 
 	if grep -F -q '$$next-version$$' "$FILE"; then
 		EXIT=1
-		while IFS=':' read -r LINE DUMMY; do
+		while IFS=':' read -r LINE _; do
 			if [[ -n "$CI" ]]; then
 				echo "::error file=$FILE,line=$LINE::"'Unexpected `$$next-version$$` token.'
 			else

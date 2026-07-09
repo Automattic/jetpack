@@ -64,32 +64,25 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 			</Stack>
 			<Stack render={ <ul /> } direction="row" gap="lg" wrap="wrap">
 				{ items.map( item => {
-					const isButton = item.role === 'button';
-
 					return (
 						<li key={ item.label }>
 							<Text
-								variant="body-sm"
+								variant="body-md"
 								className="jetpack-footer__menu-item"
 								render={
-									isButton ? (
+									! item.href ? (
 										<Link
-											render={ <Text variant="body-md" render={ <span /> } /> }
-											tone="neutral"
-											variant="default"
-											role={ item.role }
+											render={ <span /> }
 											tabIndex={ 0 }
+											title={ item.title || '' }
 											onClick={ item.onClick || undefined }
 											onKeyDown={ item.onKeyDown || undefined }
+											role="button"
 										/>
 									) : (
 										<Link
-											render={ <Text variant="body-md" render={ <a /> } /> }
-											tone="neutral"
-											variant="default"
-											href={ item.href || '' }
+											href={ item.href }
 											title={ item.title || '' }
-											role={ item.role }
 											onClick={ item.onClick || undefined }
 											onKeyDown={ item.onKeyDown || undefined }
 										/>

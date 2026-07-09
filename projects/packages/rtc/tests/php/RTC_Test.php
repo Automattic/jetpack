@@ -63,10 +63,10 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down(): void {
 		global $wp_settings_fields, $wp_scripts, $wp_styles, $pagenow;
-		$wp_settings_fields = $this->original_wp_settings_fields; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_scripts         = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles          = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$pagenow            = $this->original_pagenow; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields = $this->original_wp_settings_fields;
+		$wp_scripts         = $this->original_wp_scripts;
+		$wp_styles          = $this->original_wp_styles;
+		$pagenow            = $this->original_pagenow;
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'jetpack_rtc_providers' );
 		foreach ( array( RTC::OPTION_OLD, RTC::OPTION_NEW ) as $option ) {
@@ -90,11 +90,11 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that init always hooks enqueue_assets.
+	 * Tests that init always hooks register_providers.
 	 */
-	public function test_init_hooks_enqueue_assets() {
+	public function test_init_hooks_register_providers() {
 		RTC::init();
-		$this->assertSame( 10, has_action( 'enqueue_block_editor_assets', array( RTC::class, 'enqueue_assets' ) ) );
+		$this->assertSame( 10, has_action( 'enqueue_block_editor_assets', array( RTC::class, 'register_providers' ) ) );
 	}
 
 	/**
@@ -206,7 +206,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 
-		$pagenow = 'site-editor.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$pagenow = 'site-editor.php';
 		$this->assertFalse( RTC::is_enabled() );
 	}
 
@@ -329,13 +329,13 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// enqueue_assets tests
+	// register_providers tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that enqueue skips when http-polling is the only provider.
+	 * Tests that register_providers skips when http-polling is the only provider.
 	 */
-	public function test_enqueue_assets_skips_http_polling_only() {
+	public function test_register_providers_skips_http_polling_only() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -345,15 +345,15 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertFalse( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	/**
 	 * Tests that the script is enqueued when pinghub provider is active.
 	 */
-	public function test_enqueue_assets_enqueues_when_pinghub() {
+	public function test_register_providers_enqueues_when_pinghub() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -363,15 +363,15 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertTrue( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	/**
 	 * Tests that the script is enqueued when multiple providers including non-http-polling are active.
 	 */
-	public function test_enqueue_assets_enqueues_with_multiple_providers() {
+	public function test_register_providers_enqueues_with_multiple_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -381,15 +381,15 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertTrue( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	/**
 	 * Tests that the inline script data does not include pinghubJWTToken when assets are enqueued.
 	 */
-	public function test_enqueue_assets_does_not_include_jwt_token() {
+	public function test_register_providers_does_not_include_jwt_token() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -399,9 +399,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$handle = 'jetpack-rtc';
+		$handle = 'jetpack-rtc-providers';
 		$this->assertTrue( wp_script_is( $handle, 'enqueued' ) );
 
 		// Ensure the inline script does NOT contain pinghubJWTToken.
@@ -410,16 +410,16 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue skips when RTC is not enabled.
+	 * Tests that register_providers skips when RTC is not enabled.
 	 */
-	public function test_enqueue_assets_skips_when_not_enabled() {
+	public function test_register_providers_skips_when_not_enabled() {
 		// Reset scripts to ensure clean state.
 		global $wp_scripts;
-		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_scripts = new \WP_Scripts();
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertFalse( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -432,8 +432,8 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	public function test_unregister_rtc_setting_removes_field_when_not_allowed() {
 		global $wp_settings_fields;
 
-		$wp_settings_fields['writing']['default'][ RTC::OPTION_OLD ] = array( 'id' => RTC::OPTION_OLD ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_settings_fields['writing']['default'][ RTC::OPTION_NEW ] = array( 'id' => RTC::OPTION_NEW ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_OLD ] = array( 'id' => RTC::OPTION_OLD );
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_NEW ] = array( 'id' => RTC::OPTION_NEW );
 
 		RTC::unregister_rtc_setting();
 
@@ -448,8 +448,8 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		global $wp_settings_fields;
 
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		$wp_settings_fields['writing']['default'][ RTC::OPTION_OLD ] = array( 'id' => RTC::OPTION_OLD ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_settings_fields['writing']['default'][ RTC::OPTION_NEW ] = array( 'id' => RTC::OPTION_NEW ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_OLD ] = array( 'id' => RTC::OPTION_OLD );
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_NEW ] = array( 'id' => RTC::OPTION_NEW );
 
 		RTC::unregister_rtc_setting();
 
@@ -463,7 +463,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	public function test_unregister_rtc_setting_handles_missing_fields() {
 		global $wp_settings_fields;
 
-		$wp_settings_fields = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields = array();
 
 		// Should not throw any errors.
 		RTC::unregister_rtc_setting();
@@ -559,7 +559,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_pre_rtc_option_passes_through_on_writing_settings_page() {
 		global $pagenow;
-		$pagenow = 'options-writing.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$pagenow = 'options-writing.php';
 
 		$this->assertFalse( RTC::pre_rtc_option() );
 	}

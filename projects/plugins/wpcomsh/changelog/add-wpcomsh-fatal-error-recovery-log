@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Wpcomsh fatal-error: route the screen's "Enter recovery mode" link through a first-party redirect endpoint that logs a `wpcomsh_fatal_recovery` event before forwarding to a freshly-generated core recovery URL, so we can measure screen-originated recovery clicks alongside the existing signature and deactivate events without conflating them with email-originated entries.

@@ -411,20 +411,26 @@ describe( 'numberFormatCurrency()', () => {
 			} );
 			expect( money ).toBe( 'R$ 9.800.900,32' );
 		} );
-		// Disabled temporarily due to the smallest unit being changed:
-		// https://unicode-org.atlassian.net/browse/CLDR-11586
-		// See also: p1773338482018929-slack-C034JEXD1RD
-		// eslint-disable-next-line jest/no-commented-out-tests
-		// it( 'IDR', () => {
-		// 	const money = numberFormatCurrency( {
-		// 		number: 107280000,
-		// 		currency: 'IDR',
-		// 		browserSafeLocale: 'in-ID',
-		// 		isSmallestUnit: true,
-		// 	} );
-		// eslint-disable-next-line no-irregular-whitespace
-		// 	expect( money ).toBe( 'Rp 1.072.800,00' );
-		// } );
+		it( 'IDR', () => {
+			const money = numberFormatCurrency( {
+				number: 107280000,
+				currency: 'IDR',
+				browserSafeLocale: 'in-ID',
+				isSmallestUnit: true,
+			} );
+
+			expect( money ).toBe( 'Rp 1.072.800' );
+		} );
+		it( 'HUF in smallest unit', () => {
+			const money = numberFormatCurrency( {
+				number: 99900,
+				currency: 'HUF',
+				browserSafeLocale: 'hu-HU',
+				isSmallestUnit: true,
+			} );
+
+			expect( money ).toBe( '999 Ft' );
+		} );
 	} );
 } );
 
@@ -512,6 +518,24 @@ describe( 'getCurrencyObject()', () => {
 			sign: '',
 			hasNonZeroFraction: true,
 			floatValue: 99.32,
+		} );
+	} );
+
+	it( 'handles IDR in smallest unit using ISO 4217 exponent', () => {
+		const money = getCurrencyObject( {
+			number: 24000000,
+			currency: 'IDR',
+			browserSafeLocale: 'in-ID',
+			isSmallestUnit: true,
+		} );
+		expect( money ).toEqual( {
+			symbol: 'Rp',
+			symbolPosition: 'before',
+			integer: '240.000',
+			fraction: '',
+			sign: '',
+			hasNonZeroFraction: false,
+			floatValue: 240000,
 		} );
 	} );
 

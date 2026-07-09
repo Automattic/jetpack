@@ -2,104 +2,45 @@ import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
-import QuerySite from 'components/data/query-site';
-import {
-	getSiteAdminUrl,
-	isWpAdminNewsletterSettingsEnabled as isWpAdminNewsletterSettingsEnabledSelector,
-} from 'state/initial-state';
-import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
-import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
-import EmailSettings from './email-settings';
-import MessagesSetting from './messages-setting';
-import Newsletter from './newsletter';
-import NewsletterCategories from './newsletter-categories';
-import PaidNewsletter from './paid-newsletter';
-import SubscriptionsSettings from './subscriptions-settings';
-import './style.scss';
 
 /**
- * Newsletter Section.
+ * Surfaces the new Newsletter settings page in Jetpack Settings search results.
  *
- * @param {object} props - Component props.
- * @return {import('react').Component} Newsletter settings component.
+ * The Newsletter settings UI used to live here but has moved to its own
+ * wp-admin page. This card keeps the settings discoverable when someone
+ * searches for newsletter-related terms from Jetpack Settings.
+ *
+ * @param {object}  props                            - Component props.
+ * @param {string}  props.searchTerm                 - Current search term.
+ * @param {boolean} props.isSubscriptionsModuleFound - Whether the subscriptions module matches the search term.
+ * @param {string}  props.siteAdminUrl               - URL to the wp-admin root.
+ * @return {import('react').ReactNode} The redirect card, or null when not shown.
  */
-function Subscriptions( props ) {
-	const {
-		active,
-		isModuleFound,
-		searchTerm,
-		siteRawUrl,
-		blogID,
-		isWpAdminNewsletterSettingsEnabled,
-		siteAdminUrl,
-	} = props;
-
-	if ( ! searchTerm && ! active ) {
+function Subscriptions( { searchTerm, isSubscriptionsModuleFound, siteAdminUrl } ) {
+	if ( ! searchTerm || ! isSubscriptionsModuleFound ) {
 		return null;
-	}
-
-	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
-
-	if ( ! foundSubscriptions ) {
-		return null;
-	}
-
-	// When the new newsletter settings page is enabled, show a notice instead of the old settings
-	if ( isWpAdminNewsletterSettingsEnabled ) {
-		const newsletterSettingsUrl = `${ siteAdminUrl }admin.php?page=jetpack-newsletter`;
-
-		return (
-			<div>
-				<h1 className="screen-reader-text">{ __( 'Jetpack Newsletter Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">{ __( 'Newsletter', 'jetpack' ) }</h2>
-				<Card>
-					<p>
-						{ __(
-							'Newsletter Settings have moved to a new location. Access it via Jetpack → Newsletter.',
-							'jetpack'
-						) }
-					</p>
-					<Button href={ newsletterSettingsUrl } primary rna>
-						{ __( 'Go to Newsletter Settings', 'jetpack' ) }
-					</Button>
-				</Card>
-			</div>
-		);
 	}
 
 	return (
 		<div>
-			<QuerySite />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Newsletter Settings', 'jetpack' ) }</h1>
-			<h2 className="jp-settings__section-title">
-				{ searchTerm
-					? __( 'Newsletter', 'jetpack' )
-					: __(
-							'Transform your blog posts into newsletters to easily reach your subscribers.',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-					  ) }
-			</h2>
-			{ foundSubscriptions && (
-				<>
-					<Newsletter siteRawUrl={ siteRawUrl } blogID={ blogID } />
-					<SubscriptionsSettings />
-					<PaidNewsletter />
-					<NewsletterCategories />
-					<EmailSettings />
-					<MessagesSetting { ...props } />
-				</>
-			) }
+			<h2 className="jp-settings__section-title">{ __( 'Newsletter', 'jetpack' ) }</h2>
+			<Card>
+				<p>
+					{ __(
+						'Newsletter Settings have moved to a new location. Access it via Jetpack → Newsletter.',
+						'jetpack'
+					) }
+				</p>
+				<Button href={ `${ siteAdminUrl }admin.php?page=jetpack-newsletter` } primary rna>
+					{ __( 'Go to Newsletter Settings', 'jetpack' ) }
+				</Button>
+			</Card>
 		</div>
 	);
 }
 
-export default connect( state => {
-	return {
-		module: module_name => getModule( state, module_name ),
-		isModuleFound: module_name => isModuleFoundSelector( state, module_name ),
-		isWpAdminNewsletterSettingsEnabled: isWpAdminNewsletterSettingsEnabledSelector( state ),
-		siteAdminUrl: getSiteAdminUrl( state ),
-	};
-} )( Subscriptions );
+export default connect( state => ( {
+	isSubscriptionsModuleFound: isModuleFoundSelector( state, 'subscriptions' ),
+} ) )( Subscriptions );

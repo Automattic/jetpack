@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-videopress-core",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "VideoPress Core Functionality",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/videopress-core/#readme",
 	"bugs": {
@@ -27,13 +27,12 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
-		"@babel/preset-react": "7.28.5",
+		"@babel/core": "7.29.7",
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
-		"jest": "30.3.0",
+		"jest": "30.4.2",
 		"tslib": "2.8.1",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

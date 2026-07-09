@@ -49,7 +49,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 
 	const criticalThreatCount: number = useMemo( () => {
 		return threats.length
-			? threats.reduce( ( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ), 0 )
+			? threats.reduce( ( accum, threat ) => ( threat.severity >= 5 ? accum + 1 : accum ), 0 )
 			: 0;
 	}, [ threats ] );
 

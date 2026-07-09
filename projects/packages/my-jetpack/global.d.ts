@@ -42,6 +42,8 @@ type JetpackModule =
 	| 'site-accelerator'
 	| 'newsletter'
 	| 'related-posts'
+	| 'jetpack-forms'
+	| 'podcast'
 	| 'brute-force';
 
 type JetpackModuleWithCard =
@@ -336,28 +338,23 @@ type ProtectNeedsAttentionData = {
 };
 
 type Purchase = {
-	ID: string;
-	user_id: string;
-	blog_id: string;
-	product_id: string;
+	ID: number;
+	user_id: number;
+	blog_id: number;
+	product_id: number;
 	subscribed_date: string;
-	renew: string;
-	auto_renew: string;
 	renew_date: string;
-	inactive_date: string | null;
-	active: string;
-	meta: string | object;
-	ownership_id: string;
+	meta: string | null;
+	ownership_id: number;
 	most_recent_renew_date: string;
 	amount: number;
-	expiry_date: string;
-	expiry_message: string;
-	expiry_sub_message: string;
+	expiry_date: string | null;
 	expiry_status: string;
 	partner_name: string | null;
 	partner_slug: string | null;
-	partner_key_id: string | null;
+	partner_key_id: number | null;
 	subscription_status: string;
+	is_auto_renew_enabled: boolean;
 	product_name: string;
 	product_slug: string;
 	product_type: string;
@@ -365,15 +362,12 @@ type Purchase = {
 	blogname: string;
 	domain: string;
 	description: string;
-	attached_to_purchase_id: string | null;
+	attached_to_purchase_id: number | null;
 	included_domain: string;
 	included_domain_purchase_amount: number;
 	currency_code: string;
 	currency_symbol: string;
-	renewal_price_tier_slug: string | null;
 	renewal_price_tier_usage_quantity: number | null;
-	current_price_tier_slug: string | null;
-	current_price_tier_usage_quantity: number | null;
 	price_tier_list: Array< object >;
 	price_text: string;
 	bill_period_label: string;
@@ -393,7 +387,6 @@ type Purchase = {
 	refund_period_in_days: number;
 	is_renewable: boolean;
 	is_renewal: boolean;
-	has_private_registration: boolean;
 	refund_amount: number;
 	refund_integer: number;
 	refund_currency_symbol: string;
@@ -403,7 +396,6 @@ type Purchase = {
 	total_refund_integer: number;
 	total_refund_currency: string;
 	total_refund_text: string;
-	check_dns: boolean;
 };
 
 type ProtectData = {
@@ -652,13 +644,22 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		isJetpackPluginActive: boolean;
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
 		isWelcomeTourActive: boolean;
+		seoOptIn: {
+			showCard: boolean;
+			redirect: string;
+		};
 	};
 	myJetpackRest?: {
 		apiRoot: string;
 		apiNonce: string;
+	};
+	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+	jetpackMenuBadges?: {
+		setCount: ( menuSlug: string, count: number ) => void;
 	};
 }

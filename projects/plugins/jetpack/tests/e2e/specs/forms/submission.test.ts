@@ -1,5 +1,5 @@
+import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 import { Response } from '@playwright/test';
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
 
 test.afterEach( async ( { requestUtils } ) => {
 	// List all feedback submissions.
@@ -54,9 +54,25 @@ test.describe( 'Forms: Submission', () => {
 			await editor.insertBlock( {
 				name: 'jetpack/contact-form',
 				attributes: { formTitle },
+				innerBlocks: [
+					{
+						name: 'jetpack/field-name',
+						attributes: { required: true },
+					},
+					{
+						name: 'jetpack/field-email',
+						attributes: { required: true },
+					},
+					{
+						name: 'jetpack/field-textarea',
+					},
+					{
+						name: 'jetpack/button',
+						attributes: { element: 'button', text: 'Contact Us' },
+					},
+				],
 			} );
 			const formBlock = editor.canvas.getByRole( 'document', { name: 'Block: Form' } );
-			await formBlock.getByRole( 'button', { name: 'Add a contact form to your page.' } ).click();
 
 			await expect( formBlock ).toBeVisible();
 		} );

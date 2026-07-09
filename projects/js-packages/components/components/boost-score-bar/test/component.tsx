@@ -55,14 +55,14 @@ describe( 'BoostScrollBar', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } scoreBarType="mobile" /> );
 
 		expect( screen.getByText( 'Mobile score' ) ).toBeInTheDocument();
-		expect( container.querySelector( '.gridicons-phone' ) ).toBeInTheDocument();
+		expect( container.querySelector( '.jb-score-bar__label svg' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders desktop icon and text when scoreBarType is desktop', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } /> );
 
 		expect( screen.getByText( 'Desktop score' ) ).toBeInTheDocument();
-		expect( container.querySelector( '.gridicons-computer' ) ).toBeInTheDocument();
+		expect( container.querySelector( '.jb-score-bar__label svg' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders previous scores when showPrevScores is true', () => {

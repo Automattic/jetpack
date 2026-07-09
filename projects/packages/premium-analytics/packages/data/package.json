@@ -1,0 +1,23 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-data",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"types": "src/index.ts",
+	"sideEffects": false,
+	"dependencies": {
+		"@date-fns/tz": "1.4.1",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@tanstack/react-query": "5.90.8",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/core-data": "7.50.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/html-entities": "4.50.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/url": "4.50.0",
+		"date-fns": "4.1.0"
+	}
+}

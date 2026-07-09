@@ -192,7 +192,7 @@ class Jetpack_Ai extends Product {
 			return 0;
 		}
 
-		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+		$current_tier = $info['current-tier']['value'] ?? null;
 
 		return $current_tier;
 	}
@@ -217,7 +217,7 @@ class Jetpack_Ai extends Product {
 		}
 
 		// Trust the next tier provided by the feature data.
-		$next_tier = isset( $info['next-tier']['value'] ) ? $info['next-tier']['value'] : null;
+		$next_tier = $info['next-tier']['value'] ?? null;
 
 		return $next_tier;
 	}
@@ -234,17 +234,18 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the internationalized usage tier long description by tier
 	 *
-	 * @param int $tier The usage tier.
+	 * @param int|null $tier The usage tier.
 	 * @return string
 	 */
 	public static function get_long_description_by_usage_tier( $tier ) {
-		$long_descriptions  = array(
-			1   => __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' ),
-			100 => __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-		);
-		$tiered_description = __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
-
-		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : $tiered_description;
+		switch ( (int) $tier ) {
+			case 1:
+				return __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' );
+			case 100:
+				return __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
+			default:
+				return __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
+		}
 	}
 
 	/**
@@ -367,7 +368,7 @@ class Jetpack_Ai extends Product {
 			);
 		}
 
-		return isset( $prices[ $tier ] ) ? $prices[ $tier ] : array();
+		return $prices[ $tier ] ?? array();
 	}
 
 	/**

@@ -914,7 +914,7 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 		$data = $data[0];
 
 		// Avoid special-case handling of an unset 'items' field in empty menus
-		$data['items'] = isset( $data['items'] ) ? $data['items'] : array();
+		$data['items'] = $data['items'] ?? array();
 
 		$data = $this->create_new_items( $data, $menu_id );
 
@@ -930,7 +930,7 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 		}
 
 		foreach ( $data['items'] as $item ) {
-			$item_id = isset( $item['menu-item-db-id'] ) ? $item['menu-item-db-id'] : 0;
+			$item_id = $item['menu-item-db-id'] ?? 0;
 			$result  = wp_update_nav_menu_item( $menu_id, $item_id, $item );
 			if ( is_wp_error( $result ) ) {
 				return $result;

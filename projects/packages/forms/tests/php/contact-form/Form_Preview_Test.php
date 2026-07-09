@@ -124,7 +124,7 @@ class Form_Preview_Test extends BaseTestCase {
 
 		$this->assertContains( 'existing', $result );
 		$this->assertContains( 'jetpack_form_preview', $result );
-		$this->assertContains( 'preview_nonce', $result );
+		$this->assertContains( 'jetpack_form_preview_nonce', $result );
 	}
 
 	/**
@@ -137,7 +137,7 @@ class Form_Preview_Test extends BaseTestCase {
 
 		$this->assertNotNull( $url );
 		$this->assertStringContainsString( 'jetpack_form_preview=' . $this->form_id, $url );
-		$this->assertStringContainsString( 'preview_nonce=', $url );
+		$this->assertStringContainsString( 'jetpack_form_preview_nonce=', $url );
 	}
 
 	/**
@@ -222,7 +222,7 @@ class Form_Preview_Test extends BaseTestCase {
 	 */
 	public function test_maybe_render_preview_no_vars() {
 		set_query_var( 'jetpack_form_preview', '' );
-		set_query_var( 'preview_nonce', '' );
+		set_query_var( 'jetpack_form_preview_nonce', '' );
 
 		$template = '/path/to/template.php';
 

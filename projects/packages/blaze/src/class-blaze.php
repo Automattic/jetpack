@@ -30,6 +30,34 @@ class Blaze {
 	const SCRIPT_HANDLE = 'jetpack-promote-editor';
 
 	/**
+	 * Transient prefix for active campaign status checks.
+	 *
+	 * @var string
+	 */
+	const ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_PREFIX = 'jetpack_blaze_active_campaigns_status_';
+
+	/**
+	 * Transient TTL for active campaign status checks that find campaigns.
+	 *
+	 * @var int
+	 */
+	const ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_TTL = HOUR_IN_SECONDS;
+
+	/**
+	 * Transient TTL for active campaign status checks that cannot determine campaign status.
+	 *
+	 * @var int
+	 */
+	const UNKNOWN_ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Minimum campaign statuses that should trigger a warning.
+	 *
+	 * @var string[]
+	 */
+	const ACTIVE_CAMPAIGN_STATUSES = array( 'active' );
+
+	/**
 	 * Path of the JS file we enqueue in the post editor.
 	 *
 	 * @var string
@@ -56,9 +84,9 @@ class Blaze {
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
 		// Add Blaze dashboard app REST API endpoints.
-		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( Blaze_Dashboard_REST_Controller::class, 'register' ) );
 		// Add general Blaze REST API endpoints.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 	}
 
 	/**
@@ -195,6 +223,100 @@ class Blaze {
 		set_transient( $transient_name, array( 'approved' => (bool) $result['approved'] ), DAY_IN_SECONDS );
 
 		return (bool) $result['approved'];
+	}
+
+	/**
+	 * Get the active campaign status for a site.
+	 *
+	 * @param int $blog_id The blog ID to check.
+	 *
+	 * @return array Active campaign status.
+	 */
+	public static function get_active_campaigns_status( $blog_id ) {
+		$blog_id = absint( $blog_id );
+
+		if ( empty( $blog_id ) ) {
+			return self::get_unknown_active_campaigns_status();
+		}
+
+		$transient_name = self::ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_PREFIX . $blog_id;
+		$cached_result  = get_transient( $transient_name );
+
+		if ( false !== $cached_result ) {
+			return $cached_result;
+		}
+
+		/**
+		 * Filter the campaign statuses that should trigger the active campaign warning.
+		 *
+		 * @since 0.27.23
+		 *
+		 * @param string[] $statuses Campaign statuses to check.
+		 * @param int      $blog_id  The blog ID being checked.
+		 */
+		$statuses = apply_filters( 'jetpack_blaze_active_campaign_statuses', self::ACTIVE_CAMPAIGN_STATUSES, $blog_id );
+		$statuses = array_filter( array_map( 'sanitize_key', (array) $statuses ) );
+
+		if ( empty( $statuses ) ) {
+			$statuses = self::ACTIVE_CAMPAIGN_STATUSES;
+		}
+
+		$url = add_query_arg(
+			array(
+				'status' => implode( ',', $statuses ),
+				'limit'  => 1,
+			),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/search/campaigns/site/%d', $blog_id, $blog_id )
+		);
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$url,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return self::get_unknown_active_campaigns_status( $transient_name );
+		}
+
+		$result = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! is_array( $result ) || ! isset( $result['campaigns'] ) || ! is_array( $result['campaigns'] ) ) {
+			return self::get_unknown_active_campaigns_status( $transient_name );
+		}
+
+		$has_active_campaigns = ! empty( $result['campaigns'] );
+		$status               = array(
+			'has_active_campaigns' => $has_active_campaigns,
+			'status'               => $has_active_campaigns ? 'active' : 'none',
+		);
+
+		if ( $has_active_campaigns ) {
+			set_transient( $transient_name, $status, self::ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_TTL );
+		}
+
+		return $status;
+	}
+
+	/**
+	 * Get the unknown active campaign status response.
+	 *
+	 * @param string|null $transient_name Optional transient name used to cache the unknown status.
+	 * @return array Unknown active campaign status.
+	 */
+	private static function get_unknown_active_campaigns_status( $transient_name = null ) {
+		$status = array(
+			'has_active_campaigns' => false,
+			'status'               => 'unknown',
+		);
+
+		if ( $transient_name ) {
+			set_transient( $transient_name, $status, self::UNKNOWN_ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_TTL );
+		}
+
+		return $status;
 	}
 
 	/**

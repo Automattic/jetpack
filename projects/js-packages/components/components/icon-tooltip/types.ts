@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { Icon } from '@wordpress/icons';
+import type { ComponentProps, ReactNode } from 'react';
 
 export type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
@@ -17,7 +18,7 @@ export type IconTooltipProps = {
 	className?: string;
 
 	/**
-	 * The class name applied to Gridicon.
+	 * The class name applied to the icon.
 	 */
 	iconClassName?: string;
 
@@ -37,9 +38,9 @@ export type IconTooltipProps = {
 	animate?: boolean;
 
 	/**
-	 * The icon code for Gridicon.
+	 * The icon to display. Accepts icon components from `@wordpress/icons`.
 	 */
-	iconCode?: string;
+	iconCode?: ComponentProps< typeof Icon >[ 'icon' ];
 
 	/**
 	 * The title of Popover.

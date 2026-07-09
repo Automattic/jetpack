@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix new `playwright/missing-playwright-await` lint in E2E tests.
-
-

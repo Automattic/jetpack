@@ -21,7 +21,18 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.8.0';
+	const PACKAGE_VERSION = '0.11.2';
+
+	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
+
+	/**
+	 * Filter name that gates the wp-build–based dashboard.
+	 *
+	 * When this filter returns true, "Jetpack > Newsletter" renders the new
+	 * wp-build dashboard instead of the legacy Newsletter Settings React app.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
+
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -37,22 +48,6 @@ class Settings {
 			self::$initialized = true;
 			( new self() )->init_hooks();
 		}
-	}
-
-	/**
-	 * Determine whether to expose the new settings UI to users.
-	 *
-	 * @return bool
-	 */
-	private function expose_to_users() {
-		/**
-		 * Enables the new in-development newsletter settings UI in wp-admin.
-		 *
-		 * @since 15.3.0
-		 *
-		 * @param bool $enabled Whether to enable the new newsletter settings UI. Default true.
-		 */
-		return apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true );
 	}
 
 	/**
@@ -88,26 +83,38 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
-		// Add the Reading settings notice regardless of the new UI feature flag,
-		// as long as subscriptions are active.
+		// Transitional Subscribers announcement page (active only while the
+		// modernization filter is on): registers its AJAX/admin-post handlers
+		// and wp-build loading here so they exist on admin-ajax.php and
+		// admin-post.php requests. The menu itself is added by the Jetpack
+		// plugin's subscriptions module, which owns the Subscribers placement.
+		Subscribers_Announcement::init();
+
+		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
 		}
 
 		// Hijack the config URLs to point to our settings page.
 		// Priority 20 to override the default URL set in subscriptions.php.
-		// Check expose_to_users() lazily in the callback so filters registered
-		// after init() (e.g. by jetpack-mu-wpcom) are available.
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
-			function ( $url ) {
-				if ( ! $this->expose_to_users() ) {
-					return $url;
-				}
-				return Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
+			function () {
+				return Urls::get_newsletter_settings_url();
 			},
 			20
 		);
+
+		// Defer wp-build loading to admin_menu (priority 1) on every host. The
+		// modernization filter — which third parties typically register from a
+		// plugins_loaded callback — needs to have been applied before we read it,
+		// and the wp-build render function needs to be defined before any menu
+		// callback runs (priority 999 on standalone Jetpack, priority 999999 on
+		// wpcom Simple via wpcom-admin-menu.php's call to add_wp_admin_submenu).
+		// Settings::init() runs synchronously from load-jetpack.php at
+		// plugin-file-include time — before any plugins_loaded callback fires —
+		// so an inline check here would always see the unfiltered default.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
 		$host = new Host();
 
@@ -118,17 +125,29 @@ class Settings {
 			return;
 		}
 
-		// On sites using Jetpack, only show the menu if the site is connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			return;
-		}
-
 		// Add admin menu item.
-		// The expose_to_users() check is deferred to add_wp_admin_menu() so that
-		// filters registered after init() are available when admin_menu fires.
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
+	}
+
+	/**
+	 * Load wp-build for the Newsletter admin page when modernization is enabled.
+	 *
+	 * Hooked to `admin_menu` priority 1 so the modernization filter has been
+	 * registered by any opt-in code (mu-plugins, snippets, themes) before we
+	 * read it, and so the wp-build render function and enqueue hook are in
+	 * place before `add_wp_admin_menu` runs at priority 999.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_modernized() || ! self::is_newsletter_admin_request() ) {
+			return;
+		}
+
+		self::load_wp_build();
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
@@ -136,23 +155,32 @@ class Settings {
 	 *
 	 * Note: This method is NOT called on wpcom Simple sites. Simple sites use
 	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
-	 *
-	 * Menu visibility is controlled by the jetpack_show_newsletter_menu_item filter
-	 * (defaults to true). Set to false to hide the menu while keeping page accessible.
 	 */
 	public function add_wp_admin_menu() {
-		if ( ! $this->expose_to_users() ) {
+		// On sites using Jetpack, only show the menu if the site is connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return;
+		}
+
+		// On the modernized dashboard, the Newsletter screen is only useful when the
+		// subscriptions module is active, so skip registering the menu entirely when it
+		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
+		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
 			return;
 		}
 
 		$host = new Host();
 
-		// When new settings are enabled, should_show_menu_item() controls visibility.
+		// should_show_menu_item() controls visibility of the menu item.
 		$show_menu   = $this->should_show_menu_item();
 		$parent_slug = $show_menu ? 'jetpack' : '';
 
 		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when showing in menu.
 		$use_jetpack_menu = ! $host->is_woa_site() && $show_menu;
+
+		$callback = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
+			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
+			: array( $this, 'render' );
 
 		// Register menu item.
 		if ( $use_jetpack_menu ) {
@@ -162,7 +190,7 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				array( $this, 'render' ),
+				$callback,
 				10
 			);
 		} else {
@@ -173,7 +201,7 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				array( $this, 'render' )
+				$callback
 			);
 		}
 
@@ -187,15 +215,19 @@ class Settings {
 	 *
 	 * This method is called from wpcom-admin-menu.php on Simple sites at late priority
 	 * (999999) when the Jetpack menu already exists.
-	 *
-	 * Similar to Subscribers_Dashboard::add_wp_admin_submenu().
 	 */
 	public function add_wp_admin_submenu() {
-		if ( ! $this->expose_to_users() ) {
+		// On the modernized dashboard, the Newsletter screen is only useful when the
+		// subscriptions module is active, so skip registering the menu entirely when it
+		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
+		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
 			return;
 		}
 
 		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
+		$callback    = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
+			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
+			: array( $this, 'render' );
 		$page_suffix = add_submenu_page(
 			$parent_slug,
 			/** "Newsletter" is a product name, do not translate. */
@@ -203,7 +235,7 @@ class Settings {
 			'Newsletter',
 			'manage_options',
 			'jetpack-newsletter',
-			array( $this, 'render' )
+			$callback
 		);
 
 		if ( $page_suffix ) {
@@ -229,17 +261,15 @@ class Settings {
 		$current_user = wp_get_current_user();
 		$theme        = wp_get_theme();
 
-		$site_url     = get_site_url();
-		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
-
 		$host                   = new Host();
 		$status                 = new Status();
+		$site_suffix            = $status->get_site_suffix();
 		$blog_id                = (int) $host->get_wpcom_site_id();
 		$is_wpcom               = $host->is_wpcom_platform();
 		$is_block_theme         = wp_is_block_theme();
-		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
+		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -253,7 +283,8 @@ class Settings {
 			'email'                           => $current_user->user_email,
 			'gravatar'                        => get_avatar_url( $current_user->ID ),
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
-			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_raw_url, $blog_id ),
+			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_suffix, $blog_id ),
+			'subscriberManagementEnabled'     => (bool) $wp_admin_subscriber_management_enabled,
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
@@ -267,6 +298,21 @@ class Settings {
 	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
+		// This callback is registered via `admin_enqueue_scripts` from `admin_init`,
+		// which itself fires on `load-{$page_suffix}` in `add_wp_admin_menu()` — so it
+		// only fires on the Newsletter admin page; no need to re-check the page here.
+		// The Tracks transport is required on both surfaces — `analytics.initialize`
+		// only queues events into `window._tkq`; without `jp-tracks` loaded, no
+		// pixel.gif requests fire and the queue grows forever.
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
+		if ( self::is_modernized() ) {
+			// wp-build manages the rest of its enqueue pipeline. The legacy
+			// newsletter script and JetpackScriptData are intentionally skipped
+			// for the wp-build dashboard.
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-newsletter',
 			'../build/newsletter.js',
@@ -278,9 +324,6 @@ class Settings {
 				'dependencies' => array( 'jetpack-script-data' ),
 			)
 		);
-
-		// Enqueue the Tracks script for analytics.
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
@@ -292,11 +335,11 @@ class Settings {
 	 *
 	 * @param bool   $wp_admin_enabled Whether wp-admin subscriber management is enabled.
 	 * @param bool   $is_wpcom         Whether this is a WordPress.com site.
-	 * @param string $site_raw_url     The site URL without protocol.
+	 * @param string $site_suffix      The Calypso site suffix (home host, slashes as `::`).
 	 * @param int    $blog_id          The blog ID.
 	 * @return string The subscriber management URL.
 	 */
-	private function get_subscriber_management_url( $wp_admin_enabled, $is_wpcom, $site_raw_url, $blog_id ) {
+	private function get_subscriber_management_url( $wp_admin_enabled, $is_wpcom, $site_suffix, $blog_id ) {
 		// If wp-admin subscriber management is enabled, use the wp-admin page.
 		if ( $wp_admin_enabled ) {
 			return admin_url( 'admin.php?page=subscribers' );
@@ -304,7 +347,7 @@ class Settings {
 
 		// For wpcom sites, use the wordpress.com URL.
 		if ( $is_wpcom ) {
-			return 'https://wordpress.com/subscribers/' . $site_raw_url;
+			return 'https://wordpress.com/subscribers/' . $site_suffix;
 		}
 
 		// For Jetpack sites, use the jetpack.com redirect URL.
@@ -353,7 +396,7 @@ class Settings {
 	 * @since 0.5.1
 	 */
 	public function render_reading_page_notice() {
-		$newsletter_url = Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
+		$newsletter_url = Urls::get_newsletter_settings_url();
 
 		printf(
 			'<p class="description" id="jetpack-newsletter-reading-notice">%s</p>',
@@ -395,5 +438,84 @@ class Settings {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * Load the wp-build entry file and register its polyfills.
+	 *
+	 * Only called on `?page=jetpack-newsletter` admin requests when the
+	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-newsletter',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+	}
+
+	/**
+	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
+	 *
+	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
+	 * matches the wp-build page slug (`jetpack-newsletter-dashboard`). Our wp-admin
+	 * menu slug stays `jetpack-newsletter`, so we mutate the screen object in place
+	 * to make the check pass without changing the user-facing URL.
+	 *
+	 * Hooked only when modernization is on AND we're on the Newsletter admin page,
+	 * so this never affects any other request.
+	 *
+	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build( $screen ) {
+		if ( ! is_object( $screen ) ) {
+			return;
+		}
+
+		$screen->id = 'jetpack-newsletter-dashboard';
+	}
+
+	/**
+	 * Returns true when the wp-build modernization filter is enabled.
+	 *
+	 * The modernized Newsletter dashboard, wp-admin subscriber management, and the
+	 * retired Calypso Subscribers submenu now default on for every site. Hosts (and
+	 * a11ns who want the legacy view back) can still force the legacy experience with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
+	 *
+	 * @return bool
+	 */
+	private static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+	}
+
+	/**
+	 * Returns true when the current request targets the Newsletter admin page.
+	 *
+	 * Used to scope wp-build loading to the one page that needs it. The
+	 * `$_GET['page']` value is populated by wp-admin/admin.php before any of
+	 * our hooks fire, so this check is reliable from `init_hooks()` onwards.
+	 *
+	 * @return bool
+	 */
+	private static function is_newsletter_admin_request() {
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 }

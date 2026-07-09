@@ -51,7 +51,7 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	// Read the first 8 bytes of the file.
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	$magic_bytes = file_get_contents( $filename, false, null, 4, 8 );
-	if ( false === in_array( $magic_bytes, $valid_magic_bytes, true ) ) {
+	if ( ! in_array( $magic_bytes, $valid_magic_bytes, true ) ) {
 		return false;
 	}
 

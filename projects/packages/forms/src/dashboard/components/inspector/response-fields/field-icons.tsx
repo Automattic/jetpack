@@ -47,6 +47,6 @@ export const fieldIcons: Partial< Record< FieldType, JSX.Element > > = {
 	telephone: mobile,
 	text: textIcon.src,
 	textarea: textareaIcon.src,
-	time: timeIcon,
+	time: timeIcon.src,
 	url: globe,
 };

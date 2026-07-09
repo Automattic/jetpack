@@ -5,17 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.5.8-beta] - 2026-03-09
+## [4.6.3] - 2026-06-26
+### Changed
+- Update dependencies. [#49962]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## [4.6.2] - 2026-06-24
+### Added
+- Concatenate JS/CSS: allow administrators to test additional exclude handles per-request via jb-minify-js-excludes / jb-minify-css-excludes GET parameters, without changing saved settings. The parameters are ignored for non-administrators. [#49555]
+- Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide. [#49556]
 
 ### Changed
+- Migrate ToggleControl to @wordpress/components [#49694]
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757] [#49831]
 
+### Fixed
+- Critical CSS: continue generating for remaining providers when one provider fails unexpectedly, instead of failing the whole run. [#49554]
+- Critical CSS: stop stripping inline SVG markup and double quotes from valid CSS values while still preventing style-tag breakout. [#49547]
+- Defer JS: keep position-dependent inline scripts (document.write) in place instead of moving them after the footer. [#49545]
+- Page Cache: more reliably remove the boost-cache directory on uninstall, and avoid cleanup hanging or timing out on very large caches. [#49546]
+
+## [4.6.1] - 2026-06-10
+### Changed
+- Update dependencies. [#49464]
+- Update package dependencies. [#49273] [#49448] [#49492]
+- My Jetpack: Fix fatal error being logged when My Jetpack page is loaded. [#49479]
+
+## [4.6.0] - 2026-06-09
+### Added
+- Concatenate JS: Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages. [#49399]
+- Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+. [#48328]
+
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Boost admin pages. Drops inline JetpackFooter renders and `showFooter={false}` overrides so AdminPage's built-in footer lives inside the flex column that the mixin pins. [#48109]
+- Boost: Remove translation wrappers from the "Boost" product name. [#48520]
+- Componentry: align Boost UI with the WordPress admin color scheme to match the rest of Jetpack. [#48463]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: migrate Notice component usages to @wordpress/ui. [#48171]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove Beta label from the Optimize LCP Images module. [#48174]
+- Remove Jetpack color overrides on core components, allowing them to use native WordPress admin theme colors. [#47317]
+- Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component. [#48472]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735] [#48064] [#48106] [#48126] [#48302] [#48404][#48405] [#48683] [#48695] [#48696] [#49012] [#49218] [#49379]
+
+### Fixed
+- Cache debug log: remove the duplicate Jetpack logo and restyle the header breadcrumbs to match the design system, and modernize the "Copy to clipboard" and "See Logs" links. The TanStack Query debugger no longer renders. [#49280]
+- Concatenate JS: Fix pages breaking with an "Unexpected end of input" error when Concatenate JS is enabled on sites that use modern JavaScript under specific conditions. [#49399]
+- Fix Critical CSS progress bar backward jumps and incomplete fill to 100%. [#49244]
+- Fixed a duplicate scrollbar on the Boost dashboard by removing an obsolete full-height override. [#49316]
+- Include blog_id in frontend Tracks events. [#48096]
+- LCP: Fix Cornerstone Page analysis errors on some sites. [#48871]
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Render Blocking JS: Fix is_opened_script() regex interpolation and counting asymmetry so unclosed scripts are correctly detected when ignored scripts are present. [#47847]
+
+## [4.5.9] - 2026-04-13
+### Changed
+- Update package dependencies. [#47505] [#47684] [#47719] [#47799] [#47825] [#47870] [#47890] [#47998]
+
+### Fixed
+- Image Guide: Fix script errors when JavaScript concatenation is enabled under certain conditions. [#47918]
+
+## [4.5.8-beta] - 2026-03-09
+### Changed
 - Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
 - Replace the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity. [#47313]
 - Replace license activation link with a "Use license key" button in the header actions area. [#47434]
 - Switch to Native TypeScript compiler based on Go. [#47375]
 
 ### Fixed
-
 - Admin Page: Restore border on header component. [#47425]
 - Compatibility: Clean up deprecated CSS. [#47067]
 - Fix Hello Dolly banner background color and clear floats in admin layout. [#47313]
@@ -23,122 +88,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - I18N: Fix translatable strings extraction. [#47432]
 
 ## [4.5.7] - 2026-02-04
-
 ### Added
-
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
 
 ### Changed
-
 - Update package dependencies. [#46785] [#46854] [#46905]
 
 ### Removed
-
 - General: Update minimum WordPress version to 6.8. [#46801]
 
 ### Fixed
-
 - Compatibility: Disable JS concatenation in Beaver Builder editor to prevent script execution order issues. [#46827]
 
 ## [4.5.6] - 2026-01-28
-
 ### Changed
-
 - My Jetpack: Check red bubble notification async when cache is not available. [#46396]
 - Update composer.lock. [#46686]
 - Update package dependencies. [#46512] [#46552] [#46647]
 
 ### Fixed
-
 - LCP: Skip image optimizations that would break responsive backgrounds or custom focal points under specific configurations. [#46683]
 
 ## [4.5.5] - 2026-01-08
-
 ### Added
-
 - Connection: Add revalidation for IDCs. [#46268]
 
 ### Changed
-
 - Update package dependencies. [#46362] [#46363] [#46456]
 
 ### Fixed
-
 - Critical CSS: Fix breaking stylesheets without media attributes. [#46455]
 
 ## [4.5.4] - 2025-12-12
-
 ### Changed
-
 - Image CDN: cache image quality settings per format to reduce repeated processing. [#46205]
 - Update package dependencies. [#46143]
 
 ### Fixed
-
 - Ensure proper flags are used with `json_encode()`. [#46117]
 
 ## [4.5.3] - 2025-11-27
-
 ### Added
-
 - Compatibility: Add compatibility with divi builder and Deferred JS. [#45896]
 - General: Add a daily cleanup of expired transients. [#45920]
 
 ### Changed
-
 - Update package dependencies. [#45915] [#45958] [#46022] [#46072]
 
 ### Fixed
-
 - My Jetpack: Fix expiring renewal prompt to show all products [#45995]
 
 ## [4.5.2] - 2025-11-12
-
 ### Changed
-
 - Tests: Ensure PHP 8.5 compatibility. [#45769]
 - Update package dependencies. [#45676] [#45737] [#45756]
 
 ### Fixed
-
 - LCP Optimization: Prevent requesting analysis for the same pages multiple times. [#45702]
 
 ## [4.5.1] - 2025-10-29
-
 ### Added
-
 - Tested up to WordPress 6.9 [#45571]
 
 ### Changed
-
 - Update package dependencies. [#45652]
 
 ### Fixed
-
 - Concatenate JS: Fix incompatibility with WooCommerce Analytics. [#45655]
 
 ## [4.5.0] - 2025-10-15
-
 ### Added
-
 - Defer JS: Exclude Slider Revolution scripts to avoid broken sliders. [#45408]
 
 ### Changed
-
 - Update package dependencies. [#45173] [#45229] [#45241] [#45298] [#45299] [#45334] [#45335] [#45478]
 
 ### Fixed
-
 - My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
 
 ## [4.4.0] - 2025-09-18
-
 ### Added
-
 - Cornerstone Pages: Add filter to allow the full list of pages to be changed. [#44907]
 
 ### Changed
-
 - Critical CSS: Updated UI to indicate when generated CSS is too much. [#44885]
 - Do not force CRM installation for Complete plan users [#45026]
 - LCP Optimization: Add User-facing notice for unstable LCP elements (carousels) [#44953]
@@ -146,7 +178,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies.
 
 ### Fixed
-
 - Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list. [#45101]
 - E2E tests: improved connection flow [#44995]
 - General: Fix translation warning when activating Boost. [#45070]
@@ -155,9 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page Cache: Fix fatal error when updating a page on multisite. [#45084]
 
 ## [4.3.1] - 2025-08-25
-
 ### Changed
-
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
 - Cornerstone Pages: Improve behavior when running on WordPress MU installations. [#44824]
 - Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
@@ -165,27 +194,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#44677] [#44701] [#44725]
 
 ### Fixed
-
 - Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute. [#44753]
 
 ## [4.3.0] - 2025-08-06
-
 ### Added
-
 - Page Cache: Ignore Yandex parameters so those visitors are served from the cache. [#44618]
 
 ### Changed
-
 - Image CDN: Ignore images from openlibrary.org. [#44627]
 - Misc: Speed up uninstall process. [#44549]
 - My Jetpack: Unify the user connection flow with a unified screen. [#44469]
 
 ### Removed
-
 - Image Size Analysis: feature has been removed. Filter will no longer enable the ISA. [#44459]
 
 ### Fixed
-
 - Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive. [#44633]
 - Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled. [#44445]
 - LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images [#44496]
@@ -195,21 +218,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page Cache: Fix php warnings related to opcache calls when API is disabled. [#44629]
 
 ## [4.2.1] - 2025-07-24
-
 ### Removed
-
 - Admin: remove references to deprecated feature. [#44434]
 
 ## [4.2.0] - 2025-07-23
-
 ### Added
-
 - Critical CSS: Exclude post types of popular builder plugins from generation. [#44280]
 - General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality. [#44246]
 - My Jetpack: Added analytics for empty product search results. [#44344]
 
 ### Changed
-
 - Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page [#44275]
 - E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript [#44327]
 - Improves performance of wpcom comments liking by caching and minimizing API requests. [#44205]
@@ -217,22 +235,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#44219] [#44356]
 
 ### Deprecated
-
 - Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter. [#44287]
 
 ### Fixed
-
 - General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2 [#44418]
 - Update JITMs to remove jQuery dependency [#43783]
 
 ## [4.1.2] - 2025-07-08
-
 ### Added
-
 - Concatenate JS/CSS: Add cleanup for expired options in the database. [#44134]
 
 ### Changed
-
 - General: Update UI to show some features are unavailable if the website is offline. [#44171]
 - LCP Optimization: Show errors not in the list of known errors, in the UI. [#44091]
 - Concatenate JS/CSS: Cleanup static files when running garbage collection. [#44137]
@@ -240,30 +253,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#44148] [#44151] [#44206] [#44217]
 
 ### Fixed
-
 - LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown [#44087]
 - Concatenate JS: Exclude scripts of type module from concatenation. [#44193]
 - JITM: Fix ineffective caching due to expired plugin sync transient [#44117]
 
 ## [4.1.1] - 2025-06-23
-
 ### Changed
-
 - Update package dependencies. [#43892] [#43951] [#44020] [#44040]
 
 ### Fixed
-
 - Defer JS: Fix duplicating deferred scripts on the page when "Optimize LCP Images" is enabled. [#44041]
 - Image Guide: Fix reporting images in WordPress' admin bar. [#43964]
 
 ## [4.1.0] - 2025-06-18
-
 ### Added
-
 - LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages. [#43684]
 
 ### Changed
-
 - Auto-Resize Lazy Images: Remove beta tag. [#43496]
 - E2E Tests: Update config file encryption algorithm. [#43523]
 - My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
@@ -271,20 +277,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#43578] [#43718] [#43734] [#43766] [#43839]
 
 ### Removed
-
 - Cornerstone Pages: Remove "Experimental" tag from UI. [#43492]
 
 ### Fixed
-
 - General: Fix storage data persisting after clear. [#43852]
 - My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
 - My Jetpack: Fix readability of license activation button on hover. [#43550]
 - Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores. [#43764]
 
 ## [4.0.0] - 2025-05-19
-
 ### Changed
-
 - General: Run feature activation routines for active features when the plugin is deactivated, then reactivated. [#43168]
 - Dashboard: Indicate all external links with External icon. [#43152]
 - Page Cache: Improve compatibility with sites using Endurance Page Cache. [#43416]
@@ -293,11 +295,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#43326] [#43354] [#43355] [#43398] [#43400] [#43425] [#43085]
 
 ### Removed
-
 - General: Update minimum WordPress version to 6.7. [#43192]
 
 ### Fixed
-
 - Dashboard: Properly display notice to purchase a plan in Critical CSS modal. [#43153]
 - Cornerstone Pages: Avoid fatal errors when no pages are set. [#43171]
 - Page Cache: Handle garbage collection through cron-job on front-end update. [#42954]
@@ -308,9 +308,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Performance: Improve internal object caching. [#43139]
 
 ## [3.13.1] - 2025-04-16
-
 ### Fixed
-
 - Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones. [#43047]
 - Critical CSS: Fix not showing status code when generation fails for some pages. [#42856]
 - Image Guide: Fix front-end state not being in sync with Boost settings. [#42891]
@@ -318,15 +316,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page Cache: Fix not clearing up some events on deactivation. [#43066]
 
 ## [3.13.0] - 2025-04-01
-
 ### Added
-
 - Cornerstone Pages: Add speculation rules toggle to prerender those URLs [#42374]
 - Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
 - Speculation rules: Add Cornerstone Pages to the WP speculation rules for displaying [#42428]
 
 ### Changed
-
 - General: Update interstitial modal secondary button to use URL from Jetpack Redirect [#42490]
 - Critical CSS: Improve reliability of generation by running hooks after saving the state. [#42723]
 - General: Indicate compatibility with the upcoming version of WordPress - 6.8. [#42701]
@@ -335,44 +330,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#42762]
 
 ### Fixed
-
 - Admin Menu: Ensure Akismet menu item display alongside standalone. [#42776]
 - Misc: Fix incorrectly registering plugin text domain. [#42792]
 
 ## [3.12.1] - 2025-03-27
-
 ### Fixed
-
 - General: Fixed intermittent error during module loading. [#42742]
 
 ## [3.12.0] - 2025-03-27
-
 ### Added
-
 - Cache: Add Page Cache Preloading for Cornerstone Pages [#42549]
 - Add Account Protection initialization [#40925]
 - My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
 
 ### Changed
-
 - Connection: Allow pre-selected login providers [#42662]
 
 ### Removed
-
 - Compatibility: Remove redundant compatibility code. [#42629]
 
 ### Fixed
-
 - Critical CSS: Prevent the generation process from failing when an individual page fails to load. [#42613]
 
 ## [3.11.0] - 2025-03-19
-
 ### Added
-
 - Page Cache: Add more cookies to the ignore-list for better caching. [#42365]
 
 ### Changed
-
 - Cache: Hide conflicting notice about cache setup on WoA. [#42466]
 - Concatenate JS/CSS: Ensure delivery method tester is only tested once per network on Multisite. [#41918]
 - UI: Change style of pills. [#42460]
@@ -380,77 +364,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#42511] [#42509]
 
 ### Fixed
-
 - Critical CSS: Prevent the process from failing when a single provider fails storing its CSS. [#42110]
 
 ## [3.10.4] - 2025-03-12
-
 ### Fixed
-
 - Critical CSS: Mask CSS to prevent WAF false-positives during generation. [#42320]
 
 ## [3.10.3] - 2025-03-06
-
 ### Fixed
-
 - Critical CSS: Fix generation. [#42263]
 
 ## [3.10.2] - 2025-03-06
-
 ### Fixed
-
 - Critical CSS: Fix fatal error during generation. [#42261]
 
 ## [3.10.1] - 2025-03-06
-
 ### Added
-
 - Concatenate JS/CSS: Show a notice if legacy files are being served. [#41604]
 
 ### Changed
-
 - Concatenate JS/CSS: Improved handling of minification settings. [#41716]
 - General: Improved the way modules are configured internally [#39859] [#41673]
 - Update package dependencies. [#41955] [#42163] [#42180]
 
 ### Fixed
-
 - Critical CSS: Implement a workaround for WAF interfering with generation. [#42245]
 - Critical CSS: Fix showing empty error in some cases, when generation failed. [#42026]
 - Critical CSS: Prevent invalid URLs from breaking the whole process. [#41946]
 
 ## [3.9.0] - 2025-02-17
-
 ### Added
-
 - Cloud CSS: Handle prioritized cloud CSS regeneration for cornerstone pages updates. [#41516]
 - Concatenate JS: Add compatibility with "Depay Payments for WooCommerce". [#41571]
 - Speed Scores: Add tracking for speed score pop-out CTA. [#41556]
 
 ### Changed
-
 - Admin Panel: Cleanup CSS styles. [#41371]
 - Concatenate JS/CSS: Update concatenated assets to be stored on the server as files. [#41056]
 - Updated package dependencies. [#41286] [#41491] [#41577] [#41659]
 
 ### Fixed
-
 - UI: Fix UI discrepancy in Boost settings page upon toggling multiple Modules at same time. [#41472]
 
 ## [3.8.0] - 2025-01-23
-
 ### Added
-
 - Critical CSS: Flag a site-health issue for Critical CSS when a page from the Cornerstone Pages list is modified. [#41006]
 - Page Cache: Add extra PHP file the site owner can use to modify how the cache works. [#40920]
 - Page Cache: Filter cookies and GET parameters so they do not cause a cache miss. [#40894]
 
 ### Changed
-
 - Critical CSS: Reduce unnecessary regenerations. [#40891]
 
 ### Fixed
-
 - Page Cache: Clear Page Cache when Image CDN Auto Resize Lazy Images is toggled. [#41226]
 - Page Cache: Fix issue where exceptions were incorrectly applied to the entire URL. [#40999]
 - Concatenate JS: Improve compatibility with WooCommerce Shipping. [#40874]
@@ -458,9 +423,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image CDN: Ensure that double encoding doesn't happen. [#40886]
 
 ## [3.7.0] - 2025-01-06
-
 ### Added
-
 - Concatenate JS/CSS: Added a button that allows loading default excludes. [#40496]
 - General: Added tracks events to clickable elements on the settings page. [#40246]
 - General: Added WordPress filters to allow Cornerstone Pages list and Image Size Analyzer source data to be updated. [#40442]
@@ -468,101 +431,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI: Added notifications when interacting with dashboard settings. [#40593]
 
 ### Changed
-
 - UI: Gave Page Cache, Concatenate JS/CSS and Image CDN - Image Quality modules a more unifed look. [#40224]
 
 ### Fixed
-
 - Critical CSS: Improved UI responsiveness during a retry after failed generation. [#40675]
 - UI: Fixed showing an error if no ISA report was found. [#40660]
 
 ## [3.6.1] - 2024-11-28
-
 ### Changed
-
 - Image CDN: Improve performance. [#39883]
 - General: Update minimum PHP version to 7.2. [#40147]
 - General: Update minimum WordPress version to 6.6. [#40146]
 
 ### Fixed
-
 - Compatibility: Fixed situations where minify could break due to too many files being enqueued in the elementor editor. [#40339]
 
 ## [3.6.0] - 2024-11-22
-
 ### Added
-
 - Cornerstone Pages: Added setting to allow selecting important pages. [#39863]
 
 ### Changed
-
 - Critical CSS: Improved logic that generates URLs for critical CSS generation. [#39862]
 - General: Improved compatibility with WordPress 6.7. [#39877] [#39786]
 - General: Updated badges used to show state of features. [#40031]
 - Page Speed: Updated speed scores to be based on first cornerstone page. [#39863]
 
 ### Removed
-
 - Image Guide: Removed URL parameter based override. [#39874]
 
 ### Fixed
-
 - Image Size Analysis: Fixed UI not properly reflecting current state after interaction.
 - Page Speed: Fixed typo in Overall Score tooltip. [#39974]
 - Performance History: Fixed tooltip behavior. [#39879]
 - UI: Fixed Boost's menu counter sometimes displaying incorrectly.
 
 ## [3.5.2] - 2024-10-15
-
 ### Changed
-
 - Deferred JS: Exclude all scripts produced by a shortcode. [#39616]
 - General: Sync Boost's Getting Started page with My Jetpack's version. [#39130]
 - General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme. [#39719]
 
 ### Fixed
-
 - Image CDN: URL encode image path parts for RSS feed compatibility [#39560]
 - Image Guide: Improve check for Jetpack Image CDN URLs [#39635]
 
 ## [3.5.1] - 2024-09-26
-
 ### Changed
-
 - Support: Increased minumum required WordPress version to 6.5 [#39540]
 
 ## [3.5.0] - 2024-09-25
-
 ### Changed
-
 - General: Show a simplified getting started page if the pricing is not available [#39526]
 - General: Skip the pricing page if the site is private, just like if offline [#39523]
 
 ### Removed
-
 - General: Removed WP Super Cache promos from settings page as well as related code [#39202]
 
 ### Fixed
-
 - Compatibility: Ensure React JSX polyfill is loaded for pre WP 6.6 support [#39521]
 - Critical CSS: Make sure all URLs that are being processed are absolute instead of relative. [#39456]
 
 ## [3.4.9] - 2024-09-03
-
 ### Fixed
-
 - Update `automattic/jetpack-image-cdn` package to resolve a PHP fatal error.
 
 ## [3.4.8] - 2024-09-02
-
 ### Changed
-
 - Admin menu: change order of Jetpack sub-menu items [#39095]
 - Page Cache: Update notice for WP Cloud clients.
 - React: Changing global JSX namespace to React.JSX [#38585]
 
 ### Fixed
-
 - Cloud CSS: Fixed not properly storing CSS returned from the cloud after a theme switch. [#38985]
 - Lossless image optimization for images (should improve performance with no visible changes). [#38750]
 - Misc: Fix PHP warning when generating critical css for some taxonomy pages. [#38807]
@@ -571,19 +510,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#38464]
 
 ## [3.4.7] - 2024-07-10
-
 ### Security
-
 - General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements. [#38252]
 
 ## [3.4.6] - 2024-06-26
-
 ### Added
-
 - General: Automatically enables Page Cache when migrating from WP Super Cache. [#37963]
 
 ### Fixed
-
 - Image CDN: Improvements to more closely match WP core behavior. [#37931] [#37946]
 - General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
 - Updated package dependencies. [#37796]
@@ -592,28 +526,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Fix instance where deactivating Boost can break caching for other caching plugins. [#38033]
 
 ## [3.4.4] - 2024-06-18
-
 ### Fixes
-
 - My Jetpack: Update My Jetpack to a more stable version. [#37911]
 
 ## [3.4.3] - 2024-06-14
-
 ### Fixed
-
 - Compatibility: Include a missing dependency required for Compatibility with WP Optimize [#37873]
 
 ## [3.4.2] - 2024-06-13
-
 ### Added
-
 - Critical CSS: Add a friendly error if css gen library is broken or missing. [#37283]
 - Page Cache: Added cache rebuild functionality. [#37151]
 - Page Cache: Allow easy migration from WPSC to Boost Cache. [#36818]
 - Page Cache: Remove the advanced-cache.php when the Cache module is disabled. [#37643]
 
 ### Changed
-
 - Critical CSS: Improve source providers collecting logic. [#37095]
 - Critical CSS: Improve UI when errors are present. [#37658]
 - Dependency: Remove the explicit Plugin Install dependency. [#37430]
@@ -622,16 +549,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minification: Skip files ending in `.min.js` and `.min.css` from minification. [#37700]
 
 ## [3.3.1] - 2024-05-15
-
 ### Fixed
-
 - Concatenate JS: Added compatibility with WooCommerce 8.9 [#37403]
 - Critical CSS: Remove post types with empty Critical CSS URLs [#37389]
 
 ## [3.3.0] - 2024-05-08
-
 ### Added
-
 - General: Add endpoint to list source providers. [#36373]
 - General: Add end to end tests for modules. [#36501]
 - Auto-Resize Lazy Images: Added feature to optimize lazy loading image performance [#36987]
@@ -639,27 +562,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Speed Score: Add the speed changed popup back. [#36432]
 
 ### Changed
-
 - Cache: remove Beta tag [#37261]
 - General: improved compatibility with WP 6.4. [#37051]
 - Image CDN: Update UI. [#37263]
 
 ### Fixed
-
 - CLI: Fix fatal error when using 'activate' without a module name. [#36873]
 - Critical CSS: Update the way generation library is loaded. [#37118]
 
 ## [3.2.2] - 2024-04-02
-
 ### Added
-
 - Cache: Ensure cache engine is loading every time the Settings page loads. [#36339]
 - Cache: Clear cache if Boost module settings are changed [#36452]
 - Cache: Show notification in site health if cache system isn't loading. [#36449]
 - Compatibility: Improved compatibility with SEO plugins for smoother Cloud CSS generation. [#36556]
 
 ### Changed
-
 - Cloud CSS: Optimize regeneration time. [#36519]
 - Cloud CSS: Update REST API endpoint to be available even if the module is turned off. [#36437]
 - Performance History: Sanitize graph annotation text. [#36453]
@@ -669,23 +587,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Update getting started and upgrade copies. [#36475]
 
 ## [3.2.0] - 2024-03-15
-
 ### Fixed
-
 - Cache: Verify cache enabled on current site before saving cached data [#36350]
 - General: Added filter documentation [#36226]
 - General: Removed duplicate uninstall hook, fixing unnecessary database writes [#36403]
 
 ## [3.1.1] - 2024-03-11
-
 ### Added
-
 - Cache: Added a Page Cache module. [#35042]
 - Defer JS: Automatically exclude JSON-LD schemas. [#35417]
 - Speed Scores: Added support for annotating points of time in the speed score history graph. [#34978]
 
 ### Changed
-
 - General: Better error handling for invalid data when running wp-admin pages. [#35361]
 - General: Enabled React.StrictMode for development. [#35330]
 - General: Improved error handling. [#35543]
@@ -694,7 +607,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image Guide: Removed beta flag [#35846]
 
 ### Fixed
-
 - Critical CSS: Prevent errors when page_for_posts misconfigured. [#36007]
 - Critical CSS: Prevent missing archive pages from breaking the generation process. [#35561]
 - General: Prevent missing pricing information from affecting the getting started flow. [#35347]
@@ -702,26 +614,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concatenate JS/CSS: Ensure minification is enabled. [#35498]
 
 ## [3.0.2] - 2024-01-31
-
 ### Fixed
-
 - General: Fixed an issue with compatibility file [#35358]
 
 ## [3.0.1] - 2024-01-30
-
 ### Fixed
-
 - Fix pricing bug. [#35347]
 
 ## [3.0.0] - 2024-01-30
-
 ### Added
-
 - Cloud CSS: Improve reliability. [#35129]
 - General: Added Jetpack Sync to allow for better support. [#34825]
 
 ### Changed
-
 - General: Migrated Admin UI from Svlete to React, for consistency with the rest of Jetpack.
 - General: Updated PHP requirement to PHP 7.0+ [#34126]
 - Update cloud css regenerate button to always be visible, but disable it when generation is running.
@@ -729,122 +634,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made various PHP code improvements.
 
 ### Removed
-
 - Removed Boost setup prompt/banner on wp-admin plugins page. [#34771]
 - Removed lazy-loading module. [#35100]
 - Speed Scores: Temporarily removed the score change popout.
 
 ### Fixed
-
 - Concatenate JS: Output inline before/after scripts for handles with `src` false. [#35121]
 - Critical CSS: Exclude @charset and @import statements from Critical CSS. [#34660]
 - Site Health: Fixed showing critical CSS issue in site-health if module is disabled
 - Speed Scores: Fix score auto-refresh
 
 ## [2.2.1] - 2023-12-21
-
 ### Fixed
-
 - Defer JS: added importmap to the exclusion list to fix compatibility issues. [#34746]
 
 ## [2.2.0] - 2023-10-31
-
 ### Changed
-
 - General: Indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
 - Getting Started: Improved how features are sorted in the getting started page. [#33766]
 - Performance History: Improvements in design. [#33133]
 
 ### Deprecated
-
 - Lazy Images: Added deprecation notice. [#33749]
 - Lazy Images: Force disable feature to avoid conflict with new version of Gutenberg and WordPress 6.4. [#33208]
 
 ### Fixed
-
 - Concatenate JS/CSS: Fixed generating invalid html ID values for concatenated stylesheets. [#33002]
 - Image CDN: Update quality slider UI. [#33300]
 
 ## [2.1.1] - 2023-09-13
-
 ### Added
-
 - Image CDN: Added quality settings for premium users. [#32780]
 - Performance History: New section to display historical performance. [#32759]
 
 ### Changed
-
 - Image Size Analyzer: Removed get parameters from image URLs on ISA report details page. [#32476]
 - UI: Improved discount elements for pricing section. [#32545]
 - UI: Updated Image Size Analyzer error feedback. [#32685]
 - General: Removed WP 6.1 backwards compatibility checks. [#32772]
 
 ### Fixed
-
 - UI: Added the footer back on the getting started page. [#32549]
 - Critical CSS: Improved the regenerate button to eliminate the possibility of accidental parallel regeneration. [#32011]
 - Image Guide: Fixed oversize ratio in some cases. [#32548]
 - Image Guide: Fixed grammar issue in the feature description on the Boost dashboard. [#32072]
 
 ## [2.0.2] - 2023-08-29
-
 ### Changed
-
 - Critical CSS: Updated critical CSS url parameter to avoid redirect caching [#32727]
 
 ### Fixed
-
 - Critical CSS: Improved compatibility with Yoast SEO and All in One SEO to ensure smooth Critical CSS generation. [#32627]
 
 ## [2.0.1] - 2023-08-18
-
 ### Fixed
-
 - Critical CSS: Fixed manual critical CSS generation failure [#32502]
 - Concatenate CSS: Fixed concatenated CSS being render-blocking when used with Critical CSS. [#32479]
 
 ## [2.0.0] - 2023-07-24
-
 ### Added
-
 - Image Size Analyzer: New feature for Premium users which scans their site for image issues [#31794]
 
 ### Changed
-
 - General: Beta tags removed from Concatenate CSS/JS and Image CDN. [#31777]
 - General: Indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
 - Speed Scores: Update 'score dropped' card copy, with links to documentation. [#32010]
 
 ### Fixed
-
 - Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on [#31887]
 - General: Fixed error snackbar from showing under UI separators on the Getting Started page. [#31706]
 - Speed Score: Prevented page speed scores from auto refreshing on page load. [#31863]
 - Super Cache Measurement Tool: Fixed the use of the donotcachepage option during tests, which may have produced understated results [#31828]
 
 ## [1.9.4] - 2023-07-05
-
 ### Fixed
-
 - Minify CSS/JS: Removed Content-Length from cached minified content to avoid potential cache mangling on some hosts [#31692]
 
 ## [1.9.3] - 2023-07-03
-
 ### Fixed
-
 - General: Bumped version to fix a versioning glitch in the WordPress.org repository.
 
 ## [1.9.2] - 2023-07-03
-
 ### Added
-
 - Image Guide: Added a proxy to allow the Image Guide UI to load the size of remote images. [#31145]
 - Minify CSS/JS: Added an endpoint for fetching minfied content which does not rely on loading WordPress, allowing hosts to more efficiently fetch minified content. [#30825]
 - Speed Scores: Added an internal argument to record the source of each Speed Score request. [#31012]
 - Speed Scores: Added a notice to the Site Health panel when speed scores need updating. [#31101]
 
 ### Changed
-
 - Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
@@ -854,7 +731,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
 
 ### Fixed
-
 - Critical CSS: Critical CSS Generation was skipping posts and pages on sites with fewer than 10 of either. [#31506]
 - General: Compatibility fixes for older versions of Safari [#31534]
 - General: Fixed a potential loop which repeatedly showed the Getting Started page. [#31648]
@@ -865,20 +741,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
 
 ## [1.9.1] - 2023-05-11
-
 ### Added
-
 - New Feature: Added JS and CSS file minification [#30005]
 
 ### Changed
-
 - General: Improved the way modules are toggled internally [#29451]
 - General: Updated package dependencies
 - Image CDN: Improved Image CDN description [#29962]
 - User Experience: Removed back button from purchase success page [#30180]
 
 ### Fixed
-
 - Cloud CSS: Don't run local regenerate automagically when using cloud css [#29968]
 - Cloud CSS: Fixed a mismatch in cloud-css key [#29972]
 - Critical CSS: Fixed Critical CSS from making redundant requests on page load [#30053]
@@ -887,16 +759,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - User Experience: Fixed some language choices around Boost popups [#30048]
 
 ## [1.8.0] - 2023-04-06
-
 ### Added
-
 - Critical CSS: Added a notice to regenerate Critical CSS to the Boost dashboard. [#28858]
 - General: Added a link to activate a license key. [#29443]
 - Image CDN: Added image CDN to Boost. [#29561]
 - Image Guide: Added information about the Image Guide to the readme. [#29799]
 
 ### Changed
-
 - Critical CSS: Added clearer explanations of the feature, and when to regenerate CSS. [#29250]
 - General: Faster "Getting Started" flow, bypassing the first connection screen. [#28938]
 - General: Revised Jetpack connection agreement text to comply with our User Agreement. [#28403]
@@ -905,7 +774,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Updated to React 18. [#28710]
 
 ### Fixed
-
 - Critical CSS: Added Internal schema validation for improved stability. [#29564]
 - Critical CSS: Expanded the set of site changes which can trigger a regeneration. [#29109]
 - Critical CSS: Fixed a minor UI glitch caused by a missing close tag. [#28548]
@@ -920,16 +788,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Fixed stats tracking by using the correct casing for Tracks event properties. [#29111]
 
 ## [1.7.0] - 2023-01-17
-
 ### Added
-
 - New Feature: Jetpack Boost Image Guide.
 - General: Add a notification bubble next to Boost in the WP-admin sidebar.
 - General: Added new tracks events.
 - User Experience: Add redirect to Boost dashboard after activating Boost plugin.
 
 ### Fixed
-
 - Admin notices: only display regeneration notice to admins.
 - Compatibility: Improve critical CSS compatibility with older Safari browsers.
 - General: Don't let analytics failures prevent features from functioning.
@@ -937,16 +802,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Fix woocommerce deprecation warning.
 
 ## [1.6.0] - 2022-12-05
-
 ### Added
-
 - General: New deactivation survey.
 - General: New tracks events for upgrade CTA impressions.
 - Super Cache: Added a tool for measuring the impact of Super Cache on your site performance.
 - Usability: Prompt new users to setup Boost after plugin activation.
 
 ### Fixed
-
 - Fixed an error on navigating to the getting-started page
 - Fixed issues in Super Cache measurement tool on some URLs
 - General: Fix showing discount markers on pricing options without a discount.
@@ -954,37 +816,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Speed Score: Fix un-clickable link to dismiss speed score popups.
 
 ## [1.5.4] - 2022-11-09
-
 ### Fixed
-
 - Fixed an issue that caused boost to break on offline sites [#27312]
 
 ## [1.5.3] - 2022-10-25
-
 ### Added
-
 - Compatibility: Added a compatibility module for WP Super Cache.
 - Compatibility: Tested with v6.1 of WordPress.
 - General: Added tracking to purchase flows.
 - User Experience: Added a flow for first-time users.
 
 ### Fixed
-
 - Critical CSS: Keep Critical CSS and Cloud CSS status in sync.
 - Deferred JS: Fix detection of application/json scripts to auto-exclude them from deferral.
 - Lazy Loading: Fix desynchronization of Lazy Loading features between Boost and Jetpack.
 - Speed Scores: Fixed issues dismissing notifications on speed score improvements.
 
 ## [1.5.1] - 2022-06-29
-
 ### Fixed
-
 - General: Fix caching of purchased plan features to reduce calls to wpcom api
 
 ## [1.5.0] - 2022-06-27
-
 ### Added
-
 - Cloud CSS: Added support for generating Critical CSS in the cloud.
 - Critical CSS: Added an explanation for Console output during Critical CSS Generation.
 - General: Added an option to purchase a premium Jetpack Boost plan.
@@ -992,27 +845,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Speed Scores: Added prompt for reaching out to support when the speed score decreases.
 
 ### Changed
-
 - General: Remove soft disconnect.
 - General: Remove use of `pnpx` in preparation for pnpm 7.0.
 - General: Renamed hook `handle_theme_change` to `handle_environment_change`
 - General: Updated external links to use Jetpack Redirects.
 
 ### Fixed
-
 - General: Clean up use of FILTER_SANITIZE_STRING as it is deprecated in PHP 8.1
 - Stability: Fix broken SQL query on uninstall.
 
 ## [1.4.2] - 2022-04-11
-
 ### Fixed
-
 - Fixed critical CSS generation failure while using a CDN to serve CSS
 
 ## [1.4.1] - 2022-04-06
-
 ### Changed
-
 - Critical CSS: Tidied up Critical CSS class structure.
 - Critical CSS: Updated Critical CSS generation to exclude animation keyframes.
 - Deferred JS: Updated exclusion attribute to allow quotes.
@@ -1021,15 +868,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Lazy Loading: Updated Image Lazy Loading to reflect Jetpack's Lazy Loading setting.
 
 ## 1.4.0 - 2022-02-28
-
 ### Added
-
 - UI: Adds My Jetpack functionality for consistent UI across all Jetpack plugins.
 
 ## 1.3.1 - 2021-12-02
-
 ### Added
-
 - Critical CSS: Added a filter to allow stylesheets to load synchronously, to avoid CLS issues on certain setups.
 - Critical CSS: Exclude "library" posts from Elementor plugin when generating Critical CSS.
 - Critical CSS: Explicitly hide admin_bar during Critical CSS render, to improve compatability with custom admin bar setups.
@@ -1037,14 +880,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stability: New end-to-end testing system.
 
 ### Changed
-
 - Critical CSS: Detect external CSS URLs from the client side, to improve compatibility with WAFs which modify HTML.
 - Move Boost admin menu into Jetpack submenu.
 - Speed Scores: Automatically refresh speed scores if the theme has changed.
 - Speed Scores: Include active modules and Jetpack Boost version with Speed Score requests.
 
 ### Fixed
-
 - Critical CSS: Ensure CSS files still load when JavaScript is not enabled.
 - Critical CSS: Fixed issue with re-serving Critical CSS during generation process
 - Critical CSS: Fix handling for corrupted font-face rules.
@@ -1054,13 +895,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Speed Scores: Do not show comparative scores when no modules are active.
 
 ## 1.3.0 - 2021-10-04
-
 ### Security
-
 - Critical CSS: Add permissions checks to AJAX endpoints used when dismissing Critical CSS Recommendations.
 
 ### Added
-
 - Critical CSS: Add extra information to "fetch" errors when generating Critical CSS.
 - Critical CSS: Added explanation for mod-security HTTP 418 errors.
 - Critical CSS: Added stats tracking for generation outcomes.
@@ -1069,29 +907,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Speed Scores: Added "without Boost" speed score indicator.
 
 ### Changed
-
 - Critical CSS: Take port numbers into account when comparing origins for proxying.
 
 ### Fixed
-
 - Critical CSS: Clear generated CSS on theme change.
 - Critical CSS: Ensure generator process is resumed after module deactivated and reactivated without reload.
 - Speed Scores: Clear speed score on plugin deactivation and uninstallation.
 
 ## 1.2.0 - 2021-08-12
-
 ### Added
-
 - Critical CSS: Added a new Advanced Critical CSS recommendations page.
 
 ### Changed
-
 - Critical CSS: Updated error reporting for Critical CSS to offer more users more guidance.
 - Tooling: Moved all development to the Jetpack monorepo.
 - Boost is now compatible with WordPress 5.8.
 
 ### Fixed
-
 - Tooling: Fix PHP unit testing dependency on later versions of PHP.
 - Critical CSS: Ensure generator library uses cache-busting to load the latest version after updates.
 
@@ -1152,6 +984,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3
+[4.6.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.0...4.6.1
+[4.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.9...4.6.0
+[4.5.9]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.8-beta...4.5.9
 [4.5.8-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.7...4.5.8-beta
 [4.5.7]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.6...4.5.7
 [4.5.6]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.5...4.5.6

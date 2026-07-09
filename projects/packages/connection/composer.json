@@ -9,6 +9,7 @@
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-redirect": "@dev"
@@ -17,9 +18,9 @@
 		"automattic/jetpack-test-environment": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"brain/monkey": "^2.6.2",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
@@ -46,12 +47,8 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		]
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{
@@ -75,7 +72,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "8.2.x-dev"
+			"dev-trunk": "8.7.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

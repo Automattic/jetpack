@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.32] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.27.31] - 2026-06-29
+### Changed
+- Update dependencies. [#50001]
+
+## [0.27.30] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.27.29] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [0.27.28] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.27.27] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [0.27.26] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405]
+
+## [0.27.25] - 2026-05-19
+### Changed
+- Update package dependencies. [#48695]
+
+## [0.27.24] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## [0.27.23] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.27.22] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+
+## [0.27.21] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [0.27.20] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
 ## [0.27.19] - 2026-04-06
 ### Changed
 - Update dependencies. [#46383]
@@ -554,6 +606,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.27.32]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.31...v0.27.32
+[0.27.31]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.30...v0.27.31
+[0.27.30]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.29...v0.27.30
+[0.27.29]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.28...v0.27.29
+[0.27.28]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.27...v0.27.28
+[0.27.27]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.26...v0.27.27
+[0.27.26]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.25...v0.27.26
+[0.27.25]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.24...v0.27.25
+[0.27.24]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.23...v0.27.24
+[0.27.23]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.22...v0.27.23
+[0.27.22]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.21...v0.27.22
+[0.27.21]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.20...v0.27.21
+[0.27.20]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.19...v0.27.20
 [0.27.19]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.18...v0.27.19
 [0.27.18]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.17...v0.27.18
 [0.27.17]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.16...v0.27.17

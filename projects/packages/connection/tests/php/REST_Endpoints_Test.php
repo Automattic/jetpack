@@ -13,6 +13,7 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
@@ -196,6 +197,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		$this->reset_connection_status();
+		$this->reset_plugin_storage();
 
 		// Clean up user meta and options
 		global $wpdb;
@@ -218,6 +220,34 @@ class REST_Endpoints_Test extends TestCase {
 			$manager = new \Automattic\Jetpack\Connection\Manager();
 		}
 		$manager->reset_connection_status();
+	}
+
+	/**
+	 * Reset the private static state of `Plugin_Storage` so tests that seed it
+	 * (or don't) start from a clean slate. We deliberately keep `configured`
+	 * set to `true` here: in production it flips to `true` once on
+	 * `plugins_loaded` and stays that way, and leaving it `false` would make
+	 * `Plugin_Storage::get_all()` return a `WP_Error` object that downstream
+	 * code (e.g. `Manager::register()` on PHP 8.5) feeds into the WP HTTP
+	 * Requests library, where iterating an object backing for `ArrayIterator`
+	 * is now deprecated and trips `failOnDeprecation` in PHPUnit.
+	 */
+	public function reset_plugin_storage() {
+		$reflection = new ReflectionClass( Connection_Plugin_Storage::class );
+		try {
+			$reflection->setStaticPropertyValue( 'configured', true );
+			$reflection->setStaticPropertyValue( 'plugins', array() );
+			$reflection->setStaticPropertyValue( 'current_blog_id', null );
+		} catch ( \ReflectionException $e ) { // PHP 7 compat fallback.
+			foreach ( array( 'configured', 'plugins', 'current_blog_id' ) as $name ) {
+				$prop = $reflection->getProperty( $name );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
+				$prop->setValue( null, 'plugins' === $name ? array() : ( 'configured' === $name ? true : null ) );
+			}
+		}
 	}
 
 	/**
@@ -475,6 +505,104 @@ class REST_Endpoints_Test extends TestCase {
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
 		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint forwards the `from` param into
+	 * the authorize URL builder, and that the returned authorize URL includes
+	 * the comma-separated list of connection-using plugin slugs that
+	 * `Plugin_Storage` knows about.
+	 */
+	public function test_connection_register_forwards_from_and_includes_plugins_from_storage() {
+		( new Connection_Plugin( 'jetpack' ) )->add( 'Jetpack' );
+		( new Connection_Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
+		Connection_Plugin_Storage::configure();
+
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+					'from'               => 'jetpack-connector',
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringContainsString( 'from=jetpack-connector', $data['authorizeUrl'] );
+		// The comma in the slug list is URL-encoded once by `urlencode_deep` inside `get_authorization_url`.
+		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $data['authorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint without `from` and with no
+	 * connection-using plugins seeded in `Plugin_Storage` — neither query arg
+	 * should appear on the resulting authorize URL.
+	 */
+	public function test_connection_register_without_from_or_plugins() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringNotContainsString( 'plugins=', $data['authorizeUrl'] );
+		$this->assertStringNotContainsString( 'from=', $data['authorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/authorize_url` endpoint forwards `from` to the
+	 * underlying authorization URL builder and that the URL includes the
+	 * comma-separated list of plugins from `Plugin_Storage`.
+	 */
+	public function test_connection_authorize_url_with_from_and_includes_plugins_from_storage() {
+		( new Connection_Plugin( 'jetpack' ) )->add( 'Jetpack' );
+		( new Connection_Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
+		Connection_Plugin_Storage::configure();
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/authorize_url' );
+		$request->set_query_params( array( 'from' => 'jetpack-connector' ) );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringContainsString( 'from=jetpack-connector', $data['authorizeUrl'] );
+		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $data['authorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/authorize_url` endpoint without `from` and with
+	 * no plugins seeded — neither query arg should be injected.
+	 */
+	public function test_connection_authorize_url_without_from_or_plugins() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/authorize_url' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringNotContainsString( 'plugins=', $data['authorizeUrl'] );
+		$this->assertStringNotContainsString( 'from=', $data['authorizeUrl'] );
 	}
 
 	/**
@@ -1879,5 +2007,111 @@ class REST_Endpoints_Test extends TestCase {
 		);
 
 		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+	}
+
+	// ---- Connection test endpoints ----
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` endpoint without authentication.
+	 */
+	public function test_connection_test_unauthenticated() {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` endpoint with an editor (no manage_options).
+	 */
+	public function test_connection_test_insufficient_permissions() {
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'invalid_user_permission_manage_options', $data['code'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` callback includes tests_run in the response.
+	 * Called directly to avoid auth dispatch and to deterministically control the test outcome.
+	 */
+	public function test_connection_test_returns_tests_run() {
+		// Remove all default health tests so pass() returns true deterministically.
+		add_action(
+			'jetpack_connection_tests_loaded',
+			function ( $cxntests ) {
+				$reflection = new \ReflectionClass( $cxntests );
+				$prop       = $reflection->getProperty( 'tests' );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
+				$prop->setValue( $cxntests, array() );
+			},
+			PHP_INT_MAX
+		);
+
+		$connector = new REST_Connector( new Manager() );
+		$response  = $connector->connection_test();
+		$data      = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'success', $data['code'] );
+		$this->assertArrayHasKey( 'tests_run', $data );
+		$this->assertIsArray( $data['tests_run'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` endpoint without signature params.
+	 */
+	public function test_connection_test_wpcom_missing_signature() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test-wpcom' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` callback directly.
+	 * We call the method on the REST_Connector instance rather than dispatching through
+	 * the REST server, because the permission check requires a real keypair signature
+	 * that can't be easily mocked (the public key is a class constant).
+	 */
+	public function test_connection_test_for_external_returns_response() {
+		$connector = new REST_Connector( new Manager() );
+		$response  = $connector->connection_test_for_external();
+		$data      = $response->get_data();
+
+		$this->assertArrayHasKey( 'code', $data );
+		// Without OpenSSL seal support the endpoint returns 'action_required';
+		// with it, the encrypted result is returned as 'response'.
+		$this->assertContains( $data['code'], array( 'response', 'action_required' ) );
+
+		if ( 'response' === $data['code'] ) {
+			$this->assertArrayHasKey( 'debug', $data );
+			$this->assertIsArray( $data['debug'] );
+		}
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` endpoint with an expired timestamp.
+	 */
+	public function test_connection_test_wpcom_expired_signature() {
+		$expired_timestamp  = time() - 600; // 10 minutes ago, limit is 5.
+		$_GET['signature']  = base64_encode( 'fake-signature' );
+		$_GET['timestamp']  = (string) $expired_timestamp;
+		$_GET['url']        = 'https://example.org';
+		$_GET['rest_route'] = '/jetpack/v4/connection/test-wpcom';
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test-wpcom' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
 	}
 }

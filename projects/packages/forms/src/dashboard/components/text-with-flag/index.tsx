@@ -41,7 +41,7 @@ function getFlagEmoji( countryCode: string ): string {
  * @param {TextWithFlagProps} props              - The component props.
  * @param {string|undefined}  props.countryCode  - Two-letter ISO 3166-1 alpha-2 country code (e.g., "US") or undefined if unknown.
  * @param {boolean}           props.fallbackIcon - Whether to display a fallback icon if the country code is not provided.
- * @param {React.ReactNode}   props.children     - The text content to display after the flag. Can be a string or React elements (e.g., Tooltip, ExternalLink).
+ * @param {React.ReactNode}   props.children     - The text content to display after the flag. Can be a string or React elements (e.g., Tooltip, Link).
  * @return {JSX.Element} The TextWithFlag component
  */
 export default function TextWithFlag( {

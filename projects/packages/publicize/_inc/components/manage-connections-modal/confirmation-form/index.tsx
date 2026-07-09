@@ -1,8 +1,9 @@
 import { getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
-import { CheckboxControl, ExternalLink, Notice, Button } from '@wordpress/components';
+import { CheckboxControl, Notice, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -207,12 +208,13 @@ export function ConfirmationForm( {
 									'jetpack-publicize-pkg'
 								) }
 								&nbsp;
-								<ExternalLink
+								<Link
+									openInNewTab
 									key="linkedin-api-documentaion"
 									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
 								>
 									{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-								</ExternalLink>
+								</Link>
 							</p>
 						</Notice>
 					) }
@@ -284,7 +286,6 @@ export function ConfirmationForm( {
 					</form>
 				</div>
 			) }
-
 			{ accounts.connected.length ? (
 				<section>
 					<h3>{ __( 'Already connected', 'jetpack-publicize-pkg' ) }</h3>
@@ -300,7 +301,6 @@ export function ConfirmationForm( {
 					</ul>
 				</section>
 			) : null }
-
 			<div className={ styles[ 'submit-wrap' ] }>
 				<Button variant="secondary" onClick={ onComplete }>
 					{ __( 'Cancel', 'jetpack-publicize-pkg' ) }

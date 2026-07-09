@@ -1,8 +1,8 @@
 import { getRedirectUrl, LoadingPlaceholder } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { FunctionComponent } from 'react';
 import { useNextBackupSchedule } from '../hooks/scheduled-backups/use-next-backup-schedule';
 import useAnalytics from '../hooks/useAnalytics';
@@ -52,13 +52,14 @@ const NextScheduledBackup: FunctionComponent< Props > = () => {
 					timeRange
 				) }
 			</span>{ ' ' }
-			<ExternalLink
+			<Link
+				openInNewTab
 				href={ getRedirectUrl( 'backup-plugin-schedule-time-setting', { site: domain } ) }
 				className="scheduled-backup__action"
 				onClick={ onModifyClick }
 			>
 				{ __( 'Modify', 'jetpack-backup-pkg' ) }
-			</ExternalLink>
+			</Link>
 		</div>
 	);
 };

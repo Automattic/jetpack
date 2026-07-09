@@ -171,7 +171,7 @@ class Jetpack_Copy_Post {
 		 * @param int     $target_post_id Target post ID.
 		 */
 		$data = apply_filters( 'jetpack_copy_post_data', $data, $source_post, $target_post_id );
-		return wp_update_post( $data );
+		return wp_update_post( wp_slash( $data ) );
 	}
 
 	/**

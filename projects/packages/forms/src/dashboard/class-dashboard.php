@@ -28,35 +28,53 @@ class Dashboard {
 	 * This is for the new DataViews-based responses list.
 	 */
 	public static function load_wp_build() {
-		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
-			// When no route path is specified, redirect to the default view
-			// so the client-side router doesn't need a catch-all root route.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! isset( $_GET['p'] ) ) {
-				$default_tab = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' )
-					? 'forms'
-					: 'inbox';
+		// Always load for the standalone Forms page.
+		$should_load = self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
 
-				wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+		/**
+		 * Filter whether to load the wp-build asset registrations.
+		 * Host applications (e.g., CIAB) can return true to opt in.
+		 *
+		 * @param bool $should_load Whether build.php should be loaded.
+		 */
+		$should_load = apply_filters( 'jetpack_forms_load_wp_build', $should_load );
 
-				exit;
-			}
-
-			// Register polyfills for WP < 7.0 (must run before build.php).
-			WP_Build_Polyfills::register(
-				'jetpack-forms',
-				array_merge(
-					WP_Build_Polyfills::SCRIPT_HANDLES,
-					WP_Build_Polyfills::MODULE_IDS
-				)
-			);
-
-			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
-
-			if ( file_exists( $wp_build_index ) ) {
-				require_once $wp_build_index;
-			}
+		if ( ! $should_load ) {
+			return;
 		}
+
+		$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
+
+		if ( file_exists( $wp_build_index ) ) {
+			require_once $wp_build_index;
+		}
+
+		// The remaining setup only applies to the standalone Forms page.
+		if ( self::get_admin_query_page() !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
+			return;
+		}
+
+		// When no route path is specified, redirect to the default view
+		// so the client-side router doesn't need a catch-all root route.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['p'] ) ) {
+			$default_tab = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' )
+				? 'forms'
+				: 'inbox';
+
+			wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+
+			exit;
+		}
+
+		// Register polyfills for WP < 7.0 (must run before enqueue).
+		WP_Build_Polyfills::register(
+			'jetpack-forms',
+			array_merge(
+				WP_Build_Polyfills::SCRIPT_HANDLES,
+				WP_Build_Polyfills::MODULE_IDS
+			)
+		);
 	}
 
 	/**
@@ -152,8 +170,17 @@ class Dashboard {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
 
-		// Flag to enable the wp-build-based dashboard.
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+		/**
+		 * Filter to enable or disable the wp-build-based Forms dashboard.
+		 *
+		 * Enabled by default since Central Forms Management is now available for all sites.
+		 * Can be disabled by returning false from this filter.
+		 *
+		 * @since 7.18.0
+		 *
+		 * @param bool $enabled Whether the wp-build dashboard is enabled. Default true.
+		 */
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
 
 		if ( $is_wp_build_enabled ) {
 			self::load_wp_build();
@@ -182,7 +209,8 @@ class Dashboard {
 			return;
 		}
 
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+		/** This filter is documented in class-dashboard.php::init */
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
 
 		// Legacy URL requested but wp-build is now active → redirect to wp-build.
 		if ( $page === self::ADMIN_SLUG && $is_wp_build_enabled ) {
@@ -252,23 +280,36 @@ class Dashboard {
 			return;
 		}
 
-		Assets::register_script(
-			self::SCRIPT_HANDLE,
-			'../../dist/dashboard/jetpack-forms-dashboard.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
-			)
-		);
+		// The wp-build (script-module) dashboard renders its own UI from build/pages/…,
+		// so the legacy SPA bundle is dead weight there. Only enqueue it on the legacy
+		// dashboard. The shared inline data below (connection initial state + REST
+		// preload) is instead attached to the always-present wp-api-fetch handle so the
+		// wp-build app still receives it.
+		if ( self::is_wp_build_dashboard_page() ) {
+			$inline_handle    = 'wp-api-fetch';
+			$preload_position = 'after';
+		} else {
+			$inline_handle    = self::SCRIPT_HANDLE;
+			$preload_position = 'before';
+
+			Assets::register_script(
+				self::SCRIPT_HANDLE,
+				'../../dist/dashboard/jetpack-forms-dashboard.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'textdomain' => 'jetpack-forms',
+					'enqueue'    => true,
+				)
+			);
+		}
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
 		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+		Connection_Initial_State::render_script( $inline_handle );
 
 		// Preload Forms endpoints needed in dashboard context.
 		// Pre-fetch the first inbox page so the UI renders instantly on first load.
@@ -336,13 +377,28 @@ class Dashboard {
 		}
 
 		wp_add_inline_script(
-			self::SCRIPT_HANDLE,
+			$inline_handle,
 			sprintf(
 				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
 				wp_json_encode( $preload_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			),
-			'before'
+			$preload_position
 		);
+	}
+
+	/**
+	 * Whether the current request targets the wp-build (script-module) Forms dashboard,
+	 * as opposed to the legacy SPA dashboard.
+	 *
+	 * When true, the legacy dashboard bundle should not be enqueued: the wp-build page
+	 * (build/pages/jetpack-forms-responses/…) provides its own UI and asset loading.
+	 *
+	 * @return bool
+	 */
+	public static function is_wp_build_dashboard_page() {
+		/** This filter is documented in class-dashboard.php::init */
+		return apply_filters( 'jetpack_forms_alpha', true )
+			&& self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**
@@ -350,7 +406,8 @@ class Dashboard {
 	 */
 	public function add_admin_submenu() {
 
-		if ( apply_filters( 'jetpack_forms_alpha', false ) ) {
+		/** This filter is documented in class-dashboard.php::init */
+		if ( apply_filters( 'jetpack_forms_alpha', true ) ) {
 
 			// `jetpack_forms_jetpack_forms_responses_wp_admin_render_page` is the callback generated by WP build script.
 			$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
@@ -535,7 +592,8 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_forms_admin_url( $tab = null, $post_id = null ) {
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+		/** This filter is documented in class-dashboard.php::init */
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
 		$url                 = admin_url( 'admin.php' );
 
 		$url .= $is_wp_build_enabled

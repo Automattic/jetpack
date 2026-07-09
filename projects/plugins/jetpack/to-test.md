@@ -1,4 +1,4 @@
-## Jetpack 15.7
+## Jetpack 16.0
 
 ### Before you start:
 
@@ -11,62 +11,62 @@
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
-### Image Compare block caption link fix
+### VideoPress: enqueue player scripts once when a page has multiple videos ([#49716](https://github.com/Automattic/jetpack/pull/49716))
 
-[Image Compare Block: Fix disappearing link bar when highlighting part of a caption](https://github.com/Automattic/jetpack/pull/47197)
+- Spin up a site with the Jetpack plugin and VideoPress module active (Note: not the VideoPress standalone plugin).
+- Create a post and add two or more videos using the `[videopress <guid>]` / `[wpvideo <guid>]` shortcode.
+- View the post on the front end and open the browser dev tools Network tab (filter for `videopress-iframe.js`).
 
-Changes were made to fix an issue related to captions – previously if text was added as a caption, it wasn't possible to highlight that text and add a link. Now you should be able to highlight the text and see the toolbar allowing you to add a link.
+Example guids: `O19sZueC`, `dfvYSdG3`.
 
-To test:
+### Daily Writing Prompt dashboard widget on self-hosted Jetpack sites ([#49491](https://github.com/Automattic/jetpack/pull/49491), [#49525](https://github.com/Automattic/jetpack/pull/49525))
 
-1. Create a post with an Image Compare block.
-2. Once the images are added, add a caption.
-3. Highlight the caption and you should see the toolbar, allowing you to add a link.
-4. Add a link and make sure that on save the link remains, as well as allowing you to highlight the text again and change the link.
-5. Make sure general Image Compare block behaviour continues to work as expected.
+- On a self-hosted site running this branch, connect Jetpack to WordPress.com.
+- Go to wp-admin → Dashboard and confirm the Daily Writing Prompt widget appears in the side column and loads today's prompt. The Reader link should open in a new tab.
+- Disconnect Jetpack (or enable offline mode, e.g. `define( 'JETPACK_DEV_DEBUG', true );`) and reload the Dashboard: the widget should no longer be registered.
+- Check the links in the widget, ensure that everything works as expected.
 
-### AI Assistant jitter fix
+### Jetpack Social: message templates
 
-[Fix AI Assistant modal shaking when content streams in](https://github.com/Automattic/jetpack/pull/47616)
+_Requires: A paid Social plan._
 
-Prior to this PR, the AI Assistant would violently shake while outputting content. To test the fix:
+- Go to Jetpack → Social and confirm the Default share message section is visible.
+- Enter a template such as `New post: {title}\n\n{excerpt}\n\n{url}`. Confirm it autosaves, survives reload, and the Available placeholders popover lists supported tokens.
+- Expand a connected account row and confirm "Custom message for this connection" is available. Save a connection-specific template, reload, and confirm it persists. The row should stay interactive while autosaving.
 
-1. Open a post in the block editor.
-2. Open the AI Assistant from the Jetpack sidebar.
-3. Use "Optimize title" or request feedback on the post.
-4. Observe the modal as text streams in — it should no longer shake or jitter.
-5. If the modal content is long enough to scroll, verify the header stays pinned at the top.
+**Editor and preview:**
 
-### Admin menu and header tweaks
+- Create a post with a title, body, excerpt, tags, a featured image.
+- Open the Social preview/customization UI. In "Same for all" mode, confirm placeholders render as real values in previews, not literal `{title}` / `{excerpt}` text.
+- Change the post title/body/excerpt without saving. Confirm previews refresh after debounce and use the unsaved editor values.
+- Add a long message/body and confirm long previews show "See more / See less" where expected, without cutting important URL/title content.
+- If any connection has a custom template, a fresh post should default to "Customize each". If no connection templates remain, fresh posts should stay "Same for all".
 
-[Admin Menu: Improve navigation and header consistency](https://github.com/Automattic/jetpack/pull/47417)
+**Per-network and publishing:**
 
-**Menu Ordering**
+- In "Customize each" mode, confirm a connection with a saved template uses that template; connections without one fall back to the site template, then network default.
+- Type a one-off per-connection message override and publish. The actual shared post should match the preview and use the override.
+- Test a template without `{url}`. The preview should not invent a trailing URL in the caption. Threads should still show a link preview card.
 
-1. Install and activate Jetpack with Backup, Scan, Subscribers, Activity Log, and Jetpack Manage features enabled.
-2. Go to WP Admin → Jetpack.
-3. Verify menu order:
-   - Internal links appear first (My Jetpack, VideoPress, Social, Backup, Forms, etc.)
-   - "Settings" appears as the last internal link
-   - External links appear after Settings (Activity Log ↗, Subscribers ↗, Jetpack Manage ↗, Scan ↗, VaultPress Backup ↗)
+**Optional regression checks:**
 
-**Menu Titles**
+- On a free/non-eligible site, the message-template UI should not appear.
 
-Verify in the Jetpack menu:
-- Akismet menu shows as "Anti-spam" (not "Akismet Anti-spam")
-- Backup menu shows as "Backups" (not "VaultPress Backup")
+### Donations block in newsletter emails ([#49963](https://github.com/Automattic/jetpack/pull/49963))
 
-**Button Component**
+_Requires: A connected Stripe account; a Donations block with at least one interval (one-time/monthly/yearly) enabled._
 
-1. Go to Jetpack → Backups.
-2. Verify the "Back up now" button displays correctly and functions properly.
-3. Click the button and verify it shows loading state during backup queue.
+1. Publish a post with a Donations block.
+2. Customize a heading and a button label.
+3. Preview the post as an email.
+4. Confirm each enabled interval shows its heading, text, and a **button** (not a plain link), the custom text carries through, and buttons link to the post.
 
-**Header Consistency**
+### Forms: shareable file-download links ([#49868](https://github.com/Automattic/jetpack/pull/49868))
 
-1. Visit various Jetpack admin pages (Backup, Forms, Search, etc.).
-2. Verify header subtitle spacing is consistent across pages.
+_Requires: a second user with the Editor role._
 
-### WordPress 7.0 compatibility
+1. Create a Form with a file-upload field and submit a response that includes a file. As an admin, open the Form responses dashboard and download/preview the uploaded file - it downloads as before.
+2. Cross-user (the fix): log in as a different user with the Editor role and open the same download link - it now downloads successfully (previously this returned "Invalid nonce.").
+3. Optional hardening checks: tampering the `token` in the download URL fails with "This download link is no longer valid. Reload the responses page to get a fresh link. (2)" (tampering `token_version` gives the same message but code (1)); a link whose `expires` is in the past fails with "This download link has expired. Reload the responses page to get a fresh link."
 
-The next stable release of WordPress is around the corner, so poke around at some of the new features that need testing. A partial list of features can be found [here](https://make.wordpress.org/core/). Report any compatibility issues you might find!
+**Thank you for all your help!**

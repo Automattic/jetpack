@@ -405,7 +405,7 @@ function vimeo_link( $content ) {
  * @return string The Vimeo HTML embed code.
  */
 function vimeo_link_callback( $matches ) {
-	$id = isset( $matches[2] ) ? $matches[2] : $matches[1];
+	$id = $matches[2] ?? $matches[1];
 	if ( isset( $id ) && ctype_digit( $id ) ) {
 		return "\n" . vimeo_shortcode( array( 'id' => $id ) ) . "\n";
 	}

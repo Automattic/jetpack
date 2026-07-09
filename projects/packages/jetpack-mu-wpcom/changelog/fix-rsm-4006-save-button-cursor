@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: show progress cursor (instead of not-allowed) on Save buttons while a save is in flight.

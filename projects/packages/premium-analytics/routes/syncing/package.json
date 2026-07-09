@@ -1,0 +1,17 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-syncing-route",
+	"route": {
+		"path": "/syncing",
+		"page": "jetpack-premium-analytics"
+	},
+	"dependencies": {
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@jetpack-premium-analytics/site-sync": "workspace:*",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.17.0",
+		"react": "18.3.1"
+	}
+}

@@ -63,8 +63,8 @@ class CLI {
 	 * @param array $args Command arguments.
 	 */
 	public function module( $args ) {
-		$action      = isset( $args[0] ) ? $args[0] : null;
-		$module_slug = isset( $args[1] ) ? $args[1] : null;
+		$action      = $args[0] ?? null;
+		$module_slug = $args[1] ?? null;
 
 		if ( $module_slug === null ) {
 			/* translators: Placeholder is list of available modules. */
@@ -89,7 +89,7 @@ class CLI {
 	}
 
 	public function getting_started( $args ) {
-		$status = isset( $args[0] ) ? $args[0] : null;
+		$status = $args[0] ?? null;
 
 		if ( ! in_array( $status, array( 'true', 'false' ), true ) ) {
 			\WP_CLI::error(
@@ -171,7 +171,7 @@ class CLI {
 	 * @param array $args Command arguments.
 	 */
 	public function connection( $args ) {
-		$action = isset( $args[0] ) ? $args[0] : null;
+		$action = $args[0] ?? null;
 
 		switch ( $action ) {
 			case 'activate':

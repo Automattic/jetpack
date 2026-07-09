@@ -19,7 +19,6 @@ describe( 'JetpackFooter', () => {
 			{
 				label: 'Button link',
 				onClick: () => {},
-				role: 'button',
 			},
 		];
 

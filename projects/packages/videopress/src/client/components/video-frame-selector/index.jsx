@@ -11,8 +11,9 @@ import clsx from 'clsx';
 import playIcon from '../icons/play-icon';
 import styles from './style.module.scss';
 
-export const VideoPlayer = ( { src, setMaxDuration = null, currentTime } ) => {
-	const videoPlayer = useRef( null );
+export const VideoPlayer = ( { src, setMaxDuration = null, currentTime, videoRef } ) => {
+	const internalRef = useRef( null );
+	const videoPlayer = videoRef || internalRef;
 	const [ isVideoLoading, setIsVideoLoading ] = useState( true );
 
 	useEffect( () => {
@@ -58,6 +59,7 @@ const VideoFrameSelector = ( {
 	onVideoFrameSelected,
 	className = '',
 	initialCurrentTime = null,
+	videoRef = null,
 } ) => {
 	const [ maxDuration, setMaxDuration ] = useState( 0 );
 	const [ currentTime, setCurrentTime ] = useState(
@@ -72,7 +74,12 @@ const VideoFrameSelector = ( {
 	return (
 		<div className={ clsx( styles.container, className ) }>
 			<Icon className={ styles[ 'play-icon' ] } icon={ playIcon } />
-			<VideoPlayer src={ src } setMaxDuration={ setMaxDuration } currentTime={ currentTime } />
+			<VideoPlayer
+				src={ src }
+				setMaxDuration={ setMaxDuration }
+				currentTime={ currentTime }
+				videoRef={ videoRef }
+			/>
 			<RangeControl
 				className={ styles.range }
 				min={ 0 }

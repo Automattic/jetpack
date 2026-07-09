@@ -50,7 +50,7 @@ function wpcom_post_has_changed_since_last_revision( $post_id, $post ) {
 	 * @param WP_Post $last_revision     The last revision post object.
 	 * @param WP_Post $post              The post object.
 	 */
-	if ( ! apply_filters( 'wp_save_post_revision_check_for_changes', $check_for_changes, $last_revision, $post ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
+	if ( ! apply_filters( 'wp_save_post_revision_check_for_changes', $check_for_changes, $last_revision, $post ) ) {
 		return true;
 	}
 
@@ -118,7 +118,7 @@ function wpcom_is_big_edit( $post_before, $post_after ) {
  * @param WP_Post $post_after  Post with the current edit.
  * @param WP_Post $post_before Post from before this edit.
  */
-function wpcom_create_autosave_revision( $post_ID, $post_after, $post_before ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function wpcom_create_autosave_revision( $post_ID, $post_after, $post_before ) {
 	// We are only interested in post changes done during autosave.
 	if ( ! defined( 'DOING_AUTOSAVE' ) || ! DOING_AUTOSAVE ) {
 		return;

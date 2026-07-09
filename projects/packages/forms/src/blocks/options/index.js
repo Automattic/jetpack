@@ -1,6 +1,5 @@
-import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { Path, SVG } from '@wordpress/primitives';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -11,8 +10,10 @@ const settings = {
 	description: __( 'A collection of option blocks', 'jetpack-forms' ),
 	category: 'contact-form',
 	icon: {
-		src: renderMaterialIcon(
-			<Path d="M11.1 15.8H20V14.3H11.1V15.8ZM11.1 7.2V8.7H20V7.2H11.1ZM6 13C4.9 13 4 13.9 4 15C4 16.1 4.9 17 6 17C7.1 17 8 16.1 8 15C8 13.9 7.1 13 6 13ZM6 6C4.9 6 4 6.9 4 8C4 9.1 4.9 10 6 10C7.1 10 8 9.1 8 8C8 6.9 7.1 6 6 6Z" />
+		src: (
+			<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<Path d="M11.1 15.8H20V14.3H11.1V15.8ZM11.1 7.2V8.7H20V7.2H11.1ZM6 13C4.9 13 4 13.9 4 15C4 16.1 4.9 17 6 17C7.1 17 8 16.1 8 15C8 13.9 7.1 13 6 13ZM6 6C4.9 6 4 6.9 4 8C4 9.1 4.9 10 6 10C7.1 10 8 9.1 8 8C8 6.9 7.1 6 6 6Z" />
+			</SVG>
 		),
 	},
 	parent: [ 'jetpack/field-multiple-choice', 'jetpack/field-single-choice' ],
@@ -28,6 +29,9 @@ const settings = {
 	},
 	usesContext: [ 'jetpack/field-share-attributes' ],
 	supports: {
+		// FORMS-694: choice/option blocks flatten through the field shortcode
+		// like inputs — visibility is inert; disable the control.
+		visibility: false,
 		spacing: {
 			blockGap: false,
 		},

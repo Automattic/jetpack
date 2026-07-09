@@ -87,16 +87,11 @@
 	}
 
 	&__button {
+		// Full-width CTA; the @wordpress/ui Button owns the rest of its chrome
+		// (fill, padding, radius) via its `solid` variant.
 		width: 100%;
-		height: auto;
-		font-size: 18px;
-		background: var(--jp-black);
-		color: var(--jp-white) !important;
-		border-radius: var(--jp-border-radius);
-		padding: 14px 24px;
 		margin: 24px 0 32px;
-		justify-content: center;
-		align-items: center;
+
 	}
 
 	&__info,

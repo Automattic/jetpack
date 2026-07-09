@@ -4,6 +4,13 @@
 	const debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
 
 	window.jpTracksAJAX.record_ajax_event = function ( eventName, eventType, eventProp ) {
+		// Only merge blog_id when eventProp is an object (not a legacy scalar string).
+		if ( typeof eventProp === 'object' && eventProp !== null ) {
+			if ( window.jpTracksContext && window.jpTracksContext.blog_id && ! eventProp.blog_id ) {
+				eventProp.blog_id = window.jpTracksContext.blog_id;
+			}
+		}
+
 		const data = {
 			tracksNonce: jpTracksAJAX.jpTracksAJAX_nonce,
 			action: 'jetpack_tracks',

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.4.43",
+	"version": "2.0.0",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -20,7 +20,9 @@
 	"type": "module",
 	"exports": {
 		".": "./index.jsx",
-		"./use-connection": "./components/use-connection/index.ts"
+		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
+		"./use-connection": "./components/use-connection/index.ts",
+		"./use-connection-error-notice": "./hooks/use-connection-error-notice/index.tsx"
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
@@ -33,31 +35,32 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@wordpress/base-styles": "6.19.0",
-		"@wordpress/browserslist-config": "6.43.0",
-		"@wordpress/components": "32.5.0",
-		"@wordpress/data": "10.43.0",
-		"@wordpress/element": "6.43.0",
-		"@wordpress/i18n": "6.16.0",
-		"@wordpress/icons": "12.0.0",
-		"@wordpress/url": "4.43.0",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/browserslist-config": "6.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/icons": "15.1.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.29.0",
-		"@babel/preset-react": "7.28.5",
+		"@babel/core": "7.29.7",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.28",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
-		"jest": "30.3.0",
+		"jest": "30.4.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"storybook": "10.3.3"
+		"storybook": "10.4.6"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0",

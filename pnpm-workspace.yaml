@@ -4,13 +4,17 @@ packages:
   - projects/plugins/*/tests/e2e
   - tools/cli
   - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
+
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
 
 # Be strict about peer deps
 autoInstallPeers: false
@@ -30,20 +34,10 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # GHSA-wh4c-j3r5-mjhp
-  - '@xmldom/xmldom@0.9.9'
-  # Renovate security update: lodash-es@4.18.1
-  - lodash-es@4.18.1
-  - lodash@4.18.1
-  # Renovate security update: vite@8.0.5
-  - vite@8.0.5
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
-
-  # https://github.com/reduxjs/reselect/issues/752
-  - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rollup@3.30.0
@@ -72,8 +66,10 @@ blockExoticSubdeps: true
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
-  - sass-embedded-all-unknown
-  - sass-embedded-unknown-all
+  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
+  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
+  - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
+  - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
 
 # Dependencies needing patching.
 patchedDependencies:

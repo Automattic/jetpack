@@ -1,0 +1,104 @@
+@use "@wordpress/base-styles/variables" as vars;
+@use "@wordpress/base-styles/colors" as colors;
+
+.date-range-popover-content {
+	--wca-popover-padding: var(--wpds-dimension-padding-lg);
+	--wca-popover-border-color: #{colors.$gray-300};
+	--wca-popover-border-width: #{vars.$border-width};
+
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: 1fr auto;
+
+	// Grid lines: background = line color, gap = line width
+	background-color: var(--wca-popover-border-color);
+	column-gap: var(--wca-popover-border-width);
+	row-gap: var(--wca-popover-border-width);
+
+	.date-range-calendar {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	// Mobile layout: override grid to use flex column
+	&--mobile {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-lg);
+		padding: var(--wca-popover-padding);
+		background-color: #fff;
+
+		.date-range-calendar {
+			--a8c-calendar-button-width: 32px;
+			--a8c-calendar-button-height: 32px;
+		}
+
+		.date-range-popover-actions {
+			padding: 0;
+			padding-block-start: var(--wpds-dimension-gap-sm);
+		}
+	}
+}
+
+.date-range-presets-wrapper {
+	grid-row: 1;
+	display: grid;
+	grid-template-columns: minmax(0, max-content) 1fr;
+	background-color: #fff;
+	padding-bottom: var(--wpds-dimension-gap-sm);
+	width: var(--wpds-dimension-surface-width-xs);
+	padding-right: var(--wpds-dimension-padding-sm);
+}
+
+.date-filters-panel-button {
+	background-color: #fff; // ToDo: handle this upstream.
+}
+
+.date-range-calendar-wrapper {
+	--wca-calendar-button-width: 32px;
+	--wca-calendar-button-height: 32px;
+	--wca-calendar-button-gap: 1rem; // consistent with automattic/ui style
+	--wca-calendar-padding: var(--wca-popover-padding);
+	--wca-calendar-width: calc(var(--wca-calendar-button-width) * 7 + var(--wca-calendar-padding) * 2);
+	--wca-calendar-width-wide: calc(var(--wca-calendar-button-width) * 14 + var(--wca-calendar-padding) * 2 + var(--wca-calendar-button-gap));
+
+	grid-row: 1;
+	padding: var(--wca-calendar-padding);
+	width: var(--wca-calendar-width);
+	background-color: #fff;
+
+	.date-range-calendar {
+		--a8c-calendar-button-width: var(--wca-calendar-button-width);
+		--a8c-calendar-button-height: var(--wca-calendar-button-height);
+	}
+
+	&__wide {
+		width: var(--wca-calendar-width-wide);
+	}
+}
+
+.date-range-popover-actions {
+	grid-column: 1 / -1;
+	padding: calc(var(--wca-popover-padding) / 2) var(--wca-popover-padding);
+	background-color: #fff;
+}
+
+/* disable animation for the date range popover */
+@media not ( prefers-reduced-motion: reduce ) {
+
+	.date-filters-panel__popover {
+		view-transition-name: jp-premium-analytics--date-range-popover;
+	}
+}
+
+/* ensure it's above the canvas/stage during the transition */
+::view-transition-group(jp-premium-analytics--date-range-popover) {
+	z-index: 3000;
+}
+
+/* no animation for the snapshot (avoid "flashing") */
+::view-transition-new(jp-premium-analytics--date-range-popover),
+::view-transition-old(jp-premium-analytics--date-range-popover) {
+	animation: none;
+}

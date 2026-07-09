@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update lock file to declare the jetpack-config dependency added for the sync module port.

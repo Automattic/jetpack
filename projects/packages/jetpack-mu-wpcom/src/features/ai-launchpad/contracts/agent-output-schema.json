@@ -1,0 +1,105 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/Automattic/jetpack/projects/packages/jetpack-mu-wpcom/src/features/ai-launchpad/contracts/agent-output-schema.json",
+	"title": "AI Launchpad Selector Agent Output",
+	"description": "Cross-stream contract for the AI Launchpad. Three consumers: (1) Stream F's `js/lib/tailor.ts` parses the `jetpack-ai-query` response and validates against this schema (Ajv); (2) Stream B's `PUT /tailored` validates incoming request bodies against this schema server-side; (3) the Node eval runner (`bin/eval-ai-launchpad.mjs`) validates fixture outputs against this schema during prompt iteration. Change this schema and three test paths fail in lockstep — that's the point.",
+	"type": "object",
+	"required": [ "tasks", "inferred", "first_post_draft" ],
+	"additionalProperties": false,
+	"properties": {
+		"tasks": {
+			"type": "array",
+			"minItems": 6,
+			"maxItems": 6,
+			"description": "Exactly six task selections. The last task MUST be a launch task (canonical: `site_launched`; flow-specific alternatives: `blog_launched`, `link_in_bio_launched`, `videopress_launched`); server enforces. Order follows the STEP rules from the system prompt: first-creation → niche-specific → foundation → launch. Catalog uses snake_case IDs.",
+			"items": {
+				"type": "object",
+				"required": [ "id", "subtitle" ],
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"type": "string",
+						"minLength": 1,
+						"description": "Task ID drawn from the legacy PHP launchpad catalog. Stream B's PUT /tailored re-validates id ∈ menu; rejects with 422 if intersection < 4."
+					},
+					"subtitle": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 200,
+						"description": "AI-generated subtitle (v1 = English only). Server strips HTML and rejects URLs / template syntax before persisting."
+					}
+				}
+			}
+		},
+		"inferred": {
+			"type": "object",
+			"required": [ "goal" ],
+			"additionalProperties": false,
+			"description": "Structured extraction from the user's free-text description, reused downstream by theme picker, post draft, etc.",
+			"properties": {
+				"goal": {
+					"type": "string",
+					"enum": [ "write", "build", "sell", "newsletter", "educate", "portfolio" ],
+					"description": "Echoes or re-resolves the wizard goal. Single source of truth downstream."
+				},
+				"brand_name": {
+					"type": "string",
+					"maxLength": 80,
+					"description": "Per the prompt's name-resolution rule: prefer the wizard's site_name over anything in the free-text description."
+				},
+				"niche": {
+					"type": "string",
+					"maxLength": 120
+				},
+				"theme_keyword": {
+					"type": "string",
+					"maxLength": 40,
+					"description": "The single word that best captures the site's subject, used to pre-filter the theme showcase. The prompt steers it toward the core topic (\"hiking\") over incidental modifiers (\"weekend\")."
+				},
+				"vibe": {
+					"type": "string",
+					"maxLength": 120
+				},
+				"audience": {
+					"type": "string",
+					"maxLength": 200
+				},
+				"tagline": {
+					"type": "string",
+					"maxLength": 200,
+					"description": "Used as the site tagline by the wizard's tagline-write completion."
+				}
+			}
+		},
+		"first_post_draft": {
+			"type": "object",
+			"required": [ "title", "paragraphs" ],
+			"additionalProperties": false,
+			"description": "Starter post content. Persisted via POST /wp/v2/posts as status=draft when the user clicks the first-post task CTA.",
+			"properties": {
+				"title": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 80,
+					"description": "≤8 words per the system prompt."
+				},
+				"subtitle": {
+					"type": "string",
+					"maxLength": 120,
+					"description": "Verb-led, ≤10 words per the system prompt. Optional."
+				},
+				"paragraphs": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"description": "Two paragraphs; warm tone; no 'Welcome to my blog' clichés per the system prompt.",
+					"items": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 1200
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Build: stop wiping `.cache/` on `pnpm clean` so persistent build caches (babel, webpack) survive cleans. Internal-only; no effect on the published package.
+

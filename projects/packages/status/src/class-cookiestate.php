@@ -33,7 +33,7 @@ class CookieState {
 
 			if ( is_array( $bits ) ) {
 				$path   = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
-				$domain = ( isset( $bits['host'] ) ) ? $bits['host'] : null;
+				$domain = $bits['host'] ?? null;
 			}
 		}
 
@@ -90,7 +90,7 @@ class CookieState {
 	 */
 	public function should_set_cookie( $key ) {
 		global $current_screen;
-		$page = isset( $current_screen->base ) ? $current_screen->base : null;
+		$page = $current_screen->base ?? null;
 
 		if ( 'toplevel_page_jetpack' === $page && 'display_update_modal' === $key ) {
 			return false;

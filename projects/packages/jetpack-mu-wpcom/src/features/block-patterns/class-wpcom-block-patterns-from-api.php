@@ -14,7 +14,8 @@ require_once __DIR__ . '/class-wpcom-block-patterns-utils.php';
  * Class Wpcom_Block_Patterns_From_Api
  */
 class Wpcom_Block_Patterns_From_Api {
-	const PATTERN_NAMESPACE = 'a8c/';
+	const PATTERN_NAMESPACE             = 'a8c/';
+	const GUTENPEN_PATTERNS_SOURCE_SITE = 'gutenpenpatternsourcesite.wordpress.com';
 
 	/**
 	 * A collection of utility methods.
@@ -45,6 +46,7 @@ class Wpcom_Block_Patterns_From_Api {
 
 		$pattern_categories = array();
 		$block_patterns     = $this->get_patterns( $patterns_cache_key );
+		$block_patterns     = array_merge( $block_patterns, $this->get_gutenpen_patterns() );
 
 		// Register categories from first pattern in each category.
 		foreach ( (array) $block_patterns as $pattern ) {
@@ -110,10 +112,11 @@ class Wpcom_Block_Patterns_From_Api {
 	 * Returns a list of patterns.
 	 *
 	 * @param string $patterns_cache_key Key to store responses to and fetch responses from cache.
+	 * @param string $source_site        Source site ID or domain.
 	 * @return array The list of patterns.
 	 */
-	private function get_patterns( $patterns_cache_key ) {
-		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', false );
+	private function get_patterns( $patterns_cache_key, $source_site = 'dotcompatterns.wordpress.com' ) {
+		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', null );
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
 		$disable_cache  = ( function_exists( 'is_automattician' ) && is_automattician() ) || $override_source_site || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE );
@@ -123,7 +126,7 @@ class Wpcom_Block_Patterns_From_Api {
 			$request_url = esc_url_raw(
 				add_query_arg(
 					array(
-						'site'      => $override_source_site ?? 'dotcompatterns.wordpress.com',
+						'site'      => $override_source_site ?? $source_site,
 						'post_type' => 'wp_block',
 					),
 					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
@@ -139,6 +142,39 @@ class Wpcom_Block_Patterns_From_Api {
 		}
 
 		return $block_patterns;
+	}
+
+	/**
+	 * Returns the list of GutenPen patterns for the current user.
+	 *
+	 * GutenPen patterns are scoped to the requesting user, so the request must be signed/dispatched
+	 * as the current user (see Wpcom_Block_Patterns_Utils::remote_get_as_user). On Simple sites we
+	 * additionally short-circuit users who have never used the feature, based on the
+	 * `is_gutenpen_user` user attribute, to avoid an unnecessary API call.
+	 *
+	 * @return array The list of GutenPen patterns, or an empty array when the feature is unavailable to the current user.
+	 */
+	private function get_gutenpen_patterns() {
+		// On Simple sites, only users marketed as GutenPen users may have patterns to fetch.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! get_user_attribute( get_current_user_id(), 'is_gutenpen_user' ) ) {
+			return array();
+		}
+
+		$cache_key            = sprintf( 'gutenpen_patterns_%d', get_current_user_id() );
+		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', null );
+
+		$patterns      = $this->utils->cache_get( $cache_key, 'ptk_patterns' );
+		$disable_cache = ( function_exists( 'is_automattician' ) && is_automattician() ) || $override_source_site || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE );
+
+		if ( $disable_cache || false === $patterns ) {
+			$patterns = $this->utils->remote_get_as_user( '/gutenpen/patterns' );
+
+			if ( ! $disable_cache ) {
+				$this->utils->cache_add( $cache_key, $patterns, 'ptk_patterns', 5 * MINUTE_IN_SECONDS );
+			}
+		}
+
+		return $patterns;
 	}
 
 	/**

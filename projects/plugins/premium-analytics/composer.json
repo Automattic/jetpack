@@ -1,0 +1,64 @@
+{
+	"name": "automattic/jetpack-premium-analytics-plugin",
+	"description": "Premium Analytics dashboard for Jetpack sites.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-premium-analytics": "@dev",
+		"automattic/jetpack-cookie-consent": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/phpunit-select-config": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-zip": [
+			"bash bin/build-zip.sh"
+		],
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": false,
+		"autorelease": false,
+		"changelogger": {
+			"versioning": "semver"
+		},
+		"version-constants": {
+			"JETPACK_PREMIUM_ANALYTICS__VERSION": "jetpack-premium-analytics.php"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "27f73650548e1cc5b87270d75ceb203b_premium_analyticsⓥ0_1_0_alpha"
+	}
+}

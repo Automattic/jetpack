@@ -1,9 +1,8 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import { Button, Modal, Tooltip } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, copy } from '@wordpress/icons';
+import { Icon, copy, globe } from '@wordpress/icons';
 import { wpcomTrackEvent } from '../tracks';
 import ConfettiAnimation from './confetti-animation';
 
@@ -14,7 +13,7 @@ import './celebrate-launch-modal.scss';
  *
  * @param {object}   props                 - Props.
  * @param {Function} props.onRequestClose  - Callback on modal close.
- * @param {object}   props.sitePlan        - The site plan.
+ * @param {object}   [props.sitePlan]      - The site plan (optional).
  * @param {string}   props.siteDomain      - The site domain.
  * @param {string}   props.siteUrl         - The site URL.
  * @param {boolean}  props.hasCustomDomain - Whether the site has a custom domain.
@@ -152,8 +151,13 @@ export default function CelebrateLaunchModal( {
 					</Tooltip>
 				</div>
 
-				<Button href={ siteUrl } target="_blank" className="launched__modal-view-site">
-					<Gridicon icon="domains" size={ 18 } />
+				<Button
+					href={ siteUrl }
+					target="_blank"
+					className="launched__modal-view-site"
+					icon={ globe }
+					iconSize={ 18 }
+				>
 					<span className="launched__modal-view-site-text">
 						{ __( 'View site', 'jetpack-mu-wpcom' ) }
 					</span>

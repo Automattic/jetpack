@@ -29,7 +29,7 @@ export async function builder( yargs ) {
 	return yargs
 		.positional( 'test', {
 			describe:
-				'Test to run. Typically "js", "php", "coverage", or "typecheck", but available tests depend on the project.',
+				'Test to run. Typically "js", "php", or "typecheck", but available tests depend on the project.',
 			type: 'string',
 		} )
 		.positional( 'project', {
@@ -41,6 +41,7 @@ export async function builder( yargs ) {
 			type: 'boolean',
 			description: 'Run tests on everything.',
 		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
 		.option( 'no-use-uncommitted-composer-lock', {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
@@ -51,15 +52,16 @@ export async function builder( yargs ) {
 			default: os.availableParallelism(),
 			coerce: coerceConcurrency,
 		} )
+		.option( 'html', { type: 'boolean', hidden: true } )
 		.option( 'no-html', {
 			type: 'boolean',
-			description: 'For coverage tests, do not generate HTML reports.',
+			description: 'For coverage, do not generate HTML reports.',
 		} )
 		.option( 'html-dir', {
 			type: 'string',
 			description:
 				// prettier-ignore
-				`For coverage tests, write HTML reports to this path instead of creating a new directory in ${ os.tmpdir() }.`,
+				`For coverage, write HTML reports to this path instead of creating a new directory in ${ os.tmpdir() }.`,
 		} )
 		.option( 'artifacts-dir', {
 			type: 'string',
@@ -68,6 +70,15 @@ export async function builder( yargs ) {
 		.check( argv => {
 			if ( argv.v ) {
 				argv.concurrency = false;
+			}
+			if ( argv.test === 'coverage' ) {
+				throw new Error(
+					'The `coverage` test was split. Use `jetpack test php-coverage` or `jetpack test js-coverage`.'
+				);
+			}
+			if ( argv.test?.endsWith( '-coverage' ) ) {
+				argv.isCoverage = true;
+				argv.coverageGroup = argv.test.slice( 0, -'-coverage'.length );
 			}
 			return true;
 		} );
@@ -91,7 +102,7 @@ export async function handler( argv ) {
 		rmartifacts = true;
 	}
 
-	if ( argv.test === 'coverage' && argv.html !== false ) {
+	if ( argv.isCoverage && argv.html !== false ) {
 		if ( argv.htmlDir ) {
 			opts.HTML_DIR = path.resolve( argv.htmlDir );
 			await fs.mkdir( argv.htmlDir, { recursive: true } );
@@ -160,7 +171,7 @@ export async function runTests( argv, opts ) {
 				type: 'confirm',
 				name: 'verbose',
 				message: 'See output from the test runner?',
-				initial: argv.test !== 'coverage',
+				initial: ! argv.isCoverage,
 			},
 		] );
 		argv.v = response.verbose;
@@ -172,7 +183,7 @@ export async function runTests( argv, opts ) {
 		);
 	}
 
-	if ( argv.test === 'coverage' ) {
+	if ( argv.coverageGroup === 'php' ) {
 		try {
 			await execa(
 				'php',
@@ -235,7 +246,7 @@ export async function runTests( argv, opts ) {
 		reject: rootInstallReject,
 	} = Promise.withResolvers();
 	let any = false;
-	if ( argv.test === 'php' || argv.test === 'coverage' ) {
+	if ( argv.test === 'php' || argv.coverageGroup === 'php' ) {
 		for ( const project of projects ) {
 			const composerJson = await readComposerJson( project, false );
 			if ( composerJson?.[ 'require-dev' ]?.[ 'automattic/jetpack-test-environment' ] ) {
@@ -344,7 +355,7 @@ export async function runTests( argv, opts ) {
 						const env = { ...genv };
 						env.ARTIFACTS_DIR = path.join( opts.ARTIFACTS_DIR, project );
 						await fs.mkdir( env.ARTIFACTS_DIR, { recursive: true } );
-						if ( argv.test === 'coverage' ) {
+						if ( argv.isCoverage ) {
 							env.COVERAGE_DIR = path.join( opts.ARTIFACTS_DIR, 'coverage', project );
 							await fs.mkdir( env.COVERAGE_DIR, { recursive: true } );
 						}
@@ -396,20 +407,22 @@ export async function runTests( argv, opts ) {
 		} );
 	}
 
-	if ( argv.test === 'coverage' && argv.html !== false ) {
+	if ( argv.isCoverage && argv.html !== false ) {
 		const scriptDir = path.join( basedir, '.github/files/coverage-munger' );
 		const coverageDir = path.join( opts.ARTIFACTS_DIR, 'coverage' );
-		let phpFiles, jsFiles;
+		let coverageFiles;
 
 		tasks.push( {
 			title: 'Generate HTML coverage reports',
 			skip: async () => {
 				await Promise.all( promises );
 
-				phpFiles = await glob( '**/*.cov', { cwd: coverageDir } );
-				jsFiles = await glob( '**/*.json', { cwd: coverageDir, absolute: true } );
+				coverageFiles =
+					argv.coverageGroup === 'php'
+						? await glob( '**/*.cov', { cwd: coverageDir } )
+						: await glob( '**/*.json', { cwd: coverageDir, absolute: true } );
 
-				return phpFiles.length === 0 && jsFiles.length === 0 ? 'No coverage data generated' : false;
+				return coverageFiles.length === 0 ? 'No coverage data generated' : false;
 			},
 			task: async () => {
 				let sstdout = process.stdout,
@@ -424,7 +437,7 @@ export async function runTests( argv, opts ) {
 
 				const subtasks = [];
 
-				if ( phpFiles.length > 0 ) {
+				if ( argv.coverageGroup === 'php' ) {
 					subtasks.push( {
 						title: 'Generate PHP coverage report',
 						task: async () => {
@@ -462,7 +475,7 @@ export async function runTests( argv, opts ) {
 					} );
 				}
 
-				if ( jsFiles.length > 0 ) {
+				if ( argv.coverageGroup === 'js' ) {
 					subtasks.push( {
 						title: 'Generate JS coverage report',
 						task: async () => {
@@ -471,8 +484,8 @@ export async function runTests( argv, opts ) {
 
 							try {
 								// nyc can merge files itself, but needs them all in one directory (not in subdirs).
-								for ( let i = 0; i < jsFiles.length; i++ ) {
-									await fs.cp( jsFiles[ i ], path.join( tmpdir, `${ i + 10000 }.json` ) );
+								for ( let i = 0; i < coverageFiles.length; i++ ) {
+									await fs.cp( coverageFiles[ i ], path.join( tmpdir, `${ i + 10000 }.json` ) );
 								}
 
 								const dir = path.join( opts.HTML_DIR, 'js' );
@@ -539,7 +552,9 @@ export async function promptForTest( argv ) {
 	const packageJson = await readPackageJson( project );
 	const tests = Object.keys( composerJson.scripts ?? {} )
 		.filter( test => test.startsWith( 'test-' ) )
-		.map( test => test.substring( 5 ) );
+		.map( test => test.substring( 5 ) )
+		// Hide the legacy `coverage` script; use `js-coverage`/`php-coverage` instead.
+		.filter( test => test !== 'coverage' );
 	if ( packageJson?.scripts?.typecheck ) {
 		tests.push( 'typecheck' );
 	}

@@ -1,15 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	Card,
-	CardHeader,
-	CardBody,
-	Notice,
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
+import { Card, Fieldset, Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -66,35 +60,42 @@ export function EmailContentSection( {
 	];
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Email content', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
-				<fieldset disabled={ ! isNewsletterEnabled }>
-					{ ! isSitePublic && (
-						<Notice status="warning" isDismissible={ false }>
-							{ __(
-								'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
-								'jetpack-newsletter'
-							) }
-						</Notice>
-					) }
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Email content', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
+					<Stack gap="lg" direction="column">
+						{ ! isSitePublic && (
+							<Notice.Root intent="warning">
+								<Notice.Description>
+									{ __(
+										'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
+										'jetpack-newsletter'
+									) }
+								</Notice.Description>
+							</Notice.Root>
+						) }
 
-					<DataForm
-						data={ data }
-						fields={ fields }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [ 'wpcom_featured_image_in_email', 'wpcom_subscription_emails_use_excerpt' ],
-						} }
-						onChange={ onChange }
-					/>
-				</fieldset>
-			</CardBody>
-		</Card>
+						<DataForm
+							data={ data }
+							fields={ fields }
+							form={ {
+								layout: {
+									type: 'regular',
+									labelPosition: 'top',
+								},
+								fields: [
+									'wpcom_featured_image_in_email',
+									'wpcom_subscription_emails_use_excerpt',
+								],
+							} }
+							onChange={ onChange }
+						/>
+					</Stack>
+				</Fieldset.Root>
+			</Card.Content>
+		</Card.Root>
 	);
 }

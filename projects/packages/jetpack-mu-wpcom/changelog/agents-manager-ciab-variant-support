@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Agents Manager: Add dedicated CIAB variant. CIAB environments always load Agents Manager regardless of the unified experience setting, using the new 'ciab' variant for connected sites and 'ciab-disconnected' for disconnected sites.

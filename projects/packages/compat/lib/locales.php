@@ -2860,7 +2860,7 @@ if ( ! class_exists( 'GP_Locales' ) ) :
 
 		public static function by_slug( $slug ) {
 			$instance = GP_Locales::instance();
-			return isset( $instance->locales[ $slug ] ) ? $instance->locales[ $slug ] : null;
+			return $instance->locales[ $slug ] ?? null;
 		}
 
 		public static function by_field( $field_name, $field_value ) {

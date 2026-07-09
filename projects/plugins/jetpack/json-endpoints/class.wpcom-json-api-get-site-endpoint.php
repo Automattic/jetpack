@@ -18,7 +18,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'rest_route'                           => '/site',
-		'rest_min_jp_version'                  => '14.5-a.2',
+		'rest_min_jp_version'                  => '15.9',
 		'allow_jetpack_site_auth'              => true,
 
 		'allow_fallback_to_jetpack_blog_token' => true,
@@ -239,6 +239,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_commercial_reasons',
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
+		'jetpack_recovery_mode_status',
+		'apm_enabled',
 	);
 
 	/**
@@ -309,6 +311,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_commercial_reasons',
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
+		'jetpack_recovery_mode_status',
+		'apm_enabled',
 	);
 
 	/**
@@ -981,6 +985,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'wpcom_classic_early_release':
 					$options[ $key ] = $site->get_wpcom_classic_early_release();
+					break;
+				case 'jetpack_recovery_mode_status':
+					$options[ $key ] = $site->get_jetpack_recovery_mode_status();
+					break;
+				case 'apm_enabled':
+					$options[ $key ] = $site->get_apm_enabled();
 					break;
 			}
 		}

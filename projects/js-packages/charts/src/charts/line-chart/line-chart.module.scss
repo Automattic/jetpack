@@ -6,7 +6,9 @@
 		path {
 			transform-origin: 0 95%;
 			transform: scaleY(0);
-			animation: rise 1s ease-out forwards;
+			animation:
+				rise var(--wpds-motion-duration-xl, 400ms)
+				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 		}
 	}
 
@@ -16,25 +18,23 @@
 
 	&__tooltip,
 	&__annotation-label-popover {
-		background: #fff;
-		padding: 0.5rem;
+		background: var(--wpds-color-background-surface-neutral-strong, #fff);
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		padding: var(--wpds-dimension-padding-sm, 8px);
 	}
 
 	&__tooltip-date {
-		font-weight: 700;
-		padding-bottom: 10px;
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-bottom: var(--wpds-dimension-padding-md, 12px);
 	}
 
 	&__tooltip-row {
-		display: flex;
-		align-items: center;
-		padding: 4px 0;
-		justify-content: space-between;
+		padding: var(--wpds-dimension-padding-xs, 4px) 0;
 	}
 
 	&__tooltip-label {
-		font-weight: 500;
-		padding-right: 1rem;
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-right: var(--wpds-dimension-padding-lg, 16px);
 	}
 
 	&__annotations-overlay {
@@ -62,13 +62,15 @@
 
 	&__annotation-label-popover {
 		min-width: 125px;
-		background: #fff;
 		border: none;
-		border-radius: 4px;
-		font-size: 14px;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		border-radius: var(--wpds-border-radius-md, 4px);
+		font-size: var(--wpds-typography-font-size-md, 13px);
+		box-shadow: var(--wpds-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
 		position: fixed;
-		margin: 0.5rem;
+		// Without margin set, the popover has margin:auto which upsets the
+		// positioning relative to the trigger button. A gap token is appropriate
+		// because it creates a gap to the trigger button.
+		margin: var(--wpds-dimension-gap-sm, 8px);
 		visibility: hidden;
 
 		&--visible {
@@ -81,15 +83,8 @@
 		}
 	}
 
-	&__annotation-label-popover-header {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: start;
-	}
-
 	&__annotation-label-popover-content {
-		padding: 0.5rem;
+		padding: var(--wpds-dimension-padding-sm, 8px);
 	}
 
 	&__annotation-label-popover-close-button {

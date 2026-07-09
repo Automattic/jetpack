@@ -184,7 +184,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_items( $request ) {
 		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 		global $wp_styles, $wp_scripts;
 
@@ -528,7 +528,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 					try {
 						$reflection = new ReflectionClass( $callback[0] );
 						$file_path  = $reflection->getFileName();
-					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					} catch ( ReflectionException $e ) {
 						// Skip if reflection fails
 						continue;
 					}
@@ -539,7 +539,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 					try {
 						$reflection = new ReflectionFunction( $callback );
 						$file_path  = $reflection->getFileName();
-					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					} catch ( ReflectionException $e ) {
 						// Skip if reflection fails
 						continue;
 					}

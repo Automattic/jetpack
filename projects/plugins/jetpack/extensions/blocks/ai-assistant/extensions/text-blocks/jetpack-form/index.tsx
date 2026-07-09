@@ -14,6 +14,7 @@ import { BlockHandler } from '../block-handler';
  * Types
  */
 import type { BlockEditorDispatch } from '../types';
+import type { Block as WPBlock } from '@wordpress/blocks';
 
 export class JetpackFormHandler extends BlockHandler {
 	currentListOfValidBlocks = [];
@@ -42,7 +43,7 @@ export class JetpackFormHandler extends BlockHandler {
 		// Extract variation name from the parsed contact-form block if present
 		const contactFormBlock = parsedBlocks.find( block => block.name === 'jetpack/contact-form' );
 		if ( contactFormBlock && contactFormBlock.attributes?.variationName ) {
-			this.originalVariationName = contactFormBlock.attributes.variationName;
+			this.originalVariationName = contactFormBlock.attributes.variationName as string;
 		}
 
 		// Remove the Jetpack Form block from the content.
@@ -196,7 +197,7 @@ export class JetpackFormHandler extends BlockHandler {
 		}
 
 		return innerBlocks.reduce( ( acc, innerBlock ) => {
-			return acc + serialize( innerBlock ) + '\n\n';
+			return acc + serialize( innerBlock as WPBlock ) + '\n\n';
 		}, '' );
 	}
 

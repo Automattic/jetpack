@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add wpcom_build_fatal_error_signature() / wpcom_decode_fatal_error_signature() helpers for sharing a transportable plugin/version/core/php fatal-error signature across wpcom features.

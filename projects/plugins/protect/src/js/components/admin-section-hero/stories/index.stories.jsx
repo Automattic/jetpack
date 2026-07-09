@@ -1,4 +1,4 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import AdminSectionHero from '..';
 import InProgressAnimation from '../../in-progress-animation';
 
@@ -11,7 +11,7 @@ export const Default = args => <AdminSectionHero { ...args } />;
 Default.args = {
 	main: (
 		<>
-			<Status status={ 'active' } label={ 'Active' } />
+			<AdminSectionHero.StatusIndicator status="active" label="Active" />
 			<AdminSectionHero.Heading showIcon>{ 'No threats found' }</AdminSectionHero.Heading>
 			<AdminSectionHero.Subheading>
 				<Text>{ 'Most recent results' }</Text>

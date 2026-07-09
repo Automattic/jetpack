@@ -8,7 +8,7 @@ import { MediaUpload } from '@wordpress/block-editor';
 import { Button, Dropdown, MenuGroup, MenuItem, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { image, media as mediaIcon } from '@wordpress/icons';
+import { image, postFeaturedImage, media as mediaIcon } from '@wordpress/icons';
 import useMediaDetails from '../../../hooks/use-media-details';
 import { type ImageType } from '../../../hooks/use-sig-preview/utils';
 import MediaPreview from '../../media-section-v2/media-preview';
@@ -58,6 +58,38 @@ function ImageSourceMenuItem( {
 		>
 			{ option.label }
 		</MenuItem>
+	);
+}
+
+/**
+ * Menu item for removing the background image.
+ *
+ * @param {object}   root0            - Component props.
+ * @param {boolean}  root0.isSelected - Whether this option is currently active.
+ * @param {Function} root0.onRemove   - Callback to clear the image.
+ * @param {Function} root0.onClose    - Callback to close the dropdown.
+ * @return {JSX.Element} NoImageMenuItem component.
+ */
+function NoImageMenuItem( {
+	isSelected,
+	onRemove,
+	onClose,
+}: {
+	isSelected: boolean;
+	onRemove: () => void;
+	onClose: VoidFunction;
+} ) {
+	const handleClick = useCallback( () => {
+		onRemove();
+		onClose();
+	}, [ onRemove, onClose ] );
+
+	return (
+		<MenuGroup>
+			<MenuItem isSelected={ isSelected } onClick={ handleClick }>
+				{ __( 'No image', 'jetpack-publicize-pkg' ) }
+			</MenuItem>
+		</MenuGroup>
 	);
 }
 
@@ -179,7 +211,7 @@ export function BackgroundImagePicker( {
 		}
 	}, [ imageType, isDefaultImageNotFound, onImageTypeChange ] );
 
-	// Build menu options (no "No Image" - Remove button handles that)
+	// Build menu options
 	const hasValidDefaultImage = Boolean( defaultImageId ) && ! isDefaultImageNotFound;
 	const menuOptions = useMemo( () => {
 		const options: MenuOption[] = [];
@@ -195,7 +227,7 @@ export function BackgroundImagePicker( {
 		options.push( {
 			id: 'featured',
 			label: __( 'Featured Image', 'jetpack-publicize-pkg' ),
-			icon: image,
+			icon: postFeaturedImage,
 		} );
 
 		options.push( {
@@ -248,42 +280,41 @@ export function BackgroundImagePicker( {
 
 	const renderDropdownContent = useCallback(
 		( { onClose }: { onClose: VoidFunction } ) => (
-			<MenuGroup>
-				{ menuOptions.map( option => (
-					<ImageSourceMenuItem
-						key={ option.id }
-						option={ option }
-						isSelected={ imageType === option.id }
-						onSelect={ handleOptionSelect }
-						onClose={ onClose }
-					/>
-				) ) }
-			</MenuGroup>
+			<>
+				<MenuGroup>
+					{ menuOptions.map( option => (
+						<ImageSourceMenuItem
+							key={ option.id }
+							option={ option }
+							isSelected={ imageType === option.id }
+							onSelect={ handleOptionSelect }
+							onClose={ onClose }
+						/>
+					) ) }
+				</MenuGroup>
+				<NoImageMenuItem
+					isSelected={ imageType === 'none' }
+					onRemove={ handleRemove }
+					onClose={ onClose }
+				/>
+			</>
 		),
-		[ menuOptions, imageType, handleOptionSelect ]
+		[ menuOptions, imageType, handleOptionSelect, handleRemove ]
 	);
 
 	// Render toggle for Select image dropdown
 	const renderSelectToggle = useCallback(
 		( { onToggle }: { onToggle: () => void } ) => (
-			<Button className={ styles.selectButton } variant="secondary" onClick={ onToggle }>
+			<Button
+				__next40pxDefaultSize
+				className={ styles.selectButton }
+				variant="secondary"
+				onClick={ onToggle }
+			>
 				{ __( 'Select image', 'jetpack-publicize-pkg' ) }
 			</Button>
 		),
 		[]
-	);
-
-	// Render toggle for preview dropdown (wraps MediaPreview)
-	const renderPreviewToggle = useCallback(
-		( { onToggle }: { onToggle: () => void } ) => (
-			<MediaPreview
-				media={ previewData }
-				isLoading={ isLoading }
-				onReplace={ onToggle }
-				onRemove={ handleRemove }
-			/>
-		),
-		[ previewData, isLoading, handleRemove ]
 	);
 
 	return (
@@ -299,14 +330,8 @@ export function BackgroundImagePicker( {
 			{ /* Source label */ }
 			<p className={ styles.sourceLabel }>{ getImageSourceLabel( imageType ) }</p>
 
-			{ /* Image preview - reuses MediaPreview from media-section-v2 */ }
-			{ previewData && (
-				<Dropdown
-					popoverProps={ { placement: 'bottom-start' } }
-					renderToggle={ renderPreviewToggle }
-					renderContent={ renderDropdownContent }
-				/>
-			) }
+			{ /* Image preview */ }
+			{ previewData && <MediaPreview media={ previewData } isLoading={ isLoading } /> }
 
 			{ /* Warning notice for missing featured image */ }
 			{ showFeaturedImageNotice && (
@@ -315,15 +340,13 @@ export function BackgroundImagePicker( {
 				</Notice>
 			) }
 
-			{ /* No image state - show select button */ }
-			{ ! previewData && ! isLoading && (
-				<Dropdown
-					className={ styles.selectDropdown }
-					popoverProps={ { placement: 'bottom-start' } }
-					renderToggle={ renderSelectToggle }
-					renderContent={ renderDropdownContent }
-				/>
-			) }
+			{ /* Select image dropdown */ }
+			<Dropdown
+				className={ styles.selectDropdown }
+				popoverProps={ { placement: 'bottom-start' } }
+				renderToggle={ renderSelectToggle }
+				renderContent={ renderDropdownContent }
+			/>
 		</div>
 	);
 }

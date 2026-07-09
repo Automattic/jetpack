@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Omnibar: remove wpcom/v2/admin-bar endpoint from jetpack-mu-wpcom. We'll move it to Jetpack instead.

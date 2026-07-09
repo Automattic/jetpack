@@ -2,7 +2,7 @@
 
 This means registering the site with WordPress.com. It will create a "site (or 'blog') token" on both sides, establishing a secure two-way communication path.
 
-The blog token is required in order to [authenticate at a user level](authorize-user.md) later (link to user auth docs here), so let's learn the simplest way we can do that in your plugin.
+The blog token is required in order to [authenticate at a user level](authorize-user.md) later, so let's learn the simplest way we can do that in your plugin.
 
 ## Install the right packages
 
@@ -52,7 +52,7 @@ function jpcs_load_plugin() {
         array(
             'slug' => 'plugin-slug', // Required, slug of your plugin, should be unique.
             'name' => 'Plugin Name', // Required, your plugin name.
-            'url_info' => 'https://example.org/conneciton-info', // Optional, URL of the connection info page.
+            'url_info' => 'https://example.org/connection-info', // Optional, URL of the connection info page.
         )
     );
 }

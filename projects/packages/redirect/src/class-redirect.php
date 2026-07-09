@@ -53,7 +53,7 @@ class Redirect {
 			$source_url = \wp_parse_url( $source );
 
 			// discard any query and fragments.
-			$source = 'https://' . $source_url['host'] . ( isset( $source_url['path'] ) ? $source_url['path'] : '' );
+			$source = 'https://' . $source_url['host'] . ( $source_url['path'] ?? '' );
 		}
 
 		$to_be_added = array(

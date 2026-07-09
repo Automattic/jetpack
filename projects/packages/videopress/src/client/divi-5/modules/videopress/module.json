@@ -1,0 +1,231 @@
+{
+	"name": "jetpack/videopress",
+	"d4Shortcode": "divi_videopress",
+	"title": "VideoPress",
+	"titles": "VideoPress",
+	"moduleIcon": "jetpack/videopress-logo",
+	"moduleClassName": "et_pb_videopress",
+	"moduleOrderClassName": "et_pb_videopress",
+	"category": "module",
+	"attributes": {
+		"module": {
+			"type": "object",
+			"selector": "{{selector}}",
+			"styleProps": {
+				"sizing": {
+					"propertySelectors": {
+						"desktop": {
+							"value": {
+								"margin-left": "{{selector}}.et_pb_module",
+								"margin-right": "{{selector}}.et_pb_module"
+							}
+						}
+					},
+					"important": {
+						"desktop": {
+							"value": {
+								"margin-left": true,
+								"margin-right": true
+							}
+						}
+					}
+				}
+			},
+			"settings": {
+				"meta": {
+					"adminLabel": {}
+				},
+				"advanced": {
+					"htmlAttributes": {}
+				},
+				"decoration": {
+					"background": {},
+					"sizing": {},
+					"spacing": {},
+					"border": {},
+					"boxShadow": {},
+					"filters": {},
+					"transform": {},
+					"animation": {},
+					"overflow": {},
+					"disabledOn": {},
+					"transition": {},
+					"position": {},
+					"zIndex": {},
+					"scroll": {},
+					"sticky": {}
+				}
+			}
+		},
+		"guid": {
+			"type": "object",
+			"selector": "{{selector}} .vidi-videopress-wrapper",
+			"settings": {
+				"innerContent": {
+					"groupType": "group-item",
+					"item": {
+						"groupName": "mainContent",
+						"attrName": "guid.innerContent",
+						"priority": 10,
+						"render": true,
+						"label": "URL or Video ID",
+						"description": "Paste a VideoPress URL or Video ID.",
+						"features": {
+							"sticky": false,
+							"dynamicContent": false,
+							"responsive": false
+						},
+						"component": {
+							"name": "divi/text",
+							"type": "field"
+						}
+					}
+				}
+			}
+		},
+		"autoplay": {
+			"type": "object",
+			"settings": {
+				"innerContent": {
+					"groupType": "group-item",
+					"item": {
+						"groupSlug": "playerOptions",
+						"attrName": "autoplay.innerContent",
+						"priority": 10,
+						"render": true,
+						"label": "Autoplay",
+						"description": "Start playing the video automatically.",
+						"features": {
+							"sticky": false,
+							"responsive": false
+						},
+						"component": {
+							"name": "divi/toggle",
+							"type": "field"
+						}
+					}
+				}
+			}
+		},
+		"loop": {
+			"type": "object",
+			"settings": {
+				"innerContent": {
+					"groupType": "group-item",
+					"item": {
+						"groupSlug": "playerOptions",
+						"attrName": "loop.innerContent",
+						"priority": 20,
+						"render": true,
+						"label": "Loop",
+						"description": "Restart the video when it reaches the end.",
+						"features": {
+							"sticky": false,
+							"responsive": false
+						},
+						"component": {
+							"name": "divi/toggle",
+							"type": "field"
+						}
+					}
+				}
+			}
+		},
+		"muted": {
+			"type": "object",
+			"settings": {
+				"innerContent": {
+					"groupType": "group-item",
+					"item": {
+						"groupSlug": "playerOptions",
+						"attrName": "muted.innerContent",
+						"priority": 30,
+						"render": true,
+						"label": "Muted",
+						"description": "Start the video without sound.",
+						"features": {
+							"sticky": false,
+							"responsive": false
+						},
+						"component": {
+							"name": "divi/toggle",
+							"type": "field"
+						}
+					}
+				}
+			}
+		},
+		"controls": {
+			"type": "object",
+			"settings": {
+				"innerContent": {
+					"groupType": "group-item",
+					"item": {
+						"groupSlug": "playerOptions",
+						"attrName": "controls.innerContent",
+						"priority": 40,
+						"render": true,
+						"label": "Player Controls",
+						"description": "Show the playback controls.",
+						"features": {
+							"sticky": false,
+							"responsive": false
+						},
+						"component": {
+							"name": "divi/toggle",
+							"type": "field"
+						}
+					}
+				}
+			}
+		},
+		"playsinline": {
+			"type": "object",
+			"settings": {
+				"innerContent": {
+					"groupType": "group-item",
+					"item": {
+						"groupSlug": "playerOptions",
+						"attrName": "playsinline.innerContent",
+						"priority": 50,
+						"render": true,
+						"label": "Play Inline",
+						"description": "Play the video inline on mobile instead of fullscreen.",
+						"features": {
+							"sticky": false,
+							"responsive": false
+						},
+						"component": {
+							"name": "divi/toggle",
+							"type": "field"
+						}
+					}
+				}
+			}
+		}
+	},
+	"customCssFields": {
+		"videoPlayer": {
+			"subName": "videoPlayer",
+			"selectorSuffix": " .vidi-videopress-wrapper"
+		}
+	},
+	"settings": {
+		"content": "auto",
+		"design": "auto",
+		"advanced": "auto",
+		"groups": {
+			"playerOptions": {
+				"panel": "content",
+				"priority": 20,
+				"groupName": "playerOptions",
+				"component": {
+					"name": "divi/composite",
+					"props": {
+						"groupLabel": "Player"
+					}
+				}
+			}
+		}
+	}
+}

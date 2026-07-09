@@ -15,7 +15,7 @@ use Automattic\Jetpack\Status\Host;
  * Class Account_Protection
  */
 class Account_Protection {
-	const PACKAGE_VERSION                = '0.2.12';
+	const PACKAGE_VERSION                = '0.3.5';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 
 	/**
@@ -42,21 +42,21 @@ class Account_Protection {
 	/**
 	 * Password detection instance.
 	 *
-	 * @var Password_Detection
+	 * @var Password_Detection|null
 	 */
 	private $password_detection;
 
 	/**
 	 * Password manager instance
 	 *
-	 * @var Password_Manager
+	 * @var Password_Manager|null
 	 */
 	private $password_manager;
 
 	/**
 	 * Password strength meter instance
 	 *
-	 * @var Password_Strength_Meter
+	 * @var Password_Strength_Meter|null
 	 */
 	private $password_strength_meter;
 
@@ -101,10 +101,54 @@ class Account_Protection {
 	 * @param ?Password_Strength_Meter $password_strength_meter Password strength meter instance.
 	 */
 	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null, ?Password_Strength_Meter $password_strength_meter = null ) {
-		$this->modules                 = $modules ?? new Modules();
-		$this->password_detection      = $password_detection ?? new Password_Detection();
-		$this->password_manager        = $password_manager ?? new Password_Manager();
-		$this->password_strength_meter = $password_strength_meter ?? new Password_Strength_Meter();
+		$this->modules = $modules ?? new Modules();
+
+		/*
+		 * The password collaborators are only used by the runtime hooks, which
+		 * only register when the module is active. Keep any injected instances
+		 * (used by tests) but otherwise leave them unset and create them lazily,
+		 * so their classes are not autoloaded on requests where the module is
+		 * disabled.
+		 */
+		$this->password_detection      = $password_detection;
+		$this->password_manager        = $password_manager;
+		$this->password_strength_meter = $password_strength_meter;
+	}
+
+	/**
+	 * Lazily get the password detection instance.
+	 *
+	 * @return Password_Detection
+	 */
+	private function get_password_detection(): Password_Detection {
+		if ( null === $this->password_detection ) {
+			$this->password_detection = new Password_Detection();
+		}
+		return $this->password_detection;
+	}
+
+	/**
+	 * Lazily get the password manager instance.
+	 *
+	 * @return Password_Manager
+	 */
+	private function get_password_manager(): Password_Manager {
+		if ( null === $this->password_manager ) {
+			$this->password_manager = new Password_Manager();
+		}
+		return $this->password_manager;
+	}
+
+	/**
+	 * Lazily get the password strength meter instance.
+	 *
+	 * @return Password_Strength_Meter
+	 */
+	private function get_password_strength_meter(): Password_Strength_Meter {
+		if ( null === $this->password_strength_meter ) {
+			$this->password_strength_meter = new Password_Strength_Meter();
+		}
+		return $this->password_strength_meter;
 	}
 
 	/**
@@ -134,9 +178,10 @@ class Account_Protection {
 	 * @return void
 	 */
 	public function register_password_detection_hooks(): void {
-		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
-		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
-		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
+		$password_detection = $this->get_password_detection();
+		add_action( 'wp_authenticate_user', array( $password_detection, 'login_form_password_detection' ), 10, 2 );
+		add_action( 'login_form_password-detection', array( $password_detection, 'render_page' ), 10, 2 );
+		add_action( 'wp_enqueue_scripts', array( $password_detection, 'enqueue_styles' ) );
 	}
 
 	/**
@@ -145,10 +190,11 @@ class Account_Protection {
 	 * @return void
 	 */
 	public function register_password_manager_hooks(): void {
-		add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
-		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
-		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 2 );
-		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 1 );
+		$password_manager = $this->get_password_manager();
+		add_action( 'user_profile_update_errors', array( $password_manager, 'validate_profile_update' ), 10, 3 );
+		add_action( 'validate_password_reset', array( $password_manager, 'validate_password_reset' ), 10, 2 );
+		add_action( 'profile_update', array( $password_manager, 'on_profile_update' ), 10, 2 );
+		add_action( 'after_password_reset', array( $password_manager, 'on_password_reset' ), 10, 1 );
 	}
 
 	/**
@@ -157,10 +203,11 @@ class Account_Protection {
 	 * @return void
 	 */
 	public function register_password_strength_meter_hooks(): void {
-		add_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
-		add_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
-		add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
-		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
+		$password_strength_meter = $this->get_password_strength_meter();
+		add_action( 'admin_enqueue_scripts', array( $password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
+		add_action( 'login_enqueue_scripts', array( $password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
+		add_action( 'wp_ajax_validate_password_ajax', array( $password_strength_meter, 'validate_password_ajax' ) );
+		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $password_strength_meter, 'validate_password_ajax' ) );
 	}
 
 	/**

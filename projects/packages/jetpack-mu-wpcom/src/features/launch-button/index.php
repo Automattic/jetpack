@@ -100,6 +100,42 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 }
 
 /**
+ * Enqueue wp-components styles and the celebration modal bundle CSS.
+ *
+ * The celebration modal uses @wordpress/components (Modal, Button, Tooltip).
+ * On the frontend, wp-components CSS is not loaded automatically, so we enqueue
+ * it here together with the compiled bundle CSS that contains the modal's own styles.
+ */
+function wpcom_enqueue_components_styles() {
+	if ( ! wpcom_should_show_launch_button() ) {
+		return;
+	}
+
+	// Enqueue WordPress's built-in wp-components stylesheet.
+	// In admin contexts it may already be queued; wp_enqueue_style() is idempotent.
+	wp_enqueue_style( 'wp-components' );
+
+	// Enqueue the compiled bundle CSS (contains celebrate-launch-modal SCSS).
+	$css_file = is_rtl() ? 'adminbar-launch-button.rtl.css' : 'adminbar-launch-button.css';
+	$css_path = Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/' . $css_file;
+
+	// Fall back to LTR file if RTL file is missing.
+	if ( ! file_exists( $css_path ) ) {
+		$css_file = 'adminbar-launch-button.css';
+		$css_path = Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/' . $css_file;
+	}
+
+	if ( file_exists( $css_path ) ) {
+		wp_enqueue_style(
+			'adminbar-launch-button-bundle',
+			plugins_url( 'build/adminbar-launch-button/' . $css_file, Jetpack_Mu_Wpcom::BASE_FILE ),
+			array( 'wp-components' ),
+			filemtime( $css_path )
+		);
+	}
+}
+
+/**
  * Enqueue the necessary assets for the admin bar button.
  */
 function wpcom_enqueue_launch_button_assets() {
@@ -143,6 +179,26 @@ function wpcom_enqueue_launch_button_assets() {
 	Common\wpcom_enqueue_tracking_scripts( 'adminbar-launch-button' );
 }
 
+/**
+ * Enqueue a wp-admin only script that flags the launch button as being in wp-admin.
+ *
+ * This is used to determine whether to reload the page when the celebration modal is closed.
+ */
+function wpcom_enqueue_admin_launch_button_assets() {
+	if ( ! wpcom_should_show_launch_button() ) {
+		return;
+	}
+
+	wp_add_inline_script(
+		'adminbar-launch-button',
+		'var JETPACK_LAUNCH_BUTTON_DATA_ADMIN = true;',
+		'before'
+	);
+}
+
 add_action( 'admin_bar_menu', 'wpcom_add_launch_button_to_admin_bar', 500 );
+add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_components_styles' );
 add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_launch_button_assets' );
+add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_components_styles' );
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_launch_button_assets' );
+add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_launch_button_assets' );

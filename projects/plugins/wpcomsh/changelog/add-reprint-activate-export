@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Drop is_automattician() from the export gate and expose reprint_exporter_enabled via the site settings API.

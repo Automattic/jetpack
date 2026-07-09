@@ -1,11 +1,10 @@
-import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import FoldingElement from '../folding-element/folding-element';
 import { ErrorSet, getPrimaryErrorSet } from '../lib/critical-css-errors';
 import { CriticalCssState } from '../lib/stores/critical-css-state-types';
-import { Notice } from '@automattic/jetpack-components';
 import { describeErrorSet, suggestion } from '../lib/describe-critical-css-recommendations';
 import { createInterpolateElement } from '@wordpress/element';
+import { Notice, Link } from '@wordpress/ui';
 import getSupportLinkCriticalCss from '$lib/utils/get-support-link-critical-css';
 import NumberedList from '../numbered-list/numbered-list';
 import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-error-set-interpolate-vars';
@@ -30,12 +29,9 @@ const ShowStopperError: FC< ShowStopperErrorTypes > = ( {
 	const showLearnSection = primaryErrorSet && cssState.status === 'generated';
 
 	return (
-		<>
-			<Notice
-				level="error"
-				title={ __( 'Failed to generate Critical CSS', 'jetpack-boost' ) }
-				hideCloseButton={ true }
-			>
+		<Notice.Root intent="error">
+			<Notice.Title>{ __( 'Failed to generate Critical CSS', 'jetpack-boost' ) }</Notice.Title>
+			<Notice.Description>
 				{ showLearnSection ? (
 					<>
 						<Description errorSet={ primaryErrorSet } />
@@ -59,8 +55,8 @@ const ShowStopperError: FC< ShowStopperErrorTypes > = ( {
 				) : (
 					<OtherErrors cssState={ cssState } supportLink={ supportLink } />
 				) }
-			</Notice>
-		</>
+			</Notice.Description>
+		</Notice.Root>
 	);
 };
 
@@ -122,7 +118,8 @@ const DocumentationSection = ( {
 		<p>
 			{ createInterpolateElement( message, {
 				link: (
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ getSupportLinkCriticalCss( errorType ) }
 						onClick={ () => {
 							recordBoostEvent( 'critical_css_learn_more', {} );
@@ -206,7 +203,8 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 							{ __( 'Refresh', 'jetpack-boost' ) }
 						</button>
 					) : (
-						<ExternalLink
+						<Link
+							openInNewTab
 							className="button button-secondary"
 							href={ supportLink }
 							onClick={ () => {
@@ -214,7 +212,7 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 							} }
 						>
 							{ __( 'Contact Support', 'jetpack-boost' ) }
-						</ExternalLink>
+						</Link>
 					) }
 				</>
 			) }

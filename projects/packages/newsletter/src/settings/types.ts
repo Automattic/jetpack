@@ -29,6 +29,7 @@ export interface NewsletterSettings {
 		invitation: string;
 		welcome: string;
 		comment_follow: string;
+		subscribe_modal_heading: string;
 	};
 	newsletter_has_active_plan: boolean;
 	[ key: string ]: unknown;
@@ -46,6 +47,7 @@ export interface NewsletterScriptData {
 	gravatar: string;
 	dateExample: string;
 	subscriberManagementUrl: string;
+	subscriberManagementEnabled: boolean;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;

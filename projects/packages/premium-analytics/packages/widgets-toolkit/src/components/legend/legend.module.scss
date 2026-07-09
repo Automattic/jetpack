@@ -1,0 +1,28 @@
+.legend {
+	width: 100%;
+}
+
+.labelContainer {
+	overflow: hidden;
+	min-width: 0;
+}
+
+.bullet {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.label {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 0;
+}
+
+.value {
+	text-align: right;
+	font-weight: 600;
+	white-space: nowrap;
+}

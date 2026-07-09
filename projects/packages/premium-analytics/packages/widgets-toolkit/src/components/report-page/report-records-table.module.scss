@@ -1,0 +1,22 @@
+@import "@wordpress/dataviews/build-style/style.css";
+
+/* DataViews pads its own chrome — the toolbar, the table's first/last cells,
+ * and the footer all carry the same 24px inline inset the section card would
+ * add — so the card contributes no padding of its own; otherwise the two
+ * stack and the whole table sits doubly inset. Clip children so DataViews'
+ * square row and footer edges follow the card's rounded corners. */
+.root {
+	padding: 0;
+	overflow: hidden;
+}
+
+/* DataViews is built to fill a fixed-height parent: its layout container is a
+ * zero-basis flex child, which collapses to 0px inside this auto-height card.
+ * Let the card grow with the table instead. */
+.root :global(.dataviews-wrapper) {
+	height: auto;
+}
+
+.root :global(.dataviews-layout__container) {
+	flex: 1 1 auto;
+}

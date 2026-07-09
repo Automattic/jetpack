@@ -1096,7 +1096,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public function document( $show_description = true ) {
 		global $wpdb;
-		$original_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : 'unset';
+		$original_post = $GLOBALS['post'] ?? 'unset';
 		unset( $GLOBALS['post'] );
 
 		$doc = $this->generate_documentation();
@@ -1449,7 +1449,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$last_name  = null;
 		$nice       = null;
 		$url        = null;
-		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
+		$ip_address = $author->comment_author_IP ?? '';
 		$site_id    = -1;
 
 		if ( isset( $author->comment_author_email ) ) {
@@ -1459,9 +1459,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$name       = $author->comment_author;
 			$first_name = '';
 			$last_name  = '';
-			$url        = $author->comment_author_url;
 			$avatar_url = $this->api->get_avatar_url( $author );
 			$nice       = '';
+			$url        = $author->comment_author_url;
+			// Convert Gravatar URLs containing an email address to the hashed version.
+			if ( preg_match( '#^https?://(?:www\.)?gravatar\.com/([^/?]+)#i', $url, $matches ) && is_email( $matches[1] ) ) {
+				$url = 'https://gravatar.com/' . md5( strtolower( trim( $matches[1] ) ) );
+			}
 
 			// Add additional user data to the response if a valid user ID is available.
 			if ( 0 < $id ) {
@@ -1471,8 +1475,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$first_name = $user->first_name ?? '';
 					$last_name  = $user->last_name ?? '';
 					$nice       = $user->user_nicename ?? '';
-				} else {
-					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				}
 			}
 
@@ -1519,8 +1521,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! isset( $id ) ) {
 			$user = get_user_by( 'id', $author );
 			if ( ! $user || is_wp_error( $user ) ) {
-				trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-
 				return null;
 			}
 			$id         = $user->ID;
@@ -1532,7 +1532,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$url        = $user->user_url;
 			$nice       = $user->user_nicename;
 		}
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack && $id > 0 ) {
 			/**
 			 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
 			 *
@@ -1675,7 +1675,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$file      = basename( $attachment_file ? $attachment_file : $file );
 		$file_info = pathinfo( $file );
-		$ext       = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
+		$ext       = $file_info['extension'] ?? null;
 
 		// File operations are handled differently on WordPress.com.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1689,19 +1689,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array(
-			'ID'          => isset( $media_item->ID ) ? $media_item->ID : null,
+			'ID'          => $media_item->ID ?? null,
 			'URL'         => isset( $media_item->ID ) ? wp_get_attachment_url( $media_item->ID ) : null,
-			'guid'        => isset( $media_item->guid ) ? $media_item->guid : null,
+			'guid'        => $media_item->guid ?? null,
 			'date'        => ( isset( $media_item->post_date_gmt ) && isset( $media_item->post_date ) ) ?
 			(string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ) : null,
-			'post_ID'     => isset( $media_item->post_parent ) ? $media_item->post_parent : null,
+			'post_ID'     => $media_item->post_parent ?? null,
 			'author_ID'   => isset( $media_item->post_author ) ? (int) $media_item->post_author : null,
 			'file'        => $file,
-			'mime_type'   => isset( $media_item->post_mime_type ) ? $media_item->post_mime_type : null,
+			'mime_type'   => $media_item->post_mime_type ?? null,
 			'extension'   => $ext,
-			'title'       => isset( $media_item->post_title ) ? $media_item->post_title : '',
-			'caption'     => isset( $media_item->post_excerpt ) ? $media_item->post_excerpt : '',
-			'description' => isset( $media_item->post_content ) ? $media_item->post_content : '',
+			'title'       => $media_item->post_title ?? '',
+			'caption'     => $media_item->post_excerpt ?? '',
+			'description' => $media_item->post_content ?? '',
 			'alt'         => isset( $media_item->ID ) ? get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ) : '',
 			'icon'        => isset( $media_item->ID ) ? wp_mime_type_icon( $media_item->ID ) : null,
 			'size'        => size_format( (int) $filesize, 2 ),
@@ -1731,7 +1731,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_item->ID );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
-						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						if ( isset( $size_details['file'] ) ) {
+							$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						}
 					}
 					/**
 					 * Filter the thumbnail URLs for attachment files.
@@ -1752,9 +1754,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ), true ) && isset( $media_item->ID ) ) {
-			$metadata           = wp_get_attachment_metadata( $media_item->ID );
-			$response['length'] = $metadata['length'];
-			$response['exif']   = $metadata;
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+
+			if ( isset( $metadata['length'] ) ) {
+				$response['length'] = $metadata['length'];
+			}
+			$response['exif'] = is_array( $metadata ) ? $metadata : false;
 		}
 
 		$is_video = false;
@@ -2013,7 +2018,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	 */
 	public function load_theme_functions() {
-		if ( false === defined( 'STYLESHEETPATH' ) ) {
+		if ( ! defined( 'STYLESHEETPATH' ) ) {
 			wp_templating_constants();
 		}
 
@@ -2784,6 +2789,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! $response && ! is_array( $response ) ) {
 			// Dealing with empty non-array response.
 			$response = new WP_Error( 'empty_response', 'Endpoint response is empty', 500 );
+		}
+
+		// Mirror the XML-RPC path, which runs filter_fields() in WPCOM_JSON_API::output() before
+		// returning, so a `fields` request yields the same keys on both transports. Endpoints may
+		// force-add keys past `fields` for internal processors (e.g. the post type/status/password);
+		// without this they would leak on the REST transport only.
+		if ( ! is_wp_error( $response ) ) {
+			$response = $this->api->filter_fields( $response );
 		}
 
 		$status_code = 200;

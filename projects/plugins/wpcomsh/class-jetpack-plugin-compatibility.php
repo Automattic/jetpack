@@ -189,7 +189,7 @@ class Jetpack_Plugin_Compatibility {
 			deactivate_plugins( $plugin );
 
 			$this->admin_notices[] = '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html( $message ) . '</strong></p></div>';
-			unset( $_GET['activate'] ); // phpcs:ignore WordPress.Security.NonceVerification
+			unset( $_GET['activate'] );
 		}
 	}
 

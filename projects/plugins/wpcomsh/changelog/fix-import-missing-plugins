@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Updated reprint-importer and reprint-exporter to v0.1.36 – fixes site imports on Atomic that only downloaded WordPress core files and missed wp-content (plugins, themes, uploads).

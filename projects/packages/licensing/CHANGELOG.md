@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.9] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [3.1.8] - 2026-06-05
+### Changed
+- Internal updates.
+
+## [3.1.7] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [3.1.6] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
 ## [3.1.5] - 2026-02-23
 ### Changed
 - Update dependencies.
@@ -364,6 +380,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Licensing: Add support for Jetpack licenses
 
+[3.1.9]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.8...v3.1.9
+[3.1.8]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.7...v3.1.8
+[3.1.7]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.6...v3.1.7
+[3.1.6]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.5...v3.1.6
 [3.1.5]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.4...v3.1.5
 [3.1.4]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.3...v3.1.4
 [3.1.3]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.2...v3.1.3

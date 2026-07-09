@@ -3,18 +3,10 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Card, Fieldset, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -26,6 +18,8 @@ interface WelcomeEmailSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
+	/** Setting keys staged in this section's changeset, fed into section_save analytics. */
+	changedKeys?: string[];
 	isNewsletterEnabled: boolean;
 }
 
@@ -48,6 +42,7 @@ export function WelcomeEmailSection( {
 	onSave,
 	isSaving,
 	hasChanges,
+	changedKeys,
 	isNewsletterEnabled,
 }: WelcomeEmailSectionProps ): JSX.Element {
 	const siteType = getSiteType();
@@ -64,14 +59,16 @@ export function WelcomeEmailSection( {
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
-	// Track section save
+	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
 			site_type: siteType,
 			section: 'welcome_email',
+			changed_keys: ( changedKeys ?? [] ).join( ',' ),
+			change_count: ( changedKeys ?? [] ).length,
 		} );
 		onSave();
-	}, [ onSave, siteType ] );
+	}, [ changedKeys, onSave, siteType ] );
 
 	const fields: Field< WelcomeEmailFormData >[] = [
 		{
@@ -95,6 +92,7 @@ export function WelcomeEmailSection( {
 						invitation: data.subscription_options?.invitation || '',
 						welcome: updates.welcome_message,
 						comment_follow: data.subscription_options?.comment_follow || '',
+						subscribe_modal_heading: data.subscription_options?.subscribe_modal_heading || '',
 					},
 				} );
 			}
@@ -103,11 +101,11 @@ export function WelcomeEmailSection( {
 	);
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Welcome email message', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Welcome email message', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ __(
@@ -116,7 +114,7 @@ export function WelcomeEmailSection( {
 						) }
 					</Text>
 				</p>
-				<fieldset disabled={ ! isNewsletterEnabled }>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 					<DataForm
 						data={ formData }
 						fields={ fields }
@@ -129,18 +127,18 @@ export function WelcomeEmailSection( {
 						} }
 						onChange={ handleDataFormChange }
 					/>
-				</fieldset>
-			</CardBody>
-			<CardFooter>
-				<Button
-					variant="primary"
-					onClick={ handleSave }
-					disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-					isBusy={ isSaving }
-				>
-					{ isSaving ? savingText : saveText }
-				</Button>
-			</CardFooter>
-		</Card>
+				</Fieldset.Root>
+				<div className="newsletter-card-footer">
+					<Button
+						onClick={ handleSave }
+						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+						loading={ isSaving }
+						loadingAnnouncement={ savingText }
+					>
+						{ saveText }
+					</Button>
+				</div>
+			</Card.Content>
+		</Card.Root>
 	);
 }

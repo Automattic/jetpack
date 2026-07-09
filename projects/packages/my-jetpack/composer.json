@@ -6,23 +6,25 @@
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-agents-manager": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-explat": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-protect-status": "@dev"
+		"automattic/jetpack-protect-status": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-videopress": "@dev",
@@ -41,17 +43,14 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
-		"test-php": [
-			"@composer phpunit"
-		],
-		"test-js": [
-			"pnpm run test"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
 		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run test --watch"
 		],
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-development": [
 			"pnpm run build"
 		],
@@ -86,7 +85,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "5.34.x-dev"
+			"dev-trunk": "5.40.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

@@ -504,6 +504,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'supports_free_tier_customization' => true,
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting', true ),
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
@@ -527,6 +528,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 					if ( class_exists( 'Jetpack_Memberships' ) ) {
 						$response[ $key ]['newsletter_has_active_plan'] = count( Jetpack_Memberships::get_all_newsletter_plan_ids( false ) ) > 0;
+						// Read-only/derived: the free tier's markdown description rendered to
+						// safe HTML, colocated with subscription_options so it's
+						// read-after-write consistent. Not part of the writable
+						// subscription_options bag (which would round-trip and persist it).
+						$response[ $key ]['free_tier_description_rendered'] = Jetpack_Memberships::render_tier_description_html(
+							( (array) get_option( 'subscription_options' ) )['free_tier_description'] ?? ''
+						);
 					}
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -966,7 +974,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading', 'free_tier_description', 'hide_free_tier' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
@@ -978,6 +986,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( empty( $filtered_value ) ) {
 						break;
 					}
+
+					// `hide_free_tier` is a boolean flag, so pull it out before the HTML
+					// sanitization below (which expects strings). Parse it with is_truthy()
+					// so stringy booleans (e.g. "false", "0") are interpreted correctly
+					// rather than being treated as truthy by a plain `! empty()`.
+					$has_hide_free_tier = array_key_exists( 'hide_free_tier', $filtered_value );
+					$hide_free_tier     = $has_hide_free_tier && WPCOM_JSON_API::is_truthy( $filtered_value['hide_free_tier'] );
+					unset( $filtered_value['hide_free_tier'] );
 
 					array_walk_recursive(
 						$filtered_value,
@@ -992,6 +1008,31 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							);
 						}
 					);
+
+					// Normalize whitespace-only `subscribe_modal_heading` input to empty so
+					// the modal template's `empty()` fallback fires. PHP's `empty()` treats
+					// `"   "` as non-empty, which would otherwise render a blank heading.
+					if ( isset( $filtered_value['subscribe_modal_heading'] ) ) {
+						$filtered_value['subscribe_modal_heading'] = trim( $filtered_value['subscribe_modal_heading'] );
+					}
+
+					// The free tier description is stored as plain markdown source, so strip
+					// all HTML and cap its length to match the paid-tier description field.
+					// WordPress core guarantees mb_substr() (polyfilled in wp-includes/compat.php
+					// when the mbstring extension is unavailable), so it's safe to use directly.
+					// A JSON payload could supply a non-scalar (array/object) for this field,
+					// which would fatal in wp_kses()/mb_substr() on PHP 8+, so drop invalid values.
+					if ( isset( $filtered_value['free_tier_description'] ) ) {
+						if ( is_scalar( $filtered_value['free_tier_description'] ) ) {
+							$filtered_value['free_tier_description'] = mb_substr( wp_kses( (string) $filtered_value['free_tier_description'], array() ), 0, 500 );
+						} else {
+							unset( $filtered_value['free_tier_description'] );
+						}
+					}
+
+					if ( $has_hide_free_tier ) {
+						$filtered_value['hide_free_tier'] = $hide_free_tier;
+					}
 
 					$old_subscription_options = get_option( 'subscription_options', array() );
 					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );

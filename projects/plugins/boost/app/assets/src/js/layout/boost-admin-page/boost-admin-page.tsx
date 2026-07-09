@@ -35,7 +35,6 @@ const BoostAdminPage = ( {
 			subTitle={ __( 'Optimize your site performance and loading speed.', 'jetpack-boost' ) }
 			breadcrumbs={ breadcrumbs }
 			actions={ licenseAction }
-			showFooter={ false }
 			showBackground={ false }
 		>
 			{ children }

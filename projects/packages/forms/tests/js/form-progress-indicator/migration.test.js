@@ -2,20 +2,16 @@ import { describe, expect, jest, test } from '@jest/globals';
 import { createElement } from '@wordpress/element';
 
 // Mock WordPress dependencies that use JSX
-await jest.unstable_mockModule( '@wordpress/components', () => ( {
+await jest.unstable_mockModule( '@wordpress/primitives', () => ( {
 	Circle: 'circle-mock',
 	Rect: 'rect-mock',
+	SVG: 'svg-mock',
+	Path: 'path-mock',
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	__: jest.fn( text => text ),
 } ) );
-
-// Mock internal dependencies
-await jest.unstable_mockModule(
-	'../../../src/blocks/shared/components/render-material-icon.jsx',
-	() => ( { default: jest.fn( () => 'icon-mock' ) } )
-);
 
 await jest.unstable_mockModule( '../../../src/blocks/form-progress-indicator/edit.js', () => ( {
 	default: jest.fn( () => null ),

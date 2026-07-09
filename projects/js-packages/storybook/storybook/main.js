@@ -11,6 +11,10 @@ import jetpackConfig from './jetpackConfig.js';
 import { projects } from './projects.js';
 
 const __dirname = import.meta.dirname;
+const premiumAnalyticsPackagesDir = path.join(
+	__dirname,
+	'../../../packages/premium-analytics/packages'
+);
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
@@ -55,6 +59,27 @@ const sbconfig = {
 					},
 				},
 
+				// Premium Analytics internal packages point `module` to ignored build artifacts.
+				// In Storybook, resolve bare package imports to TS source so local stale builds
+				// cannot diverge from the code being edited.
+				{
+					name: 'premium-analytics-source-package-imports',
+					enforce: 'pre',
+					async resolveId( id, importer ) {
+						const match = id.match( /^@jetpack-premium-analytics\/([^/]+)$/ );
+
+						if ( ! match ) {
+							return;
+						}
+
+						return this.resolve(
+							path.join( premiumAnalyticsPackagesDir, match[ 1 ], 'src/index.ts' ),
+							importer,
+							{ skipSelf: true }
+						);
+					},
+				},
+
 				// Stub `@automattic/jetpack-config`, the whole `jetpackConfig` thing confuses Storybook/vite/vitest/esbuild/rolldown/etc to no end.
 				// If you're trying to use those tools for something else, consider somehow fixing `@automattic/jetpack-config` instead of perpetuating this hack.
 				{
@@ -83,14 +108,11 @@ const sbconfig = {
 					name: 'search-dashboard-modules',
 					async resolveId( id, importer ) {
 						if (
-							id.startsWith( 'components/' ) &&
+							( id.startsWith( 'components/' ) || id === 'store' || id.startsWith( 'store/' ) ) &&
 							importer?.includes( '/search/src/dashboard/' )
 						) {
-							const dummyFile = path.join(
-								__dirname,
-								'../../../packages/search/src/dashboard/dummy.js'
-							);
-							return this.resolve( './' + id, dummyFile, {
+							const dashboardDir = path.join( __dirname, '../../../packages/search/src/dashboard' );
+							return this.resolve( path.join( dashboardDir, id ), importer, {
 								skipSelf: true,
 							} );
 						}
@@ -145,6 +167,10 @@ const sbconfig = {
 				dedupe: [ 'react', 'react-dom' ],
 				alias: {
 					...config.resolve?.alias,
+
+					// Premium Analytics internal subpath imports. Bare package imports are
+					// resolved to TS source by the plugin above.
+					'@jetpack-premium-analytics': premiumAnalyticsPackagesDir,
 
 					// Boost-specific aliases
 					$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),

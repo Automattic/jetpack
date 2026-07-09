@@ -8,19 +8,19 @@ import {
 	NextdoorPostPreview,
 	ThreadsPostPreview,
 	TumblrPostPreview,
-	TwitterPostPreview,
 } from '@automattic/social-previews';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { useConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
-import { Connection } from '../../../social-store/types';
 import { InstagramNoMediaNotice } from '../../form/instagram-no-media-notice';
+import type { ConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
+import type { Connection } from '../../../social-store/types';
 
 export type PostPreviewProps = {
 	connection: Connection;
+	previewData: ConnectionPreviewData;
 };
 
 /**
@@ -44,7 +44,7 @@ function getCombinedText( title: string, excerpt: string ): string {
  *
  * @return - Post preview component.
  */
-export function PostPreview( { connection }: PostPreviewProps ) {
+export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 	const user = useMemo(
 		() => ( {
 			displayName: connection.display_name,
@@ -54,18 +54,20 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt, message } =
-		useConnectionPreviewData( connection );
+	const { image, imageFocalPoint, media, title, description, url, excerpt, message, hyperlinks } =
+		previewData;
 
 	const commonProps = useMemo(
 		() => ( {
 			description,
 			image,
+			imageFocalPoint,
 			media,
 			title,
 			url,
+			hyperlinks,
 		} ),
-		[ description, image, media, title, url ]
+		[ hyperlinks, description, image, imageFocalPoint, media, title, url ]
 	);
 
 	const siteName = useSelect( select => {
@@ -232,8 +234,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				caption = getCombinedText( title, excerpt );
 			}
 
-			caption += `\n\n${ url }`;
-
 			return (
 				<ThreadsPostPreview
 					{ ...commonProps }
@@ -253,28 +253,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 					title={ message ? '' : title }
 					description={ desc }
 					user={ { displayName: user.displayName, avatarUrl: user.profileImage } }
-				/>
-			);
-		}
-
-		case 'x': {
-			let text = title;
-
-			if ( message ) {
-				text = message;
-			} else if ( title && excerpt ) {
-				text = getCombinedText( title, excerpt );
-			}
-
-			text += `\n\n${ url }`;
-
-			return (
-				<TwitterPostPreview
-					{ ...commonProps }
-					description={ description }
-					text={ text }
-					screenName={ user.externalName }
-					name={ user.displayName }
 				/>
 			);
 		}

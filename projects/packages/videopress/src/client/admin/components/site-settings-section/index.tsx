@@ -2,14 +2,15 @@
  * External dependencies
  */
 import { Col, Container, Text } from '@automattic/jetpack-components';
+import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { usePermission } from '../../hooks/use-permission';
 import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
-import { CheckboxCheckmark } from '../video-filter';
 import { SITE_TYPE_ATOMIC } from './constants';
+import styles from './style.module.scss';
 import { SiteSettingsSectionProps } from './types';
 /**
  * Types
@@ -39,23 +40,23 @@ const SiteSettingsSection: FC< SiteSettingsSectionProps > = ( {
 		: null;
 
 	return (
-		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
+		<Container horizontalSpacing={ 6 } horizontalGap={ 0 }>
 			<Col>
 				<Text variant="headline-small" mb={ 1 }>
 					{ __( 'Settings', 'jetpack-videopress-pkg' ) }
 				</Text>
 			</Col>
 			<Col sm={ 12 } md={ 12 } lg={ 12 }>
-				<CheckboxCheckmark
-					for={ 'settings-site-privacy' }
+				<CheckboxControl
 					label={ __(
 						'Video Privacy: Restrict views to members of this site',
 						'jetpack-videopress-pkg'
 					) }
+					className={ styles[ 'privacy-toggle' ] }
 					onChange={ onPrivacyChange }
 					checked={ videoPressVideosPrivateForSite }
 					disabled={ disablePrivacyToggle }
-					disabledReason={ disabledReason }
+					help={ disabledReason || undefined }
 				/>
 			</Col>
 		</Container>

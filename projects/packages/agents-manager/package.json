@@ -1,0 +1,45 @@
+{
+	"name": "@automattic/jetpack-agents-manager",
+	"version": "0.8.0",
+	"private": true,
+	"description": "Shared AI infrastructure helpers for Automattic plugins",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/agents-manager/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Agents Manager"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/agents-manager"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
+		"clean": "rm -rf build/",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "webpack --watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@babel/runtime": "7.29.7",
+		"@jest/globals": "30.4.1",
+		"@types/jest": "30.0.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/browserslist-config": "6.50.0",
+		"browserslist": "^4.24.0",
+		"concurrently": "10.0.3",
+		"jest": "30.4.2",
+		"webpack": "5.107.2",
+		"webpack-cli": "6.0.1"
+	}
+}

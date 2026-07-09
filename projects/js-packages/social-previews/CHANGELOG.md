@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.4] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [3.3.3] - 2026-06-29
+### Changed
+- Update dependencies. [#50004]
+
+## [3.3.2] - 2026-06-26
+### Changed
+- Update dependencies. [#49464]
+
+## [3.3.1] - 2026-06-23
+### Changed
+- Internal updates.
+
+## [3.3.0] - 2026-06-22
+### Added
+- Render an image focal point in the link previews via object-position. [#49687]
+
+### Changed
+- Update package dependencies. [#49594] [#49631] [#49691] [#49757]
+
+### Fixed
+- Use the caption/custom text as the source of truth for Bluesky, Facebook, Instagram, Mastodon and Nextdoor previews instead of appending the post URL. [#49745]
+
+## [3.2.5] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+### Fixed
+- Render hyperlinks as clickable links in Bluesky and Tumblr previews. [#49483]
+
+## [3.2.4] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+### Fixed
+- Avoid having the Mastodon share preview show post URL twice when the custom message already includes it. [#49338]
+
+## [3.2.3] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405] [#49012]
+
+## [3.2.2] - 2026-05-19
+### Changed
+- Update dependencies. [#48778]
+
+## [3.2.1] - 2026-05-11
+### Changed
+- Update dependencies.
+
+## [3.2.0] - 2026-05-04
+### Changed
+- Align per-network preview body char limits with each platform's actual limit. [#48413]
+- Add a "See more" toggle for captions over 400 chars. [#48413]
+- Stop hiding URLs that the user embedded in custom message templates on Bluesky and X. [#48413]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+### Fixed
+- Count Unicode codepoints when truncating text so emoji-heavy strings are not over-truncated. [#48294]
+- Social previews: Avoid duplicated URL in Facebook, Bluesky, Instagram, LinkedIn, and Nextdoor previews when the custom text already contains the post URL. [#48294]
+
+## [3.1.4] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [3.1.3] - 2026-04-13
+### Changed
+- Update package dependencies. [#47890]
+
+### Fixed
+- Google Search preview: Show a generic globe placeholder when the site has no site icon, instead of a broken image. [#48039]
+
 ## [3.1.2] - 2026-04-06
 ### Changed
 - Update package dependencies. [#47886]
@@ -159,6 +233,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release after extracting from Calypso.
 
+[3.3.4]: https://github.com/Automattic/social-previews/compare/v3.3.3...v3.3.4
+[3.3.3]: https://github.com/Automattic/social-previews/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/Automattic/social-previews/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/Automattic/social-previews/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/Automattic/social-previews/compare/v3.2.5...v3.3.0
+[3.2.5]: https://github.com/Automattic/social-previews/compare/v3.2.4...v3.2.5
+[3.2.4]: https://github.com/Automattic/social-previews/compare/v3.2.3...v3.2.4
+[3.2.3]: https://github.com/Automattic/social-previews/compare/v3.2.2...v3.2.3
+[3.2.2]: https://github.com/Automattic/social-previews/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/Automattic/social-previews/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/Automattic/social-previews/compare/v3.1.4...v3.2.0
+[3.1.4]: https://github.com/Automattic/social-previews/compare/v3.1.3...v3.1.4
+[3.1.3]: https://github.com/Automattic/social-previews/compare/v3.1.2...v3.1.3
 [3.1.2]: https://github.com/Automattic/social-previews/compare/v3.1.1...v3.1.2
 [3.1.1]: https://github.com/Automattic/social-previews/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/social-previews/compare/v3.0.12...v3.1.0

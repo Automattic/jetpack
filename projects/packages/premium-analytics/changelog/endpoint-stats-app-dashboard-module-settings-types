@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Data layer: Use endpoint-specific typing for dashboard module settings.

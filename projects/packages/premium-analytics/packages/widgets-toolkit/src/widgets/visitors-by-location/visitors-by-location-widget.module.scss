@@ -1,0 +1,96 @@
+.root {
+	// Establish an inline-size query container so the layout can respond to the
+	// rendered tile width (single- vs two-column dashboard tile) with pure CSS,
+	// instead of measuring the tile from JS.
+	container-type: inline-size;
+	height: 100%;
+	// No `overflow: hidden` here: the toggle sits at the left edge of this box,
+	// and clipping would shave off its border/focus ring. The map has its own
+	// `overflow: hidden` to contain the GeoChart SVG.
+}
+
+.container {
+	display: grid;
+	// Leaderboard on the left, map on the right — matching the Locations widget.
+	grid-template-columns: 280fr 400fr;
+	grid-template-rows: auto 1fr;
+	column-gap: var(--wpds-dimension-gap-lg);
+	// Separate the toggle from the leaderboard below it.
+	row-gap: var(--wpds-dimension-gap-md, 16px);
+	align-items: stretch;
+	height: 100%;
+	min-height: 0;
+}
+
+.toggleControl {
+	grid-column: 1;
+	grid-row: 1;
+
+	// The upstream widget content container
+	// (.next-admin-dashboard-widget__content) sets overflow: auto, which
+	// clips the ToggleGroupControl's outward focus ring.
+	// Add padding to create space for the focus indicator.
+	padding-block-start: var(--wpds-dimension-padding-xs, 4px);
+	padding-inline-end: var(--wpds-dimension-padding-xs, 4px);
+	padding-block-end: 0;
+	padding-inline-start: 0;
+}
+
+.leaderboardChart {
+	grid-column: 1;
+	grid-row: 2;
+	align-self: start;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+
+	.leaderboardImage {
+		height: 20px;
+		border-radius: var(--wpds-border-radius-sm, 2px);
+	}
+}
+
+.geoChart {
+	// Map sits in the content row (beside the leaderboard), so it centers
+	// against the data rather than the toggle above them — matching Locations.
+	grid-column: 2;
+	grid-row: 2;
+
+	// Let the responsive GeoChart fill the cell and scale to fit: it keeps the
+	// map's aspect ratio and letterboxes inside the box, so a short single-row
+	// tile shrinks the map instead of clipping it. Avoid fixed max-width/height
+	// caps, which forced the map larger than a short cell and cut it off.
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	// GeoChart renders a fixed pixel-sized SVG that Google redraws on a resize
+	// debounce. While a tile shrinks the previous (wider) SVG lingers briefly;
+	// clip it to the column so it can never spill over the leaderboard.
+	overflow: hidden;
+}
+
+// Narrow tiles (single-column dashboard tile): hide the map and show only the
+// leaderboard. The threshold sits between a single-column tile (~381px) and a
+// two-column tile (~786px) so the two-column layout keeps both.
+@container (max-width: 480px) {
+
+	.container {
+		grid-template-columns: 1fr;
+	}
+
+	.geoChart {
+		display: none;
+	}
+}
+
+// The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
+// to all images inside the media cell, overriding our 20px flag height.
+// Restore correct sizing for flag images in any inert context.
+:global([inert]) .leaderboardChart .leaderboardImage {
+	width: auto;
+	height: 20px;
+	object-fit: initial;
+}

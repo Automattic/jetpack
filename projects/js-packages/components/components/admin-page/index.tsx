@@ -1,9 +1,5 @@
 import restApi from '@automattic/jetpack-api';
 import { Page } from '@wordpress/admin-ui';
-import '@wordpress/admin-ui/build-style/style.css';
-import {
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useCallback } from 'react';
@@ -41,13 +37,17 @@ const AdminPage: FC< AdminPageProps > = ( {
 	breadcrumbs,
 	tabs,
 	showBottomBorder = true,
+	unwrapped = false,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const rootClassName = clsx( styles[ 'admin-page' ], className, {
+	// `jp-admin-page` is a stable, non-hashed hook for global stylesheets and
+	// shared SCSS mixins (notably `jetpack-admin-page-layout` in
+	// @automattic/jetpack-base-styles). Do not rename.
+	const rootClassName = clsx( styles[ 'admin-page' ], 'jp-admin-page', className, {
 		[ styles.background ]: showBackground,
 		[ styles[ 'without-bottom-border' ] ]: tabs || ! showBottomBorder,
 	} );
@@ -70,31 +70,27 @@ const AdminPage: FC< AdminPageProps > = ( {
 		}
 	}, [] );
 
-	// Compose the title with logo for the admin-ui Page header.
-	// Page's Header wraps this in an <h2> tag, so we just pass the content directly.
-	const composedTitle = title ? (
-		<HStack spacing={ 2 } justify="left">
-			{ logo || <JetpackLogo showText={ false } height={ 20 } /> }
-			<span>{ title }</span>
-		</HStack>
-	) : undefined;
-
 	// When title or breadcrumbs are provided, use admin-ui Page for the full page layout.
-	if ( showHeader && ( composedTitle || breadcrumbs ) ) {
+	if ( showHeader && ( title || breadcrumbs ) ) {
 		return (
 			<div className={ rootClassName }>
 				<Page
-					ariaLabel={ title }
+					className="jp-admin-page__page"
+					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
 					breadcrumbs={ breadcrumbs }
-					title={ composedTitle }
+					title={ title }
 					subTitle={ subTitle }
 					actions={ actions }
 					showSidebarToggle={ false }
 				>
 					{ tabs }
-					<Container fluid horizontalSpacing={ 0 }>
-						<Col>{ children }</Col>
-					</Container>
+					{ unwrapped ? (
+						children
+					) : (
+						<Container fluid horizontalSpacing={ 0 }>
+							<Col>{ children }</Col>
+						</Container>
+					) }
 					{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 				</Page>
 			</div>

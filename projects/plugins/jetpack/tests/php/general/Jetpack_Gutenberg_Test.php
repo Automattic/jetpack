@@ -95,6 +95,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	public function test_does_calling_get_availability_twice_result_in_notice() {
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		Jetpack_Gutenberg::get_availability();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Calling this twice is precisely the purpose of the test.
 		Jetpack_Gutenberg::get_availability();
 		$result = remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		$this->assertTrue( $result );
@@ -459,6 +460,661 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 				'in_footer' => true,
 			),
 			$retrieved_strategy
+		);
+	}
+
+	/**
+	 * Invoke the private static Jetpack_Gutenberg::is_block_editor_context().
+	 *
+	 * @return bool
+	 */
+	private function invoke_is_block_editor_context() {
+		$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'is_block_editor_context' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return (bool) $method->invoke( null );
+	}
+
+	/**
+	 * Set the private static Jetpack_Gutenberg::$deferred_blocks map.
+	 *
+	 * @param array $value Value to set.
+	 */
+	private function set_deferred_blocks( $value ) {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'deferred_blocks' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, $value );
+	}
+
+	/**
+	 * Read the private static Jetpack_Gutenberg::$deferred_blocks map.
+	 *
+	 * @return array
+	 */
+	private function get_deferred_blocks() {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'deferred_blocks' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		return (array) $prop->getValue();
+	}
+
+	/**
+	 * Set the private static Jetpack_Gutenberg::$lazy_blocks list.
+	 *
+	 * @param array $value Value to set.
+	 */
+	private function set_lazy_blocks( $value ) {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'lazy_blocks' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, $value );
+	}
+
+	/**
+	 * Read the private static Jetpack_Gutenberg::$lazy_blocks list.
+	 *
+	 * @return string[]
+	 */
+	private function get_lazy_blocks() {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'lazy_blocks' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		return (array) $prop->getValue();
+	}
+
+	/**
+	 * Invoke the private static Jetpack_Gutenberg::load_and_register_deferred_block().
+	 *
+	 * @param string $feature Block feature name.
+	 */
+	private function invoke_load_and_register_deferred_block( $feature ) {
+		$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'load_and_register_deferred_block' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( null, $feature );
+	}
+
+	/**
+	 * Create a throwaway lazy block fixture under extensions/blocks.
+	 *
+	 * @param string $feature       Block feature name.
+	 * @param string $render_output Optional render output.
+	 *
+	 * @return array Fixture paths.
+	 */
+	private function create_lazy_fixture_block( $feature, $render_output = '' ) {
+		$dir      = JETPACK__PLUGIN_DIR . 'extensions/blocks/' . $feature;
+		$file     = $dir . '/' . $feature . '.php';
+		$function = 'jetpack_test_render_' . str_replace( '-', '_', $feature );
+		wp_mkdir_p( $dir );
+
+		$render_function = '';
+		$render_callback = '';
+		if ( '' !== $render_output ) {
+			$render_function = "if ( ! function_exists( '{$function}' ) ) { function {$function}() { return " . var_export( $render_output, true ) . "; } }\n";
+			$render_callback = "'render_callback' => '{$function}',";
+		}
+
+		file_put_contents(
+			$file,
+			"<?php\n{$render_function}add_action( 'init', function () { register_block_type( 'jetpack/{$feature}', array( {$render_callback} ) ); } );\n"
+		);
+
+		return array(
+			'dir'  => $dir,
+			'file' => $file,
+		);
+	}
+
+	/**
+	 * Remove a throwaway lazy block fixture.
+	 *
+	 * @param string $feature Block feature name.
+	 * @param array  $fixture Fixture paths from create_lazy_fixture_block().
+	 */
+	private function remove_lazy_fixture_block( $feature, $fixture ) {
+		if ( Blocks::is_registered( 'jetpack/' . $feature ) ) {
+			unregister_block_type( 'jetpack/' . $feature );
+		}
+		if ( file_exists( $fixture['file'] ) ) {
+			unlink( $fixture['file'] );
+		}
+		if ( is_dir( $fixture['dir'] ) ) {
+			rmdir( $fixture['dir'] );
+		}
+	}
+
+	/**
+	 * Non-web contexts (empty REQUEST_URI: WP-CLI, test runs) load blocks eagerly.
+	 */
+	public function test_is_block_editor_context_is_true_without_request_uri() {
+		$saved = $_SERVER['REQUEST_URI'] ?? null;
+		unset( $_SERVER['REQUEST_URI'] );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		if ( null !== $saved ) {
+			$_SERVER['REQUEST_URI'] = $saved;
+		}
+	}
+
+	/**
+	 * A plain front-end page request is not a block-editor context.
+	 */
+	public function test_is_block_editor_context_is_false_for_frontend_request() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		$this->assertFalse( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A pretty-permalink REST request is detected from the URL path.
+	 */
+	public function test_is_block_editor_context_is_true_for_rest_url() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/' . rest_get_url_prefix() . '/wp/v2/block-types';
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * An index-permalink REST request (/index.php/wp-json/...) is detected.
+	 */
+	public function test_is_block_editor_context_is_true_for_index_permalink_rest_url() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/index.php/' . rest_get_url_prefix() . '/wp/v2/block-types';
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A plain-permalink REST request is detected from the rest_route query var.
+	 */
+	public function test_is_block_editor_context_is_true_for_rest_route_query() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/?rest_route=/wp/v2/block-types';
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A front-end URL that merely carries the REST prefix in a query value is NOT a
+	 * REST request.
+	 */
+	public function test_is_block_editor_context_is_false_when_prefix_only_in_query() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/?redirect=/' . rest_get_url_prefix() . '/wp/v2/posts';
+		$this->assertFalse( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * Lazy block allowlist entries must remain pure display blocks.
+	 *
+	 * @dataProvider provider_lazy_blocks
+	 *
+	 * @param string $feature Block feature name.
+	 */
+	#[DataProvider( 'provider_lazy_blocks' )]
+	public function test_lazy_block_allowlist_entry_stays_pure( $feature ) {
+		$dir    = JETPACK__PLUGIN_DIR . "extensions/blocks/{$feature}";
+		$file   = "{$dir}/{$feature}.php";
+		$source = file_exists( $file ) ? file_get_contents( $file ) : '';
+
+		$this->assertFileExists( $file, "Lazy block {$feature} must have a matching registration file." );
+		$this->assertSame(
+			'jetpack/' . $feature,
+			Blocks::get_block_name_from_path_convention( $dir ),
+			"Lazy block {$feature} must register the block name matching its directory."
+		);
+		$this->assertSame(
+			1,
+			substr_count( $source, 'Blocks::jetpack_register_block' ),
+			"Lazy block {$feature} must call Blocks::jetpack_register_block() exactly once."
+		);
+		$this->assertSame(
+			1,
+			preg_match_all( '/add_action\s*\(\s*[\'"]init[\'"]/', $source ),
+			"Lazy block {$feature} must add exactly one init registration callback."
+		);
+		$this->assertSame(
+			0,
+			preg_match( '/jetpack_register_block\s*\(\s*[\'"](?!jetpack\/' . preg_quote( $feature, '/' ) . '[\'"])/', $source ),
+			"Lazy block {$feature} must not explicitly register a differently named block."
+		);
+		$this->assertStringNotContainsString( 'render_email_callback', $source, "Lazy block {$feature} must not register an e-mail renderer." );
+		$this->assertStringNotContainsString( 'plan_check', $source, "Lazy block {$feature} must not use plan_check availability wrapping." );
+		$this->assertStringNotContainsString( 'register_rest_route', $source, "Lazy block {$feature} must not register REST routes." );
+		$this->assertStringNotContainsString( 'register_post_meta', $source, "Lazy block {$feature} must not register post meta." );
+	}
+
+	/**
+	 * Data provider for test_lazy_block_allowlist_entry_stays_pure.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_lazy_blocks() {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'lazy_blocks' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+
+		$data = array();
+		foreach ( (array) $prop->getValue() as $feature ) {
+			$data[ $feature ] = array( $feature );
+		}
+		return $data;
+	}
+
+	/**
+	 * A non-null pre-render value is left untouched and no registration is attempted.
+	 */
+	public function test_lazy_register_respects_existing_pre_render() {
+		$this->set_deferred_blocks( array( 'business-hours' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( 'already-rendered', array( 'blockName' => 'jetpack/business-hours' ) );
+		$this->assertSame( 'already-rendered', $result );
+		// The block was not consumed because we short-circuited before touching it.
+		$this->assertArrayHasKey( 'business-hours', $this->get_deferred_blocks() );
+	}
+
+	/**
+	 * Blocks outside the jetpack namespace are ignored.
+	 */
+	public function test_lazy_register_ignores_non_jetpack_blocks() {
+		$this->set_deferred_blocks( array( 'business-hours' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'core/paragraph' ) );
+		$this->assertNull( $result );
+		$this->assertArrayHasKey( 'business-hours', $this->get_deferred_blocks() );
+	}
+
+	/**
+	 * Jetpack blocks that were not deferred are ignored.
+	 */
+	public function test_lazy_register_ignores_non_deferred_jetpack_blocks() {
+		$this->set_deferred_blocks( array( 'business-hours' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/contact-form' ) );
+		$this->assertNull( $result );
+		$this->assertArrayHasKey( 'business-hours', $this->get_deferred_blocks() );
+	}
+
+	/**
+	 * A deferred block is only attempted once, so a repeated block on the page does
+	 * not re-run the include/registration logic.
+	 */
+	public function test_lazy_register_attempts_a_deferred_block_only_once() {
+		$feature = 'zz-lazy-once-fixture';
+		$fixture = $this->create_lazy_fixture_block( $feature );
+
+		try {
+			$this->set_deferred_blocks( array( $feature => true ) );
+			$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/' . $feature ) );
+			$this->assertNull( $result );
+			$this->assertArrayNotHasKey( $feature, $this->get_deferred_blocks(), 'Deferred block should be removed after a single attempt.' );
+			$this->assertTrue( Blocks::is_registered( 'jetpack/' . $feature ), 'Deferred block should be registered by the lazy loader.' );
+		} finally {
+			$this->remove_lazy_fixture_block( $feature, $fixture );
+		}
+	}
+
+	/**
+	 * A deferred block nested inside a (non-Jetpack) parent is registered from the
+	 * top-level subtree walk, before the inner WP_Block would be constructed.
+	 */
+	public function test_lazy_register_walks_inner_blocks() {
+		$feature = 'zz-lazy-inner-fixture';
+		$fixture = $this->create_lazy_fixture_block( $feature );
+
+		try {
+			$this->set_deferred_blocks( array( $feature => true ) );
+			$parsed = array(
+				'blockName'   => 'core/group',
+				'innerBlocks' => array(
+					array(
+						'blockName'   => 'core/columns',
+						'innerBlocks' => array(
+							array(
+								'blockName'   => 'jetpack/' . $feature,
+								'innerBlocks' => array(),
+							),
+						),
+					),
+				),
+			);
+			$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, $parsed );
+			$this->assertNull( $result );
+			$this->assertArrayNotHasKey( $feature, $this->get_deferred_blocks(), 'Nested deferred block should be reached by the subtree walk.' );
+			$this->assertTrue( Blocks::is_registered( 'jetpack/' . $feature ), 'Nested deferred block should be registered by the lazy loader.' );
+		} finally {
+			$this->remove_lazy_fixture_block( $feature, $fixture );
+		}
+	}
+
+	/**
+	 * A deferred block inside a synced pattern (core/block) is reached by resolving the
+	 * reusable-block reference, since core only parses that content at render time.
+	 */
+	public function test_lazy_register_resolves_synced_pattern_reference() {
+		$feature = 'zz-lazy-pattern-fixture';
+		$fixture = $this->create_lazy_fixture_block( $feature );
+		$ref_id  = self::factory()->post->create(
+			array(
+				'post_type'    => 'wp_block',
+				'post_status'  => 'publish',
+				'post_content' => '<!-- wp:jetpack/' . $feature . ' /-->',
+			)
+		);
+
+		try {
+			$this->set_deferred_blocks( array( $feature => true ) );
+			$parsed = array(
+				'blockName'   => 'core/block',
+				'attrs'       => array( 'ref' => $ref_id ),
+				'innerBlocks' => array(),
+			);
+			$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, $parsed );
+			$this->assertNull( $result );
+			$this->assertArrayNotHasKey( $feature, $this->get_deferred_blocks(), 'Deferred block inside a synced pattern should be reached via its ref.' );
+			$this->assertTrue( Blocks::is_registered( 'jetpack/' . $feature ), 'Deferred block inside a synced pattern should be registered by the lazy loader.' );
+		} finally {
+			wp_delete_post( $ref_id, true );
+			$this->remove_lazy_fixture_block( $feature, $fixture );
+		}
+	}
+
+	/**
+	 * Inner-block invocations (non-null parent) are ignored; the top-level walk owns the tree.
+	 */
+	public function test_lazy_register_ignores_inner_block_invocations() {
+		$this->set_deferred_blocks( array( 'does-not-exist' => true ) );
+		$parent = new WP_Block( array( 'blockName' => 'core/group' ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/does-not-exist' ), $parent );
+		$this->assertNull( $result );
+		$this->assertArrayHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Inner-block invocation should not consume the deferred block.' );
+	}
+
+	/**
+	 * A deferred block file is included and the `init` callback it registers runs,
+	 * even though `init` has already fired by the time the block renders.
+	 *
+	 * Uses a throwaway fixture block (unique name, never pre-included) so the
+	 * include + $wp_filter['init'] capture/run path is exercised end-to-end.
+	 */
+	public function test_load_and_register_runs_deferred_block_init_callback() {
+		$feature = 'zz-lazy-fixture';
+		$dir     = JETPACK__PLUGIN_DIR . 'extensions/blocks/' . $feature;
+		$file    = $dir . '/' . $feature . '.php';
+		wp_mkdir_p( $dir );
+		file_put_contents(
+			$file,
+			"<?php add_action( 'init', function () { register_block_type( 'jetpack/zz-lazy-fixture' ); } );\n"
+		);
+
+		try {
+			$this->assertFalse( Blocks::is_registered( 'jetpack/zz-lazy-fixture' ), 'Fixture block should start unregistered.' );
+
+			$this->invoke_load_and_register_deferred_block( $feature );
+
+			$this->assertTrue(
+				Blocks::is_registered( 'jetpack/zz-lazy-fixture' ),
+				'The deferred block file should be included and its init callback run.'
+			);
+		} finally {
+			if ( Blocks::is_registered( 'jetpack/zz-lazy-fixture' ) ) {
+				unregister_block_type( 'jetpack/zz-lazy-fixture' );
+			}
+			if ( file_exists( $file ) ) {
+				unlink( $file );
+			}
+			if ( is_dir( $dir ) ) {
+				rmdir( $dir );
+			}
+		}
+	}
+
+	/**
+	 * The do_blocks() function drives the real pre_render_block -> include -> init-replay path.
+	 */
+	public function test_do_blocks_lazy_registers_deferred_block_on_frontend() {
+		$feature       = 'zz-lazy-do-blocks-fixture';
+		$render_output = 'lazy fixture output';
+		$fixture       = $this->create_lazy_fixture_block( $feature, $render_output );
+		$original_lazy = $this->get_lazy_blocks();
+		$saved_uri     = $_SERVER['REQUEST_URI'] ?? null;
+
+		$lazy_filter = static function () use ( $feature ) {
+			return array( $feature );
+		};
+
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+		$this->set_lazy_blocks( array( $feature ) );
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Jetpack_Gutenberg::reset();
+
+		try {
+			Jetpack_Gutenberg::load_independent_blocks();
+			$this->assertFalse( Blocks::is_registered( 'jetpack/' . $feature ), 'Fixture block should be deferred before rendering.' );
+
+			$output = do_blocks( '<!-- wp:jetpack/' . $feature . ' /-->' );
+
+			$this->assertSame( $render_output, $output );
+			$this->assertTrue( Blocks::is_registered( 'jetpack/' . $feature ), 'Fixture block should be registered during do_blocks().' );
+		} finally {
+			remove_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ), 10 );
+			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			$this->set_lazy_blocks( $original_lazy );
+			Jetpack_Gutenberg::reset();
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+			$this->remove_lazy_fixture_block( $feature, $fixture );
+		}
+	}
+
+	/**
+	 * The lazy loader must replay priority-9 init callbacks, such as related-posts.
+	 */
+	public function test_do_blocks_lazy_registers_related_posts_priority_9_callback() {
+		$feature       = 'related-posts';
+		$original_lazy = $this->get_lazy_blocks();
+		$saved_user_id = get_current_user_id();
+		$saved_uri     = $_SERVER['REQUEST_URI'] ?? null;
+
+		$lazy_filter             = static function () use ( $feature ) {
+			return array( $feature );
+		};
+		$active_modules_filter   = static function ( $active_modules ) use ( $feature ) {
+			$active_modules[] = $feature;
+			return $active_modules;
+		};
+		$activate_modules_filter = static function ( $allcaps ) {
+			$allcaps['jetpack_activate_modules'] = true;
+			return $allcaps;
+		};
+
+		wp_set_current_user( $this->master_user_id );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		add_filter( 'jetpack_active_modules', $active_modules_filter );
+		add_filter( 'user_has_cap', $activate_modules_filter );
+		add_filter( 'jetpack_offline_mode', '__return_false', 1000 );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+		$this->set_lazy_blocks( array( $feature ) );
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Jetpack_Gutenberg::reset();
+
+		try {
+			Jetpack_Gutenberg::load_independent_blocks();
+			$this->assertFalse( Blocks::is_registered( 'jetpack/related-posts' ), 'Related Posts should be deferred before rendering.' );
+
+			do_blocks( '<!-- wp:jetpack/related-posts /-->' );
+
+			$this->assertTrue( Blocks::is_registered( 'jetpack/related-posts' ), 'Related Posts should be registered during do_blocks().' );
+		} finally {
+			remove_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ), 10 );
+			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+			remove_filter( 'jetpack_offline_mode', '__return_false', 1000 );
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			remove_filter( 'user_has_cap', $activate_modules_filter );
+			remove_filter( 'jetpack_active_modules', $active_modules_filter );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+			if ( Blocks::is_registered( 'jetpack/related-posts' ) ) {
+				unregister_block_type( 'jetpack/related-posts' );
+			}
+			$this->set_lazy_blocks( $original_lazy );
+			Jetpack_Gutenberg::reset();
+			wp_set_current_user( $saved_user_id );
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+		}
+	}
+
+	/**
+	 * Missing deferred block files are loud in debug mode.
+	 */
+	public function test_load_and_register_warns_when_deferred_block_file_is_missing() {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			$this->markTestSkipped( 'WP_DEBUG is not enabled.' );
+		}
+
+		$captured = null;
+		$listener = function ( $function, $message, $version ) use ( &$captured ) {
+			if ( 'Jetpack_Gutenberg::warn_about_deferred_block_registration_failure' === $function ) {
+				$captured = compact( 'message', 'version' );
+			}
+		};
+
+		add_action( 'doing_it_wrong_run', $listener, 10, 3 );
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		try {
+			$this->setExpectedIncorrectUsage( 'Jetpack_Gutenberg::warn_about_deferred_block_registration_failure' );
+			$this->invoke_load_and_register_deferred_block( 'zz-lazy-missing-fixture' );
+			$this->assertIsArray( $captured, 'Expected _doing_it_wrong() to fire for a missing deferred block file.' );
+			$this->assertStringContainsString( 'missing block registration file', $captured['message'] );
+		} finally {
+			remove_action( 'doing_it_wrong_run', $listener, 10 );
+			remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		}
+	}
+
+	/**
+	 * On a plain front-end request, load_independent_blocks() defers a lazy block
+	 * instead of loading it, and registers the just-in-time pre_render_block handler.
+	 */
+	public function test_load_independent_blocks_defers_lazy_blocks_on_frontend() {
+		$saved_uri              = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+
+		$lazy_filter = static function () {
+			return array( 'business-hours' );
+		};
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+		Jetpack_Gutenberg::reset();
+
+		try {
+			Jetpack_Gutenberg::load_independent_blocks();
+
+			$this->assertArrayHasKey(
+				'business-hours',
+				$this->get_deferred_blocks(),
+				'A lazy block should be deferred on a front-end request.'
+			);
+			$this->assertNotFalse(
+				has_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ) ),
+				'The just-in-time registration filter should be added when blocks are deferred.'
+			);
+		} finally {
+			remove_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ), 10 );
+			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			Jetpack_Gutenberg::reset();
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+		}
+	}
+
+	/**
+	 * The front-end editor-extension gate must treat REST requests (both the
+	 * rewritten /wp-json/ form and the plain-permalink ?rest_route= form) as
+	 * editor context, and plain front-end page views as not. A regression here
+	 * silently changes which extension PHP loads on the front end.
+	 *
+	 * @dataProvider provider_is_block_editor_context_request_uri
+	 *
+	 * @param string $request_uri The REQUEST_URI to simulate.
+	 * @param bool   $expected    Expected is_block_editor_context() result.
+	 */
+	#[DataProvider( 'provider_is_block_editor_context_request_uri' )]
+	public function test_is_block_editor_context_detects_rest_from_request_uri( $request_uri, $expected ) {
+		$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'is_block_editor_context' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$had_uri  = isset( $_SERVER['REQUEST_URI'] );
+		$original = $had_uri ? $_SERVER['REQUEST_URI'] : null;
+
+		$_SERVER['REQUEST_URI'] = $request_uri;
+		try {
+			$this->assertSame( $expected, $method->invoke( null ) );
+		} finally {
+			if ( $had_uri ) {
+				$_SERVER['REQUEST_URI'] = $original;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+		}
+	}
+
+	/**
+	 * Data provider for test_is_block_editor_context_detects_rest_from_request_uri.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_is_block_editor_context_request_uri() {
+		return array(
+			'rewritten REST request'          => array( '/wp-json/wp/v2/posts', true ),
+			'plain-permalink REST request'    => array( '/index.php?rest_route=/wp/v2/posts', true ),
+			'front-end single post'           => array( '/2026/06/22/hello-world/', false ),
+			'front-end home'                  => array( '/', false ),
+			'prefix only in a query value'    => array( '/some-page/?redirect=/wp-json/foo', false ),
+			'prefix as a deeper path segment' => array( '/docs/wp-json/example/', false ),
 		);
 	}
 }

@@ -39,7 +39,7 @@ class Nonce_Handler_Test extends TestCase {
 		// Confirm that the nonce gets added.
 		self::assertTrue( ( new Nonce_Handler() )->add( static::TIMESTAMP, static::NONCE ) );
 
-		// Confirm that the nonce is loaded from cache and still valid during the request.
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Confirm that the nonce is loaded from cache and still valid during the request.
 		self::assertTrue( ( new Nonce_Handler() )->add( static::TIMESTAMP, static::NONCE ) );
 	}
 

@@ -8,8 +8,6 @@
  * @package automattic/jetpack-blaze
  */
 
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid, Universal.Files.SeparateFunctionsFromOO.Mixed
-
 /**
  * Global variable to store mock products for testing.
  *

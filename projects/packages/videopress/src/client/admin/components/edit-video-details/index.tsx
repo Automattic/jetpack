@@ -4,7 +4,6 @@ import {
 	AdminSection,
 	Container,
 	Col,
-	JetpackLogo,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import {
@@ -187,7 +186,7 @@ const EditVideoDetails = () => {
 
 	useEffect( () => {
 		if ( deleted === true ) {
-			const to = page > 1 ? `/?page=${ page }` : '/';
+			const to = Number( page ) > 1 ? `/?page=${ page }` : '/';
 			navigate( to );
 		}
 	}, [ deleted ] );
@@ -199,7 +198,7 @@ const EditVideoDetails = () => {
 	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
+		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } videoRef={ null } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}
@@ -211,7 +210,7 @@ const EditVideoDetails = () => {
 		height ? ` h=${ height }` : ''
 	}]`;
 
-	const backUrl = page > 1 ? `#/?page=${ page }` : '#/';
+	const backUrl = Number( page ) > 1 ? `#/?page=${ page }` : '#/';
 
 	const breadcrumbs = (
 		<nav
@@ -227,7 +226,6 @@ const EditVideoDetails = () => {
 			>
 				<li>
 					<a href={ backUrl } className={ styles[ 'breadcrumb-link' ] }>
-						<JetpackLogo showText={ false } height={ 20 } />
 						{ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
 					</a>
 				</li>
@@ -319,7 +317,7 @@ const EditVideoDetails = () => {
 								) : (
 									<SelectControl
 										className={ styles.field }
-										value={ privacySetting }
+										value={ privacySetting as 'private' | 'public' | 'site-default' }
 										label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
 										onChange={ value => setPrivacySetting( value ) }
 										disabled={ isBusy }

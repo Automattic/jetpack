@@ -2,6 +2,151 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.12.15] - 2026-07-09
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [1.12.14] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [1.12.13] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.12.12] - 2026-06-25
+### Fixed
+- Icon tooltip: Type `iconCode` as `ReactElement` so it matches the `@wordpress/icons` Icon and `@wordpress/ui` 0.15 type definitions. [#49795]
+
+## [1.12.11] - 2026-06-24
+### Removed
+- Remove deprecated Spinner component. Use Spinner from @wordpress/components instead. [#49856]
+
+## [1.12.10] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [1.12.9] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
+## [1.12.8] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.12.7] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [1.12.6] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.12.5] - 2026-06-08
+### Fixed
+- NavigatorModal: Keep the modal open when the control inside opens an external WP Modal. [#49389]
+
+## [1.12.4] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.12.3] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.12.2] - 2026-06-02
+### Changed
+- AdminPage: Ensure Hello Dolly doesn't require per-page overrides. [#48472]
+
+### Fixed
+- Pricing table: Render feature tooltips as a portal so they are no longer hidden behind the admin sidebar. [#49318]
+
+## [1.12.1] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+### Fixed
+- PricingCard: Render the CTA with the @wordpress/ui Button (solid variant) so it shows correct button styling instead of unstyled text. [#49197]
+
+## [1.12.0] - 2026-05-25
+### Added
+- Add subpath exports for `Button`, `PricingTable`, and `ProductPrice` so they can be imported directly from bundles that cannot import the package barrel. [#49063]
+
+### Changed
+- Replace self-imports via package name with relative imports to remove circular-dep risk. [#49096]
+
+### Fixed
+- AdminPage: Update the header-height tab-shift rule so it keeps matching after `@wordpress/admin-ui` 2.1 changed the page header element from `<header>` to `<div>`. [#49101]
+- AdminPage: Keep header height consistent across tabs so the tab strip no longer shifts vertically when switching tabs. [#49080]
+- AdminPage: Update the SCSS module's `> header` selectors to `> :first-child` so they keep matching after `@wordpress/admin-ui` 2.1 changed the page header element from `<header>` to `<div>`. [#49018]
+
+## [1.11.3] - 2026-05-21
+### Changed
+- Mark ContextualUpgradeTrigger as @deprecated. Use Notice from @wordpress/ui instead. The implementation is unchanged. [#48909]
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.11.2] - 2026-05-19
+### Changed
+- Deprecate Status; inline @wordpress/ui Text in consumers. [#48711]
+
+## [1.11.1] - 2026-05-14
+### Changed
+- Update package dependencies. [#48696]
+
+## [1.11.0] - 2026-05-11
+### Added
+- AdminPage: Add admin-page and jetpack-footer sub-path exports for use in wp-build dashboards. [#48510]
+- Global Notices: Add global-notices sub-path export for use in wp-build dashboards. [#48586]
+- Gravatar: Add a component with hovercard support at the `./gravatar` subpath, shared across products that render subscriber or response avatars. [#48581]
+
+### Changed
+- AdminPage: Update to @wordpress/admin-ui 2.0.0 and use the new `visual` prop to render the Jetpack logo alongside the page title. [#48410]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+### Removed
+- Components: Remove Gridicon component. [#48537]
+
+### Fixed
+- AdminPage: Pass a stable `jp-admin-page__page` className to admin-ui's Page so layout overrides survive admin-ui 2.0.0's switch to CSS Modules; pin the header heading level to `<h2>` and center the new `visual` slot to keep the Jetpack logo aligned with the title. [#48410]
+
+## [1.10.0] - 2026-05-04
+### Added
+- AdminPage: Add `unwrapped` prop to render children directly inside the admin-ui Page, skipping the default Container/Col grid wrap. Use for full-bleed pages (DataViews-based admin surfaces) that own their own scroll/layout model. [#48244]
+- ToggleControl: Forward the `aria-label` prop to the underlying checkbox so consumers can label toggles that have no visible label. [#48277]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove "new" style variant from the Chip component. [#48174]
+
+### Deprecated
+- Mark the Spinner component as deprecated in favor of the WordPress Core Spinner from @wordpress/components. [#47451]
+
+## [1.9.0] - 2026-04-27
+### Deprecated
+- Componentry: Deprecate the Chip component. Use Badge from @wordpress/ui instead — map type="new" to intent="stable". [#48162]
+
+## [1.8.3] - 2026-04-20
+### Changed
+- AdminPage: Add a stable, non-hashed `jp-admin-page` class on the component root so shared SCSS mixins and global stylesheets can target AdminPage without coupling to the hashed CSS-Modules className. [#48109]
+- Button, ToggleControl: Remove Jetpack color overrides on core WordPress components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Remove internal Badge component in favor of @wordpress/ui. [#48156]
+
+### Fixed
+- Navigator modal: Allow overlay closing when users click it. [#48121]
+
+## [1.8.2] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+## [1.8.1] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
 ## [1.8.0] - 2026-04-06
 ### Added
 - Add onGoBack and onClose callback props to NavigatorModal Screen and Header components. [#47896]
@@ -1728,6 +1873,31 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.12.15]: https://github.com/Automattic/jetpack-components/compare/1.12.14...1.12.15
+[1.12.14]: https://github.com/Automattic/jetpack-components/compare/1.12.13...1.12.14
+[1.12.13]: https://github.com/Automattic/jetpack-components/compare/1.12.12...1.12.13
+[1.12.12]: https://github.com/Automattic/jetpack-components/compare/1.12.11...1.12.12
+[1.12.11]: https://github.com/Automattic/jetpack-components/compare/1.12.10...1.12.11
+[1.12.10]: https://github.com/Automattic/jetpack-components/compare/1.12.9...1.12.10
+[1.12.9]: https://github.com/Automattic/jetpack-components/compare/1.12.8...1.12.9
+[1.12.8]: https://github.com/Automattic/jetpack-components/compare/1.12.7...1.12.8
+[1.12.7]: https://github.com/Automattic/jetpack-components/compare/1.12.6...1.12.7
+[1.12.6]: https://github.com/Automattic/jetpack-components/compare/1.12.5...1.12.6
+[1.12.5]: https://github.com/Automattic/jetpack-components/compare/1.12.4...1.12.5
+[1.12.4]: https://github.com/Automattic/jetpack-components/compare/1.12.3...1.12.4
+[1.12.3]: https://github.com/Automattic/jetpack-components/compare/1.12.2...1.12.3
+[1.12.2]: https://github.com/Automattic/jetpack-components/compare/1.12.1...1.12.2
+[1.12.1]: https://github.com/Automattic/jetpack-components/compare/1.12.0...1.12.1
+[1.12.0]: https://github.com/Automattic/jetpack-components/compare/1.11.3...1.12.0
+[1.11.3]: https://github.com/Automattic/jetpack-components/compare/1.11.2...1.11.3
+[1.11.2]: https://github.com/Automattic/jetpack-components/compare/1.11.1...1.11.2
+[1.11.1]: https://github.com/Automattic/jetpack-components/compare/1.11.0...1.11.1
+[1.11.0]: https://github.com/Automattic/jetpack-components/compare/1.10.0...1.11.0
+[1.10.0]: https://github.com/Automattic/jetpack-components/compare/1.9.0...1.10.0
+[1.9.0]: https://github.com/Automattic/jetpack-components/compare/1.8.3...1.9.0
+[1.8.3]: https://github.com/Automattic/jetpack-components/compare/1.8.2...1.8.3
+[1.8.2]: https://github.com/Automattic/jetpack-components/compare/1.8.1...1.8.2
+[1.8.1]: https://github.com/Automattic/jetpack-components/compare/1.8.0...1.8.1
 [1.8.0]: https://github.com/Automattic/jetpack-components/compare/1.7.0...1.8.0
 [1.7.0]: https://github.com/Automattic/jetpack-components/compare/1.6.1...1.7.0
 [1.6.1]: https://github.com/Automattic/jetpack-components/compare/1.6.0...1.6.1

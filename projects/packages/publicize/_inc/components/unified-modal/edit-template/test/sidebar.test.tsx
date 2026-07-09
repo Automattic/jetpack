@@ -137,7 +137,7 @@ describe( 'Sidebar', () => {
 			expect( screen.getByText( 'You are using your post featured image' ) ).toBeInTheDocument();
 		} );
 
-		it( 'should show Replace and Remove buttons for image preview', () => {
+		it( 'should show Select image button for image preview', () => {
 			render(
 				<Sidebar
 					localState={ defaultLocalState }
@@ -147,11 +147,11 @@ describe( 'Sidebar', () => {
 				/>
 			);
 
-			expect( screen.getByText( 'Replace' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Remove' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'img', { name: 'Media preview' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Select image' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'should show image options when Replace button is clicked', async () => {
+		it( 'should show image options when Select image button is clicked', async () => {
 			const user = userEvent.setup();
 			render(
 				<Sidebar
@@ -162,8 +162,7 @@ describe( 'Sidebar', () => {
 				/>
 			);
 
-			const replaceButton = screen.getByText( 'Replace' );
-			await user.click( replaceButton );
+			await user.click( screen.getByRole( 'button', { name: 'Select image' } ) );
 
 			await waitFor( () => {
 				expect( screen.getByText( 'Featured Image' ) ).toBeInTheDocument();
@@ -182,11 +181,38 @@ describe( 'Sidebar', () => {
 				/>
 			);
 
-			const replaceButton = screen.getByText( 'Replace' );
-			await user.click( replaceButton );
+			await user.click( screen.getByRole( 'button', { name: 'Select image' } ) );
 
 			await waitFor( () => {
 				expect( screen.getByText( 'Default Image' ) ).toBeInTheDocument();
+			} );
+		} );
+
+		it( 'should clear local image state when No image option is selected', async () => {
+			const user = userEvent.setup();
+			render(
+				<Sidebar
+					localState={ defaultLocalState }
+					setLocalState={ mockSetLocalState }
+					defaultImageId={ null }
+					featuredImageId={ 456 }
+				/>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'Select image' } ) );
+			await user.click( screen.getByRole( 'menuitem', { name: 'No image' } ) );
+
+			await waitFor( () => {
+				expect( mockSetLocalState ).toHaveBeenCalled();
+				const updaterFunctions = mockSetLocalState.mock.calls.map( call => call[ 0 ] );
+				const updatedStates = updaterFunctions.map( updater => updater( defaultLocalState ) );
+
+				expect( updatedStates ).toEqual(
+					expect.arrayContaining( [
+						expect.objectContaining( { imageType: 'none' } ),
+						expect.objectContaining( { imageId: null } ),
+					] )
+				);
 			} );
 		} );
 

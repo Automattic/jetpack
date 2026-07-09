@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Add JITM notices slot to cache debug log page so notices render below the header instead of above it.

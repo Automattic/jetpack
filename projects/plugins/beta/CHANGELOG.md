@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.2.0 - 2026-04-13
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Replace 'Jetpack' text with logo icon in the admin bar to reduce horizontal space. [#46602]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47021] [#47505]
+
+### Fixed
+- Include missing `v` in documentation link to `docs/mu-plugin-info.md` on GitHub. [#46956]
+- Move menu position to bottom. [#47977]
+
 ## 4.1.7 - 2026-02-04
 ### Changed
 - Check `error_get_last()` if the `WP_Filesystem` doesn't report any error on mu-plugin install failure. [#46115]

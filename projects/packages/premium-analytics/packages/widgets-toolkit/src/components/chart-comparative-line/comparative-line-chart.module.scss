@@ -1,0 +1,43 @@
+.chart {
+	height: 100%;
+	min-height: 0;
+	flex: 1 1 auto;
+
+	.chartContent {
+		flex: 1 1 auto;
+		height: 100%;
+		min-height: 0;
+	}
+
+	.legend {
+		flex: 0 0 auto;
+		width: 100%;
+		height: auto;
+		min-height: var(--wpds-typography-line-height-lg);
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		row-gap: var(--wpds-dimension-gap-xs) !important;
+	}
+
+	.legendItem {
+		min-width: 0;
+		max-width: 100%;
+		flex: 0 1 auto;
+		gap: var(--wpds-dimension-gap-sm);
+		justify-content: flex-start;
+		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm); // 4px 6px->8px
+	}
+
+	.legendLabel {
+		// font-size and color come from chartTheme.legendLabelStyles
+		min-width: 0;
+		flex: 0 1 auto !important; // Override the 0 0 auto default value
+		text-align: start;
+
+		span {
+			display: block;
+		}
+	}
+}

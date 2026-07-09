@@ -1,55 +1,16 @@
 .legend {
 	align-self: stretch;
-
-	&--horizontal {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		gap: 16px;
-	}
-
-	&--vertical {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-	}
-
-	&--alignment-start {
-		justify-content: flex-start;
-	}
-
-	&--alignment-center {
-		justify-content: center;
-	}
-
-	&--alignment-end {
-		justify-content: flex-end;
-	}
-
-	// Vertical legends align on the cross-axis instead
-	&--vertical.legend--alignment-start {
-		align-items: flex-start;
-	}
-
-	&--vertical.legend--alignment-center {
-		align-items: center;
-	}
-
-	&--vertical.legend--alignment-end {
-		align-items: flex-end;
-	}
-
 }
 
 .legend-item {
-	display: flex;
-	align-items: center;
-	font-size: 0.875rem;
+	font-size: var(--wpds-typography-font-size-md, 13px);
 
 	&--interactive {
 		cursor: pointer;
 		user-select: none;
-		transition: opacity 0.2s ease;
+		transition:
+			opacity var(--wpds-motion-duration-md, 200ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 
 		&:hover {
 			opacity: 0.8;
@@ -58,7 +19,7 @@
 		&:focus {
 			outline: 2px solid currentColor;
 			outline-offset: 2px;
-			border-radius: 4px;
+			border-radius: var(--wpds-border-radius-md, 4px);
 		}
 
 		&:focus:not(:focus-visible) {
@@ -73,14 +34,6 @@
 			text-decoration: line-through;
 		}
 	}
-}
-
-.legend-item-label {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-
-	/* Text wrapping is handled at the text level, not the label container */
 }
 
 .legend-item-text {
@@ -101,6 +54,6 @@
 }
 
 .legend-item-value {
-	font-weight: 500;
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
 	flex-shrink: 0; // Prevent value from shrinking when text is ellipsized
 }

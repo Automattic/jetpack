@@ -56,19 +56,20 @@ function load_wpcom_dashboard_widgets() {
 			'context'  => 'side',
 			'priority' => 'high',
 		),
-		array(
-			'id'       => 'wpcom_daily_writing_prompt',
-			'name'     => __( 'Daily Writing Prompt', 'jetpack-mu-wpcom' ),
-			'context'  => 'side',
-			'priority' => 'high',
-		),
 	);
 
 	$launchpad_context = 'wpadmin-dashboard-widget';
 	$checklist_slug    = get_option( 'site_intent' );
 
+	// The AI Launchpad's Site Setup screen supersedes this widget: showing both surfaces two
+	// different checklists under the same name. Eligibility covers dismissal, so a user who
+	// dismissed the AI Launchpad gets this widget back.
+	$has_ai_launchpad = function_exists( 'wpcom_ai_launchpad_is_eligible' )
+		&& wpcom_ai_launchpad_is_eligible();
+
 	if (
 		defined( 'IS_WPCOM' ) && IS_WPCOM &&
+		! $has_ai_launchpad &&
 		get_option( 'launch-status', 'launched' ) !== 'launched' &&
 		! empty( wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ) ) &&
 		! wpcom_launchpad_is_task_list_dismissed( $checklist_slug )

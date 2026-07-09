@@ -738,6 +738,46 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	#[DataProvider( 'store_provider' )]
+	public function test_replica_delete_meta_by_key_value( $store ) {
+		$store->upsert_post( self::$factory->post( 1 ) );
+		$store->upsert_post( self::$factory->post( 2 ) );
+
+		$store->upsert_metadata( 'post', 1, 'foo', 'delete', 3 );
+		$store->upsert_metadata( 'post', 1, 'foo', 'keep', 4 );
+		$store->upsert_metadata( 'post', 2, 'foo', 'delete', 5 );
+		$store->upsert_metadata( 'post', 2, 'bar', 'delete', 6 );
+
+		$store->delete_metadata_by_key_value( 'post', 'foo', 'delete' );
+
+		$this->assertEquals( array( 'keep' ), $store->get_metadata( 'post', 1, 'foo' ) );
+		$this->assertEquals( array(), $store->get_metadata( 'post', 2, 'foo' ) );
+		$this->assertEquals( array( 'delete' ), $store->get_metadata( 'post', 2, 'bar' ) );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 */
+	#[DataProvider( 'store_provider' )]
+	public function test_replica_delete_meta_by_key_value_requires_value( $store ) {
+		$store->upsert_post( self::$factory->post( 1 ) );
+		$store->upsert_post( self::$factory->post( 2 ) );
+
+		$store->upsert_metadata( 'post', 1, 'foo', 'delete', 3 );
+		$store->upsert_metadata( 'post', 1, 'foo', 'keep', 4 );
+		$store->upsert_metadata( 'post', 2, 'foo', 'delete', 5 );
+		$store->upsert_metadata( 'post', 2, 'bar', 'keep', 6 );
+
+		$store->delete_metadata_by_key_value( 'post', 'foo', '' );
+
+		$this->assertEquals( array( 'delete', 'keep' ), $store->get_metadata( 'post', 1, 'foo' ) );
+		$this->assertEquals( array( 'delete' ), $store->get_metadata( 'post', 2, 'foo' ) );
+		$this->assertEquals( array( 'keep' ), $store->get_metadata( 'post', 2, 'bar' ) );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_meta_array( $store ) {
 		$meta_array = array(
 			'trees' => 'green',

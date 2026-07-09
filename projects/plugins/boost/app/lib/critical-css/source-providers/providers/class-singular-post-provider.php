@@ -35,7 +35,6 @@ class Singular_Post_Provider extends Provider {
 	 */
 	const MIN_SUCCESS_URLS = 5;
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_critical_source_urls( $context_posts = array() ) {
 		$links              = array();
@@ -59,7 +58,6 @@ class Singular_Post_Provider extends Provider {
 		return $links;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( ! is_singular() ) {
@@ -70,21 +68,18 @@ class Singular_Post_Provider extends Provider {
 		return array( self::$name . '_' . get_post_type() );
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_keys() {
 		return array_keys( self::get_post_types() );
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_edit_url( $_provider_key ) {
 		return null;
 	}
 
-	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function describe_key( $provider_key ) {
 		$post_type = substr( $provider_key, strlen( static::$name ) + 1 );
 
 		switch ( $post_type ) {
@@ -165,7 +160,7 @@ class Singular_Post_Provider extends Provider {
 			array(
 				'orderby'                => 'ID',
 				'post_type'              => $post_type,
-				'posts_per_page'         => static::MAX_URLS, // phpcs:disable WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'posts_per_page'         => static::MAX_URLS,
 				'post_status'            => array( 'publish' ),
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
@@ -176,7 +171,6 @@ class Singular_Post_Provider extends Provider {
 		return new \WP_Query( $args );
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return static::MIN_SUCCESS_URLS / static::MAX_URLS;

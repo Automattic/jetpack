@@ -5,8 +5,6 @@
  * @package automattic/jetpack-changelogger
  */
 
-// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
-
 namespace Automattic\Jetpack\Changelog\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;

@@ -19,6 +19,7 @@ DATA_OK="$(jq --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GIT
 
 case "$GITHUB_EVENT_NAME" in
 	pull_request|pull_request_target)
+		# shellcheck disable=SC2128 # ShellCheck is confused; it's a string here but then converted to array.
 		if [[ -n "$TAGS" ]]; then
 			IFS=$' \t\r\n' read -d '' -ra TAGS <<<"$TAGS" || true
 		elif [[ -n "$TAG" ]]; then

@@ -1,12 +1,13 @@
-import { Spinner } from '@automattic/jetpack-components';
-import { Icon, Notice, Path, SVG } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { Icon, Notice, Path, SVG, Spinner } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import { getReconnectErrorMessage } from '../../helpers/get-reconnect-error-message';
 import styles from './styles.module.scss';
 import type { ConnectionErrorNoticeProps } from './types';
 
 const ConnectionErrorNotice = ( {
 	message,
+	context,
 	isRestoringConnection,
 	restoreConnectionCallback,
 	restoreConnectionError,
@@ -44,7 +45,7 @@ const ConnectionErrorNotice = ( {
 		return (
 			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
 				<div className={ styles.message }>
-					<Spinner color="#B32D2E" size={ 24 } />
+					<Spinner />
 					{ __( 'Reconnecting Jetpack', 'jetpack-connection-js' ) }
 				</div>
 			</Notice>
@@ -59,11 +60,7 @@ const ConnectionErrorNotice = ( {
 		>
 			<div className={ styles.message }>
 				{ icon }
-				{ sprintf(
-					/* translators: %s: the error. */
-					__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack-connection-js' ),
-					restoreConnectionError
-				) }
+				{ getReconnectErrorMessage( restoreConnectionError ) }
 			</div>
 		</Notice>
 	) : null;
@@ -117,7 +114,10 @@ const ConnectionErrorNotice = ( {
 			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
 				<div className={ styles.message }>
 					{ icon }
-					{ message }
+					<div className={ styles.body }>
+						{ context && <span className={ styles.context }>{ context }</span> }
+						{ message }
+					</div>
 				</div>
 				{ actionButtons.length > 0 && <div className={ styles.actions }>{ actionButtons }</div> }
 			</Notice>
@@ -128,6 +128,8 @@ const ConnectionErrorNotice = ( {
 ConnectionErrorNotice.propTypes = {
 	/** The notice message. */
 	message: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
+	/** Optional feature-supplied context line rendered above the message. */
+	context: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** "Restore Connection" button callback. */
 	restoreConnectionCallback: PropTypes.func,
 	/** Whether connection restore is in progress. */

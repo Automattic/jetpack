@@ -1,0 +1,100 @@
+{
+	"name": "@automattic/jetpack-premium-analytics",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
+		"build:wp-build": "wp-build",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:wp-build && pnpm run build:strip-unminified-prod && pnpm run build:boot-asset && pnpm run validate",
+		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
+		"test": "jest --config=tests/jest.config.cjs",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "wp-build --watch"
+	},
+	"wpPlugin": {
+		"name": "jpa",
+		"packageNamespace": "jetpack-premium-analytics",
+		"handlePrefix": "jetpack-premium-analytics",
+		"pages": [
+			{
+				"id": "jetpack-premium-analytics",
+				"init": [
+					"@jetpack-premium-analytics/init"
+				]
+			}
+		],
+		"externalNamespaces": {
+			"wordpress": {
+				"global": "wp",
+				"handlePrefix": "wp"
+			}
+		}
+	},
+	"dependencies": {
+		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
+		"@automattic/ui": "1.0.2",
+		"@date-fns/tz": "1.4.1",
+		"@jetpack-premium-analytics/data": "link:packages/data",
+		"@jetpack-premium-analytics/datetime": "link:packages/datetime",
+		"@jetpack-premium-analytics/fields": "link:packages/fields",
+		"@jetpack-premium-analytics/formatters": "link:packages/formatters",
+		"@jetpack-premium-analytics/icons": "link:packages/icons",
+		"@jetpack-premium-analytics/init": "link:packages/init",
+		"@jetpack-premium-analytics/routing": "link:packages/routing",
+		"@jetpack-premium-analytics/site-sync": "link:packages/site-sync",
+		"@jetpack-premium-analytics/ui": "link:packages/ui",
+		"@jetpack-premium-analytics/widgets-toolkit": "link:packages/widgets-toolkit",
+		"@tanstack/react-query": "5.90.8",
+		"@wordpress/admin-ui": "2.5.0",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/boot": "0.17.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/compose": "8.3.0",
+		"@wordpress/core-data": "7.50.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/dataviews": "17.1.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/html-entities": "4.50.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^15.0.0",
+		"@wordpress/preferences": "4.50.0",
+		"@wordpress/primitives": "4.50.0",
+		"@wordpress/private-apis": "1.50.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/theme": "0.17.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0",
+		"@wordpress/widget-dashboard": "0.3.1-next.v.202607070741.0",
+		"@wordpress/widget-primitives": "0.3.1-next.v.202607070741.0",
+		"clsx": "2.1.1",
+		"date-fns": "4.1.0",
+		"fast-deep-equal": "^3.1.3",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@storybook/react": "10.4.6",
+		"@tanstack/react-query-devtools": "5.90.2",
+		"@testing-library/dom": "10.4.1",
+		"@testing-library/react": "16.3.2",
+		"@types/jest": "30.0.0",
+		"@types/react": "18.3.28",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/build": "0.19.1-next.v.202607070741.0",
+		"browserslist": "4.28.4",
+		"jest": "30.4.2",
+		"storybook": "10.4.6",
+		"typescript": "5.9.3"
+	}
+}

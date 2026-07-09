@@ -478,6 +478,54 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test phone field with non-string array input renders safely in web context.
+	 */
+	public function test_phone_field_with_array_value_renders_safely_in_web_context() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44 7911', '+1 555' ), 'phone' );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test phone field with non-string array input renders safely in email context.
+	 */
+	public function test_phone_field_with_array_value_renders_safely_in_email_context() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44', '+1' ), 'phone' );
+
+		$value = $field->get_render_value( 'email' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test phone field with non-string array input renders safely in email_html context.
+	 */
+	public function test_phone_field_with_array_value_renders_safely_in_email_html_context() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44', '+1' ), 'phone' );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $value );
+		$this->assertStringContainsString( '&mdash;', $value );
+		$this->assertStringNotContainsString( 'tel:', $value );
+	}
+
+	/**
+	 * Test telephone alias also handles non-string array input safely.
+	 */
+	public function test_telephone_field_with_array_value_renders_safely() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44' ), 'telephone' );
+
+		$this->assertSame( '', $field->get_render_value( 'web' ) );
+		$this->assertSame( '', $field->get_render_value( 'email' ) );
+		$this->assertStringContainsString( '&mdash;', $field->get_render_value( 'email_html' ) );
+	}
+
+	/**
 	 * Test rating field returns structured array for web context.
 	 */
 	public function test_rating_field_returns_structured_array_for_web() {
@@ -585,6 +633,43 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertIsArray( $value );
 		$this->assertSame( 0, $value['rating'] );
 		$this->assertEquals( 5, $value['maxRating'] );
+	}
+
+	/**
+	 * Test rating field with non-string array input renders safely in web context.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_web_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '1/5', '2/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test rating field with non-string array input renders safely in email context.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_email_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '3/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'email' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Regression pin for the email_html rating path. render_email_rating() already
+	 * guards non-string input; this test exists to keep that safe path safe.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_email_html_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '3/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $value );
+		$this->assertStringNotContainsString( '&#9733;', $value );
 	}
 
 	// ─── Email HTML rendering tests ───
@@ -835,6 +920,20 @@ class Feedback_Field_Test extends BaseTestCase {
 		// Letter code and label should still render.
 		$this->assertStringContainsString( '>B</span>', $result );
 		$this->assertStringContainsString( 'Option', $result );
+	}
+
+	/**
+	 * Regression test: URL field with array value must not trigger preg_match TypeError.
+	 *
+	 * @see https://linear.app/a8c/issue/FORMS-687
+	 */
+	public function test_url_field_with_array_value_renders_safely_in_email_html_context() {
+		$field  = new Feedback_Field( 'url_key', 'Website', array( 'https://example.com' ), 'url' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $result );
+		$this->assertStringContainsString( '&mdash;', $result );
+		$this->assertStringNotContainsString( 'href=', $result );
 	}
 
 	/**

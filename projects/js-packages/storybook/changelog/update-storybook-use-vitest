@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Change from `@storybook/test-runner` to `@storybook/addon-vitest`, which also requires switching from webpack to vite for building the storybook.

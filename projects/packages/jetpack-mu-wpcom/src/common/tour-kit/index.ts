@@ -1,6 +1,5 @@
-export { default } from './components/tour-kit';
 export * from './constants';
-export { default as WpcomTourKit, usePrefetchTourAssets } from './variants/wpcom';
 export * from './contexts';
 export * from './hooks';
-export * from './types';
+// Deprecated no-op shims for the removed tour UI. See ./deprecated.
+export { WpcomTourKit, usePrefetchTourAssets } from './deprecated';

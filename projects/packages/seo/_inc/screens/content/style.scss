@@ -1,0 +1,77 @@
+// Content tab: full-width DataViews list (no max-width — it fills the available
+// width, matching the Forms dashboard), with an optional SEO inspector panel.
+.jetpack-seo-content {
+	inline-size: 100%;
+}
+
+// The per-post SEO editor, rendered in the route's native inspector sidebar.
+// The framework owns the sidebar panel; this just lays out the editor's
+// contents (header, fields + live preview, actions).
+.jetpack-seo-content__inspector {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	padding: var(--wpds-dimension-padding-md, 12px);
+}
+
+.jetpack-seo-content__inspector-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.jetpack-seo-content__inspector-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+// Inspector body: stack the fields and the live SERP preview.
+.jetpack-seo-content__inspector-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+}
+
+.jetpack-seo-content__inspector-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+// Google-style search-result snippet shown live in the inspector.
+.jetpack-seo-serp-preview {
+	padding: var(--wpds-dimension-padding-md, 12px);
+	background: var(--wpds-color-background-surface-neutral, #f6f7f7);
+	border-radius: var(--wpds-border-radius-md, 4px);
+}
+
+.jetpack-seo-serp-preview__label {
+	margin-block-end: var(--wpds-dimension-gap-sm, 8px);
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.jetpack-seo-serp-preview__url {
+	color: var(--wpds-color-foreground-content-neutral-weak, #4d5156);
+	font-size: 12px;
+	line-height: 1.3;
+}
+
+.jetpack-seo-serp-preview__title {
+	color: #1a0dab;
+	font-size: 18px;
+	line-height: 1.3;
+	margin-block-start: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.jetpack-seo-serp-preview__description {
+	color: var(--wpds-color-foreground-content-neutral-weak, #4d5156);
+	font-size: 13px;
+	line-height: 1.4;
+	margin-block-start: var(--wpds-dimension-gap-xs, 4px);
+}

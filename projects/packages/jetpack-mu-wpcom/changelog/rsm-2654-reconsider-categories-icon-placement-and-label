@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write editor: replace floating categories FAB with inline 'Writing in X' selector above the title; support #hashtag extraction from standalone content lines for tagging on save

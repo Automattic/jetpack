@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Add function_exists() check for wpcom_is_automattic_p2_site to prevent fatal errors when the function is undefined.

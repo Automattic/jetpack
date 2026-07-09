@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated composer.lock to pull in the new jetpack-podcast wp-build scaffold transitively (via jetpack-mu-wpcom).

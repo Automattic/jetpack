@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+WPCOM Features: Add POSTS_TO_PODCAST_TIER_{1,2,3} features mapped to Personal+, Premium+, and Business+ plans respectively. Mirrors the wpcom-side change that gates the Posts-to-Podcast endpoint and its monthly generation quota.

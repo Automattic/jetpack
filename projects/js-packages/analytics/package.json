@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "1.0.9",
+	"version": "1.0.15",
 	"description": "Jetpack Analytics Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/analytics/#readme",
 	"bugs": {
@@ -22,6 +22,6 @@
 	},
 	"devDependencies": {
 		"debug": "4.4.3",
-		"jest": "30.3.0"
+		"jest": "30.4.2"
 	}
 }

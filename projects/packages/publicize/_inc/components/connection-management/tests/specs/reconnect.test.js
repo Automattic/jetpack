@@ -28,38 +28,38 @@ describe( 'Reconnect', () => {
 		jest.clearAllMocks();
 	} );
 
-	test( 'renders the Reconnect button with correct label', () => {
+	test( 'renders the Reconnect link with correct label', () => {
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
-		expect( screen.getByRole( 'button' ) ).toHaveTextContent( 'Reconnect' );
+		expect( screen.getByRole( 'link' ) ).toHaveTextContent( 'Reconnect' );
 	} );
 
-	test( 'disables the button when isDisconnecting is true', () => {
-		setup( { getDeletingConnections: [ mockConnection.connection_id ] } );
+	test( 'shows a non-interactive Reconnecting… label while a reconnect is in progress', async () => {
+		// A resolved-true requestAccess means the popup opened, so the busy state sticks.
+		useRequestAccess.mockReturnValue( jest.fn().mockResolvedValue( true ) );
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
-		const button = screen.getByRole( 'button' );
-		expect( button ).toBeDisabled();
-		expect( button ).toHaveTextContent( 'Disconnecting…' );
+		await userEvent.click( screen.getByRole( 'link' ) );
+
+		await expect( screen.findByText( 'Reconnecting…' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
-	test( 'calls deleteConnectionById and requestAccess on button click', async () => {
+	test( 'reconnects in place without disconnecting first', async () => {
+		const requestAccess = jest.fn().mockResolvedValue( true );
+		useRequestAccess.mockReturnValue( requestAccess );
 		const { stubDeleteConnectionById } = setup();
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
-		await userEvent.click( screen.getByRole( 'button' ) );
+		await userEvent.click( screen.getByRole( 'link' ) );
 
-		expect( stubDeleteConnectionById ).toHaveBeenCalledWith( {
-			connectionId: mockConnection.connection_id,
-			showSuccessNotice: false,
-		} );
-
-		expect( useRequestAccess ).toHaveBeenCalled();
+		expect( stubDeleteConnectionById ).not.toHaveBeenCalled();
+		expect( requestAccess ).toHaveBeenCalled();
 	} );
 
-	test( 'does not render the button if connection cannot be disconnected', () => {
+	test( 'does not render the link if connection cannot be disconnected', () => {
 		setup( { canUserManageConnection: false } );
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
-		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -146,10 +146,16 @@ export interface FormResponse {
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
 	entry_permalink: string;
+	/** The ID of the jetpack_form post the response is tied to, or 0 for classic (embedded) forms. */
+	form_id: number;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
 	/** Whether the response is unread. */
 	is_unread: boolean;
+	/** Whether the response is a test submission from form preview. */
+	is_test?: boolean;
+	/** URL to the form preview that produced this response, when the response is a test submission. */
+	preview_url?: string | null;
 	/** The fields of the response (can be new collection format or legacy format). */
 	fields: ResponseFields;
 	/** The URL to edit the form that the response was submitted to. */
@@ -232,6 +238,10 @@ declare global {
 		};
 		jetpackForms?: {
 			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
+		};
+		/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+		jetpackMenuBadges?: {
+			setCount: ( menuSlug: string, count: number ) => void;
 		};
 	}
 }

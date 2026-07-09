@@ -301,7 +301,11 @@ class Terms extends Module {
 	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
 	 */
 	public function filter_blacklisted_taxonomies( $args ) {
-		$term = $args[0];
+		$term = $args[0] ?? null;
+
+		if ( ! $term instanceof \WP_Term ) {
+			return false;
+		}
 
 		if ( in_array( $term->taxonomy, Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
 			return false;
@@ -343,7 +347,6 @@ class Terms extends Module {
 		list( $term_taxonomy_ids, $previous_end ) = $args;
 
 		return array(
-			// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 			'terms'        => get_terms(
 				array(
 					'hide_empty'       => false,

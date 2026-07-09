@@ -111,7 +111,7 @@ class Post_By_Email_API_Test extends Jetpack_REST_TestCase {
 
 		parent::tear_down();
 
-		unset( $_SERVER['HTTP_CONTENT_TYPE'], $_GET['_for'], $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] ); // phpcs:ignore
+		unset( $_SERVER['HTTP_CONTENT_TYPE'], $_GET['_for'], $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] );
 
 		foreach ( self::$save_server_keys as $key ) {
 			if ( isset( $this->server_values[ $key ] ) ) {
@@ -200,7 +200,7 @@ class Post_By_Email_API_Test extends Jetpack_REST_TestCase {
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 
 		// Set POST body for Jetpack::verify_xml_rpc_signature.
-		$GLOBALS['HTTP_RAW_POST_DATA'] = $this->request->get_body(); // phpcs:ignore
+		$GLOBALS['HTTP_RAW_POST_DATA'] = $this->request->get_body();
 
 		// Set host and URL for Jetpack_Signature::sign_current_request.
 		$_SERVER['HTTP_HOST']      = 'example.org';

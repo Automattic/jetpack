@@ -2,7 +2,6 @@ import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
-	ExternalLink,
 	Notice,
 	PanelBody,
 	ToggleControl,
@@ -10,6 +9,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
 export const CalendlyBlockControls = ( { onEditClick } ) => {
@@ -68,9 +68,9 @@ export const CalendlyInspectorControls = props => {
 			</PanelBody>
 			{ externalDocLink && (
 				<Notice className={ `${ defaultClassName }-color-notice` } isDismissible={ false }>
-					<ExternalLink href={ externalDocLink }>
+					<Link openInNewTab href={ externalDocLink }>
 						{ __( 'Explore more customization options.', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</Notice>
 			) }
 		</>

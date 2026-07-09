@@ -1,5 +1,11 @@
 @use "@automattic/jetpack-base-styles/style" as jpbs;
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "../masthead/calypso-mixins";
+
+body.jetpack_page_jetpack-backup {
+
+	@include jetpack-admin-page-layout;
+}
 
 .jp-header,
 .jp-footer {

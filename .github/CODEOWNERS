@@ -12,6 +12,8 @@
 /.phpcs.config.xml @Automattic/jetpack-monorepo
 /.phpcs.xml.dist @Automattic/jetpack-monorepo
 /.phpcsignore @Automattic/jetpack-monorepo
+/.pnpmfile.cjs @Automattic/jetpack-monorepo
+/.pnpm-patches @Automattic/jetpack-monorepo
 /.prettierrc.js @Automattic/jetpack-monorepo
 /.stylelintignore @Automattic/jetpack-monorepo
 /composer.json @Automattic/jetpack-monorepo
@@ -47,19 +49,28 @@
 /tools @Automattic/jetpack-monorepo
 /tools/e2e-commons # No owner assigned
 
+# Tools owned by specific teams
+
+/tools/performance @Automattic/Zap
+
 # Actions
 
 /projects/github-actions/repo-gardening/ @jeherve
 
 # Packages
+/projects/packages/premium-analytics @Automattic/red @Automattic/ventures
 /projects/packages/search/src/wpes @Automattic/prometheus
 /projects/packages/connection/src @Automattic/jetpack-vulcan
 /projects/packages/connection/legacy @Automattic/jetpack-vulcan
 /projects/packages/sync/src @Automattic/jetpack-vulcan
-/projects/packages/connection/src/class-package-version.php
-/projects/packages/sync/src/class-package-version.php
+/projects/packages/connection/src/class-package-version.php # No owner - too noisy
+/projects/packages/sync/src/class-package-version.php # No owner - too noisy
+/projects/packages/videopress/src @Automattic/VideoPress
+/projects/packages/videopress/src/class-package-version.php # No owner - too noisy
 
 # Plugins
+
+/projects/plugins/premium-analytics @Automattic/red @Automattic/ventures
 
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity

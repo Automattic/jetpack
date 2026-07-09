@@ -1,6 +1,6 @@
-import { BaseControl, ExternalLink, TextControl } from '@wordpress/components';
+import { BaseControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
+import { Badge, Link } from '@wordpress/ui';
 import SalesforceIcon from '../../../../../icons/salesforce.tsx';
 import HelpMessage from '../../help-message/index.jsx';
 import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button.tsx';
@@ -82,9 +82,9 @@ export function buildSalesforceCard( {
 						</HelpMessage>
 					) }
 					<p>
-						<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
+						<Link openInNewTab href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
 							{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
-						</ExternalLink>
+						</Link>
 					</p>
 					<div style={ { marginTop: '20px', marginBottom: '20px' } }>
 						{ __(

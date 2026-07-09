@@ -32,7 +32,7 @@ class Jetpack_Sync_Server_Eventstore {
 	 * @param Callable $filter a custom callable to pass the event object to to be filtered.
 	 **/
 	public function get_all_events( $action_name = null, $blog_id = null, $filter = null ) {
-		$blog_id = isset( $blog_id ) ? $blog_id : get_current_blog_id();
+		$blog_id = $blog_id ?? get_current_blog_id();
 
 		if ( ! isset( $this->events[ $blog_id ] ) ) {
 			return array();

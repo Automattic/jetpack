@@ -1,0 +1,35 @@
+.site-activity-logs__event {
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+
+	// Event row icon — fixed 32×32 tile inside the Table layout's composite
+	// cell so the row alignment is stable regardless of surrounding
+	// cascade. The inner SVG renders at 24×24 (via the Icon size prop) and
+	// the 4px padding completes the tile. Scoped to `.site-activity-logs__event`
+	// so the *same* `<ActivityEventIcon>` used standalone in the Activity
+	// layout's mediaField slot picks up DataViews' own circular bullet
+	// styling instead of our square-tile overrides (otherwise min-width:32px
+	// wins against DataViews' width:100% and produces a non-square rect).
+	.site-activity-logs__event-icon {
+		box-sizing: border-box;
+		width: 32px;
+		height: 32px;
+		min-width: 32px;
+		padding: 4px;
+		border-radius: 2px;
+		fill: var(--wpds-color-foreground-content-neutral-weak, #757575);
+		background-color: var(--wpds-color-background-surface-neutral-weak, #f0f0f1);
+	}
+}
+
+.site-activity-logs__event-content {
+	flex: 1 0 0;
+	flex-wrap: wrap;
+
+	> span {
+		color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+	}
+}
+
+.site-activity-logs__event-title {
+	font-weight: 500;
+}

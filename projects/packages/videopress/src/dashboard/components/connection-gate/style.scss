@@ -1,0 +1,22 @@
+// Both screens are centered with a max-width; the inline padding keeps a
+// gutter to the viewport edges on tablet/mobile, where the viewport is
+// narrower than the max-width and `margin-inline: auto` collapses to zero.
+// `border-box` keeps the padding inside the max-width rather than widening
+// the element past it.
+.vp-connection-gate {
+	box-sizing: border-box;
+	max-width: 480px;
+	margin-block: 48px;
+	margin-inline: auto;
+	padding-inline: 24px;
+	text-align: center;
+}
+
+.vp-connection-gate__upsell {
+	box-sizing: border-box;
+	max-width: 1080px;
+	margin-block: 32px;
+	margin-inline: auto;
+	padding-inline: 24px;
+	padding-bottom: 24px;
+}

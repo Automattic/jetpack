@@ -112,6 +112,24 @@ class Products_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * Test that My Jetpack registers the jetpack-ai-jwt endpoint via Agents Manager.
+	 */
+	public function test_jetpack_ai_jwt_route_is_registered() {
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertArrayHasKey( '/jetpack/v4/jetpack-ai-jwt', $routes );
+
+		$methods = array();
+		foreach ( $routes['/jetpack/v4/jetpack-ai-jwt'] as $endpoint ) {
+			if ( isset( $endpoint['methods'] ) ) {
+				$methods = array_merge( $methods, array_keys( $endpoint['methods'] ) );
+			}
+		}
+
+		$this->assertContains( 'POST', $methods );
+	}
+
+	/**
 	 * Test GET products
 	 */
 	public function test_get_products() {

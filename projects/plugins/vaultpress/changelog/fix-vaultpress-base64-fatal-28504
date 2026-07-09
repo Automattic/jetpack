@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VaultPress service: avoid Fatal error when receiving an error from the VaultPress service.

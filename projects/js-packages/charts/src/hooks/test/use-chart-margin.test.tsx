@@ -89,6 +89,27 @@ describe( 'useChartMargin', () => {
 		expect( result.current.right ).toBe( 48 ); // 40 + 8
 	} );
 
+	it( 'uses explicit y tickValues when provided', () => {
+		const options = {
+			...optionsBase,
+			axis: {
+				...optionsBase.axis,
+				y: {
+					...optionsBase.axis.y,
+					tickValues: [ 0, 1000 ],
+				},
+			},
+		};
+		const height = 300;
+		const theme = baseTheme;
+		renderHook( () => useChartMargin( height, options, data, theme ) );
+		expect( mockGetLongestTickWidth ).toHaveBeenCalledWith(
+			[ 0, 1000 ],
+			options.axis.y.tickFormat,
+			theme.axisStyles.y.left.axisLabel
+		);
+	} );
+
 	it( 'sets top and bottom margin for top x axis', () => {
 		const options = {
 			...optionsBase,

@@ -1,9 +1,9 @@
 import { isWoASite as _isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
-import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Tabs } from '@wordpress/ui';
+import { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { NavLink, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
@@ -11,7 +11,6 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
-	isWpAdminNewsletterSettingsEnabled as _isWpAdminNewsletterSettingsEnabled,
 } from 'state/initial-state';
 import {
 	hasAnyOfTheseModules,
@@ -20,9 +19,9 @@ import {
 	isModuleActivated,
 } from 'state/modules';
 import { filterSearch, getSearchTerm } from 'state/search';
+import './style.scss';
 
 // Map route paths to their translated tab labels.
-// Used both for rendering tabs and for the mobile dropdown header text.
 const TAB_LABELS = {
 	'/security': _x( 'Security', 'Navigation item.', 'jetpack' ),
 	'/performance': _x( 'Performance', 'Navigation item.', 'jetpack' ),
@@ -30,32 +29,21 @@ const TAB_LABELS = {
 	'/sharing': _x( 'Sharing', 'Navigation item.', 'jetpack' ),
 	'/discussion': _x( 'Discussion', 'Navigation item.', 'jetpack' ),
 	'/traffic': _x( 'Traffic', 'Navigation item.', 'jetpack' ),
-	'/newsletter': _x( 'Newsletter', 'Navigation item.', 'jetpack' ),
 	'/reader': _x( 'Reader', 'Navigation item.', 'jetpack' ),
 	'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
 };
 
-const Tab = ( { to, label, onClick, alsoActiveFor } ) => {
-	const { pathname } = useLocation();
-	const extraActive = alsoActiveFor?.includes( pathname );
-
-	return (
-		<NavLink
-			to={ to }
-			// NavLink's className API requires a function — not a bind issue.
-			// eslint-disable-next-line react/jsx-no-bind
-			className={ ( { isActive } ) =>
-				clsx( 'jp-settings-nav__tab', {
-					'jp-settings-nav__tab--active': isActive || extraActive,
-				} )
-			}
-			onClick={ onClick }
-		>
-			{ label }
-		</NavLink>
-	);
+// Routes that should highlight a different tab (e.g. /settings → /security).
+const ROUTE_ALIASES = {
+	'/settings': '/security',
 };
 
+/**
+ * Settings page tab navigation using `@wordpress/ui` Tabs.
+ *
+ * @param {object} props - Component props from Redux.
+ * @return {import('react').ReactNode} The settings navigation tabs.
+ */
 const SettingsNavTabs = props => {
 	const {
 		userCanManageModules,
@@ -66,20 +54,15 @@ const SettingsNavTabs = props => {
 		hasPerformanceFeature,
 		hasModules,
 		isModuleActive,
-		isWpAdminNewsletterSettingsEnabled,
 		searchTerm,
 		searchForTerm,
 	} = props;
 
 	const location = useLocation();
-	const [ mobileOpen, setMobileOpen ] = useState( false );
+	const navigate = useNavigate();
 
-	const selectedTabText = TAB_LABELS[ location.pathname ] || __( 'Settings', 'jetpack' );
-
-	// Close the mobile dropdown when navigating to a new tab.
-	useEffect( () => {
-		setMobileOpen( false );
-	}, [ location.pathname ] );
+	// Resolve the active tab value from the current route.
+	const activeTab = ROUTE_ALIASES[ location.pathname ] || location.pathname;
 
 	const trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
@@ -87,6 +70,14 @@ const SettingsNavTabs = props => {
 			path: target,
 		} );
 	};
+
+	const handleTabChange = useCallback(
+		value => {
+			trackNavClick( value.slice( 1 ) );
+			navigate( value );
+		},
+		[ navigate ]
+	);
 
 	const doSearch = useCallback(
 		keywords => {
@@ -101,147 +92,92 @@ const SettingsNavTabs = props => {
 		[ searchForTerm ]
 	);
 
-	let tabs;
-
-	/* eslint-disable react/jsx-no-bind -- Arrow callbacks for analytics tracking. */
-	if ( userCanManageModules ) {
-		tabs = (
-			<>
-				{ hasSecurityFeature && (
-					<Tab
-						to="/security"
-						label={ TAB_LABELS[ '/security' ] }
-						onClick={ () => trackNavClick( 'security' ) }
-						alsoActiveFor={ [ '/settings' ] }
-					/>
-				) }
-				{ hasPerformanceFeature && (
-					<Tab
-						to="/performance"
-						label={ TAB_LABELS[ '/performance' ] }
-						onClick={ () => trackNavClick( 'performance' ) }
-					/>
-				) }
-				{ ( hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
-					window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active ) && (
-					<Tab
-						to="/writing"
-						label={ TAB_LABELS[ '/writing' ] }
-						onClick={ () => trackNavClick( 'writing' ) }
-					/>
-				) }
-				{ hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) && (
-					<Tab
-						to="/sharing"
-						label={ TAB_LABELS[ '/sharing' ] }
-						onClick={ () => trackNavClick( 'sharing' ) }
-					/>
-				) }
-				{ hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) && (
-					<Tab
-						to="/discussion"
-						label={ TAB_LABELS[ '/discussion' ] }
-						onClick={ () => trackNavClick( 'discussion' ) }
-					/>
-				) }
-				{ hasModules( [
-					'seo-tools',
-					'stats',
-					'related-posts',
-					'verification-tools',
-					'sitemaps',
-					'google-analytics',
-				] ) && (
-					<Tab
-						to="/traffic"
-						label={ TAB_LABELS[ '/traffic' ] }
-						onClick={ () => trackNavClick( 'traffic' ) }
-					/>
-				) }
-				{ hasModules( [ 'subscriptions' ] ) && ! isWpAdminNewsletterSettingsEnabled && (
-					<Tab
-						to="/newsletter"
-						label={ TAB_LABELS[ '/newsletter' ] }
-						onClick={ () => trackNavClick( 'newsletter' ) }
-					/>
-				) }
-				{ hasModules( [ 'wpcom-reader' ] ) && ! isWoASite && (
-					<Tab
-						to="/reader"
-						label={ TAB_LABELS[ '/reader' ] }
-						onClick={ () => trackNavClick( 'reader' ) }
-					/>
-				) }
-				{ hasModules( [ 'wordads' ] ) && (
-					<Tab
-						to="/earn"
-						label={ TAB_LABELS[ '/earn' ] }
-						onClick={ () => trackNavClick( 'earn' ) }
-					/>
-				) }
-			</>
-		);
-	} else if ( isSubscriber ) {
-		tabs = null;
-	} else {
-		tabs = (
-			<>
-				{ isModuleActive( 'post-by-email' ) &&
-					userCanPublishPosts &&
-					hasModules( [ 'post-by-email' ] ) && (
-						<Tab
-							to="/writing"
-							label={ TAB_LABELS[ '/writing' ] }
-							onClick={ () => trackNavClick( 'writing' ) }
-						/>
-					) }
-				{ isModuleActive( 'publicize' ) && userCanPublishPosts && hasModules( [ 'publicize' ] ) && (
-					<Tab
-						to="/sharing"
-						label={ TAB_LABELS[ '/sharing' ] }
-						onClick={ () => trackNavClick( 'sharing' ) }
-						alsoActiveFor={ [ '/settings' ] }
-					/>
-				) }
-			</>
-		);
-	}
-	/* eslint-enable react/jsx-no-bind */
-
 	const searchFromUrl = useMemo(
 		() => new URLSearchParams( location.search ).get( 'term' ) || '',
 		[ location.search ]
 	);
 
-	// Sync URL search term to Redux on mount and route changes,
-	// matching the old NavigationSettings.onRouteChange behavior.
+	// Sync URL search term to Redux on mount and route changes.
 	useEffect( () => {
 		searchForTerm( searchFromUrl );
 	}, [ searchFromUrl, searchForTerm ] );
 
-	/* eslint-disable react/jsx-no-bind -- Trivial toggle callback. */
+	// Build the list of visible tabs based on permissions and modules.
+	const visibleTabs = [];
+
+	if ( userCanManageModules ) {
+		if ( hasSecurityFeature ) {
+			visibleTabs.push( '/security' );
+		}
+		if ( hasPerformanceFeature ) {
+			visibleTabs.push( '/performance' );
+		}
+		if (
+			hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
+			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
+		) {
+			visibleTabs.push( '/writing' );
+		}
+		if ( hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) ) {
+			visibleTabs.push( '/sharing' );
+		}
+		if ( hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) ) {
+			visibleTabs.push( '/discussion' );
+		}
+		if (
+			hasModules( [
+				'seo-tools',
+				'stats',
+				'related-posts',
+				'verification-tools',
+				'sitemaps',
+				'google-analytics',
+			] )
+		) {
+			visibleTabs.push( '/traffic' );
+		}
+		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite ) {
+			visibleTabs.push( '/reader' );
+		}
+		if ( hasModules( [ 'wordads' ] ) ) {
+			visibleTabs.push( '/earn' );
+		}
+	} else if ( ! isSubscriber ) {
+		if (
+			isModuleActive( 'post-by-email' ) &&
+			userCanPublishPosts &&
+			hasModules( [ 'post-by-email' ] )
+		) {
+			visibleTabs.push( '/writing' );
+		}
+		if ( isModuleActive( 'publicize' ) && userCanPublishPosts && hasModules( [ 'publicize' ] ) ) {
+			visibleTabs.push( '/sharing' );
+		}
+	}
+
+	if ( visibleTabs.length === 0 ) {
+		return null;
+	}
+
 	return (
-		<div className={ clsx( 'jp-settings-nav', { 'is-open': mobileOpen } ) }>
+		<div className="jp-settings-nav">
 			<QuerySitePlugins />
-			<button
-				className={ clsx( 'jp-settings-nav__mobile-header', { 'is-open': mobileOpen } ) }
-				onClick={ () => setMobileOpen( ! mobileOpen ) }
-				aria-expanded={ mobileOpen }
+			<Tabs.Root
+				value={ activeTab }
+				onValueChange={ handleTabChange }
+				className="jp-settings-nav__tabs-root"
 			>
-				<span>{ selectedTabText }</span>
-				<span
-					className={ clsx( 'dashicons', 'jp-settings-nav__mobile-chevron', {
-						'dashicons-arrow-up-alt2': mobileOpen,
-						'dashicons-arrow-down-alt2': ! mobileOpen,
-					} ) }
-				/>
-			</button>
-			<nav
-				className="jp-settings-nav__tabs"
-				aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
-			>
-				{ tabs }
-			</nav>
+				<Tabs.List
+					className="jp-settings-nav__tabs"
+					aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
+				>
+					{ visibleTabs.map( path => (
+						<Tabs.Tab key={ path } value={ path } className="jp-settings-nav__tab">
+							{ TAB_LABELS[ path ] }
+						</Tabs.Tab>
+					) ) }
+				</Tabs.List>
+			</Tabs.Root>
 			{ userCanManageModules && (
 				<Search
 					pinned={ true }
@@ -256,7 +192,6 @@ const SettingsNavTabs = props => {
 			) }
 		</div>
 	);
-	/* eslint-enable react/jsx-no-bind */
 };
 
 export default connect(
@@ -269,7 +204,6 @@ export default connect(
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
-		isWpAdminNewsletterSettingsEnabled: _isWpAdminNewsletterSettingsEnabled( state ),
 		searchTerm: getSearchTerm( state ),
 	} ),
 	dispatch => ( {

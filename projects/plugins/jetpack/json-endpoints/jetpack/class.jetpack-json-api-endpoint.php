@@ -148,7 +148,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 		if ( is_array( $capability ) ) {
 			// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
-			$capabilities = ( isset( $capability['capabilities'] ) ? $capability['capabilities'] : $capability );
+			$capabilities = ( $capability['capabilities'] ?? $capability );
 
 			// We can pass in the number of conditions we must pass by default it is all.
 			$must_pass = ( isset( $capability['must_pass'] ) && is_int( $capability['must_pass'] ) ? $capability['must_pass'] : count( $capabilities ) );

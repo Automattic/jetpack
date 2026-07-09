@@ -114,6 +114,7 @@ class Options extends Module {
 	public function set_late_default() {
 		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
 		$late_options = apply_filters( 'jetpack_options_whitelist', array() );
+		$late_options = apply_filters( 'jetpack_sync_options_whitelist', $late_options );
 		if ( ! empty( $late_options ) && is_array( $late_options ) ) {
 			$this->options_whitelist = array_merge( $this->options_whitelist, $late_options );
 		}

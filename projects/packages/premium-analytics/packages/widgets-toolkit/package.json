@@ -1,0 +1,38 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widgets-toolkit",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"types": "src/index.ts",
+	"sideEffects": [
+		"*.scss"
+	],
+	"dependencies": {
+		"@automattic/charts": "workspace:*",
+		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@jetpack-premium-analytics/formatters": "workspace:*",
+		"@jetpack-premium-analytics/icons": "workspace:*",
+		"@jetpack-premium-analytics/routing": "workspace:*",
+		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/compose": "8.3.0",
+		"@wordpress/dataviews": "17.1.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^15.0.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/theme": "0.17.0",
+		"@wordpress/ui": "0.17.0",
+		"clsx": "2.1.1",
+		"date-fns": "4.1.0",
+		"react": "18.3.1"
+	},
+	"devDependencies": {
+		"@storybook/react": "10.4.6",
+		"@testing-library/react": "16.3.2"
+	}
+}

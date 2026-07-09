@@ -1,0 +1,260 @@
+// Centered fixed-width column. 660px is the established Jetpack settings-page
+// width (see Newsletter's settings/style.scss: "MSD and future JP settings
+// pages are 660px wide"); there is no design token for it.
+.jetpack-seo-settings {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	max-inline-size: 660px;
+	margin-inline: auto;
+}
+
+// Deep-link target wrapper. `scroll-margin-top` clears the fixed header +
+// sticky tabs strip so the scrolled-to section's title stays visible.
+.jetpack-seo-settings__section {
+	scroll-margin-top: 64px;
+}
+
+// Groups the "Generate an XML sitemap" toggle with its "View sitemap" link (or
+// "Generating…" hint), shown beneath the toggle once it's effectively on.
+.jetpack-seo-settings__sitemap-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+// Align the link/hint with the toggle's label text (and its help text) rather
+// than the switch. 40px matches @wordpress/components ToggleControl's help
+// `margin-inline-start` (≈ 36px switch + gap).
+.jetpack-seo-settings__sitemap-link,
+.jetpack-seo-settings__sitemap-hint {
+	margin-inline-start: 40px;
+}
+
+.jetpack-seo-settings__sitemap-hint {
+	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
+	font-size: 12px;
+}
+
+// One page type's title editor: field, insert buttons, then a preview + Save
+// footer. Not boxed — rows are separated by a hairline divider (below), the
+// standard settings-list pattern, so the card doesn't read as boxes-in-a-box.
+.jetpack-seo-settings__title-row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+// Hairline divider between rows (not a box). The parent Stack's `lg` gap sits
+// above the rule; the matching padding sits below it, so the divider is evenly
+// spaced between adjacent rows.
+.jetpack-seo-settings__title-row + .jetpack-seo-settings__title-row {
+	padding-block-start: var(--wpds-dimension-gap-lg, 16px);
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+}
+
+// The insert-placeholder buttons and their caption, grouped tight under the
+// field they act on.
+.jetpack-seo-settings__title-tokens {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.jetpack-seo-settings__title-tokens-label {
+	font-size: 12px;
+	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
+}
+
+// Right-align the per-section / per-row Save buttons, matching the Newsletter
+// settings card-footer convention.
+.jetpack-seo-settings__save {
+	display: flex;
+	justify-content: flex-end;
+}
+
+// Preview + Save share one row so there's no dead space beneath the preview.
+// The preview takes the remaining width and wraps when long; the Save button
+// keeps to the right with a gap between, so a long preview never crowds it.
+.jetpack-seo-settings__title-footer {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+}
+
+.jetpack-seo-settings__title-footer .jetpack-seo-settings__preview {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-seo-settings__title-footer .jetpack-seo-settings__save {
+	flex-shrink: 0;
+	// Keep Save at the right edge even when there's no preview yet.
+	margin-inline-start: auto;
+}
+
+// Live preview of the rendered title. Plain text flush with the field content
+// above it (no box), so "Preview:" lines up with the rest of the row.
+.jetpack-seo-settings__preview {
+	font-size: 13px;
+}
+
+.jetpack-seo-settings__verification-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+// Group label for the Organization "Social profiles" (sameAs) repeater, so it
+// matches a control label's weight (the rows below hide their own labels).
+.jetpack-seo-settings__schema-field-label {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+}
+
+// The URL input in a Social profiles row takes the remaining width so the
+// Remove button keeps to the right.
+.jetpack-seo-settings__schema-profile-input {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
+.jetpack-seo-settings__schema-profile-input--error .components-base-control__help {
+	color: var(--wpds-color-foreground-content-error, #d63638);
+}
+
+.jetpack-seo-settings__schema-avatar {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+
+	img {
+		inline-size: 48px;
+		block-size: 48px;
+		border-radius: 50%;
+	}
+}
+
+// Intro copy above the preview list.
+.jetpack-seo-settings__preview-intro {
+	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
+}
+
+// The previews stack with generous separation between them. Each preview is
+// bordered individually (below); there's no bordered group wrapping a heading
+// together with its preview, which avoids the box-in-box look.
+.jetpack-seo-settings__preview-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-2xl, 32px);
+}
+
+// Platform label above each preview: brand icon + name, prominent enough to
+// scan, with clear space before the card it describes.
+.jetpack-seo-settings__preview-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 var(--wpds-dimension-gap-md, 12px);
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.jetpack-seo-preview__platform-icon {
+	inline-size: 18px;
+	block-size: 18px;
+	flex-shrink: 0;
+}
+
+// In-house search/social preview cards (no third-party library). Approximate
+// the look of each platform with plain markup.
+.jetpack-seo-preview {
+	max-inline-size: 500px;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.jetpack-seo-preview__desc {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}
+
+// Google search result — bordered around the preview itself (it has none
+// otherwise), set off as a result beneath its heading.
+.jetpack-seo-preview--google {
+	padding: var(--wpds-dimension-padding-md, 12px);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+	border-radius: var(--wpds-border-radius-md, 4px);
+
+	.jetpack-seo-preview__google-site {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.jetpack-seo-preview__favicon {
+		inline-size: 26px;
+		block-size: 26px;
+		border-radius: 50%;
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+		object-fit: cover;
+	}
+
+	.jetpack-seo-preview__google-url {
+		font-size: 12px;
+		color: #4d5156;
+	}
+
+	.jetpack-seo-preview__google-title {
+		margin-block-start: 4px;
+		font-size: 20px;
+		color: #1a0dab;
+	}
+
+	.jetpack-seo-preview__desc {
+		margin-block-start: 4px;
+	}
+}
+
+// Facebook / X shared link card — bordered around the preview itself (matching
+// how the platforms render a shared link), but not wrapped in a group box with
+// its heading.
+.jetpack-seo-preview--card {
+	overflow: hidden;
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+	border-radius: var(--wpds-border-radius-md, 4px);
+
+	.jetpack-seo-preview__image {
+		block-size: 240px;
+		background-color: var(--wpds-color-background-surface-neutral, #f0f2f5);
+		background-position: center;
+		background-size: cover;
+	}
+
+	.jetpack-seo-preview__card-body {
+		padding: var(--wpds-dimension-padding-md, 12px);
+		// Recessed surface so the link-preview body stands apart from both the
+		// white card and the page canvas. The canvas already uses
+		// `bg-surface-neutral`, so reusing that token here would read as the same
+		// surface — step down to the weaker surface instead. The preview image
+		// above keeps `bg-surface-neutral`.
+		background: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
+	}
+
+	.jetpack-seo-preview__card-domain {
+		font-size: 12px;
+		text-transform: uppercase;
+		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	}
+
+	.jetpack-seo-preview__card-title {
+		margin-block-start: 2px;
+		font-weight: 600;
+	}
+
+	.jetpack-seo-preview__desc {
+		margin-block-start: 2px;
+	}
+}

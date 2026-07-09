@@ -1,4 +1,4 @@
-import { isModuleFound } from '../index';
+import { hasAnyMatchingModule, isModuleFound } from '../index';
 
 describe( 'Module found selector', () => {
 	let state = {};
@@ -67,5 +67,43 @@ describe( 'Module found selector', () => {
 				} );
 			}
 		);
+	} );
+} );
+
+describe( 'hasAnyMatchingModule selector', () => {
+	const buildState = ( searchTerm, items ) => ( {
+		jetpack: {
+			modules: { items },
+			search: { searchTerm },
+		},
+	} );
+
+	const items = {
+		photon: {
+			module: 'photon',
+			name: 'Photon',
+			description: 'Serve images from the WordPress.com CDN.',
+		},
+		protect: {
+			module: 'protect',
+			name: 'Protect',
+			description: 'Prevent brute-force login attacks.',
+		},
+	};
+
+	test( 'returns false when the search term is empty', () => {
+		expect( hasAnyMatchingModule( buildState( '', items ) ) ).toBe( false );
+	} );
+
+	test( 'returns false when the modules state has not loaded yet', () => {
+		expect( hasAnyMatchingModule( buildState( 'photon', undefined ) ) ).toBe( false );
+	} );
+
+	test( 'returns true when at least one module matches the search term', () => {
+		expect( hasAnyMatchingModule( buildState( 'brute-force', items ) ) ).toBe( true );
+	} );
+
+	test( 'returns false when no module matches the search term', () => {
+		expect( hasAnyMatchingModule( buildState( 'asdfqwerty', items ) ) ).toBe( false );
 	} );
 } );

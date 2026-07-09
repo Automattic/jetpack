@@ -10,6 +10,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Device_Detection;
 
 if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 	/**
@@ -345,8 +346,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 				'_jp_css_settings',
 				array(
 					/** This filter is documented in modules/custom-css/custom-css.php */
-					// @phan-suppress-next-line PhanUndeclaredFunction
-					'useRichEditor'        => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
+					'useRichEditor'        => ! Device_Detection::is_phone() && apply_filters( 'safecss_use_ace', true ),
 					'areThereCssRevisions' => self::are_there_css_revisions(),
 					'revisionsUrl'         => self::get_revisions_url(),
 					'cssHelpUrl'           => '//en.support.wordpress.com/custom-design/editing-css/',

@@ -319,7 +319,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		$mapbox_geocode_json     = json_decode( $mapbox_geocode_body );
 		if ( isset( $mapbox_geocode_json->message ) || ! isset( $mapbox_geocode_json->query ) ) {
 			$status = false;
-			$msg    = isset( $mapbox_geocode_json->message ) ? $mapbox_geocode_json->message : 'Unknown error';
+			$msg    = $mapbox_geocode_json->message ?? 'Unknown error';
 		}
 		return array(
 			'status'        => $status,

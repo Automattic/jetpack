@@ -236,8 +236,8 @@ class iCalendarReader {
 			}
 
 			// Process events with RRULE before other events.
-			$rrule = isset( $event['RRULE'] ) ? $event['RRULE'] : false;
-			$uid   = isset( $event['UID'] ) ? $event['UID'] : false;
+			$rrule = $event['RRULE'] ?? false;
+			$uid   = $event['UID'] ?? false;
 
 			if ( $rrule && $uid && ! in_array( $uid, $set_recurring_events, true ) ) {
 
@@ -249,8 +249,8 @@ class iCalendarReader {
 					$rrule_array[ $rkey ]  = $rvalue;
 				}
 
-				$interval    = ( isset( $rrule_array['INTERVAL'] ) ) ? $rrule_array['INTERVAL'] : 1;
-				$rrule_count = ( isset( $rrule_array['COUNT'] ) ) ? $rrule_array['COUNT'] : 0;
+				$interval    = $rrule_array['INTERVAL'] ?? 1;
+				$rrule_count = $rrule_array['COUNT'] ?? 0;
 				$until       = ( isset( $rrule_array['UNTIL'] ) ) ? strtotime( $rrule_array['UNTIL'] ) : strtotime( '+1 year', $current );
 
 				// Used to bound event checks.
@@ -275,7 +275,7 @@ class iCalendarReader {
 							$catchup = floor( ( $current - strtotime( $event['DTSTART'] ) ) / ( $interval * DAY_IN_SECONDS ) );
 							if ( $rrule_count && $catchup > 0 ) {
 								if ( $catchup < $rrule_count ) {
-									$rrule_count                = $rrule_count - $catchup;
+									$rrule_count               -= $catchup;
 									$recurring_event_date_start = date(
 										'Ymd',
 										strtotime(
@@ -323,7 +323,7 @@ class iCalendarReader {
 							$catchup = floor( ( $current - strtotime( $event['DTSTART'] ) ) / ( $interval * WEEK_IN_SECONDS ) );
 							if ( $rrule_count && $catchup > 0 ) {
 								if ( ( $catchup * count( $bydays ) ) < $rrule_count ) {
-									$rrule_count                = $rrule_count - ( $catchup * count( $bydays ) ); // Estimate current event count.
+									$rrule_count               -= $catchup * count( $bydays ); // Estimate current event count.
 									$recurring_event_date_start = date( 'Ymd', strtotime( '+ ' . ( $interval * $catchup ) . ' weeks', strtotime( $event['DTSTART'] ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
 								} else {
 									$noop = true;
@@ -443,7 +443,7 @@ class iCalendarReader {
 					}
 
 					// Set up EXDATE handling for the event.
-					$exdates = ( isset( $event['EXDATE'] ) ) ? $event['EXDATE'] : array();
+					$exdates = $event['EXDATE'] ?? array();
 
 					for ( $i = 1; $i <= $echo_limit; $i++ ) {
 
@@ -558,7 +558,7 @@ class iCalendarReader {
 					$set_recurring_events[] = $uid;
 
 				}
-			} elseif ( strtotime( isset( $event['DTEND'] ) ? $event['DTEND'] : $event['DTSTART'] ) >= $current ) { // Process normal events.
+			} elseif ( strtotime( $event['DTEND'] ?? $event['DTSTART'] ) >= $current ) { // Process normal events.
 				$upcoming[] = $event;
 			}
 		}

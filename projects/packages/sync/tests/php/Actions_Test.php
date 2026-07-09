@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -116,6 +117,42 @@ class Actions_Test extends BaseTestCase {
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
 
 		$this->assertTrue( Settings::is_dedicated_sync_enabled() );
+	}
+
+	/**
+	 * Search sync module must be registered regardless of `instant_search_enabled`.
+	 *
+	 * Regression test for the chicken-and-egg described in SEARCH-186: gating
+	 * `initialize_search()` on `is_instant_search_enabled()` (or on the
+	 * module-level `is_active()`) silently drops the very option write that
+	 * flips the flag, because the gate is evaluated on `plugins_loaded` before
+	 * the REST handler runs.
+	 *
+	 * @param bool $instant_search_enabled Value of the `instant_search_enabled` option at request boot.
+	 * @testWith
+	 *  [false]
+	 *  [true]
+	 */
+	#[TestWith( array( false ) )]
+	#[TestWith( array( true ) )]
+	public function test_initialize_search_registers_module_regardless_of_instant_search_flag( $instant_search_enabled ) {
+		if ( ! class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
+			$this->markTestSkipped( 'Search package not available in this test environment.' );
+		}
+
+		update_option( 'instant_search_enabled', $instant_search_enabled );
+		remove_all_filters( 'jetpack_sync_modules' );
+
+		Actions::initialize_search();
+		$modules = apply_filters( 'jetpack_sync_modules', array() );
+
+		remove_all_filters( 'jetpack_sync_modules' );
+
+		$this->assertContains(
+			'Automattic\\Jetpack\\Sync\\Modules\\Search',
+			$modules,
+			'Search sync module must be registered so its option whitelist (instant_search_enabled, jetpack_search_experience, ...) is in place for the request that toggles those values.'
+		);
 	}
 
 	/**

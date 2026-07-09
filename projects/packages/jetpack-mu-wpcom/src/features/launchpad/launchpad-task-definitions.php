@@ -472,23 +472,14 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Write a welcome message', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				$url = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
-				// Add anchor for Calypso messages section (relative paths start with /settings/).
-				if ( str_starts_with( $url, '/settings/' ) ) {
-					$url .= '#messages';
-				}
-				return $url;
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'enable_subscribers_modal'        => array(
 			'get_title'            => function () {
 				return __( 'Enable subscribers modal', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'add_10_email_subscribers'        => array(
 			'get_title'                 => function () {
@@ -640,9 +631,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'mobile_app_installed'            => array(
 			'get_title'            => function () {
@@ -776,7 +765,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
-				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
+				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Flaunch-your-store' );
 			},
 		),
 		'migrating_site'                  => array(
@@ -1716,6 +1705,21 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
 	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
 
 	return min( $task['target_repetitions'], $published_non_headstart_posts );
+}
+
+/**
+ * Resolve the Newsletter Settings page URL, falling back to the canonical wp-admin path
+ * if the Newsletter package isn't autoloaded (e.g. if the host plugin has been unloaded).
+ *
+ * @return string
+ */
+function wpcom_launchpad_get_newsletter_settings_url() {
+	if ( class_exists( '\Automattic\Jetpack\Newsletter\Urls' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+		return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
+	}
+
+	return admin_url( 'admin.php?page=jetpack-newsletter' );
 }
 
 /**

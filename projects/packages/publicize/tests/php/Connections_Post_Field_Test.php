@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -86,6 +87,7 @@ class Connections_Post_Field_Test extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		self::reset_active_plan_cache();
 		global $publicize;
 		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections', 'test_connection', 'has_paid_features' ) )->getMock();
 
@@ -174,20 +176,102 @@ class Connections_Post_Field_Test extends TestCase {
 		parent::tearDown();
 		unregister_post_type( 'example-with' );
 		unregister_post_type( 'example-without' );
-		$publicizeable_post_types = array();
-		foreach ( get_post_types() as $post_type ) {
-			if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
-				continue;
-			}
-
-			$publicizeable_post_types[] = $post_type;
-			unregister_meta_key( 'post', $this->publicize->POST_MESS, $post_type );
-		}
+		$this->unregister_publicize_post_meta();
 
 		remove_post_type_support( 'post', 'publicize' );
+		delete_transient( Connections::CONNECTIONS_TRANSIENT );
+		self::reset_active_plan_cache();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
+	}
+
+	/**
+	 * Force the next `Current_Plan::get()` to re-read from the option store.
+	 */
+	private static function reset_active_plan_cache() {
+		$reflection = new \ReflectionClass( Current_Plan::class );
+		$property   = $reflection->getProperty( 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
+	}
+
+	/**
+	 * Set the active plan features.
+	 *
+	 * @param array $features Active plan features.
+	 */
+	private function set_active_plan_features( $features ) {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = $features;
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		self::reset_active_plan_cache();
+	}
+
+	/**
+	 * Unregister Publicize post meta keys.
+	 */
+	private function unregister_publicize_post_meta() {
+		$meta_keys = array(
+			$this->publicize->POST_MESS,
+			Publicize_Base::POST_PUBLICIZE_FEATURE_ENABLED,
+			$this->publicize->POST_DONE . 'all',
+			Publicize_Base::POST_JETPACK_SOCIAL_OPTIONS,
+			Publicize_Base::POST_CONNECTION_OVERRIDES,
+			Publicize_Base::POST_CUSTOMIZE_PER_NETWORK,
+		);
+
+		foreach ( get_post_types() as $post_type ) {
+			foreach ( $meta_keys as $meta_key ) {
+				unregister_meta_key( 'post', $meta_key, $post_type );
+			}
+		}
+	}
+
+	/**
+	 * Re-register Publicize post meta keys.
+	 */
+	private function reregister_publicize_post_meta() {
+		$this->unregister_publicize_post_meta();
+		$this->publicize->register_post_meta();
+	}
+
+	/**
+	 * Get the registered default for the per-network customization meta key.
+	 *
+	 * @return bool
+	 */
+	private function get_customize_per_network_registered_default() {
+		$registered_meta = get_registered_meta_keys( 'post', 'post' );
+
+		return $registered_meta[ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ]['default'];
+	}
+
+	/**
+	 * Set the cached connections list.
+	 *
+	 * @param string $template Connection template value.
+	 */
+	private function set_cached_connection_with_template( $template ) {
+		set_transient(
+			Connections::CONNECTIONS_TRANSIENT,
+			array(
+				array(
+					'service_name'  => 'facebook',
+					'id'            => 'facebook-1',
+					'connection_id' => 'facebook-1000',
+					'external_id'   => 'external-facebook-1',
+					'shared'        => true,
+					'template'      => $template,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
 	}
 
 	/**
@@ -231,6 +315,68 @@ class Connections_Post_Field_Test extends TestCase {
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
 		$this->assertArrayHasKey( 'meta', $schema['properties'] );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
+	}
+
+	/**
+	 * Test that per-network customization defaults on with a custom connection template.
+	 */
+	public function test_customize_per_network_defaults_on_with_custom_connection_template() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+		$this->set_active_plan_features( array( 'social-message-templates' ) );
+		$this->set_cached_connection_with_template( 'Custom template' );
+		$this->reregister_publicize_post_meta();
+
+		$this->assertTrue( $this->get_customize_per_network_registered_default() );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertTrue( $data['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] );
+	}
+
+	/**
+	 * Test that per-network customization defaults off without a custom connection template.
+	 */
+	public function test_customize_per_network_defaults_off_without_custom_connection_template() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+		$this->set_active_plan_features( array( 'social-message-templates' ) );
+		$this->set_cached_connection_with_template( '   ' );
+		$this->reregister_publicize_post_meta();
+
+		$this->assertFalse( $this->get_customize_per_network_registered_default() );
+	}
+
+	/**
+	 * Test that an explicitly saved false value overrides the dynamic default.
+	 */
+	public function test_customize_per_network_explicit_false_overrides_template_default() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+		$this->set_active_plan_features( array( 'social-message-templates' ) );
+		$this->set_cached_connection_with_template( 'Custom template' );
+		$this->reregister_publicize_post_meta();
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'meta' => array(
+					Publicize_Base::POST_CUSTOMIZE_PER_NETWORK => false,
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertFalse( $data['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertFalse( $data['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] );
 	}
 
 	/**
@@ -374,6 +520,124 @@ class Connections_Post_Field_Test extends TestCase {
 
 			}
 		}
+	}
+
+	/**
+	 * A brand new published post must honor `enabled: false` and skip the
+	 * disabled connection. Regression test for the create-time drop where the
+	 * skip meta was only memoized, never persisted, for new posts.
+	 */
+	public function test_create_published_post_skips_disabled_connection() {
+		// get_filtered_connection_data() reads connections from the transient.
+		set_transient(
+			Connections::CONNECTIONS_TRANSIENT,
+			array(
+				array(
+					'service_name'  => 'facebook',
+					'id'            => '456',
+					'connection_id' => '4560',
+					'external_id'   => 'external-456',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+				array(
+					'service_name'  => 'tumblr',
+					'id'            => '123',
+					'connection_id' => '1230',
+					'external_id'   => 'external-123',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->set_body_params(
+			array(
+				'title'                         => 'publicize create-drop repro',
+				'status'                        => 'publish',
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id' => '4560',
+						'enabled'       => false,
+					),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$post_id  = $response->get_data()['id'];
+
+		$this->assertSame( 'publish', get_post_status( $post_id ) );
+
+		// The disabled connection must be flagged to skip.
+		$this->assertNotEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '4560', true )
+		);
+
+		// The connection left enabled must not be skipped.
+		$this->assertEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '1230', true )
+		);
+	}
+
+	/**
+	 * A brand new published post with no disabled connections must share to all
+	 * of them (no skip meta written).
+	 *
+	 * Guards against resolving the connection defaults against the already
+	 * published post: the built-in `publicize_checkbox_default` filter returns
+	 * false for published posts, which would mark every connection to skip and
+	 * stop new posts from sharing at all.
+	 */
+	public function test_create_published_post_shares_to_all_connections_by_default() {
+		set_transient(
+			Connections::CONNECTIONS_TRANSIENT,
+			array(
+				array(
+					'service_name'  => 'facebook',
+					'id'            => '456',
+					'connection_id' => '4560',
+					'external_id'   => 'external-456',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+				array(
+					'service_name'  => 'tumblr',
+					'id'            => '123',
+					'connection_id' => '1230',
+					'external_id'   => 'external-123',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->set_body_params(
+			array(
+				'title'  => 'publicize create shares all',
+				'status' => 'publish',
+			)
+		);
+
+		$post_id = $this->server->dispatch( $request )->get_data()['id'];
+
+		$this->assertSame( 'publish', get_post_status( $post_id ) );
+
+		// Nothing was disabled, so neither connection may be skipped.
+		$this->assertEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '4560', true )
+		);
+		$this->assertEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '1230', true )
+		);
 	}
 
 	/**

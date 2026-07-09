@@ -213,17 +213,3 @@ function wpcom_has_blog_sticker( $blog_sticker, $blog_id ) {
 	}
 	return false;
 }
-
-/**
- * Enable the newsletter settings package for all wpcom sites.
- *
- * Previously gated by the newsletter-package-202603 sticker for opt-in testing.
- * Now enabled unconditionally. This function and its add_filter hook can be
- * removed once the filter itself is cleaned up.
- *
- * @param bool $enabled Whether the newsletter settings are enabled.
- * @return bool
- */
-function wpcom_maybe_enable_newsletter_settings( $enabled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	return true;
-}

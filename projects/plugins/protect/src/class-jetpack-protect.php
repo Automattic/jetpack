@@ -149,15 +149,24 @@ class Jetpack_Protect {
 	 * Initialize the admin page resources.
 	 */
 	public function admin_page_init() {
-		$total_threats = Status::get_total_threats();
-		$menu_label    = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
-		if ( $total_threats ) {
-			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_threats );
+		// Only report the threat count to users who can actually reach the Protect
+		// menu (added below with the 'manage_options' cap). Otherwise the central
+		// menu-badges total would include threats the current user can't see.
+		if ( current_user_can( 'manage_options' ) ) {
+			\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
+			\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
+				'jetpack-protect',
+				array(
+					'menu_slug' => 'jetpack-protect',
+					'count'     => Status::get_total_threats(),
+					'type'      => 'count',
+				)
+			);
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Protect', 'jetpack-protect' ),
-			$menu_label,
+			'Jetpack Protect', // "Jetpack Protect" is a product name, do not translate.
+			'Protect', // "Protect" is a product name, do not translate.
 			'manage_options',
 			'jetpack-protect',
 			array( $this, 'plugin_settings_page' ),

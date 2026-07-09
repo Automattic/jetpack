@@ -7,6 +7,7 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
+	cache: jetpackWebpackConfig.cache( __filename ),
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../_inc/build' ),
@@ -119,10 +120,7 @@ module.exports = [
 	// Build all the modules.
 	{
 		...sharedWebpackConfig,
-		entry: {
-			...moduleEntries,
-			'newsletter-widget': './modules/subscriptions/newsletter-widget/src/index.tsx',
-		},
+		entry: moduleEntries,
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
@@ -132,7 +130,11 @@ module.exports = [
 			filename: '[name].min.js', // @todo: Fix this.
 		},
 	},
-	// Build the newsletter widget separately to support translatable strings.
+	/*
+	 * Build the newsletter widget on its own so it gets an unminified `newsletter-widget.js`
+	 * (the legacy module config above forces `[name].min.js`). This is the only build for it;
+	 * the unminified file is what supports extracting translatable strings.
+	 */
 	{
 		...sharedWebpackConfig,
 		entry: {
@@ -162,6 +164,30 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+		],
+		externals: {
+			...sharedWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack',
+			} ),
+		},
+	},
+	// Build AI admin page JS.
+	{
+		...sharedWebpackConfig,
+		entry: {
+			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.js' ),
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				// Match Boost: @wordpress/ui pulls these in; they are not reliable as WP script
+				// handles in all contexts, so bundle them instead of externalizing.
+				requestMap: {
+					'@wordpress/theme': { external: false },
+					'@wordpress/private-apis': { external: false },
+				},
+			} ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,

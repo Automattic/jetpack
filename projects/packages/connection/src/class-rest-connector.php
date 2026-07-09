@@ -130,6 +130,31 @@ class REST_Connector {
 			)
 		);
 
+		// Run all connection health tests.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/test',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_test' ),
+				'permission_callback' => __CLASS__ . '::connection_test_permission_check',
+			),
+			true // override other implementations.
+		);
+
+		// Connection health tests for privileged external callers (WP.com debugger).
+		// Trailing slash matches the old Jetpack plugin registration so the override takes effect.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/test-wpcom/',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_test_for_external' ),
+				'permission_callback' => __CLASS__ . '::is_request_signed_by_jetpack_debugger',
+			),
+			true // override other implementations.
+		);
+
 		// Get current connection status of Jetpack.
 		register_rest_route(
 			'jetpack/v4',
@@ -257,6 +282,10 @@ class REST_Connector {
 				'args'                => array(
 					'redirect_uri' => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
+					'from'         => array(
+						'description' => __( 'Tracking/segmentation identifier for this authorize URL request', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
 				),
@@ -789,8 +818,9 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_register( $request ) {
-		if ( isset( $request['from'] ) ) {
-			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
+		$from = isset( $request['from'] ) ? (string) $request['from'] : '';
+		if ( '' !== $from ) {
+			$this->connection->add_register_request_param( 'from', $from );
 		}
 
 		if ( ! empty( $request['plugin_slug'] ) ) {
@@ -809,7 +839,7 @@ class REST_Connector {
 
 		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 
-		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri );
+		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri, '' !== $from ? $from : false );
 
 		/**
 		 * Filters the response of jetpack/v4/connection/register endpoint
@@ -842,7 +872,8 @@ class REST_Connector {
 	 */
 	public function connection_authorize_url( $request ) {
 		$redirect_uri  = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
-		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
+		$from          = $request->get_param( 'from' );
+		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri, ! empty( $from ) ? (string) $from : false );
 
 		return rest_ensure_response(
 			array(
@@ -1062,6 +1093,113 @@ class REST_Connector {
 	}
 
 	/**
+	 * Permission check for the connection/test endpoint.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function connection_test_permission_check() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_manage_options',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Run all connection health tests and return the result.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function connection_test() {
+		$cxntests  = new Connection_Health_Tests();
+		$tests_run = array_keys( $cxntests->list_tests() );
+
+		if ( $cxntests->pass() ) {
+			return rest_ensure_response(
+				array(
+					'code'      => 'success',
+					'message'   => __( 'All connection tests passed.', 'jetpack-connection' ),
+					'tests_run' => $tests_run,
+				)
+			);
+		}
+
+		return $cxntests->output_fails_as_wp_error();
+	}
+
+	/**
+	 * Run connection health tests for a privileged external caller (WP.com debugger).
+	 *
+	 * Results are encrypted so only WP.com can read them.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function connection_test_for_external() {
+		// Since we are running this test for inclusion in the WP.com testing suite,
+		// let's not try to run them as part of these results.
+		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
+		$cxntests = new Connection_Health_Tests();
+
+		if ( $cxntests->pass() ) {
+			$result = array(
+				'code'    => 'success',
+				'message' => __( 'All connection tests passed.', 'jetpack-connection' ),
+			);
+		} else {
+			$error  = $cxntests->output_fails_as_wp_error();
+			$errors = array();
+
+			// Borrowed from WP_REST_Server::error_to_response().
+			foreach ( (array) $error->errors as $code => $messages ) {
+				foreach ( (array) $messages as $message ) {
+					$errors[] = array(
+						'code'    => $code,
+						'message' => $message,
+						'data'    => $error->get_error_data( $code ),
+					);
+				}
+			}
+
+			$result = ( ! empty( $errors ) ) ? $errors[0] : null;
+			if ( count( $errors ) > 1 ) {
+				// Remove the primary error.
+				array_shift( $errors );
+				$result['additional_errors'] = $errors;
+			}
+		}
+
+		$result = wp_json_encode( $result, JSON_UNESCAPED_SLASHES );
+
+		$encrypted = $cxntests->encrypt_string_for_wpcom( $result );
+
+		if ( ! $encrypted || ! is_array( $encrypted ) ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'action_required',
+					'message' => 'Please request results from the in-plugin debugger',
+				)
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'  => 'response',
+				'debug' => $encrypted,
+			)
+		);
+	}
+
+	/**
 	 * Permission check for the connection/data endpoint
 	 *
 	 * @return bool|WP_Error
@@ -1112,7 +1250,7 @@ class REST_Connector {
 			|| 1 !== openssl_verify(
 				$signature_data,
 				$signature,
-				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
+				is_string( $pub_key ) ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
 			)
 		) {
 			return false;

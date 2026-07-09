@@ -606,6 +606,10 @@
 .jp-dash-item__videopress-storage {
 	margin-top: rem.convert(16px);
 
+	> div {
+		height: 12px;
+	}
+
 	span {
 		margin-top: rem.convert(10px);
 		display: block;

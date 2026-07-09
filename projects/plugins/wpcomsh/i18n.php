@@ -11,10 +11,11 @@
  *
  * @see p8yzl4-4c-p2
  *
- * @param string $mofile .mo language file being loaded by load_textdomain().
+ * @param string $mofile  .mo language file being loaded by load_textdomain().
+ * @param string $domain  Text domain.
  * @return string $mofile same or alternate mo file.
  */
-function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
+function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile, $domain = '' ) {
 	if ( file_exists( $mofile ) ) {
 		return $mofile;
 	}
@@ -27,8 +28,26 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 		require JETPACK__GLOTPRESS_LOCALES_PATH;
 	}
 
-	$locale_slug        = basename( $mofile, '.mo' );
-	$actual_locale_slug = $locale_slug;
+	$original_mo_basename = basename( $mofile, '.mo' );
+	$locale_slug          = $original_mo_basename;
+
+	$theme_root = function_exists( 'get_theme_root' )
+		? wp_normalize_path( trailingslashit( get_theme_root() ) )
+		: '';
+
+	// On WP Cloud sites, get_template_directory() returns /wordpress/themes/pub...
+	// which is the actual path to the theme, symlinked from wp-content/themes.
+	// _load_textdomain_just_in_time sees that the folders don't match
+	// and builds the mo file as "{$path}{$domain}-{$locale}.mo", so we need to
+	// remove the domain prefix to get the locale.
+	$remove_domain_prefix_for_theme = is_string( $domain ) && '' !== $domain
+		&& '' !== $theme_root
+		&& str_starts_with( wp_normalize_path( $mofile ), $theme_root )
+		&& str_starts_with( $original_mo_basename, $domain . '-' );
+
+	if ( $remove_domain_prefix_for_theme ) {
+		$locale_slug = str_replace( $domain . '-', '', $original_mo_basename );
+	}
 
 	// These locales are not in our GP_Locales file, so rewrite them.
 	$locale_mappings = array(
@@ -56,10 +75,10 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 	}
 
 	// phpcs:ignore WordPress.PHP.PregQuoteDelimiter.Missing
-	$mofile = preg_replace( '/' . preg_quote( $actual_locale_slug ) . '\.mo$/', $locale_slug . '.mo', $mofile );
+	$mofile = preg_replace( '/' . preg_quote( $original_mo_basename ) . '\.mo$/', $locale_slug . '.mo', $mofile );
 	return $mofile;
 }
-add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9999 );
+add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9999, 2 );
 
 // Load translations for wpcomsh itself via MO file.
 add_action(

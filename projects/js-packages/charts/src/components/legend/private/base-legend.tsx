@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
 	type RefAttributes,
@@ -16,10 +17,11 @@ import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '.
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
 
-const orientationToFlexDirection = {
-	horizontal: 'row' as const,
-	vertical: 'column' as const,
-};
+const ALIGNMENT_TO_FLEX = {
+	start: 'flex-start',
+	center: 'center',
+	end: 'flex-end',
+} as const;
 
 // Component for legend text with truncation detection
 // Moved outside BaseLegend to prevent recreation on every render
@@ -159,6 +161,8 @@ export const BaseLegend: ForwardRefExoticComponent<
 			[ interactive, handleLegendClick ]
 		);
 
+		const flexAlignment = ALIGNMENT_TO_FLEX[ alignment ] ?? 'center';
+
 		return render ? (
 			render( items )
 		) : (
@@ -168,20 +172,17 @@ export const BaseLegend: ForwardRefExoticComponent<
 				labelTransform={ labelTransform }
 			>
 				{ labels => (
-					<div
+					<Stack
 						ref={ ref }
+						direction={ orientation === 'vertical' ? 'column' : 'row' }
+						gap={ orientation === 'vertical' ? 'sm' : 'lg' }
+						align={ orientation === 'vertical' ? flexAlignment : undefined }
+						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
+						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
 						role="list"
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx(
-							styles.legend,
-							styles[ `legend--${ orientation }` ],
-							styles[ `legend--alignment-${ alignment }` ],
-							className
-						) }
-						style={ {
-							flexDirection: orientationToFlexDirection[ orientation ],
-							...theme.legend?.containerStyles,
-						} }
+						className={ clsx( styles.legend, className ) }
+						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {
 							const visible = isSeriesVisible( label.text );
@@ -257,28 +258,29 @@ export const BaseLegend: ForwardRefExoticComponent<
 											labelClassName
 										) }
 										style={ {
-											justifyContent: labelJustifyContent,
 											flex: labelFlex,
 											margin: labelMargin,
 											...theme.legend?.labelStyles,
 										} }
 									>
-										<LegendText
-											text={ label.text }
-											textOverflow={ textOverflow }
-											maxWidth={ maxWidth }
-										/>
-										{ matchedItem?.value != null && matchedItem.value !== '' && (
-											<span className={ styles[ 'legend-item-value' ] }>
-												{ '\u00A0' }
-												{ matchedItem.value }
-											</span>
-										) }
+										<Stack align="center" gap="sm" justify={ labelJustifyContent }>
+											<LegendText
+												text={ label.text }
+												textOverflow={ textOverflow }
+												maxWidth={ maxWidth }
+											/>
+											{ matchedItem?.value != null && matchedItem.value !== '' && (
+												<span className={ styles[ 'legend-item-value' ] }>
+													{ '\u00A0' }
+													{ matchedItem.value }
+												</span>
+											) }
+										</Stack>
 									</LegendLabel>
 								</LegendItem>
 							);
 						} ) }
-					</div>
+					</Stack>
 				) }
 			</LegendOrdinal>
 		);

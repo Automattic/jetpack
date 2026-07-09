@@ -6,15 +6,18 @@ on:
     workflows:
       - Build
       - Build Docker
+      - Build Monorepo Docker
       - Gardening
       - k6 Tests for Jetpack Staging Test Sites
       - Linting
       - Monorepo Auto-tagger
       - Post-Build
       - PR is up-to-date
+      - PR is up-to-date (trunk push)
       - Tests
       - Update Jetpack Staging Test Sites
       - Update Phan stubs
+      - WP Cloud Unit Testing for WPCOMSH
     branches: [ 'trunk', 'prerelease', '*/branch-*' ]
 
 permissions:
@@ -28,7 +31,7 @@ jobs:
     if: ${{ github.repository == 'Automattic/jetpack' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'issues' && github.event.workflow_run.event != 'issue_comment' }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Generate message
         id: message
         env:
@@ -156,7 +159,7 @@ jobs:
           gh_set_output message_releases "$( jq -c --arg C "$SLACK_RELEASES_CHANNEL" '.channel |= $C' <<<"$MSG" )"
 
       - name: Send message to alerts channel
-        uses: slackapi/slack-github-action@v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
         if: steps.message.outputs.branch == 'trunk'
         with:
           token: ${{ secrets.SLACK_TOKEN }}
@@ -164,7 +167,7 @@ jobs:
           payload: ${{ steps.message.outputs.message_alerts }}
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
         if: contains( steps.message.outputs.branch, '/branch-' ) || steps.message.outputs.branch == 'prerelease'
         with:
           token: ${{ secrets.SLACK_TOKEN }}

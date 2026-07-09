@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Firewall: show 0 instead of NaN on the stat cards when there are no blocked requests.

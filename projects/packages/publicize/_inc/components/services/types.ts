@@ -5,7 +5,6 @@ export interface ServiceUiDetails {
 	icon: React.ComponentType< { iconSize: number } >;
 	examples?: Array< React.ComponentType >;
 	needsCustomInputs?: boolean;
-	badges?: Array< React.ReactNode >;
 }
 
 export interface SupportedService extends ConnectionService, ServiceUiDetails {}

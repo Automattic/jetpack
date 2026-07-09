@@ -1,6 +1,7 @@
-import { ExternalLink, Guide } from '@wordpress/components';
+import { Guide } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { FC, useCallback } from 'react';
 import WelcomeTourImage from './image';
 import TourImage1x2 from './images/jp_onboarding_tour_1-2x.webp';
@@ -105,7 +106,7 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 											),
 											{
 												mobileLink: (
-													<ExternalLink href="https://jetpack.com/mobile/" children={ null } />
+													<Link openInNewTab href="https://jetpack.com/mobile/" children={ null } />
 												),
 											}
 										) }

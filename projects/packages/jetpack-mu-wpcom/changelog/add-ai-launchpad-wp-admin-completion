@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: make tasks completable from wp-admin on Simple and Atomic — honor the catalog visibility gate, add local completion listeners (Jetpack Social, About page), retrieve real signals on Atomic (subscriber counts, memberships), and complete acknowledgment / no-signal tasks on CTA click (including a "Mark as complete" button and an SSH task). Point the social and design CTAs at wp-admin, hide the Jetpack Social tasks on private sites where their admin page isn't available, and add an ?all_tasks=1 testing param that renders the full task catalog.

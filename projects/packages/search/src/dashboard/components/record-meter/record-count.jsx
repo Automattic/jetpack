@@ -1,7 +1,7 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, info } from '@wordpress/icons';
 
 import './record-count.scss';
 
@@ -65,11 +65,7 @@ export function RecordCount( props ) {
 						className="jp-search-record-count__info"
 						title={ __( 'More info', 'jetpack-search-pkg' ) }
 					>
-						<Gridicon
-							className="jp-search-record-count__info-icon"
-							icon={ 'info-outline' }
-							size={ 18 }
-						/>
+						<Icon className="jp-search-record-count__info-icon" icon={ info } size={ 18 } />
 						<span className="screen-reader-text">{ __( 'More info', 'jetpack-search-pkg' ) }</span>
 					</a>
 				) }

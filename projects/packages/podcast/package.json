@@ -1,0 +1,99 @@
+{
+	"name": "@automattic/jetpack-podcast",
+	"version": "1.3.1",
+	"private": true,
+	"description": "Jetpack Podcast functionality (Simple and Atomic only).",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/podcast/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Podcast"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/podcast"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"scripts": {
+		"build": "pnpm run clean && concurrently 'pnpm:build:blocks' 'pnpm:build:wp-build' && pnpm run build:boot-asset",
+		"build:blocks": "webpack --config ./webpack.config.blocks.js",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
+		"build:wp-build": "wp-build",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod",
+		"clean": "rm -rf build/ dist/",
+		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:watch:wp-build'",
+		"watch:wp-build": "wp-build --watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/charts": "workspace:*",
+		"@automattic/date-range-picker": "1.0.2",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
+		"@automattic/ui": "1.0.2",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/block-editor": "15.23.0",
+		"@wordpress/blocks": "15.23.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/compose": "8.3.0",
+		"@wordpress/core-data": "7.50.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/dataviews": "17.1.0",
+		"@wordpress/date": "5.50.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.50.0",
+		"@wordpress/editor": "14.50.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/hooks": "4.50.0",
+		"@wordpress/html-entities": "4.50.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/icons": "15.1.0",
+		"@wordpress/media-utils": "5.50.0",
+		"@wordpress/notices": "5.50.0",
+		"@wordpress/plugins": "7.50.0",
+		"@wordpress/primitives": "4.50.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0",
+		"canvas-confetti": "1.9.4",
+		"clsx": "2.1.1",
+		"copy-webpack-plugin": "14.0.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"webpack": "5.107.2",
+		"webpack-cli": "6.0.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@babel/runtime": "7.29.7",
+		"@types/canvas-confetti": "1.9.0",
+		"@types/react": "18.3.28",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/browserslist-config": "6.50.0",
+		"@wordpress/build": "0.18.0",
+		"@wordpress/theme": "0.17.0",
+		"browserslist": "^4.24.0",
+		"concurrently": "10.0.3",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5"
+	},
+	"wpPlugin": {
+		"name": "jetpack_podcast",
+		"scriptGlobal": "jetpackPodcast",
+		"packageNamespace": "jetpack-podcast",
+		"handlePrefix": "jetpack-podcast",
+		"pages": [
+			"jetpack-podcast-dashboard"
+		]
+	}
+}

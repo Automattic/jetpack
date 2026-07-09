@@ -92,10 +92,10 @@ class VideoPress_Edit_Attachment {
 
 		$post_title      = isset( $_POST['post_title'] ) ? sanitize_text_field( wp_unslash( $_POST['post_title'] ) ) : null;
 		$post_excerpt    = isset( $_POST['post_excerpt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['post_excerpt'] ) ) : null;
-		$rating          = isset( $attachment['rating'] ) ? $attachment['rating'] : null;
-		$display_embed   = isset( $attachment['display_embed'] ) ? $attachment['display_embed'] : 0;
-		$allow_download  = isset( $attachment['allow_download'] ) ? $attachment['allow_download'] : 0;
-		$privacy_setting = isset( $attachment['privacy_setting'] ) ? $attachment['privacy_setting'] : VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+		$rating          = $attachment['rating'] ?? null;
+		$display_embed   = $attachment['display_embed'] ?? 0;
+		$allow_download  = $attachment['allow_download'] ?? 0;
+		$privacy_setting = $attachment['privacy_setting'] ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
 		$result = Videopress_Attachment_Metadata::persist_metadata(
 			$post['ID'],
@@ -162,7 +162,7 @@ class VideoPress_Edit_Attachment {
 		}
 
 		$info          = (object) $meta['videopress'];
-		$file_statuses = isset( $meta['file_statuses'] ) ? $meta['file_statuses'] : array();
+		$file_statuses = $meta['file_statuses'] ?? array();
 
 		$guid = get_post_meta( $post_id, 'videopress_guid', true );
 
@@ -351,7 +351,7 @@ class VideoPress_Edit_Attachment {
 			"attachments-{$info->post_id}-displayembed",
 			"attachments[{$info->post_id}][display_embed]",
 			__( 'Display share menu and allow viewers to copy a link or embed this video', 'jetpack' ),
-			isset( $info->display_embed ) ? $info->display_embed : 0
+			$info->display_embed ?? 0
 		);
 	}
 
@@ -384,7 +384,7 @@ class VideoPress_Edit_Attachment {
 			VIDEOPRESS_PRIVACY::IS_PRIVATE   => __( 'Private', 'jetpack' ),
 		);
 
-		$displayed_privacy_setting = intval( isset( $info->privacy_setting ) ? $info->privacy_setting : VIDEOPRESS_PRIVACY::SITE_DEFAULT );
+		$displayed_privacy_setting = intval( $info->privacy_setting ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT );
 
 		$out = "<select name='attachments[{$info->post_id}][privacy_setting]'>";
 		foreach ( $privacy_settings as $r => $label ) {
@@ -416,7 +416,7 @@ class VideoPress_Edit_Attachment {
 			'R-17'  => 'R',
 		);
 
-		$displayed_rating = isset( $info->rating ) ? $info->rating : null;
+		$displayed_rating = $info->rating ?? null;
 
 		// X-18 was previously supported but is now removed to better comply with our TOS.
 		if ( 'X-18' === $displayed_rating ) {

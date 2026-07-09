@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Write: escape image alt text in block serialization to prevent markup integrity issues

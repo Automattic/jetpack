@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix storybook build failure caused by postcss-import not resolving package.json exports for @wordpress/theme/design-tokens.css

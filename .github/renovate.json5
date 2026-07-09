@@ -58,6 +58,10 @@
 		{
 			extends: [ 'packages:eslint' ],
 			groupName: 'Eslint packages',
+			matchPackageNames: [
+				// Let this go to the Storybook monorepo group instead. It has a tightly tied peer dep.
+				'!eslint-plugin-storybook',
+			],
 		},
 		{
 			extends: [ 'packages:jsUnitTest' ],
@@ -93,40 +97,57 @@
 			matchPackageNames: [ 'docker/**' ],
 		},
 
-		// Bundled, WordPress dependencies are separated from 'monorepo:wordpress' while
+		// QualityOps decided they want all these pinned to digests.
+		// They were going to have Dependabot create PRs automatically, but as we use Renovate, do it here instead.
+		// We'll leave major updates ungrouped though, as those likely need more individualized attention.
+		{
+			extends: [ 'helpers:pinGitHubActionDigests' ],
+		},
+		{
+			groupName: 'GitHub Actions minor version bumps',
+			matchDepTypes: [ 'action' ],
+			matchUpdateTypes: [ 'minor', 'patch', 'pin', 'digest', 'pinDigest' ],
+			schedule: [ '* 0-3 * * 1' ],
+			additionalReviewers: [ 'team:qualityops' ],
+		},
+
+		// Bundled WordPress dependencies are separated from 'monorepo:wordpress' while
 		// they're still considered unstable and can have significant breaking changes.
 		// Since they're not externalized to WP, they have higher chance of impacting functionality.
+		//
+		// Some related packages are included here too.
 		{
 			groupName: 'Bundled @wordpress/* monorepo',
-			// See the list at https://github.com/WordPress/gutenberg/blob/580d8bd24b9d1647a66fecc3115edf9b7dce64b1/packages/dependency-extraction-webpack-plugin/lib/util.js#L2
 			matchPackageNames: [
+				// Bundled packages, from the list at https://github.com/WordPress/gutenberg/blob/trunk/packages/dependency-extraction-webpack-plugin/lib/util.js#L2
 				'@wordpress/admin-ui',
 				'@wordpress/dataviews',
+				'@wordpress/fields',
 				'@wordpress/icons',
 				'@wordpress/interface',
-				'@wordpress/undo-manager',
-				'@wordpress/fields',
-				'@wordpress/views',
+				'@wordpress/style-runtime',
 				'@wordpress/ui',
+				'@wordpress/undo-manager',
+				'@wordpress/views',
+				// @wordpress/theme is grouped here because many bundled packages (notably @wordpress/ui)
+				// rely on its design tokens (--wpds-*).
+				'@wordpress/theme',
+				// @wordpress/build is still heavily developed; its dashboards share the same bundled
+				// packages and test surface, so exercising build alongside the rest is practical.
+				'@wordpress/build',
+				// Widgets Dashboard packages used by Premium Analytics
+				'@wordpress/grid',
+				'@wordpress/widget-dashboard',
+				'@wordpress/widget-primitives',
 			],
 			separateMajorMinor: false,
 			// Teams that can help test the update
 			additionalReviewers: [
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
-				'team:bastion', // Scan
 				'team:zap', // Forms, much of the recent componentry work.
-			],
-		},
-
-		// Separate Build from 'monorepo:wordpress' as build is still heavily developed, to manually test changes.
-		{
-			groupName: '@wordpress/build',
-			matchPackageNames: [ '@wordpress/build' ],
-			separateMajorMinor: false,
-			// Teams using Build in their projects
-			additionalReviewers: [
-				'team:zap', // Forms
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
 			],
 		},
 

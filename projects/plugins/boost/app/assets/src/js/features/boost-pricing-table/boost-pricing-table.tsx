@@ -2,7 +2,6 @@ import { usePricing } from '$lib/stores/pricing';
 import { useProduct } from '$lib/stores/product';
 import {
 	Button,
-	Notice,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
@@ -10,6 +9,7 @@ import {
 	ProductPrice,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 
 type BoostPricingTableProps = {
 	onPremiumCTA: () => void;
@@ -72,15 +72,17 @@ export const BoostPricingTable = ( {
 	return (
 		<>
 			{ ! pricing && (
-				<Notice
-					level="warning"
-					hideCloseButton={ true }
-					title={ __( 'Warning: There was a problem fetching pricing data', 'jetpack-boost' ) }
-					children={ __(
-						'Boost may not work as expected. Please check your site status and try again.',
-						'jetpack-boost'
-					) }
-				></Notice>
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Warning: There was a problem fetching pricing data', 'jetpack-boost' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'Boost may not work as expected. Please check your site status and try again.',
+							'jetpack-boost'
+						) }
+					</Notice.Description>
+				</Notice.Root>
 			) }
 
 			<PricingTable

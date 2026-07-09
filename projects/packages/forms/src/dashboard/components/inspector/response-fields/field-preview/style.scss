@@ -18,14 +18,14 @@
 		.jp-forms__field-preview-content {
 			min-width: 0; // Prevents flex item from overflowing
 			overflow-wrap: break-word;
-			line-height: var(--wpds-font-line-height-sm, 20px);
+			line-height: var(--wpds-typography-line-height-sm, 20px);
 		}
 
 		// Value needed for positioning with the icon in case label is missing.
 		.jp-forms__field-preview-label,
 		.jp-forms__field-preview-value {
 			// Align first line centrally with the 24px icon.
-			margin-top: calc((24px - var(--wpds-font-line-height-sm, 20px)) / 2);
+			margin-top: calc((24px - var(--wpds-typography-line-height-sm, 20px)) / 2);
 		}
 	}
 
@@ -40,7 +40,7 @@
 }
 
 .jp-forms__field-preview-label {
-	color: var(--wpds-color-fg-content-neutral-weak, #6d6d6d);
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	font-weight: 300;
 }
 

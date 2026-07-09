@@ -1,17 +1,14 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
 import { extensionToLang } from '@@codemirrorLanguageData@@';
-// @ts-expect-error No types.
-import * as wpBlocks from '@wordpress/blocks';
+import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { RichTextData } from '@wordpress/rich-text';
 import { type Attributes, BLOCK_NAME } from '../common/block.ts';
 
-const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
-
 const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
-interface SyntaxHighlighterCodeAttributes {
+interface SyntaxHighlighterCodeAttributes extends Record< string, unknown > {
 	content?: string;
 	language?: string;
 	lineNumbers?: boolean;
@@ -41,10 +38,10 @@ export const transforms = {
 				const language = externalLanguageToBlockLanguage( langCandidate );
 
 				if ( typeof language === 'undefined' ) {
-					return createBlock< Attributes >( BLOCK_NAME );
+					return createBlock( BLOCK_NAME );
 				}
 
-				return createBlock< Attributes >( BLOCK_NAME, {
+				return createBlock( BLOCK_NAME, {
 					language,
 					languageConfidence: 'certain',
 				} );
@@ -97,7 +94,7 @@ export const transforms = {
 					blockAttributes.languageConfidence = 'certain';
 				}
 
-				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				return createBlock( BLOCK_NAME, blockAttributes );
 			},
 		},
 
@@ -133,7 +130,7 @@ export const transforms = {
 					}
 				}
 
-				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				return createBlock( BLOCK_NAME, blockAttributes );
 			},
 		},
 
@@ -169,10 +166,10 @@ export const transforms = {
 					if ( ! reader.error ) {
 						blockAttributes.content = RichTextData.fromPlainText( reader.result as string );
 					}
-					return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+					return createBlock( BLOCK_NAME, blockAttributes );
 				}
 
-				const block = createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				const block = createBlock( BLOCK_NAME, blockAttributes );
 				reader.addEventListener( 'load', () => {
 					dispatch( editorStore ).updateBlockAttributes( [ block.clientId ], {
 						content: RichTextData.fromPlainText( reader.result as string ),
@@ -207,7 +204,7 @@ export const transforms = {
 					blockAttributes.languageConfidence = 'certain';
 				}
 
-				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				return createBlock( BLOCK_NAME, blockAttributes );
 			},
 			schema: {
 				pre: {

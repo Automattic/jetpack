@@ -2,13 +2,13 @@ import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
-	ExternalLink,
 	Popover,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { closeSmall, info } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import useAnalytics from '../../../hooks/useAnalytics';
 import { STORE_ID } from '../../../store';
 import './style.scss';
@@ -102,7 +102,10 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 							),
 							{
 								link: (
-									<ExternalLink href="https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size" />
+									<Link
+										openInNewTab
+										href="https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size"
+									/>
 								),
 							}
 						) }

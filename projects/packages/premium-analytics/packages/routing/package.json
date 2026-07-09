@@ -1,0 +1,18 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-routing",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"types": "src/index.ts",
+	"sideEffects": false,
+	"dependencies": {
+		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@wordpress/core-data": "7.50.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/route": "0.16.0",
+		"date-fns": "4.1.0",
+		"react": "18.3.1"
+	}
+}

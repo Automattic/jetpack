@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+wpcom-admin-menu: hide the new jetpack-activity-log submenu on WPCOM hosts so the direct wordpress.com/activity-log link wins.

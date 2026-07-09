@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Agents Manager: Replace unified-big-sky query string flag with a new agents_manager_enabled_in_block_editor filter, hooked by Big Sky, to enable Agents Manager in the block editor.

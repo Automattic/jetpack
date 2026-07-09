@@ -3,7 +3,6 @@
  */
 import {
 	AdminPage,
-	Button,
 	Col,
 	Container,
 	Text,
@@ -11,6 +10,7 @@ import {
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { Link } from 'react-router';
@@ -42,11 +42,17 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 	}, [ recordEvent ] );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showBackground={ false }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ onClickGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<GoBackLink onClick={ onClickGoBack } reload={ false } />
-				</Col>
 				<Col>
 					<Container
 						className={ styles.container }
@@ -60,12 +66,20 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 									<H3>{ title }</H3>
 									<Text mb={ 3 }>{ longDescription }</Text>
 									<div className={ styles[ 'buttons-row' ] }>
-										<Button href={ contactHref } onClick={ trackClickHandler }>
+										<Button
+											nativeButton={ false }
+											render={ <a href={ contactHref } /> }
+											onClick={ trackClickHandler }
+										>
 											{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
 										</Button>
-										<Link to={ '/' } onClick={ onClickGoBack }>
-											<Button variant="secondary">{ __( 'Back', 'jetpack-my-jetpack' ) }</Button>
-										</Link>
+										<Button
+											variant="outline"
+											nativeButton={ false }
+											render={ <Link to="/products" onClick={ onClickGoBack } /> }
+										>
+											{ __( 'Back', 'jetpack-my-jetpack' ) }
+										</Button>
 									</div>
 								</div>
 							</div>

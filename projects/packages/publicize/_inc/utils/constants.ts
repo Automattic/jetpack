@@ -1,7 +1,8 @@
 export const features = {
 	ENHANCED_PUBLISHING: 'social-enhanced-publishing',
+	IMAGE_FOCAL_POINT: 'social-image-focal-point',
 	IMAGE_GENERATOR: 'social-image-generator',
-	X_CONNECTION: 'social-x-connection',
+	MESSAGE_TEMPLATES: 'social-message-templates',
 };
 
 export const SHARING_ACTIVITY_TABS = {

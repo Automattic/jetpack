@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+GDPR: Honor Global Privacy Control (GPC) as an opt-out signal, denying non-essential cookies (configurable via `gdpr_honors_gpc`).

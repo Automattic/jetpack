@@ -1,0 +1,177 @@
+import {
+	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
+import { Link, Notice } from '@wordpress/ui';
+import clsx from 'clsx';
+import { store } from '../../social-store';
+import styles from './style-modern.module.scss';
+import { SupportedService } from './types';
+
+type CustomInputsProps = {
+	service: SupportedService;
+};
+
+/**
+ * Custom inputs component
+ * @param {CustomInputsProps} props - Component props
+ *
+ * @return {import('react').ReactNode} Custom inputs component
+ */
+export function ModernCustomInputs( { service }: CustomInputsProps ) {
+	const [ handleError, setHandleError ] = useState< string | null >( null );
+
+	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
+
+	const validateBskyHandle = useCallback( ( value: string ) => {
+		if ( value.endsWith( '.bsky.social' ) ) {
+			const username = value.replace( '.bsky.social', '' );
+			if ( username.includes( '.' ) ) {
+				setHandleError(
+					sprintf(
+						/* translators: %s is the handle suffix like .bsky.social */
+						__(
+							'Bluesky usernames cannot contain dots. If you are using a custom domain, enter it without "%s"',
+							'jetpack-publicize-pkg'
+						),
+						'.bsky.social'
+					)
+				);
+				return false;
+			}
+		}
+		setHandleError( null );
+		return true;
+	}, [] );
+
+	const onBskyHandleChange = useCallback(
+		( value?: string ) => validateBskyHandle( value ?? '' ),
+		[ validateBskyHandle ]
+	);
+
+	if ( 'mastodon' === service.id ) {
+		return (
+			<div className={ styles[ 'fields-item' ] }>
+				<InputControl
+					__next40pxDefaultSize
+					required
+					type="text"
+					name="instance"
+					autoComplete="off"
+					autoCapitalize="off"
+					autoCorrect="off"
+					spellCheck="false"
+					aria-label={ __( 'Mastodon handle', 'jetpack-publicize-pkg' ) }
+					label={ _x( 'Handle', 'The handle of a social media account.', 'jetpack-publicize-pkg' ) }
+					placeholder="@mastodon@mastodon.social"
+					help={ __(
+						'You can find the handle in your Mastodon profile.',
+						'jetpack-publicize-pkg'
+					) }
+				/>
+			</div>
+		);
+	}
+
+	if ( 'bluesky' === service.id ) {
+		const bskyHandleHelp = handleError ? (
+			<span className={ styles[ 'error-text' ] }>{ handleError }</span>
+		) : (
+			<>
+				{ __( 'You can find the handle in your Bluesky profile.', 'jetpack-publicize-pkg' ) }
+				&nbsp;
+				{ createInterpolateElement(
+					sprintf(
+						/* translators: %s is the bluesky handle suffix like .bsky.social */
+						__(
+							'This can either be %s or just the domain name if you are using a custom domain.',
+							'jetpack-publicize-pkg'
+						),
+						'<strong>username.bsky.social</strong>'
+					),
+					{
+						strong: <strong />,
+					}
+				) }
+			</>
+		);
+
+		return (
+			<>
+				<div
+					className={ clsx( styles[ 'fields-item' ], {
+						[ styles[ 'fields-item-error' ] ]: Boolean( handleError ),
+					} ) }
+				>
+					<InputControl
+						__next40pxDefaultSize
+						required
+						type="text"
+						name="handle"
+						defaultValue={
+							reconnectingAccount?.service_name === 'bluesky'
+								? reconnectingAccount?.external_handle
+								: undefined
+						}
+						autoComplete="off"
+						autoCapitalize="off"
+						autoCorrect="off"
+						spellCheck="false"
+						aria-label={ __( 'Bluesky handle', 'jetpack-publicize-pkg' ) }
+						label={ _x(
+							'Handle',
+							'The handle of a social media account.',
+							'jetpack-publicize-pkg'
+						) }
+						placeholder="username.bsky.social"
+						onChange={ onBskyHandleChange }
+						help={ bskyHandleHelp }
+					/>
+				</div>
+				<div className={ styles[ 'fields-item' ] }>
+					<InputControl
+						__next40pxDefaultSize
+						required
+						type="password"
+						name="app_password"
+						autoComplete="off"
+						autoCapitalize="off"
+						autoCorrect="off"
+						spellCheck="false"
+						label={ __( 'App password', 'jetpack-publicize-pkg' ) }
+						placeholder="xxxx-xxxx-xxxx-xxxx"
+						help={ createInterpolateElement(
+							__(
+								'App password is needed to safely connect your account. App password is different from your account password. You can <link>generate it in Bluesky</link>.',
+								'jetpack-publicize-pkg'
+							),
+							{
+								link: (
+									<Link
+										openInNewTab
+										href="https://bsky.app/settings/app-passwords"
+										children={ null }
+									/>
+								),
+							}
+						) }
+					/>
+					{ reconnectingAccount?.service_name === 'bluesky' && (
+						<Notice.Root intent="error">
+							<Notice.Description>
+								{ __(
+									'Please provide an app password to fix the connection.',
+									'jetpack-publicize-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
+				</div>
+			</>
+		);
+	}
+
+	return null;
+}

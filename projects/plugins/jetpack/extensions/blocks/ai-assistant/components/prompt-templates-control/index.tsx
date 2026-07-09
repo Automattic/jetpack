@@ -19,6 +19,10 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 
 type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;
@@ -104,6 +108,7 @@ export default function PromptTemplatesControl( {
 }: PromptTemplatesControlProps ) {
 	const label = __( 'Write with AI…', 'jetpack' );
 
+	const isCorrectSpellingAvailable = getFeatureAvailability( 'ai-correct-spelling' );
 	const { tracks } = useAnalytics();
 
 	const toggleHandler = isOpen => {
@@ -152,13 +157,15 @@ export default function PromptTemplatesControl( {
 								>
 									{ CONTINUE_LABEL }
 								</MenuItem>
-								<MenuItem
-									icon={ termDescription }
-									iconPosition="left"
-									onClick={ () => onSuggestionSelect( PROMPT_TYPE_CORRECT_SPELLING ) }
-								>
-									{ CORRECT_SPELLING_LABEL }
-								</MenuItem>
+								{ isCorrectSpellingAvailable && (
+									<MenuItem
+										icon={ termDescription }
+										iconPosition="left"
+										onClick={ () => onSuggestionSelect( PROMPT_TYPE_CORRECT_SPELLING ) }
+									>
+										{ CORRECT_SPELLING_LABEL }
+									</MenuItem>
+								) }
 								<MenuItem
 									icon={ post }
 									iconPosition="left"

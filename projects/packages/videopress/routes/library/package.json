@@ -1,0 +1,20 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
+		"@tanstack/react-query": "5.90.8",
+		"@types/react": "18.3.28",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/dataviews": "17.1.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.17.0"
+	},
+	"route": {
+		"path": "/library",
+		"page": "jetpack-videopress-dashboard"
+	}
+}

@@ -1,4 +1,5 @@
 import { Stack } from '@wordpress/ui';
+import { action } from 'storybook/actions';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -12,12 +13,18 @@ import {
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
 } from '../../../stories';
-import { legendArgTypes, extractLegendConfig } from '../../../stories/legend-config';
+import {
+	legendArgTypes,
+	extractLegendConfig,
+	type LegendStoryControls,
+} from '../../../stories/legend-config';
 import { formatMetricValue, hexToRgba } from '../../../utils';
 import LeaderboardChart from '../leaderboard-chart';
+import type { ChartLegendConfig, LeaderboardEntry } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > > &
+	LegendStoryControls;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Leaderboard Chart',
@@ -125,7 +132,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	decorators: [ chartDecorator ],
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< LeaderboardEntry > >( args );
 		return <LeaderboardChart { ...args } legend={ legend } />;
 	},
 };
@@ -177,6 +184,44 @@ export const Loading: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: true,
+	},
+};
+
+const onLeaderboardItemClick = action( 'leaderboard-item-click' );
+
+export const Interactive: Story = {
+	args: {
+		data: sampleData.map( entry => ( {
+			...entry,
+			label: (
+				<span
+					style={ {
+						display: 'flex',
+						alignItems: 'center',
+						minHeight: '40px',
+						padding: '0 6px',
+						fontSize: '13px',
+					} }
+				>
+					{ entry.label }
+				</span>
+			),
+			onClick: () => onLeaderboardItemClick( entry.id ),
+		} ) ),
+		withComparison: true,
+		withOverlayLabel: true,
+		style: {
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+		},
+	},
+	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Rows with an `onClick` become interactive: the whole row is clickable and keyboard-focusable (Enter/Space), with a chevron revealed on hover/focus. The consumer supplies the action (e.g. drill-down).',
+			},
+		},
 	},
 };
 
@@ -371,7 +416,6 @@ export const OverlayLabelWithImage: Story = {
 		loading: false,
 		style: {
 			'--a8c--charts--leaderboard--bar--border-radius': '4px',
-			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
@@ -417,7 +461,7 @@ export const WithLegendLabels: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< LeaderboardEntry > >( args );
 		return (
 			<LeaderboardChart
 				{ ...args }

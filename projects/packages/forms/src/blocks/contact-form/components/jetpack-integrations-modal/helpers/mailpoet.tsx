@@ -1,11 +1,11 @@
 import {
 	Button,
-	ExternalLink,
 	SelectControl,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import MailPoetIcon from '../../../../../icons/mailpoet.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 import type { Integration } from '../../../../../types/index.ts';
@@ -59,7 +59,7 @@ export function buildMailPoetCard( {
 					'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ marketingUrl } children={ null } /> }
+				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'MailPoet is installed. Just activate the plugin to start sending emails.',
@@ -76,7 +76,7 @@ export function buildMailPoetCard( {
 							'MailPoet is active. There is one step left. Please complete <a>MailPoet setup</a>.',
 							'jetpack-forms'
 						),
-						{ a: <ExternalLink href={ settingsUrl } children={ null } /> }
+						{ a: <Link openInNewTab href={ settingsUrl } children={ null } /> }
 					) }
 				</p>
 				<HStack spacing="3" justify="start">
@@ -124,9 +124,9 @@ export function buildMailPoetCard( {
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
 				{ settingsUrl && (
 					<p className="integration-card__description">
-						<ExternalLink href={ settingsUrl }>
+						<Link openInNewTab href={ settingsUrl }>
 							{ __( 'View dashboard', 'jetpack-forms' ) }
-						</ExternalLink>
+						</Link>
 					</p>
 				) }
 			</div>

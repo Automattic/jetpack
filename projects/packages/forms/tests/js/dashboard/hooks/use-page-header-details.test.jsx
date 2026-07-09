@@ -6,9 +6,9 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 // ── Mock external dependencies ──────────────────────────────────────────────
 
-const mockUseBreakpointMatch = jest.fn( () => [ false ] );
-await jest.unstable_mockModule( '@automattic/jetpack-components', () => ( {
-	useBreakpointMatch: mockUseBreakpointMatch,
+const mockUseViewportMatch = jest.fn( () => false );
+await jest.unstable_mockModule( '@wordpress/compose', () => ( {
+	useViewportMatch: mockUseViewportMatch,
 } ) );
 await jest.unstable_mockModule( '@automattic/jetpack-components/jetpack-logo', () => ( {
 	default: () => null,
@@ -265,7 +265,7 @@ describe( 'usePageHeaderDetails', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockFormRecord = { title: { rendered: 'My Form' }, status: 'publish' };
-		mockUseBreakpointMatch.mockReturnValue( [ false ] ); // Desktop
+		mockUseViewportMatch.mockReturnValue( false ); // Desktop
 	} );
 
 	describe( 'return shape', () => {
@@ -305,10 +305,10 @@ describe( 'usePageHeaderDetails', () => {
 	} );
 
 	describe( 'title and breadcrumbs', () => {
-		it( 'returns null title and breadcrumbs for single form screen', () => {
+		it( 'returns undefined title and non-null breadcrumbs for single form screen', () => {
 			const { result } = renderHook( () => usePageHeaderDetails( defaultProps ) );
 
-			expect( result.current.title ).toBeNull();
+			expect( result.current.title ).toBeUndefined();
 			expect( result.current.breadcrumbs ).not.toBeNull();
 		} );
 
@@ -317,7 +317,7 @@ describe( 'usePageHeaderDetails', () => {
 				usePageHeaderDetails( { ...defaultProps, screen: 'forms', sourceId: undefined } )
 			);
 
-			expect( result.current.title ).not.toBeNull();
+			expect( result.current.title ).toBeDefined();
 			expect( result.current.breadcrumbs ).toBeNull();
 		} );
 	} );

@@ -1,6 +1,4 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalHStack as HStack } from '@wordpress/components';
-import { Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
 import {
@@ -11,14 +9,20 @@ import {
 	extractLegendConfig,
 	legendArgTypes,
 	themeArgTypes,
+	type LegendStoryControls,
 } from '../../../stories';
 import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
 import { Text as SvgText } from '../../../visx/text';
 import { PieChart, PieChartUnresponsive } from '../../pie-chart';
+import type { ChartLegendConfig, DataPointPercentage } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > &
+	LegendStoryControls & {
+		/** Story-only toggle to show comparison data in the custom legend. */
+		withComparison?: boolean;
+	};
 
 const data = [
 	{
@@ -86,7 +90,7 @@ const meta: Meta< StoryArgs > = {
 		},
 	},
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( args );
 		return <PieChart { ...args } legend={ legend } />;
 	},
 } satisfies Meta< StoryArgs >;
@@ -220,7 +224,7 @@ export const WithLegend: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( args );
 		return (
 			<PieChart
 				{ ...args }
@@ -267,7 +271,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" spacing={ 2 }>
+					<Stack direction="row" justify="flex-start" align="center" gap="sm">
 						<div
 							style={ {
 								width: '8px',
@@ -278,7 +282,7 @@ const CustomPieLegend = ( {
 							} }
 						/>
 						<Text variant="body-sm">{ item.label }</Text>
-					</HStack>
+					</Stack>
 					<Text variant="body-sm" style={ { fontWeight: 600, textAlign: 'right' } }>
 						{ item.formattedValue }
 					</Text>

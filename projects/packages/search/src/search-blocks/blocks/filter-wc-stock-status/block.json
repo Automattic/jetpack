@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-wc-stock-status",
+	"version": "0.1.0",
+	"title": "Filter by Stock Status",
+	"category": "jetpack-search",
+	"description": "Let shoppers narrow product results to in-stock items. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" },
+		"showCount": { "type": "boolean", "default": true }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-wc-stock-status.js",
+	"style": "file:../../../../build/search-blocks/filter-wc-stock-status.css"
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: redirect to fresh editor when bfcache restores a published page, fixing grayed-out buttons on Atomic sites

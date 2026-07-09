@@ -6,6 +6,7 @@ import {
 	stripHtmlTags,
 	baseDomain,
 } from '../helpers';
+import { SiteIconWithFallback } from '../site-icon-with-fallback';
 import { SocialPreviewBaseProps } from '../types';
 
 import './style.scss';
@@ -55,11 +56,7 @@ export const GoogleSearchPreview: React.FC< Partial< GoogleSearchPreviewProps > 
 			<div className="search-preview__display">
 				<div className="search-preview__header">
 					<div className="search-preview__branding">
-						<img
-							className="search-preview__icon"
-							src={ siteIcon || `https://www.google.com/s2/favicons?sz=128&domain_url=${ domain }` }
-							alt=""
-						/>
+						<SiteIconWithFallback className="search-preview__icon" src={ siteIcon } />
 						<div className="search-preview__site">
 							<div className="search-preview__site--title">{ siteTitle || domain }</div>
 							<div className="search-preview__url">{ googleUrl( url ) }</div>

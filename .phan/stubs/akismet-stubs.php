@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from Akismet 5.6
+ * Stubs automatically generated from Akismet 5.7
  * using the definition file `tools/stubs/akismet-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -67,7 +67,7 @@ class Akismet_Admin
      *
      * The returned object contains these properties:
      * - account_id (int|false): WordPress.com user ID, or false if unavailable.
-     * - status (string): Account status - 'active', 'active-dunning', 'no-sub', 'cancelled', 'suspended', 'missing', or 'notice'.
+     * - status (string): Account status - 'active', 'no-sub', 'cancelled', 'suspended', 'missing', or 'notice'.
      * - account_name (string): Subscription plan display name.
      * - account_type (string): Account type slug.
      * - next_billing_date (int|false): Unix timestamp of next billing date, or false if none.
