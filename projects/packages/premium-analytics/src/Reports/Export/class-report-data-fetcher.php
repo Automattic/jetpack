@@ -441,9 +441,14 @@ class Report_Data_Fetcher {
 
 		// Check for errors.
 		if ( $response->is_error() ) {
-			$error_data = $response->as_error();
+			$error_data = $this->build_external_api_error( $response );
+			$error_meta = $error_data->get_error_data();
+			$message    = is_array( $error_meta ) && ! empty( $error_meta['message'] )
+				? $error_meta['message']
+				: $error_data->get_error_message();
+
 			$this->logger->log_error(
-				'Proxy request failed: ' . $error_data->get_error_message(),
+				'Proxy request failed: ' . $message,
 				__METHOD__
 			);
 			return $error_data;
@@ -474,6 +479,59 @@ class Report_Data_Fetcher {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Build a stable local error from an external API error response.
+	 *
+	 * WP_REST_Response::as_error() can lose the upstream message for proxied error
+	 * payloads represented as stdClass. Preserve the external details in data while
+	 * keeping a consistent local error message for the CSV export route.
+	 *
+	 * @param \WP_REST_Response $response Error response from the local proxy route.
+	 * @return WP_Error Normalized external API error.
+	 */
+	private function build_external_api_error( \WP_REST_Response $response ): WP_Error {
+		$data = $this->normalize_response_data( $response->get_data() );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+
+		$status           = (int) $response->get_status();
+		$external_code    = null;
+		$external_message = null;
+
+		if ( is_array( $data ) ) {
+			if ( isset( $data['data']['status'] ) ) {
+				$status = (int) $data['data']['status'];
+			}
+
+			if ( isset( $data['code'] ) && is_scalar( $data['code'] ) ) {
+				$external_code = (string) $data['code'];
+			}
+
+			if ( isset( $data['message'] ) && is_scalar( $data['message'] ) ) {
+				$external_message = (string) $data['message'];
+			}
+		}
+
+		$error_data = array(
+			'status' => $status ?: 500,
+		);
+
+		if ( null !== $external_message && '' !== $external_message ) {
+			$error_data['message'] = $external_message;
+		}
+
+		if ( null !== $external_code && '' !== $external_code ) {
+			$error_data['external_code'] = $external_code;
+		}
+
+		return new WP_Error(
+			'external_api_error',
+			__( 'External API error', 'jetpack-premium-analytics' ),
+			$error_data
+		);
 	}
 
 	/**
