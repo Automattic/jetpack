@@ -13,6 +13,13 @@ export {
 export {
 	useStagedSearch,
 	useReportDateFilters,
+	useSectionTab,
 	useDashboardLink,
 	type ReportDateFilters,
 } from './hooks';
+export {
+	defineReportTabs,
+	type ReportTab,
+	type ReportTabDefinition,
+	type ReportTabs,
+} from './tabs';
