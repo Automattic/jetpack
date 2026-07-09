@@ -4,22 +4,23 @@
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
+	calculateDelta,
 	formatLegendLabels,
-	useWidgetError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
-	type LegendLabels,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildVideoPlaysData } from './build-video-plays-data';
+import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
+import styles from './style.module.css';
 import type { VideoPressAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -46,69 +47,50 @@ const toMaxRows = ( value: string | number | undefined, fallback: number ) => {
 	return Number.isFinite( parsed ) && parsed >= 0 ? parsed : fallback;
 };
 
-type VideoPressLeaderboardProps = {
-	/**
-	 * Leaderboard rows to render, already built from the video-plays report.
-	 * When omitted, the empty state is shown (unless `isLoading` is set).
-	 */
-	data?: LeaderboardChartData;
-	/**
-	 * When `true`, the initial loading overlay is rendered instead of the chart.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, a loading overlay is layered over the chart while data
-	 * refetches in the background.
-	 */
-	isRefetching?: boolean;
-	/**
-	 * When `true`, render each row's previous-period delta next to its value.
-	 */
-	withComparison?: boolean;
-	/**
-	 * Custom legend labels for the current/comparison periods.
-	 */
-	legendLabels?: LegendLabels;
-};
-
 /**
- * Presentational leaderboard for the VideoPress widget. Renders the site's most
- * played VideoPress videos and is responsible only for the loading, empty, and
- * populated states.
+ * Maps normalized video rows onto the shape `LeaderboardChart` expects. Each
+ * row's label opens the video's page in a new tab when the report carries a
+ * URL. Shares are computed against the largest value of either period so the
+ * overlay bars stay proportional.
  *
- * @param {VideoPressLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
+ * @param rows           - The normalized video-plays rows.
+ * @param withComparison - Whether to derive previous-period shares and deltas.
+ * @return The leaderboard chart data.
  */
-function VideoPressLeaderboard( {
-	data = [],
-	isLoading = false,
-	isRefetching = false,
-	withComparison = false,
-	legendLabels,
-}: VideoPressLeaderboardProps ) {
-	if ( isLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
+function buildLeaderboardData(
+	rows: VideoPlaysRow[],
+	withComparison: boolean
+): LeaderboardChartData {
+	// `1` guards against division by zero when every value is 0.
+	const maxPlays = Math.max( ...rows.flatMap( row => [ row.plays, row.previousPlays ?? 0 ] ), 1 );
 
-	return (
-		<>
-			<LeaderboardChart
-				data={ data }
-				withComparison={ withComparison }
-				legendLabels={ legendLabels }
-				dataFormat={ {
-					type: 'number',
-					options: { useMultipliers: true, decimals: 0 },
-				} }
-				emptyStateIcon={ video }
-				emptyStateText={ __(
-					'Learn which VideoPress videos your visitors watch most to understand what keeps them engaged.',
-					'jetpack-premium-analytics'
-				) }
-			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
-	);
+	return rows.map( row => {
+		const previousValue = row.previousPlays ?? 0;
+
+		return {
+			id: row.key,
+			label: row.link ? (
+				<Link
+					className={ styles.labelLink }
+					href={ row.link }
+					variant="unstyled"
+					openInNewTab
+					title={ row.label }
+				>
+					{ row.label }
+				</Link>
+			) : (
+				<span className={ styles.labelText } title={ row.label }>
+					{ row.label }
+				</span>
+			),
+			currentValue: row.plays,
+			currentShare: ( row.plays / maxPlays ) * 100,
+			previousValue,
+			previousShare: withComparison ? ( previousValue / maxPlays ) * 100 : 0,
+			delta: withComparison ? calculateDelta( row.plays, previousValue ) : 0,
+		};
+	} );
 }
 
 type VideoPressReportProps = {
@@ -120,7 +102,7 @@ type VideoPressReportProps = {
 
 /**
  * Fetches the video-plays report through the Jetpack Stats hook, builds the
- * leaderboard rows, and hands them to the presentational `VideoPressLeaderboard`.
+ * leaderboard rows, and renders them through the shared widget content states.
  *
  * @param {VideoPressReportProps} props - The component props.
  * @return The widget content.
@@ -129,45 +111,64 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useStatsVideoPlays( statsParams );
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useStatsVideoPlays( statsParams );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
-	const isRefetching = isFetching && hasData;
 	const primaryData = primary.data;
 	const comparisonData = comparison.data;
 
-	const chartData = useMemo(
-		() => buildVideoPlaysData( primaryData, comparisonData ),
+	const rows = useMemo(
+		() => toVideoPlaysRows( primaryData, comparisonData ),
 		[ primaryData, comparisonData ]
+	);
+
+	// Only render comparison UI when at least one primary row matched a
+	// comparison row; otherwise every row would show a fabricated vs-zero delta.
+	const withComparison = hasComparison && rows.some( row => row.previousPlays !== null );
+
+	const chartData = useMemo(
+		() => buildLeaderboardData( rows, withComparison ),
+		[ rows, withComparison ]
 	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
 	return (
-		<VideoPressLeaderboard
-			data={ chartData }
+		<WidgetState
 			isLoading={ isInitialLoading }
-			isRefetching={ isRefetching }
-			withComparison={ hasComparison }
-			legendLabels={ legendLabels }
-		/>
+			isFetching={ isFetching }
+			isError={ isError }
+			isEmpty={ rows.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load video plays. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: video,
+				description: __(
+					'Learn which VideoPress videos your visitors watch most to understand what keeps them engaged.',
+					'jetpack-premium-analytics'
+				),
+			} }
+		>
+			<LeaderboardChart
+				data={ chartData }
+				withComparison={ withComparison }
+				withOverlayLabel
+				showLegend={ withComparison }
+				legendLabels={ legendLabels }
+				dataFormat={ {
+					type: 'number',
+					options: { useMultipliers: true, decimals: 0 },
+				} }
+			/>
+		</WidgetState>
 	);
 }
 

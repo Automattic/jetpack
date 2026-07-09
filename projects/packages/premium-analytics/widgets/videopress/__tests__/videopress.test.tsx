@@ -42,8 +42,8 @@ const VIDEO_PLAYS_RESPONSE = buildResponse( [
 	{ post_id: 102, title: 'Product Launch Highlights', plays: 2640 },
 ] );
 
-// The dashboard wraps widgets in a GlobalErrorProvider; `useWidgetError` reads
-// that context, so mirror it here to render the widget as it runs in product.
+// The dashboard wraps widgets in a GlobalErrorProvider, so mirror it here to
+// render the widget as it runs in product.
 const renderInDashboard = ( ui: ReactElement ) =>
 	render( <GlobalErrorProvider>{ ui }</GlobalErrorProvider> );
 
@@ -65,6 +65,17 @@ describe( 'VideoPressWidget', () => {
 		expect( screen.getByText( 'Product Launch Highlights' ) ).toBeInTheDocument();
 	} );
 
+	it( 'links each row to the video page', async () => {
+		renderInDashboard(
+			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />
+		);
+
+		// The Link's new-tab icon appends "(opens in a new tab)" to the accessible name.
+		const link = await screen.findByRole( 'link', { name: /Getting Started Walkthrough/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/101/' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
 	it( 'requests the dashboard date range from report params', async () => {
 		renderInDashboard(
 			<VideoPressWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
@@ -74,5 +85,32 @@ describe( 'VideoPressWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ]?.[ 0 ]?.path ?? '';
 		expect( requestedPath ).toContain( 'stats/video-plays' );
+	} );
+
+	it( 'shows the empty state when the period has no video plays', async () => {
+		mockApiFetch.mockResolvedValue( buildResponse( [] ) );
+
+		renderInDashboard(
+			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />
+		);
+
+		await expect(
+			screen.findByText( /which VideoPress videos your visitors watch most/ )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'shows the error state with a retry action when the request fails', async () => {
+		// Reject with a non-retryable (403) error so React Query surfaces the
+		// error state immediately instead of retrying with backoff.
+		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+
+		renderInDashboard(
+			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />
+		);
+
+		await expect(
+			screen.findByText( "We couldn't load video plays. Please try again in a moment." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 	} );
 } );
