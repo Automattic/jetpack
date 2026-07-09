@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Social: enable or disable the Social module directly from the Social dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites).
