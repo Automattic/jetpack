@@ -111,6 +111,26 @@ class CSVExportController_Test extends TestCase {
 		$this->assertTrue( $this->controller->validate_to_date( '2025-06-01T00:00:00', $request, 'to' ) );
 	}
 
+	public function test_validate_to_date_rejects_future_site_local_date() {
+		$previous_timezone_string = get_option( 'timezone_string' );
+		$previous_gmt_offset      = get_option( 'gmt_offset' );
+
+		update_option( 'timezone_string', 'Pacific/Kiritimati' );
+		update_option( 'gmt_offset', 14 );
+
+		try {
+			$request       = new WP_REST_Request();
+			$site_tomorrow = current_datetime()->modify( '+1 day' )->setTime( 0, 30 );
+			$error         = $this->controller->validate_to_date( $site_tomorrow->format( DATE_ATOM ), $request, 'to' );
+
+			$this->assertInstanceOf( \WP_Error::class, $error );
+			$this->assertSame( 'future_date', $error->get_error_code() );
+		} finally {
+			update_option( 'timezone_string', $previous_timezone_string );
+			update_option( 'gmt_offset', $previous_gmt_offset );
+		}
+	}
+
 	public function test_check_permission_requires_manage_options() {
 		// A shop-manager-style user (WooCommerce caps but not manage_options) must be denied,
 		// because the analytics proxy the export fetch relies on requires manage_options.

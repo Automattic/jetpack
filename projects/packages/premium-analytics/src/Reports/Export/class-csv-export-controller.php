@@ -272,7 +272,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		$to_timestamp = strtotime( $value );
 
 		// Check that the date is not beyond today (compare at day level, not time level).
-		$to_date_only    = gmdate( 'Y-m-d', $to_timestamp );
+		$to_date_only    = wp_date( 'Y-m-d', $to_timestamp );
 		$today_date_only = current_datetime()->format( 'Y-m-d' );
 
 		if ( $to_date_only > $today_date_only ) {

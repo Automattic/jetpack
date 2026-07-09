@@ -154,18 +154,27 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 			);
 		}
 
-		// Schedule the action.
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.
-		$action_id = as_enqueue_async_action(
-			self::EXPORT_ACTION_HOOK,
-			array(
-				'report_type' => $report_type,
-				'params'      => $params,
-				'user_id'     => $user_id,
-				'user_email'  => $user_email,
-			),
-			self::ACTION_GROUP
-		);
+		try {
+			// Schedule the action.
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.
+			$action_id = as_enqueue_async_action(
+				self::EXPORT_ACTION_HOOK,
+				array(
+					'report_type' => $report_type,
+					'params'      => $params,
+					'user_id'     => $user_id,
+					'user_email'  => $user_email,
+				),
+				self::ACTION_GROUP
+			);
+		} catch ( \Throwable $e ) {
+			$this->logger->log_exception( $e, __METHOD__ );
+			return new \WP_Error(
+				'schedule_failed',
+				__( 'Failed to schedule export job.', 'jetpack-premium-analytics' ),
+				array( 'status' => 500 )
+			);
+		}
 
 		if ( ! $action_id ) {
 			$this->logger->log_error( 'Failed to schedule CSV export action', __METHOD__ );
@@ -195,7 +204,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 	 * @param int    $user_id     User ID.
 	 * @param string $user_email  User email.
 	 * @return void
-	 * @throws \Exception If export processing fails.
+	 * @throws \Throwable If export processing fails.
 	 */
 	public function process_export_job( string $report_type, array $params, int $user_id, string $user_email ): void {
 		$this->logger->log_message(
@@ -274,7 +283,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 				__METHOD__
 			);
 
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			$this->logger->log_exception( $e, __METHOD__ );
 
 			// Notify the requester with a generic message (details are logged, not emailed).
