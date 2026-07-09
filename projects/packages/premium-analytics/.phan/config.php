@@ -18,6 +18,8 @@ return make_phan_config(
 		'+stubs'             => array( 'woocommerce', 'woocommerce-internal' ),
 		'exclude_file_regex' => array(
 			'build/',
+			// Test WooCommerce stubs would redefine the WC symbols the +stubs above provide.
+			'tests/php/mocks/',
 		),
 	)
 );
