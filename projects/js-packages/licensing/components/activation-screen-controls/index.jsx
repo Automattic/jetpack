@@ -2,7 +2,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Button, InputControl, SelectControl } from '@wordpress/ui';
+import { Button, InputControl, SelectControl, Stack, Text } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
@@ -168,42 +168,53 @@ const ActivationScreenControls = props => {
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
 	return (
-		<div className="jp-license-activation-screen-controls">
-			<div className="jp-license-activation-screen-controls--content">
-				<JetpackLogo showText={ false } height={ 48 } />
-				<h1>{ __( 'Add a license key', 'jetpack-licensing' ) }</h1>
-				<p>
-					{ createInterpolateElement(
-						__(
-							'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
-							'jetpack-licensing'
-						),
-						{
-							strong: <strong />,
-							br: <br />,
-						}
+		<Stack
+			className="jp-license-activation-screen-controls"
+			direction="column"
+			justify="space-between"
+			gap="2xl"
+		>
+			<Stack direction="column" gap="2xl">
+				<Stack direction="column" gap="2xl" align="flex-start">
+					<JetpackLogo showText={ false } height={ 48 } />
+					<Text render={ <h1 /> } variant="heading-2xl">
+						{ __( 'Add a license key', 'jetpack-licensing' ) }
+					</Text>
+				</Stack>
+				<Stack direction="column" gap="lg">
+					<Text variant="body-lg">
+						{ createInterpolateElement(
+							__(
+								'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
+								'jetpack-licensing'
+							),
+							{
+								strong: <strong />,
+								br: <br />,
+							}
+						) }
+					</Text>
+					{ fetchingAvailableLicenses || hasAvailableLicenseKey ? (
+						<SelectableLicenseKeyInput
+							className={ className }
+							disabled={ fetchingAvailableLicenses || isActivating }
+							onChange={ onLicenseChange }
+							availableLicenses={ fetchingAvailableLicenses ? null : availableLicenses }
+							value={ license }
+						/>
+					) : (
+						<ManualLicenseKeyInput
+							className={ className }
+							disabled={ isActivating }
+							onChange={ onLicenseChange }
+							value={ license }
+						/>
 					) }
-				</p>
-				{ fetchingAvailableLicenses || hasAvailableLicenseKey ? (
-					<SelectableLicenseKeyInput
-						className={ className }
-						disabled={ fetchingAvailableLicenses || isActivating }
-						onChange={ onLicenseChange }
-						availableLicenses={ fetchingAvailableLicenses ? null : availableLicenses }
-						value={ license }
-					/>
-				) : (
-					<ManualLicenseKeyInput
-						className={ className }
-						disabled={ isActivating }
-						onChange={ onLicenseChange }
-						value={ license }
-					/>
-				) }
-				{ licenseError && (
-					<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
-				) }
-			</div>
+					{ licenseError && (
+						<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
+					) }
+				</Stack>
+			</Stack>
 			<div>
 				<Button
 					className="jp-license-activation-screen-controls--button"
@@ -215,7 +226,7 @@ const ActivationScreenControls = props => {
 					{ __( 'Activate', 'jetpack-licensing' ) }
 				</Button>
 			</div>
-		</div>
+		</Stack>
 	);
 };
 
