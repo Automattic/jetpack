@@ -77,7 +77,7 @@ export function DateComparisonDropdown( {
 					render={
 						<Button
 							className="date-filters-panel-button"
-							variant="outline"
+							variant="minimal"
 							tone="neutral"
 							size="compact"
 							id="date-comparison-dropdown-button"
@@ -130,7 +130,7 @@ export function DateComparisonDropdown( {
 				render={
 					<Button
 						className="date-comparison-dropdown__button"
-						variant="minimal"
+						variant={ hasValidPreset ? 'solid' : 'minimal' }
 						tone="neutral"
 						size="compact"
 					>
