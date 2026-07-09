@@ -5,12 +5,13 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useStatsAppPlanUsage } from '@jetpack-premium-analytics/data';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { percent } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
@@ -29,10 +30,10 @@ type PlanUsageWidgetProps = WidgetRenderProps< PlanUsageRenderAttributes >;
 
 type PlanUsageBarProps = {
 	/**
-	 * The plan's billable views limit for the cycle. `null` for legacy or
-	 * unplanned sites (no limit to meter against); `undefined` while loading.
+	 * The plan's billable views limit for the cycle. Loading, error, and
+	 * no-limit states are handled by `WidgetState` before the bar renders.
 	 */
-	limit?: number | null;
+	limit: number;
 	/**
 	 * Billable views used so far in the current cycle.
 	 */
@@ -45,19 +46,6 @@ type PlanUsageBarProps = {
 	 * Number of recent cycles the site has exceeded its limit.
 	 */
 	overLimitMonths?: number | null;
-	/**
-	 * When `true`, the report is still being fetched.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, a loading overlay is layered over the bar while data
-	 * refetches in the background (stale figures stay visible underneath).
-	 */
-	isRefetching?: boolean;
-	/**
-	 * When `true`, the report failed to load.
-	 */
-	isError?: boolean;
 };
 
 /**
@@ -103,132 +91,119 @@ function upgradeUrl(): string | undefined {
  * usage" section: a horizontal meter filled proportionally to the billable
  * views used against the plan's cycle limit, the figures and days-until-reset
  * inside the bar, and the upgrade note (with the over-limit warning when
- * applicable) below it. Takes already-fetched values via props and owns the
- * loading, error, unavailable, and populated states.
+ * applicable) below it. Renders the populated state only — `WidgetState`
+ * owns loading, error, and unavailable.
  *
  * @param {PlanUsageBarProps} props - The component props.
  * @return The rendered bar.
  */
-function PlanUsageBar( {
-	limit,
-	usage,
-	daysToReset,
-	overLimitMonths,
-	isLoading = false,
-	isRefetching = false,
-	isError = false,
-}: PlanUsageBarProps ) {
-	if ( isError ) {
-		return (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load plan usage.', 'jetpack-premium-analytics' ) }
-			</Text>
-		);
-	}
-
-	// No data yet — show the overlay only before the first response arrives.
-	if ( isLoading && limit === undefined ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	// Sites on legacy plans or no plan report a null limit; there is nothing to
-	// meter against, so surface an unavailable state instead of an empty bar.
-	if ( limit === undefined || limit === null ) {
-		return (
-			<Text className={ styles.placeholder }>
-				{ __( "Plan usage isn't available for your current plan.", 'jetpack-premium-analytics' ) }
-			</Text>
-		);
-	}
-
+function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsageBarProps ) {
 	const usageValue = usage ?? 0;
 	const isOverLimit = usageValue >= limit;
 
 	return (
-		<div className={ styles.container }>
-			<Stack
-				className={ styles.root }
-				direction="column"
-				align="stretch"
-				justify="safe center"
-				gap="md"
-			>
-				<div className={ clsx( styles.progress, isOverLimit && styles.isOverLimit ) }>
-					{ /* The fill is value-driven, so the dynamic width needs no inline style. */ }
-					<progress
-						className={ styles.progressMeter }
-						value={ Math.min( usageValue, limit ) }
-						max={ limit }
-						aria-label={ __( 'Plan usage', 'jetpack-premium-analytics' ) }
-					/>
-					<Text className={ styles.progressLabel } variant="body-sm">
-						{ sprintf(
-							/* translators: 1: billable views used, 2: the plan's billable views limit. */
-							__( '%1$s / %2$s views', 'jetpack-premium-analytics' ),
-							formatMetricValue( usageValue, 'number', { decimals: 0 } ),
-							formatMetricValue( limit, 'number', { decimals: 0 } )
-						) }
-					</Text>
-					{ daysToReset !== undefined && (
-						<Text className={ styles.progressLabel } variant="body-sm">
-							{ sprintf(
-								/* translators: %d: number of days until the billing cycle resets. */
-								_n(
-									'Restarts in %d day',
-									'Restarts in %d days',
-									daysToReset,
-									'jetpack-premium-analytics'
-								),
-								daysToReset
-							) }
-						</Text>
-					) }
-				</div>
-				<Text className={ styles.note } variant="body-sm">
-					{ overLimitMonths ? (
-						<>
-							<strong>{ overLimitMessage( overLimitMonths ) }</strong>{ ' ' }
-						</>
-					) : null }
-					{ createInterpolateElement(
-						__(
-							'Do you want to increase your views limit? <a>Upgrade now</a>',
-							'jetpack-premium-analytics'
-						),
-						{ a: <Link href={ upgradeUrl() } /> }
+		<Stack
+			className={ styles.root }
+			direction="column"
+			align="stretch"
+			justify="safe center"
+			gap="md"
+		>
+			<div className={ clsx( styles.progress, isOverLimit && styles.isOverLimit ) }>
+				{ /* The fill is value-driven, so the dynamic width needs no inline style. */ }
+				<progress
+					className={ styles.progressMeter }
+					value={ Math.min( usageValue, limit ) }
+					max={ limit }
+					aria-label={ __( 'Plan usage', 'jetpack-premium-analytics' ) }
+				/>
+				<Text className={ styles.progressLabel } variant="body-sm">
+					{ sprintf(
+						/* translators: 1: billable views used, 2: the plan's billable views limit. */
+						__( '%1$s / %2$s views', 'jetpack-premium-analytics' ),
+						formatMetricValue( usageValue, 'number', { decimals: 0 } ),
+						formatMetricValue( limit, 'number', { decimals: 0 } )
 					) }
 				</Text>
-			</Stack>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</div>
+				{ daysToReset !== undefined && (
+					<Text className={ styles.progressLabel } variant="body-sm">
+						{ sprintf(
+							/* translators: %d: number of days until the billing cycle resets. */
+							_n(
+								'Restarts in %d day',
+								'Restarts in %d days',
+								daysToReset,
+								'jetpack-premium-analytics'
+							),
+							daysToReset
+						) }
+					</Text>
+				) }
+			</div>
+			<Text className={ styles.note } variant="body-sm">
+				{ overLimitMonths ? (
+					<>
+						<strong>{ overLimitMessage( overLimitMonths ) }</strong>{ ' ' }
+					</>
+				) : null }
+				{ createInterpolateElement(
+					__(
+						'Do you want to increase your views limit? <a>Upgrade now</a>',
+						'jetpack-premium-analytics'
+					),
+					{ a: <Link href={ upgradeUrl() } /> }
+				) }
+			</Text>
+		</Stack>
 	);
 }
 
 /**
  * Fetches the plan-usage report through the `useStatsAppPlanUsage` hook and
- * hands the current-cycle figures to the presentational bar. The endpoint is
- * a point-in-time reading of the connected plan, so it takes no report params.
+ * hands the current-cycle figures to the presentational bar through
+ * `WidgetState`, which owns the loading, error, and unavailable states. The
+ * endpoint is a point-in-time reading of the connected plan, so it takes no
+ * report params.
  *
  * @return The widget content.
  */
 function PlanUsageReport() {
-	const { data, isLoading, isFetching, isError } = useStatsAppPlanUsage();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsAppPlanUsage();
 
-	// Keep the stale bar visible and layer the overlay when a background
-	// refetch runs after the first response has arrived.
-	const hasData = data !== undefined;
-	const isRefetching = isFetching && hasData;
+	// Sites on legacy plans or no plan report a null limit; there is nothing to
+	// meter against, so the unavailable message renders instead of an empty bar.
+	const limit = data?.views_limit;
 
 	return (
-		<PlanUsageBar
-			limit={ data ? data.views_limit : undefined }
-			usage={ data?.current_usage?.views_count }
-			daysToReset={ data?.current_usage?.days_to_reset }
-			overLimitMonths={ data?.over_limit_months }
+		<WidgetState
 			isLoading={ isLoading }
-			isRefetching={ isRefetching }
+			isFetching={ isFetching }
 			isError={ isError }
-		/>
+			isEmpty={ typeof limit !== 'number' }
+			error={ {
+				description: __(
+					"We couldn't load plan usage. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: percent,
+				description: __(
+					"Plan usage isn't available for your current plan.",
+					'jetpack-premium-analytics'
+				),
+			} }
+		>
+			{ typeof limit === 'number' && (
+				<PlanUsageBar
+					limit={ limit }
+					usage={ data?.current_usage?.views_count }
+					daysToReset={ data?.current_usage?.days_to_reset }
+					overLimitMonths={ data?.over_limit_months }
+				/>
+			) }
+		</WidgetState>
 	);
 }
 

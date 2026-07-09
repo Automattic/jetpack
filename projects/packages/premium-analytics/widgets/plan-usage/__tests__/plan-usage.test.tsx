@@ -170,4 +170,18 @@ describe( 'PlanUsageWidget', () => {
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /increase your views limit/ ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'renders the error state with a retry action when the request fails', async () => {
+		// A 403-shaped rejection skips the query client's retries, so the error
+		// state is reachable without waiting out the retry backoff.
+		mockApiFetch.mockRejectedValue( { status: 403 } );
+
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( "We couldn't load plan usage. Please try again in a moment." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	} );
 } );
