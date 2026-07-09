@@ -1,13 +1,19 @@
 .activation-screen-error {
+	// External spacing from the input above and the Activate button below; the
+	// Notice's own grid owns the internal Title/Description spacing.
 	margin: 16px 0;
 
-	// useGetErrorContent renders raw <p>/<ol>/<ul>; the parent controls set
-	// `p { font-size: 16px }`, so match them to the notice text size and let the
-	// wrapping Stack own the vertical spacing between them.
-	p,
-	ol,
-	ul {
-		margin: 0;
+	// errorInfo renders raw <p>/<ol>/<ul> (from useGetErrorContent); the parent
+	// controls set `p { font-size: 16px }`, so match them to the notice body text.
+	:where(p, ol, ul) {
 		font-size: var(--wpds-typography-font-size-md);
+	}
+
+	p {
+		margin: 0 0 var(--wpds-dimension-gap-sm);
+
+		&:last-child {
+			margin-bottom: 0;
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Notice, Stack, Text } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 import { useEffect } from 'react';
 import { LICENSE_ERRORS } from './constants';
 import { useGetErrorContent } from './use-get-error-content';
@@ -38,10 +38,12 @@ const ActivationScreenError: FC< Props > = ( { licenseError, errorType } ) => {
 			className="activation-screen-error"
 			intent={ isLicenseAlreadyAttached ? 'success' : 'error' }
 		>
-			<Stack direction="column" gap="sm">
-				<Text>{ errorMessage }</Text>
-				{ errorInfo }
-			</Stack>
+			<Notice.Title>{ errorMessage }</Notice.Title>
+			{ errorInfo && (
+				// errorInfo is rich block content (<p>/<ol>/links), so render the
+				// Description as a <div> rather than its default inline <span>.
+				<Notice.Description render={ <div /> }>{ errorInfo }</Notice.Description>
+			) }
 		</Notice.Root>
 	);
 };
