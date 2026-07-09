@@ -17,6 +17,12 @@ describe( 'ActivationScreenControls', () => {
 			render( <ActivationScreenControls { ...testProps } /> );
 			expect( screen.getByLabelText( 'License key' ) ).toHaveValue( testProps.license );
 		} );
+
+		it( 'disables the Activate button while activating', () => {
+			render( <ActivationScreenControls { ...testProps } isActivating /> );
+			const button = screen.getByRole( 'button' );
+			expect( button.disabled || button.getAttribute( 'aria-disabled' ) === 'true' ).toBe( true );
+		} );
 	} );
 
 	describe( 'Render the ActivationScreenControls with license error', () => {
@@ -45,8 +51,9 @@ describe( 'ActivationScreenControls', () => {
 			const node = screen.getByText( 'Invalid license.' );
 			expect( node ).toBeInTheDocument();
 			expect(
+				// The error now renders in a @wordpress/ui Notice (.activation-screen-error).
 				// eslint-disable-next-line testing-library/no-node-access
-				node.closest( '.activation-screen-error__message' )
+				node.closest( '.activation-screen-error' )
 			).toBeInTheDocument();
 		} );
 	} );
