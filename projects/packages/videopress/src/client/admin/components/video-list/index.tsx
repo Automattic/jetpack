@@ -62,6 +62,10 @@ const VideoList = ( {
 				const isPrivate =
 					VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE;
 
+				// A video moved to another blog stays in this local library but can no
+				// longer be edited here: flag it and disable its edit action.
+				const isMoved = video?.isOwned === false;
+
 				return video.error ? (
 					<VideoRowError key={ video?.guid ?? video?.id } id={ video?.id } title={ video?.title } />
 				) : (
@@ -74,8 +78,16 @@ const VideoList = ( {
 						plays={ hidePlays ? null : video.plays }
 						isPrivate={ hidePrivacy ? null : isPrivate }
 						uploadDate={ video.uploadDate }
-						showQuickActions={ ! video?.uploading && showQuickActions }
+						showQuickActions={ ! video?.uploading && showQuickActions && ! isMoved }
 						showActionButton={ ! video?.uploading && showActionButton }
+						disableActionButton={ isMoved }
+						titleAdornment={
+							isMoved ? (
+								<Text variant="body-small" component="span">
+									{ __( 'Moved to another site', 'jetpack-videopress-pkg' ) }
+								</Text>
+							) : null
+						}
 						className={ styles.row }
 						onActionClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 						loading={ loading }

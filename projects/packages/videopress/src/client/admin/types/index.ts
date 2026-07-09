@@ -128,6 +128,13 @@ export type OriginalVideoPressVideo = {
 		 * If the site video default privacy setting is private.
 		 */
 		private_enabled_for_site?: boolean;
+		/**
+		 * Whether this site still owns the video on WordPress.com. False when the
+		 * video's canonical owner is a different blog (e.g. it was moved away), in
+		 * which case it remains in this local library but can no longer be edited
+		 * here. Absent means the ownership could not be determined (treated as owned).
+		 */
+		is_owned?: boolean;
 	};
 	/**
 	 * Video source URL
@@ -170,6 +177,12 @@ export type VideoPressVideo = {
 	uploading?: boolean;
 	plays?: number; // Not provided yet
 	error?: string;
+	/**
+	 * Whether this site still owns the video on WordPress.com. Defaults to true
+	 * (owned / unknown); false marks a video that was moved to another blog and is
+	 * therefore read-only here.
+	 */
+	isOwned?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'is_owned' ];
 };
 
 export type LocalVideo = {

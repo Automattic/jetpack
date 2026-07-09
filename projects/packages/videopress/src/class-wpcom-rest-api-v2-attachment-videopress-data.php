@@ -250,6 +250,17 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		// The video needs a playback token if it's private for any reason (video privacy setting or site default privacy setting)
 		$video_needs_playback_token = $is_private;
 
+		// On a Jetpack site the library is built from LOCAL attachment metadata, which
+		// stays behind if the video's canonical owner changed ( e.g. it was moved to
+		// another blog ). Confirm ownership against WPCOM so the dashboard can flag a
+		// video this site no longer owns and can no longer edit. On WPCOM the videos
+		// table is authoritative already ( a moved-away video resolves to no info here ),
+		// and the blog-signed lookup is not meaningful, so this stays true there.
+		$is_owned = true;
+		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ! empty( $info->guid ) ) {
+			$is_owned = Data::is_video_owned_by_site( $info->guid );
+		}
+
 		return array(
 			'title'                    => $title,
 			'description'              => $description,
@@ -264,6 +275,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			'needs_playback_token'     => $video_needs_playback_token,
 			'is_private'               => $is_private,
 			'private_enabled_for_site' => $private_enabled_for_site,
+			'is_owned'                 => $is_owned,
 		);
 	}
 

@@ -589,6 +589,29 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				)
 			);
 		} else {
+			// WPCOM rejects an edit from a blog that does not own the video with a 401/403
+			// ( see the ownership check on wpcom/v2/videos ). The local attachment still
+			// carries the GUID after a move, so the dashboard can reach this point; surface
+			// a clear, actionable message instead of the raw "Not allowed."
+			$status = 0;
+			if ( isset( $response_body->data ) ) {
+				if ( is_object( $response_body->data ) && isset( $response_body->data->status ) ) {
+					$status = (int) $response_body->data->status;
+				} elseif ( is_int( $response_body->data ) ) {
+					$status = $response_body->data;
+				}
+			}
+
+			if ( 401 === $status || 403 === $status ) {
+				return rest_ensure_response(
+					new WP_Error(
+						'videopress_not_owner',
+						__( 'This video has been moved to another site and can no longer be edited here.', 'jetpack-videopress-pkg' ),
+						array( 'status' => $status )
+					)
+				);
+			}
+
 			return rest_ensure_response(
 				new WP_Error(
 					$response_body->code,

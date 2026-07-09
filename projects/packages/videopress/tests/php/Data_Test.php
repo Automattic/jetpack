@@ -313,4 +313,66 @@ class Data_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $settings );
 		$this->assertTrue( $settings['videopress_auto_subtitles_disabled'] );
 	}
+
+	/**
+	 * Seeds the per-GUID ownership cache so is_video_owned_by_site() resolves without
+	 * an HTTP round-trip ( the WPCOM lookup only runs on a cache miss ).
+	 *
+	 * @param string $guid       The VideoPress GUID.
+	 * @param int    $owner_blog The cached owner blog id ( 0 = WPCOM denied access ).
+	 */
+	private function seed_owner_cache( $guid, $owner_blog ) {
+		set_transient( Data::OWNERSHIP_CACHE_PREFIX . md5( $guid ), (int) $owner_blog, Data::OWNERSHIP_CACHE_TTL );
+	}
+
+	/**
+	 * An empty GUID is never gated ( there is nothing to own ).
+	 */
+	public function test_is_video_owned_by_site_true_for_empty_guid() {
+		\Jetpack_Options::update_option( 'id', 123 );
+
+		$this->assertTrue( Data::is_video_owned_by_site( '' ) );
+		$this->assertTrue( Data::is_video_owned_by_site( null ) );
+	}
+
+	/**
+	 * When the cached owner is this site's blog id, the video is owned.
+	 */
+	public function test_is_video_owned_by_site_true_when_owner_matches_site() {
+		\Jetpack_Options::update_option( 'id', 123 );
+		$this->seed_owner_cache( 'ownedGUID', 123 );
+
+		$this->assertTrue( Data::is_video_owned_by_site( 'ownedGUID' ) );
+	}
+
+	/**
+	 * When the cached owner is a different blog ( e.g. after a move ), it is not owned.
+	 */
+	public function test_is_video_owned_by_site_false_when_owner_is_another_blog() {
+		\Jetpack_Options::update_option( 'id', 123 );
+		$this->seed_owner_cache( 'movedGUID', 456 );
+
+		$this->assertFalse( Data::is_video_owned_by_site( 'movedGUID' ) );
+	}
+
+	/**
+	 * A cached 0 ( WPCOM denied this blog access — a private video moved away ) is not owned.
+	 */
+	public function test_is_video_owned_by_site_false_when_access_denied() {
+		\Jetpack_Options::update_option( 'id', 123 );
+		$this->seed_owner_cache( 'privateMovedGUID', 0 );
+
+		$this->assertFalse( Data::is_video_owned_by_site( 'privateMovedGUID' ) );
+	}
+
+	/**
+	 * Fails open: with no resolvable site blog id, nothing is hidden even if a
+	 * ( stale ) owner is cached.
+	 */
+	public function test_is_video_owned_by_site_fails_open_without_site_blog_id() {
+		\Jetpack_Options::update_option( 'id', 0 );
+		$this->seed_owner_cache( 'someGUID', 456 );
+
+		$this->assertTrue( Data::is_video_owned_by_site( 'someGUID' ) );
+	}
 }

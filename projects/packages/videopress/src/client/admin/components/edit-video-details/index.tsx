@@ -8,6 +8,7 @@ import {
 } from '@automattic/jetpack-components';
 import {
 	Button,
+	Notice,
 	SelectControl,
 	RadioControl,
 	CheckboxControl,
@@ -142,6 +143,7 @@ const EditVideoDetails = () => {
 		deleted,
 		isFetching,
 		isDeleting,
+		isOwned,
 		handleSaveChanges,
 		handleDelete,
 		// Metadata
@@ -267,6 +269,14 @@ const EditVideoDetails = () => {
 				<Container horizontalSpacing={ 0 }>
 					<Col>
 						<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />
+						{ isOwned === false && (
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									'This video has been moved to another site and can no longer be edited here.',
+									'jetpack-videopress-pkg'
+								) }
+							</Notice>
+						) }
 					</Col>
 				</Container>
 				<AdminSection>
@@ -282,7 +292,7 @@ const EditVideoDetails = () => {
 								actions={
 									<Button
 										variant="primary"
-										disabled={ ! hasChanges || isBusy || isFetchingData }
+										disabled={ ! hasChanges || isBusy || isFetchingData || isOwned === false }
 										onClick={ handleSaveChanges }
 										isBusy={ isBusy || isFetchingData }
 									>
