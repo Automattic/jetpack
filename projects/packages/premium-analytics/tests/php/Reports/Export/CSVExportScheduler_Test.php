@@ -79,9 +79,11 @@ class CSVExportScheduler_Test extends TestCase {
 	}
 
 	public function test_schedule_export_returns_wp_error_when_enqueue_throws() {
-		$throw_enqueue_error = static function () {
-			throw new \RuntimeException( 'Action Scheduler DB insert failed' );
-		};
+		$throw_enqueue_error =
+			/** @return never */
+			static function () {
+				throw new \RuntimeException( 'Action Scheduler DB insert failed' );
+			};
 
 		add_filter( 'pre_as_enqueue_async_action', $throw_enqueue_error );
 		try {
@@ -117,9 +119,9 @@ class CSVExportScheduler_Test extends TestCase {
 	/**
 	 * Build a scheduler wired with a canned fetcher (no network) and a recording fake email.
 	 *
-	 * @param mixed      $fetch_result The value the fake fetcher returns (array or WP_Error).
-	 * @param Fake_Email $email        The recording email double.
-	 * @param Spy_Logger $logger       Optional logger to inject.
+	 * @param mixed       $fetch_result The value the fake fetcher returns (array or WP_Error).
+	 * @param Fake_Email  $email        The recording email double.
+	 * @param ?Spy_Logger $logger      Optional logger to inject.
 	 * @return Csv_Export_Scheduler
 	 */
 	private function scheduler_with_fake_fetcher(

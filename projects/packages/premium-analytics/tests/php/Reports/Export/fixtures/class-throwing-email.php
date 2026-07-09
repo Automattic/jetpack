@@ -28,7 +28,17 @@ class Throwing_Email extends Fake_Email {
 		$this->throwable = $throwable;
 	}
 
-	public function send_export_email( string $recipient, string $report_label, array $params, string $file_path ): bool { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing, Squiz.Commenting.FunctionComment.InvalidNoReturn -- Test double always throws.
+	/**
+	 * Throw instead of sending the export email.
+	 *
+	 * @param string $recipient    Recipient email address.
+	 * @param string $report_label Report label.
+	 * @param array  $params       Report parameters.
+	 * @param string $file_path    CSV file path.
+	 * @return never
+	 * @throws \Throwable Always throws the configured throwable.
+	 */
+	public function send_export_email( string $recipient, string $report_label, array $params, string $file_path ): bool {
 		throw $this->throwable;
 	}
 }
