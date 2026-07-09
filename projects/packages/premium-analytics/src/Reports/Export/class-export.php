@@ -16,6 +16,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Items_Per_Order_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Order_Value_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Booking_Status_Breakdown_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Bookings_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Coupon_Use_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Gross_Sales_Over_Time_Controller;
@@ -100,6 +102,8 @@ class Export {
 		$report_controllers = array(
 			Average_Items_Per_Order_Controller::class,
 			Average_Order_Value_Controller::class,
+			Booking_Status_Breakdown_Controller::class,
+			Bookings_Over_Time_Controller::class,
 			Conversion_Rate_Over_Time_Controller::class,
 			Coupon_Use_Over_Time_Controller::class,
 			Gross_Sales_Over_Time_Controller::class,
