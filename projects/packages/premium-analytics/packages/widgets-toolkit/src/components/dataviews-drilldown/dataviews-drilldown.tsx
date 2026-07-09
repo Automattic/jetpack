@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './drilldown-list.module.scss';
+import styles from './dataviews-drilldown.module.scss';
 import { processDrilldownGroups } from './process-drilldown-groups';
 import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
 import type { CSSProperties, ReactNode } from 'react';
@@ -22,7 +22,7 @@ const GROUP_TYPE_FIELD_ID = 'type';
 /**
  * One child row inside a drilldown group.
  */
-export interface DrilldownListChild {
+export interface DataViewsDrilldownChild {
 	id: string;
 	label: string;
 	value: number;
@@ -35,17 +35,17 @@ export interface DrilldownListChild {
 /**
  * One grouped row with optional child rows.
  */
-export interface DrilldownListGroup {
+export interface DataViewsDrilldownGroup {
 	id: string;
 	label: string;
 	value: number;
-	children: DrilldownListChild[];
+	children: DataViewsDrilldownChild[];
 }
 
 /**
  * One optional value column in a drilldown list.
  */
-export interface DrilldownListColumn {
+export interface DataViewsDrilldownColumn {
 	id: string;
 	/**
 	 * Column caption, e.g. "Views", "Date".
@@ -54,14 +54,14 @@ export interface DrilldownListColumn {
 	/**
 	 * Cell content for a group or child row; empty/undefined renders blank.
 	 */
-	getValue: ( row: DrilldownListGroup | DrilldownListChild ) => ReactNode;
+	getValue: ( row: DataViewsDrilldownGroup | DataViewsDrilldownChild ) => ReactNode;
 }
 
 /**
  * Props for the reusable drilldown list.
  */
-export interface DrilldownListProps {
-	groups: DrilldownListGroup[];
+export interface DataViewsDrilldownProps {
+	groups: DataViewsDrilldownGroup[];
 	/**
 	 * Column caption over the labels, e.g. "Archive pages", "Referrer".
 	 */
@@ -84,7 +84,7 @@ export interface DrilldownListProps {
 	/**
 	 * Optional value columns rendered after the label column.
 	 */
-	columns?: DrilldownListColumn[];
+	columns?: DataViewsDrilldownColumn[];
 	/**
 	 * Group ids expanded on mount.
 	 */
@@ -96,11 +96,11 @@ export interface DrilldownListProps {
 	/**
 	 * Resolves a group to one of the optional filter values.
 	 */
-	getGroupFilterValue?: ( group: DrilldownListGroup ) => string;
+	getGroupFilterValue?: ( group: DataViewsDrilldownGroup ) => string;
 }
 
-type DrilldownListStyle = CSSProperties & {
-	'--drilldown-list-columns': number;
+type DataViewsDrilldownStyle = CSSProperties & {
+	'--dataviews-drilldown-columns': number;
 };
 
 /**
@@ -126,7 +126,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
  * @param group - The drilldown group.
  * @return The group id.
  */
-function getDrilldownGroupId( group: DrilldownListGroup ): string {
+function getDrilldownGroupId( group: DataViewsDrilldownGroup ): string {
 	return group.id;
 }
 
@@ -150,7 +150,7 @@ function formatDefaultValue( value: number ): string {
 function getDefaultColumns(
 	valueHeader: string,
 	formatValue: ( value: number ) => string
-): DrilldownListColumn[] {
+): DataViewsDrilldownColumn[] {
 	return [
 		{
 			id: 'value',
@@ -173,9 +173,9 @@ function getDrilldownFields(
 	labelHeader: string,
 	valueHeader: string,
 	filterElements?: { value: string; label: string }[],
-	getGroupFilterValue?: ( group: DrilldownListGroup ) => string
-): Field< DrilldownListGroup >[] {
-	const fields: Field< DrilldownListGroup >[] = [
+	getGroupFilterValue?: ( group: DataViewsDrilldownGroup ) => string
+): Field< DataViewsDrilldownGroup >[] {
+	const fields: Field< DataViewsDrilldownGroup >[] = [
 		{
 			id: 'label',
 			label: labelHeader,
@@ -218,7 +218,7 @@ function DrilldownGroupToggle( {
 	expanded,
 	onToggle,
 }: {
-	group: DrilldownListGroup;
+	group: DataViewsDrilldownGroup;
 	expanded: boolean;
 	onToggle: ( groupId: string ) => void;
 } ): JSX.Element {
@@ -266,8 +266,8 @@ function DrilldownRow( {
 	isChild = false,
 }: {
 	children: ReactNode;
-	row: DrilldownListGroup | DrilldownListChild;
-	columns: DrilldownListColumn[];
+	row: DataViewsDrilldownGroup | DataViewsDrilldownChild;
+	columns: DataViewsDrilldownColumn[];
 	isChild?: boolean;
 } ): JSX.Element {
 	return (
@@ -291,7 +291,7 @@ function DrilldownRow( {
  * @param props.child - The child row.
  * @return The child label.
  */
-function DrilldownChildLabel( { child }: { child: DrilldownListChild } ): JSX.Element {
+function DrilldownChildLabel( { child }: { child: DataViewsDrilldownChild } ): JSX.Element {
 	if ( child.href ) {
 		return (
 			<a className={ styles.childLink } href={ child.href } target="_blank" rel="noreferrer">
@@ -327,17 +327,17 @@ function DrilldownRows( {
 	columns,
 	emptyLabel,
 }: {
-	groups: DrilldownListGroup[];
+	groups: DataViewsDrilldownGroup[];
 	expandedIds: ReadonlySet< string >;
 	onToggleGroup: ( groupId: string ) => void;
 	childCounts: ReadonlyMap< string, number >;
 	isLoading: boolean;
 	labelHeader: string;
-	columns: DrilldownListColumn[];
+	columns: DataViewsDrilldownColumn[];
 	emptyLabel: string;
 } ): JSX.Element {
-	const listStyle: DrilldownListStyle = {
-		'--drilldown-list-columns': columns.length,
+	const listStyle: DataViewsDrilldownStyle = {
+		'--dataviews-drilldown-columns': columns.length,
 	};
 
 	if ( ! groups.length && ! isLoading ) {
@@ -417,7 +417,7 @@ function DrilldownRows( {
  * @param props.getGroupFilterValue - Optional group filter value resolver.
  * @return The drilldown list component.
  */
-export function DrilldownList( {
+export function DataViewsDrilldown( {
 	groups,
 	labelHeader,
 	valueHeader,
@@ -430,7 +430,7 @@ export function DrilldownList( {
 	defaultExpandedIds = [],
 	filterElements,
 	getGroupFilterValue,
-}: DrilldownListProps ): JSX.Element {
+}: DataViewsDrilldownProps ): JSX.Element {
 	const [ view, setView ] = useState< View >( () => ( {
 		type: 'table',
 		page: 1,
@@ -473,7 +473,7 @@ export function DrilldownList( {
 
 	return (
 		<div className={ styles.root }>
-			<GenericDataViews< DrilldownListGroup >
+			<GenericDataViews< DataViewsDrilldownGroup >
 				view={ view }
 				onChangeView={ setView }
 				fields={ fields }

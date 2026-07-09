@@ -28,13 +28,13 @@ export {
 	type LeaderboardLabelProps,
 } from './chart-leaderboard';
 export {
-	DrilldownList,
-	type DrilldownListChild,
-	type DrilldownListColumn,
-	type DrilldownListGroup,
-	type DrilldownListProps,
+	DataViewsDrilldown,
+	type DataViewsDrilldownChild,
+	type DataViewsDrilldownColumn,
+	type DataViewsDrilldownGroup,
+	type DataViewsDrilldownProps,
 	processDrilldownGroups,
-} from './drilldown-list';
+} from './dataviews-drilldown';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';

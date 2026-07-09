@@ -1,9 +1,9 @@
-# DrilldownList
+# DataViewsDrilldown
 
-`DrilldownList` renders expandable grouped records using DataViews free composition. DataViews supplies the search field, view state, and pagination; the component renders a custom grouped list layout.
+`DataViewsDrilldown` renders expandable grouped records using DataViews free composition. DataViews supplies the search field, view state, and pagination; the component renders a custom grouped list layout.
 
 ```tsx
-import { DrilldownList } from '@jetpack-premium-analytics/widgets-toolkit';
+import { DataViewsDrilldown } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const groups = [
 	{
@@ -25,7 +25,7 @@ function getGroupFilterValue( group ) {
 	return group.id === 'search' ? 'organic' : 'direct';
 }
 
-<DrilldownList
+<DataViewsDrilldown
 	groups={ groups }
 	labelHeader="Referrer"
 	valueHeader="Views"
@@ -40,10 +40,10 @@ function getGroupFilterValue( group ) {
 
 `filterElements` and `getGroupFilterValue` are optional and should be passed together when the list needs a DataViews filter. `filterElements` defines the selectable filter values, and `getGroupFilterValue` maps each group to one of those values. When either prop is omitted, the list has no filterable field and DataViews hides the filter toggle automatically.
 
-Pass `columns` to render more than one value column after the label column. When `columns` is omitted, `DrilldownList` renders the default single value column using `valueHeader` and `formatValue`.
+Pass `columns` to render more than one value column after the label column. When `columns` is omitted, `DataViewsDrilldown` renders the default single value column using `valueHeader` and `formatValue`.
 
 ```tsx
-<DrilldownList
+<DataViewsDrilldown
 	groups={ groups }
 	labelHeader="Referrer"
 	valueHeader="Views"

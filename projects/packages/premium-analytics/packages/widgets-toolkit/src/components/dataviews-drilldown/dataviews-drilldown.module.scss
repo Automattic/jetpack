@@ -40,7 +40,7 @@
 }
 
 .list {
-	--drilldown-list-columns: 1;
+	--dataviews-drilldown-columns: 1;
 
 	opacity: 1;
 	transition: opacity 0.16s ease-in-out;
@@ -55,7 +55,7 @@
 	display: grid;
 	grid-template-columns:
 		minmax(0, 1fr)
-		repeat(var(--drilldown-list-columns), max-content);
+		repeat(var(--dataviews-drilldown-columns), max-content);
 	column-gap: 24px;
 	align-items: center;
 	padding-inline: 24px;
