@@ -19,13 +19,26 @@ export type PlanUsageAttributes = Record< never, never >;
 /**
  * Widget type definition.
  *
- * The gauge has no configurable attributes, so `attributes` is empty and the
- * `example` carries none either.
+ * The meter has no configurable attributes, so `attributes` is empty and the
+ * `example` carries none either. `help` surfaces as an info popover in the
+ * widget header, explaining what counts as a billable view.
  */
 export default {
 	name: 'jpa/plan-usage',
 	title: __( 'Plan usage', 'jetpack-premium-analytics' ),
 	icon: percent,
+	help: {
+		content: __(
+			"Billable views are the views that count toward your Stats plan's monthly limit. The bar shows how many you've used in the current billing cycle and when the count restarts.",
+			'jetpack-premium-analytics'
+		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/free-or-paid/',
+			},
+		],
+	},
 	attributes: [],
 	example: {
 		attributes: {},

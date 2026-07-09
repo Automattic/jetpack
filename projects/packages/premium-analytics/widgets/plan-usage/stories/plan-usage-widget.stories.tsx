@@ -28,6 +28,18 @@ import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
+// The upgrade note builds its purchase URL from `window.JetpackScriptData`,
+// which only wp-admin provides; seed the fields it reads so the "Upgrade now"
+// link resolves in Storybook too.
+window.JetpackScriptData = {
+	...window.JetpackScriptData,
+	site: {
+		...window.JetpackScriptData?.site,
+		admin_url: 'https://example.com/wp-admin/',
+		wpcom: { blog_id: 123456789 },
+	},
+} as typeof window.JetpackScriptData;
+
 const PLAN_USAGE_RENDER_MODULE = 'storybook/plan-usage';
 
 /**
@@ -69,7 +81,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Plan usage" widget. Shows billable views used in the current billing cycle against the plan\'s limit as a semi-circle gauge, with the exact figures and days until the cycle resets below it. The usage endpoint is a point-in-time reading with no date range or comparison period.',
+					'The "Plan usage" widget. Shows billable views used in the current billing cycle against the plan\'s limit as a horizontal usage meter — figures and days-until-reset inside the bar, an upgrade note below it — following the Stats "Plan usage" section. The usage endpoint is a point-in-time reading with no date range or comparison period.',
 			},
 		},
 	},
@@ -128,6 +140,7 @@ function PlanUsageDashboardStory( {
 				name: widgetDefinition.name,
 				title: widgetDefinition.title,
 				icon: widgetDefinition.icon,
+				help: widgetDefinition.help,
 				presentation: 'framed',
 			} }
 			renderModule={ PLAN_USAGE_RENDER_MODULE }

@@ -2,7 +2,7 @@
  * Mock response for the Stats "plan usage" endpoint
  * (`/proxy/v2/jetpack-stats/usage`). Matches the `StatsAppPlanUsage` shape read
  * by `useStatsAppPlanUsage`: a current-cycle billable-views reading against the
- * plan's limit. Usage sits comfortably under the limit so the gauge renders
+ * plan's limit. Usage sits comfortably under the limit so the meter renders
  * partially filled without tripping the over-limit warning.
  */
 export const mockPlanUsageData = {

@@ -44,18 +44,45 @@ describe( 'PlanUsageWidget', () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( PLAN_USAGE_RESPONSE );
+		// The upgrade note builds its purchase URL from the script data wp-admin
+		// prints on the page.
+		window.JetpackScriptData = {
+			site: {
+				admin_url: 'https://example.com/wp-admin/',
+				wpcom: { blog_id: 123456789 },
+			},
+		} as typeof window.JetpackScriptData;
 	} );
 
 	it( 'requests the plan-usage endpoint and renders the usage figures', async () => {
 		render( <PlanUsageWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( '6,200 / 10,000 billable views' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Restarts in 12 days' ) ).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( '/proxy/v2/jetpack-stats/usage' );
+	} );
+
+	it( 'fills the meter proportionally to the usage figures', async () => {
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		const meter = ( await screen.findByRole( 'progressbar' ) ) as HTMLProgressElement;
+		expect( meter.value ).toBe( 6200 );
+		expect( meter.max ).toBe( 10000 );
+	} );
+
+	it( 'links the upgrade note to the Stats purchase screen for the connected site', async () => {
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		const upgradeLink = await screen.findByRole( 'link', { name: 'Upgrade now' } );
+		expect( upgradeLink ).toHaveAttribute(
+			'href',
+			expect.stringContaining(
+				'https://example.com/wp-admin/admin.php?page=stats#!/stats/purchase/123456789'
+			)
+		);
+		expect( screen.getByText( /Do you want to increase your views limit\?/ ) ).toBeInTheDocument();
 	} );
 
 	// The warning is driven solely by `over_limit_months`, independent of the
@@ -85,26 +112,22 @@ describe( 'PlanUsageWidget', () => {
 
 		render( <PlanUsageWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( '6,200 / 10,000 billable views' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'does not render the refetch overlay on the first populated render', async () => {
 		render( <PlanUsageWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( '6,200 / 10,000 billable views' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		// The initial-load overlay is gone and no background refetch is running.
 		// The overlay's spinner is the only `presentation`-role element on screen.
 		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'layers the loading overlay over the gauge during a background refetch', async () => {
+	it( 'layers the loading overlay over the meter during a background refetch', async () => {
 		let resolveRefetch: ( value: unknown ) => void = () => {};
-		// First call populates the gauge; the background refetch stays pending so
+		// First call populates the meter; the background refetch stays pending so
 		// the overlay is observable while stale figures remain visible.
 		mockApiFetch.mockResolvedValueOnce( PLAN_USAGE_RESPONSE ).mockImplementationOnce(
 			() =>
@@ -115,22 +138,20 @@ describe( 'PlanUsageWidget', () => {
 
 		render( <PlanUsageWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( '6,200 / 10,000 billable views' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 
-		// Kick off a background refetch; placeholderData keeps the stale gauge mounted.
+		// Kick off a background refetch; placeholderData keeps the stale meter mounted.
 		await act( async () => {
 			queryClient.refetchQueries();
 		} );
 
-		// The overlay spinner (role="presentation") layers over the gauge.
+		// The overlay spinner (role="presentation") layers over the meter.
 		await expect(
 			screen.findByRole( 'presentation', { hidden: true } )
 		).resolves.toBeInTheDocument();
 		// The stale figures stay visible beneath the overlay.
-		expect( screen.getByText( '6,200 / 10,000 billable views' ) ).toBeInTheDocument();
+		expect( screen.getByText( '6,200 / 10,000 views' ) ).toBeInTheDocument();
 
 		// Settle the pending refetch so the query resolves and the overlay clears.
 		await act( async () => {
@@ -146,6 +167,7 @@ describe( 'PlanUsageWidget', () => {
 		await expect(
 			screen.findByText( "Plan usage isn't available for your current plan." )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /billable views/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /increase your views limit/ ) ).not.toBeInTheDocument();
 	} );
 } );

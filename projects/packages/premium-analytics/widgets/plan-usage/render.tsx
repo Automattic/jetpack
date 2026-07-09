@@ -1,20 +1,18 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useStatsAppPlanUsage } from '@jetpack-premium-analytics/data';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
-	SemiCircleChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
-	useSegmentStyles,
 	type ReportParamsFieldAttributes,
-	type SemiCircleChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { percent } from '@wordpress/icons';
-import { Stack, Text } from '@wordpress/ui';
-import { useMemo } from 'react';
+import { Link, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -29,10 +27,10 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PlanUsageRenderAttributes = PlanUsageAttributes & Partial< ReportParamsFieldAttributes >;
 type PlanUsageWidgetProps = WidgetRenderProps< PlanUsageRenderAttributes >;
 
-type PlanUsageGaugeProps = {
+type PlanUsageBarProps = {
 	/**
 	 * The plan's billable views limit for the cycle. `null` for legacy or
-	 * unplanned sites (no limit to gauge against); `undefined` while loading.
+	 * unplanned sites (no limit to meter against); `undefined` while loading.
 	 */
 	limit?: number | null;
 	/**
@@ -52,7 +50,7 @@ type PlanUsageGaugeProps = {
 	 */
 	isLoading?: boolean;
 	/**
-	 * When `true`, a loading overlay is layered over the gauge while data
+	 * When `true`, a loading overlay is layered over the bar while data
 	 * refetches in the background (stale figures stay visible underneath).
 	 */
 	isRefetching?: boolean;
@@ -82,15 +80,36 @@ function overLimitMessage( overLimitMonths: number ): string {
 }
 
 /**
- * Presentational gauge for the "Plan usage" widget. Renders billable views used
- * against the plan's cycle limit as a semi-circle gauge, with the exact figures
- * and the days-until-reset below it. Takes already-fetched values via props and
- * owns the loading, error, unavailable, and populated states.
+ * The Stats tier-upgrade purchase screen for this site — the same flow the
+ * Stats "Plan usage" section links to — returning to this dashboard after
+ * checkout. `undefined` where script data is absent (e.g. Storybook without a
+ * seeded `window.JetpackScriptData`).
  *
- * @param {PlanUsageGaugeProps} props - The component props.
- * @return The rendered gauge.
+ * @return The purchase screen URL.
  */
-function PlanUsageGauge( {
+function upgradeUrl(): string | undefined {
+	const site = getScriptData()?.site;
+	const blogId = site?.wpcom?.blog_id;
+	if ( ! site?.admin_url || ! blogId ) {
+		return undefined;
+	}
+
+	const backTo = encodeURIComponent( 'admin.php?page=jetpack-premium-analytics-wp-admin' );
+	return `${ site.admin_url }admin.php?page=stats#!/stats/purchase/${ blogId }?from=jetpack-premium-analytics&productType=commercial&redirect_uri=${ backTo }`;
+}
+
+/**
+ * Presentational bar for the "Plan usage" widget, following the Stats "Plan
+ * usage" section: a horizontal meter filled proportionally to the billable
+ * views used against the plan's cycle limit, the figures and days-until-reset
+ * inside the bar, and the upgrade note (with the over-limit warning when
+ * applicable) below it. Takes already-fetched values via props and owns the
+ * loading, error, unavailable, and populated states.
+ *
+ * @param {PlanUsageBarProps} props - The component props.
+ * @return The rendered bar.
+ */
+function PlanUsageBar( {
 	limit,
 	usage,
 	daysToReset,
@@ -98,22 +117,7 @@ function PlanUsageGauge( {
 	isLoading = false,
 	isRefetching = false,
 	isError = false,
-}: PlanUsageGaugeProps ) {
-	const usageValue = usage ?? 0;
-	const limitValue = limit ?? 0;
-	const remaining = Math.max( limitValue - usageValue, 0 );
-
-	// Two segments: views used, then the headroom left in the cycle. The gauge
-	// fill is therefore proportional to usage / limit.
-	const chartData: SemiCircleChartData = useMemo(
-		() => [
-			{ label: __( 'Billable views used', 'jetpack-premium-analytics' ), value: usageValue },
-			{ label: __( 'Remaining', 'jetpack-premium-analytics' ), value: remaining },
-		],
-		[ usageValue, remaining ]
-	);
-	const segmentStyles = useSegmentStyles( chartData );
-
+}: PlanUsageBarProps ) {
 	if ( isError ) {
 		return (
 			<Text className={ styles.placeholder }>
@@ -128,7 +132,7 @@ function PlanUsageGauge( {
 	}
 
 	// Sites on legacy plans or no plan report a null limit; there is nothing to
-	// gauge against, so surface an unavailable state instead of an empty gauge.
+	// meter against, so surface an unavailable state instead of an empty bar.
 	if ( limit === undefined || limit === null ) {
 		return (
 			<Text className={ styles.placeholder }>
@@ -137,35 +141,36 @@ function PlanUsageGauge( {
 		);
 	}
 
+	const usageValue = usage ?? 0;
+	const isOverLimit = usageValue >= limit;
+
 	return (
 		<div className={ styles.container }>
 			<Stack
 				className={ styles.root }
 				direction="column"
-				align="center"
+				align="stretch"
 				justify="safe center"
 				gap="md"
 			>
-				<SemiCircleChart
-					chartData={ chartData }
-					value={ usageValue }
-					styles={ segmentStyles }
-					showLegend={ false }
-					emptyStateIcon={ percent }
-					emptyStateText={ __( 'No billable views yet.', 'jetpack-premium-analytics' ) }
-					dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
-				/>
-				<Stack className={ styles.captions } direction="column" align="center" gap="xs">
-					<Text className={ styles.usage }>
+				<div className={ clsx( styles.progress, isOverLimit && styles.isOverLimit ) }>
+					{ /* The fill is value-driven, so the dynamic width needs no inline style. */ }
+					<progress
+						className={ styles.progressMeter }
+						value={ Math.min( usageValue, limit ) }
+						max={ limit }
+						aria-label={ __( 'Plan usage', 'jetpack-premium-analytics' ) }
+					/>
+					<Text className={ styles.progressLabel } variant="body-sm">
 						{ sprintf(
 							/* translators: 1: billable views used, 2: the plan's billable views limit. */
-							__( '%1$s / %2$s billable views', 'jetpack-premium-analytics' ),
+							__( '%1$s / %2$s views', 'jetpack-premium-analytics' ),
 							formatMetricValue( usageValue, 'number', { decimals: 0 } ),
-							formatMetricValue( limitValue, 'number', { decimals: 0 } )
+							formatMetricValue( limit, 'number', { decimals: 0 } )
 						) }
 					</Text>
 					{ daysToReset !== undefined && (
-						<Text className={ styles.caption }>
+						<Text className={ styles.progressLabel } variant="body-sm">
 							{ sprintf(
 								/* translators: %d: number of days until the billing cycle resets. */
 								_n(
@@ -178,10 +183,21 @@ function PlanUsageGauge( {
 							) }
 						</Text>
 					) }
+				</div>
+				<Text className={ styles.note } variant="body-sm">
 					{ overLimitMonths ? (
-						<Text className={ styles.warning }>{ overLimitMessage( overLimitMonths ) }</Text>
+						<>
+							<strong>{ overLimitMessage( overLimitMonths ) }</strong>{ ' ' }
+						</>
 					) : null }
-				</Stack>
+					{ createInterpolateElement(
+						__(
+							'Do you want to increase your views limit? <a>Upgrade now</a>',
+							'jetpack-premium-analytics'
+						),
+						{ a: <Link href={ upgradeUrl() } /> }
+					) }
+				</Text>
 			</Stack>
 			{ isRefetching && <WidgetLoadingOverlay /> }
 		</div>
@@ -190,7 +206,7 @@ function PlanUsageGauge( {
 
 /**
  * Fetches the plan-usage report through the `useStatsAppPlanUsage` hook and
- * hands the current-cycle figures to the presentational gauge. The endpoint is
+ * hands the current-cycle figures to the presentational bar. The endpoint is
  * a point-in-time reading of the connected plan, so it takes no report params.
  *
  * @return The widget content.
@@ -198,13 +214,13 @@ function PlanUsageGauge( {
 function PlanUsageReport() {
 	const { data, isLoading, isFetching, isError } = useStatsAppPlanUsage();
 
-	// Keep the stale gauge visible and layer the overlay when a background
+	// Keep the stale bar visible and layer the overlay when a background
 	// refetch runs after the first response has arrived.
 	const hasData = data !== undefined;
 	const isRefetching = isFetching && hasData;
 
 	return (
-		<PlanUsageGauge
+		<PlanUsageBar
 			limit={ data ? data.views_limit : undefined }
 			usage={ data?.current_usage?.views_count }
 			daysToReset={ data?.current_usage?.days_to_reset }
@@ -220,9 +236,8 @@ function PlanUsageReport() {
  * Widget render entry point.
  *
  * Passes host attributes into `WidgetRoot` for the widget contract and to
- * provide the query client and chart theme the inner gauge needs. The usage
- * report takes no parameters, so the inner component reads nothing from
- * `attributes`.
+ * provide the query client the inner bar needs. The usage report takes no
+ * parameters, so the inner component reads nothing from `attributes`.
  *
  * @param {PlanUsageWidgetProps} props - The widget render props.
  * @return The rendered widget.
