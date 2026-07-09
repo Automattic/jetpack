@@ -6,6 +6,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../../types';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
+import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
+import SecondaryButton from '../action-button/secondary-button';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
 import type { ChangeEvent } from 'react';
 
@@ -25,6 +27,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
+	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
 
 	const isUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -96,6 +99,38 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		},
 		[ toggleModule, $module, showToggleNotice, trackProductAction ]
 	);
+
+	// Two-step switch: deactivate legacy sharing first ( so the site doesn't render
+	// both ), which then reveals the "Add block" link below.
+	const switchToSharingBlock = useCallback( async () => {
+		const success = await toggleModule( { name: $module.module, active: false } );
+		await showToggleNotice( {
+			noticeType: success ? 'success' : 'error',
+			action: 'deactivation',
+		} );
+	}, [ toggleModule, $module.module, showToggleNotice ] );
+
+	if ( sharingBlockEditorUrl ) {
+		// Legacy still active: the button deactivates it; once inactive, the row shows
+		// the link below to add the block.
+		if ( $module.activated ) {
+			return (
+				<SecondaryButton
+					label={ __( 'Switch to Sharing Buttons block', 'jetpack-my-jetpack' ) }
+					onClick={ switchToSharingBlock }
+					isLoading={ isUpdating }
+					loadingAnnouncement={ __( 'Deactivating legacy sharing…', 'jetpack-my-jetpack' ) }
+				/>
+			);
+		}
+
+		return (
+			<SecondaryButton
+				href={ sharingBlockEditorUrl }
+				label={ __( 'Add Sharing Buttons block', 'jetpack-my-jetpack' ) }
+			/>
+		);
+	}
 
 	return (
 		<FormToggle
