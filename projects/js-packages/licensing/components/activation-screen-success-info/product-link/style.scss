@@ -1,8 +1,12 @@
-.jp-license-activation-screen-success-info--external-link {
-	text-decoration: underline !important;
-	color: var(--jp-black);
-	font-size: 16px;
-	font-style: normal;
-	font-weight: 600;
-	white-space: nowrap;
+// Match the primary button's font so the link reads as its pair. Scoped under
+// the container to reach 0,2,0 and override @wordpress/ui's injected reset
+// (same reason as the button rule).
+.jp-license-activation-screen-success-info {
+
+	.jp-license-activation-screen-success-info--external-link {
+		font-weight: var(--wpds-typography-font-weight-medium);
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-2xl);
+		white-space: nowrap;
+	}
 }
