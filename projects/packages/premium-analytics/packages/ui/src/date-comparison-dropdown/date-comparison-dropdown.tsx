@@ -130,7 +130,7 @@ export function DateComparisonDropdown( {
 				render={
 					<Button
 						className="date-comparison-dropdown__button"
-						variant="outline"
+						variant="minimal"
 						tone="neutral"
 						size="compact"
 					>
