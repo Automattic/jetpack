@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Subscribers announcement page: render the styled wp-build app instead of the bare fallback by matching the modernization filter default (true) used by the menu-registration call sites.
+Subscribers: show the styled "Subscribers moved" announcement page instead of the bare fallback.
