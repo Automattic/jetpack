@@ -20,7 +20,6 @@ const TASK_SUBTITLES: Record< string, string > = {
 	drive_traffic: 'Help people find your site.',
 	site_launched: 'Launch your site for the world to see.',
 	blog_launched: 'Launch your blog for the world to see.',
-	woo_launch_site: 'Launch your store and start selling.',
 	link_in_bio_launched: 'Launch your link-in-bio page.',
 };
 
@@ -47,12 +46,12 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'site_launched',
 	],
 	sell: [
-		'woo_products',
 		'woo_customize_store',
+		'woo_products',
 		'set_up_payments',
 		'site_theme_selected',
 		'complete_profile',
-		'woo_launch_site',
+		'site_launched',
 	],
 	newsletter: [
 		'first_post_published_newsletter',

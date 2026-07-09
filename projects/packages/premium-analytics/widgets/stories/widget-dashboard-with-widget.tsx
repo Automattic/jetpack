@@ -2,6 +2,7 @@ import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
+import type { ArgTypes } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
 	WidgetRenderProps,
@@ -67,7 +68,7 @@ export const widgetDashboardWithWidgetArgTypes = {
 		control: 'select',
 		options: Object.keys( HOST_ROOT_FONT_SIZE ),
 	},
-};
+} satisfies Partial< ArgTypes< WidgetDashboardWithWidgetControls > >;
 
 type StoryWidgetMetadata = {
 	name: string;

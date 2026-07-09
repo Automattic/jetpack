@@ -15,15 +15,23 @@ export interface SearchTermView {
 }
 
 interface UseSearchTermViewsArgs {
+	/**
+	 * PA ReportParams from WidgetRoot context.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * Maximum rows to display.
+	 */
 	max: number;
 }
 
 interface SearchTermViewsState {
 	data: SearchTermView[];
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
 	hasComparison: boolean;
+	refetch: () => void;
 }
 
 function itemLabel( item: StatsSearchTermsItem ): string {
@@ -37,16 +45,14 @@ function itemLabel( item: StatsSearchTermsItem ): string {
  * `@jetpack-premium-analytics/data`. When comparison params are present, the hook
  * fetches both periods and pairs each primary term with its comparison view count.
  *
- * @param args              - Hook arguments.
- * @param args.reportParams - PA ReportParams from WidgetRoot context.
- * @param args.max          - Maximum rows to display.
+ * @param {UseSearchTermViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function useSearchTermViews( {
 	reportParams,
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
-	const { primary, comparison, hasComparison } = useStatsSearchTerms(
+	const { primary, comparison, hasComparison, isFetching, refetch } = useStatsSearchTerms(
 		reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ]
 	);
 
@@ -59,18 +65,32 @@ export default function useSearchTermViews( {
 	const comparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
 	const comparisonByLabel = new Map( comparisonItems.map( i => [ itemLabel( i ), i.views ] ) );
 
+	// When comparison is requested but its query fails, drop to a non-comparison
+	// view rather than pairing every term with a `previousViews` of 0 — otherwise
+	// the chart renders misleading period-over-period deltas from placeholder
+	// zeros. Primary rows still show; they just lose comparison values.
+	const comparisonUsable = hasComparison && ! comparison.isError;
+
 	const items = rawItems
 		.map( item => ( {
 			label: itemLabel( item ),
 			views: item.views,
-			previousViews: hasComparison ? comparisonByLabel.get( itemLabel( item ) ) ?? 0 : 0,
+			previousViews: comparisonUsable ? comparisonByLabel.get( itemLabel( item ) ) ?? 0 : 0,
 		} ) )
 		.slice( 0, max > 0 ? max : undefined );
 
 	return {
 		data: items,
 		isLoading: primary.isLoading || ( hasComparison && comparison.isLoading ),
-		isError: primary.isError || ( hasComparison && comparison.isError ),
-		hasComparison,
+		isFetching,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && ( primary.isError || ( hasComparison && comparison.isError ) ),
+		hasComparison: comparisonUsable,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

@@ -3,6 +3,7 @@
  */
 export {
 	MetricDelta,
+	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
 	DonutChart,
@@ -13,8 +14,10 @@ export {
 	type MetricTabDatum,
 	type MetricTabsChartProps,
 	WidgetRoot,
+	WidgetRootContext,
 	useWidgetRootContext,
 	type DonutChartData,
+	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
@@ -28,9 +31,17 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	WidgetState,
+	type WidgetStateProps,
+	type WidgetStateError,
+	type WidgetStateEmpty,
+	WidgetBackLink,
+	type WidgetBackLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
+	SemiCircleChart,
+	type SemiCircleChartData,
 } from './components';
 
 /**
@@ -67,6 +78,7 @@ export {
 	type PaymentStatusData,
 	buildSalesByUtmData,
 	formatLegendLabels,
+	formatDisplayLabel,
 } from './helpers';
 
 /**
@@ -75,10 +87,11 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetError,
+	useWidgetDrillDown,
 } from './hooks';
-export { useSegmentStyles } from './widgets/common';
 
 /**
  * Widget components
@@ -113,3 +126,21 @@ export {
  * Types
  */
 export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+
+/**
+ * Charts passthrough
+ *
+ * Widgets must import chart components from here, never from
+ * `@automattic/charts` directly: the toolkit is a shared script module, so
+ * charts is bundled once instead of once per widget.
+ */
+export {
+	GeoChart,
+	HeatmapChart,
+	buildCalendarHeatmapData,
+	type DataPointDate,
+	type GeoChartError,
+	type GeoData,
+	type GoogleDataTableColumn,
+	type GoogleDataTableRow,
+} from '@automattic/charts';

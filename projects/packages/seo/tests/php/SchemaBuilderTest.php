@@ -40,7 +40,9 @@ class SchemaBuilderTest extends TestCase {
 	 */
 	protected function tearDown(): void {
 		remove_all_filters( 'pre_option_blogname' );
+		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'home_url' );
+		delete_option( Schema_Settings::OPTION_NAME );
 		parent::tearDown();
 	}
 
@@ -102,6 +104,41 @@ class SchemaBuilderTest extends TestCase {
 			$wp_query->queried_object_id = $post->ID;
 		}
 
+		return $this->capture_emitted_document();
+	}
+
+	/**
+	 * Drive Schema_Builder::emit() against the blog-index home page (is_home,
+	 * non-singular) and return the decoded JSON-LD document, or null.
+	 *
+	 * `is_front_page()` is a computed WP_Query method: it's true when the query is
+	 * the home and `show_on_front` is `posts`. The dbless env doesn't seed that
+	 * option, so pin it to `posts` (its real default) alongside `is_home`.
+	 *
+	 * @return array|null Decoded JSON-LD document, or null when emit() outputs nothing.
+	 */
+	private function emit_front_page_document() {
+		add_filter(
+			'pre_option_show_on_front',
+			static function () {
+				return 'posts';
+			}
+		);
+
+		global $wp_query;
+		$wp_query          = new \WP_Query();
+		$wp_query->is_home = true;
+
+		return $this->capture_emitted_document();
+	}
+
+	/**
+	 * Run emit() with the current `$wp_query`, capture its output, and decode the
+	 * single JSON-LD script block (or null when nothing is emitted).
+	 *
+	 * @return array|null
+	 */
+	private function capture_emitted_document() {
 		ob_start();
 		Schema_Builder::emit();
 		$html = (string) ob_get_clean();
@@ -146,9 +183,10 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * Nothing is emitted on non-singular requests (home, archives, 404). Site-level
-	 * nodes ride along on the singular request's graph; they are not emitted on
-	 * their own yet.
+	 * Nothing is emitted on a non-singular request that is not the front page
+	 * (archives, 404, search): no page node and no Organization, so the graph is
+	 * empty. The front page is the one non-singular request that does emit — see
+	 * test_emits_organization_on_front_page().
 	 */
 	public function test_emits_nothing_on_non_singular() {
 		$this->assertNull( $this->emit_document( null ) );
@@ -187,6 +225,10 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertArrayHasKey( 'headline', $article );
 		$this->assertArrayHasKey( 'datePublished', $article );
 		$this->assertArrayHasKey( 'mainEntityOfPage', $article );
+
+		// The full Organization node lives on the home page only; a post references
+		// it by @id (see test_post_references_publisher_by_id_without_organization_node).
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
 	}
 
 	/**
@@ -209,29 +251,122 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * The graph leads with the site-level Organization node, and the Article
-	 * references it as `publisher` by `@id`.
+	 * The home page emits the site-level Organization node (Google's guidance: one
+	 * canonical entity, on the home page) and, being non-singular, no page node.
 	 */
-	public function test_graph_leads_with_organization_referenced_as_article_publisher() {
+	public function test_emits_organization_on_front_page() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertIsArray( $organization, 'Expected an Organization node on the home page.' );
+		$this->assertSame( 'Acme Co', $organization['name'] );
+
+		$this->assertNull( $this->node_of_type( $doc, 'Article' ), 'The home page has no Article node.' );
+	}
+
+	/**
+	 * A single post references the home-page Organization as its `publisher` by the
+	 * stable `@id`, without duplicating the full Organization node onto the post.
+	 */
+	public function test_post_references_publisher_by_id_without_organization_node() {
 		$this->set_site_name( 'Acme Co' );
 
 		$doc = $this->emit_document( $this->make_post() );
 
-		$this->assertSame( 'Organization', $doc['@graph'][0]['@type'], 'Site-level nodes come first.' );
-
-		$organization = $this->node_of_type( $doc, 'Organization' );
-		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
-		$this->assertSame( 'Acme Co', $organization['name'] );
-
 		$article = $this->node_of_type( $doc, 'Article' );
-		$this->assertSame( $organization['@id'], $article['publisher']['@id'] );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::organization(), $article['publisher']['@id'] );
+
+		// Site-level nodes live on the home page only, never duplicated onto a post.
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
+		$this->assertNull( $this->node_of_type( $doc, 'WebSite' ), 'A post must not carry the WebSite node.' );
 	}
 
 	/**
-	 * A FAQPage joins the graph alongside the Organization, but carries no
-	 * `publisher` (only Article references a publisher).
+	 * The home page includes the site-level WebSite node, referenced to the
+	 * Organization by `publisher`. Like Organization, it lives on the home page
+	 * only — never on posts.
 	 */
-	public function test_faqpage_has_no_publisher_but_graph_has_organization() {
+	public function test_graph_includes_website_referenced_to_organization() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$website      = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
+		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::website(), $website['@id'] );
+		$this->assertSame( 'Acme Co', $website['name'] );
+		$this->assertSame( $organization['@id'], $website['publisher']['@id'] );
+		$this->assertSame( 'SearchAction', $website['potentialAction']['@type'] );
+	}
+
+	/**
+	 * Without a Site Title, neither site-level node is emitted on the home page, so
+	 * the home page graph is empty.
+	 */
+	public function test_graph_omits_site_level_nodes_without_site_name() {
+		$this->set_site_name( '' );
+
+		$doc = $this->emit_front_page_document();
+
+		$this->assertNull( $doc, 'An unnamed site emits no site-level nodes.' );
+	}
+
+	/**
+	 * Saved schema settings reach the emitted JSON-LD: a configured `sameAs` (and a
+	 * `name` override) flows through Schema_Settings → the `$settings` seam on
+	 * Organization_Schema_Node → the emitted Organization node. This is the end-to-end
+	 * proof that the settings store is wired into the front-end output.
+	 */
+	public function test_emitted_organization_reflects_saved_schema_settings() {
+		$this->set_site_name( 'Acme Co' );
+		Schema_Settings::update(
+			array(
+				'organization' => array(
+					'name'   => 'Acme Corporation',
+					'sameAs' => array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+					'email'  => 'hello@acme.test',
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
+		// The stored name override wins over the Site Title.
+		$this->assertSame( 'Acme Corporation', $organization['name'] );
+		$this->assertSame(
+			array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+			$organization['sameAs']
+		);
+		$this->assertSame( 'hello@acme.test', $organization['email'] );
+	}
+
+	/**
+	 * With no saved settings, the emitted Organization node still comes purely from
+	 * site identity and omits `sameAs` / `email`.
+	 */
+	public function test_emitted_organization_unconfigured_preserves_site_identity_only() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertSame( 'Acme Co', $organization['name'] );
+		$this->assertArrayNotHasKey( 'sameAs', $organization );
+		$this->assertArrayNotHasKey( 'email', $organization );
+	}
+
+	/**
+	 * A FAQPage on a single post carries no `publisher` (only Article references
+	 * one) and, like any post, does not carry the site-level Organization node.
+	 */
+	public function test_faqpage_has_no_publisher() {
 		$this->set_site_name( 'Acme Co' );
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
@@ -242,9 +377,10 @@ class SchemaBuilderTest extends TestCase {
 
 		$doc = $this->emit_document( $this->make_post( array( 'post_content' => $content ) ) );
 
-		$this->assertIsArray( $this->node_of_type( $doc, 'Organization' ) );
-
 		$faq = $this->node_of_type( $doc, 'FAQPage' );
+		$this->assertIsArray( $faq, 'Expected a FAQPage node in the graph.' );
 		$this->assertArrayNotHasKey( 'publisher', $faq );
+
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
 	}
 }

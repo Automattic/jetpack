@@ -83,6 +83,7 @@ export type {
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 } from './comment-followers';
+export type { StatsDevicesItem } from './devices';
 export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,
@@ -93,12 +94,6 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 } from './followers';
-export type {
-	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
-} from './devices';
 export type {
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,

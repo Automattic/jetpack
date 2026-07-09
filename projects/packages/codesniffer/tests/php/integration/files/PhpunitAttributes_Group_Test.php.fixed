@@ -76,7 +76,7 @@ class AttributesTest extends TestCase {
 	public function testMethodAttributes() {
 	}
 
-	#[Group()]
+	#[Group]
 	#[Ticket( 42 )]
 	public function bad() {
 	}

@@ -57,6 +57,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		local,
 		isSaving,
 		setField,
+		setSchemaSettings,
 		setVerification,
 		commit,
 		commitFields,
@@ -184,7 +185,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			{ /* Container for the site-level schema controls delivered by later
 			   issues. Own `id` so it can be deep-linked like `#verification`. */ }
 			<div id="schema" className="jetpack-seo-settings__section">
-				<SchemaCard />
+				<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
 			</div>
 
 			<CollapsibleCard.Root defaultOpen={ false }>

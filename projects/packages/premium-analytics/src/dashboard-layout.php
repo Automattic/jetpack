@@ -19,6 +19,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/dashboard-grammar.php';
+
 /**
  * Preferences scope under which the dashboard layout is stored. Mirrors the
  * scope read by the dashboard's JS hooks.
@@ -149,7 +151,7 @@ function get_dashboard_default_layout_response( $request ) {
 function register_dashboard_default_layout_route() {
 	register_rest_route(
 		DASHBOARD_REST_NAMESPACE,
-		'/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)+)/default-layout',
+		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/default-layout',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',
@@ -205,6 +207,30 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 				'width'  => 2,
 				'height' => 1,
 				'order'  => 1,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-devices-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-devices-widget-instance',
+			'type'      => 'jpa/devices',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 2,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-top-platforms-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-top-platforms-widget-instance',
+			'type'      => 'jpa/top-platforms',
+			'placement' => array(
+				'width'  => 2,
+				'height' => 2,
+				'order'  => 3,
 			),
 		);
 	}

@@ -3,6 +3,7 @@ import type { StatsPostRawResponse } from '../post';
 export const postStatsFixture: StatsPostRawResponse = {
 	date: '2026-06-22',
 	views: 128,
+	like_count: 24,
 	years: {
 		'2026': {
 			total: 128,
@@ -51,6 +52,7 @@ export const postStatsFixture: StatsPostRawResponse = {
 		post_date: '2026-06-22 10:00:00',
 		post_date_gmt: '2026-06-22 18:00:00',
 		post_status: 'publish',
+		comment_count: 8,
 	},
 };
 

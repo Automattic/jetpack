@@ -17,7 +17,7 @@ import FileDownloadsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 registerStatsMocks();
@@ -28,7 +28,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface FileDownloadsStoryControls {
@@ -49,7 +49,6 @@ function renderFileDownloadsWidget( { withComparison }: FileDownloadsStoryContro
 	return (
 		<FileDownloadsRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
 		/>
 	);
 }
@@ -87,7 +86,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< FileDownloadsStoryControls >;
+} satisfies Meta< ComponentProps< typeof FileDownloadsRender > & FileDownloadsStoryControls >;
 
 export default meta;
 

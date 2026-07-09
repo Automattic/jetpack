@@ -19,14 +19,20 @@ const SALES_BY_DEVICE_RENDER_MODULE = 'storybook/sales-by-device';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByDeviceRenderProps = ComponentProps< typeof SalesByDeviceRender >;
+type SalesByDeviceWidgetProps = ComponentProps< typeof SalesByDeviceRender >;
 
 interface SalesByDeviceStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset used for report params.
+	 */
 	preset: SelectablePresetId;
 }
 
-type SalesByDeviceStoryProps = SalesByDeviceRenderProps & SalesByDeviceStoryControls;
+type SalesByDeviceStoryProps = SalesByDeviceWidgetProps & SalesByDeviceStoryControls;
 
 interface SalesByDeviceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +47,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSalesByDeviceAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByDeviceRenderProps[ 'attributes' ] {
+): SalesByDeviceWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -84,9 +90,7 @@ function renderSalesByDevice( { withComparison, preset }: SalesByDeviceStoryCont
 /**
  * Story wrapper for rendering the sales by device widget in dashboard chrome.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether to include comparison report params.
- * @param root0.preset         - Date-range preset used for report params.
+ * @param {SalesByDeviceDashboardStoryProps} props - Story controls.
  * @return The rendered Storybook story.
  */
 function SalesByDeviceDashboardStory( {
@@ -132,7 +136,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< SalesByDeviceStoryControls >;
 type DashboardStory = StoryObj< SalesByDeviceDashboardStoryProps >;
 
 /**

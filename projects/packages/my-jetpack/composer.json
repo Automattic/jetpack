@@ -13,13 +13,15 @@
 		"automattic/jetpack-explat": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-protect-status": "@dev"
+		"automattic/jetpack-protect-status": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",

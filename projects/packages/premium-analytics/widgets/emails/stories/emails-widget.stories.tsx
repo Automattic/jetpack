@@ -34,7 +34,7 @@ const meta: Meta< typeof EmailsLeaderboard > = {
 		docs: {
 			description: {
 				component:
-					'The "Emails" widget. Lists the most recently sent emails with a selector to switch between open rate and click rate, rendered as a leaderboard. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
+					'The "Emails" widget. Lists the most recently sent emails with their open or click rate, rendered as a leaderboard. The displayed rate is the `metric` attribute (`relevance: \'high\'`), exposed as a control by the widget host. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
 			},
 		},
 	},
@@ -101,22 +101,34 @@ const mockLongLabelRows: EmailRow[] = [
 ];
 
 /**
+ * Close-up canvas so the widget fills a real body area outside the dashboard
+ * grid — the loading overlay and empty state need a sized container to render in.
+ */
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '320px' } }>
+		<Story />
+	</div>
+);
+
+/**
  * Default populated state — latest emails (newest first) with their open rate.
  */
 export const Default: Story = {
 	args: {
 		rows: mockRows,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Click-rate view — the selector defaults to click rate instead of open rate.
+ * Click-rate view — the `metric` attribute set to click rate instead of open rate.
  */
 export const ByClickRate: Story = {
 	args: {
 		rows: mockRows,
-		initialMetric: 'clicks',
+		metric: 'clicks',
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -127,6 +139,7 @@ export const Loading: Story = {
 		rows: [],
 		isLoading: true,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -136,6 +149,7 @@ export const Empty: Story = {
 	args: {
 		rows: [],
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -145,6 +159,7 @@ export const ErrorState: Story = {
 	args: {
 		isError: true,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -154,6 +169,7 @@ export const LongLabels: Story = {
 	args: {
 		rows: mockLongLabelRows,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -203,7 +219,7 @@ export const SizeLarge: Story = {
 
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (framed card, sizing, edit mode).
+ * appears exactly as it does in product (full-bleed framing, sizing, edit mode).
  *
  * @param props - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
@@ -220,7 +236,7 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 			} }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 6 } }
+			attributes={ { max: 6, metric: 'opens' } }
 		/>
 	);
 }

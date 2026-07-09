@@ -17,6 +17,9 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
+export { useStatsQuery } from './hooks/use-stats-query';
+export { latestPostQuery } from './queries/latest-post-query';
+export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';
@@ -105,12 +108,7 @@ export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export { useStatsHighlights } from './hooks/use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
-export {
-	useStatsDevices,
-	type StatsDevices,
-	type StatsDevicesDeviceParam,
-	type StatsDevicesParams,
-} from './hooks/use-stats-devices';
+export { useStatsDevices } from './hooks/use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,
@@ -186,6 +184,7 @@ export type {
 	StatsAppDashboardWordAdsModule,
 	StatsAppDashboardStoreModule,
 } from './hooks/use-stats-app-dashboard-modules';
+export type { StatsDeviceProperty } from './queries/stats-devices-query';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -203,7 +202,12 @@ export {
 	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
+	getApiErrorCode,
+	getApiErrorStatus,
+	getStatsPlanErrorReason,
+	shouldRetryApiError,
 } from './utils';
+export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
@@ -242,9 +246,6 @@ export type {
 	StatsItemAction,
 	StatsLocationsItem,
 	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,

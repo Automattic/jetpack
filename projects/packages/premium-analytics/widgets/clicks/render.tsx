@@ -9,24 +9,27 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
+	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Icon, Link, Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import widgetDefinition, { type ClicksAttributes } from './widget';
+import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
+type ClicksWidgetProps = WidgetRenderProps< ClicksRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -173,20 +176,24 @@ export function toClickRows(
 	return sliced.map( toClickRow );
 }
 
-function ClickLabel( { row }: { row: ClickRow } ) {
+type ClickLabelProps = {
+	/**
+	 * The normalized click row whose favicon and label to render.
+	 */
+	row: ClickRow;
+};
+
+/**
+ * Renders a click row's favicon and label.
+ *
+ * @param {ClickLabelProps} props - The component props.
+ * @return The rendered label content.
+ */
+function ClickLabel( { row }: ClickLabelProps ) {
 	return (
 		<span className={ styles.labelContent }>
 			{ row.icon && <img src={ row.icon } alt="" className={ styles.labelIcon } /> }
 			<span className={ styles.labelTitle }>{ row.label }</span>
-		</span>
-	);
-}
-
-function ClicksHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'Clicks', 'jetpack-premium-analytics' ) }</span>
 		</span>
 	);
 }
@@ -249,22 +256,32 @@ function buildLeaderboardData(
 }
 
 export type ClicksLeaderboardProps = {
+	/**
+	 * Normalized click rows.
+	 */
 	rows?: ClickRow[];
+	/**
+	 * When true, show a loading overlay.
+	 */
 	isLoading?: boolean;
+	/**
+	 * When true, show an error message.
+	 */
 	isError?: boolean;
+	/**
+	 * When true, render comparison deltas.
+	 */
 	withComparison?: boolean;
+	/**
+	 * Callback fired when a row with child links is selected.
+	 */
 	onDrillDown?: ( row: ClickRow ) => void;
 };
 
 /**
  * Presentational leaderboard for the Clicks widget.
  *
- * @param props                - Component props.
- * @param props.rows           - Normalized click rows.
- * @param props.isLoading      - When true, show a loading overlay.
- * @param props.isError        - When true, show an error message.
- * @param props.withComparison - When true, render comparison deltas.
- * @param props.onDrillDown    - Callback fired when a row with child links is selected.
+ * @param {ClicksLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export function ClicksLeaderboard( {
@@ -299,13 +316,27 @@ export function ClicksLeaderboard( {
 	);
 }
 
-function ClicksInner( { max }: { max: number } ) {
+type ClicksInnerProps = {
+	/**
+	 * Maximum rows to display. 0 means all rows returned by the API.
+	 */
+	max: number;
+};
+
+/**
+ * Clicks widget inner component. Reads report params from WidgetRoot context
+ * and renders the leaderboard, with drill-down into a link's child clicks.
+ *
+ * @param {ClicksInnerProps} props - The component props.
+ * @return The rendered widget content.
+ */
+function ClicksInner( { max }: ClicksInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const [ selectedClickLabel, setSelectedClickLabel ] = useState< string | null >( null );
-	const clearSelectedClick = useCallback( () => setSelectedClickLabel( null ), [] );
-	const handleDrillDown = useCallback( ( row: ClickRow ) => {
-		setSelectedClickLabel( row.label );
-	}, [] );
+	const {
+		drillDownItem: selectedClickLabel,
+		drillDown: selectClick,
+		resetDrillDown: clearSelectedClick,
+	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
 		max,
@@ -329,44 +360,32 @@ function ClicksInner( { max }: { max: number } ) {
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
-
-	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ isDrillDown ? (
-					<>
-						<Button
-							variant="unstyled"
-							onClick={ clearSelectedClick }
-							className={ styles.breadcrumbLink }
-						>
-							<ClicksHeaderTitle />
-						</Button>
-						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text className={ styles.breadcrumbCurrent }>{ selectedClick?.label }</Text>
-					</>
-				) : (
-					<Text className={ styles.breadcrumbTitle }>
-						<ClicksHeaderTitle />
-					</Text>
-				) }
-			</Stack>
-		</Stack>
+	const handleDrillDown = useCallback(
+		( row: ClickRow ) => {
+			selectClick( row.label );
+		},
+		[ selectClick ]
 	);
 
+	const backLink = isDrillDown ? (
+		<WidgetBackLink
+			label={ __( 'All Clicks', 'jetpack-premium-analytics' ) }
+			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics' ) }
+			onClick={ clearSelectedClick }
+		/>
+	) : null;
+
 	return (
-		<>
-			{ header }
-			<div className={ styles.content }>
-				<ClicksLeaderboard
-					rows={ activeRows }
-					isLoading={ showLoading }
-					isError={ isError }
-					withComparison={ hasComparison }
-					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
-				/>
-			</div>
-		</>
+		<div className={ styles.content }>
+			{ backLink }
+			<ClicksLeaderboard
+				rows={ activeRows }
+				isLoading={ showLoading }
+				isError={ isError }
+				withComparison={ hasComparison }
+				onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+			/>
+		</div>
 	);
 }
 
@@ -376,13 +395,10 @@ function ClicksInner( { max }: { max: number } ) {
  * Shows the most-clicked external links as a ranked leaderboard. Date range
  * comes from the shared dashboard date picker via WidgetRoot.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
+ * @param {ClicksWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
-export default function ClicksWidget( {
-	attributes = {},
-}: WidgetRenderProps< ClicksRenderAttributes > ) {
+export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 	const max = attributes?.max ?? 10;
 
 	return (

@@ -19,15 +19,15 @@ const TOTAL_RETURNS_RENDER_MODULE = 'storybook/total-returns';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type TotalReturnsRenderProps = ComponentProps< typeof TotalReturnsRender >;
-const noopSetError: TotalReturnsRenderProps[ 'setError' ] = () => undefined;
+type TotalReturnsWidgetProps = ComponentProps< typeof TotalReturnsRender >;
+const noopSetError: TotalReturnsWidgetProps[ 'setError' ] = () => undefined;
 
 interface TotalReturnsStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type TotalReturnsStoryProps = TotalReturnsRenderProps & TotalReturnsStoryControls;
+type TotalReturnsStoryProps = TotalReturnsWidgetProps & TotalReturnsStoryControls;
 
 interface TotalReturnsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -42,7 +42,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getTotalReturnsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): TotalReturnsRenderProps[ 'attributes' ] {
+): TotalReturnsWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -99,7 +99,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< TotalReturnsStoryControls >;
 type DashboardStory = StoryObj< TotalReturnsDashboardStoryProps >;
 
 /**

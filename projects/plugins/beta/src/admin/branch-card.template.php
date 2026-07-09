@@ -57,7 +57,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		'activate_branch'
 	);
 
-	if ( $active_branch->source === $branch->source && $active_branch->id === $branch->id ) {
+	$is_active_branch = $active_branch->source === $branch->source && $active_branch->id === $branch->id;
+	if ( $is_active_branch ) {
 		$classes[] = 'branch-card-active';
 	}
 	if ( 'unknown' === $branch->source ) {
@@ -89,7 +90,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="dops-foldable-card__header has-border" >
 					<span class="dops-foldable-card__main">
 						<div class="dops-foldable-card__header-text">
-							<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $branch->pretty_version ); ?></div>
+							<div class="dops-foldable-card__header-text branch-card-header">
+								<span class="branch-card-version"><?php echo esc_html( $branch->pretty_version ); ?></span>
+								<?php if ( $is_active_branch ) { ?>
+									<span class="jetpack-beta-badge jetpack-beta-badge--active"><?php echo esc_html( $active_text ); ?></span>
+								<?php } ?>
+							</div>
 							<div class="dops-foldable-card__subheader">
 							<?php echo wp_kses_post( implode( ' - ', $more_info ) ); ?>
 							</div>
@@ -97,7 +103,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</span>
 					<span class="dops-foldable-card__secondary">
 						<span class="dops-foldable-card__summary" data-active="<?php echo esc_attr( $active_text ); ?>">
-							<a href="<?php echo esc_html( $activate_url ); ?>" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="jetpack_beta_activate_branch" data-jptracks-prop="<?php echo esc_attr( "{$branch->source}:{$branch->id}" ); ?>"><?php echo esc_html( $activate_text ); ?></a>
+							<a href="<?php echo esc_url( $activate_url ); ?>" class="jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="jetpack_beta_activate_branch" data-jptracks-prop="<?php echo esc_attr( "{$branch->source}:{$branch->id}" ); ?>"><?php echo esc_html( $activate_text ); ?></a>
 						</span>
 					</span>
 				</div>

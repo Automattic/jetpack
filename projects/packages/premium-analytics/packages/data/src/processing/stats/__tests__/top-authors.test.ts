@@ -16,6 +16,7 @@ describe( 'Stats top authors normalizer', () => {
 		} );
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
 			expect.objectContaining( {
+				id: 196411292,
 				label: 'Jetpack Team',
 				views: 4166,
 				icon: 'https://example.com/avatar.png',
@@ -51,6 +52,7 @@ describe( 'Stats top authors normalizer', () => {
 				date_end: '2026-06-16T23:59:59+00:00',
 				items: [
 					expect.objectContaining( {
+						id: 196411292,
 						label: 'Jetpack Team',
 						views: 64,
 						children: [

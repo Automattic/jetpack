@@ -9,24 +9,18 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { SelectControl } from '@wordpress/components';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { EmailsAttributes } from './widget';
+import { type EmailMetric, type EmailsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type EmailsRenderAttributes = EmailsAttributes & Partial< ReportParamsFieldAttributes >;
-
-/**
- * Which rate the leaderboard displays. Rows stay in newest-first order
- * regardless; this only changes the value shown and the overlay bar width.
- */
-export type EmailMetric = 'opens' | 'clicks';
+type EmailsWidgetProps = WidgetRenderProps< EmailsRenderAttributes >;
 
 /**
  * A single normalized email row, flattened from the `useStatsEmailSummary`
@@ -110,17 +104,17 @@ type EmailsLeaderboardProps = {
 	 */
 	isError?: boolean;
 	/**
-	 * Initial metric. Defaults to `opens`.
+	 * Which rate to display. Defaults to `opens`.
 	 */
-	initialMetric?: EmailMetric;
+	metric?: EmailMetric;
 };
 
 /**
  * Presentational leaderboard for the "Emails" widget. Lists the most recently
- * sent emails with a selector to switch between open rate and click rate.
+ * sent emails with their open or click rate.
  *
- * Takes already-fetched rows via props and owns only the metric selection plus
- * the loading, error, empty, and populated states. Exported so Storybook can
+ * Takes already-fetched rows and the active metric via props and owns only the
+ * loading, error, empty, and populated states. Exported so Storybook can
  * exercise those states with fixture rows (there is no analytics backend in
  * Storybook, so the data-connected entry point would only ever show chrome).
  *
@@ -132,23 +126,16 @@ export const EmailsLeaderboard = ( {
 	isLoading = false,
 	isFetching = false,
 	isError = false,
-	initialMetric = 'opens',
+	metric = 'opens',
 }: EmailsLeaderboardProps ) => {
-	const [ metric, setMetric ] = useState< EmailMetric >( initialMetric );
-
-	const handleMetricChange = useCallback(
-		( value: string ) => setMetric( value as EmailMetric ),
-		[]
-	);
-
 	const data = useMemo( () => buildLeaderboardData( rows, metric ), [ rows, metric ] );
 
 	let body;
 	if ( isError ) {
 		body = (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }
-			</Text>
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
 		);
 	} else if ( isLoading && rows.length === 0 ) {
 		body = <WidgetLoadingOverlay />;
@@ -173,26 +160,7 @@ export const EmailsLeaderboard = ( {
 		);
 	}
 
-	return (
-		<Stack className={ styles.root }>
-			<Stack direction="row" justify="flex-end" align="center" className={ styles.header }>
-				<SelectControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					label={ __( 'View by', 'jetpack-premium-analytics' ) }
-					hideLabelFromVision
-					value={ metric }
-					options={ [
-						{ label: __( 'Open rate', 'jetpack-premium-analytics' ), value: 'opens' },
-						{ label: __( 'Click rate', 'jetpack-premium-analytics' ), value: 'clicks' },
-					] }
-					onChange={ handleMetricChange }
-					className={ styles.metricSelect }
-				/>
-			</Stack>
-			{ body }
-		</Stack>
-	);
+	return <div className={ styles.root }>{ body }</div>;
 };
 
 /**
@@ -230,6 +198,7 @@ type EmailsReportProps = {
  */
 function EmailsReport( { attributes }: EmailsReportProps ) {
 	const max = attributes?.max ?? 10;
+	const metric = attributes?.metric ?? 'opens';
 	// The summary endpoint accepts 1–30 rows and resets anything outside that
 	// range to 10, so request its maximum when the widget wants "all rows".
 	const quantity = max > 0 ? Math.min( max, 30 ) : 30;
@@ -244,6 +213,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 			isLoading={ isLoading }
 			isFetching={ isFetching }
 			isError={ isError }
+			metric={ metric }
 		/>
 	);
 }
@@ -251,13 +221,14 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 /**
  * Widget render entry point.
  *
- * Passes host attributes into `WidgetRoot` for the widget contract. The email
- * summary still reads `max` from props because it does not use report params.
+ * The displayed rate is the `metric` attribute (`relevance: 'high'`), exposed
+ * as a control by the widget host. The email summary still reads `max` from
+ * props because it does not use report params.
  *
- * @param {WidgetRenderProps< EmailsRenderAttributes >} props - The render props supplied by the widget host.
+ * @param {EmailsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function Emails( { attributes = {} }: WidgetRenderProps< EmailsRenderAttributes > ) {
+export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<EmailsReport attributes={ attributes } />

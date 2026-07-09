@@ -18,31 +18,89 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
 import {
+	buildSummary,
+	resolveResultsGit,
+	assertCaptureComplete,
+	assertExpectedUrl,
+	summarizeResources,
+} from './measure-lcp.js';
+import {
 	checkSanityRange,
 	exitCodeForError,
 	extractScenarioMetrics,
 	isDirectInvocation,
+	pairedCommitTimestampMs,
 	postToCodeVitals,
 	redactToken,
+	resolveDedupEnabled,
+	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
-import { shouldFailBuildOnPostError } from './run-performance-tests.js';
+import {
+	getGitInfo,
+	resolveCommitTimestampEnv,
+	shouldFailBuildOnPostError,
+} from './run-performance-tests.js';
 import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
 const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
+const TTFB_KEY = 'wp-admin-dashboard-connection-sim-timeToFirstByte';
+const FCP_KEY = 'wp-admin-dashboard-connection-sim-firstContentfulPaint';
+const FORMS_LCP_KEY = 'forms-responses-connection-sim-largestContentfulPaint';
+const FORMS_TTFB_KEY = 'forms-responses-connection-sim-timeToFirstByte';
+const FORMS_FCP_KEY = 'forms-responses-connection-sim-firstContentfulPaint';
+const FORMS_DECODED_KEY = 'forms-responses-connection-sim-decodedBytesKB';
 
-/** Write a results fixture with the given median LCP and return its path. */
-function writeResults( median ) {
+/**
+ * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
+ * The poster reads summary.<field>.median for each metrics-array entry; the flat
+ * top-level `median` mirrors LCP for the legacy metricKey path and older readers.
+ */
+function jetpackSummary( { lcp = 120, ttfb = 150, fcp = 400 } = {} ) {
+	return {
+		median: lcp, // flat LCP mirror (backward-compat)
+		lcp: { median: lcp },
+		ttfb: { median: ttfb },
+		fcp: { median: fcp },
+	};
+}
+
+/**
+ * Build the nested per-field summary the formsResponses scenario reads: the same three timing
+ * fields plus the FORMS-704 bundle-size field (summary.decodedBytesKB.median). Defaults are
+ * in-range so all four post cleanly unless a test overrides one to exercise a rejection.
+ */
+function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229 } = {} ) {
+	return {
+		median: lcp,
+		lcp: { median: lcp },
+		ttfb: { median: ttfb },
+		fcp: { median: fcp },
+		decodedBytesKB: { median: decodedBytesKB },
+	};
+}
+
+/**
+ * Write a results fixture and return its path. `median` is the LCP median (kept as the
+ * first positional arg so existing single-arg call sites read the same); TTFB and FCP
+ * default to in-range values so the two new metrics post cleanly unless overridden. Pass
+ * `forms` (an object of field overrides) to also include a `formsResponses` measurement; omit
+ * it and only `jetpackConnected` is written, exactly as before.
+ */
+function writeResults(
+	median,
+	{ ttfb = 150, fcp = 400, hash = 'testhash', branch = 'trunk', forms = null } = {}
+) {
 	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-results-' ) );
 	const file = path.join( dir, 'results.json' );
-	fs.writeFileSync(
-		file,
-		JSON.stringify( {
-			git: { hash: 'testhash', branch: 'trunk' },
-			measurements: { jetpackConnected: { summary: { median } } },
-		} )
-	);
+	const measurements = {
+		jetpackConnected: { summary: jetpackSummary( { lcp: median, ttfb, fcp } ) },
+	};
+	if ( forms ) {
+		measurements.formsResponses = { summary: formsSummary( forms ) };
+	}
+	fs.writeFileSync( file, JSON.stringify( { git: { hash, branch }, measurements } ) );
 	return file;
 }
 
@@ -75,9 +133,31 @@ test( 'out-of-range value is rejected', () => {
 	assert.equal( checkSanityRange( 'lcp', 60001 ).ok, false ); // above max
 } );
 
+test( 'decodedBytesKB range is enforced at its boundaries', () => {
+	// The range VALUES (1000/51200) are data, not shared logic: a transposed or mistyped bound
+	// passes every field-agnostic checkSanityRange test above yet ships silently to the
+	// append-only store. Pin this metric's own boundaries so a wrong bound fails a test instead.
+	assert.equal( checkSanityRange( 'decodedBytesKB', 1000 ).ok, true ); // min, inclusive
+	assert.equal( checkSanityRange( 'decodedBytesKB', 51200 ).ok, true ); // max, inclusive
+	assert.equal( checkSanityRange( 'decodedBytesKB', 999 ).ok, false ); // below min
+	assert.equal( checkSanityRange( 'decodedBytesKB', 51201 ).ok, false ); // above max
+	assert.equal( checkSanityRange( 'decodedBytesKB', 8229 ).ok, true ); // the measured value
+} );
+
 test( 'a typed metric with no range row fails closed (typo / forgotten row)', () => {
 	assert.equal( checkSanityRange( 'lcpp', 120 ).ok, false ); // typo
 	assert.equal( checkSanityRange( 'LCP', 120 ).ok, false ); // case mismatch, lookup is exact
+} );
+
+test( 'a type naming an inherited Object property fails closed, not posted unchecked', () => {
+	// SANITY_RANGES is a plain object, so SANITY_RANGES.constructor (and toString/valueOf/
+	// hasOwnProperty) is a truthy inherited value with undefined min/max. A plain `! range`
+	// check would let it through and the value would post unchecked. The lookup must be
+	// own-property-only.
+	assert.equal( checkSanityRange( 'constructor', 999999 ).ok, false );
+	assert.equal( checkSanityRange( 'toString', 999999 ).ok, false );
+	assert.equal( checkSanityRange( 'valueOf', 999999 ).ok, false );
+	assert.equal( checkSanityRange( 'hasOwnProperty', 999999 ).ok, false );
 } );
 
 test( 'non-finite values are rejected, including on min-0 ranges', () => {
@@ -124,12 +204,179 @@ test( 'legacy prefix yields five untyped entries', () => {
 	);
 } );
 
+// --- extractScenarioMetrics: the FORMS-707 multi-metric (metrics-array) path ---
+
+test( 'a metrics array yields one typed entry per element, each from its own summary field', () => {
+	const entries = extractScenarioMetrics(
+		{
+			key: 'multi',
+			metrics: [
+				{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+				{ field: 'ttfb', codevitalsKey: 'k-ttfb', type: 'ttfb' },
+				{ field: 'fcp', codevitalsKey: 'k-fcp', type: 'fcp' },
+			],
+		},
+		{
+			median: 120, // flat mirror — must NOT be read by the array path
+			lcp: { median: 120 },
+			ttfb: { median: 150 },
+			fcp: { median: 400 },
+		}
+	);
+	assert.deepEqual( entries, [
+		{ key: 'k-lcp', value: 120, type: 'lcp' },
+		{ key: 'k-ttfb', value: 150, type: 'ttfb' },
+		{ key: 'k-fcp', value: 400, type: 'fcp' },
+	] );
+} );
+
+test( 'a metrics-array entry missing its type fails closed (never posted unchecked)', () => {
+	// Same fail-closed invariant as the single-metricKey path: a keyed metric with no type
+	// would post any finite value to the append-only store, so extraction must throw instead.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{
+					key: 'multi',
+					metrics: [
+						{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+						{ field: 'ttfb', codevitalsKey: 'k-ttfb' }, // no type
+					],
+				},
+				{ lcp: { median: 120 }, ttfb: { median: 150 } }
+			),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /no type/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
+	);
+} );
+
+test( 'a metrics-array entry missing its codevitalsKey fails closed (never posts under "undefined")', () => {
+	// Same fail-closed invariant as the type guard: an entry with no key would post its value
+	// under the literal key "undefined" — a permanent garbage point checkSanityRange can't
+	// catch (it only inspects the value). Extraction must throw before any post.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{
+					key: 'multi',
+					metrics: [
+						{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+						{ field: 'ttfb', type: 'ttfb' }, // no codevitalsKey
+					],
+				},
+				{ lcp: { median: 120 }, ttfb: { median: 150 } }
+			),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /no codevitalsKey/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
+	);
+} );
+
+test( 'a metrics array that repeats a CodeVitals key fails closed at extraction', () => {
+	// A within-scenario duplicate key would post one value then clobber it. It is a config
+	// bug (value-independent), so it must fail closed at extraction — before any value is
+	// even read — not depend on the loop-level guard, which a skipped sanity check can bypass.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{
+					key: 'multi',
+					metrics: [
+						{ field: 'lcp', codevitalsKey: 'dup-key', type: 'lcp' },
+						{ field: 'ttfb', codevitalsKey: 'dup-key', type: 'ttfb' }, // same key
+					],
+				},
+				{ lcp: { median: 120 }, ttfb: { median: 150 } }
+			),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /[Dd]uplicate/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
+	);
+} );
+
+test( 'a metrics-array entry with a missing summary field reads undefined (fails closed later, no crash)', () => {
+	// A field absent from the summary (e.g. the browser never captured it) must yield
+	// undefined — not crash on summary.<field>.median — so checkSanityRange rejects it.
+	const entries = extractScenarioMetrics(
+		{
+			key: 'multi',
+			metrics: [
+				{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+				{ field: 'ttfb', codevitalsKey: 'k-ttfb', type: 'ttfb' },
+			],
+		},
+		{ lcp: { median: 120 } } // no ttfb block
+	);
+	assert.deepEqual( entries[ 1 ], { key: 'k-ttfb', value: undefined, type: 'ttfb' } );
+	assert.equal( checkSanityRange( entries[ 1 ].type, entries[ 1 ].value ).ok, false );
+} );
+
 test( 'a keyed scenario without a metricType is rejected, not posted unchecked', () => {
 	// Without this guard the entry would emit type:undefined and pass the range
 	// check as a "legacy" metric — posting any finite value to an append-only store.
 	assert.throws(
 		() => extractScenarioMetrics( { key: 'future', metricKey: 'future-key' }, { median: 999999 } ),
 		/metricKey but no metricType/
+	);
+} );
+
+test( 'an empty metrics array is rejected as a misconfiguration, not silently dropped', () => {
+	// metrics:[] passes Array.isArray and would map to nothing: fail-closed while it is
+	// the only posting scenario, but a SILENT drop (green build) once a sibling posting
+	// scenario contributes a valid key. Reject the config shape outright — as a
+	// ValidationError (exit 2), since --allow-codevitals-failure must not suppress it.
+	assert.throws(
+		() => extractScenarioMetrics( { key: 'future', metrics: [] }, { lcp: { median: 100 } } ),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /declares an empty metrics array/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
+	);
+} );
+
+test( 'a null metrics[] entry maps to the validation exit code, not a suppressible TypeError', () => {
+	// Without the shape guard, metric.codevitalsKey on null throws a raw TypeError →
+	// exit 1 (suppressible), escaping the exit-2 contract its sibling guards honor.
+	let err;
+	try {
+		extractScenarioMetrics( { key: 'future', metrics: [ null ] }, { lcp: { median: 100 } } );
+	} catch ( e ) {
+		err = e;
+	}
+	assert.equal( err?.name, 'ValidationError' );
+	assert.match( err.message, /non-object metrics\[\] entry/ );
+	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+} );
+
+test( 'a posting scenario with no metric selector at all is rejected, not posted under undefined_* keys', () => {
+	// Without this guard the legacy branch builds keys from an undefined prefix and posts
+	// five finite summary stats under literal "undefined_*" keys — untyped (unchecked) and
+	// with a green build. The only fail-open extraction shape; must throw like its siblings,
+	// as a ValidationError (exit 2) that --allow-codevitals-failure cannot suppress.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{ key: 'future' },
+				{ median: 100, mean: 100, min: 90, max: 110, stdDev: 5 }
+			),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /no metrics\[\], metricKey, or metricPrefix/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
 	);
 } );
 
@@ -148,20 +395,95 @@ test( 'a scenario misconfiguration maps to the validation exit code, a transport
 	assert.equal( exitCodeForError( new Error( 'CodeVitals API error (500)' ) ), 1 );
 } );
 
-test( 'every posted exact-key scenario declares a metricType with a matching sanity range', () => {
-	// Config contract for the real SCENARIOS: any scenario that posts an exact metricKey
-	// must declare a metricType that has a SANITY_RANGES row, or it would post unchecked
-	// (or throw at extraction). Pins this as a 2nd posted metric is added (FORMS-707).
-	const posted = SCENARIOS.filter( s => s.postToCodeVitals && s.metricKey );
-	assert.ok( posted.length > 0, 'expected at least one posted exact-key scenario' );
+test( 'every posted keyed metric declares a type with a matching sanity range', () => {
+	// Config contract for the real SCENARIOS: any scenario that posts a keyed metric — via a
+	// single metricKey OR a metrics array — must declare a type that has a SANITY_RANGES row,
+	// or it would post unchecked (or throw at extraction). Covers both the legacy single-key
+	// shape and the FORMS-707 multi-metric shape, so neither can regress the fail-closed rule.
+	const posted = SCENARIOS.filter(
+		s => s.postToCodeVitals && ( s.metricKey || Array.isArray( s.metrics ) )
+	);
+	assert.ok( posted.length > 0, 'expected at least one posted keyed scenario' );
 	for ( const scenario of posted ) {
-		const label = scenario.key ?? scenario.metricKey;
-		assert.ok( scenario.metricType, `scenario "${ label }" must declare a metricType` );
-		assert.ok(
-			SANITY_RANGES[ scenario.metricType ],
-			`scenario "${ label }" type "${ scenario.metricType }" needs a SANITY_RANGES row`
-		);
+		// Normalize both shapes to a list of { key, type } to assert on uniformly.
+		const keyed = Array.isArray( scenario.metrics )
+			? scenario.metrics.map( m => ( { key: m.codevitalsKey, type: m.type } ) )
+			: [ { key: scenario.metricKey, type: scenario.metricType } ];
+		for ( const { key, type } of keyed ) {
+			const label = `${ scenario.key ?? key } → ${ key }`;
+			assert.ok(
+				typeof key === 'string' && key.trim(),
+				`metric on scenario "${ scenario.key }" must declare a non-empty codevitalsKey`
+			);
+			assert.ok( type, `metric "${ label }" must declare a type` );
+			assert.ok(
+				SANITY_RANGES[ type ],
+				`metric "${ label }" type "${ type }" needs a SANITY_RANGES row`
+			);
+		}
 	}
+} );
+
+test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production keys', () => {
+	// Pins the FORMS-707 config: the dashboard scenario declares exactly the three production
+	// keys, each reading its own summary field, so a future edit that drops or renames one
+	// (or swaps in a -staging key) fails here rather than silently in production.
+	const scenario = SCENARIOS.find( s => s.key === 'jetpackConnected' );
+	assert.ok( Array.isArray( scenario.metrics ), 'jetpackConnected must use the metrics array' );
+	assert.deepEqual(
+		scenario.metrics.map( m => ( {
+			field: m.field,
+			codevitalsKey: m.codevitalsKey,
+			type: m.type,
+		} ) ),
+		[
+			{ field: 'lcp', codevitalsKey: LCP_KEY, type: 'lcp' },
+			{ field: 'ttfb', codevitalsKey: TTFB_KEY, type: 'ttfb' },
+			{ field: 'fcp', codevitalsKey: FCP_KEY, type: 'fcp' },
+		]
+	);
+} );
+
+test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
+	// Pins the FORMS-704 config: the Forms responses wp-build page carries the bundle-size
+	// metric (summary.decodedBytesKB.median) alongside the timing metrics, each on its own
+	// production key. A dropped/renamed key, or a decoded metric with no type (which would
+	// post unchecked), fails here rather than silently in the append-only store.
+	const scenario = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.ok( scenario, 'formsResponses scenario must exist' );
+	assert.ok( Array.isArray( scenario.metrics ), 'formsResponses must use the metrics array' );
+	assert.deepEqual(
+		scenario.metrics.map( m => ( {
+			field: m.field,
+			codevitalsKey: m.codevitalsKey,
+			type: m.type,
+		} ) ),
+		[
+			{ field: 'lcp', codevitalsKey: FORMS_LCP_KEY, type: 'lcp' },
+			{ field: 'ttfb', codevitalsKey: FORMS_TTFB_KEY, type: 'ttfb' },
+			{ field: 'fcp', codevitalsKey: FORMS_FCP_KEY, type: 'fcp' },
+			{ field: 'decodedBytesKB', codevitalsKey: FORMS_DECODED_KEY, type: 'decodedBytesKB' },
+		]
+	);
+	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
+	// The path pins the responses-inbox route (`p=%2Fresponses%2Finbox`); without it a bare page
+	// URL server-redirects to the forms LIST, so this asserts the route stays on the inbox.
+	assert.equal(
+		scenario.path,
+		'/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox'
+	);
+	assert.ok( scenario.waitForSelector, 'formsResponses must declare a waitForSelector' );
+	// measure-lcp.js fails the run if the final URL does not contain this, so a redirect to the
+	// wrong tab cannot quietly populate the responses keys from the forms list.
+	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
+	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
+	// Lower bound is 40 (not 1): a degenerate floor of a handful of resources would pass the old
+	// `> 0` check while catching nothing. Upper bound stays below the real ~80-resource load so the
+	// floor keeps its 2x margin and never clips the legitimate editor-lazy-load drop.
+	assert.ok(
+		scenario.minResourceCount >= 40 && scenario.minResourceCount < 80,
+		'formsResponses must declare a resource-count floor of >=40 and below the real ~80-resource load'
+	);
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -180,12 +502,159 @@ test( 'redactToken strips the exact token and any token query param', () => {
 
 // --- postToCodeVitals (the accumulation loop + exit semantics) ---
 
-test( 'dry-run posts an in-range metric into the payload, nothing rejected', async () => {
-	const file = writeResults( 120 );
+test( 'dry-run posts all three scenario metrics into the payload, nothing rejected', async () => {
+	const file = writeResults( 120, { ttfb: 150, fcp: 400 } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.posted, false ); // dry run never posts
 	assert.equal( result.validationFailed, false );
+	// All three production keys, each from its own summary field; LCP unchanged.
 	assert.equal( result.payload.metrics[ LCP_KEY ], 120 );
+	assert.equal( result.payload.metrics[ TTFB_KEY ], 150 );
+	assert.equal( result.payload.metrics[ FCP_KEY ], 400 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 3 );
+} );
+
+test( 'dry-run with both scenarios present posts all 7 keys, including the Forms decoded-bytes key', async () => {
+	// The real automated run measures both scenarios, so the payload carries jetpackConnected's
+	// 3 timing keys AND formsResponses' 4 (timing + decodedBytesKB). This exercises the full
+	// posting loop for the Forms scenario — the config test pins the keys statically; this proves
+	// they actually reach the payload with the right values under the exact production key names.
+	const file = writeResults( 120, { forms: { decodedBytesKB: 8229 } } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ FORMS_LCP_KEY ], 300 );
+	assert.equal( result.payload.metrics[ FORMS_TTFB_KEY ], 200 );
+	assert.equal( result.payload.metrics[ FORMS_FCP_KEY ], 500 );
+	assert.equal( result.payload.metrics[ FORMS_DECODED_KEY ], 8229 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 7 );
+} );
+
+test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {
+	// The append-only guarantee end to end: one out-of-range decoded value (52000 > max 51200)
+	// fails its sanity check, the per-run atomic gate commits to posting nothing, and fetch is
+	// never reached — so not even jetpackConnected's good timing metrics land. Proves the bad
+	// bundle size cannot reach the store, and documents that the gate is per-run (a Forms failure
+	// also withholds the Dashboard series for that commit).
+	const file = writeResults( 120, { forms: { decodedBytesKB: 52000 } } );
+	const origFetch = global.fetch;
+	let fetchCalled = false;
+	global.fetch = async () => {
+		fetchCalled = true;
+		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+	};
+	let result;
+	try {
+		result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok',
+			} )
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.equal(
+		fetchCalled,
+		false,
+		'an out-of-range decoded value must suppress the entire live POST'
+	);
+	assert.equal( result.posted, false );
+	assert.equal( result.validationFailed, true );
+} );
+
+test( 'per-type sanity: one out-of-range metric is rejected, the survivors stay visible in the dry-run payload', async () => {
+	// Each metric is checked against its OWN type: 15000 is out of TTFB's range [10,10000]
+	// but INSIDE the lcp [100,60000] and fcp [50,30000] ranges, so this only fails if the
+	// check really selected the ttfb row — a value out of range for every type would pass
+	// vacuously. LCP and FCP survive into the dry-run payload, so CI diagnostics show
+	// exactly which metrics passed. (A live run with validationFailed posts NOTHING — see
+	// the atomic-post test below — so the partial payload is diagnostic-only.) The
+	// rejected key must never reach the payload.
+	const file = writeResults( 120, { ttfb: 15000, fcp: 400 } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, true ); // ttfb failed its range
+	assert.equal( result.payload.metrics[ LCP_KEY ], 120 ); // still posts
+	assert.equal( result.payload.metrics[ FCP_KEY ], 400 ); // still posts
+	assert.ok(
+		! Object.prototype.hasOwnProperty.call( result.payload.metrics, TTFB_KEY ),
+		'the out-of-range TTFB key must not appear in the payload'
+	);
+} );
+
+test( 'a duplicate key within a scenario metrics array fails closed through the posting path', async () => {
+	// End-to-end (not just at extraction): a scenario whose metrics array repeats a key must
+	// exit 2 before anything posts, so the append-only store can't get a clobbered value.
+	const dup = {
+		key: 'dupArray',
+		name: 'Dup Array',
+		postToCodeVitals: true,
+		metrics: [
+			{ field: 'lcp', codevitalsKey: 'dup-array-key', type: 'lcp' },
+			{ field: 'fcp', codevitalsKey: 'dup-array-key', type: 'fcp' }, // same key, twice
+		],
+	};
+	SCENARIOS.push( dup );
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-duparr-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary() },
+				dupArray: { summary: { lcp: { median: 120 }, fcp: { median: 400 } } },
+			},
+		} )
+	);
+	let err;
+	try {
+		await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	} catch ( e ) {
+		err = e;
+	} finally {
+		SCENARIOS.pop();
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.ok( err, 'a duplicate key within a metrics array should reject' );
+	assert.equal( err.name, 'ValidationError' );
+	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+	assert.match( err.message, /[Dd]uplicate/ );
+} );
+
+test( 'backward-compat: a legacy single metricKey scenario still posts unchanged', async () => {
+	// FORMS-707 must not regress the legacy shape: a scenario with metricKey/metricType (no
+	// metrics array) still extracts one typed entry from the flat summary.median and posts it.
+	const legacy = {
+		key: 'legacyKeyed',
+		name: 'Legacy Keyed',
+		postToCodeVitals: true,
+		metricKey: 'legacy-single-key',
+		metricType: 'lcp',
+	};
+	SCENARIOS.push( legacy );
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-legacy-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary() },
+				legacyKeyed: { summary: { median: 250 } }, // flat summary.median, the legacy contract
+			},
+		} )
+	);
+	let result;
+	try {
+		result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	} finally {
+		SCENARIOS.pop();
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ 'legacy-single-key' ], 250 ); // read from flat summary.median
+	assert.equal( result.payload.metrics[ LCP_KEY ], 120 ); // the array-path scenario still posts too
 } );
 
 test( 'a dry run never calls fetch, even with a malformed URL and a token set', async () => {
@@ -243,7 +712,7 @@ test( 'a mixed valid/invalid run keeps the valid metric and excludes the rejecte
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
-				jetpackConnected: { summary: { median: 120 } }, // valid LCP → stays in payload
+				jetpackConnected: { summary: jetpackSummary() }, // valid LCP/TTFB/FCP → stay in payload
 				extraMetric: { summary: { median: 99999 } }, // outside [0,1000] → rejected, excluded
 			},
 		} )
@@ -284,7 +753,7 @@ test( 'two scenarios posting the same CodeVitals key fail closed as a validation
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
-				jetpackConnected: { summary: { median: 120 } },
+				jetpackConnected: { summary: jetpackSummary() },
 				dupMetric: { summary: { median: 130 } },
 			},
 		} )
@@ -400,7 +869,13 @@ test( 'a live post sends the payload as POST and returns posted:true', async () 
 		assert.equal( result.posted, true );
 		assert.equal( sentInit.method, 'POST' );
 		assert.match( String( sentUrl ), /\/api\/log\?token=tok-success$/ );
-		assert.equal( JSON.parse( sentInit.body ).metrics[ LCP_KEY ], 120 );
+		// The dry-run tests pin the payload contract; this pins the LIVE serialization
+		// branch too — all three jetpackConnected metrics in one POST body, nothing extra.
+		const sentMetrics = JSON.parse( sentInit.body ).metrics;
+		assert.equal( sentMetrics[ LCP_KEY ], 120 );
+		assert.equal( sentMetrics[ TTFB_KEY ], 150 );
+		assert.equal( sentMetrics[ FCP_KEY ], 400 );
+		assert.equal( Object.keys( sentMetrics ).length, 3 );
 	} finally {
 		global.fetch = origFetch;
 	}
@@ -672,11 +1147,105 @@ test( 'a native abort (DOMException with a getter-only message) does not crash r
 	assert.match( err.message, /timed out/ );
 } );
 
-test( 'a validation failure is not downgraded to exit 1 when a later live POST also fails', async () => {
+// A response-body reader (json()/text()) that never settles on its own — only the fetch
+// abort signal rejects it, the way undici aborts an in-flight body read. Proves the live-POST
+// timer stays armed ACROSS the body read: if the production code cleared it after headers (the
+// old shape), abort never fires, this hangs, and the per-test timeout fails instead of hanging
+// forever. Mirrors dedupFetchStub's stallBodyUntilAbort for the live-POST path.
+function bodyStallsUntilAbort( init ) {
+	return new Promise( ( resolve, reject ) => {
+		const abort = () => {
+			const err = new Error( 'The operation was aborted' );
+			err.name = 'AbortError';
+			reject( err );
+		};
+		if ( init?.signal?.aborted ) {
+			abort();
+		} else {
+			init?.signal?.addEventListener( 'abort', abort, { once: true } );
+		}
+	} );
+}
+
+test(
+	'live POST body read stays bounded: a stalled OK json() body aborts to a timeout, not a hang',
+	{ timeout: 20000 },
+	async () => {
+		// The live POST used to clear its abort timer right after fetch() resolved, leaving
+		// response.json() unbounded — a server that sends 200 headers then stalls the body would
+		// hang past the 30s timeout (undici's ~300s default at best). The timer now stays armed
+		// through the body read, so the stalled json() aborts. postTimeoutMs=50 stands in for the
+		// 30s production timer; the per-test timeout turns a reverted fix into a clean failure.
+		const file = writeResults( 120 );
+		const origFetch = global.fetch;
+		global.fetch = async ( url, init ) => ( {
+			ok: true,
+			status: 200,
+			text: async () => '',
+			json: () => bodyStallsUntilAbort( init ),
+		} );
+		let err;
+		try {
+			await silenced( () =>
+				postToCodeVitals( file, {
+					dryRun: false,
+					codeVitalsUrl: 'https://codevitals.test',
+					codeVitalsToken: 'tok-stall-ok',
+					postTimeoutMs: 50,
+				} )
+			);
+		} catch ( e ) {
+			err = e;
+		} finally {
+			global.fetch = origFetch;
+		}
+		assert.ok( err, 'a stalled OK body must abort, not hang' );
+		assert.match( err.message, /timed out/, 'a body-read abort is a timeout, not "invalid JSON"' );
+	}
+);
+
+test(
+	'live POST body read stays bounded: a stalled non-OK text() body aborts to a timeout, not a hang',
+	{ timeout: 20000 },
+	async () => {
+		// Same regression guard on the error branch: a non-OK response reads response.text() for
+		// the error message, and that read must be bounded by the same armed timer. A 500 whose
+		// body stalls aborts cleanly instead of hanging.
+		const file = writeResults( 120 );
+		const origFetch = global.fetch;
+		global.fetch = async ( url, init ) => ( {
+			ok: false,
+			status: 500,
+			json: async () => ( {} ),
+			text: () => bodyStallsUntilAbort( init ),
+		} );
+		let err;
+		try {
+			await silenced( () =>
+				postToCodeVitals( file, {
+					dryRun: false,
+					codeVitalsUrl: 'https://codevitals.test',
+					codeVitalsToken: 'tok-stall-err',
+					postTimeoutMs: 50,
+				} )
+			);
+		} catch ( e ) {
+			err = e;
+		} finally {
+			global.fetch = origFetch;
+		}
+		assert.ok( err, 'a stalled error body must abort, not hang' );
+		assert.match( err.message, /timed out/ );
+	}
+);
+
+test( 'a sanity-check failure suppresses the live POST entirely (atomic per-run posting)', async () => {
 	// Reachable only with 2+ posted metrics (FORMS-707 territory): one metric fails the
-	// sanity check (validationFailed=true) while a valid one remains and is POSTed. If
-	// that POST then fails, the build must STILL exit with the data-integrity code — bad
-	// local data is never suppressible by --allow-codevitals-failure.
+	// sanity check (validationFailed=true) while valid survivors remain. The run is
+	// already committed to exit 2, and CodeVitals is append-only with dedup off by
+	// default — so POSTing the survivors would re-append them as duplicate trend points
+	// when the red build is retried. The live path must post NOTHING: fetch is never
+	// called, and the result still carries validationFailed for main()'s exit-2 mapping.
 	const extra = {
 		key: 'extraMetric',
 		name: 'Extra Metric',
@@ -693,34 +1262,37 @@ test( 'a validation failure is not downgraded to exit 1 when a later live POST a
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
-				jetpackConnected: { summary: { median: 120 } }, // valid LCP → gets POSTed
+				jetpackConnected: { summary: jetpackSummary() }, // valid LCP/TTFB/FCP survivors
 				extraMetric: { summary: { median: 99999 } }, // outside [0,1000] → skipped, flags validationFailed
 			},
 		} )
 	);
 	const origFetch = global.fetch;
-	// A transport failure AFTER a metric already failed local validation.
-	global.fetch = async () => ( { ok: false, status: 500, text: async () => 'boom' } );
-	let err;
+	let fetchCalls = 0;
+	global.fetch = async () => {
+		fetchCalls++;
+		return { ok: true, status: 200, json: async () => ( {} ) };
+	};
+	let result;
 	try {
-		await silenced( () =>
+		result = await silenced( () =>
 			postToCodeVitals( file, {
 				dryRun: false,
 				codeVitalsUrl: 'https://codevitals.test',
 				codeVitalsToken: 'tok-mixed',
 			} )
 		);
-	} catch ( e ) {
-		err = e;
 	} finally {
 		global.fetch = origFetch;
 		SCENARIOS.pop();
 		delete SANITY_RANGES.extratype;
 		fs.rmSync( dir, { recursive: true, force: true } );
 	}
-	assert.ok( err, 'the live post should reject' );
-	// Must map to the always-fatal data-integrity code, not a suppressible exit 1.
-	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+	assert.equal( fetchCalls, 0, 'a run with a validation failure must never reach fetch' );
+	assert.equal( result.posted, false );
+	// main() maps this to the always-fatal data-integrity exit 2, which
+	// --allow-codevitals-failure can never suppress.
+	assert.equal( result.validationFailed, true );
 } );
 
 // --- isDirectInvocation (the run-when-direct guard) ---
@@ -832,4 +1404,883 @@ test( 'shouldFailBuildOnPostError: a transport failure is suppressible only with
 	assert.equal( shouldFailBuildOnPostError( { status: 1 }, false ), true ); // fatal by default
 	assert.equal( shouldFailBuildOnPostError( undefined, true ), false ); // unknown exit, flag set
 	assert.equal( shouldFailBuildOnPostError( undefined, false ), true );
+} );
+
+// --- resolvePostTimestamp (stamp commit time, not build time) ---
+
+test( 'resolvePostTimestamp prefers the results commit time over env and build time', () => {
+	const ts = resolvePostTimestamp(
+		{ git: { timestamp: 1700000000000 } },
+		{ commitTimestampMs: '1600000000000' }
+	);
+	assert.equal( ts, 1700000000000 );
+} );
+
+test( 'resolvePostTimestamp falls back to the env commit time (numeric string ok)', () => {
+	const ts = resolvePostTimestamp( { git: {} }, { commitTimestampMs: '1600000000000' } );
+	assert.equal( ts, 1600000000000 );
+} );
+
+test( 'resolvePostTimestamp drops the env commit time when the results file names a different commit', async () => {
+	const before = Date.now();
+	// A stale results file (hash but no timestamp) plus an inherited env pair for a
+	// DIFFERENT commit: the env timestamp must not stamp the results-file hash, so the
+	// poster falls back to build time (with the warning) instead of mixing provenance.
+	const ts = await silenced( () =>
+		resolvePostTimestamp(
+			{ git: { hash: 'results-hash' } },
+			{ gitHash: 'env-hash', commitTimestampMs: '1600000000000' }
+		)
+	);
+	assert.notEqual( ts, 1600000000000, 'the mismatched env timestamp is not posted' );
+	assert.ok( ts >= before && ts <= Date.now() + 1000, 'falls back to build time' );
+} );
+
+test( 'resolvePostTimestamp keeps the env commit time when it matches the posted hash', () => {
+	// Same hash on both sides (the normal runner handoff): the env pair is provenance-safe.
+	assert.equal(
+		resolvePostTimestamp(
+			{ git: { hash: 'same-hash' } },
+			{ gitHash: 'same-hash', commitTimestampMs: '1600000000000' }
+		),
+		1600000000000
+	);
+} );
+
+test( 'resolvePostTimestamp rejects non-positive / non-numeric values and uses build time', async () => {
+	const before = Date.now();
+	// git.timestamp 0 and a non-numeric env value are both invalid → build-time fallback.
+	const ts = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: 0 } }, { commitTimestampMs: 'not-a-number' } )
+	);
+	assert.ok( ts >= before && ts <= Date.now() + 1000, 'falls back to the current time' );
+	// A negative epoch must never be posted, even if present.
+	const fromNegative = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: -5 } }, {} )
+	);
+	assert.ok( fromNegative > 0, 'a negative timestamp is rejected in favour of build time' );
+} );
+
+test( 'resolvePostTimestamp rejects unit errors (epoch seconds, micro/nanoseconds) as implausible', async () => {
+	const before = Date.now();
+	// A 10-digit epoch-*seconds* value (e.g. 1700000000) would post as 1970-01-20 if taken
+	// as ms. It must be rejected, not silently backdated into the append-only trend.
+	const fromSeconds = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: 1700000000 } }, {} )
+	);
+	assert.notEqual( fromSeconds, 1700000000, 'epoch-seconds value is not posted verbatim' );
+	assert.ok(
+		fromSeconds >= before && fromSeconds <= Date.now() + 1000,
+		'an epoch-seconds value falls back to build time'
+	);
+	// Micro/nanosecond magnitudes are far in the future and equally implausible as ms.
+	const fromMicros = await silenced( () =>
+		resolvePostTimestamp( { git: {} }, { commitTimestampMs: '1700000000000000' } )
+	);
+	assert.ok(
+		fromMicros >= before && fromMicros <= Date.now() + 1000,
+		'a microsecond-magnitude value falls back to build time'
+	);
+	// A real epoch-ms value at the window edges is still accepted unchanged.
+	assert.equal(
+		resolvePostTimestamp( { git: { timestamp: 1_000_000_000_000 } }, {} ),
+		1_000_000_000_000,
+		'a plausible epoch-ms value passes through'
+	);
+} );
+
+test( 'a dry-run payload is stamped with the commit time from the results file', async () => {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-ts-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk', timestamp: 1700000000000 },
+			measurements: { jetpackConnected: { summary: jetpackSummary() } },
+		} )
+	);
+	try {
+		const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+		assert.equal( result.payload.timestamp, 1700000000000 );
+	} finally {
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+// --- assertCaptureComplete (content-completeness guard for the bundle-size capture) ---
+
+test( 'assertCaptureComplete throws when the resource count is below the scenario floor', () => {
+	// A partial/truncated capture (here 12 resources against a floor of 40) must fail the
+	// iteration so its undercounted decodedBytesKB never reaches the append-only key.
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 12 }, { minResourceCount: 40 } ),
+		/Incomplete capture: 12 resources < expected minimum 40/
+	);
+} );
+
+test( 'assertCaptureComplete passes at and above the floor', () => {
+	// Inclusive floor (== is fine), and the real ~80-resource load clears it comfortably.
+	assert.doesNotThrow( () =>
+		assertCaptureComplete( { totalRequests: 40 }, { minResourceCount: 40 } )
+	);
+	assert.doesNotThrow( () =>
+		assertCaptureComplete( { totalRequests: 81 }, { minResourceCount: 40 } )
+	);
+} );
+
+test( 'assertCaptureComplete is a no-op for a scenario without a floor (e.g. the Dashboard)', () => {
+	// The Dashboard scenario declares no minResourceCount, so the guard never fires for it.
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 3 }, {} ) );
+} );
+
+// --- assertExpectedUrl (wrong-page guard for a targeted scenario) ---
+
+test( 'assertExpectedUrl passes when the final URL contains the expected route', () => {
+	// The pinned inbox route survives, so the iteration proceeds and posts to the responses keys.
+	assert.doesNotThrow( () =>
+		assertExpectedUrl(
+			'http://localhost:8083/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=/responses/inbox',
+			'/responses/inbox'
+		)
+	);
+} );
+
+test( 'assertExpectedUrl decodes a percent-encoded route before matching', () => {
+	// page.url() often returns the route still percent-encoded (%2F). The guard decodes first, so
+	// the encoded form must match the same way the decoded form does.
+	assert.doesNotThrow( () =>
+		assertExpectedUrl(
+			'http://localhost:8083/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox',
+			'/responses/inbox'
+		)
+	);
+} );
+
+test( 'assertExpectedUrl throws when a redirect strips the expected route', () => {
+	// The concrete threat: class-dashboard.php redirects the bare page URL to the forms LIST, which
+	// drops the pinned `p`. The final URL no longer contains the inbox route, so the run fails
+	// closed instead of posting forms-list bytes to the responses-inbox keys.
+	assert.throws(
+		() =>
+			assertExpectedUrl(
+				'http://localhost:8083/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin',
+				'/responses/inbox'
+			),
+		/Wrong page: expected URL to include "\/responses\/inbox"/
+	);
+} );
+
+test( 'assertExpectedUrl fails closed on an undecodable URL rather than throwing an opaque URIError', () => {
+	// A malformed percent-sequence (%E0%A4%A) makes decodeURIComponent throw. The guard catches it
+	// and re-throws as a wrong-page error, so the iteration still fails closed (no post) with a
+	// message that names the URL instead of an opaque URIError.
+	assert.throws(
+		() => assertExpectedUrl( 'http://localhost:8083/x?p=%E0%A4%A', '/responses/inbox' ),
+		/Wrong page: could not decode final URL/
+	);
+} );
+
+test( 'assertExpectedUrl is a no-op when the scenario declares no expected route', () => {
+	// The Dashboard scenario declares no expectUrlIncludes, so the guard never fires for it —
+	// even a totally unrelated URL is accepted.
+	assert.doesNotThrow( () => assertExpectedUrl( 'http://localhost:8083/anything', null ) );
+} );
+
+// --- summarizeResources (the decodedBytesKB source aggregation) ---
+
+test( 'summarizeResources sums decodedBodySize across every resource, including warm-cache zero-transfer ones', () => {
+	// The core contract of the whole metric: a cached resource reports transferSize 0 but keeps its
+	// real decodedBodySize, and it MUST still count toward the bundle size — that is the entire
+	// reason the metric reads decoded bytes instead of transfer size.
+	const stats = summarizeResources( [
+		{ initiatorType: 'script', transferSize: 0, decodedBodySize: 900 * 1024 },
+		{ initiatorType: 'script', transferSize: 5 * 1024, decodedBodySize: 100 * 1024 },
+	] );
+	assert.equal( stats.totalDecodedBodySizeKB, 1000 ); // 900 + 100, cache-independent
+	assert.equal( stats.totalTransferSizeKB, 5 ); // only the uncached transfer counts
+	assert.equal( stats.totalRequests, 2 );
+} );
+
+test( 'summarizeResources treats missing/zero sizes as 0 and a missing initiatorType as "other"', () => {
+	// Cross-origin resources without Timing-Allow-Origin report 0 sizes, and entries can arrive with
+	// fields absent. Both must contribute 0 bytes (never NaN) and bucket under 'other'.
+	const stats = summarizeResources( [
+		{ initiatorType: 'link', transferSize: 0, decodedBodySize: 0 },
+		{}, // no fields at all
+	] );
+	assert.equal( stats.totalDecodedBodySizeKB, 0 );
+	assert.equal( stats.totalTransferSizeKB, 0 );
+	assert.equal( stats.totalRequests, 2 );
+	assert.equal( stats.byType.link, 1 );
+	assert.equal( stats.byType.other, 1 );
+} );
+
+test( 'summarizeResources buckets requests by initiatorType', () => {
+	const stats = summarizeResources( [
+		{ initiatorType: 'script', decodedBodySize: 1024 },
+		{ initiatorType: 'script', decodedBodySize: 1024 },
+		{ initiatorType: 'css', decodedBodySize: 1024 },
+	] );
+	assert.deepEqual( stats.byType, { script: 2, css: 1 } );
+} );
+
+test( 'summarizeResources rounds KB to the nearest integer', () => {
+	// 1536 bytes = 1.5 KB rounds to 2; the posted metric is whole KB.
+	const stats = summarizeResources( [ { initiatorType: 'img', decodedBodySize: 1536 } ] );
+	assert.equal( stats.totalDecodedBodySizeKB, 2 );
+} );
+
+test( 'summarizeResources returns coherent zeros for an empty capture (never NaN)', () => {
+	// An empty resource list is the degenerate capture the minResourceCount floor rejects; the
+	// summariser itself must still return zeros, not NaN, so the floor is what fails the iteration.
+	assert.deepEqual( summarizeResources( [] ), {
+		totalRequests: 0,
+		totalTransferSizeKB: 0,
+		totalDecodedBodySizeKB: 0,
+		byType: {},
+	} );
+} );
+
+// --- buildSummary (measure-lcp per-field aggregation; the load-bearing FORMS-707 change) ---
+
+test( 'buildSummary aggregates every field into its own block and mirrors LCP flat', () => {
+	// Each field gets a nested { median, mean, min, max, stdDev } block, and the LCP block is
+	// ALSO mirrored flat on the summary root so the poster's legacy metricKey path and older
+	// readers of summary.median keep working. TTFB/FCP are aggregated for the first time here.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400 } },
+		{ lcp: 300, metrics: { lcp: 300, ttfb: 90, fcp: 600 } },
+	];
+	const summary = buildSummary( results, 3 );
+
+	// Nested per-field blocks (what the multi-metric poster path reads: summary.<field>.median).
+	assert.deepEqual( summary.lcp, { median: 200, mean: 200, min: 100, max: 300, stdDev: 82 } );
+	assert.equal( summary.ttfb.median, 70 );
+	assert.equal( summary.fcp.median, 400 );
+	assert.equal( summary.fcp.min, 200 );
+	assert.equal( summary.fcp.max, 600 );
+
+	// Flat top-level mirror of LCP (backward-compat) — byte-for-byte the old LCP-only summary.
+	assert.equal( summary.median, 200 );
+	assert.equal( summary.mean, 200 );
+	assert.equal( summary.min, 100 );
+	assert.equal( summary.max, 300 );
+	assert.equal( summary.stdDev, 82 );
+
+	// Iteration counters preserved.
+	assert.equal( summary.successfulIterations, 3 );
+	assert.equal( summary.totalIterations, 3 );
+} );
+
+test( 'buildSummary flat LCP mirror matches the old LCP-only summary exactly', () => {
+	// Pins that LCP stays byte-for-byte: same value source (r.lcp), same rounding, same number.
+	const lcpValues = [ 111, 222, 333, 444 ];
+	const results = lcpValues.map( lcp => ( { lcp, metrics: { lcp, ttfb: 40, fcp: 300 } } ) );
+	const summary = buildSummary( results, 4 );
+	assert.equal( summary.median, 278 ); // (222+333)/2 = 277.5 → round 278
+	assert.equal( summary.min, 111 );
+	assert.equal( summary.max, 444 );
+	assert.equal( summary.lcp.median, summary.median ); // nested and flat agree
+} );
+
+test( 'buildSummary omits a field with no finite samples so the poster fails closed', () => {
+	// A field the browser never captured (all null) must be omitted — not a fabricated 0 —
+	// so extractScenarioMetrics reads undefined and checkSanityRange rejects it downstream.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: null, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } },
+	];
+	const summary = buildSummary( results, 2 );
+	assert.equal( summary.ttfb, undefined, 'no finite TTFB sample → omitted, not 0' );
+	assert.ok( summary.lcp && summary.fcp, 'fields with samples are still aggregated' );
+	assert.equal( summary.median, 150 ); // flat LCP mirror still present
+} );
+
+test( 'buildSummary drops individual non-finite samples before aggregating a field', () => {
+	// A field present on some iterations but null on others aggregates only the finite ones.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 60, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } }, // ttfb missing this run
+		{ lcp: 300, metrics: { lcp: 300, ttfb: 80, fcp: 600 } },
+	];
+	const summary = buildSummary( results, 3 );
+	assert.equal( summary.ttfb.median, 70 ); // median of [60, 80], the null dropped
+	assert.equal( summary.ttfb.min, 60 );
+	assert.equal( summary.ttfb.max, 80 );
+} );
+
+test( 'buildSummary omits a field whose finite samples miss a strict majority of iterations', () => {
+	// A field captured on only a minority of runs (here TTFB on 1 of 3) is too thin to post:
+	// a lone sample would land as a full "median" (stdDev 0) in the append-only store. Below
+	// the strict-majority floor the field is omitted so the poster fails closed instead. LCP/FCP,
+	// captured on every run, still aggregate with their real values.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 60, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } },
+		{ lcp: 300, metrics: { lcp: 300, ttfb: null, fcp: 600 } },
+	];
+	const summary = buildSummary( results, 3 );
+	assert.equal( summary.ttfb, undefined, '1 of 3 finite TTFB → below strict majority → omitted' );
+	assert.equal( summary.lcp.median, 200, 'majority-covered LCP still aggregates its real median' );
+	assert.equal( summary.fcp.median, 400, 'majority-covered FCP still aggregates its real median' );
+	assert.equal( summary.median, 200, 'flat LCP mirror unaffected' );
+} );
+
+test( 'buildSummary strict-majority floor: even-count 1-of-2 is omitted, but single-iteration 1-of-1 is kept', () => {
+	// finite*2 > n. The even-count edge (1 of 2) must NOT post — that is the case a ceil(n/2)
+	// floor would have let through. A single-iteration run (1 of 1) must still post, or
+	// ITERATIONS=1 could never report a metric.
+	const twoRuns = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 60, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } }, // ttfb finite on only 1 of 2
+	];
+	const twoSummary = buildSummary( twoRuns, 2 );
+	assert.equal(
+		twoSummary.ttfb,
+		undefined,
+		'1 of 2 finite TTFB → not a strict majority → omitted'
+	);
+	assert.ok( twoSummary.lcp && twoSummary.fcp, 'fields finite on both runs still aggregate' );
+
+	const oneRun = [ { lcp: 150, metrics: { lcp: 150, ttfb: 55, fcp: 300 } } ];
+	const oneSummary = buildSummary( oneRun, 1 );
+	assert.equal(
+		oneSummary.ttfb.median,
+		55,
+		'1 of 1 finite TTFB → kept (single-iteration runs work)'
+	);
+	assert.equal( oneSummary.median, 150, 'single-iteration LCP still mirrored flat' );
+} );
+
+test( 'buildSummary aggregates decodedBytesKB from the per-iteration metrics block', () => {
+	// FORMS-704: measure-lcp.js folds the summed per-resource decodedBodySize into each
+	// iteration's metrics as decodedBytesKB, and SUMMARY_FIELDS now includes it, so buildSummary
+	// produces summary.decodedBytesKB.median for the poster to read. Decoded bytes are
+	// deterministic, so the median is exact.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200, decodedBytesKB: 5600 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400, decodedBytesKB: 5602 } },
+		{ lcp: 300, metrics: { lcp: 300, ttfb: 90, fcp: 600, decodedBytesKB: 5601 } },
+	];
+	const summary = buildSummary( results, 3 );
+	assert.deepEqual( summary.decodedBytesKB, {
+		median: 5601,
+		mean: 5601,
+		min: 5600,
+		max: 5602,
+		stdDev: 1,
+	} );
+	// The timing fields and the flat LCP mirror are unaffected by the added field.
+	assert.equal( summary.lcp.median, 200 );
+	assert.equal( summary.median, 200 );
+} );
+
+test( 'buildSummary omits decodedBytesKB when no iteration captured it (fail closed)', () => {
+	// A run where the resource payload was never captured (all undefined) must omit the field,
+	// not fabricate a 0, so the poster's sanity check rejects it rather than posting a bogus
+	// bundle size to the append-only store.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400 } },
+	];
+	const summary = buildSummary( results, 2 );
+	assert.equal( summary.decodedBytesKB, undefined, 'no decoded sample → omitted, not 0' );
+} );
+
+// --- commit-time plumbing: getGitInfo reads the producer side (real temp git repo) ---
+
+/**
+ * Make a throwaway git repo with one commit and return its dir. `body` becomes the
+ * commit message body (used to exercise Upstream-Ref parsing). Caller removes the dir.
+ */
+function initTempGitRepo( body = '' ) {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-git-' ) );
+	const git = args => execFileSync( 'git', args, { cwd: dir, stdio: 'pipe' } );
+	git( [ 'init', '-q', '-b', 'trunk' ] );
+	git( [ 'config', 'user.email', 't@example.com' ] );
+	git( [ 'config', 'user.name', 'Test' ] );
+	git( [ 'config', 'commit.gpgsign', 'false' ] );
+	fs.writeFileSync( path.join( dir, 'file.txt' ), 'x' );
+	git( [ 'add', '-A' ] );
+	git( [ 'commit', '-q', '-m', 'subject', ...( body ? [ '-m', body ] : [] ) ] );
+	return dir;
+}
+
+test( 'getGitInfo: plain commit → hash is mirror HEAD and committedAtMs is %ct × 1000', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT; // don't let the host env override hash selection
+	const dir = initTempGitRepo();
+	try {
+		const head = execFileSync( 'git', [ 'rev-parse', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+			.toString()
+			.trim();
+		const ct = Number(
+			execFileSync( 'git', [ 'show', '-s', '--format=%ct', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+				.toString()
+				.trim()
+		);
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, head );
+		assert.equal( info.mirrorHash, head );
+		assert.equal( info.branch, 'trunk' );
+		assert.equal( info.committedAtMs, ct * 1000, 'commit time is epoch seconds × 1000' );
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'getGitInfo: an Upstream-Ref footer wins over the mirror hash (monorepo SHA is posted)', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT;
+	const upstream = 'a'.repeat( 40 );
+	const dir = initTempGitRepo( `Upstream-Ref: Automattic/jetpack@${ upstream }` );
+	try {
+		const head = execFileSync( 'git', [ 'rev-parse', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+			.toString()
+			.trim();
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, upstream, 'hash comes from the Upstream-Ref, not mirror HEAD' );
+		assert.equal( info.mirrorHash, head, 'mirrorHash still tracks the real checkout' );
+		assert.ok( info.committedAtMs > 0 );
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'getGitInfo: a non-git directory degrades to unknown hash and null commit time', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT;
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-nogit-' ) );
+	try {
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, 'unknown' );
+		assert.equal( info.mirrorHash, 'unknown' );
+		assert.equal(
+			info.committedAtMs,
+			null,
+			'no git metadata → null, so the poster build-time falls back'
+		);
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+// --- resolveCommitTimestampEnv (GIT_COMMIT + GIT_COMMIT_TIMESTAMP_MS are a paired override) ---
+
+test( 'resolveCommitTimestampEnv: paired override honored, lone timestamp dropped, source surfaced', () => {
+	const headInfo = { committedAtMs: 1700000000000 };
+
+	// Paired override (both env vars set): the caller-supplied timestamp wins, no warning.
+	const paired = resolveCommitTimestampEnv( headInfo, {
+		GIT_COMMIT: 'deadbeef',
+		GIT_COMMIT_TIMESTAMP_MS: '1600000000000',
+	} );
+	assert.equal( paired.value, '1600000000000' );
+	assert.equal( paired.warn, false );
+
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash override) is orphaned → dropped for HEAD time,
+	// so it can't stamp HEAD's hash with an unrelated time. This is R4-IMPORTANT-1.
+	const lone = resolveCommitTimestampEnv( headInfo, { GIT_COMMIT_TIMESTAMP_MS: '999' } );
+	assert.equal( lone.value, '1700000000000', 'a lone timestamp does not win over HEAD time' );
+	assert.equal( lone.warn, false );
+
+	// Empty-string timestamp counts as absent, not a paired override.
+	const empty = resolveCommitTimestampEnv( headInfo, {
+		GIT_COMMIT: 'deadbeef',
+		GIT_COMMIT_TIMESTAMP_MS: '',
+	} );
+	assert.equal( empty.value, '1700000000000' );
+
+	// Hash override with no paired timestamp gets HEAD time but flags the provenance split.
+	const hashOnly = resolveCommitTimestampEnv( headInfo, { GIT_COMMIT: 'deadbeef' } );
+	assert.equal( hashOnly.value, '1700000000000' );
+	assert.equal( hashOnly.warn, true, 'an unpaired hash override warns about the split' );
+
+	// No env at all: plain HEAD time, no warning.
+	const plain = resolveCommitTimestampEnv( headInfo, {} );
+	assert.equal( plain.value, '1700000000000' );
+	assert.equal( plain.warn, false );
+
+	// No HEAD metadata and no paired override → null (caller unsets so the poster falls
+	// back to build time); a lone orphaned timestamp is still not trusted here.
+	assert.equal( resolveCommitTimestampEnv( { committedAtMs: null }, {} ).value, null );
+	assert.equal(
+		resolveCommitTimestampEnv( { committedAtMs: null }, { GIT_COMMIT_TIMESTAMP_MS: '999' } ).value,
+		null,
+		'a lone timestamp is dropped even when there is no HEAD time to fall back to'
+	);
+} );
+
+test( 'resolveResultsGit: the dominant channel pairs the commit time with GIT_COMMIT', () => {
+	// Paired (hash + time): both are written, as a coherent pair.
+	assert.deepEqual(
+		resolveResultsGit( {
+			GIT_COMMIT: 'deadbeef',
+			GIT_BRANCH: 'trunk',
+			GIT_COMMIT_TIMESTAMP_MS: '1600000000000',
+		} ),
+		{ hash: 'deadbeef', branch: 'trunk', timestamp: 1600000000000 }
+	);
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash): the stale time is DROPPED so it can't be
+	// written into results.git.timestamp and backdate the trend (the poster prefers this
+	// value over its own guarded env fallback). This is R6-IMPORTANT-1, the dominant channel.
+	assert.deepEqual( resolveResultsGit( { GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ), {
+		hash: 'unknown',
+		branch: 'unknown',
+		timestamp: undefined,
+	} );
+	// Hash override with no paired time: hash written, time omitted (poster build-time falls back).
+	assert.equal( resolveResultsGit( { GIT_COMMIT: 'deadbeef' } ).timestamp, undefined );
+	// Paired but non-numeric time → dropped, not NaN.
+	assert.equal(
+		resolveResultsGit( { GIT_COMMIT: 'deadbeef', GIT_COMMIT_TIMESTAMP_MS: 'nope' } ).timestamp,
+		undefined
+	);
+} );
+
+test( 'pairedCommitTimestampMs: the env timestamp is trusted only when paired with GIT_COMMIT', () => {
+	// Paired override (both set): the env timestamp is carried into config.
+	assert.equal(
+		pairedCommitTimestampMs( { GIT_COMMIT: 'deadbeef', GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ),
+		'1600000000000'
+	);
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash override) is dropped — it can't backdate a
+	// direct `pnpm report` run by stamping the results-file hash with an inherited time.
+	assert.equal(
+		pairedCommitTimestampMs( { GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ),
+		undefined
+	);
+	// Nothing set: undefined (resolvePostTimestamp uses results.git.timestamp / build time).
+	assert.equal( pairedCommitTimestampMs( {} ), undefined );
+} );
+
+// --- cross-commit dedup (gitaudit evolution read; fetch stubbed, no network) ---
+
+const DEDUP_CONFIG = {
+	dryRun: false,
+	codeVitalsUrl: 'https://codevitals.test',
+	codeVitalsToken: 'tok-dedup',
+	dedupBaseUrl: 'https://gitaudit.test',
+	dedupRepo: 'Automattic/jetpack',
+	dedupMetricId: '58',
+};
+
+/**
+ * A fetch stub that answers the dedup evolution GET ({ data: [...] }) and records
+ * whether the live POST was reached. Branches on the URL: the evolution read
+ * contains `/perf/evolution/`, the post contains `/api/log`.
+ */
+function dedupFetchStub( {
+	evolutionHashes = [],
+	evolutionStatus = 200,
+	throwOnEvolution = false,
+	rejectBody = false, // headers arrive OK but json() rejects synchronously (truncated body)
+	stallBodyUntilAbort = false, // headers arrive OK but json() settles only when init.signal aborts
+	evolutionBody, // when set, returned verbatim from the evolution json() (for bad-shape tests)
+} ) {
+	const calls = { evolution: 0, post: 0, evolutionUrl: null };
+	const fetchImpl = async ( u, init ) => {
+		if ( String( u ).includes( '/perf/evolution/' ) ) {
+			calls.evolution++;
+			calls.evolutionUrl = String( u );
+			if ( throwOnEvolution ) {
+				throw new Error( 'network down' );
+			}
+			return {
+				ok: evolutionStatus >= 200 && evolutionStatus < 300,
+				status: evolutionStatus,
+				json: async () => {
+					if ( rejectBody ) {
+						throw new Error( 'body read failed' );
+					}
+					if ( stallBodyUntilAbort ) {
+						// Never settle on our own: only the abort signal rejects this, the way
+						// undici aborts an in-flight body read. This passes ONLY if the abort
+						// timer is still armed across json() — if the production code cleared it
+						// after the headers (the reverted-fix shape), abort never fires, this
+						// promise hangs, and the test times out (the regression we want to catch).
+						return new Promise( ( resolve, reject ) => {
+							const abort = () => {
+								const err = new Error( 'The operation was aborted' );
+								err.name = 'AbortError';
+								reject( err );
+							};
+							if ( init?.signal?.aborted ) {
+								abort();
+							} else {
+								init?.signal?.addEventListener( 'abort', abort, { once: true } );
+							}
+						} );
+					}
+					return evolutionBody !== undefined
+						? evolutionBody
+						: { data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ) };
+				},
+				text: async () => '',
+			};
+		}
+		calls.post++;
+		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+	};
+	return { fetchImpl, calls };
+}
+
+test( 'resolveDedupEnabled: dedup is opt-in (off by default) and an explicit opt-out always wins', () => {
+	const noEnv = {};
+	// Default: OFF, the safe default until the dedup read and write backends match.
+	assert.equal( resolveDedupEnabled( [], noEnv ), false );
+	// Opt in by flag or a truthy env value.
+	assert.equal( resolveDedupEnabled( [ '--dedup' ], noEnv ), true );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '1' } ), true );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: 'true' } ), true );
+	// A non-truthy env value does not enable.
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '0' } ), false );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: 'no' } ), false );
+	// Opt-out wins over opt-in, whichever side it comes from.
+	assert.equal( resolveDedupEnabled( [ '--dedup', '--no-dedup' ], noEnv ), false );
+	assert.equal( resolveDedupEnabled( [ '--dedup' ], { CODEVITALS_SKIP_DEDUP: '1' } ), false );
+	assert.equal(
+		resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '1', CODEVITALS_SKIP_DEDUP: 'yes' } ),
+		false
+	);
+} );
+
+test( 'dedup skips the post when the commit hash already has metrics', async () => {
+	const file = writeResults( 120 ); // git.hash = 'testhash'
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, false );
+		assert.equal( result.skipped, true );
+		assert.equal( calls.evolution, 1 );
+		assert.equal( calls.post, 0, 'must not POST when the hash is already present' );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup proceeds with the post when the hash is not yet present', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'someoneelse' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open (still posts) when the read endpoint throws', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { throwOnEvolution: true } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true, 'a flaky dedup read must never block a post' );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open on a non-OK read status', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionStatus: 500 } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open (still posts) when the response body read fails', async () => {
+	// Headers arrive OK but json() rejects — a truncated/stalled body, or a server that
+	// answers headers then dies. The abort timer stays armed across the body read (so a
+	// real stall is bounded by the 15s abort, not undici's ~300s default), and the
+	// rejection is caught and turned into a fail-open. The post must still happen.
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { rejectBody: true } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true, 'a failed body read must never block a post' );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test(
+	'dedup body read stays bounded: a body that hangs until abort still fails open and posts',
+	{ timeout: 20000 },
+	async () => {
+		// The regression guard for the round-2 body-read fix: the abort timer must stay
+		// armed across response.json(). The stub's json() never settles on its own — only
+		// the AbortController signal rejects it — so this passes only if the timer is still
+		// live during the body read. dedupTimeoutMs=50 stands in for the 15s production
+		// timer; the per-test timeout turns a reverted fix (timer cleared after headers,
+		// abort never fires, json() hangs) into a clean failure instead of a hang. The
+		// budget is deliberately wide (~400x the 50ms abort) so a cold `node --test`
+		// warmup can't false-fail correct code; only a genuine hang reaches 20s.
+		const file = writeResults( 120 );
+		const { fetchImpl, calls } = dedupFetchStub( { stallBodyUntilAbort: true } );
+		const origFetch = global.fetch;
+		global.fetch = fetchImpl;
+		try {
+			const result = await silenced( () =>
+				postToCodeVitals( file, { ...DEDUP_CONFIG, dedupTimeoutMs: 50 } )
+			);
+			assert.equal( result.posted, true, 'a stalled body read must abort and fail open, not hang' );
+			assert.equal( calls.post, 1 );
+		} finally {
+			global.fetch = origFetch;
+		}
+	}
+);
+
+test( 'dedup makes no read call when skipDedup is set', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, { ...DEDUP_CONFIG, skipDedup: true } )
+		);
+		assert.equal( calls.evolution, 0, 'no dedup read when skipDedup is set' );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup is skipped (no read) when dedupBaseUrl is unset, as in the other live-post tests', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		// No dedupBaseUrl → dedup is inert, so existing live-post tests keep making a
+		// single POST call and never hit the evolution endpoint.
+		const result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-no-dedup-config',
+			} )
+		);
+		assert.equal( calls.evolution, 0 );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup queries the configured metric / repo / branch (endpoint identity)', async () => {
+	// A wrong metric id, repo, or branch would silently query the wrong series and
+	// never find a real duplicate. Pin the URL the read actually hits.
+	const file = writeResults( 120 ); // git.branch = 'trunk'
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'someoneelse' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		const u = calls.evolutionUrl;
+		assert.ok( u, 'the evolution endpoint should have been queried' );
+		assert.match(
+			u,
+			/^https:\/\/gitaudit\.test\/api\/repos\/Automattic\/jetpack\/perf\/evolution\/58\b/
+		);
+		assert.match( u, /[?&]branch=trunk\b/ );
+		assert.match( u, /[?&]limit=200\b/ );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup is bypassed for an unknown hash (still posts, no read)', async () => {
+	// A results file with hash:'unknown' can't be deduped; it must skip the read and
+	// still post (fail open), matching the pre-existing "post unknown" behaviour.
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-unknownhash-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'unknown', branch: 'trunk' },
+			measurements: { jetpackConnected: { summary: jetpackSummary() } },
+		} )
+	);
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'unknown' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( calls.evolution, 0, 'no read for an unknown hash' );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'dedup fails open on an unexpected (non-{data:[]}) read body', async () => {
+	const file = writeResults( 120 );
+	// 200 OK but the body isn't the expected { data: [...] } shape (e.g. an HTML/SPA
+	// response or an API change). Must fail open and post, not throw.
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionBody: { unexpected: 'shape' } } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'a dry run makes no dedup read even when dedup is fully configured', async () => {
+	// Pins the ordering: the dry-run early return must precede the dedup block, so the
+	// token-free CI smoke test never touches the network even with dedupBaseUrl set.
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, { ...DEDUP_CONFIG, dryRun: true } )
+		);
+		assert.equal( calls.evolution, 0, 'a dry run must not hit the dedup endpoint' );
+		assert.equal( calls.post, 0 );
+		assert.equal( result.posted, false );
+	} finally {
+		global.fetch = origFetch;
+	}
 } );

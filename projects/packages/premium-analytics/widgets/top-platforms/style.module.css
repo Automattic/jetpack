@@ -1,0 +1,19 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}
+
+.itemLabel {
+	padding: var(--wpds-dimension-padding-sm);
+}

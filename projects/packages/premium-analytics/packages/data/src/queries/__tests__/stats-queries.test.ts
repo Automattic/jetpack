@@ -326,12 +326,12 @@ describe( 'Stats query factories', () => {
 			from: '2026-06-16',
 			to: '2026-06-16',
 			interval: 'day',
-			deviceParam: 'browser',
+			deviceProperty: 'browser',
 		} );
 
 		expect( query.queryKey ).toEqual( [
 			'stats',
-			'devices',
+			'devices-browser',
 			'1.1',
 			'stats/devices/browser',
 			'GET',
@@ -349,7 +349,7 @@ describe( 'Stats query factories', () => {
 		} );
 
 		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [ 'stats/devices/screensize', 'devices' ] )
+			expect.arrayContaining( [ 'devices-screensize', 'stats/devices/screensize', 'devices' ] )
 		);
 	} );
 

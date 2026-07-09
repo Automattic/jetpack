@@ -19,14 +19,14 @@ const SALES_BY_UTM_CHANNEL_RENDER_MODULE = 'storybook/sales-by-utm-channel';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByUtmChannelRenderProps = ComponentProps< typeof SalesByUtmChannelRender >;
+type SalesByUtmChannelWidgetProps = ComponentProps< typeof SalesByUtmChannelRender >;
 
 interface SalesByUtmChannelStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type SalesByUtmChannelStoryProps = SalesByUtmChannelRenderProps & SalesByUtmChannelStoryControls;
+type SalesByUtmChannelStoryProps = SalesByUtmChannelWidgetProps & SalesByUtmChannelStoryControls;
 
 interface SalesByUtmChannelDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSalesByUtmChannelAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByUtmChannelRenderProps[ 'attributes' ] {
+): SalesByUtmChannelWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -98,7 +98,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< SalesByUtmChannelStoryControls >;
 type DashboardStory = StoryObj< SalesByUtmChannelDashboardStoryProps >;
 
 /**

@@ -202,20 +202,35 @@ function rankBy< T >(
 }
 
 /**
+ * One weighted field per category label. Each label is scored on its own rather than against a
+ * space-joined blob, so a multi-category item can still land an exact-match on a single category
+ * word. Otherwise completing that word reshuffles results: a single-category item's joined label
+ * already exact-matches the word, but a multi-category item's joined label (e.g. "Performance
+ * Recommended") can only prefix-match it — so only the multi-category item misses the exact-match
+ * bonus and gets overtaken on the final keystroke. See `scoreTerm` for the match tiers.
+ *
+ * @param {string[] | undefined} categories - The item's category labels.
+ * @return One scored field per label (empty when there are no labels).
+ */
+function categoryFields( categories?: string[] ): Array< ScoredField > {
+	return ( categories ?? [] ).map( label => ( { value: label, weight: 2 } ) );
+}
+
+/**
  * The weighted fields for a product card. When provided, the categories the card belongs to
  * are matchable too, so searching a category name surfaces every item in that category.
  *
- * @param {CardItem}           card       - The card.
- * @param {string | undefined} categories - The card's category labels, space-joined.
+ * @param {CardItem}             card       - The card.
+ * @param {string[] | undefined} categories - The card's category labels.
  * @return The weighted fields to match against.
  */
-function cardFields( card: CardItem, categories?: string ): Array< ScoredField > {
+function cardFields( card: CardItem, categories?: string[] ): Array< ScoredField > {
 	return [
 		{ value: card.product.name, weight: 3 },
 		{ value: card.product.title, weight: 3 },
 		{ value: card.module?.name, weight: 3 },
 		{ value: card.module?.search_terms, weight: 2 },
-		{ value: categories, weight: 2 },
+		...categoryFields( categories ),
 		{ value: card.product.description, weight: 1 },
 		{ value: card.module?.description, weight: 1 },
 	];
@@ -225,15 +240,15 @@ function cardFields( card: CardItem, categories?: string ): Array< ScoredField >
  * The weighted fields for a standalone module. When provided, the categories the module
  * belongs to are matchable too.
  *
- * @param {MyJetpackModule}    module     - The module.
- * @param {string | undefined} categories - The module's category labels, space-joined.
+ * @param {MyJetpackModule}      module     - The module.
+ * @param {string[] | undefined} categories - The module's category labels.
  * @return The weighted fields to match against.
  */
-function moduleFields( module: MyJetpackModule, categories?: string ): Array< ScoredField > {
+function moduleFields( module: MyJetpackModule, categories?: string[] ): Array< ScoredField > {
 	return [
 		{ value: module.name, weight: 3 },
 		{ value: module.search_terms, weight: 2 },
-		{ value: categories, weight: 2 },
+		...categoryFields( categories ),
 		{ value: module.description, weight: 1 },
 	];
 }
@@ -339,14 +354,8 @@ export function searchAndRankItems(
 
 	return rankBy( items, terms, item =>
 		item.kind === 'card'
-			? cardFields(
-					item.card,
-					categories?.cardCategories?.get( item.card.product.slug )?.join( ' ' )
-			  )
-			: moduleFields(
-					item.module,
-					categories?.moduleCategories?.get( item.module.module )?.join( ' ' )
-			  )
+			? cardFields( item.card, categories?.cardCategories?.get( item.card.product.slug ) )
+			: moduleFields( item.module, categories?.moduleCategories?.get( item.module.module ) )
 	).map( ( { item } ) => item );
 }
 

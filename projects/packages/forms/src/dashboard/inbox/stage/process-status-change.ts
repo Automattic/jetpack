@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { updateMenuCounterOptimistically, withTimeout } from '../utils';
+import { getFormsMenuBadgeSlug, getMenuBadgeCount, withTimeout } from '../utils';
 import type { QueryParams } from './types.tsx';
 import type { FormResponse } from '../../../types/index.ts';
 
@@ -126,11 +126,11 @@ export const optimisticallyUpdateUnreadCount = (
 
 	if ( newStatus === 'spam' || newStatus === 'trash' ) {
 		if ( oldStatus === 'publish' ) {
-			updateMenuCounterOptimistically( -1 );
+			window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() - 1 );
 		}
 	} else if ( oldStatus === 'spam' || oldStatus === 'trash' ) {
 		if ( newStatus === 'publish' ) {
-			updateMenuCounterOptimistically( 1 );
+			window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() + 1 );
 		}
 	}
 };
