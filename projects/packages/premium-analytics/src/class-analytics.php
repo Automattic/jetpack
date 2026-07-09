@@ -137,7 +137,6 @@ class Analytics {
 		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
 		// place. Runs after Stats registers itself (admin_menu priority 999).
 		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
-		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_dashboard_sections_preload' ), 20 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'enqueue_dashboard_sections_preload' ) );
 		add_action( 'jetpack-premium-analytics-wp-admin_init', array( static::class, 'enqueue_dashboard_sections_preload' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
