@@ -94,27 +94,24 @@ export function sanitizeStatsArchivesResponse(
 		return emptyStatsReport();
 	}
 
-	const data = buckets
-		.map( ( [ date, bucket ] ) => {
-			const items = Object.entries( bucket )
-				.map( ( [ archiveType, archiveItems ] ) => {
-					const children = normalizeArchiveChildren( archiveType, archiveItems );
-					const value = children.reduce( ( total, item ) => total + item.value, 0 );
+	const data = buckets.map( ( [ date, bucket ] ) => {
+		const items = Object.entries( bucket )
+			.map( ( [ archiveType, archiveItems ] ) => {
+				const children = normalizeArchiveChildren( archiveType, archiveItems );
+				const value = children.reduce( ( total, item ) => total + item.value, 0 );
 
-					return {
-						label: archiveType,
-						value,
-						children: archiveType === 'home' && children.length < 2 ? null : children,
-					};
-				} )
-				.filter( item => item.value > 0 )
-				.sort( ( a, b ) => b.value - a.value );
-
-			return {
-				...createStatsDataPoint( date, getStatsTopLevelPeriod( response, query ), items ),
-			};
-		} )
-		.filter( point => point.items.length );
+				return {
+					label: archiveType,
+					value,
+					children: archiveType === 'home' && children.length < 2 ? null : children,
+				};
+			} )
+			.filter( item => item.value > 0 )
+			.sort( ( a, b ) => b.value - a.value );
+		return {
+			...createStatsDataPoint( date, getStatsTopLevelPeriod( response, query ), items ),
+		};
+	} );
 
 	return {
 		summary: {

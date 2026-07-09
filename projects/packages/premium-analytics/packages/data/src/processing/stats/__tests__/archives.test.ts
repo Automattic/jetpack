@@ -69,6 +69,38 @@ describe( 'Stats archives normalizer', () => {
 		] );
 	} );
 
+	it( 'keeps days without archive views as zero-value buckets', () => {
+		const result = sanitizeStatsArchivesResponse(
+			{
+				days: {
+					'2026-07-05': [],
+					'2026-07-04': [],
+					'2026-07-03': {
+						home: [ { value: 'home', href: 'https://example.com/', views: '2' } ],
+					},
+					'2026-07-02': {
+						home: [ { value: 'home', href: 'https://example.com/', views: '1' } ],
+					},
+				},
+				period: 'day',
+			},
+			{
+				period: 'day',
+				start_date: '2026-07-02',
+				date: '2026-07-05',
+			}
+		);
+
+		expect( result.data.map( point => point.time_interval ) ).toEqual( [
+			'2026-07-05',
+			'2026-07-04',
+			'2026-07-03',
+			'2026-07-02',
+		] );
+		expect( result.data.map( point => point.items.length ) ).toEqual( [ 0, 0, 1, 1 ] );
+		expect( result.summary ).toEqual( { total: 3 } );
+	} );
+
 	it( 'normalizes summarized archives from the backend summary payload', () => {
 		const result = sanitizeStatsArchivesResponse( archivesSummaryFixture, {
 			period: 'day',
