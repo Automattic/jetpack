@@ -35,7 +35,7 @@ class Throwing_Email extends Fake_Email {
 	 * @param string $report_label Report label.
 	 * @param array  $params       Report parameters.
 	 * @param string $file_path    CSV file path.
-	 * @return bool
+	 * @return never
 	 * @throws \Throwable Always throws the configured throwable.
 	 */
 	public function send_export_email( string $recipient, string $report_label, array $params, string $file_path ): bool {
