@@ -39,6 +39,7 @@ class Sync_Status_Tracker_Test extends TestCase {
 		delete_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION );
 		remove_all_actions( Sync_Status_Tracker::MILESTONE_ACTION );
 		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
+		remove_all_filters( Sync_Status_Tracker::CLIENT_SIDE_CSV_EXPORTS_ENABLED_FILTER );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -222,6 +223,21 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertArrayHasKey( 'has_store_data', $data['premium_analytics'] );
 		// WooCommerce is not loaded in the test environment.
 		$this->assertFalse( $data['premium_analytics']['has_store_data'] );
+	}
+
+	public function test_script_data_disables_client_side_csv_exports_by_default() {
+		$data = Sync_Status_Tracker::inject_script_data( array() );
+
+		$this->assertArrayHasKey( 'client_side_csv_exports_enabled', $data['premium_analytics'] );
+		$this->assertFalse( $data['premium_analytics']['client_side_csv_exports_enabled'] );
+	}
+
+	public function test_script_data_enables_client_side_csv_exports_via_filter() {
+		add_filter( Sync_Status_Tracker::CLIENT_SIDE_CSV_EXPORTS_ENABLED_FILTER, '__return_true' );
+
+		$data = Sync_Status_Tracker::inject_script_data( array() );
+
+		$this->assertTrue( $data['premium_analytics']['client_side_csv_exports_enabled'] );
 	}
 
 	public function test_script_data_reports_timestamp_after_milestone() {

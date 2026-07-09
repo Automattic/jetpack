@@ -13,6 +13,8 @@ declare module '@automattic/jetpack-script-data' {
 			// false the dashboard waits on Jetpack's generic initial full sync
 			// instead of the woocommerce_analytics module.
 			has_store_data: boolean;
+			// Whether experimental client-side CSV export controls should render.
+			client_side_csv_exports_enabled?: boolean;
 		};
 	}
 }

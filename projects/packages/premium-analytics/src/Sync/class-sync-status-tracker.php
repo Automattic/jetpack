@@ -65,6 +65,14 @@ class Sync_Status_Tracker {
 	const MILESTONE_ACTION = 'jetpack_premium_analytics_initial_full_sync_finished';
 
 	/**
+	 * Filter controlling whether experimental client-side CSV export controls
+	 * are shown in Premium Analytics widgets.
+	 *
+	 * @var string
+	 */
+	const CLIENT_SIDE_CSV_EXPORTS_ENABLED_FILTER = 'jetpack_premium_analytics_client_side_csv_exports_enabled';
+
+	/**
 	 * Jetpack core's sync-status REST route. We enrich this existing response with
 	 * the milestone rather than registering a dedicated endpoint.
 	 */
@@ -238,10 +246,23 @@ class Sync_Status_Tracker {
 	 * @return array
 	 */
 	public static function inject_script_data( array $data ): array {
-		$has_store_data            = Configuration::is_woocommerce_active();
+		$has_store_data = Configuration::is_woocommerce_active();
+
+		/**
+		 * Filters whether Premium Analytics widgets should show experimental
+		 * client-side CSV export controls.
+		 *
+		 * The default is off so the proof-of-concept UI stays opt-in while
+		 * reviewers test and iterate on the placement/design.
+		 *
+		 * @param bool $enabled Whether to show client-side CSV export controls.
+		 */
+		$client_side_csv_exports_enabled = (bool) apply_filters( self::CLIENT_SIDE_CSV_EXPORTS_ENABLED_FILTER, false );
+
 		$data['premium_analytics'] = array(
-			'initial_full_sync_finished' => self::gating_milestone( $has_store_data ),
-			'has_store_data'             => $has_store_data,
+			'initial_full_sync_finished'      => self::gating_milestone( $has_store_data ),
+			'has_store_data'                  => $has_store_data,
+			'client_side_csv_exports_enabled' => $client_side_csv_exports_enabled,
 		);
 
 		return $data;

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
@@ -9,6 +10,9 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import TopPostsWidget from '../render';
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: jest.fn(),
+} ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
@@ -17,6 +21,7 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
+const mockGetScriptData = getScriptData as jest.Mock;
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // The widget requests a multi-day window, so the stats query layer summarizes
@@ -53,6 +58,9 @@ describe( 'TopPostsWidget', () => {
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: { client_side_csv_exports_enabled: true },
+		} );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
@@ -205,6 +213,19 @@ describe( 'TopPostsWidget', () => {
 			screen.findByRole( 'link', { name: /Hello World Post/ } )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the CSV export when the server flag is disabled', async () => {
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: { client_side_csv_exports_enabled: false },
+		} );
+
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hides the export while a new date range is still fetching, then restores it', async () => {
