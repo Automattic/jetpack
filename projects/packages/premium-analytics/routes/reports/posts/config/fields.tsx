@@ -157,7 +157,7 @@ export function getArchivesFields(): Field< ArchiveRow >[] {
 				}
 
 				return (
-					<a href={ item.link } target="_blank" rel="noreferrer">
+					<a href={ item.link } target="_blank" rel="noopener noreferrer">
 						{ item.label }
 					</a>
 				);

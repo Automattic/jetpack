@@ -11,7 +11,6 @@
 		"@wordpress/route": "0.16.0",
 		"@wordpress/ui": "0.17.0",
 		"@wordpress/widget-primitives": "0.2.0",
-		"date-fns": "4.1.0",
 		"react": "18.3.1"
 	},
 	"devDependencies": {
