@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button } from '@wordpress/components';
+import { Button, Icon } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
@@ -134,6 +134,7 @@ function getToggleLabelValue< Item >( item: Item, field: Field< Item > ): string
  * @param props.expanded  - Whether the parent row is expanded.
  * @param props.onToggle  - Toggles the parent row.
  * @param props.className - Optional class name.
+ * @param props.children  - The cell content the toggle wraps.
  * @return The toggle button.
  */
 function TreeToggle< Item >( {
@@ -142,12 +143,14 @@ function TreeToggle< Item >( {
 	expanded,
 	onToggle,
 	className,
+	children,
 }: {
 	item: Item;
 	field: Field< Item >;
 	expanded: boolean;
 	onToggle: ( item: Item ) => void;
 	className?: string;
+	children: ReactNode;
 } ): JSX.Element {
 	const handleToggle = useCallback( () => onToggle( item ), [ item, onToggle ] );
 	const labelValue = getToggleLabelValue( item, field );
@@ -166,13 +169,13 @@ function TreeToggle< Item >( {
 	return (
 		<Button
 			className={ className }
-			size="small"
-			iconSize={ 16 }
-			icon={ expanded ? chevronUp : chevronDown }
 			label={ label }
 			aria-expanded={ expanded }
 			onClick={ handleToggle }
-		/>
+		>
+			{ children }
+			<Icon icon={ expanded ? chevronUp : chevronDown } size={ 16 } />
+		</Button>
 	);
 }
 
@@ -203,17 +206,20 @@ function createTreeFieldRender< Item >( options: TreeFieldRenderOptions< Item > 
 			return <>{ content }</>;
 		}
 
+		// The toggle button wraps the whole cell content, so the entire title
+		// cell (which absorbs the row's spare width) toggles the drill-down —
+		// parent-row content from the consumer's render must stay
+		// non-interactive.
 		return (
-			<span className={ styles.parent }>
+			<TreeToggle
+				item={ props.item }
+				field={ field }
+				expanded={ isExpanded( props.item ) }
+				onToggle={ onToggle }
+				className={ styles.toggle }
+			>
 				<span className={ styles.parentContent }>{ content }</span>
-				<TreeToggle
-					item={ props.item }
-					field={ field }
-					expanded={ isExpanded( props.item ) }
-					onToggle={ onToggle }
-					className={ styles.toggle }
-				/>
-			</span>
+			</TreeToggle>
 		);
 	}
 

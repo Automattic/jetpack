@@ -9,19 +9,34 @@
 	height: auto;
 }
 
-.parent {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	max-inline-size: 100%;
-}
-
 .parent-content {
 	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
+/* The toggle is a text button stretched across the title cell, so the whole
+ * line (the title column absorbs the row's spare width) toggles the
+ * drill-down. Height/padding resets keep the row at its regular density. */
 .toggle {
-	flex: 0 0 auto;
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	justify-content: flex-start;
+	inline-size: 100%;
+	block-size: auto;
+	padding: 0;
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	text-align: start;
+}
+
+/* The whole row reads as the control, so a focus ring on every pointer
+ * click is noise — keep it for keyboard focus only. */
+.toggle:focus:not(:focus-visible) {
+	outline: none;
+	box-shadow: none;
 }
 
 .child {
