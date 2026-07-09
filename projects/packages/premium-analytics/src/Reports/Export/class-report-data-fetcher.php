@@ -452,10 +452,9 @@ class Report_Data_Fetcher {
 		// Get response data and fully normalize to associative arrays. A top-level object OR a
 		// top-level list whose items are stdClass both need converting, otherwise stdClass rows
 		// would reach format_row_with_comparison( array $item ) and throw a TypeError.
-		$data = $response->get_data();
-
-		if ( is_object( $data ) || is_array( $data ) ) {
-			$data = json_decode( wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true );
+		$data = $this->normalize_response_data( $response->get_data() );
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
 
 		// Normalize response structure: some endpoints return 'items' instead of 'data'.
@@ -475,5 +474,28 @@ class Report_Data_Fetcher {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Normalize REST response data to associative arrays.
+	 *
+	 * @param mixed $data Response data.
+	 * @return mixed|WP_Error Normalized response data or an error when it cannot be encoded.
+	 */
+	private function normalize_response_data( $data ) {
+		if ( ! is_object( $data ) && ! is_array( $data ) ) {
+			return $data;
+		}
+
+		$encoded = wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		if ( false === $encoded ) {
+			$this->logger->log_error( 'Failed to JSON encode proxy response data: ' . json_last_error_msg(), __METHOD__ );
+			return new WP_Error(
+				'proxy_response_encode_failed',
+				__( 'Failed to normalize proxy response data.', 'jetpack-premium-analytics' )
+			);
+		}
+
+		return json_decode( $encoded, true );
 	}
 }

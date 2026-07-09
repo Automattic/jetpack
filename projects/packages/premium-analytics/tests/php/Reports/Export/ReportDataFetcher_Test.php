@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use WP_Error;
 
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 
@@ -87,5 +88,27 @@ class ReportDataFetcher_Test extends TestCase {
 
 		// Interval defaults to 'day' when omitted.
 		$this->assertSame( 'day', $this->invoke( 'extract_base_params', array( array() ) )['interval'] );
+	}
+
+	public function test_normalize_response_data_returns_error_when_json_encoding_fails() {
+		$resource = fopen( 'php://temp', 'r' );
+
+		try {
+			$result = $this->invoke(
+				'normalize_response_data',
+				array(
+					array(
+						'data' => array(
+							'unencodable' => $resource,
+						),
+					),
+				)
+			);
+		} finally {
+			fclose( $resource );
+		}
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'proxy_response_encode_failed', $result->get_error_code() );
 	}
 }

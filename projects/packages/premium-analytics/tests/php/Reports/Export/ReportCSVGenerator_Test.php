@@ -11,7 +11,10 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use RuntimeException;
 
+require_once __DIR__ . '/fixtures/class-failing-csv-stream-wrapper.php';
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 
 /**
@@ -87,6 +90,22 @@ class ReportCSVGenerator_Test extends TestCase {
 
 	private function generator(): Report_Csv_Generator {
 		return new Report_Csv_Generator( new Spy_Logger() );
+	}
+
+	/**
+	 * Invoke a private method on the generator.
+	 *
+	 * @param Report_Csv_Generator $generator Generator under test.
+	 * @param string               $method    Method name.
+	 * @param array                $args      Arguments.
+	 * @return mixed
+	 */
+	private function invoke_generator_method( Report_Csv_Generator $generator, string $method, array $args ) {
+		$ref = new ReflectionMethod( Report_Csv_Generator::class, $method );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
+		}
+		return $ref->invokeArgs( $generator, $args );
 	}
 
 	/**
@@ -190,6 +209,44 @@ class ReportCSVGenerator_Test extends TestCase {
 	public function test_stream_file_returns_false_for_missing_file() {
 		$generator = $this->generator();
 		$this->assertFalse( $generator->stream_file( '/does/not/exist.csv' ) );
+	}
+
+	public function test_write_helpers_throw_when_stream_writes_fail() {
+		$scheme     = 'pa-failing-csv';
+		$registered = false;
+
+		if ( ! in_array( $scheme, stream_get_wrappers(), true ) ) {
+			$registered = stream_wrapper_register( $scheme, Failing_Csv_Stream_Wrapper::class );
+			$this->assertTrue( $registered );
+		}
+
+		$handle = fopen( $scheme . '://output', 'w' );
+
+		try {
+			$generator = $this->generator();
+
+			try {
+				$this->invoke_generator_method( $generator, 'write_bom', array( $handle ) );
+				$this->fail( 'Expected write_bom() to throw when the stream writes zero bytes.' );
+			} catch ( RuntimeException $e ) {
+				$this->assertSame( 'Failed to write CSV BOM.', $e->getMessage() );
+			}
+
+			try {
+				$this->invoke_generator_method( $generator, 'write_csv_row', array( $handle, array( 'Date', 'Orders' ) ) );
+				$this->fail( 'Expected write_csv_row() to throw when the stream writes zero bytes.' );
+			} catch ( RuntimeException $e ) {
+				$this->assertSame( 'Failed to write CSV row.', $e->getMessage() );
+			}
+		} finally {
+			if ( is_resource( $handle ) ) {
+				fclose( $handle );
+			}
+
+			if ( $registered ) {
+				stream_wrapper_unregister( $scheme );
+			}
+		}
 	}
 
 	/**

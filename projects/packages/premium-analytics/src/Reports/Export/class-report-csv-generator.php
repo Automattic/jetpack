@@ -72,10 +72,10 @@ class Report_Csv_Generator {
 			// Use try/finally so the file handle is always closed, even if the formatter throws.
 			try {
 				// Write BOM for UTF-8 (helps Excel recognize encoding).
-				fwrite( $handle, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+				$this->write_bom( $handle );
 
 				// Write header row (labels are our own strings, but escape for consistency).
-				fputcsv( $handle, array_map( array( self::class, 'escape_csv_value' ), array_values( $columns ) ), ',', '"', '\\' );
+				$this->write_csv_row( $handle, array_map( array( self::class, 'escape_csv_value' ), array_values( $columns ) ) );
 
 				// Write data rows.
 				foreach ( $rows as $row ) {
@@ -92,7 +92,7 @@ class Report_Csv_Generator {
 						$csv_row[] = self::escape_csv_value( $formatted_row[ $column_key ] ?? '' );
 					}
 
-					fputcsv( $handle, $csv_row, ',', '"', '\\' );
+					$this->write_csv_row( $handle, $csv_row );
 				}
 			} finally {
 				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
@@ -141,6 +141,38 @@ class Report_Csv_Generator {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Write the UTF-8 BOM.
+	 *
+	 * @param resource $handle File handle.
+	 * @return void
+	 * @throws \RuntimeException When the BOM cannot be written fully.
+	 */
+	private function write_bom( $handle ): void {
+		$bom           = "\xEF\xBB\xBF";
+		$bytes_written = fwrite( $handle, $bom ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+
+		if ( strlen( $bom ) !== $bytes_written ) {
+			throw new \RuntimeException( 'Failed to write CSV BOM.' );
+		}
+	}
+
+	/**
+	 * Write one CSV row.
+	 *
+	 * @param resource $handle File handle.
+	 * @param array    $row    CSV row.
+	 * @return void
+	 * @throws \RuntimeException When the row cannot be written.
+	 */
+	private function write_csv_row( $handle, array $row ): void {
+		$bytes_written = fputcsv( $handle, $row, ',', '"', '\\' );
+
+		if ( false === $bytes_written || 0 === $bytes_written ) {
+			throw new \RuntimeException( 'Failed to write CSV row.' );
+		}
 	}
 
 	/**
