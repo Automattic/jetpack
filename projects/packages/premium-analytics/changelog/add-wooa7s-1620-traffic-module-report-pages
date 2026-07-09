@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Widgets Toolkit: add the shared report-page framework components (ReportPageLayout, ReportPerformanceChart, ReportRecordsTable) for the second-level module report pages.
+Widgets Toolkit: Add the shared report-page framework components (ReportPageLayout, ReportPerformanceChart, ReportRecordsTable) for the second-level module report pages.

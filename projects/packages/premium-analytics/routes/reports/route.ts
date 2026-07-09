@@ -102,6 +102,10 @@ export const route = {
 				),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};
+			// `normalizeReportParams` preserves a valid `post_id` for the
+			// post-detail surface, but reports are site-wide — drop it so a link
+			// carrying one can't scope a report to a single post.
+			delete seeded.post_id;
 
 			throw redirect( {
 				to: '/reports/$report',
