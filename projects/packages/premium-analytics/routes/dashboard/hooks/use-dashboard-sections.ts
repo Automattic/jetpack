@@ -22,6 +22,9 @@ type UseDashboardSectionsReturn = {
 	resetSectionLayout: ( sectionId: DashboardSectionId ) => Promise< void >;
 };
 
+const dashboardSectionsCache = new Map< DashboardName, DashboardSection[] >();
+const dashboardSectionsRequests = new Map< DashboardName, Promise< DashboardSection[] > >();
+
 /**
  * Build the REST path for a dashboard's sections.
  *
@@ -47,32 +50,81 @@ export function getDashboardSectionLayoutPath(
 }
 
 /**
+ * Normalize a sections REST response into the hook's ordered section list.
+ *
+ * @param response - REST response to normalize.
+ * @return Ordered dashboard sections, or an empty list for invalid data.
+ */
+function normalizeDashboardSections( response: unknown ): DashboardSection[] {
+	return isDashboardSections( response )
+		? sortDashboardSections( response )
+		: EMPTY_DASHBOARD_SECTIONS;
+}
+
+/**
+ * Read sections once per dashboard, sharing concurrent calls across consumers.
+ *
+ * @param dashboardName - Dashboard registration name.
+ * @return Promise resolving to the dashboard's section list.
+ */
+function fetchDashboardSections( dashboardName: DashboardName ): Promise< DashboardSection[] > {
+	if ( dashboardSectionsCache.has( dashboardName ) ) {
+		return Promise.resolve(
+			dashboardSectionsCache.get( dashboardName ) ?? EMPTY_DASHBOARD_SECTIONS
+		);
+	}
+
+	const pendingRequest = dashboardSectionsRequests.get( dashboardName );
+	if ( pendingRequest ) {
+		return pendingRequest;
+	}
+
+	const request = apiFetch( { path: getDashboardSectionsPath( dashboardName ) } )
+		.then( response => {
+			const nextSections = normalizeDashboardSections( response );
+			dashboardSectionsCache.set( dashboardName, nextSections );
+			return nextSections;
+		} )
+		.catch( () => EMPTY_DASHBOARD_SECTIONS )
+		.finally( () => {
+			dashboardSectionsRequests.delete( dashboardName );
+		} );
+
+	dashboardSectionsRequests.set( dashboardName, request );
+
+	return request;
+}
+
+/**
  * Get REST-provided dashboard sections and section layout actions.
  *
  * @param dashboardName - Dashboard registration name.
  * @return Sections state and layout mutation helpers.
  */
 export function useDashboardSections( dashboardName: DashboardName ): UseDashboardSectionsReturn {
-	const [ sections, setSections ] = useState< DashboardSection[] >( EMPTY_DASHBOARD_SECTIONS );
-	const [ isResolvingSections, setIsResolvingSections ] = useState( true );
+	const [ sections, setSections ] = useState< DashboardSection[] >(
+		() => dashboardSectionsCache.get( dashboardName ) ?? EMPTY_DASHBOARD_SECTIONS
+	);
+	const [ isResolvingSections, setIsResolvingSections ] = useState(
+		() => ! dashboardSectionsCache.has( dashboardName )
+	);
 
 	useEffect( () => {
 		let isMounted = true;
 
+		if ( dashboardSectionsCache.has( dashboardName ) ) {
+			setSections( dashboardSectionsCache.get( dashboardName ) ?? EMPTY_DASHBOARD_SECTIONS );
+			setIsResolvingSections( false );
+			return () => {
+				isMounted = false;
+			};
+		}
+
 		setIsResolvingSections( true );
-		void apiFetch( { path: getDashboardSectionsPath( dashboardName ) } )
-			.then( response => {
+		void fetchDashboardSections( dashboardName )
+			.then( nextSections => {
 				if ( isMounted ) {
-					setSections(
-						isDashboardSections( response )
-							? sortDashboardSections( response )
-							: EMPTY_DASHBOARD_SECTIONS
-					);
-				}
-			} )
-			.catch( () => {
-				if ( isMounted ) {
-					setSections( EMPTY_DASHBOARD_SECTIONS );
+					setSections( nextSections );
 				}
 			} )
 			.finally( () => {
@@ -86,11 +138,18 @@ export function useDashboardSections( dashboardName: DashboardName ): UseDashboa
 		};
 	}, [ dashboardName ] );
 
-	const updateSectionFromResponse = useCallback( ( response: unknown ) => {
-		if ( isDashboardSection( response ) ) {
-			setSections( currentSections => replaceDashboardSection( currentSections, response ) );
-		}
-	}, [] );
+	const updateSectionFromResponse = useCallback(
+		( response: unknown ) => {
+			if ( isDashboardSection( response ) ) {
+				setSections( currentSections => {
+					const nextSections = replaceDashboardSection( currentSections, response );
+					dashboardSectionsCache.set( dashboardName, nextSections );
+					return nextSections;
+				} );
+			}
+		},
+		[ dashboardName ]
+	);
 
 	const updateSectionLayout = useCallback(
 		async ( sectionId: DashboardSectionId, layout: DashboardWidget[] ) => {

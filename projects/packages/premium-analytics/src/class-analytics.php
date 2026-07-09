@@ -130,6 +130,7 @@ class Analytics {
 		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
 		// place. Runs after Stats registers itself (admin_menu priority 999).
 		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
+		add_filter( 'jetpack_admin_js_script_data', array( static::class, 'inject_script_data' ), 20 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
@@ -219,6 +220,84 @@ class Analytics {
 			__( 'Dashboard', 'jetpack-premium-analytics' ),
 			'/'
 		);
+	}
+
+	/**
+	 * REST paths preloaded for the dashboard's first render.
+	 *
+	 * Includes both the raw path and the user-locale variant so the preload can
+	 * satisfy whichever path shape apiFetch asks for.
+	 *
+	 * @return array REST paths to preload.
+	 */
+	public static function get_dashboard_sections_preload_paths() {
+		$sections_path = '/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections';
+
+		return array(
+			$sections_path,
+			add_query_arg( array( '_locale' => 'user' ), $sections_path ),
+		);
+	}
+
+	/**
+	 * Add Premium Analytics bootstrap data to JetpackScriptData.
+	 *
+	 * The sections endpoint is provided as an apiFetch preload so the dashboard
+	 * can resolve its initial section layout without a network request, while
+	 * still falling back to REST if the preload is absent.
+	 *
+	 * @param array $data Script data being injected onto the page.
+	 * @return array Script data with Premium Analytics preload data.
+	 */
+	public static function inject_script_data( $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
+
+		if ( ! self::is_dashboard_request() ) {
+			return $data;
+		}
+
+		if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+			$data['premium_analytics'] = array();
+		}
+
+		$preload = self::normalize_preload_paths(
+			array_reduce(
+				self::get_dashboard_sections_preload_paths(),
+				'rest_preload_api_request',
+				array()
+			)
+		);
+
+		$existing_preload = isset( $data['premium_analytics']['preload'] ) && is_array( $data['premium_analytics']['preload'] )
+			? $data['premium_analytics']['preload']
+			: array();
+
+		$data['premium_analytics']['preload'] = array_merge( $existing_preload, $preload );
+
+		return $data;
+	}
+
+	/**
+	 * Normalize preloaded REST paths to the relative path shape apiFetch uses.
+	 *
+	 * @param array $preload Preload map from rest_preload_api_request().
+	 * @return array Normalized preload map.
+	 */
+	private static function normalize_preload_paths( array $preload ) {
+		$normalized_preload = array();
+
+		foreach ( $preload as $path => $value ) {
+			$normalized_path = preg_replace( '#^https?://[^/]+/wp-json#', '', $path );
+			if ( ! is_string( $normalized_path ) ) {
+				$normalized_path = $path;
+			}
+
+			$normalized_preload[ $normalized_path ] = $value;
+		}
+
+		return $normalized_preload;
 	}
 
 	/**

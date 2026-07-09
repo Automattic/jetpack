@@ -13,7 +13,16 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
-const dashboardName = 'jetpack-premium-analytics_dashboard' as DashboardName;
+
+/**
+ * Builds unique dashboard names so the module-level hook cache stays isolated per test.
+ *
+ * @param slug - Test-specific dashboard suffix.
+ * @return Dashboard name.
+ */
+function getDashboardName( slug: string ): DashboardName {
+	return `jetpack-premium-analytics_${ slug }` as DashboardName;
+}
 
 const defaultLayout: DashboardWidget[] = [
 	{
@@ -51,6 +60,7 @@ beforeEach( () => {
 
 describe( 'useDashboardSections', () => {
 	it( 'loads the server-resolved section layouts', async () => {
+		const dashboardName = getDashboardName( 'loads-sections' );
 		mockApiFetch.mockResolvedValueOnce( [ subscribersSection, trafficSection ] );
 
 		const { result } = renderHook( () => useDashboardSections( dashboardName ) );
@@ -67,6 +77,7 @@ describe( 'useDashboardSections', () => {
 	} );
 
 	it( 'persists section layout changes through the section layout API', async () => {
+		const dashboardName = getDashboardName( 'updates-section-layout' );
 		mockApiFetch.mockResolvedValueOnce( [ trafficSection ] );
 		const { result } = renderHook( () => useDashboardSections( dashboardName ) );
 		await waitFor( () => expect( result.current.sections ).toEqual( [ trafficSection ] ) );
@@ -91,6 +102,7 @@ describe( 'useDashboardSections', () => {
 	} );
 
 	it( 'resets active section layouts through the section layout API', async () => {
+		const dashboardName = getDashboardName( 'resets-section-layout' );
 		const customizedTrafficSection: DashboardSection = {
 			...trafficSection,
 			layout: customLayout,
@@ -113,5 +125,32 @@ describe( 'useDashboardSections', () => {
 			method: 'DELETE',
 		} );
 		expect( result.current.sections ).toEqual( [ trafficSection ] );
+	} );
+
+	it( 'shares an in-flight section request across consumers', async () => {
+		const dashboardName = getDashboardName( 'dedupes-section-requests' );
+		let resolveSections!: ( sections: DashboardSection[] ) => void;
+		const sectionsPromise = new Promise< DashboardSection[] >( resolve => {
+			resolveSections = resolve;
+		} );
+		mockApiFetch.mockReturnValueOnce( sectionsPromise );
+
+		const { result: firstResult } = renderHook( () => useDashboardSections( dashboardName ) );
+		const { result: secondResult } = renderHook( () => useDashboardSections( dashboardName ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: getDashboardSectionsPath( dashboardName ),
+		} );
+
+		await act( async () => {
+			resolveSections( [ trafficSection ] );
+			await sectionsPromise;
+		} );
+
+		await waitFor( () => expect( firstResult.current.isResolvingSections ).toBe( false ) );
+		await waitFor( () => expect( secondResult.current.isResolvingSections ).toBe( false ) );
+		expect( firstResult.current.sections ).toEqual( [ trafficSection ] );
+		expect( secondResult.current.sections ).toEqual( [ trafficSection ] );
 	} );
 } );

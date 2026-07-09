@@ -35,6 +35,19 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The dashboard sections endpoint is preloaded in both path shapes apiFetch may consume.
+	 */
+	public function test_get_dashboard_sections_preload_paths() {
+		$this->assertSame(
+			array(
+				'/jetpack/v4/dashboards/jetpack-premium-analytics_dashboard/sections',
+				'/jetpack/v4/dashboards/jetpack-premium-analytics_dashboard/sections?_locale=user',
+			),
+			Analytics::get_dashboard_sections_preload_paths()
+		);
+	}
+
+	/**
 	 * The full-page dashboard slug in admin is recognized as a dashboard request.
 	 */
 	public function test_is_dashboard_request_true_for_full_page_slug() {
