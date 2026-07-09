@@ -338,7 +338,7 @@ class Password_Detection {
 							<?php
 								printf(
 									/* translators: %s: Masked email address */
-									esc_html__( 'We\'ve sent a verification code to your WordPress admin email (%s).', 'jetpack-account-protection' ),
+									esc_html__( 'We\'ve sent a verification code to your WordPress profile email address (%s).', 'jetpack-account-protection' ),
 									esc_html( $this->email_service->mask_email_address( $user->user_email ) )
 								);
 							?>
@@ -390,7 +390,7 @@ class Password_Detection {
 									/* translators: %s: Contact Jetpack Support link */
 									esc_html__( 'No longer have access to this email address or need additional help? %s.', 'jetpack-account-protection' ),
 									'<a class="contact-support-link" href="' . esc_url( 'https://jetpack.com/contact-support/?rel=support' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Contact Jetpack Support', 'jetpack-account-protection' ) . '</a>'
-									);
+								);
 								?>
 							</p>
 						<?php endif; ?>
