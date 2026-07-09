@@ -6,48 +6,82 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Which set of headline metrics the top row shows for the selected email —
+ * mirrors the Opens and Clicks internal tabs on the Jetpack Stats email detail
+ * page. Each view is backed by its own all-time `stats/<statType>/emails/<postId>/rate`
+ * breakdown, so the tiles and the data source switch together.
+ */
+export type EmailStatType = 'opens' | 'clicks';
+
+/**
  * Configurable attributes for the "Email top row" widget.
  *
- * The widget is scoped to a single email by `postId`. The dashboard supplies
- * the selected email's post ID through this attribute; there is no report-param
- * (`post_id`) scoping because the underlying `stats/emails/summary` endpoint has
- * no per-post filter and is always all-time, so the widget selects the matching
- * row client-side from the latest emails.
+ * The widget is scoped to a single email by `postId` and to one metric view by
+ * `statType`. Both are supplied by the host (the email detail page passes the
+ * selected email and the active Opens/Clicks tab); there is no report-param
+ * scoping because the underlying rate endpoints are per-post and always all-time.
  */
 export type EmailTopRowAttributes = {
 	/**
-	 * Post ID of the email whose totals to display. When absent or not present in
-	 * the latest emails summary, the widget shows its empty state.
+	 * Post ID of the email whose totals to display. When absent, the widget
+	 * prompts to select an email.
 	 */
 	postId?: number;
+	/**
+	 * Which headline metrics to show: the Opens view (sends, unique opens, opens,
+	 * open rate) or the Clicks view (opens, clicks, click rate). Defaults to `opens`.
+	 */
+	statType?: EmailStatType;
 };
 
 /**
  * Widget type definition.
  *
  * Ported from the Jetpack Stats "Email top row" module (the header row on an
- * individual email's stats detail page). Shows the email's all-time headline
- * counts — total sends, total opens, unique opens, and total clicks — plus the
- * open and click rates, as a row of metric tiles.
- *
- * The `stats/emails/summary` endpoint is all-time and site-wide, so the widget
- * ignores the dashboard date range and comparison period; the endpoint returns
- * no comparison rows, so no period-over-period deltas are shown.
+ * individual email's stats detail page). Shows one email's all-time headline
+ * counts as a row of metric tiles, switching between the Opens and Clicks views
+ * with the `statType` attribute (`relevance: 'high'`, so the host renders the
+ * control). Data comes from the per-post `stats/<statType>/emails/<postId>/rate`
+ * breakdown, which is all-time and returns no comparison rows, so the widget
+ * ignores the dashboard date range and never shows period-over-period deltas.
  */
 export default {
 	name: 'jpa/email-top-row',
 	title: __( 'Email top row', 'jetpack-premium-analytics' ),
 	icon: envelope,
+	help: {
+		content: __(
+			'Headline stats for a single email. The Opens view shows total sends, unique opens, total opens, and open rate; the Clicks view shows total opens, total clicks, and click rate. Rates are measured against total sends. Figures are all-time and are not affected by the dashboard date range.',
+			'jetpack-premium-analytics'
+		),
+	},
 	attributes: [
 		{
 			id: 'postId',
 			label: __( 'Email ID', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
+		{
+			id: 'statType',
+			label: __( 'View by', 'jetpack-premium-analytics' ),
+			type: 'text',
+			elements: [
+				{
+					label: __( 'Opens', 'jetpack-premium-analytics' ),
+					value: 'opens',
+				},
+				{
+					label: __( 'Clicks', 'jetpack-premium-analytics' ),
+					value: 'clicks',
+				},
+			],
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< EmailTopRowAttributes >[],
 	example: {
 		attributes: {
 			postId: 2000,
+			statType: 'opens',
 		},
 	},
 };

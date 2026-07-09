@@ -7,8 +7,8 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import EmailTopRowWidget, { selectEmailRow, toEmailTopRowMetrics } from '../render';
-import type { StatsEmailSummary } from '@jetpack-premium-analytics/data';
+import EmailTopRowWidget, { hasEmailMetrics, toEmailTopRowMetrics } from '../render';
+import type { StatsEmailBreakdown } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -18,147 +18,174 @@ jest.mock( '@wordpress/route', () => ( {
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-const EMAIL_SUMMARY_RESPONSE = {
-	posts: [
-		{
-			id: 2000,
-			title: 'Latest newsletter',
-			href: 'https://example.com/latest',
-			type: 'post',
-			opens_rate: 38.1,
-			clicks_rate: 3.81,
-			opens: 400,
-			clicks: 40,
-			unique_opens: 380,
-			unique_clicks: 38,
-			total_sends: 1000,
-		},
-		{
-			id: 2001,
-			title: 'Older newsletter',
-			href: 'https://example.com/older',
-			type: 'post',
-			opens_rate: 22.5,
-			clicks_rate: 2.1,
-			opens: 200,
-			clicks: 18,
-			unique_opens: 190,
-			unique_clicks: 17,
-			total_sends: 900,
-		},
-	],
+// Raw per-post `rate` breakdown responses: flat scalars, one endpoint per view.
+const OPENS_RATE_RESPONSE = {
+	total_sends: 1000,
+	total_opens: 400,
+	unique_opens: 380,
+	opens_rate: 38.1,
 };
+
+const CLICKS_RATE_RESPONSE = {
+	total_sends: 1000,
+	total_opens: 400,
+	total_clicks: 40,
+	clicks_rate: 3.81,
+};
+
+function routeRateResponse( options: unknown ) {
+	const path = typeof options === 'string' ? options : ( options as { path?: string } )?.path ?? '';
+
+	if ( path.includes( '/clicks/emails/' ) ) {
+		return Promise.resolve( CLICKS_RATE_RESPONSE );
+	}
+	if ( path.includes( '/opens/emails/' ) ) {
+		return Promise.resolve( OPENS_RATE_RESPONSE );
+	}
+	return Promise.resolve( {} );
+}
+
+// The summary type is index-signature only; tests build fixtures as plain objects.
+const asSummary = ( fields: Record< string, number > ) =>
+	fields as unknown as StatsEmailBreakdown[ 'summary' ];
 
 describe( 'EmailTopRowWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
-		mockApiFetch.mockResolvedValue( EMAIL_SUMMARY_RESPONSE );
+		mockApiFetch.mockImplementation( routeRateResponse );
 	} );
 
-	it( 'renders the selected email totals as metric tiles', async () => {
+	it( 'renders the Opens view tiles from the per-post rate breakdown', async () => {
 		render(
 			<EmailTopRowWidget
-				attributes={ { postId: 2000, reportParams: getDefaultQueryParams( false ) } }
+				attributes={ {
+					postId: 2000,
+					statType: 'opens',
+					reportParams: getDefaultQueryParams( false ),
+				} }
 			/>
 		);
 
-		// The tile captions for the selected email.
-		await expect( screen.findByText( 'Total sends' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Unique opens' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Total opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Open rate' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Click rate' ) ).toBeInTheDocument();
-
+		// Clicks-only tiles are not in the Opens view.
+		expect( screen.queryByText( 'Click rate' ) ).not.toBeInTheDocument();
 		// The open rate is formatted as a percentage from the 0–100 rate.
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the unavailable message when the selected email is not in the summary', async () => {
+	it( 'renders the Clicks view tiles when statType is clicks', async () => {
 		render(
 			<EmailTopRowWidget
-				attributes={ { postId: 9999, reportParams: getDefaultQueryParams( false ) } }
+				attributes={ {
+					postId: 2000,
+					statType: 'clicks',
+					reportParams: getDefaultQueryParams( false ),
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( 'Total clicks' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Click rate' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Total opens' ) ).toBeInTheDocument();
+		// Opens-only tiles are not in the Clicks view.
+		expect( screen.queryByText( 'Unique opens' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the empty state when the email has no stats', async () => {
+		mockApiFetch.mockImplementation( () => Promise.resolve( {} ) );
+
+		render(
+			<EmailTopRowWidget
+				attributes={ {
+					postId: 9999,
+					statType: 'opens',
+					reportParams: getDefaultQueryParams( false ),
+				} }
 			/>
 		);
 
 		await expect(
-			screen.findByText( /this email's stats aren't available yet/i )
+			screen.findByText( 'No stats are available for this email yet.' )
 		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'prompts to select an email when no post is selected', async () => {
-		render( <EmailTopRowWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } /> );
+		render(
+			<EmailTopRowWidget
+				attributes={ { statType: 'opens', reportParams: getDefaultQueryParams( false ) } }
+			/>
+		);
 
 		await expect(
-			screen.findByText( 'Select an email to see its opens and clicks.' )
+			screen.findByText( 'Select an email to see its stats.' )
 		).resolves.toBeInTheDocument();
-	} );
-} );
-
-describe( 'selectEmailRow', () => {
-	const report = {
-		summary: {},
-		data: [
-			{
-				time_interval: 'alltime',
-				date_start: '',
-				date_end: '',
-				items: [
-					{
-						id: 2000,
-						label: 'Latest newsletter',
-						value: 400,
-						opens: 400,
-						clicks: 40,
-						opens_rate: 38.1,
-						clicks_rate: 3.81,
-						unique_opens: 380,
-						unique_clicks: 38,
-						total_sends: 1000,
-						children: null,
-					},
-				],
-			},
-		],
-	} as unknown as StatsEmailSummary;
-
-	it( 'returns undefined when no email is selected', () => {
-		expect( selectEmailRow( report, undefined ) ).toBeUndefined();
-	} );
-
-	it( 'returns undefined when the email is not present', () => {
-		expect( selectEmailRow( report, 1234 ) ).toBeUndefined();
-	} );
-
-	it( 'matches the row by post ID', () => {
-		expect( selectEmailRow( report, 2000 )?.total_sends ).toBe( 1000 );
+		// A disabled query must not fetch.
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );
 
 describe( 'toEmailTopRowMetrics', () => {
-	it( 'maps counts and converts 0–100 rates to fractions in order', () => {
-		const metrics = toEmailTopRowMetrics( {
-			id: 2000,
-			label: 'Latest newsletter',
-			value: 400,
-			opens: 400,
-			clicks: 40,
-			opens_rate: 38.1,
-			clicks_rate: 3.81,
-			unique_opens: 380,
-			unique_clicks: 38,
-			total_sends: 1000,
-			children: null,
-		} );
+	it( 'builds the Opens view tiles in order and converts the 0–100 rate', () => {
+		const metrics = toEmailTopRowMetrics(
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 38.1 } ),
+			'opens'
+		);
 
 		expect( metrics.map( metric => metric.key ) ).toEqual( [
 			'total_sends',
-			'opens',
 			'unique_opens',
+			'total_opens',
 			'opens_rate',
-			'clicks',
-			'clicks_rate',
 		] );
 		expect( metrics.find( metric => metric.key === 'opens_rate' )?.value ).toBeCloseTo( 0.381 );
 		expect( metrics.find( metric => metric.key === 'total_sends' )?.value ).toBe( 1000 );
+	} );
+
+	it( 'builds the Clicks view tiles in order', () => {
+		const metrics = toEmailTopRowMetrics(
+			asSummary( { total_opens: 400, total_clicks: 40, clicks_rate: 3.81 } ),
+			'clicks'
+		);
+
+		expect( metrics.map( metric => metric.key ) ).toEqual( [
+			'total_opens',
+			'total_clicks',
+			'clicks_rate',
+		] );
+		expect( metrics.find( metric => metric.key === 'clicks_rate' )?.value ).toBeCloseTo( 0.0381 );
+	} );
+
+	it( 'hides the Unique opens tile when there are no unique opens', () => {
+		const metrics = toEmailTopRowMetrics(
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 38.1 } ),
+			'opens'
+		);
+
+		expect( metrics.map( metric => metric.key ) ).not.toContain( 'unique_opens' );
+	} );
+
+	it( 'renders a missing or zero rate as null so the tile shows a placeholder', () => {
+		const metrics = toEmailTopRowMetrics(
+			asSummary( { total_sends: 1000, total_opens: 0, unique_opens: 0 } ),
+			'opens'
+		);
+
+		expect( metrics.find( metric => metric.key === 'opens_rate' )?.value ).toBeNull();
+	} );
+} );
+
+describe( 'hasEmailMetrics', () => {
+	it( 'is false for an empty or missing summary', () => {
+		expect( hasEmailMetrics( undefined ) ).toBe( false );
+		expect( hasEmailMetrics( asSummary( {} ) ) ).toBe( false );
+	} );
+
+	it( 'is true when a metric field is present, including zero', () => {
+		expect( hasEmailMetrics( asSummary( { total_sends: 0 } ) ) ).toBe( true );
+		expect( hasEmailMetrics( asSummary( { total_opens: 400 } ) ) ).toBe( true );
 	} );
 } );

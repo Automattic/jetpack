@@ -9,6 +9,14 @@
 	overflow-y: auto;
 }
 
+/* Fills the widget body so WidgetState's loading/empty/error states center. */
+.content {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+}
+
 .grid {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -51,13 +59,12 @@
 	line-height: var(--wpds-typography-line-height-xl, 32px);
 }
 
-.placeholder {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 100%;
+/* The "no rate yet" placeholder sits where a MetricValue would, so match its
+ * size and mute the color. */
+.tilePlaceholder {
+	font-size: var(--wpds-typography-font-size-xl, 20px);
+	line-height: var(--wpds-typography-line-height-xl, 32px);
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
 }
 
 /* Wide widths: lay the tiles out three across with the value stacked below the

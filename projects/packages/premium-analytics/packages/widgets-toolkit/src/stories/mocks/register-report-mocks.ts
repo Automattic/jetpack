@@ -870,6 +870,24 @@ function buildEmailSummaryResponse() {
 }
 
 /**
+ * Builds a mock all-time `stats/<statType>/emails/<postId>/rate` response so the
+ * Email top row widget renders populated in Storybook. The `rate` breakdown is a
+ * flat object of scalar totals; each endpoint only carries the fields for its
+ * stat type (see the upstream Calypso `emailStatsAlltimeTransform`), which the
+ * data layer's summary sanitizer keeps as numbers.
+ *
+ * @param statType - Which view's totals to return.
+ * @return Raw email rate-breakdown response.
+ */
+function buildEmailRateResponse( statType: 'opens' | 'clicks' ) {
+	if ( statType === 'clicks' ) {
+		return { total_sends: 1000, total_opens: 400, total_clicks: 40, clicks_rate: 3.81 };
+	}
+
+	return { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 38.1 };
+}
+
+/**
  * Routes a Stats sub-path to the matching mock generator.
  *
  * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
@@ -879,6 +897,12 @@ function routeStatsReport( subPath: string ): unknown {
 	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
 		return mockSingleVideoData;
+	}
+
+	// Per-post email rate breakdowns: `/opens/emails/<postId>/rate`, `/clicks/emails/<postId>/rate`.
+	const emailRate = subPath.match( /^\/(opens|clicks)\/emails\/\d+\/rate$/ );
+	if ( emailRate ) {
+		return buildEmailRateResponse( emailRate[ 1 ] as 'opens' | 'clicks' );
 	}
 
 	switch ( subPath ) {
