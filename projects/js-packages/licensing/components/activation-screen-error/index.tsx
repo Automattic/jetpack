@@ -5,6 +5,8 @@ import { LICENSE_ERRORS } from './constants';
 import { useGetErrorContent } from './use-get-error-content';
 import type { FC } from 'react';
 
+import './style.scss';
+
 type LicenseErrorKeysType = keyof typeof LICENSE_ERRORS;
 type LicenseErrorValuesType = ( typeof LICENSE_ERRORS )[ LicenseErrorKeysType ];
 

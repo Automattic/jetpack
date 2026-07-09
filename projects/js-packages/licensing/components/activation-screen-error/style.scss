@@ -1,0 +1,13 @@
+.activation-screen-error {
+	margin: 16px 0;
+
+	// useGetErrorContent renders raw <p>/<ol>/<ul>; the parent controls set
+	// `p { font-size: 16px }`, so match them to the notice text size and let the
+	// wrapping Stack own the vertical spacing between them.
+	p,
+	ol,
+	ul {
+		margin: 0;
+		font-size: var(--wpds-typography-font-size-md);
+	}
+}
