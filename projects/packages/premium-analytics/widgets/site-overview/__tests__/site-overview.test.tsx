@@ -77,8 +77,9 @@ describe( 'SiteOverviewWidget', () => {
 
 		// The tile abbreviates the count…
 		await expect( screen.findByText( '18K' ) ).resolves.toBeInTheDocument();
-		// …and its hover title carries the exact total.
-		expect( screen.getByTitle( ( 18400 ).toLocaleString() ) ).toBeInTheDocument();
+		// …and its hover title carries the exact total, formatted through the
+		// package formatter so tile and title agree on the app locale.
+		expect( screen.getByTitle( '18,400' ) ).toBeInTheDocument();
 	} );
 
 	it( 'explains the per-day visitor aggregation on the Visitors tile', async () => {
@@ -89,7 +90,11 @@ describe( 'SiteOverviewWidget', () => {
 		);
 
 		await expect( screen.findByText( 'Visitors' ) ).resolves.toBeInTheDocument();
+		// Sighted mouse users get the caveat as a hover title…
 		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
+		// …and assistive technology gets it as visually hidden text, since a
+		// `title` on a non-focusable element is unreachable by keyboard.
+		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the empty state when every visible metric is zero', async () => {

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	MetricWithComparison,
 	WidgetRoot,
@@ -12,13 +13,16 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Icon, comment, globe, people, seen, starEmpty } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
-import { useMemo } from 'react';
+import { Text, VisuallyHidden } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { SiteOverviewAttributes } from './widget';
+import {
+	SITE_OVERVIEW_METRICS,
+	type SiteOverviewAttributes,
+	type SiteOverviewMetricId,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // Report params are dashboard-driven — WidgetRoot resolves them from the date
@@ -26,39 +30,37 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type SiteOverviewRenderAttributes = SiteOverviewAttributes & Partial< ReportParamsFieldAttributes >;
 type SiteOverviewWidgetProps = WidgetRenderProps< SiteOverviewRenderAttributes >;
 
-/**
- * The per-metric visibility flags from widget attributes, with defaults applied.
- */
-type SiteOverviewReportProps = Required< SiteOverviewAttributes >;
-
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-type MetricKey = 'views' | 'visitors' | 'likes' | 'comments';
-
-type Metric = {
-	key: MetricKey;
-	label: string;
-	icon: typeof seen;
-	/** Optional caveat about how the total is aggregated, surfaced on hover. */
-	note?: string;
-};
-
 /**
- * The period metrics shown, in display order. Each key is a numeric field of the
- * summary response, paired with its Stats icon. `summary` totals views/visitors/
- * likes/comments over the period; `followers` is excluded because it is an
- * all-time running total, not a period metric, so it has no meaningful
- * period-over-period comparison.
+ * Render-only config per metric: the tile icon, the summary-response field the
+ * tile displays, and an optional aggregation caveat. Ids and labels are shared
+ * with the settings checkboxes via `SITE_OVERVIEW_METRICS` in `widget.ts`.
+ *
+ * Each metric reads a numeric field of the `summary` response, which totals
+ * views/visitors/likes/comments over the period; `followers` is excluded
+ * because it is an all-time running total, not a period metric, so it has no
+ * meaningful period-over-period comparison.
  */
-const METRICS: Metric[] = [
-	{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ), icon: seen },
+const TILE_CONFIG: Record<
+	SiteOverviewMetricId,
 	{
-		key: 'visitors',
-		label: __( 'Visitors', 'jetpack-premium-analytics' ),
+		icon: typeof seen;
+		value: ( summary: StatsSummaryResponse ) => number;
+		/**
+		 * Optional caveat about how the total is aggregated, surfaced on hover
+		 * and as visually hidden text for assistive technology.
+		 */
+		note?: string;
+	}
+> = {
+	showViews: { icon: seen, value: summary => summary.views },
+	showVisitors: {
 		icon: people,
+		value: summary => summary.visitors,
 		// Mirrors the upstream Stats caveat: the endpoint sums each day's
 		// visitors, so a returning visitor counts once per day, not once overall.
 		note: __(
@@ -66,9 +68,9 @@ const METRICS: Metric[] = [
 			'jetpack-premium-analytics'
 		),
 	},
-	{ key: 'likes', label: __( 'Likes', 'jetpack-premium-analytics' ), icon: starEmpty },
-	{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ), icon: comment },
-];
+	showLikes: { icon: starEmpty, value: summary => summary.likes },
+	showComments: { icon: comment, value: summary => summary.comments },
+};
 
 /**
  * Fetches the period summary through the designated `useStatsSummary` Stats hook
@@ -80,15 +82,11 @@ const METRICS: Metric[] = [
  * primary metric is never paired with a fabricated previous value. Which tiles
  * appear is controlled by the per-metric visibility attributes.
  *
- * @param {SiteOverviewReportProps} props - The component props.
+ * @param props            - The component props.
+ * @param props.attributes - The per-metric visibility flags; a missing flag means enabled.
  * @return The widget content.
  */
-function SiteOverviewReport( {
-	showViews,
-	showVisitors,
-	showLikes,
-	showComments,
-}: SiteOverviewReportProps ) {
+function SiteOverviewReport( { attributes }: { attributes: SiteOverviewAttributes } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
@@ -97,28 +95,10 @@ function SiteOverviewReport( {
 	const summary = primary.data as StatsSummaryResponse | undefined;
 	const comparisonSummary = comparison.data as StatsSummaryResponse | undefined;
 
-	// Only wire comparison values when the comparison period actually returned a
-	// summary; otherwise the tiles render as bare current-period totals rather
-	// than showing a delta derived from missing data.
-	const previousByMetric = useMemo( () => {
-		const map = new Map< keyof StatsSummaryResponse, number >();
-		if ( hasComparison && comparisonSummary ) {
-			for ( const metric of METRICS ) {
-				map.set( metric.key, comparisonSummary[ metric.key ] );
-			}
-		}
-		return map;
-	}, [ hasComparison, comparisonSummary ] );
-
 	// Drop tiles the user has toggled off in the widget settings, keeping the
-	// declared display order.
-	const enabledByKey: Record< MetricKey, boolean > = {
-		views: showViews,
-		visitors: showVisitors,
-		likes: showLikes,
-		comments: showComments,
-	};
-	const visibleMetrics = METRICS.filter( metric => enabledByKey[ metric.key ] );
+	// declared display order. A missing flag means enabled, matching the
+	// `getValue` defaults on the widget definition.
+	const visibleMetrics = SITE_OVERVIEW_METRICS.filter( ( { id } ) => attributes[ id ] ?? true );
 
 	// Not a data state: the user has toggled every tile off in the widget
 	// settings, so it stays outside `WidgetState` and shows in every fetch state.
@@ -136,7 +116,8 @@ function SiteOverviewReport( {
 
 	// The summary endpoint resolves to a flat totals object even for an idle
 	// period, so "empty" is every visible metric at zero, not a missing payload.
-	const isEmpty = ! summary || visibleMetrics.every( metric => summary[ metric.key ] === 0 );
+	const isEmpty =
+		! summary || visibleMetrics.every( ( { id } ) => TILE_CONFIG[ id ].value( summary ) === 0 );
 
 	return (
 		<div className={ styles.root }>
@@ -161,20 +142,36 @@ function SiteOverviewReport( {
 				} }
 			>
 				<div className={ styles.grid }>
-					{ visibleMetrics.map( metric => {
-						const value = summary?.[ metric.key ] ?? 0;
+					{ visibleMetrics.map( ( { id, label } ) => {
+						const { icon, note, value: metricValue } = TILE_CONFIG[ id ];
+						const value = summary ? metricValue( summary ) : 0;
 						return (
-							<div key={ metric.key } className={ styles.tile }>
-								<div className={ styles.tileHeader } title={ metric.note }>
-									<Icon className={ styles.tileIcon } icon={ metric.icon } size={ 24 } />
-									<Text className={ styles.tileLabel }>{ metric.label }</Text>
+							<div key={ id } className={ styles.tile }>
+								<div className={ styles.tileHeader } title={ note }>
+									<Icon className={ styles.tileIcon } icon={ icon } size={ 24 } />
+									<Text className={ styles.tileLabel }>{ label }</Text>
+									{ /* The `title` tooltip is invisible to keyboard and screen-reader
+									     users, so the caveat is repeated as visually hidden text. */ }
+									{ note && <VisuallyHidden>{ note }</VisuallyHidden> }
 								</div>
 								{ /* The tile shows a shortened count (e.g. 18K); the hover title
-								     carries the exact total, as the upstream Stats tooltip does. */ }
-								<div className={ styles.tileValue } title={ value.toLocaleString() }>
+								     carries the exact total, as the upstream Stats tooltip does.
+								     Both go through the package formatter so they agree on locale. */ }
+								<div
+									className={ styles.tileValue }
+									title={ formatMetricValue( value, 'number', { decimals: 0 } ) }
+								>
 									<MetricWithComparison
 										value={ value }
-										previousValue={ previousByMetric.get( metric.key ) }
+										// Only wire a comparison value when the comparison period
+										// actually returned a summary; otherwise the tile renders as a
+										// bare current-period total rather than showing a delta
+										// derived from missing data.
+										previousValue={
+											hasComparison && comparisonSummary
+												? metricValue( comparisonSummary )
+												: undefined
+										}
 										dataFormat={ COUNT_FORMAT }
 										fontSize="xl"
 									/>
@@ -202,12 +199,7 @@ function SiteOverviewReport( {
 export default function SiteOverview( { attributes = {} }: SiteOverviewWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SiteOverviewReport
-				showViews={ attributes.showViews ?? true }
-				showVisitors={ attributes.showVisitors ?? true }
-				showLikes={ attributes.showLikes ?? true }
-				showComments={ attributes.showComments ?? true }
-			/>
+			<SiteOverviewReport attributes={ attributes } />
 		</WidgetRoot>
 	);
 }
