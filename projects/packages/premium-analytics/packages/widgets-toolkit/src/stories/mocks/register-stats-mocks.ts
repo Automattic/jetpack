@@ -216,6 +216,198 @@ const MOCK_CLICKS_COMPARISON = {
 	},
 };
 
+// Exercises every referrer shape the widget renders: a multi-source group that
+// drills down twice (group → source → domain), a single-result group (which the
+// normalizer flattens into the result itself), and childless domains with URLs
+// that render as outbound links (label + favicon), while rows with children
+// drill down.
+const MOCK_REFERRERS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'Search Engines',
+				name: 'Search Engines',
+				icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+				total: 4801,
+				results: [
+					{
+						name: 'Google Search',
+						icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+						views: 3936,
+						children: [
+							{
+								name: 'google.com',
+								url: 'https://www.google.com/',
+								views: 3760,
+							},
+							{
+								name: 'google.co.uk',
+								url: 'https://www.google.co.uk/',
+								views: 176,
+							},
+						],
+					},
+					{
+						name: 'Bing',
+						icon: 'https://www.google.com/s2/favicons?domain=bing.com&sz=32',
+						views: 542,
+						children: [
+							{
+								name: 'bing.com',
+								url: 'https://www.bing.com/',
+								views: 542,
+							},
+						],
+					},
+					{
+						name: 'DuckDuckGo',
+						icon: 'https://www.google.com/s2/favicons?domain=duckduckgo.com&sz=32',
+						views: 323,
+						children: [
+							{
+								name: 'duckduckgo.com',
+								url: 'https://duckduckgo.com/',
+								views: 323,
+							},
+						],
+					},
+				],
+			},
+			{
+				group: 'WordPress.com Reader',
+				name: 'WordPress.com Reader',
+				icon: 'https://www.google.com/s2/favicons?domain=wordpress.com&sz=32',
+				total: 1240,
+				results: [
+					{
+						name: 'WordPress.com Reader',
+						url: 'https://wordpress.com/read',
+						views: 1240,
+					},
+				],
+			},
+			{
+				group: 'twitter.com',
+				name: 'twitter.com',
+				url: 'https://twitter.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=twitter.com&sz=32',
+				total: 920,
+				results: { views: 920 },
+			},
+			{
+				group: 'linkedin.com',
+				name: 'linkedin.com',
+				url: 'https://www.linkedin.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=linkedin.com&sz=32',
+				total: 610,
+				results: { views: 610 },
+			},
+			{
+				group: 'news.ycombinator.com',
+				name: 'news.ycombinator.com',
+				url: 'https://news.ycombinator.com/',
+				total: 480,
+				results: { views: 480 },
+			},
+		],
+		other_views: 120,
+		total_views: 8171,
+	},
+};
+
+const MOCK_REFERRERS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'Search Engines',
+				name: 'Search Engines',
+				icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+				total: 4160,
+				results: [
+					{
+						name: 'Google Search',
+						icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+						views: 3410,
+						children: [
+							{
+								name: 'google.com',
+								url: 'https://www.google.com/',
+								views: 3280,
+							},
+							{
+								name: 'google.co.uk',
+								url: 'https://www.google.co.uk/',
+								views: 130,
+							},
+						],
+					},
+					{
+						name: 'Bing',
+						icon: 'https://www.google.com/s2/favicons?domain=bing.com&sz=32',
+						views: 480,
+						children: [
+							{
+								name: 'bing.com',
+								url: 'https://www.bing.com/',
+								views: 480,
+							},
+						],
+					},
+					{
+						name: 'DuckDuckGo',
+						icon: 'https://www.google.com/s2/favicons?domain=duckduckgo.com&sz=32',
+						views: 270,
+						children: [
+							{
+								name: 'duckduckgo.com',
+								url: 'https://duckduckgo.com/',
+								views: 270,
+							},
+						],
+					},
+				],
+			},
+			{
+				group: 'WordPress.com Reader',
+				name: 'WordPress.com Reader',
+				icon: 'https://www.google.com/s2/favicons?domain=wordpress.com&sz=32',
+				total: 1390,
+				results: [
+					{
+						name: 'WordPress.com Reader',
+						url: 'https://wordpress.com/read',
+						views: 1390,
+					},
+				],
+			},
+			{
+				group: 'twitter.com',
+				name: 'twitter.com',
+				url: 'https://twitter.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=twitter.com&sz=32',
+				total: 1050,
+				results: { views: 1050 },
+			},
+			{
+				group: 'linkedin.com',
+				name: 'linkedin.com',
+				url: 'https://www.linkedin.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=linkedin.com&sz=32',
+				total: 540,
+				results: { views: 540 },
+			},
+		],
+		other_views: 90,
+		total_views: 7230,
+	},
+};
+
 const MOCK_FILE_DOWNLOADS_FILES = [
 	{
 		relative_url: '/annual-report-2025.pdf',
@@ -777,6 +969,10 @@ function getStatsMock( path: string ): unknown | null {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
 	}
 
+	if ( subPath.startsWith( '/referrers' ) ) {
+		return isComparison ? MOCK_REFERRERS_COMPARISON : MOCK_REFERRERS;
+	}
+
 	if ( subPath.startsWith( '/file-downloads' ) ) {
 		return isComparison ? MOCK_FILE_DOWNLOADS_COMPARISON : MOCK_FILE_DOWNLOADS;
 	}
@@ -839,7 +1035,13 @@ const statsMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOption
 		return prepareStatsMockResponse( mock, options.parse );
 	}
 
-	return prepareStatsMockResponse( { data: [], summary: {} }, options.parse );
+	// Stats endpoints this middleware doesn't know may be owned by the shared
+	// report mocks (register-report-mocks.ts), including its forced-state
+	// overrides. Fall through instead of answering with an empty catch-all:
+	// story-module load order decides which mock middleware runs first, so
+	// swallowing unknown endpoints here starves the other middleware whenever
+	// this one registers later.
+	return next( options );
 };
 
 let registered = false;

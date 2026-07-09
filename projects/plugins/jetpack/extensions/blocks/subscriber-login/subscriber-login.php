@@ -94,9 +94,14 @@ function get_subscriber_login_url( $redirect ) {
 		return wpcom_logmein_redirect_url( $redirect, false, null, 'link', get_current_blog_id() );
 	}
 
-	// On self-hosted we will save and hide the token
+	// On self-hosted we will save and hide the token.
+	// rawurlencode the redirect before nesting it: it is already percent-encoded
+	// (e.g. an emoji or non-ASCII slug comes through as %F0%9F%8C%91), and add_query_arg
+	// does not encode the values it inserts. Without this extra layer the value is
+	// over-decoded to raw bytes by the time it reaches the subscribers/auth endpoint,
+	// which strips it and 404s. See NL-273.
 	$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
-	$redirect_url = add_query_arg( 'redirect_url', $redirect, $redirect_url );
+	$redirect_url = add_query_arg( 'redirect_url', rawurlencode( $redirect ), $redirect_url );
 
 	return add_query_arg(
 		array(

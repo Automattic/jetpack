@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add dummy dev-require on automattic/jetpack-device-detection to fix trunk build. Otherwise the indirect dep via automattic/woocommerce-analytics confuses things.
+
+

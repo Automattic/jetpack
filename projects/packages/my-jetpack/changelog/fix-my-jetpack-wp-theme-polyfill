@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the My Jetpack app failing to load on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle it depends on is otherwise unregistered.

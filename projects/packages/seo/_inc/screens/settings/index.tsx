@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextareaControl, ToggleControl } from '@wordpress/components';
+import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
@@ -250,7 +250,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						/>
 						<div className="jetpack-seo-settings__save">
 							<Button
-								variant="primary"
 								onClick={ () => commitFields( [ 'front_page_description' ] ) }
 								disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
 							>
