@@ -479,6 +479,20 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$this->assertStringContainsString(
 			htmlentities(
+				'Jetpack Account Protection',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
+		$this->assertStringContainsString(
+			htmlentities(
+				'has flagged that your password may appear in a known data breach.',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
+		$this->assertStringContainsString(
+			htmlentities(
 				'This security feature was automatically activated with a recent Jetpack update to help keep your account safe.',
 				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
 			),
