@@ -1,87 +1,119 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
-/**
- * Ordered list of the dashboard section IDs.
- *
- * This is the single source of truth for which sections exist and in what order.
- * Each section is surfaced as a tab and renders the customizable widget grid,
- * so the IDs are kept stable and URL-friendly (they are persisted in the
- * `?section=` search param).
- */
-export const DASHBOARD_SECTION_IDS = [ 'traffic', 'insights', 'subscribers', 'store' ] as const;
-
-/**
- * Dashboard section identifier.
- * Derived from DASHBOARD_SECTION_IDS to keep the union in sync with the source list.
- */
-export type DashboardSectionId = ( typeof DASHBOARD_SECTION_IDS )[ number ];
-
-/**
- * Default section shown when the URL has no (or an unknown) `section` param.
- */
-export const DEFAULT_SECTION_ID: DashboardSectionId = 'traffic';
+export type DashboardSectionId = `${ string }/${ string }`;
 
 /**
  * A dashboard section definition.
- *
- * For now a section is just an ID and a display label. This is the natural place
- * to attach per-section metadata such as the default widget layout.
  */
 export type DashboardSection = {
 	id: DashboardSectionId;
 	label: string;
+	order: number;
+	layout: DashboardWidget[];
+	hasCustomLayout: boolean;
 };
 
-/**
- * Canonical section definitions with lazy label getters, in display order.
- *
- * Labels are defined once here, as getters resolved at call time, so translations
- * are applied after the i18n locale data has loaded. Mirrors the datetime
- * package's `PRESET_DEFINITIONS`.
- */
-const SECTION_DEFINITIONS: ReadonlyArray< {
-	id: DashboardSectionId;
-	getLabel: () => string;
-} > = [
-	{ id: 'traffic', getLabel: () => __( 'Traffic', 'jetpack-premium-analytics' ) },
-	{ id: 'insights', getLabel: () => __( 'Insights', 'jetpack-premium-analytics' ) },
-	{ id: 'subscribers', getLabel: () => __( 'Subscribers', 'jetpack-premium-analytics' ) },
-	{ id: 'store', getLabel: () => __( 'Store', 'jetpack-premium-analytics' ) },
-];
+export const EMPTY_DASHBOARD_SECTIONS: DashboardSection[] = [];
+
+const DASHBOARD_SECTION_ID_PATTERN = /^[a-z0-9-]+\/[a-z0-9-]+$/;
 
 /**
- * Get the translated display label for a section.
+ * Check whether a value matches the dashboard section ID grammar.
  *
- * @param id - The section identifier.
- * @return Translated label for the section.
+ * @param value - Candidate section ID.
+ * @return Whether the value is a dashboard section ID.
  */
-export function getSectionLabel( id: DashboardSectionId ): string {
-	return SECTION_DEFINITIONS.find( section => section.id === id )?.getLabel() ?? id;
+export function isDashboardSectionId( value: unknown ): value is DashboardSectionId {
+	return typeof value === 'string' && DASHBOARD_SECTION_ID_PATTERN.test( value );
 }
 
 /**
- * Build the ordered list of section definitions ({ id, label }).
+ * Check whether a value matches the REST dashboard section shape.
  *
- * Labels are resolved lazily (at call time) so translations are applied after
- * the i18n locale data has loaded.
- *
- * @return Ordered list of section definitions.
+ * @param value - Candidate section.
+ * @return Whether the value can be used as a dashboard section.
  */
-export function getDashboardSections(): DashboardSection[] {
-	return SECTION_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel() } ) );
+export function isDashboardSection( value: unknown ): value is DashboardSection {
+	if ( ! value || typeof value !== 'object' || Array.isArray( value ) ) {
+		return false;
+	}
+
+	const section = value as Record< string, unknown >;
+
+	return (
+		isDashboardSectionId( section.id ) &&
+		typeof section.label === 'string' &&
+		typeof section.order === 'number' &&
+		Array.isArray( section.layout ) &&
+		typeof section.hasCustomLayout === 'boolean'
+	);
 }
 
 /**
- * Narrow an arbitrary string to a known section ID, falling back to the default.
+ * Check whether a value is a list of REST dashboard sections.
  *
- * @param value - The candidate section ID (e.g. from the URL).
- * @return A valid section ID.
+ * @param value - Candidate section list.
+ * @return Whether the value can be used as dashboard sections.
  */
-export function resolveSectionId( value: string | undefined ): DashboardSectionId {
-	return value && ( DASHBOARD_SECTION_IDS as readonly string[] ).includes( value )
-		? ( value as DashboardSectionId )
-		: DEFAULT_SECTION_ID;
+export function isDashboardSections( value: unknown ): value is DashboardSection[] {
+	return Array.isArray( value ) && value.every( isDashboardSection );
+}
+
+/**
+ * Sort dashboard sections in the same order as the server.
+ *
+ * @param sections - Sections returned by the REST API.
+ * @return Ordered section list.
+ */
+export function sortDashboardSections( sections: DashboardSection[] ): DashboardSection[] {
+	return [ ...sections ].sort( ( a, b ) => a.order - b.order || a.id.localeCompare( b.id ) );
+}
+
+/**
+ * Get the default section from an ordered section list.
+ *
+ * @param sections - Sections returned by the REST API.
+ * @return Default section ID, when sections are available.
+ */
+export function getDefaultSectionId(
+	sections: DashboardSection[]
+): DashboardSectionId | undefined {
+	return sections[ 0 ]?.id;
+}
+
+/**
+ * Resolve an arbitrary string against the available REST-provided sections.
+ *
+ * @param value    - The candidate section ID (e.g. from the URL).
+ * @param sections - Sections returned by the REST API.
+ * @return A valid section ID, or undefined while no sections are available.
+ */
+export function resolveSectionId(
+	value: string | undefined,
+	sections: DashboardSection[]
+): DashboardSectionId | undefined {
+	if ( isDashboardSectionId( value ) && sections.some( section => section.id === value ) ) {
+		return value;
+	}
+
+	return getDefaultSectionId( sections );
+}
+
+/**
+ * Replace a section in an existing section list with an updated REST response.
+ *
+ * @param sections       - Current section list.
+ * @param updatedSection - Updated section response.
+ * @return Section list with the updated section in server order.
+ */
+export function replaceDashboardSection(
+	sections: DashboardSection[],
+	updatedSection: DashboardSection
+): DashboardSection[] {
+	const hasSection = sections.some( section => section.id === updatedSection.id );
+	const nextSections = hasSection
+		? sections.map( section => ( section.id === updatedSection.id ? updatedSection : section ) )
+		: [ ...sections, updatedSection ];
+
+	return sortDashboardSections( nextSections );
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Load dashboard sections and layouts from the section API.

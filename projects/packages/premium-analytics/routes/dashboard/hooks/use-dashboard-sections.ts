@@ -1,21 +1,126 @@
-/**
- * External dependencies
- */
-import { useMemo } from 'react';
-/**
- * Internal dependencies
- */
-import { getDashboardSections, type DashboardSection } from '../config';
+import apiFetch from '@wordpress/api-fetch';
+import { useCallback, useEffect, useState } from 'react';
+import {
+	EMPTY_DASHBOARD_SECTIONS,
+	isDashboardSection,
+	isDashboardSections,
+	replaceDashboardSection,
+	sortDashboardSections,
+} from '../config';
+import { DASHBOARD_REST_NAMESPACE } from './constants';
+import type { DashboardName } from './use-dashboard-layout';
+import type { DashboardSection, DashboardSectionId } from '../config';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
+
+type UseDashboardSectionsReturn = {
+	sections: DashboardSection[];
+	isResolvingSections: boolean;
+	updateSectionLayout: (
+		sectionId: DashboardSectionId,
+		layout: DashboardWidget[]
+	) => Promise< void >;
+	resetSectionLayout: ( sectionId: DashboardSectionId ) => Promise< void >;
+};
 
 /**
- * Get the ordered list of dashboard sections.
+ * Build the REST path for a dashboard's sections.
  *
- * Wraps the pure `getDashboardSections()` builder in `useMemo` so the section
- * list (and its translated labels) is built once per mount instead of on every
- * render. The section set is static, so an empty dependency array is correct.
- *
- * @return The ordered, memoized list of dashboard sections.
+ * @param dashboardName - Dashboard registration name.
+ * @return Sections REST path.
  */
-export function useDashboardSections(): DashboardSection[] {
-	return useMemo( () => getDashboardSections(), [] );
+export function getDashboardSectionsPath( dashboardName: DashboardName ): string {
+	return `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ dashboardName }/sections`;
+}
+
+/**
+ * Build the REST path for a dashboard section's custom layout.
+ *
+ * @param dashboardName - Dashboard registration name.
+ * @param sectionId     - Dashboard section ID.
+ * @return Section layout REST path.
+ */
+export function getDashboardSectionLayoutPath(
+	dashboardName: DashboardName,
+	sectionId: DashboardSectionId
+): string {
+	return `${ getDashboardSectionsPath( dashboardName ) }/${ sectionId }/layout`;
+}
+
+/**
+ * Get REST-provided dashboard sections and section layout actions.
+ *
+ * @param dashboardName - Dashboard registration name.
+ * @return Sections state and layout mutation helpers.
+ */
+export function useDashboardSections( dashboardName: DashboardName ): UseDashboardSectionsReturn {
+	const [ sections, setSections ] = useState< DashboardSection[] >( EMPTY_DASHBOARD_SECTIONS );
+	const [ isResolvingSections, setIsResolvingSections ] = useState( true );
+
+	useEffect( () => {
+		let isMounted = true;
+
+		setIsResolvingSections( true );
+		void apiFetch( { path: getDashboardSectionsPath( dashboardName ) } )
+			.then( response => {
+				if ( isMounted ) {
+					setSections(
+						isDashboardSections( response )
+							? sortDashboardSections( response )
+							: EMPTY_DASHBOARD_SECTIONS
+					);
+				}
+			} )
+			.catch( () => {
+				if ( isMounted ) {
+					setSections( EMPTY_DASHBOARD_SECTIONS );
+				}
+			} )
+			.finally( () => {
+				if ( isMounted ) {
+					setIsResolvingSections( false );
+				}
+			} );
+
+		return () => {
+			isMounted = false;
+		};
+	}, [ dashboardName ] );
+
+	const updateSectionFromResponse = useCallback( ( response: unknown ) => {
+		if ( isDashboardSection( response ) ) {
+			setSections( currentSections => replaceDashboardSection( currentSections, response ) );
+		}
+	}, [] );
+
+	const updateSectionLayout = useCallback(
+		async ( sectionId: DashboardSectionId, layout: DashboardWidget[] ) => {
+			const response = await apiFetch( {
+				path: getDashboardSectionLayoutPath( dashboardName, sectionId ),
+				method: 'PUT',
+				data: { layout },
+			} );
+
+			updateSectionFromResponse( response );
+		},
+		[ dashboardName, updateSectionFromResponse ]
+	);
+
+	const resetSectionLayout = useCallback(
+		async ( sectionId: DashboardSectionId ) => {
+			const response = await apiFetch( {
+				path: getDashboardSectionLayoutPath( dashboardName, sectionId ),
+				method: 'DELETE',
+			} );
+
+			updateSectionFromResponse( response );
+		},
+		[ dashboardName, updateSectionFromResponse ]
+	);
+
+	return {
+		sections,
+		isResolvingSections,
+		updateSectionLayout,
+		resetSectionLayout,
+	};
 }

@@ -2,8 +2,8 @@ import { useState } from '@wordpress/element';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DashboardSections } from '../../../routes/dashboard/components';
-import { DEFAULT_SECTION_ID, getDashboardSections } from '../../../routes/dashboard/config';
 import styles from '../../../routes/dashboard/stage.module.scss';
+import type { DashboardSection } from '../../../routes/dashboard/config';
 import type { Meta, StoryObj } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
@@ -59,6 +59,30 @@ const initialLayout: DashboardWidget[] = [
 	},
 ];
 
+const sections: DashboardSection[] = [
+	{
+		id: 'analytics/traffic',
+		label: 'Traffic',
+		order: 10,
+		layout: initialLayout,
+		hasCustomLayout: false,
+	},
+	{
+		id: 'analytics/insights',
+		label: 'Insights',
+		order: 20,
+		layout: [],
+		hasCustomLayout: false,
+	},
+	{
+		id: 'analytics/subscribers',
+		label: 'Subscribers',
+		order: 30,
+		layout: [],
+		hasCustomLayout: false,
+	},
+];
+
 /**
  * Story-only widget renderer.
  *
@@ -98,8 +122,7 @@ const resolveWidgetModule: ResolveWidgetModule = moduleId =>
  * @return Story component.
  */
 function DashboardSectionsGridStory() {
-	const sections = getDashboardSections();
-	const [ activeSection, setActiveSection ] = useState( DEFAULT_SECTION_ID );
+	const [ activeSection, setActiveSection ] = useState( sections[ 0 ]?.id );
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( initialLayout );
 
 	return (

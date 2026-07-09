@@ -4,17 +4,16 @@ import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DashboardSections } from './components';
 import {
 	DASHBOARD_NAME,
 	useActiveSection,
 	useDashboardGridSettings,
-	useDashboardSectionLayout,
 	useDashboardSections,
 } from './hooks';
 import styles from './stage.module.scss';
@@ -25,13 +24,30 @@ import styles from './stage.module.scss';
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
 function Dashboard(): JSX.Element {
-	const sections = useDashboardSections();
-	const [ activeSection, setActiveSection ] = useActiveSection();
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
-		DASHBOARD_NAME,
-		activeSection
+	const { sections, updateSectionLayout, resetSectionLayout } =
+		useDashboardSections( DASHBOARD_NAME );
+	const [ activeSection, setActiveSection ] = useActiveSection( sections );
+	const activeDashboardSection = useMemo(
+		() => sections.find( section => section.id === activeSection ),
+		[ activeSection, sections ]
 	);
+	const layout = activeDashboardSection?.layout ?? [];
 	const [ gridSettings ] = useDashboardGridSettings();
+
+	const setLayout = useCallback(
+		( nextLayout: DashboardWidget[] ) => {
+			if ( activeDashboardSection ) {
+				void updateSectionLayout( activeDashboardSection.id, nextLayout );
+			}
+		},
+		[ activeDashboardSection, updateSectionLayout ]
+	);
+
+	const resetLayout = useCallback( async () => {
+		if ( activeDashboardSection ) {
+			await resetSectionLayout( activeDashboardSection.id );
+		}
+	}, [ activeDashboardSection, resetSectionLayout ] );
 
 	const widgetModules = useSelect(
 		select =>

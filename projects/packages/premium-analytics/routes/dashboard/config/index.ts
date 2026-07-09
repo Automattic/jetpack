@@ -1,11 +1,12 @@
 export {
-	DASHBOARD_SECTION_IDS,
-	DEFAULT_SECTION_ID,
-	getSectionLabel,
-	getDashboardSections,
+	EMPTY_DASHBOARD_SECTIONS,
+	getDefaultSectionId,
+	isDashboardSection,
+	isDashboardSectionId,
+	isDashboardSections,
+	replaceDashboardSection,
 	resolveSectionId,
+	sortDashboardSections,
 	type DashboardSection,
 	type DashboardSectionId,
 } from './sections';
-
-export { isDashboardSectionLayouts, type DashboardSectionLayouts } from './section-layouts';

@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { useStagedSearch } from '@jetpack-premium-analytics/routing';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { resolveSectionId, type DashboardSectionId } from '../config';
+import { resolveSectionId, type DashboardSection, type DashboardSectionId } from '../config';
 import { route } from '../package.json';
 
 /**
@@ -28,14 +28,26 @@ type SectionSearch = {
  * shares the same search-param model as the date filters; switching a section is an
  * immediate stage + commit (one history entry per change).
  *
+ * @param sections - Available sections returned by the REST API.
  * @return A tuple of the active section ID and a setter to change it.
  */
-export function useActiveSection(): [ DashboardSectionId, ( id: DashboardSectionId ) => void ] {
+export function useActiveSection(
+	sections: DashboardSection[]
+): [ DashboardSectionId | undefined, ( id: DashboardSectionId ) => void ] {
 	const { effective, stage, commit } = useStagedSearch< SectionSearch, typeof ROUTE_FROM >( {
 		from: ROUTE_FROM,
 	} );
 
-	const activeSection = resolveSectionId( effective.section );
+	const activeSection = resolveSectionId( effective.section, sections );
+
+	useEffect( () => {
+		if ( ! effective.section || ! activeSection || effective.section === activeSection ) {
+			return;
+		}
+
+		stage( { section: activeSection } );
+		commit( { replace: true } );
+	}, [ activeSection, commit, effective.section, stage ] );
 
 	const setActiveSection = useCallback(
 		( id: DashboardSectionId ) => {

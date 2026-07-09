@@ -13,7 +13,7 @@ type DashboardSectionsProps = {
 	/**
 	 * The currently active section ID.
 	 */
-	value: DashboardSectionId;
+	value: DashboardSectionId | undefined;
 
 	/**
 	 * Called with the new section ID when the user selects a different section.
@@ -53,7 +53,7 @@ export function DashboardSections( {
 	);
 
 	return (
-		<Tabs.Root value={ value } onValueChange={ handleValueChange } className={ styles.root }>
+		<Tabs.Root value={ value ?? '' } onValueChange={ handleValueChange } className={ styles.root }>
 			<div className={ styles.tabList }>
 				<Tabs.List variant="minimal">
 					{ sections.map( section => (
