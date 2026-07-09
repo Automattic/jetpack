@@ -9,6 +9,11 @@ import ActivationScreenError from '../activation-screen-error';
 import { LICENSE_ERRORS } from '../activation-screen-error/constants';
 import './style.scss';
 
+// Sentinel value for the "add a license key manually" option so the SelectControl
+// shows that option (rather than the empty-value placeholder) while the manual
+// text input is displayed.
+const MANUAL_ENTRY = '__manual_entry__';
+
 /**
  * The Activation Screen Controls component.
  *
@@ -73,7 +78,7 @@ const SelectableLicenseKeyInput = props => {
 			} ),
 			{
 				label: __( 'I want to add a license key manually', 'jetpack-licensing' ),
-				value: '',
+				value: MANUAL_ENTRY,
 			},
 		];
 	}, [ availableLicenses, isFetching ] );
@@ -98,7 +103,9 @@ const SelectableLicenseKeyInput = props => {
 		item => {
 			const val = item?.value ?? '';
 			setSelectedOption( val );
-			onChange( val );
+			// Manual entry has no key yet — clear the stored license so the button
+			// stays disabled until the user types one.
+			onChange( val === MANUAL_ENTRY ? '' : val );
 		},
 		[ onChange ]
 	);
@@ -114,7 +121,7 @@ const SelectableLicenseKeyInput = props => {
 				onValueChange={ onSelectionChange }
 			/>
 
-			{ ! isFetching && ! selectedOption && (
+			{ ! isFetching && selectedOption === MANUAL_ENTRY && (
 				<InputControl
 					className={ className }
 					label={ __( 'Input a license key', 'jetpack-licensing' ) }
