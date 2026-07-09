@@ -28,8 +28,8 @@ class Jetpack_Environment implements Feature_Environment {
 	 * @param Feature $f Feature to check applicability for.
 	 * @return bool True if applicable.
 	 */
-	public function is_applicable( Feature $f ): bool {
-		$cb = $f->is_applicable_callback();
+	public function applies_to_site( Feature $f ): bool {
+		$cb = $f->applies_to_site_callback();
 		if ( null !== $cb ) {
 			return (bool) call_user_func( $cb, $f );
 		}
@@ -42,7 +42,7 @@ class Jetpack_Environment implements Feature_Environment {
 	 * @param ?string $entitlement_slug Entitlement slug to check.
 	 * @return bool True if entitled.
 	 */
-	public function is_entitled( ?string $entitlement_slug ): bool {
+	public function site_is_entitled( ?string $entitlement_slug ): bool {
 		if ( null === $entitlement_slug || '' === $entitlement_slug ) {
 			return true;
 		}
@@ -55,7 +55,7 @@ class Jetpack_Environment implements Feature_Environment {
 	 * @param string $level Connection level required.
 	 * @return bool True if level is met.
 	 */
-	public function connection_level_met( string $level ): bool {
+	public function site_has_connection_level( string $level ): bool {
 		switch ( $level ) {
 			case 'user':
 				return $this->has_connected_owner();
@@ -73,8 +73,8 @@ class Jetpack_Environment implements Feature_Environment {
 	 * @param Feature $f Feature to check activity for.
 	 * @return bool True if active.
 	 */
-	public function is_active( Feature $f ): bool {
-		$cb = $f->is_active_callback();
+	public function is_active_on_site( Feature $f ): bool {
+		$cb = $f->active_on_site_callback();
 		if ( null !== $cb ) {
 			return (bool) call_user_func( $cb, $f );
 		}
@@ -82,7 +82,7 @@ class Jetpack_Environment implements Feature_Environment {
 		if ( null === $module ) {
 			return true;
 		}
-		return $this->module_is_active( $module );
+		return $this->module_is_active_on_site( $module );
 	}
 
 	// --- Platform seams (overridden in tests) ---
@@ -103,7 +103,7 @@ class Jetpack_Environment implements Feature_Environment {
 	 * @param string $module Module slug.
 	 * @return bool True if module is active.
 	 */
-	protected function module_is_active( string $module ): bool {
+	protected function module_is_active_on_site( string $module ): bool {
 		return class_exists( Modules::class ) && ( new Modules() )->is_active( $module );
 	}
 

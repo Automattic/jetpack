@@ -13,12 +13,12 @@ final class FeatureTest extends PHPUnit\Framework\TestCase {
 		$f = new Feature( 'forms-multistep' );
 		$this->assertSame( 'forms-multistep', $f->slug() );
 		$this->assertSame( '', $f->title() );
-		$this->assertSame( 'none', $f->connection() );
-		$this->assertNull( $f->entitlement() );
+		$this->assertSame( 'none', $f->required_connection() );
+		$this->assertNull( $f->required_entitlement() );
 		$this->assertNull( $f->module() );
 		$this->assertSame( array(), $f->recommend() );
 		$this->assertSame( array(), $f->available_since() );
-		$this->assertNull( $f->is_active_callback() );
+		$this->assertNull( $f->active_on_site_callback() );
 	}
 
 	public function test_reads_all_fields() {
@@ -42,8 +42,8 @@ final class FeatureTest extends PHPUnit\Framework\TestCase {
 				'recommend'       => array( 'high_content_volume' ),
 			)
 		);
-		$this->assertSame( 'field-file', $f->entitlement() );
-		$this->assertSame( 'user', $f->connection() );
+		$this->assertSame( 'field-file', $f->required_entitlement() );
+		$this->assertSame( 'user', $f->required_connection() );
 		$this->assertSame( 'contact-form', $f->module() );
 		$this->assertSame( '14.2', $f->available_since()['jetpack'] );
 		$this->assertSame( array( 'high_content_volume' ), $f->recommend() );

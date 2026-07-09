@@ -18,7 +18,7 @@ interface Feature_Environment {
 	 * @param Feature $f Feature.
 	 * @return bool
 	 */
-	public function is_applicable( Feature $f ): bool;
+	public function applies_to_site( Feature $f ): bool;
 
 	/**
 	 * Does the current plan/site grant the entitlement? Null slug means "free".
@@ -26,7 +26,7 @@ interface Feature_Environment {
 	 * @param string|null $entitlement_slug Entitlement slug.
 	 * @return bool
 	 */
-	public function is_entitled( ?string $entitlement_slug ): bool;
+	public function site_is_entitled( ?string $entitlement_slug ): bool;
 
 	/**
 	 * Is the required connection level satisfied?
@@ -34,7 +34,7 @@ interface Feature_Environment {
 	 * @param string $level One of 'none' | 'site' | 'user'.
 	 * @return bool
 	 */
-	public function connection_level_met( string $level ): bool;
+	public function site_has_connection_level( string $level ): bool;
 
 	/**
 	 * Is the feature currently turned on?
@@ -42,5 +42,5 @@ interface Feature_Environment {
 	 * @param Feature $f Feature.
 	 * @return bool
 	 */
-	public function is_active( Feature $f ): bool;
+	public function is_active_on_site( Feature $f ): bool;
 }
