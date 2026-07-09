@@ -23,7 +23,7 @@ const useEntityRecord = jest.fn();
 const editEntity = jest.fn( ( patch: Record< string, unknown > ) => {
 	edits = { ...edits, ...patch };
 } );
-const saveEntity = jest.fn( () => Promise.resolve() );
+const saveEditedEntityRecord = jest.fn( () => Promise.resolve() );
 const createInfoNotice = jest.fn();
 const createSuccessNotice = jest.fn();
 const createErrorNotice = jest.fn();
@@ -56,7 +56,12 @@ jest.unstable_mockModule( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' ) as object;
 	return {
 		...actual,
-		useDispatch: () => ( { createInfoNotice, createSuccessNotice, createErrorNotice } ),
+		useDispatch: () => ( {
+			createInfoNotice,
+			createSuccessNotice,
+			createErrorNotice,
+			saveEditedEntityRecord,
+		} ),
 		useSelect: ( callback: ( select: ( store: string ) => unknown ) => unknown ) =>
 			callback( () => ( {
 				getCurrentUser: () => currentUser,
@@ -92,7 +97,6 @@ describe( 'AuthorProfileCard', () => {
 			record: entityRecord,
 			editedRecord: { ...( entityRecord ?? {} ), ...edits },
 			edit: editEntity,
-			save: saveEntity,
 			hasEdits: Object.keys( edits ).length > 0,
 			isResolving: entityIsResolving,
 			hasResolved: entityHasResolved,
@@ -151,7 +155,11 @@ describe( 'AuthorProfileCard', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( screen.getByRole( 'button', { name: /Save author profile/ } ) );
 
-		await waitFor( () => expect( saveEntity ).toHaveBeenCalled() );
+		await waitFor( () =>
+			expect( saveEditedEntityRecord ).toHaveBeenCalledWith( 'root', 'user', 123, {
+				throwOnError: true,
+			} )
+		);
 		// Save stages the full cleaned record. The user entity replaces meta edits,
 		// so both Jetpack keys ride the edit — the edited job title plus the
 		// untouched social profile.

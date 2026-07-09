@@ -112,6 +112,7 @@ const toUserEdit = (
  */
 export function useAuthorProfile(): AuthorProfileForm {
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { saveEditedEntityRecord } = useDispatch( coreStore );
 	const loadErrorNoticedRef = useRef( false );
 
 	const { currentUserId, currentUserHasResolved, currentUserHasLoadError } = useSelect( select => {
@@ -128,7 +129,7 @@ export function useAuthorProfile(): AuthorProfileForm {
 	const userEntity = useEntityRecord< UserRecord >( 'root', 'user', currentUserId, {
 		enabled: !! currentUserId,
 	} );
-	const { editedRecord, edit, save: saveEntity, hasEdits } = userEntity;
+	const { editedRecord, edit, hasEdits } = userEntity;
 
 	const isSaving = useSelect(
 		select =>
@@ -205,7 +206,10 @@ export function useAuthorProfile(): AuthorProfileForm {
 					jetpack_seo_same_as: clean.sameAs,
 				},
 			} );
-			await saveEntity();
+			// `throwOnError` so a failed save rejects and hits the catch below —
+			// core-data suppresses save errors by default, which would otherwise
+			// let the success notice fire even when persistence failed.
+			await saveEditedEntityRecord( 'root', 'user', currentUserId, { throwOnError: true } );
 			createSuccessNotice( __( 'Author profile saved.', 'jetpack-seo' ), {
 				id: NOTICE_ID,
 				type: 'snackbar',
@@ -223,7 +227,7 @@ export function useAuthorProfile(): AuthorProfileForm {
 		hasLoadError,
 		currentUserId,
 		edit,
-		saveEntity,
+		saveEditedEntityRecord,
 		createInfoNotice,
 		createSuccessNotice,
 		createErrorNotice,
