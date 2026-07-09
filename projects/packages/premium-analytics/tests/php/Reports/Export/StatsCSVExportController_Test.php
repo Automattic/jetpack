@@ -92,6 +92,21 @@ class StatsCSVExportController_Test extends TestCase {
 		$this->assertNotFalse( has_action( 'rest_api_init', array( $this->controller, 'register_routes' ) ) );
 	}
 
+	private function serve_response( \WP_REST_Response $response, WP_REST_Request $request ): bool {
+		$previous_request_method = $_SERVER['REQUEST_METHOD'] ?? null;
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		try {
+			return (bool) apply_filters( 'rest_pre_serve_request', false, $response, $request, null );
+		} finally {
+			if ( null === $previous_request_method ) {
+				unset( $_SERVER['REQUEST_METHOD'] );
+			} else {
+				$_SERVER['REQUEST_METHOD'] = $previous_request_method;
+			}
+		}
+	}
+
 	public function test_register_routes_exposes_expected_endpoint_args() {
 		$this->controller->register();
 		do_action( 'rest_api_init' );
@@ -155,7 +170,7 @@ class StatsCSVExportController_Test extends TestCase {
 	}
 
 	public function test_validate_date_ranges() {
-		$request = new WP_REST_Request();
+		$request = new WP_REST_Request( 'POST' );
 		$request->set_param( 'to', '2026-01-02T00:00:00' );
 
 		$this->assertTrue( $this->controller->validate_from_date( '2026-01-01T00:00:00', $request, 'from' ) );
@@ -164,7 +179,7 @@ class StatsCSVExportController_Test extends TestCase {
 		$this->assertInstanceOf( \WP_Error::class, $error );
 		$this->assertSame( 'invalid_date_range', $error->get_error_code() );
 
-		$request = new WP_REST_Request();
+		$request = new WP_REST_Request( 'POST' );
 		$request->set_param( 'from', '2026-01-01T00:00:00' );
 		$this->assertTrue( $this->controller->validate_to_date( '2026-01-02T00:00:00', $request, 'to' ) );
 
@@ -300,19 +315,42 @@ class StatsCSVExportController_Test extends TestCase {
 		$this->assertSame( 'schedule_failed', $result->get_error_code() );
 	}
 
-	public function test_create_export_download_path_returns_stream_error_without_exiting() {
-		$this->generator->stream_result = false;
-
-		$request = new WP_REST_Request();
+	public function test_create_export_download_path_registers_streaming_response_without_exiting() {
+		$request = new WP_REST_Request( 'POST' );
 		$request->set_param( 'report_type', 'stats-top-posts' );
 		$request->set_param( 'delivery_method', 'download' );
 		$request->set_param( 'from', '2026-01-01T00:00:00' );
 		$request->set_param( 'to', '2026-01-03T00:00:00' );
 
-		$result = $this->controller->create_export( $request );
+		$response = $this->controller->create_export( $request );
 
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'csv_stream_failed', $result->get_error_code() );
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertCount( 0, $this->generator->streams );
+
+		$served = $this->serve_response( $response, $request );
+
+		$this->assertTrue( $served );
+		$this->assertCount( 1, $this->generator->streams );
+		$this->assertSame( 'top-posts-pages-2026-01-01-to-2026-01-03.csv', $this->generator->streams[0]['filename'] );
+	}
+
+	public function test_create_export_download_path_returns_unserved_response_when_streaming_fails() {
+		$this->generator->stream_result = false;
+
+		$request = new WP_REST_Request( 'POST' );
+		$request->set_param( 'report_type', 'stats-top-posts' );
+		$request->set_param( 'delivery_method', 'download' );
+		$request->set_param( 'from', '2026-01-01T00:00:00' );
+		$request->set_param( 'to', '2026-01-03T00:00:00' );
+
+		$response = $this->controller->create_export( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+
+		$served = $this->serve_response( $response, $request );
+
+		$this->assertFalse( $served );
 		$this->assertCount( 1, $this->generator->streams );
 		$this->assertSame( 'top-posts-pages-2026-01-01-to-2026-01-03.csv', $this->generator->streams[0]['filename'] );
 	}

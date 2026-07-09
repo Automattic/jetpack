@@ -423,18 +423,36 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 			return $file_path;
 		}
 
-		$streamed = $this->csv_generator->stream_file( $file_path, $filename . '.csv' );
-		if ( ! $streamed ) {
-			$this->csv_generator->delete_file( $file_path );
-			return new WP_Error(
-				'csv_stream_failed',
-				__( 'Failed to stream the export file.', 'jetpack-premium-analytics' ),
-				array( 'status' => 500 )
-			);
-		}
+		$response = new WP_REST_Response( null, 200 );
+		$this->attach_download_response_handler( $response, $file_path, $filename . '.csv' );
 
-		$this->csv_generator->delete_file( $file_path );
-		exit;
+		return $response;
+	}
+
+	/**
+	 * Attach a one-shot REST response handler that streams the generated CSV file.
+	 *
+	 * @param WP_REST_Response $response The response object that should trigger streaming.
+	 * @param string           $file_path Generated CSV file path.
+	 * @param string           $filename  Download filename.
+	 * @return void
+	 */
+	private function attach_download_response_handler( WP_REST_Response $response, string $file_path, string $filename ): void {
+		$handler = null;
+		$handler = function ( $served, $result ) use ( &$handler, $response, $file_path, $filename ) {
+			if ( $result !== $response ) {
+				return $served;
+			}
+
+			remove_filter( 'rest_pre_serve_request', $handler, 10 );
+
+			$streamed = $this->csv_generator->stream_file( $file_path, $filename );
+			$this->csv_generator->delete_file( $file_path );
+
+			return $streamed ? true : $served;
+		};
+
+		add_filter( 'rest_pre_serve_request', $handler, 10, 2 );
 	}
 
 	/**
