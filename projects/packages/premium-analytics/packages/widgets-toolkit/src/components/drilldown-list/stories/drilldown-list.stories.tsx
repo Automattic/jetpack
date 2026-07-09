@@ -1,6 +1,10 @@
 /**
  * External dependencies
  */
+// The DataViews base stylesheet. The component's scss imports it for product
+// builds, but Storybook's Vite/sass pipeline passes css-extension imports
+// through verbatim, so the story loads it as a side effect instead.
+import '@wordpress/dataviews/build-style/style.css';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
