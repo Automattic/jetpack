@@ -4,9 +4,11 @@
  * These mirror the fieldless all-time shapes the
  * `sanitizeStatsEmailBreakdownResponse` parser reads for
  * `stats/opens/emails/{id}/{breakdown}` and `stats/clicks/emails/{id}/{breakdown}`:
- * `countries` + `countries-info`, `devices`, `clients`, and `links` +
- * `user-content-links`. One populated fixture per view so reviewers can validate
- * each. The endpoints have no comparison period.
+ * `countries` + `countries-info`, `devices`, `clients`, `links`, and
+ * `user-content-links`. Each per-breakdown endpoint returns only its own payload
+ * key (Calypso fetches `link` and `user-content-link` separately and merges), so
+ * the link fixtures are split per endpoint. One populated fixture per breakdown
+ * so reviewers can validate each. The endpoints have no comparison period.
  */
 
 export const mockEmailCountryBreakdown = {
@@ -58,7 +60,7 @@ export const mockEmailClientBreakdown = {
 	},
 };
 
-export const mockEmailLinkBreakdown = {
+export const mockEmailInternalLinkBreakdown = {
 	links: {
 		data: [
 			[ 'post-url', 640 ],
@@ -68,6 +70,9 @@ export const mockEmailLinkBreakdown = {
 			[ 'some-other-internal', 22 ],
 		],
 	},
+};
+
+export const mockEmailUserContentLinkBreakdown = {
 	'user-content-links': {
 		data: [
 			[ 'https://example.com/2026/spring-sale', 512 ],

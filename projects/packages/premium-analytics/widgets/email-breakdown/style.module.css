@@ -64,11 +64,3 @@
 .labelLink:focus {
 	text-decoration: underline;
 }
-
-.placeholder {
-	flex: 1 1 0;
-	inline-size: 100%;
-	min-block-size: 200px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}

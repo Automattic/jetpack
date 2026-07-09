@@ -2,28 +2,28 @@
  * External dependencies
  */
 import {
-	useStatsEmailClicksBreakdown,
-	useStatsEmailOpensBreakdown,
-	type StatsEmailBreakdown,
-	type StatsEmailOpensBreakdown,
-} from '@jetpack-premium-analytics/data';
-import {
 	LeaderboardChart,
 	LeaderboardLabel,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	flagUrl,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { envelope } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import { type EmailBreakdownAttributes, type EmailBreakdownView } from './widget';
+import useEmailBreakdownRows, { type EmailBreakdownRow } from './use-email-breakdown-rows';
+import {
+	type EmailBreakdownAttributes,
+	type EmailBreakdownMetric,
+	type EmailBreakdownView,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type EmailBreakdownRenderAttributes = EmailBreakdownAttributes &
@@ -54,52 +54,6 @@ function safeHttpUrl( url: string | undefined ): string | null {
 }
 
 /**
- * Maps the `countries`/`devices`/`clients` views onto their email opens
- * breakdown dimension. The `links` view is intentionally excluded: it reads the
- * clicks breakdown instead (only clicked links exist) and is handled separately.
- */
-const VIEW_TO_OPENS_BREAKDOWN: Record<
-	Exclude< EmailBreakdownView, 'links' >,
-	StatsEmailOpensBreakdown
-> = {
-	countries: 'country',
-	devices: 'device',
-	clients: 'client',
-};
-
-/**
- * A single normalized breakdown row, flattened from the email breakdown report
- * into the shape the leaderboard renders. Exported so Storybook can build
- * fixtures for `EmailBreakdownLeaderboard`.
- */
-export type EmailBreakdownRow = {
-	/**
-	 * Stable identifier for the row (its index in the report).
-	 */
-	id: string | number;
-	/**
-	 * Display label (country/device/client name, or link URL).
-	 */
-	label: string;
-	/**
-	 * Metric value (opens or clicks) for the row.
-	 */
-	value: number;
-	/**
-	 * Two-letter country code, present only for the `countries` view.
-	 */
-	countryCode?: string;
-	/**
-	 * Full country name, present only for the `countries` view.
-	 */
-	countryFull?: string;
-	/**
-	 * External URL, present only for clicked user-content links (`links` view).
-	 */
-	link?: string;
-};
-
-/**
  * Maps normalized breakdown rows onto the shape `LeaderboardChart` expects.
  * Shares are relative to the highest value in the set so the top row always
  * fills. The breakdown endpoints return no comparison period, so the comparison
@@ -118,7 +72,7 @@ function buildLeaderboardData(
 ): LeaderboardChartData {
 	const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
 
-	return rows.map( ( row, index ) => {
+	return rows.map( row => {
 		let label;
 
 		if ( view === 'countries' ) {
@@ -166,7 +120,7 @@ function buildLeaderboardData(
 		}
 
 		return {
-			id: `${ index }-${ row.id }`,
+			id: String( row.id ),
 			label,
 			currentValue: row.value,
 			currentShare: maxValue > 0 ? ( row.value / maxValue ) * 100 : 0,
@@ -209,28 +163,38 @@ type EmailBreakdownLeaderboardProps = {
 	 */
 	view?: EmailBreakdownView;
 	/**
-	 * When `true` and there are no rows yet, the full loading overlay is shown.
+	 * When `true` and there are no rows yet, the loading state is shown.
 	 */
 	isLoading?: boolean;
 	/**
-	 * When `true`, an in-place chart spinner is shown over existing rows during a
-	 * background refetch.
+	 * When `true`, a non-blocking busy overlay is shown over existing rows during
+	 * a background refetch.
 	 */
 	isFetching?: boolean;
 	/**
-	 * When `true`, an error message is rendered in place of the chart.
+	 * When `true`, the error state is rendered in place of the chart.
 	 */
 	isError?: boolean;
+	/**
+	 * Whether an email is selected; drives the empty-state copy when there are no
+	 * rows (`false` prompts to select an email instead of "no data yet").
+	 */
+	hasEmail?: boolean;
+	/**
+	 * Invoked by the error state's Retry action to re-run the queries.
+	 */
+	onRetry?: () => void;
 };
 
 /**
  * Presentational leaderboard for the "Email breakdown" widget. Lists a single
- * email's opens (or link clicks) broken down by the active view.
+ * email's opens (or clicks) broken down by the active view.
  *
- * Takes already-fetched rows and the active view via props and owns only the
- * loading, error, empty, and populated states. Exported so Storybook can
- * exercise those states with fixture rows (there is no analytics backend in
- * Storybook, so the data-connected entry point would only ever show chrome).
+ * Takes already-fetched rows and the active view via props and renders the
+ * loading, error, empty, and populated states through `WidgetState`. Exported so
+ * Storybook can exercise those states with fixture rows (there is no analytics
+ * backend in Storybook, so the data-connected entry point would only ever show
+ * chrome).
  *
  * @param {EmailBreakdownLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
@@ -241,102 +205,78 @@ export const EmailBreakdownLeaderboard = ( {
 	isLoading = false,
 	isFetching = false,
 	isError = false,
+	hasEmail = true,
+	onRetry,
 }: EmailBreakdownLeaderboardProps ) => {
 	const data = useMemo( () => buildLeaderboardData( rows, view ), [ rows, view ] );
 
-	let body;
-	if ( isError ) {
-		body = (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Unable to load email breakdown.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	} else if ( isLoading && rows.length === 0 ) {
-		body = <WidgetLoadingOverlay />;
-	} else {
-		body = (
-			<LeaderboardChart
-				className={ styles.leaderboard }
-				data={ data }
-				loading={ isFetching }
-				withComparison={ false }
-				withOverlayLabel
-				showLegend={ false }
-				emptyStateText={ emptyStateText( view ) }
-				dataFormat={ DATA_FORMAT }
-			/>
-		);
-	}
-
-	return <div className={ styles.root }>{ body }</div>;
+	return (
+		<div className={ styles.root }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load this email's breakdown. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: onRetry
+						? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: onRetry } ]
+						: undefined,
+				} }
+				empty={ {
+					icon: envelope,
+					description: hasEmail
+						? emptyStateText( view )
+						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<LeaderboardChart
+					className={ styles.leaderboard }
+					data={ data }
+					withComparison={ false }
+					withOverlayLabel
+					showLegend={ false }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</WidgetState>
+		</div>
+	);
 };
-
-/**
- * Flatten the email breakdown report into the rows the leaderboard renders,
- * keeping the endpoint's (already value-sorted) order and trimming to `max`.
- *
- * @param report - The normalized breakdown report, or undefined while loading.
- * @param max    - Maximum rows to display; `0` keeps all rows.
- * @return The normalized breakdown rows.
- */
-function toRows( report: StatsEmailBreakdown | undefined, max: number ): EmailBreakdownRow[] {
-	const items = report?.data?.[ 0 ]?.items ?? [];
-
-	// `max = 0` means "all rows" (the Stats-widget convention), so only slice
-	// when a positive `max` is requested.
-	return items.slice( 0, max > 0 ? max : undefined ).map( ( item, index ) => ( {
-		id: index,
-		label: String( item.label ?? '' ),
-		value: item.value,
-		countryCode: item.countryCode,
-		countryFull: item.countryFull ? String( item.countryFull ) : undefined,
-		link: item.link,
-	} ) );
-}
 
 type EmailBreakdownReportProps = {
 	postId: number;
 	view: EmailBreakdownView;
+	metric: EmailBreakdownMetric;
 	max: number;
 };
 
 /**
- * Fetches the email breakdown report for the selected email and view, then hands
- * the normalized rows to the presentational `EmailBreakdownLeaderboard`.
- *
- * The `countries`/`devices`/`clients` views read the *opens* breakdown; the
- * `links` view reads the *clicks* breakdown. Both hooks are always called (rules
- * of hooks) but only the active one is enabled, so exactly one request is made.
+ * Fetches the email breakdown rows for the selected email, view, and metric,
+ * then hands them to the presentational `EmailBreakdownLeaderboard`.
  *
  * @param {EmailBreakdownReportProps} props - The component props.
  * @return The widget content.
  */
-function EmailBreakdownReport( { postId, view, max }: EmailBreakdownReportProps ) {
-	const isLinksView = view === 'links';
-	// The opens hook always runs (rules of hooks) but is disabled for the links
-	// view; `country` is an inert placeholder breakdown for that disabled case.
-	const opensBreakdown: StatsEmailOpensBreakdown =
-		view === 'links' ? 'country' : VIEW_TO_OPENS_BREAKDOWN[ view ];
-
-	const opens = useStatsEmailOpensBreakdown( postId, opensBreakdown, {
-		enabled: ! isLinksView,
+function EmailBreakdownReport( { postId, view, metric, max }: EmailBreakdownReportProps ) {
+	const { rows, isLoading, isFetching, isError, refetch } = useEmailBreakdownRows( {
+		postId,
+		view,
+		metric,
+		max,
 	} );
-	const clicks = useStatsEmailClicksBreakdown( postId, 'user-content-link', {
-		enabled: isLinksView,
-	} );
-
-	const active = isLinksView ? clicks : opens;
-	const report = active.data as StatsEmailBreakdown | undefined;
-
-	const rows = useMemo( () => toRows( report, max ), [ report, max ] );
 
 	return (
 		<EmailBreakdownLeaderboard
 			rows={ rows }
 			view={ view }
-			isLoading={ active.isLoading }
-			isFetching={ active.isFetching }
-			isError={ active.isError }
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			isError={ isError }
+			hasEmail={ postId > 0 }
+			onRetry={ refetch }
 		/>
 	);
 }
@@ -346,8 +286,9 @@ function EmailBreakdownReport( { postId, view, max }: EmailBreakdownReportProps 
  *
  * The breakdown is scoped to a single email via the `postId` attribute; the
  * `view` attribute (`relevance: 'high'`) is exposed as a control by the widget
- * host. The endpoints report across the whole lifetime of the email, so there is
- * no date range or comparison period — `reportParams` is still passed into
+ * host and the `metric` attribute picks opens or clicks for the dimension views.
+ * The endpoints report across the whole lifetime of the email, so there is no
+ * date range or comparison period — `reportParams` is still passed into
  * `WidgetRoot` so the host wiring stays consistent, but it is not used for data.
  *
  * @param {EmailBreakdownWidgetProps} props - The widget render props.
@@ -356,11 +297,12 @@ function EmailBreakdownReport( { postId, view, max }: EmailBreakdownReportProps 
 export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidgetProps ) {
 	const postId = attributes.postId ?? 0;
 	const view = attributes.view ?? 'countries';
+	const metric = attributes.metric ?? 'opens';
 	const max = attributes.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailBreakdownReport postId={ postId } view={ view } max={ max } />
+			<EmailBreakdownReport postId={ postId } view={ view } metric={ metric } max={ max } />
 		</WidgetRoot>
 	);
 }

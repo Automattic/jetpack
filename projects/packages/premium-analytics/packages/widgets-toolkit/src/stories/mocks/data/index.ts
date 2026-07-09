@@ -80,5 +80,6 @@ export {
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,
 	mockEmailClientBreakdown,
-	mockEmailLinkBreakdown,
+	mockEmailInternalLinkBreakdown,
+	mockEmailUserContentLinkBreakdown,
 } from './email-breakdown';

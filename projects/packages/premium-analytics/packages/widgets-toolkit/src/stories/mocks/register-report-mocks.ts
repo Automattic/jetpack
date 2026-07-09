@@ -59,7 +59,8 @@ import {
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,
 	mockEmailClientBreakdown,
-	mockEmailLinkBreakdown,
+	mockEmailInternalLinkBreakdown,
+	mockEmailUserContentLinkBreakdown,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -895,8 +896,10 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
 			return mockEmailDeviceBreakdown;
 		case 'client':
 			return mockEmailClientBreakdown;
+		case 'link':
+			return mockEmailInternalLinkBreakdown;
 		case 'user-content-link':
-			return mockEmailLinkBreakdown;
+			return mockEmailUserContentLinkBreakdown;
 		default:
 			return {};
 	}

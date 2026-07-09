@@ -19,7 +19,9 @@ jest.mock( '@wordpress/route', () => ( {
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM fieldless all-time shapes the email breakdown sanitizer reads.
+// Raw WPCOM fieldless all-time shapes the email breakdown sanitizer reads. Each
+// per-breakdown endpoint returns only its own payload key, mirroring Calypso
+// fetching `link` and `user-content-link` separately and merging.
 const COUNTRY_RESPONSE = {
 	countries: {
 		data: [
@@ -33,10 +35,36 @@ const COUNTRY_RESPONSE = {
 	},
 };
 
-const LINK_RESPONSE = {
-	links: { data: [ [ 'post-url', 640 ] ] },
+const INTERNAL_LINKS_RESPONSE = {
+	links: {
+		data: [
+			[ 'post-url', 640 ],
+			[ 'some-other-internal', 22 ],
+		],
+	},
+};
+
+const USER_CONTENT_LINKS_RESPONSE = {
 	'user-content-links': { data: [ [ 'https://example.com/spring-sale', 512 ] ] },
 };
+
+/**
+ * Route a mocked links-view request to the fixture matching its breakdown path.
+ *
+ * @param userContentResponse - Response for the `user-content-link` breakdown.
+ * @param internalResponse    - Response for the `link` breakdown.
+ * @return The mock implementation for `apiFetch`.
+ */
+function linksViewFetchMock(
+	userContentResponse: unknown = USER_CONTENT_LINKS_RESPONSE,
+	internalResponse: unknown = INTERNAL_LINKS_RESPONSE
+) {
+	return ( { path }: { path: string } ) =>
+		// Match `user-content-link` first: a bare `/link` check would match it too.
+		Promise.resolve(
+			path.includes( '/user-content-link' ) ? userContentResponse : internalResponse
+		);
+}
 
 describe( 'EmailBreakdownWidget', () => {
 	beforeEach( () => {
@@ -58,8 +86,21 @@ describe( 'EmailBreakdownWidget', () => {
 		expect( requestedPath ).toContain( 'stats/opens/emails/1234/country' );
 	} );
 
-	it( 'reads the clicks endpoint and renders clicked links for the links view', async () => {
-		mockApiFetch.mockResolvedValue( LINK_RESPONSE );
+	it( 'reads the clicks endpoint for dimension views when metric is clicks', async () => {
+		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+		render(
+			<EmailBreakdownWidget attributes={ { postId: 1234, view: 'countries', metric: 'clicks' } } />
+		);
+
+		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'stats/clicks/emails/1234/country' );
+	} );
+
+	it( 'merges internal link types with clicked links for the links view', async () => {
+		mockApiFetch.mockImplementation( linksViewFetchMock() );
 
 		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'links' } } /> );
 
@@ -68,18 +109,26 @@ describe( 'EmailBreakdownWidget', () => {
 			name: /https:\/\/example\.com\/spring-sale/,
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/spring-sale' );
-		// Known internal link types are mapped to display labels.
+		// Known internal link types are mapped to display labels; unknown ones are
+		// aggregated into "Other".
 		expect( screen.getByText( 'Post URL' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Other' ) ).toBeInTheDocument();
 
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/clicks/emails/1234/user-content-link' );
+		// The links view fetches both clicks breakdowns, matching Calypso.
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect(
+			requestedPaths.some( path => /stats\/clicks\/emails\/1234\/link(?:\?|$)/.test( path ) )
+		).toBe( true );
+		expect(
+			requestedPaths.some( path => path.includes( 'stats/clicks/emails/1234/user-content-link' ) )
+		).toBe( true );
 	} );
 
 	it( 'renders the empty state and makes no request without a selected email', async () => {
 		render( <EmailBreakdownWidget attributes={ { view: 'countries' } } /> );
 
 		await expect(
-			screen.findByText( 'No country data for this email yet.' )
+			screen.findByText( 'Select an email to see its breakdown.' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
@@ -87,10 +136,9 @@ describe( 'EmailBreakdownWidget', () => {
 	it( 'renders an unsafe link protocol as plain text, never a clickable anchor', async () => {
 		// Built by concatenation so the literal does not trip the no-script-url lint rule.
 		const unsafeUrl = 'javascript' + ':alert(1)';
-		mockApiFetch.mockResolvedValue( {
-			links: { data: [] },
-			'user-content-links': { data: [ [ unsafeUrl, 99 ] ] },
-		} );
+		mockApiFetch.mockImplementation(
+			linksViewFetchMock( { 'user-content-links': { data: [ [ unsafeUrl, 99 ] ] } } )
+		);
 
 		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'links' } } /> );
 

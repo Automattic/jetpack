@@ -8,11 +8,17 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Which breakdown dimension the widget lists for the selected email.
  *
- * `countries`, `devices`, and `clients` read the email *opens* breakdown; `links`
- * reads the *clicks* breakdown (only clicked links exist), so the view selector
- * also picks the underlying opens/clicks endpoint. See `render.tsx`.
+ * `countries`, `devices`, and `clients` read the opens or clicks breakdown per
+ * the `metric` attribute; `links` always reads the *clicks* breakdown (only
+ * clicked links exist). See `use-email-breakdown-rows.ts`.
  */
 export type EmailBreakdownView = 'countries' | 'devices' | 'clients' | 'links';
+
+/**
+ * Which email metric the dimension views break down, matching the Opens/Clicks
+ * tabs of the Calypso email detail page. Ignored by the `links` view.
+ */
+export type EmailBreakdownMetric = 'opens' | 'clicks';
 
 /**
  * Configurable attributes for the Email breakdown widget. Mirrors the
@@ -29,6 +35,10 @@ export type EmailBreakdownAttributes = {
 	 * Which breakdown dimension to display. Defaults to `countries`.
 	 */
 	view?: EmailBreakdownView;
+	/**
+	 * Whether the dimension views show opens or clicks. Defaults to `opens`.
+	 */
+	metric?: EmailBreakdownMetric;
 	/**
 	 * Number of rows to show. `0` means as many as the endpoint returns.
 	 */
@@ -76,6 +86,21 @@ export default {
 			relevance: 'high',
 		},
 		{
+			id: 'metric',
+			label: __( 'Metric', 'jetpack-premium-analytics' ),
+			type: 'text',
+			elements: [
+				{
+					label: __( 'Opens', 'jetpack-premium-analytics' ),
+					value: 'opens',
+				},
+				{
+					label: __( 'Clicks', 'jetpack-premium-analytics' ),
+					value: 'clicks',
+				},
+			],
+		},
+		{
 			id: 'postId',
 			label: __( 'Email ID', 'jetpack-premium-analytics' ),
 			type: 'integer',
@@ -90,6 +115,7 @@ export default {
 		attributes: {
 			postId: 1234,
 			view: 'countries',
+			metric: 'opens',
 			max: 10,
 		},
 	},
