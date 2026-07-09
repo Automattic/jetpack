@@ -9,7 +9,6 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 import { __ } from '@wordpress/i18n';
 import { Button, SelectControl, Stack } from '@wordpress/ui';
-import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -101,10 +100,8 @@ export function DateRangeQuickPresets( {
 			{ presets.map( ( { id, label, range: presetRange } ) => (
 				<Button
 					key={ id }
-					className={ clsx( 'date-range-quick-presets__pill', {
-						'is-active': value === id,
-					} ) }
-					variant={ value === id ? 'outline' : 'minimal' }
+					className="date-range-quick-presets__pill"
+					variant={ value === id ? 'solid' : 'minimal' }
 					tone="neutral"
 					size="compact"
 					aria-pressed={ value === id }
