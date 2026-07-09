@@ -223,6 +223,9 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
 
 		$this->assertNotNull( $stats_node );
+		$this->assertSame( 'site-name', $stats_node->parent );
+		$this->assertSame( 'Stats', $stats_node->title );
+		$this->assertSame( admin_url( 'admin.php?page=stats' ), $stats_node->href );
 	}
 
 	public function test_stats_link_hidden_when_user_cannot_view_stats() {
