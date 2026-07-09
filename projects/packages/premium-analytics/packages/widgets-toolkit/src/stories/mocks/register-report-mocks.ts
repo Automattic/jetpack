@@ -51,6 +51,7 @@ import {
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsSubscribersCountsData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -62,6 +63,9 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
+// The subscribers/counts endpoint is a v2 proxy path (not under /stats), so it
+// is matched on its own rather than through routeStatsReport().
+const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
@@ -999,6 +1003,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
 		return buildFollowersResponse();
+	}
+
+	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
+		return mockStatsSubscribersCountsData;
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {
