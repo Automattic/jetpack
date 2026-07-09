@@ -10,7 +10,10 @@ import styles from './report-page-layout.module.scss';
 import type { ReactNode } from 'react';
 
 export interface ReportPageLayoutProps {
-	/** Page breadcrumbs (e.g. `Stats / Pages`), rendered at the top of the header. */
+	/**
+	 * Page breadcrumbs, rendered at the top of the header. Pass `Breadcrumbs`
+	 * from `@wordpress/admin-ui`; its trailing crumb is the page's `h1`.
+	 */
 	breadcrumbs?: ReactNode;
 	/** Short page description shown under the breadcrumbs. */
 	description?: ReactNode;

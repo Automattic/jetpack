@@ -6,8 +6,17 @@ pieces with the module's data hook and DataViews field config — composition,
 not a bespoke page per module.
 
 ```tsx
+const dashboardLink = useDashboardLink();
+
 <ReportPageLayout
-	breadcrumbs={ <StatsBreadcrumbs title={ __( 'Pages' ) } /> }
+	breadcrumbs={
+		<Breadcrumbs
+			items={ [
+				{ label: __( 'Stats' ), to: dashboardLink },
+				{ label: __( 'Pages' ) },
+			] }
+		/>
+	}
 	description={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
 	filters={ <DateFiltersPanel /* … */ /> }
@@ -51,9 +60,18 @@ not a bespoke page per module.
   copy, and Base UI's tabs context does not cross bundle copies — a route's
   `Tabs.Panel` throws `TabsRootContext is missing` at runtime even though the
   JSX nesting looks right.
-- **`StatsBreadcrumbs`** — the `Stats / <title>` breadcrumb for the header
-  `breadcrumbs` slot. The leading crumb links back to the dashboard, carrying the
-  shared date range and comparison so Back returns to the same view.
+The `breadcrumbs` slot takes `Breadcrumbs` from `@wordpress/admin-ui`, the same
+component the post-detail page uses. Two things follow from its contract. The
+trailing item carries no `to` and renders as the page's `h1`, so the report page
+has no separate title prop. The leading `Stats` crumb links back to the
+dashboard through `useDashboardLink()` from
+`@jetpack-premium-analytics/routing`, which carries the shared date range and
+comparison across so Back returns to the same view.
+
+`Breadcrumbs` renders router links, so it needs a mounted router. That is why
+the slot stays a plain `ReactNode` (as it is on Core's own `Page`) and the page,
+not this layout, builds it: `ReportPageLayout` keeps rendering outside a router,
+which is what lets the story compose it.
 
 These components do not fetch: the page owns the data hooks and the
 `reportParams` derived from the URL (`useReportDateFilters`), and passes

@@ -48,7 +48,6 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
-	StatsBreadcrumbs,
 	buildReportMetricSeries,
 	type ReportChartMetric,
 	type ReportPageLayoutProps,
@@ -58,7 +57,6 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
-	type StatsBreadcrumbsProps,
 } from './components';
 
 /**

@@ -132,6 +132,22 @@ const withChartProviders: Decorator = Story => (
 );
 
 /**
+ * Stand-in for the `Breadcrumbs` the real page passes into the `breadcrumbs`
+ * slot. Core's component renders router links, and no router is mounted in
+ * Storybook, so this mirrors its output instead: a leading crumb, a separator,
+ * and the trailing crumb as the page's `h1`.
+ *
+ * @return The breadcrumb stand-in.
+ */
+function StoryBreadcrumbs() {
+	return (
+		<Text variant="heading-lg" render={ <h1 /> }>
+			Stats / Pages
+		</Text>
+	);
+}
+
+/**
  * The full second-level report page as PR 2 will compose it: breadcrumb header
  * with a Download action slot, the filters row (placeholder here — the real
  * page passes `DateFiltersPanel`), the multi-metric performance chart, and the
@@ -145,7 +161,7 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 
 	return (
 		<ReportPageLayout
-			breadcrumbs={ <Text variant="heading-md">Stats / Pages</Text> }
+			breadcrumbs={ <StoryBreadcrumbs /> }
 			description="All your posts and archive pages."
 			actions={ <Button variant="secondary">Download</Button> }
 			filters={
