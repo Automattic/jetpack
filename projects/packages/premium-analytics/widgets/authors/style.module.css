@@ -42,10 +42,14 @@ a.postLabel:focus {
 	text-decoration: underline;
 }
 
-/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
- * to all images inside the media cell, overriding our 20px avatar size.
- * Restore correct sizing for avatar images in any inert context. */
-:global([inert]) .avatar {
+/* The DataViews picker grid applies `.dataviews-view-picker-grid
+ * .dataviews-view-picker-grid__media img { width: 100%; height: 100% }`
+ * (specificity 0,2,1) to every image in its media cell, blowing our 20px avatar
+ * up to fill the tile. Mirror that ancestor chain and add our class (0,3,0) so
+ * the override reliably beats the picker rule. The earlier `[inert]` variant
+ * did not match this cell; a single-class scope (0,2,0) tied its parent and
+ * lost. */
+:global(.dataviews-view-picker-grid .dataviews-view-picker-grid__media) .avatar {
 	width: 20px;
 	height: 20px;
 	object-fit: cover;

@@ -123,10 +123,13 @@
 	border-radius: var(--wpds-border-radius-sm, 2px);
 }
 
-/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
- * to all images inside the media cell, overriding our 20px flag height.
- * Restore correct sizing for flag images in any inert context. */
-:global([inert]) .leaderboard .leaderboardImage {
+/* The DataViews picker grid applies `.dataviews-view-picker-grid
+ * .dataviews-view-picker-grid__media img { width: 100%; height: 100%;
+ * object-fit: cover }` (specificity 0,2,1) to every image in its media cell,
+ * cropping our natural-aspect flag to a square. Mirror that ancestor chain so
+ * the override reliably clears the picker rule — the earlier `[inert]` variant
+ * did not match this cell. */
+:global(.dataviews-view-picker-grid .dataviews-view-picker-grid__media) .leaderboard .leaderboardImage {
 	width: auto;
 	height: 20px;
 	object-fit: initial;
