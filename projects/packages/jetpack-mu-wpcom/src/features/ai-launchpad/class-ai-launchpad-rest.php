@@ -599,6 +599,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
+		// The AI's raw picks, captured before the unknown-id filter below so hallucinated ids stay observable.
+		$raw_task_ids = array_column( $payload['tasks'], 'id' );
+
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$tasks       = array();
 
@@ -641,7 +644,71 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		delete_option( self::OPTION_SKIPPED );
 		delete_option( self::OPTION_COMPLETED );
 
+		// After the writes, so the observed rendered list is the fresh one.
+		$this->log_tailoring( $ai_output, $raw_task_ids );
+
 		return array( 'ai_output' => $ai_output );
+	}
+
+	/**
+	 * Emits the tailoring observation event to Logstash, keyed `feature: atomic_ai_launchpad`, `message: tailored`
+	 * (the public-api logstash endpoint whitelists features by their `atomic_` prefix — a bare feature name is
+	 * rejected with a 400 on the Atomic HTTP dispatch path). Best-effort: logging must never fail the tailoring write.
+	 *
+	 * @param array    $ai_output    The persisted AI output envelope.
+	 * @param string[] $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @return void
+	 */
+	private function log_tailoring( $ai_output, $raw_task_ids ) {
+		try {
+			$extra = $this->tailoring_log_extra( $ai_output, $raw_task_ids );
+
+			/**
+			 * Gates the tailoring observation event sent to Logstash.
+			 *
+			 * @param bool  $enabled Whether to send the event. Default true.
+			 * @param array $extra   The event payload about to be sent.
+			 */
+			if ( ! apply_filters( 'wpcom_ai_launchpad_tailoring_log_enabled', true, $extra ) ) {
+				return;
+			}
+
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash( 'atomic_ai_launchpad', 'tailored', $extra );
+		} catch ( \Throwable $e ) {
+			unset( $e );
+		}
+	}
+
+	/**
+	 * The tailoring observation event: how the AI's output relates to what the site will actually render.
+	 *
+	 * Carries the inferred details, the AI's raw selected ids (pre-filter, so hallucinated ids are observable), the
+	 * rendered ids, and their delta — `dropped` is what the unknown-id filter and the visibility gate removed, `added`
+	 * is what synthetics and the backfill floor put in. The delta is diffed post-remap so a selected id that renders
+	 * under its working equivalent does not read as a drop plus an addition. The raw wizard title/description are
+	 * never included, and the inferred fields that can echo the user's own words near-verbatim are stripped:
+	 * `brand_name` restates the title and `tagline` is drafted from the description.
+	 *
+	 * @param array    $ai_output    The persisted AI output envelope.
+	 * @param string[] $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @return array
+	 */
+	private function tailoring_log_extra( $ai_output, $raw_task_ids ) {
+		// Schema-validated on the write path, so `inferred` is always present here.
+		$inferred = $ai_output['payload']['inferred'];
+		unset( $inferred['brand_name'], $inferred['tagline'] );
+
+		$rendered = array_column( $this->get_current_tasks(), 'id' );
+		$remapped = array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $raw_task_ids ) );
+
+		return array(
+			'source'   => $ai_output['source'],
+			'inferred' => $inferred,
+			'selected' => $raw_task_ids,
+			'rendered' => $rendered,
+			'dropped'  => array_values( array_diff( $remapped, $rendered ) ),
+			'added'    => array_values( array_diff( $rendered, $remapped ) ),
+		);
 	}
 
 	/**

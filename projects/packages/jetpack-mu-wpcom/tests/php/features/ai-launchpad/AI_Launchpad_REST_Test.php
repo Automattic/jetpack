@@ -21,6 +21,11 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
+// Block real Logstash dispatch of the tailoring observation event for the entire phpunit
+// process (its HTTP fallback fires from a shutdown function, i.e. after teardown). A spy
+// test hooks the same filter at priority 11 to assert the event payload.
+add_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', '__return_false' );
+
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -473,6 +478,79 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotContains( 'drive_traffic', $ids, 'a completed pool task is not backfilled' );
 		$this->assertContains( 'add_new_page', $ids, 'incomplete pool tasks still backfill' );
+	}
+
+	/**
+	 * `PUT /tailored` emits an observation event: the AI-inferred details (minus brand_name, which echoes the
+	 * user-typed site title), the ids the AI selected, the ids the site will actually render, and the delta between
+	 * them. The event is captured through the gate filter's extra argument; real dispatch stays blocked by the
+	 * file-level `__return_false`.
+	 */
+	public function test_update_tailored_logs_observation_event() {
+		wp_set_current_user( $this->admin_id );
+
+		$captured = null;
+		$spy      = static function ( $enabled, $extra ) use ( &$captured ) {
+			$captured = $extra;
+			return $enabled;
+		};
+		add_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', $spy, 11, 2 );
+
+		$payload             = self::valid_payload();
+		$payload['inferred'] = array(
+			'goal'       => 'write',
+			'brand_name' => 'Alpine Notes',
+			'tagline'    => 'Hiking stories from Jane Doe of 12 Elm Street.',
+			'niche'      => 'hiking',
+		);
+		// A gate-hidden pick (woo without WooCommerce), a remapped pick, and a hallucinated id the write path
+		// silently filters, to exercise the delta reporting. Swapped in mid-list: the schema requires exactly six
+		// tasks, launch task last.
+		$payload['tasks'][2] = array(
+			'id'       => 'imaginary_task',
+			'subtitle' => 'A task the catalog does not know.',
+		);
+		$payload['tasks'][3] = array(
+			'id'       => 'woo_products',
+			'subtitle' => 'Add your first products.',
+		);
+		$payload['tasks'][4] = array(
+			'id'       => 'post_sharing_enabled',
+			'subtitle' => 'Share posts automatically.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		remove_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', $spy, 11 );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertIsArray( $captured );
+
+		// Only the intended fields, and never the user's own words: brand_name (echoes the title) and tagline
+		// (drafted from the description) are stripped from inferred.
+		$this->assertSame( array( 'source', 'inferred', 'selected', 'rendered', 'dropped', 'added' ), array_keys( $captured ) );
+		$this->assertSame( 'ai', $captured['source'] );
+		$this->assertArrayNotHasKey( 'brand_name', $captured['inferred'] );
+		$this->assertArrayNotHasKey( 'tagline', $captured['inferred'] );
+		$this->assertSame( 'write', $captured['inferred']['goal'] );
+		$this->assertSame( 'hiking', $captured['inferred']['niche'] );
+
+		// Selected reports the AI's raw picks — including the hallucinated id the write path filtered out.
+		$this->assertContains( 'woo_products', $captured['selected'] );
+		$this->assertContains( 'post_sharing_enabled', $captured['selected'] );
+		$this->assertContains( 'imaginary_task', $captured['selected'] );
+		$this->assertContains( 'first_post_published', $captured['rendered'] );
+		$this->assertNotContains( 'woo_products', $captured['rendered'] );
+
+		// The gate-hidden and hallucinated picks are drops; the remapped pick is not (it renders as its working
+		// equivalent).
+		$this->assertContains( 'woo_products', $captured['dropped'] );
+		$this->assertContains( 'imaginary_task', $captured['dropped'] );
+		$this->assertNotContains( 'post_sharing_enabled', $captured['dropped'] );
+		$this->assertContains( 'connect_social_media', $captured['rendered'] );
+
+		// Additions (synthetics/backfill) are reported so list inflation is observable: dropping two of six picks
+		// leaves a short list, and the backfill tops it up from the pool.
+		$this->assertContains( 'add_new_page', $captured['added'] );
 	}
 
 	/**
