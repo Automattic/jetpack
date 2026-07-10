@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Dashboard: fix leaderboard images (author avatars, country flags, subscriber avatars) rendering oversized in the Add widget picker grid, where a DataViews style forced them to fill the preview tile.
+Authors widget: fix the author avatar rendering oversized in the Add widget picker grid preview.

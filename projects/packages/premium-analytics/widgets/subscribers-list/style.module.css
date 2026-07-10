@@ -1,10 +1,7 @@
-/* The DataViews picker grid applies `.dataviews-view-picker-grid
-   .dataviews-view-picker-grid__media img { width: 100%; height: 100%;
-   object-fit: cover }` (specificity 0,2,1) to every image in its media cell,
-   blowing the 32px avatars up to fill the tile. Mirror that ancestor chain so
-   the override clears the picker rule (0,3,1) — the earlier `[inert]` variant
-   did not match this cell, and a media-only scope only tied it. */
-:global(.dataviews-view-picker-grid .dataviews-view-picker-grid__media) .root img {
+/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
+   to every image in its media cell, blowing the 32px avatars up to fill the
+   tile. Restore their size in any inert (picker) context. */
+:global([inert]) .root img {
 	width: 32px;
 	height: 32px;
 }
