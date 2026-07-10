@@ -7,9 +7,18 @@
 }
 
 .labelImage {
-	width: 28px;
-	height: 28px;
+	width: var(--jpa-leaderboard-image-width, 28px);
+	height: var(--jpa-leaderboard-image-height, 28px);
 	vertical-align: middle;
 	border-radius: var(--wpds-border-radius-md);
-	object-fit: cover;
+	object-fit: var(--jpa-leaderboard-image-fit, cover);
+}
+
+/* The DataViews picker grid stretches media-cell images to 100%. Widget
+ * previews render inert, so restore the label image size there; custom
+ * properties preserve each widget's override. */
+:global([inert]) .container .labelImage {
+	width: var(--jpa-leaderboard-image-width, 28px);
+	height: var(--jpa-leaderboard-image-height, 28px);
+	object-fit: var(--jpa-leaderboard-image-fit, cover);
 }

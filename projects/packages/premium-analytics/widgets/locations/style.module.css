@@ -118,16 +118,13 @@
 	}
 }
 
+/* Width is the constraint that sizes flags: the boot layout shell forces
+   img { height: auto } at higher specificity, so a height here never applies
+   in the dashboard. `fill` (not `initial`, a CSS-wide keyword that would
+   unset the custom property) keeps the flag's aspect ratio uncropped. */
 .leaderboardImage {
-	height: 20px;
+	--jpa-leaderboard-image-width: 28px;
+	--jpa-leaderboard-image-height: auto;
+	--jpa-leaderboard-image-fit: fill;
 	border-radius: var(--wpds-border-radius-sm, 2px);
-}
-
-/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
- * to all images inside the media cell, overriding our 20px flag height.
- * Restore correct sizing for flag images in any inert context. */
-:global([inert]) .leaderboard .leaderboardImage {
-	width: auto;
-	height: 20px;
-	object-fit: initial;
 }
