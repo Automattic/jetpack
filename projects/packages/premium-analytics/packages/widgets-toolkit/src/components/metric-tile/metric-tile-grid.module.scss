@@ -1,6 +1,10 @@
+/* Size containment removes the container from auto sizing, so it must get its
+ * height from outside: flex stretching in a flex parent, or the 100% chain
+ * otherwise. Without either, the grid computes to 0x0 and renders nothing. */
 .container {
 	container-type: size;
 	flex: 1 1 0;
+	block-size: 100%;
 	min-block-size: 0;
 }
 
@@ -108,8 +112,6 @@
 	}
 
 	.tile {
-		justify-content: center;
-		gap: var(--wpds-dimension-gap-sm, 8px);
 		padding-block: var(--wpds-dimension-padding-2xl, 24px);
 		padding-inline: var(--wpds-dimension-padding-lg, 16px);
 	}

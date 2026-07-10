@@ -29,7 +29,8 @@ export type MetricTileGridItem = {
 
 	/**
 	 * The metric value. `null` marks a metric the site doesn't have yet and
-	 * renders the placeholder instead of a formatted zero.
+	 * renders the placeholder instead of a formatted zero; any other non-finite
+	 * value (`undefined`, `NaN`) also falls back to the placeholder.
 	 */
 	value: number | null;
 
@@ -45,7 +46,7 @@ export type MetricTileGridItem = {
 	currencyCode?: string;
 
 	/**
-	 * Shown in place of the value when it is `null`.
+	 * Shown in place of the value when it is not a finite number.
 	 * @default '—'
 	 */
 	placeholder?: string;
@@ -91,6 +92,10 @@ export type MetricTileGridProps = {
  * compact rows for narrow or short cells, centered tiles when the cell has
  * enough width and height for them.
  *
+ * The grid is a size container, so it takes no height of its own: render it
+ * inside a definite-height flex column (or a `height: 100%` chain) or it
+ * collapses to 0x0.
+ *
  * @param {MetricTileGridProps} props - The component props.
  * @return The rendered grid.
  */
@@ -101,9 +106,8 @@ export function MetricTileGrid( {
 	dataFormat = { type: 'number' },
 	currencyCode,
 }: MetricTileGridProps ) {
-	const tileCount = tiles.length;
 	const maxColumns = Math.max( 1, columns );
-	const activeColumns = Math.max( 1, Math.min( maxColumns, tileCount || maxColumns ) );
+	const activeColumns = tiles.length ? Math.min( maxColumns, tiles.length ) : maxColumns;
 
 	const style = {
 		'--jpa-metric-tile-grid-columns': activeColumns,
@@ -118,16 +122,15 @@ export function MetricTileGrid( {
 							{ tile.icon && <Icon icon={ tile.icon } size={ 24 } className={ styles.icon } /> }
 							<Text className={ styles.label }>{ tile.label }</Text>
 						</div>
-						{ tile.value === null ? (
-							<Text className={ styles.placeholder }>{ tile.placeholder ?? '—' }</Text>
-						) : (
+						{ Number.isFinite( tile.value ) ? (
 							<MetricValue
-								value={ tile.value }
+								value={ tile.value as number }
 								dataFormat={ tile.dataFormat ?? dataFormat }
 								currencyCode={ tile.currencyCode ?? currencyCode }
-								fontSize="xl"
 								className={ styles.value }
 							/>
+						) : (
+							<Text className={ styles.placeholder }>{ tile.placeholder ?? '—' }</Text>
 						) }
 					</div>
 				) ) }

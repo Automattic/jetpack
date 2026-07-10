@@ -32,9 +32,38 @@ describe( 'MetricTileGrid', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the placeholder for null values', () => {
-		renderMetricGrid();
+	it( 'renders the placeholder for null and non-finite values', () => {
+		render(
+			<MetricTileGrid
+				tiles={ [
+					{ key: 'open', label: 'Open rate', value: null },
+					{ key: 'click', label: 'Click rate', value: NaN },
+				] }
+			/>
+		);
 
-		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( '—' ) ).toHaveLength( 2 );
 	} );
+
+	it.each( [
+		{ columns: 0, tileCount: 4, expected: '1' },
+		{ columns: 4, tileCount: 2, expected: '2' },
+		{ columns: 3, tileCount: 0, expected: '3' },
+	] )(
+		'sets $expected grid columns for columns=$columns with $tileCount tiles',
+		( { columns, tileCount, expected } ) => {
+			const tiles = Array.from( { length: tileCount }, ( _, index ) => ( {
+				key: `metric-${ index }`,
+				label: `Metric ${ index }`,
+				value: index,
+			} ) );
+			const { container } = render( <MetricTileGrid columns={ columns } tiles={ tiles } /> );
+
+			expect(
+				( container.firstElementChild as HTMLElement ).style.getPropertyValue(
+					'--jpa-metric-tile-grid-columns'
+				)
+			).toBe( expected );
+		}
+	);
 } );
