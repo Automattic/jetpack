@@ -3,8 +3,7 @@
  */
 import { PRESET_CUSTOM, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import { useResizeObserver } from '@wordpress/compose';
-import { calendar } from '@wordpress/icons';
-import { Stack, Icon } from '@wordpress/ui';
+import { Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -81,8 +80,6 @@ export function DateRangeFilter( {
 
 	return (
 		<Stack className="date-range-filter" direction="row" gap="sm" wrap="wrap" align="center">
-			<Icon icon={ calendar } size={ 20 } aria-hidden />
-
 			<DateRangeQuickPresets
 				value={ surfacePresetId }
 				onSelect={ handlePresetSelect }
