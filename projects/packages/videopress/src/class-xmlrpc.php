@@ -89,7 +89,7 @@ class XMLRPC {
 
 		foreach ( $media as & $media_item ) {
 			$url   = is_string( $media_item['url'] ?? null ) ? $media_item['url'] : '';
-			$title = ! empty( $media_item['title'] )
+			$title = isset( $media_item['title'] ) && '' !== $media_item['title']
 				? sanitize_text_field( $media_item['title'] )
 				: sanitize_title( basename( $url ) );
 			$guid  = $media['guid'] ?? null;
@@ -97,10 +97,10 @@ class XMLRPC {
 			$media_id = videopress_create_new_media_item( $title, $guid );
 
 			$post_update = array();
-			if ( ! empty( $media_item['description'] ) ) {
+			if ( isset( $media_item['description'] ) && '' !== $media_item['description'] ) {
 				$post_update['post_content'] = sanitize_textarea_field( $media_item['description'] );
 			}
-			if ( ! empty( $media_item['caption'] ) ) {
+			if ( isset( $media_item['caption'] ) && '' !== $media_item['caption'] ) {
 				$post_update['post_excerpt'] = sanitize_textarea_field( $media_item['caption'] );
 			}
 			if ( $post_update ) {

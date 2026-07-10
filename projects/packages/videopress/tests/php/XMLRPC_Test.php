@@ -49,6 +49,20 @@ class XMLRPC_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A supplied title of "0" is treated as a real title, not as a missing value.
+	 */
+	public function test_create_media_item_keeps_zero_string_title() {
+		$media = array(
+			array(
+				'url'   => 'https://videopress.com/v/original-file-name.mp4',
+				'title' => '0',
+			),
+		);
+
+		$this->assertSame( '0', XMLRPC::init()->create_media_item( $media )['media'][0]['post']->post_title );
+	}
+
+	/**
 	 * When no title is supplied, the attachment falls back to a title derived from the file name.
 	 */
 	public function test_create_media_item_falls_back_to_file_name() {

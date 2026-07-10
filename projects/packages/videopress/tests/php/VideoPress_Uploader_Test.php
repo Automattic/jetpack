@@ -208,7 +208,10 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 		// Swap in a client double so the upload does not touch the network.
 		$mock_client = new Mock_Tus_Client();
 		$client_prop = new \ReflectionProperty( Uploader::class, 'client' );
-		$client_prop->setAccessible( true );
+		// setAccessible() is required before PHP 8.1 and deprecated as a no-op from PHP 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$client_prop->setAccessible( true );
+		}
 		$client_prop->setValue( $uploader, $mock_client );
 
 		$uploader->upload();
@@ -237,7 +240,10 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 
 		$mock_client = new Mock_Tus_Client();
 		$client_prop = new \ReflectionProperty( Uploader::class, 'client' );
-		$client_prop->setAccessible( true );
+		// setAccessible() is required before PHP 8.1 and deprecated as a no-op from PHP 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$client_prop->setAccessible( true );
+		}
 		$client_prop->setValue( $uploader, $mock_client );
 
 		$uploader->upload();
