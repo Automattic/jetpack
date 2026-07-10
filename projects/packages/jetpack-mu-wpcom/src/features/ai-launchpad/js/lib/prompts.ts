@@ -36,7 +36,6 @@ export const TASK_MENU: readonly string[] = [
 	'subscribers_added',
 	'import_subscribers',
 	'newsletter_plan_created',
-	'setup_newsletter',
 	'customize_welcome_message',
 	'enable_subscribers_modal',
 	'manage_subscribers',
@@ -55,16 +54,47 @@ export const TASK_MENU: readonly string[] = [
 	'start_building_your_audience',
 ];
 
+// The AI must return exactly six tasks, so the offered menu needs comfortable headroom beyond six.
+const MIN_TAILORING_MENU = 10;
+
+/**
+ * Pick the task ids the prompt's menu is filtered to: the actionable ids (renderable and not already complete),
+ * unless completion leaves too few of them on the menu to fill a valid six-task list — then relax to every
+ * renderable id, since a completed card still renders fine and beats making valid AI output impossible.
+ *
+ * @param actionableTaskIds - Renderable-and-not-completed ids from the available-tasks endpoint.
+ * @param renderableTaskIds - All renderable ids, regardless of completion.
+ * @return The ids to filter the menu to.
+ */
+export function chooseTailoringMenu(
+	actionableTaskIds: readonly string[],
+	renderableTaskIds: readonly string[]
+): readonly string[] {
+	const menuCount = TASK_MENU.filter( id => actionableTaskIds.includes( id ) ).length;
+	return menuCount >= MIN_TAILORING_MENU ? actionableTaskIds : renderableTaskIds;
+}
+
 /**
  * Build the single combined prompt sent to jetpack-ai-query, producing the
  * inferred blob, task list, and first-post draft in one JSON response. Hard rules
  * mirror the server-side validation so valid output is not rejected.
  *
- * @param input - The collected wizard input.
+ * @param input            - The collected wizard input.
+ * @param availableTaskIds - Task ids that will render on this site+goal; the menu is filtered to these. Optional; the full menu is used when omitted or empty.
  * @return The prompt string.
  */
-export function buildTailorPrompt( input: WizardInput ): string {
+export function buildTailorPrompt(
+	input: WizardInput,
+	availableTaskIds?: readonly string[]
+): string {
 	const { goal, site_name, description } = input;
+
+	// Offer only tasks that will actually render on this site+goal, so the model never spends a pick on a task the
+	// server would drop. Falls back to the full menu when availability is unknown (e.g. the lookup failed).
+	const menu =
+		availableTaskIds && availableTaskIds.length
+			? TASK_MENU.filter( id => availableTaskIds.includes( id ) )
+			: TASK_MENU;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
@@ -115,7 +145,7 @@ Write a friendly starter blog post the user can edit and publish.
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
 ============ available task menu ============
-${ TASK_MENU.map( id => '- ' + id ).join( '\n' ) }
+${ menu.map( id => '- ' + id ).join( '\n' ) }
 
 ============ format ============
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
