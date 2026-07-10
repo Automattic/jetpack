@@ -193,6 +193,25 @@ describe( 'StudioChaptersTimeline', () => {
 			expect( marker ).toHaveAttribute( 'aria-valuenow', '16000' );
 		} );
 
+		it( 'quantizes a drag against a fractional video end to a whole second', () => {
+			// The last marker's clamp ceiling is duration − 1s = 59900 — itself
+			// fractional. The commit must land a whole second inside the window
+			// (59000), not silently keep the raw clamped 59900 (the old
+			// round-then-clamp behavior: round(59900) = 60000 re-clamps to
+			// 59900, a no-op).
+			renderChapters( { durationMs: 60900 } );
+			const marker = markers()[ 1 ];
+
+			fireEvent.pointerDown( marker, { button: 0, pointerId: 1, clientX: 500 } );
+			// Far past the right edge: the clamp saturates, so the grab-offset
+			// math is irrelevant and the drag parks on the fractional ceiling.
+			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 1300 } );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '59900' );
+
+			fireEvent.pointerUp( marker, { pointerId: 1 } );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+		} );
+
 		it( 'commits nothing for a drag that returns to its start', () => {
 			renderChapters();
 			const marker = markers()[ 0 ];
@@ -214,6 +233,36 @@ describe( 'StudioChaptersTimeline', () => {
 			expect( marker ).toHaveAttribute( 'aria-valuenow', '9000' );
 			fireEvent.keyDown( marker, { key: 'ArrowRight' } );
 			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+
+			// Each nudge folds its transient gesture into ONE undo entry.
+			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '9000' );
+			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
+		} );
+
+		it( 'keeps keyboard nudges on the second grid at a fractional duration clamp', () => {
+			// A 60.9s video caps the last marker at 59900 — itself fractional.
+			// ArrowRight from 59000 clamps there, and a bare committed
+			// MOVE_START used to record the raw 59900 (an off-grid start that
+			// disagrees with the whole second Save writes). The nudge must
+			// close like a drag: QUANTIZE back onto the grid — here its own
+			// start — and commit nothing.
+			renderChapters( {
+				rows: [
+					{ startAtSeconds: 0, title: 'A' },
+					{ startAtSeconds: 59, title: 'B' },
+				],
+				durationMs: 60900,
+			} );
+			const marker = markers()[ 0 ];
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+
+			fireEvent.keyDown( marker, { key: 'ArrowRight' } );
+
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 	} );
 

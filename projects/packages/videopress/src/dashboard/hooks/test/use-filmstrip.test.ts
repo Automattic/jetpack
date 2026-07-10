@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { makeLibraryItem } from '../../test-utils/library-item';
@@ -7,6 +7,7 @@ import {
 	createFrameExtractionPool,
 	extractFilmstripFrames,
 	FILMSTRIP_QUERY_KEY,
+	invalidateFilmstrip,
 	MAX_FILMSTRIP_FRAMES,
 	pickFrameTimes,
 	useFilmstrip,
@@ -404,6 +405,349 @@ describe( 'useFilmstrip', () => {
 		);
 		// The third frame was never attempted.
 		expect( grabber.log.filter( entry => entry.startsWith( 'grab:' ) ) ).toHaveLength( 2 );
+	} );
+
+	it( 'revokes replaced frames when a refetch swaps in a storyboard', async () => {
+		const storyboard = makeStoryboard( { url: 'https://example.com/sprite-late.jpg' } );
+		mockedApiFetch
+			.mockRejectedValueOnce( { code: 'storyboard_unavailable' } )
+			.mockResolvedValueOnce( storyboard );
+		const createGrabber = jest.fn( () => makeFakeGrabber() );
+		const probeSprite = jest.fn( () => Promise.resolve() );
+		const { client, wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			durationSeconds: 2,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result } = renderHook( () => useFilmstrip( video, { createGrabber, probeSprite } ), {
+			wrapper,
+		} );
+		await waitFor( () =>
+			expect( result.current ).toEqual( {
+				status: 'frames',
+				frames: [ 'blob:frame-0', 'blob:frame-1' ],
+			} )
+		);
+
+		// A later refetch finds a storyboard (e.g. the server generated one in
+		// the meantime): nothing references the extracted URLs anymore.
+		await act( async () => {
+			await client.invalidateQueries( { queryKey: [ FILMSTRIP_QUERY_KEY, 'abc123' ] } );
+		} );
+
+		await waitFor( () => expect( result.current.status ).toBe( 'storyboard' ) );
+		expect( revokeObjectURL.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
+			'blob:frame-0',
+			'blob:frame-1',
+		] );
+
+		// Dropping the (now storyboard) entry has nothing left to revoke.
+		revokeObjectURL.mockClear();
+		client.removeQueries( { queryKey: [ FILMSTRIP_QUERY_KEY, 'abc123' ] } );
+		expect( revokeObjectURL ).not.toHaveBeenCalled();
+	} );
+
+	it( 'revokes replaced frames when a refetch re-extracts', async () => {
+		// Both fetches 404: the refetch runs a second extraction against the
+		// SAME pool (takeFrames detached the first batch's times, so the
+		// re-extraction seeks cleanly and returns a NEW array).
+		mockedApiFetch.mockRejectedValue( { code: 'storyboard_unavailable' } );
+		const grabber = makeFakeGrabber();
+		const { client, wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			durationSeconds: 2,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result } = renderHook( () => useFilmstrip( video, { createGrabber: () => grabber } ), {
+			wrapper,
+		} );
+		await waitFor( () =>
+			expect( result.current ).toEqual( {
+				status: 'frames',
+				frames: [ 'blob:frame-0', 'blob:frame-1' ],
+			} )
+		);
+
+		await act( async () => {
+			await client.invalidateQueries( { queryKey: [ FILMSTRIP_QUERY_KEY, 'abc123' ] } );
+		} );
+
+		// The replaced batch was revoked on the swap; the new one is intact.
+		await waitFor( () =>
+			expect( result.current ).toEqual( {
+				status: 'frames',
+				frames: [ 'blob:frame-2', 'blob:frame-3' ],
+			} )
+		);
+		expect( revokeObjectURL.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
+			'blob:frame-0',
+			'blob:frame-1',
+		] );
+
+		// Dropping the entry revokes the CURRENT batch exactly once each — the
+		// replacement branch must not double-revoke on the 'removed' event.
+		revokeObjectURL.mockClear();
+		client.removeQueries( { queryKey: [ FILMSTRIP_QUERY_KEY, 'abc123' ] } );
+		expect( revokeObjectURL.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
+			'blob:frame-2',
+			'blob:frame-3',
+		] );
+	} );
+
+	it( 'keeps the cached storyboard when a refetch descriptor fetch fails', async () => {
+		const storyboard = makeStoryboard();
+		mockedApiFetch.mockResolvedValueOnce( storyboard );
+		const createGrabber = jest.fn( () => makeFakeGrabber() );
+		const probeSprite = jest.fn( () => Promise.resolve() );
+		const { client, wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			durationSeconds: 60,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result } = renderHook( () => useFilmstrip( video, { createGrabber, probeSprite } ), {
+			wrapper,
+		} );
+		await waitFor( () => expect( result.current ).toEqual( { status: 'storyboard', storyboard } ) );
+
+		// The save-landed invalidation races the pipeline's grid regen — the
+		// likeliest moment for the descriptor GET to blip. The strip must NOT
+		// downgrade to client extraction: a cached 'frames' entry would turn
+		// every later invalidation into a permanent no-op (invalidateFilmstrip
+		// skips frames mode) on top of burning a full re-extraction.
+		mockedApiFetch.mockRejectedValueOnce( new Error( 'descriptor blip during regen' ) );
+		act( () => {
+			invalidateFilmstrip( client, 'abc123' );
+		} );
+		await waitFor( () => expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 ) );
+		await act( async () => {
+			await flushMicrotasks();
+		} );
+		expect( createGrabber ).not.toHaveBeenCalled();
+		expect( result.current ).toEqual( { status: 'storyboard', storyboard } );
+
+		// Still storyboard mode, so the NEXT invalidation retries the endpoint
+		// and picks up the regenerated descriptor.
+		const regenerated = makeStoryboard( { url: 'https://example.com/sprite-regen.jpg' } );
+		mockedApiFetch.mockResolvedValueOnce( regenerated );
+		act( () => {
+			invalidateFilmstrip( client, 'abc123' );
+		} );
+		await waitFor( () =>
+			expect( result.current ).toEqual( { status: 'storyboard', storyboard: regenerated } )
+		);
+		expect( createGrabber ).not.toHaveBeenCalled();
+	} );
+
+	describe( 'sprite watchdog', () => {
+		it( 'probes the sprite and refetches once when it is dead', async () => {
+			const dead = makeStoryboard( { url: 'https://example.com/sprite-dead.jpg' } );
+			const fresh = makeStoryboard( { url: 'https://example.com/sprite-fresh.jpg' } );
+			mockedApiFetch.mockResolvedValueOnce( dead ).mockResolvedValueOnce( fresh );
+			const probeSprite = jest.fn( ( url: string ) =>
+				url === dead.url ? Promise.reject( new Error( 'dead sprite' ) ) : Promise.resolve()
+			);
+			const { wrapper } = makeWrapper();
+			const video = makeLibraryItem( {
+				durationSeconds: 60,
+				sourceUrl: 'https://example.com/clip.mp4',
+			} );
+
+			const { result } = renderHook( () => useFilmstrip( video, { probeSprite } ), { wrapper } );
+
+			// The failed probe buys exactly one descriptor refetch, which heals
+			// the strip in place with the regenerated sprite.
+			await waitFor( () =>
+				expect( result.current ).toEqual( { status: 'storyboard', storyboard: fresh } )
+			);
+			expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 );
+			expect( probeSprite.mock.calls.map( call => call[ 0 ] ) ).toEqual( [ dead.url, fresh.url ] );
+		} );
+
+		it( 'does not loop when the refetched descriptor carries the same dead URL', async () => {
+			const storyboard = makeStoryboard( { url: 'https://example.com/sprite-gone.jpg' } );
+			mockedApiFetch.mockResolvedValue( storyboard );
+			const probeSprite = jest.fn( () => Promise.reject( new Error( 'still dead' ) ) );
+			const { wrapper } = makeWrapper();
+			const video = makeLibraryItem( {
+				durationSeconds: 60,
+				sourceUrl: 'https://example.com/clip.mp4',
+			} );
+
+			const { result } = renderHook( () => useFilmstrip( video, { probeSprite } ), { wrapper } );
+
+			await waitFor( () => expect( result.current.status ).toBe( 'storyboard' ) );
+			// The failed probe spends its one refetch…
+			await waitFor( () => expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 ) );
+			// …and the same dead URL coming back is terminal: structural sharing
+			// keeps the data reference-stable so the effect never re-runs, and
+			// the dead-URL guard caps the spend regardless. Blank tiles stay
+			// blank ('storyboard', never an error), and nothing loops.
+			await act( async () => {
+				await flushMicrotasks();
+			} );
+			expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 );
+			expect( probeSprite ).toHaveBeenCalledTimes( 1 );
+			expect( result.current ).toEqual( { status: 'storyboard', storyboard } );
+		} );
+
+		it( 'does not loop when the server mints a distinct dead sprite URL per fetch', async () => {
+			// Signed/tokenized sprite URLs (or cache busters) arrive DIFFERENT
+			// on every descriptor fetch, so the per-URL dead set alone can
+			// never terminate: each refetch would present a "new" URL and buy
+			// another refetch, hammering both endpoints with zero delay while
+			// the sprite is dead. The per-guid budget must cap the spend at
+			// the initial fetch plus one watchdog refetch.
+			let mint = 0;
+			mockedApiFetch.mockImplementation( () =>
+				Promise.resolve(
+					makeStoryboard( { url: `https://example.com/sprite.jpg?sig=${ ++mint }` } )
+				)
+			);
+			const probeSprite = jest.fn( () => Promise.reject( new Error( 'dead sprite' ) ) );
+			const { wrapper } = makeWrapper();
+			const video = makeLibraryItem( {
+				durationSeconds: 60,
+				sourceUrl: 'https://example.com/clip.mp4',
+			} );
+
+			const { result } = renderHook( () => useFilmstrip( video, { probeSprite } ), { wrapper } );
+
+			await waitFor( () => expect( result.current.status ).toBe( 'storyboard' ) );
+			// The first failed probe buys the guid's one refetch…
+			await waitFor( () => expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 ) );
+			// …and the refetched URL — distinct, still dead — is probed but
+			// must not buy another: the budget is per video, not per URL.
+			await act( async () => {
+				await flushMicrotasks();
+			} );
+			expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 );
+			expect( probeSprite ).toHaveBeenCalledTimes( 2 );
+			expect( result.current.status ).toBe( 'storyboard' );
+		} );
+
+		it( 'refunds the per-guid budget when a sprite probes healthy', async () => {
+			// A second edit's regeneration must heal even though the video
+			// already spent its refetch on the first one: the fresh sprite's
+			// healthy probe resets the budget.
+			const deadA = makeStoryboard( { url: 'https://example.com/sprite-dead-a.jpg' } );
+			const freshA = makeStoryboard( { url: 'https://example.com/sprite-fresh-a.jpg' } );
+			const deadB = makeStoryboard( { url: 'https://example.com/sprite-dead-b.jpg' } );
+			const freshB = makeStoryboard( { url: 'https://example.com/sprite-fresh-b.jpg' } );
+			mockedApiFetch
+				.mockResolvedValueOnce( deadA )
+				.mockResolvedValueOnce( freshA )
+				.mockResolvedValueOnce( deadB )
+				.mockResolvedValueOnce( freshB );
+			const probeSprite = jest.fn( ( url: string ) =>
+				url.includes( 'dead' ) ? Promise.reject( new Error( 'dead sprite' ) ) : Promise.resolve()
+			);
+			const { client, wrapper } = makeWrapper();
+			const video = makeLibraryItem( {
+				durationSeconds: 60,
+				sourceUrl: 'https://example.com/clip.mp4',
+			} );
+
+			const { result } = renderHook( () => useFilmstrip( video, { probeSprite } ), { wrapper } );
+			await waitFor( () =>
+				expect( result.current ).toEqual( { status: 'storyboard', storyboard: freshA } )
+			);
+			// Let the healthy probe settle so the refund lands.
+			await act( async () => {
+				await flushMicrotasks();
+			} );
+
+			// A later edit job regenerates again; its external invalidation
+			// serves another dead-then-fresh pair the watchdog can heal.
+			act( () => {
+				invalidateFilmstrip( client, 'abc123' );
+			} );
+			await waitFor( () =>
+				expect( result.current ).toEqual( { status: 'storyboard', storyboard: freshB } )
+			);
+			expect( mockedApiFetch ).toHaveBeenCalledTimes( 4 );
+		} );
+
+		it( 'leaves a healthy sprite alone', async () => {
+			const storyboard = makeStoryboard( { url: 'https://example.com/sprite-ok.jpg' } );
+			mockedApiFetch.mockResolvedValueOnce( storyboard );
+			const probeSprite = jest.fn( () => Promise.resolve() );
+			const { wrapper } = makeWrapper();
+			const video = makeLibraryItem( {
+				durationSeconds: 60,
+				sourceUrl: 'https://example.com/clip.mp4',
+			} );
+
+			const { result } = renderHook( () => useFilmstrip( video, { probeSprite } ), { wrapper } );
+
+			await waitFor( () => expect( result.current.status ).toBe( 'storyboard' ) );
+			await act( async () => {
+				await flushMicrotasks();
+			} );
+			expect( probeSprite ).toHaveBeenCalledTimes( 1 );
+			expect( mockedApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
+	} );
+} );
+
+describe( 'invalidateFilmstrip', () => {
+	it( 'skips frames-mode data instead of burning a re-extraction', async () => {
+		mockedApiFetch.mockRejectedValueOnce( { code: 'storyboard_unavailable' } );
+		const createGrabber = jest.fn( () => makeFakeGrabber() );
+		const { client, wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			durationSeconds: 2,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result } = renderHook( () => useFilmstrip( video, { createGrabber } ), { wrapper } );
+		await waitFor( () => expect( result.current.status ).toBe( 'frames' ) );
+
+		act( () => {
+			invalidateFilmstrip( client, 'abc123' );
+		} );
+
+		// Not even marked stale: frames mode has no server sprite to go stale,
+		// and a refetch would re-run the whole extraction for identical tiles.
+		expect( client.getQueryState( [ FILMSTRIP_QUERY_KEY, 'abc123' ] )?.isInvalidated ).toBe(
+			false
+		);
+		await act( async () => {
+			await flushMicrotasks();
+		} );
+		expect( mockedApiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( revokeObjectURL ).not.toHaveBeenCalled();
+	} );
+
+	it( 'refetches storyboard-mode data and tolerates an empty cache', async () => {
+		const first = makeStoryboard( { url: 'https://example.com/sprite-a.jpg' } );
+		const second = makeStoryboard( { url: 'https://example.com/sprite-b.jpg' } );
+		mockedApiFetch.mockResolvedValueOnce( first ).mockResolvedValueOnce( second );
+		const probeSprite = jest.fn( () => Promise.resolve() );
+		const { client, wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			durationSeconds: 60,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result } = renderHook( () => useFilmstrip( video, { probeSprite } ), { wrapper } );
+		await waitFor( () =>
+			expect( result.current ).toEqual( { status: 'storyboard', storyboard: first } )
+		);
+
+		// An empty cache is a no-op, not a throw (nothing needs skipping).
+		expect( () => invalidateFilmstrip( client, 'some-other-guid' ) ).not.toThrow();
+
+		// The active observer refetches immediately despite staleTime Infinity.
+		act( () => {
+			invalidateFilmstrip( client, 'abc123' );
+		} );
+		await waitFor( () =>
+			expect( result.current ).toEqual( { status: 'storyboard', storyboard: second } )
+		);
+		expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
 

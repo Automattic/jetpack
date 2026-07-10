@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
+import { invalidateFilmstrip } from '../../../hooks/use-filmstrip';
 import { EDITS_QUERY_KEY } from '../../../hooks/use-video-edits';
 import { mockApiFetch } from '../../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../../test-utils/query-client-wrapper';
@@ -85,13 +86,16 @@ jest.mock( '../../../hooks/use-update-chapters', () => ( {
 
 // The filmstrip resolves via the storyboard endpoint plus <video> frame
 // extraction, neither of which works in jsdom; keep the track on its neutral
-// placeholder here. The hook has its own dedicated tests.
+// placeholder here. The hook has its own dedicated tests — this file only
+// asserts WHEN the screen asks for a filmstrip invalidation.
 jest.mock( '../../../hooks/use-filmstrip', () => ( {
 	useFilmstrip: () => ( { status: 'unavailable' } ),
 	useFrameExtractionPool: () => null,
+	invalidateFilmstrip: jest.fn(),
 } ) );
 
 const mockUseNavigate = useNavigate as jest.Mock;
+const mockInvalidateFilmstrip = invalidateFilmstrip as jest.Mock;
 
 // jsdom (27) ships PointerEvent but not the pointer-capture element APIs the
 // timeline drag hook calls; stub them so pointerdown handlers run.
@@ -471,6 +475,10 @@ describe( 'StudioEditorScreen', () => {
 		expect( screen.queryByText( 'Applying edits…' ) ).not.toBeInTheDocument();
 		// Re-baselined: the saved cut is no longer "dirty".
 		expect( isButtonDisabled( 'Save' ) ).toBe( true );
+		// Our job's grid regen invalidated the video's filmstrip exactly once,
+		// when the expected revision landed.
+		expect( mockInvalidateFilmstrip ).toHaveBeenCalledTimes( 1 );
+		expect( mockInvalidateFilmstrip ).toHaveBeenCalledWith( expect.anything(), GUID );
 	} );
 
 	it( 'surfaces a 409 as the conflict banner and re-baselines via "Reload latest"', async () => {
@@ -508,6 +516,10 @@ describe( 'StudioEditorScreen', () => {
 		);
 		// Local edits were replaced by the server baseline: clean again.
 		expect( isButtonDisabled( 'Save' ) ).toBe( true );
+		// Adopting the foreign revision also refreshed the filmstrip — the
+		// foreign job regenerated the storyboard grid too.
+		expect( mockInvalidateFilmstrip ).toHaveBeenCalledTimes( 1 );
+		expect( mockInvalidateFilmstrip ).toHaveBeenCalledWith( expect.anything(), GUID );
 	} );
 
 	it( 'blocks tab close via beforeunload only while dirty', async () => {
@@ -741,6 +753,9 @@ describe( 'StudioEditorScreen', () => {
 			screen.findByText( 'This video was edited somewhere else since you opened the editor.' )
 		).resolves.toBeInTheDocument();
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
+		// The conflict banner is not an adoption: the filmstrip must keep its
+		// cache until the user actually reloads the foreign state.
+		expect( mockInvalidateFilmstrip ).not.toHaveBeenCalled();
 	} );
 
 	it( 'detaches the timeline shortcuts while the confirm dialog is open', async () => {
@@ -816,6 +831,15 @@ describe( 'StudioEditorScreen', () => {
 		async function switchToChapters( user: ReturnType< typeof userEvent.setup > ) {
 			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
 			await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalled() );
+			// The tool mounts locked-busy until the probe settles, dropping
+			// edit dispatches — wait the lock out so callers can edit right
+			// away. A 'manual' result clears aria-busy too (read-only, not
+			// locked), so this cannot deadlock that path.
+			await waitFor( () =>
+				expect( screen.getByTestId( 'studio-editor-timeline-lock' ) ).not.toHaveAttribute(
+					'aria-busy'
+				)
+			);
 		}
 
 		/**
@@ -955,6 +979,124 @@ describe( 'StudioEditorScreen', () => {
 			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
 			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
 			expect( mockProbeManualTrack ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'locks the chapters tool while the manual-VTT probe is pending and drops edits', async () => {
+			let resolveProbe!: ( result: 'manual' | 'editable' ) => void;
+			mockProbeManualTrack.mockImplementation(
+				() =>
+					new Promise( resolve => {
+						resolveProbe = resolve;
+					} )
+			);
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			// Raw rail click — switchToChapters would wait the lock out.
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalled() );
+
+			// Locked-busy (not read-only) while the probe is unresolved.
+			expect( screen.getByTestId( 'studio-editor-timeline-lock' ) ).toHaveAttribute(
+				'aria-busy',
+				'true'
+			);
+			expect( isButtonDisabled( 'Undo' ) ).toBe( true );
+
+			// An edit attempted inside the probe window is dropped: Save stays
+			// disabled and the navigation guards stay unarmed — a late 'manual'
+			// result must not inherit an armed Save over its description.
+			await renameFirstChapter( user );
+			expect( isButtonDisabled( 'Save' ) ).toBe( true );
+			const pendingEvent = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( pendingEvent );
+			expect( pendingEvent.defaultPrevented ).toBe( false );
+
+			// The probe lands 'editable': unlocked, and edits arm Save again.
+			await act( async () => {
+				resolveProbe( 'editable' );
+			} );
+			expect( screen.getByTestId( 'studio-editor-timeline-lock' ) ).not.toHaveAttribute(
+				'aria-busy'
+			);
+			await renameFirstChapter( user );
+			expect( isButtonDisabled( 'Save' ) ).toBe( false );
+		} );
+
+		it( 'keeps the session inert when the probe lands manual after edit attempts in the window', async () => {
+			let resolveProbe!: ( result: 'manual' | 'editable' ) => void;
+			mockProbeManualTrack.mockImplementation(
+				() =>
+					new Promise( resolve => {
+						resolveProbe = resolve;
+					} )
+			);
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalled() );
+
+			// The original race: an edit attempted while the probe is in
+			// flight, with 'manual' landing afterwards.
+			await renameFirstChapter( user );
+			await act( async () => {
+				resolveProbe( 'manual' );
+			} );
+
+			await expect(
+				screen.findByText(
+					'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
+				)
+			).resolves.toBeInTheDocument();
+			// The dropped edit must not arm Save, Discard, or the guards…
+			expect( isButtonDisabled( 'Save' ) ).toBe( true );
+			expect( isButtonDisabled( 'Discard changes' ) ).toBe( true );
+			const unloadEvent = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( unloadEvent );
+			expect( unloadEvent.defaultPrevented ).toBe( false );
+			// …and nothing may rewrite the manually-managed description.
+			expect( api.metaPosts ?? [] ).toHaveLength( 0 );
+		} );
+
+		it( 'saves trim edits while the chapters probe is pending', async () => {
+			// The probe never resolves in this test: the chapters lock must
+			// scope to its own tool, leaving the trim half of Save usable.
+			mockProbeManualTrack.mockImplementation( () => new Promise( () => {} ) );
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			api.onPost = () => ( {
+				guid: GUID,
+				revision: 0,
+				job: {
+					id: 'mock-job-1-1',
+					status: 'processing',
+					target_revision: 1,
+					progress: 0,
+					error: null,
+				},
+			} );
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			// Trim dirty FIRST, then park the chapters tool on its pending probe.
+			await addCut( user );
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalled() );
+
+			expect( isButtonDisabled( 'Save' ) ).toBe( false );
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+			// The pending chapters store may not count as dirty: the dialog
+			// must read as a trim-only save.
+			expect( screen.getByText( 'Save edits?' ) ).toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: 'Save edits' } ) );
+
+			await waitFor( () => expect( api.posts ).toHaveLength( 1 ) );
+			expect( api.metaPosts ?? [] ).toHaveLength( 0 );
 		} );
 
 		it( 'saves chapters through the meta endpoint and the VTT sync', async () => {
@@ -1216,6 +1358,46 @@ describe( 'StudioEditorScreen', () => {
 			expect( isButtonDisabled( 'Redo' ) ).toBe( false );
 			await user.click( screen.getByRole( 'button', { name: 'Redo' } ) );
 			expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( '?tool= deep link', () => {
+		// The URL is process-global jsdom state; a leaked ?tool= would flip
+		// every later mount in this file to the Chapters tool, failing tests
+		// confusingly far from the cause.
+		afterEach( () => {
+			window.history.replaceState( null, '', '/' );
+		} );
+
+		it( 'opens the Chapters tool from the ?tool=chapters deep link and starts the probe eagerly', async () => {
+			// Set BEFORE render: initialToolFromLocation reads location.search
+			// during the useState initializer, once at mount.
+			window.history.replaceState( null, '', '/?tool=chapters' );
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+
+			await renderReadyEditor();
+
+			// Both tools render the shared 'studio-timeline' shell, so the
+			// discriminators are the chapters wrapper and the trim-only
+			// "New cut" toolbar button (as in the tool-switching tests).
+			expect( screen.getByTestId( 'studio-chapters' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'New cut' } ) ).not.toBeInTheDocument();
+			// The mount itself started the probe — no rail click happened.
+			await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalledTimes( 1 ) );
+		} );
+
+		it( 'falls back to trim & cut for an unknown ?tool=', async () => {
+			window.history.replaceState( null, '', '/?tool=sparkle' );
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+
+			await renderReadyEditor();
+
+			expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'studio-chapters' ) ).not.toBeInTheDocument();
+			// The probe waits for the chapters tool's first activation.
+			expect( mockProbeManualTrack ).not.toHaveBeenCalled();
 		} );
 	} );
 } );
