@@ -67,11 +67,15 @@ export function sanitizeStatsArchivesResponse(
 			.map( ( [ archiveType, archiveItems ] ) => {
 				const children = normalizeArchiveChildren( archiveType, archiveItems );
 				const value = children.reduce( ( total, item ) => total + item.value, 0 );
+				const collapseHome = archiveType === 'home' && children.length < 2;
 
 				return {
 					label: archiveType,
 					value,
-					children: archiveType === 'home' && children.length < 2 ? null : children,
+					...( collapseHome && children[ 0 ]?.link !== undefined
+						? { link: children[ 0 ].link }
+						: {} ),
+					children: collapseHome ? null : children,
 				};
 			} )
 			.filter( item => item.value > 0 )
@@ -99,11 +103,15 @@ export function sanitizeStatsArchivesResponse(
 			.map( ( [ archiveType, archiveItems ] ) => {
 				const children = normalizeArchiveChildren( archiveType, archiveItems );
 				const value = children.reduce( ( total, item ) => total + item.value, 0 );
+				const collapseHome = archiveType === 'home' && children.length < 2;
 
 				return {
 					label: archiveType,
 					value,
-					children: archiveType === 'home' && children.length < 2 ? null : children,
+					...( collapseHome && children[ 0 ]?.link !== undefined
+						? { link: children[ 0 ].link }
+						: {} ),
+					children: collapseHome ? null : children,
 				};
 			} )
 			.filter( item => item.value > 0 )

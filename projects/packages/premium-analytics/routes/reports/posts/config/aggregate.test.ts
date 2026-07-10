@@ -122,4 +122,47 @@ describe( 'report posts aggregate', () => {
 		] );
 		expect( rows.map( row => row.views ) ).toEqual( [ 8, 3, 2 ] );
 	} );
+
+	it( 'preserves a collapsed home archive link when aggregating buckets', () => {
+		const report: StatsNormalizedReport< StatsArchivesItem > = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-01',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-01T23:59:59+00:00',
+					items: [
+						{
+							label: 'home',
+							value: 3,
+							link: 'https://example.com/',
+							children: null,
+						},
+					],
+				},
+				{
+					time_interval: '2026-06-02',
+					date_start: '2026-06-02T00:00:00+00:00',
+					date_end: '2026-06-02T23:59:59+00:00',
+					items: [
+						{
+							label: 'home',
+							value: 5,
+							link: 'https://example.com/',
+							children: null,
+						},
+					],
+				},
+			],
+		};
+
+		expect( aggregateArchiveRows( report ) ).toEqual( [
+			{
+				id: '/|https://example.com/',
+				label: '/',
+				views: 8,
+				link: 'https://example.com/',
+			},
+		] );
+	} );
 } );

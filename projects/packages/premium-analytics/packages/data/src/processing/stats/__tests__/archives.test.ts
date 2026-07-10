@@ -2,6 +2,32 @@ import { sanitizeStatsArchivesResponse } from '..';
 import { archivesFixture, archivesSummaryFixture } from '../__fixtures__/archives';
 
 describe( 'Stats archives normalizer', () => {
+	it( 'hoists the child link when collapsing a home archive group', () => {
+		const bucketed = sanitizeStatsArchivesResponse( archivesFixture, {
+			period: 'day',
+			end_date: '2026-06-16',
+		} );
+		const summarized = sanitizeStatsArchivesResponse( archivesSummaryFixture, {
+			period: 'day',
+			start_date: '2025-06-01',
+			date: '2025-06-02',
+			summarize: 1,
+		} );
+
+		expect( bucketed.data[ 0 ].items.find( item => item.label === 'home' ) ).toEqual(
+			expect.objectContaining( {
+				children: null,
+				link: 'https://example.com/',
+			} )
+		);
+		expect( summarized.data[ 0 ].items.find( item => item.label === 'home' ) ).toEqual(
+			expect.objectContaining( {
+				children: null,
+				link: 'http://jetpack.com/',
+			} )
+		);
+	} );
+
 	it( 'normalizes archives into sorted grouped rows', () => {
 		const result = sanitizeStatsArchivesResponse( archivesFixture, {
 			period: 'day',
@@ -121,6 +147,7 @@ describe( 'Stats archives normalizer', () => {
 					{
 						label: 'home',
 						value: 89,
+						link: 'http://jetpack.com/',
 						children: null,
 					},
 					{
