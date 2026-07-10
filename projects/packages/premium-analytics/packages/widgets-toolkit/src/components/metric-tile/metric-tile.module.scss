@@ -2,12 +2,22 @@
  * rendered width, so the layout tracks the widget cell, not the viewport. */
 .container {
 	container-type: inline-size;
+
+	/* Fill the widget cell: in the flex-column widget roots this stretches to
+	 * the remaining height (a no-op in non-flex/auto-height parents), and the
+	 * grid splits that height into equal 1fr rows, so the tiles grow with the
+	 * container. Tracks never shrink below their content (1fr min is auto), so
+	 * small cells still overflow-scroll as before. */
+	flex: 1 1 auto;
+	min-height: 0;
 }
 
 .grid {
 	display: grid;
 	grid-template-columns: 1fr;
+	grid-auto-rows: 1fr;
 	gap: var(--wpds-dimension-gap-sm, 8px);
+	height: 100%;
 }
 
 /* Narrow widths: a compact row — icon and label on the left, value pushed to
