@@ -30,4 +30,4 @@ function wpcomsh_hydrate_podcast_module() {
 		Jetpack::activate_module( 'podcast', false, false );
 	}
 }
-add_action( 'init', 'wpcomsh_hydrate_podcast_module' );
+add_action( 'init', 'wpcomsh_hydrate_podcast_module', 0, 0 );
