@@ -52,7 +52,12 @@ class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_relatedposts_filter_options', '__return_null' );
 
 		// Never hit the WordPress.com API during the test...
-		add_filter( 'pre_http_request', static fn () => new WP_Error( 'no_http_in_tests', 'HTTP disabled in tests' ) );
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return new WP_Error( 'no_http_in_tests', 'HTTP disabled in tests' );
+			}
+		);
 
 		// ...and inject a related post so the block produces markup.
 		add_filter(
