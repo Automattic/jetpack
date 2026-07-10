@@ -95,6 +95,18 @@ class XMLRPC {
 
 			$media_id = videopress_create_new_media_item( $title, $guid );
 
+			$post_update = array();
+			if ( ! empty( $media_item['description'] ) ) {
+				$post_update['post_content'] = sanitize_textarea_field( $media_item['description'] );
+			}
+			if ( ! empty( $media_item['caption'] ) ) {
+				$post_update['post_excerpt'] = sanitize_textarea_field( $media_item['caption'] );
+			}
+			if ( $post_update ) {
+				$post_update['ID'] = $media_id;
+				wp_update_post( $post_update );
+			}
+
 			wp_update_attachment_metadata(
 				$media_id,
 				array(

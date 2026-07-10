@@ -28,19 +28,24 @@ class XMLRPC_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The media item title supplied by the uploader is used as the attachment post_title.
+	 * The media item title, description and caption supplied by the uploader are applied to the
+	 * created attachment.
 	 */
-	public function test_create_media_item_uses_supplied_title() {
+	public function test_create_media_item_uses_supplied_meta() {
 		$media = array(
 			array(
-				'url'   => 'https://videopress.com/v/original-file-name.mp4',
-				'title' => 'Edited Library Title',
+				'url'         => 'https://videopress.com/v/original-file-name.mp4',
+				'title'       => 'Edited Library Title',
+				'description' => 'Edited library description',
+				'caption'     => 'Edited library caption',
 			),
 		);
 
-		$result = XMLRPC::init()->create_media_item( $media );
+		$post = XMLRPC::init()->create_media_item( $media )['media'][0]['post'];
 
-		$this->assertSame( 'Edited Library Title', $result['media'][0]['post']->post_title );
+		$this->assertSame( 'Edited Library Title', $post->post_title );
+		$this->assertSame( 'Edited library description', $post->post_content );
+		$this->assertSame( 'Edited library caption', $post->post_excerpt );
 	}
 
 	/**

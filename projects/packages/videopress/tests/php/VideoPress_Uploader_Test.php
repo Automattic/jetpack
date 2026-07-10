@@ -188,16 +188,18 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests that the upload attaches the attachment title as tus metadata, so VideoPress
-	 * can reuse the Media Library title instead of the file name.
+	 * Tests that the upload attaches the attachment title, description and caption as tus
+	 * metadata, so VideoPress can reuse the Media Library values instead of the file name.
 	 */
-	public function test_upload_sends_attachment_title_as_metadata() {
+	public function test_upload_sends_attachment_meta_as_metadata() {
 		require_once __DIR__ . '/mocks/class-mock-tus-client.php';
 
 		wp_update_post(
 			array(
-				'ID'         => $this->valid_attachment_id,
-				'post_title' => 'My Edited Video Title',
+				'ID'           => $this->valid_attachment_id,
+				'post_title'   => 'My Edited Video Title',
+				'post_content' => 'My video description',
+				'post_excerpt' => 'My video caption',
 			)
 		);
 
@@ -210,8 +212,37 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 
 		$uploader->upload();
 
+		$this->assertSame( 'My Edited Video Title', $mock_client->metadata['title'] ?? null );
+		$this->assertSame( 'My video description', $mock_client->metadata['description'] ?? null );
+		$this->assertSame( 'My video caption', $mock_client->metadata['caption'] ?? null );
+	}
+
+	/**
+	 * Tests that empty description and caption are not sent as tus metadata.
+	 */
+	public function test_upload_omits_empty_description_and_caption() {
+		require_once __DIR__ . '/mocks/class-mock-tus-client.php';
+
+		wp_update_post(
+			array(
+				'ID'           => $this->valid_attachment_id,
+				'post_title'   => 'My Edited Video Title',
+				'post_content' => '',
+				'post_excerpt' => '',
+			)
+		);
+
+		$uploader = new Uploader( $this->valid_attachment_id );
+
+		$mock_client = new Mock_Tus_Client();
+		$client_prop = new \ReflectionProperty( Uploader::class, 'client' );
+		$client_prop->setValue( $uploader, $mock_client );
+
+		$uploader->upload();
+
 		$this->assertArrayHasKey( 'title', $mock_client->metadata );
-		$this->assertSame( 'My Edited Video Title', $mock_client->metadata['title'] );
+		$this->assertArrayNotHasKey( 'description', $mock_client->metadata );
+		$this->assertArrayNotHasKey( 'caption', $mock_client->metadata );
 	}
 
 	/**

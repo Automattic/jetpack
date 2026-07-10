@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Reuse the attachment title as the VideoPress video title when promoting an existing Media Library video with the "Upload to VideoPress" action, instead of the file name.
+Reuse the attachment title, description and caption for the VideoPress video when promoting an existing Media Library video with the "Upload to VideoPress" action, instead of only the file name.
