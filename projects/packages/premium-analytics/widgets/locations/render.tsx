@@ -353,10 +353,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 					} }
 					empty={ {
 						icon: locationIcon,
-						description: __(
-							'Stats on where your visitors are viewing from will appear here.',
-							'jetpack-premium-analytics'
-						),
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics' ),
 					} }
 				>
 					<div className={ styles.chartArea }>

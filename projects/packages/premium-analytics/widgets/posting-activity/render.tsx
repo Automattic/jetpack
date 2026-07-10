@@ -74,10 +74,7 @@ function PostingActivityInner() {
 				} }
 				empty={ {
 					icon: calendar,
-					description: __(
-						'Posts you publish will appear here as a calendar heatmap.',
-						'jetpack-premium-analytics'
-					),
+					description: __( 'No posts published in this period.', 'jetpack-premium-analytics' ),
 				} }
 			>
 				<HeatmapChart

@@ -122,10 +122,7 @@ function VideosReport( { max }: VideosReportProps ) {
 			} }
 			empty={ {
 				icon: video,
-				description: __(
-					'Learn which videos your visitors watch most to understand what keeps them engaged.',
-					'jetpack-premium-analytics'
-				),
+				description: __( 'No video plays in this period.', 'jetpack-premium-analytics' ),
 			} }
 		>
 			<VideosLeaderboard

@@ -138,10 +138,7 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 			} }
 			empty={ {
 				icon: video,
-				description: __(
-					'Learn which VideoPress videos your visitors watch most to understand what keeps them engaged.',
-					'jetpack-premium-analytics'
-				),
+				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics' ),
 			} }
 		>
 			<LeaderboardChart

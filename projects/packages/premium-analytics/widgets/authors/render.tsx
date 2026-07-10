@@ -226,10 +226,7 @@ export function AuthorsLeaderboard( {
 								'This author has no posts with views for the selected period.',
 								'jetpack-premium-analytics'
 						  )
-						: __(
-								'Learn about your most popular authors to better understand how they contribute to growing your site.',
-								'jetpack-premium-analytics'
-						  ),
+						: __( 'No author views in this period.', 'jetpack-premium-analytics' ),
 				} }
 			>
 				<LeaderboardChart
