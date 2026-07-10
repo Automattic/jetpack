@@ -52,14 +52,6 @@
 	white-space: nowrap;
 }
 
-.placeholder {
-	flex: 1 1 0;
-	inline-size: 100%;
-	min-block-size: 200px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}
-
 .root {
 	container-type: inline-size;
 	display: flex;
@@ -82,4 +74,3 @@
 	aspect-ratio: 4 / 3;
 	overflow: hidden;
 }
-

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Migrate dashboard widgets to the shared WidgetState component for consistent loading, error (with retry), and empty states, and add forced-state Storybook stories for each widget.

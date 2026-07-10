@@ -6,6 +6,23 @@
 	overflow-y: auto;
 }
 
+/* Ready-state body: the flex column the widget content used to get from .root,
+ * now nested inside WidgetState's ready wrapper. */
+.body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	height: 100%;
+}
+
+/* Year stepper — body chrome for selecting which year's totals are shown. */
+.yearNav {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
 .yearLabel {
 	color: var(--wpds-color-foreground-content-neutral);
 	font-variant-numeric: tabular-nums;

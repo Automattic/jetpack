@@ -50,6 +50,7 @@ interface LocationViewsState {
 	hasData: boolean;
 	isError: boolean;
 	isPlaceholderData: boolean;
+	refetch: () => void;
 }
 
 /**
@@ -97,9 +98,14 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams );
 	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
+
+	// When comparison is requested but its query fails, drop to a non-comparison
+	// view rather than pairing every row with a placeholder value of 0 —
+	// otherwise the chart renders misleading period-over-period deltas.
+	const comparisonUsable = hasComparison && ! comparison.isError;
 
 	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
 	const comparisonReport = comparison.data as
@@ -119,11 +125,18 @@ export default function useLocationViews( {
 	return {
 		data: items,
 		comparisonData: comparisonItems,
-		hasComparison,
+		hasComparison: comparisonUsable,
 		isLoading,
 		isFetching,
 		hasData,
-		isError,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && isError,
 		isPlaceholderData,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

@@ -39,8 +39,10 @@ interface PlatformViewsState {
 	comparisonData: PlatformView[];
 	hasComparison: boolean;
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
 	errorReason: 'upgrade-required' | null;
+	refetch: () => void;
 }
 
 const BROWSER_LABELS: Record< string, string > = {
@@ -101,7 +103,7 @@ export default function usePlatformViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams );
 	const errorReason = getStatsPlanErrorReason( error );
 
@@ -120,9 +122,19 @@ export default function usePlatformViews( {
 	return {
 		data: items,
 		comparisonData: comparisonItems,
-		hasComparison,
+		// When comparison is requested but its query fails, drop to a
+		// non-comparison view rather than pairing every row with a placeholder 0.
+		hasComparison: hasComparison && ! comparison.isError,
 		isLoading,
-		isError,
+		isFetching,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && isError,
 		errorReason,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

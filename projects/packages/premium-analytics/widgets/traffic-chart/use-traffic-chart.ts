@@ -30,10 +30,11 @@ export type TrafficPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export interface TrafficChartState {
 	metrics: MetricTab[];
+	/** True while either request's first load is in flight (no data yet). */
+	isLoading: boolean;
 	/** True while either request is fetching, including comparison refetches. */
 	isFetching: boolean;
 	isError: boolean;
-	error: Error | null | undefined;
 	refetch: () => void;
 }
 
@@ -194,11 +195,17 @@ export default function useTrafficChart(
 		refetchLikesComments();
 	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
+	const hasRows = Boolean( vvPrimary?.data?.length || lcPrimary?.data?.length );
+
 	return {
 		metrics,
+		isLoading: viewsVisitors.isLoading || likesComments.isLoading,
 		isFetching: viewsVisitors.isFetching || likesComments.isFetching,
-		isError: viewsVisitors.isError || likesComments.isError,
-		error: viewsVisitors.error ?? likesComments.error,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows while `isError` flips
+		// true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace a populated chart with the error state.
+		isError: ! hasRows && ( viewsVisitors.isError || likesComments.isError ),
 		refetch,
 	};
 }

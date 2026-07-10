@@ -4,10 +4,11 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
-	useWidgetError,
+	WidgetState,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { reports } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -16,15 +17,9 @@ import styles from './style.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
 import type { TrafficChartAttributes, TrafficChartGranularity } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 type TrafficChartRenderAttributes = TrafficChartAttributes & Partial< ReportParamsFieldAttributes >;
-type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes > & {
-	/**
-	 * Host callback to surface a widget error in the dashboard frame.
-	 */
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -79,21 +74,49 @@ function TrafficChartInner( { granularity }: TrafficChartInnerProps ) {
 	const period: TrafficPeriod =
 		granularity === 'auto' ? defaultPeriodForInterval( reportParams.interval ) : granularity;
 
-	const { metrics, isFetching, isError, error, refetch } = useTrafficChart( reportParams, period );
-
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary.
-	}
+	const { metrics, isLoading, isFetching, isError, refetch } = useTrafficChart(
+		reportParams,
+		period
+	);
+	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics' );
 
 	return (
 		<div className={ styles.root }>
-			<MetricTabsChart
-				metrics={ metrics }
-				dataFormat={ DATA_FORMAT }
-				loading={ isFetching }
-				groupLabel={ __( 'Traffic metric', 'jetpack-premium-analytics' ) }
-			/>
+			<WidgetState
+				isLoading={ isLoading }
+				isError={ isError }
+				isEmpty={ metrics.every( metric => metric.current.length === 0 ) }
+				error={ {
+					description: __(
+						"We couldn't load traffic data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: reports,
+					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics' ),
+				} }
+				// First load keeps the widget's chart-shaped skeleton (the metric tabs
+				// over the chart's own loading overlay) instead of the default overlay.
+				renderLoading={
+					<MetricTabsChart
+						metrics={ metrics }
+						dataFormat={ DATA_FORMAT }
+						loading
+						groupLabel={ groupLabel }
+					/>
+				}
+			>
+				{ /* Background refetches keep the overlay scoped to the chart area so
+				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
+				<MetricTabsChart
+					metrics={ metrics }
+					dataFormat={ DATA_FORMAT }
+					loading={ isFetching }
+					groupLabel={ groupLabel }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
@@ -109,11 +132,11 @@ function TrafficChartInner( { granularity }: TrafficChartInnerProps ) {
  * @param {TrafficChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
+export default function TrafficChart( { attributes = {} }: TrafficChartWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
 
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
 			<TrafficChartInner granularity={ granularity } />
 		</WidgetRoot>
 	);

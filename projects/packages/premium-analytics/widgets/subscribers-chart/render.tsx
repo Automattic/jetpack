@@ -4,11 +4,12 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
-	useWidgetError,
+	WidgetState,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { customer } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -22,16 +23,10 @@ import useSubscribersChart, {
 } from './use-subscribers-chart';
 import type { SubscribersChartAttributes, SubscribersChartGranularity } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 type SubscribersChartRenderAttributes = SubscribersChartAttributes &
 	Partial< ReportParamsFieldAttributes >;
-type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartRenderAttributes > & {
-	/**
-	 * Host callback to surface a widget error in the dashboard frame.
-	 */
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartRenderAttributes >;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -145,20 +140,47 @@ function SubscribersChartInner( { granularity }: SubscribersChartInnerProps ) {
 
 	const state = useSubscribersChart( reportParams, period );
 	const metrics = useMemo( () => buildMetrics( state ), [ state ] );
-
-	const hasError = useWidgetError( state.isError, state.error, state.refetch );
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary.
-	}
+	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics' );
 
 	return (
 		<div className={ styles.root }>
-			<MetricTabsChart
-				metrics={ metrics }
-				dataFormat={ DATA_FORMAT }
-				loading={ state.isFetching }
-				groupLabel={ __( 'Subscriber metric', 'jetpack-premium-analytics' ) }
-			/>
+			<WidgetState
+				isLoading={ state.isLoading }
+				isError={ state.isError }
+				isEmpty={ state.current.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load subscriber data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [
+						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: state.refetch },
+					],
+				} }
+				empty={ {
+					icon: customer,
+					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics' ),
+				} }
+				// First load keeps the widget's chart-shaped skeleton (the metric tabs
+				// over the chart's own loading overlay) instead of the default overlay.
+				renderLoading={
+					<MetricTabsChart
+						metrics={ metrics }
+						dataFormat={ DATA_FORMAT }
+						loading
+						groupLabel={ groupLabel }
+					/>
+				}
+			>
+				{ /* Background refetches keep the overlay scoped to the chart area so
+				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
+				<MetricTabsChart
+					metrics={ metrics }
+					dataFormat={ DATA_FORMAT }
+					loading={ state.isFetching }
+					groupLabel={ groupLabel }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
@@ -174,14 +196,11 @@ function SubscribersChartInner( { granularity }: SubscribersChartInnerProps ) {
  * @param {SubscribersChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function SubscribersChart( {
-	attributes = {},
-	setError,
-}: SubscribersChartWidgetProps ) {
+export default function SubscribersChart( { attributes = {} }: SubscribersChartWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
 
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
 			<SubscribersChartInner granularity={ granularity } />
 		</WidgetRoot>
 	);

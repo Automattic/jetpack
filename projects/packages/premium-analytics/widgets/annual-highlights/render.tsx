@@ -8,14 +8,22 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	MetricWithComparison,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { arrowLeft, arrowRight, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
-import { Button, Icon, Stack, Text } from '@wordpress/ui';
+import {
+	arrowLeft,
+	arrowRight,
+	calendar,
+	comment,
+	paragraph,
+	postList,
+	starEmpty,
+} from '@wordpress/icons';
+import { Button, Icon, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -58,7 +66,7 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
  * @return The widget content.
  */
 function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[] } ) {
-	const { data, isLoading, isError } = useStatsInsights();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const enabledMetrics = useMemo( () => new Set( metrics ), [ metrics ] );
 
 	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
@@ -80,121 +88,125 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 
 	const year = years[ safeIndex ];
 
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Unable to load annual highlights.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && ! year ) {
-		return (
-			<div className={ styles.root }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( ! year ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'No highlights to show yet.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
 	const canShowOlder = safeIndex < years.length - 1;
 	const canShowNewer = safeIndex > 0;
 
-	const tiles = [
-		{
-			key: 'posts',
-			icon: postList,
-			label: __( 'Posts', 'jetpack-premium-analytics' ),
-			value: year.total_posts,
-			enabled: enabledMetrics.has( 'posts' ),
-		},
-		{
-			key: 'words',
-			icon: paragraph,
-			label: __( 'Words', 'jetpack-premium-analytics' ),
-			value: year.total_words,
-			enabled: enabledMetrics.has( 'words' ),
-		},
-		{
-			key: 'likes',
-			icon: starEmpty,
-			label: __( 'Likes', 'jetpack-premium-analytics' ),
-			value: year.total_likes,
-			enabled: enabledMetrics.has( 'likes' ),
-		},
-		{
-			key: 'comments',
-			icon: comment,
-			label: __( 'Comments', 'jetpack-premium-analytics' ),
-			value: year.total_comments,
-			enabled: enabledMetrics.has( 'comments' ),
-		},
-	].filter( tile => tile.enabled );
+	// Guarded on `year`: the tile values read the selected year, which is absent
+	// in the loading / error / empty states handled by <WidgetState>.
+	const tiles = (
+		year
+			? [
+					{
+						key: 'posts',
+						icon: postList,
+						label: __( 'Posts', 'jetpack-premium-analytics' ),
+						value: year.total_posts,
+						enabled: enabledMetrics.has( 'posts' ),
+					},
+					{
+						key: 'words',
+						icon: paragraph,
+						label: __( 'Words', 'jetpack-premium-analytics' ),
+						value: year.total_words,
+						enabled: enabledMetrics.has( 'words' ),
+					},
+					{
+						key: 'likes',
+						icon: starEmpty,
+						label: __( 'Likes', 'jetpack-premium-analytics' ),
+						value: year.total_likes,
+						enabled: enabledMetrics.has( 'likes' ),
+					},
+					{
+						key: 'comments',
+						icon: comment,
+						label: __( 'Comments', 'jetpack-premium-analytics' ),
+						value: year.total_comments,
+						enabled: enabledMetrics.has( 'comments' ),
+					},
+			  ]
+			: []
+	).filter( tile => tile.enabled );
 
 	return (
-		<Stack direction="column" gap="lg" className={ styles.root }>
-			<Stack align="center" justify="flex-end" gap="sm">
-				<Button
-					type="button"
-					variant="minimal"
-					tone="neutral"
-					size="small"
-					className={ styles.navButton }
-					onClick={ showOlderYear }
-					disabled={ ! canShowOlder }
-					aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
-				>
-					<Button.Icon icon={ arrowLeft } size={ 16 } />
-				</Button>
+		<div className={ styles.root }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the highlights visible; only surface the
+				// error when there is nothing to show.
+				isError={ years.length === 0 && isError }
+				isEmpty={ years.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load annual highlights. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: calendar,
+					description: __( 'No highlights to show yet.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				{ year && (
+					<div className={ styles.body }>
+						<div className={ styles.yearNav }>
+							<Button
+								type="button"
+								variant="minimal"
+								tone="neutral"
+								size="small"
+								className={ styles.navButton }
+								onClick={ showOlderYear }
+								disabled={ ! canShowOlder }
+								aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
+							>
+								<Button.Icon icon={ arrowLeft } size={ 16 } />
+							</Button>
 
-				<Text className={ styles.yearLabel }>{ year.year }</Text>
+							<Text className={ styles.yearLabel }>{ year.year }</Text>
 
-				<Button
-					type="button"
-					variant="minimal"
-					tone="neutral"
-					size="small"
-					className={ styles.navButton }
-					onClick={ showNewerYear }
-					disabled={ ! canShowNewer }
-					aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
-				>
-					<Button.Icon icon={ arrowRight } size={ 16 } />
-				</Button>
-			</Stack>
-
-			{ tiles.length === 0 ? (
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>
-						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
-					</Text>
-				</Stack>
-			) : (
-				<div className={ styles.grid }>
-					{ tiles.map( tile => (
-						<div key={ tile.key } className={ styles.tile }>
-							<div className={ styles.tileHeader }>
-								<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
-								<Text className={ styles.tileLabel }>{ tile.label }</Text>
-							</div>
-							<MetricWithComparison
-								value={ tile.value }
-								dataFormat={ COUNT_FORMAT }
-								fontSize="xl"
-								className={ styles.tileValue }
-							/>
+							<Button
+								type="button"
+								variant="minimal"
+								tone="neutral"
+								size="small"
+								className={ styles.navButton }
+								onClick={ showNewerYear }
+								disabled={ ! canShowNewer }
+								aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
+							>
+								<Button.Icon icon={ arrowRight } size={ 16 } />
+							</Button>
 						</div>
-					) ) }
-				</div>
-			) }
-		</Stack>
+						{ tiles.length === 0 ? (
+							<Text className={ styles.placeholder }>
+								{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+							</Text>
+						) : (
+							<div className={ styles.grid }>
+								{ tiles.map( tile => (
+									<div key={ tile.key } className={ styles.tile }>
+										<div className={ styles.tileHeader }>
+											<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
+											<Text className={ styles.tileLabel }>{ tile.label }</Text>
+										</div>
+										<MetricWithComparison
+											value={ tile.value }
+											dataFormat={ COUNT_FORMAT }
+											fontSize="xl"
+											className={ styles.tileValue }
+										/>
+									</div>
+								) ) }
+							</div>
+						) }
+					</div>
+				) }
+			</WidgetState>
+		</div>
 	);
 }
 

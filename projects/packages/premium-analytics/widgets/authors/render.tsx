@@ -6,11 +6,10 @@ import {
 	LeaderboardChart,
 	LeaderboardLabel,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	formatLegendLabels,
 	useWidgetDrillDown,
-	useWidgetError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -27,7 +26,6 @@ import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-auth
 import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
@@ -35,12 +33,7 @@ const DEFAULT_MAX = 7;
 // also pass them via `attributes`. Compose the render-only shape to cover both.
 type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
-type AuthorsWidgetProps = WidgetRenderProps< AuthorsRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+type AuthorsWidgetProps = WidgetRenderProps< AuthorsRenderAttributes >;
 
 const toPositiveInt = ( value: string | number | undefined, fallback: number ) => {
 	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
@@ -57,14 +50,21 @@ export type AuthorsLeaderboardProps = {
 	 */
 	rows?: AuthorLeaderboardRow[];
 	/**
-	 * When `true`, the initial loading overlay is rendered instead of the chart.
+	 * When `true`, the first fetch is in flight and there is no data to show yet.
 	 */
 	isLoading?: boolean;
 	/**
-	 * When `true`, a loading overlay is layered over the chart while data
-	 * refetches in the background.
+	 * When `true`, a background refetch is in flight while data is shown.
 	 */
-	isRefetching?: boolean;
+	isFetching?: boolean;
+	/**
+	 * When `true`, the error state is rendered instead of the chart.
+	 */
+	isError?: boolean;
+	/**
+	 * Re-runs the failed query from the error state's Retry action.
+	 */
+	refetch?: () => void;
 	/**
 	 * When `true`, render each row's previous-period delta next to its value.
 	 */
@@ -96,7 +96,9 @@ export type AuthorsLeaderboardProps = {
 export function AuthorsLeaderboard( {
 	rows = [],
 	isLoading = false,
-	isRefetching = false,
+	isFetching = false,
+	isError = false,
+	refetch,
 	withComparison = false,
 	legendLabels,
 }: AuthorsLeaderboardProps ) {
@@ -193,14 +195,6 @@ export function AuthorsLeaderboard( {
 		} ) );
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
-	if ( isLoading ) {
-		return (
-			<div className={ styles.content }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
 	const isDrilled = Boolean( selectedAuthor );
 
 	return (
@@ -211,19 +205,23 @@ export function AuthorsLeaderboard( {
 					onClick={ clearSelectedAuthor }
 				/>
 			) }
-			<LeaderboardChart
-				data={ chartData }
-				withComparison={ withComparison }
-				withOverlayLabel
-				showLegend={ false }
-				legendLabels={ legendLabels }
-				dataFormat={ {
-					type: 'number',
-					options: { useMultipliers: true, decimals: 0 },
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ chartData.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load authors. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: refetch
+						? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ]
+						: undefined,
 				} }
-				emptyStateIcon={ postAuthor }
-				emptyStateText={
-					isDrilled
+				empty={ {
+					icon: postAuthor,
+					description: isDrilled
 						? __(
 								'This author has no posts with views for the selected period.',
 								'jetpack-premium-analytics'
@@ -231,10 +229,21 @@ export function AuthorsLeaderboard( {
 						: __(
 								'Learn about your most popular authors to better understand how they contribute to growing your site.',
 								'jetpack-premium-analytics'
-						  )
-				}
-			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
+						  ),
+				} }
+			>
+				<LeaderboardChart
+					data={ chartData }
+					withComparison={ withComparison }
+					withOverlayLabel
+					showLegend={ false }
+					legendLabels={ legendLabels }
+					dataFormat={ {
+						type: 'number',
+						options: { useMultipliers: true, decimals: 0 },
+					} }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
@@ -257,22 +266,12 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useStatsTopAuthors( statsParams );
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useStatsTopAuthors( statsParams );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
-	const isRefetching = isFetching && hasData;
 	const primaryData = primary.data;
 	const comparisonData = comparison.data;
 
@@ -283,16 +282,17 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
 	return (
 		<AuthorsLeaderboard
 			rows={ rows }
 			isLoading={ isInitialLoading }
-			isRefetching={ isRefetching }
+			isFetching={ isFetching }
+			// The Stats queries carry `placeholderData: previousData => previousData`, so a
+			// failed range change keeps the prior period's rows while `isError` flips true.
+			// Only surface the error when there's nothing to show, so a transient refetch
+			// failure doesn't replace populated rows with the error state.
+			isError={ rows.length === 0 && isError }
+			refetch={ refetch }
 			withComparison={ hasComparison }
 			legendLabels={ legendLabels }
 		/>
@@ -311,9 +311,9 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
  * @param {AuthorsWidgetProps} props - The widget render props.
  * @return The rendered Authors widget.
  */
-export default function Authors( { attributes = {}, setError }: AuthorsWidgetProps ) {
+export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError }>
+		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
 			</div>

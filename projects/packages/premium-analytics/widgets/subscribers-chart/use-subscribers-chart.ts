@@ -37,7 +37,6 @@ export interface SubscribersChartState {
 	/** True while either window is fetching, including granularity-switch refetches. */
 	isFetching: boolean;
 	isError: boolean;
-	error: Error | null | undefined;
 	refetch: () => void;
 }
 
@@ -85,8 +84,12 @@ export default function useSubscribersChart(
 		hasPaid: current.some( point => point.paid > 0 ),
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
-		isError: report.isError,
-		error: report.error,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's points in `current` while
+		// `isError` flips true. Only surface the error when there's nothing to show,
+		// so a transient refetch failure doesn't replace a populated chart with the
+		// error state.
+		isError: current.length === 0 && report.isError,
 		refetch: report.refetch,
 	};
 }

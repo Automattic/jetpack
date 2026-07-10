@@ -10,8 +10,8 @@ import {
 import {
 	LeaderboardChart,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	calculateDelta,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -20,7 +20,8 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { globe } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -248,8 +249,6 @@ function buildLeaderboardData(
 
 export type ReferrersLeaderboardProps = {
 	rows?: ReferrerRow[];
-	isLoading?: boolean;
-	isError?: boolean;
 	withComparison?: boolean;
 	onDrillDown?: ( row: ReferrerRow ) => void;
 };
@@ -259,39 +258,21 @@ export type ReferrersLeaderboardProps = {
  *
  * @param props                - Component props.
  * @param props.rows           - Normalized referrer rows.
- * @param props.isLoading      - When true, show a loading overlay.
- * @param props.isError        - When true, show an error message.
  * @param props.withComparison - When true, render comparison deltas.
  * @param props.onDrillDown    - Callback fired when a row with child referrers is selected.
  * @return The rendered leaderboard.
  */
 export function ReferrersLeaderboard( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
 	onDrillDown,
 }: ReferrersLeaderboardProps ) {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Unable to load referrers.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No referrers in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
@@ -303,9 +284,8 @@ function ReferrersInner( { max }: { max: number } ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsReferrers( statsParams );
-	const showLoading = isLoading || ( isFetching && hasData );
 
 	const comparisonReport = comparison.data as
 		| StatsNormalizedReport< StatsReferrersItem >
@@ -397,13 +377,33 @@ function ReferrersInner( { max }: { max: number } ) {
 			{ trail.length > 0 && (
 				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
 			) }
-			<ReferrersLeaderboard
-				rows={ activeRows }
-				isLoading={ showLoading }
-				isError={ isError }
-				withComparison={ hasComparison }
-				onDrillDown={ drillInto }
-			/>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: globe,
+					description: __( 'No referrers in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<ReferrersLeaderboard
+					rows={ activeRows }
+					withComparison={ hasComparison }
+					onDrillDown={ drillInto }
+				/>
+			</WidgetState>
 		</div>
 	);
 }

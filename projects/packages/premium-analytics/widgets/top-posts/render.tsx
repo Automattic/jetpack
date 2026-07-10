@@ -8,8 +8,8 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	calculateDelta,
 	formatLegendLabels,
 	useWidgetRootContext,
@@ -18,7 +18,8 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link, Text } from '@wordpress/ui';
+import { chartBar } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -112,18 +113,9 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 
 type TopPostsLeaderboardProps = {
 	/**
-	 * Normalized top-posts rows to render. When omitted, the empty state is shown
-	 * (unless `isLoading` is set).
+	 * Normalized top-posts rows to render.
 	 */
 	rows?: TopPostRow[];
-	/**
-	 * When `true`, a loading overlay is rendered instead of data.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, an error message is rendered in place of the chart.
-	 */
-	isError?: boolean;
 	/**
 	 * When `true`, render the comparison (previous-period) delta next to each
 	 * value, using `previousValue` from each row. Mirrors the overlay
@@ -146,39 +138,28 @@ type TopPostsLeaderboardProps = {
  * most-viewed posts and pages for the period, each row linking to the
  * published content.
  *
- * Takes already-fetched rows via props and is responsible only for the
- * loading, error, empty, and populated states. Exported so Storybook can
- * exercise those states with fixture rows (there is no analytics backend in
- * Storybook, so the data-connected entry point would only ever show chrome).
+ * Takes already-fetched rows via props and renders only the populated
+ * (ready) state — loading, error, and empty are handled by `<WidgetState>` in
+ * the data-connected report. Exported so Storybook can render fixture rows
+ * (there is no analytics backend in Storybook, so the data-connected entry
+ * point would only ever show chrome).
  *
  * @param {TopPostsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export const TopPostsLeaderboard = ( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
 	showLegend = false,
 	legendLabels,
 }: TopPostsLeaderboardProps ) => {
-	if ( isError ) {
-		return <Text>{ __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>;
-	}
-
-	if ( isLoading && ( ! rows || rows.length === 0 ) ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ showLegend }
 			legendLabels={ legendLabels }
-			emptyStateText={ __( 'No views in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
 		/>
 	);
@@ -228,7 +209,7 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	// date range is owned by the dashboard picker and carried in `reportParams`.
 	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
-	const { primary, comparison, hasComparison, isLoading, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams );
 
 	const allowedTypes = useMemo( () => {
@@ -277,14 +258,33 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
-		<TopPostsLeaderboard
-			rows={ rows }
+		<WidgetState
 			isLoading={ isLoading }
-			isError={ isError }
-			withComparison={ withComparison }
-			showLegend={ withComparison }
-			legendLabels={ legendLabels }
-		/>
+			isFetching={ isFetching }
+			// The Stats queries carry `placeholderData`, so a failed range change keeps
+			// the prior period's rows visible; only surface the error when there is
+			// nothing to show.
+			isError={ rows.length === 0 && isError }
+			isEmpty={ rows.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load top posts. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: chartBar,
+				description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+			} }
+		>
+			<TopPostsLeaderboard
+				rows={ rows }
+				withComparison={ withComparison }
+				showLegend={ withComparison }
+				legendLabels={ legendLabels }
+			/>
+		</WidgetState>
 	);
 }
 

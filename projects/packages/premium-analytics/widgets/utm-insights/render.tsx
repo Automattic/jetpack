@@ -8,13 +8,14 @@ import {
 	calculateDelta,
 	LeaderboardChart,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -65,13 +66,12 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		clearSelectedUtm();
 	}, [ clearSelectedUtm, utmDimension ] );
 
-	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
+	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
 		max,
 	} );
 
-	const showLoading = isLoading || ( isFetching && hasData );
 	const selectedUtm = useMemo(
 		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
 		[ data, selectedUtmLabel ]
@@ -123,39 +123,36 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		/>
 	) : null;
 
-	if ( isError ) {
-		return (
-			<>
-				{ backLink }
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<>
-				{ backLink }
-				<WidgetLoadingOverlay />
-			</>
-		);
-	}
-
 	return (
 		<>
 			{ backLink }
-			<LeaderboardChart
-				data={ leaderboardData }
-				loading={ showLoading }
-				withComparison={ hasComparison }
-				withOverlayLabel
-				showLegend={ false }
-				emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
-				dataFormat={ DATA_FORMAT }
-				className={ styles.leaderboard }
-			/>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load UTM data. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: megaphone,
+						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ hasComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+				</WidgetState>
+			</div>
 		</>
 	);
 }

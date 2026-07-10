@@ -4,11 +4,10 @@
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	formatLegendLabels,
 	toMaxRows,
-	useWidgetError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -23,34 +22,18 @@ import { useMemo } from 'react';
 import { buildVideoPlaysData } from './build-video-plays-data';
 import { DEFAULT_MAX, type VideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 // The dashboard injects its date range and comparison state through
 // `reportParams`; the widget's own settings come from `VideosAttributes`.
 type VideosRenderAttributes = VideosAttributes & Partial< ReportParamsFieldAttributes >;
 
-type VideosWidgetProps = WidgetRenderProps< VideosRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+type VideosWidgetProps = WidgetRenderProps< VideosRenderAttributes >;
 
 type VideosLeaderboardProps = {
 	/**
 	 * Leaderboard rows to render, already built from the video-plays report.
-	 * When omitted, the empty state is shown (unless `isLoading` is set).
 	 */
 	data?: LeaderboardChartData;
-	/**
-	 * When `true`, the initial loading overlay is rendered instead of the chart.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, a loading overlay is layered over the chart while data
-	 * refetches in the background.
-	 */
-	isRefetching?: boolean;
 	/**
 	 * When `true`, render each row's previous-period delta next to its value.
 	 */
@@ -62,42 +45,28 @@ type VideosLeaderboardProps = {
 };
 
 /**
- * Presentational leaderboard for the Videos widget. Renders the site's most
- * played videos and is responsible only for the loading, empty, and populated
- * states.
+ * Presentational leaderboard for the Videos widget. Renders only the populated
+ * (ready) state — loading, error, and empty are handled by `<WidgetState>` in
+ * the data-connected report.
  *
  * @param {VideosLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 function VideosLeaderboard( {
 	data = [],
-	isLoading = false,
-	isRefetching = false,
 	withComparison = false,
 	legendLabels,
 }: VideosLeaderboardProps ) {
-	if ( isLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
-			<LeaderboardChart
-				data={ data }
-				withComparison={ withComparison }
-				legendLabels={ legendLabels }
-				dataFormat={ {
-					type: 'number',
-					options: { useMultipliers: false, decimals: 0 },
-				} }
-				emptyStateIcon={ video }
-				emptyStateText={ __(
-					'Learn which videos your visitors watch most to understand what keeps them engaged.',
-					'jetpack-premium-analytics'
-				) }
-			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		<LeaderboardChart
+			data={ data }
+			withComparison={ withComparison }
+			legendLabels={ legendLabels }
+			dataFormat={ {
+				type: 'number',
+				options: { useMultipliers: false, decimals: 0 },
+			} }
+		/>
 	);
 }
 
@@ -119,22 +88,12 @@ function VideosReport( { max }: VideosReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useStatsVideoPlays( statsParams );
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useStatsVideoPlays( statsParams );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
-	const isRefetching = isFetching && hasData;
 	const primaryData = primary.data;
 	const comparisonData = comparison.data;
 
@@ -145,19 +104,36 @@ function VideosReport( { max }: VideosReportProps ) {
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
 	return (
-		<VideosLeaderboard
-			data={ chartData }
+		<WidgetState
 			isLoading={ isInitialLoading }
-			isRefetching={ isRefetching }
-			withComparison={ hasComparison }
-			legendLabels={ legendLabels }
-		/>
+			isFetching={ isFetching }
+			// The Stats queries carry `placeholderData`, so a failed range change keeps
+			// the prior period's rows visible; only surface the error when there is
+			// nothing to show.
+			isError={ chartData.length === 0 && isError }
+			isEmpty={ chartData.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load video plays. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: video,
+				description: __(
+					'Learn which videos your visitors watch most to understand what keeps them engaged.',
+					'jetpack-premium-analytics'
+				),
+			} }
+		>
+			<VideosLeaderboard
+				data={ chartData }
+				withComparison={ hasComparison }
+				legendLabels={ legendLabels }
+			/>
+		</WidgetState>
 	);
 }
 
@@ -171,9 +147,9 @@ function VideosReport( { max }: VideosReportProps ) {
  * @param {VideosWidgetProps} props - The widget render props.
  * @return The rendered Videos widget.
  */
-export default function Videos( { attributes = {}, setError }: VideosWidgetProps ) {
+export default function Videos( { attributes = {} }: VideosWidgetProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError }>
+		<WidgetRoot attributes={ attributes }>
 			<VideosReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);

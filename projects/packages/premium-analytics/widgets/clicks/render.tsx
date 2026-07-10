@@ -10,8 +10,8 @@ import {
 import {
 	LeaderboardChart,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	calculateDelta,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -20,7 +20,8 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { chartBar } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -261,14 +262,6 @@ export type ClicksLeaderboardProps = {
 	 */
 	rows?: ClickRow[];
 	/**
-	 * When true, show a loading overlay.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When true, show an error message.
-	 */
-	isError?: boolean;
-	/**
 	 * When true, render comparison deltas.
 	 */
 	withComparison?: boolean;
@@ -286,31 +279,15 @@ export type ClicksLeaderboardProps = {
  */
 export function ClicksLeaderboard( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
 	onDrillDown,
 }: ClicksLeaderboardProps ) {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Could not load clicks data.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No clicks in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
@@ -341,9 +318,8 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsClicks( statsParams );
-	const showLoading = isLoading || ( isFetching && hasData );
 
 	const rows = useMemo(
 		() =>
@@ -378,13 +354,33 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	return (
 		<div className={ styles.content }>
 			{ backLink }
-			<ClicksLeaderboard
-				rows={ activeRows }
-				isLoading={ showLoading }
-				isError={ isError }
-				withComparison={ hasComparison }
-				onDrillDown={ isDrillDown ? undefined : handleDrillDown }
-			/>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load clicks. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: chartBar,
+					description: __( 'No clicks in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<ClicksLeaderboard
+					rows={ activeRows }
+					withComparison={ hasComparison }
+					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
