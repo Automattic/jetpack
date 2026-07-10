@@ -353,6 +353,112 @@ describe( 'QUANTIZE', () => {
 		const base = threeChapters();
 		expect( reduce( base, { type: 'QUANTIZE' } ) ).toBe( base );
 	} );
+
+	it( 'commits a whole second when the duration clamp is fractional', () => {
+		// A 60.9s video caps the last chapter at 59900 — itself fractional.
+		// round(59900) = 60000 exceeds that window, so round-then-clamp used
+		// to land back on 59900 (a no-op) and keep the raw start committed.
+		const base = load(
+			[
+				{ startAtSeconds: 0, title: 'A' },
+				{ startAtSeconds: 30, title: 'B' },
+			],
+			60900
+		);
+		const dragged = reduce( base, {
+			type: 'MOVE_START',
+			id: base.chapters[ 1 ].id,
+			startMs: 60500,
+		} );
+		expect( dragged.chapters[ 1 ].startMs ).toBe( 59900 );
+
+		const session = reduce( dragged, { type: 'QUANTIZE' } );
+		expect( session.chapters[ 1 ].startMs ).toBe( 59000 );
+		expect( session.chapters[ 1 ].startMs % 1000 ).toBe( 0 );
+		assertInvariants( session );
+		// One pass is the fixpoint.
+		expect( reduce( session, { type: 'QUANTIZE' } ) ).toBe( session );
+	} );
+
+	it( 'converges adjacent raw starts in a single idempotent pass', () => {
+		// Two raw siblings: the ascending pass quantizes chapter 1 against the
+		// STILL-RAW chapter 2 (raw ceiling 31600 − 1000 = 30600, grid ceiling
+		// 30000), then chapter 2 against the already-quantized chapter 1.
+		const base = threeChapters();
+		const one = reduce( base, {
+			type: 'MOVE_START',
+			id: base.chapters[ 1 ].id,
+			startMs: 30600,
+		} );
+		const two = reduce( one, {
+			type: 'MOVE_START',
+			id: base.chapters[ 2 ].id,
+			startMs: 31600,
+		} );
+		expect( two.chapters.map( chapter => chapter.startMs ) ).toEqual( [ 0, 30600, 31600 ] );
+
+		const session = reduce( two, { type: 'QUANTIZE' } );
+		expect( session.chapters.map( chapter => chapter.startMs ) ).toEqual( [ 0, 30000, 32000 ] );
+		for ( const chapter of session.chapters ) {
+			expect( chapter.startMs % 1000 ).toBe( 0 );
+		}
+		assertInvariants( session );
+		expect( reduce( session, { type: 'QUANTIZE' } ) ).toBe( session );
+	} );
+
+	it( 'leaves raw starts untouched when no whole second fits the window', () => {
+		// Hand-built: unreachable through actions (a whole-second predecessor
+		// makes an empty grid window imply an empty raw window, which
+		// MOVE_START treats as immovable) — simulates pre-fix corruption.
+		// b's raw window [1000, 900] is degenerate; c's raw window
+		// [2400, 2900] is fine but its grid window [3000, 2000] is empty.
+		// validateRows is the save-time backstop for these leftovers.
+		const session: ChaptersSession = {
+			durationMs: 3900,
+			chapters: [
+				{ id: 'a', startMs: 0, title: 'A' },
+				{ id: 'b', startMs: 1400, title: 'B' },
+				{ id: 'c', startMs: 1900, title: 'C' },
+			],
+			selectedId: null,
+		};
+		expect( reduce( session, { type: 'QUANTIZE' } ) ).toBe( session );
+	} );
+
+	it( 'always commits whole seconds after a single raw drag (PRNG sweep)', () => {
+		// Deterministic Park–Miller LCG (as in the round-trip suite below) so
+		// failures reproduce. One raw MOVE_START per run mirrors what real
+		// gestures produce: at most one fractional chapter per commit.
+		let prngState = 20260710;
+		const rand = () => {
+			prngState = ( prngState * 16807 ) % 2147483647;
+			return ( prngState - 1 ) / 2147483646;
+		};
+		for ( let run = 0; run < 60; run++ ) {
+			// 1..999 offset keeps every duration fractional.
+			const durationMs = 30000 + Math.floor( rand() * 120 ) * 1000 + 1 + Math.floor( rand() * 999 );
+			const base = load(
+				[
+					{ startAtSeconds: 0, title: 'A' },
+					{ startAtSeconds: 10, title: 'B' },
+					{ startAtSeconds: 20, title: 'C' },
+				],
+				durationMs
+			);
+			const index = 1 + Math.floor( rand() * 2 );
+			const dragged = reduce( base, {
+				type: 'MOVE_START',
+				id: base.chapters[ index ].id,
+				startMs: Math.floor( rand() * ( durationMs + 2000 ) ) - 1000,
+			} );
+			const session = reduce( dragged, { type: 'QUANTIZE' } );
+			for ( const chapter of session.chapters ) {
+				expect( chapter.startMs % 1000 ).toBe( 0 );
+			}
+			assertInvariants( session );
+			expect( reduce( session, { type: 'QUANTIZE' } ) ).toBe( session );
+		}
+	} );
 } );
 
 describe( 'RENAME', () => {

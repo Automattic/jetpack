@@ -13,7 +13,9 @@
  * The marker is a focusable `role="slider"`: aria bounds are the reducer's
  * clamp window (`prev + gap … next − gap`, last capped at `duration − gap`),
  * and arrow keys nudge by whole seconds (one undo entry each, like the cut
- * edges' nudges).
+ * edges' nudges). A nudge closes with the same QUANTIZE + COMMIT as a drag:
+ * the clamp ceiling itself can be fractional, so a bare committed MOVE_START
+ * could land off the second grid.
  */
 import { sprintf, __ } from '@wordpress/i18n';
 import { CHAPTER_MIN_GAP_MS } from '../state/chapters-session';
@@ -94,7 +96,19 @@ export default function StudioChapterMarker( {
 		// Handled here; keep the document-level shortcuts from also nudging.
 		event.preventDefault();
 		event.stopPropagation();
-		dispatch( { type: 'MOVE_START', id: chapter.id, startMs: chapter.startMs + delta } );
+		// A nudge is a one-step gesture and must close exactly like a drag:
+		// MOVE_START clamps against bounds that can be fractional (the last
+		// chapter's ceiling is `duration − gap`), so committing it bare could
+		// record a raw-ms start — the invariant QUANTIZE exists to protect.
+		// The transient + QUANTIZE + COMMIT sequence re-grids the landing spot
+		// and still folds into a single undo entry; a nudge that quantizes
+		// back to its own start commits nothing.
+		dispatch( {
+			type: 'TRANSIENT',
+			action: { type: 'MOVE_START', id: chapter.id, startMs: chapter.startMs + delta },
+		} );
+		dispatch( { type: 'TRANSIENT', action: { type: 'QUANTIZE' } } );
+		dispatch( { type: 'COMMIT' } );
 	};
 
 	return (

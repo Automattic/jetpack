@@ -3,7 +3,10 @@
  *
  * Resolution order: GET /wpcom/v2/videopress/{guid}/storyboard first — a
  * server-generated tile sprite (the local mock always 404s today; the shape
- * is future-proofed in types/edits.ts). Client-side extraction second — a
+ * is future-proofed in types/edits.ts). Once a video is known to have a
+ * storyboard, it stays in storyboard mode: a descriptor failure on a REFETCH
+ * keeps the cached descriptor rather than downgrading to extraction (see the
+ * queryFn). Client-side extraction second — a
  * per-video frame-extraction pool (frame-extraction-pool.ts) seeks a hidden
  * <video> on the (token-signed when private) sourceUrl through evenly spaced
  * midpoints, one seek at a time; each frame is drawn onto one reused small
@@ -16,9 +19,12 @@
  * guid change, revoking whatever it still holds). A COMPLETED batch is
  * detached from the pool and handed to the react-query cache — cached per
  * guid with staleTime Infinity, so the strip survives remounts for the whole
- * session; those object URLs are revoked when their cache entry is dropped.
- * A partial extraction cancelled by unmount caches nothing and its frames
- * die with the pool.
+ * session; those object URLs are revoked when their cache entry is dropped,
+ * and a refetch that REPLACES a cached frames entry revokes the replaced
+ * batch's URLs the same way. Storyboard sprites get a health watchdog:
+ * wpcom's regeneration deletes old sprite files and CSS-painted tiles have
+ * no error signal, so each newly seen sprite URL is probed off-DOM and a
+ * dead one buys a single descriptor refetch (see the effect in useFilmstrip).
  */
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
@@ -209,37 +215,149 @@ function isStoryboard( value: unknown ): value is Storyboard {
 	);
 }
 
-// QueryClients that already carry the filmstrip cache-drop revoker.
-const revokerAttached = new WeakSet< QueryClient >();
+type FilmstripClientState = {
+	/**
+	 * Last-seen frames array per filmstrip query hash, so a refetch that
+	 * REPLACES a frames entry can revoke the orphaned object URLs — the
+	 * cache's 'updated' events carry only the new data, never the old.
+	 */
+	lastFrames: Map< string, string[] >;
+	/**
+	 * Sprite URLs that already failed the watchdog probe and spent their one
+	 * refetch (see the watchdog effect in useFilmstrip).
+	 */
+	deadSpriteUrls: Set< string >;
+	/**
+	 * Watchdog refetches spent per guid SINCE the last healthy probe. The
+	 * per-URL dead set above cannot cap a server that mints a distinct sprite
+	 * URL on every descriptor fetch (signed/tokenized URLs, cache busters):
+	 * each refetch would arrive as a "new" URL and buy another refetch, an
+	 * unbounded zero-delay loop while the sprite is dead. This counter caps
+	 * the spend per video instead; a sprite probing healthy clears it, so
+	 * every future regeneration gets its refetch back.
+	 */
+	spriteRefetchesSpent: Map< string, number >;
+};
 
 /**
- * Attach a query-cache listener (once per client) that revokes extraction
- * frames' object URLs when their cache entry is dropped. Cleanup must key
- * off the cache rather than a hook effect: with staleTime Infinity the data
- * outlives any single component's mount. The subscription intentionally
- * lives for the client's lifetime.
+ * How many watchdog refetches a video may spend between healthy probes —
+ * matching the design intent that a dead sprite buys ONE refetch: enough to
+ * heal a regenerated sprite, terminal (blank tiles until the next external
+ * invalidation or page reload) when the refetched sprite is dead too.
+ */
+const SPRITE_WATCHDOG_REFETCH_BUDGET = 1;
+
+// Per-QueryClient lifecycle state. A WeakMap rather than bare module state:
+// per-client keying keeps throwaway test clients isolated from each other,
+// and lets concurrent mounts (and StrictMode double-effects) share one guard
+// per client instead of racing separate ones.
+const filmstripClientState = new WeakMap< QueryClient, FilmstripClientState >();
+
+/**
+ * Per-client filmstrip lifecycle: the query-cache listener that revokes
+ * extraction frames' object URLs when their cache entry is dropped OR
+ * replaced by a refetch, plus the sprite watchdog's once-per-URL guard.
+ * Cleanup must key off the cache rather than a hook effect: with staleTime
+ * Infinity the data outlives any single component's mount. The subscription
+ * intentionally lives for the client's lifetime. The first call for a client
+ * attaches the listener; later calls return the same state.
  *
  * @param client - The query client to guard.
+ * @return The client's lifecycle state.
  */
-function attachRevokeOnCacheDrop( client: QueryClient ): void {
-	if ( revokerAttached.has( client ) ) {
-		return;
+function ensureFilmstripLifecycle( client: QueryClient ): FilmstripClientState {
+	const existing = filmstripClientState.get( client );
+	if ( existing ) {
+		return existing;
 	}
-	revokerAttached.add( client );
+	const state: FilmstripClientState = {
+		lastFrames: new Map(),
+		deadSpriteUrls: new Set(),
+		spriteRefetchesSpent: new Map(),
+	};
+	filmstripClientState.set( client, state );
 	client.getQueryCache().subscribe( event => {
-		if ( event.type !== 'removed' || event.query.queryKey[ 0 ] !== FILMSTRIP_QUERY_KEY ) {
+		if ( event.query.queryKey[ 0 ] !== FILMSTRIP_QUERY_KEY ) {
 			return;
 		}
+		const hash = event.query.queryHash;
 		const data = event.query.state.data as Filmstrip | undefined;
-		if ( data?.status === 'frames' ) {
-			revokeFrames( data.frames );
+		const current = data?.status === 'frames' ? data.frames : undefined;
+		const previous = state.lastFrames.get( hash );
+		// A refetch replaced the frames entry (with a fresh frames array or a
+		// storyboard): nothing references the old object URLs anymore.
+		// Reference equality is the right test — react-query's structural
+		// sharing (replaceEqualDeep) returns the OLD array when a refetch
+		// produces deep-equal data, so a same-content refetch revokes nothing.
+		if ( previous !== undefined && previous !== current ) {
+			revokeFrames( previous );
 		}
+		if ( event.type === 'removed' ) {
+			if ( current ) {
+				revokeFrames( current );
+			}
+			state.lastFrames.delete( hash );
+			return;
+		}
+		if ( current !== undefined ) {
+			state.lastFrames.set( hash, current );
+		} else {
+			state.lastFrames.delete( hash );
+		}
+	} );
+	return state;
+}
+
+/**
+ * Invalidate a video's cached filmstrip so a mounted timeline refetches its
+ * descriptor (and an unmounted one refetches on its next mount — an
+ * invalidated query is stale regardless of staleTime Infinity). Called when
+ * the server is known to have regenerated the storyboard sprite (the edit
+ * pipeline's grid regen deletes the old sprite file, so the cached
+ * descriptor would paint 404 tiles): our own save/restore job landing, and
+ * "Reload latest". SKIPPED when the cache holds client-extracted frames:
+ * frames mode has no server sprite to go stale, and a refetch would burn a
+ * full re-extraction (up to MAX_FILMSTRIP_FRAMES sequential seeks)
+ * rebuilding what is already on screen. Absent, 'unavailable', and
+ * storyboard data all invalidate — an edit job can make a storyboard newly
+ * available.
+ *
+ * @param client - The query client holding the filmstrip cache.
+ * @param guid   - The video's guid.
+ */
+export function invalidateFilmstrip( client: QueryClient, guid: string ): void {
+	const data = client.getQueryData< Filmstrip >( [ FILMSTRIP_QUERY_KEY, guid ] );
+	if ( data?.status === 'frames' ) {
+		return;
+	}
+	void client.invalidateQueries( { queryKey: [ FILMSTRIP_QUERY_KEY, guid ] } );
+}
+
+/**
+ * Default sprite health probe: load the URL through an off-DOM Image.
+ * Deliberately no crossOrigin: the filmstrip paints tiles as CSS
+ * background-image — a plain no-cors fetch — and a matching no-cors Image()
+ * shares its HTTP cache entry, so the healthy path costs one request total.
+ * An 'anonymous' probe would issue a separate CORS fetch (and spuriously
+ * fail on hosts that send no ACAO headers).
+ *
+ * @param url - The sprite URL to probe.
+ * @return Resolves when the image loads, rejects when it errors.
+ */
+function probeSpriteWithImage( url: string ): Promise< void > {
+	return new Promise( ( resolve, reject ) => {
+		const probe = new Image();
+		probe.onload = () => resolve();
+		probe.onerror = () => reject( new Error( 'The storyboard sprite failed to load.' ) );
+		probe.src = url;
 	} );
 }
 
 export type UseFilmstripOptions = {
 	/** Frame-grabber factory; injectable for tests (jsdom media is inert). */
 	createGrabber?: ( src: string ) => FrameGrabber;
+	/** Sprite health probe; injectable for tests (jsdom never loads images). */
+	probeSprite?: ( url: string ) => Promise< void >;
 };
 
 /**
@@ -326,9 +444,15 @@ export function useFilmstrip(
 	const sourceUrl = video.playbackUrl ?? video.sourceUrl;
 	const token = usePlaybackToken( guid, isPrivate );
 	const queryClient = useQueryClient();
-	const { createGrabber = createVideoFrameGrabber } = options;
+	const { createGrabber = createVideoFrameGrabber, probeSprite = probeSpriteWithImage } = options;
+	// Mirrors useFrameExtractionPool's createGrabberRef: an inline probe
+	// option must not churn the watchdog effect below.
+	const probeSpriteRef = useRef( probeSprite );
+	probeSpriteRef.current = probeSprite;
 
-	useEffect( () => attachRevokeOnCacheDrop( queryClient ), [ queryClient ] );
+	useEffect( () => {
+		ensureFilmstripLifecycle( queryClient );
+	}, [ queryClient ] );
 
 	// One extraction pool (and thus one hidden <video>) per mounted hook,
 	// created lazily by the first extraction and destroyed — revoking every
@@ -386,6 +510,20 @@ export function useFilmstrip(
 				// to extraction.
 			}
 
+			// A video KNOWN to have a storyboard must never downgrade to
+			// extraction on a descriptor blip: invalidateFilmstrip fires right
+			// as the edit pipeline regenerates the sprite — the likeliest
+			// moment for the descriptor GET to 404 — and a cached 'frames'
+			// result would make every later invalidation a permanent no-op
+			// (stale pre-edit tiles for the rest of the session), besides
+			// burning up to MAX_FILMSTRIP_FRAMES seeks. Keep the cached
+			// descriptor instead: the strip stays as it was, and the next
+			// save/reload invalidation retries the endpoint.
+			const previous = queryClient.getQueryData< Filmstrip >( [ FILMSTRIP_QUERY_KEY, guid ] );
+			if ( previous?.status === 'storyboard' ) {
+				return previous;
+			}
+
 			if ( ! sourceUrl ) {
 				return UNAVAILABLE;
 			}
@@ -404,6 +542,58 @@ export function useFilmstrip(
 			return frames ? { status: 'frames', frames } : UNAVAILABLE;
 		},
 	} );
+
+	// Sprite watchdog. wpcom regenerates storyboards (adaptively after the
+	// first open, and on every edit job) and DELETES the old sprite file;
+	// tiles are painted as CSS background-image, so a dead sprite has no DOM
+	// error signal — the strip just goes blank. Probing each newly seen URL
+	// surfaces the failure, and the invalidation refetches the descriptor so
+	// the strip heals in place. No loop is possible, via two guards: a
+	// refetched descriptor carrying the SAME dead URL is reference-stable
+	// (structural sharing), so this effect never re-runs for it and the
+	// dead-URL set caps the spend at one refetch per distinct URL — and a
+	// server that mints a DISTINCT URL per fetch (signed/tokenized sprites,
+	// cache busters) is capped by the per-guid budget, which only a healthy
+	// probe replenishes. Either way a permanently dead sprite keeps today's
+	// blank tiles, and a page reload still heals it. No unmount cancellation
+	// on purpose: a failure landing after unmount still marks the query
+	// invalidated, so the NEXT mount refetches instead of repainting the
+	// dead sprite (an invalidated query is stale regardless of staleTime
+	// Infinity).
+	const storyboardUrl = query.data?.status === 'storyboard' ? query.data.storyboard.url : null;
+	useEffect( () => {
+		if ( ! storyboardUrl ) {
+			return;
+		}
+		const { deadSpriteUrls, spriteRefetchesSpent } = ensureFilmstripLifecycle( queryClient );
+		if ( deadSpriteUrls.has( storyboardUrl ) ) {
+			return;
+		}
+		void probeSpriteRef.current( storyboardUrl ).then(
+			() => {
+				// A healthy sprite refunds the guid's budget: the NEXT
+				// regeneration (edit job, adaptive regen) deserves its own
+				// heal, however many URLs this video has burned before.
+				spriteRefetchesSpent.delete( guid );
+			},
+			() => {
+				// Gate the invalidation here, not just at setup: concurrent
+				// mounts (and StrictMode double-effects) race the same URL to
+				// this handler, and only the first failure may spend the
+				// refetch.
+				if ( deadSpriteUrls.has( storyboardUrl ) ) {
+					return;
+				}
+				deadSpriteUrls.add( storyboardUrl );
+				const spent = spriteRefetchesSpent.get( guid ) ?? 0;
+				if ( spent >= SPRITE_WATCHDOG_REFETCH_BUDGET ) {
+					return;
+				}
+				spriteRefetchesSpent.set( guid, spent + 1 );
+				void queryClient.invalidateQueries( { queryKey: [ FILMSTRIP_QUERY_KEY, guid ] } );
+			}
+		);
+	}, [ storyboardUrl, guid, queryClient ] );
 
 	if ( query.data ) {
 		return query.data;

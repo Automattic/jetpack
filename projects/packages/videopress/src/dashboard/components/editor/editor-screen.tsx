@@ -34,7 +34,11 @@ import { __ } from '@wordpress/i18n';
 import { Link, useNavigate } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { useFilmstrip, useFrameExtractionPool } from '../../hooks/use-filmstrip';
+import {
+	invalidateFilmstrip,
+	useFilmstrip,
+	useFrameExtractionPool,
+} from '../../hooks/use-filmstrip';
 import { LIBRARY_QUERY_KEY } from '../../hooks/use-library';
 import { useRestoreOriginal } from '../../hooks/use-restore-original';
 import { EditsConflictError, useSaveVideoEdits } from '../../hooks/use-save-video-edits';
@@ -239,26 +243,13 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const lockedRef = useRef( locked );
 	lockedRef.current = locked;
 
-	// The chapters save is a plain meta POST (no processing job), so it locks
-	// only the Chapters tool and the header Save — the trim tool stays usable
-	// while it is in flight.
-	const chaptersLocked = locked || metaSavePending;
-
-	// The Chapters tool's store: a second history instance so undo/redo is
-	// per tool. Chapters live on the OUTPUT video, so its duration is the
-	// attachment's (not the trim session's original master duration).
-	const chapters = useChaptersStore( {
-		description: video.description,
-		durationMs: Math.round( video.durationSeconds * 1000 ),
-		locked: chaptersLocked,
-	} );
-	const { markSaved: markChaptersSaved, discard: discardChapters } = chapters;
-	const chaptersActive = activeTool === 'chapters';
-
 	// Manual-VTT probe, once per mount on the chapters tool's first
-	// activation: a manually uploaded chapters track must never be edited
-	// here, so 'manual' turns the tool read-only. Fails open ('editable') —
-	// the save-time sync re-checks the guard authoritatively.
+	// activation (a ?tool=chapters deep link makes that the very first
+	// render, so the probe starts at mount): a manually uploaded chapters
+	// track must never be edited here, so 'manual' turns the tool read-only.
+	// While the probe runs the tool is locked-busy, not editable — see
+	// chaptersLocked below. Fails open ('editable') — the save-time sync
+	// re-checks the guard authoritatively.
 	const [ chaptersProbe, setChaptersProbe ] = useState< 'unprobed' | 'manual' | 'editable' >(
 		'unprobed'
 	);
@@ -275,14 +266,45 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		probeManualTrack( videoRef.current ).then( setChaptersProbe );
 	}, [ activeTool ] );
 
+	// The chapters save is a plain meta POST (no processing job), so it locks
+	// only the Chapters tool and the header Save — the trim tool stays usable
+	// while it is in flight. While the manual-VTT probe is unresolved the
+	// chapters tool is LOCKED (busy), not read-only: edits made in the probe
+	// window could dirty a session that a late 'manual' result freezes
+	// un-editable, with Save still armed to rewrite a manually-managed
+	// description (the write-time guard protects the VTT file, not the
+	// description lines). 'unprobed' before the tool's first activation also
+	// locks the store, which is inert then — no dispatch source exists
+	// outside the active tool. A future consumer of this flag OUTSIDE the
+	// chapters branches would mis-lock on that never-activated state.
+	const chaptersLocked = locked || metaSavePending || chaptersProbe === 'unprobed';
+
+	// The Chapters tool's store: a second history instance so undo/redo is
+	// per tool. Chapters live on the OUTPUT video, so its duration is the
+	// attachment's (not the trim session's original master duration).
+	const chapters = useChaptersStore( {
+		description: video.description,
+		durationMs: Math.round( video.durationSeconds * 1000 ),
+		locked: chaptersLocked,
+	} );
+	const { markSaved: markChaptersSaved, discard: discardChapters } = chapters;
+	const chaptersActive = activeTool === 'chapters';
+
+	// Chapters dirt participates in Save and the navigation guards only once
+	// the probe has landed 'editable': the pending-probe lock means user dirt
+	// cannot arise earlier, and a 'manual' session must stay inert —
+	// defense-in-depth for the description rewrite, which the write-time
+	// guard does not cover.
+	const chaptersEffectiveDirty = chapters.chaptersDirty && chaptersProbe === 'editable';
+
 	// EITHER store dirty arms the navigation guards and enables Save/Discard.
-	const anyDirty = dirty || chapters.chaptersDirty;
+	const anyDirty = dirty || chaptersEffectiveDirty;
 	const anyDirtyRef = useRef( anyDirty );
 	anyDirtyRef.current = anyDirty;
 	// Refs into the chapters store for the save/discard callbacks, mirroring
 	// dirtyRef/sessionRef on the trim side.
-	const chaptersDirtyRef = useRef( chapters.chaptersDirty );
-	chaptersDirtyRef.current = chapters.chaptersDirty;
+	const chaptersDirtyRef = useRef( chaptersEffectiveDirty );
+	chaptersDirtyRef.current = chaptersEffectiveDirty;
 	const chaptersSessionRef = useRef( chapters.session );
 	chaptersSessionRef.current = chapters.session;
 
@@ -361,8 +383,11 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 			setCompletedKind( pendingJob.kind );
 			// Duration/poster may change once the real pipeline transcodes.
 			queryClient.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+			// Our job's grid regen deleted the old storyboard sprite; refetch
+			// the descriptor so the filmstrip repaints from the new one.
+			invalidateFilmstrip( queryClient, guid );
 		}
-	}, [ edits, baseline, pendingJob, reloadNonce, queryClient ] );
+	}, [ edits, baseline, pendingJob, reloadNonce, queryClient, guid ] );
 
 	// Completion notice, decoupled from the baseline-sync effect (see above).
 	useEffect( () => {
@@ -611,6 +636,9 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		// newer, which auto-baselines because the session is clean afterwards.
 		setReloadNonce( nonce => nonce + 1 );
 		queryClient.invalidateQueries( { queryKey: [ EDITS_QUERY_KEY, guid ] } );
+		// The user explicitly adopts the newest server state, and whatever
+		// foreign job produced it regenerated the storyboard grid too.
+		invalidateFilmstrip( queryClient, guid );
 	}, [ queryClient, guid ] );
 
 	const onConfirm = useCallback( () => {
@@ -628,7 +656,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	// 'trim' doubles as the fallback so the restore dialog (which ignores
 	// dirtiness) never indexes an undefined entry.
 	let dirtyParts: 'trim' | 'chapters' | 'both' = 'trim';
-	if ( chapters.chaptersDirty ) {
+	if ( chaptersEffectiveDirty ) {
 		dirtyParts = dirty ? 'both' : 'chapters';
 	}
 
@@ -758,7 +786,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 							! locked &&
 							! metaSavePending &&
 							! conflict &&
-							( ( dirty && baseline !== null ) || chapters.chaptersDirty )
+							( ( dirty && baseline !== null ) || chaptersEffectiveDirty )
 						}
 						onSave={ () => setConfirmAction( 'save' ) }
 						canRestoreOriginal={ Boolean( edits?.can_restore_original ) && ! locked && ! conflict }

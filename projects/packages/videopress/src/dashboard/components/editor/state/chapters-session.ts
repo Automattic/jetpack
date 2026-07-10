@@ -357,21 +357,54 @@ function moveStart( state: ChaptersSession, id: string, startMs: number ): Chapt
 }
 
 /**
- * Commit-time quantization: round every start carrying raw ms to its
- * nearest whole second, through the same clamp as MOVE_START. Dispatch as
- * the closing action of a marker drag (before COMMIT) so committed
- * sessions are always second-granular. Idempotent; a whole-second session
- * returns the same reference.
+ * Commit-time quantization: move every start carrying raw ms to a whole
+ * second inside its drag window. Dispatch as the closing action of a marker
+ * drag (before COMMIT) so committed sessions are always second-granular.
+ *
+ * Rounding to the nearest second and letting MOVE_START clamp is NOT enough:
+ * the clamp bounds themselves can be fractional — the last chapter's ceiling
+ * is `durationMs − CHAPTER_MIN_GAP_MS` (fractional for real media
+ * durations), and a mid-pass sibling can still carry raw ms — so
+ * round-then-clamp could commit (or silently keep, via the no-op equality
+ * check) a fractional start, breaking the committed-sessions-are-
+ * second-granular invariant. Instead the target is clamped to the GRID
+ * window `[ ceil( lower/1000 )·1000, floor( upper/1000 )·1000 ]`, which
+ * always lies inside the raw window, so MOVE_START applies it verbatim.
+ *
+ * The pass runs ascending from index 1 (the first chapter is pinned to 0,
+ * never fractional): each chapter's lower bound then sees an
+ * already-quantized predecessor, so one pass converges and is idempotent.
+ * The empty-grid-window skip is defense-in-depth only — with a whole-second
+ * predecessor an empty grid window implies an empty raw window, which
+ * MOVE_START already treats as immovable, so it is unreachable through
+ * actions. It exists for hand-corrupted states (e.g. persisted pre-fix
+ * sessions), where `validateRows` flags the leftover raw start at save time.
  *
  * @param state - Current session.
  * @return Next session.
  */
 function quantize( state: ChaptersSession ): ChaptersSession {
 	let next = state;
-	for ( const chapter of state.chapters ) {
-		if ( chapter.startMs % 1000 !== 0 ) {
-			next = moveStart( next, chapter.id, roundToWholeSecondMs( chapter.startMs ) );
+	for ( let index = 1; index < next.chapters.length; index++ ) {
+		const chapter = next.chapters[ index ];
+		if ( chapter.startMs % 1000 === 0 ) {
+			continue;
 		}
+		const lower = next.chapters[ index - 1 ].startMs + CHAPTER_MIN_GAP_MS;
+		const upper =
+			index === next.chapters.length - 1
+				? next.durationMs - CHAPTER_MIN_GAP_MS
+				: next.chapters[ index + 1 ].startMs - CHAPTER_MIN_GAP_MS;
+		const gridLower = Math.ceil( lower / 1000 ) * 1000;
+		const gridUpper = Math.floor( upper / 1000 ) * 1000;
+		if ( gridLower > gridUpper ) {
+			continue;
+		}
+		next = moveStart(
+			next,
+			chapter.id,
+			Math.min( gridUpper, Math.max( gridLower, roundToWholeSecondMs( chapter.startMs ) ) )
+		);
 	}
 	return next;
 }

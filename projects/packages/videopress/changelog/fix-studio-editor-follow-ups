@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: harden the editor follow-ups — chapter drags now commit whole seconds on fractional video durations, the Chapters tool locks while the manual-chapters probe is in flight so edits can't race a manually managed track, and the timeline filmstrip refreshes after edit jobs regenerate the storyboard sprite instead of painting blank tiles.
