@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Tiled Gallery: add a `jetpack_skip_photon_domain` filter to serve images from the origin host (keeping the resizing query args) instead of routing them through the Photon domain, for platforms with a built-in image service such as WordPress VIP.

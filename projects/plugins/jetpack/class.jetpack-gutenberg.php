@@ -881,6 +881,8 @@ class Jetpack_Gutenberg {
 				'jetpack_plan'                  => array(
 					'data' => $jetpack_plan['product_slug'],
 				),
+				/** This filter is documented in modules/tiled-gallery/tiled-gallery/tiled-gallery-item.php */
+				'skip_photon_domain'            => (bool) apply_filters( 'jetpack_skip_photon_domain', false ),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *

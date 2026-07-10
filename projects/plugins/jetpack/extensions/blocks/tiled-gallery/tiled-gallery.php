@@ -68,6 +68,11 @@ class Tiled_Gallery {
 		$jetpack_plan = Jetpack_Plan::get();
 		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
+		/** This filter is documented in modules/tiled-gallery/tiled-gallery/tiled-gallery-item.php */
+		$skip_photon_domain = (bool) apply_filters( 'jetpack_skip_photon_domain', false );
+		// Expose the opt-out flag to the block's save-time JS (see photonizedImgProps() in utils/index.js).
+		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_tiled_gallery_settings', array( 'skip_photon_domain' => $skip_photon_domain ) );
+
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**
 			 * This block processes all of the images that are found and builds $find and $replace.
@@ -103,6 +108,13 @@ class Tiled_Gallery {
 						continue;
 					}
 
+					// When the site opts out of the Photon domain, rewrite any already-baked-in
+					// i0.wp.com URLs back to their origin host so the srcset (and main src, below)
+					// serve from origin.
+					if ( $skip_photon_domain ) {
+						$orig_src = self::dephotonize_url( $orig_src, $is_ssl );
+					}
+
 					$srcset_parts = array();
 					if ( $is_squareish_layout ) {
 						$min_width = min( self::IMG_SRCSET_WIDTH_MIN, $orig_width, $orig_height );
@@ -116,7 +128,8 @@ class Tiled_Gallery {
 								),
 								$orig_src
 							);
-							if ( $is_ssl ) {
+							// `ssl` is a Photon-only signal; skip it on origin URLs when opting out of the Photon domain.
+							if ( $is_ssl && ! $skip_photon_domain ) {
 								$srcset_src = add_query_arg( 'ssl', '1', $srcset_src );
 							}
 							$srcset_parts[] = esc_url( $srcset_src ) . ' ' . $w . 'w';
@@ -136,7 +149,8 @@ class Tiled_Gallery {
 								),
 								$orig_src
 							);
-							if ( $is_ssl ) {
+							// `ssl` is a Photon-only signal; skip it on origin URLs when opting out of the Photon domain.
+							if ( $is_ssl && ! $skip_photon_domain ) {
 								$srcset_src = add_query_arg( 'ssl', '1', $srcset_src );
 							}
 							$srcset_parts[] = esc_url( $srcset_src ) . ' ' . $w . 'w';
@@ -151,8 +165,20 @@ class Tiled_Gallery {
 					if ( ! empty( $srcset_parts ) ) {
 						$srcset = 'srcset="' . esc_attr( implode( ',', $srcset_parts ) ) . '"';
 
+						$replacement = str_replace( '<img', $img_element . $srcset, $image_html );
+
+						// Also rewrite the main src attribute off i0.wp.com when opting out of the
+						// Photon domain so pre-existing content serves the image itself from origin.
+						if ( $skip_photon_domain ) {
+							$replacement = str_replace(
+								$img_src[1],
+								self::dephotonize_url( $img_src[1], $is_ssl ),
+								$replacement
+							);
+						}
+
 						$find[]    = $image_html;
-						$replace[] = str_replace( '<img', $img_element . $srcset, $image_html );
+						$replace[] = $replacement;
 					}
 				}
 			}
@@ -216,6 +242,29 @@ class Tiled_Gallery {
 				'is-style-square' === $attr['className']
 				|| 'is-style-circle' === $attr['className']
 			);
+	}
+
+	/**
+	 * Rewrite a Photon (i0/i1/i2.wp.com) image URL back to its origin host.
+	 *
+	 * Photon URLs take the form https://i0.wp.com/<origin-host>/<path>?<args>. This restores
+	 * the origin URL (<scheme>://<origin-host>/<path>?<args>) so that, when a site opts out of
+	 * the Photon domain via the `jetpack_skip_photon_domain` filter, tiled gallery images are served
+	 * from the origin host while keeping their resizing query args. The Photon-specific `ssl`
+	 * argument is dropped. URLs that are not Photon URLs are returned unchanged.
+	 *
+	 * @param string $url    The (possibly Photon) image URL.
+	 * @param bool   $is_ssl Whether the origin URL should use https (detected from the Photon ssl arg).
+	 * @return string The origin URL, or the original URL if it was not a Photon URL.
+	 */
+	private static function dephotonize_url( $url, $is_ssl = true ) {
+		if ( ! preg_match( '#^(?:https?:)?//i[0-2]\.wp\.com/(.+)$#', $url, $matches ) ) {
+			return $url;
+		}
+
+		$origin = ( $is_ssl ? 'https://' : 'http://' ) . $matches[1];
+
+		return remove_query_arg( 'ssl', $origin );
 	}
 
 	/**

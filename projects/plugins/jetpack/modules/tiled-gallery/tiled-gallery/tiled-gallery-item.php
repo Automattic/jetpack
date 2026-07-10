@@ -110,9 +110,33 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		if ( $this->image->height === $this->image->width ) {
 			$img_args['crop'] = true;
 		}
-		// The function will always photonoize the URL (even if Photon is
-		// not active). We need to photonize the URL to set the width/height.
-		$this->img_src = Image_CDN_Core::cdn_url( $this->orig_file, $img_args );
+		/**
+		 * Allow sites to opt out of routing Tiled Gallery images through the Photon domain (the
+		 * Jetpack Image CDN / i0.wp.com), while still appending the same resizing query args the
+		 * tiled layout needs (w, h, crop, resize, strip).
+		 *
+		 * This is primarily intended for platforms such as WordPress VIP where a Photon-equivalent
+		 * image service is built in and already understands those query args on the origin host, so
+		 * rewriting URLs onto i0.wp.com is redundant or undesirable.
+		 *
+		 * When this returns true, image URLs keep their original domain and the args are simply
+		 * added as query parameters instead of being sent through Image_CDN_Core::cdn_url().
+		 *
+		 * @module tiled-gallery
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool false Whether to skip the Photon domain and keep origin image URLs. Default false.
+		 */
+		if ( apply_filters( 'jetpack_skip_photon_domain', false ) ) {
+			// Keep the origin URL, but append the same query args Photon would have used so a
+			// platform-level image service (e.g. VIP) can resize/crop from the same parameters.
+			$this->img_src = add_query_arg( $img_args, $this->orig_file );
+		} else {
+			// The function will always photonoize the URL (even if Photon is
+			// not active). We need to photonize the URL to set the width/height.
+			$this->img_src = Image_CDN_Core::cdn_url( $this->orig_file, $img_args );
+		}
 
 		$image_meta = wp_get_attachment_metadata( $attachment_image->ID );
 		$size_array = array( absint( $this->image->width ), absint( $this->image->height ) );

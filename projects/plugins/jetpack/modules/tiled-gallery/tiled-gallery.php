@@ -241,8 +241,12 @@ class Jetpack_Tiled_Gallery {
 
 			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( Image_CDN::class ) ) {
 				// Tiled Galleries in Jetpack require that Photon be active.
-				// If it's not active, run it just on the gallery output.
-				if ( ! Image_CDN::is_enabled() && ! ( new Status() )->is_offline_mode() ) {
+				// If it's not active, run it just on the gallery output — unless the site has
+				// opted out of Photon for tiled galleries (e.g. VIP with a built-in image service),
+				// in which case we must not rewrite the origin URLs back onto i0.wp.com.
+				/** This filter is documented in modules/tiled-gallery/tiled-gallery/tiled-gallery-item.php */
+				if ( ! apply_filters( 'jetpack_skip_photon_domain', false )
+					&& ! Image_CDN::is_enabled() && ! ( new Status() )->is_offline_mode() ) {
 					$gallery_html = Image_CDN::filter_the_content( $gallery_html );
 				}
 			}

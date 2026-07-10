@@ -59,7 +59,10 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation = true === isVIP() || isSimpleSite() ? photonWpcomImage : photon;
+	// When a site opts out of the Photon domain (e.g. VIP with a platform image service), keep the
+	// origin host and just append the resizing query args — the behavior `photonWpcomImage` provides.
+	const photonImplementation =
+		skipPhotonDomain() || true === isVIP() || isSimpleSite() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -127,6 +130,25 @@ function isVIP() {
 		jetpackPlan = jetpack_plan;
 	}
 	return jetpackPlan && jetpackPlan?.data === 'vip';
+}
+
+/**
+ * Whether the site has opted out of routing tiled gallery images through the Photon domain via the
+ * `jetpack_skip_photon_domain` PHP filter. The value is exposed to the editor through the Jetpack
+ * block editor initial state, with a localized `jetpack_tiled_gallery_settings` fallback (both set
+ * in tiled-gallery.php / class.jetpack-gutenberg.php).
+ *
+ * @return {boolean} True if the Photon domain should be skipped in favor of origin URLs.
+ */
+function skipPhotonDomain() {
+	/*global jetpack_tiled_gallery_settings*/
+	if ( typeof window?.Jetpack_Editor_Initial_State?.jetpack?.skip_photon_domain !== 'undefined' ) {
+		return !! window.Jetpack_Editor_Initial_State.jetpack.skip_photon_domain;
+	}
+	if ( typeof jetpack_tiled_gallery_settings !== 'undefined' ) {
+		return !! jetpack_tiled_gallery_settings?.skip_photon_domain;
+	}
+	return false;
 }
 
 /**
