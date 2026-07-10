@@ -23466,12 +23466,12 @@ snapshots:
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.5)(webpack@5.107.2)':
     dependencies:
@@ -37753,7 +37753,7 @@ snapshots:
       watchpack: 2.5.1
       webpack-sources: 3.5.0
     optionalDependencies:
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack@5.107.2)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@swc/core'
