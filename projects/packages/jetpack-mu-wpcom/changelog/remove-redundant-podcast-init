@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: load the module only on Simple (where Jetpack has no module-system loader); Atomic now loads it through the Jetpack module system.
