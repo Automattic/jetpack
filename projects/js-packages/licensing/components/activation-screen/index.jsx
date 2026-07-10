@@ -77,6 +77,10 @@ const ActivationScreen = props => {
 	useEffect( () => {
 		if ( availableLicenses && availableLicenses[ 0 ] ) {
 			setLicense( availableLicenses[ 0 ].license_key );
+			// A refetch swaps in a new key, so clear any error left over from the
+			// previous key (setLicense alone bypasses the onLicenseChange path that
+			// normally clears it).
+			setLicenseError( null );
 		}
 	}, [ availableLicenses ] );
 
