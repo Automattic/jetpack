@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Posting activity: Show the full selected date range in the heatmap when activity is sparse.

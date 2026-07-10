@@ -27,6 +27,8 @@ type PostingActivityRenderAttributes = PostingActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
+const getDatePart = ( value?: string ) => value?.split( 'T' )[ 0 ];
+
 /**
  * Fetches the posting-activity streak through the designated `useStatsStreak`
  * hook and renders it as a calendar heatmap. The `stats/streak` endpoint
@@ -49,8 +51,11 @@ function PostingActivityInner() {
 				value,
 			} )
 		);
-		return buildCalendarHeatmapData( series );
-	}, [ data ] );
+		return buildCalendarHeatmapData( series, {
+			startDate: getDatePart( reportParams.from ),
+			endDate: getDatePart( reportParams.to ),
+		} );
+	}, [ data, reportParams.from, reportParams.to ] );
 
 	const hasData = heatmapData.length > 0;
 
