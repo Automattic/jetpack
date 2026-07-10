@@ -28,12 +28,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import AllTimeStatsRender from '../render';
 import widgetDefinition, {
 	DEFAULT_ALL_TIME_STATS_METRICS,
 	type AllTimeStatsMetricId,
 } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -125,13 +126,6 @@ function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 		queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
 	};
 }
-
-// Close-up canvas so the stat list fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', maxWidth: '480px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/AllTimeStats',

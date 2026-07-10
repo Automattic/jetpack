@@ -11,13 +11,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscriberHighlightsRender from '../render';
 import widgetDefinition, { DEFAULT_SUBSCRIBER_METRICS, type SubscriberMetricId } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -83,13 +84,6 @@ const METRIC_ARG_TYPES = {
 const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_SUBSCRIBER_METRICS,
 } as const;
-
-// Close-up canvas so the grid fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscriberHighlights',

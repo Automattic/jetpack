@@ -15,9 +15,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoPressRender from '../render';
 import widgetDefinition, { DEFAULT_MAX } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -60,13 +61,6 @@ function renderVideoPressOnPreset( preset: PresetType ) {
 		/>
 	);
 }
-
-// Close-up canvas so the leaderboard fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '360px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/VideoPress',

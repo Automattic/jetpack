@@ -6,6 +6,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
 import {
 	registerReportMocks,
@@ -13,7 +14,7 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import NetSalesOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -37,12 +38,6 @@ type NetSalesOverTimeStoryProps = NetSalesOverTimeWidgetProps & NetSalesOverTime
 interface NetSalesOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		NetSalesOverTimeStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getNetSalesOverTimeAttributes(
 	withComparison = false,

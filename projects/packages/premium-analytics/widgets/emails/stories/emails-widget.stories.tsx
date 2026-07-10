@@ -21,6 +21,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailsRender, { EmailsLeaderboard, type EmailRow } from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
@@ -104,16 +105,6 @@ const mockLongLabelRows: EmailRow[] = [
 		clicksRate: 6.7,
 	},
 ];
-
-/**
- * Close-up canvas so the widget fills a real body area outside the dashboard
- * grid — the loading overlay and empty state need a sized container to render in.
- */
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '320px' } }>
-		<Story />
-	</div>
-);
 
 /**
  * Default populated state — latest emails (newest first) with their open rate.

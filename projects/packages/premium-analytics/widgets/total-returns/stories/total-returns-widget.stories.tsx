@@ -10,9 +10,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TotalReturnsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -35,12 +36,6 @@ type TotalReturnsStoryProps = TotalReturnsWidgetProps & TotalReturnsStoryControl
 interface TotalReturnsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		TotalReturnsStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getTotalReturnsAttributes(
 	withComparison = false,

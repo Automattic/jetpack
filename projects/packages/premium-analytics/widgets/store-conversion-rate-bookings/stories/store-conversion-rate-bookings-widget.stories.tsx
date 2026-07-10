@@ -8,10 +8,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import StoreConversionRateBookingsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -46,12 +47,6 @@ type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsWidgetPr
 interface StoreConversionRateBookingsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		StoreConversionRateBookingsStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 /**
  * Builds a mock conversion-rate report response.

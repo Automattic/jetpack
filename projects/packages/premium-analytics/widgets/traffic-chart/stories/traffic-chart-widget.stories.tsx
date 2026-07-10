@@ -8,6 +8,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
@@ -70,13 +71,6 @@ function renderTrafficChartOnPreset( preset: PresetType ) {
 		<TrafficChartRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
-
-// Close-up canvas so the chart fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '360px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/TrafficChart',

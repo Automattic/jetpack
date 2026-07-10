@@ -6,6 +6,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { WidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
@@ -37,9 +38,9 @@ interface VisitorsByLocationDashboardStoryProps
 
 const withWidgetCanvas: Decorator = Story => (
 	<GlobalErrorProvider>
-		<div style={ { width: '100%', height: '300px' } }>
+		<WidgetCanvas>
 			<Story />
-		</div>
+		</WidgetCanvas>
 	</GlobalErrorProvider>
 );
 

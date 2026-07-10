@@ -7,12 +7,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import ConversionRateRender from '../render';
 import widgetDefinition from '../widget';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -89,12 +90,6 @@ type ConversionRateStoryProps = ConversionRateWidgetProps & ConversionRateStoryC
 interface ConversionRateDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		ConversionRateStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getConversionRateAttributes(
 	withComparison = false,

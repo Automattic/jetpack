@@ -17,10 +17,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostingActivityRender from '../render';
 import widgetDefinition from '../widget';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -137,13 +138,6 @@ function renderPostingActivityOnPreset( preset: PresetType ) {
 		/>
 	);
 }
-
-// Close-up canvas so the heatmap fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostingActivity',

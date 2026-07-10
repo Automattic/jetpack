@@ -6,6 +6,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
@@ -13,7 +14,7 @@ import {
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
 import VisitorsOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -38,12 +39,6 @@ type VisitorsOverTimeStoryProps = VisitorsOverTimeWidgetProps & VisitorsOverTime
 interface VisitorsOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		VisitorsOverTimeStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getVisitorsOverTimeAttributes(
 	withComparison = false,

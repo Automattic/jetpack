@@ -5,12 +5,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import DevicesRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -35,12 +36,6 @@ interface DevicesStoryControls {
 interface DevicesDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		DevicesStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '380px' } }>
-		<Story />
-	</div>
-);
 
 function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
 	return (

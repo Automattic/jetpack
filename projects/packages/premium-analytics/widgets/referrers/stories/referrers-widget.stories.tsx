@@ -14,9 +14,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import ReferrersRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -39,12 +40,6 @@ interface ReferrersStoryControls {
 interface ReferrersDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		ReferrersStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '340px' } }>
-		<Story />
-	</div>
-);
 
 function renderReferrersWidget( { withComparison }: ReferrersStoryControls ) {
 	return (

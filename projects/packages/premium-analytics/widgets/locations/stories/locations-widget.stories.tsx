@@ -5,12 +5,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import LocationsRender from '../render';
 import widgetDefinition, { type LocationsAttributes } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -36,12 +37,6 @@ interface LocationsStoryControls {
 interface LocationsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		LocationsStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getLocationsAttributes( {
 	withComparison,
