@@ -11,6 +11,7 @@
 	gap: var(--wpds-dimension-gap-xs);
 	width: fit-content;
 	padding: var(--wpds-dimension-padding-xs);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-md);
-	background-color: var(--wpds-color-background-surface-neutral-strong);
+	background-color: var(--wpds-color-background-surface-neutral-weak);
 }
