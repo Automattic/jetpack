@@ -1,9 +1,19 @@
 /**
+ * External dependencies
+ */
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
+/**
  * Internal dependencies
  */
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
-import { TopPostsLeaderboard, type TopPostRow } from '../render';
+import TopPostsWidget, { TopPostsLeaderboard, type TopPostRow } from '../render';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
+
+registerReportMocks();
 
 const meta: Meta< typeof TopPostsLeaderboard > = {
 	title: 'Packages/Premium Analytics/Widgets/TopPosts',
@@ -111,34 +121,6 @@ export const WithComparison: Story = {
 };
 
 /**
- * Loading state — the chart renders its loading overlay while data is fetched.
- */
-export const Loading: Story = {
-	args: {
-		rows: [],
-		isLoading: true,
-	},
-};
-
-/**
- * Empty state — no views were recorded for the selected period.
- */
-export const NoViews: Story = {
-	args: {
-		rows: [],
-	},
-};
-
-/**
- * Error state — the report could not be loaded.
- */
-export const ErrorState: Story = {
-	args: {
-		isError: true,
-	},
-};
-
-/**
  * Long titles are truncated with an ellipsis so rows stay single-line.
  */
 export const LongLabels: Story = {
@@ -192,4 +174,61 @@ export const SizeLarge: Story = {
 		rows: mockRows,
 	},
 	decorators: [ createSizeDecorator( '576px' ) ],
+};
+
+// Renders the data-connected widget on a preset distinct from the other
+// stories. The query key derives from the date range, so a unique preset gives
+// the forced-state stories their own cache entry and they hit the mock fresh
+// instead of reading another story's cached success from the shared query
+// client.
+function renderTopPostsOnPreset( preset: PresetType ) {
+	return (
+		<TopPostsWidget
+			attributes={ { num: 10, reportParams: getDefaultQueryParams( false, preset ) } }
+		/>
+	);
+}
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderTopPostsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ createSizeDecorator( '448px', '360px' ) ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-posts', 'loading' );
+		return () => setReportMockState( 'stats/top-posts', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderTopPostsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ createSizeDecorator( '448px', '360px' ) ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-posts', 'error' );
+		return () => setReportMockState( 'stats/top-posts', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral chart
+ * glyph and "No views in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderTopPostsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ createSizeDecorator( '448px', '360px' ) ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-posts', 'empty' );
+		return () => setReportMockState( 'stats/top-posts', null );
+	},
 };
