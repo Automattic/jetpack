@@ -1,3 +1,16 @@
 .date-range-filter {
 	width: 100%;
 }
+
+// Composite group: preset pills plus the custom-range trigger presented as
+// one control.
+.date-range-filter__group {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	width: fit-content;
+	padding: var(--wpds-dimension-padding-xs);
+	border-radius: var(--wpds-border-radius-md);
+	background-color: var(--wpds-color-background-surface-neutral-strong);
+}

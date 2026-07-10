@@ -8,8 +8,9 @@ import {
 	PRESET_CUSTOM,
 	type SelectablePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Composite } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, SelectControl, Stack } from '@wordpress/ui';
+import { Button, SelectControl } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -34,7 +35,7 @@ type DateRangeQuickPresetsProps = {
 	timeZone: string;
 
 	/**
-	 * When true, presets render as a select instead of wrapping pills.
+	 * When true, presets render as a select instead of composite pills.
 	 */
 	isCompact?: boolean;
 };
@@ -101,22 +102,30 @@ export function DateRangeQuickPresets( {
 		);
 	}
 
+	/*
+	 * Each pill joins the roving tabindex of the surrounding `Composite`
+	 * group that `DateRangeFilter` renders.
+	 */
 	return (
-		<Stack direction="row" gap="xs" wrap="wrap" align="center">
+		<>
 			{ presets.map( ( { id, label } ) => (
-				<Button
+				<Composite.Item
 					key={ id }
-					className="date-range-quick-presets__pill"
-					variant={ value === id ? 'solid' : 'minimal' }
-					tone="neutral"
-					size="compact"
-					aria-pressed={ value === id }
-					onClick={ () => selectPreset( id ) }
+					render={
+						<Button
+							className="date-range-quick-presets__pill"
+							variant={ value === id ? 'solid' : 'minimal' }
+							tone="neutral"
+							size="compact"
+							aria-pressed={ value === id }
+							onClick={ () => selectPreset( id ) }
+						/>
+					}
 				>
 					{ label }
-				</Button>
+				</Composite.Item>
 			) ) }
-		</Stack>
+		</>
 	);
 }
 

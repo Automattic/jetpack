@@ -4,7 +4,7 @@
 import { DateRangeCalendar } from '@automattic/ui';
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import { Dropdown } from '@wordpress/components';
+import { Composite, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -215,6 +215,13 @@ type DateRangePopoverProps = DateRangePopoverContentProps & {
 	 * (e.g. the comparison label that follows the primary range).
 	 */
 	onOpenChange?: ( isOpen: boolean ) => void;
+
+	/**
+	 * Render the trigger as a `Composite.Item` so it joins the roving tabindex
+	 * of a surrounding `Composite` group (the date-filter surface). Leave unset
+	 * when the popover renders standalone.
+	 */
+	triggerAsCompositeItem?: boolean;
 };
 
 export function DateRangePopover( {
@@ -229,6 +236,7 @@ export function DateRangePopover( {
 	timeZone,
 	onOpenChange,
 	isWideScreen = false,
+	triggerAsCompositeItem = false,
 }: DateRangePopoverProps ) {
 	const [ rememberedCustomRange, setRememberedCustomRange ] =
 		useState< RememberedCustomRange | null >( null );
@@ -305,22 +313,26 @@ export function DateRangePopover( {
 				className: 'date-filters-panel__popover',
 			} }
 			onToggle={ handleOpenToggle }
-			renderToggle={ ( { onToggle } ) => (
-				<Button
-					className={ clsx( 'date-filters-panel-button', {
-						'date-filters-panel-button--custom': triggerState === 'applied',
-						'date-filters-panel-button--custom-staged': triggerState === 'staged',
-					} ) }
-					variant={ customDateRangeButtonVariant }
-					tone="neutral"
-					onClick={ onToggle }
-					size="compact"
-					id="date-range-popover-button"
-					data-state={ triggerState }
-				>
-					{ triggerLabel }
-				</Button>
-			) }
+			renderToggle={ ( { onToggle } ) => {
+				const trigger = (
+					<Button
+						className={ clsx( 'date-filters-panel-button', {
+							'date-filters-panel-button--custom': triggerState === 'applied',
+							'date-filters-panel-button--custom-staged': triggerState === 'staged',
+						} ) }
+						variant={ customDateRangeButtonVariant }
+						tone="neutral"
+						onClick={ onToggle }
+						size="compact"
+						id="date-range-popover-button"
+						data-state={ triggerState }
+					>
+						{ triggerLabel }
+					</Button>
+				);
+
+				return triggerAsCompositeItem ? <Composite.Item render={ trigger } /> : trigger;
+			} }
 			renderContent={ ( { onClose } ) => (
 				<DateRangePopoverContent
 					range={ range }

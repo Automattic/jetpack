@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { PRESET_CUSTOM, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
+import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
@@ -78,28 +80,54 @@ export function DateRangeFilter( {
 		[ onApply, onChange ]
 	);
 
-	return (
-		<Stack className="date-range-filter" direction="row" gap="sm" wrap="wrap" align="center">
-			<DateRangeQuickPresets
-				value={ surfacePresetId }
-				onSelect={ handlePresetSelect }
-				timeZone={ timeZone }
-				isCompact={ isCompact }
-			/>
+	const quickPresets = (
+		<DateRangeQuickPresets
+			value={ surfacePresetId }
+			onSelect={ handlePresetSelect }
+			timeZone={ timeZone }
+			isCompact={ isCompact }
+		/>
+	);
 
-			<DateRangePopover
-				presetId={ presetId ?? PRESET_CUSTOM }
-				range={ range }
-				appliedPresetId={ appliedPresetId }
-				appliedRange={ appliedRange }
-				onChange={ onChange }
-				onApply={ onApply }
-				onCancel={ onCancel }
-				canApply={ canApply }
-				timeZone={ timeZone }
-				isWideScreen={ isWideScreen }
-				onOpenChange={ onOpenChange }
-			/>
-		</Stack>
+	const customRangePopover = (
+		<DateRangePopover
+			presetId={ presetId ?? PRESET_CUSTOM }
+			range={ range }
+			appliedPresetId={ appliedPresetId }
+			appliedRange={ appliedRange }
+			onChange={ onChange }
+			onApply={ onApply }
+			onCancel={ onCancel }
+			canApply={ canApply }
+			timeZone={ timeZone }
+			isWideScreen={ isWideScreen }
+			onOpenChange={ onOpenChange }
+			triggerAsCompositeItem={ ! isCompact }
+		/>
+	);
+
+	if ( isCompact ) {
+		return (
+			<Stack className="date-range-filter" direction="row" gap="sm" wrap="wrap" align="center">
+				{ quickPresets }
+				{ customRangePopover }
+			</Stack>
+		);
+	}
+
+	/*
+	 * One composite group: preset pills plus the custom-range trigger share a
+	 * single tab stop with arrow-key navigation between them.
+	 */
+	return (
+		<Composite
+			className="date-range-filter__group"
+			role="toolbar"
+			aria-label={ __( 'Date range', 'jetpack-premium-analytics' ) }
+			orientation="horizontal"
+		>
+			{ quickPresets }
+			{ customRangePopover }
+		</Composite>
 	);
 }
