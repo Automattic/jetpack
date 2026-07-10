@@ -14,6 +14,7 @@ import {
 	useMemo,
 	useState,
 } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
@@ -96,7 +97,7 @@ export default () => {
 				<>
 					<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
 						<Text variant="body-md" render={ <p /> }>
-							{ prompt.text }
+							{ decodeEntities( prompt.text ) }
 						</Text>
 						<Stack direction="row" justify="flex-end">
 							<Button
