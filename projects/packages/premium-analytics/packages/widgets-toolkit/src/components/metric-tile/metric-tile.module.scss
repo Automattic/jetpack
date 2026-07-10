@@ -75,14 +75,25 @@
 	.tile {
 		flex-direction: column;
 		align-items: center;
-		justify-content: center;
-		gap: var(--wpds-dimension-gap-lg, 16px);
-		padding: var(--wpds-dimension-padding-2xl, 32px) var(--wpds-dimension-padding-lg, 16px);
+		gap: 0;
+		padding: 0 var(--wpds-dimension-padding-lg, 16px);
+		min-height: 0;
+	}
+
+	/* Vertical breathing room as flexible spacers instead of fixed padding:
+	 * they grow equally to center the content when the tile is tall, and
+	 * shrink to zero when the container is short, so the tile can compress
+	 * to its content before the widget falls back to scrolling. */
+	.tile::before,
+	.tile::after {
+		content: "";
+		flex: 1 1 var(--wpds-dimension-padding-2xl, 32px);
 	}
 
 	.header {
 		justify-content: center;
 		text-align: center;
+		margin-bottom: var(--wpds-dimension-gap-lg, 16px);
 	}
 
 	.tile .value,
