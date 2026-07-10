@@ -1,4 +1,4 @@
-import { aggregateArchiveRows, postsToTimeSeries } from './aggregate';
+import { aggregateArchiveRows, aggregatePostRows, postsToTimeSeries } from './aggregate';
 import type {
 	StatsArchivesItem,
 	StatsNormalizedReport,
@@ -6,7 +6,7 @@ import type {
 } from '@jetpack-premium-analytics/data';
 
 describe( 'report posts aggregate', () => {
-	it( 'preserves query bucket dates when building the chart time series', () => {
+	it( 'includes the homepage row in chart and table aggregations', () => {
 		const report: StatsNormalizedReport< StatsTopPostsItem > = {
 			summary: {},
 			data: [
@@ -23,9 +23,10 @@ describe( 'report posts aggregate', () => {
 							type: 'post',
 						},
 						{
-							label: 'Home page / Archives',
+							id: 0,
+							label: 'Homepage (Latest posts)',
 							views: 5,
-							link: 'https://example.com/',
+							link: null,
 							type: 'homepage',
 						},
 					],
@@ -42,6 +43,13 @@ describe( 'report posts aggregate', () => {
 							link: 'https://example.com/post-a/',
 							type: 'post',
 						},
+						{
+							id: 0,
+							label: 'Homepage (Latest posts)',
+							views: 7,
+							link: null,
+							type: 'homepage',
+						},
 					],
 				},
 			],
@@ -54,7 +62,21 @@ describe( 'report posts aggregate', () => {
 			date_end: '2026-06-14T23:59:59+00:00',
 		} );
 		expect( series.data.map( point => point.time_interval ) ).toEqual( [ '2026-W23', '2026-W24' ] );
-		expect( series.data.map( point => point.views ) ).toEqual( [ 10, 12 ] );
+		expect( series.data.map( point => point.views ) ).toEqual( [ 15, 19 ] );
+		expect( aggregatePostRows( report ) ).toEqual( [
+			expect.objectContaining( {
+				id: 1,
+				label: 'Post A',
+				views: 22,
+			} ),
+			expect.objectContaining( {
+				id: 0,
+				label: 'Homepage (Latest posts)',
+				views: 12,
+				link: null,
+				type: 'homepage',
+			} ),
+		] );
 	} );
 
 	it( 'flattens archive table rows to leaf archive URL paths', () => {

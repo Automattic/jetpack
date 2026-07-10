@@ -21,19 +21,10 @@ import type {
  * Deriving both from the same report keeps the chart scoped to exactly the
  * records listed below it — a site-wide series (or a separately summarized
  * report) would count views the table doesn't show.
- */
-
-/**
- * Whether a top-posts row is an actual post/page. The endpoint mixes in a
- * synthetic "Home page / Archives" aggregate, which belongs to the Archives
- * tab.
  *
- * @param item - The top-posts row.
- * @return Whether the row is a post/page.
+ * With `skip_archives=1`, top posts includes the homepage-only row while
+ * archives omits its home group, so no cross-tab filtering is needed.
  */
-export function isPostRow( item: StatsTopPostsItem ): boolean {
-	return item.type !== 'homepage';
-}
 
 /**
  * Build a chart time series from a bucketed report.
@@ -85,9 +76,7 @@ function toTimeSeries< TItem extends StatsNormalizedItem >(
 export function postsToTimeSeries(
 	report: StatsNormalizedReport< StatsTopPostsItem > | undefined
 ): StatsTimeSeriesReport {
-	return toTimeSeries( report, items =>
-		items.filter( isPostRow ).reduce( ( total, item ) => total + item.views, 0 )
-	);
+	return toTimeSeries( report, items => items.reduce( ( total, item ) => total + item.views, 0 ) );
 }
 
 /**
@@ -105,8 +94,8 @@ export function archivesToTimeSeries(
 }
 
 /**
- * Aggregate the bucketed top-posts report into one table row per post/page,
- * summing views across buckets.
+ * Aggregate the bucketed top-posts report into one table row per post/page or
+ * homepage, summing views across buckets.
  *
  * @param report - The bucketed top-posts report.
  * @return The table rows.
@@ -118,10 +107,6 @@ export function aggregatePostRows(
 
 	for ( const point of report?.data ?? [] ) {
 		for ( const item of point.items ) {
-			if ( ! isPostRow( item ) ) {
-				continue;
-			}
-
 			const key = String( item.id ?? item.label );
 			const existing = byKey.get( key );
 

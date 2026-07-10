@@ -3,8 +3,6 @@
  */
 import {
 	normalizeReportParams,
-	useStatsArchives,
-	useStatsTopPosts,
 	type IntervalType,
 	type StatsPeriod,
 	type StatsTopPostsItem,
@@ -31,14 +29,11 @@ import { useNavigate, useSearch } from '@wordpress/route';
  */
 import { route } from '../package.json';
 import {
-	aggregateArchiveRows,
-	aggregatePostRows,
-	archivesToTimeSeries,
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
-	postsToTimeSeries,
 	resolveTabId,
+	useReportRecords,
 	type ArchiveRow,
 } from './config';
 import styles from './page.module.css';
@@ -145,48 +140,7 @@ function PostsReport(): JSX.Element {
 	const chartPeriod = isChartPeriod( search.period )
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
-
-	/*
-	 * One bucketed report per tab feeds both the chart and the table (see
-	 * `config/aggregate.ts`), so the chart is scoped to exactly the records
-	 * shown below it. `summarize: 0` opts out of the data layer's automatic
-	 * summarization to get the buckets; `period` comes from the chart control
-	 * and is written to the URL. `max: 0` asks for every row so
-	 * search/sort/pagination run client-side. Each tab's report only fetches
-	 * while its tab is active.
-	 */
-	const recordsParams = useMemo(
-		() => ( { ...reportParams, max: 0, summarize: 0, period: chartPeriod } ),
-		[ reportParams, chartPeriod ]
-	);
-	const posts = useStatsTopPosts( recordsParams, { enabled: activeTab === 'posts-pages' } );
-	const archives = useStatsArchives( recordsParams, { enabled: activeTab === 'archives' } );
-
-	const activeReport = activeTab === 'posts-pages' ? posts : archives;
-
-	const chartPrimary = useMemo( () => {
-		return activeTab === 'posts-pages'
-			? postsToTimeSeries( posts.primary.data )
-			: archivesToTimeSeries( archives.primary.data );
-	}, [ activeTab, posts.primary.data, archives.primary.data ] );
-	const chartComparison = useMemo( () => {
-		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
-			return undefined;
-		}
-
-		return activeTab === 'posts-pages'
-			? postsToTimeSeries( posts.comparison.data )
-			: archivesToTimeSeries( archives.comparison.data );
-	}, [ activeTab, reportParams, posts.comparison.data, archives.comparison.data ] );
-
-	const postRows = useMemo< StatsTopPostsItem[] >(
-		() => aggregatePostRows( posts.primary.data ),
-		[ posts.primary.data ]
-	);
-	const archiveRows = useMemo(
-		() => aggregateArchiveRows( archives.primary.data ),
-		[ archives.primary.data ]
-	);
+	const records = useReportRecords( activeTab, reportParams, chartPeriod );
 
 	const postsFields = useMemo( () => getPostsFields(), [] );
 	const archivesFields = useMemo( () => getArchivesFields(), [] );
@@ -256,9 +210,9 @@ function PostsReport(): JSX.Element {
 					}
 				>
 					<ReportPerformanceChart
-						primary={ chartPrimary }
-						comparison={ activeReport.hasComparison ? chartComparison : undefined }
-						isLoading={ activeReport.isLoading }
+						primary={ records.chart.primary }
+						comparison={ records.chart.comparison }
+						isLoading={ records.chart.isLoading }
 						metrics={ chartMetrics }
 						interval={ chartPeriod }
 						onIntervalChange={ handleIntervalChange }
@@ -271,20 +225,20 @@ function PostsReport(): JSX.Element {
 					{ activeTab === 'posts-pages' ? (
 						<ReportRecordsTable< StatsTopPostsItem >
 							key="posts-pages"
-							data={ postRows }
+							data={ records.posts.rows }
 							fields={ postsFields }
 							getItemId={ getPostRowId }
-							isLoading={ posts.isLoading }
+							isLoading={ records.posts.isLoading }
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
 						/>
 					) : (
 						<ReportRecordsTable
 							key="archives"
-							data={ archiveRows }
+							data={ records.archives.rows }
 							fields={ archivesFields }
 							getItemId={ getArchiveRowId }
-							isLoading={ archives.isLoading }
+							isLoading={ records.archives.isLoading }
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
 						/>
