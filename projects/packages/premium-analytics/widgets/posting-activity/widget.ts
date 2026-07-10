@@ -16,9 +16,15 @@ import { PostingActivityWindowControl } from './navigation-control';
 export type PostingActivityAttributes = {
 	/**
 	 * Page offset within the trailing-year activity window. 0 is the latest page;
-	 * positive values page backward, negative values wrap forward.
+	 * positive values page backward toward the earliest page.
 	 */
 	activityWindowOffset?: number;
+
+	/**
+	 * Internal max offset reported by the render once the widget size is known.
+	 * This lets the header arrows disable at the current layout's ends.
+	 */
+	activityWindowMaxOffset?: number;
 };
 
 /**
@@ -46,6 +52,7 @@ export default {
 	example: {
 		attributes: {
 			activityWindowOffset: 0,
+			activityWindowMaxOffset: 0,
 		},
 	},
 };

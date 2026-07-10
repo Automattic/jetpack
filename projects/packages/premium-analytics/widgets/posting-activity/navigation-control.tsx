@@ -4,10 +4,12 @@
 import { __ } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Button, Stack } from '@wordpress/ui';
+import { useCallback } from 'react';
 
 /**
  * Internal dependencies
  */
+import { normalizePostingActivityWindowOffset } from './range';
 import type { PostingActivityAttributes } from './widget';
 
 type PostingActivityWindowControlProps = {
@@ -15,19 +17,37 @@ type PostingActivityWindowControlProps = {
 	onChange: ( edits: Partial< PostingActivityAttributes > ) => void;
 };
 
-function toWindowOffset( value?: number ) {
-	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
-		return 0;
-	}
-
-	return Math.trunc( value );
-}
-
 export function PostingActivityWindowControl( {
 	data,
 	onChange,
 }: PostingActivityWindowControlProps ) {
-	const windowOffset = toWindowOffset( data.activityWindowOffset );
+	const maxWindowOffset = normalizePostingActivityWindowOffset( data.activityWindowMaxOffset );
+	const windowOffset = normalizePostingActivityWindowOffset(
+		data.activityWindowOffset,
+		maxWindowOffset
+	);
+	const canNavigateOlder = windowOffset < maxWindowOffset;
+	const canNavigateNewer = windowOffset > 0;
+	const showOlderActivity = useCallback(
+		() =>
+			onChange( {
+				activityWindowOffset: normalizePostingActivityWindowOffset(
+					windowOffset + 1,
+					maxWindowOffset
+				),
+			} ),
+		[ maxWindowOffset, onChange, windowOffset ]
+	);
+	const showNewerActivity = useCallback(
+		() =>
+			onChange( {
+				activityWindowOffset: normalizePostingActivityWindowOffset(
+					windowOffset - 1,
+					maxWindowOffset
+				),
+			} ),
+		[ maxWindowOffset, onChange, windowOffset ]
+	);
 
 	return (
 		<Stack direction="row" align="center" gap="xs">
@@ -36,7 +56,8 @@ export function PostingActivityWindowControl( {
 				variant="minimal"
 				tone="neutral"
 				size="small"
-				onClick={ () => onChange( { activityWindowOffset: windowOffset + 1 } ) }
+				disabled={ ! canNavigateOlder }
+				onClick={ showOlderActivity }
 				aria-label={ __( 'Show older posting activity', 'jetpack-premium-analytics' ) }
 			>
 				<Button.Icon icon={ chevronLeft } size={ 16 } />
@@ -47,7 +68,8 @@ export function PostingActivityWindowControl( {
 				variant="minimal"
 				tone="neutral"
 				size="small"
-				onClick={ () => onChange( { activityWindowOffset: windowOffset - 1 } ) }
+				disabled={ ! canNavigateNewer }
+				onClick={ showNewerActivity }
 				aria-label={ __( 'Show newer posting activity', 'jetpack-premium-analytics' ) }
 			>
 				<Button.Icon icon={ chevronRight } size={ 16 } />

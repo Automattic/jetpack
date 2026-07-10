@@ -20,6 +20,10 @@ export type PostingActivityHeatmapRange = {
 	endDate?: string;
 	compact: boolean;
 	hasNavigation: boolean;
+	windowOffset: number;
+	maxWindowOffset: number;
+	canNavigateOlder: boolean;
+	canNavigateNewer: boolean;
 };
 
 const getDatePart = ( value?: string ) => value?.split( 'T' )[ 0 ];
@@ -70,8 +74,7 @@ function getCalendarWeekCount( startDate: Date, endDate: Date ) {
 	const lastWeek = startOfWeek( endDate );
 
 	return (
-		Math.floor( ( lastWeek.getTime() - firstWeek.getTime() ) / ( 7 * 24 * 60 * 60 * 1000 ) ) +
-		1
+		Math.floor( ( lastWeek.getTime() - firstWeek.getTime() ) / ( 7 * 24 * 60 * 60 * 1000 ) ) + 1
 	);
 }
 
@@ -85,23 +88,20 @@ function getWeekCountForWidth( contentWidth: number, cellSize: number, cellGap: 
 	return Math.floor( ( availableGridWidth + cellGap ) / ( cellSize + cellGap ) );
 }
 
-function getPositiveModulo( value: number, divisor: number ) {
-	return ( ( value % divisor ) + divisor ) % divisor;
-}
-
-function getWindowOffset( value?: number ) {
+export function normalizePostingActivityWindowOffset(
+	value?: number,
+	maxWindowOffset = Number.MAX_SAFE_INTEGER
+) {
 	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
 		return 0;
 	}
 
-	return Math.trunc( value );
+	const maxOffset = Math.max( 0, Math.trunc( maxWindowOffset ) );
+	return Math.max( 0, Math.min( Math.trunc( value ), maxOffset ) );
 }
 
 function shouldUseCompactCells( contentWidth = 0, contentHeight = 0 ) {
-	return (
-		contentWidth < EXPANDED_WIDGET_MIN_SIZE ||
-		contentHeight < EXPANDED_WIDGET_MIN_SIZE
-	);
+	return contentWidth < EXPANDED_WIDGET_MIN_SIZE || contentHeight < EXPANDED_WIDGET_MIN_SIZE;
 }
 
 function getVisibleWeekCount( fullWeekCount: number, compact: boolean, contentWidth = 0 ) {
@@ -130,6 +130,10 @@ export function getPostingActivityHeatmapRange(
 			endDate: queryEndDate,
 			compact,
 			hasNavigation: false,
+			windowOffset: 0,
+			maxWindowOffset: 0,
+			canNavigateOlder: false,
+			canNavigateNewer: false,
 		};
 	}
 
@@ -146,12 +150,20 @@ export function getPostingActivityHeatmapRange(
 			endDate: queryEndDate,
 			compact,
 			hasNavigation,
+			windowOffset: 0,
+			maxWindowOffset: 0,
+			canNavigateOlder: false,
+			canNavigateNewer: false,
 		};
 	}
 
 	const pageCount = Math.ceil( fullWeekCount / visibleWeekCount );
-	const pageOffset = getPositiveModulo( getWindowOffset( windowOffset ), pageCount );
-	const endWeekStart = addDays( startOfWeek( yearEndDate ), -1 * pageOffset * visibleWeekCount * 7 );
+	const maxWindowOffset = pageCount - 1;
+	const pageOffset = normalizePostingActivityWindowOffset( windowOffset, maxWindowOffset );
+	const endWeekStart = addDays(
+		startOfWeek( yearEndDate ),
+		-1 * pageOffset * visibleWeekCount * 7
+	);
 	const startWeek = addDays( endWeekStart, -1 * ( visibleWeekCount - 1 ) * 7 );
 	const windowStartDate = startWeek < yearStartDate ? yearStartDate : startWeek;
 	const pageEndDate = pageOffset === 0 ? yearEndDate : addDays( endWeekStart, 6 );
@@ -164,5 +176,9 @@ export function getPostingActivityHeatmapRange(
 		endDate: formatDatePart( windowEndDate ),
 		compact,
 		hasNavigation,
+		windowOffset: pageOffset,
+		maxWindowOffset,
+		canNavigateOlder: pageOffset < maxWindowOffset,
+		canNavigateNewer: pageOffset > 0,
 	};
 }

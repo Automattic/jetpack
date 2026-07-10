@@ -13,7 +13,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -39,10 +39,21 @@ type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttrib
  *
  * @return The widget content.
  */
-function PostingActivityInner( { windowOffset = 0 }: { windowOffset?: number } ) {
+type PostingActivityInnerProps = {
+	windowOffset?: number;
+	activityWindowMaxOffset?: number;
+	setAttributes?: ( next: Partial< PostingActivityAttributes > ) => void;
+};
+
+function PostingActivityInner( {
+	windowOffset = 0,
+	activityWindowMaxOffset = 0,
+	setAttributes,
+}: PostingActivityInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ contentElement, setContentElement ] = useState< HTMLDivElement | null >( null );
 	const [ contentSize, setContentSize ] = useState( { width: 0, height: 0 } );
+	const previousMeasuredSizeRef = useRef< string >();
 
 	const heatmapRange = useMemo(
 		() =>
@@ -111,6 +122,40 @@ function PostingActivityInner( { windowOffset = 0 }: { windowOffset?: number } )
 		return () => observer.disconnect();
 	}, [ contentElement ] );
 
+	useEffect( () => {
+		if ( ! setAttributes || contentSize.width <= 0 || contentSize.height <= 0 ) {
+			return;
+		}
+
+		const sizeKey = `${ contentSize.width }x${ contentSize.height }`;
+		const previousSizeKey = previousMeasuredSizeRef.current;
+		previousMeasuredSizeRef.current = sizeKey;
+
+		const shouldResetWindowOffset = !! previousSizeKey && previousSizeKey !== sizeKey;
+		const nextWindowOffset = shouldResetWindowOffset ? 0 : heatmapRange.windowOffset;
+		const nextAttributes: Partial< PostingActivityAttributes > = {};
+
+		if ( windowOffset !== nextWindowOffset ) {
+			nextAttributes.activityWindowOffset = nextWindowOffset;
+		}
+
+		if ( activityWindowMaxOffset !== heatmapRange.maxWindowOffset ) {
+			nextAttributes.activityWindowMaxOffset = heatmapRange.maxWindowOffset;
+		}
+
+		if ( Object.keys( nextAttributes ).length > 0 ) {
+			setAttributes( nextAttributes );
+		}
+	}, [
+		activityWindowMaxOffset,
+		contentSize.height,
+		contentSize.width,
+		heatmapRange.maxWindowOffset,
+		heatmapRange.windowOffset,
+		setAttributes,
+		windowOffset,
+	] );
+
 	const hasData = heatmapData.length > 0;
 
 	if ( isLoading && ! hasData ) {
@@ -176,11 +221,18 @@ function PostingActivityInner( { windowOffset = 0 }: { windowOffset?: number } )
  * @param {PostingActivityWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
+export default function PostingActivity( {
+	attributes = {},
+	setAttributes,
+}: PostingActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<PostingActivityInner windowOffset={ attributes.activityWindowOffset } />
+				<PostingActivityInner
+					windowOffset={ attributes.activityWindowOffset }
+					activityWindowMaxOffset={ attributes.activityWindowMaxOffset }
+					setAttributes={ setAttributes }
+				/>
 			</div>
 		</WidgetRoot>
 	);
