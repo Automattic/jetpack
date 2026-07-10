@@ -190,6 +190,7 @@ export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
 	hasComparisonEnabled,
+	type IntervalType,
 	type PresetType,
 	type ReportParams,
 } from './utils/search';

@@ -13,7 +13,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import VideosRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, { DEFAULT_MAX } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -21,8 +21,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerReportMocks();
 
 const VIDEOS_RENDER_MODULE = 'storybook/videos';
-
-const DEFAULT_MAX = 7;
 
 // Widget-specific story control: toggles the previous-period comparison.
 interface VideosStoryControls {

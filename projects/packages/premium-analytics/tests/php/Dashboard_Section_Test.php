@@ -55,6 +55,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
+		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
 		parent::tear_down();
 	}
@@ -175,6 +176,29 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$traffic->get_default_layout()
 		);
 		$this->assertNotEmpty( $traffic->get_default_layout() );
+	}
+
+	/**
+	 * The built-in insights and subscribers sections resolve their tab defaults.
+	 */
+	public function test_non_traffic_section_default_layouts_use_tab_defaults() {
+		register_default_dashboard_sections();
+
+		$insights    = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/insights' );
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $insights );
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'analytics/insights' ),
+			$insights->get_default_layout()
+		);
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'analytics/subscribers' ),
+			$subscribers->get_default_layout()
+		);
+		$this->assertNotEmpty( $insights->get_default_layout() );
+		$this->assertNotEmpty( $subscribers->get_default_layout() );
 	}
 
 	/**
@@ -311,6 +335,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Built-in Premium Analytics sections are registered in the expected order.
 	 */
 	public function test_registers_built_in_dashboard_sections() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
 		register_default_dashboard_sections();
 
 		$this->assertSame(
@@ -334,6 +360,67 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array_map(
 				static function ( Dashboard_Section $section ) {
 					return $section->to_array();
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+	}
+
+	/**
+	 * The WooCommerce section is registered when WooCommerce is available.
+	 */
+	public function test_registers_woocommerce_dashboard_section_when_available() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
+		$this->assertTrue( $woocommerce->is_available() );
+		$this->assertSame( 'WooCommerce', $woocommerce->label );
+		$this->assertSame( 40, $woocommerce->order );
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+				'woocommerce/store',
+			),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'woocommerce/store' ),
+			$woocommerce->get_default_layout()
+		);
+	}
+
+	/**
+	 * The WooCommerce section is omitted from available sections when WooCommerce is unavailable.
+	 */
+	public function test_omits_woocommerce_dashboard_section_when_unavailable() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
+		$this->assertFalse( $woocommerce->is_available() );
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+			),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
 				},
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
@@ -633,7 +720,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$response->get_data()
 		);
 
-		$stored = get_user_meta( $user_id, get_persisted_preferences_meta_key(), true );
+		$stored = get_stored_persisted_preferences_for_user( $user_id );
 
 		$this->assertSame(
 			$custom_layout,
@@ -897,7 +984,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$response->get_data()
 		);
 
-		$stored = get_user_meta( $user_id, get_persisted_preferences_meta_key(), true );
+		$stored = get_stored_persisted_preferences_for_user( $user_id );
 
 		$this->assertArrayNotHasKey( DASHBOARD_SECTION_LAYOUTS_KEY, $stored[ DASHBOARD_LAYOUT_SCOPE ] );
 		$this->assertSame( 'keep-me', $stored[ DASHBOARD_LAYOUT_SCOPE ]['unrelatedPreference'] );
