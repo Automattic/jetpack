@@ -24,6 +24,8 @@
 	},
 	"devDependencies": {
 		"@storybook/react": "10.4.6",
+		"@testing-library/react": "16.3.2",
+		"@testing-library/user-event": "14.6.1",
 		"date-fns": "4.1.0"
 	}
 }

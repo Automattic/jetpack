@@ -8,7 +8,7 @@ import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useState, useCallback, useEffect, type ComponentProps } from 'react';
+import { useState, useCallback, useEffect, useRef, type ComponentProps } from 'react';
 import '@automattic/ui/style.css';
 /**
  * Internal dependencies
@@ -235,6 +235,13 @@ export function DateRangePopover( {
 
 	const [ isOpen, setIsOpen ] = useState( false );
 
+	/*
+	 * Apply and Cancel close the popover themselves; every other close
+	 * (outside click, Esc, trigger toggle) must discard the draft like
+	 * Cancel does. The flag tells those closes apart in `onToggle`.
+	 */
+	const closedByActionRef = useRef( false );
+
 	useEffect( () => {
 		const committedCustomRange = getCommittedCustomRange( appliedPresetId, appliedRange );
 
@@ -245,22 +252,27 @@ export function DateRangePopover( {
 
 	const handleOpenToggle = useCallback(
 		( next: boolean ) => {
-			if (
-				shouldRestoreLastCustomRange( {
-					isOpen: next,
-					appliedPresetId,
-					presetId,
-					hasLastCustomRange: rememberedCustomRange !== null,
-				} ) &&
-				rememberedCustomRange
-			) {
-				onChange( rememberedCustomRange, PRESET_CUSTOM );
+			if ( next ) {
+				if (
+					shouldRestoreLastCustomRange( {
+						isOpen: next,
+						appliedPresetId,
+						presetId,
+						hasLastCustomRange: rememberedCustomRange !== null,
+					} ) &&
+					rememberedCustomRange
+				) {
+					onChange( rememberedCustomRange, PRESET_CUSTOM );
+				}
+			} else if ( ! closedByActionRef.current ) {
+				onCancel();
 			}
 
+			closedByActionRef.current = false;
 			setIsOpen( next );
 			onOpenChange?.( next );
 		},
-		[ appliedPresetId, onChange, onOpenChange, presetId, rememberedCustomRange ]
+		[ appliedPresetId, onCancel, onChange, onOpenChange, presetId, rememberedCustomRange ]
 	);
 
 	const committedRange = appliedRange ?? range;
@@ -314,14 +326,12 @@ export function DateRangePopover( {
 					range={ range }
 					onChange={ onChange }
 					onApply={ () => {
+						closedByActionRef.current = true;
 						onApply();
 						onClose();
 					} }
-					/*
-					 * Cancel explicitly discards the draft; an outside-click only
-					 * closes (keeping the draft for the next open).
-					 */
 					onCancel={ () => {
+						closedByActionRef.current = true;
 						onCancel();
 						onClose();
 					} }

@@ -45,7 +45,7 @@ describe( 'getCustomTriggerState', () => {
 		).toBe( 'staged' );
 	} );
 
-	it( 'returns staged when a custom draft persists after closing the popover', () => {
+	it( 'returns staged for an unapplied custom draft even while closed', () => {
 		expect(
 			getCustomTriggerState( {
 				presetId: 'custom',
