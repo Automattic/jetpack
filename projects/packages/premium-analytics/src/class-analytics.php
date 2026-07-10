@@ -98,6 +98,10 @@ class Analytics {
 		// Register dashboard sections and expose section metadata/defaults over REST.
 		require_once __DIR__ . '/dashboard-sections.php';
 
+		// Expose opt-in client-side CSV export settings to the dashboard.
+		require_once __DIR__ . '/client-side-csv-exports.php';
+		configure_client_side_csv_exports();
+
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the
 		// manifest the widget registry reads, and the registry serves REST
