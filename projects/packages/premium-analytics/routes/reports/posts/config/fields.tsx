@@ -1,13 +1,41 @@
 /**
  * External dependencies
  */
+import {
+	useSiteHomeUrl,
+	type StatsArchivesItem,
+	type StatsTopPostsItem,
+} from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import type { StatsArchivesItem, StatsTopPostsItem } from '@jetpack-premium-analytics/data';
+import styles from './fields.module.css';
 import type { Field } from '@wordpress/dataviews';
+
+/**
+ * Render the homepage title using the URL from core site settings.
+ *
+ * @param props       - Component props.
+ * @param props.title - The homepage row title.
+ * @return The linked title, or plain text while settings are unavailable.
+ */
+function HomepageTitle( { title }: { title: string } ) {
+	const homeUrl = useSiteHomeUrl();
+
+	if ( ! homeUrl ) {
+		return <>{ title }</>;
+	}
+
+	return (
+		<a className={ styles.homepageLink } href={ homeUrl } target="_blank" rel="noopener noreferrer">
+			{ title }
+			<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
+		</a>
+	);
+}
 
 /**
  * DataViews field config for the Posts & Pages records table.
@@ -29,8 +57,13 @@ export function getPostsFields(): Field< StatsTopPostsItem >[] {
 			render: ( { item } ) => {
 				const title = String( item.label ?? '' );
 
-				// Posts with an ID drill into the post/page detail page; rows
-				// without one (e.g. the home page archive row) stay plain text.
+				// The API sends no URL for homepage rows, so link them to the site
+				// home resolved from core settings. Posts with an ID drill into the
+				// post/page detail page; other rows without an ID stay plain text.
+				if ( item.type === 'homepage' ) {
+					return <HomepageTitle title={ title } />;
+				}
+
 				if ( ! item.id ) {
 					return <>{ title }</>;
 				}

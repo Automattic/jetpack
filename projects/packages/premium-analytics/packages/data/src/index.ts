@@ -207,6 +207,7 @@ export {
 	getApiErrorStatus,
 	getStatsPlanErrorReason,
 	shouldRetryApiError,
+	useSiteHomeUrl,
 } from './utils';
 export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
