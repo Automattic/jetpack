@@ -29,7 +29,7 @@ class Tax_Rate_Breakdown_Controller extends Abstract_Csv_Report_Controller {
 	/**
 	 * Cache for tax rate percentages by tax_rate_id.
 	 *
-	 * @var array
+	 * @var array<int, float|null>
 	 */
 	private $tax_rates_cache = array();
 
@@ -118,13 +118,24 @@ class Tax_Rate_Breakdown_Controller extends Abstract_Csv_Report_Controller {
 	 *
 	 * Retrieves the tax rate percentage for a given tax_rate_id using WC_Tax::get_rate_percent_value().
 	 * Results are cached in memory for the duration of the export to avoid repeated database queries.
-	 * Returns 0.0 if the tax rate ID doesn't exist in the database.
+	 * Returns null if WooCommerce is unavailable or the tax rate ID doesn't exist in the database.
 	 *
 	 * @param int $tax_rate_id The tax rate ID.
-	 * @return float The tax rate percentage (0.0 if not found).
+	 * @return float|null The tax rate percentage, or null if not found.
 	 */
-	private function get_tax_rate_percent( int $tax_rate_id ): float {
-		if ( ! isset( $this->tax_rates_cache[ $tax_rate_id ] ) ) {
+	private function get_tax_rate_percent( int $tax_rate_id ): ?float {
+		if ( ! array_key_exists( $tax_rate_id, $this->tax_rates_cache ) ) {
+			if ( ! class_exists( \WC_Tax::class ) ) {
+				$this->tax_rates_cache[ $tax_rate_id ] = null;
+				return $this->tax_rates_cache[ $tax_rate_id ];
+			}
+
+			$tax_rate_code = \WC_Tax::get_rate_code( $tax_rate_id );
+			if ( empty( $tax_rate_code ) ) {
+				$this->tax_rates_cache[ $tax_rate_id ] = null;
+				return $this->tax_rates_cache[ $tax_rate_id ];
+			}
+
 			$this->tax_rates_cache[ $tax_rate_id ] = \WC_Tax::get_rate_percent_value( $tax_rate_id );
 		}
 		return $this->tax_rates_cache[ $tax_rate_id ];

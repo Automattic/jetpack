@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Revenue_By_Customer_Type_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Campaign_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Tax_Rate_Breakdown_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Top_Performing_Products_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller;
@@ -22,6 +23,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Top_Performing_Products_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Revenue_By_Customer_Type_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Campaign_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Tax_Rate_Breakdown_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
  */
@@ -30,6 +32,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Visitors_Over_Time_Controller::class )]
 #[CoversClass( Top_Performing_Products_Controller::class )]
 #[CoversClass( Revenue_By_Customer_Type_Controller::class )]
+#[CoversClass( Sales_By_Campaign_Controller::class )]
 #[CoversClass( Tax_Rate_Breakdown_Controller::class )]
 #[CoversClass( Abstract_Csv_Report_Controller::class )]
 class Controllers_Test extends TestCase {
@@ -52,6 +55,10 @@ class Controllers_Test extends TestCase {
 
 	private function revenue_by_customer_type(): Revenue_By_Customer_Type_Controller {
 		return new Revenue_By_Customer_Type_Controller( new Report_Registry() );
+	}
+
+	private function sales_by_campaign(): Sales_By_Campaign_Controller {
+		return new Sales_By_Campaign_Controller( new Report_Registry() );
 	}
 
 	private function tax_rate_breakdown(): Tax_Rate_Breakdown_Controller {
@@ -229,6 +236,14 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( 'New Customer', $row['customer_type'] );
 		$this->assertSame( '123.45', $row['net_sales'] );
 		$this->assertSame( 7, $row['orders_count'] );
+
+		$row = $c->format_row_for_csv( array( 'customer_type' => '' ) );
+		$this->assertSame( 'Unassigned', $row['customer_type'] );
+	}
+
+	public function test_sales_by_campaign_empty_row_check_matches_dimension_field() {
+		$c = $this->sales_by_campaign();
+		$this->assertSame( array( 'campaign' ), $c->get_empty_row_check_field() );
 	}
 
 	public function test_tax_rate_breakdown_formats_comparison_tax_code_and_rates() {
@@ -260,6 +275,9 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( '8.00', $row['comparison_total_tax'] );
 
 		$row = $c->format_row_for_csv( array( 'tax_rate_code' => 'UNKNOWN' ) );
+		$this->assertSame( 'N/A', $row['rate'] );
+
+		$row = $c->format_row_for_csv( array( 'tax_rate_id' => 999 ) );
 		$this->assertSame( 'N/A', $row['rate'] );
 	}
 }

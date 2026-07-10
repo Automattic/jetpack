@@ -177,10 +177,10 @@ class Sales_By_Campaign_Controller extends Abstract_Csv_Report_Controller {
 	/**
 	 * Get the field name to check for emptiness.
 	 *
-	 * @return array The fields to check (both campaign and label must be empty to skip).
+	 * @return array The fields to check.
 	 */
 	public function get_empty_row_check_field() {
-		return array( 'campaign', 'label' );
+		return array( 'campaign' );
 	}
 
 	/**

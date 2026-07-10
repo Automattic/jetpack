@@ -88,12 +88,18 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 	public function format_row_for_csv( array $item, ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		$defaults = $this->get_default_values();
 
-		$customer_type = $item['customer_type'] ?? $defaults['customer_type'];
+		$customer_type       = $item['customer_type'] ?? $defaults['customer_type'];
+		$customer_type_label = (string) $customer_type;
+		if ( 'new' === $customer_type ) {
+			$customer_type_label = __( 'New Customer', 'jetpack-premium-analytics' );
+		} elseif ( 'returning' === $customer_type ) {
+			$customer_type_label = __( 'Returning Customer', 'jetpack-premium-analytics' );
+		} elseif ( '' === $customer_type ) {
+			$customer_type_label = $this->get_empty_row_label();
+		}
 
 		return array(
-			'customer_type' => 'new' === $customer_type
-				? __( 'New Customer', 'jetpack-premium-analytics' )
-				: __( 'Returning Customer', 'jetpack-premium-analytics' ),
+			'customer_type' => $customer_type_label,
 			'net_sales'     => self::format_amount( $item['net_sales'] ?? $defaults['net_sales'] ),
 			'orders_count'  => $item['orders_count'] ?? $defaults['orders_count'],
 		);
