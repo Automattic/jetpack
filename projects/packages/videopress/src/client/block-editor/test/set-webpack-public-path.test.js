@@ -4,8 +4,6 @@
  */
 
 describe( 'set-webpack-public-path', () => {
-	const originalEditorState = window.videoPressEditorState;
-
 	beforeEach( () => {
 		/*
 		 * Webpack supplies this free variable in real builds; define it here so
@@ -16,7 +14,7 @@ describe( 'set-webpack-public-path', () => {
 	} );
 
 	afterEach( () => {
-		window.videoPressEditorState = originalEditorState;
+		delete window.videoPressEditorState;
 		delete global.__webpack_public_path__;
 	} );
 
