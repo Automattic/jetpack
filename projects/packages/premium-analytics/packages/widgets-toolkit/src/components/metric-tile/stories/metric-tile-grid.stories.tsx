@@ -28,17 +28,15 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MetricTileGrid',
 	component: MetricTileGrid,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		columns: { control: { type: 'number', min: 1, max: 6 } },
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'Responsive grid of metric tiles that follows the widget cell size: in a narrow ' +
-					'or short container each metric renders as a compact row (icon and label on the ' +
-					'left, value on the right). Wide containers use the configured maximum columns: ' +
-					'large centered tiles when height allows, and a compact grid when height is tight.',
+					'Responsive grid of metric tiles that follows the widget cell size and picks its ' +
+					'own layout — no column count needed. A narrow cell renders compact rows (icon ' +
+					'and label on the left, value on the right); a wide but short cell spreads the ' +
+					'tiles across a single row; a wide and tall cell uses a balanced two-column grid ' +
+					'of large centered tiles.',
 			},
 		},
 	},
@@ -46,19 +44,13 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< { columns: number } >;
-
-function renderTiles( { columns }: { columns: number } ) {
-	return <MetricTileGrid columns={ columns } tiles={ TILES } dataFormat={ COUNT_FORMAT } />;
-}
+type Story = StoryObj< ComponentProps< typeof MetricTileGrid > >;
 
 /**
- * Four tiles in the default two-column wide layout, in a canvas tall and wide
- * enough for tile mode.
+ * Wide and tall: a balanced two-column grid of large centered tiles.
  */
 export const Default: Story = {
-	render: renderTiles,
-	args: { columns: 2 },
+	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
 	decorators: [ makeCanvas( '100%', '480px' ) ],
 };
 
@@ -67,29 +59,35 @@ export const Default: Story = {
  * viewport, because the grid follows its own rendered size.
  */
 export const NarrowContainer: Story = {
-	render: renderTiles,
-	args: { columns: 2 },
+	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
 	decorators: [ makeCanvas( '360px', '480px' ) ],
 };
 
 /**
- * A wide but short container renders a compact grid: enough columns to avoid
- * a long list, but tighter padding and value sizing than the large tile mode.
+ * A wide but short container spreads the tiles across a single row — the column
+ * count follows the number of tiles, so four tiles render one-by-four.
  */
-export const ShortContainer: Story = {
-	render: renderTiles,
-	args: { columns: 2 },
-	decorators: [ makeCanvas( '100%', '180px' ) ],
+export const WideShort: Story = {
+	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
+	decorators: [ makeCanvas( '100%', '220px' ) ],
 };
 
 /**
- * Four columns keep card-style content so metric labels remain readable in a
- * single row.
+ * The same tiles in a very wide, short cell — still one row, just more room per
+ * tile. This mirrors the wide dashboard-cell case.
  */
-export const FourColumns: Story = {
-	render: renderTiles,
-	args: { columns: 4 },
-	decorators: [ makeCanvas( '100%', '280px' ) ],
+export const WideShortRoomy: Story = {
+	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
+	decorators: [ makeCanvas( '1026px', '280px' ) ],
+};
+
+/**
+ * Three tiles: the layout still balances without an awkward orphan row — one row
+ * when short, and a filled two-column grid when tall.
+ */
+export const ThreeTiles: Story = {
+	args: { tiles: TILES.slice( 0, 3 ), dataFormat: COUNT_FORMAT },
+	decorators: [ makeCanvas( '100%', '480px' ) ],
 };
 
 /**
@@ -98,27 +96,23 @@ export const FourColumns: Story = {
  * cannot be computed.
  */
 export const WithPlaceholderValue: Story = {
-	render: ( { columns } ) => (
-		<MetricTileGrid
-			columns={ columns }
-			tiles={ [
-				{
-					key: 'openRate',
-					icon: postList,
-					label: 'Open rate',
-					value: null,
-					dataFormat: { type: 'percentage', options: { decimals: 1 } },
-				},
-				{
-					key: 'clickRate',
-					icon: starEmpty,
-					label: 'Click rate',
-					value: 0.381,
-					dataFormat: { type: 'percentage', options: { decimals: 1 } },
-				},
-			] }
-		/>
-	),
-	args: { columns: 2 },
+	args: {
+		tiles: [
+			{
+				key: 'openRate',
+				icon: postList,
+				label: 'Open rate',
+				value: null,
+				dataFormat: { type: 'percentage', options: { decimals: 1 } },
+			},
+			{
+				key: 'clickRate',
+				icon: starEmpty,
+				label: 'Click rate',
+				value: 0.381,
+				dataFormat: { type: 'percentage', options: { decimals: 1 } },
+			},
+		],
+	},
 	decorators: [ makeCanvas( '100%', '320px' ) ],
 };

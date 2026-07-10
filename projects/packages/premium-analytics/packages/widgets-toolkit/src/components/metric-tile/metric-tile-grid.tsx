@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import { MetricValue } from '../metric-value';
 import styles from './metric-tile-grid.module.scss';
 import type { DataFormat } from '../../types';
-import type { ComponentProps, CSSProperties } from 'react';
+import type { ComponentProps } from 'react';
 
 export type MetricTileGridItem = {
 	/**
@@ -59,13 +59,6 @@ export type MetricTileGridItem = {
 
 export type MetricTileGridProps = {
 	/**
-	 * Maximum column count for the wide (tile) layout. Narrow widths always
-	 * render one tile per row.
-	 * @default 2
-	 */
-	columns?: number;
-
-	/**
 	 * CSS class for the grid container.
 	 */
 	className?: string;
@@ -88,9 +81,12 @@ export type MetricTileGridProps = {
 };
 
 /**
- * Responsive container for metric tiles. The layout tracks the widget cell:
- * compact rows for narrow or short cells, centered tiles when the cell has
- * enough width and height for them.
+ * Responsive container for metric tiles. The layout tracks the widget cell size
+ * and picks one of three shapes on its own, no column count needed:
+ *
+ * - narrow: a single column of compact rows (icon and label left, value right);
+ * - wide but short: a single row of centered tiles (columns follow tile count);
+ * - wide and tall: a balanced two-column grid of large centered tiles.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it
@@ -100,22 +96,14 @@ export type MetricTileGridProps = {
  * @return The rendered grid.
  */
 export function MetricTileGrid( {
-	columns = 2,
 	className,
 	tiles,
 	dataFormat = { type: 'number' },
 	currencyCode,
 }: MetricTileGridProps ) {
-	const maxColumns = Math.max( 1, columns );
-	const activeColumns = tiles.length ? Math.min( maxColumns, tiles.length ) : maxColumns;
-
-	const style = {
-		'--jpa-metric-tile-grid-columns': activeColumns,
-	} as CSSProperties;
-
 	return (
 		<div className={ clsx( styles.container, className ) }>
-			<div className={ styles.grid } role="list" style={ style }>
+			<div className={ styles.grid } role="list">
 				{ tiles.map( tile => (
 					<div key={ tile.key } className={ clsx( styles.tile, tile.className ) } role="listitem">
 						<div className={ styles.header }>

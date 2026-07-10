@@ -1,6 +1,9 @@
 $metric-tile-grid-wide-min-inline-size: 640px;
-$metric-tile-grid-large-min-block-size: 240px;
+// Height at which a wide cell has room for a balanced two-row grid instead of a
+// single row of tiles. Tunable — below this, wide cells stay one row.
+$metric-tile-grid-grid-min-block-size: 360px;
 $metric-tile-grid-row-value-font-size-max: 40px;
+$metric-tile-grid-tile-value-font-size-max: 40px;
 $metric-tile-grid-prominent-value-font-size-max: 44px;
 $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-height-2xl, 40px) + var(--wpds-dimension-padding-2xl, 24px) + var(--wpds-dimension-padding-2xl, 24px) + var(--wpds-dimension-gap-lg, 16px));
 
@@ -77,18 +80,23 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-@container (min-width: $metric-tile-grid-wide-min-inline-size) {
+/* Wide but short: one row of centered tiles. `grid-auto-flow: column` makes the
+ * column count follow the tile count on its own — no explicit column value. */
+@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) {
 
 	.grid {
-		grid-auto-rows: minmax(var(--wpds-typography-line-height-lg, 28px), 1fr);
-		grid-template-columns: repeat(var(--jpa-metric-tile-grid-columns, 2), minmax(0, 1fr));
+		grid-template-columns: none;
+		grid-template-rows: 1fr;
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(0, 1fr);
+		grid-auto-rows: unset;
 	}
 
 	.tile {
 		flex-direction: column;
 		justify-content: center;
 		gap: var(--wpds-dimension-gap-sm, 8px);
-		padding-block: var(--wpds-dimension-padding-xs, 4px);
+		padding-block: var(--wpds-dimension-padding-md, 12px);
 		padding-inline: var(--wpds-dimension-padding-md, 12px);
 		text-align: center;
 	}
@@ -107,13 +115,19 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 	.tile .value,
 	.tile .placeholder {
-		font-size: clamp(var(--wpds-typography-font-size-xl, 20px), 8cqh, var(--wpds-typography-font-size-2xl, 32px));
+		font-size: clamp(var(--wpds-typography-font-size-xl, 20px), 11cqh, $metric-tile-grid-tile-value-font-size-max);
 	}
 }
 
-@container (min-width: $metric-tile-grid-wide-min-inline-size) and (min-height: $metric-tile-grid-large-min-block-size) {
+/* Wide and tall: a balanced two-column grid of large centered tiles. Resets the
+ * one-row flow set above so tiles wrap into rows again. */
+@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) and (min-height: #{$metric-tile-grid-grid-min-block-size}) {
 
 	.grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-rows: none;
+		grid-auto-flow: row;
+		grid-auto-columns: auto;
 		grid-auto-rows: minmax($metric-tile-grid-large-row-min-block-size, 1fr);
 	}
 
