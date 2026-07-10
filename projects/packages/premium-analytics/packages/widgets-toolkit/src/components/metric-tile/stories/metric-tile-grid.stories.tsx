@@ -1,5 +1,5 @@
 import { comment, paragraph, postList, starEmpty } from '@wordpress/icons';
-import { MetricTile, MetricTileGrid } from '../metric-tile';
+import { MetricTileGrid } from '../metric-tile-grid';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { ComponentProps } from 'react';
 
@@ -15,9 +15,6 @@ const TILES = [
 	{ key: 'comments', icon: comment, label: 'Comments', value: 42 },
 ];
 
-// The grid is a size query container, so it takes its height from its parent —
-// widget hosts provide a fixed cell. Stories must do the same or the grid
-// collapses to zero height.
 const makeCanvas = ( width: string, height: string ): Decorator =>
 	function CanvasDecorator( Story ) {
 		return (
@@ -28,7 +25,7 @@ const makeCanvas = ( width: string, height: string ): Decorator =>
 	};
 
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MetricTile',
+	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MetricTileGrid',
 	component: MetricTileGrid,
 	tags: [ 'autodocs' ],
 	argTypes: {
@@ -38,11 +35,10 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Responsive grid of metric tiles, driven by container queries on both axes: in a ' +
-					'narrow or short container each tile renders as a compact row (icon and label on ' +
-					'the left, value on the right); at 640px+ wide and 240px+ tall the tiles lay out ' +
-					'`columns` across with the icon, label, and a larger value centered. The grid takes ' +
-					'its height from its parent, so it must live in a height-constrained ancestor.',
+					'Responsive grid of metric tiles that follows the widget cell size: in a narrow ' +
+					'or short container each metric renders as a compact row (icon and label on the ' +
+					'left, value on the right). Wide containers use the configured maximum columns: ' +
+					'large centered tiles when height allows, and a compact grid when height is tight.',
 			},
 		},
 	},
@@ -53,19 +49,7 @@ export default meta;
 type Story = StoryObj< { columns: number } >;
 
 function renderTiles( { columns }: { columns: number } ) {
-	return (
-		<MetricTileGrid columns={ columns }>
-			{ TILES.map( tile => (
-				<MetricTile
-					key={ tile.key }
-					icon={ tile.icon }
-					label={ tile.label }
-					value={ tile.value }
-					dataFormat={ COUNT_FORMAT }
-				/>
-			) ) }
-		</MetricTileGrid>
-	);
+	return <MetricTileGrid columns={ columns } tiles={ TILES } dataFormat={ COUNT_FORMAT } />;
 }
 
 /**
@@ -80,7 +64,7 @@ export const Default: Story = {
 
 /**
  * A narrow container renders the compact row layout regardless of the
- * viewport, because the query tracks the container's width.
+ * viewport, because the grid follows its own rendered size.
  */
 export const NarrowContainer: Story = {
 	render: renderTiles,
@@ -89,13 +73,23 @@ export const NarrowContainer: Story = {
 };
 
 /**
- * A wide but short container also renders the compact rows — stacked tile
- * rows would not fit, and rows read better than a clipped tile grid.
+ * A wide but short container renders a compact grid: enough columns to avoid
+ * a long list, but tighter padding and value sizing than the large tile mode.
  */
 export const ShortContainer: Story = {
 	render: renderTiles,
 	args: { columns: 2 },
 	decorators: [ makeCanvas( '100%', '180px' ) ],
+};
+
+/**
+ * Four columns keep card-style content so metric labels remain readable in a
+ * single row.
+ */
+export const FourColumns: Story = {
+	render: renderTiles,
+	args: { columns: 4 },
+	decorators: [ makeCanvas( '100%', '280px' ) ],
 };
 
 /**
@@ -105,20 +99,25 @@ export const ShortContainer: Story = {
  */
 export const WithPlaceholderValue: Story = {
 	render: ( { columns } ) => (
-		<MetricTileGrid columns={ columns }>
-			<MetricTile
-				icon={ postList }
-				label="Open rate"
-				value={ null }
-				dataFormat={ { type: 'percentage', options: { decimals: 1 } } }
-			/>
-			<MetricTile
-				icon={ starEmpty }
-				label="Click rate"
-				value={ 0.381 }
-				dataFormat={ { type: 'percentage', options: { decimals: 1 } } }
-			/>
-		</MetricTileGrid>
+		<MetricTileGrid
+			columns={ columns }
+			tiles={ [
+				{
+					key: 'openRate',
+					icon: postList,
+					label: 'Open rate',
+					value: null,
+					dataFormat: { type: 'percentage', options: { decimals: 1 } },
+				},
+				{
+					key: 'clickRate',
+					icon: starEmpty,
+					label: 'Click rate',
+					value: 0.381,
+					dataFormat: { type: 'percentage', options: { decimals: 1 } },
+				},
+			] }
+		/>
 	),
 	args: { columns: 2 },
 	decorators: [ makeCanvas( '100%', '320px' ) ],

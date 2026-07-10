@@ -7,7 +7,6 @@ import {
 	type StatsInsightsYear,
 } from '@jetpack-premium-analytics/data';
 import {
-	MetricTile,
 	MetricTileGrid,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -178,17 +177,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					</Text>
 				</Stack>
 			) : (
-				<MetricTileGrid columns={ 2 }>
-					{ tiles.map( tile => (
-						<MetricTile
-							key={ tile.key }
-							icon={ tile.icon }
-							label={ tile.label }
-							value={ tile.value }
-							dataFormat={ COUNT_FORMAT }
-						/>
-					) ) }
-				</MetricTileGrid>
+				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			) }
 		</Stack>
 	);

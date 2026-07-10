@@ -1,2 +1,2 @@
-export { MetricTile, MetricTileGrid } from './metric-tile';
-export type { MetricTileProps, MetricTileGridProps } from './metric-tile';
+export { MetricTileGrid } from './metric-tile-grid';
+export type { MetricTileGridItem, MetricTileGridProps } from './metric-tile-grid';

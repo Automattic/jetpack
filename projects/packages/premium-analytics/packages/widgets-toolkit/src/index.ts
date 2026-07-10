@@ -3,9 +3,8 @@
  */
 export {
 	MetricDelta,
-	MetricTile,
 	MetricTileGrid,
-	type MetricTileProps,
+	type MetricTileGridItem,
 	type MetricTileGridProps,
 	MetricValue,
 	MetricWithComparison,

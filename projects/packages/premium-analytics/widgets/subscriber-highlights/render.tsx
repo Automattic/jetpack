@@ -6,7 +6,6 @@ import {
 	type StatsSubscribersCounts,
 } from '@jetpack-premium-analytics/data';
 import {
-	MetricTile,
 	MetricTileGrid,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -107,17 +106,7 @@ function SubscriberHighlightsReport( {
 					{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
 				</Text>
 			) : (
-				<MetricTileGrid columns={ 4 }>
-					{ tiles.map( tile => (
-						<MetricTile
-							key={ tile.key }
-							icon={ tile.icon }
-							label={ tile.label }
-							value={ tile.value }
-							dataFormat={ COUNT_FORMAT }
-						/>
-					) ) }
-				</MetricTileGrid>
+				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			) }
 		</div>
 	);

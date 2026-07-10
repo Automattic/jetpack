@@ -1,5 +1,4 @@
-/* No outer padding: the host frames the widget and owns the padding.
- * Tile layout and responsiveness live in the toolkit's MetricTileGrid. */
+/* No outer padding: the host frames the widget and owns the padding. */
 .root {
 	display: flex;
 	flex-direction: column;
