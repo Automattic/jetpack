@@ -54,6 +54,26 @@ export const TASK_MENU: readonly string[] = [
 	'start_building_your_audience',
 ];
 
+// The AI must return exactly six tasks, so the offered menu needs comfortable headroom beyond six.
+const MIN_TAILORING_MENU = 10;
+
+/**
+ * Pick the task ids the prompt's menu is filtered to: the actionable ids (renderable and not already complete),
+ * unless completion leaves too few of them on the menu to fill a valid six-task list — then relax to every
+ * renderable id, since a completed card still renders fine and beats making valid AI output impossible.
+ *
+ * @param actionableTaskIds - Renderable-and-not-completed ids from the available-tasks endpoint.
+ * @param renderableTaskIds - All renderable ids, regardless of completion.
+ * @return The ids to filter the menu to.
+ */
+export function chooseTailoringMenu(
+	actionableTaskIds: readonly string[],
+	renderableTaskIds: readonly string[]
+): readonly string[] {
+	const menuCount = TASK_MENU.filter( id => actionableTaskIds.includes( id ) ).length;
+	return menuCount >= MIN_TAILORING_MENU ? actionableTaskIds : renderableTaskIds;
+}
+
 /**
  * Build the single combined prompt sent to jetpack-ai-query, producing the
  * inferred blob, task list, and first-post draft in one JSON response. Hard rules

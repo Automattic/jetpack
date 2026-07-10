@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { buildTailorPrompt, TASK_MENU } from './prompts.ts';
+import { buildTailorPrompt, chooseTailoringMenu, TASK_MENU } from './prompts.ts';
 import type { WizardInput } from './types.ts';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
@@ -57,6 +57,19 @@ describe( 'buildTailorPrompt', () => {
 		for ( const id of TASK_MENU ) {
 			assert.ok( prompt.includes( '- ' + id ), `menu ID "${ id }" missing from prompt` );
 		}
+	} );
+
+	it( 'offers the actionable ids while enough of them remain on the menu', () => {
+		const actionable = TASK_MENU.slice( 0, 12 );
+		const renderable = [ ...actionable, 'first_post_published_extra' ];
+		assert.equal( chooseTailoringMenu( actionable, renderable ), actionable );
+	} );
+
+	it( 'relaxes to the renderable ids when completion leaves too few actionable menu tasks', () => {
+		// Ids off the menu do not count toward the threshold: the prompt's menu is the intersection.
+		const actionable = [ ...TASK_MENU.slice( 0, 4 ), 'off_menu_task_a', 'off_menu_task_b' ];
+		const renderable = TASK_MENU.slice( 0, 20 );
+		assert.equal( chooseTailoringMenu( actionable, renderable ), renderable );
 	} );
 
 	it( 'instructs the model to return only JSON', () => {

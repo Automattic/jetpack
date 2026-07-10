@@ -475,6 +475,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			if ( count( $tasks ) >= $target ) {
 				break;
 			}
+			// A filler card that is already complete offers nothing to do; better a shorter list.
+			if ( ! empty( $task['completed'] ) ) {
+				continue;
+			}
 			$tasks = $this->insert_before_launch_task( $tasks, $task );
 		}
 
@@ -814,18 +818,25 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * @return array
 	 */
 	public function get_available_tasks( $request ) {
-		return array( 'available_task_ids' => $this->available_task_ids( (string) $request['goal'] ) );
+		$ids = $this->available_task_ids( (string) $request['goal'] );
+		return array(
+			'available_task_ids'  => $ids['actionable'],
+			'renderable_task_ids' => $ids['renderable'],
+		);
 	}
 
 	/**
 	 * The task ids that will actually render on this site for the given goal — the menu tailoring should choose from.
 	 *
 	 * Built by running the whole catalog through the real gate (visibility + force-visible overrides, and the sell
-	 * goal's woo-preview mode), so a task the AI could pick but the site would drop is never offered. The client
-	 * intersects this with its own TASK_MENU. Computed once per wizard submit.
+	 * goal's woo-preview mode), so a task the AI could pick but the site would drop is never offered. `actionable`
+	 * additionally excludes tasks that are already complete — they leave nothing to do — except the launch tasks,
+	 * which the output contract requires last even on a site that already launched. `renderable` keeps the completed
+	 * ones: the client falls back to it when completion leaves too few actionable tasks to fill a valid list. The
+	 * client intersects these with its own TASK_MENU. Computed once per wizard submit.
 	 *
 	 * @param string $goal The inferred/selected goal.
-	 * @return string[]
+	 * @return array{renderable: string[], actionable: string[]}
 	 */
 	private function available_task_ids( $goal ) {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -834,7 +845,19 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// Sell keeps the commerce tasks as a disabled preview until WooCommerce is active, so they count as available.
 		$disable_hidden_woo = 'sell' === $goal && ! is_plugin_active( 'woocommerce/woocommerce.php' );
 
-		return array_column( $this->build_all_catalog_tasks( false, $disable_hidden_woo ), 'id' );
+		$tasks = $this->build_all_catalog_tasks( false, $disable_hidden_woo );
+
+		$actionable = array_filter(
+			$tasks,
+			static function ( $task ) {
+				return ! $task['completed'] || in_array( $task['id'], self::LAUNCH_TASK_IDS, true );
+			}
+		);
+
+		return array(
+			'renderable' => array_column( $tasks, 'id' ),
+			'actionable' => array_column( $actionable, 'id' ),
+		);
 	}
 
 	/**

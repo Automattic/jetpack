@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { selectFallback } from './fallback.ts';
 import { requestJwt } from './jwt.ts';
-import { buildTailorPrompt } from './prompts.ts';
+import { buildTailorPrompt, chooseTailoringMenu } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
 import { trackAiResponseReceived } from './tracks.ts';
 import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
@@ -101,19 +101,25 @@ async function fetchAiOutputWithRetry(
 }
 
 /**
- * Fetch the task ids that will actually render for this goal, so the prompt offers
- * only renderable tasks. Returns an empty list on failure, which leaves the prompt
- * using the full menu.
+ * Fetch the task ids the prompt's menu may offer for this goal: the actionable ids, relaxed to all renderable
+ * ids when completion leaves too few to fill a valid list (see chooseTailoringMenu). Returns an empty list on
+ * failure, which leaves the prompt using the full menu.
  *
  * @param goal - The selected goal.
- * @return The available task ids, or an empty array.
+ * @return The task ids to offer, or an empty array.
  */
-async function fetchAvailableTaskIds( goal: string ): Promise< string[] > {
+async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[] > {
 	try {
 		const response = ( await apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/ai-launchpad/available-tasks', { goal } ),
-		} ) ) as { available_task_ids?: string[] };
-		return Array.isArray( response.available_task_ids ) ? response.available_task_ids : [];
+		} ) ) as { available_task_ids?: string[]; renderable_task_ids?: string[] };
+		const actionable = Array.isArray( response.available_task_ids )
+			? response.available_task_ids
+			: [];
+		const renderable = Array.isArray( response.renderable_task_ids )
+			? response.renderable_task_ids
+			: [];
+		return chooseTailoringMenu( actionable, renderable );
 	} catch {
 		return [];
 	}

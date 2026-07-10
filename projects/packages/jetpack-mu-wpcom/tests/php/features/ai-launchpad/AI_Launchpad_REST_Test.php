@@ -427,6 +427,55 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A task that is already complete offers nothing to do, so it is excluded from the actionable ids offered to the
+	 * tailoring AI — but stays in the renderable ids, the client's relaxation set for heavily-completed sites.
+	 */
+	public function test_available_tasks_exclude_already_completed_tasks() {
+		wp_set_current_user( $this->admin_id );
+
+		$before = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+		$this->assertContains( 'first_post_published', $before['available_task_ids'] );
+
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$after = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+		$this->assertNotContains( 'first_post_published', $after['available_task_ids'] );
+		$this->assertContains( 'first_post_published', $after['renderable_task_ids'] );
+	}
+
+	/**
+	 * The launch tasks are exempt from the already-completed filter: the output contract requires the tailored list
+	 * to end on one, so a site that already launched must still be able to produce a valid list.
+	 */
+	public function test_available_tasks_keep_completed_launch_tasks() {
+		wp_set_current_user( $this->admin_id );
+
+		update_option( 'launch-status', 'launched' );
+
+		$data = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+
+		// Guard against the premise going stale: the launch task really is complete on this site, so its presence
+		// below proves the exemption rather than mere incompleteness.
+		$this->assertTrue( wpcom_launchpad_checklists()->is_task_id_complete( 'site_launched' ) );
+		$this->assertContains( 'site_launched', $data['available_task_ids'] );
+	}
+
+	/**
+	 * The short-list backfill must not top the list up with already-completed filler: a pre-checked card the user
+	 * never chose offers nothing to do. A shorter list is preferable.
+	 */
+	public function test_backfill_skips_already_completed_pool_tasks() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'drive_traffic' => true ) );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertNotContains( 'drive_traffic', $ids, 'a completed pool task is not backfilled' );
+		$this->assertContains( 'add_new_page', $ids, 'incomplete pool tasks still backfill' );
+	}
+
+	/**
 	 * Test that GET keeps add_10_email_subscribers even though its catalog
 	 * visibility callback (wpcom_launchpad_are_newsletter_subscriber_counts_available)
 	 * is false off WordPress.com: the AI Launchpad retrieves the subscriber count
