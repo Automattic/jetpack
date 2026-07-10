@@ -14,11 +14,13 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, comment, globe, people, seen, starEmpty } from '@wordpress/icons';
 import { Text, VisuallyHidden } from '@wordpress/ui';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import {
+	DEFAULT_SITE_OVERVIEW_METRICS,
 	SITE_OVERVIEW_METRICS,
 	type SiteOverviewAttributes,
 	type SiteOverviewMetricId,
@@ -57,8 +59,8 @@ const TILE_CONFIG: Record<
 		note?: string;
 	}
 > = {
-	showViews: { icon: seen, value: summary => summary.views },
-	showVisitors: {
+	views: { icon: seen, value: summary => summary.views },
+	visitors: {
 		icon: people,
 		value: summary => summary.visitors,
 		// Mirrors the upstream Stats caveat: the endpoint sums each day's
@@ -68,8 +70,8 @@ const TILE_CONFIG: Record<
 			'jetpack-premium-analytics'
 		),
 	},
-	showLikes: { icon: starEmpty, value: summary => summary.likes },
-	showComments: { icon: comment, value: summary => summary.comments },
+	likes: { icon: starEmpty, value: summary => summary.likes },
+	comments: { icon: comment, value: summary => summary.comments },
 };
 
 /**
@@ -80,13 +82,17 @@ const TILE_CONFIG: Record<
  * When a comparison period is requested and returns data, each tile shows its
  * period-over-period change; the comparison total is looked up per metric so a
  * primary metric is never paired with a fabricated previous value. Which tiles
- * appear is controlled by the per-metric visibility attributes.
+ * appear is controlled by the `metrics` attribute.
  *
- * @param props            - The component props.
- * @param props.attributes - The per-metric visibility flags; a missing flag means enabled.
+ * @param props           - The component props.
+ * @param props.metricIds - The selected metric tile ids; missing means every metric.
  * @return The widget content.
  */
-function SiteOverviewReport( { attributes }: { attributes: SiteOverviewAttributes } ) {
+function SiteOverviewReport( {
+	metricIds = DEFAULT_SITE_OVERVIEW_METRICS,
+}: {
+	metricIds?: SiteOverviewMetricId[];
+} ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
@@ -95,10 +101,12 @@ function SiteOverviewReport( { attributes }: { attributes: SiteOverviewAttribute
 	const summary = primary.data as StatsSummaryResponse | undefined;
 	const comparisonSummary = comparison.data as StatsSummaryResponse | undefined;
 
-	// Drop tiles the user has toggled off in the widget settings, keeping the
-	// declared display order. A missing flag means enabled, matching the
-	// `getValue` defaults on the widget definition.
-	const visibleMetrics = SITE_OVERVIEW_METRICS.filter( ( { id } ) => attributes[ id ] ?? true );
+	// Resolve the selected ids against the canonical definitions so the tile
+	// order stays stable regardless of the order the ids were toggled in.
+	const visibleMetrics = useMemo( () => {
+		const selected = new Set( metricIds );
+		return SITE_OVERVIEW_METRICS.filter( metric => selected.has( metric.id ) );
+	}, [ metricIds ] );
 
 	// Not a data state: the user has toggled every tile off in the widget
 	// settings, so it stays outside `WidgetState` and shows in every fetch state.
@@ -199,7 +207,7 @@ function SiteOverviewReport( { attributes }: { attributes: SiteOverviewAttribute
 export default function SiteOverview( { attributes = {} }: SiteOverviewWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SiteOverviewReport attributes={ attributes } />
+			<SiteOverviewReport metricIds={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

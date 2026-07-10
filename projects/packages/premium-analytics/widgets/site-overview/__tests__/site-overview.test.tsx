@@ -143,7 +143,7 @@ describe( 'SiteOverviewWidget', () => {
 			<SiteOverviewWidget
 				attributes={ {
 					reportParams: { from: '2026-03-01', to: '2026-03-10' },
-					showLikes: false,
+					metrics: [ 'views', 'visitors', 'comments' ],
 				} }
 			/>
 		);
@@ -161,10 +161,7 @@ describe( 'SiteOverviewWidget', () => {
 			<SiteOverviewWidget
 				attributes={ {
 					reportParams: { from: '2026-03-01', to: '2026-03-10' },
-					showViews: false,
-					showVisitors: false,
-					showLikes: false,
-					showComments: false,
+					metrics: [],
 				} }
 			/>
 		);

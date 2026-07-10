@@ -25,7 +25,10 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import SiteOverviewRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, {
+	DEFAULT_SITE_OVERVIEW_METRICS,
+	type SiteOverviewMetricId,
+} from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -52,45 +55,24 @@ interface SiteOverviewStoryControls {
 	 */
 	withComparison: boolean;
 	/**
-	 * Whether the Views tile is shown.
+	 * Metric tiles to show in the widget body.
 	 */
-	showViews: boolean;
-	/**
-	 * Whether the Visitors tile is shown.
-	 */
-	showVisitors: boolean;
-	/**
-	 * Whether the Likes tile is shown.
-	 */
-	showLikes: boolean;
-	/**
-	 * Whether the Comments tile is shown.
-	 */
-	showComments: boolean;
+	metrics: SiteOverviewMetricId[];
 }
 
 /**
  * Renders the data-connected widget with report params derived from the
- * date-range picker preset and the per-metric visibility toggles.
+ * date-range picker preset and the selected metrics.
  *
  * @param {SiteOverviewStoryControls} props - The story controls.
  * @return The rendered widget.
  */
-function renderSiteOverview( {
-	withComparison,
-	showViews,
-	showVisitors,
-	showLikes,
-	showComments,
-}: SiteOverviewStoryControls ) {
+function renderSiteOverview( { withComparison, metrics }: SiteOverviewStoryControls ) {
 	return (
 		<SiteOverviewRender
 			attributes={ {
 				reportParams: getDefaultQueryParams( withComparison ),
-				showViews,
-				showVisitors,
-				showLikes,
-				showComments,
+				metrics,
 			} }
 		/>
 	);
@@ -114,17 +96,15 @@ function renderSiteOverviewOnPreset( preset: PresetType ) {
 }
 
 const METRIC_ARG_TYPES = {
-	showViews: { control: 'boolean' },
-	showVisitors: { control: 'boolean' },
-	showLikes: { control: 'boolean' },
-	showComments: { control: 'boolean' },
+	metrics: {
+		control: 'check',
+		options: DEFAULT_SITE_OVERVIEW_METRICS,
+		description: 'Metric tiles to show in the widget body.',
+	},
 } as const;
 
 const ALL_METRICS_ARGS = {
-	showViews: true,
-	showVisitors: true,
-	showLikes: true,
-	showComments: true,
+	metrics: DEFAULT_SITE_OVERVIEW_METRICS,
 } as const;
 
 // Close-up canvas so the metric grid fills the frame outside the dashboard grid.
@@ -146,7 +126,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Site overview" widget. Shows the selected period\'s headline traffic and engagement — views, visitors, likes, and comments — as metric tiles, sourced from the Jetpack Stats `summary` endpoint. Each metric tile can be toggled off via the widget\'s checkbox settings (the `show*` controls here). This module has genuine period-over-period comparison data, so the `WithComparison` story shows a change indicator on each tile.',
+					"The \"Site overview\" widget. Shows the selected period's headline traffic and engagement — views, visitors, likes, and comments — as metric tiles, sourced from the Jetpack Stats `summary` endpoint. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. This module has genuine period-over-period comparison data, so the `WithComparison` story shows a change indicator on each tile.",
 			},
 		},
 	},
@@ -234,10 +214,7 @@ interface SiteOverviewDashboardStoryProps
  */
 function SiteOverviewDashboardStory( {
 	withComparison,
-	showViews,
-	showVisitors,
-	showLikes,
-	showComments,
+	metrics,
 	...dashboardArgs
 }: SiteOverviewDashboardStoryProps ) {
 	return (
@@ -248,10 +225,7 @@ function SiteOverviewDashboardStory( {
 			renderComponent={ SiteOverviewRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
 				reportParams: getDefaultQueryParams( withComparison ),
-				showViews,
-				showVisitors,
-				showLikes,
-				showComments,
+				metrics,
 			} }
 		/>
 	);
