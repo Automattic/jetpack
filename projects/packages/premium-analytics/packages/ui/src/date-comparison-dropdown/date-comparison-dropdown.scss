@@ -1,43 +1,7 @@
 .date-comparison-dropdown__select {
 	min-width: 12rem;
 
-	// Match idle date-filter buttons: borderless, minimal surface.
-	// `data-can-disable-input-layout` is an internal attribute of the
-	// @wordpress/ui (0.17.0) select trigger; revisit on package bumps.
-	div:has(> button[data-can-disable-input-layout]) {
-		background-color: #fff;
-		border: none;
-		height: auto;
-		min-height: var(--wpds-dimension-size-md);
-
-		&:hover,
-		&:active {
-			background-color: var(--wpds-color-background-interactive-neutral-weak-active);
-		}
-	}
-
 	button[data-can-disable-input-layout] {
 		padding-inline: var(--wpds-dimension-padding-sm);
-	}
-}
-
-.date-comparison-dropdown__select--active {
-
-	div:has(> button[data-can-disable-input-layout]) {
-		background-color: var(--wpds-color-background-interactive-neutral-strong);
-		color: var(--wpds-color-foreground-interactive-neutral-strong-active);
-
-		&:hover,
-		&:active {
-			background-color: var(--wpds-color-background-interactive-neutral-strong);
-		}
-
-		button {
-			color: inherit;
-		}
-
-		svg {
-			display: none;
-		}
 	}
 }

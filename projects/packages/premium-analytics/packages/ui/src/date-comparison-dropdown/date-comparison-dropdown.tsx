@@ -159,7 +159,6 @@ export function DateComparisonDropdown( {
 			label={ label ?? __( 'Compare to', 'jetpack-premium-analytics' ) }
 			hideLabelFromVision={ ! label }
 			placeholder={ selectComparisonLabel }
-			size="compact"
 		/>
 	);
 }
