@@ -4,7 +4,7 @@
  *
  * Podcast ships as a Jetpack module that Jetpack hides on self-hosted sites
  * until go-live. On Atomic we opt in early and force the module active so every
- * site hydrates its stored `active_modules` setting — mirroring today's
+ * site hydrates its stored `jetpack_active_modules` setting — mirroring today's
  * always-on behavior. Removing this file at self-hosted go-live leaves the
  * hydrated setting in place, so sites stay on but the module becomes
  * user-toggleable.
