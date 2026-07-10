@@ -15,6 +15,14 @@ const { compareModulesByPreOrderIndexOrIdentifier } = require( 'webpack/lib/util
 const PNPM_PATH_REGEXP =
 	/(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/]*\/node_modules\/([^|!]+)/g;
 
+/*
+ * With `enableGlobalVirtualStore`, packages live in the pnpm store instead of `node_modules/.pnpm`,
+ * as `<store>/links/<@scope|@>/<name>/<version>/<hash>/node_modules/<path>`. The store is outside
+ * the monorepo, so its absolute path would otherwise leak into the identifier.
+ */
+const PNPM_GLOBAL_STORE_PATH_REGEXP =
+	/(?<=^|[|!])[^|!]*?\/links\/[^/]+\/[^/]+\/[^/]+\/[0-9a-f]{32,}\/node_modules\/([^|!]+)/g;
+
 /**
  * Replace pnpm store paths in an identifier.
  *
@@ -29,7 +37,9 @@ const PNPM_PATH_REGEXP =
  * @return {string} Transformed identifier.
  */
 function fixPnpmPaths( identifier ) {
-	return identifier.replace( PNPM_PATH_REGEXP, '.pnpm/$1' );
+	return identifier
+		.replace( PNPM_PATH_REGEXP, '.pnpm/$1' )
+		.replace( PNPM_GLOBAL_STORE_PATH_REGEXP, '.pnpm/$1' );
 }
 
 /** @typedef {import("../Compiler")} Compiler */
