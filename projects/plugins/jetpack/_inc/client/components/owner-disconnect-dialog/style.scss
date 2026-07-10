@@ -1,0 +1,58 @@
+// Self-contained styles for this plugin's OwnerDisconnectDialog action cards.
+// Historically this component freeloaded on the connection package's global
+// `.jp-connection__manage-dialog__action-card*` classes.
+// @todo: refactor Jetpack plugin connection components as the duplication and
+// workarounds should be avoided.
+
+.jp-owner-disconnect-dialog__action-card {
+	background-color: var(--jp-white);
+	width: 750px;
+	max-width: 100%;
+	padding: 1rem 2rem;
+	border-radius: 3px;
+	box-shadow: 0 0 15px var(--jp-gray-off);
+	margin: var(--spacing-base, 8px) auto;
+	text-align: left;
+	border: none;
+	position: relative;
+
+	&__card-headline {
+		font-size: var(--font-body);
+		font-weight: 600;
+		text-decoration: none;
+		line-height: calc(var(--spacing-base, 8px) * 3);
+	}
+
+	&__icon {
+		float: right;
+	}
+
+	&.disabled::before {
+		content: "";
+		display: block;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 25%;
+		border-radius: 3px;
+		background: var(--jp-black);
+	}
+
+	.transfer,
+	.unlink {
+		color: var(--jp-black);
+		fill: var(--jp-black);
+	}
+
+	.disconnect {
+		color: var(--jp-red);
+		fill: var(--jp-red);
+	}
+
+	.check-users {
+		color: var(--jp-black);
+		fill: var(--jp-black);
+	}
+}
