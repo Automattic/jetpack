@@ -7,9 +7,9 @@ import { Tabs, Tooltip } from '@wordpress/ui';
 import { ModernizationProvider } from '../hooks/use-is-modernized';
 import SocialGate from './social-gate';
 import useSocialGate from './social-gate/use-social-gate';
-// Define the `--jetpack-social-color-facebook`, `--jetpack-social-color-twitter`, ...
-// custom properties that `SocialServiceIcon` (and friends) consume to paint
-// per-service brand colours.
+// Define the `--color-facebook`, `--color-twitter`, ... custom properties from
+// `social-logos/colors.css` that `SocialServiceIcon` (and friends) consume to
+// paint per-service brand colours.
 import 'social-logos/colors.css';
 import './social-page.scss';
 import type { ReactNode } from 'react';
