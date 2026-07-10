@@ -11,6 +11,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -187,8 +188,8 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 				),
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 			} }
-			// No `empty.icon`: the icons package has no neutral email glyph.
 			empty={ {
+				icon: envelope,
 				description: __(
 					'Your latest emails will appear here once you send a newsletter.',
 					'jetpack-premium-analytics'

@@ -18,6 +18,7 @@ import {
 	type TimeSeriesData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { store } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 import {
 	DEFAULT_STORE_PERFORMANCE_METRICS,
@@ -376,6 +377,7 @@ function StorePerformanceContent( {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 				} }
 				empty={ {
+					icon: store,
 					description: __(
 						'No metric selected. Please select a metric from the metrics list.',
 						'jetpack-premium-analytics'

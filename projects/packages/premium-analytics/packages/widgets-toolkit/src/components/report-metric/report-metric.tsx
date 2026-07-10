@@ -3,6 +3,8 @@
  */
 import { useGlobalChartsContext } from '@automattic/charts';
 import { __ } from '@wordpress/i18n';
+import { chartBar } from '@wordpress/icons';
+import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -56,6 +58,17 @@ export type ReportMetricWidgetProps = {
 	 * The format configuration for the metric
 	 */
 	dataFormat: DataFormat;
+
+	/**
+	 * Icon for the empty state (default: chartBar, the shared glyph of the
+	 * metric/over-time widgets this component backs).
+	 */
+	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
+
+	/**
+	 * Copy for the empty state.
+	 */
+	emptyStateText?: string;
 };
 
 /**
@@ -65,7 +78,13 @@ export type ReportMetricWidgetProps = {
  *
  * @internal
  */
-export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetricWidgetProps ) {
+export function ReportMetricWidget( {
+	metricKey,
+	data,
+	dataFormat,
+	emptyStateIcon = chartBar,
+	emptyStateText,
+}: ReportMetricWidgetProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
 	const primaryData = data.primary.data;
@@ -127,6 +146,11 @@ export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetri
 					'jetpack-premium-analytics'
 				),
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: emptyStateIcon,
+				description:
+					emptyStateText ?? __( 'No data found for this date range.', 'jetpack-premium-analytics' ),
 			} }
 		>
 			<MetricComparisonWidget

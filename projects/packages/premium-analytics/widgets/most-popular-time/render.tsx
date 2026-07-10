@@ -8,6 +8,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
+import { scheduled } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -95,9 +96,8 @@ function MostPopularTimeReport() {
 						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
 					],
 				} }
-				// No icon: the widget's glyph (`scheduled`) has no counterpart in
-				// `@jetpack-premium-analytics/icons`.
 				empty={ {
+					icon: scheduled,
 					description: __(
 						'Not enough data to determine your most popular time yet.',
 						'jetpack-premium-analytics'
