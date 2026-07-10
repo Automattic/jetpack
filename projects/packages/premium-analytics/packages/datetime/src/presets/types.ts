@@ -39,11 +39,6 @@ export const QUICK_SURFACE_PRESETS = [
 ] as const;
 
 /**
- * Union of the quick surface preset identifiers.
- */
-export type QuickSurfacePresetId = ( typeof QUICK_SURFACE_PRESETS )[ number ];
-
-/**
  * Union of the selectable preset identifiers.
  */
 export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];

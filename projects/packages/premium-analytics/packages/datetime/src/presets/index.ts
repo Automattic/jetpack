@@ -1,6 +1,5 @@
 export {
 	SELECTABLE_PRESETS,
-	QUICK_SURFACE_PRESETS,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
 	PRESET_LAST_24_HOURS,
@@ -15,7 +14,6 @@ export {
 	isSelectablePreset,
 	isPrimaryPreset,
 	type SelectablePresetId,
-	type QuickSurfacePresetId,
 	type PrimaryPresetId,
 } from './types';
 

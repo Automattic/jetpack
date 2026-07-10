@@ -189,7 +189,7 @@ function buildDateContext( timeZone: string ): DateContext {
  * Preset ranges always have both `from` and `to` defined.
  */
 export type DateRangePreset = {
-	id: PrimaryPresetId;
+	id: SelectablePresetId;
 	label: string;
 	range: Required< DateRange >;
 };

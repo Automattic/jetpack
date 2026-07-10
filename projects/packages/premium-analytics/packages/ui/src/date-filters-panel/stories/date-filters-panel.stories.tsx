@@ -178,7 +178,8 @@ export const DashboardFilters: Story = {
 };
 
 /**
- * Primary range only — comparison disabled until enabled from the menu.
+ * Primary range only — comparison disabled until a preset is picked from the
+ * comparison select.
  */
 export const WithoutComparison: Story = {
 	render: () => <DateFiltersPanelStory withComparison={ false } />,

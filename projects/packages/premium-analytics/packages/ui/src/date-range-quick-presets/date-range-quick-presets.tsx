@@ -5,7 +5,6 @@ import {
 	getDefaultDateRangePresets,
 	getQuickSurfacePresets,
 	PRESET_CUSTOM,
-	type DateRangePreset,
 	type SelectablePresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { __ } from '@wordpress/i18n';
@@ -45,19 +44,9 @@ export function DateRangeQuickPresets( {
 	timeZone,
 	isCompact = false,
 }: DateRangeQuickPresetsProps ) {
-	const surfacePresets = useMemo(
-		() =>
-			getQuickSurfacePresets( timeZone ) as Array< DateRangePreset & { id: SelectablePresetId } >,
-		[ timeZone ]
-	);
+	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
 
-	const allPresets = useMemo(
-		() =>
-			getDefaultDateRangePresets( timeZone ) as Array<
-				DateRangePreset & { id: SelectablePresetId }
-			>,
-		[ timeZone ]
-	);
+	const allPresets = useMemo( () => getDefaultDateRangePresets( timeZone ), [ timeZone ] );
 
 	const presets = isCompact ? allPresets : surfacePresets;
 
