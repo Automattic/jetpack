@@ -7,7 +7,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
-	formatLegendLabels,
 	toMaxRows,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -124,8 +123,6 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 		[ rows, withComparison ]
 	);
 
-	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
 	return (
 		<WidgetState
 			isLoading={ isInitialLoading }
@@ -151,8 +148,7 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 				data={ chartData }
 				withComparison={ withComparison }
 				withOverlayLabel
-				showLegend={ withComparison }
-				legendLabels={ legendLabels }
+				showLegend={ false }
 				dataFormat={ {
 					type: 'number',
 					options: { useMultipliers: true, decimals: 0 },
