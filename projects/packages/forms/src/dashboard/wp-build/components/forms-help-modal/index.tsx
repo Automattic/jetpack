@@ -67,47 +67,54 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 					<Dialog.Title>{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-forms' ) } />
 				</Dialog.Header>
-				<Stack direction="column" gap="md">
-					<Text>
-						{ __(
-							'The Forms list shows reusable forms, not simple form blocks.',
-							'jetpack-forms'
-						) }
-					</Text>
-					<div>
-						<Text variant="body-md" render={ <p /> }>
-							<strong>
-								{ __( 'To convert a form block to a reusable form:', 'jetpack-forms' ) }
-							</strong>
+				<Dialog.Content>
+					<Stack direction="column" gap="md">
+						<Text>
+							{ __(
+								'The Forms list shows reusable forms, not simple form blocks.',
+								'jetpack-forms'
+							) }
 						</Text>
-						<ol>
-							<li>
-								{ __(
-									'Open the page or post where your form block is embedded.',
-									'jetpack-forms'
-								) }
-							</li>
-							<li>{ __( 'Select the form block.', 'jetpack-forms' ) }</li>
-							<li>
-								{ __( 'Click "Edit Form" in the block toolbar to convert it.', 'jetpack-forms' ) }
-							</li>
-							<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
-						</ol>
-					</div>
-				</Stack>
-				<Dialog.Footer>
-					<Stack direction="row" justify="space-between" align="center" gap="md">
-						<CheckboxControl
-							__nextHasNoMarginBottom
-							label={ __( "Don't show this again", 'jetpack-forms' ) }
-							checked={ dontShowAgain }
-							onChange={ setDontShowAgain }
-						/>
-						<Button variant="solid" onClick={ handleSubmit }>
-							{ __( 'Got it', 'jetpack-forms' ) }
-						</Button>
+						<div>
+							<Text variant="body-md" render={ <p /> }>
+								<strong>
+									{ __( 'To convert a form block to a reusable form:', 'jetpack-forms' ) }
+								</strong>
+							</Text>
+							<ol>
+								<li>
+									{ __(
+										'Open the page or post where your form block is embedded.',
+										'jetpack-forms'
+									) }
+								</li>
+								<li>{ __( 'Select the form block.', 'jetpack-forms' ) }</li>
+								<li>
+									{ __( 'Click "Edit Form" in the block toolbar to convert it.', 'jetpack-forms' ) }
+								</li>
+								<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
+							</ol>
+						</div>
 					</Stack>
-				</Dialog.Footer>
+				</Dialog.Content>
+				<Stack
+					render={ <Dialog.Footer /> }
+					direction="row"
+					justify="space-between"
+					align="center"
+					gap="md"
+					wrap="wrap"
+				>
+					<CheckboxControl
+						__nextHasNoMarginBottom
+						label={ __( "Don't show this again", 'jetpack-forms' ) }
+						checked={ dontShowAgain }
+						onChange={ setDontShowAgain }
+					/>
+					<Button variant="solid" onClick={ handleSubmit }>
+						{ __( 'Got it', 'jetpack-forms' ) }
+					</Button>
+				</Stack>
 			</Dialog.Popup>
 		</Dialog.Root>
 	);
