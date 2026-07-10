@@ -50,63 +50,63 @@ a.jetpack-sharing-button__button {
 		color: #fff;
 
 		&.share-bluesky {
-			background: var(--color-bluesky);
+			background: var(--jetpack-social-color-bluesky);
 		}
 
 		&.share-x {
-			background: #000;
+			background: var(--jetpack-social-color-x);
+		}
+
+		&.share-reddit {
+			background: var(--jetpack-social-color-reddit);
+		}
+
+		&.share-facebook {
+			background: var(--jetpack-social-color-facebook);
+		}
+
+		&.share-linkedin {
+			background: var(--jetpack-social-color-linkedin);
+		}
+
+		&.share-twitter {
+			background: var(--jetpack-social-color-twitter);
+		}
+
+		&.share-tumblr {
+			background: var(--jetpack-social-color-tumblr);
+		}
+
+		&.share-pinterest {
+			background: var(--jetpack-social-color-pinterest);
+		}
+
+		&.share-telegram {
+			background: var(--jetpack-social-color-telegram);
+		}
+
+		&.share-threads {
+			background: var(--jetpack-social-color-threads);
+		}
+
+		&.share-whatsapp {
+			background: var(--jetpack-social-color-whatsapp);
+		}
+
+		&.share-mastodon {
+			background: var(--jetpack-social-color-mastodon);
+		}
+
+		&.share-nextdoor {
+			background: var(--jetpack-social-color-nextdoor);
 		}
 
 		&.share-print {
 			background: #c5c2c2;
 		}
 
-		&.share-reddit {
-			background: var(--color-reddit);
-		}
-
-		&.share-facebook {
-			background: var(--color-facebook);
-		}
-
-		&.share-linkedin {
-			background: var(--color-linkedin);
-		}
-
 		&.share-mail {
 			background: #c5c2c2;
-		}
-
-		&.share-twitter {
-			background: var(--color-twitter);
-		}
-
-		&.share-tumblr {
-			background: var(--color-tumblr);
-		}
-
-		&.share-pinterest {
-			background: var(--color-pinterest);
-		}
-
-		&.share-telegram {
-			background: var(--color-telegram);
-		}
-
-		&.share-threads {
-			background: var(--color-threads);
-		}
-
-		&.share-whatsapp {
-			background: var(--color-whatsapp);
-		}
-
-		&.share-mastodon {
-			background: var(--color-mastodon);
-		}
-
-		&.share-nextdoor {
-			background: var(--color-nextdoor);
 		}
 
 		&.share-share {

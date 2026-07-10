@@ -13,11 +13,11 @@
 	fill: gb.$gray-700;
 
 	&.bluesky {
-		fill: var(--color-bluesky);
+		fill: var(--jetpack-social-color-bluesky);
 	}
 
 	&.facebook {
-		fill: var(--color-facebook);
+		fill: var(--jetpack-social-color-facebook);
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
 			border-radius: 50%;
@@ -25,27 +25,27 @@
 	}
 
 	&.twitter {
-		fill: var(--color-twitter);
+		fill: var(--jetpack-social-color-twitter);
 	}
 
 	&.linkedin {
-		fill: var(--color-linkedin);
+		fill: var(--jetpack-social-color-linkedin);
 	}
 
 	&.tumblr {
-		fill: var(--color-tumblr);
+		fill: var(--jetpack-social-color-tumblr);
 	}
 
 	&.google {
-		fill: var(--color-gplus);
+		fill: var(--jetpack-social-color-google-plus);
 	}
 
 	&.mastodon {
-		fill: var(--color-mastodon);
+		fill: var(--jetpack-social-color-mastodon);
 	}
 
 	&.nextdoor {
-		fill: var(--color-nextdoor);
+		fill: var(--jetpack-social-color-nextdoor);
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
 			border-radius: 50%;
@@ -53,15 +53,15 @@
 	}
 
 	&.instagram {
-		fill: var(--color-instagram);
+		fill: var(--jetpack-social-color-instagram);
 	}
 
 	&.whatsapp {
-		fill: var(--color-whatsapp);
+		fill: var(--jetpack-social-color-whatsapp);
 	}
 
 	&.threads {
-		fill: var(--color-threads);
+		fill: var(--jetpack-social-color-threads);
 
 		&:global(.social-logo) {
 			border-radius: 40%;
@@ -69,7 +69,7 @@
 	}
 
 	&.x {
-		fill: var(--color-x);
+		fill: var(--jetpack-social-color-x);
 	}
 }
 
