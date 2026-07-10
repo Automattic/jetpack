@@ -4,6 +4,7 @@ import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { useSettings, useUpdateSettings } from '../../src/dashboard/hooks/use-settings';
+import { isSimpleSite } from '../../src/dashboard/utils/is-simple';
 import './style.scss';
 
 const SettingsForm = () => {
@@ -12,6 +13,12 @@ const SettingsForm = () => {
 	const privateForSite = settings.data?.videoPressVideosPrivateForSite ?? false;
 	const autoSubtitlesDisabled = settings.data?.videoPressAutoSubtitlesDisabled ?? false;
 	const disabled = settings.isLoading || update.isPending;
+
+	// On WordPress.com Simple there's no independent "private videos for site"
+	// setting — VideoPress privacy follows the whole-site Privacy setting. Reflect
+	// that value read-only rather than offering a toggle whose write is a no-op.
+	const simple = isSimpleSite();
+	const privateForSiteChecked = simple ? settings.data?.siteIsPrivate ?? false : privateForSite;
 
 	return (
 		<Card.Root>
@@ -23,12 +30,19 @@ const SettingsForm = () => {
 					<ToggleControl
 						__nextHasNoMarginBottom
 						label={ __( 'Only logged-in users can play your videos', 'jetpack-videopress-pkg' ) }
-						help={ __(
-							"Private videos won't play for signed-out visitors.",
-							'jetpack-videopress-pkg'
-						) }
-						checked={ privateForSite }
-						disabled={ disabled }
+						help={
+							simple
+								? __(
+										'On WordPress.com this follows your site’s Privacy setting.',
+										'jetpack-videopress-pkg'
+								  )
+								: __(
+										"Private videos won't play for signed-out visitors.",
+										'jetpack-videopress-pkg'
+								  )
+						}
+						checked={ privateForSiteChecked }
+						disabled={ disabled || simple }
 						onChange={ next => update.mutate( { videoPressVideosPrivateForSite: next } ) }
 					/>
 					<ToggleControl
