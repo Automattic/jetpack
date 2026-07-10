@@ -799,9 +799,11 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'clamps the WordAds window end to yesterday without shortening the window', () => {
-		// WordAds stats are computed nightly, so a range ending today must end at
-		// yesterday instead — with the bucket count still matching the range.
+	it( 'clamps the WordAds window end to yesterday, keeping it anchored to the range start', () => {
+		// WordAds stats are computed nightly, so a range ending today ends at
+		// yesterday instead. The window stays anchored to the range start: the
+		// unavailable trailing bucket is dropped (quantity 7 → 6), so the window
+		// does not shift a bucket earlier and overlap the comparison window.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -816,7 +818,7 @@ describe( 'Stats query factories', () => {
 					expect.objectContaining( {
 						unit: 'day',
 						date: '2026-06-14',
-						quantity: 7,
+						quantity: 6,
 					} ),
 				] )
 			);
