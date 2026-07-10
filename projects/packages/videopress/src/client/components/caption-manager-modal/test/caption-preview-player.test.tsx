@@ -126,6 +126,80 @@ describe( 'CaptionPreviewPlayer', () => {
 			expect( ref.current?.getCurrentTime() ).toBe( 6 );
 			expect( screen.getByText( 'Second cue' ) ).toBeInTheDocument();
 		} );
+
+		describe( 'while editing a cue', () => {
+			const renderEditingPlayer = ( editingCueText?: string ) =>
+				render(
+					<CaptionPreviewPlayer
+						guid="abc123"
+						videoSrc="https://example.com/video.mp4"
+						cueRanges={ CUE_RANGES }
+						editingCueText={ editingCueText }
+					/>
+				);
+
+			it( 'overlays the edited cue over the cue under the playhead', () => {
+				renderEditingPlayer( 'Editing cue' );
+
+				// The playhead sits inside the first cue, but the edited cue wins.
+				timeUpdate( getVideo(), 2 );
+
+				expect( screen.getByText( 'Editing cue' ) ).toBeInTheDocument();
+				expect( screen.queryByText( 'First cue' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'overlays the edited cue even when the playhead is between cues', () => {
+				renderEditingPlayer( 'Editing cue' );
+
+				timeUpdate( getVideo(), 4 );
+
+				expect( screen.getByText( 'Editing cue' ) ).toBeInTheDocument();
+			} );
+
+			it( 'shows nothing while the edited cue is still empty', () => {
+				renderEditingPlayer( '' );
+
+				// The playhead sits inside a timeline cue, but an empty edited cue wins.
+				timeUpdate( getVideo(), 2 );
+
+				expect( screen.queryByText( 'First cue' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'updates the overlay as the edited cue text changes', () => {
+				const { rerender } = renderEditingPlayer( 'Editing' );
+				expect( screen.getByText( 'Editing' ) ).toBeInTheDocument();
+
+				rerender(
+					<CaptionPreviewPlayer
+						guid="abc123"
+						videoSrc="https://example.com/video.mp4"
+						cueRanges={ CUE_RANGES }
+						editingCueText="Editing more"
+					/>
+				);
+
+				expect( screen.getByText( 'Editing more' ) ).toBeInTheDocument();
+			} );
+
+			it( 'falls back to the cue under the playhead once editing ends', () => {
+				const { rerender } = renderEditingPlayer( 'Editing cue' );
+
+				timeUpdate( getVideo(), 2 );
+				expect( screen.getByText( 'Editing cue' ) ).toBeInTheDocument();
+
+				rerender(
+					<CaptionPreviewPlayer
+						guid="abc123"
+						videoSrc="https://example.com/video.mp4"
+						cueRanges={ CUE_RANGES }
+						editingCueText={ undefined }
+					/>
+				);
+
+				expect( screen.queryByText( 'Editing cue' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'First cue' ) ).toBeInTheDocument();
+			} );
+		} );
 	} );
 
 	describe( 'with the VideoPress embed', () => {

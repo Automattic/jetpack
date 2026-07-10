@@ -32,7 +32,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	BlockList: () => (
 		<div>
 			{ mockBlockEditorState.blocks.map( ( block, index ) => (
-				<div key={ block.clientId || index }>
+				<div key={ block.clientId || index } data-block={ block.clientId }>
 					<label htmlFor={ `cue-text-${ index }` }>Cue text</label>
 					<textarea
 						id={ `cue-text-${ index }` }
@@ -788,6 +788,29 @@ describe( 'CaptionManagerModal', () => {
 		}
 	} );
 
+	it( 'overlays the cue being edited on the preview, then reverts to time-synced captions on blur', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+
+		const preview = screen.getByRole( 'complementary' );
+		const cueText = screen.getByLabelText( 'Cue text' );
+		const video = screen.getByLabelText( 'Video preview' ) as HTMLVideoElement;
+
+		// Type a caption into the new cue, then move the playhead past its 0–2s window.
+		await user.type( cueText, 'Live caption.' );
+		video.currentTime = 10;
+		fireEvent.timeUpdate( video );
+
+		// The focused cue overlays the preview even though the playhead is past it.
+		expect( within( preview ).getByText( 'Live caption.' ) ).toBeInTheDocument();
+
+		// Blurring the cue reverts to time-synced captions: nothing is active at 10s.
+		await user.click( screen.getByLabelText( 'Pause while typing' ) );
+		expect( within( preview ).queryByText( 'Live caption.' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'controls preview playback, seeking, cue insertion, and cue jumps with keyboard shortcuts', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
@@ -842,7 +865,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getAllByLabelText( 'Cue end' )[ 1 ], '00:00:12.000' );
 
 		video.currentTime = 2;
-		workspace.focus();
+		act( () => workspace.focus() );
 		await user.keyboard( 'n' );
 		expect( video.currentTime ).toBe( 10 );
 
@@ -911,6 +934,9 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Add track' ) );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
+
+		// Blur the cue so the overlay tracks playback time rather than the edited cue.
+		await user.click( screen.getByLabelText( 'Pause while typing' ) );
 
 		const video = screen.getByLabelText( 'Video preview' ) as HTMLVideoElement;
 		video.currentTime = 1;
@@ -1328,7 +1354,7 @@ describe( 'CaptionManagerModal', () => {
 		// Add a second cue via the keyboard shortcut (the toolbar add button was
 		// replaced by the per-cue appender, which the mocked BlockList doesn't render).
 		const workspace = screen.getByRole( 'group', { name: 'Subtitle editing workspace' } );
-		workspace.focus();
+		act( () => workspace.focus() );
 		await user.keyboard( 'c' );
 
 		const cueTexts = screen.getAllByLabelText( 'Cue text' );
