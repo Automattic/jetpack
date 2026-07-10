@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: render message-template placeholders in the manual sharing buttons instead of leaking raw {title}/{excerpt}/{url}/{author} tokens.

@@ -69,4 +69,18 @@ class SchemaNodeIdsTest extends TestCase {
 
 		$this->assertSame( Schema_Node_Ids::organization(), Schema_Node_Ids::organization() );
 	}
+
+	/**
+	 * Author entity ids anchor to the author archive URL.
+	 */
+	public function test_author_ids_anchor_to_the_author_archive() {
+		$this->assertSame(
+			get_author_posts_url( 123, 'jane-doe' ) . '#person',
+			Schema_Node_Ids::person( 123, 'jane-doe' )
+		);
+		$this->assertSame(
+			get_author_posts_url( 123, 'jane-doe' ) . '#profilepage',
+			Schema_Node_Ids::profile_page( 123, 'jane-doe' )
+		);
+	}
 }

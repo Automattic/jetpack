@@ -448,7 +448,7 @@ class Tus_File {
 	 * it back at the end. The digest is built inside its own guard so a hashing failure can never skip
 	 * the offset write below.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.40.0
 	 *
 	 * @param string            $key         The upload key.
 	 * @param \HashContext|null $md5_context The rolling MD5 context, or null when hashing is inactive.
@@ -484,7 +484,7 @@ class Tus_File {
 	 * written bytes can be folded into it. Returns null when no usable state is present, leaving the
 	 * caller to hash the assembled file instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.40.0
 	 *
 	 * @param string $key The upload key.
 	 *

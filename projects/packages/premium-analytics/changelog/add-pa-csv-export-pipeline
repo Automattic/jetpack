@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the CSV report export pipeline: report registry, proxy data fetcher, comparison-period merge strategies (index- and id-based), and the CSV generator.

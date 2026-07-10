@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: Forms: migrate FormsHelpModal from @wordpress/components to @wordpress/ui Dialog, Button, Stack, and Text.
