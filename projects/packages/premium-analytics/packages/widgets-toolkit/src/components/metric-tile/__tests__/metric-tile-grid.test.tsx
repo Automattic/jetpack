@@ -57,13 +57,11 @@ describe( 'MetricTileGrid', () => {
 				label: `Metric ${ index }`,
 				value: index,
 			} ) );
-			const { container } = render( <MetricTileGrid columns={ columns } tiles={ tiles } /> );
+			render( <MetricTileGrid columns={ columns } tiles={ tiles } /> );
 
-			expect(
-				( container.firstElementChild as HTMLElement ).style.getPropertyValue(
-					'--jpa-metric-tile-grid-columns'
-				)
-			).toBe( expected );
+			expect( screen.getByRole( 'list' ) ).toHaveStyle( {
+				'--jpa-metric-tile-grid-columns': expected,
+			} );
 		}
 	);
 } );

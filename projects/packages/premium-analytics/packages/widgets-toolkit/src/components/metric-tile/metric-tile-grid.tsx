@@ -114,8 +114,8 @@ export function MetricTileGrid( {
 	} as CSSProperties;
 
 	return (
-		<div className={ clsx( styles.container, className ) } style={ style }>
-			<div className={ styles.grid } role="list">
+		<div className={ clsx( styles.container, className ) }>
+			<div className={ styles.grid } role="list" style={ style }>
 				{ tiles.map( tile => (
 					<div key={ tile.key } className={ clsx( styles.tile, tile.className ) } role="listitem">
 						<div className={ styles.header }>
