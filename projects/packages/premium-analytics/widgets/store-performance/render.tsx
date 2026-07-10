@@ -6,7 +6,7 @@ import {
 	type ReportDataMap,
 } from '@jetpack-premium-analytics/data';
 import {
-	DEFAULT_METRICS,
+	BOOKINGS_FILTER,
 	MetricTabsChart,
 	WidgetRoot,
 	WidgetLoadingOverlay,
@@ -20,7 +20,14 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
+import {
+	DEFAULT_STORE_PERFORMANCE_METRICS,
+	STORE_PERFORMANCE_METRICS,
+	type StorePerformanceMetric,
+	type StorePerformanceMetricId,
+} from './metrics';
 import styles from './styles.module.scss';
+import type { StorePerformanceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -30,12 +37,14 @@ const DEFAULT_DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-type StorePerformanceMetric = ( typeof DEFAULT_METRICS )[ number ];
-
 // Report params (date range + comparison) arrive from the host via WidgetRoot;
-// the widget persists no own attributes. `setError` surfaces load failures in
-// the dashboard frame, matching the other analytics widgets.
-type StorePerformanceRenderProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > > & {
+// the widget's own `metrics` attribute selects which store metrics render as
+// tabs. `setError` surfaces load failures in the dashboard frame, matching the
+// other analytics widgets.
+type StorePerformanceRenderAttributes = StorePerformanceAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type StorePerformanceRenderProps = WidgetRenderProps< StorePerformanceRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -141,14 +150,7 @@ function getDefaultCustomersReportData(): ReportDataMap[ 'customersByDate' ] {
 	};
 }
 
-function buildSeriesForMetric(
-	metric: StorePerformanceMetric | undefined,
-	dataSources: DataSources
-) {
-	if ( ! metric ) {
-		return [];
-	}
-
+function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: DataSources ) {
 	if ( metric.metricType === 'visitors' ) {
 		return buildTimeSeriesChartData< TimeSeriesData >( {
 			primary: dataSources.visitors.primary.data ?? getDefaultVisitorsReportData(),
@@ -187,13 +189,18 @@ function buildSeriesForMetric(
 }
 
 function StorePerformanceContent( {
-	metrics = DEFAULT_METRICS,
+	metricIds = DEFAULT_STORE_PERFORMANCE_METRICS,
 }: {
-	metrics?: StorePerformanceMetric[];
+	metricIds?: StorePerformanceMetricId[];
 } ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const enabledMetrics = useMemo( () => metrics.filter( metric => metric.enabled ), [ metrics ] );
+	// Resolve selected ids against the canonical definitions so the tab order
+	// stays stable regardless of the order the ids were toggled in.
+	const enabledMetrics = useMemo( () => {
+		const selected = new Set( metricIds );
+		return STORE_PERFORMANCE_METRICS.filter( metric => selected.has( metric.id ) );
+	}, [ metricIds ] );
 	const metricTypes = useMemo(
 		() => new Set( enabledMetrics.map( metric => metric.metricType ) ),
 		[ enabledMetrics ]
@@ -207,13 +214,7 @@ function StorePerformanceContent( {
 	const bookingsReport = useReportOrders(
 		{
 			...reportParams,
-			filters: [
-				{
-					compare: 'IN',
-					key: 'product_type',
-					value: [ 'booking', 'bookable-event', 'bookable-service' ],
-				},
-			],
+			filters: [ BOOKINGS_FILTER ],
 		},
 		{
 			enabled: metricTypes.has( 'booking' ),
@@ -299,7 +300,6 @@ function StorePerformanceContent( {
 
 				return {
 					...metric,
-					id: `${ metric.metricType }-${ metric.metricKey }`,
 					primary: Number( primarySummary[ metric.metricKey ] ?? 0 ),
 					comparison:
 						comparisonSummary[ metric.metricKey ] !== undefined
@@ -404,7 +404,8 @@ function StorePerformanceContent( {
  *
  * Ported from the upstream analytics-at-a-glance widget. WidgetRoot provides
  * the query client, chart theme, and resolved report params; the local content
- * component renders selectable metrics with a comparison line chart.
+ * component renders the metrics selected by the `metrics` attribute with a
+ * comparison line chart.
  */
 export default function StorePerformanceRender( {
 	attributes = {},
@@ -412,7 +413,7 @@ export default function StorePerformanceRender( {
 }: StorePerformanceRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<StorePerformanceContent />
+			<StorePerformanceContent metricIds={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }
