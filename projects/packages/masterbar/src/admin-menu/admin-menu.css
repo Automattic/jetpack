@@ -126,9 +126,6 @@
 	height: 24px;
 	width: 24px;
 	margin-left: 10px;
-
-	/* Track the banner's text color: the banner sits on a light card when a color
-	   scheme sets one, and on the dark admin menu otherwise. */
 	fill: currentColor;
 }
 
