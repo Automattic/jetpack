@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Restore rel="noopener noreferrer" on the activation-screen error support links, which open in a new tab.
