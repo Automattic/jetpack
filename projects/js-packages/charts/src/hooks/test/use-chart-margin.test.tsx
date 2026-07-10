@@ -13,8 +13,8 @@ describe( 'useChartMargin', () => {
 	const baseTheme = {
 		axisStyles: {
 			y: {
-				left: { axisLabel: { fontSize: 11 }, tickLength: 8 },
-				right: { axisLabel: { fontSize: 11 }, tickLength: 8 },
+				left: { axisLabel: { fontSize: 12 }, tickLabel: { fontSize: 11 }, tickLength: 8 },
+				right: { axisLabel: { fontSize: 12 }, tickLabel: { fontSize: 11 }, tickLength: 8 },
 			},
 		},
 	} as XYChartTheme;
