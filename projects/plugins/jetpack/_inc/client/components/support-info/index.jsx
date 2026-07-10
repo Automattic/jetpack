@@ -1,3 +1,5 @@
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
@@ -13,6 +15,11 @@ export default class SupportInfo extends Component {
 		text: PropTypes.string,
 		link: PropTypes.string,
 		privacyLink: PropTypes.string,
+		// On WordPress.com (Simple/Atomic) sites, prefer this wordpress.com/support
+		// URL and open it inside the Help Center instead of jetpack.com in a new
+		// tab. See DOTCOM-17147.
+		wpcomLink: PropTypes.string,
+		wpcomPostId: PropTypes.number,
 	};
 
 	static defaultProps = {
@@ -20,6 +27,8 @@ export default class SupportInfo extends Component {
 		text: '',
 		link: '',
 		privacyLink: '',
+		wpcomLink: '',
+		wpcomPostId: undefined,
 	};
 
 	constructor() {
@@ -57,8 +66,14 @@ export default class SupportInfo extends Component {
 	}
 
 	render() {
-		const { text, link } = this.props;
+		const { text, link, wpcomLink, wpcomPostId } = this.props;
 		let { privacyLink } = this.props;
+
+		// On WordPress.com (Simple/Atomic) sites with a wpcomLink, surface the Dotcom
+		// support doc and open it in the Help Center instead of the Jetpack support
+		// and privacy links. See DOTCOM-17147.
+		const isWpcom = isWpcomPlatformSite();
+		const useWpcomSupport = isWpcom && !! wpcomLink;
 
 		if ( ! privacyLink && link ) {
 			privacyLink = link + '#privacy';
@@ -72,28 +87,40 @@ export default class SupportInfo extends Component {
 					screenReaderText={ __( 'Learn more', 'jetpack' ) }
 				>
 					{ text + ' ' }
-					{ link && (
+					{ ( link || useWpcomSupport ) && (
 						<div className="jp-support-info__learn-more">
-							<Link
-								openInNewTab
-								href={ link }
-								onClick={ this.trackLearnMoreClick }
-								rel="noopener noreferrer"
-							>
-								{ __( 'Learn more', 'jetpack' ) }
-							</Link>
+							{ useWpcomSupport ? (
+								<WpcomSupportLink
+									supportLink={ wpcomLink }
+									supportPostId={ wpcomPostId }
+									onClick={ this.trackLearnMoreClick }
+								>
+									{ __( 'Learn more', 'jetpack' ) }
+								</WpcomSupportLink>
+							) : (
+								<Link
+									openInNewTab
+									href={ link }
+									onClick={ this.trackLearnMoreClick }
+									rel="noopener noreferrer"
+								>
+									{ __( 'Learn more', 'jetpack' ) }
+								</Link>
+							) }
 						</div>
 					) }
-					<span className="jp-support-info__privacy">
-						<Link
-							openInNewTab
-							href={ privacyLink }
-							onClick={ this.trackPrivacyInfoClick }
-							rel="noopener noreferrer"
-						>
-							{ __( 'Privacy information', 'jetpack' ) }
-						</Link>
-					</span>
+					{ ! useWpcomSupport && (
+						<span className="jp-support-info__privacy">
+							<Link
+								openInNewTab
+								href={ privacyLink }
+								onClick={ this.trackPrivacyInfoClick }
+								rel="noopener noreferrer"
+							>
+								{ __( 'Privacy information', 'jetpack' ) }
+							</Link>
+						</span>
+					) }
 				</InfoPopover>
 			</div>
 		);

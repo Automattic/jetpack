@@ -14,6 +14,7 @@ jest.mock( 'state/settings', () => {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isWoASite: jest.fn().mockReturnValue( true ),
+	isWpcomPlatformSite: jest.fn().mockReturnValue( false ),
 	getScriptData: jest.fn().mockReturnValue( {
 		site: {
 			suffix: null,

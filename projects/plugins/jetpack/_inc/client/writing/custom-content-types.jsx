@@ -125,6 +125,7 @@ export class CustomContentTypes extends Component {
 						module={ { module: 'custom-content-types' } }
 						support={ {
 							link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
+							wpcomLink: 'https://wordpress.com/support/testimonials/',
 						} }
 					>
 						<p> { testimonialText } </p>
@@ -164,6 +165,7 @@ export class CustomContentTypes extends Component {
 						module={ { module: 'custom-content-types' } }
 						support={ {
 							link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
+							wpcomLink: 'https://wordpress.com/support/portfolios/',
 						} }
 					>
 						<p>{ portfolioText }</p>

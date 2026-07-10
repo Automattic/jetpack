@@ -227,6 +227,7 @@ class SiteStatsComponent extends Component {
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
+							wpcomLink: 'https://wordpress.com/support/stats/',
 						} }
 					>
 						<FormFieldset className="jp-stats-form-fieldset">

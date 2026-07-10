@@ -53,6 +53,7 @@ export class Sitemaps extends Component {
 					module={ { module: 'sitemaps' } }
 					support={ {
 						link: getRedirectUrl( 'jetpack-support-sitemaps' ),
+						wpcomLink: 'https://wordpress.com/support/sitemaps/',
 					} }
 				>
 					<p>
