@@ -17,16 +17,10 @@ import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
 import type { WordAdsChartTabsAttributes, WordAdsChartTabsGranularity } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 type WordAdsChartTabsRenderAttributes = WordAdsChartTabsAttributes &
 	Partial< ReportParamsFieldAttributes >;
-type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsRenderAttributes > & {
-	/**
-	 * Host callback to surface a widget crash in the dashboard frame.
-	 */
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsRenderAttributes >;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -36,8 +30,8 @@ const DATA_FORMAT = {
 /**
  * Default granularity for the dashboard interval: opens the control at the
  * granularity the range implies (and, until the user picks one explicitly,
- * keeps following the range). The dropdown only offers day/week/month, so
- * finer/coarser dashboard intervals collapse onto those.
+ * keeps following the range). The dropdown offers day/week/month/year, so a
+ * dashboard quarter interval collapses onto month.
  *
  * @param interval - The dashboard-derived interval.
  * @return The matching selectable granularity.
@@ -48,8 +42,9 @@ function defaultPeriodForInterval( interval?: string ): WordAdsPeriod {
 			return 'week';
 		case 'month':
 		case 'quarter':
-		case 'year':
 			return 'month';
+		case 'year':
+			return 'year';
 		default:
 			return 'day';
 	}
@@ -127,14 +122,11 @@ function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
  * @param {WordAdsChartTabsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function WordAdsChartTabs( {
-	attributes = {},
-	setError,
-}: WordAdsChartTabsWidgetProps ) {
+export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
 
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
 			<WordAdsChartTabsInner granularity={ granularity } />
 		</WidgetRoot>
 	);

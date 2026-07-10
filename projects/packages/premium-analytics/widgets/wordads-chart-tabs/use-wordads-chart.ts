@@ -21,7 +21,7 @@ import type { DataFormat, MetricTab } from '@jetpack-premium-analytics/widgets-t
  * its `period` (mapped to the WordAds endpoint's `unit`); the range and
  * comparison stay dashboard-driven.
  */
-export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
 
 /**
  * Currency format for the revenue and CPM tabs.

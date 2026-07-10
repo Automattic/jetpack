@@ -10,7 +10,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * range (a wide range buckets by month, a narrow one by day); an explicit
  * value sticks across range changes.
  */
-export type WordAdsChartTabsGranularity = 'auto' | 'day' | 'week' | 'month';
+export type WordAdsChartTabsGranularity = 'auto' | 'day' | 'week' | 'month' | 'year';
 
 /**
  * Configurable attributes for the WordAds chart tabs widget. Report params still
@@ -64,6 +64,10 @@ export default {
 				{
 					label: __( 'By months', 'jetpack-premium-analytics' ),
 					value: 'month',
+				},
+				{
+					label: __( 'By years', 'jetpack-premium-analytics' ),
+					value: 'year',
 				},
 			],
 			relevance: 'high',

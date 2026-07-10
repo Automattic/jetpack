@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-WordAds: Add the WordAds chart tabs widget — ads served, average CPM, and revenue over the selected period as metric tabs over a comparative line chart, driven by the dashboard date range and comparison controls. A "Group by" control chooses the bucket granularity (day/week/month) within that range, defaulting to the range's interval; since WordAds stats are computed nightly, a range ending today ends at yesterday instead. Requires WordAds to be active on the site.
+WordAds: Add the WordAds chart tabs widget — ads served, average CPM, and revenue over the selected period as metric tabs over a comparative line chart, driven by the dashboard date range and comparison controls. A "Group by" control chooses the bucket granularity (day/week/month/year) within that range, defaulting to the range's interval; since WordAds stats are computed nightly, a range ending today ends at yesterday instead. Requires WordAds to be active on the site.
