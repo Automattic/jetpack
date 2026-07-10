@@ -40,6 +40,29 @@ const getLoginCommentText = ( commentParent: Signal ) => {
 	return <span>{ defaultText }</span>;
 };
 
+/**
+ * Build a top-level login URL for the site the comment form belongs to.
+ *
+ * On Atomic/Jetpack the comment form runs inside a cross-origin iframe, so the parent post URL
+ * is passed in via the location hash (`#parent=…`). We log in against that site so the visitor
+ * returns authenticated (via Jetpack SSO) and can comment.
+ */
+const getSiteLoginUrl = () => {
+	const parentUrl = decodeURIComponent(
+		window.location.hash.match( /[#&]parent=([^&]*)/ )?.[ 1 ] ?? ''
+	);
+
+	const target = parentUrl || VerbumComments.homeURL || '';
+
+	try {
+		return `${ new URL( target ).origin }/wp-login.php?redirect_to=${ encodeURIComponent(
+			target
+		) }`;
+	} catch {
+		return target;
+	}
+};
+
 export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOutProps ) => {
 	const [ activeService, setActiveService ] = useState( '' );
 	const closeLoginPopupService = requireNameEmail && ! mustLogIn ? 'mail' : '';
@@ -83,6 +106,34 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 	};
 
 	const { commentParent } = useContext( VerbumSignals );
+
+	// Login is required but we can't render the in-frame login options (e.g. cross-origin
+	// iframe on Atomic where cookies are blocked). Showing the guest form here is a dead end:
+	// the comment is rejected on submit with "you must be logged in". Surface the requirement
+	// up front with a link to log in instead.
+	const loginRequiredWithoutInFrameAuth = mustLogIn && ! canWeAccessCookies;
+
+	if ( loginRequiredWithoutInFrameAuth ) {
+		return (
+			<div className="verbum-subscriptions logged-out">
+				<div className="verbum-subscriptions__wrapper">
+					<div className="verbum-subscriptions__login verbum-subscriptions__login-required">
+						<div className="verbum-subscriptions__login-header">
+							{ getLoginCommentText( commentParent ) }
+						</div>
+						<a
+							className="components-button is-primary"
+							href={ getSiteLoginUrl() }
+							target="_top"
+							rel="noopener noreferrer"
+						>
+							{ translate( 'Log in' ) }
+						</a>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="verbum-subscriptions logged-out">

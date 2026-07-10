@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Verbum Comments: surface the login requirement up front when registration is required but in-frame social login is unavailable, instead of showing a guest form that is rejected on submit.

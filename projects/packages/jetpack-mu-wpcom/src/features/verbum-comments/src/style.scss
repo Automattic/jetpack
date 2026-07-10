@@ -332,6 +332,13 @@
 							padding-bottom: 16px;
 						}
 
+						.verbum-subscriptions__login-required {
+
+							.components-button.is-primary {
+								text-decoration: none;
+							}
+						}
+
 						.verbum-logins {
 							display: flex;
 							align-items: center;
