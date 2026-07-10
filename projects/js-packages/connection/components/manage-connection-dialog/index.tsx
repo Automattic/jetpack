@@ -46,8 +46,8 @@ interface ManageConnectionDialogProps {
 	apiRoot: string;
 	/** API Nonce, required. */
 	apiNonce: string;
-	/** Plugins that are using the Jetpack connection, keyed by slug. */
-	connectedPlugins?: Record< string, { name: string } >;
+	/** Plugins that are using the Jetpack connection. */
+	connectedPlugins?: Array< { name: string; slug: string } >;
 	/** The callback to be called upon disconnection success. */
 	onDisconnected?: () => void;
 	/** The callback to be called upon user unlink success. */

@@ -5,11 +5,13 @@ import DisconnectCard from '../disconnect-card';
 interface ConnectedPlugin {
 	/** The display name of the connected plugin. */
 	name: string;
+	/** The plugin slug. */
+	slug: string;
 }
 
 interface ConnectedPluginsProps {
-	/** Plugins that are using the Jetpack connection, keyed by slug. */
-	connectedPlugins?: Record< string, ConnectedPlugin >;
+	/** Plugins that are using the Jetpack connection. */
+	connectedPlugins?: ConnectedPlugin[];
 	/** Slug of the plugin that has initiated the disconnect. */
 	disconnectingPlugin?: string;
 }
@@ -22,19 +24,12 @@ interface ConnectedPluginsProps {
  */
 const ConnectedPlugins = ( { connectedPlugins, disconnectingPlugin }: ConnectedPluginsProps ) => {
 	/**
-	 * Add a slug property to each ConnectedPlugins object so they can be converted to an array.
-	 * This allows the connected plugins to be iterated over more easily for display.
+	 * Filter out the plugin that initiated the disconnect so it is not listed
+	 * amongst the other plugins still using the connection.
 	 */
 	const connectedPluginsArray = useMemo( () => {
 		if ( connectedPlugins ) {
-			const keys = Object.keys( connectedPlugins );
-			return keys
-				.map( key => {
-					return Object.assign( { slug: key }, connectedPlugins[ key ] );
-				} )
-				.filter( plugin => {
-					return disconnectingPlugin !== plugin.slug;
-				} );
+			return connectedPlugins.filter( plugin => disconnectingPlugin !== plugin.slug );
 		}
 
 		// No connected plugins.

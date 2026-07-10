@@ -54,8 +54,8 @@ interface DisconnectDialogProps {
 	onError?: ( error: unknown ) => void;
 	/** The context in which this component is being used. */
 	context?: string;
-	/** Plugins that are using the Jetpack connection, keyed by slug. */
-	connectedPlugins?: Record< string, { name: string } >;
+	/** Plugins that are using the Jetpack connection. */
+	connectedPlugins?: Array< { name: string; slug: string } >;
 	/** Callback called just before the disconnect request when the context is "plugins". */
 	pluginScreenDisconnectCallback?: ( e?: MouseEvent< HTMLElement > ) => void;
 	/** A component to render as part of the disconnect step. */
@@ -182,7 +182,7 @@ const DisconnectDialog = ( {
 				setIsDisconnecting( false );
 				setIsDisconnected( true );
 			} )
-			.catch( error => {
+			.catch( ( error: unknown ) => {
 				setIsDisconnecting( false );
 
 				let message: string;
@@ -247,10 +247,14 @@ const DisconnectDialog = ( {
 						throw new Error( 'Survey endpoint returned error code ' + jsonResponse.code );
 					}
 				} )
-				.catch( error => {
+				.catch( ( error: unknown ) => {
 					jetpackAnalytics.tracks.recordEvent(
 						'jetpack_disconnect_survey_error',
-						Object.assign( {}, { error: error.message }, tracksSurveyData )
+						Object.assign(
+							{},
+							{ error: error instanceof Error ? error.message : String( error ) },
+							tracksSurveyData
+						)
 					);
 
 					setIsFeedbackProvided( true );
