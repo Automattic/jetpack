@@ -9,7 +9,7 @@ import { Link } from 'react-router';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import styles from './status.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import type { FC } from 'react';
@@ -106,13 +106,12 @@ const Status: FC< StatusTypes > = ( {
 
 			<Button
 				className={ styles[ 'regenerate-button' ] }
-				variant={ highlightRegenerateButton ? 'primary' : 'link' }
-				size="small"
-				weight="regular"
+				variant={ highlightRegenerateButton ? 'solid' : 'minimal' }
+				size="compact"
 				onClick={ handleClickRegenerate }
-				icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
 				disabled={ cssState.status === 'pending' }
 			>
+				{ ! highlightRegenerateButton && <Button.Icon icon={ <RefreshIcon /> } /> }
 				{ __( 'Regenerate', 'jetpack-boost' ) }
 			</Button>
 		</div>

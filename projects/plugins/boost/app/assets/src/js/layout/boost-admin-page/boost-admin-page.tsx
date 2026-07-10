@@ -1,6 +1,6 @@
 import { AdminPage } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import type { ReactNode } from 'react';
@@ -22,7 +22,15 @@ const BoostAdminPage = ( {
 
 	const licenseAction =
 		showActivateLicense && ! isWoaHosting() && ! hasPlan ? (
-			<Button size="compact" variant="secondary" href={ activateLicenseUrl }>
+			<Button
+				size="compact"
+				variant="outline"
+				render={
+					// Content is provided by Button children at render time.
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a href={ activateLicenseUrl } />
+				}
+			>
 				{ __( 'Use license key', 'jetpack-boost' ) }
 			</Button>
 		) : undefined;

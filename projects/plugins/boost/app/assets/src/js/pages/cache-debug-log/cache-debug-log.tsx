@@ -1,7 +1,6 @@
-import { Button } from '@wordpress/components';
 import { check, copy } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import { Link, Text } from '@wordpress/ui';
+import { Button, Link, Text } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import clsx from 'clsx';
@@ -79,12 +78,12 @@ const CacheDebugLog = () => {
 						<header className={ styles.header }>
 							<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
 							<Button
-								variant="link"
+								variant="minimal"
 								className={ styles[ 'copy-button' ] }
-								icon={ hasCopied ? check : copy }
 								onClick={ handleCopy }
 								aria-label={ copyLabel }
 							>
+								<Button.Icon icon={ hasCopied ? check : copy } />
 								{ hasCopied ? __( 'Copied!', 'jetpack-boost' ) : copyLabel }
 							</Button>
 						</header>

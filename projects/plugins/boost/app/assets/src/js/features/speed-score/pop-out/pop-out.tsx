@@ -3,7 +3,8 @@ import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { ReactNode, useState, useEffect } from 'react';
-import { Button, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
@@ -91,17 +92,20 @@ export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: Vanil
 				<>{ message.body }</>
 
 				<Button
-					variant="primary"
-					href={ message?.ctaLink }
-					isExternalLink={ true }
+					variant="solid"
+					render={
+						// Content is provided by Button children at render time.
+						// eslint-disable-next-line jsx-a11y/anchor-has-content
+						<a href={ message?.ctaLink } target="_blank" rel="noopener noreferrer" />
+					}
 					onClick={ onDismiss }
 				>
 					{ message.cta }
 				</Button>
 
 				<Button
-					variant="link"
-					size="small"
+					variant="minimal"
+					size="compact"
 					className={ styles[ 'dismiss-button' ] }
 					onClick={ onDismiss }
 				>

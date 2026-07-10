@@ -8,7 +8,7 @@ import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { PerformanceHistoryData } from './lib/types';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
 import { useEffect } from 'react';
@@ -38,7 +38,7 @@ const PerformanceHistoryBody = () => {
 				data={ JSON.stringify( error, null, 2 ) }
 				suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
 				vars={ {
-					action: <Button variant="link" onClick={ refetch } />,
+					action: <Button variant="minimal" onClick={ refetch } />,
 				} }
 			/>
 		);

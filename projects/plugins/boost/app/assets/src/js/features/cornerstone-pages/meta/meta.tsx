@@ -9,11 +9,10 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
-import { Button, getRedirectUrl } from '@automattic/jetpack-components';
-import { Tooltip } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, Link } from '@wordpress/ui';
+import { Button, Notice, Link, Tooltip } from '@wordpress/ui';
 import type { FC, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -349,18 +348,19 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 	const buttonState = getButtonState();
 
 	return (
-		<Tooltip text={ buttonState.title } delay={ 0 }>
-			<div>
+		<Tooltip.Root>
+			<Tooltip.Trigger render={ <div /> }>
 				<Button
 					disabled={ buttonState.disabled }
 					onClick={ loadDefaultValue }
 					className={ className }
-					variant="link"
+					variant="minimal"
 				>
 					{ __( 'Include default pages', 'jetpack-boost' ) }
 				</Button>
-			</div>
-		</Tooltip>
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ buttonState.title }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 };
 

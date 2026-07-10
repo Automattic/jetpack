@@ -4,9 +4,9 @@ import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { createInterpolateElement, useState } from '@wordpress/element';
 
-import { Link } from '@wordpress/ui';
+import { Link, Popover } from '@wordpress/ui';
 
-import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
@@ -67,26 +67,21 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 
 	return (
 		<div className={ styles[ 'warning-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
-				className={ styles[ 'warning-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'prerender_warning_message_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
-			>
-				{ children }
-			</a>
-			<div className={ styles[ 'warning-tooltip-wrapper' ] }>
-				<IconTooltip
-					placement="bottom-end"
-					popoverAnchorStyle="wrapper"
-					forceShow={ show }
-					offset={ -10 }
-					className={ styles[ 'warning-tooltip' ] }
+			<Popover.Root open={ show } onOpenChange={ setShow }>
+				<Popover.Trigger
+					render={
+						// Content is provided by Popover.Trigger children at render time.
+						// eslint-disable-next-line jsx-a11y/anchor-is-valid, jsx-a11y/anchor-has-content
+						<a href="#" className={ styles[ 'warning-button' ] } />
+					}
+					onClick={ ( e: React.MouseEvent ) => {
+						recordBoostEvent( 'prerender_warning_message_clicked', {} );
+						e.preventDefault();
+					} }
 				>
+					{ children }
+				</Popover.Trigger>
+				<Popover.Popup className={ styles[ 'warning-tooltip' ] }>
 					<strong>{ __( 'Warning', 'jetpack-boost' ) }</strong>
 					<br />
 					{ __(
@@ -97,8 +92,8 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 					{ createInterpolateElement( __( '<link>Learn more</link>', 'jetpack-boost' ), {
 						link: <Link openInNewTab href={ unsafeSpeculationRulesLink } />,
 					} ) }
-				</IconTooltip>
-			</div>
+				</Popover.Popup>
+			</Popover.Root>
 		</div>
 	);
 };

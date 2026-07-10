@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';

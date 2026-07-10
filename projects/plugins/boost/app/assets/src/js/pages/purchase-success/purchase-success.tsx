@@ -1,7 +1,7 @@
-import { getRedirectUrl, Button } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Button, Link } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router';
 import CardPage from '$layout/card-page/card-page';
@@ -98,12 +98,7 @@ const PurchaseSuccess: FC = () => {
 					{ __( 'Learn more about Boost features and upgrades', 'jetpack-boost' ) }
 				</Link>
 			</p>
-			<Button
-				label={ __( 'Continue', 'jetpack-boost' ) }
-				variant="primary"
-				onClick={ () => navigate( '/' ) }
-				className="mt-3"
-			>
+			<Button variant="solid" onClick={ () => navigate( '/' ) } className="mt-3">
 				{ __( 'Continue', 'jetpack-boost' ) }
 			</Button>
 		</CardPage>

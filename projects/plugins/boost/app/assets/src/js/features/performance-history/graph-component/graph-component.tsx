@@ -1,5 +1,6 @@
-import { BoostScoreGraph, Button, Popover } from '@automattic/jetpack-components';
+import { BoostScoreGraph, Popover } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
+import { Button } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
 import { Icon, lock, check } from '@wordpress/icons';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';

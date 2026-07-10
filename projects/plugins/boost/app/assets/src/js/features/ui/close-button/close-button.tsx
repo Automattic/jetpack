@@ -1,17 +1,19 @@
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
+import { IconButton } from '@wordpress/ui';
 import styles from './close-button.module.scss';
 
-const CloseButton = ( { onClick } ) => {
-	const handleOnClick = event => {
-		event.preventDefault();
-		onClick();
-	};
-
+const CloseButton = ( { onClick }: { onClick: () => void } ) => {
 	return (
-		// eslint-disable-next-line jsx-a11y/anchor-is-valid
-		<a href={ '#' } onClick={ handleOnClick } className={ styles.close }>
-			<span className="screen-reader-text">{ __( 'Dismiss', 'jetpack-boost' ) }</span>
-		</a>
+		<IconButton
+			label={ __( 'Dismiss', 'jetpack-boost' ) }
+			icon={ close }
+			variant="minimal"
+			tone="neutral"
+			size="small"
+			className={ styles.close }
+			onClick={ onClick }
+		/>
 	);
 };
 
