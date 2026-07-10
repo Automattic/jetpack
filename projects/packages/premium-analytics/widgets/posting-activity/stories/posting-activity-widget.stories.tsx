@@ -117,7 +117,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Posting activity" widget. Renders a calendar (contribution-style) heatmap of the number of posts published per day for the dashboard date range. The `stats/streak` endpoint has no comparison period, so the WithComparison story renders identically to Default — no deltas are shown.',
+					'The "Posting activity" widget. Renders a calendar (contribution-style) heatmap of the number of posts published per day for the trailing year ending at the dashboard date range end. The `stats/streak` endpoint has no comparison period, so the WithComparison story renders identically to Default — no deltas are shown.',
 			},
 		},
 	},
@@ -128,7 +128,8 @@ export default meta;
 type Story = StoryObj< PostingActivityStoryControls >;
 
 /**
- * Default populated state — a year of posting activity for the current period.
+ * Default populated state — a year of posting activity ending at the current
+ * report period.
  */
 export const Default: Story = {
 	render: renderPostingActivity,

@@ -7,15 +7,21 @@ export type CalendarHeatmapResult = {
 	rowLabels: string[];
 };
 
+export type CalendarHeatmapOptions = {
+	weekStartsOn?: 0 | 1;
+	startDate?: Date | string;
+	endDate?: Date | string;
+};
+
 /** Rows that get a weekday label (Mon, Wed, Fri with a Monday week start). */
 const LABELLED_ROWS = [ 0, 2, 4 ];
 
-const toDate = ( point: DataPointDate ): Date | null => {
-	if ( point.date instanceof Date && ! isNaN( point.date.getTime() ) ) {
-		return point.date;
+const toDateValue = ( value?: Date | string ): Date | null => {
+	if ( value instanceof Date && ! isNaN( value.getTime() ) ) {
+		return value;
 	}
-	if ( point.dateString ) {
-		const parsed = parseISO( point.dateString );
+	if ( typeof value === 'string' ) {
+		const parsed = parseISO( value );
 		if ( ! isNaN( parsed.getTime() ) ) {
 			return parsed;
 		}
@@ -23,9 +29,13 @@ const toDate = ( point: DataPointDate ): Date | null => {
 	return null;
 };
 
+const toDate = ( point: DataPointDate ): Date | null => {
+	return toDateValue( point.date ) ?? toDateValue( point.dateString );
+};
+
 export const buildCalendarHeatmapData = (
 	series: DataPointDate[],
-	options: { weekStartsOn?: 0 | 1 } = {}
+	options: CalendarHeatmapOptions = {}
 ): CalendarHeatmapResult => {
 	const weekStartsOn = options.weekStartsOn ?? 1;
 
@@ -38,16 +48,22 @@ export const buildCalendarHeatmapData = (
 	}
 
 	const valueByDay = new Map< string, number | null >();
-	let minDate = entries[ 0 ].date;
-	let maxDate = entries[ 0 ].date;
+	const startDate = toDateValue( options.startDate );
+	const endDate = toDateValue( options.endDate );
+	let minDate = startDate ?? entries[ 0 ].date;
+	let maxDate = endDate ?? entries[ 0 ].date;
 	for ( const { date, value } of entries ) {
 		valueByDay.set( format( date, 'yyyy-MM-dd' ), value );
-		if ( date < minDate ) {
+		if ( ! startDate && date < minDate ) {
 			minDate = date;
 		}
-		if ( date > maxDate ) {
+		if ( ! endDate && date > maxDate ) {
 			maxDate = date;
 		}
+	}
+
+	if ( minDate > maxDate ) {
+		return { data: [], rowLabels: [] };
 	}
 
 	const gridStart = startOfWeek( minDate, { weekStartsOn } );

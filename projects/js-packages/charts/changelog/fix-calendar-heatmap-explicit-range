@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Heatmap Chart: Preserve explicit calendar ranges when rendering sparse data.

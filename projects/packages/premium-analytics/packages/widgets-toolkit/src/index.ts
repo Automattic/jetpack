@@ -153,6 +153,8 @@ export {
 	GlobalChartsProvider,
 	HeatmapChart,
 	buildCalendarHeatmapData,
+	type CalendarHeatmapOptions,
+	type CalendarHeatmapResult,
 	type DataPointDate,
 	type GeoChartError,
 	type GeoData,
