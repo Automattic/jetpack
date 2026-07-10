@@ -21,18 +21,18 @@
 	},
 	"main": "./src/index.ts",
 	"scripts": {
-		"build": "rollup -c && tsc --emitDeclarationOnly",
+		"build": "rollup -c && tsc --emitDeclarationOnly --project tsconfig.build.json",
 		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:validate-ts' 'rollup -c'",
 		"build-development": "pnpm run build-concurrently",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
 		"clear-dist": "rm -rf app/assets/dist/*",
 		"dev": "concurrently 'pnpm:dev-validate-ts' 'pnpm:dev-compile'",
 		"dev-compile": "pnpm run clear-dist && rollup -c -w",
-		"dev-validate-ts": "tsc --watch --pretty --strict false # Note: Disable Strict mode to avoid noisy development, while keeping strict errors visible in IDEs.",
+		"dev-validate-ts": "tsc --watch --pretty --strict false --project tsconfig.build.json # Note: Disable Strict mode to avoid noisy development, while keeping strict errors visible in IDEs.",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
-		"validate-ts": "tsc --pretty --strict false",
+		"validate-ts": "tsc --pretty --strict false --project tsconfig.build.json",
 		"watch": "pnpm run dev"
 	},
 	"devDependencies": {

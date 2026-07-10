@@ -1,0 +1,9 @@
+// Used by the `tsc` build and validate steps. @rollup/plugin-typescript stops transforming when it
+// sees `rootDir`, so it keeps using `tsconfig.json` and leaves declarations to these steps.
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"declarationDir": "./build/",
+		"rootDir": "./src"
+	}
+}

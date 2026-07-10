@@ -85,7 +85,8 @@ export default {
 			// we need to include those here and pass the custom tsconfig as well
 			include: [ './src/**/*' ],
 			tsconfig: 'tsconfig.json',
-			declaration: true,
+			// Declarations are emitted by the `tsc --emitDeclarationOnly` build step instead.
+			declaration: false,
 		} ),
 
 		// If we're building for production (npm run build
