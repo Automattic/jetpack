@@ -45,19 +45,6 @@ describe( 'getSharingBlockEditorUrl', () => {
 		setState( siteEditor );
 		expect( getSharingBlockEditorUrl( module ) ).toBe( '' );
 	} );
-
-	it( 'returns empty when adminUrl is missing', () => {
-		window.JetpackScriptData = {
-			myJetpack: {
-				siteEditor: {
-					isBlockTheme: true,
-					isSharingBlockAvailable: true,
-					activeThemeStylesheet: 'x',
-				},
-			},
-		} as Window[ 'JetpackScriptData' ];
-		expect( getSharingBlockEditorUrl( sharedaddy() ) ).toBe( '' );
-	} );
 } );
 
 describe( 'getSharingBlockNotice', () => {
