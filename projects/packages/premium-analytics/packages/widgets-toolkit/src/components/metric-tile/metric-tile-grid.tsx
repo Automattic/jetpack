@@ -11,7 +11,7 @@ import styles from './metric-tile-grid.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComponentProps } from 'react';
 
-export type MetricTileGridItem = {
+type MetricTileGridItem = {
 	/**
 	 * Stable identifier for the metric tile.
 	 */
@@ -57,7 +57,7 @@ export type MetricTileGridItem = {
 	className?: string;
 };
 
-export type MetricTileGridProps = {
+type MetricTileGridProps = {
 	/**
 	 * CSS class for the grid container.
 	 */

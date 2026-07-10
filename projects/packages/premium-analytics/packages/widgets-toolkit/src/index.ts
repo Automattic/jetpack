@@ -4,8 +4,6 @@
 export {
 	MetricDelta,
 	MetricTileGrid,
-	type MetricTileGridItem,
-	type MetricTileGridProps,
 	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,

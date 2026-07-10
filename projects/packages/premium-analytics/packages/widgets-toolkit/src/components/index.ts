@@ -1,5 +1,5 @@
 export { MetricDelta } from './metric-delta';
-export { MetricTileGrid, type MetricTileGridItem, type MetricTileGridProps } from './metric-tile';
+export { MetricTileGrid } from './metric-tile';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
 export { ComparativeLineChart, type SeriesStyle } from './chart-comparative-line';
