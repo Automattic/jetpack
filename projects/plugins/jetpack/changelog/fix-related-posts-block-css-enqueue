@@ -1,3 +1,4 @@
 Significance: patch
 Type: bugfix
-Comment: Related Posts: enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run (JETPACK-1876).
+
+Related Posts: enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run.
