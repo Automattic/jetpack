@@ -41,10 +41,10 @@ export const makeSchemaSettings = (
 	overrides: Partial< SchemaSettings > = {}
 ): SchemaSettings => ( {
 	organization: { name: '', description: '', sameAs: [], email: '' },
-	localBusiness: EMPTY_LOCAL_BUSINESS,
+	localBusiness: structuredClone( EMPTY_LOCAL_BUSINESS ),
 	defaults: {
 		organization: { name: 'Acme Co', description: 'We make things' },
-		localBusiness: EMPTY_LOCAL_BUSINESS_DEFAULTS,
+		localBusiness: structuredClone( EMPTY_LOCAL_BUSINESS_DEFAULTS ),
 	},
 	...overrides,
 } );

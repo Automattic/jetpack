@@ -5,7 +5,10 @@
  * @package automattic/jetpack-seo
  */
 
-/**
- * Stand-in for the WooCommerce plugin class.
- */
-class WooCommerce {}
+if ( ! class_exists( 'WooCommerce' ) ) {
+
+	/**
+	 * Stand-in for the WooCommerce plugin class.
+	 */
+	class WooCommerce {}
+}

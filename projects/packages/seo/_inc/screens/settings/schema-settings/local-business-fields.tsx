@@ -98,7 +98,6 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 	const setGeo = ( field: keyof typeof geo, value: string ) =>
 		setLocalBusinessField( { geo: { ...geo, [ field ]: value } } );
 
-	// ponytail: single interval per day; split shifts when someone asks.
 	const setHours = ( day: OpeningHoursDay, field: 'opens' | 'closes', value: string ) =>
 		setLocalBusinessField( {
 			openingHours: {
