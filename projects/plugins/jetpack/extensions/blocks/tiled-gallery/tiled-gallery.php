@@ -64,8 +64,24 @@ class Tiled_Gallery {
 	 * @return array The filtered block editor settings.
 	 */
 	public static function add_block_editor_settings( $settings ) {
-		$jetpack_plan                   = Jetpack_Plan::get();
-		$settings['skip_photon_domain'] = 'vip' === $jetpack_plan['product_slug'];
+		$jetpack_plan = Jetpack_Plan::get();
+
+		/**
+		 * Filter whether the Tiled Gallery and Image Compare blocks should skip the external
+		 * Photon (photon.js) domain and build files.wordpress.com-style image URLs instead.
+		 *
+		 * Defaults to true on VIP sites only, and false everywhere else.
+		 *
+		 * @module tiled-gallery
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $skip_photon_domain Whether to skip the external Photon domain.
+		 */
+		$settings['skip_photon_domain'] = apply_filters(
+			'jetpack_skip_photon_domain',
+			'vip' === $jetpack_plan['product_slug']
+		);
 
 		return $settings;
 	}
