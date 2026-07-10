@@ -1,15 +1,17 @@
 /**
- * AI Features view — per-feature toggles for Jetpack AI.
+ * AI Features view — per-feature toggles for Jetpack AI, grouped by area
+ * (Content, Media, SEO) per the AI-Settings design.
  *
- * Lists each Jetpack AI feature with its own on/off switch, backed by the
- * feature-settings endpoint. A disabled feature must genuinely stop loading
- * (its assets are not enqueued), not just disappear from view.
+ * Each feature has its own on/off switch, backed by the feature-settings
+ * endpoint. A disabled feature must genuinely stop loading (its assets are
+ * not enqueued), not just disappear from view.
  */
 
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	Card,
 	CardBody,
-	CardDivider,
+	ExternalLink,
 	ToggleControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -18,54 +20,118 @@ import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
-const FEATURES = [
+// Per the design, a row's action link depends on the toggle state: enabled
+// features invite you to try them, disabled ones link to documentation.
+// The SEO settings link is the exception and shows in both states.
+const SECTIONS = [
 	{
-		key: 'writing_assistant',
-		label: __( 'Writing assistant', 'jetpack' ),
-		help: __( 'AI-powered writing suggestions and assistance in the editor.', 'jetpack' ),
+		key: 'content',
+		title: __( 'Content', 'jetpack' ),
+		features: [
+			{
+				key: 'writing_assistant',
+				label: __( 'Writing Assistant', 'jetpack' ),
+				description: __(
+					'Generate, edit, and transform content in the block editor. Draft posts, rewrite paragraphs, translate, and adjust tone with a single click.',
+					'jetpack'
+				),
+				enabledAction: {
+					label: __( 'Try it out in the editor', 'jetpack' ),
+					href: 'post-new.php',
+				},
+				disabledAction: {
+					label: __( 'Learn more', 'jetpack' ),
+					href: getRedirectUrl( 'jetpack-support-ai' ),
+				},
+			},
+			{
+				key: 'excerpt',
+				label: __( 'Excerpt', 'jetpack' ),
+				description: __( 'Generate post excerpts with AI.', 'jetpack' ),
+				disabledAction: {
+					label: __( 'Learn more', 'jetpack' ),
+					href: 'https://jetpack.com/support/create-better-post-excerpts-with-ai/',
+				},
+			},
+		],
 	},
 	{
-		key: 'image_editor',
-		label: __( 'Image editor', 'jetpack' ),
-		help: __( 'Create and edit images with AI.', 'jetpack' ),
+		key: 'media',
+		title: __( 'Media', 'jetpack' ),
+		features: [
+			{
+				key: 'image_editor',
+				label: __( 'Image Editor', 'jetpack' ),
+				description: __(
+					'Generate and edit professional-quality images without leaving WordPress.',
+					'jetpack'
+				),
+				enabledAction: { label: __( 'Try it out', 'jetpack' ), href: 'upload.php' },
+				disabledAction: {
+					label: __( 'Learn more', 'jetpack' ),
+					href: getRedirectUrl( 'jetpack-support-ai' ),
+				},
+			},
+		],
 	},
 	{
-		key: 'excerpt',
-		label: __( 'Excerpt generator', 'jetpack' ),
-		help: __( 'Generate post excerpts with AI.', 'jetpack' ),
-	},
-	{
-		key: 'seo_enhancer',
-		label: __( 'SEO enhancer', 'jetpack' ),
-		help: __( 'Generate SEO titles and descriptions with AI.', 'jetpack' ),
+		key: 'seo',
+		title: __( 'SEO', 'jetpack' ),
+		features: [
+			{
+				key: 'seo_enhancer',
+				label: __( 'AI SEO', 'jetpack' ),
+				description: __(
+					'Optimize post titles, meta descriptions, and on-page content for search engines with AI-powered recommendations.',
+					'jetpack'
+				),
+				enabledAction: {
+					label: __( 'Open SEO Settings', 'jetpack' ),
+					href: 'admin.php?page=jetpack#/traffic',
+				},
+				disabledAction: {
+					label: __( 'Open SEO Settings', 'jetpack' ),
+					href: 'admin.php?page=jetpack#/traffic',
+				},
+			},
+		],
 	},
 ];
 
 /**
- * A single feature toggle row.
+ * A single feature row: toggle + description + optional action link.
  *
  * @param {object}   props          - Component props.
- * @param {object}   props.feature  - Entry from FEATURES.
+ * @param {object}   props.feature  - Entry from SECTIONS[].features.
  * @param {boolean}  props.checked  - Whether the feature is enabled.
  * @param {boolean}  props.isSaving - Whether this toggle is being saved.
- * @param {Function} props.onChange - Called with the new enabled state.
+ * @param {Function} props.onChange - Called with (key, enabled) on toggle.
  * @return {object} Component markup.
  */
-function FeatureToggle( { feature, checked, isSaving, onChange } ) {
+function FeatureRow( { feature, checked, isSaving, onChange } ) {
 	const handleChange = useCallback(
 		enabled => onChange( feature.key, enabled ),
 		[ feature.key, onChange ]
 	);
 
+	const action = checked ? feature.enabledAction : feature.disabledAction;
+
 	return (
-		<ToggleControl
-			__nextHasNoMarginBottom
-			checked={ checked }
-			disabled={ isSaving }
-			label={ feature.label }
-			help={ feature.help }
-			onChange={ handleChange }
-		/>
+		<Stack direction="column" gap="xs" className="jetpack-ai-features__row">
+			<ToggleControl
+				__nextHasNoMarginBottom
+				checked={ checked }
+				disabled={ isSaving }
+				label={ feature.label }
+				help={ feature.description }
+				onChange={ handleChange }
+			/>
+			{ action && (
+				<ExternalLink className="jetpack-ai-features__action" href={ action.href }>
+					{ action.label }
+				</ExternalLink>
+			) }
+		</Stack>
 	);
 }
 
@@ -90,33 +156,27 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	);
 
 	return (
-		<Card>
-			<CardBody>
-				<Stack direction="column" gap="md">
-					<Stack direction="column" gap="xs">
-						<Text as="h3" weight={ 600 }>
-							{ __( 'AI features', 'jetpack' ) }
-						</Text>
-						<Text variant="muted">
-							{ __(
-								'Choose which Jetpack AI features are available on your site. Features that are turned off will not load.',
-								'jetpack'
-							) }
-						</Text>
-					</Stack>
-					{ FEATURES.map( ( feature, index ) => (
-						<Stack key={ feature.key } direction="column" gap="md">
-							{ index > 0 && <CardDivider /> }
-							<FeatureToggle
-								feature={ feature }
-								checked={ !! features[ feature.key ]?.enabled }
-								isSaving={ savingKeys.has( feature.key ) }
-								onChange={ handleToggle }
-							/>
+		<Stack direction="column" gap="md">
+			{ SECTIONS.map( section => (
+				<Card key={ section.key }>
+					<CardBody>
+						<Stack direction="column" gap="md">
+							<Text as="h3" weight={ 600 }>
+								{ section.title }
+							</Text>
+							{ section.features.map( feature => (
+								<FeatureRow
+									key={ feature.key }
+									feature={ feature }
+									checked={ !! features[ feature.key ]?.enabled }
+									isSaving={ savingKeys.has( feature.key ) }
+									onChange={ handleToggle }
+								/>
+							) ) }
 						</Stack>
-					) ) }
-				</Stack>
-			</CardBody>
-		</Card>
+					</CardBody>
+				</Card>
+			) ) }
+		</Stack>
 	);
 }
