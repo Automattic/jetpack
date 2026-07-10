@@ -3,7 +3,9 @@
  */
 import {
 	differenceInDays,
+	differenceInMilliseconds,
 	subDays,
+	subMilliseconds,
 	subWeeks,
 	subMonths,
 	subYears,
@@ -51,8 +53,12 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  * and a given preset.
  *
  * - This function is pure and has no side effects.
- * - It does not apply any timezone adjustments. The caller is responsible for
- *   normalizing dates to the desired local day boundaries before passing them in.
+ * - It does not apply any timezone adjustments; day boundaries are resolved in
+ *   the frame of the incoming dates (pass TZDate instances for site-local math).
+ * - Day-aligned references (midnight to end of day) produce day-aligned
+ *   comparison ranges. Sub-day references (rolling windows like the last 24
+ *   hours) mirror the exact window instead, so the comparison always covers
+ *   the same amount of time as the primary range.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -69,10 +75,26 @@ export function getComparisonRangeFromPreset(
 	const refFrom = reference.from;
 	const refTo = reference.to;
 
-	const clampDayBound = ( date: Date, bound: 0 | 1 ) =>
-		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
+	const isDayAligned =
+		refFrom.getTime() === startOfDay( refFrom ).getTime() &&
+		refTo.getTime() === endOfDay( refTo ).getTime();
+
+	const clampDayBound = ( date: Date, bound: 0 | 1 ) => {
+		if ( ! isDayAligned ) {
+			return date;
+		}
+		return bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
+	};
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
+		if ( ! isDayAligned ) {
+			const windowMs = differenceInMilliseconds( refTo, refFrom );
+			return {
+				from: subMilliseconds( refFrom, windowMs ),
+				to: subMilliseconds( refTo, windowMs ),
+			};
+		}
+
 		const daysInclusive = differenceInDays( refTo, refFrom ) + 1;
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
