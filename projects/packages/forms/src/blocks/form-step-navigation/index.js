@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { next } from '@wordpress/icons';
-import edit from './edit.js';
-import save from './save.js';
+import edit from './edit.jsx';
+import save from './save.jsx';
 
 export const name = 'form-step-navigation';
 
