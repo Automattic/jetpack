@@ -100,6 +100,7 @@ class Initializer {
 			}
 			$registered = true;
 			new WPCOM_REST_API_V2_Endpoint_VideoPress();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
 		};
@@ -137,6 +138,7 @@ class Initializer {
 	private static function active_initialization() {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
+		Caption_Tracks::init();
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();

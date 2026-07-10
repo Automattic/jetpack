@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Build the package with tsdown instead of duel.
+
+

@@ -2536,6 +2536,46 @@ describe( 'ChartContext', () => {
 				expect( afterRerenderColor ).toBe( '#ff0000' );
 			} );
 		} );
+
+		describe( 'resolveThemeColor', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const mountProvider = () =>
+				render(
+					<GlobalChartsProvider>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+			it( 'resolves a CSS variable against the provider scope, not the document root', () => {
+				window.getComputedStyle = jest.fn( ( element: Element ) => ( {
+					getPropertyValue: ( prop: string ) =>
+						prop === '--surface' && element !== document.documentElement ? '#1e1e1e' : '#ffffff',
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				mountProvider();
+
+				expect( contextValue.resolveThemeColor( 'var(--surface, #fff)' ) ).toBe( '#1e1e1e' );
+			} );
+
+			it( 'passes a resolved color through to hex', () => {
+				mountProvider();
+
+				expect( contextValue.resolveThemeColor( '#abcdef' ) ).toBe( '#abcdef' );
+				expect( contextValue.resolveThemeColor( 'rgb(255, 0, 0)' ) ).toBe( '#ff0000' );
+			} );
+
+			it( 'returns an empty string for an empty value', () => {
+				mountProvider();
+
+				expect( contextValue.resolveThemeColor( '' ) ).toBe( '' );
+			} );
+		} );
 	} );
 
 	describe( 'defaultTheme', () => {

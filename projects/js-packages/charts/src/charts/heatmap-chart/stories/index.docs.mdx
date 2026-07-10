@@ -219,7 +219,7 @@ Everything else — the cell gap, corner radius, in-cell value size, the empty-c
 
 ## Responsive Behavior
 
-By default the chart fills its parent container's dimensions, reflowing fluidly as the container resizes. The parent must have an explicit height, or you can set `aspectRatio` to derive the height from the available width. When neither is provided, the chart falls back to a minimum height so it stays usable rather than collapsing:
+By default the chart fills its parent container's dimensions, reflowing fluidly as the container resizes. Give it a height in one of three ways: an explicit height on the parent, an `aspectRatio` to derive the height from the available width, or fixed `width`/`height` props. Without one of these the chart has no height to fill and collapses, so always constrain it:
 
 <Source
 	language="jsx"
@@ -247,5 +247,5 @@ The heatmap chart is designed for full keyboard and screen reader access:
 - Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
 - **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection.
 - Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.
-- **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale and with any primary color.
+- **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale — with any primary color and against a themed (including dark) chart background.
 - The component does not use animations by default, and no `prefers-reduced-motion` opt-out is required.

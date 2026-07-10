@@ -8,6 +8,7 @@ type Api = {
 	deleteItems: ( ids: string[] ) => void;
 	setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => void;
 	openVideoDetails: ( id: string ) => void;
+	manageCaptions: ( item: LibraryItem ) => void;
 };
 
 // Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
@@ -70,6 +71,18 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 				const [ item ] = items;
 				if ( item ) {
 					api.openVideoDetails( item.id );
+				}
+			},
+		},
+		{
+			id: 'manage-captions',
+			label: __( 'Manage subtitles', 'jetpack-videopress-pkg' ),
+			supportsBulk: false,
+			isEligible: isVideoPressIdle,
+			callback: items => {
+				const [ item ] = items;
+				if ( item ) {
+					api.manageCaptions( item );
 				}
 			},
 		},

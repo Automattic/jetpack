@@ -531,6 +531,30 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the woo_launch_site task points at WooCommerce's canonical
+	 * "Launch your store" route (path=%2Flaunch-your-store), not the broken
+	 * task=launch_site link that matches no WooCommerce task.
+	 */
+	public function test_woo_launch_site_uses_path_route() {
+		$definitions = wpcom_launchpad_get_task_definitions();
+
+		$this->assertArrayHasKey( 'woo_launch_site', $definitions );
+
+		$get_calypso_path = $definitions['woo_launch_site']['get_calypso_path'] ?? null;
+		$this->assertIsCallable( $get_calypso_path );
+
+		if ( ! is_callable( $get_calypso_path ) ) {
+			return;
+		}
+
+		$url = call_user_func( $get_calypso_path );
+
+		$this->assertStringContainsString( 'page=wc-admin', $url );
+		$this->assertStringContainsString( 'path=%2Flaunch-your-store', $url );
+		$this->assertStringNotContainsString( 'task=launch_site', $url );
+	}
+
+	/**
 	 * Test dismiss temporally a task list when a date in future is used
 	 */
 	public function test_temporary_dismiss_task_when_date_is_in_the_future() {
