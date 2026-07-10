@@ -1,7 +1,14 @@
 /* The wrapper is the query container; the grid and tiles respond to its
  * rendered width, so the layout tracks the widget cell, not the viewport. */
+
+/* A size (not inline-size) container so the tile layout can respond to the
+ * cell's height as well as its width. Size containment means the grid takes
+ * its height from the widget cell, never from its own content — in a parent
+ * with no resolvable height it collapses, so the grid must live in a
+ * height-constrained ancestor (widget hosts and the story canvases both
+ * provide one). */
 .container {
-	container-type: inline-size;
+	container-type: size;
 
 	/* Fill the widget cell: in the flex-column widget roots this stretches to
 	 * the remaining height (a no-op in non-flex/auto-height parents), and the
@@ -64,9 +71,11 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-/* Wide widths: `columns` tiles across with the icon + label centered and a
- * larger value centered below. */
-@container (min-width: 640px) {
+/* Wide containers: `columns` tiles across with the icon + label centered and
+ * a larger value centered below. Gated on height too — a wide but short cell
+ * cannot fit stacked tile rows, and the compact rows read better than a
+ * clipped, scrolling tile grid. */
+@container (min-width: 640px) and (min-height: 240px) {
 
 	.grid {
 		grid-template-columns: repeat(var(--jpa-metric-tile-grid-columns, 2), minmax(0, 1fr));

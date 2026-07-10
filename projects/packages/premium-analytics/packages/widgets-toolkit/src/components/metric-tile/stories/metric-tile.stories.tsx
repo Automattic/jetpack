@@ -1,6 +1,6 @@
 import { comment, paragraph, postList, starEmpty } from '@wordpress/icons';
 import { MetricTile, MetricTileGrid } from '../metric-tile';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { ComponentProps } from 'react';
 
 const COUNT_FORMAT = {
@@ -15,6 +15,18 @@ const TILES = [
 	{ key: 'comments', icon: comment, label: 'Comments', value: 42 },
 ];
 
+// The grid is a size query container, so it takes its height from its parent —
+// widget hosts provide a fixed cell. Stories must do the same or the grid
+// collapses to zero height.
+const makeCanvas = ( width: string, height: string ): Decorator =>
+	function CanvasDecorator( Story ) {
+		return (
+			<div style={ { width, height, display: 'flex', flexDirection: 'column' } }>
+				<Story />
+			</div>
+		);
+	};
+
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MetricTile',
 	component: MetricTileGrid,
@@ -26,10 +38,11 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Responsive grid of metric tiles. The layout is container-query driven: below ' +
-					'640px each tile renders as a compact row (icon and label on the left, value on ' +
-					'the right); at 640px and up the tiles lay out `columns` across with the icon, ' +
-					'label, and a larger value centered. Resize the canvas to see both layouts.',
+					'Responsive grid of metric tiles, driven by container queries on both axes: in a ' +
+					'narrow or short container each tile renders as a compact row (icon and label on ' +
+					'the left, value on the right); at 640px+ wide and 240px+ tall the tiles lay out ' +
+					'`columns` across with the icon, label, and a larger value centered. The grid takes ' +
+					'its height from its parent, so it must live in a height-constrained ancestor.',
 			},
 		},
 	},
@@ -39,12 +52,8 @@ export default meta;
 
 type Story = StoryObj< { columns: number } >;
 
-/**
- * Four tiles in the default two-column wide layout. Narrow the canvas below
- * 640px to see the compact row layout.
- */
-export const Default: Story = {
-	render: ( { columns } ) => (
+function renderTiles( { columns }: { columns: number } ) {
+	return (
 		<MetricTileGrid columns={ columns }>
 			{ TILES.map( tile => (
 				<MetricTile
@@ -56,31 +65,37 @@ export const Default: Story = {
 				/>
 			) ) }
 		</MetricTileGrid>
-	),
+	);
+}
+
+/**
+ * Four tiles in the default two-column wide layout, in a canvas tall and wide
+ * enough for tile mode.
+ */
+export const Default: Story = {
+	render: renderTiles,
 	args: { columns: 2 },
+	decorators: [ makeCanvas( '100%', '480px' ) ],
 };
 
 /**
- * A constrained container always renders the compact row layout, regardless of
- * the viewport, because the query tracks the container's width.
+ * A narrow container renders the compact row layout regardless of the
+ * viewport, because the query tracks the container's width.
  */
 export const NarrowContainer: Story = {
-	render: ( { columns } ) => (
-		<div style={ { maxWidth: '360px' } }>
-			<MetricTileGrid columns={ columns }>
-				{ TILES.map( tile => (
-					<MetricTile
-						key={ tile.key }
-						icon={ tile.icon }
-						label={ tile.label }
-						value={ tile.value }
-						dataFormat={ COUNT_FORMAT }
-					/>
-				) ) }
-			</MetricTileGrid>
-		</div>
-	),
+	render: renderTiles,
 	args: { columns: 2 },
+	decorators: [ makeCanvas( '360px', '480px' ) ],
+};
+
+/**
+ * A wide but short container also renders the compact rows — stacked tile
+ * rows would not fit, and rows read better than a clipped tile grid.
+ */
+export const ShortContainer: Story = {
+	render: renderTiles,
+	args: { columns: 2 },
+	decorators: [ makeCanvas( '100%', '180px' ) ],
 };
 
 /**
@@ -106,4 +121,5 @@ export const WithPlaceholderValue: Story = {
 		</MetricTileGrid>
 	),
 	args: { columns: 2 },
+	decorators: [ makeCanvas( '100%', '320px' ) ],
 };

@@ -31,10 +31,15 @@ export type MetricTileGridProps = {
 };
 
 /**
- * Responsive container for `MetricTile`s. Establishes its own container query
- * context, so the layout tracks the widget's rendered width rather than the
- * viewport: narrow widths stack compact label/value rows, wide widths lay the
- * tiles out `columns` across with centered content.
+ * Responsive container for `MetricTile`s. Establishes its own size query
+ * context, so the layout tracks the widget cell rather than the viewport:
+ * narrow or short cells stack compact label/value rows, cells that are both
+ * wide and tall enough lay the tiles out `columns` across with centered
+ * content.
+ *
+ * Size containment means the grid takes its height from its parent, never
+ * from its own content — render it inside a height-constrained ancestor (a
+ * widget host cell, or a fixed-height flex column), or it collapses.
  *
  * @param {MetricTileGridProps} props - The component props.
  * @return The rendered grid.
