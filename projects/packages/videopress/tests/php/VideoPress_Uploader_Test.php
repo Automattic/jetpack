@@ -197,7 +197,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 		wp_update_post(
 			array(
 				'ID'           => $this->valid_attachment_id,
-				'post_title'   => 'My Edited Video Title',
+				'post_title'   => 'She said "hello"',
 				'post_content' => 'My video description',
 				'post_excerpt' => 'My video caption',
 			)
@@ -216,7 +216,15 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 
 		$uploader->upload();
 
-		$this->assertSame( 'My Edited Video Title', $mock_client->metadata['title'] ?? null );
+		$title = $mock_client->metadata['title'] ?? '';
+
+		/*
+		 * The raw stored title is sent verbatim. Reading it through get_the_title() would apply the
+		 * the_title display filters (wptexturize, convert_chars), turning the quote into an HTML
+		 * entity such as &#8221; that then leaks into the VideoPress video title.
+		 */
+		$this->assertStringContainsString( '"', $title );
+		$this->assertStringNotContainsString( '&#', $title );
 		$this->assertSame( 'My video description', $mock_client->metadata['description'] ?? null );
 		$this->assertSame( 'My video caption', $mock_client->metadata['caption'] ?? null );
 	}

@@ -212,7 +212,7 @@ class Uploader {
 			$attachment = get_post( $this->attachment_id );
 			$client     = $this->get_client();
 			$client->file( $this->get_file_path(), $this->get_file_name() );
-			$client->add_metadata( 'title', get_the_title( $this->attachment_id ) );
+			$client->add_metadata( 'title', $attachment->post_title );
 			if ( '' !== $attachment->post_content ) {
 				$client->add_metadata( 'description', $attachment->post_content );
 			}
