@@ -48,7 +48,26 @@ class Tiled_Gallery {
 					'render_email_callback' => array( __CLASS__, 'render_email' ),
 				)
 			);
+
+			add_filter( 'block_editor_settings_all', array( __CLASS__, 'add_block_editor_settings' ) );
 		}
+	}
+
+	/**
+	 * Expose whether the current site should skip the external Photon domain to the block editor.
+	 *
+	 * VIP sites serve images from a Photon-like host and must not be routed through the public
+	 * photon.js domain. The value is read by skipPhotonDomain() in utils/index.js (Simple sites are
+	 * handled separately there via isSimpleSite()).
+	 *
+	 * @param array $settings The block editor settings.
+	 * @return array The filtered block editor settings.
+	 */
+	public static function add_block_editor_settings( $settings ) {
+		$jetpack_plan                   = Jetpack_Plan::get();
+		$settings['skip_photon_domain'] = 'vip' === $jetpack_plan['product_slug'];
+
+		return $settings;
 	}
 
 	/**
@@ -63,10 +82,6 @@ class Tiled_Gallery {
 		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
-		// For backward compatibility (ensuring Tiled Galleries using now deprecated versions of the block are not affected).
-		// See isVIP() in utils/index.js.
-		$jetpack_plan = Jetpack_Plan::get();
-		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**

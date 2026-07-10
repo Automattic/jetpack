@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tiled Gallery: source the Photon-domain decision from the block editor settings filter instead of an inline script, and dedupe the check across block versions.

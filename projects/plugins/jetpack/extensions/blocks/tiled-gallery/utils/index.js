@@ -6,17 +6,6 @@ import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
-let jetpackPlanFromState;
-
-window.addEventListener( 'load', function () {
-	const hasImageCompare = select( 'core/block-editor' )
-		.getBlocks()
-		.some( block => block.name === 'jetpack/image-compare' );
-	if ( hasImageCompare && ! jetpackPlanFromState ) {
-		jetpackPlanFromState = window?.Jetpack_Editor_Initial_State?.jetpack?.jetpack_plan;
-	}
-} );
-
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
 }
@@ -59,7 +48,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation = true === isVIP() || isSimpleSite() ? photonWpcomImage : photon;
+	const photonImplementation = skipPhotonDomain() || isSimpleSite() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -117,16 +106,17 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 
 	return Object.assign( { src }, srcSet && { srcSet } );
 }
-function isVIP() {
-	/*global jetpack_plan*/
-	// Use `jetpackPlanFromState` if available, otherwise fall back to `jetpack_plan` defined within the render function in tiled-gallery.php.
-	let jetpackPlan;
-	if ( typeof jetpackPlanFromState !== 'undefined' ) {
-		jetpackPlan = jetpackPlanFromState;
-	} else if ( typeof jetpack_plan !== 'undefined' ) {
-		jetpackPlan = jetpack_plan;
-	}
-	return jetpackPlan && jetpackPlan?.data === 'vip';
+/**
+ * Whether the current site should skip the external Photon (photon.js) domain and instead build
+ * files.wordpress.com-style URLs via photonWpcomImage.
+ *
+ * The value is provided by the `block_editor_settings_all` filter in tiled-gallery.php and read
+ * here from the block editor settings.
+ *
+ * @return {boolean} True when the external Photon domain should be skipped.
+ */
+export function skipPhotonDomain() {
+	return true === select( 'core/block-editor' )?.getSettings()?.skip_photon_domain;
 }
 
 /**

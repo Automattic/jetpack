@@ -3,6 +3,7 @@ import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import photon from 'photon';
 import isOfflineMode from '../../../../../shared/is-offline-mode';
+import { skipPhotonDomain } from '../../../utils';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
 export function isSquareishLayout( layout ) {
@@ -48,7 +49,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { layoutStyle } = galleryAtts;
 
 	const photonImplementation =
-		isWpcomFilesUrl( url ) || true === isVIP() ? photonWpcomImage : photon;
+		isWpcomFilesUrl( url ) || skipPhotonDomain() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -105,12 +106,6 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	srcSet = srcSet.join( ',' );
 
 	return Object.assign( { src }, srcSet && { srcSet } );
-}
-function isVIP() {
-	/*global jetpack_plan*/
-	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
-		return true;
-	}
 }
 function isWpcomFilesUrl( url ) {
 	const { host } = new URL( url, window.location.href );
