@@ -34,9 +34,11 @@ type DateComparisonDropdownProps = {
 	 */
 	presetId?: ComparisonPresetId;
 	/**
-	 * Whether to remove "Compare to:" prefix from button label
+	 * Visible label rendered by the select itself. When provided, the trigger
+	 * shows only the comparison range; otherwise the trigger carries the
+	 * "Compare to:" prefix and the label stays visually hidden.
 	 */
-	removeCompareToPrefix?: boolean;
+	label?: string;
 	/**
 	 * Callback when a comparison preset is selected
 	 */
@@ -84,7 +86,7 @@ export function DateComparisonDropdown( {
 	presets,
 	enabled,
 	presetId,
-	removeCompareToPrefix = false,
+	label,
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
@@ -97,9 +99,9 @@ export function DateComparisonDropdown( {
 				value: NO_COMPARISON_VALUE,
 				label: noComparisonLabel,
 			},
-			...presets.map( ( { id, label } ) => ( {
-				value: id,
-				label,
+			...presets.map( preset => ( {
+				value: preset.id,
+				label: preset.label,
 			} ) ),
 		];
 	}, [ noComparisonLabel, presets ] );
@@ -122,11 +124,11 @@ export function DateComparisonDropdown( {
 			isComparisonActive
 				? getComparisonTriggerLabel( {
 						selectedPreset,
-						removeCompareToPrefix,
+						removeCompareToPrefix: !! label,
 						noComparisonLabel,
 				  } )
 				: noComparisonLabel,
-		[ isComparisonActive, noComparisonLabel, removeCompareToPrefix, selectedPreset ]
+		[ isComparisonActive, label, noComparisonLabel, selectedPreset ]
 	);
 
 	const handleValueChange = useCallback(
@@ -154,11 +156,10 @@ export function DateComparisonDropdown( {
 			value={ selectedItem }
 			onValueChange={ handleValueChange }
 			triggerContent={ () => triggerLabel }
-			label={ __( 'Compare to', 'jetpack-premium-analytics' ) }
-			hideLabelFromVision={ ! removeCompareToPrefix }
+			label={ label ?? __( 'Compare to', 'jetpack-premium-analytics' ) }
+			hideLabelFromVision={ ! label }
 			placeholder={ selectComparisonLabel }
 			size="compact"
-			id="date-comparison-dropdown-button"
 		/>
 	);
 }

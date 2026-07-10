@@ -1,8 +1,9 @@
 .date-comparison-dropdown__select {
 	min-width: 12rem;
-	--wp-ui-select-z-index: 3000;
 
 	// Match idle date-filter buttons: borderless, minimal surface.
+	// `data-can-disable-input-layout` is an internal attribute of the
+	// @wordpress/ui (0.17.0) select trigger; revisit on package bumps.
 	div:has(> button[data-can-disable-input-layout]) {
 		background-color: #fff;
 		border: none;

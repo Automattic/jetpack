@@ -32,11 +32,11 @@ const defaultRange: DateRange = {
 function DateComparisonDropdownWithState( {
 	initialEnabled = true,
 	initialPresetId = 'previous-period',
-	removeCompareToPrefix = false,
+	label,
 }: {
 	initialEnabled?: boolean;
 	initialPresetId?: ComparisonPresetId;
-	removeCompareToPrefix?: boolean;
+	label?: string;
 } ) {
 	const [ enabled, setEnabled ] = useState( initialEnabled );
 	const [ presetId, setPresetId ] = useState< ComparisonPresetId | undefined >(
@@ -50,7 +50,7 @@ function DateComparisonDropdownWithState( {
 			presets={ presets }
 			enabled={ enabled }
 			presetId={ presetId }
-			removeCompareToPrefix={ removeCompareToPrefix }
+			label={ label }
 			onPresetChange={ id => {
 				setEnabled( true );
 				setPresetId( id );
@@ -85,8 +85,9 @@ export const PreviousMonthSelected: Story = {
 };
 
 /**
- * With an external BaseControl label instead of the built-in select label.
+ * With a visible label rendered by the select itself; the trigger shows only
+ * the comparison range, without the "Compare to:" prefix.
  */
-export const WithExternalLabel: Story = {
-	render: () => <DateComparisonDropdownWithState removeCompareToPrefix />,
+export const WithVisibleLabel: Story = {
+	render: () => <DateComparisonDropdownWithState label="Compare to" />,
 };

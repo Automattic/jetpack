@@ -68,7 +68,8 @@ export type DateFiltersPanelProps = {
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
 	/**
-	 * Props for the date comparison dropdown.
+	 * Props for the date comparison dropdown. A string `label` renders as the
+	 * comparison select's own visible label instead of a BaseControl label.
 	 */
 	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
@@ -214,17 +215,16 @@ export function DateFiltersPanel( {
 				/>
 			</BaseControl>
 
-			<BaseControl
-				className="date-filters-panel__comparison"
-				label={ comparisonControlProps.label }
-				id="date-comparison-dropdown-button"
-				help={ comparisonControlProps.help }
-			>
+			<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
 				<DateComparisonDropdown
 					presets={ presets }
 					enabled={ comparisonEnabled }
 					presetId={ validatedComparisonPresetId }
-					removeCompareToPrefix={ !! comparisonControlProps.label }
+					label={
+						typeof comparisonControlProps.label === 'string'
+							? comparisonControlProps.label
+							: undefined
+					}
 					onPresetChange={ presetChange }
 					onClear={ clearComparison }
 				/>
