@@ -11,6 +11,8 @@
 	gap: var(--wpds-dimension-gap-xs);
 	width: fit-content;
 	padding: var(--wpds-dimension-padding-xs);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	// Same stroke the @wordpress/ui input-layout uses, so the group border
+	// matches the comparison select next to it.
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
 	border-radius: var(--wpds-border-radius-md);
 }
