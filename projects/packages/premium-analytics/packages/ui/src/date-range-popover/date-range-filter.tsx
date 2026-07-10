@@ -5,17 +5,15 @@ import { DateRangeCalendar } from '@automattic/ui';
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { Dropdown } from '@wordpress/components';
-import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, type ComponentProps } from 'react';
 import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
 import { DateRangeInput } from '../date-range-input';
-import { WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
 import { getCustomTriggerLabel, getCustomTriggerState } from './get-custom-trigger-state';
 import {
 	getCommittedCustomRange,
@@ -192,17 +190,11 @@ export function DateRangePopoverContent( {
 	);
 }
 
-type DateRangePopoverProps = Omit< DateRangePopoverContentProps, 'isWideScreen' > & {
+type DateRangePopoverProps = DateRangePopoverContentProps & {
 	/**
 	 * Currently selected preset identifier
 	 */
 	presetId?: PrimaryPresetId;
-
-	/**
-	 * Optional external container element for responsive calculations when the
-	 * popover is rendered outside `DateRangeFilter`.
-	 */
-	containerElement?: HTMLElement | null;
 
 	/**
 	 * Applied (committed) range used to label the trigger while the popover is
@@ -223,16 +215,6 @@ type DateRangePopoverProps = Omit< DateRangePopoverContentProps, 'isWideScreen' 
 	 * (e.g. the comparison label that follows the primary range).
 	 */
 	onOpenChange?: ( isOpen: boolean ) => void;
-
-	/**
-	 * When provided, skips the internal resize observer.
-	 */
-	isCompact?: boolean;
-
-	/**
-	 * When provided, skips the internal resize observer.
-	 */
-	isWideScreen?: boolean;
 };
 
 export function DateRangePopover( {
@@ -245,12 +227,9 @@ export function DateRangePopover( {
 	onCancel,
 	canApply,
 	timeZone,
-	containerElement,
 	onOpenChange,
-	isCompact: isCompactProp,
-	isWideScreen: isWideScreenProp,
+	isWideScreen = false,
 }: DateRangePopoverProps ) {
-	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
 	const [ rememberedCustomRange, setRememberedCustomRange ] =
 		useState< RememberedCustomRange | null >( null );
 
@@ -284,30 +263,6 @@ export function DateRangePopover( {
 		[ appliedPresetId, onChange, onOpenChange, presetId, rememberedCustomRange ]
 	);
 
-	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
-		const entry = entries[ 0 ];
-		if ( entry ) {
-			setContainerWidth( entry.contentRect.width );
-		}
-	}, [] );
-
-	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
-
-	const managesLayout = isCompactProp === undefined && isWideScreenProp === undefined;
-
-	useEffect( () => {
-		if ( ! managesLayout ) {
-			return;
-		}
-
-		const element = containerElement ?? document.body;
-		setObserverRef( element );
-	}, [ containerElement, managesLayout, setObserverRef ] );
-
-	const isWideScreen =
-		isWideScreenProp ??
-		( containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD );
-
 	const committedRange = appliedRange ?? range;
 	const triggerState = getCustomTriggerState( {
 		presetId,
@@ -325,7 +280,7 @@ export function DateRangePopover( {
 		formatRange: formatDateRange,
 	} );
 
-	let customDateRangeButtonVariant: typeof Button.prototype.variant = 'minimal';
+	let customDateRangeButtonVariant: ComponentProps< typeof Button >[ 'variant' ] = 'minimal';
 	if ( triggerState === 'applied' ) {
 		customDateRangeButtonVariant = 'solid';
 	} else if ( triggerState === 'staged' ) {
@@ -350,7 +305,6 @@ export function DateRangePopover( {
 					size="compact"
 					id="date-range-popover-button"
 					data-state={ triggerState }
-					aria-pressed={ triggerState === 'applied' }
 				>
 					{ triggerLabel }
 				</Button>

@@ -20,7 +20,14 @@ import './date-range-filter.scss';
 
 type DateRangePopoverProps = Parameters< typeof DateRangePopover >[ 0 ];
 
-export type DateRangeFilterProps = DateRangePopoverProps;
+export type DateRangeFilterProps = Omit< DateRangePopoverProps, 'isWideScreen' > & {
+	/**
+	 * Optional external container element for responsive calculations. When
+	 * provided, this container's width is measured instead of `document.body`
+	 * to determine the compact and wide layouts.
+	 */
+	containerElement?: HTMLElement | null;
+};
 
 /**
  * Primary date-range control: rolling-window presets on the surface and a
