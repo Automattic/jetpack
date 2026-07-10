@@ -17,11 +17,12 @@ const PNPM_PATH_REGEXP =
 
 /*
  * With `enableGlobalVirtualStore`, packages live in the pnpm store instead of `node_modules/.pnpm`,
- * as `<store>/links/<@scope|@>/<name>/<version>/<hash>/node_modules/<path>`. The store is outside
- * the monorepo, so its absolute path would otherwise leak into the identifier.
+ * as `<store>/v<N>/links/<@scope|@>/<name>/<version>/<hash>/node_modules/<path>`. The store is
+ * outside the monorepo, so its absolute path would otherwise leak into the identifier. The `v<N>`
+ * store-version directory keeps this from matching a project path that merely contains `links/`.
  */
 const PNPM_GLOBAL_STORE_PATH_REGEXP =
-	/(?<=^|[|!])[^|!]*?\/links\/[^/]+\/[^/]+\/[^/]+\/[0-9a-f]{32,}\/node_modules\/([^|!]+)/g;
+	/(?<=^|[|!])[^|!]*?\/v[0-9]+\/links\/[^/]+\/[^/]+\/[^/]+\/[0-9a-f]{32,}\/node_modules\/([^|!]+)/g;
 
 /**
  * Replace pnpm store paths in an identifier.
