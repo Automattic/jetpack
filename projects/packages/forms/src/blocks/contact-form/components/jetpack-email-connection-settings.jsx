@@ -88,7 +88,7 @@ const JetpackEmailConnectionSettings = ( {
 	return (
 		<>
 			<ToggleControl
-				label={ __( 'Send responses to email', 'jetpack-forms' ) }
+				label={ __( 'Email me new responses', 'jetpack-forms' ) }
 				checked={ emailNotifications }
 				help={ __( 'Get incoming form responses sent to your email inbox.', 'jetpack-forms' ) }
 				onChange={ value => setAttributes( { emailNotifications: value } ) }
@@ -100,7 +100,7 @@ const JetpackEmailConnectionSettings = ( {
 						aria-describedby={ `contact-form-${ instanceId }-email-${
 							hasEmailErrors() ? 'error' : 'help'
 						}` }
-						label={ __( 'Email address to send to', 'jetpack-forms' ) }
+						label={ __( 'Send email notifications to', 'jetpack-forms' ) }
 						placeholder={ __( 'name@example.com', 'jetpack-forms' ) }
 						onKeyDown={ e => {
 							if ( event.key === 'Enter' ) {

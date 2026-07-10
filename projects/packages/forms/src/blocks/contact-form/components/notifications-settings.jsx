@@ -75,7 +75,7 @@ const NotificationsSettings = ( {
 			/>
 			<>
 				<ToggleControl
-					label={ __( 'Enable notifications for responses', 'jetpack-forms' ) }
+					label={ __( 'Send me push notifications', 'jetpack-forms' ) }
 					help={ createInterpolateElement(
 						__(
 							'Receive push notifications when someone fills out your form. <pushNotificationsLink>Learn more.</pushNotificationsLink>',
