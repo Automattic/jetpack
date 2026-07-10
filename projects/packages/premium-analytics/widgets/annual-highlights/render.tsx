@@ -23,7 +23,7 @@ import {
 	postList,
 	starEmpty,
 } from '@wordpress/icons';
-import { Button, Icon, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -129,7 +129,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 	).filter( tile => tile.enabled );
 
 	return (
-		<div className={ styles.root }>
+		<div className={ styles.content }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
@@ -151,8 +151,8 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 				} }
 			>
 				{ year && (
-					<div className={ styles.body }>
-						<div className={ styles.yearNav }>
+					<Stack className={ styles.root } direction="column" gap="lg">
+						<Stack align="center" justify="flex-end" gap="sm">
 							<Button
 								type="button"
 								variant="minimal"
@@ -180,7 +180,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 							>
 								<Button.Icon icon={ arrowRight } size={ 16 } />
 							</Button>
-						</div>
+						</Stack>
 						{ tiles.length === 0 ? (
 							<Text className={ styles.placeholder }>
 								{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
@@ -203,7 +203,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 								) ) }
 							</div>
 						) }
-					</div>
+					</Stack>
 				) }
 			</WidgetState>
 		</div>
