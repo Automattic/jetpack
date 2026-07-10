@@ -8,6 +8,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TopPerformingProductsRender from '../render';
 import widgetDefinition from '../widget';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
@@ -207,6 +208,19 @@ function renderTopPerformingProducts( {
 	);
 }
 
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderTopPerformingProductsOnPreset( preset: SelectablePresetId ) {
+	return (
+		<TopPerformingProductsRender
+			attributes={ getTopPerformingProductsAttributes( false, preset ) }
+			setError={ noopSetError }
+		/>
+	);
+}
+
 function TopPerformingProductsDashboardStory( {
 	withComparison,
 	preset,
@@ -296,6 +310,56 @@ export const WithComparison: Story = {
 				) => getTopPerformingProductsSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ *
+ * The story's own product/image mock middleware (registered above) would
+ * otherwise shadow `setReportMockState` — it always answers `reports/products`
+ * with canned data and never falls through. `forceStatsMockState` registers its
+ * override middleware lazily, on first call, so it is guaranteed to be the
+ * last-registered (and therefore first-run) middleware here.
+ */
+export const Loading: Story = {
+	render: () => renderTopPerformingProductsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'reports/products', 'loading' );
+		return () => forceStatsMockState( 'reports/products', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderTopPerformingProductsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'reports/products', 'error' );
+		return () => forceStatsMockState( 'reports/products', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state ("No product sales in
+ * this period.").
+ */
+export const Empty: Story = {
+	render: () => renderTopPerformingProductsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'reports/products', 'empty' );
+		return () => forceStatsMockState( 'reports/products', null );
 	},
 };
 

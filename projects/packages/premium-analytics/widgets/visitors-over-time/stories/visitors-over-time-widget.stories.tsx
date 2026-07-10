@@ -6,7 +6,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
 import VisitorsOverTimeRender from '../render';
 import widgetDefinition from '../widget';
@@ -85,6 +88,21 @@ function renderVisitorsOverTime( { withComparison, preset }: VisitorsOverTimeSto
 	return (
 		<VisitorsOverTimeRender
 			attributes={ getVisitorsOverTimeAttributes( withComparison, preset ) }
+			setError={ noopSetError }
+		/>
+	);
+}
+
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderVisitorsOverTimeOnPreset( preset: SelectablePresetId ) {
+	ensureLineChartComposition();
+
+	return (
+		<VisitorsOverTimeRender
+			attributes={ getVisitorsOverTimeAttributes( false, preset ) }
 			setError={ noopSetError }
 		/>
 	);
@@ -178,6 +196,50 @@ export const WithComparison: Story = {
 				) => getVisitorsOverTimeSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderVisitorsOverTimeOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-date', 'loading' );
+		return () => setReportMockState( 'sessions/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderVisitorsOverTimeOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-date', 'error' );
+		return () => setReportMockState( 'sessions/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no visitor data: the widget shows its empty state ("No data
+ * found for this date range.").
+ */
+export const Empty: Story = {
+	render: () => renderVisitorsOverTimeOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-date', 'empty' );
+		return () => setReportMockState( 'sessions/by-date', null );
 	},
 };
 

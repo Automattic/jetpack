@@ -1,4 +1,4 @@
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -7,6 +7,7 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import LocationsRender from '../render';
 import widgetDefinition, { type LocationsAttributes } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -55,6 +56,22 @@ function getLocationsAttributes( {
 
 function renderLocationsWidget( controls: LocationsStoryControls ) {
 	return <LocationsRender attributes={ getLocationsAttributes( controls ) } />;
+}
+
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderLocationsOnPreset( preset: PresetType ) {
+	return (
+		<LocationsRender
+			attributes={ {
+				geoGranularity: 'country',
+				max: 10,
+				reportParams: getDefaultQueryParams( false, preset ),
+			} }
+		/>
+	);
 }
 
 function LocationsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -123,6 +140,50 @@ export const CitiesMode: StoryObj< LocationsStoryControls > = {
 	render: renderLocationsWidget,
 	args: { withComparison: false, geoGranularity: 'city' },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: StoryObj< LocationsStoryControls > = {
+	render: () => renderLocationsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/location-views', 'loading' );
+		return () => forceStatsMockState( 'stats/location-views', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: StoryObj< LocationsStoryControls > = {
+	render: () => renderLocationsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/location-views', 'error' );
+		return () => forceStatsMockState( 'stats/location-views', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral location
+ * glyph and the "stats will appear here" copy).
+ */
+export const Empty: StoryObj< LocationsStoryControls > = {
+	render: () => renderLocationsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/location-views', 'empty' );
+		return () => forceStatsMockState( 'stats/location-views', null );
+	},
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {

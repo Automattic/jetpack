@@ -6,7 +6,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SalesByCouponRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -58,6 +61,19 @@ function renderSalesByCoupon( { withComparison, preset }: SalesByCouponStoryCont
 	return (
 		<SalesByCouponRender
 			attributes={ getSalesByCouponAttributes( withComparison, preset ) }
+			setError={ setStoryError }
+		/>
+	);
+}
+
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderSalesByCouponOnPreset( preset: SelectablePresetId ) {
+	return (
+		<SalesByCouponRender
+			attributes={ getSalesByCouponAttributes( false, preset ) }
 			setError={ setStoryError }
 		/>
 	);
@@ -137,6 +153,51 @@ export const WithComparison: Story = {
 		withComparison: true,
 	},
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the coupons report is in flight, so the widget shows its loading
+ * state. The mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderSalesByCouponOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'loading' );
+		return () => setReportMockState( 'coupons/', null );
+	},
+};
+
+/**
+ * The coupons report failed: the widget shows its error state with a Retry
+ * action (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderSalesByCouponOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'error' );
+		return () => setReportMockState( 'coupons/', null );
+	},
+};
+
+/**
+ * Resolved with no coupon rows: the widget shows its empty state (the neutral
+ * coupon glyph and "No coupon sales in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderSalesByCouponOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'empty' );
+		return () => setReportMockState( 'coupons/', null );
+	},
 };
 
 /**

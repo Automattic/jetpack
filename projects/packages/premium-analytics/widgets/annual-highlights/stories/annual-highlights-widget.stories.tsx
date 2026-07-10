@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	getDefaultQueryParams,
+	queryClient,
+	type PresetType,
+} from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -11,7 +15,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AnnualHighlightsRender from '../render';
 import widgetDefinition, { DEFAULT_HIGHLIGHT_METRICS, type AnnualHighlightMetric } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -72,6 +79,45 @@ const METRIC_OPTIONS = DEFAULT_HIGHLIGHT_METRICS.map( metric => ( {
 	label: metric.charAt( 0 ).toUpperCase() + metric.slice( 1 ),
 } ) );
 
+/**
+ * Renders the widget on a preset distinct from the other stories, with every
+ * metric tile enabled.
+ *
+ * @param preset - The date range preset.
+ * @return The rendered widget.
+ */
+function renderAnnualHighlightsOnPreset( preset: PresetType ) {
+	return (
+		<AnnualHighlightsRender
+			attributes={ {
+				reportParams: getDefaultQueryParams( false, preset ),
+				metrics: DEFAULT_HIGHLIGHT_METRICS,
+			} }
+		/>
+	);
+}
+
+/**
+ * Forces the insights request into a loading/error/empty state for a story.
+ *
+ * The insights endpoint is not period-scoped, so its query key carries no date
+ * params and a distinct date preset alone would not give the story a fresh
+ * cache entry. Evict the query from the shared client on enter and on cleanup
+ * so each forced-state story hits the mock fresh (and no forced result leaks
+ * into the sibling stories).
+ *
+ * @param state - The forced state.
+ * @return The story cleanup callback.
+ */
+function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
+	setReportMockState( 'stats/insights', state );
+	queryClient.removeQueries( { queryKey: [ 'stats', 'insights' ] } );
+	return () => {
+		setReportMockState( 'stats/insights', null );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'insights' ] } );
+	};
+}
+
 const METRIC_ARG_TYPES = {
 	metrics: {
 		control: 'check',
@@ -130,6 +176,41 @@ export const WithComparison: Story = {
 	render: renderAnnualHighlights,
 	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderAnnualHighlightsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceInsightsState( 'loading' ),
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderAnnualHighlightsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceInsightsState( 'error' ),
+};
+
+/**
+ * Resolved with no years: the widget shows its empty state (the neutral calendar
+ * glyph and "No highlights to show yet.").
+ */
+export const Empty: Story = {
+	render: () => renderAnnualHighlightsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceInsightsState( 'empty' ),
 };
 
 interface AnnualHighlightsDashboardStoryProps

@@ -1,7 +1,10 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -125,6 +128,35 @@ function renderStorePerformance( {
 	);
 }
 
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderStorePerformanceOnPreset( preset: SelectablePresetId ) {
+	ensureLineChartComposition();
+
+	return (
+		<StorePerformanceRender
+			attributes={ getStorePerformanceAttributes( { withComparison: false, preset } ) }
+		/>
+	);
+}
+
+// Every report endpoint behind the widget's default metrics (net sales/orders,
+// bookings, visitors, conversion rate, customers). State stories force all of
+// them so no metric report resolves with data.
+const STORE_PERFORMANCE_ENDPOINTS = [
+	'orders/by-date',
+	'orders-by-product-type/by-date',
+	'sessions/by-date',
+	'sessions/by-conversion-rate',
+	'customers/by-date',
+] as const;
+
+function setAllReportMockStates( state: 'loading' | 'error' | null ) {
+	STORE_PERFORMANCE_ENDPOINTS.forEach( endpoint => setReportMockState( endpoint, state ) );
+}
+
 function StorePerformanceDashboardStory( {
 	withComparison,
 	preset,
@@ -218,6 +250,37 @@ export const WithComparison: Story = {
 				) => getStorePerformanceSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: every metric report is in flight, so the widget shows its loading
+ * state. The mocks are forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderStorePerformanceOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setAllReportMockStates( 'loading' );
+		return () => setAllReportMockStates( null );
+	},
+};
+
+/**
+ * Every metric report failed: the widget shows its error state with a Retry
+ * action (which re-runs all queries — still mocked as failing while this story
+ * is active).
+ */
+export const Error: Story = {
+	render: () => renderStorePerformanceOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setAllReportMockStates( 'error' );
+		return () => setAllReportMockStates( null );
 	},
 };
 

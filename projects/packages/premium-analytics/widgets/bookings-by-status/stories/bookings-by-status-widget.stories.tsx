@@ -6,7 +6,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import BookingsByStatusRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -81,6 +84,14 @@ function renderBookingsByStatus( { withComparison, preset }: BookingsByStatusSto
 			attributes={ getBookingsByStatusAttributes( withComparison, preset ) }
 		/>
 	);
+}
+
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderBookingsByStatusOnPreset( preset: SelectablePresetId ) {
+	return <BookingsByStatusRender attributes={ getBookingsByStatusAttributes( false, preset ) } />;
 }
 
 function BookingsByStatusDashboardStory( {
@@ -166,6 +177,52 @@ export const WithComparison: Story = {
 				code: getBookingsByStatusSource( { withComparison: true, preset: DEFAULT_PRESET } ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the bookings report is in flight, so the widget shows its
+ * loading state. The mock is forced to never resolve for the duration of this
+ * story.
+ */
+export const Loading: Story = {
+	render: () => renderBookingsByStatusOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'bookings/by-date', 'loading' );
+		return () => setReportMockState( 'bookings/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action
+ * (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderBookingsByStatusOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'bookings/by-date', 'error' );
+		return () => setReportMockState( 'bookings/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no bookings: the widget shows its empty state ("No bookings in
+ * this period.").
+ */
+export const Empty: Story = {
+	render: () => renderBookingsByStatusOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'bookings/by-date', 'empty' );
+		return () => setReportMockState( 'bookings/by-date', null );
 	},
 };
 

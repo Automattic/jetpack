@@ -1,6 +1,9 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -86,6 +89,16 @@ function renderSalesByUtmCampaign( { withComparison, preset }: SalesByUtmCampaig
 		<SalesByUtmCampaignRender
 			attributes={ getSalesByUtmCampaignAttributes( withComparison, preset ) }
 		/>
+	);
+}
+
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderSalesByUtmCampaignOnPreset( preset: SelectablePresetId ) {
+	return (
+		<SalesByUtmCampaignRender attributes={ getSalesByUtmCampaignAttributes( false, preset ) } />
 	);
 }
 
@@ -182,6 +195,50 @@ export const WithComparison: Story = {
 				) => getSalesByUtmCampaignSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderSalesByUtmCampaignOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'order-attribution/campaign/summary', 'loading' );
+		return () => setReportMockState( 'order-attribution/campaign/summary', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderSalesByUtmCampaignOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'order-attribution/campaign/summary', 'error' );
+		return () => setReportMockState( 'order-attribution/campaign/summary', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state ("No attribution data
+ * in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderSalesByUtmCampaignOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'order-attribution/campaign/summary', 'empty' );
+		return () => setReportMockState( 'order-attribution/campaign/summary', null );
 	},
 };
 

@@ -1,14 +1,17 @@
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import TrafficChartRender from '../render';
 import widgetDefinition, {
 	DEFAULT_TRAFFIC_CHART_METRICS,
@@ -58,6 +61,16 @@ function renderTrafficChart( { withComparison, metrics }: TrafficChartStoryContr
 	);
 }
 
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderTrafficChartOnPreset( preset: PresetType ) {
+	return (
+		<TrafficChartRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
+	);
+}
+
 // Close-up canvas so the chart fills the frame outside the dashboard grid.
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '360px' } }>
@@ -103,6 +116,52 @@ export const WithComparison: Story = {
 	render: renderTrafficChart,
 	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: both visits fetches are in flight, so the widget shows its loading
+ * state (the metric tabs over the chart's loading overlay). The mock is forced
+ * to never resolve for the duration of this story. Both of the widget's requests
+ * hit the same `stats/visits` path, so one override covers them.
+ */
+export const Loading: Story = {
+	render: () => renderTrafficChartOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/visits', 'loading' );
+		return () => setReportMockState( 'stats/visits', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the queries — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderTrafficChartOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/visits', 'error' );
+		return () => setReportMockState( 'stats/visits', null );
+	},
+};
+
+/**
+ * Resolved with no points: the widget shows its empty state (the neutral
+ * reports glyph and "No traffic data in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderTrafficChartOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/visits', 'empty' );
+		return () => setReportMockState( 'stats/visits', null );
+	},
 };
 
 interface TrafficChartDashboardStoryProps

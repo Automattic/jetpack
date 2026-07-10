@@ -10,11 +10,18 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	getDefaultQueryParams,
+	queryClient,
+	type PresetType,
+} from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -84,6 +91,41 @@ function renderAllTimeStats( { withComparison, metrics }: AllTimeStatsStoryContr
 	);
 }
 
+/**
+ * Renders the widget on a preset distinct from the other stories.
+ *
+ * @param preset - The date range preset.
+ * @return The rendered widget.
+ */
+function renderAllTimeStatsOnPreset( preset: PresetType ) {
+	return (
+		<AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
+	);
+}
+
+/**
+ * Forces the site-summary request into a loading/error/empty state for a story.
+ *
+ * The summary is all-time, so its query key carries no date params and a
+ * distinct date preset alone would not give the story a fresh cache entry.
+ * Evict the query from the shared client on enter and on cleanup so each
+ * forced-state story hits the mock fresh (and no forced result leaks into the
+ * sibling stories).
+ *
+ * @param state - The forced state.
+ * @return The story cleanup callback.
+ */
+function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
+	// The bare `/proxy/v1.1/stats` site-summary endpoint — the only stats
+	// request this widget makes.
+	setReportMockState( 'proxy/v1.1/stats', state );
+	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
+	return () => {
+		setReportMockState( 'proxy/v1.1/stats', null );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
+	};
+}
+
 // Close-up canvas so the stat list fills the frame outside the dashboard grid.
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', maxWidth: '480px' } }>
@@ -131,6 +173,41 @@ export const WithComparison: Story = {
 	render: renderAllTimeStats,
 	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderAllTimeStatsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'loading' ),
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderAllTimeStatsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'error' ),
+};
+
+/**
+ * Resolved with no summary fields: the widget shows its empty state (the neutral
+ * trending glyph and "No stats recorded yet.").
+ */
+export const Empty: Story = {
+	render: () => renderAllTimeStatsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'empty' ),
 };
 
 interface AllTimeStatsDashboardStoryProps

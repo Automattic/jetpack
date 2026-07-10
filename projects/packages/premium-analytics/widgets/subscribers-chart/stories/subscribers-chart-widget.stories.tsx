@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -11,7 +11,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscribersChartRender from '../render';
 import widgetDefinition, {
 	DEFAULT_SUBSCRIBERS_CHART_METRICS,
@@ -57,6 +60,18 @@ function renderSubscribersChart( { withComparison, metrics }: SubscribersChartSt
 	return (
 		<SubscribersChartRender
 			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+		/>
+	);
+}
+
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderSubscribersChartOnPreset( preset: PresetType ) {
+	return (
+		<SubscribersChartRender
+			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
 		/>
 	);
 }
@@ -107,6 +122,51 @@ export const WithComparison: Story = {
 	render: renderSubscribersChart,
 	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state (the
+ * metric tabs over the chart's loading overlay). The mock is forced to never
+ * resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderSubscribersChartOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/subscribers', 'loading' );
+		return () => setReportMockState( 'stats/subscribers', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderSubscribersChartOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/subscribers', 'error' );
+		return () => setReportMockState( 'stats/subscribers', null );
+	},
+};
+
+/**
+ * Resolved with no points: the widget shows its empty state (the neutral
+ * customer glyph and "No subscriber data in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderSubscribersChartOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/subscribers', 'empty' );
+		return () => setReportMockState( 'stats/subscribers', null );
+	},
 };
 
 interface SubscribersChartDashboardStoryProps

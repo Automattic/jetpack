@@ -1,13 +1,16 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { getUnixTime, startOfDay, subDays } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -24,7 +27,30 @@ import type { ComponentProps, ComponentType } from 'react';
 registerReportMocks();
 
 const STATS_STREAK_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/streak';
+const STATS_STREAK_PATH_FRAGMENT = 'stats/streak';
 const STREAK_DAYS = 365;
+
+// The story-local streak middleware below runs ahead of the shared report
+// middleware (it is registered after it, so apiFetch unshifts it in front) and
+// would swallow streak requests before a `setReportMockState` override can
+// apply. The forced-state stories raise this flag so streak requests fall
+// through to the shared middleware while an override is active.
+let deferToForcedStreakState = false;
+
+/**
+ * Forces the streak request into the given state for a story's lifetime.
+ *
+ * @param state - The forced report-mock state.
+ * @return The `beforeEach` cleanup callback.
+ */
+function forceStreakState( state: 'loading' | 'error' | 'empty' ) {
+	deferToForcedStreakState = true;
+	setReportMockState( STATS_STREAK_PATH_FRAGMENT, state );
+	return () => {
+		setReportMockState( STATS_STREAK_PATH_FRAGMENT, null );
+		deferToForcedStreakState = false;
+	};
+}
 
 /**
  * A year of deterministic posts-per-day counts keyed by unix-second timestamps,
@@ -64,7 +90,7 @@ function buildStreakResponse() {
 const streakMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
-	if ( ! requestPath.startsWith( STATS_STREAK_PATH ) ) {
+	if ( deferToForcedStreakState || ! requestPath.startsWith( STATS_STREAK_PATH ) ) {
 		return next( options );
 	}
 
@@ -95,6 +121,19 @@ function renderPostingActivity( { withComparison }: PostingActivityStoryControls
 	return (
 		<PostingActivityRender
 			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	);
+}
+
+// Renders the widget on a preset distinct from the other stories. The streak
+// query key derives from the date range, so a unique preset gives the
+// forced-state stories their own cache entry and they hit the mock fresh
+// instead of reading another story's cached success from the shared query
+// client.
+function renderPostingActivityOnPreset( preset: PresetType ) {
+	return (
+		<PostingActivityRender
+			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
 		/>
 	);
 }
@@ -145,6 +184,41 @@ export const WithComparison: Story = {
 	render: renderPostingActivity,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderPostingActivityOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceStreakState( 'loading' ),
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderPostingActivityOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceStreakState( 'error' ),
+};
+
+/**
+ * Resolved with no posts in the range: the widget shows its empty state (the
+ * neutral calendar glyph and the "posts will appear here" message).
+ */
+export const Empty: Story = {
+	render: () => renderPostingActivityOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceStreakState( 'empty' ),
 };
 
 interface PostingActivityDashboardStoryProps

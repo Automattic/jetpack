@@ -1,4 +1,4 @@
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -7,6 +7,7 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TopPlatformsRender from '../render';
 import widgetDefinition, { type TopPlatformsAttributes } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -57,6 +58,22 @@ function getTopPlatformsAttributes( {
 
 function renderTopPlatformsWidget( controls: TopPlatformsStoryControls ) {
 	return <TopPlatformsRender attributes={ getTopPlatformsAttributes( controls ) } />;
+}
+
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderTopPlatformsOnPreset( preset: PresetType ) {
+	return (
+		<TopPlatformsRender
+			attributes={ {
+				max: 10,
+				platformDimension: 'browser',
+				reportParams: getDefaultQueryParams( false, preset ),
+			} }
+		/>
+	);
 }
 
 function TopPlatformsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -127,6 +144,50 @@ export const ByOS: StoryObj< TopPlatformsStoryControls > = {
 	render: renderTopPlatformsWidget,
 	args: { withComparison: false, platformDimension: 'platform' },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: StoryObj< TopPlatformsStoryControls > = {
+	render: () => renderTopPlatformsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices', 'loading' );
+		return () => forceStatsMockState( 'stats/devices', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: StoryObj< TopPlatformsStoryControls > = {
+	render: () => renderTopPlatformsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices', 'error' );
+		return () => forceStatsMockState( 'stats/devices', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral device
+ * glyph and "No platform data in this period.").
+ */
+export const Empty: StoryObj< TopPlatformsStoryControls > = {
+	render: () => renderTopPlatformsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices', 'empty' );
+		return () => forceStatsMockState( 'stats/devices', null );
+	},
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
