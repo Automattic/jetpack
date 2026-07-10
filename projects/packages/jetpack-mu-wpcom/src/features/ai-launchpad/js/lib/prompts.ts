@@ -36,7 +36,6 @@ export const TASK_MENU: readonly string[] = [
 	'subscribers_added',
 	'import_subscribers',
 	'newsletter_plan_created',
-	'setup_newsletter',
 	'customize_welcome_message',
 	'enable_subscribers_modal',
 	'manage_subscribers',
