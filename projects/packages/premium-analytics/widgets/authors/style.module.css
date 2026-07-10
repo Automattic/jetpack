@@ -45,7 +45,7 @@ a.postLabel:focus {
 /* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
  * to all images inside the media cell, overriding our 20px avatar size.
  * Restore correct sizing for avatar images in any inert context. */
-:global([inert]) .avatar {
+:global([inert]) .root img {
 	width: 20px;
 	height: 20px;
 	object-fit: cover;

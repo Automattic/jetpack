@@ -69,12 +69,7 @@ export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
 /**
  * Widget edit fields
  */
-export {
-	ReportParamsField,
-	type ReportParamsFieldAttributes,
-	MetricsField,
-	DEFAULT_METRICS,
-} from './fields';
+export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -99,6 +94,10 @@ export {
 	buildCsv,
 	saveCsv,
 	type CsvColumn,
+	getVideoKey,
+	getVideoLabel,
+	toVideoItems,
+	toMaxRows,
 } from './helpers';
 
 /**
@@ -145,7 +144,7 @@ export {
 /**
  * Types
  */
-export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
 
 /**
  * Charts passthrough
