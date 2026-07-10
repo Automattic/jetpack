@@ -11,7 +11,7 @@ import ConnectedPlugins from '../../connected-plugins';
  * Disconnect step in disconnection flow.
  *
  * @param {object} props - The properties.
- * @return {import('react').Component} - The StepDisconnect component
+ * @return {import('react').ReactNode} - The StepDisconnect component
  */
 const StepDisconnect = props => {
 	const {

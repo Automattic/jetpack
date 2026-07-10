@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
+import jetpackConfig from '@automattic/jetpack-config';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useEffect, useCallback, useState } from 'react';
@@ -104,8 +104,8 @@ const DisconnectDialog = ( {
 	const [ isSubmittingFeedback, setIsSubmittingFeedback ] = useState( false );
 
 	let disconnectingPlugin = '';
-	if ( jetpackConfigHas( 'consumer_slug' ) ) {
-		disconnectingPlugin = jetpackConfigGet( 'consumer_slug' );
+	if ( jetpackConfig.jetpackConfigHas( 'consumer_slug' ) ) {
+		disconnectingPlugin = jetpackConfig.jetpackConfigGet( 'consumer_slug' );
 	}
 
 	const defaultTracksArgs = useMemo( () => {

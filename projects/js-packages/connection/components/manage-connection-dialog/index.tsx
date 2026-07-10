@@ -24,6 +24,10 @@ import './style.scss';
 interface ManageConnectionUser {
 	/** The currently logged-in user's connection details. */
 	currentUser?: {
+		/** The user's WordPress.com ID. */
+		id?: number;
+		/** The user's WordPress.com login. */
+		username?: string;
 		/** Whether the user is connected to WordPress.com. */
 		isConnected?: boolean;
 		/** Whether the user is the connection owner. */
@@ -134,7 +138,7 @@ const ManageConnectionDialog = ( {
 				onUnlinked();
 			} )
 			.catch( () => {
-				let errorMessage = __(
+				let errorMessage: string = __(
 					'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
 					'jetpack-connection-js'
 				);
@@ -197,6 +201,7 @@ const ManageConnectionDialog = ( {
 						aria={ {
 							labelledby: 'jp-connection__manage-dialog__heading',
 						} }
+						onRequestClose={ onClose }
 						shouldCloseOnClickOutside={ false }
 						shouldCloseOnEsc={ false }
 						isDismissible={ false }
@@ -253,28 +258,31 @@ const ManageConnectionDialog = ( {
 							) }
 						</div>
 						<HelpFooter onClose={ onClose } disabled={ isControlsDisabled } />
+
+						<DisconnectDialog
+							apiRoot={ apiRoot }
+							apiNonce={ apiNonce }
+							onDisconnected={ onDisconnected }
+							connectedPlugins={ connectedPlugins }
+							connectedSiteId={ connectedSiteId }
+							connectedUser={ {
+								ID: connectedUser.currentUser?.id,
+								login: connectedUser.currentUser?.username,
+							} }
+							isOpen={ isDisconnectDialogOpen }
+							onClose={ closeDisconnectDialog }
+							context={ context }
+						/>
+
+						<OwnerDisconnectDialog
+							isOpen={ isOwnerDisconnectDialogOpen }
+							onClose={ handleCloseOwnerDialog }
+							apiRoot={ apiRoot }
+							apiNonce={ apiNonce }
+							onDisconnected={ onDisconnected }
+							onUnlinked={ onUnlinked }
+						/>
 					</Modal>
-
-					<DisconnectDialog
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						onDisconnected={ onDisconnected }
-						connectedPlugins={ connectedPlugins }
-						connectedSiteId={ connectedSiteId }
-						connectedUser={ connectedUser }
-						isOpen={ isDisconnectDialogOpen }
-						onClose={ closeDisconnectDialog }
-						context={ context }
-					/>
-
-					<OwnerDisconnectDialog
-						isOpen={ isOwnerDisconnectDialogOpen }
-						onClose={ handleCloseOwnerDialog }
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						onDisconnected={ onDisconnected }
-						onUnlinked={ onUnlinked }
-					/>
 				</>
 			) }
 		</>
