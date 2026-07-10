@@ -3,40 +3,11 @@
  */
 import {
 	calculateDelta,
+	getVideoKey,
+	getVideoLabel,
 	type LeaderboardChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
-
-/**
- * Resolve a display label for a video, falling back to a translated
- * "Untitled video" label when the API provides none.
- *
- * @param video - The video-plays item.
- * @return The video's display label.
- */
-function getVideoLabel( video: StatsVideoPlaysComparisonItem ) {
-	return typeof video.label === 'string' && video.label
-		? video.label
-		: __( 'Untitled video', 'jetpack-premium-analytics' );
-}
-
-/**
- * Resolve the key used to align a video across the primary and comparison
- * periods, and to identify its leaderboard row. Prefers the stable post ID,
- * then the video URL, and only falls back to the display label when the API
- * omits both — so multiple untitled videos don't collapse onto one key.
- *
- * @param video - The video-plays item.
- * @return The alignment key.
- */
-function getVideoKey( video: StatsVideoPlaysComparisonItem ) {
-	if ( video.id != null ) {
-		return String( video.id );
-	}
-
-	return video.link || getVideoLabel( video );
-}
 
 export type VideoPlaysDataResult = {
 	data: LeaderboardChartData;

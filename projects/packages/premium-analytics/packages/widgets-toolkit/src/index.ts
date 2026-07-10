@@ -95,6 +95,10 @@ export {
 	formatLegendLabels,
 	formatDisplayLabel,
 	sharePercentage,
+	getVideoKey,
+	getVideoLabel,
+	toVideoItems,
+	toMaxRows,
 } from './helpers';
 
 /**

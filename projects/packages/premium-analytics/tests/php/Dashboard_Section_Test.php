@@ -179,6 +179,29 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The built-in insights and subscribers sections resolve their tab defaults.
+	 */
+	public function test_non_traffic_section_default_layouts_use_tab_defaults() {
+		register_default_dashboard_sections();
+
+		$insights    = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/insights' );
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $insights );
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'analytics/insights' ),
+			$insights->get_default_layout()
+		);
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'analytics/subscribers' ),
+			$subscribers->get_default_layout()
+		);
+		$this->assertNotEmpty( $insights->get_default_layout() );
+		$this->assertNotEmpty( $subscribers->get_default_layout() );
+	}
+
+	/**
 	 * Dashboard names can omit underscores when they match the REST route grammar.
 	 */
 	public function test_accepts_dashboard_names_without_underscores() {
@@ -372,62 +395,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			)
 		);
 		$this->assertSame(
-			array(
-				array(
-					'uuid'      => 'default-woocommerce-net-sales-over-time-widget-instance',
-					'type'      => 'jpa/net-sales-over-time',
-					'placement' => array(
-						'width'  => 1,
-						'height' => 1,
-						'order'  => 0,
-					),
-				),
-				array(
-					'uuid'      => 'default-woocommerce-gross-sales-over-time-widget-instance',
-					'type'      => 'jpa/gross-sales-over-time',
-					'placement' => array(
-						'width'  => 1,
-						'height' => 1,
-						'order'  => 1,
-					),
-				),
-				array(
-					'uuid'      => 'default-woocommerce-average-order-value-widget-instance',
-					'type'      => 'jpa/average-order-value',
-					'placement' => array(
-						'width'  => 1,
-						'height' => 1,
-						'order'  => 2,
-					),
-				),
-				array(
-					'uuid'      => 'default-woocommerce-orders-over-time-widget-instance',
-					'type'      => 'jpa/orders-over-time',
-					'placement' => array(
-						'width'  => 1,
-						'height' => 1,
-						'order'  => 3,
-					),
-				),
-				array(
-					'uuid'      => 'default-woocommerce-average-items-per-order-widget-instance',
-					'type'      => 'jpa/average-items-per-order',
-					'placement' => array(
-						'width'  => 1,
-						'height' => 1,
-						'order'  => 4,
-					),
-				),
-				array(
-					'uuid'      => 'default-woocommerce-top-performing-products-widget-instance',
-					'type'      => 'jpa/top-performing-products',
-					'placement' => array(
-						'width'  => 1,
-						'height' => 1,
-						'order'  => 5,
-					),
-				),
-			),
+			get_dashboard_default_layout_for( 'woocommerce/store' ),
 			$woocommerce->get_default_layout()
 		);
 	}
@@ -752,7 +720,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$response->get_data()
 		);
 
-		$stored = get_user_meta( $user_id, get_persisted_preferences_meta_key(), true );
+		$stored = get_stored_persisted_preferences_for_user( $user_id );
 
 		$this->assertSame(
 			$custom_layout,
@@ -1016,7 +984,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$response->get_data()
 		);
 
-		$stored = get_user_meta( $user_id, get_persisted_preferences_meta_key(), true );
+		$stored = get_stored_persisted_preferences_for_user( $user_id );
 
 		$this->assertArrayNotHasKey( DASHBOARD_SECTION_LAYOUTS_KEY, $stored[ DASHBOARD_LAYOUT_SCOPE ] );
 		$this->assertSame( 'keep-me', $stored[ DASHBOARD_LAYOUT_SCOPE ]['unrelatedPreference'] );
