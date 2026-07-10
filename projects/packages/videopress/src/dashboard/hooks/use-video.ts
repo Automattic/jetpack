@@ -52,7 +52,12 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	const durationMs = simple ? details?.duration_milliseconds : vpDetails?.duration;
 	const durationSeconds =
 		durationMs !== undefined ? Math.floor( durationMs / 1000 ) : details?.length ?? 0;
-	const poster = simple ? details?.thumb ?? vpDetails?.poster : vpDetails?.poster;
+	// On Simple `media_details.thumb` is a bare filename, not a URL — the ready
+	// poster lives on the VideoPress CDN keyed by the video guid.
+	const poster =
+		simple && vp?.guid && details?.thumb
+			? `https://videos.files.wordpress.com/${ vp.guid }/${ details.thumb }`
+			: vpDetails?.poster;
 	const finished = vpDetails?.finished;
 	const isProcessing = ! simple && isVideoPress && ( ! poster || finished === false );
 	return {

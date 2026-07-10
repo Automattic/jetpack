@@ -197,7 +197,13 @@ function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem {
 	const durationMs = simple ? details?.duration_milliseconds : vpDetails?.duration;
 	const durationSeconds =
 		durationMs !== undefined ? Math.floor( durationMs / 1000 ) : details?.length ?? 0;
-	const poster = simple ? details?.thumb ?? vpDetails?.poster : vpDetails?.poster;
+	// On Simple `media_details.thumb` is a bare filename, not a URL — the ready
+	// poster lives on the VideoPress CDN keyed by the video guid (same URL shape
+	// the editor uses for chapter/thumbnail files).
+	const poster =
+		simple && vp?.guid && details?.thumb
+			? `https://videos.files.wordpress.com/${ vp.guid }/${ details.thumb }`
+			: vpDetails?.poster;
 	const finished = vpDetails?.finished;
 	// Simple items from /wp/v2/media are already transcoded and carry no in-progress
 	// signal, so nothing is ever "processing" there. The self-hosted heuristic —
