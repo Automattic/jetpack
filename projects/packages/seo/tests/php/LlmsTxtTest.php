@@ -17,12 +17,7 @@ use WorDBless\Posts as WorDBless_Posts;
 #[CoversClass( Llms_Txt::class )]
 class LlmsTxtTest extends TestCase {
 
-	/**
-	 * Test-only WP_Query short-circuit for WorDBless.
-	 *
-	 * @var callable|null
-	 */
-	private $posts_query_filter = null;
+	use WorDBless_Query_Trait;
 
 	/**
 	 * Reset the enable option before each test.
@@ -40,10 +35,7 @@ class LlmsTxtTest extends TestCase {
 	 * @return void
 	 */
 	public function tearDown(): void {
-		if ( null !== $this->posts_query_filter ) {
-			remove_filter( 'posts_pre_query', $this->posts_query_filter, 10 );
-			$this->posts_query_filter = null;
-		}
+		$this->clear_wordbless_posts_query();
 
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
@@ -52,31 +44,6 @@ class LlmsTxtTest extends TestCase {
 		WorDBless_Posts::init()->clear_all_posts();
 
 		parent::tearDown();
-	}
-
-	/**
-	 * WorDBless does not support the get_posts() query used by llms.txt, so
-	 * short-circuit the test query for inserted posts of the requested type.
-	 *
-	 * @param int[] $post_ids Inserted post IDs.
-	 * @return void
-	 */
-	private function hook_wordbless_posts_query( $post_ids ) {
-		$this->posts_query_filter = static function ( $posts, $query ) use ( $post_ids ) {
-			$post_type = $query->get( 'post_type' );
-			$matches   = array();
-
-			foreach ( $post_ids as $post_id ) {
-				$post = get_post( $post_id );
-				if ( $post && 'publish' === $post->post_status && $post_type === $post->post_type ) {
-					$matches[] = $post;
-				}
-			}
-
-			return $matches;
-		};
-
-		add_filter( 'posts_pre_query', $this->posts_query_filter, 10, 2 );
 	}
 
 	/**

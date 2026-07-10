@@ -9,6 +9,7 @@ type CoreDataSelect = ( store: string ) => {
 type UseSelectCallback = ( select: CoreDataSelect ) => unknown;
 
 const useSelect = jest.fn< ( selector: UseSelectCallback ) => unknown >();
+const getPreloaded = jest.fn();
 
 const recordsByType = {
 	post: [
@@ -77,7 +78,23 @@ const postTypes = [
 		viewable: true,
 		visibility: { show_ui: true },
 	},
+	{
+		slug: 'preview_only',
+		name: 'Preview only',
+		rest_base: 'preview-only',
+		rest_namespace: 'wp/v2',
+		viewable: true,
+		visibility: { show_ui: true },
+	},
 ];
+
+const contentData = {
+	post_types: [
+		{ slug: 'post', label: 'Posts' },
+		{ slug: 'page', label: 'Pages' },
+		{ slug: 'gear_review', label: 'Gear Reviews' },
+	],
+};
 
 jest.unstable_mockModule( '@wordpress/core-data', () => ( {
 	store: 'core',
@@ -87,11 +104,17 @@ jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect,
 } ) );
 
+jest.unstable_mockModule( '../get-preloaded', () => ( {
+	CONTENT_PATH: '/jetpack/v4/seo/content',
+	getPreloaded,
+} ) );
+
 const { default: useSeoPosts } = await import( '../use-seo-posts' );
 
 describe( 'useSeoPosts', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		getPreloaded.mockReturnValue( contentData );
 
 		useSelect.mockImplementation( selector =>
 			selector( () => ( {
@@ -110,7 +133,7 @@ describe( 'useSeoPosts', () => {
 		);
 	} );
 
-	it( 'merges supported custom post type records with posts and pages', () => {
+	it( 'uses PHP-provided content type options instead of core REST discovery', () => {
 		const { result } = renderHook( () => useSeoPosts() );
 
 		expect( result.current.items ).toEqual(

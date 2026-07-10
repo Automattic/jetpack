@@ -98,4 +98,32 @@ class PostTypesTest extends TestCase {
 		$this->assertArrayHasKey( 'seo_book', $post_types );
 		$this->assertSame( 'Books', $post_types['seo_book']->label );
 	}
+
+	/**
+	 * Supported content type options expose the stable data shape consumed by
+	 * the Content tab, so client-side discovery cannot use a divergent rule.
+	 *
+	 * @return void
+	 */
+	public function test_supported_content_type_options_expose_slugs_and_labels() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
+		$options = Post_Types::get_supported_content_type_options();
+
+		$this->assertContains(
+			array(
+				'slug'  => 'seo_book',
+				'label' => 'Books',
+			),
+			$options
+		);
+	}
 }

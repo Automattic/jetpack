@@ -42,6 +42,15 @@ export interface PostTypeOption {
 	label: string;
 }
 
+// The PHP-selected post types preloaded for the Content tab. This keeps the
+// client aligned with the supported-type rule used for Overview and llms.txt.
+export interface ContentData {
+	post_types: Array< {
+		slug: ContentPostType;
+		label: string;
+	} >;
+}
+
 // Optimistic adjustment applied to the Overview coverage counts when a post's
 // SEO is saved on the Content tab: +1 / -1 / 0 per metric depending on whether
 // the field became set or unset.

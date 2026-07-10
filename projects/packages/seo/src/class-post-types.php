@@ -29,6 +29,24 @@ class Post_Types {
 	}
 
 	/**
+	 * Return supported post type options for the Content tab.
+	 *
+	 * @return array<int,array{slug:string,label:string}>
+	 */
+	public static function get_supported_content_type_options() {
+		$options = array();
+
+		foreach ( self::get_supported_content_type_objects() as $post_type ) {
+			$options[] = array(
+				'slug'  => $post_type->name,
+				'label' => wp_strip_all_tags( $post_type->label ),
+			);
+		}
+
+		return $options;
+	}
+
+	/**
 	 * Return supported post type objects keyed by slug.
 	 *
 	 * Supported means public, UI-visible, and REST-enabled so the SEO dashboard

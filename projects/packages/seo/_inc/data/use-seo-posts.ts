@@ -1,7 +1,14 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
-import type { ContentRow, PostTypeOption, SchemaType, SeoPostMeta } from './content-types';
+import { CONTENT_PATH, getPreloaded } from './get-preloaded';
+import type {
+	ContentData,
+	ContentRow,
+	PostTypeOption,
+	SchemaType,
+	SeoPostMeta,
+} from './content-types';
 
 // Only request the columns the Content tab renders, plus the SEO meta. Core
 // REST returns `meta` as an object keyed by the registered meta names.
@@ -25,17 +32,6 @@ interface SeoPostRecord {
 	type?: string;
 	status?: string;
 	meta?: Partial< SeoPostMeta >;
-}
-
-interface SeoPostTypeRecord {
-	slug?: string;
-	name?: string;
-	rest_base?: string;
-	rest_namespace?: string;
-	viewable?: boolean;
-	visibility?: {
-		show_ui?: boolean;
-	};
 }
 
 export interface UseSeoPostsReturn {
@@ -95,68 +91,8 @@ const QUERY = {
 	status: STATUSES,
 };
 
-const POST_TYPES_QUERY = {
-	context: 'edit',
-	per_page: -1,
-};
-
 /**
- * Normalize the REST post type response into a list.
- *
- * @param records - Raw post type records returned by core-data.
- * @return Post type records as a list.
- */
-function normalizePostTypes( records: unknown ): SeoPostTypeRecord[] {
-	if ( Array.isArray( records ) ) {
-		return records as SeoPostTypeRecord[];
-	}
-	if ( records && typeof records === 'object' ) {
-		return Object.values( records ) as SeoPostTypeRecord[];
-	}
-	return [];
-}
-
-/**
- * Check whether a post type can be listed and edited by the Content tab.
- *
- * @param postType - The post type candidate from core REST.
- * @return Whether the post type has the required REST/UI fields.
- */
-function isSupportedPostType( postType: SeoPostTypeRecord ): postType is SeoPostTypeRecord & {
-	slug: string;
-	name: string;
-} {
-	return (
-		typeof postType.slug === 'string' &&
-		postType.slug !== 'attachment' &&
-		typeof postType.rest_base === 'string' &&
-		postType.viewable === true &&
-		postType.visibility?.show_ui === true
-	);
-}
-
-/**
- * Sort posts and pages before custom post types, then custom types by label.
- *
- * @param a - First post type.
- * @param b - Second post type.
- * @return Sort order.
- */
-function sortPostTypes(
-	a: SeoPostTypeRecord & { slug: string; name: string },
-	b: SeoPostTypeRecord & { slug: string; name: string }
-): number {
-	const preferred: Record< string, number > = { post: 0, page: 1 };
-	const aRank = preferred[ a.slug ] ?? 99;
-	const bRank = preferred[ b.slug ] ?? 99;
-	if ( aRank !== bRank ) {
-		return aRank - bRank;
-	}
-	return a.name.localeCompare( b.name );
-}
-
-/**
- * Fetch the Content tab's supported post types from WordPress core REST and
+ * Fetch the Content tab's PHP-selected post types from WordPress core REST and
  * merge them into a single list. Each type is fetched once (up to
  * {@link PER_PAGE} records) and mapped to a {@link ContentRow}; filtering,
  * sorting and pagination happen client-side in the Content screen via
@@ -166,39 +102,35 @@ function sortPostTypes(
  * @return The merged, mapped rows plus post type options and a combined loading state.
  */
 export default function useSeoPosts(): UseSeoPostsReturn {
-	return useSelect( select => {
-		const core = select( coreStore );
-		const rawPostTypes = normalizePostTypes(
-			core.getEntityRecords( 'root', 'postType', POST_TYPES_QUERY )
-		);
-		const postTypes = rawPostTypes.filter( isSupportedPostType ).sort( sortPostTypes );
-		const postTypesResolved = core.hasFinishedResolution( 'getEntityRecords', [
-			'root',
-			'postType',
-			POST_TYPES_QUERY,
-		] );
+	const contentData = getPreloaded< ContentData >( CONTENT_PATH );
+	const postTypes = contentData?.post_types ?? [];
 
-		let recordsResolved = postTypesResolved;
-		const records: SeoPostRecord[] = [];
+	return useSelect(
+		select => {
+			const core = select( coreStore );
+			let recordsResolved = true;
+			const records: SeoPostRecord[] = [];
 
-		for ( const postType of postTypes ) {
-			const postTypeRecords = core.getEntityRecords( 'postType', postType.slug, QUERY ) as
-				| SeoPostRecord[]
-				| null;
+			for ( const postType of postTypes ) {
+				const postTypeRecords = core.getEntityRecords( 'postType', postType.slug, QUERY ) as
+					| SeoPostRecord[]
+					| null;
 
-			records.push( ...( postTypeRecords ?? [] ) );
-			recordsResolved =
-				recordsResolved &&
-				core.hasFinishedResolution( 'getEntityRecords', [ 'postType', postType.slug, QUERY ] );
-		}
+				records.push( ...( postTypeRecords ?? [] ) );
+				recordsResolved =
+					recordsResolved &&
+					core.hasFinishedResolution( 'getEntityRecords', [ 'postType', postType.slug, QUERY ] );
+			}
 
-		return {
-			items: records.map( toContentRow ),
-			postTypeOptions: postTypes.map( postType => ( {
-				value: postType.slug,
-				label: postType.name,
-			} ) ),
-			isLoading: ! postTypesResolved || ! recordsResolved,
-		};
-	}, [] );
+			return {
+				items: records.map( toContentRow ),
+				postTypeOptions: postTypes.map( postType => ( {
+					value: postType.slug,
+					label: postType.label,
+				} ) ),
+				isLoading: ! contentData || ! recordsResolved,
+			};
+		},
+		[ contentData, postTypes ]
+	);
 }
