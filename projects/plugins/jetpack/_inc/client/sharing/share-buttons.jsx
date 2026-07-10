@@ -11,16 +11,6 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 
-const getSharingTemplateUrl = ( siteAdminUrl, themeStylesheet ) => {
-	if ( ! siteAdminUrl || ! themeStylesheet ) {
-		return '';
-	}
-
-	return `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-		themeStylesheet
-	) }%2F%2Fsingle&canvas=edit`;
-};
-
 export const ShareButtons = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackClickConfigure() {
@@ -53,7 +43,12 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const shouldShowSharingBlock = isBlockTheme && hasSharingBlock;
-			const sharingTemplateUrl = getSharingTemplateUrl( siteAdminUrl, this.props.themeStylesheet );
+			const sharingTemplateUrl =
+				siteAdminUrl && this.props.themeStylesheet
+					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+							this.props.themeStylesheet
+					  ) }%2F%2Fsingle&canvas=edit`
+					: '';
 			const shouldUseSharingBlockAction = shouldShowSharingBlock && sharingTemplateUrl;
 			const isForcedActive =
 				isActive && this.props.getModule?.( 'sharedaddy' )?.override === 'active';
@@ -64,7 +59,11 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			if ( shouldUseSharingBlockAction ) {
 				description = isActive
 					? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack' )
-					: __( 'Add the Sharing Buttons block to your theme’s template.', 'jetpack' );
+					: _x(
+							'Add the Sharing Buttons block to your theme’s template.',
+							'Sharing block migration instruction',
+							'jetpack'
+					  );
 			}
 
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );

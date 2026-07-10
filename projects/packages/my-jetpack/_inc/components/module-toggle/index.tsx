@@ -72,10 +72,8 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		[ $module.module, $module.name, createErrorNotice, createSuccessNotice ]
 	);
 
-	const onChange = useCallback(
-		async ( event: ChangeEvent< HTMLInputElement > ) => {
-			const active = event.target.checked;
-
+	const setModuleActive = useCallback(
+		async ( active: boolean ) => {
 			// Track module activation/deactivation if we're in the Products tab context
 			if ( trackProductAction ) {
 				trackProductAction( {
@@ -100,35 +98,18 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		[ toggleModule, $module, showToggleNotice, trackProductAction ]
 	);
 
-	// Two-step switch: deactivate legacy sharing first ( so the site doesn't render
-	// both ), which then reveals the Site Editor link below.
-	const switchToSharingBlock = useCallback( async () => {
-		// Track the deactivation like the toggle path does, so it isn't undercounted.
-		if ( trackProductAction ) {
-			trackProductAction( {
-				action: 'deactivate',
-				productSlug: $module.module,
-				productType: 'module',
-				productStatus: 'active',
-				productData: $module,
-			} );
-		}
-
-		const success = await toggleModule( { name: $module.module, active: false } );
-		await showToggleNotice( {
-			noticeType: success ? 'success' : 'error',
-			action: 'deactivation',
-		} );
-	}, [ toggleModule, $module, showToggleNotice, trackProductAction ] );
+	const onChange = useCallback(
+		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),
+		[ setModuleActive ]
+	);
+	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
 	if ( sharingBlockEditorUrl ) {
-		// Legacy still active: the button deactivates it; once inactive, the row shows
-		// the Site Editor link below.
 		if ( $module.activated ) {
 			return (
 				<SecondaryButton
 					label={ __( 'Switch to Sharing Buttons block', 'jetpack-my-jetpack' ) }
-					onClick={ switchToSharingBlock }
+					onClick={ deactivateModule }
 					isLoading={ isUpdating }
 					loadingAnnouncement={ __( 'Deactivating legacy sharing…', 'jetpack-my-jetpack' ) }
 				/>
@@ -145,7 +126,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 
 	return (
 		<FormToggle
-			disabled={ isUpdating }
+			disabled={ isUpdating || !! $module.override }
 			checked={ $module.activated }
 			onChange={ onChange }
 			aria-label={ sprintf(

@@ -17,6 +17,7 @@ export type MyJetpackModule = {
 	module: string;
 	name: string;
 	activated: boolean;
+	override?: false | 'active' | 'inactive';
 	description: string;
 	long_description: string;
 	search_terms: string;

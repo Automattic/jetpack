@@ -105,4 +105,16 @@ describe( 'ModuleToggle', () => {
 			} )
 		);
 	} );
+
+	it( 'keeps forced-active legacy sharing non-actionable', () => {
+		render(
+			<ModuleToggle module={ { ...sharedaddyModule, activated: true, override: 'active' } } />
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
+		expect(
+			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
+		).not.toBeInTheDocument();
+	} );
 } );

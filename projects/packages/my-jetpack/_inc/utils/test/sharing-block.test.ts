@@ -17,6 +17,12 @@ const setState = ( siteEditor: unknown ) => {
 };
 
 describe( 'getSharingBlockEditorUrl', () => {
+	const blockTheme = {
+		isBlockTheme: true,
+		isSharingBlockAvailable: true,
+		activeThemeStylesheet: 'x',
+	};
+
 	it( 'returns the Single template editor URL on a block theme with the block available', () => {
 		setState( {
 			isBlockTheme: true,
@@ -29,24 +35,15 @@ describe( 'getSharingBlockEditorUrl', () => {
 		);
 	} );
 
-	it( 'returns empty when the theme is not a block theme', () => {
-		setState( { isBlockTheme: false, isSharingBlockAvailable: true, activeThemeStylesheet: 'x' } );
-		expect( getSharingBlockEditorUrl( sharedaddy() ) ).toBe( '' );
-	} );
-
-	it( 'returns empty when the block is unavailable', () => {
-		setState( { isBlockTheme: true, isSharingBlockAvailable: false, activeThemeStylesheet: 'x' } );
-		expect( getSharingBlockEditorUrl( sharedaddy() ) ).toBe( '' );
-	} );
-
-	it( 'returns empty for other modules', () => {
-		setState( { isBlockTheme: true, isSharingBlockAvailable: true, activeThemeStylesheet: 'x' } );
-		expect( getSharingBlockEditorUrl( sharedaddy( { module: 'stats' } ) ) ).toBe( '' );
-	} );
-
-	it( 'returns empty when the stylesheet is missing', () => {
-		setState( { isBlockTheme: true, isSharingBlockAvailable: true } );
-		expect( getSharingBlockEditorUrl( sharedaddy() ) ).toBe( '' );
+	it.each( [
+		[ { ...blockTheme, isBlockTheme: false }, sharedaddy() ],
+		[ { ...blockTheme, isSharingBlockAvailable: false }, sharedaddy() ],
+		[ blockTheme, sharedaddy( { module: 'stats' } ) ],
+		[ { ...blockTheme, activeThemeStylesheet: undefined }, sharedaddy() ],
+		[ blockTheme, sharedaddy( { activated: true, override: 'active' } ) ],
+	] )( 'returns empty for unsupported context %#', ( siteEditor, module ) => {
+		setState( siteEditor );
+		expect( getSharingBlockEditorUrl( module ) ).toBe( '' );
 	} );
 
 	it( 'returns empty when adminUrl is missing', () => {

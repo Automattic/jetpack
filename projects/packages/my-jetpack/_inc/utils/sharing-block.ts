@@ -1,11 +1,6 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { getMyJetpackWindowInitialState } from '../data/utils/get-my-jetpack-window-state';
 import { MyJetpackModule } from '../types';
-
-const buildSharingTemplateUrl = ( adminUrl: string, stylesheet: string ) =>
-	`${ adminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-		stylesheet
-	) }%2F%2Fsingle&canvas=edit`;
 
 /**
  * On block themes the legacy sharing buttons can't be customized in the Site Editor,
@@ -20,6 +15,7 @@ export function getSharingBlockEditorUrl( module: MyJetpackModule ): string {
 
 	if (
 		module.module !== 'sharedaddy' ||
+		module.override === 'active' ||
 		! adminUrl ||
 		! siteEditor?.isBlockTheme ||
 		! siteEditor?.isSharingBlockAvailable ||
@@ -28,7 +24,9 @@ export function getSharingBlockEditorUrl( module: MyJetpackModule ): string {
 		return '';
 	}
 
-	return buildSharingTemplateUrl( adminUrl, siteEditor.activeThemeStylesheet );
+	return `${ adminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+		siteEditor.activeThemeStylesheet
+	) }%2F%2Fsingle&canvas=edit`;
 }
 
 /**
@@ -46,5 +44,9 @@ export function getSharingBlockNotice( module: MyJetpackModule ): string | null 
 
 	return module.activated
 		? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack-my-jetpack' )
-		: __( 'Add the Sharing Buttons block to your theme’s template.', 'jetpack-my-jetpack' );
+		: _x(
+				'Add the Sharing Buttons block to your theme’s template.',
+				'Sharing block migration instruction',
+				'jetpack-my-jetpack'
+		  );
 }
