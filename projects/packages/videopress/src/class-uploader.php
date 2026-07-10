@@ -210,6 +210,7 @@ class Uploader {
 		}
 		try {
 			$this->get_client()->file( $this->get_file_path(), $this->get_file_name() );
+			$this->get_client()->add_metadata( 'title', get_the_title( $this->attachment_id ) );
 
 			$bytes_uploaded = $this->get_client()->upload( self::CHUNK_SIZE );
 

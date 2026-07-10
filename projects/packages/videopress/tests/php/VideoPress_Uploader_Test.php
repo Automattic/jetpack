@@ -188,6 +188,33 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the upload attaches the attachment title as tus metadata, so VideoPress
+	 * can reuse the Media Library title instead of the file name.
+	 */
+	public function test_upload_sends_attachment_title_as_metadata() {
+		require_once __DIR__ . '/mocks/class-mock-tus-client.php';
+
+		wp_update_post(
+			array(
+				'ID'         => $this->valid_attachment_id,
+				'post_title' => 'My Edited Video Title',
+			)
+		);
+
+		$uploader = new Uploader( $this->valid_attachment_id );
+
+		// Swap in a client double so the upload does not touch the network.
+		$mock_client = new Mock_Tus_Client();
+		$client_prop = new \ReflectionProperty( Uploader::class, 'client' );
+		$client_prop->setValue( $uploader, $mock_client );
+
+		$uploader->upload();
+
+		$this->assertArrayHasKey( 'title', $mock_client->metadata );
+		$this->assertSame( 'My Edited Video Title', $mock_client->metadata['title'] );
+	}
+
+	/**
 	 * Tests the get_upload_token method
 	 */
 	public function test_get_upload_token_disconnected() {
