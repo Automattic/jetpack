@@ -17,6 +17,8 @@ import {
 	setUserInfoCookie,
 	addWordPressDomain,
 	hasSubscriptionOptionsVisible,
+	isCommentBlockedByCookies,
+	resolveCookieAccess,
 } from './utils';
 import type { VerbumAppProps } from './types';
 
@@ -160,6 +162,11 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	};
 
 	const handleCommentSubmit = async ( event: Event ) => {
+		if ( isCommentBlockedByCookies() ) {
+			event.preventDefault();
+			return;
+		}
+
 		window.removeEventListener( 'beforeunload', handleBeforeUnload );
 		if ( userInfo.value?.service === 'guest' ) {
 			if ( shouldStoreEmailData.value ) {
@@ -246,11 +253,13 @@ const { siteId } = {
 	...VerbumComments,
 };
 
-document.querySelectorAll( '.comment-form__verbum' ).forEach( element => {
-	render(
-		<VerbumSignals.Provider value={ createSignals() }>
-			<Verbum siteId={ siteId } parentForm={ element.parentNode as HTMLFormElement } />
-		</VerbumSignals.Provider>,
-		element
-	);
+resolveCookieAccess().then( () => {
+	document.querySelectorAll( '.comment-form__verbum' ).forEach( element => {
+		render(
+			<VerbumSignals.Provider value={ createSignals() }>
+				<Verbum siteId={ siteId } parentForm={ element.parentNode as HTMLFormElement } />
+			</VerbumSignals.Provider>,
+			element
+		);
+	} );
 } );

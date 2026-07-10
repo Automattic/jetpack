@@ -1,6 +1,12 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
-import { canWeAccessCookies, getUserInfoCookie, isAuthRequired, isEmptyEditor } from './utils';
+import {
+	canWeAccessCookies,
+	getUserInfoCookie,
+	isAuthRequired,
+	isCommentBlockedByCookies,
+	isEmptyEditor,
+} from './utils';
 import type { UserInfo, SubscriptionDetails } from './types';
 import type { Signal } from '@preact/signals';
 
@@ -83,6 +89,7 @@ export function createSignals() {
 	 */
 	const isReplyDisabled = computed( () => {
 		return (
+			isCommentBlockedByCookies() ||
 			( isAuthRequired() &&
 				! userLoggedIn.value &&
 				( isMailFormMissingInput.value || isMailFormInvalid.value ) ) ||
