@@ -82,14 +82,11 @@ const Stage = () => {
 	const [ isEnabling, setIsEnabling ] = useState( false );
 	const turnOn = useCallback( async () => {
 		setIsEnabling( true );
-		try {
-			await updateSocialModuleSettings( { publicize: true } );
-			window.location.reload();
-		} catch {
-			// Enable failed — drop the latch so the user can retry. Surfacing the
-			// error is a follow-up (out of scope for now).
-			setIsEnabling( false );
-		}
+		await updateSocialModuleSettings( { publicize: true } );
+		// `saveEntityRecord` (jetpack/v4) resolves even on API error rather than
+		// throwing, so we always reload here; a failed enable just reloads back
+		// onto this turn-on surface. Surfacing the error is a follow-up.
+		window.location.reload();
 	}, [ updateSocialModuleSettings ] );
 
 	const socialOff = canToggleSocialModule() && ( ! isModuleActive || isEnabling );
