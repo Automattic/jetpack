@@ -2,14 +2,14 @@
  * External dependencies
  */
 import { useGlobalChartsContext } from '@automattic/charts';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { buildTimeSeriesChartData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
 import { MetricComparisonWidget } from '../../widgets/metric-comparison';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
+import { WidgetState } from '../widget-state';
 import type { DataFormat } from '../../types';
 
 /**
@@ -70,11 +70,7 @@ export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetri
 
 	const primaryData = data.primary.data;
 	const comparisonData = data.comparison.data;
-	const { isLoading, isFetching, hasData, isError, error, refetch } = data;
-
-	// Compute unified loading states (same logic as useWidgetLoading in dashboard v1)
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = ( isLoading || isFetching ) && hasData;
+	const { isLoading, isFetching, hasData, isError, refetch } = data;
 
 	// Build series[] data.
 	const series = buildTimeSeriesChartData( {
@@ -108,16 +104,6 @@ export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetri
 		[ series, getElementStyles ]
 	);
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary
-	}
-
-	// No data and not loading = nothing to show
-	if ( ! primaryData && ! isInitialLoading ) {
-		return null;
-	}
-
 	// metricKey always refers to a numeric metric field (e.g., "visitors", "orders_no"),
 	// never to date fields (e.g., "date_start"). The summary type includes both for flexibility,
 	// but we know the actual value will be a number at runtime.
@@ -125,7 +111,24 @@ export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetri
 	const comparisonValue = comparisonData?.summary[ metricKey ] as number | undefined;
 
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading && ! hasData }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			// A resolved report with no time-series rows has nothing meaningful to
+			// chart — a bare summary (even an all-zero one) still renders as ready.
+			isEmpty={ ! primaryData?.data?.length }
+			error={ {
+				description: __(
+					"We couldn't load this data. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+		>
 			<MetricComparisonWidget
 				value={ primaryValue }
 				comparisonValue={ comparisonValue }
@@ -133,7 +136,6 @@ export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetri
 				seriesStyles={ seriesStyles }
 				dataFormat={ dataFormat }
 			/>
-			{ ( isInitialLoading || isRefetching ) && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }
