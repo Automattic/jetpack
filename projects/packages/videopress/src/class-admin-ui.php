@@ -44,6 +44,21 @@ class Admin_UI {
 	 */
 	public static function init() {
 
+		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used:
+		// the Jetpack parent menu is created late (admin_menu priority 999999) by
+		// wpcom-admin-menu.php, which registers the VideoPress submenu directly via
+		// Admin_UI::add_wp_admin_submenu(). So on Simple we skip enable_menu() and the
+		// Jetpack/Atomic media-library hooks below — the media hooks are Phase 3 media
+		// parity, out of scope for menu + boot, and would patch a media library wpcom
+		// owns (their VideoPress branches are inert on Simple anyway: videos keep their
+		// original mime, never video/videopress). We only need the wp-build dashboard
+		// assets so the page boots; maybe_load_wp_build() at admin_menu:1 runs before
+		// the 999999 submenu registration, so the render function is defined in time.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+			return;
+		}
+
 		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 
 		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
@@ -57,6 +72,26 @@ class Admin_UI {
 			self::load_wp_build();
 			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		}
+	}
+
+	/**
+	 * Load the wp-build dashboard assets when modernization is enabled and the current
+	 * request targets the VideoPress admin page.
+	 *
+	 * Extracted so wpcom Simple can trigger the same wp-build load at admin_menu:1 (the
+	 * standalone/Atomic path still does it inline in init()). Requiring build.php here
+	 * defines the render function that add_wp_admin_submenu() selects at admin_menu:999999,
+	 * and registers the SCRIPT_HANDLE that Initial_State::enqueue() hydrates from.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_modernized() || ! self::is_videopress_admin_request() ) {
+			return;
+		}
+
+		self::load_wp_build();
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
@@ -79,6 +114,37 @@ class Admin_UI {
 			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Add the VideoPress submenu directly under the Jetpack menu on wpcom Simple.
+	 *
+	 * Called from wpcom-admin-menu.php at a late priority (999999), once the Jetpack
+	 * parent menu exists. On Simple enable_menu() is skipped (see init()), so this is
+	 * the only place the submenu is registered there. The callback mirrors enable_menu():
+	 * the wp-build render function when modernized and available (loaded by
+	 * maybe_load_wp_build() at admin_menu:1, which runs first), otherwise the legacy root.
+	 *
+	 * @return void
+	 */
+	public static function add_wp_admin_submenu() {
+		$callback = self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
+			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
+			: array( __CLASS__, 'plugin_settings_page' );
+
+		$page_suffix = add_submenu_page(
+			'jetpack',
+			// "VideoPress" is a product name, do not translate.
+			'Jetpack VideoPress',
+			'VideoPress',
+			'manage_options',
+			self::ADMIN_PAGE_SLUG,
+			$callback
+		);
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		}
 	}
 
 	/**

@@ -4,6 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
 import { buildShortcode } from '../utils/format';
+import { isSimpleSite } from '../utils/is-simple';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
 import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem } from '../types/library';
@@ -19,6 +20,10 @@ type ApiMediaItem = {
 		width?: number;
 		height?: number;
 		videopress?: { poster?: string; duration?: number; finished?: boolean };
+		// WordPress.com Simple exposes the ready poster + duration directly on
+		// `media_details` (there's no `videopress` sub-object there).
+		thumb?: string;
+		duration_milliseconds?: number;
 	};
 	jetpack_videopress?: {
 		guid?: string;
@@ -39,14 +44,17 @@ type ApiMediaItem = {
  * @return A normalized LibraryItem for the VideoPress UI.
  */
 function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
+	const simple = isSimpleSite();
 	const vp = raw.jetpack_videopress;
 	const isVideoPress = Boolean( vp?.guid );
-	const vpDurationMs = raw.media_details?.videopress?.duration;
+	const details = raw.media_details;
+	const vpDetails = details?.videopress;
+	const durationMs = simple ? details?.duration_milliseconds : vpDetails?.duration;
 	const durationSeconds =
-		vpDurationMs !== undefined ? Math.floor( vpDurationMs / 1000 ) : raw.media_details?.length ?? 0;
-	const poster = raw.media_details?.videopress?.poster;
-	const finished = raw.media_details?.videopress?.finished;
-	const isProcessing = isVideoPress && ( ! poster || finished === false );
+		durationMs !== undefined ? Math.floor( durationMs / 1000 ) : details?.length ?? 0;
+	const poster = simple ? details?.thumb ?? vpDetails?.poster : vpDetails?.poster;
+	const finished = vpDetails?.finished;
+	const isProcessing = ! simple && isVideoPress && ( ! poster || finished === false );
 	return {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
