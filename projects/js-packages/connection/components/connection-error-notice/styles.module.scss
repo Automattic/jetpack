@@ -99,6 +99,19 @@
 		}
 	}
 
+	// Stacks the optional context line above the cause message, to the right of
+	// the icon.
+	.body {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-base); // 8px
+	}
+
+	// Feature context lead line
+	.context {
+		font-weight: 600;
+	}
+
 	// Media query for screens 1100px and above
 	@media (min-width: 1100px) {
 

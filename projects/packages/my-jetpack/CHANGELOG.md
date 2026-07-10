@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.40.6] - 2026-07-09
+### Changed
+- My Jetpack now reports its red-bubble alerts to the central menu-badges registry instead of writing admin-menu markup directly; the Protect alert is skipped there since Protect reports its own count. [#50190]
+- Update package dependencies. [#49272]
+
+### Fixed
+- Fix the My Jetpack app failing to load on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle it depends on is otherwise unregistered. [#50291]
+
 ## [5.40.5] - 2026-07-06
 ### Changed
 - Consume the resolved actions from the Connection package instead of duplicating the action-resolution logic. [#50081]
@@ -2763,6 +2771,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.40.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.5...5.40.6
 [5.40.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.4...5.40.5
 [5.40.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.3...5.40.4
 [5.40.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.2...5.40.3

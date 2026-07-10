@@ -12,6 +12,7 @@
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
 		"@wordpress/admin-ui": "2.5.0",
 		"@wordpress/core-data": "7.50.0",
 		"@wordpress/data": "10.50.0",

@@ -11,7 +11,7 @@
 			"type": "array",
 			"minItems": 6,
 			"maxItems": 6,
-			"description": "Exactly six task selections. The last task MUST be a launch task (canonical: `site_launched`; flow-specific alternatives: `blog_launched`, `woo_launch_site`, `link_in_bio_launched`, `videopress_launched`); server enforces. Order follows the STEP rules from the system prompt: first-creation → niche-specific → foundation → launch. Catalog uses snake_case IDs.",
+			"description": "Exactly six task selections. The last task MUST be a launch task (canonical: `site_launched`; flow-specific alternatives: `blog_launched`, `link_in_bio_launched`, `videopress_launched`); server enforces. Order follows the STEP rules from the system prompt: first-creation → niche-specific → foundation → launch. Catalog uses snake_case IDs.",
 			"items": {
 				"type": "object",
 				"required": [ "id", "subtitle" ],
@@ -50,6 +50,11 @@
 				"niche": {
 					"type": "string",
 					"maxLength": 120
+				},
+				"theme_keyword": {
+					"type": "string",
+					"maxLength": 40,
+					"description": "The single word that best captures the site's subject, used to pre-filter the theme showcase. The prompt steers it toward the core topic (\"hiking\") over incidental modifiers (\"weekend\")."
 				},
 				"vibe": {
 					"type": "string",

@@ -57,12 +57,28 @@ export const buildCalendarHeatmapData = (
 		LABELLED_ROWS.includes( row ) ? format( addDays( gridStart, row ), 'EEE' ) : ''
 	);
 
+	// Hide short partial first-month labels when a later month follows; compact
+	// cells make adjacent labels collide. Keep the label for single-month ranges.
+	const MIN_FIRST_MONTH_WEEKS = 2;
+	const firstMonth = gridStart.getMonth();
+	let firstMonthWeeks = 0;
+	while (
+		firstMonthWeeks < weekCount &&
+		addDays( gridStart, firstMonthWeeks * 7 ).getMonth() === firstMonth
+	) {
+		firstMonthWeeks++;
+	}
+	const spansLaterMonth = firstMonthWeeks < weekCount;
+	const showFirstMonthLabel = ! spansLaterMonth || firstMonthWeeks >= MIN_FIRST_MONTH_WEEKS;
+
 	const data: HeatmapColumn[] = [];
 	let previousMonth = -1;
 	for ( let week = 0; week < weekCount; week++ ) {
 		const columnStart = addDays( gridStart, week * 7 );
 		const month = columnStart.getMonth();
-		const label = month !== previousMonth ? format( columnStart, 'MMM' ) : '';
+		const isNewMonth = month !== previousMonth;
+		const label =
+			isNewMonth && ( week !== 0 || showFirstMonthLabel ) ? format( columnStart, 'MMM' ) : '';
 		previousMonth = month;
 
 		const cells: HeatmapCell[] = [];

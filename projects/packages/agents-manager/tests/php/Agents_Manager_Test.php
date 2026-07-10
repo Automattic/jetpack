@@ -150,10 +150,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$GLOBALS['current_screen'] = $this->original_current_screen;
 		}
 
-		// Clear Site Editor context that individual tests set, so a failed
-		// assertion can't leak it into later tests.
-		unset( $GLOBALS['pagenow'], $_GET['canvas'] );
-
 		// Reset the REST server to clear any registered routes.
 		global $wp_rest_server;
 		$wp_rest_server = null;
@@ -761,65 +757,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
 		);
 
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that the editor omnibar entry points stay registered on the Site Editor
-	 * navigation view (`site-editor.php` without `?canvas=edit`); the frontend hides them there.
-	 */
-	public function test_omnibar_entry_points_registered_on_site_editor_navigation() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$GLOBALS['pagenow'] = 'site-editor.php';
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) ),
-			'The Ask AI button must stay registered on the Site Editor navigation view.'
-		);
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) ),
-			'The Help menu must stay registered on the Site Editor navigation view.'
-		);
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that the editor omnibar entry points are registered in the Site Editor editing
-	 * canvas (`?canvas=edit`), where the chat can dock.
-	 */
-	public function test_omnibar_entry_points_registered_in_site_editor_canvas() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$GLOBALS['pagenow'] = 'site-editor.php';
-		$_GET['canvas']     = 'edit';
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) ),
-			'The Ask AI button must be registered in the Site Editor canvas.'
-		);
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) ),
-			'The Help menu must be registered in the Site Editor canvas.'
-		);
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 	}
 

@@ -2,15 +2,7 @@ import { formatNumber, formatNumberCompact } from '@automattic/number-formatters
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -20,7 +12,7 @@ import {
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
-	lightenHexColor,
+	mixHexColors,
 	normalizeColorToHex,
 	prefersLightText,
 } from '../../utils/color-utils';
@@ -30,18 +22,17 @@ import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
-import { getValueExtent, getNormalizedValue, HeatmapLegend, isPresent } from './private';
+import {
+	getValueExtent,
+	getNormalizedValue,
+	HeatmapContext,
+	HeatmapLegend,
+	isPresent,
+} from './private';
+import type { HeatmapContextValue } from './private';
 import type { HeatmapChartProps, HeatmapTooltipData } from './types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { CSSProperties, FC } from 'react';
-
-export type HeatmapContextValue = {
-	extent: [ number, number ];
-	/** The resolved primary color (full intensity); the legend mixes toward it in CSS. */
-	primaryColorHex: string;
-};
-
-export const HeatmapContext = createContext< HeatmapContextValue | null >( null );
 
 // Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
 // the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
@@ -63,7 +54,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles, resolveThemeColor, theme } = useGlobalChartsContext();
 	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
@@ -84,14 +75,22 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Pick the in-cell text color from the cell's actual blended fill luminance (not the data
-	// value), so light text is only used where it out-contrasts dark text. Falls back to dark
-	// text when the primary isn't a resolvable hex (e.g. a bare CSS token).
+	// Resolve the background in the provider's theme scope so the blended-fill text
+	// color tracks a themed (e.g. dark) background.
+	const chartBackgroundHex = resolveThemeColor( theme.backgroundColor );
+
+	// Choose text color from the blended fill, not the raw value.
+	// If either color cannot resolve to hex, keep dark text.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const cellHasLightText = ( intensity: number ): boolean =>
 		isValidHexColor( primaryHex ) &&
+		isValidHexColor( chartBackgroundHex ) &&
 		prefersLightText(
-			lightenHexColor( primaryHex, 1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity ) )
+			mixHexColors(
+				primaryHex,
+				chartBackgroundHex,
+				1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity )
+			)
 		);
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
@@ -247,6 +246,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const trackSize = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
 	const gridStyle: Record< string, string | number > = {
 		'--heatmap-primary': primaryColorHex,
+		'--heatmap-bg': theme.backgroundColor,
 		gridTemplateColumns: `auto repeat(${ columns }, ${ trackSize })`,
 		gridTemplateRows: `auto repeat(${ rows }, ${ trackSize })`,
 	};
@@ -292,17 +292,18 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Corner gutter + column labels; aria-hidden, since each cell's label carries the text. */ }
-						<span aria-hidden="true" />
-						{ data.map( ( column, columnIndex ) => (
-							<span
-								key={ `col-${ columnIndex }` }
-								aria-hidden="true"
-								className={ styles[ 'heatmap-chart__col-label' ] }
-							>
-								{ column.label }
-							</span>
-						) ) }
+						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
+						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
+							<span />
+							{ data.map( ( column, columnIndex ) => (
+								<span
+									key={ `col-${ columnIndex }` }
+									className={ styles[ 'heatmap-chart__col-label' ] }
+								>
+									{ column.label }
+								</span>
+							) ) }
+						</div>
 
 						{ Array.from( { length: rows } ).map( ( _row, rowIndex ) => {
 							const labelVisible = ! compact || rowIndex % 2 === 0;
@@ -360,7 +361,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											>
 												{ drawValues && present && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
-														{ /* Compact so large values fit the cell; tooltip + aria-label keep full precision. */ }
+														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }
 													</span>
 												) }

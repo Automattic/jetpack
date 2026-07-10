@@ -35,13 +35,35 @@ describe( 'buildCalendarHeatmapData', () => {
 
 	test( 'labels only the first column of each month', () => {
 		const multiMonth: DataPointDate[] = [
-			{ dateString: '2024-01-29', value: 1 },
+			{ dateString: '2024-01-01', value: 1 },
 			{ dateString: '2024-02-05', value: 1 },
 		];
 		const { data } = buildCalendarHeatmapData( multiMonth );
 		expect( data[ 0 ].label ).toBe( 'Jan' );
 		const labels = data.map( c => c.label ).filter( Boolean );
 		expect( labels ).toContain( 'Feb' );
+	} );
+
+	test( 'suppresses a partial first month label so it cannot collide with the next', () => {
+		// Jan 29 is the only January column; February should be the first visible label.
+		const partialFirstMonth: DataPointDate[] = [
+			{ dateString: '2024-01-29', value: 1 },
+			{ dateString: '2024-02-05', value: 1 },
+		];
+		const { data } = buildCalendarHeatmapData( partialFirstMonth, { weekStartsOn: 1 } );
+		expect( data[ 0 ].label ).toBe( '' );
+		expect( data.map( c => c.label ).filter( Boolean )[ 0 ] ).toBe( 'Feb' );
+	} );
+
+	test( 'keeps the first month label when the range never reaches a second month', () => {
+		// Single-month ranges keep their lone month label.
+		const singleMonth: DataPointDate[] = [
+			{ dateString: '2024-01-01', value: 1 },
+			{ dateString: '2024-01-03', value: 2 },
+		];
+		const { data } = buildCalendarHeatmapData( singleMonth, { weekStartsOn: 1 } );
+		expect( data ).toHaveLength( 1 );
+		expect( data[ 0 ].label ).toBe( 'Jan' );
 	} );
 
 	test( 'filters out entries with unparseable or missing dates', () => {

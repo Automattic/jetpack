@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Widgets Toolkit: add a data-agnostic WidgetState component for consistent widget loading / error / empty state, and migrate the Search Terms widget onto it.
