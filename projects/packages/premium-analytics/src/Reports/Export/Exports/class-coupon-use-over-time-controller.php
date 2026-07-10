@@ -77,14 +77,14 @@ class Coupon_Use_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_default_values(): array {
 		return array(
-			'orders_no'                  => 0,
-			'orders_with_coupon'         => 0,
-			'total_sales'                => 0,
-			'gross_sales_with_coupon'    => 0,
-			'gross_sales_without_coupon' => 0,
-			'coupons'                    => 0,
-			'orders_value_net'           => 0,
-			'coupon_use_pct_of_sales'    => 0,
+			'total_orders'             => 0,
+			'orders_with_coupon'       => 0,
+			'total_sales'              => 0,
+			'sales_with_coupon'        => 0,
+			'sales_without_coupon'     => 0,
+			'total_discount_amount'    => 0,
+			'net_sales_after_discount' => 0,
+			'coupon_usage_percentage'  => 0,
 		);
 	}
 
@@ -120,14 +120,14 @@ class Coupon_Use_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
 		return array(
 			'time_interval'              => $this->format_time_interval( $item, $interval ),
-			'orders_no'                  => (int) ( $item['total_orders'] ?? $defaults['orders_no'] ),
+			'orders_no'                  => (int) ( $item['total_orders'] ?? $defaults['total_orders'] ),
 			'orders_with_coupon'         => (int) ( $item['orders_with_coupon'] ?? $defaults['orders_with_coupon'] ),
 			'total_sales'                => self::format_amount( $item['total_sales'] ?? $defaults['total_sales'] ),
-			'gross_sales_with_coupon'    => self::format_amount( $item['sales_with_coupon'] ?? $defaults['gross_sales_with_coupon'] ),
-			'gross_sales_without_coupon' => self::format_amount( $item['sales_without_coupon'] ?? $defaults['gross_sales_without_coupon'] ),
-			'coupons'                    => self::format_amount( $item['total_discount_amount'] ?? $defaults['coupons'] ),
-			'orders_value_net'           => self::format_amount( $item['net_sales_after_discount'] ?? $defaults['orders_value_net'] ),
-			'coupon_use_pct_of_sales'    => number_format( (float) ( $item['coupon_usage_percentage'] ?? $defaults['coupon_use_pct_of_sales'] ), 2, '.', '' ) . '%',
+			'gross_sales_with_coupon'    => self::format_amount( $item['sales_with_coupon'] ?? $defaults['sales_with_coupon'] ),
+			'gross_sales_without_coupon' => self::format_amount( $item['sales_without_coupon'] ?? $defaults['sales_without_coupon'] ),
+			'coupons'                    => self::format_amount( $item['total_discount_amount'] ?? $defaults['total_discount_amount'] ),
+			'orders_value_net'           => self::format_amount( $item['net_sales_after_discount'] ?? $defaults['net_sales_after_discount'] ),
+			'coupon_use_pct_of_sales'    => number_format( (float) ( $item['coupon_usage_percentage'] ?? $defaults['coupon_usage_percentage'] ), 2, '.', '' ) . '%',
 		);
 	}
 
