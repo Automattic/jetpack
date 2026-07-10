@@ -14,8 +14,8 @@ module.exports = {
 			require.resolve
 		),
 	},
-	// Transform d3-* ESM packages (pattern accounts for pnpm .pnpm directory structure)
-	transformIgnorePatterns: [ '/node_modules/(?!\\.pnpm/|d3-|internmap/|uuid/)' ],
+	// Transform d3-* ESM packages. See config.base.js for the `(?!.*/node_modules/)` anchor.
+	transformIgnorePatterns: [ '/node_modules/(?!.*/node_modules/)(?!d3-|internmap/|uuid/)' ],
 	setupFilesAfterEnv: [
 		...( baseConfig.setupFilesAfterEnv || [] ),
 		path.join( __dirname, 'setup-element-size-mock.js' ),
