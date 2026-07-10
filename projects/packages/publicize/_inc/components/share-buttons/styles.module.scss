@@ -1,5 +1,3 @@
-$whatsapp: #2ab318;
-
 .share-buttons {
 	display: flex;
 	flex-wrap: wrap;
@@ -36,7 +34,7 @@ $whatsapp: #2ab318;
 	}
 
 	.whatsapp {
-		background-color: $whatsapp;
+		background-color: var(--jetpack-social-color-whatsapp);
 	}
 
 	.facebook {
