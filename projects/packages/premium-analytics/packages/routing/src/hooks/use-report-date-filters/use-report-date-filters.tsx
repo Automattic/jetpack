@@ -7,6 +7,7 @@ import {
 	type ReportQueryParams,
 } from '@jetpack-premium-analytics/data';
 import {
+	isSelectablePreset,
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
@@ -116,8 +117,16 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 			const patch: ReportQuerySearchParams = {};
 
 			if ( nextRange?.from && nextRange.to ) {
+				/*
+				 * Preset ranges are authoritative: rolling presets like
+				 * last-24-hours end at the current time. Calendar and manual
+				 * edits stage midnight `to` dates, so only those are adjusted
+				 * to the end of the day.
+				 */
 				const rangeFrom = encodeDateToSearchParam( nextRange.from );
-				const rangeTo = encodeDateToSearchParam( endOfDay( nextRange.to ) );
+				const rangeTo = encodeDateToSearchParam(
+					isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
+				);
 				patch.from = rangeFrom;
 				patch.to = rangeTo;
 

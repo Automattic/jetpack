@@ -238,7 +238,7 @@ export function getQuickSurfacePresets( timeZone: string ): DateRangePreset[] {
 export function computePrimaryRange(
 	presetId: SelectablePresetId,
 	timeZone: string
-): DateRange | undefined {
+): Required< DateRange > | undefined {
 	const def = PRESET_DEFINITIONS.find( p => p.id === presetId );
 	if ( ! def ) {
 		return undefined;

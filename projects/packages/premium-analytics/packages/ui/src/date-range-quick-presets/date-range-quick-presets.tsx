@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	computePrimaryRange,
 	getDefaultDateRangePresets,
 	getQuickSurfacePresets,
 	PRESET_CUSTOM,
@@ -64,14 +65,21 @@ export function DateRangeQuickPresets( {
 		[ items, value ]
 	);
 
-	const handleSelectChange = useCallback(
-		( selectedValue: string ) => {
-			const preset = presets.find( p => p.id === selectedValue );
-			if ( preset ) {
-				onSelect( preset.range, preset.id );
+	/*
+	 * Recompute the range at selection time: the memoized preset ranges go
+	 * stale while the page stays open, which matters for rolling windows
+	 * like last-24-hours.
+	 */
+	const selectPreset = useCallback(
+		( presetId: string ) => {
+			const preset = presets.find( p => p.id === presetId );
+			if ( ! preset ) {
+				return;
 			}
+
+			onSelect( computePrimaryRange( preset.id, timeZone ) ?? preset.range, preset.id );
 		},
-		[ onSelect, presets ]
+		[ onSelect, presets, timeZone ]
 	);
 
 	if ( isCompact ) {
@@ -82,7 +90,7 @@ export function DateRangeQuickPresets( {
 				value={ selectedItem }
 				onValueChange={ item => {
 					if ( item?.value ) {
-						handleSelectChange( item.value );
+						selectPreset( item.value );
 					}
 				} }
 				label={ __( 'Period', 'jetpack-premium-analytics' ) }
@@ -95,7 +103,7 @@ export function DateRangeQuickPresets( {
 
 	return (
 		<Stack direction="row" gap="xs" wrap="wrap" align="center">
-			{ presets.map( ( { id, label, range: presetRange } ) => (
+			{ presets.map( ( { id, label } ) => (
 				<Button
 					key={ id }
 					className="date-range-quick-presets__pill"
@@ -103,7 +111,7 @@ export function DateRangeQuickPresets( {
 					tone="neutral"
 					size="compact"
 					aria-pressed={ value === id }
-					onClick={ () => onSelect( presetRange, id ) }
+					onClick={ () => selectPreset( id ) }
 				>
 					{ label }
 				</Button>
