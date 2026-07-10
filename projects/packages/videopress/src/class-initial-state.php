@@ -208,6 +208,15 @@ class Initial_State {
 	 * @return bool
 	 */
 	private static function has_videopress_feature( $feature_slug ) {
+		// On WordPress.com Simple the features API is local — ask it directly
+		// (same slugs: the storage tiers are first-class WPCOM features)
+		// instead of issuing the blocking remote request below on every
+		// dashboard render. The function_exists guard keeps this safe
+		// mid-deploy and off-platform.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return function_exists( 'wpcom_site_has_feature' ) && (bool) wpcom_site_has_feature( $feature_slug );
+		}
+
 		$features = Product::get_site_features_from_wpcom();
 
 		if ( is_wp_error( $features ) ) {

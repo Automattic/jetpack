@@ -167,6 +167,60 @@ class Data_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the custom query filters hook is registered unconditionally
+	 * (it used to be skipped on WPCOM, where the `videopress_only_videos`
+	 * param is now handled).
+	 */
+	public function test_query_filters_hook_registers_unconditionally() {
+		$instance = new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', array( $instance, 'add_jetpack_videopress_custom_query_filters' ) ),
+			'add_jetpack_videopress_custom_query_filters should hook rest_api_init on every host'
+		);
+	}
+
+	/**
+	 * Test that off-WPCOM the `videopress_only_videos` param is a no-op:
+	 * no post_mime_type narrowing, no meta_query entries. The WPCOM branch
+	 * (post_mime_type = video, meta_query skipped) can't be exercised here
+	 * because IS_WPCOM can't be defined in this test environment.
+	 */
+	public function test_videopress_only_videos_is_ignored_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_only_videos', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertArrayNotHasKey( 'post_mime_type', $args, 'Off-WPCOM the param must not touch post_mime_type' );
+		$this->assertSame( array(), $args['meta_query'], 'No meta_query entries should be added for this param' );
+	}
+
+	/**
+	 * Test that off-WPCOM the meta-query filters still apply when
+	 * `videopress_only_videos` accompanies them (the WPCOM early-return
+	 * must not leak into the self-hosted path).
+	 */
+	public function test_meta_query_filters_still_apply_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_only_videos', 1 );
+		$request->set_param( 'no_videopress', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'key'     => 'videopress_guid',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+			$args['meta_query'],
+			'no_videopress must keep producing its meta_query entry off-WPCOM'
+		);
+	}
+
+	/**
 	 * Invokes the private Data::prepare_videopress_video_data() method.
 	 *
 	 * @param array|object $video A single video entry from the media REST endpoint.

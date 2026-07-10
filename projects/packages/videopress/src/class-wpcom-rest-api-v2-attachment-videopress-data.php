@@ -48,9 +48,10 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
 
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			add_action( 'rest_api_init', array( $this, 'add_jetpack_videopress_custom_query_filters' ) );
-		}
+		// Registered unconditionally: on WPCOM the filter handles the
+		// `videopress_only_videos` param (mime-based, see below); everywhere
+		// else it handles the meta-query-backed VideoPress filters.
+		add_action( 'rest_api_init', array( $this, 'add_jetpack_videopress_custom_query_filters' ) );
 
 		// do this again later to collect any CPTs that get registered later.
 		add_action( 'restapi_theme_init', array( $this, 'register_fields' ), 20 );
@@ -92,11 +93,31 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * Possible filters:
 	 *
 	 * `no_videopress`: the returned attachments should not have a videopress_guid
+	 * `videopress_only_videos`: (WPCOM only) restrict results to video attachments
 	 *
 	 * @param array           $args The original list of args before the filtering.
 	 * @param WP_REST_Request $request The original request data.
 	 */
 	public function filter_attachments_by_jetpack_videopress_fields( $args, $request ) {
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			/*
+			 * On WPCOM the `media_type` param is rejected and `mime_type=video/*`
+			 * doesn't narrow the query, so the dashboard sends
+			 * `videopress_only_videos` instead. The bare major type makes
+			 * WP_Query match `post_mime_type LIKE 'video/%'`, keeping the
+			 * X-WP-Total headers exact.
+			 *
+			 * The meta-query filters below are skipped entirely: VideoPress
+			 * data lives in WPCOM's videos table, not postmeta, so those
+			 * branches would match nothing there.
+			 */
+			if ( isset( $request['videopress_only_videos'] ) ) {
+				$args['post_mime_type'] = 'video';
+			}
+
+			return $args;
+		}
 
 		if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
 			$args['meta_query'] = array();

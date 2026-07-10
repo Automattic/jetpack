@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { isSimpleSite } from '../utils/is-simple';
 
 export type SiteInfo = {
 	options?: {
@@ -22,6 +23,11 @@ export function useSite() {
 		queryKey: QUERY_KEY,
 		queryFn: () => apiFetch< SiteInfo >( { path: '/videopress/v1/site' } ),
 		staleTime: 5 * 60_000,
+		// The videopress/v1 namespace never reaches the REST dispatcher on
+		// WordPress.com Simple; disable the query there rather than retry-spam
+		// an unmappable endpoint. Consumers already handle `data` staying
+		// undefined (StorageMeterCard renders null).
+		enabled: ! isSimpleSite(),
 	} );
 }
 

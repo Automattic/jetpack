@@ -46,6 +46,11 @@ type PaginationInfo = { totalItems: number; totalPages: number };
 
 const SUPPORTED_ORDERBY = new Set( [ 'title', 'date', 'slug' ] );
 
+// Over-fetch bounds for the Simple client-side filter path: up to 3 pages
+// of 100 items (~300 rows) fetched in parallel before filtering locally.
+const CLIENT_FILTER_PER_PAGE = 100;
+const CLIENT_FILTER_MAX_PAGES = 3;
+
 // DataViews field id → /wp/v2/media `orderby` value. Fields not in
 // this map are forwarded as-is and filtered by SUPPORTED_ORDERBY.
 // Attachment slugs are auto-generated from the upload filename, so
@@ -100,8 +105,8 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 	// WordPress.com Simple rejects the `media_type` param (HTTP 400) and never tags
 	// VideoPress items with the `video/videopress` mime, so the server-side type
 	// filters below are gated off `simple`; the VideoPress-vs-local split is driven by
-	// `jetpack_videopress.guid` presence in toLibraryItem instead. Full server-side
-	// filter parity is a later phase.
+	// `jetpack_videopress.guid` presence in toLibraryItem instead. Privacy/type
+	// filters are applied client-side there (see getClientSideFilters).
 	const simple = isSimpleSite();
 	const args: Record< string, string | number > = {
 		mime_type: 'video/*',
@@ -115,6 +120,11 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 	};
 	if ( ! simple ) {
 		args.media_type = 'video';
+	} else {
+		// `mime_type=video/*` doesn't narrow the query on Simple; this custom
+		// param is handled by the package's PHP `rest_attachment_query` filter
+		// (post_mime_type LIKE 'video/%'), keeping the X-WP-Total headers exact.
+		args.videopress_only_videos = 1;
 	}
 
 	const rawSortField = view.sort?.field;
@@ -134,16 +144,21 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 			continue;
 		}
 		if ( filter.field === 'privacy' ) {
+			// On WordPress.com Simple the server ignores this param (it's backed
+			// by a postmeta query, and VideoPress data lives in WPCOM's videos
+			// table); the filter is applied client-side in fetchLibrary instead.
+			if ( simple ) {
+				continue;
+			}
 			args.videopress_privacy_setting = String(
 				privacyStringToInt( filter.value as LibraryItemPrivacy )
 			);
 		} else if ( filter.field === 'type' ) {
 			// On WordPress.com Simple the server can't narrow by VideoPress type:
 			// `video/videopress` returns nothing (videos keep their original mime)
-			// and `no_videopress` is a self-hosted-only PHP filter. Leave the broad
-			// `video/*` query untouched — the type is labeled from
-			// `jetpack_videopress.guid` in toLibraryItem; server-side type-filter
-			// parity is a later phase.
+			// and `no_videopress` is a self-hosted-only PHP filter. The type
+			// filter is applied client-side in fetchLibrary instead, using the
+			// `jetpack_videopress.guid`-derived type label.
 			if ( simple ) {
 				continue;
 			}
@@ -177,6 +192,63 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 	}
 
 	return args;
+}
+
+type ClientSideFilters = {
+	privacy?: LibraryItemPrivacy;
+	type?: LibraryItem[ 'type' ];
+};
+
+/**
+ * Extract the view filters that must be applied client-side on
+ * WordPress.com Simple, where the server can't narrow by VideoPress
+ * privacy or type (both are postmeta-backed off-platform; the data
+ * lives in WPCOM's videos table there).
+ *
+ * @param view - The current DataViews view state.
+ * @return The active client-side filters, or `null` when none apply.
+ */
+export function getClientSideFilters( view: View ): ClientSideFilters | null {
+	const filters: ClientSideFilters = {};
+	for ( const filter of view.filters ?? [] ) {
+		if ( filter.value === undefined || filter.value === null || filter.value === 'all' ) {
+			continue;
+		}
+		if ( filter.field === 'privacy' ) {
+			filters.privacy = filter.value as LibraryItemPrivacy;
+		} else if ( filter.field === 'type' ) {
+			filters.type = filter.value as LibraryItem[ 'type' ];
+		}
+	}
+	return filters.privacy !== undefined || filters.type !== undefined ? filters : null;
+}
+
+/**
+ * Whether a mapped LibraryItem passes the active client-side filters.
+ *
+ * Privacy semantics mirror the server-side filter: `private`/`public`
+ * match the *effective* visibility (`isPrivate`, which folds in the
+ * site default), while `site-default` matches the item's own stored
+ * setting.
+ *
+ * @param item    - The mapped library item.
+ * @param filters - Active client-side filters from getClientSideFilters.
+ * @return `true` when the item satisfies every active filter.
+ */
+export function matchesClientSideFilters( item: LibraryItem, filters: ClientSideFilters ): boolean {
+	if ( filters.privacy === 'private' && ! item.isPrivate ) {
+		return false;
+	}
+	if ( filters.privacy === 'public' && item.isPrivate ) {
+		return false;
+	}
+	if ( filters.privacy === 'site-default' && item.privacy !== 'site-default' ) {
+		return false;
+	}
+	if ( filters.type !== undefined && item.type !== filters.type ) {
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -236,7 +308,54 @@ function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem {
 }
 
 /**
+ * Fetch one raw page of /wp/v2/media results.
+ *
+ * @param args - Query args for addQueryArgs (page/per_page included).
+ * @return The raw items plus the pagination headers.
+ */
+async function fetchMediaPage(
+	args: Record< string, string | number >
+): Promise< { raw: ApiMediaItem[]; totalItems: number; totalPages: number } > {
+	const response = ( await apiFetch( {
+		path: addQueryArgs( REST_PATH, args ),
+		parse: false,
+	} ) ) as Response;
+	const totalItems = Number( response.headers.get( 'X-WP-Total' ) ?? 0 );
+	const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) ?? 0 );
+	const raw = ( await response.json() ) as ApiMediaItem[];
+	return { raw, totalItems, totalPages };
+}
+
+/**
+ * Drop non-video rows on WordPress.com Simple. The mime is the
+ * discriminator on purpose: filtering on `jetpack_videopress.guid`
+ * presence instead would let poster jpegs (which carry no guid)
+ * masquerade as "local videos" — guid only labels videopress-vs-local
+ * among actual videos.
+ *
+ * @param raw    - Raw media items from the REST API.
+ * @param simple - Whether the dashboard runs on WordPress.com Simple.
+ * @return The rows to map into LibraryItems.
+ */
+function keepOnlyVideos( raw: ApiMediaItem[], simple: boolean ): ApiMediaItem[] {
+	if ( ! simple ) {
+		return raw;
+	}
+	return raw.filter( item => item.mime_type?.startsWith( 'video/' ) );
+}
+
+/**
  * Fetch a page of VideoPress media items from the REST API.
+ *
+ * On WordPress.com Simple with an active privacy/type filter, the
+ * server can't narrow the query, so this over-fetches a bounded window
+ * (up to CLIENT_FILTER_MAX_PAGES × CLIENT_FILTER_PER_PAGE rows, in
+ * parallel and preserving server order), filters client-side, and
+ * paginates the filtered list locally. Tradeoff: libraries with more
+ * than ~300 videos get truncated filter results (matches beyond the
+ * window are invisible) — accepted until server-side filter parity
+ * lands on Simple. The unfiltered browse path stays a single request
+ * with server-provided totals.
  *
  * @param view - The current DataViews view (sort, filters, search, pagination).
  * @return Items array and pagination metadata derived from response headers.
@@ -246,16 +365,37 @@ async function fetchLibrary(
 ): Promise< { items: LibraryItem[]; paginationInfo: PaginationInfo } > {
 	const simple = isSimpleSite();
 	const args = viewToQueryArgs( view );
-	const response = ( await apiFetch( {
-		path: addQueryArgs( REST_PATH, args ),
-		parse: false,
-	} ) ) as Response;
-	const totalItems = Number( response.headers.get( 'X-WP-Total' ) ?? 0 );
-	const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) ?? 0 );
-	const raw = ( await response.json() ) as ApiMediaItem[];
+	const clientFilters = simple ? getClientSideFilters( view ) : null;
+
+	if ( ! clientFilters ) {
+		const { raw, totalItems, totalPages } = await fetchMediaPage( args );
+		return {
+			items: keepOnlyVideos( raw, simple ).map( item => toLibraryItem( item, simple ) ),
+			paginationInfo: { totalItems, totalPages },
+		};
+	}
+
+	const windowArgs = { ...args, page: 1, per_page: CLIENT_FILTER_PER_PAGE };
+	const first = await fetchMediaPage( windowArgs );
+	const pageCount = Math.min( first.totalPages, CLIENT_FILTER_MAX_PAGES );
+	const restPages = await Promise.all(
+		Array.from( { length: Math.max( pageCount - 1, 0 ) }, ( _, i ) =>
+			fetchMediaPage( { ...windowArgs, page: i + 2 } )
+		)
+	);
+	const raw = [ first, ...restPages ].flatMap( page => page.raw );
+	const filtered = keepOnlyVideos( raw, simple )
+		.map( item => toLibraryItem( item, simple ) )
+		.filter( item => matchesClientSideFilters( item, clientFilters ) );
+
+	const page = view.page ?? 1;
+	const perPage = view.perPage ?? 12;
 	return {
-		items: raw.map( item => toLibraryItem( item, simple ) ),
-		paginationInfo: { totalItems, totalPages },
+		items: filtered.slice( ( page - 1 ) * perPage, page * perPage ),
+		paginationInfo: {
+			totalItems: filtered.length,
+			totalPages: Math.ceil( filtered.length / perPage ),
+		},
 	};
 }
 
@@ -267,7 +407,16 @@ async function fetchLibrary(
  */
 export function useLibrary( view: View ) {
 	const query = useQuery( {
-		queryKey: [ 'jetpack-videopress-library', viewToQueryArgs( view ) ],
+		// Filters and page/perPage are keyed explicitly: on WordPress.com
+		// Simple the privacy/type filters are applied client-side and thus
+		// no longer encoded in the server query args.
+		queryKey: [
+			'jetpack-videopress-library',
+			viewToQueryArgs( view ),
+			view.filters ?? [],
+			view.page ?? 1,
+			view.perPage ?? 12,
+		],
 		queryFn: () => fetchLibrary( view ),
 		placeholderData: keepPreviousData,
 		// While any item on the current page is still being processed

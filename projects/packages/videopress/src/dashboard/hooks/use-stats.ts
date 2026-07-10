@@ -3,6 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import { DATE_RANGE_DAYS } from '../types/stats';
+import { isSimpleSite } from '../utils/is-simple';
 import type {
 	ActiveMetric,
 	ChartCompare,
@@ -50,6 +51,10 @@ type StatsQueryParams = {
 };
 
 const REST_PATH = '/jetpack/v4/videopress/stats/video-plays';
+// On WordPress.com Simple the jetpack/v4 proxy doesn't exist; apiFetch's
+// rest/v1.1 middleware site-prefixes this path and unwraps the envelope,
+// landing on the same WPCOM endpoint the proxy targets.
+const SIMPLE_REST_PATH = '/rest/v1.1/stats/video-plays';
 const TOP_VIDEOS_LIMIT = 5;
 const ZERO_SUMMARY: KpiSummary = { current: 0, previousPeriod: 0 };
 
@@ -128,7 +133,17 @@ export function videoPlaysQueryOptions( params: StatsQueryParams ) {
 		queryKey: [ 'jetpack-videopress-stats', 'video-plays', params ],
 		queryFn: () =>
 			apiFetch< VideoPlaysResponse >( {
-				path: addQueryArgs( REST_PATH, { period: 'day', ...params } ),
+				// The self-hosted jetpack/v4 proxy forces complete_stats /
+				// check_stats_module server-side; on Simple the WPCOM endpoint
+				// is hit directly, so those two move into the client query.
+				path: isSimpleSite()
+					? addQueryArgs( SIMPLE_REST_PATH, {
+							period: 'day',
+							complete_stats: true,
+							check_stats_module: false,
+							...params,
+					  } )
+					: addQueryArgs( REST_PATH, { period: 'day', ...params } ),
 			} ),
 	} );
 }

@@ -24,6 +24,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	private const ROUTE_CHECK_OWNERSHIP = '/wpcom/v2/videopress/(?P<video_guid>[A-Za-z0-9]{8})/check-ownership/(?P<post_id>\d+)';
 	private const ROUTE_UPLOAD_JWT      = '/wpcom/v2/videopress/upload-jwt';
 	private const ROUTE_PLAYBACK_JWT    = '/wpcom/v2/videopress/playback-jwt/(?P<video_guid>[A-Za-z0-9]{8})';
+	private const ROUTE_SETTINGS        = '/wpcom/v2/videopress/settings';
 
 	/**
 	 * Set up the test environment.
@@ -59,6 +60,59 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertArrayHasKey( self::ROUTE_CHECK_OWNERSHIP, $routes );
 		$this->assertArrayHasKey( self::ROUTE_UPLOAD_JWT, $routes );
 		$this->assertArrayHasKey( self::ROUTE_PLAYBACK_JWT, $routes );
+		$this->assertArrayHasKey( self::ROUTE_SETTINGS, $routes );
+	}
+
+	/**
+	 * Test that the settings GET callback returns the full settings shape.
+	 */
+	public function test_get_settings_returns_settings_shape() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		$response = $endpoint->videopress_get_settings();
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'videopress_videos_private_for_site', $data );
+		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $data );
+		$this->assertArrayHasKey( 'site_is_private', $data );
+		$this->assertArrayHasKey( 'site_type', $data );
+	}
+
+	/**
+	 * Test that the settings POST callback persists both options off-WPCOM
+	 * (mirroring videopress/v1/settings; on WPCOM the private-for-site
+	 * option is ignored, but IS_WPCOM can't be simulated in this env).
+	 */
+	public function test_update_settings_persists_options() {
+		delete_option( 'videopress_private_enabled_for_site' );
+		delete_option( 'videopress_auto_subtitles_disabled' );
+
+		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
+		$request->set_param( 'videopress_videos_private_for_site', true );
+		$request->set_param( 'videopress_auto_subtitles_disabled', true );
+
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		$response = $endpoint->videopress_update_settings( $request );
+
+		$this->assertSame( 'success', $response->get_data()['code'] );
+		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+	}
+
+	/**
+	 * Test that omitted settings params leave the stored options untouched.
+	 */
+	public function test_update_settings_ignores_absent_params() {
+		update_option( 'videopress_private_enabled_for_site', true );
+		update_option( 'videopress_auto_subtitles_disabled', false );
+
+		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
+		$request->set_param( 'videopress_auto_subtitles_disabled', true );
+
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		$endpoint->videopress_update_settings( $request );
+
+		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
 	}
 
 	/**

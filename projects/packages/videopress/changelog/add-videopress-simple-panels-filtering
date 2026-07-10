@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Make the modernized VideoPress dashboard fully functional on WordPress.com Simple: video-only library filtering with client-side privacy/type filters, stats and settings rerouted to WPCOM-reachable endpoints, and storage/features queries gated off unmappable routes.

@@ -1,6 +1,7 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
 import { useSettings, useUpdateSettings } from '../use-settings';
 
 describe( 'useSettings', () => {
@@ -151,5 +152,56 @@ describe( 'useUpdateSettings', () => {
 		await waitFor( () =>
 			expect( settingsResult.current.data?.videoPressVideosPrivateForSite ).toBe( false )
 		);
+	} );
+} );
+
+describe( 'on WordPress.com Simple', () => {
+	beforeEach( setSimpleSite );
+	afterEach( unsetSimpleSite );
+
+	it( 'reads settings from wpcom/v2/videopress/settings', async () => {
+		mockApiFetch( async ( { path } ) => {
+			if ( path === '/wpcom/v2/videopress/settings' ) {
+				return {
+					videopress_videos_private_for_site: false,
+					videopress_auto_subtitles_disabled: true,
+					site_is_private: true,
+					site_type: 'simple',
+				};
+			}
+			throw new Error( `unexpected path: ${ path }` );
+		} );
+
+		const { result } = renderHook( () => useSettings(), { wrapper: createTestWrapper() } );
+		await waitFor( () => expect( result.current.data ).toBeDefined() );
+		expect( result.current.data?.videoPressAutoSubtitlesDisabled ).toBe( true );
+		expect( result.current.data?.siteIsPrivate ).toBe( true );
+		expect( result.current.data?.siteType ).toBe( 'simple' );
+	} );
+
+	it( 'writes settings to wpcom/v2/videopress/settings', async () => {
+		const calls: { path?: string; method?: string; data?: unknown }[] = [];
+		mockApiFetch( async ( { path, method, data } ) => {
+			calls.push( { path, method, data } );
+			if ( method === 'POST' ) {
+				return { code: 'success', message: 'ok', data: 200 };
+			}
+			return {
+				videopress_videos_private_for_site: false,
+				videopress_auto_subtitles_disabled: true,
+				site_is_private: true,
+				site_type: 'simple',
+			};
+		} );
+
+		const wrapper = createTestWrapper();
+		const { result } = renderHook( () => useUpdateSettings(), { wrapper } );
+		await act( async () => {
+			await result.current.mutateAsync( { videoPressAutoSubtitlesDisabled: true } );
+		} );
+
+		const postCall = calls.find( c => c.method === 'POST' );
+		expect( postCall?.path ).toBe( '/wpcom/v2/videopress/settings' );
+		expect( postCall?.data ).toEqual( { videopress_auto_subtitles_disabled: true } );
 	} );
 } );

@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
 import { transformVideoPlays, useStats, videoPlaysQueryOptions } from '../use-stats';
 
 describe( 'transformVideoPlays', () => {
@@ -226,6 +227,38 @@ describe( 'videoPlaysQueryOptions', () => {
 		expect( path ).toContain( 'period=day' );
 		expect( path ).toContain( 'num=7' );
 		expect( path ).toContain( 'date=2026-05-15' );
+	} );
+
+	describe( 'on WordPress.com Simple', () => {
+		beforeEach( setSimpleSite );
+		afterEach( unsetSimpleSite );
+
+		it( 'targets rest/v1.1 directly with the proxy-forced params made explicit', async () => {
+			mockApiFetch( async () => ( {} ) );
+			const options = videoPlaysQueryOptions( { num: 7, date: '2026-05-15' } );
+			await options.queryFn!( {} as never );
+
+			const [ [ args ] ] = getApiFetchMock().mock.calls;
+			const path = ( args as { path: string } ).path;
+			expect( path ).toContain( '/rest/v1.1/stats/video-plays' );
+			expect( path ).not.toContain( '/jetpack/v4/' );
+			expect( path ).toContain( 'period=day' );
+			// The jetpack/v4 proxy forces these two server-side; on Simple they
+			// must travel with the request.
+			expect( path ).toContain( 'complete_stats=true' );
+			expect( path ).toContain( 'check_stats_module=false' );
+			expect( path ).toContain( 'num=7' );
+			expect( path ).toContain( 'date=2026-05-15' );
+		} );
+
+		it( 'keeps the query key unchanged across hosts', () => {
+			const params = { num: 7, date: '2026-05-15' };
+			expect( videoPlaysQueryOptions( params ).queryKey ).toEqual( [
+				'jetpack-videopress-stats',
+				'video-plays',
+				params,
+			] );
+		} );
 	} );
 } );
 
