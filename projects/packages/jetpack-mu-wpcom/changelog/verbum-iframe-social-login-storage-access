@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Verbum Comments: allow social login (WordPress.com / Facebook) inside the cross-origin comment iframe on Atomic/Jetpack sites by requesting first-party cookie access via the Storage Access API.

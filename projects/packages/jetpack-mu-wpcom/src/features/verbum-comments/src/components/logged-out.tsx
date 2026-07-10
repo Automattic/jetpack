@@ -107,11 +107,15 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 
 	const { commentParent } = useContext( VerbumSignals );
 
-	// Login is required but we can't render the in-frame login options (e.g. cross-origin
-	// iframe on Atomic where cookies are blocked). Showing the guest form here is a dead end:
-	// the comment is rejected on submit with "you must be logged in". Surface the requirement
-	// up front with a link to log in instead.
-	const loginRequiredWithoutInFrameAuth = mustLogIn && ! canWeAccessCookies;
+	// In the iframe (Atomic/Jetpack) we offer social login and request cookie access on click,
+	// so the buttons render even when the cookie test currently fails.
+	const showSocialButtons = canWeAccessCookies || !! VerbumComments.isJetpackComments;
+
+	// Login is required but there's no way to log in here (cookies blocked and not in the iframe
+	// where social login is offered). Showing the guest form would be a dead end: the comment is
+	// rejected on submit with "you must be logged in". Surface the requirement with a login link.
+	const loginRequiredWithoutInFrameAuth =
+		mustLogIn && ! canWeAccessCookies && ! VerbumComments.isJetpackComments;
 
 	if ( loginRequiredWithoutInFrameAuth ) {
 		return (
@@ -139,7 +143,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		<div className="verbum-subscriptions logged-out">
 			<div className="verbum-subscriptions__wrapper">
 				<div className="verbum-subscriptions__login">
-					{ canWeAccessCookies && (
+					{ showSocialButtons && (
 						<>
 							<div className="verbum-subscriptions__login-header">
 								{ getLoginCommentText( commentParent ) }
@@ -198,7 +202,12 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 							</div>
 						</>
 					) }
-					<EmailForm shouldShowEmailForm={ activeService === 'mail' || ! canWeAccessCookies } />
+					<EmailForm
+						shouldShowEmailForm={
+							activeService === 'mail' ||
+							( ! canWeAccessCookies && ! VerbumComments.isJetpackComments )
+						}
+					/>
 				</div>
 			</div>
 		</div>
