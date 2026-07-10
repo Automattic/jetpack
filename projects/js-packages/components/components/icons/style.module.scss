@@ -1,3 +1,4 @@
+@use "social-logos/colors.css";
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .star-icon {
@@ -13,11 +14,11 @@
 	fill: gb.$gray-700;
 
 	&.bluesky {
-		fill: var(--jetpack-social-color-bluesky);
+		fill: var(--jetpack-social-logo-color-bluesky);
 	}
 
 	&.facebook {
-		fill: var(--jetpack-social-color-facebook);
+		fill: var(--jetpack-social-logo-color-facebook);
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
 			border-radius: 50%;
@@ -25,27 +26,27 @@
 	}
 
 	&.twitter {
-		fill: var(--jetpack-social-color-twitter);
+		fill: var(--jetpack-social-logo-color-twitter);
 	}
 
 	&.linkedin {
-		fill: var(--jetpack-social-color-linkedin);
+		fill: var(--jetpack-social-logo-color-linkedin);
 	}
 
 	&.tumblr {
-		fill: var(--jetpack-social-color-tumblr);
+		fill: var(--jetpack-social-logo-color-tumblr);
 	}
 
 	&.google {
-		fill: var(--jetpack-social-color-google-plus);
+		fill: var(--jetpack-social-logo-color-google-plus);
 	}
 
 	&.mastodon {
-		fill: var(--jetpack-social-color-mastodon);
+		fill: var(--jetpack-social-logo-color-mastodon);
 	}
 
 	&.nextdoor {
-		fill: var(--jetpack-social-color-nextdoor);
+		fill: var(--jetpack-social-logo-color-nextdoor);
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
 			border-radius: 50%;
@@ -53,15 +54,15 @@
 	}
 
 	&.instagram {
-		fill: var(--jetpack-social-color-instagram);
+		fill: var(--jetpack-social-logo-color-instagram);
 	}
 
 	&.whatsapp {
-		fill: var(--jetpack-social-color-whatsapp);
+		fill: var(--jetpack-social-logo-color-whatsapp);
 	}
 
 	&.threads {
-		fill: var(--jetpack-social-color-threads);
+		fill: var(--jetpack-social-logo-color-threads);
 
 		&:global(.social-logo) {
 			border-radius: 40%;
@@ -69,7 +70,7 @@
 	}
 
 	&.x {
-		fill: var(--jetpack-social-color-x);
+		fill: var(--jetpack-social-logo-color-x);
 	}
 }
 
