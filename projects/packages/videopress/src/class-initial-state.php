@@ -145,8 +145,9 @@ class Initial_State {
 			// populated when the site isn't connected — the only time the
 			// connection gate renders the upsell — so connected dashboards never
 			// incur the synchronous WPCOM pricing request `get_pricing_data()`
-			// makes.
-			'pricing'                => ( new Connection_Manager() )->is_connected() ? null : $this->get_pricing_data(),
+			// makes. Skipped on WordPress.com Simple, where the connection gate is
+			// bypassed (Simple sites are inherently wpcom-connected).
+			'pricing'                => ( ( new Host() )->is_wpcom_simple() || ( new Connection_Manager() )->is_connected() ) ? null : $this->get_pricing_data(),
 		);
 	}
 
@@ -187,6 +188,14 @@ class Initial_State {
 	 * @return bool
 	 */
 	public static function has_videopress_access() {
+		// On WordPress.com Simple, access is governed by the site's plan feature —
+		// the same gate that surfaces the dashboard menu — not the storage-tier
+		// product features used off-platform (which don't resolve on Simple). Uses
+		// the bare 'videopress' slug, matching Admin_UI's existing feature check.
+		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
+			return (bool) wpcom_site_has_feature( 'videopress' );
+		}
+
 		return self::has_videopress_feature( 'videopress-1tb-storage' )
 			|| self::has_videopress_feature( 'videopress-unlimited-storage' )
 			|| ( ( new Host() )->is_wpcom_platform() && self::has_videopress_feature( 'videopress' ) );
