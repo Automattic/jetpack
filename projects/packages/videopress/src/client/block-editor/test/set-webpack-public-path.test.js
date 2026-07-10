@@ -1,8 +1,6 @@
 /**
- * Tests for the block-editor Webpack public-path override.
- *
- * The module runs a side effect at import time, so each case arranges globals
- * first and then re-requires it in isolation via `jest.resetModules()`.
+ * Tests for the block-editor Webpack public-path override, which runs as an
+ * import-time side effect — each case arranges globals then re-requires it.
  */
 
 describe( 'set-webpack-public-path', () => {
@@ -10,9 +8,8 @@ describe( 'set-webpack-public-path', () => {
 
 	beforeEach( () => {
 		/*
-		 * Provide a resolvable global so the module's assignment to Webpack's
-		 * `__webpack_public_path__` free variable doesn't throw under strict
-		 * mode. In the real build Webpack supplies this variable.
+		 * Webpack supplies this free variable in real builds; define it here so
+		 * the module's strict-mode assignment resolves instead of throwing.
 		 */
 		global.__webpack_public_path__ = 'initial/';
 		jest.resetModules();

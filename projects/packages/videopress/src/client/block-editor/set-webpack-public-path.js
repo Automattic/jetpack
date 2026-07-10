@@ -2,13 +2,10 @@
 /* global __webpack_public_path__ */
 
 /**
- * Dynamically set Webpack's publicPath so that lazily-loaded chunks (and their
- * CSS) resolve against the package's build directory.
- *
- * We can't rely on `publicPath: 'auto'` because WordPress.com Simple's JS
- * concatenation rewrites script URLs into `/_static/??…`, which breaks the
- * `document.currentScript.src` auto-detection. Self-hosted sites keep working
- * via auto-detection because the global is absent there.
+ * Set Webpack's publicPath from the localized global so lazy chunks (and their
+ * CSS) resolve against the package build dir. The `'auto'` fallback is
+ * unreliable on WordPress.com Simple, where JS concatenation rewrites the
+ * script URL that auto-detection reads.
  * @see https://webpack.js.org/guides/public-path/#on-the-fly
  */
 if ( typeof window === 'object' && window.videoPressEditorState?.webpackPublicPath ) {
