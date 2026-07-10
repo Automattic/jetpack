@@ -1,7 +1,8 @@
-import { useEntityRecords } from '@wordpress/core-data';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import type { ContentRow, SchemaType, SeoPostMeta } from './content-types';
+import type { ContentRow, ContentPostType, SchemaType, SeoPostMeta } from './content-types';
 
 // Only request the columns the Content tab renders, plus the SEO meta. Core
 // REST returns `meta` as an object keyed by the registered meta names.
@@ -16,6 +17,9 @@ const STATUSES = [ 'publish' ];
 // pages) won't show the overflow on the Content tab yet — acceptable for now;
 // a future iteration can page/virtualize the merged set.
 const PER_PAGE = 100;
+
+// The post types the Content tab covers.
+const POST_TYPES: ContentPostType[] = [ 'post', 'page' ];
 
 // The shape of a core REST post/page record, narrowed to what we read.
 interface SeoPostRecord {
@@ -75,13 +79,44 @@ function toContentRow( record: SeoPostRecord ): ContentRow {
 }
 
 // A single fixed query shared by both post types, so DataViews can filter,
-// sort and paginate the merged set entirely client-side.
+// sort and paginate the merged set entirely client-side. `getEntityRecords`
+// memoizes on argument *identity*, so one shared object keeps repeated selector
+// runs on the memo instead of rebuilding the record list.
 const QUERY = {
 	context: 'edit',
 	_fields: POST_FIELDS,
 	per_page: PER_PAGE,
 	status: STATUSES,
 };
+
+// The slice of core-data's selectors this hook reads. `@wordpress/core-data`
+// doesn't ship a selector map for `select( coreStore )`, so narrow it here.
+type CoreSelect = ( store: typeof coreStore ) => {
+	getEntityRecords: ( kind: string, name: string, query: object ) => SeoPostRecord[] | null;
+	hasFinishedResolution: ( selector: string, args: unknown[] ) => boolean;
+};
+
+interface PostTypeSelection {
+	records: SeoPostRecord[];
+	isLoading: boolean;
+}
+
+/**
+ * Select the published records of one post type. Selecting a query that hasn't
+ * been fetched starts its resolver, so this both reads and drives the request.
+ *
+ * @param select   - The `useSelect` registry selector.
+ * @param postType - The post type to read ('post' | 'page').
+ * @return The type's records plus its resolution state.
+ */
+function selectPostType( select: CoreSelect, postType: ContentPostType ): PostTypeSelection {
+	const { getEntityRecords, hasFinishedResolution } = select( coreStore );
+
+	return {
+		records: getEntityRecords( 'postType', postType, QUERY ) ?? [],
+		isLoading: ! hasFinishedResolution( 'getEntityRecords', [ 'postType', postType, QUERY ] ),
+	};
+}
 
 /**
  * Fetch the Content tab's posts *and* pages from WordPress core REST and merge
@@ -94,26 +129,18 @@ const QUERY = {
  * @return The merged, mapped rows plus a combined loading state.
  */
 export default function useSeoPosts(): UseSeoPostsReturn {
-	const { records: postRecords, hasResolved: postsResolved } = useEntityRecords< SeoPostRecord >(
-		'postType',
-		'post',
-		QUERY
-	);
-	const { records: pageRecords, hasResolved: pagesResolved } = useEntityRecords< SeoPostRecord >(
-		'postType',
-		'page',
-		QUERY
-	);
+	const { records, isLoading } = useSelect( select => {
+		const selections = POST_TYPES.map( postType => selectPostType( select, postType ) );
 
-	const items = useMemo(
-		() => [ ...( postRecords || [] ), ...( pageRecords || [] ) ].map( toContentRow ),
-		[ postRecords, pageRecords ]
-	);
+		return {
+			records: selections.flatMap( selection => selection.records ),
+			// Show the loading state until *both* queries have resolved, so the
+			// table doesn't flash a posts-only list before pages arrive.
+			isLoading: selections.some( selection => selection.isLoading ),
+		};
+	}, [] );
 
-	return {
-		items,
-		// Show the loading state until *both* queries have resolved, so the
-		// table doesn't flash a posts-only list before pages arrive.
-		isLoading: ! postsResolved || ! pagesResolved,
-	};
+	const items = useMemo( () => records.map( toContentRow ), [ records ] );
+
+	return { items, isLoading };
 }
