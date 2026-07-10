@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comment: Prefix --color-* variables into --jetpack-social-logo-color-* CSS variables to avoid name collisions.
