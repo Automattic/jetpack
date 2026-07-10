@@ -76,7 +76,9 @@ describe( 'getSharingBlockNotice', () => {
 		);
 	} );
 
-	it( 'returns null when sharing is inactive', () => {
-		expect( getSharingBlockNotice( sharedaddy( { activated: false } ) ) ).toBeNull();
+	it( 'explains how to add the block when sharing is inactive', () => {
+		expect( getSharingBlockNotice( sharedaddy( { activated: false } ) ) ).toBe(
+			'Add the Sharing Buttons block to your theme’s template.'
+		);
 	} );
 } );

@@ -75,7 +75,7 @@ describe( 'ModuleToggle', () => {
 	it( 'links inactive sharedaddy to the Single template on block themes', () => {
 		render( <ModuleToggle module={ sharedaddyModule } /> );
 
-		expect( screen.getByRole( 'link', { name: 'Add Sharing Buttons block' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
 			'href',
 			'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
 		);
@@ -93,7 +93,7 @@ describe( 'ModuleToggle', () => {
 			screen.getByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
 		);
 
-		// Deactivating legacy sharing reveals the "Add block" link ( two-step, no redirect ).
+		// Deactivating legacy sharing reveals the Site Editor link ( two-step, no redirect ).
 		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sharedaddy', active: false } );
 
 		// The switch path tracks the deactivation, like the toggle path.

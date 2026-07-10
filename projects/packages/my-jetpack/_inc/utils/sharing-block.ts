@@ -32,15 +32,19 @@ export function getSharingBlockEditorUrl( module: MyJetpackModule ): string {
 }
 
 /**
- * Explanation shown in place of the module description when legacy sharing is active on
- * a block theme, telling the user why to switch to the block. Null otherwise.
+ * Explanation shown in place of the module description on block themes, describing
+ * either why to switch from legacy sharing or what to do next. Null otherwise.
  *
  * @param {MyJetpackModule} module - The module.
  *
  * @return {string|null} The notice, or null to fall back to the default description.
  */
 export function getSharingBlockNotice( module: MyJetpackModule ): string | null {
-	return module.activated && getSharingBlockEditorUrl( module )
+	if ( ! getSharingBlockEditorUrl( module ) ) {
+		return null;
+	}
+
+	return module.activated
 		? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack-my-jetpack' )
-		: null;
+		: __( 'Add the Sharing Buttons block to your theme’s template.', 'jetpack-my-jetpack' );
 }

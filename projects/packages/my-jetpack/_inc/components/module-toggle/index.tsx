@@ -101,7 +101,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	);
 
 	// Two-step switch: deactivate legacy sharing first ( so the site doesn't render
-	// both ), which then reveals the "Add block" link below.
+	// both ), which then reveals the Site Editor link below.
 	const switchToSharingBlock = useCallback( async () => {
 		// Track the deactivation like the toggle path does, so it isn't undercounted.
 		if ( trackProductAction ) {
@@ -123,7 +123,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 
 	if ( sharingBlockEditorUrl ) {
 		// Legacy still active: the button deactivates it; once inactive, the row shows
-		// the link below to add the block.
+		// the Site Editor link below.
 		if ( $module.activated ) {
 			return (
 				<SecondaryButton
@@ -138,7 +138,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		return (
 			<SecondaryButton
 				href={ sharingBlockEditorUrl }
-				label={ __( 'Add Sharing Buttons block', 'jetpack-my-jetpack' ) }
+				label={ __( 'Open Site Editor', 'jetpack-my-jetpack' ) }
 			/>
 		);
 	}
