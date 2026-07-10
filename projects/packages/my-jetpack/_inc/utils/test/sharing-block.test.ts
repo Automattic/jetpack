@@ -10,10 +10,10 @@ const sharedaddy = ( overrides = {} ): MyJetpackModule =>
 	} ) as MyJetpackModule;
 
 const setState = ( siteEditor: unknown ) => {
-	window.myJetpackInitialState = {
-		adminUrl: 'https://example.com/wp-admin/',
-		siteEditor,
-	} as Window[ 'myJetpackInitialState' ];
+	window.JetpackScriptData = {
+		site: { admin_url: 'https://example.com/wp-admin/' },
+		myJetpack: { siteEditor },
+	} as Window[ 'JetpackScriptData' ];
 };
 
 describe( 'getSharingBlockEditorUrl', () => {
@@ -47,13 +47,15 @@ describe( 'getSharingBlockEditorUrl', () => {
 	} );
 
 	it( 'returns empty when adminUrl is missing', () => {
-		window.myJetpackInitialState = {
-			siteEditor: {
-				isBlockTheme: true,
-				isSharingBlockAvailable: true,
-				activeThemeStylesheet: 'x',
+		window.JetpackScriptData = {
+			myJetpack: {
+				siteEditor: {
+					isBlockTheme: true,
+					isSharingBlockAvailable: true,
+					activeThemeStylesheet: 'x',
+				},
 			},
-		} as Window[ 'myJetpackInitialState' ];
+		} as Window[ 'JetpackScriptData' ];
 		expect( getSharingBlockEditorUrl( sharedaddy() ) ).toBe( '' );
 	} );
 } );

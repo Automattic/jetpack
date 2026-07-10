@@ -461,11 +461,6 @@ interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
 		siteUrl: string;
-		siteEditor: {
-			isBlockTheme: boolean;
-			isSharingBlockAvailable: boolean;
-			activeThemeStylesheet: string;
-		};
 		latestBoostSpeedScores: {
 			previousScores: {
 				desktop: number;

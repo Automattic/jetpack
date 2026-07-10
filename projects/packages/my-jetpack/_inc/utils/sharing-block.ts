@@ -1,5 +1,5 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
-import { getMyJetpackWindowInitialState } from '../data/utils/get-my-jetpack-window-state';
 import { MyJetpackModule } from '../types';
 
 /**
@@ -11,12 +11,13 @@ import { MyJetpackModule } from '../types';
  * @return {string} The Site Editor URL for the Sharing Buttons block, or '' when the block path doesn't apply.
  */
 export function getSharingBlockEditorUrl( module: MyJetpackModule ): string {
-	const { adminUrl, siteEditor } = getMyJetpackWindowInitialState() || {};
+	const { site, myJetpack } = getScriptData() || {};
+	const siteEditor = myJetpack?.siteEditor;
 
 	if (
 		module.module !== 'sharedaddy' ||
 		module.override === 'active' ||
-		! adminUrl ||
+		! site?.admin_url ||
 		! siteEditor?.isBlockTheme ||
 		! siteEditor?.isSharingBlockAvailable ||
 		! siteEditor?.activeThemeStylesheet
@@ -24,7 +25,7 @@ export function getSharingBlockEditorUrl( module: MyJetpackModule ): string {
 		return '';
 	}
 
-	return `${ adminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+	return `${ site.admin_url }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
 		siteEditor.activeThemeStylesheet
 	) }%2F%2Fsingle&canvas=edit`;
 }

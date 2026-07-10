@@ -22,3 +22,17 @@ export type MyJetpackModule = {
 	long_description: string;
 	search_terms: string;
 };
+
+export type SiteEditorData = {
+	isBlockTheme: boolean;
+	isSharingBlockAvailable: boolean;
+	activeThemeStylesheet: string;
+};
+
+declare module '@automattic/jetpack-script-data' {
+	interface JetpackScriptData {
+		myJetpack?: {
+			siteEditor: SiteEditorData;
+		};
+	}
+}

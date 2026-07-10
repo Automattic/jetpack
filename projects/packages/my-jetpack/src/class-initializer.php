@@ -286,6 +286,7 @@ class Initializer {
 		 * @since 4.35.7
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -298,9 +299,6 @@ class Initializer {
 		);
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
-		$block_availability  = class_exists( '\Jetpack_Gutenberg' )
-			? \Jetpack_Gutenberg::get_cached_availability()
-			: array();
 		$speed_score_history = new Speed_Score_History( get_site_url() );
 		$latest_score        = $speed_score_history->latest();
 		$previous_score      = array();
@@ -330,12 +328,6 @@ class Initializer {
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
 				'siteUrl'                => esc_url( get_site_url() ),
-				'siteEditor'             => array(
-					'isBlockTheme'            => function_exists( 'wp_is_block_theme' ) && wp_is_block_theme(),
-					'isSharingBlockAvailable' => isset( $block_availability['sharing-buttons'] )
-						&& $block_availability['sharing-buttons']['available'],
-					'activeThemeStylesheet'   => get_stylesheet(),
-				),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
@@ -384,6 +376,27 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Add My Jetpack data to the unified script data object.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function add_script_data( $data ) {
+		$block_availability = class_exists( '\Jetpack_Gutenberg' )
+			? \Jetpack_Gutenberg::get_cached_availability()
+			: array();
+
+		$data['myJetpack']['siteEditor'] = array(
+			'isBlockTheme'            => function_exists( 'wp_is_block_theme' ) && wp_is_block_theme(),
+			'isSharingBlockAvailable' => isset( $block_availability['sharing-buttons'] )
+				&& $block_availability['sharing-buttons']['available'],
+			'activeThemeStylesheet'   => get_stylesheet(),
+		);
+
+		return $data;
 	}
 
 	/**

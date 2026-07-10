@@ -62,14 +62,16 @@ const sharedaddyModule = {
 describe( 'ModuleToggle', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		window.myJetpackInitialState = {
-			adminUrl: 'https://example.com/wp-admin/',
-			siteEditor: {
-				isBlockTheme: true,
-				isSharingBlockAvailable: true,
-				activeThemeStylesheet: 'twentytwentyfour',
+		window.JetpackScriptData = {
+			site: { admin_url: 'https://example.com/wp-admin/' },
+			myJetpack: {
+				siteEditor: {
+					isBlockTheme: true,
+					isSharingBlockAvailable: true,
+					activeThemeStylesheet: 'twentytwentyfour',
+				},
 			},
-		} as Window[ 'myJetpackInitialState' ];
+		} as Window[ 'JetpackScriptData' ];
 	} );
 
 	it( 'links inactive sharedaddy to the Single template on block themes', () => {
