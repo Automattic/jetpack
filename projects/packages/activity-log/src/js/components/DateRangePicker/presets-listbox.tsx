@@ -7,9 +7,9 @@ import {
 	Button,
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Composite,
-	VisuallyHidden,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { VisuallyHidden } from '@wordpress/ui';
 import { presetDefs } from './utils';
 import type { PresetId } from './utils';
 

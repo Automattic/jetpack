@@ -3,9 +3,9 @@
  */
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	VisuallyHidden,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { VisuallyHidden } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -61,7 +61,7 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 
 	return (
 		<>
-			<VisuallyHidden as="span">{ ratingLabel }</VisuallyHidden>
+			<VisuallyHidden render={ <span>{ ratingLabel }</span> } />
 			<HStack spacing="1" alignment="topLeft">
 				{ Array.from( { length: clampedMax }, ( _, index ) => (
 					<span style={ { flex: '0 0 24px' } } key={ index }>

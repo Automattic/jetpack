@@ -6,7 +6,6 @@ import {
 	FlexBlock,
 	RadioControl,
 	Spinner,
-	VisuallyHidden,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -17,6 +16,7 @@ import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
@@ -153,7 +153,7 @@ export function NewsletterAccessRadioButtons( {
 
 	return (
 		<fieldset className="jetpack-newsletter-access-radio-buttons">
-			<VisuallyHidden as="legend">{ __( 'Access', 'jetpack' ) } </VisuallyHidden>
+			<VisuallyHidden render={ <legend>{ __( 'Access', 'jetpack' ) } </legend> } />
 			<RadioControl
 				onChange={ value => {
 					if (

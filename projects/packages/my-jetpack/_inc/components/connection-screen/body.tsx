@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
-import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import connectImage from './connect.webp';
 import styles from './styles.module.scss';
 import type { FC, ReactNode } from 'react';
@@ -83,12 +83,16 @@ const ConnectionScreenBody: FC< ConnectScreenProps > = props => {
 					>
 						{ __( 'See all Jetpack features', 'jetpack-my-jetpack' ) }
 						<Icon icon={ external } />
-						<VisuallyHidden as="span">
-							{
-								/* translators: accessibility text */
-								__( '(opens in a new tab)', 'jetpack-my-jetpack' )
+						<VisuallyHidden
+							render={
+								<span>
+									{
+										/* translators: accessibility text */
+										__( '(opens in a new tab)', 'jetpack-my-jetpack' )
+									}
+								</span>
 							}
-						</VisuallyHidden>
+						/>
 					</a>
 				</li>
 			</ul>

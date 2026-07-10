@@ -9,7 +9,6 @@ import {
 	Modal,
 	Notice,
 	TextControl,
-	VisuallyHidden,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -21,6 +20,7 @@ import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, external, link } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import { prependHTTPS } from '@wordpress/url';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getShowHostsFor, getShowUrlMaxLength } from '../podcatchers';

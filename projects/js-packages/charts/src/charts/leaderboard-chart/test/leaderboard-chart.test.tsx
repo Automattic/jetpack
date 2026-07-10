@@ -97,8 +97,8 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
-		expect( screen.getByText( '-' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'No comparison data' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 

@@ -4,10 +4,11 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import { ToggleControl, PanelBody, VisuallyHidden } from '@wordpress/components';
+import { ToggleControl, PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import { ALLOWED_FORMATS } from '../shared/util/constants.js';
@@ -183,9 +184,13 @@ const OptionEdit = ( {
 			</li>
 			{ type === 'radio' && isOther && ( isSelected || isParentSelected ) && (
 				<li className="jetpack-other-text-input-wrapper is-visible">
-					<VisuallyHidden as="label" htmlFor={ `${ clientId }-other-text` }>
-						{ otherPlaceholder || __( 'Please specify…', 'jetpack-forms' ) }
-					</VisuallyHidden>
+					<VisuallyHidden
+						render={
+							<label htmlFor={ `${ clientId }-other-text` }>
+								{ otherPlaceholder || __( 'Please specify…', 'jetpack-forms' ) }
+							</label>
+						}
+					/>
 					<input
 						id={ `${ clientId }-other-text` }
 						className="grunion-field jetpack-field__input"
