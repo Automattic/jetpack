@@ -661,19 +661,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 */
 	private function log_tailoring( $ai_output, $raw_task_ids ) {
 		try {
-			$extra = $this->tailoring_log_extra( $ai_output, $raw_task_ids );
-
 			/**
-			 * Gates the tailoring observation event sent to Logstash.
+			 * Gates the tailoring observation event sent to Logstash. Checked before the event
+			 * is built, so disabling it also skips the extra task-list rebuild the event needs.
 			 *
-			 * @param bool  $enabled Whether to send the event. Default true.
-			 * @param array $extra   The event payload about to be sent.
+			 * @param bool $enabled Whether to send the event. Default true.
 			 */
-			if ( ! apply_filters( 'wpcom_ai_launchpad_tailoring_log_enabled', true, $extra ) ) {
+			if ( ! apply_filters( 'wpcom_ai_launchpad_tailoring_log_enabled', true ) ) {
 				return;
 			}
 
-			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash( 'atomic_ai_launchpad', 'tailored', $extra );
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
+				'atomic_ai_launchpad',
+				'tailored',
+				$this->tailoring_log_extra( $ai_output, $raw_task_ids )
+			);
 		} catch ( \Throwable $e ) {
 			unset( $e );
 		}

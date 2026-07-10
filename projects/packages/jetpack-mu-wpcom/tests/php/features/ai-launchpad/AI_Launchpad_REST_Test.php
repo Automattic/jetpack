@@ -22,8 +22,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
 // Block real Logstash dispatch of the tailoring observation event for the entire phpunit
-// process (its HTTP fallback fires from a shutdown function, i.e. after teardown). A spy
-// test hooks the same filter at priority 11 to assert the event payload.
+// process (its HTTP fallback fires from a shutdown function, i.e. after teardown). The
+// event payload itself is asserted by invoking the builder directly.
 add_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', '__return_false' );
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -481,20 +481,14 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * `PUT /tailored` emits an observation event: the AI-inferred details (minus brand_name, which echoes the
-	 * user-typed site title), the ids the AI selected, the ids the site will actually render, and the delta between
-	 * them. The event is captured through the gate filter's extra argument; real dispatch stays blocked by the
-	 * file-level `__return_false`.
+	 * The tailoring observation event reports the AI-inferred details (minus brand_name, which echoes the
+	 * user-typed site title), the ids the AI selected, the ids the site will actually render, and the delta
+	 * between them. The event is built (via reflection) against the state `PUT /tailored` just persisted —
+	 * the same envelope and timing the gated logger uses; real dispatch stays blocked by the file-level
+	 * `__return_false`, which short-circuits before the event is built.
 	 */
 	public function test_update_tailored_logs_observation_event() {
 		wp_set_current_user( $this->admin_id );
-
-		$captured = null;
-		$spy      = static function ( $enabled, $extra ) use ( &$captured ) {
-			$captured = $extra;
-			return $enabled;
-		};
-		add_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', $spy, 11, 2 );
 
 		$payload             = self::valid_payload();
 		$payload['inferred'] = array(
@@ -520,9 +514,15 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$result = $this->call_api( 'PUT', '/tailored', $payload );
-		remove_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', $spy, 11 );
-
 		$this->assertSame( 200, $result->get_status() );
+
+		// Build the event exactly as log_tailoring would: from the persisted envelope and the raw pre-filter ids.
+		$builder  = new \ReflectionMethod( AI_Launchpad_REST::class, 'tailoring_log_extra' );
+		$captured = $builder->invoke(
+			new AI_Launchpad_REST(),
+			get_option( 'wpcom_ai_launchpad_ai_output' ),
+			array_column( $payload['tasks'], 'id' )
+		);
 		$this->assertIsArray( $captured );
 
 		// Only the intended fields, and never the user's own words: brand_name (echoes the title) and tagline
