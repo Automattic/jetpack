@@ -20,6 +20,7 @@ import { Icon, Text } from '@wordpress/ui';
  */
 import styles from './style.module.css';
 import {
+	DEFAULT_SUBSCRIBER_METRICS,
 	SUBSCRIBER_METRICS,
 	type SubscriberHighlightsAttributes,
 	type SubscriberMetricId,
@@ -33,11 +34,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type SubscriberHighlightsRenderAttributes = SubscriberHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscriberHighlightsWidgetProps = WidgetRenderProps< SubscriberHighlightsRenderAttributes >;
-
-/**
- * The enabled-metric flags from widget attributes, with defaults applied.
- */
-type SubscriberHighlightsReportProps = Required< SubscriberHighlightsAttributes >;
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
@@ -53,23 +49,28 @@ const TILE_CONFIG: Record<
 	SubscriberMetricId,
 	{ icon: typeof people; count: ( data?: StatsSubscribersCounts ) => number }
 > = {
-	showTotal: { icon: people, count: data => data?.total_subscribers ?? 0 },
-	showPaid: { icon: payment, count: data => data?.paid_subscribers ?? 0 },
-	showFree: { icon: envelope, count: data => data?.email_subscribers ?? 0 },
-	showSocial: { icon: share, count: data => data?.social_followers ?? 0 },
+	total: { icon: people, count: data => data?.total_subscribers ?? 0 },
+	paid: { icon: payment, count: data => data?.paid_subscribers ?? 0 },
+	free: { icon: envelope, count: data => data?.email_subscribers ?? 0 },
+	social: { icon: share, count: data => data?.social_followers ?? 0 },
 };
 
 /**
  * Fetches the subscriber counts through the designated `useStatsSubscribersCounts`
  * Stats hook and renders the totals as a grid of metric tiles. The counts module
  * has no comparison period, so each tile shows a bare formatted count. Which
- * tiles appear is controlled by the per-metric visibility attributes.
+ * tiles appear is controlled by the `metrics` attribute.
  *
- * @param {SubscriberHighlightsReportProps} props - The component props.
+ * @param {SubscriberMetricId[]} metrics - Enabled metric tile ids.
  * @return The widget content.
  */
-function SubscriberHighlightsReport( props: SubscriberHighlightsReportProps ) {
+function SubscriberHighlightsReport( {
+	metrics = DEFAULT_SUBSCRIBER_METRICS,
+}: {
+	metrics?: SubscriberMetricId[];
+} ) {
 	const { data, isLoading, isError } = useStatsSubscribersCounts();
+	const enabledMetrics = new Set( metrics );
 
 	if ( isError ) {
 		return (
@@ -89,12 +90,14 @@ function SubscriberHighlightsReport( props: SubscriberHighlightsReportProps ) {
 		);
 	}
 
-	const tiles = SUBSCRIBER_METRICS.filter( ( { id } ) => props[ id ] ).map( ( { id, label } ) => ( {
-		key: id,
-		label,
-		icon: TILE_CONFIG[ id ].icon,
-		value: TILE_CONFIG[ id ].count( data ),
-	} ) );
+	const tiles = SUBSCRIBER_METRICS.filter( ( { id } ) => enabledMetrics.has( id ) ).map(
+		( { id, label } ) => ( {
+			key: id,
+			label,
+			icon: TILE_CONFIG[ id ].icon,
+			value: TILE_CONFIG[ id ].count( data ),
+		} )
+	);
 
 	return (
 		<div className={ styles.root }>
@@ -139,12 +142,7 @@ export default function SubscriberHighlights( {
 }: SubscriberHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscriberHighlightsReport
-				showTotal={ attributes.showTotal ?? true }
-				showPaid={ attributes.showPaid ?? true }
-				showFree={ attributes.showFree ?? true }
-				showSocial={ attributes.showSocial ?? true }
-			/>
+			<SubscriberHighlightsReport metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

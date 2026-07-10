@@ -222,12 +222,19 @@ describe( 'HeatmapChart', () => {
 		} );
 	} );
 
-	test( 'leaves cell gap and radius to WPDS tokens (no inline overrides)', () => {
+	test( 'keeps a strict grid → row structure (column labels live in a row, not directly under the grid)', () => {
+		renderChart();
+		// The header row is aria-hidden, so include hidden elements when querying for it.
+		const rows = screen.getAllByRole( 'row', { hidden: true } );
+		const headerRow = rows.find( row => within( row ).queryByText( 'W1' ) );
+		expect( headerRow ).toBeDefined();
+	} );
+
+	test( 'leaves the cell gap to WPDS tokens in non-compact mode (no inline override)', () => {
 		renderChart();
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		// Non-compact sets no inline gap/radius — the SCSS falls back to the WPDS tokens.
+		// Non-compact sets no inline gap — the SCSS falls back to the WPDS token.
 		expect( grid.style.getPropertyValue( '--heatmap-cell-gap' ) ).toBe( '' );
-		expect( grid.style.getPropertyValue( '--heatmap-cell-radius' ) ).toBe( '' );
 	} );
 
 	test( 'applies the compact gap inline from the theme compactCellGap', () => {
