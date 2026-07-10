@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: playlist block track swaps now validate embed URLs against the trusted VideoPress origins before loading them into the player iframe.

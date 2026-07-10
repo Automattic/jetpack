@@ -22,20 +22,32 @@ type PlaylistConfig = {
 };
 
 /**
- * Return the embed URL with autoplay switched on, so swapping a track starts
+ * Validate an embed URL and switch autoplay on, so swapping a track starts
  * playback immediately instead of waiting for another click.
  *
- * @param {string} embedUrl - The server-rendered embed URL.
- * @return {string} The embed URL with autoPlay=1.
+ * The server only ever emits videopress.com embed URLs (get_embed_url), but
+ * the JSON config travels through the DOM, which is a trust boundary:
+ * anything able to inject markup ahead of this script could plant a
+ * `javascript:` URL that assigning to iframe.src would execute. The same
+ * allowlist that gates the player's postMessage events gates where the
+ * iframe may go, and only the re-serialized parse ever reaches the sink —
+ * an unparseable or off-origin URL yields null, never a raw passthrough.
+ *
+ * @param {string} embedUrl - The embed URL from the block config.
+ * @return {string|null} The trusted embed URL with autoPlay=1, or null.
  */
-function withAutoplay( embedUrl: string ): string {
+function trustedAutoplayEmbedUrl( embedUrl: string ): string | null {
+	let url: URL;
 	try {
-		const url = new URL( embedUrl );
-		url.searchParams.set( 'autoPlay', '1' );
-		return url.toString();
+		url = new URL( embedUrl );
 	} catch {
-		return embedUrl;
+		return null;
 	}
+	if ( ! isAllowedOrigin( url.origin ) ) {
+		return null;
+	}
+	url.searchParams.set( 'autoPlay', '1' );
+	return url.toString();
 }
 
 /**
@@ -97,6 +109,14 @@ function initPlaylistBlock( blockElement: HTMLElement ): void {
 		if ( ! video ) {
 			return;
 		}
+		// The untrusted-URL skip guards the sink below, and deliberately does
+		// NOT filter config.videos up front: track buttons line up with the
+		// videos array by index, so dropping entries would swap the wrong
+		// tracks for every video after the dropped one.
+		const embedUrl = trustedAutoplayEmbedUrl( video.embedUrl );
+		if ( embedUrl === null ) {
+			return;
+		}
 		activeIndex = index;
 
 		/*
@@ -105,7 +125,7 @@ function initPlaylistBlock( blockElement: HTMLElement ): void {
 		 * per swap, hijacking the visitor's back button.
 		 */
 		const nextIframe = iframe.cloneNode( false ) as HTMLIFrameElement;
-		nextIframe.src = withAutoplay( video.embedUrl );
+		nextIframe.src = embedUrl;
 		if ( video.title ) {
 			nextIframe.title = video.title;
 			nextIframe.setAttribute( 'aria-label', video.title );

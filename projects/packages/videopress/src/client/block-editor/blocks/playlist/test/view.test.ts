@@ -198,6 +198,46 @@ describe( 'playlist block view', () => {
 		expect( screen.getAllByRole( 'button' )[ 0 ] ).toHaveAttribute( 'aria-current', 'true' );
 	} );
 
+	it( 'does not swap the player to embed URLs off the trusted VideoPress origins', () => {
+		// The config JSON travels through the DOM, so a poisoned entry must
+		// never reach iframe.src — a javascript: URL there is script execution.
+		renderPlaylist( {
+			videos: [
+				videoA,
+				{ guid: 'guidevil', embedUrl: 'javascript:alert(1)', title: 'Evil video' },
+				videoC,
+			],
+		} );
+
+		const buttons = screen.getAllByRole( 'button' );
+		buttons[ 1 ].click();
+
+		// The swap is skipped wholesale: player and selection stay put.
+		expect( getPlayerIframe( 'First video' ) ).toBeInTheDocument();
+		expect( buttons[ 0 ] ).toHaveAttribute( 'aria-current', 'true' );
+		expect( buttons[ 1 ] ).not.toHaveAttribute( 'aria-current' );
+
+		// Later tracks keep their button↔video index alignment — the guard
+		// skips the entry rather than filtering it out of the array.
+		buttons[ 2 ].click();
+		expect( getPlayerIframe( 'Third video' ) ).toBeInTheDocument();
+		expect( buttons[ 2 ] ).toHaveAttribute( 'aria-current', 'true' );
+	} );
+
+	it( 'does not swap the player to embed URLs on unlisted https origins', () => {
+		renderPlaylist( {
+			videos: [
+				videoA,
+				{ guid: 'guidbbb2', embedUrl: 'https://evil.com/embed/guidbbb2', title: 'Second video' },
+			],
+		} );
+
+		screen.getAllByRole( 'button' )[ 1 ].click();
+
+		expect( getPlayerIframe( 'First video' ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'button' )[ 0 ] ).toHaveAttribute( 'aria-current', 'true' );
+	} );
+
 	it( 'ignores other player events from the active player', () => {
 		renderPlaylist();
 
