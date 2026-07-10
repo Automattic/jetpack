@@ -4,7 +4,6 @@ import {
 	Card,
 	CardBody,
 	Notice,
-	VisuallyHidden,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -17,6 +16,7 @@ import { useEntityRecord } from '@wordpress/core-data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
 import ConfettiAnimation from './confetti';
@@ -50,7 +50,7 @@ const StateBadge = ( { state }: { state: PodcastShowState } ) => {
 	const label = state === 'active' ? SUBMITTED_LABEL : PENDING_LABEL;
 	return (
 		<span className={ `podcast__state-badge podcast__state-badge--${ state }` }>
-			<VisuallyHidden as="span">{ __( 'Status:', 'jetpack-podcast' ) } </VisuallyHidden>
+			<VisuallyHidden render={ <span>{ __( 'Status:', 'jetpack-podcast' ) } </span> } />
 			{ label }
 		</span>
 	);

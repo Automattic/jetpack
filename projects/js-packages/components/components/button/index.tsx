@@ -1,6 +1,7 @@
-import { Button as WPButton, Spinner, VisuallyHidden } from '@wordpress/components';
+import { Button as WPButton, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { forwardRef } from 'react';
 import styles from './style.module.scss';
@@ -44,12 +45,16 @@ const Button = forwardRef< HTMLElement, ButtonProps >( ( props, ref ) => {
 	const externalIcon = isExternalLink && (
 		<>
 			<Icon size={ externalIconSize } icon={ external } className={ styles[ 'external-icon' ] } />
-			<VisuallyHidden as="span">
-				{
-					/* translators: accessibility text */
-					__( '(opens in a new tab)', 'jetpack-components' )
+			<VisuallyHidden
+				render={
+					<span>
+						{
+							/* translators: accessibility text */
+							__( '(opens in a new tab)', 'jetpack-components' )
+						}
+					</span>
 				}
-			</VisuallyHidden>
+			/>
 		</>
 	);
 	const externalTarget = isExternalLink ? '_blank' : undefined;

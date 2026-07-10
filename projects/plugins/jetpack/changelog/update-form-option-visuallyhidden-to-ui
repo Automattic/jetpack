@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comment: Newsletter: migrate VisuallyHidden from @wordpress/components to @wordpress/ui in memberships settings.

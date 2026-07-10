@@ -1,5 +1,5 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
+import { __experimentalGrid as Grid } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
@@ -388,11 +388,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												<Text
 													className={ clsx( styles.deltaValue, styles.deltaPlaceholder ) }
 													style={ { color: deltaColor } }
+													aria-label={ __( 'No comparison data', 'jetpack-charts' ) }
 												>
-													<span aria-hidden="true">-</span>
-													<VisuallyHidden as="span">
-														{ __( 'No comparison data', 'jetpack-charts' ) }
-													</VisuallyHidden>
+													-
 												</Text>
 											) }
 										</Stack>

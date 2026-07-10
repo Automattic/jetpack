@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { VisuallyHidden } from '@wordpress/ui';
 import { useState, useEffect, useRef } from 'react';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 import { computeSliderValuePosition } from './utils.js';
@@ -86,9 +86,13 @@ export default function SliderInputEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div className="jetpack-field-slider__input-row">
-				<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-min` }>
-					{ __( 'Slider minimum value', 'jetpack-forms' ) }
-				</VisuallyHidden>
+				<VisuallyHidden
+					render={
+						<label htmlFor={ `${ clientId }-slider-min` }>
+							{ __( 'Slider minimum value', 'jetpack-forms' ) }
+						</label>
+					}
+				/>
 				<input
 					id={ `${ clientId }-slider-min` }
 					type="number"
@@ -108,9 +112,13 @@ export default function SliderInputEdit( props ) {
 					onKeyDown={ onKeyDown }
 				/>
 				<div className="jetpack-field-slider__input-container">
-					<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-default` }>
-						{ __( 'Slider default value', 'jetpack-forms' ) }
-					</VisuallyHidden>
+					<VisuallyHidden
+						render={
+							<label htmlFor={ `${ clientId }-slider-default` }>
+								{ __( 'Slider default value', 'jetpack-forms' ) }
+							</label>
+						}
+					/>
 					<input
 						id={ `${ clientId }-slider-default` }
 						type="range"
@@ -129,9 +137,13 @@ export default function SliderInputEdit( props ) {
 						{ defaultFromContext }
 					</div>
 				</div>
-				<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-max` }>
-					{ __( 'Slider maximum value', 'jetpack-forms' ) }
-				</VisuallyHidden>
+				<VisuallyHidden
+					render={
+						<label htmlFor={ `${ clientId }-slider-max` }>
+							{ __( 'Slider maximum value', 'jetpack-forms' ) }
+						</label>
+					}
+				/>
 				<input
 					id={ `${ clientId }-slider-max` }
 					type="number"

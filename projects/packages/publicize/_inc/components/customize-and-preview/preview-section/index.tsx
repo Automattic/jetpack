@@ -1,6 +1,7 @@
-import { Icon, VisuallyHidden } from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
 import { PostPreview } from './post-preview';
@@ -63,9 +64,13 @@ function EnabledPreview( { connection }: PreviewSectionProps ) {
 
 	return (
 		<>
-			<VisuallyHidden as="h2">
-				{ _x( 'Preview', 'Noun: Post preview section heading', 'jetpack-publicize-pkg' ) }
-			</VisuallyHidden>
+			<VisuallyHidden
+				render={
+					<h2>
+						{ _x( 'Preview', 'Noun: Post preview section heading', 'jetpack-publicize-pkg' ) }
+					</h2>
+				}
+			/>
 			<div className={ styles[ 'preview-wrapper' ] } aria-busy={ previewData.isLoading }>
 				{ previewData.isLoading ? (
 					<PreviewSkeleton />

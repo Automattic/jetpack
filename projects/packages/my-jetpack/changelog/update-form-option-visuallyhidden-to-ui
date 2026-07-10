@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: My Jetpack: migrate VisuallyHidden from @wordpress/components to @wordpress/ui in connection screen.

@@ -1,6 +1,6 @@
-import { VisuallyHidden } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { VisuallyHidden } from '@wordpress/ui';
 import { Connection } from '../../../social-store/types';
 import { hasSocialPaidFeatures } from '../../../utils';
 import { MediaValidationNotices } from '../../form/media-validation-notices';
