@@ -441,6 +441,49 @@ function wpcom_register_default_launchpad_checklists() {
 add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
 
 /**
+ * Clears the site intent for a retired onboarding flow.
+ *
+ * A retired flow no longer accepts new sites, so the sites left on one sit in
+ * an onboarding they can never be guided through. Clearing the intent returns
+ * them to the same state as a site that never picked one: no Launchpad, and no
+ * onboarding email campaign.
+ *
+ * Writes once per site, since the intent stops matching afterwards. Delete this
+ * once no site carries one of these values.
+ */
+function wpcom_launchpad_clear_retired_site_intents() {
+	$retired_site_intents = array( 'start-writing' );
+
+	if ( ! in_array( get_option( 'site_intent' ), $retired_site_intents, true ) ) {
+		return;
+	}
+
+	update_option( 'site_intent', '' );
+	update_option( 'launchpad_screen', 'off' );
+}
+
+/**
+ * Clears the retired site intent once the target site's options are readable.
+ *
+ * On `public-api.wordpress.com`, `init` fires before the request switches to
+ * the blog, so reading `site_intent` there would read the wrong site.
+ *
+ * Runs ahead of the checklist registration, on both paths, so that the active
+ * task listeners are never registered for an intent that is about to be gone.
+ *
+ * @return void
+ */
+function wpcom_launchpad_clear_retired_site_intents_on_correct_action() {
+	if ( wp_parse_url( home_url(), PHP_URL_HOST ) === 'public-api.wordpress.com' ) {
+		add_action( 'rest_api_switched_to_blog', 'wpcom_launchpad_clear_retired_site_intents' );
+		return;
+	}
+
+	wpcom_launchpad_clear_retired_site_intents();
+}
+add_action( 'init', 'wpcom_launchpad_clear_retired_site_intents_on_correct_action', 10 );
+
+/**
  * Adds hooks to the correct action to add active task listeners.
  * Handles REST API requests vs non-REST API requests.
  *
