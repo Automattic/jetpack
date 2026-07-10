@@ -1,6 +1,3 @@
-/* The wrapper is the query container; the grid and tiles respond to its
- * rendered width, so the layout tracks the widget cell, not the viewport. */
-
 /* A size (not inline-size) container so the tile layout can respond to the
  * cell's height as well as its width. Size containment means the grid takes
  * its height from the widget cell, never from its own content — in a parent
