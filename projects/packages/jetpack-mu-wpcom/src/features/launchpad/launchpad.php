@@ -428,6 +428,20 @@ function wpcom_register_default_launchpad_checklists() {
 add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
 
 /**
+ * The site intents of retired onboarding flows.
+ *
+ * These no longer have a checklist, but sites created under them still carry
+ * the value, and clients still pass it to the launchpad endpoint as a checklist
+ * slug. The endpoint keeps accepting these so such a request degrades to an
+ * empty checklist rather than a 400. Empty this list once no site carries one.
+ *
+ * @return string[] Retired site intents.
+ */
+function wpcom_launchpad_get_retired_site_intents() {
+	return array( 'start-writing' );
+}
+
+/**
  * Clears the site intent for a retired onboarding flow.
  *
  * A retired flow no longer accepts new sites, so the sites left on one sit in
@@ -439,9 +453,7 @@ add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
  * once no site carries one of these values.
  */
 function wpcom_launchpad_clear_retired_site_intents() {
-	$retired_site_intents = array( 'start-writing' );
-
-	if ( ! in_array( get_option( 'site_intent' ), $retired_site_intents, true ) ) {
+	if ( ! in_array( get_option( 'site_intent' ), wpcom_launchpad_get_retired_site_intents(), true ) ) {
 		return;
 	}
 

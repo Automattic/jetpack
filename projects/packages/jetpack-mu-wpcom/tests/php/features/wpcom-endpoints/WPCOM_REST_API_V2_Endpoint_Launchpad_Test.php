@@ -73,6 +73,21 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * A retired flow slug has no checklist, but clients still pass it explicitly
+	 * from stale site options. It must degrade to an empty checklist, not a 400.
+	 */
+	public function test_get_data_accepts_retired_checklist_slug() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/launchpad' );
+		$request->set_param( 'checklist_slug', 'start-writing' );
+		$result = rest_do_request( $request );
+
+		$this->assertEquals( 200, $result->get_status() );
+		$this->assertSame( array(), $result->get_data()['checklist'] );
+	}
+
+	/**
 	 * Test can_access.
 	 */
 	public function test_can_access() {

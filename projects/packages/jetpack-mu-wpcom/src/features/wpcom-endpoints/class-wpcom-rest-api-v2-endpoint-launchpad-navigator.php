@@ -80,7 +80,11 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 	 */
 	public function get_checklist_slug_enums() {
 		$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
-		return array_keys( $checklists );
+		// Retired flow slugs are still accepted so a stale client request degrades
+		// to an empty checklist rather than a 400.
+		return array_values(
+			array_unique( array_merge( array_keys( $checklists ), wpcom_launchpad_get_retired_site_intents() ) )
+		);
 	}
 
 	/**
