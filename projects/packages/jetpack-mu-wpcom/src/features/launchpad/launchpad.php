@@ -151,19 +151,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'start-writing'           => array(
-			'get_title'           => function () {
-				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
-			},
-			'task_ids'            => array(
-				'first_post_published',
-				'setup_blog',
-				'domain_upsell',
-				'plan_completed',
-				'blog_launched',
-			),
-			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
-		),
 		'design-first'            => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );

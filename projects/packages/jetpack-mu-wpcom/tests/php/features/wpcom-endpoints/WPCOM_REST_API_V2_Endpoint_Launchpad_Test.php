@@ -410,7 +410,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		update_option( 'site_goals', $site_goals );
 
 		$data = array(
-			'checklist_slug'             => 'start-writing', // This should get ignored, due to the use_goals flag.
+			'checklist_slug'             => 'design-first', // This should get ignored, due to the use_goals flag.
 			'launchpad_context'          => 'customer-home',
 			'use_goals'                  => true,
 			'enable_checklist_for_goals' => $enable_checklist_for_goals,
