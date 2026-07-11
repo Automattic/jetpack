@@ -116,7 +116,10 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
  * @return {boolean} True when the external Photon domain should be skipped.
  */
 export function skipPhotonDomain() {
-	return true === select( 'core/block-editor' )?.getSettings()?.skip_photon_domain;
+	// The value is injected via the `block_editor_settings_all` PHP filter, which surfaces on the
+	// `core/editor` editor settings. Note it does NOT propagate into `core/block-editor`'s
+	// getSettings() — that store only forwards a fixed allowlist of keys, so custom keys are dropped.
+	return true === select( 'core/editor' )?.getEditorSettings?.()?.skip_photon_domain;
 }
 
 /**
