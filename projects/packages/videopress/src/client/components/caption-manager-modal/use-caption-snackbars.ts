@@ -14,7 +14,7 @@ export type CaptionSnackbar = {
  * Snackbar component after its timeout. Success confirmations and async/API
  * failures announce here; form-validation errors stay inline instead.
  *
- * @return The snackbar list plus its add and remove callbacks.
+ * @return The snackbar list plus its add, remove, and clear callbacks.
  */
 export function useCaptionSnackbars() {
 	const [ snackbars, setSnackbars ] = useState< CaptionSnackbar[] >( [] );
@@ -31,5 +31,9 @@ export function useCaptionSnackbars() {
 		setSnackbars( current => current.filter( snackbar => snackbar.id !== id ) );
 	}, [] );
 
-	return { snackbars, notify, removeSnackbar };
+	// Drop every bubble at once. The modal stays mounted while closed, so
+	// undismissed snackbars would otherwise reappear on the next open.
+	const clearSnackbars = useCallback( () => setSnackbars( [] ), [] );
+
+	return { snackbars, notify, removeSnackbar, clearSnackbars };
 }

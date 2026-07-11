@@ -155,7 +155,7 @@ function CaptionManagerModalInner( {
 	// Sticky, inline error for form-validation the current action can't proceed past.
 	const [ validationNotice, setValidationNotice ] = useState< string | null >( null );
 	// Transient snackbars for outcomes and async failures; see use-caption-snackbars.ts.
-	const { snackbars, notify, removeSnackbar } = useCaptionSnackbars();
+	const { snackbars, notify, removeSnackbar, clearSnackbars } = useCaptionSnackbars();
 	const [ confirmation, setConfirmation ] = useState< ConfirmationState | null >( null );
 	// Whether the manual editor holds unsaved track edits; reported by the
 	// editor on transitions and reset with each new workspace instance.
@@ -235,8 +235,9 @@ function CaptionManagerModalInner( {
 		if ( isOpen ) {
 			resetToTrackList();
 			setConfirmation( null );
+			clearSnackbars();
 		}
-	}, [ isOpen, resetToTrackList ] );
+	}, [ isOpen, resetToTrackList, clearSnackbars ] );
 
 	/*
 	 * The discard confirmation only guards in-modal navigation; this guards the
