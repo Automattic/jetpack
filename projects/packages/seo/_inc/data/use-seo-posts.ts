@@ -103,10 +103,10 @@ const QUERY = {
  */
 export default function useSeoPosts(): UseSeoPostsReturn {
 	const contentData = getPreloaded< ContentData >( CONTENT_PATH );
-	const postTypes = contentData?.post_types ?? [];
 
 	return useSelect(
 		select => {
+			const postTypes = contentData?.post_types ?? [];
 			const core = select( coreStore );
 			let recordsResolved = true;
 			const records: SeoPostRecord[] = [];
@@ -131,6 +131,6 @@ export default function useSeoPosts(): UseSeoPostsReturn {
 				isLoading: ! contentData || ! recordsResolved,
 			};
 		},
-		[ contentData, postTypes ]
+		[ contentData ]
 	);
 }
