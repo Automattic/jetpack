@@ -6,8 +6,8 @@ import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premiu
 
 /**
  * Shared helpers for widgets built on the Stats `video-plays` report
- * (`jpa/videos`, `jpa/videopress`). Each widget keeps its own row builder;
- * these cover the report-shape concerns they have in common.
+ * (`jpa/videopress`). Widgets keep their own row builders; these cover the
+ * report-shape concerns they have in common.
  */
 
 /**

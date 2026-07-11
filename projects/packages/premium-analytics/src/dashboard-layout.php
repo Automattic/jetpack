@@ -393,8 +393,8 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-videos-widget-instance',
-				'jpa/videos',
+				'default-videopress-widget-instance',
+				'jpa/videopress',
 				5,
 				1,
 				2,
