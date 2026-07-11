@@ -1072,7 +1072,16 @@ function wpcom_launchpad_get_active_checklist() {
 		return null;
 	}
 
-	return $wpcom_launchpad_config['active_checklist_slug'];
+	$active_checklist_slug = $wpcom_launchpad_config['active_checklist_slug'];
+
+	// A retired checklist can linger here from before it was unregistered. Treat it
+	// as unset, matching how the available list drops unregistered slugs and how the
+	// setter refuses them, so the Navigator never reports a checklist that is gone.
+	if ( ! array_key_exists( $active_checklist_slug, wpcom_launchpad_checklists()->get_all_task_lists() ) ) {
+		return null;
+	}
+
+	return $active_checklist_slug;
 }
 
 /**

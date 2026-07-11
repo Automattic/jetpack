@@ -208,4 +208,37 @@ class Launchpad_Retired_Site_Intents_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'design-first', get_option( 'site_intent' ), 'the switched-to blog must survive' );
 		$this->assertSame( 'full', get_option( 'launchpad_screen' ), 'the switched-to blog must survive' );
 	}
+
+	/**
+	 * A Navigator config left pointing at a retired checklist reports no active
+	 * checklist, rather than one that no longer exists. This can outlive the
+	 * intent cleanup, so it must not depend on `site_intent` still matching.
+	 */
+	public function test_retired_active_checklist_slug_reads_as_none() {
+		wpcom_register_default_launchpad_checklists();
+		// Cleared already, to prove the repair does not depend on the intent still matching.
+		update_option( 'site_intent', '' );
+		update_option(
+			'wpcom_launchpad_config',
+			array(
+				'active_checklist_slug' => 'start-writing',
+				'navigator_checklists'  => array( 'start-writing', 'design-first' ),
+			)
+		);
+
+		$this->assertNull( wpcom_launchpad_get_active_checklist(), 'retired active slug must read as none' );
+	}
+
+	/**
+	 * A live active checklist is still reported.
+	 */
+	public function test_live_active_checklist_slug_is_reported() {
+		wpcom_register_default_launchpad_checklists();
+		update_option(
+			'wpcom_launchpad_config',
+			array( 'active_checklist_slug' => 'design-first' )
+		);
+
+		$this->assertSame( 'design-first', wpcom_launchpad_get_active_checklist() );
+	}
 }
