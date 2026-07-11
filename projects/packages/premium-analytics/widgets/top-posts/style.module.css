@@ -32,16 +32,3 @@
 .labelLink:focus {
 	text-decoration: underline;
 }
-
-.footer {
-	flex: 0 0 auto;
-	border-block-start:
-		var(--wpds-border-width-xs, 1px) solid
-		var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
-	padding-block-start: var(--wpds-dimension-padding-md, 12px);
-}
-
-.reportLink {
-	color: var(--wpds-color-foreground-interactive-brand, #3858e9);
-	font-weight: 500;
-}

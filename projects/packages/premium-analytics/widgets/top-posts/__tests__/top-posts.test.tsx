@@ -119,41 +119,13 @@ describe( 'TopPostsWidget', () => {
 		expect( requestedPath ).toContain( 'date=2026-03-10' );
 	} );
 
-	it( 'links to the Posts & Pages report with the current date and comparison params', () => {
-		render(
-			<TopPostsWidget
-				attributes={ {
-					num: 10,
-					reportParams: {
-						from: '2026-03-01',
-						to: '2026-03-10',
-						interval: 'day',
-						period: 'week',
-						date_type: 'created',
-						comp: '1',
-						compare_from: '2026-02-01',
-						compare_to: '2026-02-10',
-						compare_preset: 'previous-period',
-					},
-				} }
-			/>
+	it( 'links to the Posts & Pages report', () => {
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+
+		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/posts' )
 		);
-
-		const reportLink = screen.getByRole( 'link', { name: 'See report' } );
-		const href = reportLink.getAttribute( 'href' ) ?? '';
-		const params = new URLSearchParams( href.split( '?' )[ 1 ] );
-
-		expect( href ).toContain( '/reports/posts?' );
-		expect( params.get( 'from' ) ).toBe( '2026-03-01' );
-		expect( params.get( 'to' ) ).toBe( '2026-03-10' );
-		expect( params.get( 'interval' ) ).toBe( 'day' );
-		expect( params.get( 'period' ) ).toBe( 'week' );
-		expect( params.get( 'date_type' ) ).toBe( 'created' );
-		expect( params.get( 'comp' ) ).toBe( '1' );
-		expect( params.get( 'compare_from' ) ).toBe( '2026-02-01' );
-		expect( params.get( 'compare_to' ) ).toBe( '2026-02-10' );
-		expect( params.get( 'compare_preset' ) ).toBe( 'previous-period' );
-		expect( params.get( 'section' ) ).toBe( 'posts-pages' );
 	} );
 
 	it( 'requests the comparison window and aligns previous views by post URL', async () => {

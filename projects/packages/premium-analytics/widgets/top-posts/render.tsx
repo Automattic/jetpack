@@ -3,11 +3,12 @@
  */
 import {
 	useStatsTopPosts,
-	type ReportParams,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
@@ -18,7 +19,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link as RouteLink } from '@wordpress/route';
 import { Link as ExternalLink, Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
@@ -64,24 +64,6 @@ type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldA
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
-
-type PostsReportSearch = Partial<
-	Pick<
-		ReportParams,
-		| 'from'
-		| 'to'
-		| 'interval'
-		| 'preset'
-		| 'period'
-		| 'date_type'
-		| 'comp'
-		| 'compare_from'
-		| 'compare_to'
-		| 'compare_preset'
-	>
-> & {
-	section: 'posts-pages';
-};
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -226,43 +208,6 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 }
 
 /**
- * Build the route search for the full Posts & Pages report, carrying the
- * current dashboard date and comparison params while selecting the report tab
- * that matches this widget's data.
- *
- * @param reportParams - Normalized widget report params from WidgetRoot.
- * @return Search params for the `/reports/$report` route.
- */
-function buildPostsReportSearch( reportParams: ReportParams ): PostsReportSearch {
-	const {
-		from,
-		to,
-		interval,
-		preset,
-		period,
-		date_type,
-		comp,
-		compare_from,
-		compare_to,
-		compare_preset,
-	} = reportParams;
-
-	return {
-		from,
-		to,
-		interval,
-		...( preset ? { preset } : {} ),
-		...( period ? { period } : {} ),
-		...( date_type ? { date_type } : {} ),
-		...( comp ? { comp } : {} ),
-		...( compare_from ? { compare_from } : {} ),
-		...( compare_to ? { compare_to } : {} ),
-		...( compare_preset ? { compare_preset } : {} ),
-		section: 'posts-pages',
-	};
-}
-
-/**
  * Fetches the top-posts report through the designated `useStatsTopPosts` Stats
  * traffic hook and hands the normalized rows to the presentational
  * `TopPostsLeaderboard`. The date range and comparison period come from the
@@ -294,7 +239,6 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	const withComparison = hasComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-	const reportSearch = useMemo( () => buildPostsReportSearch( reportParams ), [ reportParams ] );
 
 	return (
 		<div className={ styles.root }>
@@ -308,16 +252,9 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 					legendLabels={ legendLabels }
 				/>
 			</div>
-			<div className={ styles.footer }>
-				<RouteLink
-					to="/reports/$report"
-					params={ { report: 'posts' } as unknown as never }
-					search={ reportSearch as unknown as never }
-					className={ styles.reportLink }
-				>
-					{ __( 'See report', 'jetpack-premium-analytics' ) }
-				</RouteLink>
-			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="posts-pages" />
+			</WidgetFooter>
 		</div>
 	);
 }
