@@ -1,0 +1,251 @@
+import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
+import * as HeatmapStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Heatmap Chart" of={ HeatmapStories } />
+
+# Heatmap Chart
+
+Visualize values across a two-dimensional matrix of cells on a sequential color scale. Cells transition from a light tint to the full primary color based on relative value, with `null` cells rendered in a neutral empty-cell color.
+
+<Canvas of={ HeatmapStories.Default } />
+
+## Overview
+
+The Heatmap Chart renders a CSS Grid of colored cells where color intensity maps to cell value. Shading is done with CSS `color-mix` against the resolved primary color, so the scale adapts to the chart background. It is suitable for activity matrices, time-based frequency data, and any dataset with two categorical axes.
+
+<Source
+	language="jsx"
+	code={ `import { HeatmapChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
+
+	<HeatmapChart
+		data={ columns }
+		rowLabels={ [ 'Mon', '', 'Wed', '', 'Fri', '', '' ] }
+		withTooltips={ true }
+	/>` }
+/>
+
+## API Reference
+
+For detailed information about component props, types, and utility functions, see the [Heatmap Chart API Reference](./?path=/docs/js-packages-charts-library-charts-heatmap-chart-api-reference--docs).
+
+## Basic Usage
+
+### Default Matrix
+
+The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, each containing an optional column `label` and a `data` array of `HeatmapCell` objects:
+
+<Source
+	language="jsx"
+	code={ `const columns = [
+	{
+		label: 'Q1',
+		data: [
+			{ label: 'Mon', value: 3 },
+			{ label: 'Tue', value: null },
+			{ label: 'Wed', value: 5 },
+		],
+	},
+	{
+		label: '',
+		data: [
+			{ label: 'Mon', value: 1 },
+			{ label: 'Tue', value: 4 },
+			{ label: 'Wed', value: 2 },
+		],
+	},
+];
+
+	<HeatmapChart
+		data={ columns }
+		rowLabels={ [ 'Mon', '', 'Wed' ] }
+		withTooltips={ true }
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: `HeatmapColumn[]` — array of columns, each with optional `label` and a `data` array of cells
+
+### Optional Props
+
+- **`rowLabels`**: y-axis labels by row index. Empty entries render blank.
+- **`withTooltips`** (default: `false`): show a tooltip on cell hover
+- **`compact`** (default: `false`): tighten spacing and suppress in-cell values for compact widgets
+- **`showValues`** (default: `!compact`): render the numeric value inside each cell (compact notation for large numbers; the tooltip keeps full precision)
+- **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > palette `colors[0]`)
+- **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
+- **`gap`** (default: `'md'`): gap between chart layout regions (chart area, legend, children)
+- **`chartId`**: custom identifier for accessibility labelling
+- **`className`**: additional CSS class for the outer element
+- **`children`**: composition children (e.g. `<HeatmapChart.Legend />`)
+
+## Compact Mode
+
+Use `compact` for narrow widgets or dashboards where vertical space is limited. The chart renders fixed-size square cells (the theme's `heatmapChart.compactCellSize`, default 11px), tightens cell gaps, hides in-cell values, and thins axis labels.
+
+<Canvas of={ HeatmapStories.Compact } />
+
+<Source
+	language="jsx"
+	code={ `<HeatmapChart
+		data={ columns }
+		rowLabels={ rowLabels }
+		compact={ true }
+	/>` }
+/>
+
+## Large Values
+
+In-cell values use compact notation (e.g. `748.5K`, `1.2M`) so large numbers fit the cell. The tooltip and each cell's accessible label keep the full, precise value.
+
+<Canvas of={ HeatmapStories.LargeValues } />
+
+## Calendar Layout
+
+Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into the column/row structure expected by the chart. This produces the GitHub-style contribution graph layout.
+
+<Canvas of={ HeatmapStories.Calendar } />
+
+<Source
+	language="jsx"
+	code={ `import { HeatmapChart, buildCalendarHeatmapData } from '@automattic/charts';
+
+	const series = [
+		{ date: new Date( '2024-01-01' ), value: 3 },
+		{ date: new Date( '2024-01-02' ), value: 0 },
+		// ...
+	];
+
+	function CalendarHeatmap() {
+		const { data, rowLabels } = buildCalendarHeatmapData( series );
+		return (
+			<HeatmapChart
+				data={ data }
+				rowLabels={ rowLabels }
+				withTooltips={ true }
+			/>
+		);
+	}` }
+/>
+
+`buildCalendarHeatmapData` accepts an optional `options` object:
+
+- **`weekStartsOn`** (`0 | 1`, default `1`): `0` = Sunday, `1` = Monday
+
+## Fixed Dimensions
+
+Pass `width` and `height` to bypass the responsive wrapper and render at an exact pixel size:
+
+<Canvas of={ HeatmapStories.FixedDimensions } />
+
+<Source
+	language="jsx"
+	code={ `<HeatmapChart
+		data={ columns }
+		rowLabels={ rowLabels }
+		width={ 720 }
+		height={ 220 }
+	/>` }
+/>
+
+## Composition API — Legend
+
+Add a legend by placing `<HeatmapChart.Legend />` as a child. The legend renders a gradient scale from the lightest to the fullest shade, labelled with the value range.
+
+<Canvas of={ HeatmapStories.WithCompositionLegend } />
+
+<Source
+	language="jsx"
+	code={ `<HeatmapChart data={ columns } rowLabels={ rowLabels } chartId="my-heatmap">
+		<HeatmapChart.Legend />
+	</HeatmapChart>` }
+/>
+
+## Error / Empty State
+
+When `data` is empty the chart renders a "No data available" placeholder:
+
+<Canvas of={ HeatmapStories.ErrorStates } />
+
+## Tooltips
+
+Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard navigation (the arrow-selected cell shows its tooltip, like bar and line charts). The default tooltip shows the cell label and the value, formatted with `@automattic/number-formatters`. Supply `renderTooltip` to customize:
+
+<Source
+	language="jsx"
+	code={ `<HeatmapChart
+		data={ columns }
+		rowLabels={ rowLabels }
+		withTooltips={ true }
+		renderTooltip={ ( { cellLabel, value, rowLabel, columnLabel } ) => (
+			<div>
+				<strong>{ cellLabel ?? \`\${ columnLabel } \${ rowLabel }\` }</strong>
+				<div>{ value === null ? 'No data' : value }</div>
+			</div>
+		) }
+	/>` }
+/>
+
+## Theming
+
+The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then `heatmapChart.primaryColor` from the active theme, then the first palette color (`colors[0]`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, HeatmapChart, type ChartTheme } from '@automattic/charts';
+
+	// Per-instance:
+	<HeatmapChart data={ columns } rowLabels={ rowLabels } primaryColor="#c0392b" />
+
+	// Or via the theme:
+	const customTheme: ChartTheme = {
+		heatmapChart: { primaryColor: '#c0392b' },
+	};
+
+	<GlobalChartsProvider theme={ customTheme }>
+		<HeatmapChart data={ columns } rowLabels={ rowLabels } />
+	</GlobalChartsProvider>` }
+/>
+
+Everything else — the cell gap, corner radius, in-cell value size, the empty-cell color and the selection ring — comes straight from WordPress design system tokens (`--wpds-*`) in CSS, so it tracks the active design system theme automatically. There are no per-instance props for these. The `heatmapChart` theme section exposes just the scale color (`primaryColor`, above) and the compact sizing (`compactCellSize`, `compactCellGap`):
+
+<Source
+	language="tsx"
+	code={ `<GlobalChartsProvider theme={ { heatmapChart: { compactCellSize: 14, compactCellGap: 3 } } }>
+		<HeatmapChart data={ columns } rowLabels={ rowLabels } compact />
+	</GlobalChartsProvider>` }
+/>
+
+## Responsive Behavior
+
+By default the chart fills its parent container's dimensions, reflowing fluidly as the container resizes. Give it a height in one of three ways: an explicit height on the parent, an `aspectRatio` to derive the height from the available width, or fixed `width`/`height` props. Without one of these the chart has no height to fill and collapses, so always constrain it:
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container — parent needs explicit height
+<div style={{ width: '100%', height: '200px' }}>
+	<HeatmapChart data={ columns } rowLabels={ rowLabels } />
+</div>
+
+	// Derive height from width via aspectRatio (height = width × 0.4)
+	<HeatmapChart data={ columns } rowLabels={ rowLabels } aspectRatio={ 0.4 } />
+
+	// Fixed dimensions
+	<HeatmapChart data={ columns } rowLabels={ rowLabels } width={ 720 } height={ 200 } />` }
+/>
+
+<Canvas of={ HeatmapStories.AspectRatio } />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
+## Accessibility
+
+The heatmap chart is designed for full keyboard and screen reader access:
+
+- The grid container is a `<div role="grid">` with a localised `aria-label`; each visual row is a `role="row"` and each cell a `role="gridcell"`.
+- Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
+- **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection.
+- Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.
+- **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale — with any primary color and against a themed (including dark) chart background.
+- The component does not use animations by default, and no `prefers-reduced-motion` opt-out is required.

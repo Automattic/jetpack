@@ -1,2 +1,9 @@
-// Placeholder entry — replaced in PR2 with the real module port.
-export {};
+/**
+ * Cookie Consent Module Entry Point
+ *
+ * This module handles GDPR cookie consent and CCPA opt-out functionality.
+ */
+
+import './view';
+import './logger';
+import './styles.scss';

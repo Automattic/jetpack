@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a missing script data asset in packaged Premium Analytics builds.

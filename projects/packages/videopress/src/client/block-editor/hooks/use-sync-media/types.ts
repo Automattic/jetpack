@@ -6,7 +6,7 @@ export type UseSyncMedia = {
 	forceInitialState: ( data: WPComV2VideopressPostMetaEndpointBodyProps ) => void;
 	videoData: VideoDataProps;
 	isRequestingVideoData: boolean;
-	error: object | null;
+	error: Error | null;
 	isOverwriteChapterAllowed: boolean;
 	isGeneratingPoster: boolean;
 	videoBelongToSite: boolean;

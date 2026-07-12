@@ -1,6 +1,6 @@
+import { store as jetpackModulesStore } from '@automattic/jetpack-shared-stores';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useCallback } from '@wordpress/element';
-import { JETPACK_MODULES_STORE_ID } from '../../modules-state';
 
 /**
  * @typedef {object} ModuleStatus
@@ -19,7 +19,7 @@ import { JETPACK_MODULES_STORE_ID } from '../../modules-state';
 const useModuleStatus = name => {
 	const { isModuleActive, isChangingStatus, isLoadingModules } = useSelect(
 		selectData => {
-			const data = selectData( JETPACK_MODULES_STORE_ID );
+			const data = selectData( jetpackModulesStore );
 			return {
 				isModuleActive: data.isModuleActive( name ),
 				isChangingStatus: data.isModuleUpdating( name ),
@@ -29,7 +29,7 @@ const useModuleStatus = name => {
 		[ name ]
 	);
 
-	const { updateJetpackModuleStatus } = useDispatch( JETPACK_MODULES_STORE_ID );
+	const { updateJetpackModuleStatus } = useDispatch( jetpackModulesStore );
 
 	const changeStatus = useCallback(
 		value =>

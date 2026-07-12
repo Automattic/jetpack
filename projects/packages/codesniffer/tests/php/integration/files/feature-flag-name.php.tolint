@@ -1,0 +1,31 @@
+<?php
+/**
+ * A dummy file to test the Jetpack.FeatureFlags.FeatureFlagName sniff.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// phpcs:disable WordPress, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+// Valid names: no errors.
+Feature_Flags::register( 'valid-flag' );
+Feature_Flags::register( 'valid_flag_2', array( 'default' => true ) );
+
+// Invalid literal names: flagged.
+Feature_Flags::register( 'Invalid Flag!' );
+Feature_Flags::register( '-bad-leading-dash' );
+
+// Dynamic name (not a literal): skipped.
+Feature_Flags::register( SOME_DYNAMIC_NAME );
+
+// Not the Feature_Flags class: skipped.
+Other_Class::register( 'Not Checked Here' );
+
+// Not a static call: skipped.
+$thing->register( 'Not Static Here!' );
+
+// Not a method call (class constant access): skipped.
+Feature_Flags::register;
+
+// No arguments: skipped.
+Feature_Flags::register();

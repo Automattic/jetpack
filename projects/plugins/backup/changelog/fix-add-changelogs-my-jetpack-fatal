@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.

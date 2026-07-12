@@ -131,7 +131,7 @@
 	padding-top: 12px;
 	border-top: 1px solid #f0f0f0;
 	font-size: 13px;
-	color: #2271b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	text-decoration: none;
 }
 
@@ -203,12 +203,12 @@
 }
 
 .bw-btn-publish {
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 }
 
 .bw-btn-publish:hover:not(:disabled) {
-	background: #1a5f99;
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 /* "More options" dropdown to the right of Publish/Update */
@@ -677,12 +677,12 @@
 }
 
 .bw-link-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 }
 
 .bw-link-apply {
 	border: none;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	border-radius: 6px;
 	padding: 6px 12px;
@@ -1138,14 +1138,14 @@
 /* ===== Custom caret ===== */
 .bw-content,
 .bw-title {
-	caret-color: #2171b1;
+	caret-color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* ===== Custom selection ===== */
 .bw-content ::selection,
 .bw-content::selection,
 .bw-title::selection {
-	background: rgba(33, 113, 177, 0.15);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 15%, transparent);
 	color: inherit;
 }
 
@@ -1153,17 +1153,21 @@
    Slightly stronger than ::selection to visually distinguish it
    as a "target" indicator rather than an active text selection. */
 ::highlight(bw-link-highlight) {
-	background-color: rgba(33, 113, 177, 0.25);
+	background-color: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 25%, transparent);
 	color: inherit;
 }
 
 /* Content area */
+.bw-content,
+.bw-content-inner {
+	outline: none;
+}
+
 .bw-content {
 	min-height: 60vh;
 	font-size: 1.125rem;
 	line-height: 1.8;
 	color: #333;
-	outline: none;
 	overflow-wrap: break-word;
 	word-break: normal;
 	text-wrap: stable;
@@ -1286,14 +1290,14 @@
 }
 
 .bw-content a {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 	transition: color 0.15s ease;
 }
 
 .bw-content a:hover {
-	color: #1a5f99;
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 .bw-content strong,
@@ -1516,7 +1520,7 @@
 }
 
 .bw-img-caption-btn:hover {
-	background: rgba(33, 113, 177, 0.85);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
 /* Edit (pencil) button — opens the image properties modal. Anchored to the
@@ -1558,7 +1562,7 @@
 }
 
 .bw-img-edit:hover {
-	background: rgba(33, 113, 177, 0.85);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
 /* Figcaption.
@@ -1636,6 +1640,14 @@
 }
 
 /* ===== Image modal ===== */
+
+/* Lock page scroll while the Add image modal is open so the editor doesn't
+ * slide under the dimmed backdrop. The non-modal Edit image panel doesn't
+ * set this class — the editor stays scrollable while editing an image. */
+body.bw-modal-open {
+	overflow: hidden;
+}
+
 .bw-image-overlay {
 	position: fixed;
 	inset: 0;
@@ -1643,8 +1655,15 @@
 	background: rgba(0, 0, 0, 0.4);
 	backdrop-filter: blur(4px);
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: center;
+
+	/* Anchor the modal below the disclaimer banner (~56px) + toolbar (~88px
+	 * incl. its shifted top), with a small breathing gap. Pairs with the
+	 * modal's max-height: calc(100vh - 200px) so the modal can't grow
+	 * behind the toolbar even when both expanders + a preview are open. */
+	padding: 168px 0 32px;
+	box-sizing: border-box;
 	animation: bw-fade-in 0.15s ease;
 }
 
@@ -1658,6 +1677,15 @@
 	padding: 32px;
 	width: 420px;
 	max-width: 90vw;
+
+	/* Hard cap below "banner + toolbar height + bottom breathing room" so the
+	 * modal never grows behind the toolbar. With the disclaimer banner
+	 * visible the toolbar's bottom sits at ~144px; we leave ~24px of air
+	 * above and below the modal — anything taller scrolls internally.
+	 * border-box so max-height includes the padding. */
+	box-sizing: border-box;
+	max-height: calc(100vh - 200px);
+	overflow-y: auto;
 	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
 }
 
@@ -1693,8 +1721,8 @@
 .bw-upload-zone:hover,
 .bw-upload-zone.bw-drag-over,
 .bw-upload-zone:focus-within {
-	border-color: #2171b1;
-	color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+	color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* Water fill animation */
@@ -1705,7 +1733,7 @@
 	left: 0;
 	right: 0;
 	height: 0%;
-	background: linear-gradient(180deg, rgba(33, 113, 177, 0.08) 0%, rgba(33, 113, 177, 0.18) 100%);
+	background: linear-gradient(180deg, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent) 0%, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 18%, transparent) 100%);
 	z-index: 1;
 	transition: height 0.4s ease-out;
 	border-radius: 0 0 6px 6px;
@@ -1722,19 +1750,19 @@
 	z-index: 1;
 	background: transparent;
 	border-radius: 50%;
-	box-shadow: 0 -4px 8px rgba(33, 113, 177, 0.12);
+	box-shadow: 0 -4px 8px color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 12%, transparent);
 	transition: bottom 0.4s ease-out;
 	opacity: 0;
 }
 
 .bw-upload-zone.bw-uploading {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 	border-style: solid;
 	cursor: wait;
 }
 
 .bw-upload-zone.bw-uploading span {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	font-weight: 500;
 }
 
@@ -1788,22 +1816,177 @@
 	}
 }
 
+/* RSM-3983: when a preview is set, the upload zone grows to fit the image's
+ * natural aspect ratio (capped) and switches to contain so portrait/wide
+ * images aren't centre-cropped. The image is a normal flow child so its
+ * intrinsic height drives the zone height. */
 .bw-upload-preview {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	display: none;
+	max-width: 100%;
+	max-height: 320px;
+	width: auto;
+	height: auto;
+	object-fit: contain;
 	border-radius: 6px;
 	animation: bw-fade-in 0.2s ease;
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
+	background: #f3f4f6;
 }
 
 .bw-upload-has-preview {
 	border: none;
 	padding: 0;
 	overflow: hidden;
+	height: auto;
+	min-height: 160px;
+}
+
+.bw-library-section[hidden],
+.bw-url-section[hidden] {
+	display: none;
+}
+
+.bw-source-expanders {
+	margin-top: 20px;
+	border-top: 1px solid #f0f0f0;
+	padding-top: 8px;
+}
+
+.bw-source-expander + .bw-source-expander {
+	margin-top: 2px;
+}
+
+.bw-source-trigger {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 0;
+	background: transparent;
+	border: none;
+	font-size: 14px;
+	color: #444;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+	border-radius: 4px;
+}
+
+.bw-source-trigger:hover {
+	color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-source-trigger:focus-visible {
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 2px;
+}
+
+.bw-source-chevron {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 5px solid currentColor;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.15s ease;
+	flex-shrink: 0;
+}
+
+.bw-source-trigger[aria-expanded="true"] .bw-source-chevron {
+	transform: rotate(90deg);
+}
+
+.bw-library-section,
+.bw-url-section {
+	padding: 6px 0 10px;
+	animation: bw-fade-in 0.18s ease;
+}
+
+.bw-library-search {
+	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 10px 14px;
+	font-size: 14px;
+	outline: none;
+	font-family: inherit;
+	box-sizing: border-box;
+	margin-bottom: 10px;
+}
+
+.bw-library-search:focus {
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+/* Single horizontally-scrolling row of thumbs. Browser-native scrollbar is
+ * thin and only appears on hover/scroll on macOS; keyboard users get
+ * scroll-into-view when a focused thumb reaches the edge.
+ */
+.bw-library-strip {
+	display: flex;
+	gap: 6px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding: 2px;
+	scrollbar-width: thin;
+	scroll-snap-type: x proximity;
+}
+
+.bw-library-strip:empty {
+	display: none;
+}
+
+.bw-library-thumb {
+	flex: 0 0 auto;
+	width: 64px;
+	height: 64px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	background: #f3f4f6;
+	cursor: pointer;
+	overflow: hidden;
+	transition: border-color 0.15s ease, transform 0.1s ease;
+	scroll-snap-align: start;
+}
+
+.bw-library-thumb:hover {
+	border-color: #c7d7e8;
+}
+
+.bw-library-thumb:focus-visible {
+	border-color: var(--wp-components-color-accent, #3858e9);
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 1px;
+}
+
+.bw-library-thumb:active {
+	transform: scale(0.97);
+}
+
+.bw-library-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.bw-library-status {
+	color: #777;
+	font-size: 13px;
+	margin-top: 8px;
+	min-height: 18px;
+}
+
+.bw-library-status:empty {
+	display: none;
+}
+
+@media (max-width: 480px) {
+
+	.bw-library-thumb {
+		width: 56px;
+		height: 56px;
+	}
 }
 
 .bw-image-divider {
@@ -1835,7 +2018,16 @@
 }
 
 .bw-image-url-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-image-alt-input {
+	margin-top: 12px;
+}
+
+.bw-insert-image-btn {
+	width: 100%;
+	margin-top: 12px;
 }
 
 .bw-featured-toggle {
@@ -1849,7 +2041,7 @@
 }
 
 .bw-featured-toggle input[type="checkbox"] {
-	accent-color: #2171b1;
+	accent-color: var(--wp-components-color-accent, #3858e9);
 	width: 16px;
 	height: 16px;
 	cursor: pointer;
@@ -1988,7 +2180,7 @@
 
 .bw-edit-size-option:hover,
 .bw-edit-align-option:hover {
-	background: rgba(33, 113, 177, 0.08);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent);
 }
 
 .bw-edit-size-option[aria-checked="true"],
@@ -2131,7 +2323,7 @@
 	width: 52px;
 	height: 52px;
 	border-radius: 50%;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	font-size: 22px;
 	display: flex;
@@ -2262,4 +2454,43 @@
 		width: 100%;
 		flex: 1;
 	}
+}
+
+/*
+ * Anonymous (logged-out) Write editor: hide UI surfaces that have no working
+ * counterpart for a visitor without an authenticated session. The `bw-anon`
+ * class is added to <html> by view.js when window.wpcomWriteIsAnon is true.
+ * Hides pair with early-returns in view.js actions — CSS hides the affordance,
+ * JS guards programmatic call paths (e.g. slash menu) and any URL-bar reach.
+ */
+html.bw-anon .bw-back,
+html.bw-anon .bw-help-wrap,
+html.bw-anon .bw-more-wrap,
+html.bw-anon .bw-btn-draft,
+html.bw-anon .bw-disclaimer-banner,
+html.bw-anon .bw-toolbar [data-wp-on--click="actions.openImageModal"],
+html.bw-anon #bw-slash-opt-image,
+html.bw-anon .bw-unsupported-open-editor {
+	display: none !important;
+}
+
+/*
+ * Brand text on the left, "Not signed in" indicator before Publish. Both are
+ * injected by view.js when window.wpcomWriteIsAnon is true so they participate
+ * in the same i18n string table the editor already uses.
+ */
+.bw-anon-brand {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1d2327;
+	white-space: nowrap;
+	margin-right: 8px;
+}
+
+.bw-anon-status {
+	font-size: 13px;
+	color: #757575;
+	white-space: nowrap;
+	align-self: center;
+	margin-right: 4px;
 }

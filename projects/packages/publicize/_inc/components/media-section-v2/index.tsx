@@ -197,6 +197,7 @@ export default function MediaSectionV2( {
 	const {
 		value: focalPointValue,
 		canEdit: canEditImage,
+		setPreviewFocalPoint,
 		setFocalPoint,
 	} = useMediaFocalPoint( previewData?.id ?? 0 );
 
@@ -457,6 +458,7 @@ export default function MediaSectionV2( {
 									url={ previewData.url }
 									value={ focalPointValue }
 									onChange={ setFocalPoint }
+									onDrag={ setPreviewFocalPoint }
 								/>
 							) : (
 								<MediaPreview media={ previewData } isLoading={ isPreviewingSig && sigIsLoading } />

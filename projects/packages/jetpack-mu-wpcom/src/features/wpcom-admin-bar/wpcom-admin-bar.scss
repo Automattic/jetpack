@@ -123,6 +123,18 @@
 /**
  * Site badge and plan info in the dropdown
  */
+
+// Match core's spacing for added submenu nodes instead of zeroing padding.
+// https://github.com/WordPress/WordPress/blob/c06456a36202fdb76787228f007b28e5028216fe/wp-includes/css/admin-bar.css#L546
+#wpadminbar #wp-admin-bar-site-plan {
+	margin-top: -12px;
+}
+
+// Pad the wrapper top instead, pushing Visit Site down to match Calypso.
+#wpadminbar #wp-admin-bar-site-name .ab-sub-wrapper {
+	padding-top: 6px;
+}
+
 #wp-admin-bar-site-plan,
 #wp-admin-bar-site-status {
 	display: flex;
@@ -136,8 +148,9 @@
 	height: auto !important;
 }
 
+// `.quicklinks` beats core's `.quicklinks a { display: block }`.
 #wpadminbar .wp-admin-bar__site-info,
-#wpadminbar a.wp-admin-bar__site-info {
+#wpadminbar .quicklinks a.wp-admin-bar__site-info {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
@@ -163,7 +176,7 @@
 	align-items: center;
 }
 
-#wpadminbar a.wp-admin-bar__site-info {
+#wpadminbar .quicklinks a.wp-admin-bar__site-info {
 	display: flex;
 	padding: 0;
 

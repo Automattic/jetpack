@@ -38,6 +38,22 @@ class Connections_Post_Field {
 	public $memoized_updates = array();
 
 	/**
+	 * Requested connections for a new post being created, kept until the post
+	 * ID is known so the skip meta can be persisted before Publicize runs.
+	 *
+	 * @var array
+	 */
+	private $new_post_connections = array();
+
+	/**
+	 * The request that is creating a new post, kept alongside
+	 * $new_post_connections so per-connection overrides can be saved.
+	 *
+	 * @var WP_REST_Request|null
+	 */
+	private $new_post_request = null;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -299,9 +315,48 @@ class Connections_Post_Field {
 			// Set the meta before we mark the post as published so that publicize works as expected.
 			// If this is not the case post end up on social media when they are marked as skipped.
 			$this->update( $request_connections, $post, $request );
+		} else {
+			/*
+			 * A brand new post has no ID yet, so we can't persist the skip meta here.
+			 * Persist it as soon as the post is inserted, before Publicize processes
+			 * the publish transition (priority 10). Otherwise a new published post is
+			 * shared to every connection regardless of the requested `enabled` state.
+			 */
+			$this->new_post_connections = $request_connections;
+			$this->new_post_request     = $request;
+			add_action( 'transition_post_status', array( $this, 'set_meta_for_new_post' ), 1, 3 );
 		}
 
 		return $post;
+	}
+
+	/**
+	 * Persist the Publicize skip meta for a newly created post.
+	 *
+	 * Runs on `transition_post_status` before Publicize flags the post for
+	 * sharing, using the memoized data calculated in rest_pre_insert(). This is
+	 * the create-time counterpart to the in-place update() done for existing posts.
+	 *
+	 * @param string  $new_status New post status.
+	 * @param string  $old_status Old post status.
+	 * @param WP_Post $post       Post object.
+	 */
+	public function set_meta_for_new_post( $new_status, $old_status, $post ) {
+		if ( ! isset( $this->memoized_updates[0] ) || wp_is_post_revision( $post->ID ) ) {
+			return;
+		}
+
+		// One-shot: the first non-revision transition is the post we created.
+		remove_action( 'transition_post_status', array( $this, 'set_meta_for_new_post' ), 1 );
+
+		// Move the memoized data to the real post ID now that we know it.
+		$this->memoized_updates[ $post->ID ] = $this->memoized_updates[0];
+		unset( $this->memoized_updates[0] );
+
+		$this->update( $this->new_post_connections, $post, $this->new_post_request );
+
+		$this->new_post_connections = array();
+		$this->new_post_request     = null;
 	}
 
 	/**
@@ -342,13 +397,15 @@ class Connections_Post_Field {
 			return array();
 		}
 
+		// Return memoized data first: a new post is already 'publish' by the time
+		// we persist its skip meta, so the publish check below must not discard it.
+		if ( isset( $this->memoized_updates[ $post_id ] ) ) {
+			return $this->memoized_updates[ $post_id ];
+		}
+
 		$post = get_post( $post_id );
 		if ( isset( $post->post_status ) && 'publish' === $post->post_status ) {
 			return array();
-		}
-
-		if ( isset( $this->memoized_updates[ $post_id ] ) ) {
-			return $this->memoized_updates[ $post_id ];
 		}
 
 		$available_connections = $publicize->get_filtered_connection_data( $post_id );
@@ -603,7 +660,9 @@ class Connections_Post_Field {
 			return new WP_Error( '__wrong-context__' );
 		}
 
-		switch ( $schema['type'] ) {
+		$schema_type = $schema['type'] ?? null;
+
+		switch ( $schema_type ) {
 			case 'array':
 				if ( ! isset( $schema['items'] ) ) {
 					return $value;

@@ -12,12 +12,11 @@ use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Loads Jetpack Podcast on Simple and Atomic sites. The package owns the
- * podcasting experience outright.
+ * Loads the Jetpack Podcast package.
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '1.0.2';
+	const PACKAGE_VERSION = '1.3.1';
 
 	/**
 	 * Whether the class has been initialized.
@@ -27,9 +26,7 @@ class Podcast {
 	private static $initialized = false;
 
 	/**
-	 * Initialize the package.
-	 *
-	 * Bails on hosts other than Simple and Atomic.
+	 * Initialize the package. Loads unconditionally; callers decide whether to.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -37,25 +34,12 @@ class Podcast {
 		}
 		self::$initialized = true;
 
-		$host = new Host();
-		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() ) {
-			return;
-		}
-
 		Podcast_Episode_Block::register_hooks();
 
-		// Register the local REST routes before request-local rollout gates.
-		// Requests from public-api.wordpress.com may not satisfy those gates,
-		// but the wpcom/v2 routes still need to exist so permission and
-		// callback checks can handle the request.
-		Posts_To_Podcast_Endpoint::init();
 		Podcast_Stats_Endpoint::init();
 		Podcast_Distribution_Endpoint::init();
+		Podcast_Settings_Endpoint::init();
 
-		// Register the `podcasting_*` option schema so the SPA can read/write
-		// via `/wp/v2/settings`. On Simple, the legacy WPCOM site-settings
-		// filters in the wpcom mu-plugin remain authoritative for
-		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
 		Settings::register();
 
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
@@ -64,25 +48,32 @@ class Podcast {
 
 		Tracks::init();
 
-		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build
-		// dashboard; menu registration itself runs from wpcom-admin-menu.php
-		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.
+		Admin_Page::init();
+
 		if ( is_admin() ) {
-			Admin_Page::init();
 			New_Episode_Prefill::init();
 		}
 
-		// Posts to Podcast lives behind its own filter so the Create AI
-		// Podcast page can ship independently of the rest of the package.
-		//
-		// Note: no `is_admin()` guard here. The submenu must also register when
-		// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
-		// which fires `admin_menu` by loading `wp-admin/menu.php` but runs as a
-		// REST request where `is_admin()` is false. The hooks `init()` wires
-		// (`admin_menu`, `enqueue_block_editor_assets`) self-gate, so this is a
-		// no-op on non-admin/non-editor requests.
-		if ( self::is_posts_to_podcast_enabled() ) {
-			Create_AI_Podcast_Page::init();
+		$host = new Host();
+		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+			// Register the local REST routes before request-local rollout gates.
+			// Requests from public-api.wordpress.com may not satisfy those gates,
+			// but the wpcom/v2 routes still need to exist so permission and
+			// callback checks can handle the request.
+			Posts_To_Podcast_Endpoint::init();
+
+			// Posts to Podcast lives behind its own filter so the Create AI
+			// Podcast page can ship independently of the rest of the package.
+			//
+			// Note: no `is_admin()` guard here. The submenu must also register when
+			// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
+			// which fires `admin_menu` by loading `wp-admin/menu.php` but runs as a
+			// REST request where `is_admin()` is false. The hooks `init()` wires
+			// (`admin_menu`, `enqueue_block_editor_assets`) self-gate, so this is a
+			// no-op on non-admin/non-editor requests.
+			if ( self::is_posts_to_podcast_enabled() ) {
+				Create_AI_Podcast_Page::init();
+			}
 		}
 	}
 

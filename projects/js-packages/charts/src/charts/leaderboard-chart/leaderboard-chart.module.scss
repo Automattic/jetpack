@@ -1,5 +1,7 @@
 .leaderboardChart {
-	transition: opacity 0.3s ease-in-out;
+	transition:
+		opacity var(--wpds-motion-duration-lg, 300ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 
 	&--responsive {
 		height: 100%;
@@ -31,7 +33,7 @@
 	&.is-overlay {
 		grid-template: "overlap" 1fr / 1fr;
 
-		/* contains a single cell callded 'overlap' */
+		/* contains a single cell called 'overlap' */
 
 		>* {
 			grid-area: overlap;
@@ -45,6 +47,9 @@
 	.bar {
 		height: 100%;
 		min-height: 6px;
+		// Keeps a sliver of bar visible for tiny shares, and stops the interactive
+		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
+		min-width: var(--wpds-dimension-size-5xs, 4px);
 
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
 		z-index: -1; /* places it behind the label */
@@ -53,7 +58,9 @@
 			transform-origin: left;
 			transform-box: fill-box;
 			transform: scaleX(0);
-			animation: stretch 1s ease-out forwards;
+			animation:
+				stretch var(--wpds-motion-duration-xl, 400ms)
+				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 		}
 
 		@keyframes stretch {
@@ -66,7 +73,19 @@
 }
 
 .valueContainer {
+	align-items: center;
 	justify-content: flex-end;
+}
+
+.deltaValue {
+	display: inline-block;
+	font-variant-numeric: tabular-nums;
+	min-width: 3ch;
+	text-align: end;
+}
+
+.deltaPlaceholder {
+	text-align: center;
 }
 
 .overlayLabel {
@@ -76,7 +95,124 @@
 .emptyState {
 	padding: var(--wpds-dimension-padding-3xl, 32px) var(--wpds-dimension-padding-lg, 16px);
 	text-align: center;
-	color: #666;
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
+}
+
+.interactiveRow {
+	--focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	align-items: center;
+	position: relative;
+
+	// Native button reset.
+	box-sizing: border-box;
+	appearance: none;
+	width: 100%;
+	margin: 0;
+	// Reserve a ring's worth of space on every edge so the inset focus outline
+	// hugs the row without the bar painting over it (see :focus-visible below).
+	padding: var(--focus-ring-width);
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: inherit;
+	cursor: pointer;
+
+	// On hover/focus the bar dims and its inline-end edge pulls back while the
+	// value/delta slides toward the inline start to clear room for the chevron
+	// revealed at the inline-end edge. The value always slides the full inset
+	// (it must clear the chevron), but the bar pulls back in proportion to its
+	// length (see getBarWidth in leaderboard-chart.tsx): the full-length bar —
+	// the one that reaches the value — pulls back the whole inset to keep its
+	// gap, while shorter bars move proportionally less, down to ~0. The bar is
+	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
+	// value slide is given an RTL override below. No row background.
+	.bar {
+		transition:
+			opacity var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
+			width var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+	}
+
+	.valueContainer {
+		transition:
+			transform var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+	}
+
+	&:hover,
+	&:focus-visible {
+
+		// Fixed reserve for the chevron — the value slides by it in full, and the
+		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
+		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl, 32px);
+
+		.bar {
+			opacity: 0.5;
+		}
+
+		.valueContainer {
+			transform: translateX(calc(var(--a8c--charts--leaderboard--bar--hover-inset) * -1));
+		}
+
+		.chevron {
+			opacity: 1;
+		}
+	}
+
+	// In RTL the value slides toward the inline start the other way (rightward).
+	[dir="rtl"] &:hover .valueContainer,
+	[dir="rtl"] &:focus-visible .valueContainer {
+		transform: translateX(var(--a8c--charts--leaderboard--bar--hover-inset));
+	}
+
+	&:focus-visible {
+		border-radius: var(--wpds-border-radius-sm, 2px);
+		outline:
+			var(--focus-ring-width) solid
+			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
+		// Inset by its own width so the outer edge hugs the row boundary: the
+		// outline then sits in the row's padding (also a ring width), clear of the
+		// bar, and stays inside the overflow:auto container that would clip an
+		// outset ring.
+		outline-offset: calc(-1 * var(--focus-ring-width));
+	}
+}
+
+.chevron {
+	position: absolute;
+	inset-inline-end: var(--wpds-dimension-padding-xs, 4px);
+	top: 0;
+	bottom: 0;
+	margin-block: auto;
+	opacity: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	transition:
+		opacity var(--wpds-motion-duration-sm, 100ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+	pointer-events: none;
+
+	// The glyph points toward the inline end, so flip it to point left in RTL.
+	[dir="rtl"] & {
+		transform: scaleX(-1);
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.interactiveRow {
+
+		.bar,
+		.valueContainer,
+		.chevron {
+			transition: none;
+		}
+	}
 }

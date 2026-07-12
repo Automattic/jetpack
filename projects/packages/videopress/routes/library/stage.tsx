@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
+import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
@@ -13,6 +14,7 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
@@ -59,8 +61,10 @@ const defaultLayouts: SupportedLayouts = {
 };
 
 const StageInner = () => {
-	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
+	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
+	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
 	// Local IDs currently being promoted from local-storage to VideoPress.
 	// The upload-from-library endpoint doesn't report progress, so we just
 	// need to know which rows to overlay with an "Uploading…" state.
@@ -70,7 +74,7 @@ const StageInner = () => {
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
-	const { items, isLoading, paginationInfo } = useLibrary( view );
+	const { items, isLoading, paginationInfo, refetch } = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -78,17 +82,22 @@ const StageInner = () => {
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
-	const onChangeView = useCallback( ( next: View ) => {
-		setView( current => {
-			if ( next.type === current.type ) {
-				return next;
-			}
-			return {
-				...next,
-				fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
-			};
-		} );
-	}, [] );
+	const onChangeView = useCallback(
+		( next: View ) => {
+			setView( current => {
+				const resolved =
+					next.type === current.type
+						? next
+						: {
+								...next,
+								fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
+						  };
+				persistView( resolved );
+				return resolved;
+			} );
+		},
+		[ persistView ]
+	);
 
 	const filePickerRef = useRef< HTMLInputElement >( null );
 	const onClickHeaderUpload = useCallback( () => {
@@ -213,6 +222,9 @@ const StageInner = () => {
 				promoteLocal,
 				retryUpload,
 				openVideoDetails,
+				manageCaptions: ( item: LibraryItem ) => {
+					setCaptionVideo( item );
+				},
 				deleteItems: async ( ids: string[] ) => {
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
@@ -379,6 +391,7 @@ const StageInner = () => {
 				allowDownloads: false,
 				shortcode: '',
 				isProcessing: false,
+				tracks: [],
 			} ) );
 		// Overlay an in-flight state on items currently being promoted from
 		// local-storage to VideoPress or being deleted, so the title-cell
@@ -397,6 +410,10 @@ const StageInner = () => {
 	}, [ uploadQueue, items, promotingIds, deletingIds ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
+
+	const onCaptionTracksChange = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
 	return (
 		<DashboardLayout
@@ -454,6 +471,18 @@ const StageInner = () => {
 					/>
 				</div>
 			</UploadActionsProvider>
+			{ captionVideo && (
+				<CaptionManagerModal
+					isOpen={ !! captionVideo }
+					guid={ captionVideo.guid }
+					title={ captionVideo.title }
+					poster={ captionVideo.thumbnailUrl }
+					isPrivate={ captionVideo.isPrivate }
+					tracks={ captionVideo.tracks }
+					onClose={ () => setCaptionVideo( null ) }
+					onTracksChange={ onCaptionTracksChange }
+				/>
+			) }
 		</DashboardLayout>
 	);
 };

@@ -8,16 +8,8 @@ module.exports = ( api, opts = {} ) => {
 		sourceType: opts.sourceType || 'unambiguous',
 		presets: [],
 		plugins: [],
+		overrides: [],
 	};
-
-	let targets = opts.targets;
-	if ( ! targets ) {
-		const browserslist = require( 'browserslist' );
-		const localBrowserslistConfig = browserslist.findConfig( '.' ) || {};
-		targets = browserslist(
-			localBrowserslistConfig.defaults || require( '@wordpress/browserslist-config' )
-		);
-	}
 
 	if ( opts.autoWpPolyfill !== false ) {
 		if ( opts.presetEnv?.useBuiltIns ) {
@@ -35,7 +27,6 @@ module.exports = ( api, opts = {} ) => {
 					method: 'usage-global',
 					version: require( 'core-js/package.json' ).version,
 					absoluteImports: importDir,
-					targets: opts.autoWpPolyfill?.targets ?? targets,
 					exclude: opts.autoWpPolyfill?.exclude ?? [
 						// Ignore excessively strict polyfilling of `Array.prototype.push` to work
 						// around an obscure bug involving non-writable arrays.
@@ -62,7 +53,7 @@ module.exports = ( api, opts = {} ) => {
 		ret.presets.push( [
 			require.resolve( '@babel/preset-env' ),
 			{
-				targets,
+				bugfixes: true,
 				// Exclude transforms that make all code slower, see https://github.com/facebook/create-react-app/pull/5278
 				exclude: [ 'transform-typeof-symbol' ],
 				...opts.presetEnv,
@@ -70,13 +61,18 @@ module.exports = ( api, opts = {} ) => {
 		] );
 	}
 	if ( opts.presetReact !== false ) {
-		ret.presets.push( [
-			require.resolve( '@babel/preset-react' ),
-			opts.presetReact ?? { runtime: 'automatic' },
-		] );
+		ret.overrides.push( {
+			test: /\.[jt]sx$/,
+			presets: [
+				[ require.resolve( '@babel/preset-react' ), opts.presetReact ?? { runtime: 'automatic' } ],
+			],
+		} );
 	}
 	if ( opts.presetTypescript !== false ) {
-		ret.presets.push( [ require.resolve( '@babel/preset-typescript' ), opts.presetTypescript ] );
+		ret.presets.push( [
+			require.resolve( '@babel/preset-typescript' ),
+			opts.presetTypescript ?? { allowDeclareFields: true },
+		] );
 	}
 
 	if ( opts.pluginReplaceTextdomain ) {

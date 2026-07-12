@@ -441,7 +441,30 @@ Note the following will also be done by the build process:
 
 If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger. Versions must have a "v" prefix and have 3 components.
 
-You'll also need to [configure the repo as a Trusted Provider](https://docs.npmjs.com/trusted-publishers) at npmjs.com.
+You'll also need to [configure the repo as a Trusted Provider](https://docs.npmjs.com/trusted-publishers) at npmjs.com. NOTE: If the package doesn't exist on npmjs.com yet, it seems (as of June 2026) that you first have to manually `npm publish` a (non-trusted) version in order to be able to configure trusted publising; see https://github.com/npm/documentation/issues/1926 for possible updates. This initial version may be a v0.0.0 that contains only `package.json` metadata.
+
+<details><summary>Example process for setting up a new package</summary>
+
+1. Tag the first release of your package. Find that it didn't get published to npmjs.com, with an error like this from the Npmjs Auto-publisher workflow run:
+   ```
+   npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+   npm error code E404
+   npm error 404 Not Found - PUT https://registry.npmjs.org/@automattic%2fjetpack-whatever - Not found
+   npm error 404
+   npm error 404  The requested resource '@automattic/jetpack-whatever@0.1.0' could not be found or you do not have permission to access it.
+   npm error 404
+   ```
+2. Locally, create an empty directory.
+3. Copy the package's `package.json` into that empty directory.
+   * Delete any `scripts`, `dependencies`, and so on, just keep the metadata.
+   * Change the version to "0.0.0".
+4. `npm login --scope @automattic` if necessary (or whichever scope the package will be published into).
+5. `npm publish --access public` to publish the dummy version.
+6. May as well set up trusted publishing from the command line: `npm trust github @automattic/jetpack-whatever --repository Automattic/jetpack-whatever --file npmjs-autopublisher.yml --allow-publish`
+7. Re-run the failed Npmjs Auto-publisher workflow run to publish the real version.
+8. Optionally, `npm unpublish` to unpublish that dummy "0.0.0" version.
+
+</details>
 
 Note the following will also be done by the build process:
 
@@ -513,7 +536,7 @@ Within a single project, changelogger’s `version next` command can tell you th
 ## New Projects
 
 To begin,
-* For Automatticians, drop us a line in #jetpack-monorepo to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
+* For Automatticians, drop us a line in #jetpack-developers to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
 * Use the `jetpack generate` command to create a skeleton project.
 * Create your project based on the skeleton and submit a PR as usual.
 

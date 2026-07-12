@@ -1,0 +1,7 @@
+{
+	"name": "jpa/sales-by-device",
+	"title": "Sales by device",
+	"description": "Shows the sales breakdown by device type over the selected time period.",
+	"category": "store",
+	"presentation": "framed"
+}

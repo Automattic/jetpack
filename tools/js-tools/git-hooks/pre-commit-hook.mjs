@@ -507,7 +507,9 @@ function runShellcheck( shellFilesToLint ) {
 
 	if ( shellcheckResult.error?.code === 'ENOENT' ) {
 		console.log(
-			chalk.yellow( 'Skipping shellcheck: not installed. See https://www.shellcheck.net/' )
+			chalk.yellow(
+				'Skipping shellcheck: not installed. See https://github.com/koalaman/shellcheck#installing for installation instructions'
+			)
 		);
 		return;
 	}

@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.9.1';
+	const PACKAGE_VERSION = '0.11.2';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -269,7 +269,7 @@ class Settings {
 		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -491,15 +491,15 @@ class Settings {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
-	 * Defaults to `false`: the modernization prep work ships behind the filter,
-	 * and a separate PR flips the default on so the feature switch lands in
-	 * isolation. Hosts can opt in early with
-	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' );`.
+	 * The modernized Newsletter dashboard, wp-admin subscriber management, and the
+	 * retired Calypso Subscribers submenu now default on for every site. Hosts (and
+	 * a11ns who want the legacy view back) can still force the legacy experience with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
 	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**

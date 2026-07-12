@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -85,7 +85,7 @@ jobs:
     if: github.event.workflow_run.conclusion != 'success'
     timeout-minutes: 2  # 2025-11-20: Seems like it should be fast.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -129,7 +129,7 @@ jobs:
       artifact_filename: ${{ steps.run.outputs.artifact_filename }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Find artifact
         id: run
@@ -214,7 +214,7 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'false'
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -257,7 +257,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -341,13 +341,18 @@ jobs:
         - 80:80
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: trunk
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
+          allow-unsafe-pr-checkout: true
+          # .github/files/test-plugin-update/prepare-zips.sh needs just this one file.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            ${{ env.PLUGIN_SRC }}/composer.json
 
       - name: Download build artifact
         uses: actions/download-artifact@v8
@@ -380,7 +385,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -411,13 +416,20 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'true'
     timeout-minutes: 15  # 2025-11-20: Less than a minute, but leave time for the downloads.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: trunk
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
+          allow-unsafe-pr-checkout: true
+          # We don't need any files for this check, just the tree. A non-cone sparse checkout with a custom filter does the trick.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: .
+          filter: 'tree:0'
+          # We do need all the commits, but `fetch-depth: 0` wants to fetch all branches and tags rather than just the one we want, sigh.
+          fetch-depth: 2147483647
 
       - name: Get token
         id: get_token
@@ -461,7 +473,7 @@ jobs:
         uses: ./trunk/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
-          conclusion: ${{ job.status }}
+          conclusion: ${{ case( job.status == 'abandoned', 'cancelled', job.status ) }}
           title: ${{ case( job.status == 'success', 'Tests passed', job.status == 'cancelled', 'Cancelled', 'Tests failed' ) }}
           summary: |
             ${{ env.SUMMARY }}

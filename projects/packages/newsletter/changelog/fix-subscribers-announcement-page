@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: show the styled "Subscribers moved" announcement page instead of the bare fallback.

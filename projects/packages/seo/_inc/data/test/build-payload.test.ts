@@ -10,7 +10,12 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
+	sitemap_url: '',
 	canonical_active: false,
+	schema: {
+		organization: { name: '', description: '', sameAs: [], email: '' },
+		defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
+	},
 	...overrides,
 } );
 
@@ -88,6 +93,20 @@ describe( 'buildJetpackPayload', () => {
 	it( 'ignores search-engine visibility (that is a core option)', () => {
 		const baseline = makeSettings( { search_engines_visible: true } );
 		const local = makeSettings( { search_engines_visible: false } );
+		expect( buildJetpackPayload( baseline, local ) ).toEqual( {} );
+	} );
+
+	it( 'ignores schema settings (they use the schema route)', () => {
+		const baseline = makeSettings();
+		const local = makeSettings( {
+			schema: {
+				...baseline.schema,
+				organization: {
+					...baseline.schema.organization,
+					sameAs: [ 'https://example.com/acme' ],
+				},
+			},
+		} );
 		expect( buildJetpackPayload( baseline, local ) ).toEqual( {} );
 	} );
 } );

@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 type AnyObject = Record< string, unknown >;
 
 export type UseStagedSearchOptions< TFrom extends string > = {
-	from: TFrom; // e.g., '/wc-analytics/dashboard',
+	from: TFrom; // e.g., '/',
 
 	/**
 	 * If provided, stage() will schedule an automatic debounced commit
@@ -164,6 +164,7 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 				timerRef.current = setTimeout( () => {
 					navigate( {
 						replace: true, // do not pollute history while interacting
+						viewTransition: false,
 						search: prev => ( {
 							...prev,
 							...( bufferRef.current as Partial< TSearch > ),
@@ -223,6 +224,7 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 
 			navigate( {
 				replace: commitOpts?.replace ?? false, // explicit commits push into history
+				viewTransition: false,
 				search: prev => ( {
 					...prev,
 					...( finalPatch as Partial< TSearch > ),

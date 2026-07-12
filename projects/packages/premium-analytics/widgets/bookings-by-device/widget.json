@@ -1,0 +1,7 @@
+{
+	"name": "jpa/bookings-by-device",
+	"title": "Bookings by device",
+	"description": "See which devices your customers are using to make bookings in your store.",
+	"category": "bookings",
+	"presentation": "framed"
+}

@@ -1,5 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { currentUserCan, getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
@@ -23,6 +23,12 @@ type Props = {
 	activeTab: SocialTab;
 	actions?: ReactNode;
 	children: ReactNode;
+	/**
+	 * Hide the Overview/Settings tab chrome and render `children` on their own.
+	 * Used when Social is off: there's nothing to switch between, so the page
+	 * collapses to the single turn-on surface.
+	 */
+	hideTabs?: boolean;
 };
 
 const PRODUCT_NAME = 'Social'; /** "Social" is a product name, do not translate. */
@@ -48,13 +54,26 @@ const SUBTITLES: Record< SocialTab, () => string > = {
  * @param props.activeTab - Which tab the current route represents.
  * @param props.actions   - Optional actions slot (top-right of the Page header).
  * @param props.children  - `Tabs.Panel` children.
+ * @param props.hideTabs  - Hide the tab chrome and render children on their own.
  * @return The unified Social page shell.
  */
-export default function SocialPage( { activeTab, actions, children }: Props ): JSX.Element {
+export default function SocialPage( {
+	activeTab,
+	actions,
+	children,
+	hideTabs = false,
+}: Props ): JSX.Element {
 	const navigate = useNavigate();
 
 	const { gate, dismissPricing } = useSocialGate();
 	const headerActions = gate === null ? actions : null;
+
+	// Both the Settings tab and the Overview stats chart require admin-only
+	// capabilities (`manage_options` / stats reads), so non-admins have nothing
+	// to switch between — drop the tab chrome entirely and show the lone
+	// connection-management surface the Overview route hands us. `hideTabs` does
+	// the same when Social is off (single turn-on surface).
+	const showTabs = currentUserCan( 'manage_options' ) && ! hideTabs;
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
@@ -83,25 +102,31 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 					actions={ headerActions }
 				>
 					<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
-						<Tabs.Root
-							className="jetpack-social-tabs"
-							value={ activeTab }
-							onValueChange={ onTabChange }
-						>
-							<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-								<Tabs.List variant="minimal">
-									<Tabs.Tab value="overview">
-										{ __( 'Overview', 'jetpack-publicize-pkg' ) }
-									</Tabs.Tab>
-									<Tabs.Tab value="settings">
-										{ __( 'Settings', 'jetpack-publicize-pkg' ) }
-									</Tabs.Tab>
-								</Tabs.List>
-							</div>
+						{ showTabs ? (
+							<Tabs.Root
+								className="jetpack-social-tabs"
+								value={ activeTab }
+								onValueChange={ onTabChange }
+							>
+								<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+									<Tabs.List variant="minimal">
+										<Tabs.Tab value="overview">
+											{ __( 'Overview', 'jetpack-publicize-pkg' ) }
+										</Tabs.Tab>
+										<Tabs.Tab value="settings">
+											{ __( 'Settings', 'jetpack-publicize-pkg' ) }
+										</Tabs.Tab>
+									</Tabs.List>
+								</div>
+								<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+									{ children }
+								</div>
+							</Tabs.Root>
+						) : (
 							<div className="jetpack-social-page__content jetpack-social-page__content--padded">
 								{ children }
 							</div>
-						</Tabs.Root>
+						) }
 					</SocialGate>
 				</AdminPage>
 			</Tooltip.Provider>

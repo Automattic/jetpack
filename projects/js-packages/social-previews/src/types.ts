@@ -29,6 +29,13 @@ export interface SocialPreviewBaseProps {
 	image?: string;
 
 	/**
+	 * The focal point of the link-preview image (`image`/`customImage`), both
+	 * axes 0-1. When set, the preview crops around this point via
+	 * `object-position`. Omitted → centered, matching today's behavior.
+	 */
+	imageFocalPoint?: FocalPoint;
+
+	/**
 	 * The array of media items to use in the preview.
 	 */
 	media?: Array< MediaItem >;
@@ -55,6 +62,15 @@ export interface SocialPreviewsBaseProps {
 	 */
 	hideLinkPreview?: boolean;
 }
+
+/**
+ * A focal point on an image. Both axes are 0-1, where `{ x: 0, y: 0 }` is the
+ * top-left corner and `{ x: 1, y: 1 }` is the bottom-right.
+ */
+export type FocalPoint = {
+	x: number;
+	y: number;
+};
 
 export type MediaItem = {
 	/**

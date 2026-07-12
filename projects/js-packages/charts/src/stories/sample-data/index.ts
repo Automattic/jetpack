@@ -4,8 +4,9 @@
  */
 
 import type { FunnelStep } from '../../charts/conversion-funnel-chart';
+import type { HeatmapColumn } from '../../charts/heatmap-chart';
 import type { LeaderboardEntry } from '../../charts/leaderboard-chart';
-import type { DataPointPercentage, GeoData, SeriesData } from '../../types';
+import type { DataPointDate, DataPointPercentage, GeoData, SeriesData } from '../../types';
 
 /**
  * Olympic medals data for top countries (1896-2020)
@@ -392,6 +393,15 @@ export const trafficSourcesData: LeaderboardEntry[] = [
 		currentShare: 35,
 		previousShare: 33,
 		delta: 4.2,
+	},
+	{
+		id: 'referral',
+		label: 'Referral',
+		currentValue: 180,
+		previousValue: 150,
+		currentShare: 4,
+		previousShare: 3,
+		delta: 20,
 	},
 ];
 
@@ -1005,3 +1015,78 @@ export const viewsByEuropeanCountry: GeoData = [
 	[ 'Turkey', 200 ],
 	[ 'Russia', 100 ],
 ];
+
+/**
+ * Activity matrix for the heatmap chart (12 columns × 7 rows)
+ *
+ * Weekday-by-week grid with quarter labels and scattered empty cells.
+ * - Category: matrix
+ * - Data points: 84
+ * - Suitable for: HeatmapChart
+ */
+export const heatmapActivityMatrix: HeatmapColumn[] = Array.from(
+	{ length: 12 },
+	( _col, col ) => ( {
+		label: col % 4 === 0 ? `Q${ Math.floor( col / 4 ) + 1 }` : '',
+		data: Array.from( { length: 7 }, ( _row, row ) => ( {
+			label: `Col ${ col + 1 }, Row ${ row + 1 }`,
+			value: ( col * 7 + row ) % 5 === 0 ? null : ( ( col + row ) % 5 ) + 1,
+		} ) ),
+	} )
+);
+
+/**
+ * Large-value matrix for the heatmap chart (12 columns × 7 rows)
+ *
+ * Same shape as the activity matrix but with values up to ~1,000,000, to exercise
+ * compact in-cell number formatting (e.g. `748.5K`).
+ * - Category: matrix
+ * - Data points: 84
+ * - Suitable for: HeatmapChart
+ */
+export const heatmapLargeValueMatrix: HeatmapColumn[] = Array.from(
+	{ length: 12 },
+	( _col, col ) => ( {
+		label: col % 4 === 0 ? `Q${ Math.floor( col / 4 ) + 1 }` : '',
+		data: Array.from( { length: 7 }, ( _row, row ) => {
+			const index = col * 7 + row;
+			return {
+				label: `Col ${ col + 1 }, Row ${ row + 1 }`,
+				value:
+					index % 9 === 0 ? null : Math.round( Math.abs( Math.sin( index ) ) * 990_000 ) + 1_000,
+			};
+		} ),
+	} )
+);
+
+/**
+ * Daily activity series for the calendar heatmap (120 days from 2024-01-01)
+ *
+ * Date/value pairs for building a GitHub-style contribution calendar via
+ * `buildCalendarHeatmapData`.
+ * - Category: time-series
+ * - Data points: 120
+ * - Suitable for: HeatmapChart (calendar layout)
+ */
+export const heatmapCalendarSeries: DataPointDate[] = Array.from(
+	{ length: 120 },
+	( _, index ) => ( {
+		date: new Date( 2024, 0, 1 + index ),
+		value: Math.round( Math.abs( Math.sin( index ) ) * 4 ),
+	} )
+);
+
+/**
+ * Calendar series starting on 2023-06-28 to exercise partial first-month labels.
+ *
+ * - Category: time-series
+ * - Data points: 365
+ * - Suitable for: HeatmapChart (calendar layout)
+ */
+export const heatmapPartialMonthCalendarSeries: DataPointDate[] = Array.from(
+	{ length: 365 },
+	( _, index ) => ( {
+		date: new Date( 2023, 5, 28 + index ),
+		value: Math.round( Math.abs( Math.sin( index ) ) * 4 ),
+	} )
+);

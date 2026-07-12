@@ -6,8 +6,8 @@ import {
 	ORDER_ATTRIBUTION_VIEWS,
 } from '@jetpack-premium-analytics/data';
 import { megaphone, search, channel } from '@jetpack-premium-analytics/icons';
-import { useMemo } from 'react';
-import { LeaderboardChart } from '../../components/chart-leaderboard';
+import { useMemo, type CSSProperties } from 'react';
+import { LeaderboardChart } from '../../components';
 import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
@@ -100,7 +100,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				style={
 					{
 						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
-					} as React.CSSProperties
+					} as CSSProperties
 				}
 			/>
 			{ isRefetching && <WidgetLoadingOverlay /> }

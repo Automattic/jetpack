@@ -1,14 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	Title,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-} from '@automattic/jetpack-components';
+import { Text, Button, Title, LoadingPlaceholder } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -88,7 +83,7 @@ export const VideoCard = ( {
 		  )
 		: '';
 	const [ anchor, setAnchor ] = useState( null );
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const disabled = loading || uploading;
 
@@ -136,12 +131,7 @@ export const VideoCard = ( {
 					) : (
 						<>
 							{ hasPlays && (
-								<Text
-									weight="regular"
-									size="small"
-									component="div"
-									className={ styles[ 'video-card__video-plays-counter' ] }
-								>
+								<Text component="div" className={ styles[ 'video-card__video-plays-counter' ] }>
 									<Icon icon={ chartBar } />
 									{ playsCount }
 								</Text>

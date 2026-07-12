@@ -23,7 +23,7 @@ export { default as useRefInterval } from './src/hooks/use-ref-interval';
 export { default as useModuleStatus } from './src/hooks/use-module-status';
 export { getBlockIconComponent, getBlockIconProp } from './src/get-block-icon-from-metadata';
 export { default as getJetpackBlocksVariation } from './src/get-jetpack-blocks-variation';
-export * from './src/modules-state';
+export { store, JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-stores';
 export { default as isMyJetpackAvailable } from './src/is-my-jetpack-available';
 export { default as hasFeatureFlag } from './src/has-feature-flag';
 export * from './src/libs';

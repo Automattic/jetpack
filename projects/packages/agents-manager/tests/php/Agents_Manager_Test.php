@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/../../src/class-agents-manager.php';
 
@@ -520,6 +521,79 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that Help Center is dequeued in the block editor when the unified experience
+	 * (Help Center takeover) is active — Agents Manager becomes the single help affordance.
+	 */
+	public function test_help_center_dequeued_in_block_editor_when_unified() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Help Center enqueues before Agents Manager (priority 100 vs 101), so it is already queued.
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Full unified experience: Agents Manager takes over the Help Center.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should be dequeued in the unified experience.' );
+		$this->assertFalse( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should be dequeued in the unified experience.' );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that Help Center remains enqueued in block-editor-only mode, where Agents Manager
+	 * replaces Big Sky's native UI but does not take over the Help Center. Regression test for AI-1013.
+	 */
+	public function test_help_center_not_dequeued_in_block_editor_only_mode() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Block-editor-only enablement, without the unified (Help Center takeover) experience.
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertTrue( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should remain enqueued in block-editor-only mode.' );
+		$this->assertTrue( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should remain enqueued in block-editor-only mode.' );
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
 	 * Tests that the standalone AI chat button is added to the admin bar when the
 	 * unified experience is enabled.
 	 */
@@ -563,6 +637,127 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+	}
+
+	/**
+	 * Puts the current request into a block-editor screen so the editor omnibar branch is reachable.
+	 *
+	 * @param bool $enable Whether to enable Agents Manager in the block editor (block-editor-only,
+	 *                     no unified experience). Pass false to exercise the not-enabled path.
+	 */
+	private function set_up_block_editor_request( $enable = true ) {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		if ( $enable ) {
+			add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+		}
+	}
+
+	/**
+	 * Tests that the Ask AI button is added to the editor admin bar when the omnibar experiment is
+	 * active and Agents Manager is enabled — independent of dev mode (here, a non-proxied request).
+	 */
+	public function test_ai_chat_button_registered_in_editor_omnibar() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Ask AI button is not added to the editor admin bar when the omnibar
+	 * experiment is inactive, even though Agents Manager is enabled.
+	 */
+	public function test_ai_chat_button_not_registered_in_editor_without_omnibar() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( false );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Ask AI button is not added to the editor admin bar when Agents Manager is
+	 * not enabled, even while the omnibar experiment is active.
+	 */
+	public function test_ai_chat_button_not_registered_in_editor_when_not_enabled() {
+		$this->set_up_block_editor_request( false );
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+	}
+
+	/**
+	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar when the
+	 * omnibar experiment is active in the unified experience.
+	 */
+	public function test_help_menu_registered_in_editor_omnibar_when_unified() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
+		);
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the omnibar
+	 * experiment is active but the unified experience is disabled (Ask AI only).
+	 */
+	public function test_help_menu_not_registered_in_editor_omnibar_without_unified() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 	}
 
 	/**
@@ -2273,5 +2468,183 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
 		$this->assertFalse( $result, 'should_enqueue_script should return false on WooCommerce Admin home page' );
+	}
+
+	/**
+	 * Helper to call the private determine_iso_639_locale method via reflection.
+	 *
+	 * @return string The resolved ISO 639 locale code.
+	 */
+	private function call_determine_iso_639_locale() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'determine_iso_639_locale' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null );
+	}
+
+	/**
+	 * Tests that the translation script is enqueued for a connected variant when the
+	 * user's locale is not English, and that the main script depends on it so the
+	 * translations load first.
+	 */
+	public function test_translations_enqueued_for_non_english_locale() {
+		$this->set_admin_context();
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		// Pre-seed the asset manifest transient so enqueue_script does not hit the network.
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => '1.2.3',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$locale_filter = static function () {
+			return 'de_DE';
+		};
+		add_filter( 'locale', $locale_filter );
+
+		// Enable unified experience. Not a Jetpack site, so the connected wp-admin variant is used.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized' );
+		$this->assertTrue(
+			wp_script_is( 'agents-manager-translations', 'enqueued' ),
+			'Translation script should be enqueued for a non-English locale'
+		);
+		$this->assertSame(
+			'https://widgets.wp.com/agents-manager/languages/de-v1.js',
+			$wp_scripts->registered['agents-manager-translations']->src,
+			'Translation script should point at the agents-manager languages directory for the resolved locale'
+		);
+		$this->assertContains(
+			'agents-manager-translations',
+			$wp_scripts->registered['agents-manager']->deps,
+			'Main script should depend on the translation script so it loads first'
+		);
+
+		remove_filter( 'locale', $locale_filter );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
+	 * Tests that no translation script is enqueued when the user's locale is English,
+	 * since the English strings ship in the bundle itself.
+	 */
+	public function test_translations_not_enqueued_for_english_locale() {
+		$this->set_admin_context();
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => '1.2.3',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$locale_filter = static function () {
+			return 'en_US';
+		};
+		add_filter( 'locale', $locale_filter );
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'agents-manager-translations', 'enqueued' ),
+			'Translation script should not be enqueued for an English locale'
+		);
+
+		remove_filter( 'locale', $locale_filter );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
+	 * Tests that translations are not loaded for disconnected variants, whose minimal
+	 * bundles have no translatable in-app UI. Mirrors Help Center's behavior.
+	 */
+	public function test_translations_not_enqueued_for_disconnected_variant() {
+		$this->set_admin_context();
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		set_transient(
+			'agents-manager-asset-wp-admin-disconnected.asset.json',
+			array(
+				'version'      => '1.2.3',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$locale_filter = static function () {
+			return 'de_DE';
+		};
+		add_filter( 'locale', $locale_filter );
+
+		// Unified experience on a Jetpack site with a disconnected user yields wp-admin-disconnected.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'agents-manager-translations', 'enqueued' ),
+			'Translation script should not be enqueued for the wp-admin-disconnected variant'
+		);
+
+		remove_filter( 'locale', $locale_filter );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin-disconnected.asset.json' );
+	}
+
+	/**
+	 * Tests that determine_iso_639_locale normalizes WordPress locales to the ISO 639
+	 * codes used by the widgets.wp.com translation files.
+	 *
+	 * @param string $wp_locale The WordPress user locale.
+	 * @param string $expected  The expected normalized ISO 639 code.
+	 * @dataProvider provide_locales
+	 */
+	#[DataProvider( 'provide_locales' )]
+	public function test_determine_iso_639_locale_normalizes_locales( $wp_locale, $expected ) {
+		$locale_filter = static function () use ( $wp_locale ) {
+			return $wp_locale;
+		};
+		add_filter( 'locale', $locale_filter );
+
+		$this->assertSame( $expected, $this->call_determine_iso_639_locale() );
+
+		remove_filter( 'locale', $locale_filter );
+	}
+
+	/**
+	 * Data provider for locale normalization.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_locales() {
+		return array(
+			'German strips region'          => array( 'de_DE', 'de' ),
+			'French strips region'          => array( 'fr_FR', 'fr' ),
+			'Brazilian Portuguese kept'     => array( 'pt_BR', 'pt-br' ),
+			'Traditional Chinese kept'      => array( 'zh_TW', 'zh-tw' ),
+			'Simplified Chinese kept'       => array( 'zh_CN', 'zh-cn' ),
+			'English strips region'         => array( 'en_US', 'en' ),
+			'Empty locale falls back to en' => array( '', 'en' ),
+		);
 	}
 }

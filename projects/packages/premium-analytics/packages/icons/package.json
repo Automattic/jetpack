@@ -7,10 +7,10 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
-		"@wordpress/primitives": "4.48.0"
+		"@wordpress/primitives": "4.50.0"
 	},
 	"devDependencies": {
-		"@storybook/react": "10.3.6",
-		"@wordpress/ui": "0.13.0"
+		"@storybook/react": "10.4.6",
+		"@wordpress/ui": "0.17.0"
 	}
 }

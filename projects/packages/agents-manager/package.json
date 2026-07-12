@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-agents-manager",
-	"version": "0.5.0",
+	"version": "0.8.0",
 	"private": true,
 	"description": "Shared AI infrastructure helpers for Automattic plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/agents-manager/#readme",
@@ -30,17 +30,16 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/preset-env": "7.29.2",
-		"@babel/runtime": "7.29.2",
+		"@babel/core": "7.29.7",
+		"@babel/runtime": "7.29.7",
 		"@jest/globals": "30.4.1",
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
-		"@wordpress/browserslist-config": "6.48.0",
+		"@wordpress/browserslist-config": "6.50.0",
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.3",
 		"jest": "30.4.2",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

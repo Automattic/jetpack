@@ -2,10 +2,13 @@
  * The Daily Writing Prompt widget ships from this package to Simple, Atomic,
  * and self-hosted Jetpack sites alike, so its Jetpack branding has to live in
  * the React component (the one surface shared across every environment). These
- * tests pin that branding contract: once prompts have loaded the widget renders
- * the Jetpack logo so customers can tell which plugin added the widget, and
- * before any prompt loads the widget renders nothing at all so the logo never
- * shows on an empty widget.
+ * tests pin that branding contract. While prompts are still loading the widget
+ * renders nothing at all, so the logo never flashes on a not-yet-populated
+ * widget. Once the fetch has settled the widget always renders the branding
+ * footer (Jetpack logo + Reader link) so customers can tell which plugin added
+ * the widget: when a prompt came back it renders the prompt, and when none did
+ * (an empty response or a failed request) it renders a short fallback message
+ * plus the footer instead of collapsing to a blank box.
  */
 
 const mockApiFetch = jest.fn();
@@ -67,13 +70,65 @@ describe( 'WritingPrompt widget branding', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders nothing (and so no logo) before any prompt loads', () => {
+	it( 'renders nothing (and so no logo) while prompts are still loading', () => {
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 
 		const { container } = render( <WritingPrompt /> );
 
 		expect( container ).toBeEmptyDOMElement();
 		expect( screen.queryByRole( 'img', { name: 'Jetpack Logo' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'WritingPrompt widget empty state', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+	} );
+
+	it( 'renders the fallback message and branded footer when no prompt comes back', async () => {
+		mockApiFetch.mockResolvedValue( [] );
+
+		render( <WritingPrompt /> );
+
+		// The fallback view still carries the Jetpack branding and Reader links so the
+		// widget stays useful instead of collapsing to a blank box.
+		// The message links "the Reader" inline to the WordPress.com Reader...
+		const inlineReaderLink = await screen.findByRole( 'link', { name: 'the Reader' } );
+		expect( inlineReaderLink ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/reader?origin_site_id=12345'
+		);
+		expect( screen.getByText( /No writing prompt to show right now/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
+		// ...and the always-on footer Reader link is still present alongside it.
+		expect(
+			screen.getByRole( 'link', { name: /Read the blogs and topics you follow/ } )
+		).toHaveAttribute( 'href', 'https://wordpress.com/reader?origin_site_id=12345' );
+
+		// None of the prompt-only controls should render without a prompt.
+		expect( screen.queryByRole( 'button', { name: 'Post Answer' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Next/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the fallback view when the prompts request fails', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'network error' ) );
+
+		render( <WritingPrompt /> );
+
+		// A rejected request must degrade to the same fallback view rather than
+		// leaving the widget stuck on its empty loading state.
+		await expect(
+			screen.findByRole( 'link', { name: 'the Reader' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( /No writing prompt to show right now/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'link', { name: /Read the blogs and topics you follow/ } )
+		).toBeInTheDocument();
 	} );
 } );
 
@@ -199,6 +254,36 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		} );
 		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
+	} );
+} );
+
+describe( 'WritingPrompt widget prompt text', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+	} );
+
+	it( 'decodes HTML entities in the prompt text', async () => {
+		// The wpcom/v3/blogging-prompts endpoint returns the prompt text HTML-entity
+		// encoded (via wp_kses), matching the WP REST API convention. The widget must
+		// decode it before rendering, the same way Calypso's blogging-prompt-card does,
+		// otherwise readers see raw entity names like &quot; instead of quotation marks.
+		mockApiFetch.mockResolvedValue( [
+			{
+				...PROMPT,
+				text: 'Tell us about &quot;The Hard Years&quot; &amp; other stories.',
+			},
+		] );
+
+		render( <WritingPrompt /> );
+
+		await expect(
+			screen.findByText( 'Tell us about "The Hard Years" & other stories.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /&quot;/ ) ).not.toBeInTheDocument();
 	} );
 } );
 

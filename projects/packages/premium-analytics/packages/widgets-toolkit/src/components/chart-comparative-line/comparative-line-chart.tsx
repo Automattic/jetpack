@@ -3,8 +3,10 @@
  */
 import { LineChart } from '@automattic/charts';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { useResizeObserver } from '@wordpress/compose';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
@@ -54,6 +56,12 @@ function resolveSeriesStyles(
  * Y-axis is on the left, so right margin is always 0.
  */
 const DEFAULT_MARGIN = { right: 0 };
+
+/**
+ * Chart-area height (px) below which `compactWhenShort` degrades the chart to
+ * a sparkline (no y-axis, grid, or legend).
+ */
+const COMPACT_CHART_HEIGHT = 140;
 
 /**
  * Applies resolved styles to series data for the internal LineChart.
@@ -127,6 +135,12 @@ export type ComparativeLineChartProps = {
 	dataFormat: DataFormat;
 
 	tickFormat?: string;
+
+	/**
+	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
+	 * is too short for readable axis labels. Defaults to false.
+	 */
+	compactWhenShort?: boolean;
 } & Omit<
 	ComponentProps< typeof LineChart >,
 	| 'data'
@@ -147,7 +161,18 @@ export function ComparativeLineChart( {
 	dataFormat,
 	tickFormat: xTickFormatType,
 	maxWidth = Infinity,
+	compactWhenShort = false,
 }: ComparativeLineChartProps ) {
+	// The measured Stack fills its container (flex), so its height is independent
+	// of whether the axis/legend are shown — no measure/hide feedback loop.
+	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
+	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
+		const rect = entries[ 0 ]?.contentRect;
+		if ( rect ) {
+			setChartAreaHeight( rect.height );
+		}
+	} );
+	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
 	/**
 	 * Resolve styles: prop takes priority, fallback to series options.
 	 * This array is used for tooltip styling and to decorate series data.
@@ -286,6 +311,8 @@ export function ComparativeLineChart( {
 				},
 				y: {
 					tickFormat: yTickFormat,
+					// Hide the y-axis on short tiles; its labels would otherwise overlap.
+					...( isCompact ? { display: false } : {} ),
 				},
 			},
 		};
@@ -314,38 +341,48 @@ export function ComparativeLineChart( {
 		percentageDomain,
 		isEmptyData,
 		emptyChartProps.chartOptions,
+		isCompact,
 	] );
 
+	const margin = percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN;
+
 	return (
-		<LineChart
-			className={ clsx( styles.chart, className ) }
-			data={ styledSeries }
-			options={ chartOptions }
-			margin={ percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN }
-			maxWidth={ maxWidth }
-			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-			withLegendGlyph={ false }
-			showLegend={ false }
-			curveType="monotone"
-			withGradientFill
-			withTooltips={ !! renderTooltip && ! isEmptyData }
-			renderTooltip={ renderTooltip }
-		>
-			<LineChart.Legend
-				shape="line"
-				className={ styles.legend }
-				itemClassName={ styles.legendItem }
-				itemStyles={ {
-					margin: 0,
-				} }
-				labelClassName={ styles.legendLabel }
-				labelStyles={ {
-					maxWidth: '100%',
-					textOverflow: 'ellipsis',
-					margin: 0,
-				} }
-				shapeStyles={ { margin: 0 } }
-			/>
-		</LineChart>
+		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
+			<LineChart
+				className={ styles.chartContent }
+				data={ styledSeries }
+				options={ chartOptions }
+				// With the y-axis hidden, reclaim its reserved left margin for the line.
+				margin={ isCompact ? { ...margin, left: 0 } : margin }
+				maxWidth={ maxWidth }
+				gridVisibility={ isCompact ? 'none' : undefined }
+				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
+				withLegendGlyph={ false }
+				showLegend={ false }
+				curveType="monotone"
+				withGradientFill
+				withTooltips={ !! renderTooltip && ! isEmptyData }
+				renderTooltip={ renderTooltip }
+			>
+				{ /* The solid/dashed lines already convey current vs previous period. */ }
+				{ ! isCompact && (
+					<LineChart.Legend
+						shape="line"
+						className={ styles.legend }
+						itemClassName={ styles.legendItem }
+						itemStyles={ {
+							margin: 0,
+						} }
+						labelClassName={ styles.legendLabel }
+						labelStyles={ {
+							maxWidth: '100%',
+							textOverflow: 'ellipsis',
+							margin: 0,
+						} }
+						shapeStyles={ { margin: 0 } }
+					/>
+				) }
+			</LineChart>
+		</Stack>
 	);
 }

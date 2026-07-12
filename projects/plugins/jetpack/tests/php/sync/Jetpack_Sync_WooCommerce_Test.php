@@ -70,6 +70,197 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( 'custom', $order_status_event->args[2] );
 	}
 
+	/**
+	 * Extract the trailing order-total payload appended to a synced order action, if present.
+	 *
+	 * @param object|false $event Synced event, or false when none.
+	 * @return array|null The order-total payload ( total, currency), or null when absent.
+	 */
+	private function order_total_from_event( $event ) {
+		if ( ! $event ) {
+			return null;
+		}
+
+		$last = end( $event->args );
+		return ( is_array( $last ) && isset( $last['total'] ) ) ? $last : null;
+	}
+
+	public function test_paid_order_appends_total_to_order_status_changed() {
+		$order = $this->createOrderWithPricedItem();
+		$order->payment_complete();
+
+		$this->sender->do_sync();
+
+		$event       = $this->server_event_storage->get_most_recent_event( 'woocommerce_order_status_changed' );
+		$order_total = $this->order_total_from_event( $event );
+
+		$this->assertIsArray( $order_total );
+		$this->assertEquals( (float) $order->get_total(), (float) $order_total['total'] );
+		$this->assertEquals( $order->get_currency(), $order_total['currency'] );
+	}
+
+	public function test_new_order_created_in_paid_status_appends_total() {
+		$order = $this->createOrderWithPricedItem( 2 );
+		$order->set_status( 'completed' );
+		$order->save();
+
+		$this->sender->do_sync();
+
+		// The payment is observed by woocommerce_new_order or the transition into the paid status;
+		// exactly one of them carries the order-total payload.
+		$order_total = $this->order_total_from_event( $this->server_event_storage->get_most_recent_event( 'woocommerce_new_order' ) );
+		if ( null === $order_total ) {
+			$order_total = $this->order_total_from_event( $this->server_event_storage->get_most_recent_event( 'woocommerce_order_status_changed' ) );
+		}
+
+		$this->assertIsArray( $order_total );
+		$this->assertEquals( (float) $order->get_total(), (float) $order_total['total'] );
+		$this->assertEquals( $order->get_currency(), $order_total['currency'] );
+	}
+
+	public function test_non_paid_order_status_change_appends_no_total() {
+		add_filter( 'wc_order_statuses', array( $this, 'add_custom_order_status' ) );
+
+		$order = $this->createOrderWithItem();
+		$order->update_status( 'custom' );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'woocommerce_order_status_changed' );
+
+		$this->assertTrue( (bool) $event );
+		$this->assertNull( $this->order_total_from_event( $event ) );
+	}
+
+	public function test_paid_to_paid_transition_does_not_re_emit() {
+		$order = $this->createOrderWithPricedItem();
+		$order->update_status( 'processing' ); // pending -> processing (paid): the payment is emitted.
+
+		$this->sender->do_sync();
+
+		$this->assertIsArray( $this->order_total_from_event( $this->server_event_storage->get_most_recent_event( 'woocommerce_order_status_changed' ) ) );
+
+		$this->server_event_storage->reset();
+
+		$order->update_status( 'completed' ); // processing -> completed: paid -> paid, same payment.
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'woocommerce_order_status_changed' );
+		$this->assertTrue( (bool) $event );
+		$this->assertNull( $this->order_total_from_event( $event ) );
+	}
+
+	public function test_manual_processing_then_completed_records_total_once() {
+		$order = $this->createOrderWithPricedItem();
+
+		$order->update_status( 'processing' ); // Manual: physical order, date_paid stamped here.
+		$order->update_status( 'completed' );  // Manual fulfillment; same payment, must not re-record.
+
+		$this->sender->do_sync();
+
+		$events     = $this->server_event_storage->get_all_events( 'woocommerce_order_status_changed' );
+		$with_total = array_values( array_filter( array_map( array( $this, 'order_total_from_event' ), $events ) ) );
+
+		$this->assertCount( 1, $with_total );
+		$this->assertEquals( (float) $order->get_total(), (float) $with_total[0]['total'] );
+	}
+
+	public function test_new_order_filter_uses_passed_order_and_strips_object() {
+		$order = $this->createOrderWithPricedItem();
+		$order->set_status( 'completed' ); // In-memory only: no save, so the emission isn't claimed yet.
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_new_order( array( $order->get_id(), $order ) );
+
+		// The WC_Order passed as the 2nd hook arg must never survive into the enqueued args.
+		foreach ( $filtered as $arg ) {
+			$this->assertNotInstanceOf( WC_Order::class, $arg );
+		}
+		$this->assertSame( $order->get_id(), $filtered[0] );
+
+		// The passed object was used to build the payload (the order is paid and unclaimed).
+		$payload = end( $filtered );
+		$this->assertIsArray( $payload );
+		$this->assertEquals( (float) $order->get_total(), (float) $payload['total'] );
+	}
+
+	public function test_status_changed_filter_uses_passed_order_and_strips_object() {
+		$order = $this->createOrderWithPricedItem();
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing', $order ) );
+
+		foreach ( $filtered as $arg ) {
+			$this->assertNotInstanceOf( WC_Order::class, $arg );
+		}
+		$this->assertSame( array( $order->get_id(), 'pending', 'processing' ), array_slice( $filtered, 0, 3 ) );
+
+		$payload = end( $filtered );
+		$this->assertIsArray( $payload );
+		$this->assertEquals( (float) $order->get_total(), (float) $payload['total'] );
+	}
+
+	public function test_new_order_filter_returns_false_for_invalid_args() {
+		$module = $this->get_woocommerce_module();
+
+		$this->assertFalse( $module->add_order_total_to_new_order( array() ) );
+		$this->assertFalse( $module->add_order_total_to_new_order( array( 'not-an-id' ) ) );
+		$this->assertFalse( $module->add_order_total_to_new_order( array( 0 ) ) );
+	}
+
+	public function test_new_order_filter_without_order_object_syncs_id_only() {
+		$order  = $this->createOrderWithItem();
+		$module = $this->get_woocommerce_module();
+
+		$filtered = $module->add_order_total_to_new_order( array( $order->get_id() ) );
+
+		$this->assertSame( array( $order->get_id() ), $filtered );
+	}
+
+	public function test_new_order_filter_with_zero_total_syncs_id_only() {
+		// An order with no items has a total of 0; even when paid, no order-total payload is appended.
+		$order = $this->createOrderWithZeroTotal( 'completed' );
+
+		$this->assertSame( 0.0, (float) $order->get_total() );
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_new_order( array( $order->get_id(), $order ) );
+
+		$this->assertSame( array( $order->get_id() ), $filtered );
+	}
+
+	public function test_status_changed_filter_returns_false_for_invalid_args() {
+		$module = $this->get_woocommerce_module();
+
+		$this->assertFalse( $module->add_order_total_to_status_changed( array() ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1 ) ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1, 'pending' ) ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 'not-an-id', 'pending', 'processing' ) ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1, null, 'processing' ) ) );
+	}
+
+	public function test_status_changed_filter_without_order_object_syncs_without_total() {
+		$order  = $this->createOrderWithItem();
+		$module = $this->get_woocommerce_module();
+
+		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing' ) );
+
+		$this->assertSame( array( $order->get_id(), 'pending', 'processing' ), $filtered );
+	}
+
+	public function test_status_changed_filter_with_zero_total_syncs_without_total() {
+		// An order with no items has a total of 0, so the paid transition appends no order-total payload.
+		$order = $this->createOrderWithZeroTotal();
+
+		$this->assertSame( 0.0, (float) $order->get_total() );
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing', $order ) );
+
+		$this->assertSame( array( $order->get_id(), 'pending', 'processing' ), $filtered );
+	}
+
 	public function test_order_status_payment_complete_is_synced() {
 		$order = $this->createOrderWithItem();
 
@@ -465,6 +656,45 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		);
 
 		$order->add_item( $item );
+		$order->save();
+
+		return $order;
+	}
+
+	/**
+	 * Create an order whose line item is priced, so the order has a non-zero total.
+	 *
+	 * Unlike createOrderWithItem(), this uses WC_Order::add_product(), which sets the line item
+	 * subtotal/total from the product price (a manually constructed WC_Order_Item_Product does not),
+	 * then calculates the order totals. Use this for tests that assert on the order total.
+	 *
+	 * @param int $quantity Quantity of the product to add.
+	 * @return WC_Order Saved order with a non-zero total.
+	 */
+	private function createOrderWithPricedItem( $quantity = 4 ) {
+		$product = WC_Helper_Product::create_simple_product();
+		$order   = new WC_Order();
+		$order->add_product( $product, $quantity );
+		$order->calculate_totals();
+		$order->save();
+
+		return $order;
+	}
+
+	/**
+	 * Create an order with no line items, so its total is 0.
+	 *
+	 * The companion to createOrderWithPricedItem() for tests that exercise the zero-total guard.
+	 *
+	 * @param string $status Optional order status to set (e.g. 'completed' to make it paid).
+	 * @return WC_Order Saved order with a total of 0.
+	 */
+	private function createOrderWithZeroTotal( $status = '' ) {
+		$order = new WC_Order();
+		if ( '' !== $status ) {
+			$order->set_status( $status );
+		}
+		$order->calculate_totals();
 		$order->save();
 
 		return $order;
