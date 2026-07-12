@@ -61,7 +61,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 	/**
 	 * Validates that the argument sent to the active_checklist_slug parameter is a valid checklist slug or empty.
 	 *
-	 * @param string $value The value of the active_checklist_slug parameter.
+	 * @param string|null $value The value of the active_checklist_slug parameter.
 	 * @return bool
 	 */
 	public function validate_checklist_slug_param( $value ) {
