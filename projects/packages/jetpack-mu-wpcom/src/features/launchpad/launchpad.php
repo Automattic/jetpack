@@ -1006,24 +1006,34 @@ function wpcom_launchpad_navigator_remove_checklist( $checklist_slug ) {
 		);
 	}
 
-	$current_active_checklist = wpcom_launchpad_get_active_checklist();
-
 	$checklists = $wpcom_launchpad_config['navigator_checklists'];
 	// Find if $checklist_slug is in the checklists array. If it is, remove it.
 	$key = array_search( $checklist_slug, $checklists, true );
 	if ( $key === false ) {
 		return array(
 			'updated'              => false,
-			'new_active_checklist' => $current_active_checklist,
+			'new_active_checklist' => wpcom_launchpad_get_active_checklist(),
 		);
 	}
 
 	unset( $checklists[ $key ] );
 
-	$new_active_checklist = $current_active_checklist;
-	if ( $current_active_checklist === $checklist_slug ) {
-		// get last item on $checklists array, if there is one; otherwise set to null
-		$new_active_checklist = end( $checklists ) ? end( $checklists ) : null;
+	// Compare against the raw stored slug, not the getter: a retired active checklist
+	// reads as null there, which would otherwise hide that it was the one removed.
+	$stored_active_slug = $wpcom_launchpad_config['active_checklist_slug'] ?? null;
+
+	$new_active_checklist = wpcom_launchpad_get_active_checklist();
+	if ( $stored_active_slug === $checklist_slug ) {
+		// The active checklist was removed. Promote the most recently added one that
+		// is still registered, skipping any other retired slugs, or clear it.
+		$registered_checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		$new_active_checklist  = null;
+		foreach ( array_reverse( $checklists ) as $remaining_slug ) {
+			if ( is_string( $remaining_slug ) && array_key_exists( $remaining_slug, $registered_checklists ) ) {
+				$new_active_checklist = $remaining_slug;
+				break;
+			}
+		}
 		wpcom_launchpad_set_current_active_checklist( $new_active_checklist );
 	}
 
@@ -1074,6 +1084,12 @@ function wpcom_launchpad_get_active_checklist() {
 
 	$active_checklist_slug = $wpcom_launchpad_config['active_checklist_slug'];
 
+	// This repairs persisted state, so it cannot assume a well-formed value: legacy
+	// or custom code may have stored a non-string, which would fatal below.
+	if ( ! is_string( $active_checklist_slug ) ) {
+		return null;
+	}
+
 	// A retired checklist can linger here from before it was unregistered. Treat it
 	// as unset, matching how the available list drops unregistered slugs and how the
 	// setter refuses them, so the Navigator never reports a checklist that is gone.
@@ -1087,7 +1103,7 @@ function wpcom_launchpad_get_active_checklist() {
 /**
  * Helper function to set the current active checklist in the navigator context.
  *
- * @param string $checklist_slug The slug of the launchpad task list to mark as active.
+ * @param string|null $checklist_slug The slug of the launchpad task list to mark as active, or null to clear it.
  * @return bool Whether the option update succeeded.
  */
 function wpcom_launchpad_set_current_active_checklist( $checklist_slug ) {

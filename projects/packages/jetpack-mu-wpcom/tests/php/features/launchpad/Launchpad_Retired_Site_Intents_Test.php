@@ -241,4 +241,38 @@ class Launchpad_Retired_Site_Intents_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'design-first', wpcom_launchpad_get_active_checklist() );
 	}
+
+	/**
+	 * Removing a retired active checklist promotes the next registered one, rather
+	 * than leaving the retired slug stored with no active checklist reported.
+	 */
+	public function test_removing_retired_active_checklist_promotes_next_registered() {
+		wpcom_register_default_launchpad_checklists();
+		update_option(
+			'wpcom_launchpad_config',
+			array(
+				'active_checklist_slug' => 'start-writing',
+				'navigator_checklists'  => array( 'start-writing', 'design-first' ),
+			)
+		);
+
+		$result = wpcom_launchpad_navigator_remove_checklist( 'start-writing' );
+
+		$this->assertSame( 'design-first', $result['new_active_checklist'], 'the next registered checklist must be promoted' );
+		$this->assertSame( 'design-first', wpcom_launchpad_get_active_checklist(), 'the promotion must be persisted' );
+	}
+
+	/**
+	 * A non-string active checklist slug from malformed legacy state reads as none
+	 * rather than fataling on the registered-checklist lookup.
+	 */
+	public function test_malformed_active_checklist_slug_reads_as_none() {
+		wpcom_register_default_launchpad_checklists();
+		update_option(
+			'wpcom_launchpad_config',
+			array( 'active_checklist_slug' => array( 'unexpected' ) )
+		);
+
+		$this->assertNull( wpcom_launchpad_get_active_checklist() );
+	}
 }
