@@ -5,6 +5,9 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad-navigator.php';
+
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -274,5 +277,25 @@ class Launchpad_Retired_Site_Intents_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertNull( wpcom_launchpad_get_active_checklist() );
+	}
+
+	/**
+	 * Retired slugs are accepted for reads and removal, but not for setting the
+	 * active checklist, so a retired flow cannot be re-selected.
+	 */
+	public function test_navigator_enums_separate_reads_from_mutations() {
+		wpcom_register_default_launchpad_checklists();
+		$navigator = new WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator();
+
+		$registered = $navigator->get_checklist_slug_enums();
+		$this->assertContains( 'design-first', $registered );
+		$this->assertNotContains( 'start-writing', $registered, 'mutations must not accept a retired slug' );
+
+		$readable = $navigator->get_readable_checklist_slug_enums();
+		$this->assertContains( 'start-writing', $readable, 'reads and removal must accept a retired slug' );
+
+		$this->assertFalse( $navigator->validate_checklist_slug_param( 'start-writing' ), 'setting a retired slug active must be rejected' );
+		$this->assertTrue( $navigator->validate_checklist_slug_param( 'design-first' ) );
+		$this->assertTrue( $navigator->validate_checklist_slug_param( null ), 'clearing the active checklist must stay allowed' );
 	}
 }
