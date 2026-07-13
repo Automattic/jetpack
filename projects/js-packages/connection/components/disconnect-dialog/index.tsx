@@ -186,9 +186,9 @@ const DisconnectDialog = ( {
 				setIsDisconnecting( false );
 
 				let message: string;
-				if ( error instanceof Error ) {
+				if ( error instanceof Error && error.message ) {
 					message = error.message;
-				} else if ( typeof error === 'string' ) {
+				} else if ( typeof error === 'string' && error ) {
 					message = error;
 				} else {
 					message = __(
