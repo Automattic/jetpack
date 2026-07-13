@@ -163,6 +163,14 @@ function FeatureRow( { feature, checked, isSaving, onChange } ) {
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
 
+	// Only render rows whose feature the endpoint actually reported: a toggle
+	// without a backend would render stuck at "off" and save nothing. Keeps the
+	// view correct when the UI ships ahead of a feature's backend (or vice versa).
+	const sections = SECTIONS.map( section => ( {
+		...section,
+		features: section.features.filter( feature => features[ feature.key ] !== undefined ),
+	} ) ).filter( section => section.features.length > 0 );
+
 	const handleToggle = useCallback(
 		( key, enabled ) => {
 			analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', { feature: key, enabled } );
@@ -173,7 +181,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 
 	return (
 		<Stack direction="column" gap="md">
-			{ SECTIONS.map( section => (
+			{ sections.map( section => (
 				<Card key={ section.key }>
 					<CardBody>
 						<Stack direction="column" gap="md">
