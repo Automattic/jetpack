@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49272]
 
 ### Fixed
-- AI guideline message: keep the "Learn more" link on a single line on narrow/mobile widths [#50423]
+- Keep the AI guideline message's "Learn more" link on a single line on narrow/mobile widths. [#50423]
 
 ## [0.34.28] - 2026-07-06
 ### Changed

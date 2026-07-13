@@ -3,11 +3,8 @@
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
 ## [1.12.16] - 2026-07-13
-### Changed
-- Comment: Prefix --color-* variables into --jetpack-social-logo-color-* CSS variables to avoid name collisions. [#50413]
-
 ### Fixed
-- Pricing table: align the highlighted column's gradient background to the right edge of the card. [#50346]
+- Pricing table: Align the highlighted column's gradient background to the right edge of the card. [#50346]
 
 ## [1.12.15] - 2026-07-09
 ### Changed

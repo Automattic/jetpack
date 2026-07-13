@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#50407]
 
 ### Fixed
-- My Jetpack: fix route changes in Chrome when scroll APIs return promises. [#50465]
+- Fix route changes in Chrome when scroll APIs return promises. [#50465]
 - Show a Site Editor action for sharing buttons on block themes. [#50355]
 
 ## [5.40.6] - 2026-07-09

@@ -7,16 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.84.0] - 2026-07-13
 ### Changed
-- Comment: Prefix --color-* variables into --jetpack-social-logo-color-* CSS variables to avoid name collisions. [#50413]
-- Comment: Remove Calypso color schemes dependency. [#50452]
 - Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites). [#50376]
-- Social: enable the modernized wp-admin dashboard for all sites by default. [#50092]
+- Social: Enable the modernized wp-admin dashboard for all sites by default. [#50092]
 - Update package dependencies. [#49272]
 - Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
 
 ### Fixed
-- Post-publish sharing panel: add missing space between sentence and link. [#50399]
-- Social: render message-template placeholders in the manual sharing buttons instead of leaking raw {title}/{excerpt}/{url}/{author} tokens. [#50290]
+- Post-publish sharing panel: Add missing space between sentence and link. [#50399]
+- Social: Render message-template placeholders in the manual sharing buttons instead of leaking raw {title}/{excerpt}/{url}/{author} tokens. [#50290]
 
 ## [0.83.5] - 2026-07-06
 ### Added

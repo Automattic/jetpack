@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.6] - 2026-07-13
 ### Added
-- Account Protection: Add additional context to Verify your identity page to reduce user confusion. [#50338]
+- Add additional context to Verify your identity page to reduce user confusion. [#50338]
 
 ## [0.3.5] - 2026-06-25
 ### Changed

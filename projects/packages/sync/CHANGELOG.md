@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.45.2] - 2026-07-13
 ### Added
-- Sync the AI Launchpad state options (wpcom_ai_launchpad_enabled, _dismissed, _completed) so the wpcom /sites endpoint can expose them for Atomic sites. [#50455]
+- Sync the AI Launchpad state options (`wpcom_ai_launchpad_enabled`, `_dismissed`, `_completed`) so the wpcom `/sites` endpoint can expose them for Atomic sites. [#50455]
 
 ## [4.45.1] - 2026-07-09
 ### Changed

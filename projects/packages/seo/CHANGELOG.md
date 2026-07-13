@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Clarify Google site verification actions and configured-code labels. [#50227]
 - Content tab: Rename the row action column from "Actions" to "Edit SEO". [#50332]
-- Fix SEO inspector save issues: report failed saves, block saving over unloaded meta, and keep edits scoped to their post. [#50319]
+- Inspector: Report failed saves, block saving over unloaded meta, and keep edits scoped to their post. [#50319]
 - Validate schema profile URLs without DNS lookups, so front-end rendering never blocks on name resolution and well-formed URLs on unresolvable hosts are kept. [#50225]
 
 ## [0.4.0] - 2026-07-06

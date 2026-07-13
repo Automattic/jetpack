@@ -7,23 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.23.1] - 2026-07-13
 ### Changed
-- Comment: Forms: migrate FormsHelpModal from @wordpress/components to @wordpress/ui Dialog, Button, Stack, and Text. [#50402]
 - Forms now reports its unread count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
-- Update package dependencies. [#49272]
-- Update package dependencies. [#50234]
-- Update package dependencies. [#50407]
+- Update package dependencies. [#49272] [#50234] [#50407]
 - Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
 
 ### Removed
-- Remove unused react-redux, redux, and redux-thunk dependencies [#50282]
+- Remove unused react-redux, redux, and redux-thunk dependencies. [#50282]
 
 ### Fixed
-- Block editor: surface the most common fields (Name, Email, Text…) first in the form's block inserter instead of burying them past the quick-inserter cutoff. [#50425]
-- Contact Form: restore the listView block support so form fields can be managed from the editor List View (regressed when block attributes were ported to block.json metadata). [#50463]
-- Feedback: parse versionless JSON post_content as JSON instead of falling through to the legacy plain-text parser. [#50380]
+- Block editor: Surface the most common fields (Name, Email, Text…) first in the form's block inserter instead of burying them past the quick-inserter cutoff. [#50425]
+- Contact Form: Restore the listView block support so form fields can be managed from the editor List View (regressed when block attributes were ported to block.json metadata). [#50463]
+- Feedback: Parse versionless JSON `post_content` as JSON instead of falling through to the legacy plain-text parser. [#50380]
 - Fix an invalid Stack "gap" value ("s" -> "sm") in the single-response actions bar, surfaced as a type error by the @wordpress/ui update. [#49272]
 - Fix the Form Responses quick link disappearing from the admin bar on mobile viewports, and align its icon with the native items. [#50421]
-- Forms: stop loading the unused legacy dashboard SPA bundle on the new (wp-build) Forms dashboard, removing a large amount of unnecessary JavaScript from the page. [#50219]
+- Stop loading the unused legacy dashboard SPA bundle on the new (wp-build) Forms dashboard, removing a large amount of unnecessary JavaScript from the page. [#50219]
 
 ## [7.23.0] - 2026-07-06
 ### Added

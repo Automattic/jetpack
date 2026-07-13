@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update dependencies. [#50360]
 
 ### Fixed
-- Sidebar notice: Fix the dismiss icon being invisible against the dark admin menu background. [#50381]
+- Fix the sidebar notice dismiss icon being invisible against the dark admin menu background. [#50381]
 
 ## [0.27.32] - 2026-07-06
 ### Changed
