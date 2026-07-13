@@ -223,7 +223,7 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exposes the CSV export once the fetched rows are on screen', async () => {
+	it( 'exposes the CSV export in the widget content once the fetched rows are on screen', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget attributes={ { num: 10 } } />
@@ -235,7 +235,10 @@ describe( 'TopPostsWidget', () => {
 		).resolves.toBeInTheDocument();
 
 		const toolbar = screen.getByTestId( 'widget-toolbar' );
-		expect( within( toolbar ).getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		expect(
+			within( toolbar ).queryByRole( 'button', { name: /Download CSV/ } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides the CSV export when the server flag is disabled', async () => {

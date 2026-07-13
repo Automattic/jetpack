@@ -1,5 +1,7 @@
-.headerExport {
-	order: -1;
+.contentExport {
+	display: flex;
+	justify-content: flex-end;
+	margin-block-end: var(--wpds-dimension-gap-sm, 8px);
 }
 
 .labelLink {
