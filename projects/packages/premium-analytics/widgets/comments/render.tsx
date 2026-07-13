@@ -9,7 +9,7 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { comment } from '@wordpress/icons';
 import { Link, Stack } from '@wordpress/ui';
@@ -31,10 +31,6 @@ const COMMENT_VIEWS: CommentView[] = [ 'authors', 'posts' ];
 
 function isCommentView( value: unknown ): value is CommentView {
 	return typeof value === 'string' && COMMENT_VIEWS.includes( value as CommentView );
-}
-
-function viewOptionClass( active: boolean ): string {
-	return active ? `${ styles.viewOption } ${ styles.viewOptionActive }` : styles.viewOption;
 }
 
 /**
@@ -90,27 +86,23 @@ interface CommentsInnerProps {
 	 */
 	max?: number;
 	/**
-	 * The view the widget opens on.
+	 * The active view. Owned by the widget host: the `view` attribute is
+	 * `relevance: 'high'`, so the host renders the "View by" header control.
 	 */
-	initialView: CommentView;
+	view: CommentView;
 }
 
 /**
  * Comments widget inner component. The comment counts come from the all-time
  * `stats/comments` report, so there is no date range or comparison period to
- * read from context; the view selector switches between the two groups the
- * report returns.
+ * read from context; the host-owned `view` selects which of the report's two
+ * groups is shown.
  *
  * @param {CommentsInnerProps} props - The component props.
  * @return The rendered widget content.
  */
-function CommentsInner( { max = 10, initialView }: CommentsInnerProps ) {
-	const [ view, setView ] = useState< CommentView >( initialView );
-
+function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 	const { data, isLoading, isFetching, isError, refetch } = useCommentViews( { view, max } );
-
-	const selectAuthors = useCallback( () => setView( 'authors' ), [] );
-	const selectPosts = useCallback( () => setView( 'posts' ), [] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( row => row.value ), 0 );
@@ -125,28 +117,6 @@ function CommentsInner( { max = 10, initialView }: CommentsInnerProps ) {
 
 	return (
 		<Stack className={ styles.root }>
-			<div
-				className={ styles.viewControl }
-				role="group"
-				aria-label={ __( 'Comments view', 'jetpack-premium-analytics' ) }
-			>
-				<button
-					type="button"
-					className={ viewOptionClass( view === 'authors' ) }
-					aria-pressed={ view === 'authors' }
-					onClick={ selectAuthors }
-				>
-					{ __( 'By authors', 'jetpack-premium-analytics' ) }
-				</button>
-				<button
-					type="button"
-					className={ viewOptionClass( view === 'posts' ) }
-					aria-pressed={ view === 'posts' }
-					onClick={ selectPosts }
-				>
-					{ __( 'By posts & pages', 'jetpack-premium-analytics' ) }
-				</button>
-			</div>
 			<div className={ styles.content }>
 				<WidgetState
 					isLoading={ isLoading }
@@ -182,18 +152,19 @@ function CommentsInner( { max = 10, initialView }: CommentsInnerProps ) {
 
 /**
  * Comments widget: the site's comment authors and its most-commented posts and
- * pages, ranked by comment count and switchable through an in-widget view
- * selector. Ported from the Jetpack Stats "Comments" module.
+ * pages, ranked by comment count. The active view is the host-rendered "View by"
+ * header control (the `view` attribute). Ported from the Jetpack Stats
+ * "Comments" module.
  *
  * @param {CommentsWidgetProps} props - The widget render props.
  * @return The rendered Comments widget.
  */
 export default function Comments( { attributes = {} }: CommentsWidgetProps ) {
-	const initialView = isCommentView( attributes.view ) ? attributes.view : 'authors';
+	const view = isCommentView( attributes.view ) ? attributes.view : 'authors';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<CommentsInner max={ attributes.max } initialView={ initialView } />
+			<CommentsInner max={ attributes.max } view={ view } />
 		</WidgetRoot>
 	);
 }

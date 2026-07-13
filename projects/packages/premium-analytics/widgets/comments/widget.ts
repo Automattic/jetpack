@@ -27,8 +27,9 @@ export type CommentsAttributes = {
  * Widget type definition for the Comments widget.
  *
  * Ported from the Jetpack Stats "Comments" module. Ranks the site's comment
- * authors and its most-commented posts and pages by comment count, switchable
- * through an in-widget "By authors" / "By posts & pages" selector.
+ * authors and its most-commented posts and pages by comment count. The active
+ * view is the `view` attribute (`relevance: 'high'`), so the widget host renders
+ * the "View by" control in the widget header rather than the widget body.
  *
  * Data: fetched via the PA proxy at `stats/comments` through `useStatsComments`.
  * The endpoint is all-time and has no comparison period, so the widget ignores
@@ -52,6 +53,7 @@ export default {
 				{ label: __( 'Authors', 'jetpack-premium-analytics' ), value: 'authors' },
 				{ label: __( 'Posts & pages', 'jetpack-premium-analytics' ), value: 'posts' },
 			],
+			relevance: 'high',
 		},
 	] as WidgetAttributeField< CommentsAttributes >[],
 	example: {
