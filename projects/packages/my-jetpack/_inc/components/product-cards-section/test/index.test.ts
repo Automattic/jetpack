@@ -1,60 +1,97 @@
 import { PRODUCT_STATUSES } from '../../../constants';
-import { shouldShowFullStatsCard } from '../index';
+import { shouldShowCompactStatsCard, shouldShowFullStatsCard } from '../index';
+
+const status = ( value: string ) => value as ProductStatus;
 
 describe( 'shouldShowFullStatsCard', () => {
-	const slugsWithStats: JetpackModule[] = [ 'stats', 'backup' ];
-
-	it( 'shows the large Stats card when Stats is owned, the flag is on, and the module is active', () => {
-		expect(
-			shouldShowFullStatsCard( slugsWithStats, true, PRODUCT_STATUSES.ACTIVE as ProductStatus )
-		).toBe( true );
+	it( 'shows the large Stats card when the flag is on, the user can view stats, and the module is active', () => {
+		expect( shouldShowFullStatsCard( true, true, status( PRODUCT_STATUSES.ACTIVE ) ) ).toBe( true );
 	} );
 
 	it( 'shows the large Stats card when the module is active and upgradable', () => {
-		expect(
-			shouldShowFullStatsCard( slugsWithStats, true, PRODUCT_STATUSES.CAN_UPGRADE as ProductStatus )
-		).toBe( true );
+		expect( shouldShowFullStatsCard( true, true, status( PRODUCT_STATUSES.CAN_UPGRADE ) ) ).toBe(
+			true
+		);
 	} );
 
 	// Regression: when the Stats module is disabled, the large card renders as an empty,
-	// non-actionable graph linking to an inaccessible page. It must be hidden so the compact
-	// grid card (with an activation CTA) is shown instead. See fix/my-jetpack-stats-card-module-disabled.
+	// non-actionable graph linking to an inaccessible page, so it must be hidden.
 	it( 'hides the large Stats card when the Stats module is disabled', () => {
 		expect(
-			shouldShowFullStatsCard(
-				slugsWithStats,
-				true,
-				PRODUCT_STATUSES.MODULE_DISABLED as ProductStatus
-			)
+			shouldShowFullStatsCard( true, true, status( PRODUCT_STATUSES.MODULE_DISABLED ) )
 		).toBe( false );
 	} );
 
 	it( 'hides the large Stats card for other non-active statuses', () => {
-		const nonActiveStatuses: ProductStatus[] = [
-			PRODUCT_STATUSES.INACTIVE as ProductStatus,
-			PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION as ProductStatus,
-			PRODUCT_STATUSES.SITE_CONNECTION_ERROR as ProductStatus,
-			PRODUCT_STATUSES.NEEDS_PLAN as ProductStatus,
-		];
-
-		nonActiveStatuses.forEach( status => {
-			expect( shouldShowFullStatsCard( slugsWithStats, true, status ) ).toBe( false );
+		[
+			PRODUCT_STATUSES.INACTIVE,
+			PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION,
+			PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
+			PRODUCT_STATUSES.NEEDS_PLAN,
+		].forEach( value => {
+			expect( shouldShowFullStatsCard( true, true, status( value ) ) ).toBe( false );
 		} );
 	} );
 
 	it( 'hides the large Stats card while the status is still loading (undefined)', () => {
-		expect( shouldShowFullStatsCard( slugsWithStats, true, undefined ) ).toBe( false );
+		expect( shouldShowFullStatsCard( true, true, undefined ) ).toBe( false );
 	} );
 
 	it( 'hides the large Stats card when the feature flag is off', () => {
+		expect( shouldShowFullStatsCard( false, true, status( PRODUCT_STATUSES.ACTIVE ) ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'hides the large Stats card when the user cannot view stats', () => {
+		expect( shouldShowFullStatsCard( true, false, status( PRODUCT_STATUSES.ACTIVE ) ) ).toBe(
+			false
+		);
+	} );
+} );
+
+describe( 'shouldShowCompactStatsCard', () => {
+	// Core of the fix: a disabled Stats module is reported as "unowned", so the compact activation
+	// card must be driven off status (not the owned-products list) and shown when Stats is not active.
+	it( 'shows the compact card when the Stats module is disabled', () => {
 		expect(
-			shouldShowFullStatsCard( slugsWithStats, false, PRODUCT_STATUSES.ACTIVE as ProductStatus )
+			shouldShowCompactStatsCard( true, true, status( PRODUCT_STATUSES.MODULE_DISABLED ) )
+		).toBe( true );
+	} );
+
+	it( 'shows the compact card for other non-active statuses', () => {
+		[
+			PRODUCT_STATUSES.INACTIVE,
+			PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION,
+			PRODUCT_STATUSES.NEEDS_PLAN,
+		].forEach( value => {
+			expect( shouldShowCompactStatsCard( true, true, status( value ) ) ).toBe( true );
+		} );
+	} );
+
+	it( 'hides the compact card when the module is active (the large card is shown instead)', () => {
+		expect( shouldShowCompactStatsCard( true, true, status( PRODUCT_STATUSES.ACTIVE ) ) ).toBe(
+			false
+		);
+		expect( shouldShowCompactStatsCard( true, true, status( PRODUCT_STATUSES.CAN_UPGRADE ) ) ).toBe(
+			false
+		);
+	} );
+
+	// Regression: avoids the flash where the card mounts then unmounts while data settles.
+	it( 'hides the compact card while the status is still loading (undefined)', () => {
+		expect( shouldShowCompactStatsCard( true, true, undefined ) ).toBe( false );
+	} );
+
+	it( 'hides the compact card when the feature flag is off', () => {
+		expect(
+			shouldShowCompactStatsCard( false, true, status( PRODUCT_STATUSES.MODULE_DISABLED ) )
 		).toBe( false );
 	} );
 
-	it( 'hides the large Stats card when Stats is not owned', () => {
+	it( 'hides the compact card when the user cannot view stats', () => {
 		expect(
-			shouldShowFullStatsCard( [ 'backup' ], true, PRODUCT_STATUSES.ACTIVE as ProductStatus )
+			shouldShowCompactStatsCard( true, false, status( PRODUCT_STATUSES.MODULE_DISABLED ) )
 		).toBe( false );
 	} );
 } );

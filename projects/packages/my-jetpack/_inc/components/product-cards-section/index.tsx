@@ -36,35 +36,65 @@ type DisplayItemType = Record<
 /**
  * Determine whether the large "Views in the last 7 days" Stats card should be shown.
  *
- * It should only appear when Stats is owned, the feature flag is on, AND the Stats module
- * is actually usable. When the module is disabled (or otherwise not active), the large card
- * renders as an empty, non-actionable graph that links to an inaccessible page, so we fall
- * back to the compact Stats card in the grid, which offers an activation CTA instead.
+ * It only appears when the feature flag is on, the user can view stats, AND the Stats module
+ * is active (`active` / `can_upgrade`). When the module is disabled the large card would render
+ * as an empty, non-actionable graph linking to an inaccessible page, so it is hidden in favour
+ * of the compact card below.
  *
- * @param {JetpackModule[]}         slugs                    - Slugs of the owned products.
  * @param {boolean}                 showFullJetpackStatsCard - Whether the full stats card flag is enabled.
+ * @param {boolean}                 canUserViewStats         - Whether the current user can view stats.
  * @param {ProductStatus|undefined} statsStatus              - Current status of the Stats product.
  * @return {boolean} Whether to render the large Stats card.
  */
 export const shouldShowFullStatsCard = (
-	slugs: JetpackModule[],
 	showFullJetpackStatsCard: boolean,
+	canUserViewStats: boolean,
 	statsStatus: ProductStatus | undefined
 ): boolean =>
-	slugs.includes( 'stats' ) &&
 	showFullJetpackStatsCard &&
+	canUserViewStats &&
 	( statsStatus === PRODUCT_STATUSES.ACTIVE || statsStatus === PRODUCT_STATUSES.CAN_UPGRADE );
+
+/**
+ * Determine whether the compact "Activate Stats" card should be shown in the grid.
+ *
+ * Shown whenever the Stats module is not active (disabled, needs connection, etc.) so the user
+ * always has an activation entry point in place of the large graph. A disabled Stats module is
+ * reported as "unowned", so this is driven off the Stats product status rather than the
+ * owned-products list — that keeps it stable and avoids a flicker while ownership data settles.
+ *
+ * @param {boolean}                 showFullJetpackStatsCard - Whether the full stats card flag is enabled.
+ * @param {boolean}                 canUserViewStats         - Whether the current user can view stats.
+ * @param {ProductStatus|undefined} statsStatus              - Current status of the Stats product (undefined while loading).
+ * @return {boolean} Whether to render the compact Stats card.
+ */
+export const shouldShowCompactStatsCard = (
+	showFullJetpackStatsCard: boolean,
+	canUserViewStats: boolean,
+	statsStatus: ProductStatus | undefined
+): boolean =>
+	showFullJetpackStatsCard &&
+	canUserViewStats &&
+	statsStatus !== undefined &&
+	! shouldShowFullStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
 
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 	const mockArrayOfProducts = [ ...Array( 9 ).keys() ];
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const { userIsAdmin = false } = getMyJetpackWindowInitialState();
+	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
 	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
+	const statsStatus = statsDetail?.status;
 	const showFullStatsCard = shouldShowFullStatsCard(
-		slugs,
 		showFullJetpackStatsCard,
-		statsDetail?.status
+		canUserViewStats,
+		statsStatus
 	);
+	const showCompactStatsCard = shouldShowCompactStatsCard(
+		showFullJetpackStatsCard,
+		canUserViewStats,
+		statsStatus
+	);
+	const isAdmin = userIsAdmin === '1';
 
 	const items: DisplayItemType = {
 		backup: BackupCard,
@@ -73,14 +103,16 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		stats: StatsCard, // Shown in the grid as a fallback when the large Stats card is hidden (e.g. Stats module disabled).
+		stats: StatsCard, // Rendered explicitly (large or compact card), never through the grid loop below.
 		crm: CrmCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
 	};
 
+	// Stats is handled explicitly — the large card above the grid, or the compact card prepended
+	// to the grid — so always remove it from the owned-products loop to avoid rendering it twice.
 	const filteredSlugs = slugs.filter( slug => {
-		if ( slug === PRODUCT_SLUGS.STATS && showFullStatsCard ) {
+		if ( slug === PRODUCT_SLUGS.STATS ) {
 			return false;
 		}
 
@@ -111,21 +143,30 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 				horizontalSpacing={ 0 }
 				horizontalGap={ 3 }
 			>
-				{ isLoading
-					? mockArrayOfProducts.map( ( _, index ) => (
-							<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
-								<LoadingBlock width="100%" height="200px" />
+				{ isLoading ? (
+					mockArrayOfProducts.map( ( _, index ) => (
+						<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
+							<LoadingBlock width="100%" height="200px" />
+						</Col>
+					) )
+				) : (
+					<>
+						{ showCompactStatsCard && (
+							<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key="stats">
+								<StatsCard admin={ isAdmin } />
 							</Col>
-					  ) )
-					: filteredSlugs.map( product => {
+						) }
+						{ filteredSlugs.map( product => {
 							const Item = items[ product ];
 
 							return (
 								<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ product }>
-									<Item admin={ userIsAdmin === '1' } />
+									<Item admin={ isAdmin } />
 								</Col>
 							);
-					  } ) }
+						} ) }
+					</>
+				) }
 			</Container>
 		</>
 	);
