@@ -366,9 +366,33 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	public function videopress_block_update_poster( $request ) {
 		try {
 			$blog_id     = VideoPressToken::blog_id();
-			$token       = VideoPressToken::videopress_onetime_upload_token();
 			$video_guid  = $request->get_param( 'video_guid' );
 			$json_params = $request->get_json_params();
+			if ( ! is_array( $json_params ) ) {
+				$json_params = array();
+			}
+
+			/*
+			 * Setting a poster POSTs to the WPCOM `videos/{guid}/poster` endpoint,
+			 * authorized with a one-time upload token. On WordPress.com Simple that token
+			 * can't be minted here: `videopress_onetime_upload_token()` calls the classic
+			 * `media/token` (rest/v1.1) endpoint, and the in-process transport that
+			 * `wpcom_json_api_request_as_blog` uses on Simple (`WPCOM_API_Direct`) only
+			 * dispatches WP-REST routes, so the call fails. The frontend therefore mints the
+			 * token on Simple — where the user's auth reaches the site-scoped proxy — and
+			 * passes it in. It's a blog-scoped, one-time token the user could mint anyway,
+			 * and this route already requires `upload_files`, so nothing extra is granted.
+			 * The token is an md5 hash; keep only hex so it cannot break out of the
+			 * `token="…"` Authorization header.
+			 */
+			$token = '';
+			if ( isset( $json_params['upload_token'] ) && is_string( $json_params['upload_token'] ) ) {
+				$token = preg_replace( '/[^a-f0-9]/', '', strtolower( $json_params['upload_token'] ) );
+			}
+			unset( $json_params['upload_token'] );
+			if ( '' === $token ) {
+				$token = VideoPressToken::videopress_onetime_upload_token();
+			}
 
 			$args = array(
 				'method'  => 'POST',
