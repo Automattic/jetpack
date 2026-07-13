@@ -326,57 +326,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0 - 2026-07-07
+### 16.1-a.1 - 2026-07-13
 #### Enhancements
-- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page.
-- AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar.
-- AI Admin: Restructure MCP settings Read/Write pages to group tools by display group with collapsible per-group tool lists and a page-level Enable all toggle.
-- AI Sidebar: Enable Optimize Title suggestions.
-- Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites.
-- Donations Block: Render the block in emails with email-friendly CTA buttons.
-- Forms: Warn admins and editors when a form isn't collecting responses (email and saving both off, no integration).
-- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector.
-- Newsletter: Link to the site visibility settings from the Coming Soon notice in the pre-publish panel.
-- Render the unified Jetpack admin header and footer on Akismet's admin pages.
-- Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled.
-- Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting.
-- VideoPress: Add presentation to the player iframe allow list to enable casting from embeds.
-- VideoPress: Make the VideoPress admin dashboard available in the Jetpack plugin (previously only in the standalone Jetpack VideoPress plugin).
+- Account Protection: Add additional context to Verify your identity page to reduce user confusion.
+- Admin-menu REST endpoint now surfaces notification counts from the central menu-badges registry.
+- Expose the AI Launchpad state options (enabled, dismissed, completed) in the /sites endpoint options.
+- Newsletter: Enable the modernized wp-admin dashboard and subscriber management for all sites by default.
+- Site endpoint: Return `hosting_provider_guess` and `environment_type` from the single-site endpoint when explicitly requested via the `fields` parameter, matching `/me/sites`.
+- Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on in environments where Jetpack Settings is unreachable.
+- Stats: Add a link to the site-name admin bar menu.
+- Update the license activation screen to use @wordpress/ui components.
 
 #### Bug fixes
-- AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions.
-- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled.
-- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded).
-- Akismet: Hide the empty `#screen-meta-links` container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites).
-- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header.
-- Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites.
-- Blaze: Warn users with active campaigns before disabling the Blaze module.
-- Content Guidelines AI: Place the suggestion badge to the left of the section chevron so chevrons stay aligned across sections with and without a badge.
-- Content Guidelines AI: Wrap the per-section Save/Clear/Generate button row so the buttons no longer overlap on narrow screens.
-- Crowdsignal shortcode: Render rating settings as data rather than building markup from them.
-- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites.
-- Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview.
-- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins.
-- Forms: Sign file download links with an expiring token so they work for any logged-in editor.
-- JSON API: Ensure error responses always serialize an HTTP error status (>= 400), never a non-integer or a 2xx that clients could interpret as success.
-- JSON API: Only default a missing or invalid error status to 400, and stop overwriting valid HTTP status codes below 400 that callers return via `WP_Error`.
-- Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments.
-- Newsletter: Default the post access level to "everybody" when the stored meta is not a string, and sanitize non-string writes, so corrupt values can no longer cause a fatal error when rendering a post.
-- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active.
-- Newsletter: When setting up paid subscriptions, only prompt for the steps that are actually missing (Stripe connection and/or a newsletter tier).
-- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content.
-- Paid Content Block: Prevent lockout after a subscription renewal.
-- Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected.
-- Prevent Slideshow block crash when converting from Gallery.
-- Social: Prevent errors in the post-publish sharing status panel from crashing the editor.
-- Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites.
-- Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block.
-- Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack.
-- Tiled Gallery: Prevent editor crash when transforming a core gallery block.
-- Top Posts & Pages: Use the live post permalink so links reflect the current site URL.
-- VideoPress: Fix the player overflowing the page on the non-iframe embed path.
-- VideoPress: Load player scripts only once when a page contains multiple videos.
-- WhatsApp Button block: Fix icon and text overlapping in RTL languages.
+- Bundle @wordpress/theme and @wordpress/private-apis into the admin build so the Jetpack dashboard script still loads on WordPress versions that do not register those script handles.
+- Carousel: Fix images not rendering in portrait orientation on mobile when a gallery image has no data-large-file attribute.
+- Carousel: Fix inconsistent behavior between keyboard and mouse for images linked to an attachment page.
+- Forms: Prevent duplicate field Name/IDs (from duplicating or copy/pasting a field) from collapsing into one another, which dropped fields from stored responses and email notifications.
+- Paid content: Preserve non-ASCII characters (emoji, Chinese, etc.) in the post URL when a subscriber logs in via "Already a paid subscriber?", so they are redirected back to the correct post instead of a 404.
+- Sharing: Guide block-theme users from legacy sharing buttons to the Sharing Buttons block.
+- Subscriptions: Fix `wp_maybe_inline_styles` notice for the `jetpack-subscriptions` stylesheet by registering a filesystem path instead of a URL.
 
 --------
 
