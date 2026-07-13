@@ -71,12 +71,11 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 	 * @return array The formatted row.
 	 */
 	public function format_row_for_csv( array $item, ?string $interval = null ): array {
-		$defaults  = $this->get_default_values();
-		$avg_items = floatval( $item['avg_items'] ?? $defaults['avg_items'] );
+		$defaults = $this->get_default_values();
 
 		return array(
 			'time_interval' => $this->format_time_interval( $item, $interval ),
-			'avg_items'     => number_format( $avg_items, 2, '.', '' ),
+			'avg_items'     => self::format_amount( $item['avg_items'] ?? $defaults['avg_items'] ),
 		);
 	}
 

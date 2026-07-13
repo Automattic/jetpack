@@ -1,7 +1,0 @@
-/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
-   to every image in its media cell, blowing the 32px avatars up to fill the
-   tile. Restore their size in any inert (picker) context. */
-:global([inert]) .root img {
-	width: 32px;
-	height: 32px;
-}

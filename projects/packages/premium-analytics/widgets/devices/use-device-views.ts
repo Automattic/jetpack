@@ -9,8 +9,7 @@ import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analy
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
+	StatsDevicesComparisonItem,
 	StatsDeviceProperty,
 } from '@jetpack-premium-analytics/data';
 
@@ -18,6 +17,7 @@ export interface DeviceView {
 	label: string;
 	displayLabel: string;
 	percentage: number;
+	previousPercentage?: number;
 }
 
 interface UseDeviceViewsArgs {
@@ -37,7 +37,6 @@ interface UseDeviceViewsArgs {
 
 interface DeviceViewsState {
 	data: DeviceView[];
-	comparisonData: DeviceView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isError: boolean;
@@ -62,12 +61,13 @@ const DEVICE_LABELS: Record< string, string > = {
  * @param item - Normalized device item from the data layer.
  * @return DeviceView with a human-readable display label.
  */
-function toDeviceView( item: StatsDevicesItem ): DeviceView {
+function toDeviceView( item: StatsDevicesComparisonItem ): DeviceView {
 	const key = typeof item.label === 'string' ? item.label : String( item.label );
 	return {
 		label: key,
 		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
 		percentage: item.value,
+		previousPercentage: item.previousValue,
 	};
 }
 
@@ -87,23 +87,16 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
-		useStatsDevices( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isError, error } = useStatsDevices(
+		statsParams,
+		{ maxRows: max }
+	);
 	const errorReason = getStatsPlanErrorReason( error );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems.map( toDeviceView ).slice( 0, max > 0 ? max : undefined );
-
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( toDeviceView )
-		.slice( 0, max > 0 ? max : undefined );
+	const rows = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
 
 	return {
-		data: items,
-		comparisonData: comparisonItems,
+		data: rows,
 		hasComparison,
 		isLoading,
 		isError,
