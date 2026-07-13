@@ -36,19 +36,19 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	return next( options );
 };
 
-let registered = false;
-
 /**
- * Story-side counterpart of `setReportMockState` for Stats endpoints owned by
- * the legacy stats mocks (`register-stats-mocks.ts`), e.g. `stats/clicks` and
- * `stats/referrers`.
+ * Story-side counterpart of `setReportMockState` for endpoints owned by
+ * story-local or legacy stats mocks, e.g. `stats/clicks`, `stats/referrers`,
+ * `reports/products`, or `latest-post`.
  *
- * The shared override in `register-report-mocks.ts` never sees those requests:
- * the last-registered `apiFetch` middleware runs first, and `registerStatsMocks()`
- * always registers after `registerReportMocks()` in the story modules, so the
- * legacy middleware answers the endpoints it knows before the override loop can
- * intercept them. This helper registers its own middleware lazily on first use —
- * i.e. after every mock registration — so it is guaranteed to run first.
+ * The shared override in `register-report-mocks.ts` can miss those requests:
+ * the last-registered `apiFetch` middleware runs first, so legacy stats mocks or
+ * story-local endpoint mocks can answer before the shared override loop sees
+ * the request. Storybook can lazy-load more story modules later, so this helper
+ * re-registers its shared middleware whenever a forced state is set. The
+ * duplicate registrations are intentional: they share the same override map and
+ * keep the forced-state middleware ahead of any later endpoint-specific
+ * middleware.
  *
  * Same contract as `setReportMockState`: call it in a story's `beforeEach` and
  * clear the override with `null` in the returned cleanup.
@@ -57,14 +57,10 @@ let registered = false;
  * @param state        - The forced state, or `null` to clear.
  */
 export function forceStatsMockState( pathFragment: string, state: ForcedMockState | null ): void {
-	if ( ! registered ) {
-		registered = true;
-		apiFetch.use( forcedStateMiddleware );
-	}
-
 	if ( state === null ) {
 		stateOverrides.delete( pathFragment );
 	} else {
+		apiFetch.use( forcedStateMiddleware );
 		stateOverrides.set( pathFragment, state );
 	}
 }

@@ -314,9 +314,10 @@ export const WithComparison: Story = {
  *
  * The story's own product/image mock middleware (registered above) would
  * otherwise shadow `setReportMockState` — it always answers `reports/products`
- * with canned data and never falls through. `forceStatsMockState` registers its
- * override middleware lazily, on first call, so it is guaranteed to be the
- * last-registered (and therefore first-run) middleware here.
+ * with canned data and never falls through. `forceStatsMockState` re-registers
+ * its shared override when this story sets a forced state, keeping it ahead of
+ * story-local middleware even if Storybook lazy-loads another story module
+ * later.
  */
 export const Loading: Story = {
 	render: () => renderTopPerformingProductsOnPreset( 'last-90-days' ),

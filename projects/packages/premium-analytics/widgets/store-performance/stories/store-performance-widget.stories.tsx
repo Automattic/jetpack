@@ -127,12 +127,15 @@ function renderStorePerformance( {
 // derives from the date range, so a unique preset gives the forced-state stories
 // their own cache entry and they hit the mock fresh instead of reading another
 // story's cached success from the shared query client.
-function renderStorePerformanceOnPreset( preset: SelectablePresetId ) {
+function renderStorePerformanceOnPreset(
+	preset: SelectablePresetId,
+	metrics: StorePerformanceMetricId[] = DEFAULT_STORE_PERFORMANCE_METRICS
+) {
 	ensureLineChartComposition();
 
 	return (
 		<StorePerformanceRender
-			attributes={ getStorePerformanceAttributes( { withComparison: false, preset } ) }
+			attributes={ getStorePerformanceAttributes( { withComparison: false, preset, metrics } ) }
 		/>
 	);
 }
@@ -277,6 +280,16 @@ export const Error: Story = {
 		setAllReportMockStates( 'error' );
 		return () => setAllReportMockStates( null );
 	},
+};
+
+/**
+ * No metrics selected: the widget has no tabs to show, so it renders its empty
+ * state before fetching reports.
+ */
+export const Empty: Story = {
+	render: () => renderStorePerformanceOnPreset( 'last-365-days', [] ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
 };
 
 /**

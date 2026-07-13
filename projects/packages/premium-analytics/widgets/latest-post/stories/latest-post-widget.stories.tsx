@@ -131,9 +131,10 @@ function renderLatestPostOnPreset( preset: PresetType ) {
  *
  * This widget's endpoints are served by this file's own fixture middleware, so
  * the shared `setReportMockState` override never sees them; the story-side
- * `forceStatsMockState` helper registers ahead of the fixtures instead. An
- * `empty` override resolves to the generic no-rows shape, which the latest-post
- * sanitizer reduces to "no published post".
+ * `forceStatsMockState` helper re-registers its shared middleware whenever a
+ * forced state is set, keeping it ahead of these fixtures. An `empty` override
+ * resolves to the generic no-rows shape, which the latest-post sanitizer
+ * reduces to "no published post".
  *
  * The latest-post and stats/post query keys also carry no date params, so a
  * distinct date preset alone would not give the story a fresh cache entry.

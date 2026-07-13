@@ -7,10 +7,8 @@ import { getUnixTime, startOfDay, subDays } from 'date-fns';
 /**
  * Internal dependencies
  */
-import {
-	registerReportMocks,
-	setReportMockState,
-} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -31,25 +29,20 @@ const STATS_STREAK_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/streak
 const STATS_STREAK_PATH_FRAGMENT = 'stats/streak';
 const STREAK_DAYS = 365;
 
-// The story-local streak middleware below runs ahead of the shared report
-// middleware (it is registered after it, so apiFetch unshifts it in front) and
-// would swallow streak requests before a `setReportMockState` override can
-// apply. The forced-state stories raise this flag so streak requests fall
-// through to the shared middleware while an override is active.
-let deferToForcedStreakState = false;
-
 /**
  * Forces the streak request into the given state for a story's lifetime.
+ *
+ * The story-local streak middleware below would otherwise shadow
+ * `setReportMockState`, so use the shared story-side override helper that
+ * re-registers ahead of story-local middleware when a forced state is set.
  *
  * @param state - The forced report-mock state.
  * @return The `beforeEach` cleanup callback.
  */
 function forceStreakState( state: 'loading' | 'error' | 'empty' ) {
-	deferToForcedStreakState = true;
-	setReportMockState( STATS_STREAK_PATH_FRAGMENT, state );
+	forceStatsMockState( STATS_STREAK_PATH_FRAGMENT, state );
 	return () => {
-		setReportMockState( STATS_STREAK_PATH_FRAGMENT, null );
-		deferToForcedStreakState = false;
+		forceStatsMockState( STATS_STREAK_PATH_FRAGMENT, null );
 	};
 }
 
@@ -91,7 +84,7 @@ function buildStreakResponse() {
 const streakMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
-	if ( deferToForcedStreakState || ! requestPath.startsWith( STATS_STREAK_PATH ) ) {
+	if ( ! requestPath.startsWith( STATS_STREAK_PATH ) ) {
 		return next( options );
 	}
 
