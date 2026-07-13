@@ -20,7 +20,6 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -72,7 +71,7 @@ type SubscribersRosterProps = {
  */
 export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => {
 	return (
-		<div className={ styles.root }>
+		<div>
 			<SubscriberList items={ items } moreCount={ moreCount } />
 		</div>
 	);

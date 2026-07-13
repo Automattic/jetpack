@@ -11,6 +11,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardLabel,
 	WidgetBackLink,
 	WidgetRoot,
 	WidgetState,
@@ -130,28 +131,6 @@ export function toClickRows(
 	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
 }
 
-type ClickLabelProps = {
-	/**
-	 * The normalized click row whose favicon and label to render.
-	 */
-	row: ClickRow;
-};
-
-/**
- * Renders a click row's favicon and label.
- *
- * @param {ClickLabelProps} props - The component props.
- * @return The rendered label content.
- */
-function ClickLabel( { row }: ClickLabelProps ) {
-	return (
-		<span className={ styles.labelContent }>
-			{ row.icon && <img src={ row.icon } alt="" className={ styles.labelIcon } /> }
-			<span className={ styles.labelTitle }>{ row.label }</span>
-		</span>
-	);
-}
-
 /**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
  *
@@ -172,6 +151,15 @@ function buildLeaderboardData(
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
 		const shouldRenderLink = !! row.href && ! hasChildren;
+		const label = (
+			<LeaderboardLabel
+				label={ row.label }
+				imageUrl={ row.icon ?? undefined }
+				imageAlt=""
+				imageFallback="hidden"
+				imageClassName={ styles.labelIcon }
+			/>
+		);
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
@@ -183,11 +171,11 @@ function buildLeaderboardData(
 					openInNewTab
 					title={ row.label }
 				>
-					<ClickLabel row={ row } />
+					{ label }
 				</Link>
 			) : (
 				<span className={ styles.labelText } title={ row.label }>
-					<ClickLabel row={ row } />
+					{ label }
 				</span>
 			),
 			currentValue: row.value,

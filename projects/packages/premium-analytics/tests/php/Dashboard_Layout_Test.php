@@ -112,8 +112,9 @@ class Dashboard_Layout_Test extends TestCase {
 	 * The insights tab receives its bundled stats widgets.
 	 */
 	public function test_seed_default_dashboard_layout_adds_insights_widgets() {
-		$layout       = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
-		$layout_types = array_column( $layout, 'type' );
+		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+		$layout_types   = array_column( $layout, 'type' );
 
 		$this->assertContains( 'jpa/annual-highlights', $layout_types );
 		$this->assertContains( 'jpa/all-time-stats', $layout_types );
@@ -121,6 +122,22 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/posting-activity', $layout_types );
 		$this->assertContains( 'jpa/authors', $layout_types );
 		$this->assertContains( 'jpa/stats-emails', $layout_types );
+		$this->assertContains( 'jpa/shares', $layout_types );
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-shares-widget-instance',
+				'type'       => 'jpa/shares',
+				'attributes' => array(
+					'max' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 7,
+				),
+			),
+			$layout_by_uuid['default-shares-widget-instance']
+		);
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ),
 			get_dashboard_default_layout_for( 'analytics/insights' )

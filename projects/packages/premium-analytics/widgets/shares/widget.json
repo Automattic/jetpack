@@ -1,0 +1,7 @@
+{
+	"name": "jpa/shares",
+	"title": "Shares",
+	"description": "The number of times your content was shared to social networks.",
+	"category": "stats",
+	"presentation": "framed"
+}
