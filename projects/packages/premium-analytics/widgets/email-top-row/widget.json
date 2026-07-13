@@ -1,0 +1,7 @@
+{
+	"name": "jpa/email-top-row",
+	"title": "Email top row",
+	"description": "Headline open and click totals for a single email, split into Opens and Clicks views.",
+	"category": "stats",
+	"presentation": "framed"
+}

@@ -60,6 +60,8 @@ export {
 } from './stats-subscribers-query';
 export { statsStreakQuery } from './stats-streak-query';
 export { statsVisitsQuery } from './stats-visits-query';
+export { statsSummaryQuery } from './stats-summary-query';
+export type { StatsSummaryParams, StatsSummaryResponse } from './stats-summary-query';
 export { statsInsightsQuery } from './stats-insights-query';
 export { statsUtmQuery } from './stats-utm-query';
 export { statsHighlightsQuery } from './stats-highlights-query';

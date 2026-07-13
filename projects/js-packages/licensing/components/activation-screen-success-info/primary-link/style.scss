@@ -1,48 +1,13 @@
-@use "@automattic/jetpack-base-styles/style";
+// Scoped under the container to reach specificity (0,2,0), matching the
+// Activate button's rule. A bare `--button` selector (0,1,0) only ties
+// @wordpress/ui's runtime-injected button reset and loses on source order.
+.jp-license-activation-screen-success-info {
 
-.components-button {
-
-	&.jp-license-activation-screen-success-info--button,
-	&.jp-license-activation-screen-success-info--button:active,
-	&.jp-license-activation-screen-success-info--button:visited {
-		background-color: var(--jp-black);
-		border-radius: 4px;
-		color: var(--jp-white);
-		font-size: 16px;
-		font-size: var(--font-body);
-		font-style: normal;
-		font-weight: 600;
-		justify-content: center;
-		line-height: 24px;
-		min-height: 48px;
-		min-width: 158px;
-		padding: 13.5px 45px 13.5px 45px;
-		width: 100%;
-		margin: 0 40px 20px 0;
-
-		@media screen and (min-width: 480px) {
-			width: auto;
-		}
-
-		&:hover {
-			background-color: var(--jp-black-80);
-			color: var(--jp-white);
-		}
-
-		&:focus {
-			background-color: var(--jp-black-80);
-			border: 1px solid var(--jp-white);
-			color: var(--jp-white);
-		}
-
-		&[disabled],
-		&:disabled {
-			background-color: var(--jp-gray);
-			color: var(--jp-gray-20);
-		}
-
-		.components-spinner {
-			width: 100%;
-		}
+	.jp-license-activation-screen-success-info--button {
+		font-weight: var(--wpds-typography-font-weight-medium);
+		font-size: var(--wpds-typography-font-size-lg);
+		width: auto;
+		padding-inline: var(--wpds-dimension-padding-3xl);
+		padding-block: var(--wpds-dimension-padding-lg);
 	}
 }

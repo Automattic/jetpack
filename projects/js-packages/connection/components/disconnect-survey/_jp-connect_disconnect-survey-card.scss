@@ -59,3 +59,20 @@ input.jp-connect__disconnect-survey-card__input {
 	padding-right: 40px;
 	max-width: calc(100% - 40px);
 }
+
+.jp-connection__disconnect-dialog__content .jp-connection__disconnect-dialog__btn-back-to-wp {
+	border: 0;
+	border-radius: 4px;
+	font-size: medium;
+	height: 40px;
+	outline: 1px solid #0000;
+	text-decoration: none;
+	text-shadow: none;
+	white-space: nowrap;
+
+	// Scope the accent text color to the enabled state only, so that
+	// @wordpress/ui's Button `data-disabled` state styles correctly.
+	&:not([data-disabled]) {
+		color: var(--wp-components-color-accent-inverted, #fff);
+	}
+}

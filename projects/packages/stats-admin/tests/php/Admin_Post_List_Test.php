@@ -4,7 +4,7 @@ use Automattic\Jetpack\Stats_Admin\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Admin_Post_List_Test extends BaseTestCase {
 	/**
 	 * Get a mock for the WP_Query class.
