@@ -238,4 +238,37 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertSame( 'unknown_post', $response->get_error_code() );
 	}
+
+	/**
+	 * The site_ID field must always be serialized as an integer, matching its
+	 * documented '(int) The site ID.' contract.
+	 *
+	 * The render_response_keys() serializer emits site_ID from
+	 * $post->site->get_id(). For a Jetpack_Site that returns the request token's
+	 * blog_id verbatim, and on create/update requests that value is a string —
+	 * so without an explicit (int) cast those endpoints leaked a quoted string
+	 * while reads returned a number. We reproduce that condition by giving the
+	 * token a string blog_id.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_site_id_is_returned_as_an_integer() {
+		$post_id = $this->create_post();
+
+		// Jetpack_Site::get_id() returns $this->platform->token->blog_id; a string
+		// value here mirrors the create/update request condition.
+		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => (string) self::$blog_id );
+
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/' . $post_id,
+			self::$blog_id,
+			$post_id
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertArrayHasKey( 'site_ID', $response );
+		$this->assertIsInt( $response['site_ID'] );
+		$this->assertSame( (int) self::$blog_id, $response['site_ID'] );
+	}
 }
