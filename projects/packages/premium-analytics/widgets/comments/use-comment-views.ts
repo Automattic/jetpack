@@ -79,13 +79,17 @@ export default function useCommentViews( { view, max }: UseCommentViewsArgs ): C
 	const group = items.find( item => item.label === view ) as StatsCommentsGroupItem | undefined;
 	const children = group?.children ?? [];
 
+	// Derive the row key from the item's own identity, not its position, so it
+	// stays stable across refetches and can't collide on a repeated label (e.g.
+	// two "Anonymous" authors): posts key on their post id, authors on their
+	// gravatar hash, each falling back to the label when that is missing.
 	const rows: CommentRow[] = children
-		.map( ( child, index ) => {
+		.map( child => {
 			if ( view === 'authors' ) {
 				const author = child as StatsCommentsAuthorItem;
 				const label = toLabel( author.label );
 				return {
-					id: `${ index }-${ label }`,
+					id: author.icon ?? `author-${ label }`,
 					label,
 					value: author.value,
 					avatarUrl: author.icon ?? undefined,
@@ -95,7 +99,7 @@ export default function useCommentViews( { view, max }: UseCommentViewsArgs ): C
 			const post = child as StatsCommentsPostItem;
 			const label = toLabel( post.label );
 			return {
-				id: `${ index }-${ label }`,
+				id: post.id != null ? String( post.id ) : post.link ?? `post-${ label }`,
 				label,
 				value: post.value,
 				link: post.link ?? undefined,
