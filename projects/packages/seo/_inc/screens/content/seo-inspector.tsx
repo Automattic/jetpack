@@ -88,7 +88,11 @@ function toEditableMeta( meta: Partial< SeoPostMeta > | undefined ): EditableMet
  * @return The SEO inspector editor.
  */
 const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
-	const { record, isResolving } = useEntityRecord( 'postType', postType, postId );
+	// The *edited* record, not the persisted one. Saving stages the new meta as a
+	// core-data edit rather than writing it back over the persisted record (see
+	// `onSave`), so `record` still holds the pre-save meta afterwards — seeding the
+	// form from it would show a stale value every time the inspector is reopened.
+	const { editedRecord, isResolving } = useEntityRecord( 'postType', postType, postId );
 	const { editEntityRecord } = useDispatch( coreStore );
 	// The post type's REST route ('/wp/v2/posts', '/wp/v2/pages'), read from the
 	// entity config rather than pluralised by hand. Resolved by the time the
@@ -111,13 +115,13 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	// over the post's existing meta.
 	const [ local, setLocal ] = useState< EditableMeta >( EMPTY_META );
 
-	const recordMeta = ( record as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
+	const editedMeta = ( editedRecord as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
 	useEffect( () => {
-		if ( ! recordMeta ) {
+		if ( ! editedMeta ) {
 			return;
 		}
-		setLocal( toEditableMeta( recordMeta ) );
-	}, [ recordMeta ] );
+		setLocal( toEditableMeta( editedMeta ) );
+	}, [ editedMeta ] );
 
 	const setField = useCallback(
 		( patch: Partial< EditableMeta > ) => setLocal( state => ( { ...state, ...patch } ) ),
@@ -131,9 +135,12 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			type: 'snackbar',
 			isDismissible: false,
 		} );
-		// The values to roll back to if the request fails. Snapshotted before the
-		// optimistic edit below, which is what `recordMeta` would otherwise reflect.
-		const previous = toEditableMeta( recordMeta );
+		// The values to roll back to if the request fails, and the baseline the
+		// coverage delta is measured against. Snapshotted before the optimistic edit
+		// below, which is what `editedMeta` would otherwise reflect. Reading the
+		// *edited* meta keeps both correct when the same post is saved twice without
+		// an intervening reload.
+		const previous = toEditableMeta( editedMeta );
 		try {
 			// Update the record in the store, then persist it with `apiFetch`.
 			//
@@ -195,19 +202,20 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 		createInfoNotice,
 		createSuccessNotice,
 		editEntityRecord,
+		editedMeta,
 		local,
 		onClose,
 		postId,
 		postType,
-		recordMeta,
 	] );
 
 	const postTitle = useMemo( () => {
-		const rendered = ( record as { title?: { rendered?: string } } | undefined )?.title?.rendered;
+		const rendered = ( editedRecord as { title?: { rendered?: string } } | undefined )?.title
+			?.rendered;
 		return rendered ? decodeEntities( rendered ) : '';
-	}, [ record ] );
+	}, [ editedRecord ] );
 
-	const permalink = ( record as { link?: string } | undefined )?.link ?? '';
+	const permalink = ( editedRecord as { link?: string } | undefined )?.link ?? '';
 
 	return (
 		<div className="jetpack-seo-content__inspector" aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }>
