@@ -49,13 +49,6 @@
 	white-space: nowrap;
 }
 
-.placeholder {
-	flex: 1 1 0;
-	inline-size: 100%;
-	min-block-size: 200px;
-	text-align: center;
-}
-
 :global([inert]:not([inert="true"])) .root {
 	height: auto;
 	aspect-ratio: 4 / 3;

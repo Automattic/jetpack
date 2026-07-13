@@ -284,8 +284,10 @@ function archiveTypeLabel( archiveType: string ): string {
 		case 'err':
 			return __( 'Error', 'jetpack-premium-analytics' );
 		case 'home':
-			// The homepage set to Latest posts lives under Archives, not in the
-			// Posts & pages list (which requests `skip_archives=1`).
+			// Defensive only: with `skip_archives=1` the API surfaces the homepage
+			// entry inside the Posts & pages list (server-titled) and drops it
+			// from this report, and the Archives view filters any residual `home`
+			// entry out. This label matches the server title if one slips through.
 			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics' );
 		case 'search':
 			return __( 'Searches', 'jetpack-premium-analytics' );
@@ -307,11 +309,25 @@ function archiveTypeLabel( archiveType: string ): string {
 }
 
 /**
+ * Humanize an intermediate group label from the API (e.g. the taxonomy key
+ * `post_tag` → "Post tag", `topics` → "Topics"). Leaf labels — search
+ * phrases, term names — are never passed through this.
+ *
+ * @param label - The raw group label.
+ * @return The humanized label.
+ */
+function humanizeArchiveGroupLabel( label: string ): string {
+	const spaced = label.replace( /_/g, ' ' );
+	return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
+}
+
+/**
  * Recursively map the data layer's merged archive rows onto leaderboard rows.
- * Top-level items get the shared archive-category labels; nested items keep
- * their own label (taxonomy name, term, search phrase, …) and carry their
- * archive-page URL. Children are preserved so grouped rows can drill down,
- * and missing comparison matches stay `undefined`.
+ * Top-level items get the shared archive-category labels; nested group items
+ * (taxonomy keys) are humanized; leaf items keep their own label (term name,
+ * search phrase, …) and carry their archive-page URL. Children are preserved
+ * so grouped rows can drill down, and missing comparison matches stay
+ * `undefined`.
  *
  * @param items      - The merged comparison rows from `useStatsArchives`.
  * @param isTopLevel - Whether the items are archive-type rows.
@@ -322,10 +338,15 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 		const rawLabel = String( item.label ?? '' );
 		const children = item.children?.length ? toArchiveRows( item.children, false ) : undefined;
 
+		let label = rawLabel;
+		if ( isTopLevel ) {
+			label = archiveTypeLabel( rawLabel );
+		} else if ( children ) {
+			label = humanizeArchiveGroupLabel( rawLabel );
+		}
+
 		return {
-			label:
-				( isTopLevel ? archiveTypeLabel( rawLabel ) : rawLabel ) ||
-				__( 'Untitled', 'jetpack-premium-analytics' ),
+			label: label || __( 'Untitled', 'jetpack-premium-analytics' ),
 			value: item.value,
 			type: 'archive',
 			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
