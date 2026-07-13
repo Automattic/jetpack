@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+My Jetpack: add filters to short-circuit the WordPress.com products, purchases, plan, features and site info lookups, so hosts holding that data locally can serve it without a blog-token-signed request.

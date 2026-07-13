@@ -322,6 +322,24 @@ abstract class Product {
 			return $features;
 		}
 
+		/**
+		 * Short-circuit the WordPress.com site features request.
+		 *
+		 * Returning anything other than null skips both the cache and the HTTP request. Hosts that
+		 * already hold this data locally - WordPress.com Simple sites have no blog token to sign a
+		 * request with - can return it directly. The shape must match the fetched one: an array with
+		 * 'active' and 'available' keys.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param null|array|WP_Error $features The site's features, or null to fetch them from WordPress.com.
+		 */
+		$pre_features = apply_filters( 'my_jetpack_site_features', null );
+		if ( null !== $pre_features ) {
+			$features = $pre_features;
+			return $features;
+		}
+
 		// Check for a cached value before doing lookup
 		$stored_features = get_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
 		if ( $stored_features !== false ) {

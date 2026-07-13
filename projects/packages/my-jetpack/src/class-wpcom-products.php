@@ -196,6 +196,22 @@ class Wpcom_Products {
 	 * @return Object|WP_Error
 	 */
 	public static function get_products( $skip_cache = false ) {
+		/**
+		 * Short-circuit the WordPress.com products catalog request.
+		 *
+		 * Returning anything other than null skips both the user-meta cache and the HTTP request.
+		 * Hosts that can build the catalog locally can return it directly.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param null|object|WP_Error $products   The products catalog, or null to fetch it from WordPress.com.
+		 * @param bool                 $skip_cache Whether the caller asked to bypass the cache.
+		 */
+		$pre_products = apply_filters( 'my_jetpack_products_catalog', null, $skip_cache );
+		if ( null !== $pre_products ) {
+			return $pre_products;
+		}
+
 		// This is only available for logged in users.
 		if ( ! get_current_user_id() ) {
 			return null;
@@ -316,6 +332,23 @@ class Wpcom_Products {
 			return $purchases;
 		}
 
+		/**
+		 * Short-circuit the WordPress.com purchases request.
+		 *
+		 * Returning anything other than null skips both the cache and the HTTP request. Hosts that
+		 * already hold this data locally - WordPress.com Simple sites have no blog token to sign a
+		 * request with - can return it directly.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param null|array|object|WP_Error $purchases The site's purchases, or null to fetch them from WordPress.com.
+		 */
+		$pre_purchases = apply_filters( 'my_jetpack_site_purchases', null );
+		if ( null !== $pre_purchases ) {
+			$purchases = $pre_purchases;
+			return $purchases;
+		}
+
 		// Check for a cached value before doing lookup
 		$stored_purchases = get_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 		if ( $stored_purchases !== false ) {
@@ -358,6 +391,22 @@ class Wpcom_Products {
 	 */
 	public static function get_site_current_plan( $reload = false ) {
 		static $reloaded_already = false;
+
+		/**
+		 * Short-circuit the site's current plan (bundle) lookup.
+		 *
+		 * Returning anything other than null skips the refresh from WordPress.com. Hosts that
+		 * already hold the plan locally can return it directly.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param null|array $plan   The site's current plan, or null to read it from Current_Plan.
+		 * @param bool       $reload Whether a refresh from WordPress.com was requested.
+		 */
+		$pre_plan = apply_filters( 'my_jetpack_site_current_plan', null, $reload );
+		if ( null !== $pre_plan ) {
+			return $pre_plan;
+		}
 
 		if ( $reload && ! $reloaded_already ) {
 			Current_Plan::refresh_from_wpcom();

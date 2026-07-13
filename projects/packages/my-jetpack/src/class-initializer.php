@@ -324,6 +324,11 @@ class Initializer {
 			$sandboxed_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
 		}
 
+		// Products-only sites (WordPress.com Simple) cannot install or activate plugins and themes,
+		// so skip those lookups entirely. has_file_system_write_access() in particular probes the
+		// filesystem for credentials, which is pointless where there is nothing to write.
+		$is_products_only = Products_Page::is_products_only_enabled();
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -331,8 +336,8 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'plugins'                => Plugins_Installer::get_plugins(),
-				'themes'                 => Sync_Functions::get_themes(),
+				'plugins'                => $is_products_only ? array() : Plugins_Installer::get_plugins(),
+				'themes'                 => $is_products_only ? array() : Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
 				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
@@ -341,7 +346,7 @@ class Initializer {
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
-				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
+				'fileSystemWriteAccess'  => $is_products_only ? false : self::has_file_system_write_access(),
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'IDCContainerID'         => static::get_idc_container_id(),
@@ -688,6 +693,23 @@ class Initializer {
 		static $site_info = null;
 
 		if ( $site_info !== null ) {
+			return $site_info;
+		}
+
+		/**
+		 * Short-circuit the WordPress.com site info request.
+		 *
+		 * Returning anything other than null skips both the cache and the HTTP request. Hosts that
+		 * already hold this data locally - WordPress.com Simple sites have no blog token to sign a
+		 * request with - can return it directly.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param null|object|WP_Error $site_info The site's info, or null to fetch it from WordPress.com.
+		 */
+		$pre_site_info = apply_filters( 'my_jetpack_site_info', null );
+		if ( null !== $pre_site_info ) {
+			$site_info = $pre_site_info;
 			return $site_info;
 		}
 
