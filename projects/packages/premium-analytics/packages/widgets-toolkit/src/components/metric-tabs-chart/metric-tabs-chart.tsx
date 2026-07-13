@@ -142,6 +142,16 @@ function MetricChart( {
 	// pattern on the previous-period series.
 	const seriesStyles = useSeriesStyles( series );
 
+	// Value-only metrics (no per-period history) get a note instead of an
+	// empty axis area.
+	if ( ! metric.current.length && ! metric.previous?.length ) {
+		return (
+			<Text className={ styles.noTrend } variant="body-md">
+				{ __( 'No trend data for this metric.', 'jetpack-premium-analytics' ) }
+			</Text>
+		);
+	}
+
 	return (
 		<>
 			<ComparativeLineChart

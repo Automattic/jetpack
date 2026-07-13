@@ -114,3 +114,12 @@
 	min-width: 0;
 	min-height: 0;
 }
+
+// Centered note shown in place of the chart for value-only metrics.
+.noTrend {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}

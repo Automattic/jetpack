@@ -9,7 +9,15 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { format, parseISO, startOfISOWeek, startOfMonth } from 'date-fns';
+import {
+	eachDayOfInterval,
+	eachMonthOfInterval,
+	eachWeekOfInterval,
+	format,
+	parseISO,
+	startOfISOWeek,
+	startOfMonth,
+} from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -65,32 +73,58 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 /**
  * Bucket the post's daily view history into chart points for a window: day
  * buckets pass through, week/month buckets sum into their period start. The
- * full history is bucketed client-side because the endpoint's `weeks` field
- * only covers a fixed recent window — the daily `data` series is the one
- * source that reaches back to publication.
+ * window is clamped to the history's actual span, then every calendar bucket
+ * inside it is zero-seeded before summing — the endpoint may omit zero-view
+ * days, and the chart's comparison overlay aligns series by index, so both
+ * windows must always yield one point per bucket. The full history is
+ * bucketed client-side because the endpoint's `weeks` field only covers a
+ * fixed recent window.
  *
  * @param days   - The post's daily views, oldest first.
  * @param window - The date-only window to keep.
  * @param period - The bucket size.
- * @return One point per bucket, oldest first.
+ * @return One point per calendar bucket, oldest first.
  */
 function bucketDays( days: StatsPostDay[], window: DayWindow, period: PostPerformancePeriod ) {
-	const totals = new Map< string, number >();
+	if ( ! days.length ) {
+		return [];
+	}
+
+	const from = window.from > days[ 0 ].date ? window.from : days[ 0 ].date;
+	const to = window.to < days[ days.length - 1 ].date ? window.to : days[ days.length - 1 ].date;
+
+	if ( from > to ) {
+		return [];
+	}
+
+	const bucketKey = ( date: string ): string => {
+		if ( period === 'day' ) {
+			return date;
+		}
+
+		const start =
+			period === 'week' ? startOfISOWeek( parseISO( date ) ) : startOfMonth( parseISO( date ) );
+		return format( start, 'yyyy-MM-dd' );
+	};
+
+	const interval = { start: parseISO( from ), end: parseISO( to ) };
+	let bucketStarts = eachDayOfInterval( interval );
+	if ( period === 'week' ) {
+		bucketStarts = eachWeekOfInterval( interval, { weekStartsOn: 1 } );
+	} else if ( period === 'month' ) {
+		bucketStarts = eachMonthOfInterval( interval );
+	}
+
+	const totals = new Map< string, number >(
+		bucketStarts.map( start => [ format( start, 'yyyy-MM-dd' ), 0 ] )
+	);
 
 	for ( const day of days ) {
-		if ( day.date < window.from || day.date > window.to ) {
+		if ( day.date < from || day.date > to ) {
 			continue;
 		}
 
-		let key = day.date;
-		if ( period !== 'day' ) {
-			const start =
-				period === 'week'
-					? startOfISOWeek( parseISO( day.date ) )
-					: startOfMonth( parseISO( day.date ) );
-			key = format( start, 'yyyy-MM-dd' );
-		}
-
+		const key = bucketKey( day.date );
 		totals.set( key, ( totals.get( key ) ?? 0 ) + day.views );
 	}
 
@@ -146,12 +180,20 @@ export default function usePostPerformance(
 			{
 				key: 'comments',
 				label: __( 'Comments', 'jetpack-premium-analytics' ),
+				description: __(
+					'All-time total — this metric has no per-post history.',
+					'jetpack-premium-analytics'
+				),
 				value: Number( data?.post?.comment_count ) || 0,
 				current: [],
 			},
 			{
 				key: 'likes',
 				label: __( 'Likes', 'jetpack-premium-analytics' ),
+				description: __(
+					'All-time total — this metric has no per-post history.',
+					'jetpack-premium-analytics'
+				),
 				value: data?.like_count ?? 0,
 				current: [],
 			},
