@@ -93,12 +93,7 @@ describe( 'Stats post normalizer', () => {
 	it( 'normalizes the daily history tuples and drops malformed entries', () => {
 		expect(
 			sanitizeStatsPostResponse( {
-				data: [
-					[ '2026-07-01', 42 ],
-					[ '2026-07-02', '17' ],
-					[ 12345, 9 ],
-					'not-a-tuple',
-				],
+				data: [ [ '2026-07-01', 42 ], [ '2026-07-02', '17' ], [ 12345, 9 ], 'not-a-tuple' ],
 			} )
 		).toEqual( {
 			data: [
