@@ -1,19 +1,36 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
+import { Button } from '@wordpress/ui';
 import { Fragment, useCallback, useState } from 'react';
-import SurveyChoice from './survey-choice';
+import SurveyChoiceComponent from './survey-choice';
+import type { ChangeEvent, ComponentType, KeyboardEvent, ReactNode } from 'react';
+
+// survey-choice.jsx is untyped and its JSDoc types its return as a class Component, which is not a
+// valid JSX element type. Cast to a typed function component for the props this file passes.
+const SurveyChoice = SurveyChoiceComponent as unknown as ComponentType< {
+	id: string;
+	onClick: ( id: string ) => void;
+	onKeyDown: ( answerId: string, e: KeyboardEvent< HTMLDivElement > ) => void;
+	className: string;
+	children?: ReactNode;
+} >;
+
+interface DisconnectSurveyProps {
+	/** Callback handler function for when the survey response is submitted. */
+	onSubmit: ( answerId: string | undefined, answerText: string ) => void;
+	/** If the survey feedback is currently being saved/ submitted. */
+	isSubmittingFeedback?: boolean;
+}
 
 /**
  * Handles showing the disconnect survey.
  *
- * @param {object} props - The component props.
- * @return {import('react').Component} - DisconnectSurvey component.
+ * @param {DisconnectSurveyProps} props - The component props.
+ * @return {import('react').ReactNode} - DisconnectSurvey component.
  */
-const DisconnectSurvey = props => {
+const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	const { onSubmit, isSubmittingFeedback } = props;
-	const [ selectedAnswer, setSelectedAnswer ] = useState();
-	const [ customResponse, setCustomResponse ] = useState();
+	const [ selectedAnswer, setSelectedAnswer ] = useState< string >();
+	const [ customResponse, setCustomResponse ] = useState< string >();
 
 	const options = [
 		{
@@ -57,10 +74,10 @@ const DisconnectSurvey = props => {
 	/**
 	 * Handle input into the custom response field.
 	 *
-	 * @param {object} e - onChange event for the custom input
+	 * @param {ChangeEvent<HTMLInputElement>} e - onChange event for the custom input
 	 */
 	const handleCustomResponse = useCallback(
-		e => {
+		( e: ChangeEvent< HTMLInputElement > ) => {
 			const value = e.target.value;
 			e.stopPropagation();
 			setCustomResponse( value );
@@ -74,7 +91,7 @@ const DisconnectSurvey = props => {
 	 * @param {string} optionId - ID of the option to check for.
 	 * @return {string} - The "selected" class if this option is currently selected.
 	 */
-	const selectedClass = optionId => {
+	const selectedClass = ( optionId: string ) => {
 		if ( optionId === selectedAnswer ) {
 			return 'jp-connect__disconnect-survey-card--selected';
 		}
@@ -85,11 +102,11 @@ const DisconnectSurvey = props => {
 	/**
 	 * Event handler for keyboard events on the answer blocks.
 	 *
-	 * @param {string} answerId - The slug of the answer that has been selected.
-	 * @param {object} e        - Keydown event.
+	 * @param {string}                        answerId - The slug of the answer that has been selected.
+	 * @param {KeyboardEvent<HTMLDivElement>} e        - Keydown event.
 	 */
 	const handleAnswerKeyDown = useCallback(
-		( answerId, e ) => {
+		( answerId: string, e: KeyboardEvent< HTMLDivElement > ) => {
 			switch ( e.key ) {
 				case 'Enter':
 				case 'Space':
@@ -105,7 +122,7 @@ const DisconnectSurvey = props => {
 	/**
 	 * Show all the survey options from the options array.
 	 *
-	 * @return {import('react').ElementType []} - Mapped array of rendered survey options.
+	 * @return {import('react').ReactNode []} - Mapped array of rendered survey options.
 	 */
 	const renderOptions = () => {
 		return options.map( option => {
@@ -127,7 +144,7 @@ const DisconnectSurvey = props => {
 	 * Show the custom input survey option.
 	 * Contains an input field for a custom response.
 	 *
-	 * @return {import('react').ElementType} - The custom survey option with an input field.
+	 * @return {import('react').ReactNode} - The custom survey option with an input field.
 	 */
 	const renderCustomOption = () => {
 		return (
@@ -162,7 +179,6 @@ const DisconnectSurvey = props => {
 			<p>
 				<Button
 					disabled={ ! selectedAnswer || isSubmittingFeedback }
-					variant="primary"
 					onClick={ handleSurveySubmit }
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>
@@ -171,19 +187,13 @@ const DisconnectSurvey = props => {
 						: __(
 								'Submit Feedback',
 								'jetpack-connection-js',
-								/* dummy arg to avoid bad minification */ 0
+								// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+								0
 						  ) }
 				</Button>
 			</p>
 		</Fragment>
 	);
-};
-
-DisconnectSurvey.PropTypes = {
-	/** Callback handler function for when the survey response is submitted. */
-	onSubmit: PropTypes.func,
-	/** If the survey feedback is currently being saved/ submitted */
-	isSubmittingFeedback: PropTypes.bool,
 };
 
 export default DisconnectSurvey;
