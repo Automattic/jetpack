@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-Q2AStvR0gzK3tuB/F7GDn+mqvbHbWSpS/Aqy/Wes1oc=
+pnpmfileChecksum: sha256-bniQRcc4tTMY06AXyX9YsdiMmKUi9i/r4TFynjwrH1c=
 
 patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
@@ -1551,8 +1551,8 @@ importers:
         specifier: ^6.0.3
         version: 6.1.0
       svgicons2svgfont:
-        specifier: ^15.0.0
-        version: 15.0.1
+        specifier: ^16.0.0
+        version: 16.0.0
       svgo:
         specifier: ^4.0.0
         version: 4.0.1
@@ -3477,6 +3477,9 @@ importers:
       '@wordpress/hooks':
         specifier: 4.50.0
         version: 4.50.0
+      '@wordpress/html-entities':
+        specifier: 4.50.0
+        version: 4.50.0
       '@wordpress/i18n':
         specifier: 6.23.0
         version: 6.23.0
@@ -4550,9 +4553,6 @@ importers:
 
   projects/packages/search:
     dependencies:
-      '@automattic/calypso-color-schemes':
-        specifier: 4.0.0
-        version: 4.0.0
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
@@ -4622,6 +4622,9 @@ importers:
       '@wordpress/server-side-render':
         specifier: 6.26.0
         version: 6.26.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme':
+        specifier: 0.17.0
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.17.0
         version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4686,9 +4689,6 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.14)
       '@size-limit/file':
         specifier: ^12.1.0
         version: 12.1.0(size-limit@12.1.0)
@@ -4734,9 +4734,6 @@ importers:
       postcss:
         specifier: 8.5.14
         version: 8.5.14
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.14)
       postcss-loader:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.14)(webpack@5.107.2)
@@ -12641,6 +12638,10 @@ packages:
     resolution: {integrity: sha512-oPYleIY8wmTVzkvQq10AEok6YcTC4sRUBl8F9gVuwchGVUCTbl/vhLTaQqutuuySYOsu8YTgV+OxKc/8Yvx+mQ==}
     engines: {node: '>=18'}
 
+  commander@14.0.3:
+    resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
+    engines: {node: '>=20'}
+
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
@@ -17598,9 +17599,9 @@ packages:
     resolution: {integrity: sha512-ymI5ykLPwIHW839E053FQbI1G+jnRFJEw3Kv5Y4njixVWywQBx+NUFpkkKyk5LIb36Fg9DVXSYpqiGekLD0hyw==}
     engines: {node: '>=18'}
 
-  svg-pathdata@7.2.0:
-    resolution: {integrity: sha512-qd+AxqMpfRrRQaWb2SrNFvn69cvl6piqY8TxhYl2Li1g4/LO5F9NJb5wI4vNwRryqgSgD43gYKLm/w3ag1bKvQ==}
-    engines: {node: '>=20.11.1'}
+  svg-pathdata@9.0.0:
+    resolution: {integrity: sha512-h9FuqmNsgDKq2hQBqTMOWjZwqdZOnWijZmcg6FL4iSmH6VvRnobhHrBQSdOiP0W9nwgv0qiW5vQ3//Arrmp19g==}
+    engines: {node: '>=24.14.0'}
 
   svg-tags@1.0.0:
     resolution: {integrity: sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==}
@@ -17609,9 +17610,9 @@ packages:
     resolution: {integrity: sha512-EjxgcmhKcBpx/3fR1hPwVtJAbUc/ZsDpwOTF74SI3PbzCg4pDHnxVmoSuqgEqxVJGqqkSCI6+82cucpn2D5aOw==}
     hasBin: true
 
-  svgicons2svgfont@15.0.1:
-    resolution: {integrity: sha512-rE3BoIipD6DxBejPswalKRZZYA+7sy4miHqiHgXB0zI1xJD3gSCVrXh2R6Sdh9E4XDTxYp7gDxGW2W8DIBif/g==}
-    engines: {node: '>=20.11.1'}
+  svgicons2svgfont@16.0.0:
+    resolution: {integrity: sha512-3y4fcCuu9/XYgkoDfnNAR1RUEjmbX6lX2oTTu8NVLHYbf2xmYyZB0NZzK7WNthn8oSY68thfyEARRgWyAveZOw==}
+    engines: {node: '>=24.14.0'}
     hasBin: true
 
   svgo@4.0.1:
@@ -18561,9 +18562,9 @@ packages:
     resolution: {integrity: sha512-4UEqdc2RYGHZc7Doyqkrqiln3p9X2DZVxaGbwhn2pi7MrRagKaOcIKe8L3OxYcbhXLgLFUS3zAYuQjKBQgmuNg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
-  yerror@8.0.0:
-    resolution: {integrity: sha512-FemWD5/UqNm8ffj8oZIbjWXIF2KE0mZssggYpdaQkWDDgXBQ/35PNIxEuz6/YLn9o0kOxDBNJe8x8k9ljD7k/g==}
-    engines: {node: '>=18.16.0'}
+  yerror@9.1.1:
+    resolution: {integrity: sha512-6XGifXCr19Zy0O3YuoWs7287A/9Ush4C/xN9buokIBVUVGrblN3FTrumLmIZFSsSdDlKdJhjXV2GLpba3qoljA==}
+    engines: {node: '>=24.14.0'}
 
   yjs@13.6.29:
     resolution: {integrity: sha512-kHqDPdltoXH+X4w1lVmMtddE3Oeqq48nM40FD5ojTd8xYhQpzIDcfE2keMSU5bAgRPJBe225WTUdyUgj1DtbiQ==}
@@ -31064,6 +31065,8 @@ snapshots:
 
   commander@13.0.0: {}
 
+  commander@14.0.3: {}
+
   commander@2.20.3: {}
 
   comment-parser@1.4.7: {}
@@ -36820,7 +36823,7 @@ snapshots:
     transitivePeerDependencies:
       - '@typescript-eslint/types'
 
-  svg-pathdata@7.2.0: {}
+  svg-pathdata@9.0.0: {}
 
   svg-tags@1.0.0: {}
 
@@ -36833,16 +36836,16 @@ snapshots:
       microbuffer: 1.0.0
       svgpath: 2.6.0
 
-  svgicons2svgfont@15.0.1:
+  svgicons2svgfont@16.0.0:
     dependencies:
       '@types/sax': 1.2.7
-      commander: 12.1.0
+      commander: 14.0.3
       debug: 4.4.3
       glob: 13.0.6
       sax: 1.6.0
-      svg-pathdata: 7.2.0
+      svg-pathdata: 9.0.0
       transformation-matrix: 3.1.0
-      yerror: 8.0.0
+      yerror: 9.1.1
     transitivePeerDependencies:
       - supports-color
 
@@ -37993,7 +37996,7 @@ snapshots:
       y18n: 5.0.8
       yargs-parser: 22.0.0
 
-  yerror@8.0.0: {}
+  yerror@9.1.1: {}
 
   yjs@13.6.29:
     dependencies:

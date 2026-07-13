@@ -17,8 +17,14 @@ module.exports = {
 			require.resolve( 'babel-jest' ),
 			{
 				presets: [
-					[ require.resolve( '@babel/preset-react' ), { runtime: 'automatic' } ],
 					[ require.resolve( '@babel/preset-typescript' ), { allowDeclareFields: true } ],
+				],
+				overrides: [
+					{
+						// A RegExp can't be serialized, but a function wrapping one can. 🤷
+						test: filename => /\.[jt]sx$/.test( filename ),
+						presets: [ [ require.resolve( '@babel/preset-react' ), { runtime: 'automatic' } ] ],
+					},
 				],
 			},
 		],

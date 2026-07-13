@@ -1,4 +1,4 @@
-import { sanitizeStatsClicksResponse } from '..';
+import { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from '..';
 import { clicksFixture, clicksSummaryFixture } from '../__fixtures__/clicks';
 
 describe( 'Stats clicks normalizer', () => {
@@ -136,5 +136,81 @@ describe( 'Stats clicks normalizer', () => {
 				views: 1,
 			} )
 		);
+	} );
+
+	it( 'treats zero comparison values as overlapping click rows', () => {
+		const primary = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-29',
+				days: {},
+				summary: {
+					clicks: [
+						{
+							name: 'wordpress.org',
+							views: 42,
+							children: [
+								{
+									name: 'wordpress.org/plugins/jetpack-search',
+									views: 42,
+									url: 'https://wordpress.org/plugins/jetpack-search',
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-29',
+				end_date: '2026-06-29',
+				summarize: true,
+			}
+		);
+		const comparison = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-22',
+				days: {},
+				summary: {
+					clicks: [
+						{
+							name: 'wordpress.org',
+							views: 0,
+							children: [
+								{
+									name: 'wordpress.org/plugins/jetpack-search',
+									views: 0,
+									url: 'https://wordpress.org/plugins/jetpack-search',
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-22',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( mergeStatsClicksComparisonRows( primary, comparison ) ).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( {
+					label: 'wordpress.org',
+					views: 42,
+					previousValue: 0,
+					childrenHaveComparison: true,
+					children: [
+						expect.objectContaining( {
+							label: '/plugins/jetpack-search',
+							views: 42,
+							previousValue: 0,
+						} ),
+					],
+				} ),
+			],
+		} );
 	} );
 } );

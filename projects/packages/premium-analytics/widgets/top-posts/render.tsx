@@ -4,8 +4,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	useStatsTopPosts,
-	type StatsNormalizedReport,
-	type StatsTopPostsItem,
+	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
 	DownloadCsvButton,
@@ -92,7 +91,7 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 
 		return {
 			id: `${ index }-${ row.href }`,
@@ -111,8 +110,13 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 			currentShare: ( row.value / maxCurrentViews ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined
+					? ( previousValue / maxPreviousViews ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
@@ -192,31 +196,20 @@ export const TopPostsLeaderboard = ( {
 };
 
 /**
- * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the leaderboard renders, dropping rows without a link and
- * (optionally) filtering by post type.
+ * Flatten merged data-layer top-posts rows into the `{ label, value, href, type }`
+ * rows the leaderboard renders.
  *
- * @param report       - The normalized top-posts report, or undefined while loading.
- * @param allowedTypes - Post types to keep, or null to keep all.
+ * @param items - Merged top-posts rows from the data layer.
  * @return The normalized top-posts rows.
  */
-function toTopPostRows(
-	report: StatsNormalizedReport< StatsTopPostsItem > | undefined,
-	allowedTypes: string[] | null
-): TopPostRow[] {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-
-	return items
-		.filter(
-			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
-		)
-		.map( item => ( {
-			label: String( item.label ?? '' ),
-			value: item.views,
-			href: item.link,
-			type: String( item.type ?? '' ),
-		} ) )
-		.filter( row => ! allowedTypes || allowedTypes.includes( row.type ) );
+function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
+	return items.map( item => ( {
+		label: String( item.label ?? '' ),
+		value: item.views,
+		previousValue: item.previousViews,
+		href: item.link,
+		type: String( item.type ?? '' ),
+	} ) );
 }
 
 /**
@@ -234,10 +227,6 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
 	// date range is owned by the dashboard picker and carried in `reportParams`.
 	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
-
-	const { primary, comparison, hasComparison, isLoading, isFetching, isError } =
-		useStatsTopPosts( statsParams );
-
 	const allowedTypes = useMemo( () => {
 		if ( postType === undefined || postType === '' ) {
 			return null;
@@ -245,41 +234,16 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		return Array.isArray( postType ) ? postType : [ postType ];
 	}, [ postType ] );
 
-	const primaryRows = useMemo(
-		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem >, allowedTypes ),
-		[ primary.data, allowedTypes ]
-	);
-
-	// Comparison-period views keyed by the same post URL the primary rows use.
-	// Empty when comparison is disabled or the comparison query returned no rows.
-	const previousViewsByHref = useMemo( () => {
-		if ( ! hasComparison ) {
-			return new Map< string, number >();
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError } = useStatsTopPosts(
+		statsParams,
+		{
+			maxRows: num,
+			postTypes: allowedTypes,
 		}
-		return new Map(
-			toTopPostRows(
-				comparison.data as StatsNormalizedReport< StatsTopPostsItem >,
-				allowedTypes
-			).map( row => [ row.href, row.value ] )
-		);
-	}, [ comparison.data, allowedTypes, hasComparison ] );
-
-	// Only render comparison UI when at least one primary row actually overlaps
-	// the comparison period; otherwise unmatched rows would fall to a placeholder
-	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
-	const withComparison =
-		hasComparison && primaryRows.some( row => previousViewsByHref.has( row.href ) );
-
-	const rows = useMemo(
-		() =>
-			withComparison
-				? primaryRows.map( row => ( {
-						...row,
-						previousValue: previousViewsByHref.get( row.href ) ?? 0,
-				  } ) )
-				: primaryRows,
-		[ primaryRows, previousViewsByHref, withComparison ]
 	);
+
+	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const withComparison = hasComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 

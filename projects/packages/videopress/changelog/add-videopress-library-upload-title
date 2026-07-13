@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Media Library: reuse the attachment title, description and caption for the VideoPress video when promoting a video with the "Upload to VideoPress" action, instead of only the file name.

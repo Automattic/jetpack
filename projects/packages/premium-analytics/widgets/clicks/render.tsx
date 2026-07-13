@@ -2,13 +2,16 @@
  * External dependencies
  */
 import {
+	mergeStatsClicksComparisonRows,
 	useStatsClicks,
+	type StatsClicksComparisonItem,
 	type StatsClicksItem,
 	type StatsNormalizedReport,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardLabel,
 	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -61,98 +64,53 @@ export type ClickRow = {
 	 * Child clicked links for drill-down.
 	 */
 	children?: ClickRow[];
+	/**
+	 * Whether the child rows have any matching comparison-period rows.
+	 */
+	childrenHaveComparison?: boolean;
 };
 
-function getItemLabel( item: StatsClicksItem, parentLabel?: string ): string {
+function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): string {
 	if ( typeof item.label === 'string' && item.label ) {
 		return item.label;
 	}
 
-	return item.link ?? parentLabel ?? '';
+	return item.link ?? '';
 }
 
-type NormalizedClickItem = {
-	key: string;
-	label: string;
-	value: number;
-	previousValue: number;
-	href?: string;
-	icon?: string | null;
-	children?: NormalizedClickItem[];
-};
-
-function getItemKey( item: StatsClicksItem, parentLabel?: string ): string {
-	const label = getItemLabel( item, parentLabel );
-	return item.link ?? label;
-}
-
-function buildClickItemLookup(
-	items: StatsClicksItem[],
-	parent?: { label: string }
-): Map< string, StatsClicksItem > {
-	const lookup = new Map< string, StatsClicksItem >();
-
-	items.forEach( item => {
-		const label = getItemLabel( item, parent?.label );
-		lookup.set( getItemKey( item, parent?.label ), item );
-		( item.children ?? [] ).forEach( child => {
-			buildClickItemLookup( [ child ], { label } ).forEach( ( value, key ) => {
-				lookup.set( key, value );
-			} );
-		} );
-	} );
-
-	return lookup;
-}
-
-function normalizeClickItem(
-	item: StatsClicksItem,
-	comparisonLookup: Map< string, StatsClicksItem >,
-	parent?: { label: string; icon?: string | null }
-): NormalizedClickItem {
-	const label = getItemLabel( item, parent?.label );
-	const key = getItemKey( item, parent?.label );
-	const children = ( item.children ?? [] ).map( child =>
-		normalizeClickItem( child, comparisonLookup, { label, icon: item.icon ?? parent?.icon } )
-	);
-
+function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 	return {
-		key,
-		label,
+		label: getItemLabel( item ),
 		value: item.views,
-		previousValue: comparisonLookup.get( key )?.views ?? 0,
-		href: item.link ?? undefined,
-		icon: item.icon ?? parent?.icon,
-		children: children.length ? sortClickItems( children ) : undefined,
-	};
-}
-
-function sortClickItems( items: NormalizedClickItem[] ): NormalizedClickItem[] {
-	return [ ...items ].sort( ( a, b ) => b.value - a.value );
-}
-
-function toClickRow( item: NormalizedClickItem ): ClickRow {
-	return {
-		label: item.label,
-		value: item.value,
 		previousValue: item.previousValue,
-		href: item.href,
+		...( item.link ? { href: item.link } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
+		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
 }
 
-function normalizeClickItems(
-	items: StatsClicksItem[],
-	comparisonLookup: Map< string, StatsClicksItem >
-): NormalizedClickItem[] {
-	return sortClickItems( items.map( item => normalizeClickItem( item, comparisonLookup ) ) );
-}
+/**
+ * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
+ * comparison values when a comparison report is present.
+ *
+ * @param report           - Primary clicks report.
+ * @param comparisonReport - Comparison clicks report.
+ * @param max              - Maximum rows to keep. 0 keeps all rows.
+ * @return Rows ready for the leaderboard.
+ */
+export function toClickRowsWithComparison(
+	report: StatsNormalizedReport< StatsClicksItem > | undefined,
+	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
+	max: number
+): { rows: ClickRow[]; hasComparison: boolean } {
+	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
+	const clickRows = rows.map( toClickRow );
 
-function getItems(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined
-): StatsClicksItem[] {
-	return report?.data.flatMap( point => point.items ) ?? [];
+	return {
+		rows: clickRows,
+		hasComparison,
+	};
 }
 
 /**
@@ -169,33 +127,7 @@ export function toClickRows(
 	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	max: number
 ): ClickRow[] {
-	const comparisonLookup = buildClickItemLookup( getItems( comparisonReport ) );
-	const sorted = normalizeClickItems( getItems( report ), comparisonLookup );
-	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
-
-	return sliced.map( toClickRow );
-}
-
-type ClickLabelProps = {
-	/**
-	 * The normalized click row whose favicon and label to render.
-	 */
-	row: ClickRow;
-};
-
-/**
- * Renders a click row's favicon and label.
- *
- * @param {ClickLabelProps} props - The component props.
- * @return The rendered label content.
- */
-function ClickLabel( { row }: ClickLabelProps ) {
-	return (
-		<span className={ styles.labelContent }>
-			{ row.icon && <img src={ row.icon } alt="" className={ styles.labelIcon } /> }
-			<span className={ styles.labelTitle }>{ row.label }</span>
-		</span>
-	);
+	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
 }
 
 /**
@@ -215,9 +147,18 @@ function buildLeaderboardData(
 	const maxPreviousClicks = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
 		const shouldRenderLink = !! row.href && ! hasChildren;
+		const label = (
+			<LeaderboardLabel
+				label={ row.label }
+				imageUrl={ row.icon ?? undefined }
+				imageAlt=""
+				imageFallback="hidden"
+				imageClassName={ styles.labelIcon }
+			/>
+		);
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
@@ -229,19 +170,24 @@ function buildLeaderboardData(
 					openInNewTab
 					title={ row.label }
 				>
-					<ClickLabel row={ row } />
+					{ label }
 				</Link>
 			) : (
 				<span className={ styles.labelText } title={ row.label }>
-					<ClickLabel row={ row } />
+					{ label }
 				</span>
 			),
 			currentValue: row.value,
 			currentShare: ( row.value / maxCurrentClicks ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousClicks ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined
+					? ( previousValue / maxPreviousClicks ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 			...( hasChildren &&
 				onDrillDown && {
 					onClick: () => onDrillDown( row ),
@@ -341,18 +287,15 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsClicks( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } = useStatsClicks(
+		statsParams,
+		{ maxRows: max }
+	);
 	const showLoading = isLoading || ( isFetching && hasData );
 
 	const rows = useMemo(
-		() =>
-			toClickRows(
-				primary.data as StatsNormalizedReport< StatsClicksItem > | undefined,
-				comparison.data as StatsNormalizedReport< StatsClicksItem > | undefined,
-				max
-			),
-		[ primary.data, comparison.data, max ]
+		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
+		[ comparisonRows ]
 	);
 	const selectedClick = useMemo(
 		() => rows.find( row => row.label === selectedClickLabel ) ?? null,
@@ -360,6 +303,8 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
+	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
+
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
 			selectClick( row.label );
@@ -382,7 +327,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 				rows={ activeRows }
 				isLoading={ showLoading }
 				isError={ isError }
-				withComparison={ hasComparison }
+				withComparison={ withComparison }
 				onDrillDown={ isDrillDown ? undefined : handleDrillDown }
 			/>
 		</div>

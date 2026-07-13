@@ -30,6 +30,7 @@
 /_inc/build/*.js.map                                     production-exclude
 /_inc/build/maps/**                                      production-exclude
 /_inc/client/**                                          production-exclude
+/_inc/content-guidelines-ai/**                           production-exclude
 /css/*.css.map                                           production-exclude
 /css/*.css.min.map                                       production-exclude
 /extensions/**/*.jpg                                     production-exclude
