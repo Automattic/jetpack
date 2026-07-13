@@ -14,6 +14,41 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/zoom-scheduler/zoom-sched
 class Zoom_Scheduler_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
+	const BLOCK_NAME = 'jetpack/zoom-scheduler';
+
+	/**
+	 * Whether the block was already registered before these tests ran.
+	 *
+	 * @var bool
+	 */
+	private $was_registered;
+
+	/**
+	 * Setup and ensure the block is registered before running the tests.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->was_registered = \Automattic\Jetpack\Blocks::is_registered( self::BLOCK_NAME );
+		Zoom_Scheduler\register_block();
+	}
+
+	/**
+	 * Teardown and unregister the block if it wasn't registered before running these tests.
+	 */
+	public function tear_down() {
+		if ( ! $this->was_registered ) {
+			unregister_block_type( self::BLOCK_NAME );
+		}
+		parent::tear_down();
+	}
+
+	/**
+	 * Test that the block can be registered.
+	 */
+	public function test_block_can_be_registered() {
+		$this->assertTrue( \Automattic\Jetpack\Blocks::is_registered( self::BLOCK_NAME ) );
+	}
+
 	/**
 	 * `load_assets` with empty attributes returns an empty string.
 	 */
