@@ -1,20 +1,21 @@
 <?php
 /**
- * Tests for the CSV export Report_Data_Fetcher pure helpers (merge/normalize logic).
+ * Tests for the CSV export Report_Data_Fetcher helpers.
  *
- * The network methods fetch()/make_proxy_request() are exercised against the live site
- * (they call the WPCom proxy); these tests cover the data-shaping methods that need no network.
+ * The proxy error path is intercepted at the local REST layer, so it needs no external request.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Error;
 use WP_REST_Response;
+use WP_REST_Server;
 
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 
@@ -150,6 +151,60 @@ class ReportDataFetcher_Test extends TestCase {
 		$this->assertSame(
 			array(
 				'status' => 500,
+			),
+			$result->get_error_data()
+		);
+	}
+
+	/**
+	 * External proxy failures retain their upstream details when the export fetcher makes the
+	 * internal REST request.
+	 */
+	public function test_make_proxy_request_normalizes_external_api_errors() {
+		global $wp_rest_server;
+
+		$previous_server  = $wp_rest_server;
+		$wp_rest_server   = new WP_REST_Server();
+		$proxy_controller = new Api_Proxy_Controller();
+		$register_routes  = array( $proxy_controller, 'register_routes' );
+		$route            = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coverage-test-error';
+		$pre_dispatch     = static function ( $result, $server, $request ) use ( $route ) {
+			if ( $route === $request->get_route() ) {
+				return new WP_REST_Response(
+					(object) array(
+						'code'    => 'woocommerce_analytics_bookings_error',
+						'message' => 'Failed to retrieve bookings data. Please try again later.',
+						'data'    => (object) array(
+							'status' => 500,
+						),
+					),
+					500
+				);
+			}
+
+			return $result;
+		};
+
+		add_action( 'rest_api_init', $register_routes );
+		add_filter( 'rest_pre_dispatch', $pre_dispatch, 10, 3 );
+
+		try {
+			// Routes must be registered on the `rest_api_init` action.
+			do_action( 'rest_api_init' );
+			$result = $this->invoke( 'make_proxy_request', array( 'reports/coverage-test-error', array() ) );
+		} finally {
+			remove_action( 'rest_api_init', $register_routes );
+			remove_filter( 'rest_pre_dispatch', $pre_dispatch, 10 );
+			$wp_rest_server = $previous_server;
+		}
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 500,
+				'message'       => 'Failed to retrieve bookings data. Please try again later.',
+				'external_code' => 'woocommerce_analytics_bookings_error',
 			),
 			$result->get_error_data()
 		);
