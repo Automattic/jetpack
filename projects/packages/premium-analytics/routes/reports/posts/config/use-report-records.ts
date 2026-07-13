@@ -28,7 +28,7 @@ import type { ReportPostsTabId } from './tabs';
  * @param chartPeriod  - The chart's bucket period.
  * @return Chart data and per-tab table records.
  */
-export function useReportRecords(
+export function usePostsReportRecords(
 	activeTab: ReportPostsTabId,
 	reportParams: ReportParams,
 	chartPeriod: StatsPeriod

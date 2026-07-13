@@ -33,7 +33,7 @@ import {
 	getPostsFields,
 	getReportPostsTabs,
 	resolveTabId,
-	useReportRecords,
+	usePostsReportRecords,
 	type ArchiveRow,
 } from './config';
 import styles from './page.module.css';
@@ -140,7 +140,7 @@ function PostsReport(): JSX.Element {
 	const chartPeriod = isChartPeriod( search.period )
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
-	const records = useReportRecords( activeTab, reportParams, chartPeriod );
+	const records = usePostsReportRecords( activeTab, reportParams, chartPeriod );
 
 	const postsFields = useMemo( () => getPostsFields(), [] );
 	const archivesFields = useMemo( () => getArchivesFields(), [] );
