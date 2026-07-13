@@ -20,6 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 use WP_Error;
 use WP_REST_Request;
+use WP_REST_Response;
 
 /**
  * Data Fetcher class for retrieving report data.
@@ -469,13 +470,12 @@ class Report_Data_Fetcher {
 		}
 
 		// Check if the response has error status (API returned error).
-		if ( isset( $data['data']['status'] ) && $data['data']['status'] >= 400 ) {
-			$message = $data['message'] ?? 'Unknown error from API';
-			return new WP_Error(
-				'api_error',
-				$message,
-				array( 'status' => $data['data']['status'] )
-			);
+		if (
+			isset( $data['data']['status'] )
+			&& is_numeric( $data['data']['status'] )
+			&& (int) $data['data']['status'] >= 400
+		) {
+			return $this->build_external_api_error( $response );
 		}
 
 		return $data;
@@ -488,21 +488,31 @@ class Report_Data_Fetcher {
 	 * payloads represented as stdClass. Preserve the external details in data while
 	 * keeping a consistent local error message for the CSV export route.
 	 *
-	 * @param \WP_REST_Response $response Error response from the local proxy route.
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Response $response Response containing an external API error.
 	 * @return WP_Error Normalized external API error.
 	 */
-	private function build_external_api_error( \WP_REST_Response $response ): WP_Error {
+	private function build_external_api_error( WP_REST_Response $response ): WP_Error {
 		$data = $this->normalize_response_data( $response->get_data() );
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}
 
-		$status           = (int) $response->get_status();
+		$response_status  = (int) $response->get_status();
+		$status           = $response_status >= 400 ? $response_status : 500;
 		$external_code    = null;
 		$external_message = null;
 
 		if ( is_array( $data ) ) {
-			if ( isset( $data['data']['status'] ) ) {
+			// A real HTTP error status is authoritative. Only use an embedded status when the
+			// transport succeeded but the response body represents an API failure.
+			if (
+				$response_status < 400
+				&& isset( $data['data']['status'] )
+				&& is_numeric( $data['data']['status'] )
+				&& (int) $data['data']['status'] >= 400
+			) {
 				$status = (int) $data['data']['status'];
 			}
 
@@ -519,11 +529,11 @@ class Report_Data_Fetcher {
 			'status' => $status > 0 ? $status : 500,
 		);
 
-		if ( null !== $external_message && '' !== $external_message ) {
+		if ( null !== $external_message ) {
 			$error_data['message'] = $external_message;
 		}
 
-		if ( null !== $external_code && '' !== $external_code ) {
+		if ( null !== $external_code ) {
 			$error_data['external_code'] = $external_code;
 		}
 

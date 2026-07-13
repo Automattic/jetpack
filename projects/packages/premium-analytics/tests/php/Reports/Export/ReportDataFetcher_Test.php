@@ -156,6 +156,32 @@ class ReportDataFetcher_Test extends TestCase {
 		);
 	}
 
+	public function test_build_external_api_error_keeps_http_status_and_empty_external_message() {
+		$response = new WP_REST_Response(
+			(object) array(
+				'code'    => 500,
+				'message' => '',
+				'data'    => (object) array(
+					'status' => 502,
+				),
+			),
+			500
+		);
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 500,
+				'message'       => '',
+				'external_code' => '500',
+			),
+			$result->get_error_data()
+		);
+	}
+
 	/**
 	 * External proxy failures retain their upstream details when the export fetcher makes the
 	 * internal REST request.
@@ -167,9 +193,10 @@ class ReportDataFetcher_Test extends TestCase {
 		$wp_rest_server   = new WP_REST_Server();
 		$proxy_controller = new Api_Proxy_Controller();
 		$register_routes  = array( $proxy_controller, 'register_routes' );
-		$route            = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coverage-test-error';
-		$pre_dispatch     = static function ( $result, $server, $request ) use ( $route ) {
-			if ( $route === $request->get_route() ) {
+		$error_route      = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coverage-test-error';
+		$embedded_route   = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coverage-test-embedded-error';
+		$pre_dispatch     = static function ( $result, $server, $request ) use ( $error_route, $embedded_route ) {
+			if ( $error_route === $request->get_route() ) {
 				return new WP_REST_Response(
 					(object) array(
 						'code'    => 'woocommerce_analytics_bookings_error',
@@ -182,6 +209,19 @@ class ReportDataFetcher_Test extends TestCase {
 				);
 			}
 
+			if ( $embedded_route === $request->get_route() ) {
+				return new WP_REST_Response(
+					(object) array(
+						'code'    => 'embedded_analytics_error',
+						'message' => 'The API embedded an error in a successful response.',
+						'data'    => (object) array(
+							'status' => 502,
+						),
+					),
+					200
+				);
+			}
+
 			return $result;
 		};
 
@@ -191,7 +231,8 @@ class ReportDataFetcher_Test extends TestCase {
 		try {
 			// Routes must be registered on the `rest_api_init` action.
 			do_action( 'rest_api_init' );
-			$result = $this->invoke( 'make_proxy_request', array( 'reports/coverage-test-error', array() ) );
+			$result          = $this->invoke( 'make_proxy_request', array( 'reports/coverage-test-error', array() ) );
+			$embedded_result = $this->invoke( 'make_proxy_request', array( 'reports/coverage-test-embedded-error', array() ) );
 		} finally {
 			remove_action( 'rest_api_init', $register_routes );
 			remove_filter( 'rest_pre_dispatch', $pre_dispatch, 10 );
@@ -207,6 +248,17 @@ class ReportDataFetcher_Test extends TestCase {
 				'external_code' => 'woocommerce_analytics_bookings_error',
 			),
 			$result->get_error_data()
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $embedded_result );
+		$this->assertSame( 'external_api_error', $embedded_result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 502,
+				'message'       => 'The API embedded an error in a successful response.',
+				'external_code' => 'embedded_analytics_error',
+			),
+			$embedded_result->get_error_data()
 		);
 	}
 }
