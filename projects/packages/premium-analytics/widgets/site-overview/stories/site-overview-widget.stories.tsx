@@ -24,12 +24,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import SiteOverviewRender from '../render';
 import widgetDefinition, {
 	DEFAULT_SITE_OVERVIEW_METRICS,
 	type SiteOverviewMetricId,
 } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -106,13 +107,6 @@ const METRIC_ARG_TYPES = {
 const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_SITE_OVERVIEW_METRICS,
 } as const;
-
-// Close-up canvas so the metric grid fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', maxWidth: '560px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SiteOverview',

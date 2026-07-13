@@ -1,11 +1,14 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -14,6 +17,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TopPostsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -45,7 +49,7 @@ interface TopPostsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		TopPostsStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
+const withTopPostsCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '340px' } }>
 		<Story />
 	</div>
@@ -117,19 +121,19 @@ type DashboardStory = StoryObj< TopPostsDashboardStoryProps >;
 export const Default: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: false, contentView: 'posts' },
-	decorators: [ withWidgetCanvas, withStoryRouter ],
+	decorators: [ withTopPostsCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'posts' },
-	decorators: [ withWidgetCanvas, withStoryRouter ],
+	decorators: [ withTopPostsCanvas, withStoryRouter ],
 };
 
 export const Archives: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'archives' },
-	decorators: [ withWidgetCanvas, withStoryRouter ],
+	decorators: [ withTopPostsCanvas, withStoryRouter ],
 	parameters: {
 		docs: {
 			description: {
@@ -153,5 +157,62 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params and deltas.',
 		},
+	},
+};
+
+// Use distinct presets so each forced-state story has its own query-cache entry.
+function renderTopPostsOnPreset( preset: PresetType ) {
+	return (
+		<TopPostsRender
+			attributes={ {
+				num: 10,
+				contentView: 'posts',
+				reportParams: getDefaultQueryParams( false, preset ),
+			} }
+		/>
+	);
+}
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderTopPostsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-posts', 'loading' );
+		return () => setReportMockState( 'stats/top-posts', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderTopPostsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-posts', 'error' );
+		return () => setReportMockState( 'stats/top-posts', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral chart
+ * glyph and "No views in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderTopPostsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-posts', 'empty' );
+		return () => setReportMockState( 'stats/top-posts', null );
 	},
 };
