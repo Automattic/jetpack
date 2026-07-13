@@ -190,4 +190,52 @@ describe( 'useWordAdsChart', () => {
 		expect( requestedPaths.some( p => p.includes( 'date=2026-06-30' ) ) ).toBe( true );
 		expect( requestedPaths.some( p => p.includes( 'date=2026-03-31' ) ) ).toBe( true );
 	} );
+
+	it( 'aligns a longer comparison window to the primary bucket count', async () => {
+		// The primary window is clamped to end yesterday (WordAds is computed
+		// nightly), so a range ending today loses its trailing bucket. The
+		// comparison window sits in the past and keeps every bucket, so it comes
+		// back one bucket longer. Here: primary has 2 buckets, comparison 3. The
+		// hook must trim the comparison to the primary's 2 (dropping the trailing
+		// bucket) so the delta compares equal-length windows and the overlay
+		// aligns point-for-point.
+		const LONGER_COMPARISON_RESPONSE = {
+			unit: 'month',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [
+				[ '2026-01', 300, 1.5, 5.0 ],
+				[ '2026-02', 400, 2.0, 5.0 ],
+				// Trailing bucket that has no counterpart in the clamped primary.
+				[ '2026-03', 500, 3.0, 6.0 ],
+			],
+		};
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-03-31' ) ? LONGER_COMPARISON_RESPONSE : PRIMARY_RESPONSE
+			)
+		);
+
+		const reportParams: ReportParams = {
+			from: '2026-05-01',
+			to: '2026-06-30',
+			interval: 'month',
+			comp: '1',
+			compare_from: '2026-01-01',
+			compare_to: '2026-03-31',
+		};
+
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.metrics[ 0 ].previous ).toHaveLength( 2 ) );
+
+		const metrics = result.current.metrics;
+		// Current stays at its 2 buckets; previous is trimmed to match, not 3.
+		expect( metrics[ 0 ].current ).toHaveLength( 2 );
+		// previousValue totals only the retained (leading) buckets: 300 + 400.
+		expect( metrics[ 0 ].previousValue ).toBe( 700 );
+		// Revenue sums the retained buckets (1.5 + 2.0); CPM is their weighted
+		// average (3.5 / 700 * 1000), not the value over all three buckets.
+		expect( metrics[ 2 ].previousValue ).toBeCloseTo( 3.5 );
+		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 5 );
+	} );
 } );

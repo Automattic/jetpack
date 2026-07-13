@@ -3,6 +3,7 @@
  */
 import {
 	localTZDate,
+	sliceWordAdsStatsReport,
 	useStatsWordAdsStats,
 	type ReportParams,
 	type StatsPeriod,
@@ -144,7 +145,20 @@ export default function useWordAdsChart(
 		useStatsWordAdsStats( params );
 
 	const primaryData = primary.data as StatsWordAdsResponse | undefined;
-	const comparisonData = comparison.data as StatsWordAdsResponse | undefined;
+	const rawComparisonData = comparison.data as StatsWordAdsResponse | undefined;
+
+	// A range ending today clamps the primary window to end yesterday (WordAds is
+	// computed nightly), dropping its trailing bucket, while the past comparison
+	// window keeps all of its — so it comes back one bucket longer. Trim it back
+	// to the primary's bucket count so the delta compares equal-length windows and
+	// the overlay aligns to the primary point-for-point.
+	const comparisonData = useMemo(
+		() =>
+			primaryData && rawComparisonData
+				? sliceWordAdsStatsReport( rawComparisonData, primaryData.data.length )
+				: rawComparisonData,
+		[ primaryData, rawComparisonData ]
+	);
 
 	// Resolve selected ids against the canonical definitions so the tab order
 	// stays stable regardless of the order the ids were toggled in.

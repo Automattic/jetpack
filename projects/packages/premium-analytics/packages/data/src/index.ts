@@ -97,6 +97,7 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
+export { sliceWordAdsStatsReport } from './processing/stats';
 export { useStatsInsights } from './hooks/use-stats-insights';
 export type {
 	StatsInsightsParams,

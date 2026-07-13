@@ -35,7 +35,11 @@ export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsPublicizeResponse } from './publicize';
-export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
+export {
+	sanitizeStatsWordAdsStatsResponse,
+	sanitizeStatsWordAdsEarningsResponse,
+	sliceWordAdsStatsReport,
+} from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
