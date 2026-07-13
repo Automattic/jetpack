@@ -8,15 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.2] - 2026-07-13
 ### Changed
 - Stop exposing the `podcasting_*` options through core `/wp/v2/settings`; the dashboard now reads and writes them via the dedicated `wpcom/v2/podcast/settings` endpoint. [#50458]
-- Update README and MD files. [#50248]
 - Update package dependencies. [#49272]
+- Update README and MD files. [#50248]
 
 ### Fixed
-- Include full episode show notes in the feed so podcast apps stop showing blank episodes. [#50312]
-- Load the package whenever the module system initializes it, so self-hosted sites with the module active load the package correctly. [#50242]
 - Distribution: Mirror the Pocket Casts submission verdict onto the local site options so the dashboard reflects show state on Jetpack/Atomic sites. [#50228]
 - Episode: Render the full player in all contexts (including the RSS feed) so it shows in the WPCOM Reader on Atomic and Jetpack sites, with a linked title and a native media fallback link for clients that strip the player. [#50286]
 - Feed: Emit a single `<enclosure>` per episode when a post has accumulated duplicate enclosure meta rows. [#50331]
+- Include full episode show notes in the feed so podcast apps stop showing blank episodes. [#50312]
+- Load the package whenever the module system initializes it, so self-hosted sites with the module active load the package correctly. [#50242]
 
 ## [1.3.1] - 2026-07-06
 ### Added
