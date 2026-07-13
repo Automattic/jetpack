@@ -48,6 +48,7 @@ import {
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
+	mockTagsData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -907,6 +908,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		case '/tags':
+			// The Stats `tags` endpoint has no comparison period, so the same
+			// primary fixture is returned for every request.
+			return mockTagsData;
 		case '/insights':
 			return mockStatsInsightsData;
 		default:
