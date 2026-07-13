@@ -22,6 +22,13 @@ use WP_Post;
 class SchemaBuilderTest extends TestCase {
 
 	/**
+	 * Users created during the test.
+	 *
+	 * @var int[]
+	 */
+	private $user_ids = array();
+
+	/**
 	 * Reset the host-plugin stubs (see tests/php/bootstrap.php) before each test.
 	 *
 	 * @return void
@@ -43,6 +50,12 @@ class SchemaBuilderTest extends TestCase {
 		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'home_url' );
 		delete_option( Schema_Settings::OPTION_NAME );
+		wp_set_current_user( 0 );
+		foreach ( $this->user_ids as $user_id ) {
+			if ( function_exists( 'wp_delete_user' ) ) {
+				wp_delete_user( $user_id );
+			}
+		}
 		parent::tearDown();
 	}
 
@@ -84,6 +97,31 @@ class SchemaBuilderTest extends TestCase {
 				$fields
 			)
 		);
+	}
+
+	/**
+	 * Create a WP user.
+	 *
+	 * @param array $overrides User field overrides.
+	 * @return \WP_User
+	 */
+	private function make_user( array $overrides = array() ) {
+		$suffix  = (string) wp_rand();
+		$user_id = wp_insert_user(
+			array_merge(
+				array(
+					'user_login'   => 'schema_author_' . $suffix,
+					'user_pass'    => 'password',
+					'user_email'   => 'schema_author_' . $suffix . '@example.test',
+					'display_name' => 'Jane Doe',
+				),
+				$overrides
+			)
+		);
+
+		$this->assertIsInt( $user_id );
+		$this->user_ids[] = $user_id;
+		return get_userdata( $user_id );
 	}
 
 	/**
@@ -156,6 +194,22 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * Drive Schema_Builder::emit() against an author archive.
+	 *
+	 * @param \WP_User $user Queried author.
+	 * @return array|null Decoded JSON-LD document, or null when emit() outputs nothing.
+	 */
+	private function emit_author_document( $user ) {
+		global $wp_query;
+		$wp_query                    = new \WP_Query();
+		$wp_query->is_author         = true;
+		$wp_query->queried_object    = $user;
+		$wp_query->queried_object_id = $user->ID;
+
+		return $this->capture_emitted_document();
+	}
+
+	/**
 	 * Find the first node of a given `@type` in a `@graph` document, or null.
 	 *
 	 * Looking nodes up by type (rather than position) keeps these assertions
@@ -225,6 +279,7 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertArrayHasKey( 'headline', $article );
 		$this->assertArrayHasKey( 'datePublished', $article );
 		$this->assertArrayHasKey( 'mainEntityOfPage', $article );
+		$this->assertArrayNotHasKey( 'author', $article, 'An unresolvable post author adds no author property.' );
 
 		// The full Organization node lives on the home page only; a post references
 		// it by @id (see test_post_references_publisher_by_id_without_organization_node).
@@ -314,6 +369,70 @@ class SchemaBuilderTest extends TestCase {
 		$doc = $this->emit_front_page_document();
 
 		$this->assertNull( $doc, 'An unnamed site emits no site-level nodes.' );
+	}
+
+	/**
+	 * An Article references its author by `@id` only, resolving to the full Person
+	 * node in the same graph — never a duplicated inline author object.
+	 */
+	public function test_article_author_resolves_to_person_node_by_id() {
+		$this->set_site_name( 'Acme Co' );
+		$user = $this->make_user();
+		update_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, 'Creator' );
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertSame(
+			array( '@id' => Schema_Node_Ids::person( $user->ID, $user->user_nicename ) ),
+			$article['author'],
+			'Article.author must be an @id-only reference.'
+		);
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the full Person node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::person( $user->ID, $user->user_nicename ), $person['@id'] );
+		$this->assertSame( 'Jane Doe', $person['name'] );
+		$this->assertSame( 'Creator', $person['jobTitle'] );
+		$this->assertSame( array( '@id' => Schema_Node_Ids::organization() ), $person['worksFor'] );
+
+		// Site-level nodes still live on the home page only.
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
+	}
+
+	/**
+	 * Without an Organization, author archives emit ProfilePage and Person nodes
+	 * linked by `mainEntity`, with no `worksFor`.
+	 */
+	public function test_author_archive_emits_profile_page_wrapping_person() {
+		$this->set_site_name( '' );
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person       = $this->node_of_type( $doc, 'Person' );
+		$profile_page = $this->node_of_type( $doc, 'ProfilePage' );
+		$this->assertIsArray( $person, 'Expected a Person node in the graph.' );
+		$this->assertIsArray( $profile_page, 'Expected a ProfilePage node in the graph.' );
+		$this->assertSame( $person['@id'], $profile_page['mainEntity']['@id'] );
+		$this->assertArrayNotHasKey( 'worksFor', $person );
+	}
+
+	/**
+	 * With the Organization configured, the author-archive Person references it as
+	 * `worksFor` by `@id` — without duplicating the Organization node itself.
+	 */
+	public function test_author_archive_person_works_for_organization() {
+		$this->set_site_name( 'Acme Co' );
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected a Person node in the graph.' );
+		$this->assertSame( array( '@id' => Schema_Node_Ids::organization() ), $person['worksFor'] );
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'An author archive must not carry the Organization node.' );
 	}
 
 	/**

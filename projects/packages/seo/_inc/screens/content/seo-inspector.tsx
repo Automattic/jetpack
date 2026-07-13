@@ -1,19 +1,14 @@
 /* eslint-disable react/jsx-no-bind */
 
-import {
-	Button,
-	SelectControl,
-	TextControl,
-	TextareaControl,
-	ToggleControl,
-} from '@wordpress/components';
+import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { Button, IconButton } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
 import type { ContentPostType, SchemaType, SeoPostMeta } from '../../data/content-types';
@@ -84,11 +79,15 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	// over the post's existing meta.
 	const [ local, setLocal ] = useState< EditableMeta >( EMPTY_META );
 
+	// Seed the form once per mount (the route keys this component by postId), so
+	// a background refetch changing `recordMeta` identity can't overwrite edits.
+	const hasSeeded = useRef( false );
 	const recordMeta = ( record as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
 	useEffect( () => {
-		if ( ! recordMeta ) {
+		if ( ! recordMeta || hasSeeded.current ) {
 			return;
 		}
+		hasSeeded.current = true;
 		setLocal( {
 			advanced_seo_description: recordMeta.advanced_seo_description ?? '',
 			jetpack_seo_html_title: recordMeta.jetpack_seo_html_title ?? '',
@@ -117,7 +116,9 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			// Stage the meta edit, then persist it. core-data merges `meta`, so we
 			// only send the four SEO keys, leaving any other post meta untouched.
 			editEntityRecord( 'postType', postType, postId, { meta: local } );
-			await saveEditedEntityRecord( 'postType', postType, postId );
+			// throwOnError so a failed save rejects instead of resolving; without it
+			// core-data swallows the error and we'd report success on failure.
+			await saveEditedEntityRecord( 'postType', postType, postId, { throwOnError: true } );
 			createSuccessNotice( __( 'SEO updated.', 'jetpack-seo' ), {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
@@ -179,12 +180,14 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				<h2 className="jetpack-seo-content__inspector-title">
 					{ __( 'Edit SEO', 'jetpack-seo' ) }
 				</h2>
-				<Button
+				<IconButton
 					icon={ close }
 					label={ __( 'Close', 'jetpack-seo' ) }
 					onClick={ onClose }
 					disabled={ isSaving }
 					size="small"
+					variant="minimal"
+					tone="neutral"
 				/>
 			</div>
 			<div className="jetpack-seo-content__inspector-body">
@@ -237,14 +240,16 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				/>
 			</div>
 			<div className="jetpack-seo-content__inspector-actions">
-				<Button variant="tertiary" onClick={ onClose } disabled={ isSaving }>
+				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
 				<Button
-					variant="primary"
 					onClick={ onSave }
-					isBusy={ isSaving }
-					disabled={ isSaving || isResolving }
+					loading={ isSaving }
+					// Also disabled when the record failed to load (`recordMeta` never
+					// resolved): the form still holds EMPTY_META, and saving that would
+					// wipe the post's existing SEO meta.
+					disabled={ isSaving || isResolving || ! recordMeta }
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>

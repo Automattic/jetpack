@@ -1,0 +1,18 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-reports-route",
+	"route": {
+		"path": "/reports/$report",
+		"page": "jetpack-premium-analytics"
+	},
+	"dependencies": {
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.13.0",
+		"react": "18.3.1"
+	}
+}

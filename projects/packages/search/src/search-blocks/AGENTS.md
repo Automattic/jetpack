@@ -71,9 +71,7 @@ The filters sidebar's `border-left` hairline (`.jetpack-search-layout__filters-c
 
 ## Theme tokens & `var()` chains
 
-The search-blocks bundle uses its own postcss config (`postcss.blocks.config.js`) with `postcss-custom-properties` set to `preserve: true`. Every `var(--foo, fallback)` ships as two declarations: a literal substitution (the deepest fallback) followed by the full `var()` call. The browser cascade picks the var when defined and falls through to the literal otherwise — runtime theme tokens work, and there's always a static safety net.
-
-The other Search bundles (`inline-search`, `customberg`, `instant-search`) keep the shared `postcss.config.js` with `preserve: false`. `instant-search` in particular reads calypso-color-schemes vars that aren't shipped to the runtime; preserving them as `var()` would paint invalid. Don't change those bundles' config without auditing every var() usage there.
+Search bundles use autoprefixer-only PostCSS config. `var()` chains are left intact for runtime resolution, so block/theme tokens still resolve from the cascade in the browser.
 
 Surface colors in search-blocks SCSS follow one shape:
 
@@ -87,7 +85,7 @@ The chain reaches each layer in order:
 1. `--jp-search-page-*` — sampled from `body`'s computed `color` / `backgroundColor` at `wp_body_open` (see `Search_Blocks::print_theme_token_sampler()`). Theme-accurate regardless of palette slug convention, so themes that emit positional slugs like wp.com Global Styles' `--wp--preset--color--theme-1`/`--theme-2` still drive Search surfaces to the right value.
 2. WP 6.1+ `--base`/`--contrast` pair.
 3. Legacy `--background`/`--foreground` pair (TT1, Kaze, many WPCOM themes).
-4. Static literal — postcss-custom-properties emits this as a separate declaration alongside the `var()` call, so the surface always has a paintable value even when no var resolves.
+4. Final literal fallback in the SCSS chain (for example `#fff` / `inherit`) paints when no variable in the chain resolves.
 
 Two guards in the sampler against degenerate cases:
 

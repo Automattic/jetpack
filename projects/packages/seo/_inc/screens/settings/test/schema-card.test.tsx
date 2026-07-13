@@ -89,7 +89,10 @@ describe( 'SchemaCard', () => {
 		expect(
 			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'allows full social profile URLs', () => {
@@ -108,7 +111,10 @@ describe( 'SchemaCard', () => {
 		expect(
 			screen.queryByText( 'Enter a valid URL that starts with http:// or https://.' )
 		).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeEnabled();
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'disables saving when social profile URLs are duplicated', () => {
@@ -128,7 +134,10 @@ describe( 'SchemaCard', () => {
 		expand();
 
 		expect( screen.getAllByText( 'This profile URL is already listed.' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'shows the configured-field count in the header', () => {

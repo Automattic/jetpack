@@ -1,10 +1,9 @@
-import { Button } from '@wordpress/components';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { Badge, Link } from '@wordpress/ui';
+import { Badge, IconButton, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
 import './style.scss';
 import type { ContentRow } from '../../data/content-types';
@@ -61,7 +60,16 @@ interface EditButtonProps {
 
 const EditButton: FC< EditButtonProps > = ( { item, onEdit } ) => {
 	const handleClick = useCallback( () => onEdit( item ), [ item, onEdit ] );
-	return <Button icon={ pencil } label={ editSeoLabel } size="small" onClick={ handleClick } />;
+	return (
+		<IconButton
+			icon={ pencil }
+			label={ editSeoLabel }
+			size="small"
+			variant="minimal"
+			tone="neutral"
+			onClick={ handleClick }
+		/>
+	);
 };
 
 /**
@@ -216,7 +224,7 @@ const ContentScreen: FC = () => {
 			},
 			{
 				id: 'editAction',
-				label: __( 'Actions', 'jetpack-seo' ),
+				label: editSeoLabel,
 				enableSorting: false,
 				enableHiding: false,
 				getValue: () => '',

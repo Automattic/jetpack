@@ -151,6 +151,7 @@ export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
 	type StatsSingleVideoPage,
+	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
 } from './use-stats-single-video';
 export {

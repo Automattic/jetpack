@@ -30,7 +30,9 @@ function Inspector() {
 
 	return (
 		<ThemeProvider>
-			<SeoInspector postId={ postId } postType={ postType } onClose={ onClose } />
+			{ /* Keyed by post so switching rows remounts with that post's state
+			     instead of reseeding over another post's unsaved edits. */ }
+			<SeoInspector key={ postId } postId={ postId } postType={ postType } onClose={ onClose } />
 		</ThemeProvider>
 	);
 }

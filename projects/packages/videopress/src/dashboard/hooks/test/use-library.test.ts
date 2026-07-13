@@ -100,6 +100,8 @@ describe( 'useLibrary', () => {
 
 		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
 		expect( result.current.items[ 0 ].title ).toBe( 'Test video' );
+		// The media REST field doesn't return `tracks`; items default to [].
+		expect( result.current.items[ 0 ].tracks ).toEqual( [] );
 		expect( result.current.paginationInfo.totalItems ).toBe( 1 );
 		expect( result.current.paginationInfo.totalPages ).toBe( 1 );
 	} );
