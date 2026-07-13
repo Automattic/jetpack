@@ -23,7 +23,10 @@ class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$options = new ReflectionProperty( Jetpack_RelatedPosts::class, 'options' );
-		$options->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
+		}
 		$options->setValue( Jetpack_RelatedPosts::init(), null );
 
 		parent::tear_down();
