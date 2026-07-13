@@ -65,12 +65,12 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 
 The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">` and `createRoot` renders `MyJetpackScreen` into it. The scenario waits for `#my-jetpack-container .jp-admin-page` (a non-hashed class from `@automattic/jetpack-components` `AdminPage`, present only after React renders) and for the container to hydrate before measuring, so LCP and the resource payload reflect the rendered page, not the empty shell.
 
-| CodeVitals key                                         | Field            | Type             | Description                                               |
-| ------------------------------------------------------ | ---------------- | ---------------- | --------------------------------------------------------- |
-| `my-jetpack-connection-sim-largestContentfulPaint`     | `lcp`            | `lcp`            | My Jetpack LCP                                            |
-| `my-jetpack-connection-sim-timeToFirstByte`            | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
-| `my-jetpack-connection-sim-firstContentfulPaint`       | `fcp`            | `fcp`            | My Jetpack FCP                                            |
-| `my-jetpack-connection-sim-decodedBytesKB`             | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| CodeVitals key                                     | Field            | Type             | Description                                               |
+| -------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `my-jetpack-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | My Jetpack LCP                                            |
+| `my-jetpack-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
+| `my-jetpack-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | My Jetpack FCP                                            |
+| `my-jetpack-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
 
 These four post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
 
@@ -154,13 +154,16 @@ A scenario that measures a specific admin page (a `path` + `waitForSelector`, li
 
 Every scenario in `scenarios.js` declares an `optional` flag, read by `computeRunOutcome()` in `measure-lcp.js`. The posting policy lives once, in the measure step's exit code — exit 0 means "every required scenario measured; safe to post":
 
-| Run outcome | measure-lcp exit | Posting step | Build |
-| --- | --- | --- | --- |
-| All scenarios measured | 0 | posts everything | green |
-| Optional scenario(s) failed, all required OK | 0, with warnings | posts survivors (the poster skips errored measurements) | green + TeamCity WARNING message |
-| Any required scenario failed | 1 | never reached | red, nothing posted |
-| ALL scenarios in the run set failed | 1 | never reached | red, nothing posted |
-| `SCENARIO` value matches no scenario | 1, before any measurement | never reached | red |
+| Run outcome                                               | measure-lcp exit          | Posting step                                            | Build                            |
+| --------------------------------------------------------- | ------------------------- | ------------------------------------------------------- | -------------------------------- |
+| All scenarios measured                                    | 0                         | posts everything                                        | green                            |
+| Optional scenario(s) failed, all required OK              | 0, with warnings          | posts survivors (the poster skips errored measurements) | green + TeamCity WARNING message |
+| Any required scenario failed                              | 1                         | never reached                                           | red, nothing posted              |
+| ALL scenarios in the run set failed                       | 1                         | never reached                                           | red, nothing posted              |
+| `SCENARIO` value matches no scenario                      | 1, before any measurement | never reached                                           | red                              |
+| Any scenario measured, but a value fails its sanity range | 0                         | atomic sanity gate refuses the whole POST (exit 2)      | red, nothing posted              |
+
+The last row is the flag's deliberate scope boundary: `optional` isolates **measurement failures** (a scenario that throws or produces no summary). A scenario that measures successfully but yields an out-of-range value — even an optional one — is a data-integrity event, and the pre-existing all-or-nothing sanity gate (see Sanity-range assertions above) still suppresses the entire post and reds the build so a human looks at the anomalous data. The poster also enforces the required side itself: a results file recording a **required** scenario's measurement failure makes `post-to-codevitals.js` fail closed (exit 2) even via the direct `pnpm report` entrypoint, so a red run's saved artifact cannot post its optional survivors and set up retry duplicates.
 
 Why a required failure suppresses **all** posting (retry-safety invariant): a red build has posted nothing, so re-running it cannot append duplicate points to the append-only, dedup-off store. Posting the survivors first and then failing would turn every retry into duplicate trend points. The converse is why an optional-only failure must exit 0: green builds don't get retried. (Re-running a green partial build duplicates its survivor points — the same pre-existing hazard as re-running any green build today.)
 

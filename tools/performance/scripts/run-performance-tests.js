@@ -8,6 +8,7 @@ import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { config as dotenvConfig } from 'dotenv';
+import { computeRunOutcome } from './measure-lcp.js';
 import { isDirectInvocation, VALIDATION_FAILED_EXIT_CODE } from './post-to-codevitals.js';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 
@@ -89,26 +90,28 @@ function tcEscape( str ) {
  * scenario no longer fails the build — but it must not be silent either: its CodeVitals
  * keys skip this build. Read the results file the measure child wrote and emit one
  * TeamCity WARNING service message (shown on the build page without failing it), plus a
- * plain console warning for local runs.
+ * plain console warning for local runs. The optional/required classification comes from
+ * computeRunOutcome so it lives in exactly one tested place; this runs only after a green
+ * measure exit, so the outcome's requiredFailures is empty by construction.
  *
  * @param {string} outputPath - Path to the measure-lcp results JSON (OUTPUT_PATH).
  */
 function reportSkippedScenarios( outputPath ) {
-	let failedNames;
+	let optionalFailures;
 	try {
 		const results = JSON.parse( fs.readFileSync( outputPath, 'utf8' ) );
-		failedNames = SCENARIOS.filter( s => results.measurements?.[ s.key ]?.error ).map(
-			s => s.name
-		);
-	} catch {
-		// No/unreadable results file: nothing to report here — a run that produced no file
-		// already failed the measure child loudly.
+		( { optionalFailures } = computeRunOutcome( results.measurements, SCENARIOS ) );
+	} catch ( err ) {
+		// A green measure exit always writes the results file, so an unreadable one here is
+		// unexpected — say so rather than silently no-opping. Posting correctness is
+		// unaffected either way; only this warning channel is.
+		console.warn( `Could not read results for skipped-scenario reporting: ${ err.message }` );
 		return;
 	}
-	if ( failedNames.length === 0 ) {
+	if ( optionalFailures.length === 0 ) {
 		return;
 	}
-	const text = `${ failedNames.join(
+	const text = `${ optionalFailures.join(
 		', '
 	) } measurement failed; its CodeVitals keys skip this build`;
 	console.warn( `\n⚠ ${ text }` );
@@ -670,4 +673,10 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { shouldFailBuildOnPostError, getGitInfo, resolveCommitTimestampEnv, tcEscape };
+export {
+	shouldFailBuildOnPostError,
+	getGitInfo,
+	resolveCommitTimestampEnv,
+	tcEscape,
+	reportSkippedScenarios,
+};

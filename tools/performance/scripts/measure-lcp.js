@@ -535,7 +535,8 @@ function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
  *
  * @param {string}        scenarioFilter - The SCENARIO env value ('all' or a scenario cliName).
  * @param {Array<object>} scenarios      - Scenario definitions (SCENARIOS, or a test double).
- * @return {Array<object>} The non-empty set of scenarios to run.
+ * @return {Array<object>} The scenarios to run. Non-empty when filtered by cliName; the
+ * 'all' passthrough returns the caller's array verbatim.
  * @throws {Error} When the filter matches no scenario; the message lists the valid values.
  */
 function resolveScenarioSet( scenarioFilter, scenarios ) {
@@ -663,7 +664,12 @@ async function main() {
 			);
 		} catch ( error ) {
 			console.error( `✗ ${ scenario.name } measurement failed:`, error.message, '\n' );
-			measurements[ scenario.key ] = { error: error.message };
+			// Guarantee a truthy error record: computeRunOutcome classifies failure by the
+			// truthiness of `.error`, so a thrown Error('') (falsy .message) must not let a
+			// failed required scenario slip into the success branch and green the build.
+			measurements[ scenario.key ] = {
+				error: error?.message || String( error ) || 'measurement failed',
+			};
 		}
 	}
 

@@ -9,10 +9,49 @@
  */
 
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { computeRunOutcome, resolveScenarioSet } from './measure-lcp.js';
-import { tcEscape } from './run-performance-tests.js';
+import { tcEscape, reportSkippedScenarios } from './run-performance-tests.js';
 import { SCENARIOS } from './scenarios.js';
+
+const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
+
+/**
+ * Run a function while capturing console.log/console.warn lines, restoring after.
+ *
+ * @param {Function} fn - Function to run under capture.
+ * @return {{log: string[], warn: string[]}} Captured lines per channel.
+ */
+function captureConsole( fn ) {
+	const lines = { log: [], warn: [] };
+	const orig = { log: console.log, warn: console.warn };
+	console.log = ( ...args ) => lines.log.push( args.join( ' ' ) );
+	console.warn = ( ...args ) => lines.warn.push( args.join( ' ' ) );
+	try {
+		fn();
+	} finally {
+		Object.assign( console, orig );
+	}
+	return lines;
+}
+
+/**
+ * Write a results-file fixture with the given measurements and return its path.
+ *
+ * @param {object} measurements - The measurements object to persist.
+ * @return {string} Path to the written JSON file.
+ */
+function writeResultsFixture( measurements ) {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'outcome-results-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync( file, JSON.stringify( { measurements } ) );
+	return file;
+}
 
 // A minimal scenario double: one required, two optional (mirrors the live set's shape).
 const REQUIRED = { key: 'req', name: 'Required scenario', cliName: 'req', optional: false };
@@ -35,6 +74,11 @@ test( 'resolveScenarioSet matches exactly one scenario by cliName', () => {
 	const forms = resolveScenarioSet( 'forms-responses', SCENARIOS );
 	assert.equal( forms.length, 1 );
 	assert.equal( forms[ 0 ].key, 'formsResponses' );
+	// The ticket's literal case: the CORRECT spelling `my-jetpack` selects exactly the
+	// myJetpack scenario from the real SCENARIOS (the typo half is tested below).
+	const myJetpack = resolveScenarioSet( 'my-jetpack', SCENARIOS );
+	assert.equal( myJetpack.length, 1 );
+	assert.equal( myJetpack[ 0 ].key, 'myJetpack' );
 } );
 
 test( 'resolveScenarioSet throws on an unknown filter, listing the valid values', () => {
@@ -109,4 +153,78 @@ test( 'tcEscape escapes every character TeamCity requires', () => {
 test( 'tcEscape escapes the pipe first, never double-escaping the others', () => {
 	// If | were escaped after the others, "|'" would become "||'" and corrupt the message.
 	assert.equal( tcEscape( "|'|[|]" ), "|||'|||[|||]" );
+} );
+
+// --- CLI wiring: the main() SCENARIO-validation exit path ---
+
+test( 'CLI: an unknown SCENARIO exits 1 with the valid values, before any browser work', () => {
+	// The ticket's motivating incident lived in this exact wiring: the pure helper throwing
+	// is not enough if main() stops calling it (or falls through after catching). Validation
+	// runs before Docker/browser setup, so this returns quickly on a plain node spawn.
+	const result = spawnSync( process.execPath, [ path.join( SCRIPTS_DIR, 'measure-lcp.js' ) ], {
+		env: { ...process.env, SCENARIO: 'my-jetpak' },
+		encoding: 'utf8',
+		timeout: 30000,
+	} );
+	assert.equal( result.status, 1 );
+	assert.match( result.stderr, /Unknown SCENARIO "my-jetpak"/ );
+	assert.match( result.stderr, /jetpack-connected, forms-responses, my-jetpack/ );
+} );
+
+// --- reportSkippedScenarios (the green-partial visibility channel) ---
+
+test( 'reportSkippedScenarios emits the exact TeamCity WARNING plus a console warning', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const file = writeResultsFixture( {
+		jetpackConnected: { summary: { median: 100 } },
+		formsResponses: { error: 'boom' },
+		myJetpack: { summary: { median: 200 } },
+	} );
+	const lines = captureConsole( () => reportSkippedScenarios( file ) );
+	const expectedText = `${ forms.name } measurement failed; its CodeVitals keys skip this build`;
+	assert.deepEqual( lines.log, [
+		`##teamcity[message text='${ tcEscape( expectedText ) }' status='WARNING']`,
+	] );
+	assert.equal( lines.warn.length, 1 );
+	assert.ok( lines.warn[ 0 ].includes( expectedText ) );
+} );
+
+test( 'reportSkippedScenarios names every failed optional scenario in one message', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const myJetpack = SCENARIOS.find( s => s.key === 'myJetpack' );
+	const file = writeResultsFixture( {
+		jetpackConnected: { summary: { median: 100 } },
+		formsResponses: { error: 'boom' },
+		myJetpack: { error: 'also boom' },
+	} );
+	const lines = captureConsole( () => reportSkippedScenarios( file ) );
+	assert.equal( lines.log.length, 1 );
+	assert.ok( lines.log[ 0 ].includes( `${ forms.name }, ${ myJetpack.name }` ) );
+} );
+
+test( 'reportSkippedScenarios stays silent when nothing failed', () => {
+	const file = writeResultsFixture( {
+		jetpackConnected: { summary: { median: 100 } },
+		formsResponses: { summary: { median: 300 } },
+		myJetpack: { summary: { median: 200 } },
+	} );
+	const lines = captureConsole( () => reportSkippedScenarios( file ) );
+	assert.deepEqual( lines.log, [] );
+	assert.deepEqual( lines.warn, [] );
+} );
+
+test( 'reportSkippedScenarios warns readably (no TeamCity message) on a missing/unreadable file', () => {
+	const missing = captureConsole( () =>
+		reportSkippedScenarios( path.join( os.tmpdir(), 'outcome-results-nope', 'missing.json' ) )
+	);
+	assert.deepEqual( missing.log, [] );
+	assert.equal( missing.warn.length, 1 );
+	assert.match( missing.warn[ 0 ], /Could not read results/ );
+
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'outcome-results-bad-' ) );
+	const badFile = path.join( dir, 'results.json' );
+	fs.writeFileSync( badFile, '{ not json' );
+	const malformed = captureConsole( () => reportSkippedScenarios( badFile ) );
+	assert.deepEqual( malformed.log, [] );
+	assert.match( malformed.warn[ 0 ], /Could not read results/ );
 } );
