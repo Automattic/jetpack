@@ -516,7 +516,7 @@ class Report_Data_Fetcher {
 		}
 
 		$error_data = array(
-			'status' => $status ?: 500,
+			'status' => $status > 0 ? $status : 500,
 		);
 
 		if ( null !== $external_message && '' !== $external_message ) {
