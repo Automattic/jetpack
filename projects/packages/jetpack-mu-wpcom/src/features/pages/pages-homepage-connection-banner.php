@@ -9,6 +9,11 @@
  */
 
 /**
+ * User meta key storing whether the current user has dismissed the homepage connection banner.
+ */
+const WPCOM_HOMEPAGE_CONNECTION_BANNER_DISMISSED_META = 'wpcom_pages_homepage_connection_banner_dismissed';
+
+/**
  * Displays the homepage connection banner in the admin notices.
  */
 function homepage_connection_banner() {
@@ -22,8 +27,12 @@ function homepage_connection_banner() {
 	wp_admin_notice(
 		$message,
 		array(
-			'type' => 'info',
-			'id'   => 'edit-homepage-banner',
+			'type'        => 'info',
+			'id'          => 'edit-homepage-banner',
+			'dismissible' => true,
+			'attributes'  => array(
+				'data-nonce' => wp_create_nonce( 'dismiss_homepage_connection_banner' ),
+			),
 		)
 	);
 }
@@ -40,6 +49,11 @@ function wpcom_add_pages_homepage_connection_banner() {
 	$is_edit_page_screen = 'edit-page' === $screen->id;
 
 	if ( ! $is_edit_page_screen ) {
+		return;
+	}
+
+	// Don't show the banner if the current user has already dismissed it.
+	if ( get_user_meta( get_current_user_id(), WPCOM_HOMEPAGE_CONNECTION_BANNER_DISMISSED_META, true ) ) {
 		return;
 	}
 
@@ -70,3 +84,13 @@ function wpcom_add_pages_homepage_connection_banner() {
 }
 
 add_action( 'current_screen', 'wpcom_add_pages_homepage_connection_banner' );
+
+/**
+ * AJAX handler to persist the dismissal of the homepage connection banner in user meta.
+ */
+function wpcom_dismiss_pages_homepage_connection_banner() {
+	check_ajax_referer( 'dismiss_homepage_connection_banner', 'nonce' );
+	update_user_meta( get_current_user_id(), WPCOM_HOMEPAGE_CONNECTION_BANNER_DISMISSED_META, '1' );
+	wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
+}
+add_action( 'wp_ajax_dismiss_homepage_connection_banner', 'wpcom_dismiss_pages_homepage_connection_banner' );
