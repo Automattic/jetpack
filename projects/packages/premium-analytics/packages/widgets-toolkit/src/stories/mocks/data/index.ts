@@ -75,3 +75,11 @@ export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary'
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
 
 export { buildEmailRateResponse } from './email-rate';
+
+export {
+	mockEmailCountryBreakdown,
+	mockEmailDeviceBreakdown,
+	mockEmailClientBreakdown,
+	mockEmailInternalLinkBreakdown,
+	mockEmailUserContentLinkBreakdown,
+} from './email-breakdown';

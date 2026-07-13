@@ -56,6 +56,11 @@ import {
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
 	buildEmailRateResponse,
+	mockEmailCountryBreakdown,
+	mockEmailDeviceBreakdown,
+	mockEmailClientBreakdown,
+	mockEmailInternalLinkBreakdown,
+	mockEmailUserContentLinkBreakdown,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -872,6 +877,34 @@ function buildEmailSummaryResponse() {
 }
 
 /**
+ * Builds a mock email breakdown response for the "Email breakdown" widget. The
+ * request path ends with the breakdown dimension
+ * (`.../stats/opens|clicks/emails/{id}/{breakdown}`), so the trailing segment
+ * selects the matching fieldless fixture. The endpoints have no comparison period.
+ *
+ * @param requestPath - The request path, used to read the breakdown dimension.
+ * @return Raw email breakdown response.
+ */
+function buildEmailBreakdownResponse( requestPath: string ): unknown {
+	const breakdown = requestPath.split( '?' )[ 0 ].split( '/' ).pop() ?? '';
+
+	switch ( breakdown ) {
+		case 'country':
+			return mockEmailCountryBreakdown;
+		case 'device':
+			return mockEmailDeviceBreakdown;
+		case 'client':
+			return mockEmailClientBreakdown;
+		case 'link':
+			return mockEmailInternalLinkBreakdown;
+		case 'user-content-link':
+			return mockEmailUserContentLinkBreakdown;
+		default:
+			return {};
+	}
+}
+
+/**
  * Routes a Stats sub-path to the matching mock generator.
  *
  * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
@@ -887,6 +920,16 @@ function routeStatsReport( subPath: string ): unknown {
 	const emailRate = subPath.match( /^\/(opens|clicks)\/emails\/\d+\/rate$/ );
 	if ( emailRate ) {
 		return buildEmailRateResponse( emailRate[ 1 ] as 'opens' | 'clicks' );
+	}
+
+	// Per-post email breakdowns: `/opens|clicks/emails/<postId>/<dimension>`. Matched here
+	// (after the `rate` case above) so the shared prefix can't swallow the rate endpoint.
+	if (
+		/^\/(?:opens|clicks)\/emails\/\d+\/(?:country|device|client|link|user-content-link)$/.test(
+			subPath
+		)
+	) {
+		return buildEmailBreakdownResponse( subPath );
 	}
 
 	switch ( subPath ) {
