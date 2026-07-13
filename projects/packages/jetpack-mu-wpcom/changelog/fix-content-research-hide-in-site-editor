@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Content Research: only load in the post editor, not in the site editor, widgets editor, or customizer
+Content Research: Load only in the post editor, not in the site editor, widgets editor, or customizer.
