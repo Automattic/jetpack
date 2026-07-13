@@ -127,8 +127,36 @@ function pageQuery( postType: ContentPostType, page: number ): object {
 type CoreSelect = ( store: typeof coreStore ) => {
 	getEntityRecords: ( kind: string, name: string, query: object ) => SeoPostRecord[] | null;
 	getEntityRecordsTotalPages: ( kind: string, name: string, query: object ) => number | null;
+	getEntityRecordEdits: (
+		kind: string,
+		name: string,
+		recordId: number
+	) => { meta?: Partial< SeoPostMeta > } | undefined;
 	hasFinishedResolution: ( selector: string, args: unknown[] ) => boolean;
 };
+
+/**
+ * Overlay a record's unsaved core-data edits onto the fetched copy.
+ *
+ * The SEO inspector persists a row's meta with `apiFetch` and stages it in the
+ * store with `editEntityRecord`, so that saving one row doesn't invalidate — and
+ * refetch — every page of the collection (see [seo-inspector]). `getEntityRecords`
+ * returns the records as they were *fetched* and never applies edits, so without
+ * this the saved row would keep rendering its old SEO badges until a reload.
+ *
+ * @param record - A fetched core REST post/page record.
+ * @param edits  - The record's pending core-data edits, if any.
+ * @return The record with its edited meta applied.
+ */
+function withEdits(
+	record: SeoPostRecord,
+	edits: { meta?: Partial< SeoPostMeta > } | undefined
+): SeoPostRecord {
+	if ( ! edits?.meta ) {
+		return record;
+	}
+	return { ...record, meta: { ...record.meta, ...edits.meta } };
+}
 
 interface PostTypeSelection {
 	records: SeoPostRecord[];
@@ -147,8 +175,12 @@ interface PostTypeSelection {
  * @return The type's records plus its resolution state.
  */
 function selectPostType( select: CoreSelect, postType: ContentPostType ): PostTypeSelection {
-	const { getEntityRecords, getEntityRecordsTotalPages, hasFinishedResolution } =
-		select( coreStore );
+	const {
+		getEntityRecords,
+		getEntityRecordsTotalPages,
+		getEntityRecordEdits,
+		hasFinishedResolution,
+	} = select( coreStore );
 
 	// Null until page 1 resolves, so we ask for that page alone to begin with;
 	// 0 when the type has no published content.
@@ -165,7 +197,11 @@ function selectPostType( select: CoreSelect, postType: ContentPostType ): PostTy
 			isLoading = true;
 		}
 		if ( pageRecords ) {
-			records.push( ...pageRecords );
+			for ( const record of pageRecords ) {
+				records.push(
+					withEdits( record, getEntityRecordEdits( 'postType', postType, record.id ) )
+				);
+			}
 		}
 	}
 

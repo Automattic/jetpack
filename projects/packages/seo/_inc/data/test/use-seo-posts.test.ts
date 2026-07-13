@@ -10,6 +10,10 @@ interface FakeQuery {
 	page: number;
 }
 
+// Pending core-data edits, keyed by record id — what the SEO inspector stages
+// with `editEntityRecord` after persisting a row's meta.
+type FakeEdits = Record< number, { meta?: Record< string, unknown > } >;
+
 /**
  * Build a fake `select` over a site with the given number of published posts
  * and pages, mimicking how core-data serves one page of records per query and
@@ -17,9 +21,14 @@ interface FakeQuery {
  *
  * @param counts     - Published record count per post type.
  * @param unresolved - Keys ('post:2') whose page is still being fetched.
+ * @param edits      - Pending core-data edits, keyed by record id.
  * @return The fake `select` plus the queries it was asked for.
  */
-function createSelect( counts: Record< ContentPostType, number >, unresolved: string[] = [] ) {
+function createSelect(
+	counts: Record< ContentPostType, number >,
+	unresolved: string[] = [],
+	edits: FakeEdits = {}
+) {
 	const pending = new Set( unresolved );
 	const requested: string[] = [];
 	const isResolved = ( type: ContentPostType, page: number ) =>
@@ -40,10 +49,13 @@ function createSelect( counts: Record< ContentPostType, number >, unresolved: st
 				id: base + start + index,
 				type,
 				title: { rendered: `${ type } ${ start + index }` },
+				meta: { jetpack_seo_html_title: '' },
 			} ) );
 		},
 		getEntityRecordsTotalPages: ( _kind: string, type: ContentPostType ) =>
 			isResolved( type, 1 ) ? totalPages( type ) : null,
+		getEntityRecordEdits: ( _kind: string, _type: ContentPostType, recordId: number ) =>
+			edits[ recordId ],
 		hasFinishedResolution: ( _selector: string, args: [ string, ContentPostType, FakeQuery ] ) =>
 			isResolved( args[ 1 ], args[ 2 ].page ),
 	};
@@ -63,10 +75,15 @@ const { default: useSeoPosts } = await import( '../use-seo-posts' );
  *
  * @param counts     - Published record count per post type.
  * @param unresolved - Keys ('post:2') whose page is still being fetched.
+ * @param edits      - Pending core-data edits, keyed by record id.
  * @return The hook result and the queries the fake store was asked for.
  */
-function render( counts: Record< ContentPostType, number >, unresolved: string[] = [] ) {
-	const { select, requested } = createSelect( counts, unresolved );
+function render(
+	counts: Record< ContentPostType, number >,
+	unresolved: string[] = [],
+	edits: FakeEdits = {}
+) {
+	const { select, requested } = createSelect( counts, unresolved, edits );
 	useSelect.mockImplementation( ( mapSelect: ( s: unknown ) => unknown ) => mapSelect( select ) );
 	const { result } = renderHook( () => useSeoPosts() );
 	return { result, requested };
@@ -113,5 +130,24 @@ describe( 'useSeoPosts', () => {
 
 		expect( requested ).toEqual( [ 'post:1', 'page:1' ] );
 		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	// The SEO inspector persists a row's meta with `apiFetch` and stages it in the
+	// store with `editEntityRecord`, precisely so that saving doesn't invalidate
+	// every page of the collection. The fetched record therefore stays stale, and
+	// the row is only correct if the hook overlays that edit.
+	it( 'renders a saved row from its pending edits, leaving every other row alone', () => {
+		const { result, requested } = render( { post: 150, page: 0 }, [], {
+			7: { meta: { jetpack_seo_html_title: 'Edited title' } },
+		} );
+
+		const edited = result.current.items.find( item => item.id === 7 );
+		expect( edited?.customTitle ).toBe( 'Edited title' );
+		expect( edited?.hasCustomTitle ).toBe( true );
+
+		// Untouched rows keep the fetched values...
+		expect( result.current.items.filter( item => item.hasCustomTitle ) ).toHaveLength( 1 );
+		// ...and applying the edit costs no extra requests.
+		expect( requested ).toEqual( [ 'post:1', 'post:2', 'page:1' ] );
 	} );
 } );
