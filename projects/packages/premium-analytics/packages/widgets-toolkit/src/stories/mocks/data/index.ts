@@ -74,6 +74,8 @@ export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary'
 
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
 
+export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
+
 export { buildEmailRateResponse } from './email-rate';
 
 export {

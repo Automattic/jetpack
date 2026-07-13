@@ -55,6 +55,7 @@ import {
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
+	mockPlanUsageData,
 	buildEmailRateResponse,
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,
@@ -78,6 +79,9 @@ const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/su
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
+// Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
+// own path branch rather than a `routeStatsReport()` case.
+const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
@@ -160,6 +164,28 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 		mockStateOverrides.delete( pathFragment );
 	} else {
 		mockStateOverrides.set( pathFragment, state );
+	}
+}
+
+const mockResponseOverrides = new Map< string, unknown >();
+
+/**
+ * Force every request whose path contains `pathFragment` to resolve with a
+ * specific payload, or clear the override with `null`. Unlike
+ * `setReportMockState`, which forces a widget's loading/error/empty UI, this
+ * swaps the successful response body — for exercising a data-driven variant (an
+ * over-limit reading, a specific row shape) the default fixture doesn't cover.
+ * Same scoping caveat: keyed by path, so scope such stories out of the shared
+ * autodocs page (`tags: [ '!autodocs' ]`) and clear the override on cleanup.
+ *
+ * @param pathFragment - Substring matched against the request path.
+ * @param response     - The response body to resolve with, or `null` to clear.
+ */
+export function setReportMockResponse( pathFragment: string, response: unknown | null ): void {
+	if ( response === null ) {
+		mockResponseOverrides.delete( pathFragment );
+	} else {
+		mockResponseOverrides.set( pathFragment, response );
 	}
 }
 
@@ -1104,6 +1130,12 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
+	for ( const [ fragment, response ] of mockResponseOverrides ) {
+		if ( requestPath.includes( fragment ) ) {
+			return response;
+		}
+	}
+
 	for ( const [ fragment, state ] of mockStateOverrides ) {
 		if ( ! requestPath.includes( fragment ) ) {
 			continue;
@@ -1158,6 +1190,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
+	}
+
+	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
+		return mockPlanUsageData;
 	}
 
 	if ( requestPath.startsWith( STATS_WORDADS_STATS_PATH ) ) {
