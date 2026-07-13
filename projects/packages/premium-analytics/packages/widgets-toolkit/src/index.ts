@@ -3,6 +3,7 @@
  */
 export {
 	MetricDelta,
+	MetricTileGrid,
 	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
