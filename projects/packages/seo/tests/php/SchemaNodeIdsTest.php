@@ -42,6 +42,20 @@ class SchemaNodeIdsTest extends TestCase {
 	}
 
 	/**
+	 * The WebSite id is the site root plus a stable `#website` fragment.
+	 */
+	public function test_website_id_anchors_to_the_site_root() {
+		add_filter(
+			'home_url',
+			static function () {
+				return 'https://example.test/';
+			}
+		);
+
+		$this->assertSame( 'https://example.test/#website', Schema_Node_Ids::website() );
+	}
+
+	/**
 	 * The id is stable across calls — it must not vary per request, or the cross-node
 	 * `@id` references (e.g. the Article publisher) would not resolve.
 	 */
@@ -54,5 +68,19 @@ class SchemaNodeIdsTest extends TestCase {
 		);
 
 		$this->assertSame( Schema_Node_Ids::organization(), Schema_Node_Ids::organization() );
+	}
+
+	/**
+	 * Author entity ids anchor to the author archive URL.
+	 */
+	public function test_author_ids_anchor_to_the_author_archive() {
+		$this->assertSame(
+			get_author_posts_url( 123, 'jane-doe' ) . '#person',
+			Schema_Node_Ids::person( 123, 'jane-doe' )
+		);
+		$this->assertSame(
+			get_author_posts_url( 123, 'jane-doe' ) . '#profilepage',
+			Schema_Node_Ids::profile_page( 123, 'jane-doe' )
+		);
 	}
 }

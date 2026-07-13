@@ -10,7 +10,7 @@ import UtmInsightsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerStatsMocks();
 
@@ -20,7 +20,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface UtmInsightsStoryControls {
@@ -56,7 +56,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< UtmInsightsStoryControls >;
+} satisfies Meta< ComponentProps< typeof UtmInsightsRender > & UtmInsightsStoryControls >;
 
 export default meta;
 
@@ -68,7 +68,7 @@ export const Default: Story = {
 	render: ( { withComparison } ) => (
 		<UtmInsightsRender
 			attributes={ {
-				utmParam: 'utm_source,utm_medium',
+				utmDimension: 'utm_source,utm_medium',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -82,7 +82,7 @@ export const WithComparison: Story = {
 	render: ( { withComparison } ) => (
 		<UtmInsightsRender
 			attributes={ {
-				utmParam: 'utm_source,utm_medium',
+				utmDimension: 'utm_source,utm_medium',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -97,7 +97,7 @@ export const ByCampaign: Story = {
 	render: ( { withComparison } ) => (
 		<UtmInsightsRender
 			attributes={ {
-				utmParam: 'utm_campaign',
+				utmDimension: 'utm_campaign',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -120,7 +120,7 @@ function UtmInsightsDashboardStory( {
 			renderModule={ UTM_INSIGHTS_RENDER_MODULE }
 			renderComponent={ UtmInsightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				utmParam: 'utm_source,utm_medium',
+				utmDimension: 'utm_source,utm_medium',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }

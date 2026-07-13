@@ -76,14 +76,14 @@ function registerConversionRateMocks(): void {
 registerReportMocks();
 registerConversionRateMocks();
 
-type ConversionRateRenderProps = ComponentProps< typeof ConversionRateRender >;
+type ConversionRateWidgetProps = ComponentProps< typeof ConversionRateRender >;
 
 interface ConversionRateStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type ConversionRateStoryProps = ConversionRateRenderProps & ConversionRateStoryControls;
+type ConversionRateStoryProps = ConversionRateWidgetProps & ConversionRateStoryControls;
 
 interface ConversionRateDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -98,7 +98,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getConversionRateAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): ConversionRateRenderProps[ 'attributes' ] {
+): ConversionRateWidgetProps[ 'attributes' ] {
 	const reportParams = getDefaultQueryParams( withComparison, preset );
 	conversionRatePrimaryTo = reportParams.to;
 
@@ -184,7 +184,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< ConversionRateStoryControls >;
 type DashboardStory = StoryObj< ConversionRateDashboardStoryProps >;
 
 /**

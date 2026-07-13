@@ -47,8 +47,11 @@ import {
 	mockCustomersByDateComparisonData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
+	mockTopAuthorsData,
+	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsSubscribersCountsData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -60,6 +63,9 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
+// The subscribers/counts endpoint is a v2 proxy path (not under /stats), so it
+// is matched on its own rather than through routeStatsReport().
+const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
@@ -118,6 +124,34 @@ const orderAttributionMockMap: Record< string, object > = {
  * `requestCount` per handler closure).
  */
 const requestCounters: Record< string, number > = {};
+
+/**
+ * Forced response state for a request path fragment, so stories can exercise a
+ * widget's loading, error, and empty UI. `error` rejects the request; `loading`
+ * returns a promise that never settles; `empty` resolves with a valid response
+ * that has no rows.
+ */
+type ReportMockState = 'error' | 'loading' | 'empty';
+
+const mockStateOverrides = new Map< string, ReportMockState >();
+
+/**
+ * Force every request whose path contains `pathFragment` into a loading or error
+ * state, or clear the override with `null`. Intended for a story's `beforeEach`
+ * (set on enter, clear on cleanup). Because the override is keyed by path, scope
+ * stories that use it out of the shared autodocs page (`tags: [ '!autodocs' ]`)
+ * so it cannot bleed into sibling stories rendered alongside it.
+ *
+ * @param pathFragment - Substring matched against the request path (e.g. `stats/search-terms`).
+ * @param state        - The forced state, or `null` to clear.
+ */
+export function setReportMockState( pathFragment: string, state: ReportMockState | null ): void {
+	if ( state === null ) {
+		mockStateOverrides.delete( pathFragment );
+	} else {
+		mockStateOverrides.set( pathFragment, state );
+	}
+}
 
 /**
  * Returns true if the current request for the given endpoint key is the
@@ -364,6 +398,129 @@ function buildVisitorsByDateResponse( query: URLSearchParams ) {
 }
 
 /**
+ * Per-day rows for customers/by-date. Dense like the real endpoint, which
+ * zero-fills every interval in the range.
+ *
+ * @param query        - Parsed query params.
+ * @param isComparison - Whether this request is the comparison period.
+ * @return Daily customers-by-date rows.
+ */
+function buildCustomersByDateRows( query: URLSearchParams, isComparison: boolean ) {
+	const params = getMockParams();
+	const fallbackTo = toDayEnd( new Date() );
+	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
+	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
+	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
+	const days = Math.max(
+		1,
+		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
+	);
+	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
+	const density = Math.max( 0.1, Math.min( 1, params.density ) );
+	const volume = Math.max( 1, params.volume * 60 );
+
+	return Array.from( { length: days }, ( _, index ) => {
+		const date = new Date( from.getTime() + index * DAY_MS );
+		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
+		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
+		const totalCustomers = activeDay ? Math.max( 1, Math.round( volume + wave ) ) : 0;
+		const newCustomers = Math.round( totalCustomers * 0.2 );
+		const orders = Math.round( totalCustomers * 0.25 );
+		const newCustomerOrders = Math.round( orders * 0.2 );
+		const netSales = totalCustomers * 42;
+		const newCustomerNetSales = Math.round( netSales * 0.2 );
+
+		return {
+			time_interval: date.toISOString(),
+			date_start: date.toISOString(),
+			date_end: toDayEnd( date ).toISOString(),
+			total_customers: String( totalCustomers ),
+			new_customers: String( newCustomers ),
+			returning_customers: String( totalCustomers - newCustomers ),
+			orders_count: String( orders ),
+			new_customer_orders: String( newCustomerOrders ),
+			returning_customer_orders: String( orders - newCustomerOrders ),
+			net_sales: String( netSales ),
+			new_customer_net_sales: String( newCustomerNetSales ),
+			returning_customer_net_sales: String( netSales - newCustomerNetSales ),
+		};
+	} );
+}
+
+/**
+ * The sessions/by-conversion-rate response: a daily session funnel
+ * (sessions → cart → checkout → completed). Dense like the real endpoint,
+ * which zero-fills every interval in the range.
+ *
+ * @param query - Parsed query params.
+ * @return Conversion-rate funnel report response.
+ */
+function buildConversionRateResponse( query: URLSearchParams ) {
+	const params = getMockParams();
+	const isComparison = nextIsComparison( 'sessions/by-conversion-rate' );
+	const fallbackTo = toDayEnd( new Date() );
+	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
+	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
+	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
+	const days = Math.max(
+		1,
+		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
+	);
+	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
+	const density = Math.max( 0.1, Math.min( 1, params.density ) );
+	const volume = Math.max( 1, params.volume * 100 );
+	const totals = {
+		active_sessions: 0,
+		visitors: 0,
+		with_cart_addition: 0,
+		reached_checkout: 0,
+		completed_checkout: 0,
+	};
+
+	const data = Array.from( { length: days }, ( _, index ) => {
+		const date = new Date( from.getTime() + index * DAY_MS );
+		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
+		const trend = index * Math.max( 2, Math.round( volume / 120 ) );
+		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
+		const visitors = activeDay ? Math.max( 1, Math.round( volume + trend + wave ) ) : 0;
+		const activeSessions = Math.round( visitors * 0.78 );
+		const withCartAddition = Math.round( activeSessions * 0.32 );
+		const reachedCheckout = Math.round( activeSessions * 0.14 );
+		const completedCheckout = Math.round( activeSessions * 0.06 );
+
+		totals.visitors += visitors;
+		totals.active_sessions += activeSessions;
+		totals.with_cart_addition += withCartAddition;
+		totals.reached_checkout += reachedCheckout;
+		totals.completed_checkout += completedCheckout;
+
+		return {
+			date_start: date.toISOString(),
+			date_end: toDayEnd( date ).toISOString(),
+			time_interval: date.toISOString(),
+			active_sessions: String( activeSessions ),
+			visitors: String( visitors ),
+			with_cart_addition: String( withCartAddition ),
+			reached_checkout: String( reachedCheckout ),
+			completed_checkout: String( completedCheckout ),
+		};
+	} );
+
+	return {
+		summary: {
+			active_sessions: String( totals.active_sessions ),
+			visitors: String( totals.visitors ),
+			with_cart_addition: String( totals.with_cart_addition ),
+			reached_checkout: String( totals.reached_checkout ),
+			completed_checkout: String( totals.completed_checkout ),
+			date_start: from.toISOString(),
+			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+		},
+		data,
+	};
+}
+
+/**
  * Builds the sessions/by-location (visitors by location) response, detecting
  * comparison requests by tracking the distinct `from` values per request
  * signature (mirrors upstream).
@@ -463,6 +620,8 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 			return buildBookingsResponse( query );
 		case '/sessions/by-date':
 			return buildVisitorsByDateResponse( query );
+		case '/sessions/by-conversion-rate':
+			return buildConversionRateResponse( query );
 		case '/sessions/by-device':
 			return buildSessionsByDeviceResponse();
 		case '/sessions/by-location':
@@ -478,10 +637,11 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 			return nextIsComparison( 'customers/new-returning' )
 				? mockCustomersComparisonData
 				: mockCustomersData;
-		case '/customers/by-date':
-			return nextIsComparison( 'customers/by-date' )
-				? mockCustomersByDateComparisonData
-				: mockCustomersByDateData;
+		case '/customers/by-date': {
+			const isComparison = nextIsComparison( 'customers/by-date' );
+			const base = isComparison ? mockCustomersByDateComparisonData : mockCustomersByDateData;
+			return { ...base, data: buildCustomersByDateRows( query, isComparison ) };
+		}
 		default:
 			return null;
 	}
@@ -721,6 +881,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
+		case '/top-authors':
+			return nextIsComparison( 'stats/top-authors' )
+				? mockTopAuthorsComparisonData
+				: mockTopAuthorsData;
 		case '/insights':
 			return mockStatsInsightsData;
 		default:
@@ -811,12 +975,38 @@ function buildVideoPlaysResponse( requestPath: string ) {
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
+	for ( const [ fragment, state ] of mockStateOverrides ) {
+		if ( ! requestPath.includes( fragment ) ) {
+			continue;
+		}
+		if ( state === 'loading' ) {
+			// Never settles: the query stays in its loading state.
+			return new Promise< never >( () => {} );
+		}
+		if ( state === 'empty' ) {
+			// A valid response with no rows across the shapes report sanitizers read
+			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
+			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
+		}
+		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
+		// once instead of after the query's retry backoff.
+		return Promise.reject( {
+			code: 'stats_mock_error',
+			message: 'Mocked error response for Storybook.',
+			data: { status: 403 },
+		} );
+	}
+
 	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
 		return coreSettingsMock;
 	}
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
 		return buildFollowersResponse();
+	}
+
+	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
+		return mockStatsSubscribersCountsData;
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {
@@ -844,7 +1034,15 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {
 		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
 		const response = routeStatsReport( subPath );
-		return response !== null ? response : { data: [], summary: {} };
+
+		if ( response !== null ) {
+			return response;
+		}
+
+		// Stats endpoints this middleware doesn't route may be owned by the
+		// legacy stats mocks (register-stats-mocks.ts). Fall through so
+		// middleware registration order doesn't decide whether they load.
+		return next( options );
 	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {

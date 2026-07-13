@@ -7,27 +7,32 @@ import { __ } from '@wordpress/i18n';
  */
 import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
-import type {
-	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsDevicesComparisonItem } from '@jetpack-premium-analytics/data';
 
 export interface PlatformView {
 	key: string;
 	label: string;
 	views: number;
+	previousViews?: number;
 }
 
 interface UsePlatformViewsArgs {
+	/**
+	 * PA ReportParams from WidgetRoot context.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * Maximum rows to display (0 = all).
+	 */
 	max: number;
+	/**
+	 * 'browser' or 'platform' (OS).
+	 */
 	deviceProperty: 'browser' | 'platform';
 }
 
 interface PlatformViewsState {
 	data: PlatformView[];
-	comparisonData: PlatformView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isError: boolean;
@@ -63,7 +68,7 @@ const PLATFORM_LABELS: Record< string, string > = {
 };
 
 function toPlatformView(
-	item: StatsDevicesItem,
+	item: StatsDevicesComparisonItem,
 	deviceProperty: 'browser' | 'platform'
 ): PlatformView {
 	const key = String( item.label ?? '' );
@@ -73,16 +78,14 @@ function toPlatformView(
 		key,
 		label: formatDisplayLabel( key, labels ),
 		views: item.value,
+		previousViews: item.previousValue,
 	};
 }
 
 /**
  * Fetch platform views (browser or OS) via the shared Stats data layer.
  *
- * @param args                - Hook arguments.
- * @param args.reportParams   - PA ReportParams from WidgetRoot context.
- * @param args.max            - Maximum rows to display (0 = all).
- * @param args.deviceProperty - 'browser' or 'platform' (OS).
+ * @param {UsePlatformViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function usePlatformViews( {
@@ -95,25 +98,16 @@ export default function usePlatformViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
-		useStatsDevices( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isError, error } = useStatsDevices(
+		statsParams,
+		{ maxRows: max }
+	);
 	const errorReason = getStatsPlanErrorReason( error );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
-
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
+	const rows = ( comparisonRows?.rows ?? [] ).map( item => toPlatformView( item, deviceProperty ) );
 
 	return {
-		data: items,
-		comparisonData: comparisonItems,
+		data: rows,
 		hasComparison,
 		isLoading,
 		isError,

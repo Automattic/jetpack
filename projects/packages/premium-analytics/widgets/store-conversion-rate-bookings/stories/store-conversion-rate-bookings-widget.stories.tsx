@@ -24,16 +24,22 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 let conversionRateMocksRegistered = false;
 let conversionRateRequestCount = 0;
 
-type StoreConversionRateBookingsRenderProps = ComponentProps<
+type StoreConversionRateBookingsWidgetProps = ComponentProps<
 	typeof StoreConversionRateBookingsRender
 >;
 
 interface StoreConversionRateBookingsStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset to use for report params.
+	 */
 	preset: SelectablePresetId;
 }
 
-type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsRenderProps &
+type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsWidgetProps &
 	StoreConversionRateBookingsStoryControls;
 
 interface StoreConversionRateBookingsDashboardStoryProps
@@ -104,7 +110,7 @@ function registerConversionRateMocks(): void {
 function getStoreConversionRateBookingsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): StoreConversionRateBookingsRenderProps[ 'attributes' ] {
+): StoreConversionRateBookingsWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -143,9 +149,7 @@ function getStoreConversionRateBookingsSource(
 /**
  * Renders the standalone store conversion rate bookings widget story.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to include comparison report params.
- * @param props.preset         - Date-range preset to use for report params.
+ * @param {StoreConversionRateBookingsStoryControls} props - Story controls.
  * @return Store conversion rate bookings widget story element.
  */
 function renderStoreConversionRateBookings( {
@@ -162,9 +166,7 @@ function renderStoreConversionRateBookings( {
 /**
  * Renders the store conversion rate bookings widget inside the dashboard story shell.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to include comparison report params.
- * @param props.preset         - Date-range preset to use for report params.
+ * @param {StoreConversionRateBookingsDashboardStoryProps} props - Story controls.
  * @return Store conversion rate bookings dashboard story element.
  */
 function StoreConversionRateBookingsDashboardStory( {
@@ -215,7 +217,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< StoreConversionRateBookingsStoryControls >;
 type DashboardStory = StoryObj< StoreConversionRateBookingsDashboardStoryProps >;
 
 /**

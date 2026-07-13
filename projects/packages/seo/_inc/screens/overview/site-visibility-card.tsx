@@ -1,6 +1,5 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Card, Stack } from '@wordpress/ui';
+import { Button, Card, Stack } from '@wordpress/ui';
 import StatusDot from './status-dot';
 import type { OverviewResponse } from '../../data/overview-types';
 import type { FC } from 'react';
@@ -47,7 +46,7 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 					/>
 				</Stack>
 				<div className="jetpack-seo-overview__card-footer">
-					<Button variant="secondary" onClick={ onManage }>
+					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage visibility', 'jetpack-seo' ) }
 					</Button>
 				</div>

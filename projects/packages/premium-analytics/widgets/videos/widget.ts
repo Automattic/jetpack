@@ -3,6 +3,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
+/**
+ * Default number of videos shown when the `max` attribute is unset or invalid.
+ */
+export const DEFAULT_MAX = 7;
 
 /**
  * Configurable attributes for the Videos widget. Mirrors the `attributes`
@@ -29,12 +35,12 @@ export default {
 		{
 			id: 'max',
 			label: __( 'Maximum videos', 'jetpack-premium-analytics' ),
-			type: 'integer' as const,
+			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< VideosAttributes >[],
 	example: {
 		attributes: {
-			max: 7,
+			max: DEFAULT_MAX,
 		},
 	},
 };

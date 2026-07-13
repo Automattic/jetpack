@@ -8,9 +8,13 @@ import { temperatureData as sampleData } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { lineChartTooltipArgTypes } from '../../../stories/tooltip-config';
 import AreaChart from '../area-chart';
+import type { LegendStoryControls } from '../../../stories/legend-config';
+import type { TooltipStoryControls } from '../../../stories/tooltip-config';
 import type { Meta } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof AreaChart > >;
+export type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof AreaChart > > &
+	LegendStoryControls &
+	TooltipStoryControls;
 
 export const areaChartMetaArgs: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Area Chart',

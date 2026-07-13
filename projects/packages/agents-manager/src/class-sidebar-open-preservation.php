@@ -143,10 +143,10 @@ class Sidebar_Open_Preservation {
 	/**
 	 * Whether the docked-open shell should be pre-rendered on this request.
 	 *
-	 * True only when the app is loading (so the shell will be reconciled by the
-	 * app that mounts to manage it) and the cached state is both open and docked
-	 * — the only state that reshapes the admin layout. A cold session (no cache),
-	 * a closed sidebar, or a floating (undocked) chat all pre-render nothing.
+	 * True only when the app is loading (so it will take over the shell once
+	 * mounted) and the cached state is both open and docked — the only state
+	 * that reshapes the admin layout. A cold session (no cache), a closed
+	 * sidebar, or a floating (undocked) chat all pre-render nothing.
 	 *
 	 * @return bool
 	 */

@@ -13,6 +13,7 @@
 		"automattic/jetpack-external-connections": "@dev",
 		"automattic/jetpack-jwt": "@dev",
 		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
@@ -71,7 +72,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "7.22.x-dev"
+			"dev-trunk": "7.23.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

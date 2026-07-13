@@ -19,15 +19,21 @@ const SALES_BY_COUPON_RENDER_MODULE = 'storybook/sales-by-coupon';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByCouponRenderProps = ComponentProps< typeof SalesByCouponRender >;
-const setStoryError: SalesByCouponRenderProps[ 'setError' ] = () => undefined;
+type SalesByCouponWidgetProps = ComponentProps< typeof SalesByCouponRender >;
+const setStoryError: SalesByCouponWidgetProps[ 'setError' ] = () => undefined;
 
 interface SalesByCouponStoryControls {
+	/**
+	 * Whether comparison report params are enabled.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset used for report params.
+	 */
 	preset: SelectablePresetId;
 }
 
-type SalesByCouponStoryProps = SalesByCouponRenderProps & SalesByCouponStoryControls;
+type SalesByCouponStoryProps = SalesByCouponWidgetProps & SalesByCouponStoryControls;
 
 interface SalesByCouponDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -42,7 +48,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSalesByCouponAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByCouponRenderProps[ 'attributes' ] {
+): SalesByCouponWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -60,9 +66,7 @@ function renderSalesByCoupon( { withComparison, preset }: SalesByCouponStoryCont
 /**
  * Storybook dashboard wrapper for the Sales by coupon widget.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether comparison report params are enabled.
- * @param props.preset         - Date-range preset used for report params.
+ * @param {SalesByCouponDashboardStoryProps} props - Story controls.
  * @return The dashboard story surface with the widget rendered inside it.
  */
 function SalesByCouponDashboardStory( {
@@ -108,7 +112,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< SalesByCouponStoryControls >;
 type DashboardStory = StoryObj< SalesByCouponDashboardStoryProps >;
 
 /**

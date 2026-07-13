@@ -917,7 +917,12 @@
 				return args.origFile;
 			}
 
-			if ( typeof args.largeFile === 'undefined' ) {
+			// When there's no large file to fall back on (e.g. images that weren't enriched with
+			// Jetpack's data-large-file attribute), use the original file. A missing attribute is
+			// read as an empty string, so we can't only guard against `undefined` here: otherwise a
+			// narrow (portrait, mobile) viewport would return that empty string as the image source,
+			// leaving the carousel with a blank slide.
+			if ( ! args.largeFile ) {
 				return args.origFile;
 			}
 
@@ -1668,9 +1673,17 @@
 			}
 		}
 
+		function normalizeUrl( url ) {
+			return ( url || '' ).split( '?' )[ 0 ].replace( /\/$/, '' );
+		}
+
 		function shouldOpenModal( el ) {
+			if ( el.tagName === 'A' ) {
+				el = el.querySelector( 'img' ) || el;
+			}
+
 			var parent = el.parentElement;
-			var grandparent = parent.parentElement;
+			var grandparent = parent ? parent.parentElement : null;
 
 			// If Gallery is made up of individual Image blocks check for custom link before
 			// loading carousel. The custom link may be the parent or could be a descendant
@@ -1688,16 +1701,18 @@
 
 			// If the link does not point to the attachment or media file then assume Image has
 			// a custom link so don't load the carousel.
-			if (
-				parentHref &&
-				parentHref.split( '?' )[ 0 ] !== el.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-				parentHref !== el.getAttribute( 'data-permalink' )
-			) {
-				return false;
+			if ( parentHref ) {
+				var cleanHref = normalizeUrl( parentHref );
+				var cleanOrig = normalizeUrl( el.getAttribute( 'data-orig-file' ) );
+				var cleanPerm = normalizeUrl( el.getAttribute( 'data-permalink' ) );
+
+				if ( cleanHref !== cleanOrig && cleanHref !== cleanPerm ) {
+					return false;
+				}
 			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-			if ( parent.classList.contains( 'gallery-caption' ) ) {
+			if ( parent && parent.classList.contains( 'gallery-caption' ) ) {
 				return false;
 			}
 

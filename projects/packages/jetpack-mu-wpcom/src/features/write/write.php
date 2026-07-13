@@ -17,8 +17,15 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ) ) );
 }
+
+// Post-publish next-steps checklist, shown on the published post after a
+// Write-editor publish on a Coming Soon site.
+require_once __DIR__ . '/post-publish-checklist.php';
+
+// Email-verification launch gate backing the checklist's inline confirm-email step.
+require_once __DIR__ . '/email-verification.php';
 
 /**
  * Get the URL for a Write feature asset file.
@@ -810,6 +817,11 @@ function wpcom_write_render_admin_page() {
 		$event_props = array(
 			'is_new_post' => (int) ( 0 === $edit_post_id ),
 			'source'      => $source,
+			// Anon entry is the only logged-out render of this editor (the wp-admin
+			// page requires auth), so logged-out is a reliable proxy for the anon
+			// fake-door funnel. Lets the funnel scope its top-of-funnel denominator
+			// to anon traffic without depending on the client-only wpcomWriteIsAnon flag.
+			'is_anon'     => (int) ! is_user_logged_in(),
 		);
 
 		if ( $edit_post_id > 0 ) {
@@ -881,6 +893,14 @@ function wpcom_write_render_admin_page() {
 			'editPostId'             => $edit_post_id,
 			'postStatus'             => $post_status,
 			'isPublishedPost'        => 'publish' === $post_status,
+			// When the site is still Coming Soon (private by default), publishing
+			// lands a private post. The publish redirect tags the post URL so the
+			// post-publish next-steps checklist can surface there.
+			'isComingSoon'           => 1 === (int) get_option( 'wpcom_public_coming_soon' ),
+			// The query arg the redirect tags onto the post URL, kept in sync with
+			// the server-side gate by sharing WPCOM_WRITE_PUBLISHED_MARKER (defined
+			// in post-publish-checklist.php) rather than hardcoding it in view.js.
+			'publishedMarker'        => WPCOM_WRITE_PUBLISHED_MARKER,
 			'title'                  => $edit_title,
 			'isSaving'               => false,
 			'isPublished'            => false,

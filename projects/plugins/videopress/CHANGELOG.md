@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 3.2 - 2026-07-09
+### Added
+- Add a site-level setting to turn off auto-generated subtitles. [#50014]
+- Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
+- Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes. [#50054]
+
+### Changed
+- Dashboard: Release modernized VideoPress dashboard. [#49023]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Update composer.lock files. [#48743] [#49415]
+- Update minimum WordPress version to 6.9. [#49021]
+- Update package dependencies. [#48735] [#49793] [#48405] [#49218] [#49273] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183]
+
+### Fixed
+- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+- Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location. [#50323]
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+- Load VideoPress Overview stats even when the Jetpack Stats module is inactive. [#50326]
+
 ## 3.1 - 2026-05-14
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
