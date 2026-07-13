@@ -6,9 +6,10 @@ import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { Composite, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack } from '@wordpress/ui';
+import { chevronDown } from '@wordpress/icons';
+import { Button, Icon, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useState, useCallback, useEffect, useRef, type ComponentProps } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import '@automattic/ui/style.css';
 /**
  * Internal dependencies
@@ -300,13 +301,6 @@ export function DateRangePopover( {
 		formatRange: formatDateRange,
 	} );
 
-	let customDateRangeButtonVariant: ComponentProps< typeof Button >[ 'variant' ] = 'minimal';
-	if ( triggerState === 'applied' ) {
-		customDateRangeButtonVariant = 'solid';
-	} else if ( triggerState === 'staged' ) {
-		customDateRangeButtonVariant = 'outline';
-	}
-
 	return (
 		<Dropdown
 			popoverProps={ {
@@ -316,18 +310,15 @@ export function DateRangePopover( {
 			renderToggle={ ( { onToggle } ) => {
 				const trigger = (
 					<Button
-						className={ clsx( 'date-filters-panel-button', {
-							'date-filters-panel-button--custom': triggerState === 'applied',
-							'date-filters-panel-button--custom-staged': triggerState === 'staged',
-						} ) }
-						variant={ customDateRangeButtonVariant }
+						className="date-filters-panel-button"
+						variant="minimal"
 						tone="neutral"
 						onClick={ onToggle }
-						size="compact"
 						id="date-range-popover-button"
 						data-state={ triggerState }
 					>
 						{ triggerLabel }
+						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
 					</Button>
 				);
 

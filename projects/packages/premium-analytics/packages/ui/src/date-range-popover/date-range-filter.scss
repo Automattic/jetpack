@@ -19,29 +19,29 @@
 	background-color: #fff;
 }
 
-.date-filters-panel-button {
-	background-color: #fff; // ToDo: handle this upstream.
-
-	&:hover,
-	&:active {
-		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
-	}
+// Staged and applied custom ranges share the soft filled look of a selected
+// preset pill. Override the button custom-prop API (instead of the painted
+// properties) so hover, focus, and the bg-colored border follow the fill.
+.date-filters-panel-button[data-state="staged"],
+.date-filters-panel-button[data-state="applied"] {
+	--wp-ui-button-background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
+	--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
+	--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
 }
 
-// Apply same styles that variant="solid" has.
-.date-filters-panel-button--custom {
-	background-color: var(--wpds-color-background-interactive-neutral-strong);
-	color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+// A staged draft is provisional: mark it with a dashed stroke, the same
+// language the calendar uses for in-range days, until it is applied.
+.date-filters-panel-button[data-state="staged"] {
+	--wp-ui-button-border-color: var(--wpds-color-stroke-interactive-neutral);
+	--wp-ui-button-border-color-active: var(--wpds-color-stroke-interactive-neutral);
 
-	&:hover,
-	&:active {
-		background-color: var(--wpds-color-background-interactive-neutral-strong);
-	}
+	border-style: dashed;
 }
 
-.date-filters-panel-button--custom-staged {
-	background-color: var(--wpds-color-background-interactive-neutral-weak-active);
-	color: var(--wpds-color-foreground-content-neutral);
+// Same non-shrinking caret the select-control trigger uses.
+.date-filters-panel-button__caret {
+	flex: 0 0 auto;
 }
 
 .date-range-calendar-wrapper {

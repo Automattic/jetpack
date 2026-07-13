@@ -97,7 +97,6 @@ export function DateRangeQuickPresets( {
 				label={ __( 'Period', 'jetpack-premium-analytics' ) }
 				hideLabelFromVision
 				placeholder={ __( 'Select period', 'jetpack-premium-analytics' ) }
-				size="compact"
 			/>
 		);
 	}
@@ -114,9 +113,8 @@ export function DateRangeQuickPresets( {
 					render={
 						<Button
 							className="date-range-quick-presets__pill"
-							variant={ value === id ? 'solid' : 'minimal' }
+							variant="minimal"
 							tone="neutral"
-							size="compact"
 							aria-pressed={ value === id }
 							onClick={ () => selectPreset( id ) }
 						/>

@@ -4,4 +4,14 @@
 
 .date-range-quick-presets__pill {
 	white-space: nowrap;
+
+	// Selected pill: soft fill instead of the stock pressed-minimal strong
+	// mapping. Override the button custom-prop API (instead of the painted
+	// properties) so hover, focus, and the bg-colored border follow the fill.
+	&[aria-pressed="true"] {
+		--wp-ui-button-background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
+		--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
+		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
+	}
 }
