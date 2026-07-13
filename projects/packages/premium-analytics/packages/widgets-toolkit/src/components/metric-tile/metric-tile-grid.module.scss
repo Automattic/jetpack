@@ -1,0 +1,163 @@
+$metric-tile-grid-wide-min-inline-size: 640px;
+// Height at which a wide cell has room for a balanced two-row grid instead of a
+// single row of tiles. Tunable — below this, wide cells stay one row.
+$metric-tile-grid-grid-min-block-size: 360px;
+$metric-tile-grid-row-value-font-size-max: 40px;
+$metric-tile-grid-tile-value-font-size-max: 40px;
+$metric-tile-grid-prominent-value-font-size-max: 44px;
+$metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-height-2xl, 40px) + var(--wpds-dimension-padding-2xl, 24px) + var(--wpds-dimension-padding-2xl, 24px) + var(--wpds-dimension-gap-lg, 16px));
+
+/* Size containment removes the container from auto sizing, so it must get its
+ * height from outside: flex stretching in a flex parent, or the 100% chain
+ * otherwise. Without either, the grid computes to 0x0 and renders nothing. */
+.container {
+	container-type: size;
+	flex: 1 1 0;
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.grid {
+	display: grid;
+	grid-auto-rows: minmax(var(--wpds-typography-line-height-2xl, 40px), 1fr);
+	grid-template-columns: 1fr;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.tile {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-md, 12px);
+	min-inline-size: 0;
+	min-block-size: 0;
+	padding-block: var(--wpds-dimension-padding-sm, 8px);
+	padding-inline: var(--wpds-dimension-padding-lg, 16px);
+	border: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg, 8px);
+}
+
+.header {
+	display: flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-inline-size: 0;
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.icon {
+	flex: 0 0 auto;
+}
+
+.label {
+	min-inline-size: 0;
+	overflow: hidden;
+	color: var(--wpds-color-foreground-content-neutral);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tile .value,
+.tile .placeholder {
+	flex: 0 0 auto;
+	max-inline-size: 100%;
+	overflow: hidden;
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: clamp(var(--wpds-typography-font-size-xl, 20px), 10cqh, $metric-tile-grid-row-value-font-size-max);
+	line-height: 1.2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Comparison tiles render value + delta through MetricWithComparison, which
+ * manages its own value font size, so this cell only handles placement — it
+ * mirrors `.value`'s flex slot without the responsive font clamp. */
+.comparison {
+	display: flex;
+	flex: 0 0 auto;
+	justify-content: center;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+}
+
+/* MetricValue emits the font-size token without a fallback, and the dashboard
+ * runtime does not always inject the WPDS typography tokens, so pin the metric
+ * total here with explicit fallbacks. Scoped to the comparison cell so the
+ * plain `.value` path keeps its responsive clamp. */
+.comparison span {
+	font-size: var(--wpds-typography-font-size-xl, 20px);
+	line-height: var(--wpds-typography-line-height-xl, 32px);
+}
+
+.placeholder {
+	font-weight: var(--wpds-typography-font-weight-medium, 500);
+}
+
+.tile .placeholder {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* Wide but short: one row of centered tiles. `grid-auto-flow: column` makes the
+ * column count follow the tile count on its own — no explicit column value. */
+@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) {
+
+	.grid {
+		grid-template-columns: none;
+		grid-template-rows: 1fr;
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(0, 1fr);
+		grid-auto-rows: unset;
+	}
+
+	.tile {
+		flex-direction: column;
+		justify-content: center;
+		gap: var(--wpds-dimension-gap-sm, 8px);
+		padding-block: var(--wpds-dimension-padding-md, 12px);
+		padding-inline: var(--wpds-dimension-padding-md, 12px);
+		text-align: center;
+	}
+
+	.header {
+		flex: 0 1 auto;
+		justify-content: center;
+		max-inline-size: 100%;
+	}
+
+	.label {
+		overflow: visible;
+		text-overflow: clip;
+		white-space: normal;
+	}
+
+	.tile .value,
+	.tile .placeholder {
+		font-size: clamp(var(--wpds-typography-font-size-xl, 20px), 11cqh, $metric-tile-grid-tile-value-font-size-max);
+	}
+}
+
+/* Wide and tall: a balanced two-column grid of large centered tiles. Resets the
+ * one-row flow set above so tiles wrap into rows again. */
+@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) and (min-height: #{$metric-tile-grid-grid-min-block-size}) {
+
+	.grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-rows: none;
+		grid-auto-flow: row;
+		grid-auto-columns: auto;
+		grid-auto-rows: minmax($metric-tile-grid-large-row-min-block-size, 1fr);
+	}
+
+	.tile {
+		padding-block: var(--wpds-dimension-padding-2xl, 24px);
+		padding-inline: var(--wpds-dimension-padding-lg, 16px);
+	}
+
+	.tile .value,
+	.tile .placeholder {
+		font-size: clamp(var(--wpds-typography-font-size-2xl, 32px), 12cqh, $metric-tile-grid-prominent-value-font-size-max);
+	}
+}

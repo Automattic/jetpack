@@ -148,6 +148,7 @@ require_once __DIR__ . '/feature-plugins/marketplace.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
+require_once __DIR__ . '/feature-plugins/podcast.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
 require_once __DIR__ . '/feature-plugins/class-wpcomsh-recovery-mode-sync.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';

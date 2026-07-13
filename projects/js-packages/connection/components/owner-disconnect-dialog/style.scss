@@ -1,6 +1,7 @@
 .jp-connection__disconnect-dialog {
-	// Add !important to override WordPress styles
-	.components-button.jp-connection__disconnect-dialog__btn-dismiss {
+	// Add !important to override WordPress styles. The @wordpress/ui Button does
+	// not emit a `.components-button` class, so target the class directly.
+	.jp-connection__disconnect-dialog__btn-dismiss {
 		background: var(--jp-black) !important;
 	}
 
@@ -8,9 +9,42 @@
 		--spacing-base: 8px;
 	}
 
+	.jp-connection__disconnect-dialog__btn-dismiss,
+	.jp-connection__disconnect-dialog__btn-disconnect {
+		border: 0;
+		border-radius: 4px;
+		color: var(--wp-components-color-accent-inverted, #fff);
+		font-size: var(--font-body-small);
+		height: 40px;
+		outline: 1px solid #0000;
+		text-decoration: none;
+		text-shadow: none;
+		white-space: nowrap;
+	}
+
 	.components-modal__content > div:not(.components-modal__header) {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
+	}
+
+	// The @wordpress/ui Card renders as an anchor (the class sits on the <a>
+	// itself). Its own styles live in an `@layer`, which wp-admin's unlayered
+	// global `a` rules override — so restore the prior card-headline styling here.
+	// Font props + color inherit down into the Stack/title.
+	.jp-connection__manage-dialog__action-card {
+		--wp-ui-card-padding: 0;
+
+		font-size: var(--font-body);
+		font-weight: 600;
+		line-height: calc(var(--spacing-base) * 3);
+
+		&,
+		&:hover,
+		&:focus,
+		&:active {
+			color: var(--jp-black);
+			text-decoration: none;
+		}
 	}
 }
