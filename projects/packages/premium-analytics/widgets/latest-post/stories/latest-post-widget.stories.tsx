@@ -114,12 +114,7 @@ function renderLatestPost( { withComparison }: LatestPostStoryControls ) {
 	);
 }
 
-/**
- * Renders the widget on a preset distinct from the other stories.
- *
- * @param preset - The date range preset.
- * @return The rendered widget.
- */
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderLatestPostOnPreset( preset: PresetType ) {
 	return (
 		<LatestPostRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
@@ -210,9 +205,7 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderLatestPostOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override applies to every
-	// mounted copy of this widget, so it would otherwise force the sibling
-	// stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceLatestPostState( 'loading' ),

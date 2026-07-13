@@ -45,10 +45,7 @@ function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
 	);
 }
 
-// Renders the widget on a preset distinct from the other stories. The query key
-// derives from the date range, so a unique preset gives the forced-state stories
-// their own cache entry and they hit the mock fresh instead of reading another
-// story's cached success from the shared query client.
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderDevicesOnPreset( preset: PresetType ) {
 	return (
 		<DevicesRender
@@ -115,8 +112,7 @@ export const WithComparison: StoryObj< DevicesStoryControls > = {
  */
 export const Loading: StoryObj< DevicesStoryControls > = {
 	render: () => renderDevicesOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

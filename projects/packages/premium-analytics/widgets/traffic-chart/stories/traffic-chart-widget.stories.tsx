@@ -18,7 +18,7 @@ import widgetDefinition, {
 	DEFAULT_TRAFFIC_CHART_METRICS,
 	type TrafficChartMetricId,
 } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -62,10 +62,7 @@ function renderTrafficChart( { withComparison, metrics }: TrafficChartStoryContr
 	);
 }
 
-// Renders the widget on a preset distinct from the other stories. The query key
-// derives from the date range, so a unique preset gives the forced-state stories
-// their own cache entry and they hit the mock fresh instead of reading another
-// story's cached success from the shared query client.
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderTrafficChartOnPreset( preset: PresetType ) {
 	return (
 		<TrafficChartRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
@@ -120,8 +117,7 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderTrafficChartOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

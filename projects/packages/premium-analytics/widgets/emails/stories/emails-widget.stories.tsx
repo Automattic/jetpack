@@ -142,8 +142,7 @@ function renderEmailsWithMax( max: number ) {
  */
 export const Loading: Story = {
 	render: () => renderEmailsWithMax( 7 ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

@@ -21,7 +21,7 @@ import widgetDefinition, {
 	DEFAULT_SUBSCRIBERS_CHART_METRICS,
 	type SubscribersChartMetricId,
 } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -65,10 +65,7 @@ function renderSubscribersChart( { withComparison, metrics }: SubscribersChartSt
 	);
 }
 
-// Renders the widget on a preset distinct from the other stories. The query key
-// derives from the date range, so a unique preset gives the forced-state stories
-// their own cache entry and they hit the mock fresh instead of reading another
-// story's cached success from the shared query client.
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderSubscribersChartOnPreset( preset: PresetType ) {
 	return (
 		<SubscribersChartRender
@@ -125,8 +122,7 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderSubscribersChartOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

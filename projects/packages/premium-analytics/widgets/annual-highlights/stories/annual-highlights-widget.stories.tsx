@@ -80,13 +80,7 @@ const METRIC_OPTIONS = DEFAULT_HIGHLIGHT_METRICS.map( metric => ( {
 	label: metric.charAt( 0 ).toUpperCase() + metric.slice( 1 ),
 } ) );
 
-/**
- * Renders the widget on a preset distinct from the other stories, with every
- * metric tile enabled.
- *
- * @param preset - The date range preset.
- * @return The rendered widget.
- */
+// Distinct preset → own query-cache entry; see forceStatsMockState. Every metric tile enabled.
 function renderAnnualHighlightsOnPreset( preset: PresetType ) {
 	return (
 		<AnnualHighlightsRender
@@ -178,8 +172,7 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceInsightsState( 'loading' ),
