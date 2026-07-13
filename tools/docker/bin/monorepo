@@ -156,7 +156,11 @@ fi
   fi
 
   if [[ "${DEBUG:-}" = "1" ]]; then
-      echo "[pnpm] store path (host and container): ${PNPM_STORE_PATH:-<container default>}"
+      if [[ -n "$PNPM_STORE_PATH" ]]; then
+          echo "[pnpm] store path (host and container): $PNPM_STORE_PATH"
+      else
+          echo "[pnpm] no host pnpm; using the container's default store"
+      fi
   fi
 
   mkdir -p "$DOCKER_DATA_DIR"
