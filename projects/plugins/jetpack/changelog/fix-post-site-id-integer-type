@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix site_ID being returned as a string instead of an integer from the v1.1 posts create and update REST API endpoints
