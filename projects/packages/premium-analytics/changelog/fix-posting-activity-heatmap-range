@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Posting activity: Show a trailing-year heatmap with size-aware paging.
+Posting activity: Show a responsive trailing-year heatmap when activity data is sparse.

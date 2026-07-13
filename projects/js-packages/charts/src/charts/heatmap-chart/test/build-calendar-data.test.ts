@@ -18,18 +18,6 @@ describe( 'buildCalendarHeatmapData', () => {
 		data.forEach( column => expect( column.data ).toHaveLength( 7 ) );
 	} );
 
-	test( 'uses an explicit range when sparse data does not include period boundaries', () => {
-		const { data } = buildCalendarHeatmapData(
-			[ { dateString: '2026-06-25', value: 3 } ],
-			{ startDate: '2026-06-10', endDate: '2026-07-09' }
-		);
-
-		expect( data ).toHaveLength( 5 ); // Jun 9, Jun 16, Jun 23, Jun 30, Jul 7
-		expect( data[ 0 ].label ).toBe( 'Jun' );
-		expect( data[ 4 ].label ).toBe( 'Jul' );
-		expect( data.flatMap( column => column.data.map( cell => cell.value ) ) ).toContain( 3 );
-	} );
-
 	test( 'Monday week start places Jan 1 (Mon) in row 0', () => {
 		const { data, rowLabels } = buildCalendarHeatmapData( series, { weekStartsOn: 1 } );
 		expect( data[ 0 ].data[ 0 ].value ).toBe( 3 );

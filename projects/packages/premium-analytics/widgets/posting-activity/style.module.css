@@ -13,9 +13,22 @@
 	flex: 1 1 0;
 	min-height: 0;
 	padding: var(--wpds-dimension-padding-lg);
+	overflow: hidden;
+}
 
-	/* Paged heatmaps can still overflow in narrow cards. */
-	overflow-x: auto;
+.contentDefault {
+	justify-content: center;
+}
+
+.heatmapFrame {
+	display: flex;
+	justify-content: center;
+	inline-size: 100%;
+	min-inline-size: 0;
+}
+
+.heatmapFrameDefault {
+	align-items: center;
 }
 
 /* Center the grid + legend group in a taller-than-content card. */

@@ -106,7 +106,6 @@ export type {
 	HeatmapColumn,
 	HeatmapCell,
 	HeatmapTooltipData,
-	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
 } from './charts/heatmap-chart';
 export type { LeaderboardChartProps } from './charts/leaderboard-chart';
