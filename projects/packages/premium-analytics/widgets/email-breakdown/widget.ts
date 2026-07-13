@@ -27,11 +27,6 @@ export type EmailBreakdownMetric = 'opens' | 'clicks';
  */
 export type EmailBreakdownAttributes = {
 	/**
-	 * The email (post) ID to break down. The all-time breakdown endpoints are keyed
-	 * entirely by this ID, so the widget renders an empty state until one is set.
-	 */
-	postId?: number;
-	/**
 	 * Which breakdown dimension to display. Defaults to `countries`.
 	 */
 	view?: EmailBreakdownView;
@@ -53,8 +48,10 @@ export type EmailBreakdownAttributes = {
  * country, device, email client, and clicked link — so this ships as a single
  * widget with a `view` selector (`relevance: 'high'`, rendered as a control by
  * the widget host) instead of four near-identical widgets. The breakdown is
- * scoped to a single email via the `postId` attribute; the endpoints report over
- * the whole lifetime of the email, so there is no date range or comparison period.
+ * scoped to a single email by the host through `reportParams.post_id` (the
+ * shared single-resource "detail page" param), not by an attribute; the
+ * endpoints report over the whole lifetime of the email, so there is no date
+ * range or comparison period.
  */
 export default {
 	name: 'jpa/email-breakdown',
@@ -101,11 +98,6 @@ export default {
 			],
 		},
 		{
-			id: 'postId',
-			label: __( 'Email ID', 'jetpack-premium-analytics' ),
-			type: 'integer',
-		},
-		{
 			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
@@ -113,7 +105,6 @@ export default {
 	] as WidgetAttributeField< EmailBreakdownAttributes >[],
 	example: {
 		attributes: {
-			postId: 1234,
 			view: 'countries',
 			metric: 'opens',
 			max: 10,

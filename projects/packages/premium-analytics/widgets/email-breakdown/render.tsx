@@ -7,6 +7,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	flagUrl,
+	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -247,20 +248,39 @@ export const EmailBreakdownLeaderboard = ( {
 };
 
 type EmailBreakdownReportProps = {
-	postId: number;
 	view: EmailBreakdownView;
 	metric: EmailBreakdownMetric;
 	max: number;
 };
 
 /**
+ * Resolves the email's post ID from the host-composed report params. `post_id`
+ * is typed `string | number` (a string when it comes straight from the URL), so
+ * it is coerced to a positive integer; anything else yields `0`, which the
+ * widget treats as "no email selected".
+ *
+ * @param postId - The `post_id` report param.
+ * @return The email's post ID, or `0` when none is set.
+ */
+function toPostId( postId: string | number | undefined ): number {
+	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
+
+	return Number.isInteger( parsed ) && parsed > 0 ? parsed : 0;
+}
+
+/**
  * Fetches the email breakdown rows for the selected email, view, and metric,
- * then hands them to the presentational `EmailBreakdownLeaderboard`.
+ * then hands them to the presentational `EmailBreakdownLeaderboard`. The email
+ * is scoped by the host through `reportParams.post_id` — the shared
+ * single-resource "detail page" param — so the widget needs no id attribute.
  *
  * @param {EmailBreakdownReportProps} props - The component props.
  * @return The widget content.
  */
-function EmailBreakdownReport( { postId, view, metric, max }: EmailBreakdownReportProps ) {
+function EmailBreakdownReport( { view, metric, max }: EmailBreakdownReportProps ) {
+	const { reportParams } = useWidgetRootContext();
+	const postId = toPostId( reportParams.post_id );
+
 	const { rows, isLoading, isFetching, isError, refetch } = useEmailBreakdownRows( {
 		postId,
 		view,
@@ -284,25 +304,25 @@ function EmailBreakdownReport( { postId, view, metric, max }: EmailBreakdownRepo
 /**
  * Widget render entry point.
  *
- * The breakdown is scoped to a single email via the `postId` attribute; the
+ * The breakdown is scoped to a single email by the host through
+ * `reportParams.post_id` (the shared single-resource "detail page" param); the
  * `view` attribute (`relevance: 'high'`) is exposed as a control by the widget
  * host and the `metric` attribute picks opens or clicks for the dimension views.
- * The endpoints report across the whole lifetime of the email, so there is no
- * date range or comparison period — `reportParams` is still passed into
- * `WidgetRoot` so the host wiring stays consistent, but it is not used for data.
+ * The endpoints report across the whole lifetime of the email, so the date range
+ * and comparison period are ignored — `reportParams` is passed into `WidgetRoot`,
+ * which exposes it to the inner report, but only `post_id` is read from it.
  *
  * @param {EmailBreakdownWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
 export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidgetProps ) {
-	const postId = attributes.postId ?? 0;
 	const view = attributes.view ?? 'countries';
 	const metric = attributes.metric ?? 'opens';
 	const max = attributes.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailBreakdownReport postId={ postId } view={ view } metric={ metric } max={ max } />
+			<EmailBreakdownReport view={ view } metric={ metric } max={ max } />
 		</WidgetRoot>
 	);
 }

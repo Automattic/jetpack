@@ -6,8 +6,8 @@
  * `WidgetDashboardWithWidget` mounts the real dashboard so it renders exactly
  * as it does in product.
  *
- * The breakdown is scoped to a single email via a mocked `postId`. These endpoints
- * report over the whole lifetime of the email and return no comparison period, so
+ * The breakdown is scoped to a single email via a mocked `reportParams.post_id`. These
+ * endpoints report over the whole lifetime of the email and return no comparison period, so
  * the `WithComparison` story still renders without deltas — it only verifies the
  * widget stays graceful when the date picker injects comparison `reportParams`.
  */
@@ -77,8 +77,7 @@ function renderEmailBreakdown( { withComparison, view, metric }: EmailBreakdownS
 	return (
 		<EmailBreakdownRender
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-				postId: MOCK_EMAIL_ID,
+				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
 				view,
 				metric,
 			} }
@@ -95,8 +94,7 @@ function renderEmailBreakdownForState( postId: number ) {
 	return (
 		<EmailBreakdownRender
 			attributes={ {
-				reportParams: getDefaultQueryParams( false ),
-				postId,
+				reportParams: { ...getDefaultQueryParams( false ), post_id: postId },
 				view: 'countries',
 				metric: 'opens',
 			} }
@@ -124,7 +122,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. The `view` attribute (`relevance: \'high\'`) is exposed as a control by the widget host; the `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `postId`. These endpoints have no comparison period, so the widget renders without deltas even when the date picker injects comparison params.',
+					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. The `view` attribute (`relevance: \'high\'`) is exposed as a control by the widget host; the `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `reportParams.post_id`. These endpoints have no comparison period, so the widget renders without deltas even when the date picker injects comparison params.',
 			},
 		},
 	},
@@ -199,8 +197,8 @@ export const Empty: Story = {
 };
 
 /**
- * No email selected: `postId` is unset, so no request is made and the empty
- * state prompts to select an email instead of "no data yet".
+ * No email selected: `reportParams.post_id` is unset, so no request is made and
+ * the empty state prompts to select an email instead of "no data yet".
  */
 export const NoEmailSelected: Story = {
 	render: () => (
@@ -228,8 +226,7 @@ function EmailBreakdownDashboardStory( {
 			renderModule={ EMAIL_BREAKDOWN_RENDER_MODULE }
 			renderComponent={ EmailBreakdownRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-				postId: MOCK_EMAIL_ID,
+				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
 				view,
 				metric,
 			} }

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { queryClient } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -77,7 +77,14 @@ describe( 'EmailBreakdownWidget', () => {
 	it( 'renders the opens-by-country breakdown for the selected email', async () => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
-		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'countries' } } /> );
+		render(
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'countries',
+				} }
+			/>
+		);
 
 		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'United Kingdom' ) ).toBeInTheDocument();
@@ -90,7 +97,13 @@ describe( 'EmailBreakdownWidget', () => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
 		render(
-			<EmailBreakdownWidget attributes={ { postId: 1234, view: 'countries', metric: 'clicks' } } />
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'countries',
+					metric: 'clicks',
+				} }
+			/>
 		);
 
 		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
@@ -102,7 +115,14 @@ describe( 'EmailBreakdownWidget', () => {
 	it( 'merges internal link types with clicked links for the links view', async () => {
 		mockApiFetch.mockImplementation( linksViewFetchMock() );
 
-		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'links' } } /> );
+		render(
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'links',
+				} }
+			/>
+		);
 
 		// User-content links render as external links opening in a new tab.
 		const link = await screen.findByRole( 'link', {
@@ -135,7 +155,14 @@ describe( 'EmailBreakdownWidget', () => {
 				: Promise.reject( { status: 403, message: 'Forbidden' } )
 		);
 
-		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'links' } } /> );
+		render(
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'links',
+				} }
+			/>
+		);
 
 		await expect(
 			screen.findByText( /couldn't load this email's breakdown/ )
@@ -149,7 +176,14 @@ describe( 'EmailBreakdownWidget', () => {
 	it( 'keeps populated rows instead of the error state when a refetch fails', async () => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
-		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'countries' } } /> );
+		render(
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'countries',
+				} }
+			/>
+		);
 
 		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
 
@@ -180,7 +214,14 @@ describe( 'EmailBreakdownWidget', () => {
 			linksViewFetchMock( { 'user-content-links': { data: [ [ unsafeUrl, 99 ] ] } } )
 		);
 
-		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'links' } } /> );
+		render(
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'links',
+				} }
+			/>
+		);
 
 		// The label still renders so the row is visible, but not as an anchor.
 		await expect( screen.findByText( unsafeUrl ) ).resolves.toBeInTheDocument();
