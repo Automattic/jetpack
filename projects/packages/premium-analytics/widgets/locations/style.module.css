@@ -120,11 +120,12 @@
 
 /* Width is the constraint that sizes flags: the boot layout shell forces
    img { height: auto } at higher specificity, so a height here never applies
-   in the dashboard. `fill` (not `initial`, a CSS-wide keyword that would
-   unset the custom property) keeps the flag's aspect ratio uncropped. */
+   in the dashboard. `contain` (not `initial`, a CSS-wide keyword that would
+   unset the custom property) keeps the flag's aspect ratio uncropped even if
+   a height ever does apply. */
 .leaderboardImage {
 	--jpa-leaderboard-image-width: 28px;
 	--jpa-leaderboard-image-height: auto;
-	--jpa-leaderboard-image-fit: fill;
+	--jpa-leaderboard-image-fit: contain;
 	border-radius: var(--wpds-border-radius-sm, 2px);
 }
