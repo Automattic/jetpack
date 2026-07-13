@@ -263,6 +263,7 @@ export type {
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostDay,
 	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,

@@ -23,6 +23,16 @@ export type StatsPostWeek = {
 
 type StatsPostRawNumeric = number | string;
 
+/**
+ * One day of the post's full view history. The endpoint's `data` field is an
+ * array of `[date, views]` tuples covering every day since publication (unlike
+ * `weeks`, which the server hard-codes to a recent seven-week window).
+ */
+export type StatsPostDay = {
+	date: string;
+	views: number;
+};
+
 type StatsPostRawYear = {
 	total?: StatsPostRawNumeric;
 	overall?: StatsPostRawNumeric;
@@ -59,6 +69,7 @@ export type StatsPostMeta = {
 
 export type StatsPostRawResponse = {
 	date?: string;
+	data?: unknown[];
 	views?: StatsPostRawNumeric;
 	like_count?: StatsPostRawNumeric;
 	years?: Record< string, StatsPostRawYear >;
@@ -72,6 +83,7 @@ export type StatsPostRawResponse = {
 
 export type StatsPostResponse = {
 	date?: string;
+	data?: StatsPostDay[];
 	views?: number;
 	like_count?: number;
 	years?: Record< string, StatsPostYear >;
@@ -104,6 +116,16 @@ function normalizeStatsPostYears( value: unknown ) {
 	);
 }
 
+function normalizeStatsPostDays( value: unknown ): StatsPostDay[] {
+	return coerceStatsArray( value ).flatMap( entry => {
+		if ( ! Array.isArray( entry ) || typeof entry[ 0 ] !== 'string' ) {
+			return [];
+		}
+
+		return [ { date: entry[ 0 ], views: safeParseFloat( entry[ 1 ] ) } ];
+	} );
+}
+
 function normalizeStatsPostWeek( value: unknown ): StatsPostWeek {
 	const week = coerceStatsRecord( value );
 
@@ -131,6 +153,7 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 
 	return {
 		...( typeof payload.date === 'string' ? { date: payload.date } : {} ),
+		...( payload.data !== undefined ? { data: normalizeStatsPostDays( payload.data ) } : {} ),
 		...( payload.views !== undefined ? { views: safeParseFloat( payload.views ) } : {} ),
 		...( payload.like_count !== undefined
 			? { like_count: safeParseFloat( payload.like_count ) }

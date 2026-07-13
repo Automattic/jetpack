@@ -70,6 +70,8 @@ export { mockSiteSummary } from './site-summary';
 
 export { mockStatsInsightsData } from './insights';
 
+export { mockStatsPostData } from './stats-post';
+
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
