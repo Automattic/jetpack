@@ -560,6 +560,27 @@ test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to productio
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
+test( 'every scenario declares an explicit failure policy; the Dashboard stays required', () => {
+	// FORMS-728: computeRunOutcome reads `optional` off every scenario, so the flag must be
+	// an explicit boolean — a missing flag would silently classify a scenario as required
+	// (undefined is falsy) and let its failure blank every other trend.
+	for ( const scenario of SCENARIOS ) {
+		assert.equal(
+			typeof scenario.optional,
+			'boolean',
+			`${ scenario.key } must declare a boolean optional flag`
+		);
+		// isBaseline was the dead predecessor of this flag; a remnant means a bad rebase.
+		assert.ok(
+			! ( 'isBaseline' in scenario ),
+			`${ scenario.key } must not carry the removed isBaseline field`
+		);
+	}
+	// Guard against accidentally demoting the baseline: the wp-admin Dashboard is the one
+	// required scenario, whose failure reds the build and suppresses ALL posting.
+	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).optional, false );
+} );
+
 // --- redactToken (keeps the token out of logs and errors) ---
 
 test( 'redactToken strips the exact token and any token query param', () => {

@@ -526,11 +526,82 @@ function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
 	}
 }
 
+/**
+ * Resolve the SCENARIO filter to the set of scenarios to run.
+ *
+ * Fails fast on a filter that matches nothing (e.g. the typo `SCENARIO=my-jetpak`).
+ * Before this guard, an unknown value silently matched zero scenarios: the run wrote an
+ * empty measurements object and exited 0 — a green build that measured and posted nothing.
+ *
+ * @param {string}        scenarioFilter - The SCENARIO env value ('all' or a scenario cliName).
+ * @param {Array<object>} scenarios      - Scenario definitions (SCENARIOS, or a test double).
+ * @return {Array<object>} The non-empty set of scenarios to run.
+ * @throws {Error} When the filter matches no scenario; the message lists the valid values.
+ */
+function resolveScenarioSet( scenarioFilter, scenarios ) {
+	if ( scenarioFilter === 'all' ) {
+		return scenarios;
+	}
+	const matched = scenarios.filter( s => s.cliName === scenarioFilter );
+	if ( matched.length === 0 ) {
+		const valid = [ 'all', ...scenarios.map( s => s.cliName ) ].join( ', ' );
+		throw new Error( `Unknown SCENARIO "${ scenarioFilter }". Valid values: ${ valid }` );
+	}
+	return matched;
+}
+
+/**
+ * Decide the process exit code from the per-scenario measurement outcomes.
+ *
+ * The posting policy lives here, once: exit 0 means "every required scenario measured —
+ * safe to post". The runner treats a non-zero exit as fatal and never reaches the posting
+ * step, which is the retry-safety invariant: a red build has posted nothing, so re-running
+ * it cannot append duplicate points to the append-only, dedup-off CodeVitals store. A
+ * failed `optional` scenario therefore must NOT fail the build — it warns, its keys skip
+ * the build, and the poster skips its errored measurement. Two deliberate hard edges:
+ * every scenario in the run set failed → exit 1 even when all of them are optional, so a
+ * targeted single-scenario run (SCENARIO=forms-responses) still fails loudly; and empty
+ * measurements → exit 1 (backstop; resolveScenarioSet already rejects a filter that
+ * matches nothing).
+ *
+ * @param {Object<string, {error?: string}>} measurements - Per-scenario results, keyed by scenario key.
+ * @param {Array<object>}                    scenarios    - Scenario definitions (only those present in measurements count).
+ * @return {{exitCode: number, requiredFailures: string[], optionalFailures: string[]}} The outcome; failure arrays carry scenario names.
+ */
+function computeRunOutcome( measurements, scenarios ) {
+	const requiredFailures = [];
+	const optionalFailures = [];
+	let successes = 0;
+	for ( const scenario of scenarios ) {
+		const measurement = measurements[ scenario.key ];
+		if ( ! measurement ) {
+			continue; // Not part of this run (SCENARIO filter).
+		}
+		if ( measurement.error ) {
+			( scenario.optional ? optionalFailures : requiredFailures ).push( scenario.name );
+		} else {
+			successes++;
+		}
+	}
+	const exitCode = requiredFailures.length > 0 || successes === 0 ? 1 : 0;
+	return { exitCode, requiredFailures, optionalFailures };
+}
+
 async function main() {
 	const username = process.env.WP_ADMIN_USER || 'admin';
 	const password = process.env.WP_ADMIN_PASS || 'password';
 	const iterations = parseInt( process.env.ITERATIONS || '5', 10 );
 	const scenarioFilter = process.env.SCENARIO || 'all';
+
+	// Validate the filter before any browser work: a typo must fail the build, not
+	// green-exit with zero measurements.
+	let scenariosToRun;
+	try {
+		scenariosToRun = resolveScenarioSet( scenarioFilter, SCENARIOS );
+	} catch ( error ) {
+		console.error( `✗ ${ error.message }` );
+		process.exit( 1 );
+	}
 
 	console.log( 'WordPress Performance Testing - LCP Measurement' );
 	console.log( '================================================' );
@@ -572,13 +643,8 @@ async function main() {
 
 	const measurements = {};
 
-	// Run each scenario
-	for ( const scenario of SCENARIOS ) {
-		// Skip if filtering to a specific scenario
-		if ( scenarioFilter !== 'all' && scenarioFilter !== scenario.cliName ) {
-			continue;
-		}
-
+	// Run each scenario in the resolved set
+	for ( const scenario of scenariosToRun ) {
 		const url = getScenarioUrl( scenario );
 
 		console.log( scenario.header );
@@ -611,8 +677,18 @@ async function main() {
 		}
 		if ( measurement && ! measurement.error ) {
 			console.log( `  ${ scenario.name }: ${ measurement.summary.median }ms` );
+		} else if ( scenario.optional ) {
+			console.log(
+				`  ${ scenario.name }: FAILED (optional — build continues, its keys skip this build) - ${
+					measurement?.error || 'unknown error'
+				}`
+			);
 		} else {
-			console.log( `  ${ scenario.name }: FAILED - ${ measurement?.error || 'unknown error' }` );
+			console.log(
+				`  ${ scenario.name }: FAILED (required — build fails, nothing posts) - ${
+					measurement?.error || 'unknown error'
+				}`
+			);
 		}
 	}
 	console.log( '' );
@@ -648,8 +724,15 @@ async function main() {
 	fs.writeFileSync( outputPath, JSON.stringify( output, null, 2 ) );
 	console.log( `Results saved to: ${ outputPath }` );
 
-	const hasFailures = Object.values( measurements ).some( m => m.error );
-	process.exit( hasFailures ? 1 : 0 );
+	const outcome = computeRunOutcome( measurements, SCENARIOS );
+	if ( outcome.exitCode === 0 && outcome.optionalFailures.length > 0 ) {
+		console.warn(
+			`Warning: optional scenario(s) failed — their CodeVitals keys skip this build: ${ outcome.optionalFailures.join(
+				', '
+			) }`
+		);
+	}
+	process.exit( outcome.exitCode );
 }
 
 /**
@@ -690,4 +773,6 @@ export {
 	assertCaptureComplete,
 	assertExpectedUrl,
 	summarizeResources,
+	resolveScenarioSet,
+	computeRunOutcome,
 };

@@ -62,6 +62,59 @@ function shouldFailBuildOnPostError( err, allowCodeVitalsFailure ) {
 	return isValidationFailure || ! allowCodeVitalsFailure;
 }
 
+/**
+ * Escape a string for use inside a TeamCity service-message single-quoted value.
+ *
+ * Per the TeamCity spec, `|`, `'`, `[`, `]` and newlines must be pipe-escaped; an
+ * unescaped character silently corrupts the message (TeamCity swallows or truncates it
+ * rather than erroring). `|` is escaped first so it doesn't double-escape the others.
+ *
+ * @param {string} str - Raw text.
+ * @return {string} Escaped text, safe inside `text='…'`.
+ */
+function tcEscape( str ) {
+	return String( str )
+		.replace( /\|/g, '||' )
+		.replace( /'/g, "|'" )
+		.replace( /\[/g, '|[' )
+		.replace( /\]/g, '|]' )
+		.replace( /\r/g, '|r' )
+		.replace( /\n/g, '|n' );
+}
+
+/**
+ * Surface optional-scenario failures on a build that stays green.
+ *
+ * measure-lcp.js exits 0 when every REQUIRED scenario measured, so a failed optional
+ * scenario no longer fails the build — but it must not be silent either: its CodeVitals
+ * keys skip this build. Read the results file the measure child wrote and emit one
+ * TeamCity WARNING service message (shown on the build page without failing it), plus a
+ * plain console warning for local runs.
+ *
+ * @param {string} outputPath - Path to the measure-lcp results JSON (OUTPUT_PATH).
+ */
+function reportSkippedScenarios( outputPath ) {
+	let failedNames;
+	try {
+		const results = JSON.parse( fs.readFileSync( outputPath, 'utf8' ) );
+		failedNames = SCENARIOS.filter( s => results.measurements?.[ s.key ]?.error ).map(
+			s => s.name
+		);
+	} catch {
+		// No/unreadable results file: nothing to report here — a run that produced no file
+		// already failed the measure child loudly.
+		return;
+	}
+	if ( failedNames.length === 0 ) {
+		return;
+	}
+	const text = `${ failedNames.join(
+		', '
+	) } measurement failed; its CodeVitals keys skip this build`;
+	console.warn( `\n⚠ ${ text }` );
+	console.log( `##teamcity[message text='${ tcEscape( text ) }' status='WARNING']` );
+}
+
 /** Execute a docker compose command. */
 function dockerCompose( args, options = {} ) {
 	const baseArgs = [
@@ -538,12 +591,20 @@ async function main() {
 	console.log( '═══════════════════════════════════════════════════════' );
 	console.log( '' );
 
+	// A non-zero exit here means a REQUIRED scenario (or the whole run) failed:
+	// fail the build before the posting step, so a red build posts nothing and a retry
+	// cannot append duplicate points (see computeRunOutcome in measure-lcp.js). Optional
+	// scenario failures exit 0 and flow through to posting; the poster skips their
+	// errored measurements and posts the survivors.
 	try {
 		execFile( 'node', [ path.join( __dirname, 'measure-lcp.js' ) ] );
 	} catch {
 		console.error( '\n✗ Performance measurements failed' );
 		process.exit( 1 );
 	}
+
+	// Green build, but any failed optional scenario must stay visible on the build page.
+	reportSkippedScenarios( process.env.OUTPUT_PATH );
 
 	// Post to CodeVitals (if configured and not skipped)
 	if ( ! options.skipCodeVitals && process.env.CODEVITALS_TOKEN ) {
@@ -609,4 +670,4 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { shouldFailBuildOnPostError, getGitInfo, resolveCommitTimestampEnv };
+export { shouldFailBuildOnPostError, getGitInfo, resolveCommitTimestampEnv, tcEscape };

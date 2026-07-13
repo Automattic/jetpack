@@ -468,7 +468,11 @@ async function postToCodeVitals( resultsPath, config ) {
 		// data — skip it (rather than crash on summary.median). If skipping leaves
 		// nothing to post, the no-metrics guard below fails closed.
 		if ( ! measurement || measurement.error || ! measurement.summary ) {
-			console.warn( `Warning: No measurement data for ${ scenario.name }` );
+			console.warn(
+				`Warning: No measurement data for ${ scenario.name }${
+					scenario.optional ? ' (optional scenario — its keys skip this build)' : ''
+				}`
+			);
 			continue;
 		}
 
