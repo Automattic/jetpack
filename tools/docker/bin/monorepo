@@ -139,7 +139,7 @@ fi
   # Mirror the host pnpm store into the container at the same path, so node_modules' symlinks into it
   # resolve on both sides. With no host pnpm there's no host store to share; fall back to the
   # container's own store, as before.
-  PNPM_STORE_PATH="$( cd "$MONOREPO_ROOT" && command -v pnpm >/dev/null 2>&1 && pnpm store path 2>/dev/null )"
+  PNPM_STORE_PATH="$( cd "$MONOREPO_ROOT" && command -v pnpm &>/dev/null && pnpm store path 2>/dev/null )"
 
   PNPM_STORE_DOCKER_ARGS=()
   if [[ -n "$PNPM_STORE_PATH" ]]; then
