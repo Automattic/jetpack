@@ -12,6 +12,7 @@ import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { DEFAULT_WORDADS_CHART_METRICS, type WordAdsChartMetricId } from '../metrics';
 import WordAdsChartTabsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -24,12 +25,27 @@ const WORDADS_CHART_TABS_RENDER_MODULE = 'storybook/wordads-chart-tabs';
 
 interface WordAdsChartTabsStoryControls {
 	withComparison: boolean;
+	/**
+	 * WordAds metrics to show as selectable tabs.
+	 */
+	metrics: WordAdsChartMetricId[];
 }
 
-function renderWordAdsChartTabs( { withComparison }: WordAdsChartTabsStoryControls ) {
+const METRIC_ARG_TYPES = {
+	metrics: {
+		control: 'check',
+		options: DEFAULT_WORDADS_CHART_METRICS,
+	},
+} as const;
+
+const ALL_METRICS_ARGS = {
+	metrics: DEFAULT_WORDADS_CHART_METRICS,
+} as const;
+
+function renderWordAdsChartTabs( { withComparison, metrics }: WordAdsChartTabsStoryControls ) {
 	return (
 		<WordAdsChartTabsRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
 		/>
 	);
 }
@@ -59,12 +75,13 @@ const meta = {
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					"WordAds performance over the selected period as selectable metric tabs — Ads Served, Average CPM, and Revenue, matching the Calypso WordAds page's tabs — over a comparative line chart. Ads Served is a count; CPM and revenue are currency (WordAds pays USD). The date range and comparison come from the dashboard controls; the \"Group by\" control is the `granularity` attribute (`relevance: 'high'`), exposed by the widget host, and chooses the bucket size within that range. WordAds stats are computed nightly, so a range ending today is clamped to end at yesterday. When comparison is on the previous period is overlaid as a same-colour dashed line and each tab shows its period-over-period delta. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.",
+					"WordAds performance over the selected period as selectable metric tabs — Ads Served, Average CPM, and Revenue, matching the Calypso WordAds page's tabs — over a comparative line chart. Ads Served is a count; CPM and revenue are currency (WordAds pays USD). The date range and comparison come from the dashboard controls; the \"Group by\" control is the `granularity` attribute and the visible tabs are the `metrics` attribute (both `relevance: 'high'`), exposed by the widget host. WordAds stats are computed nightly, so a range ending today is clamped to end at yesterday. When comparison is on the previous period is overlaid as a same-colour dashed line and each tab shows its period-over-period delta. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.",
 			},
 		},
 	},
@@ -79,7 +96,7 @@ type Story = StoryObj< WordAdsChartTabsStoryControls >;
  */
 export const Default: Story = {
 	render: renderWordAdsChartTabs,
-	args: { withComparison: false },
+	args: { withComparison: false, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -88,7 +105,7 @@ export const Default: Story = {
  */
 export const WithComparison: Story = {
 	render: renderWordAdsChartTabs,
-	args: { withComparison: true },
+	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -142,6 +159,7 @@ interface WordAdsChartTabsDashboardStoryProps
 
 function WordAdsChartTabsDashboardStory( {
 	withComparison,
+	metrics,
 	...dashboardArgs
 }: WordAdsChartTabsDashboardStoryProps ) {
 	return (
@@ -150,7 +168,7 @@ function WordAdsChartTabsDashboardStory( {
 			widgetType={ widgetDefinition }
 			renderModule={ WORDADS_CHART_TABS_RENDER_MODULE }
 			renderComponent={ WordAdsChartTabsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
 		/>
 	);
 }
@@ -163,9 +181,11 @@ export const WidgetDashboardWithWidget: StoryObj< WordAdsChartTabsDashboardStory
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		withComparison: true,
+		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 };

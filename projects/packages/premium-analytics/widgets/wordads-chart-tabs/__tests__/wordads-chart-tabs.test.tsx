@@ -81,6 +81,42 @@ describe( 'useWordAdsChart', () => {
 		expect( result.current.isEmpty ).toBe( false );
 	} );
 
+	it( 'shows only the selected metrics, in canonical order', async () => {
+		const reportParams: ReportParams = {
+			from: '2026-05-01',
+			to: '2026-06-30',
+			interval: 'month',
+		};
+
+		// Pass the ids out of canonical order to prove the tab order is resolved
+		// against the definitions, not the selection order.
+		const { result } = renderHook(
+			() => useWordAdsChart( reportParams, 'month', [ 'revenue', 'impressions' ] ),
+			{ wrapper }
+		);
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		expect( result.current.metrics.map( metric => metric.key ) ).toEqual( [
+			'impressions',
+			'revenue',
+		] );
+	} );
+
+	it( 'yields no metric tabs when the selection is empty', async () => {
+		const reportParams: ReportParams = {
+			from: '2026-05-01',
+			to: '2026-06-30',
+			interval: 'month',
+		};
+
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month', [] ), {
+			wrapper,
+		} );
+
+		expect( result.current.metrics ).toHaveLength( 0 );
+	} );
+
 	it( 'requests the wordads/stats endpoint honouring the range and granularity', async () => {
 		const reportParams: ReportParams = {
 			from: '2026-05-01',

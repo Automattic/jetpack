@@ -6,6 +6,16 @@ import { chartBar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import {
+	DEFAULT_WORDADS_CHART_METRICS,
+	WORDADS_CHART_METRICS,
+	type WordAdsChartMetricId,
+} from './metrics';
+
+/**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
  * range (a wide range buckets by month, a narrow one by day); an explicit
  * value sticks across range changes.
@@ -19,9 +29,11 @@ export type WordAdsChartTabsGranularity = 'auto' | 'day' | 'week' | 'month' | 'y
  * dashboard previews).
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
+ * @property metrics     - WordAds metrics to show as selectable tabs. Defaults to all.
  */
 export type WordAdsChartTabsAttributes = {
 	granularity?: WordAdsChartTabsGranularity;
+	metrics?: WordAdsChartMetricId[];
 };
 
 /**
@@ -33,7 +45,10 @@ export type WordAdsChartTabsAttributes = {
  * labels and order — over a comparative line chart. The date range and
  * comparison state come from the dashboard via `reportParams`; the
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
- * that range. Requires WordAds to be active on the site.
+ * that range, and the `metrics` attribute (`relevance: 'high'`) selects which
+ * metrics render as tabs (`example.attributes` doubles as the defaults applied
+ * to new instances: every metric enabled). Requires WordAds to be active on the
+ * site.
  */
 export default {
 	name: 'jpa/wordads-chart-tabs',
@@ -72,10 +87,22 @@ export default {
 			],
 			relevance: 'high',
 		},
+		{
+			id: 'metrics',
+			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			type: 'array',
+			relevance: 'high',
+			Edit: ArrayCheckboxField,
+			elements: WORDADS_CHART_METRICS.map( metric => ( {
+				value: metric.id,
+				label: metric.label,
+			} ) ),
+		},
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {
 		attributes: {
 			granularity: 'auto',
+			metrics: DEFAULT_WORDADS_CHART_METRICS,
 		},
 	},
 };

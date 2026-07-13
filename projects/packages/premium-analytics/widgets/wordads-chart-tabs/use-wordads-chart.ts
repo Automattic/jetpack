@@ -10,10 +10,14 @@ import {
 	type StatsWordAdsResponse,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import {
+	DEFAULT_WORDADS_CHART_METRICS,
+	WORDADS_CHART_METRICS,
+	type WordAdsChartMetricId,
+} from './metrics';
 import type { DataFormat, MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -22,14 +26,6 @@ import type { DataFormat, MetricTab } from '@jetpack-premium-analytics/widgets-t
  * comparison stay dashboard-driven.
  */
 export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
-
-/**
- * Currency format for the revenue and CPM tabs.
- */
-const CURRENCY_FORMAT: DataFormat = {
-	type: 'currency',
-	options: { decimals: 2 },
-};
 
 /**
  * Normalized WordAds chart state: one metric tab per WordAds field plus the
@@ -124,19 +120,22 @@ function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): S
 
 /**
  * Fetch the WordAds time series for the dashboard's report params and expose one
- * metric tab per WordAds field — Ads Served (impressions), Average CPM, and
- * Revenue, matching the Calypso WordAds page's tab labels and order. Ads Served
- * is a count; CPM and revenue are currency. The endpoint returns all three
- * fields in a single request, so — unlike the traffic chart's split requests —
- * one `useStatsWordAdsStats` call drives every tab.
+ * metric tab per selected WordAds field — Ads Served (impressions), Average CPM,
+ * and Revenue, matching the Calypso WordAds page's tab labels and order. Ads
+ * Served is a count; CPM and revenue are currency. The endpoint returns all
+ * three fields in a single request, so — unlike the traffic chart's split
+ * requests — one `useStatsWordAdsStats` call drives every tab; the `metricIds`
+ * selection only picks which of those tabs render.
  *
  * @param reportParams - The dashboard date range + comparison state.
  * @param period       - The selected bucket granularity (day/week/month).
+ * @param metricIds    - Which metrics to show as tabs; defaults to all.
  * @return The metric tabs and combined load/error/empty state.
  */
 export default function useWordAdsChart(
 	reportParams: ReportParams,
-	period: WordAdsPeriod
+	period: WordAdsPeriod,
+	metricIds: WordAdsChartMetricId[] = DEFAULT_WORDADS_CHART_METRICS
 ): WordAdsChartState {
 	// Memoize the request params so the query key is stable across renders.
 	const params = useMemo( () => toWordAdsParams( reportParams, period ), [ reportParams, period ] );
@@ -147,33 +146,26 @@ export default function useWordAdsChart(
 	const primaryData = primary.data as StatsWordAdsResponse | undefined;
 	const comparisonData = comparison.data as StatsWordAdsResponse | undefined;
 
+	// Resolve selected ids against the canonical definitions so the tab order
+	// stays stable regardless of the order the ids were toggled in.
+	const enabledMetrics = useMemo( () => {
+		const selected = new Set( metricIds );
+		return WORDADS_CHART_METRICS.filter( metric => selected.has( metric.id ) );
+	}, [ metricIds ] );
+
 	const metrics = useMemo(
-		() => [
-			toMetric(
-				primaryData,
-				comparisonData,
-				hasComparison,
-				'impressions',
-				__( 'Ads Served', 'jetpack-premium-analytics' )
+		() =>
+			enabledMetrics.map( metric =>
+				toMetric(
+					primaryData,
+					comparisonData,
+					hasComparison,
+					metric.id,
+					metric.label,
+					metric.dataFormat
+				)
 			),
-			toMetric(
-				primaryData,
-				comparisonData,
-				hasComparison,
-				'cpm',
-				__( 'Average CPM', 'jetpack-premium-analytics' ),
-				CURRENCY_FORMAT
-			),
-			toMetric(
-				primaryData,
-				comparisonData,
-				hasComparison,
-				'revenue',
-				__( 'Revenue', 'jetpack-premium-analytics' ),
-				CURRENCY_FORMAT
-			),
-		],
-		[ primaryData, comparisonData, hasComparison ]
+		[ enabledMetrics, primaryData, comparisonData, hasComparison ]
 	);
 
 	return {
