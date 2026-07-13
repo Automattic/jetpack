@@ -45,7 +45,9 @@ export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from '.
 export { sanitizeStatsPublicizeResponse } from './publicize';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
+export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
+export type { StatsSummaryResponse } from './summary';
 export type {
 	StatsPostMeta,
 	StatsPostMonthValues,

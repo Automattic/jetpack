@@ -97,6 +97,11 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
+export {
+	useStatsSummary,
+	type StatsSummaryParams,
+	type StatsSummaryResponse,
+} from './hooks/use-stats-summary';
 export { useStatsInsights } from './hooks/use-stats-insights';
 export type {
 	StatsInsightsParams,

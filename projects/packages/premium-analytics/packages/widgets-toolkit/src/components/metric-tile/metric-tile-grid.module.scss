@@ -72,6 +72,26 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	white-space: nowrap;
 }
 
+/* Comparison tiles render value + delta through MetricWithComparison, which
+ * manages its own value font size, so this cell only handles placement — it
+ * mirrors `.value`'s flex slot without the responsive font clamp. */
+.comparison {
+	display: flex;
+	flex: 0 0 auto;
+	justify-content: center;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+}
+
+/* MetricValue emits the font-size token without a fallback, and the dashboard
+ * runtime does not always inject the WPDS typography tokens, so pin the metric
+ * total here with explicit fallbacks. Scoped to the comparison cell so the
+ * plain `.value` path keeps its responsive clamp. */
+.comparison span {
+	font-size: var(--wpds-typography-font-size-xl, 20px);
+	line-height: var(--wpds-typography-line-height-xl, 32px);
+}
+
 .placeholder {
 	font-weight: var(--wpds-typography-font-weight-medium, 500);
 }

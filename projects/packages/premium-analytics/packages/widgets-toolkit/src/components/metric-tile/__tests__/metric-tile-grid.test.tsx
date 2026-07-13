@@ -43,4 +43,38 @@ describe( 'MetricTileGrid', () => {
 
 		expect( screen.getAllByText( '—' ) ).toHaveLength( 2 );
 	} );
+
+	it( 'shows a period-over-period delta when a tile provides a previous value', () => {
+		render(
+			<MetricTileGrid
+				tiles={ [ { key: 'views', label: 'Views', value: 150, previousValue: 100 } ] }
+			/>
+		);
+
+		expect( screen.getByText( '150' ) ).toBeInTheDocument();
+		expect( screen.getByText( /%/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the value without a delta when the previous value is null', () => {
+		render(
+			<MetricTileGrid
+				tiles={ [ { key: 'views', label: 'Views', value: 150, previousValue: null } ] }
+			/>
+		);
+
+		expect( screen.getByText( '150' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'exposes a tile note as visually hidden assistive text', () => {
+		render(
+			<MetricTileGrid
+				tiles={ [
+					{ key: 'visitors', label: 'Visitors', value: 3, note: 'Sum of daily visitors.' },
+				] }
+			/>
+		);
+
+		expect( screen.getByText( 'Sum of daily visitors.' ) ).toBeInTheDocument();
+	} );
 } );

@@ -52,6 +52,8 @@ import {
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsSummaryData,
+	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
@@ -883,6 +885,12 @@ function routeStatsReport( subPath: string ): unknown {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
 			return mockSiteSummary;
+		case '/summary':
+			// Period summary — alternates primary/comparison so the Site overview
+			// widget shows a period-over-period delta on each tile.
+			return nextIsComparison( 'stats/summary' )
+				? mockStatsSummaryComparisonData
+				: mockStatsSummaryData;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
