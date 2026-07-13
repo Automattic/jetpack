@@ -1535,8 +1535,14 @@ abstract class SAL_Site {
 			return null;
 		}
 		require_lib( 'difm-lite' );
+		// The submission state is canonical on the purchase blog. This site may be
+		// the stickered staging build target, whose own options blob is empty, so
+		// resolve to the purchase blog before reading — otherwise a post-submit
+		// staging target reports itself as pre-submit.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
-		$difm_lite_options = new \DIFM_Lite_Options( $this->blog_id );
+		$purchase_blog_id = \DIFM_Lite_Options::resolve_purchase_site_id( $this->blog_id );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+		$difm_lite_options = new \DIFM_Lite_Options( $purchase_blog_id );
 		return array(
 			// @phan-suppress-next-line PhanUndeclaredClassProperty -- wpcom-only class, guarded above.
 			'is_website_content_submitted' => (bool) $difm_lite_options->is_website_content_submitted,
