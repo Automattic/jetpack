@@ -16,7 +16,12 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { AllTimeStatsAttributes } from './widget';
+import {
+	ALL_TIME_STATS_METRICS,
+	DEFAULT_ALL_TIME_STATS_METRICS,
+	type AllTimeStatsAttributes,
+	type AllTimeStatsMetricId,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The host (and Storybook) may inject report params via `attributes`, but the
@@ -37,14 +42,24 @@ const COUNT_FORMAT = {
 	options: { decimals: 0 },
 };
 
-// Lifetime totals shown, in display order, each keyed to its summary field and
-// Stats icon. Rows whose field is absent from the response are skipped.
-const ROWS = [
-	{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ), icon: seen },
-	{ key: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ), icon: people },
-	{ key: 'posts', label: __( 'Posts', 'jetpack-premium-analytics' ), icon: postContent },
-	{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ), icon: comment },
-] as const;
+/**
+ * Render-only config per metric: the row icon. Ids and labels are shared with
+ * the settings checkboxes via `ALL_TIME_STATS_METRICS` in `widget.ts`; the id
+ * doubles as the summary field the row reads.
+ */
+const ROW_CONFIG: Record< AllTimeStatsMetricId, { icon: typeof seen } > = {
+	views: { icon: seen },
+	visitors: { icon: people },
+	posts: { icon: postContent },
+	comments: { icon: comment },
+};
+
+type AllTimeStatsRow = {
+	key: AllTimeStatsMetricId;
+	label: string;
+	icon: typeof seen;
+	value: number;
+};
 
 /**
  * Reads a numeric summary field, returning `undefined` when the key is absent
@@ -63,25 +78,41 @@ function readCount( summary: StatsSummary | undefined, key: string ): number | u
 
 /**
  * Fetches the all-time site summary through the designated `useStatsSite` hook
- * and renders the lifetime totals as a labelled list of icon rows. Only fields
- * present in the response are shown. There is no comparison period for this
- * module, so each value renders as a bare number.
+ * and renders the lifetime totals as a labelled list of icon rows. Which rows
+ * appear is controlled by the `metrics` attribute; fields absent from the
+ * response are skipped. There is no comparison period for this module, so each
+ * value renders as a bare number.
  *
+ * @param {AllTimeStatsMetricId[]} metrics - Enabled metric row ids.
  * @return The widget content.
  */
-function AllTimeStatsReport() {
+function AllTimeStatsReport( {
+	metrics = DEFAULT_ALL_TIME_STATS_METRICS,
+}: {
+	metrics?: AllTimeStatsMetricId[];
+} ) {
 	// The summary is all-time, so the query takes no date params — its key stays
 	// stable across dashboard date-range and comparison changes.
 	const { data, isLoading, isError } = useStatsSite();
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
 
+	// Resolve selected ids against the canonical definitions so the row order
+	// stays stable regardless of the order the ids were toggled in.
+	const enabledMetrics = useMemo( () => {
+		const selected = new Set( metrics );
+		return ALL_TIME_STATS_METRICS.filter( metric => selected.has( metric.id ) );
+	}, [ metrics ] );
+
 	const rows = useMemo(
 		() =>
-			ROWS.map( row => ( { ...row, value: readCount( summary, row.key ) } ) ).filter(
-				( row ): row is ( typeof ROWS )[ number ] & { value: number } => row.value !== undefined
-			),
-		[ summary ]
+			enabledMetrics.flatMap( ( { id, label } ): AllTimeStatsRow[] => {
+				const value = readCount( summary, id );
+				return value === undefined
+					? []
+					: [ { key: id, label, icon: ROW_CONFIG[ id ].icon, value } ];
+			} ),
+		[ enabledMetrics, summary ]
 	);
 
 	let content;
@@ -96,7 +127,11 @@ function AllTimeStatsReport() {
 	} else if ( rows.length === 0 ) {
 		content = (
 			<div className={ styles.state }>
-				<Text>{ __( 'No stats recorded yet.', 'jetpack-premium-analytics' ) }</Text>
+				<Text>
+					{ enabledMetrics.length === 0
+						? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
+						: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ) }
+				</Text>
 			</div>
 		);
 	} else {
@@ -137,7 +172,7 @@ function AllTimeStatsReport() {
 export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AllTimeStatsReport />
+			<AllTimeStatsReport metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }
