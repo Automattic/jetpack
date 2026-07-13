@@ -65,7 +65,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`width`**: Chart width in pixels. When omitted, fills parent container width
 - **`height`**: Chart height in pixels (defaults to 400). When omitted, fills parent container height
 - **`margin`**: Custom chart margins
-- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height); if the parent is shorter than that height, the chart shrinks both axes to fit rather than overflowing (contained on both axes). When omitted, fills parent container height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 

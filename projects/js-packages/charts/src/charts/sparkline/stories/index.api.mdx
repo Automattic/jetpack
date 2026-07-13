@@ -28,7 +28,7 @@ Main component for rendering minimal trend visualizations.
 | `chartId` | `string` | - | Custom chart identifier for unique gradient/element identification |
 | `margin` | `object` | `{2,2,2,2}` | Margin around the chart |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where the line scales up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
-| `aspectRatio` | `number` | - | Aspect ratio for responsive charts. When omitted, fills parent height (responsive variant only) |
+| `aspectRatio` | `number` | - | Aspect ratio for responsive charts; if the parent is shorter than the derived height, the chart shrinks both axes to fit rather than overflowing (contained on both axes). When omitted, fills parent height (responsive variant only) |
 | `maxWidth` | `number` | `1200` | Maximum width for responsive charts (responsive variant only) |
 | `resizeDebounceTime` | `number` | `300` | Debounce time for resize events in ms (responsive variant only) |
 
@@ -153,7 +153,7 @@ The default `Sparkline` export includes responsive sizing. By default, it **fill
 ```
 
 **Responsive Props:**
-- `aspectRatio`: Height as a fraction of width (e.g., 0.3 = 30% height). When omitted, fills parent height.
+- `aspectRatio`: Height as a fraction of width (e.g., 0.3 = 30% height); if the parent is shorter than that height, the chart shrinks both axes to fit rather than overflowing (contained on both axes). When omitted, fills parent height.
 - `maxWidth`: Maximum width constraint (default: 1200)
 - `resizeDebounceTime`: Debounce delay for resize events (default: 300ms)
 

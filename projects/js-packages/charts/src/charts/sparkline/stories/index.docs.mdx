@@ -66,7 +66,7 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 - **`width`** (default: `100`): Width of the sparkline in pixels
 - **`height`** (default: `40`): Height of the sparkline in pixels
 - **`margin`** (default: `{2,2,2,2}`): Margin around the chart
-- **`aspectRatio`**: Height as a fraction of width. When omitted, fills parent container height
+- **`aspectRatio`**: Height as a fraction of width; if the parent is shorter than that height, the chart shrinks both axes to fit rather than overflowing (contained on both axes). When omitted, fills parent container height
 - **`maxWidth`** (default: `1200`): Maximum width constraint for responsive charts
 - **`resizeDebounceTime`** (default: `300`): Debounce delay for resize events in ms
 

@@ -69,7 +69,7 @@ The simplest geo chart requires data, width, and height. The `data` prop uses Go
 **Layout & Dimensions:**
 - **`width`**: Width of the chart in pixels. When omitted, fills parent container width
 - **`height`**: Height of the chart in pixels. When omitted, fills parent container height (parent must have explicit height)
-- **`aspectRatio`**: Height as a fraction of width (e.g., `0.625` = 62.5% height). When provided, height is calculated from width
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.625` = 62.5% height). When provided, height is calculated from width; if the parent is shorter than that height, the chart shrinks both axes to fit rather than overflowing (contained on both axes)
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
