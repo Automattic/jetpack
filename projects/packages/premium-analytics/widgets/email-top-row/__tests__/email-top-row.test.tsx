@@ -60,9 +60,8 @@ describe( 'EmailTopRowWidget', () => {
 		render(
 			<EmailTopRowWidget
 				attributes={ {
-					postId: 2000,
 					metric: 'opens',
-					reportParams: getDefaultQueryParams( false ),
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
 				} }
 			/>
 		);
@@ -81,9 +80,8 @@ describe( 'EmailTopRowWidget', () => {
 		render(
 			<EmailTopRowWidget
 				attributes={ {
-					postId: 2000,
 					metric: 'clicks',
-					reportParams: getDefaultQueryParams( false ),
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
 				} }
 			/>
 		);
@@ -101,9 +99,8 @@ describe( 'EmailTopRowWidget', () => {
 		render(
 			<EmailTopRowWidget
 				attributes={ {
-					postId: 9999,
 					metric: 'opens',
-					reportParams: getDefaultQueryParams( false ),
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 9999 },
 				} }
 			/>
 		);
@@ -135,9 +132,8 @@ describe( 'EmailTopRowWidget', () => {
 		render(
 			<EmailTopRowWidget
 				attributes={ {
-					postId: 2000,
 					metric: 'opens',
-					reportParams: getDefaultQueryParams( false ),
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
 				} }
 			/>
 		);

@@ -4,13 +4,14 @@
  * backend. `WidgetDashboardWithWidget` mounts the real dashboard with the same
  * widget.
  *
- * The widget is scoped to a single email by the `postId` attribute and to one
- * view by `metric` (Opens or Clicks). The rate breakdown is all-time and returns
- * no comparison rows, so the `WithComparison` story renders identically to
- * `Default` — there is no period-over-period data and no deltas are shown.
+ * The widget is scoped to a single email by the host through
+ * `reportParams.post_id` and to one view by the `metric` attribute (Opens or
+ * Clicks). The rate breakdown is all-time and returns no comparison rows, so the
+ * `WithComparison` story renders identically to `Default` — there is no
+ * period-over-period data and no deltas are shown.
  *
  * The Loading / Error / Empty stories force the mock into that state with
- * `setReportMockState`; each uses a distinct `postId` so its request has its own
+ * `setReportMockState`; each uses a distinct `post_id` so its request has its own
  * query key and hits the override fresh rather than reading a sibling's cache.
  */
 /**
@@ -56,9 +57,8 @@ function renderEmailTopRow(
 	return (
 		<EmailTopRowRender
 			attributes={ {
-				postId,
 				metric,
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: postId },
 			} }
 		/>
 	);
@@ -86,7 +86,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total opens, total clicks, click rate) via the `metric` attribute. The email is selected by `postId`. Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate` breakdown, which is all-time and returns no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
+					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total opens, total clicks, click rate) via the `metric` attribute. The email is selected by the host through `reportParams.post_id`. Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate` breakdown, which is all-time and returns no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
 			},
 		},
 	},
@@ -172,7 +172,7 @@ export const Empty: Story = {
 };
 
 /**
- * No email selected (no `postId`): the widget prompts to pick an email instead of
+ * No email selected (no `post_id`): the widget prompts to pick an email instead of
  * fetching. This is how the widget renders on a report page before a row is chosen.
  */
 export const NoEmailSelected: Story = {
@@ -201,9 +201,8 @@ function EmailTopRowDashboardStory( {
 			renderModule={ EMAIL_TOP_ROW_RENDER_MODULE }
 			renderComponent={ EmailTopRowRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				postId: MOCK_POST_ID,
 				metric,
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_POST_ID },
 			} }
 		/>
 	);

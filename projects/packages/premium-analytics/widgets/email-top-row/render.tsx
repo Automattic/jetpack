@@ -10,6 +10,7 @@ import {
 	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
+	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -328,11 +329,22 @@ const EmailTopRowTiles = ( {
 	);
 };
 
+/**
+ * Resolves the email's post ID from the host-composed report params. `post_id`
+ * is typed `string | number` (a string when it comes straight from the URL), so
+ * it is coerced to a positive integer; anything else yields `0`, which the
+ * widget treats as "no email selected".
+ *
+ * @param postId - The `post_id` report param.
+ * @return The email's post ID, or `0` when none is set.
+ */
+function toPostId( postId: string | number | undefined ): number {
+	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
+
+	return Number.isInteger( parsed ) && parsed > 0 ? parsed : 0;
+}
+
 type EmailTopRowReportProps = {
-	/**
-	 * The selected email's post ID.
-	 */
-	postId?: number;
 	/**
 	 * Which view's metrics to fetch and show.
 	 */
@@ -341,25 +353,29 @@ type EmailTopRowReportProps = {
 
 /**
  * Fetches the selected email's all-time rate breakdown for the active view and
- * hands its metrics to `EmailTopRowTiles`. The Opens and Clicks views each read
- * their own per-post `stats/<opens|clicks>/emails/<postId>/rate` endpoint — the
- * same source the Jetpack Stats top row uses — so the widget resolves a specific
- * email by ID rather than scanning a summary list, and it works for any email
- * regardless of how recently it was sent. Only the active view's request runs.
+ * hands its metrics to `EmailTopRowTiles`. The email is scoped by the host
+ * through `reportParams.post_id` — the shared single-resource "detail page"
+ * param — so the widget needs no id attribute of its own. The Opens and Clicks
+ * views each read their own per-post `stats/<opens|clicks>/emails/<postId>/rate`
+ * endpoint — the same source the Jetpack Stats top row uses — so the widget
+ * resolves a specific email by ID rather than scanning a summary list, and it
+ * works for any email regardless of how recently it was sent. Only the active
+ * view's request runs.
  *
  * @param {EmailTopRowReportProps} props - The component props.
  * @return The widget content.
  */
-function EmailTopRowReport( { postId, metric }: EmailTopRowReportProps ) {
-	const hasSelection = Number.isInteger( postId ) && ( postId ?? 0 ) > 0;
-	const safePostId = hasSelection ? ( postId as number ) : 0;
+function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
+	const { reportParams } = useWidgetRootContext();
+	const postId = toPostId( reportParams.post_id );
+	const hasSelection = postId > 0;
 
 	// Both hooks are called every render (hooks rule); only the active view's
 	// query is enabled, so a single request runs.
-	const opens = useStatsEmailOpensBreakdown( safePostId, 'rate', {
+	const opens = useStatsEmailOpensBreakdown( postId, 'rate', {
 		enabled: hasSelection && metric === 'opens',
 	} );
-	const clicks = useStatsEmailClicksBreakdown( safePostId, 'rate', {
+	const clicks = useStatsEmailClicksBreakdown( postId, 'rate', {
 		enabled: hasSelection && metric === 'clicks',
 	} );
 	const active = metric === 'clicks' ? clicks : opens;
@@ -385,10 +401,12 @@ function EmailTopRowReport( { postId, metric }: EmailTopRowReportProps ) {
 /**
  * Widget render entry point.
  *
- * The email is selected by the `postId` attribute and the view by `metric`
- * (defaulting to Opens), both supplied by the host. Host attributes (including
- * `reportParams`) are passed through to `<WidgetRoot>` for the widget contract
- * even though the all-time rate breakdown ignores the date range.
+ * The email is selected by the host through `reportParams.post_id` (the shared
+ * single-resource "detail page" scope) and the view by the `metric` attribute
+ * (defaulting to Opens). Host attributes (including `reportParams`) are passed
+ * through to `<WidgetRoot>`, which exposes `reportParams` to the inner report;
+ * the all-time rate breakdown ignores the date range but reads the single-email
+ * scope from `post_id`.
  *
  * @param {EmailTopRowWidgetProps} props - The widget render props.
  * @return The rendered widget.
@@ -398,7 +416,7 @@ export default function EmailTopRow( { attributes = {} }: EmailTopRowWidgetProps
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailTopRowReport postId={ attributes.postId } metric={ metric } />
+			<EmailTopRowReport metric={ metric } />
 		</WidgetRoot>
 	);
 }

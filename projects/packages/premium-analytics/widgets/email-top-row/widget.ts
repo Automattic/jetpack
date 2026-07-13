@@ -21,17 +21,15 @@ export type EmailMetric = 'opens' | 'clicks';
 /**
  * Configurable attributes for the "Email top row" widget.
  *
- * The widget is scoped to a single email by `postId` and to one metric view by
- * `metric`. Both are supplied by the host (the email detail page passes the
- * selected email and the active Opens/Clicks tab); there is no report-param
- * scoping because the underlying rate endpoints are per-post and always all-time.
+ * The widget shows one metric view (`metric`) of a single email. The email is
+ * scoped by the host through `reportParams.post_id` (the shared single-resource
+ * "detail page" param), not by an attribute — the email detail page seeds
+ * `post_id` from its route so every widget on the page shares one scope. Only
+ * the Opens/Clicks view is a per-widget setting, supplied via the active tab.
+ * The underlying rate endpoints are per-post and always all-time, so the
+ * dashboard date range is ignored.
  */
 export type EmailTopRowAttributes = {
-	/**
-	 * Post ID of the email whose totals to display. When absent, the widget
-	 * prompts to select an email.
-	 */
-	postId?: number;
 	/**
 	 * Which headline metrics to show: the Opens view (sends, unique opens, opens,
 	 * open rate) or the Clicks view (opens, clicks, click rate). Defaults to `opens`.
@@ -62,11 +60,6 @@ export default {
 	},
 	attributes: [
 		{
-			id: 'postId',
-			label: __( 'Email ID', 'jetpack-premium-analytics' ),
-			type: 'integer',
-		},
-		{
 			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
@@ -85,7 +78,6 @@ export default {
 	] as WidgetAttributeField< EmailTopRowAttributes >[],
 	example: {
 		attributes: {
-			postId: 2000,
 			metric: 'opens',
 		},
 	},
