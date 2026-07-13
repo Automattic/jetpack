@@ -72,10 +72,7 @@ const SECTIONS = [
 			{
 				key: 'feature_clip',
 				label: __( 'Feature Clip', 'jetpack' ),
-				description: __(
-					'Generate a short AI video clip from your post and set it as the post’s feature clip.',
-					'jetpack'
-				),
+				description: __( 'Generate videos for your posts.', 'jetpack' ),
 				enabledAction: {
 					label: __( 'Try it out in the editor', 'jetpack' ),
 					href: 'post-new.php',
