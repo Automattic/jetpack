@@ -191,6 +191,7 @@ class Jetpack_AI_Settings {
 	 */
 	public static function host_allows_ai() {
 		if ( function_exists( 'wp_supports_ai' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
 			return (bool) wp_supports_ai();
 		}
 
