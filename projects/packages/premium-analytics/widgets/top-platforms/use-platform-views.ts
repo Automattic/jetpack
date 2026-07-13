@@ -7,16 +7,13 @@ import { __ } from '@wordpress/i18n';
  */
 import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
-import type {
-	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsDevicesComparisonItem } from '@jetpack-premium-analytics/data';
 
 export interface PlatformView {
 	key: string;
 	label: string;
 	views: number;
+	previousViews?: number;
 }
 
 interface UsePlatformViewsArgs {
@@ -36,7 +33,6 @@ interface UsePlatformViewsArgs {
 
 interface PlatformViewsState {
 	data: PlatformView[];
-	comparisonData: PlatformView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
@@ -74,7 +70,7 @@ const PLATFORM_LABELS: Record< string, string > = {
 };
 
 function toPlatformView(
-	item: StatsDevicesItem,
+	item: StatsDevicesComparisonItem,
 	deviceProperty: 'browser' | 'platform'
 ): PlatformView {
 	const key = String( item.label ?? '' );
@@ -84,6 +80,7 @@ function toPlatformView(
 		key,
 		label: formatDisplayLabel( key, labels ),
 		views: item.value,
+		previousViews: item.previousValue,
 	};
 }
 
@@ -103,35 +100,22 @@ export default function usePlatformViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, isError, error, refetch } =
-		useStatsDevices( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+		useStatsDevices( statsParams, { maxRows: max } );
 	const errorReason = getStatsPlanErrorReason( error );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
-
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
+	const rows = ( comparisonRows?.rows ?? [] ).map( item => toPlatformView( item, deviceProperty ) );
 
 	return {
-		data: items,
-		comparisonData: comparisonItems,
-		// When comparison is requested but its query fails, drop to a
-		// non-comparison view rather than pairing every row with a placeholder 0.
-		hasComparison: hasComparison && ! comparison.isError,
+		data: rows,
+		hasComparison,
 		isLoading,
 		isFetching,
 		// The Stats queries carry `placeholderData: previousData => previousData`, so a
 		// failed range change keeps the prior period's rows in `data` while `isError`
 		// flips true. Only surface the error when there's nothing to show, so a transient
 		// refetch failure doesn't replace populated rows with the error state.
-		isError: items.length === 0 && isError,
+		isError: rows.length === 0 && isError,
 		errorReason,
 		// The data layer's combined refetch: memoized, awaits both queries, and
 		// skips the comparison query when comparison is disabled.

@@ -1043,27 +1043,94 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				),
 
 				/*
-				 * `deep_magazine_ele_ajax()` declares `static $magazin_uniqid = 0;` in
-				 * three magazine-type branches. The counter feeds unique data-id
-				 * attributes shared across the types, so the declaration is hoisted to
-				 * the top of the function (one shared slot, initial 0 — identical to the
-				 * pre-8.3 compile-time semantics) and the branch declarations become
-				 * plain increments. The file uses CRLF line endings.
+				 * `deep_magazine_ele_ajax()` declares three static variables — the
+				 * shared counters `$magazin_uniqid`, `$title_uniqid`, and `$uniqid` —
+				 * once per magazine-type branch (three branches each). PHP stops
+				 * compiling at the first duplicate, so the fatals surfaced one
+				 * variable at a time; a full audit of the file shows all of them.
+				 *
+				 * `$magazin_uniqid` and `$title_uniqid` are hoisted to the top of the
+				 * function (one shared slot, initial 0 — identical to the pre-8.3
+				 * compile-time semantics) and the branch declarations become plain
+				 * increments. `$uniqid` cannot be hoisted under its own name: the
+				 * function assigns `$uniqid` from request input as a plain local
+				 * before any branch declaration binds the static slot, so a hoisted
+				 * binding would let that assignment clobber the counter. Instead a
+				 * `$deep_loop_uniqid` slot is hoisted and each branch declaration
+				 * becomes a reference binding (`$uniqid = &$deep_loop_uniqid;`),
+				 * which reproduces the original bind-at-this-point behavior exactly.
+				 *
+				 * The vendor shipped the same 2.1.2 code with two line endings, so
+				 * the patch carries a CRLF set (also handling files already carrying
+				 * the first-round magazin-only hoist) and an LF set for pristine
+				 * files.
 				 */
 				'deepcore'                => array(
-					'folders'        => array( 'deepcore' ),
-					'file'           => 'src/components/functions/functions-general.php',
-					'patched_marker' => 'wpcomsh: hoisted',
-					'strategy'       => 'replace_once',
-					'replacements'   => array(
+					'folders'          => array( 'deepcore' ),
+					'file'             => 'src/components/functions/functions-general.php',
+					'patched_marker'   => '$deep_loop_uniqid',
+					'strategy'         => 'replace_once',
+					'replacement_sets' => array(
+						// CRLF file that already has the first-round magazin hoist.
 						array(
-							"function deep_magazine_ele_ajax() {\r\n",
-							"function deep_magazine_ele_ajax() {\r\n\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\r\n\tstatic \$magazin_uniqid = 0;\r\n",
+							array(
+								"\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\r\n\tstatic \$magazin_uniqid = 0;\r\n",
+								"\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\r\n\tstatic \$magazin_uniqid = 0;\r\n\tstatic \$title_uniqid = 0;\r\n\tstatic \$deep_loop_uniqid = 0;\r\n",
+							),
+							array(
+								"\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\r\n",
+								"\t\t<?php \$title_uniqid++; ?>\r\n",
+							),
+							array(
+								"\t\tstatic \$title_uniqid = 0;\r\n\t\t\$title_uniqid++;",
+								"\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\r",
+							),
 						),
+						// Pristine LF file (same 2.1.2 code, normalized line endings).
 						array(
-							"\t\tstatic \$magazin_uniqid = 0;\r\n\t\t\$magazin_uniqid++;",
-							"\t\t\$magazin_uniqid++;",
-							3,
+							array(
+								"function deep_magazine_ele_ajax() {\n",
+								"function deep_magazine_ele_ajax() {\n\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\n\tstatic \$magazin_uniqid = 0;\n\tstatic \$title_uniqid = 0;\n\tstatic \$deep_loop_uniqid = 0;\n",
+							),
+							array(
+								"\t\tstatic \$magazin_uniqid = 0;\n\t\t\$magazin_uniqid++;",
+								"\t\t\$magazin_uniqid++;",
+								3,
+							),
+							array(
+								"\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\n",
+								"\t\t<?php \$title_uniqid++; ?>\n",
+							),
+							array(
+								"\t\tstatic \$title_uniqid = 0;\n\t\t\$title_uniqid++;",
+								"\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\n",
+							),
 						),
 					),
 				),
@@ -1178,13 +1245,29 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * ## OPTIONS
 		 *
 		 * <plugin>
-		 * : The plugin to patch.
+		 * : The plugin to patch. Any of the plugin's known folder slugs is accepted.
+		 *
+		 * [--force]
+		 * : Patch even when an update for the plugin is pending. Only for cases
+		 *   where the update exists but cannot be installed (dead license,
+		 *   broken vendor download).
 		 *
 		 * @subcommand php83-plugin-patch
 		 */
-		public function php_83_plugin_patch( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		public function php_83_plugin_patch( $args, $assoc_args ) {
 			$patches = self::php83_plugin_patches();
 			$slug    = $args[0];
+
+			// Accept any of a patch's folder slugs as the argument: the error logs
+			// that drive the patch jobs report whichever folder the vendor shipped.
+			if ( ! isset( $patches[ $slug ] ) ) {
+				foreach ( $patches as $key => $candidate ) {
+					if ( in_array( $slug, $candidate['folders'], true ) ) {
+						$slug = $key;
+						break;
+					}
+				}
+			}
 
 			if ( ! isset( $patches[ $slug ] ) ) {
 				WP_CLI::error( sprintf( 'No PHP 8.3 patch for %s. Available: %s.', $slug, implode( ', ', array_keys( $patches ) ) ) );
@@ -1209,12 +1292,14 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			// Don't patch if an update is pending: the new version may already fix this,
 			// and an update would overwrite the patched file anyway. Refresh the
 			// transient first so the decision is based on current data.
-			wp_update_plugins();
-			$update_plugins = get_site_transient( 'update_plugins' );
+			if ( ! \WP_CLI\Utils\get_flag_value( $assoc_args, 'force', false ) ) {
+				wp_update_plugins();
+				$update_plugins = get_site_transient( 'update_plugins' );
 
-			if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
-				$new_version = $update_plugins->response[ $plugin_file ]->new_version ?? 'unknown';
-				WP_CLI::error( "An update to $slug $new_version is available; update the plugin instead of patching." );
+				if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
+					$new_version = $update_plugins->response[ $plugin_file ]->new_version ?? 'unknown';
+					WP_CLI::error( "An update to $slug $new_version is available; update the plugin instead of patching, or re-run with --force if the update cannot be installed." );
+				}
 			}
 
 			$file = WP_PLUGIN_DIR . '/' . dirname( (string) $plugin_file ) . '/' . $patch['file'];
@@ -1272,6 +1357,8 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				'maple'    => 'maple',
 				'rhythm'   => 'rhythm',
 				'architek' => 'architek',
+				'skudo'    => 'skudo',
+				'larch-1'  => 'larch',
 			);
 
 			foreach ( $select_themes as $slug => $function_prefix ) {
@@ -1308,9 +1395,14 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * <theme>
 		 * : The theme to patch.
 		 *
+		 * [--force]
+		 * : Patch even when an update for the theme is pending. Only for cases
+		 *   where the update exists but cannot be installed (dead license,
+		 *   broken vendor download).
+		 *
 		 * @subcommand php83-theme-patch
 		 */
-		public function php_83_theme_patch( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		public function php_83_theme_patch( $args, $assoc_args ) {
 			$patches = self::php83_theme_patches();
 			$slug    = $args[0];
 
@@ -1328,12 +1420,14 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			// Don't patch if an update is pending: the new version may already fix this,
 			// and an update would overwrite the patched file anyway. Refresh the
 			// transient first so the decision is based on current data.
-			wp_update_themes();
-			$update_themes = get_site_transient( 'update_themes' );
+			if ( ! \WP_CLI\Utils\get_flag_value( $assoc_args, 'force', false ) ) {
+				wp_update_themes();
+				$update_themes = get_site_transient( 'update_themes' );
 
-			if ( isset( $update_themes->response[ $slug ] ) ) {
-				$new_version = $update_themes->response[ $slug ]['new_version'] ?? 'unknown';
-				WP_CLI::error( "An update to $slug $new_version is available; update the theme instead of patching." );
+				if ( isset( $update_themes->response[ $slug ] ) ) {
+					$new_version = $update_themes->response[ $slug ]['new_version'] ?? 'unknown';
+					WP_CLI::error( "An update to $slug $new_version is available; update the theme instead of patching, or re-run with --force if the update cannot be installed." );
+				}
 			}
 
 			$file = $theme->get_stylesheet_directory() . '/' . $patch['file'];
@@ -1392,8 +1486,24 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			} else {
 				// replace_once: every pair must match exactly as many times as expected
 				// (default 1), or the installed version differs from the one the patch
-				// was written against.
-				foreach ( $patch['replacements'] as $replacement ) {
+				// was written against. A patch may carry several 'replacement_sets'
+				// (e.g. CRLF and LF variants of the same vendor file); the first set
+				// whose first pair matches is applied in full.
+				$sets = $patch['replacement_sets'] ?? array( $patch['replacements'] );
+				$set  = null;
+
+				foreach ( $sets as $candidate ) {
+					if ( substr_count( $file_content, $candidate[0][0] ) === ( $candidate[0][2] ?? 1 ) ) {
+						$set = $candidate;
+						break;
+					}
+				}
+
+				if ( null === $set ) {
+					WP_CLI::error( sprintf( 'No replacement set matches %s — unknown vendor version?', $file ) );
+				}
+
+				foreach ( $set as $replacement ) {
 					$search      = $replacement[0];
 					$replace     = $replacement[1];
 					$expected    = $replacement[2] ?? 1;

@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { selectFallback } from './fallback.ts';
 import { requestJwt } from './jwt.ts';
-import { buildTailorPrompt } from './prompts.ts';
+import { buildTailorPrompt, chooseTailoringMenu } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
 import { trackAiResponseReceived } from './tracks.ts';
 import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
@@ -24,10 +24,14 @@ type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryabl
  * Call jetpack-ai-query once with the combined prompt and return the validated
  * output, or a failure outcome tagging whether the failure is worth retrying.
  *
- * @param input - The collected wizard input.
+ * @param input            - The collected wizard input.
+ * @param availableTaskIds - Task ids the prompt may offer (filters the menu).
  * @return The attempt outcome.
  */
-async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
+async function fetchAiOutput(
+	input: WizardInput,
+	availableTaskIds: readonly string[]
+): Promise< FetchOutcome > {
 	const controller = new AbortController();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- the timeout must arm before the awaited request and is cleared in finally.
 	const timeout = setTimeout( () => controller.abort(), AI_QUERY_TIMEOUT_MS );
@@ -41,7 +45,7 @@ async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
 				Authorization: 'Bearer ' + token,
 			},
 			body: JSON.stringify( {
-				messages: [ { role: 'user', content: buildTailorPrompt( input ) } ],
+				messages: [ { role: 'user', content: buildTailorPrompt( input, availableTaskIds ) } ],
 				feature: 'ai-launchpad',
 				model: 'gpt-4o',
 				max_tokens: 1800,
@@ -81,15 +85,44 @@ async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
  * Call jetpack-ai-query, retrying once on a transient/validation failure, and
  * return the validated output or null.
  *
- * @param input - The collected wizard input.
+ * @param input            - The collected wizard input.
+ * @param availableTaskIds - Task ids the prompt may offer (filters the menu).
  * @return The validated output, or null.
  */
-async function fetchAiOutputWithRetry( input: WizardInput ): Promise< TailoredOutput | null > {
-	let outcome = await fetchAiOutput( input );
+async function fetchAiOutputWithRetry(
+	input: WizardInput,
+	availableTaskIds: readonly string[]
+): Promise< TailoredOutput | null > {
+	let outcome = await fetchAiOutput( input, availableTaskIds );
 	if ( ! outcome.ok && outcome.retryable ) {
-		outcome = await fetchAiOutput( input );
+		outcome = await fetchAiOutput( input, availableTaskIds );
 	}
 	return outcome.ok ? outcome.output : null;
+}
+
+/**
+ * Fetch the task ids the prompt's menu may offer for this goal: the actionable ids, relaxed to all renderable
+ * ids when completion leaves too few to fill a valid list (see chooseTailoringMenu). Returns an empty list on
+ * failure, which leaves the prompt using the full menu.
+ *
+ * @param goal - The selected goal.
+ * @return The task ids to offer, or an empty array.
+ */
+async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[] > {
+	try {
+		const response = ( await apiFetch( {
+			path: addQueryArgs( '/wpcom/v2/ai-launchpad/available-tasks', { goal } ),
+		} ) ) as { available_task_ids?: string[]; renderable_task_ids?: string[] };
+		const actionable = Array.isArray( response.available_task_ids )
+			? response.available_task_ids
+			: [];
+		const renderable = Array.isArray( response.renderable_task_ids )
+			? response.renderable_task_ids
+			: [];
+		return chooseTailoringMenu( actionable, renderable );
+	} catch {
+		return [];
+	}
 }
 
 /**
@@ -115,7 +148,8 @@ async function persist( output: TailoredOutput, source: TailorSource ): Promise<
  */
 export async function tailor( input: WizardInput ): Promise< TailorResult > {
 	const start = performance.now();
-	const aiOutput = await fetchAiOutputWithRetry( input );
+	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
+	const aiOutput = await fetchAiOutputWithRetry( input, availableTaskIds );
 
 	if ( aiOutput ) {
 		try {

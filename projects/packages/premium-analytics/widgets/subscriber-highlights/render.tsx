@@ -7,7 +7,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { customer } from '@jetpack-premium-analytics/icons';
 import {
-	MetricWithComparison,
+	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { envelope, payment, people, share } from '@wordpress/icons';
-import { Icon, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -58,10 +58,10 @@ const TILE_CONFIG: Record<
 
 /**
  * Fetches the subscriber counts through the designated `useStatsSubscribersCounts`
- * Stats hook and renders the totals as a grid of metric tiles, with the
- * loading / error / empty states rendered through `<WidgetState>`. The counts
- * module has no comparison period, so each tile shows a bare formatted count.
- * Which tiles appear is controlled by the `metrics` attribute.
+ * Stats hook and renders the totals as a `MetricTileGrid`, with the loading /
+ * error / empty states rendered through `<WidgetState>`. The counts module has
+ * no comparison period, so each tile shows a bare formatted count. Which tiles
+ * appear is controlled by the `metrics` attribute.
  *
  * @param {SubscriberMetricId[]} metrics - Enabled metric tile ids.
  * @return The widget content.
@@ -114,22 +114,7 @@ function SubscriberHighlightsReport( {
 						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
 					</Text>
 				) : (
-					<div className={ styles.grid }>
-						{ tiles.map( tile => (
-							<div key={ tile.key } className={ styles.tile }>
-								<div className={ styles.tileHeader }>
-									<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
-									<Text className={ styles.tileLabel }>{ tile.label }</Text>
-								</div>
-								<MetricWithComparison
-									value={ tile.value }
-									dataFormat={ COUNT_FORMAT }
-									fontSize="xl"
-									className={ styles.tileValue }
-								/>
-							</div>
-						) ) }
-					</div>
+					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 				) }
 			</WidgetState>
 		</div>

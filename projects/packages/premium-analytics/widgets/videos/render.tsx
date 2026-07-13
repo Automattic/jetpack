@@ -19,7 +19,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildVideoPlaysData } from './build-video-plays-data';
+import { buildVideoPlaysDataWithComparison } from './build-video-plays-data';
 import { DEFAULT_MAX, type VideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -88,18 +88,16 @@ function VideosReport( { max }: VideosReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
-		useStatsVideoPlays( statsParams );
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useStatsVideoPlays( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
-	const primaryData = primary.data;
-	const comparisonData = comparison.data;
 
-	const chartData = useMemo(
-		() => buildVideoPlaysData( primaryData, comparisonData ),
-		[ primaryData, comparisonData ]
+	const { data: chartData } = useMemo(
+		() => buildVideoPlaysDataWithComparison( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );

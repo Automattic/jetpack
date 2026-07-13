@@ -97,6 +97,12 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
+export { sliceWordAdsStatsReport } from './processing/stats';
+export {
+	useStatsSummary,
+	type StatsSummaryParams,
+	type StatsSummaryResponse,
+} from './hooks/use-stats-summary';
 export { useStatsInsights } from './hooks/use-stats-insights';
 export type {
 	StatsInsightsParams,
@@ -159,6 +165,7 @@ export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
 	type StatsSingleVideoPage,
+	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
 } from './hooks/use-stats-single-video';
 export {
@@ -227,6 +234,7 @@ export type {
 } from './api';
 export type {
 	StatsArchivesItem,
+	StatsClicksComparisonItem,
 	StatsClicksItem,
 	StatsCommentFollowersItem,
 	StatsCommentFollowersRawPost,
@@ -240,13 +248,16 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsEmailBreakdownItem,
+	StatsDevicesComparisonItem,
+	StatsDevicesItem,
+	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationsComparisonItem,
 	StatsLocationsItem,
-	StatsDevicesItem,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,
@@ -262,6 +273,7 @@ export type {
 	StatsPublicizeItem,
 	StatsPublicizeService,
 	StatsReferrersItem,
+	StatsSearchTermsComparisonItem,
 	StatsSearchTermsItem,
 	StatsSubscribersCountsRawResponse,
 	StatsSubscribersDataPoint,
@@ -275,13 +287,20 @@ export type {
 	StatsTagsRawTag,
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
+	StatsTopAuthorsComparisonItem,
 	StatsTopAuthorsItem,
+	StatsTopAuthorsPostComparisonItem,
+	StatsTopPostsComparisonItem,
 	StatsTopPostsItem,
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
 	StatsUtmItem,
 	StatsUtmParam,
 	StatsUtmTopPostItem,
+	StatsVideoPlaysComparisonItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
+export { compareEmailBreakdownItems } from './processing/stats';
 export type { StatsCommentFollowersParams } from './queries/stats-comment-followers-query';
 export type { StatsReportParams } from './queries/stats-query';
 export {
@@ -291,3 +310,16 @@ export {
 	type StatsPeriod,
 	type StatsQueryParams,
 } from './utils/stats-params';
+export {
+	mergeStatsClicksComparisonRows,
+	mergeStatsComparisonRows,
+	mergeStatsDevicesComparisonRows,
+	mergeStatsFileDownloadsComparisonRows,
+	mergeStatsLocationsComparisonRows,
+	mergeStatsSearchTermsComparisonRows,
+	mergeStatsTopAuthorsComparisonRows,
+	mergeStatsTopPostsComparisonRows,
+	mergeStatsUtmComparisonRows,
+	mergeStatsVideoPlaysComparisonRows,
+} from './processing/stats';
+export type { StatsComparisonRowContext } from './processing/stats';

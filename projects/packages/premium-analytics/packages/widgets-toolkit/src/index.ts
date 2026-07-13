@@ -3,6 +3,7 @@
  */
 export {
 	MetricDelta,
+	MetricTileGrid,
 	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
@@ -31,6 +32,8 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	ChartEmptyState,
+	type ChartEmptyStateProps,
 	WidgetState,
 	type WidgetStateProps,
 	type WidgetStateError,
@@ -89,6 +92,7 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
 	toVideoItems,

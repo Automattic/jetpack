@@ -56,20 +56,12 @@ type DevicesInnerProps = {
  */
 function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const {
-		data,
-		comparisonData,
-		hasComparison,
-		isLoading,
-		isFetching,
-		isError,
-		errorReason,
-		refetch,
-	} = useDeviceViews( {
-		reportParams,
-		max,
-		deviceProperty: 'screensize',
-	} );
+	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
+		useDeviceViews( {
+			reportParams,
+			max,
+			deviceProperty: 'screensize',
+		} );
 
 	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: item.displayLabel,
@@ -77,10 +69,6 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 	} ) );
 
 	const segmentStyles = useSegmentStyles( chartData );
-
-	const comparisonMap = new Map(
-		comparisonData.map( item => [ item.label, toRatio( item.percentage ) ] )
-	);
 
 	const legendData: LegendItem[] = data.map( item => ( {
 		label: item.displayLabel,
@@ -90,7 +78,10 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 			PERCENTAGE_DATA_FORMAT.type,
 			PERCENTAGE_DATA_FORMAT.options
 		),
-		comparison: hasComparison ? comparisonMap.get( item.label ) ?? 0 : undefined,
+		comparison:
+			hasComparison && item.previousPercentage !== undefined
+				? toRatio( item.previousPercentage )
+				: undefined,
 	} ) );
 	const styledLegendData = legendData.map( ( item, index ) => ( {
 		...item,

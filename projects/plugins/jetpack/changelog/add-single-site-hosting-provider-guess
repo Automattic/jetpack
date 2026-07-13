@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Site endpoint: return hosting_provider_guess and environment_type from the single-site endpoint when explicitly requested via the fields parameter, matching /me/sites.

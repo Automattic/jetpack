@@ -10,6 +10,7 @@ import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
+	sharePercentage,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -54,40 +55,39 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		data,
-		comparisonData,
-		hasComparison,
-		isLoading,
-		isFetching,
-		isError,
-		errorReason,
-		refetch,
-	} = usePlatformViews( {
-		reportParams,
-		max,
-		deviceProperty: platformDimension,
-	} );
+	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
+		usePlatformViews( {
+			reportParams,
+			max,
+			deviceProperty: platformDimension,
+		} );
 
 	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
-	const maxComparisonViews = Math.max( ...comparisonData.map( d => d.views ), 0 );
-	const comparisonMap = new Map( comparisonData.map( item => [ item.key, item.views ] ) );
-	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
-		id: `${ index }-${ item.key }`,
-		label: (
-			<Stack align="center" className={ styles.itemLabel }>
-				<Text>{ item.label }</Text>
-			</Stack>
-		),
-		currentValue: item.views,
-		currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
-		previousValue: comparisonMap.get( item.key ) ?? 0,
-		previousShare:
-			maxComparisonViews > 0
-				? ( ( comparisonMap.get( item.key ) ?? 0 ) / maxComparisonViews ) * 100
-				: 0,
-		delta: calculateDelta( item.views, comparisonMap.get( item.key ) ?? 0 ),
-	} ) );
+	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
+	const withComparison = hasComparison;
+	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
+		const previousValue = item.previousViews;
+
+		return {
+			id: `${ index }-${ item.key }`,
+			label: (
+				<Stack align="center" className={ styles.itemLabel }>
+					<Text>{ item.label }</Text>
+				</Stack>
+			),
+			currentValue: item.views,
+			currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
+			previousValue,
+			previousShare:
+				withComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxComparisonViews )
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( item.views, previousValue )
+					: undefined,
+		};
+	} );
 
 	// A plan error can't be fixed by retrying, so the Retry action is only
 	// offered for regular fetch failures.

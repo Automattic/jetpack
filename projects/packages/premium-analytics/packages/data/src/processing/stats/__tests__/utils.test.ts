@@ -1,6 +1,11 @@
 import { combineStatsNormalizedReports, sanitizeStatsTopPostsResponse } from '..';
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
-import { getStatsLabel, getStatsSummaryIntervalFields, normalizeStatsSummary } from '../utils';
+import {
+	getStatsLabel,
+	getStatsSummaryIntervalFields,
+	mergeStatsComparisonRows,
+	normalizeStatsSummary,
+} from '../utils';
 
 describe( 'Stats report utilities', () => {
 	it( 'combines separately requested summary and by-date data', () => {
@@ -66,5 +71,45 @@ describe( 'Stats report utilities', () => {
 		expect( getStatsLabel( 'broken%label' ) ).toBe( 'broken%label' );
 		expect( getStatsLabel( 42 ) ).toBe( '42' );
 		expect( getStatsLabel( { label: 'Example' } ) ).toBe( '' );
+	} );
+
+	it( 'merges comparison rows by key without fabricating missing values', () => {
+		const result = mergeStatsComparisonRows( {
+			primaryRows: [
+				{ key: 'us', value: 4 },
+				{ key: 'jp', value: 1 },
+			],
+			comparisonRows: [ { key: 'us', value: 4 } ],
+			getPrimaryKey: row => row.key,
+			getComparisonKey: row => row.key,
+			getComparisonValue: row => row.value,
+			mapRow: ( row, { previousValue } ) => ( {
+				...row,
+				previousValue,
+			} ),
+		} );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows ).toEqual( [
+			{ key: 'us', value: 4, previousValue: 4 },
+			{ key: 'jp', value: 1, previousValue: undefined },
+		] );
+	} );
+
+	it( 'treats zero as a real comparison row value', () => {
+		const result = mergeStatsComparisonRows( {
+			primaryRows: [ { key: 'newsletter', value: 3 } ],
+			comparisonRows: [ { key: 'newsletter', value: 0 } ],
+			getPrimaryKey: row => row.key,
+			getComparisonKey: row => row.key,
+			getComparisonValue: row => row.value,
+			mapRow: ( row, { previousValue } ) => ( {
+				...row,
+				previousValue,
+			} ),
+		} );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows[ 0 ].previousValue ).toBe( 0 );
 	} );
 } );

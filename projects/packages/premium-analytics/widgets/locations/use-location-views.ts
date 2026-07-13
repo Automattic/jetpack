@@ -2,11 +2,7 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
-import type {
-	ReportParams,
-	StatsLocationsItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -19,6 +15,7 @@ export interface LocationView {
 	countryCode: string;
 	countryFull: string;
 	value: number;
+	previousValue?: number;
 	region: string;
 }
 
@@ -43,7 +40,6 @@ interface UseLocationViewsArgs {
 
 interface LocationViewsState {
 	data: LocationView[];
-	comparisonData: LocationView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
@@ -59,7 +55,7 @@ interface LocationViewsState {
  * @param item - Normalized location item from the data layer.
  * @return A `LocationView` for the widget, or null if the item has no country code.
  */
-function toLocationView( item: StatsLocationsItem ): LocationView | null {
+function toLocationView( item: StatsLocationsComparisonItem ): LocationView | null {
 	if ( ! item.countryCode ) {
 		return null;
 	}
@@ -72,6 +68,7 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
 		countryCode: item.countryCode,
 		countryFull,
 		value: item.views,
+		previousValue: item.previousViews,
 		region: item.region ?? '',
 	};
 }
@@ -98,34 +95,26 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
-		useStatsLocations( statsParams );
+	const {
+		primary,
+		comparison,
+		comparisonRows,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		refetch,
+	} = useStatsLocations( statsParams, { maxRows: max } );
 	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
 
-	// When comparison is requested but its query fails, drop to a non-comparison
-	// view rather than pairing every row with a placeholder value of 0 —
-	// otherwise the chart renders misleading period-over-period deltas.
-	const comparisonUsable = hasComparison && ! comparison.isError;
-
-	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
-	const comparisonReport = comparison.data as
-		| StatsNormalizedReport< StatsLocationsItem >
-		| undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const rawComparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
+	const items = ( comparisonRows?.rows ?? [] )
 		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
-	const comparisonItems = rawComparisonItems
-		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
+		.filter( ( v ): v is LocationView => v !== null );
 
 	return {
 		data: items,
-		comparisonData: comparisonItems,
-		hasComparison: comparisonUsable,
+		hasComparison,
 		isLoading,
 		isFetching,
 		hasData,
