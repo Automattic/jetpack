@@ -21,6 +21,11 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
+// Block real Logstash dispatch of the tailoring observation event for the entire phpunit
+// process (its HTTP fallback fires from a shutdown function, i.e. after teardown). The
+// event payload itself is asserted by invoking the builder directly.
+add_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', '__return_false' );
+
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -357,6 +362,198 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The catalog visibility gate can hide several AI-picked tasks on a given site (e.g. add_about_page needs a
+	 * page-template meta key that is not registered during a REST request), which collapses the rendered list.
+	 * A short list is topped back up toward six from a pool of broadly-useful tasks, keeping the launch task last.
+	 */
+	public function test_get_backfills_a_short_list_to_six_with_launch_last() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
+
+		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
+		$ids   = array_column( $tasks, 'id' );
+
+		$this->assertCount( 6, $tasks, 'a two-task list is backfilled to six' );
+		$this->assertSame( 'first_post_published', $ids[0], 'the AI tasks keep their lead position' );
+		$this->assertSame( 'site_launched', end( $ids ), 'the launch task stays last' );
+		$this->assertSame( array_values( array_unique( $ids ) ), $ids, 'no duplicate task cards' );
+	}
+
+	/**
+	 * A backfilled filler card must be skippable so it can never strand the launchpad, and GET must stay a read: it
+	 * must not rewrite the persisted AI output. The skip route accepts a backfilled id (via the pool allowlist), and
+	 * the persisted payload is untouched by the read.
+	 */
+	public function test_backfilled_task_is_skippable_and_get_does_not_mutate_ai_output() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
+		$before = get_option( 'wpcom_ai_launchpad_ai_output' );
+
+		$rendered = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertCount( 6, $rendered, 'the short list is backfilled to six' );
+
+		// GET is a pure read: the persisted AI output is unchanged.
+		$this->assertSame( $before, get_option( 'wpcom_ai_launchpad_ai_output' ) );
+
+		// A backfilled filler card (one not in the seeded AI list) can be skipped.
+		$backfilled = array_values( array_diff( $rendered, array( 'first_post_published', 'site_launched' ) ) );
+		$this->assertNotEmpty( $backfilled );
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => $backfilled[0] ) );
+		$this->assertSame( 200, $result->get_status(), $backfilled[0] . ' is skippable' );
+	}
+
+	/**
+	 * The available-tasks endpoint advertises the tasks that will actually render on this site+goal, so tailoring can
+	 * pick only from renderable tasks. Woo tasks are gated off without WooCommerce, so a write list excludes them,
+	 * while a sell list keeps them (as previews) and so lists them as available.
+	 */
+	public function test_available_tasks_endpoint_is_goal_aware() {
+		wp_set_current_user( $this->admin_id );
+
+		$write = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+		$this->assertArrayHasKey( 'available_task_ids', $write );
+		$this->assertContains( 'first_post_published', $write['available_task_ids'] );
+		$this->assertNotContains( 'woo_products', $write['available_task_ids'], 'woo tasks are not available without a store on a write site' );
+
+		$sell = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'sell' ) )->get_data();
+		$this->assertContains( 'woo_products', $sell['available_task_ids'], 'sell keeps woo tasks as previews, so they are available' );
+	}
+
+	/**
+	 * The add_about_page task is hidden only by a REST-context quirk (its gate needs a page-template meta key that is
+	 * not registered during the request). It is force-visible, so it is offered as available.
+	 */
+	public function test_available_tasks_include_rescued_add_about_page() {
+		wp_set_current_user( $this->admin_id );
+
+		$data = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+
+		$this->assertContains( 'add_about_page', $data['available_task_ids'] );
+	}
+
+	/**
+	 * A task that is already complete offers nothing to do, so it is excluded from the actionable ids offered to the
+	 * tailoring AI — but stays in the renderable ids, the client's relaxation set for heavily-completed sites.
+	 */
+	public function test_available_tasks_exclude_already_completed_tasks() {
+		wp_set_current_user( $this->admin_id );
+
+		$before = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+		$this->assertContains( 'first_post_published', $before['available_task_ids'] );
+
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$after = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+		$this->assertNotContains( 'first_post_published', $after['available_task_ids'] );
+		$this->assertContains( 'first_post_published', $after['renderable_task_ids'] );
+	}
+
+	/**
+	 * The launch tasks are exempt from the already-completed filter: the output contract requires the tailored list
+	 * to end on one, so a site that already launched must still be able to produce a valid list.
+	 */
+	public function test_available_tasks_keep_completed_launch_tasks() {
+		wp_set_current_user( $this->admin_id );
+
+		update_option( 'launch-status', 'launched' );
+
+		$data = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+
+		// Guard against the premise going stale: the launch task really is complete on this site, so its presence
+		// below proves the exemption rather than mere incompleteness.
+		$this->assertTrue( wpcom_launchpad_checklists()->is_task_id_complete( 'site_launched' ) );
+		$this->assertContains( 'site_launched', $data['available_task_ids'] );
+	}
+
+	/**
+	 * The short-list backfill must not top the list up with already-completed filler: a pre-checked card the user
+	 * never chose offers nothing to do. A shorter list is preferable.
+	 */
+	public function test_backfill_skips_already_completed_pool_tasks() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'drive_traffic' => true ) );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertNotContains( 'drive_traffic', $ids, 'a completed pool task is not backfilled' );
+		$this->assertContains( 'add_new_page', $ids, 'incomplete pool tasks still backfill' );
+	}
+
+	/**
+	 * The tailoring observation event reports the AI-inferred details (minus brand_name, which echoes the
+	 * user-typed site title), the ids the AI selected, the ids the site will actually render, and the delta
+	 * between them. The event is built (via reflection) against the state `PUT /tailored` just persisted —
+	 * the same envelope and timing the gated logger uses; real dispatch stays blocked by the file-level
+	 * `__return_false`, which short-circuits before the event is built.
+	 */
+	public function test_update_tailored_logs_observation_event() {
+		wp_set_current_user( $this->admin_id );
+
+		$payload             = self::valid_payload();
+		$payload['inferred'] = array(
+			'goal'       => 'write',
+			'brand_name' => 'Alpine Notes',
+			'tagline'    => 'Hiking stories from Jane Doe of 12 Elm Street.',
+			'niche'      => 'hiking',
+		);
+		// A gate-hidden pick (woo without WooCommerce), a remapped pick, and a hallucinated id the write path
+		// silently filters, to exercise the delta reporting. Swapped in mid-list: the schema requires exactly six
+		// tasks, launch task last.
+		$payload['tasks'][2] = array(
+			'id'       => 'imaginary_task',
+			'subtitle' => 'A task the catalog does not know.',
+		);
+		$payload['tasks'][3] = array(
+			'id'       => 'woo_products',
+			'subtitle' => 'Add your first products.',
+		);
+		$payload['tasks'][4] = array(
+			'id'       => 'post_sharing_enabled',
+			'subtitle' => 'Share posts automatically.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+
+		// Build the event exactly as log_tailoring would: from the persisted envelope and the raw pre-filter ids.
+		$builder  = new \ReflectionMethod( AI_Launchpad_REST::class, 'tailoring_log_extra' );
+		$captured = $builder->invoke(
+			new AI_Launchpad_REST(),
+			get_option( 'wpcom_ai_launchpad_ai_output' ),
+			array_column( $payload['tasks'], 'id' )
+		);
+		$this->assertIsArray( $captured );
+
+		// Only the intended fields, and never the user's own words: brand_name (echoes the title) and tagline
+		// (drafted from the description) are stripped from inferred.
+		$this->assertSame( array( 'source', 'inferred', 'selected', 'rendered', 'dropped', 'added' ), array_keys( $captured ) );
+		$this->assertSame( 'ai', $captured['source'] );
+		$this->assertArrayNotHasKey( 'brand_name', $captured['inferred'] );
+		$this->assertArrayNotHasKey( 'tagline', $captured['inferred'] );
+		$this->assertSame( 'write', $captured['inferred']['goal'] );
+		$this->assertSame( 'hiking', $captured['inferred']['niche'] );
+
+		// Selected reports the AI's raw picks — including the hallucinated id the write path filtered out.
+		$this->assertContains( 'woo_products', $captured['selected'] );
+		$this->assertContains( 'post_sharing_enabled', $captured['selected'] );
+		$this->assertContains( 'imaginary_task', $captured['selected'] );
+		$this->assertContains( 'first_post_published', $captured['rendered'] );
+		$this->assertNotContains( 'woo_products', $captured['rendered'] );
+
+		// The gate-hidden and hallucinated picks are drops; the remapped pick is not (it renders as its working
+		// equivalent).
+		$this->assertContains( 'woo_products', $captured['dropped'] );
+		$this->assertContains( 'imaginary_task', $captured['dropped'] );
+		$this->assertNotContains( 'post_sharing_enabled', $captured['dropped'] );
+		$this->assertContains( 'connect_social_media', $captured['rendered'] );
+
+		// Additions (synthetics/backfill) are reported so list inflation is observable: dropping two of six picks
+		// leaves a short list, and the backfill tops it up from the pool.
+		$this->assertContains( 'add_new_page', $captured['added'] );
+	}
+
+	/**
 	 * Test that GET keeps add_10_email_subscribers even though its catalog
 	 * visibility callback (wpcom_launchpad_are_newsletter_subscriber_counts_available)
 	 * is false off WordPress.com: the AI Launchpad retrieves the subscriber count
@@ -645,8 +842,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 
 		$this->assertContains( 'add_gallery_page', $ids );
-		// Injected immediately before the launch task.
-		$this->assertSame( array( 'site_title', 'add_gallery_page', 'site_launched' ), $ids );
+		// Injected immediately after the AI task and before the launch task; any backfill filler follows it.
+		$this->assertSame( array( 'site_title', 'add_gallery_page' ), array_slice( $ids, 0, 2 ), 'gallery follows the AI task' );
+		$this->assertSame( 'site_launched', end( $ids ), 'launch stays last' );
 
 		$gallery = null;
 		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
@@ -1681,6 +1879,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_does_not_inject_theme_task_for_non_sell() {
 		wp_set_current_user( $this->admin_id );
+		// The theme task is sell-only (ensure_theme_task) and is not in the short-list backfill pool, so even a short
+		// non-sell list never gains one.
 		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
 
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
@@ -1833,9 +2033,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_sets_completed_flag_when_all_done() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		// A full six-task list so the short-list backfill does not add tasks that would keep it incomplete.
+		$ids = array( 'first_post_published', 'design_edited', 'site_title', 'setup_general', 'site_theme_selected', 'site_launched' );
+		$this->seed_ai_output_with_tasks( $ids );
 		// Skipping every task coerces each to completed, so the list reads as done.
-		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'first_post_published', 'site_launched' ), false );
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', $ids, false );
 
 		$this->call_api( Requests::GET );
 
@@ -1862,10 +2064,14 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_skip_final_task_sets_completed_flag() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		// A full six-task list so the short-list backfill does not add tasks beyond the ones skipped below.
+		$non_launch = array( 'first_post_published', 'design_edited', 'site_title', 'setup_general', 'site_theme_selected' );
+		$this->seed_ai_output_with_tasks( array_merge( $non_launch, array( 'site_launched' ) ) );
 
-		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
-		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ), 'still incomplete after one skip' );
+		foreach ( $non_launch as $id ) {
+			$this->call_api( 'POST', '/skip-task', array( 'task_id' => $id ) );
+		}
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ), 'still incomplete while the launch task remains' );
 
 		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ), 'complete after skipping the last task' );

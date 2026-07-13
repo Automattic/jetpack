@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { buildTopAuthorsData } from '../build-top-authors-data';
+import { mergeStatsTopAuthorsComparisonRows } from '@jetpack-premium-analytics/data';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 type PostSeed = {
@@ -90,36 +91,39 @@ function makeReport( authors: AuthorSeed[] ): StatsNormalizedReport< StatsTopAut
 	};
 }
 
+function buildData(
+	primary?: StatsNormalizedReport< StatsTopAuthorsItem >,
+	comparison?: StatsNormalizedReport< StatsTopAuthorsItem >
+) {
+	return buildTopAuthorsData( mergeStatsTopAuthorsComparisonRows( primary, comparison ).rows );
+}
+
 describe( 'buildTopAuthorsData', () => {
 	it( 'returns an empty array when the primary report is undefined', () => {
-		expect( buildTopAuthorsData( undefined, undefined ) ).toEqual( [] );
+		expect( buildData( undefined, undefined ) ).toEqual( [] );
 	} );
 
 	it( 'returns an empty array when the primary report has no authors', () => {
-		expect( buildTopAuthorsData( makeReport( [] ), undefined ) ).toEqual( [] );
+		expect( buildData( makeReport( [] ), undefined ) ).toEqual( [] );
 	} );
 
 	it( 'maps a single author into leaderboard data', () => {
-		const result = buildTopAuthorsData(
-			makeReport( [ { label: 'Alice', views: 10 } ] ),
-			undefined
-		);
+		const result = buildData( makeReport( [ { label: 'Alice', views: 10 } ] ), undefined );
 
 		expect( result ).toHaveLength( 1 );
 		expect( result[ 0 ] ).toMatchObject( {
 			id: 'label:Alice|',
 			label: 'Alice',
 			currentValue: 10,
-			previousValue: 0,
 			currentShare: 100,
-			previousShare: 0,
-			// No comparison value, so the author reads as newly appeared.
-			delta: 100,
 		} );
+		expect( result[ 0 ].previousValue ).toBeUndefined();
+		expect( result[ 0 ].previousShare ).toBeUndefined();
+		expect( result[ 0 ].delta ).toBeUndefined();
 	} );
 
 	it( 'preserves the order the API returns authors in', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [
 				{ label: 'Bob', views: 20 },
 				{ label: 'Carol', views: 12 },
@@ -132,7 +136,7 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'aligns comparison values by author id', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [ { id: 1, label: 'Alice', views: 150 } ] ),
 			makeReport( [ { id: 1, label: 'Alice', views: 100 } ] )
 		);
@@ -144,8 +148,21 @@ describe( 'buildTopAuthorsData', () => {
 		} );
 	} );
 
-	it( 'treats authors missing from the comparison period as zero', () => {
-		const result = buildTopAuthorsData(
+	it( 'aligns comparison values by label and avatar when there is no id', () => {
+		const result = buildData(
+			makeReport( [ { label: 'Alice', views: 150, avatar: 'https://example.com/a.png' } ] ),
+			makeReport( [ { label: 'Alice', views: 100, avatar: 'https://example.com/a.png' } ] )
+		);
+
+		expect( result[ 0 ] ).toMatchObject( {
+			currentValue: 150,
+			previousValue: 100,
+			delta: 50,
+		} );
+	} );
+
+	it( 'does not fabricate comparison values for authors missing from the comparison period', () => {
+		const result = buildData(
 			makeReport( [
 				{ id: 1, label: 'Alice', views: 10 },
 				{ id: 2, label: 'Bob', views: 8 },
@@ -154,11 +171,12 @@ describe( 'buildTopAuthorsData', () => {
 		);
 
 		const bob = result.find( author => author.label === 'Bob' );
-		expect( bob ).toMatchObject( { previousValue: 0, delta: 100 } );
+		expect( bob?.previousValue ).toBeUndefined();
+		expect( bob?.delta ).toBeUndefined();
 	} );
 
 	it( 'localizes the untracked-authors sentinel produced by the sanitizer', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [ { label: 'Untracked Authors', views: 5 } ] ),
 			undefined
 		);
@@ -167,7 +185,7 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'carries the author avatar and an empty posts list when there are no children', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [ { label: 'Alice', views: 10, avatar: 'https://example.com/a.png' } ] ),
 			undefined
 		);
@@ -178,8 +196,8 @@ describe( 'buildTopAuthorsData', () => {
 		} );
 	} );
 
-	it( 'maps the author children into drill-down posts', () => {
-		const result = buildTopAuthorsData(
+	it( 'maps the author children into drill-down posts without fabricating comparison values', () => {
+		const result = buildData(
 			makeReport( [
 				{
 					label: 'Alice',
@@ -199,26 +217,26 @@ describe( 'buildTopAuthorsData', () => {
 				title: 'Hello world',
 				link: 'https://example.com/hello',
 				currentValue: 20,
-				previousValue: 0,
+				previousValue: undefined,
 				currentShare: 100,
-				previousShare: 0,
-				delta: 100,
+				previousShare: undefined,
+				delta: undefined,
 			},
 			{
-				id: 'title:Second post',
+				id: 'post-1',
 				title: 'Second post',
 				link: null,
 				currentValue: 10,
-				previousValue: 0,
+				previousValue: undefined,
 				currentShare: 50,
-				previousShare: 0,
-				delta: 100,
+				previousShare: undefined,
+				delta: undefined,
 			},
 		] );
 	} );
 
 	it( 'uses author ids to keep same-name authors distinct', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [
 				{
 					id: 1,
@@ -268,7 +286,7 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'aligns author posts across comparison periods and includes dropped posts', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [
 				{
 					label: 'Alice',
@@ -307,10 +325,10 @@ describe( 'buildTopAuthorsData', () => {
 				title: 'New post',
 				link: null,
 				currentValue: 10,
-				previousValue: 0,
+				previousValue: undefined,
 				currentShare: 33.33333333333333,
-				previousShare: 0,
-				delta: 100,
+				previousShare: undefined,
+				delta: undefined,
 			},
 			{
 				id: '3',
@@ -323,5 +341,54 @@ describe( 'buildTopAuthorsData', () => {
 				delta: -100,
 			},
 		] );
+	} );
+} );
+
+describe( 'mergeStatsTopAuthorsComparisonRows', () => {
+	it( 'detects when at least one primary author overlaps the comparison period', () => {
+		expect(
+			mergeStatsTopAuthorsComparisonRows(
+				makeReport( [
+					{ label: 'Alice', views: 10 },
+					{ label: 'Bob', views: 8 },
+				] ),
+				makeReport( [ { label: 'Bob', views: 5 } ] )
+			).hasComparison
+		).toBe( true );
+	} );
+
+	it( 'does not detect comparison rows when authors do not overlap', () => {
+		expect(
+			mergeStatsTopAuthorsComparisonRows(
+				makeReport( [ { label: 'Alice', views: 10 } ] ),
+				makeReport( [ { label: 'Carol', views: 5 } ] )
+			).hasComparison
+		).toBe( false );
+	} );
+
+	it( 'only counts overlap on rows visible under maxRows', () => {
+		const { rows, hasComparison } = mergeStatsTopAuthorsComparisonRows(
+			makeReport( [
+				{ id: 1, label: 'Alice', views: 10 },
+				{ id: 2, label: 'Bob', views: 8 },
+			] ),
+			// Only Bob overlaps, but Bob is cut off by maxRows.
+			makeReport( [ { id: 2, label: 'Bob', views: 5 } ] ),
+			1
+		);
+
+		expect( rows ).toHaveLength( 1 );
+		expect( rows[ 0 ] ).toMatchObject( { key: '1' } );
+		expect( hasComparison ).toBe( false );
+	} );
+
+	it( 'treats a zero-valued comparison row as real comparison data', () => {
+		const { rows, hasComparison } = mergeStatsTopAuthorsComparisonRows(
+			makeReport( [ { id: 1, label: 'Alice', views: 10 } ] ),
+			makeReport( [ { id: 1, label: 'Alice', views: 0 } ] )
+		);
+
+		expect( rows[ 0 ].previousViews ).toBe( 0 );
+		expect( hasComparison ).toBe( true );
 	} );
 } );

@@ -10,6 +10,7 @@ import {
 	WidgetRoot,
 	calculateDelta,
 	flagUrl,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type GeoChartError,
@@ -100,21 +101,13 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const geoMode: GeoMode =
 		geoGranularity === 'country' && activeSelectedCountry ? 'region' : geoGranularity;
 
-	const {
-		data,
-		comparisonData,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		isPlaceholderData,
-	} = useLocationViews( {
-		reportParams,
-		max,
-		geoMode,
-		countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
-	} );
+	const { data, hasComparison, isLoading, isFetching, hasData, isError, isPlaceholderData } =
+		useLocationViews( {
+			reportParams,
+			max,
+			geoMode,
+			countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
+		} );
 	const showLoading = isLoading || ( isFetching && hasData );
 	const [ renderLocationState, setRenderLocationState ] = useState< RenderLocationState >( {
 		geoMode,
@@ -262,14 +255,11 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 
 	const leaderboardData = useMemo( () => {
 		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
-		const maxComparisonValue = Math.max( ...comparisonData.map( l => l.value ), 0 );
-		const comparisonMap = new Map(
-			comparisonData.map( location => [ location.key, location.value ] )
-		);
+		const maxComparisonValue = Math.max( ...data.map( l => l.previousValue ?? 0 ), 0 );
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
-			const previousValue = hasComparison ? comparisonMap.get( location.key ) ?? 0 : 0;
+			const previousValue = location.previousValue;
 
 			return {
 				id: location.key,
@@ -291,10 +281,13 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 				previousValue,
 				currentShare: maxValue > 0 ? ( location.value / maxValue ) * 100 : 0,
 				previousShare:
-					hasComparison && maxComparisonValue > 0
-						? ( previousValue / maxComparisonValue ) * 100
-						: 0,
-				delta: hasComparison ? calculateDelta( location.value, previousValue ) : 0,
+					hasComparison && previousValue !== undefined
+						? sharePercentage( previousValue, maxComparisonValue )
+						: undefined,
+				delta:
+					hasComparison && previousValue !== undefined
+						? calculateDelta( location.value, previousValue )
+						: undefined,
 				// Country mode: click to drill into regions.
 				// Region/city mode: rows are not interactive.
 				...( renderGeoMode === 'country' &&
@@ -316,7 +309,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 					} ),
 			};
 		} ) as LeaderboardChartData;
-	}, [ comparisonData, data, renderGeoMode, hasComparison, selectCountry ] );
+	}, [ data, renderGeoMode, hasComparison, selectCountry ] );
 
 	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink

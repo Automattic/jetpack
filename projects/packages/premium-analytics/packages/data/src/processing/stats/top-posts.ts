@@ -1,8 +1,11 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
+	getStatsReportItems,
+	limitStatsRows,
 	mapNestedItems,
 	mapStatsReportDataPoints,
+	mergeStatsComparisonRows,
 	normalizeStatsReportSummary,
 } from './utils';
 import type {
@@ -25,6 +28,27 @@ export interface StatsTopPostsItem extends StatsNormalizedItemBase< StatsTopPost
 	status?: unknown;
 	video_play?: unknown;
 	actions?: StatsItemAction[];
+}
+
+export type StatsTopPostsComparisonItem = StatsTopPostsItem & {
+	link: string;
+	previousViews?: number;
+};
+
+type StatsTopPostsComparisonRowsOptions = {
+	maxRows?: number;
+	postTypes?: string[] | null;
+};
+
+function filterStatsTopPostItems(
+	items: StatsTopPostsItem[],
+	postTypes?: string[] | null
+): Array< StatsTopPostsItem & { link: string } > {
+	return items
+		.filter(
+			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
+		)
+		.filter( item => ! postTypes || postTypes.includes( String( item.type ?? '' ) ) );
 }
 
 function getStatsTopPostLink( item: StatsRecord ): string | null {
@@ -73,4 +97,31 @@ export function sanitizeStatsTopPostsResponse(
 		summary: normalizeStatsReportSummary( response, query, [ 'postviews' ] ),
 		data: normalizeStatsTopPostsData( response, query ),
 	};
+}
+
+export function mergeStatsTopPostsComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsTopPostsItem >,
+	comparisonReport?: StatsNormalizedReport< StatsTopPostsItem >,
+	options: StatsTopPostsComparisonRowsOptions = {}
+) {
+	const { maxRows, postTypes } = options;
+
+	return mergeStatsComparisonRows<
+		StatsTopPostsItem & { link: string },
+		StatsTopPostsItem & { link: string },
+		StatsTopPostsComparisonItem & { link: string }
+	>( {
+		primaryRows: limitStatsRows(
+			filterStatsTopPostItems( getStatsReportItems( primaryReport ), postTypes ),
+			maxRows
+		),
+		comparisonRows: filterStatsTopPostItems( getStatsReportItems( comparisonReport ), postTypes ),
+		getPrimaryKey: item => item.link,
+		getComparisonKey: item => item.link,
+		getComparisonValue: item => item.views,
+		mapRow: ( item, { previousValue } ) => ( {
+			...item,
+			previousViews: previousValue,
+		} ),
+	} );
 }

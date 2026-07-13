@@ -7,7 +7,7 @@ import {
 	type StatsInsightsYear,
 } from '@jetpack-premium-analytics/data';
 import {
-	MetricWithComparison,
+	MetricTileGrid,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	type DataFormat,
@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
-import { Button, Icon, Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -49,7 +49,7 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
 
 /**
  * Fetches the insights report through the designated `useStatsInsights` Stats
- * hook and renders one year's totals as a grid of metric tiles. The year arrows
+ * hook and renders one year's totals as a `MetricTileGrid`. The year arrows
  * step between the years the site has published in; the insights module has no
  * comparison period, so each tile shows a bare formatted count. Which tiles
  * appear is controlled by the `metrics` attribute.
@@ -177,22 +177,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					</Text>
 				</Stack>
 			) : (
-				<div className={ styles.grid }>
-					{ tiles.map( tile => (
-						<div key={ tile.key } className={ styles.tile }>
-							<div className={ styles.tileHeader }>
-								<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
-								<Text className={ styles.tileLabel }>{ tile.label }</Text>
-							</div>
-							<MetricWithComparison
-								value={ tile.value }
-								dataFormat={ COUNT_FORMAT }
-								fontSize="xl"
-								className={ styles.tileValue }
-							/>
-						</div>
-					) ) }
-				</div>
+				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			) }
 		</Stack>
 	);
