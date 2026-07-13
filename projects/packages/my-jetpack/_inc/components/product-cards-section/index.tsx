@@ -1,5 +1,7 @@
 import { Col, Container } from '@automattic/jetpack-components';
+import { PRODUCT_STATUSES } from '../../constants';
 import { PRODUCT_SLUGS } from '../../data/constants';
+import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useFilteredProducts from '../../hooks/use-filtered-products';
 import LoadingBlock from '../loading-block';
@@ -31,10 +33,38 @@ type DisplayItemType = Record<
 	FC< { admin: boolean } >
 >;
 
+/**
+ * Determine whether the large "Views in the last 7 days" Stats card should be shown.
+ *
+ * It should only appear when Stats is owned, the feature flag is on, AND the Stats module
+ * is actually usable. When the module is disabled (or otherwise not active), the large card
+ * renders as an empty, non-actionable graph that links to an inaccessible page, so we fall
+ * back to the compact Stats card in the grid, which offers an activation CTA instead.
+ *
+ * @param {JetpackModule[]}         slugs                    - Slugs of the owned products.
+ * @param {boolean}                 showFullJetpackStatsCard - Whether the full stats card flag is enabled.
+ * @param {ProductStatus|undefined} statsStatus              - Current status of the Stats product.
+ * @return {boolean} Whether to render the large Stats card.
+ */
+export const shouldShowFullStatsCard = (
+	slugs: JetpackModule[],
+	showFullJetpackStatsCard: boolean,
+	statsStatus: ProductStatus | undefined
+): boolean =>
+	slugs.includes( 'stats' ) &&
+	showFullJetpackStatsCard &&
+	( statsStatus === PRODUCT_STATUSES.ACTIVE || statsStatus === PRODUCT_STATUSES.CAN_UPGRADE );
+
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 	const mockArrayOfProducts = [ ...Array( 9 ).keys() ];
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { userIsAdmin = false } = getMyJetpackWindowInitialState();
+	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
+	const showFullStatsCard = shouldShowFullStatsCard(
+		slugs,
+		showFullJetpackStatsCard,
+		statsDetail?.status
+	);
 
 	const items: DisplayItemType = {
 		backup: BackupCard,
@@ -43,14 +73,14 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		stats: StatsCard, // This is probably not used anymore because filteredSlugs filters this out.
+		stats: StatsCard, // Shown in the grid as a fallback when the large Stats card is hidden (e.g. Stats module disabled).
 		crm: CrmCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
 	};
 
 	const filteredSlugs = slugs.filter( slug => {
-		if ( slug === PRODUCT_SLUGS.STATS && showFullJetpackStatsCard ) {
+		if ( slug === PRODUCT_SLUGS.STATS && showFullStatsCard ) {
 			return false;
 		}
 
@@ -68,7 +98,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 					<LoadingBlock width="100%" height="350px" />
 				</Col>
 			) }
-			{ ! isLoading && slugs.includes( 'stats' ) && showFullJetpackStatsCard && (
+			{ ! isLoading && showFullStatsCard && (
 				<Col className={ styles.fullStatsCard }>
 					<StatsSection />
 				</Col>

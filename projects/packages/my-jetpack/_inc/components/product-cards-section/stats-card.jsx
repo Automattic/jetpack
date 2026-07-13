@@ -3,7 +3,8 @@ import { PRODUCT_SLUGS } from '../../data/constants';
 import ProductCard from '../connected-product-card';
 
 const StatsCard = props => {
-	// Looks like this is not used anymore because product-cards-section/index.tsx renders its own stats card.
+	// Compact grid fallback, rendered when the large Stats card is hidden (e.g. Stats module disabled).
+	// When the Stats module is active, product-cards-section/index.tsx renders the large Stats card instead.
 	return <ProductCard slug={ PRODUCT_SLUGS.STATS } showMenu { ...props } />;
 };
 
