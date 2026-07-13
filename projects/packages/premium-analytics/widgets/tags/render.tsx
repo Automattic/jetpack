@@ -15,7 +15,7 @@ import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { category, tag as tagGlyph } from '@wordpress/icons';
-import { Icon, Link, Stack, Text } from '@wordpress/ui';
+import { Icon, Link, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -65,9 +65,9 @@ function TagLabel( { labelIcon, label, link }: TagLabelProps ) {
 					{ label }
 				</Link>
 			) : (
-				<Text className={ styles.itemLabelText } title={ label }>
+				<span className={ styles.itemLabelText } title={ label }>
 					{ label }
-				</Text>
+				</span>
 			) }
 		</>
 	);
@@ -105,24 +105,25 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( { reportParams, max } );
 
-	// Store only the row id and resolve the row fresh from the current data, so a
-	// background refetch that drops the group cleanly falls back to the top view.
+	// Key the selection on the group's stable label and resolve the row fresh from
+	// the current data, so a background refetch that reorders rows keeps the user
+	// in the drilled-in view, and one that drops the group falls back to the top.
 	const {
-		drillDownItem: selectedId,
+		drillDownItem: selectedLabel,
 		drillDown: selectGroup,
 		resetDrillDown: clearSelection,
 	} = useWidgetDrillDown< string >();
 
 	const selectedGroup = useMemo(
-		() => ( selectedId ? data.find( row => row.id === selectedId ) ?? null : null ),
-		[ data, selectedId ]
+		() => ( selectedLabel ? data.find( row => row.label === selectedLabel ) ?? null : null ),
+		[ data, selectedLabel ]
 	);
 
 	useEffect( () => {
-		if ( selectedId && ! selectedGroup ) {
+		if ( selectedLabel && ! selectedGroup ) {
 			clearSelection();
 		}
-	}, [ selectedId, selectedGroup, clearSelection ] );
+	}, [ selectedLabel, selectedGroup, clearSelection ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( row => row.value ), 0 );
@@ -142,7 +143,7 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 				// Grouped rows have no single archive URL, so a click drills into
 				// their members instead. Single tag/category rows link out directly.
 				...( isGroup && {
-					onClick: () => selectGroup( row.id ),
+					onClick: () => selectGroup( row.label ),
 					ariaLabel: sprintf(
 						/* translators: %s is the grouped tags and categories label */
 						__( 'View the tags and categories in %s', 'jetpack-premium-analytics' ),
