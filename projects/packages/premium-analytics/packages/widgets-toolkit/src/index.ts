@@ -42,13 +42,21 @@ export {
 	type SubscriberListProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	ReportPageLayout,
+	ReportPageSection,
 	ReportPageTabPanel,
 	ReportPageTabs,
-	StatsBreadcrumbs,
+	ReportPerformanceChart,
+	ReportRecordsTable,
+	buildReportMetricSeries,
+	type ReportChartMetric,
+	type ReportPageLayoutProps,
+	type ReportPageSectionProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
-	type StatsBreadcrumbsProps,
+	type ReportPerformanceChartProps,
+	type ReportRecordsTableProps,
 } from './components';
 
 /**
@@ -59,12 +67,7 @@ export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
 /**
  * Widget edit fields
  */
-export {
-	ReportParamsField,
-	type ReportParamsFieldAttributes,
-	MetricsField,
-	DEFAULT_METRICS,
-} from './fields';
+export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -86,6 +89,11 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	sharePercentage,
+	getVideoKey,
+	getVideoLabel,
+	toVideoItems,
+	toMaxRows,
 } from './helpers';
 
 /**
@@ -132,7 +140,7 @@ export {
 /**
  * Types
  */
-export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
 
 /**
  * Charts passthrough
@@ -143,6 +151,7 @@ export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './
  */
 export {
 	GeoChart,
+	GlobalChartsProvider,
 	HeatmapChart,
 	buildCalendarHeatmapData,
 	type DataPointDate,

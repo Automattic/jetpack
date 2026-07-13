@@ -1,3 +1,5 @@
+import type { VideoTextTrack } from '../../client/lib/video-tracks/types';
+
 export type LibraryItemType = 'videopress' | 'local';
 export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
 // `upload.status` doubles as the row's single in-flight-operation slot:
@@ -32,6 +34,7 @@ export interface LibraryItem {
 	shortcode: string;
 	sourceUrl?: string;
 	isProcessing: boolean;
+	tracks: VideoTextTrack[];
 }
 
 export type VideoDetailsPatch = Partial<

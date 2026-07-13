@@ -4,9 +4,8 @@
 import {
 	useStatsArchives,
 	useStatsTopPosts,
-	type StatsArchivesItem,
-	type StatsNormalizedReport,
-	type StatsTopPostsItem,
+	type StatsArchivesComparisonItem,
+	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
@@ -101,7 +100,7 @@ function buildLeaderboardData(
 	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
 		const shouldRenderLink = !! row.href && ! hasChildren;
 
@@ -124,10 +123,17 @@ function buildLeaderboardData(
 			),
 			currentValue: row.value,
 			currentShare: ( row.value / maxCurrentViews ) * 100,
+			// Rows without a comparison-period match keep `undefined` so the chart
+			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined
+					? ( previousValue / maxPreviousViews ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 			...( hasChildren &&
 				onDrillDown && {
 					onClick: () => onDrillDown( row ),
@@ -184,23 +190,20 @@ export const TopPostsLeaderboard = ( {
 };
 
 /**
- * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the leaderboard renders. Rows without a link are kept but
- * render unlinked — with `skip_archives=1` the API still returns the
- * "Homepage (Latest posts)" entry, which has no URL.
+ * Map the data layer's merged top-posts rows onto the shape the leaderboard
+ * renders. Rows without a link are kept but render unlinked — with
+ * `skip_archives=1` the API still returns the "Homepage (Latest posts)"
+ * entry, which has no URL. Missing comparison matches stay `undefined`.
  *
- * @param report - The normalized top-posts report, or undefined while loading.
+ * @param items - The merged comparison rows from `useStatsTopPosts`.
  * @return The normalized top-posts rows.
  */
-function toTopPostRows(
-	report: StatsNormalizedReport< StatsTopPostsItem > | undefined
-): TopPostRow[] {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-
+function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 	return items.map( item => ( {
 		// A row without a title still needs a visible, clickable label.
 		label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
 		value: item.views,
+		...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
 		...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
 		type: String( item.type ?? '' ),
 	} ) );
@@ -227,50 +230,14 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	// date range is owned by the dashboard picker and carried in `reportParams`.
 	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsTopPosts( statsParams );
+	// Row matching, ranked capping (the API caps `postviews` at `max` but
+	// appends the homepage entry on top of it), and comparison-overlap gating
+	// all live in the data layer's merge helper (see AGENTS.md).
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsTopPosts( statsParams, { maxRows: num } );
 
-	const primaryRows = useMemo(
-		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem > ),
-		[ primary.data ]
-	);
-
-	// Comparison-period views keyed the same way the primary rows are: by post
-	// URL, falling back to the label for URL-less rows (the homepage entry).
-	// Empty when comparison is disabled or the comparison query returned no rows.
-	const previousViewsByKey = useMemo( () => {
-		if ( ! hasComparison ) {
-			return new Map< string, number >();
-		}
-		return new Map(
-			toTopPostRows( comparison.data as StatsNormalizedReport< StatsTopPostsItem > ).map( row => [
-				row.href ?? row.label,
-				row.value,
-			] )
-		);
-	}, [ comparison.data, hasComparison ] );
-
-	// Only render comparison UI when at least one primary row actually overlaps
-	// the comparison period; otherwise unmatched rows would fall to a placeholder
-	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
-	const withComparison =
-		hasComparison && primaryRows.some( row => previousViewsByKey.has( row.href ?? row.label ) );
-
-	const rows = useMemo( () => {
-		const withPrevious = withComparison
-			? primaryRows.map( row => ( {
-					...row,
-					previousValue: previousViewsByKey.get( row.href ?? row.label ) ?? 0,
-			  } ) )
-			: primaryRows;
-
-		// The API caps `postviews` at `max` but appends the homepage entry on
-		// top of it, so cap the visible list here too — ranked, and `num = 0`
-		// meaning "all rows" (see AGENTS.md `max` semantics).
-		return [ ...withPrevious ]
-			.sort( ( a, b ) => b.value - a.value )
-			.slice( 0, num > 0 ? num : undefined );
-	}, [ primaryRows, previousViewsByKey, withComparison, num ] );
+	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const withComparison = hasComparison;
 
 	return (
 		<div className={ styles.content }>
@@ -340,83 +307,32 @@ function archiveTypeLabel( archiveType: string ): string {
 }
 
 /**
- * Top-level items of a normalized `stats/archives` report, excluding the
- * homepage entry — it is surfaced in the Posts & pages view instead, matching
- * the Stats "Most viewed" card.
+ * Recursively map the data layer's merged archive rows onto leaderboard rows.
+ * Top-level items get the shared archive-category labels; nested items keep
+ * their own label (taxonomy name, term, search phrase, …) and carry their
+ * archive-page URL. Children are preserved so grouped rows can drill down,
+ * and missing comparison matches stay `undefined`.
  *
- * @param report - The normalized archives report, or undefined while loading.
- * @return The archive items.
+ * @param items      - The merged comparison rows from `useStatsArchives`.
+ * @param isTopLevel - Whether the items are archive-type rows.
+ * @return The leaderboard rows.
  */
-function getArchiveItems(
-	report: StatsNormalizedReport< StatsArchivesItem > | undefined
-): StatsArchivesItem[] {
-	return ( report?.data.flatMap( point => point.items ) ?? [] ).filter(
-		item => String( item.label ) !== 'home'
-	);
-}
+function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true ): TopPostRow[] {
+	return items.map( item => {
+		const rawLabel = String( item.label ?? '' );
+		const children = item.children?.length ? toArchiveRows( item.children, false ) : undefined;
 
-/**
- * Comparison-period views for every archive node, keyed by its label path
- * (e.g. `>tax>category>News`) so same-named terms under different parents
- * cannot cross-match.
- *
- * @param items      - The comparison-period archive items.
- * @param parentPath - The key prefix of the parent node.
- * @param lookup     - The accumulating lookup (for recursion).
- * @return The path-keyed view counts.
- */
-function buildArchiveComparisonLookup(
-	items: StatsArchivesItem[],
-	parentPath = '',
-	lookup = new Map< string, number >()
-): Map< string, number > {
-	items.forEach( item => {
-		const key = `${ parentPath }>${ String( item.label ?? '' ) }`;
-		lookup.set( key, item.value );
-		buildArchiveComparisonLookup( item.children ?? [], key, lookup );
+		return {
+			label:
+				( isTopLevel ? archiveTypeLabel( rawLabel ) : rawLabel ) ||
+				__( 'Untitled', 'jetpack-premium-analytics' ),
+			value: item.value,
+			type: 'archive',
+			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
+			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( children ? { children } : {} ),
+		};
 	} );
-
-	return lookup;
-}
-
-/**
- * Recursively map archive items onto leaderboard rows. Top-level items get
- * the shared archive-category labels; nested items keep their own label
- * (taxonomy name, term, search phrase, …) and carry their archive-page URL.
- * Children are preserved so grouped rows can drill down.
- *
- * @param items            - The archive items at this level.
- * @param comparisonLookup - Path-keyed comparison views from `buildArchiveComparisonLookup`.
- * @param withPrevious     - Whether to attach `previousValue` to the rows.
- * @param parentPath       - The key prefix of the parent node.
- * @return The leaderboard rows, sorted by views.
- */
-function toArchiveRows(
-	items: StatsArchivesItem[],
-	comparisonLookup: Map< string, number >,
-	withPrevious: boolean,
-	parentPath = ''
-): TopPostRow[] {
-	return items
-		.map( item => {
-			const rawLabel = String( item.label ?? '' );
-			const key = `${ parentPath }>${ rawLabel }`;
-			const children = item.children?.length
-				? toArchiveRows( item.children, comparisonLookup, withPrevious, key )
-				: undefined;
-
-			return {
-				label:
-					( parentPath === '' ? archiveTypeLabel( rawLabel ) : rawLabel ) ||
-					__( 'Untitled', 'jetpack-premium-analytics' ),
-				value: item.value,
-				type: 'archive',
-				...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
-				...( withPrevious ? { previousValue: comparisonLookup.get( key ) ?? 0 } : {} ),
-				...( children ? { children } : {} ),
-			};
-		} )
-		.sort( ( a, b ) => b.value - a.value );
 }
 
 /**
@@ -437,38 +353,22 @@ function ArchivesReport( { num }: { num: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsArchives( reportParams );
-
-	const primaryItems = useMemo(
-		() => getArchiveItems( primary.data as StatsNormalizedReport< StatsArchivesItem > ),
-		[ primary.data ]
-	);
-
-	const comparisonLookup = useMemo( () => {
-		if ( ! hasComparison ) {
-			return new Map< string, number >();
-		}
-		return buildArchiveComparisonLookup(
-			getArchiveItems( comparison.data as StatsNormalizedReport< StatsArchivesItem > )
-		);
-	}, [ comparison.data, hasComparison ] );
-
-	// Same overlap gating as the Posts & pages view: no comparison UI unless a
-	// visible row has a real comparison-period match (see AGENTS.md).
-	const withComparison =
-		hasComparison &&
-		primaryItems.some( item => comparisonLookup.has( `>${ String( item.label ?? '' ) }` ) );
+	// Row matching (per level, so same-named terms under different parents
+	// cannot cross-match), the visible-row cap, and the comparison-overlap
+	// gate all live in the data layer's merge helper (see AGENTS.md).
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsArchives( reportParams, { maxRows: num } );
 
 	const rows = useMemo(
-		// `num = 0` means "all rows" (see AGENTS.md `max` semantics).
 		() =>
-			toArchiveRows( primaryItems, comparisonLookup, withComparison ).slice(
-				0,
-				num > 0 ? num : undefined
+			// The homepage entry is surfaced in the Posts & pages view instead,
+			// matching the Stats "Most viewed" card — keep it out of Archives.
+			toArchiveRows(
+				( comparisonRows?.rows ?? [] ).filter( item => String( item.label ) !== 'home' )
 			),
-		[ primaryItems, comparisonLookup, withComparison, num ]
+		[ comparisonRows ]
 	);
+	const withComparison = hasComparison;
 
 	// Resolve the drill path against the current rows. The back link names the
 	// list it returns to: the root list on the first drill level, otherwise the

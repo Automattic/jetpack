@@ -1219,7 +1219,13 @@ const statsMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOption
 		return prepareStatsMockResponse( mock, options.parse );
 	}
 
-	return prepareStatsMockResponse( { data: [], summary: {} }, options.parse );
+	// Stats endpoints this middleware doesn't know may be owned by the shared
+	// report mocks (register-report-mocks.ts), including its forced-state
+	// overrides. Fall through instead of answering with an empty catch-all:
+	// story-module load order decides which mock middleware runs first, so
+	// swallowing unknown endpoints here starves the other middleware whenever
+	// this one registers later.
+	return next( options );
 };
 
 let registered = false;

@@ -257,6 +257,36 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 	} );
 } );
 
+describe( 'WritingPrompt widget prompt text', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+	} );
+
+	it( 'decodes HTML entities in the prompt text', async () => {
+		// The wpcom/v3/blogging-prompts endpoint returns the prompt text HTML-entity
+		// encoded (via wp_kses), matching the WP REST API convention. The widget must
+		// decode it before rendering, the same way Calypso's blogging-prompt-card does,
+		// otherwise readers see raw entity names like &quot; instead of quotation marks.
+		mockApiFetch.mockResolvedValue( [
+			{
+				...PROMPT,
+				text: 'Tell us about &quot;The Hard Years&quot; &amp; other stories.',
+			},
+		] );
+
+		render( <WritingPrompt /> );
+
+		await expect(
+			screen.findByText( 'Tell us about "The Hard Years" & other stories.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /&quot;/ ) ).not.toBeInTheDocument();
+	} );
+} );
+
 const PROMPTS = [
 	{
 		id: 1,

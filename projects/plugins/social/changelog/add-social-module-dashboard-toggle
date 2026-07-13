@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Enable or disable Social directly from the dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites).

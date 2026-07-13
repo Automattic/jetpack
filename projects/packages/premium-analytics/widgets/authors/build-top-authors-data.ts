@@ -4,9 +4,8 @@
 import { calculateDelta } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type {
-	StatsNormalizedReport,
-	StatsTopAuthorsItem,
-	StatsTopPostsItem,
+	StatsTopAuthorsComparisonItem,
+	StatsTopAuthorsPostComparisonItem,
 } from '@jetpack-premium-analytics/data';
 
 // The Stats sanitizer substitutes this untranslated sentinel for authors with
@@ -16,33 +15,37 @@ const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
 
 /**
  * A single post by an author, used to drill down from the author leaderboard
- * into that author's posts.
+ * into that author's posts. Comparison fields are `undefined` when the post has
+ * no match in the comparison period, so the render layer never shows a
+ * fabricated delta.
  */
 export interface AuthorPost {
 	id: string;
 	title: string;
 	link: string | null;
 	currentValue: number;
-	previousValue: number;
+	previousValue?: number;
 	currentShare: number;
-	previousShare: number;
-	delta: number;
+	previousShare?: number;
+	delta?: number;
 }
 
 /**
  * A normalized author row for the leaderboard. Carries the display name and
  * avatar so the render layer can compose the `LeaderboardLabel`, plus the
  * author's `posts` so a row click can drill down without another fetch.
+ * Comparison fields are `undefined` when the author has no match in the
+ * comparison period.
  */
 export interface AuthorLeaderboardRow {
 	id: string;
 	label: string;
 	avatarUrl: string | null;
 	currentValue: number;
-	previousValue: number;
+	previousValue?: number;
 	currentShare: number;
-	previousShare: number;
-	delta: number;
+	previousShare?: number;
+	delta?: number;
 	posts: AuthorPost[];
 }
 
@@ -50,10 +53,10 @@ export interface AuthorLeaderboardRow {
  * Resolve a display label for an author, translating the untracked-authors
  * sentinel (and any empty label) into a localized string.
  *
- * @param author - The top-authors item.
+ * @param author - The merged top-authors row.
  * @return The author's display label.
  */
-function getAuthorLabel( author: StatsTopAuthorsItem ) {
+function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
 	const label = typeof author.label === 'string' ? author.label : '';
 
 	if ( ! label || label === UNTRACKED_AUTHORS_SENTINEL ) {
@@ -63,169 +66,79 @@ function getAuthorLabel( author: StatsTopAuthorsItem ) {
 	return label;
 }
 
-function getAuthorKey( author: StatsTopAuthorsItem ) {
-	if ( author.id != null ) {
-		return String( author.id );
-	}
-
-	// No id from the endpoint: build a period-independent key so the same author
-	// aligns across the primary and comparison periods even when their rank (and
-	// thus array position) differs. The avatar keeps same-named authors distinct
-	// where one is available.
-	return `label:${ getAuthorLabel( author ) }|${ author.icon ?? '' }`;
-}
-
-type NormalizedAuthorPost = {
-	key: string;
-	id: string;
-	title: string;
-	views: number;
-	link: string | null;
-};
-
-function getPostKey( post: StatsTopPostsItem, fallbackId: string ) {
-	if ( post.id != null ) {
-		return `id:${ String( post.id ) }`;
-	}
-
-	if ( post.link ) {
-		return `link:${ post.link }`;
-	}
-
-	return `title:${ typeof post.label === 'string' ? post.label : fallbackId }`;
-}
-
-function getPostId( post: StatsTopPostsItem, fallbackId: string ) {
-	return post.id != null ? String( post.id ) : getPostKey( post, fallbackId );
-}
-
 /**
- * Map an author's nested posts (the report's `children`) into a normalized
- * period-specific shape used to align primary and comparison values.
+ * Map an author's merged posts (aligned across periods by the Stats data
+ * layer, including posts that only existed in the comparison period) onto the
+ * drill-down row shape.
  *
- * @param author - The top-authors item.
- * @return The author's posts for one period.
+ * @param posts - The author's merged posts.
+ * @return The author's drill-down rows.
  */
-function toNormalizedAuthorPosts( author: StatsTopAuthorsItem ): NormalizedAuthorPost[] {
-	const children = ( author.children ?? [] ) as StatsTopPostsItem[];
-
-	return children.map( ( post, index ) => {
-		const fallbackId = `post-${ index }`;
-
-		return {
-			key: getPostKey( post, fallbackId ),
-			id: getPostId( post, fallbackId ),
-			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
-			views: post.views,
-			link: post.link ?? null,
-		};
-	} );
-}
-
-function toAuthorPostRows(
-	primaryAuthor: StatsTopAuthorsItem,
-	comparisonAuthor: StatsTopAuthorsItem | undefined
-): AuthorPost[] {
-	const primaryPosts = toNormalizedAuthorPosts( primaryAuthor );
-	const comparisonPosts = comparisonAuthor ? toNormalizedAuthorPosts( comparisonAuthor ) : [];
-	const comparisonByKey = new Map( comparisonPosts.map( post => [ post.key, post ] ) );
-	const primaryKeys = new Set( primaryPosts.map( post => post.key ) );
-	const droppedPosts = comparisonPosts.filter( post => ! primaryKeys.has( post.key ) );
-	const posts = [ ...primaryPosts, ...droppedPosts ];
-
+function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
+	// Share each value against the largest of either period so the overlay bars
+	// stay proportional; `1` guards against division by zero.
 	const maxValue = Math.max(
-		...posts.map( post => Math.max( post.views, comparisonByKey.get( post.key )?.views ?? 0 ) ),
+		...posts.map( post => Math.max( post.views, post.previousViews ?? 0 ) ),
 		1
 	);
 
-	return posts.map( post => {
-		const comparisonPost = comparisonByKey.get( post.key );
-		const currentValue = primaryKeys.has( post.key ) ? post.views : 0;
-		const previousValue = comparisonPost?.views ?? 0;
+	return posts.map( ( post, index ) => {
+		const previousValue = post.previousViews;
 
 		return {
-			id: post.id,
-			title: post.title,
-			link: post.link,
-			currentValue,
+			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
+			link: post.link ?? null,
+			currentValue: post.views,
 			previousValue,
-			currentShare: ( currentValue / maxValue ) * 100,
-			previousShare: ( previousValue / maxValue ) * 100,
-			delta: calculateDelta( currentValue, previousValue ),
+			currentShare: ( post.views / maxValue ) * 100,
+			previousShare: previousValue !== undefined ? ( previousValue / maxValue ) * 100 : undefined,
+			delta: previousValue !== undefined ? calculateDelta( post.views, previousValue ) : undefined,
 		};
 	} );
-}
-
-/**
- * Flatten a normalized top-authors report into its per-author items. The Stats
- * query layer summarizes multi-day ranges server-side and the endpoint returns
- * authors already ranked and limited by `max`, so the report carries a single
- * data point of per-author totals — mirroring how the Top posts widget reads
- * its report.
- *
- * @param report - The normalized top-authors report, or undefined while loading.
- * @return The per-author items for the period.
- */
-function toAuthorItems(
-	report: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
-): StatsTopAuthorsItem[] {
-	return report?.data.flatMap( point => point.items ) ?? [];
 }
 
 /**
  * Builds leaderboard rows for the Authors widget.
  *
- * Transforms Jetpack Stats top-authors data into normalized rows, with
- * comparison values aligned by a stable author key — the author id when the
- * endpoint provides one, otherwise the display label plus avatar (authors
- * missing from the comparison period count as zero). Each row also carries the
- * author's avatar and posts so the render layer can show a name + picture label
- * and drill down into the author's posts.
+ * Transforms already-merged Jetpack Stats top-authors rows (the data layer
+ * aligns comparison values by a stable author key) into the shape the render
+ * layer consumes. Each row carries the author's avatar and posts so the render
+ * layer can show a name + picture label and drill down into the author's
+ * posts; rows without a comparison match keep `previousValue`, `previousShare`,
+ * and `delta` as `undefined`.
  *
- * @param primary    - Primary period top-authors report
- * @param comparison - Comparison period top-authors report
- * @return Normalized author rows ready for the render layer
+ * @param authors - Merged top-authors rows from the Stats data layer.
+ * @return Normalized author rows ready for the render layer.
  */
 export function buildTopAuthorsData(
-	primary: StatsNormalizedReport< StatsTopAuthorsItem > | undefined,
-	comparison: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
+	authors: StatsTopAuthorsComparisonItem[] = []
 ): AuthorLeaderboardRow[] {
-	const authors = toAuthorItems( primary );
-
 	if ( authors.length === 0 ) {
 		return [];
 	}
 
-	const comparisonAuthors = new Map(
-		toAuthorItems( comparison ).map( author => [ getAuthorKey( author ), author ] )
-	);
-
 	// Share each value against the largest of either period so the overlay bars
 	// stay proportional; `1` guards against division by zero.
 	const maxValue = Math.max(
-		...authors.map( author =>
-			Math.max( author.views, comparisonAuthors.get( getAuthorKey( author ) )?.views ?? 0 )
-		),
+		...authors.map( author => Math.max( author.views, author.previousViews ?? 0 ) ),
 		1
 	);
 
 	return authors.map( author => {
-		const label = getAuthorLabel( author );
-		const authorKey = getAuthorKey( author );
-		const currentValue = author.views;
-		const comparisonAuthor = comparisonAuthors.get( authorKey );
-		const previousValue = comparisonAuthor?.views ?? 0;
+		const previousValue = author.previousViews;
 
 		return {
-			id: authorKey,
-			label,
+			id: author.key,
+			label: getAuthorLabel( author ),
 			avatarUrl: author.icon ?? null,
-			currentValue,
+			currentValue: author.views,
 			previousValue,
-			currentShare: ( currentValue / maxValue ) * 100,
-			previousShare: ( previousValue / maxValue ) * 100,
-			delta: calculateDelta( currentValue, previousValue ),
-			posts: toAuthorPostRows( author, comparisonAuthor ),
+			currentShare: ( author.views / maxValue ) * 100,
+			previousShare: previousValue !== undefined ? ( previousValue / maxValue ) * 100 : undefined,
+			delta:
+				previousValue !== undefined ? calculateDelta( author.views, previousValue ) : undefined,
+			posts: toAuthorPostRows( author.children ?? [] ),
 		};
 	} );
 }

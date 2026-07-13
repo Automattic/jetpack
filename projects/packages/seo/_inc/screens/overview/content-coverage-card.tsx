@@ -1,7 +1,6 @@
 import { DonutMeter } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Button, Card } from '@wordpress/ui';
 import type { ContentCoverage } from '../../data/overview-types';
 import type { FC } from 'react';
 
@@ -90,7 +89,7 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
 					</div>
 				) }
 				<div className="jetpack-seo-overview__card-footer">
-					<Button variant="secondary" onClick={ onManage }>
+					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage content', 'jetpack-seo' ) }
 					</Button>
 				</div>

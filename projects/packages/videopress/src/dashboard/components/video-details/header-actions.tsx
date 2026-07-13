@@ -7,6 +7,7 @@ import type { ReactElement } from 'react';
 type Props = {
 	canSave: boolean;
 	onSave: () => void;
+	onManageCaptions: () => void;
 	onDownload: () => void;
 	onDelete: () => void;
 };
@@ -18,16 +19,18 @@ type Props = {
  * built-in `isDestructive` flag so the design-system surfaces the
  * red destructive treatment without a CSS override.
  *
- * @param props            - Component props.
- * @param props.canSave    - Whether the form has unsaved changes.
- * @param props.onSave     - Called when the Save button is activated.
- * @param props.onDownload - Called when "Download file" is selected.
- * @param props.onDelete   - Called when "Delete video" is selected.
+ * @param props                  - Component props.
+ * @param props.canSave          - Whether the form has unsaved changes.
+ * @param props.onSave           - Called when the Save button is activated.
+ * @param props.onManageCaptions - Called when "Manage subtitles" is selected.
+ * @param props.onDownload       - Called when "Download file" is selected.
+ * @param props.onDelete         - Called when "Delete video" is selected.
  * @return The header-actions element.
  */
 export default function HeaderActions( {
 	canSave,
 	onSave,
+	onManageCaptions,
 	onDownload,
 	onDelete,
 }: Props ): ReactElement {
@@ -43,6 +46,14 @@ export default function HeaderActions( {
 			>
 				{ ( { onClose } ) => (
 					<MenuGroup>
+						<MenuItem
+							onClick={ () => {
+								onManageCaptions();
+								onClose();
+							} }
+						>
+							{ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
+						</MenuItem>
 						<MenuItem
 							icon={ download }
 							onClick={ () => {

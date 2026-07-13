@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Test-only change: use per-process lazy block fixture names to avoid a race between parallel PHPUnit runs in the coverage job.
+

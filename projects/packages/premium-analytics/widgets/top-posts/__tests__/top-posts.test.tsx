@@ -197,6 +197,98 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'renders a delta when an overlapping comparison row has zero views', async () => {
+		const zeroComparisonResponse = {
+			date: '2026-02-10',
+			days: {},
+			summary: {
+				postviews: [
+					{
+						id: 1,
+						href: 'https://example.com/hello-world/',
+						date: '2026-02-01',
+						title: 'Hello World Post',
+						type: 'post',
+						views: 0,
+					},
+				],
+				total_views: 0,
+			},
+		};
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-02-10' ) ? zeroComparisonResponse : TOP_POSTS_RESPONSE
+			)
+		);
+
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+					},
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders a placeholder instead of a fabricated delta for unmatched rows', async () => {
+		// Only one post overlaps the comparison period; the other must show the
+		// chart's placeholder, not a fabricated +100%.
+		const partialComparison = {
+			date: '2026-02-10',
+			days: {},
+			summary: {
+				postviews: [
+					{
+						id: 1,
+						href: 'https://example.com/hello-world/',
+						date: '2026-02-01',
+						title: 'Hello World Post',
+						type: 'post',
+						views: 21,
+					},
+				],
+				total_views: 21,
+			},
+		};
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.includes( 'date=2026-02-10' ) ? partialComparison : TOP_POSTS_RESPONSE )
+		);
+
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+					},
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
+		// Matched row: real delta (42 vs 21 → +100%). Unmatched row: placeholder.
+		expect( screen.getByText( /100%/ ) ).toBeInTheDocument();
+		expect( screen.getByText( '-' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders the empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 

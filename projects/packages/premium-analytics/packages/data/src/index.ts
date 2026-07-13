@@ -190,6 +190,7 @@ export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
 	hasComparisonEnabled,
+	type IntervalType,
 	type PresetType,
 	type ReportParams,
 } from './utils/search';
@@ -225,7 +226,9 @@ export type {
 	StatsProxyVersion,
 } from './api';
 export type {
+	StatsArchivesComparisonItem,
 	StatsArchivesItem,
+	StatsClicksComparisonItem,
 	StatsClicksItem,
 	StatsCommentFollowersItem,
 	StatsCommentFollowersRawPost,
@@ -239,13 +242,16 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsEmailBreakdownItem,
+	StatsDevicesComparisonItem,
+	StatsDevicesItem,
+	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationsComparisonItem,
 	StatsLocationsItem,
-	StatsDevicesItem,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,
@@ -261,6 +267,7 @@ export type {
 	StatsPublicizeItem,
 	StatsPublicizeService,
 	StatsReferrersItem,
+	StatsSearchTermsComparisonItem,
 	StatsSearchTermsItem,
 	StatsSubscribersCountsRawResponse,
 	StatsSubscribersDataPoint,
@@ -274,11 +281,17 @@ export type {
 	StatsTagsRawTag,
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
+	StatsTopAuthorsComparisonItem,
 	StatsTopAuthorsItem,
+	StatsTopAuthorsPostComparisonItem,
+	StatsTopPostsComparisonItem,
 	StatsTopPostsItem,
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
 	StatsUtmItem,
 	StatsUtmParam,
 	StatsUtmTopPostItem,
+	StatsVideoPlaysComparisonItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
 export type { StatsCommentFollowersParams } from './queries/stats-comment-followers-query';
@@ -290,3 +303,17 @@ export {
 	type StatsPeriod,
 	type StatsQueryParams,
 } from './utils/stats-params';
+export {
+	mergeStatsArchivesComparisonRows,
+	mergeStatsClicksComparisonRows,
+	mergeStatsComparisonRows,
+	mergeStatsDevicesComparisonRows,
+	mergeStatsFileDownloadsComparisonRows,
+	mergeStatsLocationsComparisonRows,
+	mergeStatsSearchTermsComparisonRows,
+	mergeStatsTopAuthorsComparisonRows,
+	mergeStatsTopPostsComparisonRows,
+	mergeStatsUtmComparisonRows,
+	mergeStatsVideoPlaysComparisonRows,
+} from './processing/stats';
+export type { StatsComparisonRowContext } from './processing/stats';

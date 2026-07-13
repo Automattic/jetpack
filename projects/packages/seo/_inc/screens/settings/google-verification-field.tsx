@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link, Stack } from '@wordpress/ui';
+import { Badge, Button, Link, Stack } from '@wordpress/ui';
 import { useGoogleVerify } from '../../data/use-google-verify';
 import type { FC } from 'react';
 
@@ -104,16 +104,16 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 			{ state !== 'verified' && (
 				<Stack direction="row" gap="sm" align="center">
 					<Button
-						variant="primary"
 						onClick={ autoVerify }
-						isBusy={ isVerifying }
+						loading={ isVerifying }
 						disabled={ disabled || isVerifying || state === 'loading' }
 					>
 						{ __( 'Verify with Google', 'jetpack-seo' ) }
 					</Button>
 					{ ! manualVisible && (
 						<Button
-							variant="tertiary"
+							variant="minimal"
+							tone="neutral"
 							onClick={ () => setManualOpen( true ) }
 							disabled={ disabled }
 						>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: fix images not rendering in portrait orientation on mobile when a gallery image has no data-large-file attribute

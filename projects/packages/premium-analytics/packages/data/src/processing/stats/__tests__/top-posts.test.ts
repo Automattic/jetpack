@@ -1,5 +1,20 @@
-import { sanitizeStatsTopPostsResponse } from '..';
+import { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from '..';
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
+import type { StatsNormalizedReport, StatsTopPostsItem } from '..';
+
+function makeReport( items: StatsTopPostsItem[] ): StatsNormalizedReport< StatsTopPostsItem > {
+	return {
+		summary: {},
+		data: [
+			{
+				time_interval: '2026-06-25',
+				date_start: '2026-06-25T00:00:00+00:00',
+				date_end: '2026-06-25T23:59:59+00:00',
+				items,
+			},
+		],
+	};
+}
 
 describe( 'Stats top posts normalizer', () => {
 	it( 'normalizes summarized top posts into range data', () => {
@@ -110,5 +125,101 @@ describe( 'Stats top posts normalizer', () => {
 			'2026-06-15',
 			'2026-06-16',
 		] );
+	} );
+
+	it( 'detects comparison overlap after applying visible max and post type filters', () => {
+		const primary = makeReport( [
+			{
+				label: 'Homepage',
+				views: 10,
+				link: 'https://example.com/home/',
+				type: 'page',
+				children: null,
+			},
+			{
+				label: 'Post',
+				views: 8,
+				link: 'https://example.com/post/',
+				type: 'post',
+				children: null,
+			},
+		] );
+		const comparison = makeReport( [
+			{
+				label: 'Post',
+				views: 0,
+				link: 'https://example.com/post/',
+				type: 'post',
+				children: null,
+			},
+		] );
+
+		expect( mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows: 1 } ) ).toEqual( {
+			hasComparison: false,
+			rows: [
+				expect.objectContaining( {
+					label: 'Homepage',
+					previousViews: undefined,
+				} ),
+			],
+		} );
+
+		expect(
+			mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows: 1, postTypes: [ 'post' ] } )
+		).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( {
+					label: 'Post',
+					previousViews: 0,
+				} ),
+			],
+		} );
+	} );
+	it( 'keeps URL-less rows and matches them by label', () => {
+		// With skip_archives=1 the API returns the homepage-as-latest-posts
+		// entry without a link; it must survive the merge and match across
+		// periods by its label.
+		const homepage: StatsTopPostsItem = {
+			id: 0,
+			label: 'Homepage (Latest posts)',
+			views: 12,
+			link: null,
+			children: null,
+		};
+		const post: StatsTopPostsItem = {
+			id: 1,
+			label: 'Hello',
+			views: 5,
+			link: 'https://example.com/hello/',
+			children: null,
+		};
+
+		const { rows, hasComparison } = mergeStatsTopPostsComparisonRows(
+			makeReport( [ post, homepage ] ),
+			makeReport( [ { ...homepage, views: 8 } ] )
+		);
+
+		expect( hasComparison ).toBe( true );
+		expect( rows ).toEqual( [
+			expect.objectContaining( { label: 'Homepage (Latest posts)', previousViews: 8 } ),
+			expect.objectContaining( { label: 'Hello', previousViews: undefined } ),
+		] );
+	} );
+
+	it( 'ranks rows before applying the visible max', () => {
+		// The API caps postviews at max but appends the homepage entry on top,
+		// so the visible cap must re-rank first.
+		const rows = [
+			{ id: 1, label: 'A', views: 5, link: 'https://example.com/a/', children: null },
+			{ id: 2, label: 'B', views: 3, link: 'https://example.com/b/', children: null },
+			{ id: 0, label: 'Homepage (Latest posts)', views: 9, link: null, children: null },
+		];
+
+		const { rows: visible } = mergeStatsTopPostsComparisonRows( makeReport( rows ), undefined, {
+			maxRows: 2,
+		} );
+
+		expect( visible.map( row => row.label ) ).toEqual( [ 'Homepage (Latest posts)', 'A' ] );
 	} );
 } );
