@@ -6,10 +6,12 @@ import {
 	WidgetRoot,
 	useWidgetError,
 	useWidgetRootContext,
+	ChartEmptyState,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
+import { trendingUp } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -171,12 +173,13 @@ function SubscribersChartInner( {
 
 	if ( ! metricTabs.length ) {
 		return (
-			<div className={ styles.emptyState }>
-				{ __(
+			<ChartEmptyState
+				icon={ trendingUp }
+				text={ __(
 					'No metric selected. Please select a metric from the metrics list.',
 					'jetpack-premium-analytics'
 				) }
-			</div>
+			/>
 		);
 	}
 
