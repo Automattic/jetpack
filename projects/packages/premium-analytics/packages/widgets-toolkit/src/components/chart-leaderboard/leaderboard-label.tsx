@@ -25,6 +25,10 @@ export type LeaderboardLabelProps = {
 	 * Class name for the image
 	 */
 	imageClassName?: string;
+	/**
+	 * How to render a missing image
+	 */
+	imageFallback?: 'placeholder' | 'hidden';
 };
 
 // Simple default image for when the image is not available.
@@ -47,26 +51,31 @@ const DEFAULT_IMAGE_URL =
  * @param props.imageUrl       - Optional image URL
  * @param props.imageAlt       - Alt text for the image
  * @param props.imageClassName - Class name for the image
+ * @param props.imageFallback  - How to render a missing image
  */
 export function LeaderboardLabel( {
 	label,
 	imageUrl,
 	imageAlt,
 	imageClassName,
+	imageFallback = 'placeholder',
 }: LeaderboardLabelProps ) {
 	// Use default if undefined OR empty string to prevent broken image flash
 	const finalImageUrl = imageUrl || DEFAULT_IMAGE_URL;
+	const shouldRenderImage = imageFallback === 'placeholder' || Boolean( imageUrl );
 
 	return (
 		<Stack direction="row" gap="sm" align="center" className={ styles.container }>
-			<img
-				src={ finalImageUrl }
-				onError={ ( e: React.SyntheticEvent< HTMLImageElement > ) => {
-					e.currentTarget.src = DEFAULT_IMAGE_URL;
-				} }
-				alt={ imageAlt || label }
-				className={ clsx( styles.labelImage, imageClassName ) }
-			/>
+			{ shouldRenderImage && (
+				<img
+					src={ finalImageUrl }
+					onError={ ( e: React.SyntheticEvent< HTMLImageElement > ) => {
+						e.currentTarget.src = DEFAULT_IMAGE_URL;
+					} }
+					alt={ imageAlt ?? label }
+					className={ clsx( styles.labelImage, imageClassName ) }
+				/>
+			) }
 			<span className={ styles.label }>{ label }</span>
 		</Stack>
 	);
