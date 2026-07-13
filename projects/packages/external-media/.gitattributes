@@ -9,5 +9,6 @@ src/build/**      production-include
 src/admin/*.js         production-exclude
 src/features/**/*.js   production-exclude
 src/shared/**/*.js     production-exclude
+src/**/*.jsx           production-exclude
 src/**/*.ts            production-exclude
 src/**/*.scss          production-exclude

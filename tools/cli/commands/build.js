@@ -70,7 +70,11 @@ export function builder( yargs ) {
 		} )
 		.option( 'timing', {
 			type: 'boolean',
-			description: 'Output timing information.',
+			description: 'Output per-line/per-task timing information during the build.',
+		} )
+		.option( 'timing-summary', {
+			type: 'boolean',
+			description: 'Print an aggregated phase-level timing summary table at the end of the build.',
 		} )
 		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
 		.option( 'no-use-uncommitted-composer-lock', {
@@ -80,7 +84,8 @@ export function builder( yargs ) {
 		.option( 'timing-output', {
 			type: 'string',
 			normalize: true,
-			description: 'Write machine-readable timing data (JSON) to the given file. Implies --timing.',
+			description:
+				'Write machine-readable timing data (JSON) to the given file. Implies --timing-summary.',
 		} );
 }
 
@@ -103,7 +108,7 @@ export async function handler( argv ) {
 
 	// `--timing-output` writes JSON, which requires the timing data to be collected.
 	if ( argv.timingOutput ) {
-		argv.timing = true;
+		argv.timingSummary = true;
 	}
 
 	let dependencies = await getDependencies( process.cwd(), 'build' );
@@ -233,8 +238,8 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
-		// When `--timing` is set, collect a flat list of phase timings to summarize at the end.
-		timings: argv.timing ? { overallStart: Date.now(), entries: [], buildOrder } : null,
+		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
+		timings: argv.timingSummary ? { overallStart: Date.now(), entries: [], buildOrder } : null,
 	};
 	await listr
 		.run( ctx )

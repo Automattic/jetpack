@@ -1,5 +1,11 @@
 import { safeParseFloat } from '../../utils/parsing';
-import { mapStatsReportDataPoints, normalizeStatsReportSummary } from './utils';
+import {
+	getStatsReportItems,
+	limitStatsRows,
+	mapStatsReportDataPoints,
+	mergeStatsComparisonRows,
+	normalizeStatsReportSummary,
+} from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -8,6 +14,14 @@ export type StatsSearchTermsItem = StatsNormalizedItemBase & {
 	className: string;
 	children: null;
 };
+
+export type StatsSearchTermsComparisonItem = StatsSearchTermsItem & {
+	previousViews?: number;
+};
+
+function getSearchTermKey( item: StatsSearchTermsItem ): string {
+	return typeof item.label === 'string' ? item.label : String( item.label );
+}
 
 export function sanitizeStatsSearchTermsResponse(
 	response: unknown,
@@ -22,4 +36,26 @@ export function sanitizeStatsSearchTermsResponse(
 			children: null,
 		} ) ),
 	};
+}
+
+export function mergeStatsSearchTermsComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsSearchTermsItem >,
+	comparisonReport?: StatsNormalizedReport< StatsSearchTermsItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows<
+		StatsSearchTermsItem,
+		StatsSearchTermsItem,
+		StatsSearchTermsComparisonItem
+	>( {
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		getPrimaryKey: getSearchTermKey,
+		getComparisonKey: getSearchTermKey,
+		getComparisonValue: item => item.views,
+		mapRow: ( item, { previousValue } ) => ( {
+			...item,
+			previousViews: previousValue,
+		} ),
+	} );
 }

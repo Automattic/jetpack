@@ -2,11 +2,13 @@
  * Cookie Consent Controls Logger Integration
  *
  * Listens to consent events from the cookie consent controls and logs them via REST API.
- * This file should only be loaded when consent logging is enabled.
+ * The POST is gated on the `consent_log` feature: when it is off the REST route is not
+ * registered server-side, so the logger stays silent instead of firing a request that 404s.
  *
  */
 
 import { getCategoryPreferenceKey } from './category-preferences';
+import { isFeatureEnabled } from './features';
 import { getConsentCategories } from './utils';
 import type { ConsentEventType, ConsentTypes, ConsentEvent } from './types';
 
@@ -18,6 +20,11 @@ async function logConsentEvent(
 	eventType: ConsentEventType,
 	consentTypes: ConsentTypes
 ): Promise< string | undefined > {
+	// Logging off: no route to POST to, and consent is already stored client-side.
+	if ( ! isFeatureEnabled( 'consent_log' ) ) {
+		return;
+	}
+
 	// Get API URL from config (passed from PHP).
 	const apiUrl = window.jetpackCookieConsentConfig?.apiUrl;
 	if ( ! apiUrl ) {

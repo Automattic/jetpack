@@ -96,7 +96,7 @@ await jest.unstable_mockModule( '../../../src/blocks/shared/util/constants.js', 
 	FORM_POST_TYPE: 'jetpack_form',
 } ) );
 
-await jest.unstable_mockModule( '../../../src/blocks/contact-form/variations.js', () => ( {
+await jest.unstable_mockModule( '../../../src/blocks/contact-form/variations.jsx', () => ( {
 	default: [
 		{
 			name: 'contact-form',

@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextareaControl, ToggleControl } from '@wordpress/components';
+import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import TitleStructureField from './title-structure-field';
@@ -188,6 +189,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
 			</div>
 
+			{ /* The signed-in user's Person / ProfilePage schema source — per-user,
+			   unlike the site-level Schema card above. */ }
+			<div id="author-profile" className="jetpack-seo-settings__section">
+				<AuthorProfileCard />
+			</div>
+
 			<CollapsibleCard.Root defaultOpen={ false }>
 				<CollapsibleCard.Header>
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
@@ -243,7 +250,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						/>
 						<div className="jetpack-seo-settings__save">
 							<Button
-								variant="primary"
 								onClick={ () => commitFields( [ 'front_page_description' ] ) }
 								disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
 							>
