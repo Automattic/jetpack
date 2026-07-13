@@ -195,17 +195,19 @@ export default function useTrafficChart(
 		refetchLikesComments();
 	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
-	const hasRows = Boolean( vvPrimary?.data?.length || lcPrimary?.data?.length );
+	// Gate the error per query — the two independent queries back separate tabs, so
+	// one failing on first load must surface an error rather than render as empty
+	// tabs beside the other's populated chart. `placeholderData` keeps a query's
+	// prior rows on a transient refetch failure, so a query with rows is not errored.
+	const isError =
+		( viewsVisitors.isError && ! vvPrimary?.data?.length ) ||
+		( likesComments.isError && ! lcPrimary?.data?.length );
 
 	return {
 		metrics,
 		isLoading: viewsVisitors.isLoading || likesComments.isLoading,
 		isFetching: viewsVisitors.isFetching || likesComments.isFetching,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's rows while `isError` flips
-		// true. Only surface the error when there's nothing to show, so a transient
-		// refetch failure doesn't replace a populated chart with the error state.
-		isError: ! hasRows && ( viewsVisitors.isError || likesComments.isError ),
+		isError,
 		refetch,
 	};
 }

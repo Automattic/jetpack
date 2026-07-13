@@ -251,7 +251,11 @@ function StorePerformanceContent( {
 			customersReport,
 		]
 	);
-	const isError = activeReports.some( report => report.isError );
+	// Gate the error per report — each metric tab has its own report, so a failed
+	// one must surface an error rather than render as an empty chart beside the
+	// others. Placeholder data keeps a report's rows on a transient refetch failure,
+	// so a report with data is not errored.
+	const isError = activeReports.some( report => report.isError && ! report.hasData );
 	// Retry re-runs every active metric report, not only the failed one.
 	const refetch = useCallback(
 		() => Promise.all( activeReports.map( report => report.refetch() ) ),
@@ -358,16 +362,12 @@ function StorePerformanceContent( {
 
 	const isInitialLoading = activeReports.some( report => report.isLoading && ! report.hasData );
 	const isFetching = activeReports.some( report => report.isFetching );
-	const hasAnyData = activeReports.some( report => report.hasData );
 
 	return (
 		<div className={ styles.widgetRoot }>
 			<WidgetState
 				isLoading={ isInitialLoading }
-				// The report queries keep the previous period's data as placeholders
-				// across range changes, so only surface the error when no metric report
-				// has anything to show.
-				isError={ isError && ! hasAnyData }
+				isError={ isError }
 				isEmpty={ ! metricTabs.length }
 				error={ {
 					description: __(
