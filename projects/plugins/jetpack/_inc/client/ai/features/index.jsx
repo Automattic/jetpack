@@ -17,6 +17,10 @@ import analytics from 'lib/analytics';
 // Per the design, a row's action link depends on the toggle state: enabled
 // features invite you to try them, disabled ones link to documentation.
 // The SEO settings link is the exception and shows in both states.
+//
+// @todo Register the jetpack-support-ai-<feature> source handlers in the
+// Jetpack Redirects service before release — unregistered sources currently
+// land on the Jetpack connect/install flow, not the docs.
 const SECTIONS = [
 	{
 		key: 'content',
@@ -35,7 +39,7 @@ const SECTIONS = [
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai' ),
+					href: getRedirectUrl( 'jetpack-support-ai-writing-assistant' ),
 					external: true,
 				},
 			},
@@ -49,7 +53,7 @@ const SECTIONS = [
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: 'https://jetpack.com/support/create-better-post-excerpts-with-ai/',
+					href: getRedirectUrl( 'jetpack-support-ai-excerpt' ),
 					external: true,
 				},
 			},
@@ -69,7 +73,7 @@ const SECTIONS = [
 				enabledAction: { label: __( 'Try it out', 'jetpack' ), href: 'upload.php' },
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai' ),
+					href: getRedirectUrl( 'jetpack-support-ai-image-editor' ),
 					external: true,
 				},
 			},
@@ -83,7 +87,7 @@ const SECTIONS = [
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai' ),
+					href: getRedirectUrl( 'jetpack-support-ai-feature-clip' ),
 					external: true,
 				},
 			},
