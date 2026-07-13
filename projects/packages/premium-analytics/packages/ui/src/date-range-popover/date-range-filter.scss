@@ -19,6 +19,12 @@
 	background-color: #fff;
 }
 
+// Hovered/focused trigger: same brand-tinted highlight the select-control
+// popup gives its items.
+.date-filters-panel-button {
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
+}
+
 // Staged and applied custom ranges share the soft filled look of a selected
 // preset pill. Override the button custom-prop API (instead of the painted
 // properties) so hover, focus, and the bg-colored border follow the fill.
@@ -35,6 +41,8 @@
 .date-filters-panel-button[data-state="staged"] {
 	--wp-ui-button-border-color: var(--wpds-color-stroke-interactive-neutral);
 	--wp-ui-button-border-color-active: var(--wpds-color-stroke-interactive-neutral);
+	--wp-ui-button-background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
 
 	border-style: dashed;
 }
