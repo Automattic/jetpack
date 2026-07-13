@@ -3,3 +3,11 @@
 	min-width: 0;
 	min-height: 0;
 }
+
+// The aspect-ratio contain box. Its explicit pixel width/height come from
+// JS, so keep it from being stretched or shrunk by the flex parent.
+.content {
+	flex: 0 0 auto;
+	min-width: 0;
+	min-height: 0;
+}

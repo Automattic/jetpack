@@ -16,7 +16,10 @@ export type ResponsiveConfig = {
 	maxWidth?: number;
 	/**
 	 * The aspect ratio of the chart (height = width * aspectRatio).
-	 * When provided, height is calculated from width.
+	 * When provided, the chart keeps this ratio and is contained within the
+	 * parent on both axes: it fills the available width and derives its height,
+	 * but if the parent is shorter than that derived height it shrinks both axes
+	 * to fit rather than overflowing.
 	 * When omitted, the chart fills the parent container's height.
 	 */
 	aspectRatio?: number;
@@ -30,7 +33,9 @@ const useResponsiveDimensions = ( {
 	resizeDebounceTime = 300,
 	maxWidth = 1200,
 	aspectRatio,
-}: ResponsiveConfig ) => {
+	explicitWidth,
+	explicitHeight,
+}: ResponsiveConfig & { explicitWidth?: number; explicitHeight?: number } ) => {
 	const {
 		parentRef,
 		width: parentWidth,
@@ -40,20 +45,32 @@ const useResponsiveDimensions = ( {
 		enableDebounceLeadingCall: true,
 	} );
 
-	const containerWidth = parentWidth > 0 ? Math.min( parentWidth, maxWidth ) : 0;
-	const containerHeight = aspectRatio !== undefined ? containerWidth * aspectRatio : parentHeight;
+	const hasAspectRatio = aspectRatio !== undefined && aspectRatio > 0;
 
-	return {
-		parentRef,
-		width: containerWidth,
-		height: containerHeight,
-		/**
-		 * Whether an aspectRatio was provided. Used to determine container
-		 * height styling: 'auto' when true (height derived from width),
-		 * '100%' when false (fill parent container).
-		 */
-		hasAspectRatio: aspectRatio !== undefined,
-	};
+	// Cap the available width at maxWidth unless an explicit width pins it. Before
+	// measurement resolves, fall back to the explicit width.
+	const cap = explicitWidth === undefined ? maxWidth : Infinity;
+	const availableWidth = parentWidth > 0 ? Math.min( parentWidth, cap ) : explicitWidth ?? 0;
+
+	let width = availableWidth;
+	let height: number;
+
+	if ( hasAspectRatio ) {
+		height = availableWidth * aspectRatio;
+		// Contain: when the parent bounds the height and the width-derived height
+		// would overflow it, shrink both axes to fit, preserving the ratio. The 1px
+		// slack keeps the self-referential auto-height case — a parent with no height
+		// of its own collapses onto this box, so measured height ≈ derived height —
+		// from clamping against itself.
+		if ( parentHeight > 0 && height > parentHeight + 1 ) {
+			height = parentHeight;
+			width = height / aspectRatio;
+		}
+	} else {
+		height = parentHeight > 0 ? parentHeight : explicitHeight ?? 0;
+	}
+
+	return { parentRef, width, height, hasAspectRatio };
 };
 
 /**
@@ -77,34 +94,33 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 	}: Omit< T, 'width' | 'height' | 'size' > & DimensionProps & ResponsiveConfig ) {
 		const {
 			parentRef,
-			width: measuredWidth,
-			height: measuredHeight,
+			width: boxWidth,
+			height: boxHeight,
 			hasAspectRatio,
 		} = useResponsiveDimensions( {
 			resizeDebounceTime,
 			maxWidth,
 			aspectRatio,
+			explicitWidth: width,
+			explicitHeight: height,
 		} );
 
-		// Use measured dimensions, but fall back to explicit width/height props if measurement returns 0
-		// (e.g., during initial render or in test environments without DOM measurement).
-		// Do not use size here — size controls chart element dimensions (e.g. pie diameter), not container dimensions.
-		const effectiveWidth = measuredWidth || width || 0;
-		const effectiveHeight = measuredHeight || height || 0;
+		const wrappedComponent = (
+			<WrappedComponent
+				width={ boxWidth }
+				height={ boxHeight }
+				size={ size }
+				{ ...( chartProps as T ) }
+			/>
+		);
 
-		const defaultHeight = hasAspectRatio ? 'auto' : '100%';
-		// Express the aspect ratio in CSS so the container height tracks its width
-		// fluidly, rather than snapping to a debounced measured height. Cap the width
-		// at maxWidth so the CSS-derived height matches the maxWidth-capped content
-		// (the wrapped chart is sized from the capped `measuredWidth`).
-		const aspectRatioStyle =
-			hasAspectRatio && aspectRatio
-				? {
-						aspectRatio: `${ 1 / aspectRatio }`,
-						maxWidth: width === undefined ? maxWidth : undefined,
-				  }
-				: null;
-
+		// The outer element fills the parent so useParentSize can measure the true
+		// available width AND height. With an aspectRatio the chart is placed in an
+		// inner box sized to the contained dimensions (centered horizontally, top-
+		// aligned) so it keeps its proportions and fits within the parent on both
+		// axes. Charts that fill their container via CSS (e.g. the heatmap grid) then
+		// track that contained box. Without an aspectRatio the chart fills the parent
+		// directly, exactly as before.
 		return (
 			<div
 				ref={ parentRef }
@@ -112,16 +128,23 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				className={ styles.container }
 				style={ {
 					width: width ?? '100%',
-					height: height ?? defaultHeight,
-					...aspectRatioStyle,
+					height: height ?? '100%',
+					...( hasAspectRatio
+						? { display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }
+						: null ),
 				} }
 			>
-				<WrappedComponent
-					width={ effectiveWidth }
-					height={ effectiveHeight }
-					size={ size }
-					{ ...( chartProps as T ) }
-				/>
+				{ hasAspectRatio ? (
+					<div
+						data-testid="responsive-content"
+						className={ styles.content }
+						style={ { width: boxWidth, height: boxHeight } }
+					>
+						{ wrappedComponent }
+					</div>
+				) : (
+					wrappedComponent
+				) }
 			</div>
 		);
 	};
