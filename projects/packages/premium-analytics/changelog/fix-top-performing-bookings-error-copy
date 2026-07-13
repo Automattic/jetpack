@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Top performing bookings widget: show a booking-specific error message instead of the product leaderboard's "product data" copy.

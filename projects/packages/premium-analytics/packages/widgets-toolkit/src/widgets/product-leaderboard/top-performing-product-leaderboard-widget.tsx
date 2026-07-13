@@ -43,6 +43,12 @@ export type TopPerformingProductLeaderboardWidgetProps = {
 	 * Defaults to a "no product sales" message.
 	 */
 	emptyStateText?: string;
+
+	/**
+	 * Text to display in the error state.
+	 * Defaults to a "couldn't load product data" message.
+	 */
+	errorText?: string;
 };
 
 /**
@@ -68,6 +74,7 @@ export type TopPerformingProductLeaderboardWidgetProps = {
  * @param props.filter         - Optional product type filter
  * @param props.emptyStateIcon - Icon to display in empty state (default: productBlouse)
  * @param props.emptyStateText - Text to display in empty state
+ * @param props.errorText      - Text to display in error state
  *
  * @example
  * // All product types
@@ -89,6 +96,7 @@ export function TopPerformingProductLeaderboardWidget( {
 	filter,
 	emptyStateIcon = productBlouse,
 	emptyStateText,
+	errorText,
 }: TopPerformingProductLeaderboardWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -180,10 +188,12 @@ export function TopPerformingProductLeaderboardWidget( {
 			isError={ isError && ! hasData }
 			isEmpty={ chartData.length === 0 }
 			error={ {
-				description: __(
-					"We couldn't load product data. Please try again in a moment.",
-					'jetpack-premium-analytics'
-				),
+				description:
+					errorText ??
+					__(
+						"We couldn't load product data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 			} }
 			empty={ {
