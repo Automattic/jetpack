@@ -1315,9 +1315,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// allowlist of core nodes, so our custom node disappears. Re-show it and size the icon to match the
 		// native items (52px-wide box, centered ~28px glyph). The `.ab-icon` overrides use !important because
 		// the SVG carries its desktop sizing in an inline style attribute, which otherwise wins the cascade.
+		// Match the dimmed icon color core applies to its own mobile items; the SVG fills with currentColor.
 		echo '<style>@media screen and (max-width: 782px){' .
 			'#wpadminbar li#wp-admin-bar-jetpack-forms{display:block;}' .
-			'#wpadminbar li#wp-admin-bar-jetpack-forms>.ab-item{display:flex;align-items:center;justify-content:center;width:52px;padding:0;}' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms>.ab-item{display:flex;align-items:center;justify-content:center;width:52px;padding:0;color:rgba(240,246,252,0.6);}' .
 			'#wpadminbar li#wp-admin-bar-jetpack-forms .ab-icon{width:28px!important;height:28px!important;top:0!important;margin:0!important;}' .
 			'}</style>';
 	}
