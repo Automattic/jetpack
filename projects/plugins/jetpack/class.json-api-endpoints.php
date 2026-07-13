@@ -2893,15 +2893,23 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Whether the endpoint's rest_route carries %d/%s path-parameter tokens.
+	 *
+	 * @return bool
+	 */
+	private function rest_route_has_tokens() {
+		return str_contains( (string) $this->rest_route, '%' );
+	}
+
+	/**
 	 * REST route with %d/%s path tokens converted to named captures, for register_rest_route().
 	 * Static (token-less) routes are returned unchanged.
 	 *
 	 * @return string
 	 */
 	public function build_rest_route_regex() {
-		$route = $this->build_rest_route();
-		if ( ! str_contains( $route, '%' ) ) {
-			return $route;
+		if ( ! $this->rest_route_has_tokens() ) {
+			return $this->build_rest_route();
 		}
 
 		$index = 0;
@@ -2911,7 +2919,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$name = 'p' . ( ++$index );
 				return '%d' === $matches[0] ? "(?P<$name>\\d+)" : "(?P<$name>[^/]+)";
 			},
-			$route
+			$this->build_rest_route()
 		);
 	}
 
@@ -2924,7 +2932,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return string
 	 */
 	public function build_concrete_rest_route( $url ) {
-		if ( ! str_contains( (string) $this->rest_route, '%' ) ) {
+		if ( ! $this->rest_route_has_tokens() ) {
 			return $this->build_rest_route();
 		}
 
