@@ -89,8 +89,16 @@ class Podcast_Episode_Block {
 	 * Flag the block as requiring a paid plan so the editor surfaces the upgrade
 	 * prompt. Hooked on `jetpack_register_gutenberg_extensions` after the block's
 	 * default availability registration, overriding it to "unavailable".
+	 *
+	 * Self-hosted Jetpack leaves editor upgrade nudges off by default, which
+	 * makes `set_extension_unavailable` suffix the reason with `__nudge_disabled`
+	 * — that hides the block entirely instead of showing it as a paid block. We
+	 * force the nudge on for just this call (via a dedicated callback so we don't
+	 * disturb the site-wide filter Atomic adds) to keep the reason `missing_plan`
+	 * on every host.
 	 */
 	public static function flag_plan_gated() {
+		add_filter( 'jetpack_block_editor_enable_upgrade_nudge', array( __CLASS__, 'enable_upgrade_nudge' ) );
 		\Jetpack_Gutenberg::set_extension_unavailable(
 			'podcast-episode',
 			'missing_plan',
@@ -99,6 +107,18 @@ class Podcast_Episode_Block {
 				'required_plan'    => Podcast_Gate::get_required_plan_slug(),
 			)
 		);
+		remove_filter( 'jetpack_block_editor_enable_upgrade_nudge', array( __CLASS__, 'enable_upgrade_nudge' ) );
+	}
+
+	/**
+	 * Enable the block-editor upgrade nudge. Applied only around the block's
+	 * availability registration (see flag_plan_gated) so the paid block surfaces
+	 * on self-hosted Jetpack, where nudges are otherwise off by default.
+	 *
+	 * @return true
+	 */
+	public static function enable_upgrade_nudge() {
+		return true;
 	}
 
 	/**
