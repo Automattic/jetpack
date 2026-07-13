@@ -30,7 +30,7 @@ export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
-export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
+export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { mergeStatsArchivesComparisonRows, sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
@@ -43,9 +43,15 @@ export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsPublicizeResponse } from './publicize';
-export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
+export {
+	sanitizeStatsWordAdsStatsResponse,
+	sanitizeStatsWordAdsEarningsResponse,
+	sliceWordAdsStatsReport,
+} from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
+export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
+export type { StatsSummaryResponse } from './summary';
 export type {
 	StatsPostMeta,
 	StatsPostMonthValues,

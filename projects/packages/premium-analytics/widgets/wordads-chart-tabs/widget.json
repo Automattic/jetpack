@@ -1,0 +1,7 @@
+{
+	"name": "jpa/wordads-chart-tabs",
+	"title": "WordAds",
+	"description": "Compare ads served, average CPM, and revenue over the selected period, with the previous period overlaid for comparison.",
+	"category": "stats",
+	"presentation": "framed"
+}
