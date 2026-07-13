@@ -109,6 +109,26 @@ describe( 'PlanUsageWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
+	// VIP sites aren't held to the billable-views limit, so the over-limit
+	// warning is suppressed even when `over_limit_months` reports lapses.
+	it( 'suppresses the over-limit warning on VIP sites', async () => {
+		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 2 } );
+		window.JetpackScriptData = {
+			site: {
+				admin_url: 'https://example.com/wp-admin/',
+				host: 'vip',
+				wpcom: { blog_id: 123456789 },
+			},
+		} as typeof window.JetpackScriptData;
+
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( '6,200 / 10,000 billable views' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders no over-limit warning when the site is within its limit', async () => {
 		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 0 } );
 

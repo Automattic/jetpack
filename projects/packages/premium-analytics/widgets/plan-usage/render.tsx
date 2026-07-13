@@ -183,6 +183,11 @@ function PlanUsageReport() {
 	const limit = data?.views_limit;
 	const hasLimit = typeof limit === 'number' && limit > 0;
 
+	// VIP sites aren't held to the billable-views limit, so the Stats "Plan
+	// usage" section suppresses the over-limit warning for them. The dashboard's
+	// script data carries the same host guess Calypso derives `isVip` from.
+	const isVip = getScriptData()?.site?.host === 'vip';
+
 	return (
 		<WidgetState
 			isLoading={ isLoading }
@@ -209,9 +214,7 @@ function PlanUsageReport() {
 					limit={ limit }
 					usage={ data?.current_usage?.views_count }
 					daysToReset={ data?.current_usage?.days_to_reset }
-					// The Stats section suppresses this warning for VIP sites; the data
-					// package exposes no site-type signal yet — pending WOOA7S-1676.
-					overLimitMonths={ data?.over_limit_months }
+					overLimitMonths={ isVip ? null : data?.over_limit_months }
 				/>
 			) }
 		</WidgetState>
