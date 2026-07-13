@@ -86,16 +86,10 @@ body.jetpack_page_jetpack-ai {
 
 }
 
-// Feature rows: the design aligns the description and action link with the
-// label's text column, not with the switch. ToggleControl offsets the label
-// by the toggle track (36px) plus an 8px gap, so indent both to match.
-.jetpack-ai-features__row {
-
-	.components-base-control__help {
-		margin-inline-start: 44px;
-	}
-}
-
+// Feature rows: the design aligns the action link with the label's text
+// column. ToggleControl already indents its own help text; only the link
+// (rendered outside the control) needs the matching offset — toggle track
+// (36px) plus its 8px gap.
 .jetpack-ai-features__action {
 	margin-inline-start: 44px;
 }
