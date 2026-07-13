@@ -89,8 +89,7 @@ function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInne
 		metricIds
 	);
 
-	// With no metric selected there is nothing to fetch or chart, so short the
-	// data-driven states and show a distinct "pick a metric" empty state.
+	// No metric selected: skip the data-driven states and show a distinct empty state.
 	const noMetricSelected = metrics.length === 0;
 
 	return (
