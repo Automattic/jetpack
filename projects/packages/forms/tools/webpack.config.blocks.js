@@ -61,7 +61,6 @@ const sharedWebpackConfig = {
 				includeNodeModules: [
 					'@automattic/',
 					'debug/',
-					'gridicons/',
 					'punycode/',
 					'query-string/',
 					'split-on-first/',
