@@ -25,9 +25,9 @@ import type { PostPerformanceGranularity } from './widget';
 import type { MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Selectable bucket sizes — `auto` resolves to one of these before the hook.
+ * Selectable bucket sizes.
  */
-export type PostPerformancePeriod = Exclude< PostPerformanceGranularity, 'auto' >;
+export type PostPerformancePeriod = PostPerformanceGranularity;
 
 /**
  * Normalized Performance state: one tab per metric plus the request's

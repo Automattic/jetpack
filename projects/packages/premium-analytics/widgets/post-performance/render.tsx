@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import usePostPerformance, { type PostPerformancePeriod } from './use-post-performance';
+import usePostPerformance from './use-post-performance';
 import type { PostPerformanceAttributes, PostPerformanceGranularity } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -27,33 +27,8 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-/**
- * Default granularity for the dashboard interval: opens the control at the
- * granularity the range implies (and, until the user picks one explicitly,
- * keeps following the range). The dropdown only offers day/week/month, so
- * finer/coarser dashboard intervals collapse onto those.
- *
- * @param interval - The dashboard-derived interval.
- * @return The matching selectable granularity.
- */
-function defaultPeriodForInterval( interval?: string ): PostPerformancePeriod {
-	switch ( interval ) {
-		case 'week':
-			return 'week';
-		case 'month':
-		case 'quarter':
-		case 'year':
-			return 'month';
-		default:
-			return 'day';
-	}
-}
-
 type PostPerformanceInnerProps = {
-	/**
-	 * The granularity attribute: an explicit bucket size, or `auto` to follow
-	 * the dashboard range.
-	 */
+	/** The granularity attribute: the chart's bucket size. */
 	granularity: PostPerformanceGranularity;
 };
 
@@ -70,13 +45,11 @@ type PostPerformanceInnerProps = {
 function PostPerformanceInner( { granularity }: PostPerformanceInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = Number( reportParams.post_id ) || 0;
-	const period: PostPerformancePeriod =
-		granularity === 'auto' ? defaultPeriodForInterval( reportParams.interval ) : granularity;
 
 	const { metrics, isLoading, isFetching, isError, hasData, refetch } = usePostPerformance(
 		postId,
 		reportParams,
-		period
+		granularity
 	);
 
 	return (
@@ -101,6 +74,7 @@ function PostPerformanceInner( { granularity }: PostPerformanceInnerProps ) {
 				} }
 			>
 				<MetricTabsChart
+					className={ styles.metricTabs }
 					metrics={ metrics }
 					distributeTabs
 					dataFormat={ DATA_FORMAT }
@@ -123,7 +97,10 @@ function PostPerformanceInner( { granularity }: PostPerformanceInnerProps ) {
  * @return The rendered widget.
  */
 export default function PostPerformance( { attributes = {} }: PostPerformanceWidgetProps ) {
-	const granularity = attributes?.granularity ?? 'auto';
+	// Coerce unknown persisted values (e.g. the removed `auto`) to the default.
+	const attrGranularity = attributes?.granularity;
+	const granularity =
+		attrGranularity === 'week' || attrGranularity === 'month' ? attrGranularity : 'day';
 
 	return (
 		<WidgetRoot attributes={ attributes }>

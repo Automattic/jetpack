@@ -85,12 +85,11 @@
 	display: none;
 }
 
-.tab:hover {
-	background-color: var(--wpds-color-background-interactive-neutral-weak);
-}
-
+/* Hover and selected share the same admin-theme tint (the design's
+ * `color-mix(in srgb, var(--wp-admin-theme-color) 8%, transparent)`). */
+.tab:hover,
 .tab[aria-selected="true"] {
-	background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	background-color: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 8%, transparent);
 }
 
 /* Each tab's content: label stacked over the value + delta, left-aligned. */
@@ -106,6 +105,13 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
+/* The muted metric label rises to full text color on hover/selection (the
+ * design's `color: var(--text)`). */
+.tab:hover .tabLabel,
+.tab[aria-selected="true"] .tabLabel {
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+}
+
 /* Anchors the absolutely positioned loading overlay; fills the room left
  * under the cards and shrinks with the tile. */
 .chart {
@@ -115,17 +121,26 @@
 	min-height: 0;
 }
 
-// Centered note shown in place of the chart for value-only metrics.
+// Centered note shown in place of the chart for value-only metrics. The
+// explicit height makes it fill the panel — the panel is a plain block, so
+// `flex: 1` alone leaves the note at content height, pinned to the top.
 .noTrend {
 	display: flex;
-	flex: 1;
+	height: 100%;
 	align-items: center;
 	justify-content: center;
 	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
 }
 
-// Even 1/N distribution of the metric tabs across the card width.
+// Even 1/N distribution of the metric tabs across the card width. The list
+// itself must grow too — inside the header's space-between row it otherwise
+// shrinks to its content width and the 1/N split only divides that.
+.tabsDistributed {
+	flex: 1 1 auto;
+}
+
 .tabsDistributed :global(button[role="tab"]) {
 	flex: 1 1 0;
+	min-width: 0;
 	justify-content: flex-start;
 }

@@ -75,6 +75,8 @@ export interface MetricTabsChartProps {
 	distributeTabs?: boolean;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
+	/** Extra class for the root element, for widget-specific style overrides. */
+	className?: string;
 }
 
 /**
@@ -194,6 +196,7 @@ export function MetricTabsChart( {
 	loading = false,
 	distributeTabs = false,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics' ),
+	className,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -250,7 +253,7 @@ export function MetricTabsChart( {
 			metricItems.find( item => item.value === activeMetric?.key ) ?? metricItems[ 0 ];
 
 		return (
-			<div ref={ measureRef } className={ styles.root }>
+			<div ref={ measureRef } className={ clsx( styles.root, className ) }>
 				<div className={ styles.header }>
 					{ /* Stops pointer-down from starting a widget drag and opens the select
 					     on click (see `isDropdownOpen`). Mouse-only supplement — keyboard
@@ -322,7 +325,7 @@ export function MetricTabsChart( {
 			ref={ measureRef }
 			value={ activeMetric?.key }
 			onValueChange={ handleValueChange }
-			className={ styles.root }
+			className={ clsx( styles.root, className ) }
 		>
 			<div className={ styles.header }>
 				<Tabs.List

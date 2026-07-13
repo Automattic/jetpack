@@ -6,18 +6,16 @@ import { chartBar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Granularity the chart can be grouped by. `auto` follows the dashboard date
- * range (a wide range buckets by month, a narrow one by day); an explicit
- * value sticks across range changes.
+ * Granularity the chart can be grouped by within the dashboard range.
  */
-export type PostPerformanceGranularity = 'auto' | 'day' | 'week' | 'month';
+export type PostPerformanceGranularity = 'day' | 'week' | 'month';
 
 /**
  * Configurable attributes for the Performance widget. The post scope and
  * report params reach it through WidgetRoot: the detail page seeds
  * `post_id` into the URL, and the dashboard date picker owns the range.
  *
- * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
+ * @property granularity - Bucket size within the dashboard range. Defaults to `day`.
  */
 export type PostPerformanceAttributes = {
 	granularity?: PostPerformanceGranularity;
@@ -50,10 +48,6 @@ export default {
 			type: 'text',
 			elements: [
 				{
-					label: __( 'Auto', 'jetpack-premium-analytics' ),
-					value: 'auto',
-				},
-				{
 					label: __( 'By days', 'jetpack-premium-analytics' ),
 					value: 'day',
 				},
@@ -71,7 +65,7 @@ export default {
 	] as WidgetAttributeField< PostPerformanceAttributes >[],
 	example: {
 		attributes: {
-			granularity: 'auto',
+			granularity: 'day',
 		},
 	},
 };

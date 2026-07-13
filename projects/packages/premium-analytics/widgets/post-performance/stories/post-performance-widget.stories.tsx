@@ -98,7 +98,7 @@ const meta = {
 		},
 		granularity: {
 			control: 'radio',
-			options: [ 'auto', 'day', 'week', 'month' ],
+			options: [ 'day', 'week', 'month' ],
 			description: 'The "Group by" toolbar attribute rendered by the widget host.',
 		},
 	},
@@ -121,7 +121,7 @@ type Story = StoryObj< PostPerformanceStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostPerformance,
-	args: { withComparison: true, hasPostScope: true, granularity: 'auto' },
+	args: { withComparison: true, hasPostScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -131,7 +131,7 @@ export const Default: Story = {
  */
 export const WithoutComparison: Story = {
 	render: renderPostPerformance,
-	args: { withComparison: false, hasPostScope: true, granularity: 'auto' },
+	args: { withComparison: false, hasPostScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -142,7 +142,7 @@ export const WithoutComparison: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostPerformance,
-	args: { withComparison: false, hasPostScope: false, granularity: 'auto' },
+	args: { withComparison: false, hasPostScope: false, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -183,7 +183,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostPerformanceDashboardStoryP
 		widgetHeight: 2,
 		withComparison: true,
 		hasPostScope: true,
-		granularity: 'auto',
+		granularity: 'day',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
@@ -197,7 +197,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostPerformanceDashboardStoryP
 		},
 		granularity: {
 			control: 'radio',
-			options: [ 'auto', 'day', 'week', 'month' ],
+			options: [ 'day', 'week', 'month' ],
 			description: 'The "Group by" toolbar attribute rendered by the widget host.',
 		},
 	},
