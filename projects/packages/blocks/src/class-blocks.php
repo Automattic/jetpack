@@ -80,7 +80,6 @@ class Blocks {
 					'jetpack/donations',
 					'jetpack/payment-buttons',
 					'jetpack/paypal-payment-buttons',
-					'jetpack/podcast-episode',
 				);
 				if ( in_array( $slug, $gated_blocks, true ) &&
 					is_string( $block_type ) &&

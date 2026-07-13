@@ -76,6 +76,19 @@ class Podcast_Gate {
 	}
 
 	/**
+	 * The minimum plan to upsell when the site lacks podcast product access.
+	 *
+	 * WordPress.com Premium (`value_bundle`) or Jetpack Growth
+	 * (`jetpack_growth_yearly`) — the entry points to the paid podcast surfaces
+	 * resolved by {@see self::has_product_access()}.
+	 *
+	 * @return string Plan slug used to build the editor upgrade nudge.
+	 */
+	public static function get_required_plan_slug(): string {
+		return ( new Host() )->is_wpcom_platform() ? 'value_bundle' : 'jetpack_growth_yearly';
+	}
+
+	/**
 	 * Drop the cached purchases lookup so the next access check re-reads
 	 * `/upgrades`. Called when a buyer returns from checkout so a fresh plan
 	 * unlocks the paid surfaces immediately rather than after the TTL.

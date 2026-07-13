@@ -100,7 +100,6 @@ class Current_Plan {
 				'vaultpress',
 				'videopress',
 				'republicize',
-				'podcast-episode',
 			),
 		),
 		'security' => array(

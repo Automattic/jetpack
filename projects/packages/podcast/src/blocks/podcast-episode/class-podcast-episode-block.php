@@ -63,16 +63,29 @@ class Podcast_Episode_Block {
 			)
 		);
 
-		Blocks::jetpack_register_block(
-			__DIR__,
-			array(
-				'render_callback'       => array( __CLASS__, 'render_block' ),
-				'style'                 => self::STYLE_HANDLE,
-				'render_email_callback' => array( __CLASS__, 'render_email' ),
-				// Paid feature: gate availability behind a Premium (WordPress.com) / Growth (Jetpack) plan.
-				'plan_check'            => true,
-			)
-		);
+		// Paid feature: only register (and render) the block when the site has
+		// podcast product access — Premium on WordPress.com, Growth/Complete on
+		// self-hosted Jetpack (see Podcast_Gate). Otherwise flag it as plan-gated
+		// so the editor surfaces the upgrade banner instead of the block.
+		if ( Podcast_Gate::has_product_access() ) {
+			Blocks::jetpack_register_block(
+				__DIR__,
+				array(
+					'render_callback'       => array( __CLASS__, 'render_block' ),
+					'style'                 => self::STYLE_HANDLE,
+					'render_email_callback' => array( __CLASS__, 'render_email' ),
+				)
+			);
+		} elseif ( class_exists( \Jetpack_Gutenberg::class ) ) {
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				'podcast-episode',
+				'missing_plan',
+				array(
+					'required_feature' => 'podcast-episode',
+					'required_plan'    => Podcast_Gate::get_required_plan_slug(),
+				)
+			);
+		}
 	}
 
 	/**
