@@ -17,7 +17,15 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
+
+/**
+ * The rollout switch for My Jetpack on Simple, defined by the wpcom platform.
+ *
+ * Also the constant that puts My Jetpack into products-only mode (see My_Jetpack\Products_Page).
+ */
+const WPCOM_MY_JETPACK_FLAG = 'JETPACK_MY_JETPACK_PRODUCTS_ONLY';
 
 /**
  * Whether the WordPress.com data helpers are usable in this request.
@@ -29,6 +37,23 @@ use Automattic\Jetpack\Current_Plan;
  */
 function wpcom_my_jetpack_can_serve_data_locally() {
 	return defined( 'IS_WPCOM' ) && IS_WPCOM;
+}
+
+/**
+ * Whether My Jetpack should run on this Simple site.
+ *
+ * Fails closed by design. The flag both enables My Jetpack here AND is what selects products-only
+ * mode, so a site that initialized My Jetpack without it would get the full dashboard - module
+ * toggles, onboarding - which a Simple site can neither use nor act on.
+ *
+ * @return bool
+ */
+function wpcom_my_jetpack_is_enabled_on_simple() {
+	if ( ! wpcom_my_jetpack_can_serve_data_locally() || ! class_exists( Constants::class ) ) {
+		return false;
+	}
+
+	return Constants::is_true( WPCOM_MY_JETPACK_FLAG );
 }
 
 /**

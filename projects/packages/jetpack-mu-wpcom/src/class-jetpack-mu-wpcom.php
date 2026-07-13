@@ -420,14 +420,19 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 		}
 
-		// Initialize My Jetpack so the dashboard and products page are available
-		// on Simple sites (where the full Jetpack plugin doesn't run).
-		if ( class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ) {
-			// Must come first: it registers the filters that serve My Jetpack's WordPress.com data
-			// locally. Simple sites have no blog token, so the HTTP path those lookups normally take
-			// cannot succeed.
-			require_once __DIR__ . '/features/my-jetpack/my-jetpack.php';
+		// Registers the filters that serve My Jetpack's WordPress.com data locally, and the gate
+		// below. Off Simple every one of those filters is an inert pass-through.
+		require_once __DIR__ . '/features/my-jetpack/my-jetpack.php';
 
+		// Initialize My Jetpack so the products page is available on Simple sites, where the full
+		// Jetpack plugin doesn't run.
+		//
+		// Gated on JETPACK_MY_JETPACK_PRODUCTS_ONLY, which is the rollout switch for this whole
+		// feature and is defined by the wpcom platform. The gate has to fail closed: the same
+		// constant is what puts My Jetpack into products-only mode, so initializing without it would
+		// hand Simple sites the full dashboard - module toggles and onboarding included - which is
+		// precisely the experience a Simple site must not get.
+		if ( wpcom_my_jetpack_is_enabled_on_simple() && class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ) {
 			\Automattic\Jetpack\My_Jetpack\Initializer::init();
 		}
 

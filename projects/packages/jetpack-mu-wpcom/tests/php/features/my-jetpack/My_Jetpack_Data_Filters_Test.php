@@ -13,6 +13,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/my-jetpack/my-jetpack.php';
@@ -134,5 +135,31 @@ class My_Jetpack_Data_Filters_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_my_jetpack_site_current_plan( null ) );
 		$this->assertNull( wpcom_my_jetpack_products_catalog( null ) );
 		$this->assertNull( wpcom_my_jetpack_site_info( null ) );
+	}
+
+	/**
+	 * The rollout gate must fail closed.
+	 *
+	 * Safety-critical. The flag both enables My Jetpack on Simple AND selects products-only mode, so
+	 * initializing without it would give Simple sites the full dashboard. Off Simple it must also be
+	 * false, so Atomic keeps initializing My Jetpack through the Jetpack plugin as it does today.
+	 */
+	public function test_rollout_gate_is_closed_without_the_flag() {
+		Constants::clear_constants();
+
+		$this->assertFalse(
+			wpcom_my_jetpack_is_enabled_on_simple(),
+			'Without the flag, My Jetpack must not initialize.'
+		);
+
+		// Even with the flag on, a non-Simple site must not initialize through mu-wpcom.
+		Constants::set_constant( 'JETPACK_MY_JETPACK_PRODUCTS_ONLY', true );
+
+		$this->assertFalse(
+			wpcom_my_jetpack_is_enabled_on_simple(),
+			'IS_WPCOM is not defined here, so the gate must stay closed even with the flag set.'
+		);
+
+		Constants::clear_constants();
 	}
 }
