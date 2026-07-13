@@ -121,8 +121,8 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 				/>
 				<Text className={ styles.progressLabel } variant="body-sm">
 					{ sprintf(
-						/* translators: 1: billable views used, 2: the plan's billable views limit. */
-						__( '%1$s / %2$s billable views', 'jetpack-premium-analytics' ),
+						/* translators: 1: views used in the current cycle, 2: the plan's views limit. */
+						__( '%1$s / %2$s views', 'jetpack-premium-analytics' ),
 						formatMetricValue( usageValue, 'number', { decimals: 0 } ),
 						formatMetricValue( limit, 'number', { decimals: 0 } )
 					) }
