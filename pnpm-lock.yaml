@@ -2734,8 +2734,8 @@ importers:
         specifier: 2.0.4
         version: 2.0.4
       gridicons:
-        specifier: 3.4.2
-        version: 3.4.2(react@18.3.1)
+        specifier: 3.4.3
+        version: 3.4.3(react@18.3.1)
       libphonenumber-js:
         specifier: 1.13.3
         version: 1.13.3
@@ -3339,8 +3339,8 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
       gridicons:
-        specifier: 3.4.2
-        version: 3.4.2(react@18.3.1)
+        specifier: 3.4.3
+        version: 3.4.3(react@18.3.1)
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -3642,8 +3642,8 @@ importers:
         specifier: 2.0.4
         version: 2.0.4
       gridicons:
-        specifier: 3.4.2
-        version: 3.4.2(react@18.3.1)
+        specifier: 3.4.3
+        version: 3.4.3(react@18.3.1)
       lodash:
         specifier: 4.18.1
         version: 4.18.1
@@ -5225,8 +5225,8 @@ importers:
         specifier: 0.17.0
         version: 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       gridicons:
-        specifier: 3.4.2
-        version: 3.4.2(react@18.3.1)
+        specifier: 3.4.3
+        version: 3.4.3(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -5880,8 +5880,8 @@ importers:
         specifier: 6.3.0
         version: 6.3.0
       gridicons:
-        specifier: 3.4.2
-        version: 3.4.2(react@18.3.1)
+        specifier: 3.4.3
+        version: 3.4.3(react@18.3.1)
       jmpress:
         specifier: 0.4.5
         version: 0.4.5
@@ -14116,10 +14116,10 @@ packages:
   grid-index@1.1.0:
     resolution: {integrity: sha512-HZRwumpOGUrHyxO5bqKZL0B0GlUpwtCAzZ42sgxUPniu33R1LSFH5yrIcBCHjkctCAh3mtWKcKd9J4vDDdeVHA==}
 
-  gridicons@3.4.2:
-    resolution: {integrity: sha512-KC2BzPDh3F0vJzYa7KYBWJOO9gTHoKoFiHNazZEU9Gq2jIJ2zObOA67wlZjZkPHPCjZiLQrko3AYFLrMrHXKrA==}
+  gridicons@3.4.3:
+    resolution: {integrity: sha512-Ozd99rwsNZBJMkEsLk9KJ9XKeJE1Uo7Ptt46LxdFi6955AC7wiNaACiLbZeqLd8ZNZWGOnncwNMDKCQxvk8x2g==}
     peerDependencies:
-      react: 15 - 18
+      react: 15 - 19
 
   handle-thing@2.0.1:
     resolution: {integrity: sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg==}
@@ -18817,7 +18817,7 @@ snapshots:
       clsx: 2.1.1
       colord: 2.9.3
       debug: 4.4.3
-      gridicons: 3.4.2(react@18.3.1)
+      gridicons: 3.4.3(react@18.3.1)
       i18n-calypso: 7.4.0(@types/react@18.3.28)(react@18.3.1)
       lodash: 4.18.1
       prop-types: 15.8.1
@@ -32694,7 +32694,7 @@ snapshots:
 
   grid-index@1.1.0: {}
 
-  gridicons@3.4.2(react@18.3.1):
+  gridicons@3.4.3(react@18.3.1):
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
