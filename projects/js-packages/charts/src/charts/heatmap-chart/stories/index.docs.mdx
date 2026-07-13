@@ -219,7 +219,7 @@ Everything else — the cell gap, corner radius, in-cell value size, the empty-c
 
 ## Responsive Behavior
 
-By default the chart fills its parent container's dimensions, reflowing fluidly as the container resizes. Give it a height in one of three ways: an explicit height on the parent, an `aspectRatio` to derive the height from the available width, or fixed `width`/`height` props. Without one of these the chart has no height to fill and collapses, so always constrain it:
+By default the chart fills its parent container's dimensions, reflowing fluidly as the container resizes. Give it a height in one of three ways: an explicit height on the parent, an `aspectRatio`, or fixed `width`/`height` props. Without one of these the chart has no height to fill and collapses, so always constrain it. With an `aspectRatio` the chart keeps that ratio and is contained within the parent: it fills the available width and derives its height, but if the parent is shorter than that derived height it shrinks both axes to fit rather than overflowing:
 
 <Source
 	language="jsx"

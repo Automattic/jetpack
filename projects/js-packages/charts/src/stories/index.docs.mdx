@@ -150,7 +150,7 @@ For layouts where you want height calculated from width, pass the `aspectRatio` 
 	</div>`}
 />
 
-This is useful for responsive layouts where the container width varies but you want consistent proportions.
+This is useful for responsive layouts where the container width varies but you want consistent proportions. The chart is contained within its parent on both axes: it fills the available width and derives its height, but if the parent is shorter than that derived height it shrinks both axes to fit rather than overflowing.
 
 #### Fixed Dimensions
 
@@ -167,7 +167,7 @@ For complete control, specify explicit `width` and `height` props:
 |------|------|---------|-------------|
 | `width` | `number` | - | Fixed width in pixels (omit for responsive) |
 | `height` | `number` | - | Fixed height in pixels (omit for responsive) |
-| `aspectRatio` | `number` | - | Height as ratio of width (e.g., `0.5` = half width) |
+| `aspectRatio` | `number` | - | Height as ratio of width (e.g., `0.5` = half width); contained within the parent on both axes |
 | `maxWidth` | `number` | `1200` | Maximum width constraint |
 | `resizeDebounceTime` | `number` | `300` | Debounce delay for resize events (ms) |
 
