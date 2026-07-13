@@ -5,7 +5,7 @@ import type { BaseChartProps } from '../../../../types';
 // Mock the useParentSize hook
 jest.mock( '@visx/responsive', () => ( {
 	useParentSize: jest.fn( () => ( {
-		parentRef: { current: null },
+		parentRef: () => {},
 		width: 600, // Default width for tests
 		height: 300, // Default height for tests
 	} ) ),
@@ -21,11 +21,27 @@ describe( 'withResponsive', () => {
 	const ResponsiveComponent = withResponsive( MockComponent );
 
 	const { useParentSize } = jest.requireMock( '@visx/responsive' );
-	const DEFAULT_SIZE = { parentRef: { current: null }, width: 600, height: 300 };
+	const DEFAULT_SIZE = { parentRef: () => {}, width: 600, height: 300 };
+
+	// jsdom has no layout engine, so the wrapper's clientHeight (which the contain
+	// logic reads from real layout) is always 0. Mock it to simulate the height the
+	// parent makes available: 0 means unconstrained (the chart derives its height from
+	// width), a positive value simulates a parent that limits the height.
+	let mockClientHeight = 0;
+	beforeAll( () => {
+		Object.defineProperty( window.HTMLElement.prototype, 'clientHeight', {
+			configurable: true,
+			get() {
+				return mockClientHeight;
+			},
+		} );
+	} );
+
 	// Fully clear the mock (queued returns and implementation) after each test, then
 	// re-establish the default implementation, so a per-test override can't bleed
 	// into the next test.
 	afterEach( () => {
+		mockClientHeight = 0;
 		useParentSize.mockReset();
 		useParentSize.mockImplementation( () => DEFAULT_SIZE );
 	} );
@@ -45,16 +61,18 @@ describe( 'withResponsive', () => {
 		} );
 
 		test( 'derives height from width when the parent is taller than the derived height', () => {
-			// aspectRatio 0.4: derived height = 600 * 0.4 = 240, which fits the 300px
-			// parent, so the chart keeps the full measured width.
+			// Parent allows 300px of height; aspectRatio 0.4 derives 600 * 0.4 = 240,
+			// which fits, so the chart keeps the full measured width.
+			mockClientHeight = 300;
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
 			const component = screen.getByTestId( 'mock-component' );
 			expect( component ).toHaveStyle( { width: '600px', height: '240px' } );
 		} );
 
-		test( 'contains within the parent height when it is shorter than the derived height', () => {
-			// aspectRatio 0.75: derived height = 600 * 0.75 = 450 > 300, so both axes
-			// shrink to fit the 300px parent while preserving the ratio: 300 / 0.75 = 400.
+		test( 'contains within the parent height when the parent limits the available height', () => {
+			// Parent makes 300px of height available; aspectRatio 0.75 would derive
+			// 600 * 0.75 = 450, so both axes shrink to fit: 300 / 0.75 = 400.
+			mockClientHeight = 300;
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
 			const component = screen.getByTestId( 'mock-component' );
 			expect( component ).toHaveStyle( { width: '400px', height: '300px' } );
@@ -64,7 +82,7 @@ describe( 'withResponsive', () => {
 			// parentHeight 0 (unconstrained or not-yet-measured parent): the contain
 			// clamp must not run, so the height stays width-derived (600 * 0.4 = 240).
 			useParentSize.mockImplementation( () => ( {
-				parentRef: { current: null },
+				parentRef: () => {},
 				width: 600,
 				height: 0,
 			} ) );
@@ -117,11 +135,69 @@ describe( 'withResponsive', () => {
 			expect( content ).toHaveStyle( { width: '600px', height: '240px' } );
 		} );
 
-		test( 'content box contains to the parent height when it is shorter than the derived height', () => {
-			// aspectRatio 0.75: 600 * 0.75 = 450 > 300, so it shrinks to 400 × 300.
+		test( 'content box contains to the parent height when the parent limits the available height', () => {
+			// aspectRatio 0.75 derives 450 > the 300px the parent allows, so it shrinks
+			// to 400 × 300.
+			mockClientHeight = 300;
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
 			const content = screen.getByTestId( 'responsive-content' );
 			expect( content ).toHaveStyle( { width: '400px', height: '300px' } );
+		} );
+	} );
+
+	describe( 'resize behavior', () => {
+		test( 'grows on widen in a fluid (unconstrained-height) parent', () => {
+			// Unconstrained parent (mockClientHeight 0): the chart derives its height
+			// from width and must grow when the parent widens, not deadlock.
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 0,
+			} ) );
+			const { rerender } = render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '600px',
+				height: '240px',
+			} );
+
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 900,
+				height: 0,
+			} ) );
+			rerender( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '900px',
+				height: '360px',
+			} );
+		} );
+
+		test( 'stays contained on widen when the parent limits the height', () => {
+			// Parent allows 150px of height. aspectRatio 0.4 derives 240 at width 600 and
+			// 360 at width 900 — both exceed 150 — so the chart stays contained at
+			// 375 × 150 (150 / 0.4 = 375) across the widen rather than overflowing.
+			mockClientHeight = 150;
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 150,
+			} ) );
+			const { rerender } = render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '375px',
+				height: '150px',
+			} );
+
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 900,
+				height: 150,
+			} ) );
+			rerender( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '375px',
+				height: '150px',
+			} );
 		} );
 	} );
 
