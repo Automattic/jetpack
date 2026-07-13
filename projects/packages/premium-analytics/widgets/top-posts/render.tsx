@@ -316,12 +316,7 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		areClientSideCsvExportsEnabled() && rows.length > 0 && ! isFetching && ! isError;
 
 	return (
-		<>
-			{ canExport && (
-				<div className={ styles.contentExport }>
-					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
-				</div>
-			) }
+		<div className={ styles.root }>
 			<TopPostsLeaderboard
 				rows={ rows }
 				isLoading={ isLoading }
@@ -330,7 +325,12 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 				showLegend={ withComparison }
 				legendLabels={ legendLabels }
 			/>
-		</>
+			{ canExport && (
+				<div className={ styles.contentExport }>
+					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+				</div>
+			) }
+		</div>
 	);
 }
 

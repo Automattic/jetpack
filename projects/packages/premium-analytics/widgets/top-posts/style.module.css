@@ -1,7 +1,14 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
 .contentExport {
 	display: flex;
+	margin-block-start: auto;
 	justify-content: flex-end;
-	margin-block-end: var(--wpds-dimension-gap-sm, 8px);
+	padding-block-start: var(--wpds-dimension-gap-sm, 8px);
 }
 
 .labelLink {
