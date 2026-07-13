@@ -43,6 +43,10 @@ const SECTIONS = [
 				key: 'excerpt',
 				label: __( 'Excerpt', 'jetpack' ),
 				description: __( 'Generate post excerpts with AI.', 'jetpack' ),
+				enabledAction: {
+					label: __( 'Try it out in the editor', 'jetpack' ),
+					href: 'post-new.php',
+				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: 'https://jetpack.com/support/create-better-post-excerpts-with-ai/',
