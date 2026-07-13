@@ -136,9 +136,10 @@ function SiteOverviewReport( {
 			label,
 			value,
 			// Only pair a comparison value when the comparison period actually
-			// returned a summary; a `null` keeps the tile in the comparison layout
-			// (no fabricated delta) so tile sizing stays consistent whether or not
-			// comparison data is available.
+			// returned a summary; a `null` (never `undefined`) keeps every tile in
+			// the fixed-size comparison layout — no fabricated delta, and one value
+			// size instead of MetricTileGrid's responsive `.value` clamp — so tiles
+			// stay consistently sized with or without comparison data.
 			previousValue: hasComparison && comparisonSummary ? metricValue( comparisonSummary ) : null,
 			note,
 			// The tile shows a shortened count (e.g. 18K); the hover title carries
