@@ -126,7 +126,29 @@ function view( overrides: Partial< View > = {} ): View {
 }
 
 /**
- * Process the fixture rows with common accessors.
+ * Process rows with common accessors.
+ *
+ * @param dataRows    - Rows to process.
+ * @param overrides   - View fields to override.
+ * @param expandedIds - Expanded parent row ids.
+ * @param fieldConfig - Field config to use for processing.
+ * @return The processor result.
+ */
+function process(
+	dataRows: Row[],
+	overrides: Partial< View > = {},
+	expandedIds: string[] = [],
+	fieldConfig: Field< Row >[] = fields
+) {
+	return processTreeRows( dataRows, view( overrides ), new Set( expandedIds ), {
+		getItemId: item => item.id,
+		getItemParentId: item => item.parentId,
+		fields: fieldConfig,
+	} );
+}
+
+/**
+ * Process the fixture rows and return the visible row ids.
  *
  * @param overrides   - View fields to override.
  * @param expandedIds - Expanded parent row ids.
@@ -138,23 +160,15 @@ function getProcessedIds(
 	expandedIds: string[] = [],
 	fieldConfig: Field< Row >[] = fields
 ): string[] {
-	return processTreeRows( rows, view( overrides ), new Set( expandedIds ), {
-		getItemId: item => item.id,
-		getItemParentId: item => item.parentId,
-		fields: fieldConfig,
-	} ).data.map( row => row.id );
+	return process( rows, overrides, expandedIds, fieldConfig ).data.map( row => row.id );
 }
 
 describe( 'processTreeRows', () => {
-	it( 'returns only collapsed parents by default', () => {
-		const result = processTreeRows( rows, view(), new Set(), {
-			getItemId: item => item.id,
-			getItemParentId: item => item.parentId,
-			fields,
-		} );
+	it( 'hides children of collapsed parents but counts every row for pagination', () => {
+		const result = process( rows );
 
 		expect( result.data.map( row => row.id ) ).toEqual( [ 'search', 'social', 'direct' ] );
-		expect( result.paginationInfo ).toEqual( { totalItems: 3, totalPages: 1 } );
+		expect( result.paginationInfo ).toEqual( { totalItems: 9, totalPages: 1 } );
 	} );
 
 	it( 'splices expanded children directly after their parent', () => {
@@ -185,30 +199,35 @@ describe( 'processTreeRows', () => {
 		).toEqual( [ 'direct', 'search', 'bing', 'duckduckgo', 'google', 'yahoo', 'social' ] );
 	} );
 
-	it( 'force-expands child matches and filters to matching children', () => {
-		expect( getProcessedIds( { search: 'duck' } ) ).toEqual( [ 'search', 'duckduckgo' ] );
+	it( 'shows a matching child as a root when its parent is filtered out by search', () => {
+		const result = process( rows, { search: 'duck' } );
+
+		expect( result.data.map( row => row.id ) ).toEqual( [ 'duckduckgo' ] );
+		expect( result.rows[ 0 ].depth ).toBe( 0 );
+		expect( result.paginationInfo ).toEqual( { totalItems: 1, totalPages: 1 } );
 	} );
 
-	it( 'respects normal expansion for parent matches', () => {
+	it( 'keeps a parent-only search match without its non-matching children', () => {
 		expect( getProcessedIds( { search: 'search engines' } ) ).toEqual( [ 'search' ] );
-		expect( getProcessedIds( { search: 'search engines' }, [ 'search' ] ) ).toEqual( [
-			'search',
+		expect( getProcessedIds( { search: 'search engines' }, [ 'search' ] ) ).toEqual( [ 'search' ] );
+	} );
+
+	it( 'shows matching children as roots for isAny filters that exclude the parent', () => {
+		const result = process( rows, {
+			filters: [ { field: 'medium', operator: 'isAny', value: [ 'organic' ] } ],
+		} );
+
+		expect( result.data.map( row => row.id ) ).toEqual( [
 			'google',
 			'bing',
 			'duckduckgo',
 			'yahoo',
 		] );
+		expect( result.rows.every( row => row.depth === 0 ) ).toBe( true );
+		expect( result.paginationInfo ).toEqual( { totalItems: 4, totalPages: 1 } );
 	} );
 
-	it( 'force-expands child matches for isAny filters', () => {
-		expect(
-			getProcessedIds( {
-				filters: [ { field: 'medium', operator: 'isAny', value: [ 'organic' ] } ],
-			} )
-		).toEqual( [ 'search', 'google', 'bing', 'duckduckgo', 'yahoo' ] );
-	} );
-
-	it( 'respects normal expansion for parent isAny filter matches', () => {
+	it( 'keeps the tree for filters matching parents and children alike', () => {
 		const filterView: Partial< View > = {
 			filters: [ { field: 'medium', operator: 'isAny', value: [ 'social' ] } ],
 		};
@@ -221,66 +240,57 @@ describe( 'processTreeRows', () => {
 		] );
 	} );
 
-	it( 'requires child rows to match all active isAny filters', () => {
-		expect(
-			getProcessedIds( {
-				filters: [
-					{ field: 'medium', operator: 'isAny', value: [ 'social' ] },
-					{ field: 'category', operator: 'isAny', value: [ 'social network' ] },
-				],
-			} )
-		).toEqual( [ 'social', 'facebook', 'linkedin' ] );
+	it( 'paginates the flat row list, with children counting as items', () => {
+		const collapsed = process( rows, { page: 1, perPage: 2 } );
+
+		// Page 1 of the flat descending sort is [search, google]; google is
+		// hidden under the collapsed search parent but still counted.
+		expect( collapsed.data.map( row => row.id ) ).toEqual( [ 'search' ] );
+		expect( collapsed.paginationInfo ).toEqual( { totalItems: 9, totalPages: 5 } );
+
+		const expanded = process( rows, { page: 1, perPage: 2 }, [ 'search' ] );
+
+		expect( expanded.data.map( row => row.id ) ).toEqual( [ 'search', 'google' ] );
 	} );
 
-	it( 'applies isNone filters when resolving matching children', () => {
-		expect(
-			getProcessedIds( {
-				search: 'google',
-				filters: [ { field: 'medium', operator: 'isNone', value: [ 'organic' ] } ],
-			} )
-		).toEqual( [] );
-		expect(
-			getProcessedIds( {
-				search: 'facebook',
-				filters: [ { field: 'medium', operator: 'isNone', value: [ 'organic' ] } ],
-			} )
-		).toEqual( [ 'social', 'facebook' ] );
+	it( 'supports nested parents and resolves depth and child counts', () => {
+		const nestedRows: Row[] = [
+			{ id: 'a', referrer: 'A', category: 'x', medium: 'x', views: 30 },
+			{ id: 'b', parentId: 'a', referrer: 'B', category: 'x', medium: 'x', views: 20 },
+			{ id: 'c', parentId: 'b', referrer: 'C', category: 'x', medium: 'x', views: 10 },
+		];
+
+		expect( process( nestedRows ).data.map( row => row.id ) ).toEqual( [ 'a' ] );
+		expect( process( nestedRows, {}, [ 'a' ] ).data.map( row => row.id ) ).toEqual( [ 'a', 'b' ] );
+
+		const fullyExpanded = process( nestedRows, {}, [ 'a', 'b' ] );
+
+		expect( fullyExpanded.data.map( row => row.id ) ).toEqual( [ 'a', 'b', 'c' ] );
+		expect( fullyExpanded.rows.map( row => row.depth ) ).toEqual( [ 0, 1, 2 ] );
+		expect( fullyExpanded.rows.map( row => row.childCount ) ).toEqual( [ 1, 1, 0 ] );
 	} );
 
-	it( 'paginates by parent units and keeps children with the parent page', () => {
-		const result = processTreeRows(
-			rows,
-			view( { page: 1, perPage: 2 } ),
-			new Set( [ 'social' ] ),
+	it( 'treats rows with a missing parent as roots', () => {
+		const orphanRows: Row[] = [
+			{ id: 'a', referrer: 'A', category: 'x', medium: 'x', views: 20 },
 			{
-				getItemId: item => item.id,
-				getItemParentId: item => item.parentId,
-				fields,
-			}
-		);
+				id: 'orphan',
+				parentId: 'missing',
+				referrer: 'Orphan',
+				category: 'x',
+				medium: 'x',
+				views: 10,
+			},
+		];
+		const result = process( orphanRows );
 
-		expect( result.data.map( row => row.id ) ).toEqual( [
-			'search',
-			'social',
-			'facebook',
-			'linkedin',
-		] );
-		expect( result.paginationInfo ).toEqual( { totalItems: 3, totalPages: 2 } );
+		expect( result.data.map( row => row.id ) ).toEqual( [ 'a', 'orphan' ] );
+		expect( result.rows.map( row => row.depth ) ).toEqual( [ 0, 0 ] );
 	} );
 
 	it( 'uses only enableGlobalSearch fields when any are configured', () => {
 		expect( getProcessedIds( { search: 'channel' } ) ).toEqual( [] );
 		expect( getProcessedIds( { search: 'social' } ) ).toEqual( [ 'social' ] );
-	} );
-
-	it( 'matches nothing when no fields enable global search', () => {
-		const fieldsWithoutSearch = fields.map( field => ( {
-			...field,
-			enableGlobalSearch: false,
-		} ) );
-
-		expect( getProcessedIds( { search: 'google' }, [], fieldsWithoutSearch ) ).toEqual( [] );
-		expect( getProcessedIds( { search: 'channel' }, [], fieldsWithoutSearch ) ).toEqual( [] );
 	} );
 
 	it( 'matches accented search values with unaccented queries', () => {
@@ -293,12 +303,7 @@ describe( 'processTreeRows', () => {
 				views: 20,
 			},
 		];
-
-		const result = processTreeRows( accentedRows, view( { search: 'cafe' } ), new Set(), {
-			getItemId: item => item.id,
-			getItemParentId: item => item.parentId,
-			fields,
-		} );
+		const result = process( accentedRows, { search: 'cafe' } );
 
 		expect( result.data.map( row => row.id ) ).toEqual( [ 'cafe' ] );
 	} );

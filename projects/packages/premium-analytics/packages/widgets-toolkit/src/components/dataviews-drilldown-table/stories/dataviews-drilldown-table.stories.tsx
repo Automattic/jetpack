@@ -37,6 +37,22 @@ const rows: ReferrerRow[] = [
 		views: 485,
 	},
 	{
+		id: 'google-search',
+		parentId: 'google',
+		referrer: 'Google Search',
+		date: '2026-06-30',
+		href: 'https://google.com/search',
+		views: 420,
+	},
+	{
+		id: 'google-images',
+		parentId: 'google',
+		referrer: 'Google Images',
+		date: '2026-06-30',
+		href: 'https://images.google.com',
+		views: 65,
+	},
+	{
 		id: 'bing',
 		parentId: 'search',
 		referrer: 'Bing',
@@ -409,6 +425,14 @@ const meta: Meta< typeof DataViewsDrilldownTable< ReferrerRow > > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DataViewsDrilldownTable',
 	component: DataViewsDrilldownTable< ReferrerRow >,
 	tags: [ 'autodocs' ],
+	argTypes: {
+		expandChildren: { control: 'boolean' },
+		showHierarchyBadge: { control: 'boolean' },
+	},
+	args: {
+		expandChildren: false,
+		showHierarchyBadge: true,
+	},
 };
 
 export default meta;
@@ -456,10 +480,17 @@ export const Empty: Story = {
 	},
 };
 
-export const DefaultExpanded: Story = {
+export const ExpandChildren: Story = {
 	args: {
 		...Default.args,
-		defaultExpandedIds: [ 'search' ],
+		expandChildren: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'All parent rows start expanded; rows the user collapses manually stay collapsed.',
+			},
+		},
 	},
 };
 
@@ -477,13 +508,13 @@ export const Paginated: Story = {
 	args: {
 		...Default.args,
 		data: PAGINATED_ROWS,
-		defaultExpandedIds: [ 'referrer-01' ],
+		expandChildren: true,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					"Pagination counts parent groups; an expanded group's children always render with their parent and never split across pages.",
+					'Pagination follows the flat DataViews semantics from the upstream tree hierarchy: every row counts as an item, and rows hidden under a collapsed parent still count toward the page.',
 			},
 		},
 	},

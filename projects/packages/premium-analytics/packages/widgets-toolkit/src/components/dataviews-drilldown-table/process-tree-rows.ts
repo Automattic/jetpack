@@ -3,75 +3,144 @@
  */
 import { filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
 
-type ParentUnit< Item > = { parent: Item; children: Item[] };
+/**
+ * One row of the rendered tree: the item plus its resolved hierarchy metadata.
+ */
+export interface TreeRow< Item > {
+	item: Item;
+	id: string;
+	depth: number;
+	parentId?: string;
+	childCount: number;
+}
 
 type PaginationInfo = { totalItems: number; totalPages: number };
 
 type ProcessTreeRowsOptions< Item > = {
 	getItemId: ( item: Item ) => string;
-	getItemParentId: ( item: Item ) => string | undefined;
+	getItemParentId: ( item: Item ) => string | number | null | undefined;
 	fields: Field< Item >[];
 };
 
-/**
- * Build an unpaginated DataViews view.
- *
- * @param view  - DataViews view.
- * @param count - Row count.
- * @return View with every row requested.
- */
-function unpaginated( view: View, count: number ): View {
-	return {
-		...view,
-		page: 1,
-		perPage: Math.max( count, 1 ),
-	};
-}
+type ProcessedTreeRows< Item > = {
+	/** Rows to render, in hierarchy order, with collapsed subtrees removed. */
+	rows: TreeRow< Item >[];
+	/** The items of `rows`, for handing to DataViews as `data`. */
+	data: Item[];
+	/** All tree rows on the page, before collapse filtering. */
+	treeRows: TreeRow< Item >[];
+	paginationInfo: PaginationInfo;
+};
 
 /**
- * Group rows into parent units.
+ * Build tree rows from flat data.
  *
- * @param data            - Rows to group.
+ * Mirrors the upstream DataViews tree hierarchy (WordPress/gutenberg#77905):
+ * parent/child relationships come from ids, rows whose parent is absent from
+ * the data (or self-referential) become roots, and rows are re-emitted in
+ * depth-first hierarchy order with their depth and direct child count.
+ *
+ * @param data            - Flat rows.
  * @param getItemId       - Row id resolver.
  * @param getItemParentId - Parent id resolver.
- * @return Parent units.
+ * @return Tree rows in hierarchy order.
  */
-function getParentUnits< Item >(
+export function getTreeRows< Item >(
 	data: Item[],
 	getItemId: ( item: Item ) => string,
-	getItemParentId: ( item: Item ) => string | undefined
-): ParentUnit< Item >[] {
-	const childrenByParent = new Map< string, Item[] >();
-	const parents: Item[] = [];
-
-	for ( const item of data ) {
+	getItemParentId: ( item: Item ) => string | number | null | undefined
+): TreeRow< Item >[] {
+	const treeRows: TreeRow< Item >[] = data.map( ( item, index ) => {
 		const parentId = getItemParentId( item );
 
-		if ( parentId === undefined ) {
-			parents.push( item );
+		return {
+			item,
+			id: getItemId( item ) || index.toString(),
+			depth: 0,
+			parentId: parentId === null || parentId === undefined ? undefined : parentId.toString(),
+			childCount: 0,
+		};
+	} );
+	const rowById = new Map( treeRows.map( row => [ row.id, row ] ) );
+	const roots: TreeRow< Item >[] = [];
+	const childrenByParentId = new Map< string, TreeRow< Item >[] >();
+
+	for ( const row of treeRows ) {
+		const parent =
+			row.parentId && row.parentId !== row.id ? rowById.get( row.parentId ) : undefined;
+
+		if ( ! parent ) {
+			row.parentId = undefined;
+			roots.push( row );
 			continue;
 		}
 
-		const children = childrenByParent.get( parentId ) ?? [];
-		children.push( item );
-		childrenByParent.set( parentId, children );
+		parent.childCount += 1;
+		const children = childrenByParentId.get( parent.id ) ?? [];
+		children.push( row );
+		childrenByParentId.set( parent.id, children );
 	}
 
-	return parents.map( parent => ( {
-		parent,
-		children: childrenByParent.get( getItemId( parent ) ) ?? [],
-	} ) );
+	const orderedTreeRows: TreeRow< Item >[] = [];
+	const orderedIds = new Set< string >();
+	const appendRows = ( rows: TreeRow< Item >[], depth: number ) => {
+		for ( const row of rows ) {
+			if ( orderedIds.has( row.id ) ) {
+				continue;
+			}
+
+			orderedIds.add( row.id );
+			row.depth = depth;
+			orderedTreeRows.push( row );
+			appendRows( childrenByParentId.get( row.id ) ?? [], depth + 1 );
+		}
+	};
+
+	appendRows( roots, 0 );
+
+	return orderedTreeRows;
+}
+
+/**
+ * Filter tree rows down to the ones whose ancestors are all expanded.
+ *
+ * Walks the hierarchy-ordered rows with a stack of collapsed depths, hiding
+ * every row nested under a collapsed parent (upstream `getVisibleTreeRows`).
+ *
+ * @param treeRows        - Tree rows in hierarchy order.
+ * @param expandedItemIds - Ids of expanded parent rows.
+ * @return The visible tree rows.
+ */
+export function getVisibleTreeRows< Item >(
+	treeRows: TreeRow< Item >[],
+	expandedItemIds: ReadonlySet< string >
+): TreeRow< Item >[] {
+	const collapsedDepths: number[] = [];
+
+	return treeRows.filter( row => {
+		while ( collapsedDepths.length && row.depth <= collapsedDepths[ collapsedDepths.length - 1 ] ) {
+			collapsedDepths.pop();
+		}
+
+		const isHidden = collapsedDepths.length > 0;
+
+		if ( row.childCount > 0 && ! expandedItemIds.has( row.id ) ) {
+			collapsedDepths.push( row.depth );
+		}
+
+		return ! isHidden;
+	} );
 }
 
 /**
  * Apply DataViews processing to tree rows.
  *
- * DataViews does not render tree rows itself, so this processor returns the
- * exact flat page slice to render while keeping child rows attached to their
- * parent unit. Search, filters, sorting, and pagination are delegated to
- * DataViews' own `filterSortAndPaginate`; only the tree semantics (unit
- * membership, expansion, force-expanding child matches, pagination by parent
- * units) live here.
+ * Matches the upstream DataViews tree-hierarchy behaviour: search, filters,
+ * sorting, and pagination are DataViews' own flat `filterSortAndPaginate`
+ * semantics — child rows count as items, and a matching child whose parent is
+ * filtered out renders as a root instead of force-expanding the parent. The
+ * resulting page slice is then re-ordered into hierarchy order, and rows under
+ * collapsed parents are hidden (they still count toward pagination).
  *
  * @param data        - Parent and child rows.
  * @param view        - DataViews view.
@@ -84,64 +153,16 @@ export function processTreeRows< Item >(
 	view: View,
 	expandedIds: ReadonlySet< string >,
 	options: ProcessTreeRowsOptions< Item >
-): { data: Item[]; paginationInfo: PaginationInfo } {
+): ProcessedTreeRows< Item > {
 	const { fields, getItemId, getItemParentId } = options;
-	const units = getParentUnits( data, getItemId, getItemParentId );
-	const parents = units.map( unit => unit.parent );
-	const matchedParentIds = new Set(
-		filterSortAndPaginate( parents, unpaginated( view, parents.length ), fields ).data.map(
-			getItemId
-		)
-	);
-	const keptParents: Item[] = [];
-	const visibleChildrenByParent = new Map< string, Item[] >();
-
-	for ( const unit of units ) {
-		const parentId = getItemId( unit.parent );
-		const matchingChildren = filterSortAndPaginate(
-			unit.children,
-			unpaginated( view, unit.children.length ),
-			fields
-		).data;
-		const parentMatches = matchedParentIds.has( parentId );
-
-		if ( ! parentMatches && ! matchingChildren.length ) {
-			continue;
-		}
-
-		let visibleChildren = parentMatches ? [] : matchingChildren;
-
-		if ( parentMatches && expandedIds.has( parentId ) ) {
-			visibleChildren = filterSortAndPaginate(
-				unit.children,
-				{
-					...unpaginated( view, unit.children.length ),
-					search: '',
-					filters: [],
-				},
-				fields
-			).data;
-		}
-
-		keptParents.push( unit.parent );
-		visibleChildrenByParent.set( parentId, visibleChildren );
-	}
-
-	const { data: pageParents, paginationInfo } = filterSortAndPaginate(
-		keptParents,
-		{
-			...view,
-			search: '',
-			filters: [],
-		},
-		fields
-	);
+	const { data: pageItems, paginationInfo } = filterSortAndPaginate( data, view, fields );
+	const treeRows = getTreeRows( pageItems, getItemId, getItemParentId );
+	const rows = getVisibleTreeRows( treeRows, expandedIds );
 
 	return {
-		data: pageParents.flatMap( parent => [
-			parent,
-			...( visibleChildrenByParent.get( getItemId( parent ) ) ?? [] ),
-		] ),
+		rows,
+		data: rows.map( row => row.item ),
+		treeRows,
 		paginationInfo,
 	};
 }

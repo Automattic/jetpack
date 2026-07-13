@@ -1,18 +1,20 @@
 /**
  * External dependencies
  */
-import { Button, Icon } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
-import { __, sprintf } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
+import { __, _n, isRTL, sprintf } from '@wordpress/i18n';
+import { chevronDownSmall, chevronLeftSmall, chevronRightSmall } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './dataviews-drilldown-table.module.scss';
 import { processTreeRows } from './process-tree-rows';
+import type { TreeRow } from './process-tree-rows';
 import type { DataViewRenderFieldProps, Field, SupportedLayouts, View } from '@wordpress/dataviews';
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType, CSSProperties, ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 
@@ -23,10 +25,11 @@ type PaginationInfo = {
 
 type TreeFieldRenderOptions< Item > = {
 	field: Field< Item >;
-	hasChildren: ( item: Item ) => boolean;
-	isChild: ( item: Item ) => boolean;
-	isExpanded: ( item: Item ) => boolean;
-	onToggle: ( item: Item ) => void;
+	getItemId: ( item: Item ) => string;
+	rowMetaById: ReadonlyMap< string, TreeRow< Item > >;
+	expandedIds: ReadonlySet< string >;
+	showHierarchyBadge: boolean;
+	onToggle: ( id: string ) => void;
 };
 
 /**
@@ -54,17 +57,22 @@ export interface DataViewsDrilldownTableProps< Item > {
 	data: Item[];
 	/**
 	 * DataViews field config. The first field in the view's field list gets
-	 * tree affordances wrapped around its own render.
+	 * the tree toggle and indentation rendered before its own content.
 	 */
 	fields: Field< Item >[];
 	/** Stable id per row. */
 	getItemId: ( item: Item ) => string;
 	/** Returns the parent row id for child rows, undefined for parent rows. */
-	getItemParentId: ( item: Item ) => string | undefined;
+	getItemParentId: ( item: Item ) => string | number | null | undefined;
 	/** Initial view overrides (default sort, visible fields, page size, ...). */
 	initialView?: Partial< View >;
-	/** Parent ids expanded on mount. */
-	defaultExpandedIds?: string[];
+	/**
+	 * Expand parent rows by default. Rows the user collapses manually stay
+	 * collapsed across data changes.
+	 */
+	expandChildren?: boolean;
+	/** Show a badge with the number of direct children on parent rows. */
+	showHierarchyBadge?: boolean;
 	/** Show DataViews' loading state. */
 	isLoading?: boolean;
 	/** Accessible label for the search input. */
@@ -115,78 +123,31 @@ function renderFieldContent< Item >(
 }
 
 /**
- * Resolve a plain text label for the tree toggle's accessible name.
+ * Resolve the hierarchy toggle icon, matching the upstream DataViews tree
+ * hierarchy: a small right chevron when collapsed (left in RTL), a small down
+ * chevron when expanded.
  *
- * @param item  - The row item.
- * @param field - The tree field config.
- * @return The label text.
+ * @param expanded - Whether the parent row is expanded.
+ * @return The toggle icon.
  */
-function getToggleLabelValue< Item >( item: Item, field: Field< Item > ): string {
-	return String( getFieldValue( item, field ) ?? '' );
+function getHierarchyIcon( expanded: boolean ): JSX.Element {
+	if ( expanded ) {
+		return chevronDownSmall;
+	}
+
+	return isRTL() ? chevronLeftSmall : chevronRightSmall;
 }
 
 /**
- * Render the expand/collapse toggle for a parent tree row.
- *
- * @param props           - The component props.
- * @param props.item      - The row item.
- * @param props.field     - The tree field config.
- * @param props.expanded  - Whether the parent row is expanded.
- * @param props.onToggle  - Toggles the parent row.
- * @param props.className - Optional class name.
- * @param props.children  - The cell content the toggle wraps.
- * @return The toggle button.
- */
-function TreeToggle< Item >( {
-	item,
-	field,
-	expanded,
-	onToggle,
-	className,
-	children,
-}: {
-	item: Item;
-	field: Field< Item >;
-	expanded: boolean;
-	onToggle: ( item: Item ) => void;
-	className?: string;
-	children: ReactNode;
-} ): JSX.Element {
-	const handleToggle = useCallback( () => onToggle( item ), [ item, onToggle ] );
-	const labelValue = getToggleLabelValue( item, field );
-	const label = expanded
-		? sprintf(
-				/* translators: %s: the parent row label. */
-				__( 'Collapse %s', 'jetpack-premium-analytics' ),
-				labelValue
-		  )
-		: sprintf(
-				/* translators: %s: the parent row label. */
-				__( 'Expand %s', 'jetpack-premium-analytics' ),
-				labelValue
-		  );
-
-	return (
-		<Button
-			className={ className }
-			label={ label }
-			aria-expanded={ expanded }
-			onClick={ handleToggle }
-		>
-			{ children }
-			<Icon icon={ expanded ? chevronUp : chevronDown } size={ 16 } />
-		</Button>
-	);
-}
-
-/**
- * Create a DataViews field render component with tree affordances.
+ * Create a DataViews field render component with tree affordances: a leading
+ * expand/collapse chevron (or an alignment placeholder), depth indentation,
+ * and an optional direct-child-count badge.
  *
  * @param options - The tree field render options.
  * @return A DataViews field render component.
  */
 function createTreeFieldRender< Item >( options: TreeFieldRenderOptions< Item > ) {
-	const { field, hasChildren, isChild, isExpanded, onToggle } = options;
+	const { field, getItemId, rowMetaById, expandedIds, showHierarchyBadge, onToggle } = options;
 	const renderField = field.render;
 
 	/**
@@ -197,29 +158,56 @@ function createTreeFieldRender< Item >( options: TreeFieldRenderOptions< Item > 
 	 */
 	function TreeFieldRender( props: DataViewRenderFieldProps< Item > ): JSX.Element {
 		const content = renderFieldContent( props, renderField, field );
+		const id = getItemId( props.item );
+		const row = rowMetaById.get( id );
+		const depth = row?.depth ?? 0;
+		const childCount = row?.childCount ?? 0;
+		const expanded = expandedIds.has( id );
+		const labelValue = String( getFieldValue( props.item, field ) ?? '' );
+		const label = expanded
+			? sprintf(
+					/* translators: %s: the parent row label. */
+					__( 'Collapse %s', 'jetpack-premium-analytics' ),
+					labelValue
+			  )
+			: sprintf(
+					/* translators: %s: the parent row label. */
+					__( 'Expand %s', 'jetpack-premium-analytics' ),
+					labelValue
+			  );
+		const cellStyle = {
+			'--dataviews-drilldown-table-level': depth,
+		} as CSSProperties;
 
-		if ( isChild( props.item ) ) {
-			return <span className={ styles.child }>{ content }</span>;
-		}
-
-		if ( ! hasChildren( props.item ) ) {
-			return <>{ content }</>;
-		}
-
-		// The toggle button wraps the whole cell content, so the entire title
-		// cell (which absorbs the row's spare width) toggles the drill-down —
-		// parent-row content from the consumer's render must stay
-		// non-interactive.
 		return (
-			<TreeToggle
-				item={ props.item }
-				field={ field }
-				expanded={ isExpanded( props.item ) }
-				onToggle={ onToggle }
-				className={ styles.toggle }
-			>
-				<span className={ styles.parentContent }>{ content }</span>
-			</TreeToggle>
+			<span className={ styles.treeCell } style={ cellStyle }>
+				{ childCount > 0 ? (
+					<Button
+						className={ styles.toggle }
+						icon={ getHierarchyIcon( expanded ) }
+						label={ label }
+						aria-expanded={ expanded }
+						onClick={ () => onToggle( id ) }
+						size="small"
+					/>
+				) : (
+					<span className={ styles.togglePlaceholder } aria-hidden="true" />
+				) }
+				<span className={ styles.treeCellContent }>{ content }</span>
+				{ showHierarchyBadge && childCount > 0 && (
+					<Badge
+						intent="none"
+						className={ styles.badge }
+						aria-label={ sprintf(
+							/* translators: %d: number of direct child rows. */
+							_n( '%d child', '%d children', childCount, 'jetpack-premium-analytics' ),
+							childCount
+						) }
+					>
+						{ childCount.toString() }
+					</Badge>
+				) }
+			</span>
 		);
 	}
 
@@ -227,8 +215,11 @@ function createTreeFieldRender< Item >( options: TreeFieldRenderOptions< Item > 
 }
 
 /**
- * Render a controlled DataViews table over flat parent/child rows with generic
- * tree affordances on the first visible field.
+ * Render a controlled DataViews table over flat parent/child rows with tree
+ * affordances on the first visible field, matching the upstream DataViews
+ * tree hierarchy (WordPress/gutenberg#77905): a leading chevron toggles the
+ * drill-down, child rows indent by depth, and search, filters, sorting, and
+ * pagination keep DataViews' flat semantics.
  *
  * @param props                    - The component props.
  * @param props.data               - Flat rows: parents and children mixed.
@@ -236,7 +227,8 @@ function createTreeFieldRender< Item >( options: TreeFieldRenderOptions< Item > 
  * @param props.getItemId          - Resolves stable row ids.
  * @param props.getItemParentId    - Resolves parent ids for child rows.
  * @param props.initialView        - Initial view overrides.
- * @param props.defaultExpandedIds - Parent ids expanded on mount.
+ * @param props.expandChildren     - Expand parent rows by default.
+ * @param props.showHierarchyBadge - Show direct-child-count badges.
  * @param props.isLoading          - Show DataViews' loading state.
  * @param props.searchLabel        - Accessible label for the search input.
  * @param props.empty              - Custom empty state.
@@ -249,7 +241,8 @@ export function DataViewsDrilldownTable< Item >( {
 	getItemId,
 	getItemParentId,
 	initialView,
-	defaultExpandedIds = [],
+	expandChildren = false,
+	showHierarchyBadge = true,
 	isLoading = false,
 	searchLabel,
 	empty,
@@ -266,44 +259,37 @@ export function DataViewsDrilldownTable< Item >( {
 				...initialView,
 			} ) as View
 	);
-	const [ expandedIds, setExpandedIds ] = useState< Set< string > >(
-		() => new Set( defaultExpandedIds )
-	);
-
-	const childParentIds = useMemo( () => {
-		const parentIds = new Set< string >();
-
-		for ( const item of data ) {
-			const parentId = getItemParentId( item );
-
-			if ( parentId !== undefined ) {
-				parentIds.add( parentId );
-			}
-		}
-
-		return parentIds;
-	}, [ data, getItemParentId ] );
+	const [ expandedIds, setExpandedIds ] = useState< Set< string > >( () => new Set() );
+	const manuallyCollapsedIdsRef = useRef< Set< string > >( new Set() );
 
 	const handleToggle = useCallback(
-		( item: Item ) => {
-			const id = getItemId( item );
-
+		( id: string ) => {
 			setExpandedIds( currentExpandedIds => {
 				const nextExpandedIds = new Set( currentExpandedIds );
 
 				if ( nextExpandedIds.has( id ) ) {
 					nextExpandedIds.delete( id );
+
+					if ( expandChildren ) {
+						manuallyCollapsedIdsRef.current.add( id );
+					}
 				} else {
 					nextExpandedIds.add( id );
+					manuallyCollapsedIdsRef.current.delete( id );
 				}
 
 				return nextExpandedIds;
 			} );
 		},
-		[ getItemId ]
+		[ expandChildren ]
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
+	const {
+		rows,
+		data: pageData,
+		treeRows,
+		paginationInfo,
+	} = useMemo(
 		() =>
 			processTreeRows( data, view, expandedIds, {
 				getItemId,
@@ -313,22 +299,33 @@ export function DataViewsDrilldownTable< Item >( {
 		[ data, expandedIds, fields, getItemId, getItemParentId, view ]
 	);
 
-	// The processor force-expands parents whose children match an active
-	// search or filter, so the toggle state must reflect the rendered rows,
-	// not just `expandedIds`.
-	const visibleChildParentIds = useMemo( () => {
-		const parentIds = new Set< string >();
-
-		for ( const item of pageItems ) {
-			const parentId = getItemParentId( item );
-
-			if ( parentId !== undefined ) {
-				parentIds.add( parentId );
-			}
+	// With expandChildren, newly appearing parent rows start expanded — except
+	// the ones the user collapsed manually, which stay collapsed.
+	useEffect( () => {
+		if ( ! expandChildren ) {
+			return;
 		}
 
-		return parentIds;
-	}, [ pageItems, getItemParentId ] );
+		setExpandedIds( currentExpandedIds => {
+			const nextExpandedIds = new Set( currentExpandedIds );
+			let hasChanges = false;
+
+			for ( const treeRow of treeRows ) {
+				if (
+					treeRow.childCount &&
+					! manuallyCollapsedIdsRef.current.has( treeRow.id ) &&
+					! nextExpandedIds.has( treeRow.id )
+				) {
+					nextExpandedIds.add( treeRow.id );
+					hasChanges = true;
+				}
+			}
+
+			return hasChanges ? nextExpandedIds : currentExpandedIds;
+		} );
+	}, [ expandChildren, treeRows ] );
+
+	const rowMetaById = useMemo( () => new Map( rows.map( row => [ row.id, row ] ) ), [ rows ] );
 
 	const renderedFields = useMemo( () => {
 		const treeFieldId = view.fields?.[ 0 ];
@@ -346,26 +343,22 @@ export function DataViewsDrilldownTable< Item >( {
 				...field,
 				render: createTreeFieldRender( {
 					field,
-					hasChildren: item => childParentIds.has( getItemId( item ) ),
-					isChild: item => getItemParentId( item ) !== undefined,
-					isExpanded: item => {
-						const id = getItemId( item );
-
-						return expandedIds.has( id ) || visibleChildParentIds.has( id );
-					},
+					getItemId,
+					rowMetaById,
+					expandedIds,
+					showHierarchyBadge,
 					onToggle: handleToggle,
 				} ),
 			};
 		} );
 	}, [
-		childParentIds,
 		expandedIds,
 		fields,
 		getItemId,
-		getItemParentId,
 		handleToggle,
+		rowMetaById,
+		showHierarchyBadge,
 		view.fields,
-		visibleChildParentIds,
 	] );
 
 	return (
@@ -374,7 +367,7 @@ export function DataViewsDrilldownTable< Item >( {
 				view={ view }
 				onChangeView={ setView }
 				fields={ renderedFields }
-				data={ pageItems }
+				data={ pageData }
 				getItemId={ getItemId }
 				isLoading={ isLoading }
 				paginationInfo={ paginationInfo }

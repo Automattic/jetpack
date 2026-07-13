@@ -9,37 +9,41 @@
 	height: auto;
 }
 
-.parent-content {
-	min-inline-size: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
+/* One tree cell: leading toggle (or alignment placeholder), the consumer's
+ * field content, and an optional child-count badge — indented by depth like
+ * the upstream DataViews tree hierarchy. */
+.treeCell {
+	--dataviews-drilldown-table-level: 0;
 
-/* The toggle is a text button stretched across the title cell, so the whole
- * line (the title column absorbs the row's spare width) toggles the
- * drill-down. Height/padding resets keep the row at its regular density. */
-.toggle {
 	display: flex;
 	gap: 4px;
 	align-items: center;
-	justify-content: flex-start;
-	inline-size: 100%;
-	block-size: auto;
-	padding: 0;
-	color: inherit;
-	font-size: inherit;
-	font-weight: inherit;
-	text-align: start;
+	min-inline-size: 0;
+	margin-inline-start: calc(var(--dataviews-drilldown-table-level) * 24px);
 }
 
-/* The whole row reads as the control, so a focus ring on every pointer
- * click is noise — keep it for keyboard focus only. */
-.toggle:focus:not(:focus-visible) {
-	outline: none;
-	box-shadow: none;
+.treeCellContent {
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.child {
-	display: inline-block;
-	margin-inline-start: 24px;
+/* Only the chevron toggles the drill-down (matching upstream) — the field
+ * content stays whatever the consumer renders, links included. */
+.toggle {
+	flex-shrink: 0;
+}
+
+/* Keeps leaf-row content aligned with parent-row content, mirroring the
+ * upstream hierarchy toggle placeholder. */
+.togglePlaceholder {
+	display: block;
+	flex-shrink: 0;
+	inline-size: 24px;
+	block-size: 24px;
+}
+
+.badge {
+	flex-shrink: 0;
 }
