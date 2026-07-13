@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\Attributes\CoversMethod;
-use ReflectionMethod;
 
 /**
  * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_config
@@ -17,34 +16,20 @@ use ReflectionMethod;
 class Config_Test extends TestCase {
 
 	/**
-	 * Tear down: remove config filters.
+	 * Defaults are resolved lazily the first time get_config() is called, before init().
 	 */
-	public function tearDown(): void {
-		remove_all_filters( 'jetpack_cookie_consent_config' );
-		parent::tearDown();
-	}
+	public function test_get_config_returns_defaults_before_init() {
+		$config = Cookie_Consent::get_config();
 
-	/**
-	 * Get the private Cookie_Consent config for assertions.
-	 *
-	 * @return array Cookie consent configuration.
-	 */
-	private function get_config() {
-		$method = new ReflectionMethod( Cookie_Consent::class, 'get_config' );
-		// setAccessible() is required to invoke a private method on PHP < 8.1, and a
-		// deprecated no-op from 8.1 on. Call it only where it's actually needed.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		return $method->invoke( null );
+		$this->assertSame( 'jetpack', $config['event_prefix'] );
+		$this->assertTrue( $config['features']['banner'] );
 	}
 
 	/**
 	 * The default cookie policy URL is empty.
 	 */
 	public function test_cookie_policy_url_defaults_to_empty() {
-		$config = $this->get_config();
+		$config = Cookie_Consent::get_config();
 
 		$this->assertSame( '', $config['links']['cookie_policy_url'] );
 	}
@@ -53,15 +38,15 @@ class Config_Test extends TestCase {
 	 * Explicit links.cookie_policy_url values are preserved.
 	 */
 	public function test_links_cookie_policy_url_can_be_configured() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			function ( $config ) {
-				$config['links']['cookie_policy_url'] = 'https://example.com/cookies/';
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'links' => array(
+					'cookie_policy_url' => 'https://example.com/cookies/',
+				),
+			)
 		);
 
-		$config = $this->get_config();
+		$config = Cookie_Consent::get_config();
 
 		$this->assertSame( 'https://example.com/cookies/', $config['links']['cookie_policy_url'] );
 	}
@@ -70,15 +55,15 @@ class Config_Test extends TestCase {
 	 * Whitespace around configured links.cookie_policy_url values is trimmed.
 	 */
 	public function test_links_cookie_policy_url_is_trimmed() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			function ( $config ) {
-				$config['links']['cookie_policy_url'] = '  https://example.com/cookies/  ';
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'links' => array(
+					'cookie_policy_url' => '  https://example.com/cookies/  ',
+				),
+			)
 		);
 
-		$config = $this->get_config();
+		$config = Cookie_Consent::get_config();
 
 		$this->assertSame( 'https://example.com/cookies/', $config['links']['cookie_policy_url'] );
 	}
@@ -87,15 +72,15 @@ class Config_Test extends TestCase {
 	 * A whitespace-only links.cookie_policy_url is trimmed to an empty string.
 	 */
 	public function test_whitespace_only_links_cookie_policy_url_is_trimmed_to_empty() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			function ( $config ) {
-				$config['links']['cookie_policy_url'] = "   \t\n";
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'links' => array(
+					'cookie_policy_url' => "   \t\n",
+				),
+			)
 		);
 
-		$config = $this->get_config();
+		$config = Cookie_Consent::get_config();
 
 		$this->assertSame( '', $config['links']['cookie_policy_url'] );
 	}

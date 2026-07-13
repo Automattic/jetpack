@@ -4,12 +4,12 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			'jetpack-external-media-editor': './src/features/editor/index.js',
+			'jetpack-external-media-editor': './src/features/editor/index.jsx',
 			'jetpack-external-media-import-button': [
 				'./src/features/admin/external-media-import-button.js',
 				'./src/features/admin/external-media-import-button.scss',
 			],
-			'jetpack-external-media-import-page': './src/features/admin/external-media-import.js',
+			'jetpack-external-media-import-page': './src/features/admin/external-media-import.jsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

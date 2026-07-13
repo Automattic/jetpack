@@ -8,10 +8,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { DEFAULT_STORE_PERFORMANCE_METRICS, type StorePerformanceMetricId } from '../metrics';
 import StorePerformanceRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -22,12 +23,35 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 // Static Storybook builds need this source import before ComparativeLineChart reads LineChart.Legend.
 const ensureLineChartComposition = () => LineChart.Legend;
 
+// Carry the widget's metadata, including the metric-visibility attribute schema
+// so the dashboard story's settings drawer renders the real checkboxes.
+// Presentation is left unset so the host frames the widget and renders its
+// identity (title + icon), matching widget.json. The attribute schema is typed
+// loosely on the widget definition, so it is cast to the WidgetType shape.
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	description: widgetDefinition.description,
+	icon: widgetDefinition.icon,
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
+};
+
 type StorePerformanceRenderProps = ComponentProps< typeof StorePerformanceRender >;
 
 interface StorePerformanceStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
+	metrics: StorePerformanceMetricId[];
 }
+
+const METRIC_ARG_TYPES = {
+	metrics: {
+		control: 'check',
+		options: DEFAULT_STORE_PERFORMANCE_METRICS,
+		description: 'Store metrics to show as selectable tabs in the widget body.',
+	},
+} as const;
 
 type StorePerformanceStoryProps = StorePerformanceRenderProps & StorePerformanceStoryControls;
 
@@ -41,12 +65,14 @@ const withWidgetCanvas: Decorator = Story => (
 	</div>
 );
 
-function getStorePerformanceAttributes(
+function getStorePerformanceAttributes( {
 	withComparison = false,
-	preset: SelectablePresetId = DEFAULT_PRESET
-): StorePerformanceRenderProps[ 'attributes' ] {
+	preset = DEFAULT_PRESET,
+	metrics = DEFAULT_STORE_PERFORMANCE_METRICS,
+}: Partial< StorePerformanceStoryControls > ): StorePerformanceRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
+		metrics,
 	};
 }
 
@@ -68,22 +94,33 @@ function getDefaultQueryParamsSource( {
 	return `getDefaultQueryParams( ${ hasComparison ? 'true' : 'false' }, '${ storyPreset }' )`;
 }
 
+function getMetricsSource(
+	metrics: StorePerformanceMetricId[] = DEFAULT_STORE_PERFORMANCE_METRICS
+) {
+	return `[ ${ metrics.map( metric => `'${ metric }'` ).join( ', ' ) } ]`;
+}
+
 function getStorePerformanceSource( args: Partial< StorePerformanceStoryControls > ) {
 	return `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 
 <StorePerformanceRender
 \tattributes={ {
 \t\treportParams: ${ getDefaultQueryParamsSource( args ) },
+\t\tmetrics: ${ getMetricsSource( args.metrics ) },
 \t} }
 />`;
 }
 
-function renderStorePerformance( { withComparison, preset }: StorePerformanceStoryControls ) {
+function renderStorePerformance( {
+	withComparison,
+	preset,
+	metrics,
+}: StorePerformanceStoryControls ) {
 	ensureLineChartComposition();
 
 	return (
 		<StorePerformanceRender
-			attributes={ getStorePerformanceAttributes( withComparison, preset ) }
+			attributes={ getStorePerformanceAttributes( { withComparison, preset, metrics } ) }
 		/>
 	);
 }
@@ -91,6 +128,7 @@ function renderStorePerformance( { withComparison, preset }: StorePerformanceSto
 function StorePerformanceDashboardStory( {
 	withComparison,
 	preset,
+	metrics,
 	...dashboardStoryArgs
 }: StorePerformanceDashboardStoryProps ) {
 	ensureLineChartComposition();
@@ -98,10 +136,10 @@ function StorePerformanceDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ storyWidgetType }
 			renderModule={ STORE_PERFORMANCE_RENDER_MODULE }
 			renderComponent={ StorePerformanceRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getStorePerformanceAttributes( withComparison, preset ) }
+			attributes={ getStorePerformanceAttributes( { withComparison, preset, metrics } ) }
 		/>
 	);
 }
@@ -120,11 +158,13 @@ const meta = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params.',
 		},
+		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
-				component: 'Dashboard widget that displays key store performance metrics at a glance.',
+				component:
+					"Dashboard widget that displays key store performance metrics at a glance. Which metrics render as tabs is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer.",
 			},
 		},
 	},
@@ -143,6 +183,7 @@ export const Default: Story = {
 	args: {
 		preset: DEFAULT_PRESET,
 		withComparison: false,
+		metrics: DEFAULT_STORE_PERFORMANCE_METRICS,
 	},
 	decorators: [ withWidgetCanvas ],
 	parameters: {
@@ -165,6 +206,7 @@ export const WithComparison: Story = {
 	args: {
 		preset: DEFAULT_PRESET,
 		withComparison: true,
+		metrics: DEFAULT_STORE_PERFORMANCE_METRICS,
 	},
 	decorators: [ withWidgetCanvas ],
 	parameters: {
@@ -188,6 +230,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		preset: DEFAULT_PRESET,
 		withComparison: true,
+		metrics: DEFAULT_STORE_PERFORMANCE_METRICS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
@@ -200,6 +243,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params.',
 		},
+		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
@@ -212,6 +256,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 \trenderComponent={ StorePerformanceRender }
 \tattributes={ {
 \t\treportParams: getDefaultQueryParams( true ),
+\t\tmetrics: ${ getMetricsSource() },
 \t} }
 />`,
 			},

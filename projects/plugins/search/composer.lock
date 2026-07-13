@@ -142,7 +142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "0b1b6ab1b110e5b15b4f122c5e051ec4455e4888"
+                "reference": "b4b58a385a26210a56620238aee1779e9373d195"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -164,7 +164,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -881,7 +881,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "83c25c578ff27f736d3e5c8b94dd3456eb43ba01"
+                "reference": "d63dccb293846fdd6ef54fb78848d043815de4bb"
             },
             "require": {
                 "php": ">=7.2"
@@ -902,7 +902,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {

@@ -117,6 +117,71 @@ export const SCENARIOS = [
 		postToCodeVitals: true,
 		isBaseline: false,
 	},
+	{
+		key: 'myJetpack',
+		name: 'My Jetpack (connection sim)',
+		cliName: 'my-jetpack',
+		// Same WordPress instance as the Dashboard and Forms scenarios — just a different page —
+		// so no new Docker service is needed; only `path`/`waitForSelector` below differ.
+		dockerService: 'wordpress-jetpack-connected',
+		wpPath: '/var/www/html/jetpack-connected',
+		envVar: 'WP_JETPACK_CONNECTED_URL',
+		defaultUrl: 'http://localhost:8083',
+		header: 'My Jetpack (simulated WP.com connection)',
+		// The My Jetpack admin page - the heaviest Jetpack admin bundle. PHP emits an empty
+		// `<div id="my-jetpack-container">` and React (createRoot) renders MyJetpackScreen into
+		// it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
+		// class from @automattic/jetpack-components) to appear so a run measures the rendered app,
+		// not the empty shell. Capture completeness then rests on the networkidle wait plus the
+		// stable resource count, not the frame selector (`.jp-admin-page` renders with its children
+		// in one commit, so its presence is not a load-finished proxy) and not networkidle alone
+		// (the async product cards can settle after a quiet gap). The minResourceCount floor below
+		// is the backstop against gross truncation.
+		//
+		// Requires offline mode OFF (Status::is_offline_mode() gates
+		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
+		// offline by default): the simulate-wpcom-connection mu-plugin flips it. See the README
+		// offline-mode attribution note.
+		path: '/wp-admin/admin.php?page=my-jetpack',
+		waitForSelector: '#my-jetpack-container .jp-admin-page',
+		expectUrlIncludes: 'page=my-jetpack',
+		// A healthy load of this page fetches ~92 resources (stable across iterations locally);
+		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
+		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
+		// count (count-based, not asset-based) so it only catches gross capture truncation.
+		minResourceCount: 64,
+		// These four post straight to PRODUCTION keys — the `-staging` window in the README
+		// Safeguards is deliberately waived here (owner decision, Liam 2026-07-08), same rationale
+		// and substitute guardrails (SANITY_RANGES + all-or-nothing gate + manual sign-off) as the
+		// wp-admin-dashboard and forms-responses keys.
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'my-jetpack-connection-sim-largestContentfulPaint',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'my-jetpack-connection-sim-timeToFirstByte',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'my-jetpack-connection-sim-firstContentfulPaint',
+				type: 'fcp',
+			},
+			{
+				// The bundle-size metric: summed per-resource decodedBodySize in KB (see
+				// measure-lcp.js). My Jetpack is the heaviest Jetpack admin bundle, so this is
+				// the surface a bundle regression is most damaging on.
+				field: 'decodedBytesKB',
+				codevitalsKey: 'my-jetpack-connection-sim-decodedBytesKB',
+				type: 'decodedBytesKB',
+			},
+		],
+		postToCodeVitals: true,
+		isBaseline: false,
+	},
 ];
 
 /**
@@ -135,12 +200,12 @@ export const SANITY_RANGES = {
 	fcp: { min: 50, max: 30000 },
 	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
 	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
-	// Summed per-resource decodedBodySize, in KB. The Forms responses wp-build dashboard
-	// measures ~8200 KB (deterministic across iterations). These are guardrails against a
-	// broken measurement, NOT a trend clip: min 1000 catches a page that failed to load its
-	// wp-build shell (a real dashboard is always well over 1MB decoded); max 51200 (50MB)
-	// catches a bytes-vs-KB scale error while staying clear of any legitimate regression, which
-	// the trend should record rather than reject.
+	// Summed per-resource decodedBodySize, in KB. This row now guards two scenarios: the Forms
+	// responses wp-build dashboard (~8200 KB) and My Jetpack (~5860 KB), so do not tighten it to
+	// either page's profile. These are guardrails against a broken measurement, NOT a trend clip:
+	// min 1000 catches a page that failed to load its wp-build shell (a real dashboard is always
+	// well over 1MB decoded); max 51200 (50MB) catches a bytes-vs-KB scale error while staying
+	// clear of any legitimate regression, which the trend should record rather than reject.
 	decodedBytesKB: { min: 1000, max: 51200 },
 };
 

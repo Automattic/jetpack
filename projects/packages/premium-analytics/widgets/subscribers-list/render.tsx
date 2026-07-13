@@ -19,7 +19,6 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -84,7 +83,7 @@ export const SubscribersRoster = ( {
 	moreCount = 0,
 }: SubscribersRosterProps ) => {
 	return (
-		<div className={ styles.root }>
+		<div>
 			{ isError ? (
 				<Text>{ __( 'Unable to load subscribers.', 'jetpack-premium-analytics' ) }</Text>
 			) : (

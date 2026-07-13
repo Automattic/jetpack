@@ -22,32 +22,65 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import AllTimeStatsRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, {
+	DEFAULT_ALL_TIME_STATS_METRICS,
+	type AllTimeStatsMetricId,
+} from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const ALL_TIME_STATS_RENDER_MODULE = 'storybook/all-time-stats';
 
+// Carry the widget's metadata, including the metric-visibility attribute schema
+// so the dashboard story's settings drawer renders the real checkboxes. The
+// attribute schema is typed loosely on the widget definition, so it is cast to
+// the WidgetType shape.
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	icon: widgetDefinition.icon,
+	presentation: 'framed' as const,
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
+};
+
 interface AllTimeStatsStoryControls {
 	/**
 	 * Whether to include comparison report params.
 	 */
 	withComparison: boolean;
+	/**
+	 * Lifetime totals to show in the widget body.
+	 */
+	metrics: AllTimeStatsMetricId[];
 }
+
+const METRIC_ARG_TYPES = {
+	metrics: {
+		control: 'check',
+		options: DEFAULT_ALL_TIME_STATS_METRICS,
+	},
+} as const;
+
+const ALL_METRICS_ARGS = {
+	metrics: DEFAULT_ALL_TIME_STATS_METRICS,
+} as const;
 
 /**
  * Renders the data-connected widget with report params derived from the
- * date-range picker preset.
+ * date-range picker preset and the selected metrics.
  *
  * @param {AllTimeStatsStoryControls} props - The story controls.
  * @return The rendered widget.
  */
-function renderAllTimeStats( { withComparison }: AllTimeStatsStoryControls ) {
+function renderAllTimeStats( { withComparison, metrics }: AllTimeStatsStoryControls ) {
 	return (
-		<AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
+		<AllTimeStatsRender
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+		/>
 	);
 }
 
@@ -64,12 +97,13 @@ const meta = {
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and comments — as a labelled list of icon rows, sourced from the Jetpack Stats site-summary endpoint. This module has no comparison period, so the values render as bare numbers and the `WithComparison` story looks identical to `Default`.',
+					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and comments — as a labelled list of icon rows, sourced from the Jetpack Stats site-summary endpoint. Which rows appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. This module has no comparison period, so the values render as bare numbers and the `WithComparison` story looks identical to `Default`.',
 			},
 		},
 	},
@@ -84,7 +118,7 @@ type Story = StoryObj< AllTimeStatsStoryControls >;
  */
 export const Default: Story = {
 	render: renderAllTimeStats,
-	args: { withComparison: false },
+	args: { withComparison: false, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -95,7 +129,7 @@ export const Default: Story = {
  */
 export const WithComparison: Story = {
 	render: renderAllTimeStats,
-	args: { withComparison: true },
+	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -112,20 +146,16 @@ interface AllTimeStatsDashboardStoryProps
  */
 function AllTimeStatsDashboardStory( {
 	withComparison,
+	metrics,
 	...dashboardArgs
 }: AllTimeStatsDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ {
-				name: widgetDefinition.name,
-				title: widgetDefinition.title,
-				icon: widgetDefinition.icon,
-				presentation: 'framed',
-			} }
+			widgetType={ storyWidgetType }
 			renderModule={ ALL_TIME_STATS_RENDER_MODULE }
 			renderComponent={ AllTimeStatsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
 		/>
 	);
 }
@@ -135,9 +165,11 @@ export const WidgetDashboardWithWidget: StoryObj< AllTimeStatsDashboardStoryProp
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		withComparison: true,
+		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 };

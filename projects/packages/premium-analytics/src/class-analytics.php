@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
@@ -70,6 +71,11 @@ class Analytics {
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
+		// CSV report export pipeline (WOOA7S-1581). Must register above the is_admin() gate so its
+		// REST route hooks rest_api_init (is_admin() is false during REST requests). Self-gates on
+		// WooCommerce being active + Jetpack connected.
+		Export::configure();
+
 		// Load the widget type registry: hydration routine, registry-time and
 		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
@@ -121,9 +127,6 @@ class Analytics {
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
-		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
-		// place. Runs after Stats registers itself (admin_menu priority 999).
-		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
@@ -181,20 +184,6 @@ class Analytics {
 			'dashicons-chart-bar',
 			2
 		);
-	}
-
-	/**
-	 * Remove the standalone Jetpack "Stats" top-level menu so Premium Analytics
-	 * replaces it, but only when Stats actually registered its menu.
-	 *
-	 * @return void
-	 */
-	public static function remove_stats_menu() {
-		if ( ! isset( $GLOBALS['admin_page_hooks']['stats'] ) ) {
-			return;
-		}
-
-		remove_menu_page( 'stats' );
 	}
 
 	/**

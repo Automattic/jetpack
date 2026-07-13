@@ -1,0 +1,18 @@
+/* No outer padding: the host frames the widget and owns the padding. The grid
+ * layout now lives in the shared MetricTileGrid; this only owns the height
+ * chain (the grid is a size container and collapses without a definite height)
+ * and the no-metrics message. */
+.root {
+	height: 100%;
+	min-height: 120px;
+}
+
+.state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 120px;
+	height: 100%;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}

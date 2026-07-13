@@ -63,6 +63,7 @@ export {
 } from './customers';
 
 export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';
+export { mockSingleVideoData } from './single-video';
 export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors';
 
 export { mockSiteSummary } from './site-summary';
@@ -70,3 +71,19 @@ export { mockSiteSummary } from './site-summary';
 export { mockStatsPostData } from './stats-post';
 
 export { mockStatsInsightsData } from './insights';
+
+export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
+
+export { mockStatsSubscribersCountsData } from './subscriber-counts';
+
+export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
+
+export { buildEmailRateResponse } from './email-rate';
+
+export {
+	mockEmailCountryBreakdown,
+	mockEmailDeviceBreakdown,
+	mockEmailClientBreakdown,
+	mockEmailInternalLinkBreakdown,
+	mockEmailUserContentLinkBreakdown,
+} from './email-breakdown';
