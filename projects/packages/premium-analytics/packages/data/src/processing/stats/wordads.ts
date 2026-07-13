@@ -86,6 +86,42 @@ function summarizeWordAdsStats(
 	};
 }
 
+/**
+ * Align a normalized WordAds report to `length` buckets by dropping trailing
+ * buckets and recomputing the summary over the retained ones.
+ *
+ * The primary window is clamped to end yesterday (WordAds stats are computed
+ * nightly), which drops its trailing bucket, while the comparison window sits in
+ * the past and keeps every bucket — so a range ending today yields a comparison
+ * one bucket longer than the primary. Trimming the comparison back to the
+ * primary's bucket count keeps the two windows equal-length: the
+ * period-over-period delta then compares like-sized windows, and the dashed
+ * overlay aligns to the primary point-for-point (oldest-first) instead of
+ * doubling its last point. The trailing bucket is the one dropped because the
+ * surplus is the newest bucket, which has no counterpart in the clamped primary.
+ *
+ * @param report - The normalized WordAds report.
+ * @param length - The bucket count to align to (the primary window's).
+ * @return The report unchanged when already at or under `length`, otherwise a
+ *         copy trimmed to `length` leading buckets with a recomputed summary.
+ */
+export function sliceWordAdsStatsReport(
+	report: StatsWordAdsResponse,
+	length: number
+): StatsWordAdsResponse {
+	if ( report.data.length <= length ) {
+		return report;
+	}
+
+	// Narrow to the WordAds point array before slicing: indexing the
+	// StatsWordAdsResponse intersection widens `.slice()` back to the base
+	// normalized point, dropping the WordAds fields.
+	const points: StatsWordAdsDataPoint[] = report.data;
+	const data = points.slice( 0, length );
+
+	return { ...report, data, summary: summarizeWordAdsStats( data, report.summary ) };
+}
+
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
 	return {
 		amount: safeParseFloat( value.amount ),

@@ -77,3 +77,11 @@ export { mockStatsSubscribersCountsData } from './subscriber-counts';
 export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
 
 export { buildEmailRateResponse } from './email-rate';
+
+export {
+	mockEmailCountryBreakdown,
+	mockEmailDeviceBreakdown,
+	mockEmailClientBreakdown,
+	mockEmailInternalLinkBreakdown,
+	mockEmailUserContentLinkBreakdown,
+} from './email-breakdown';

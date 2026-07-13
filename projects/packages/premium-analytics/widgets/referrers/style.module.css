@@ -1,55 +1,31 @@
-.labelContent {
-	display: inline-flex;
-	align-items: center;
-	min-inline-size: 0;
-	max-inline-size: 100%;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-}
-
-.labelIconBox {
-	flex: 0 0 auto;
-	inline-size: 16px;
-	block-size: 16px;
-}
-
 .labelIcon {
-	inline-size: 16px;
-	block-size: 16px;
-	border-radius: var(--wpds-border-radius-sm);
-	object-fit: cover;
+	--jpa-leaderboard-image-width: 16px;
+	--jpa-leaderboard-image-height: 16px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
 }
 
+/* Flex keeps the Link's external-arrow icon on the same line as the label;
+   the min height keeps the standard 36px leaderboard row. */
 .labelLink,
 .labelText {
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	display: flex;
+	align-items: center;
+	min-block-size: 36px;
+	min-inline-size: 0;
+	max-inline-size: 100%;
 	overflow: hidden;
 	color: inherit;
 	text-decoration: none;
-	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
 .labelLink {
-	display: flex;
-	align-items: center;
 	gap: var(--wpds-dimension-gap-xs, 4px);
 }
 
-.labelText {
-	display: block;
-}
-
-.labelLink:hover .labelTitle,
-.labelLink:focus .labelTitle {
+.labelLink:hover,
+.labelLink:focus {
 	text-decoration: underline;
-}
-
-.labelTitle {
-	min-inline-size: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .placeholder {
@@ -82,4 +58,3 @@
 	aspect-ratio: 4 / 3;
 	overflow: hidden;
 }
-

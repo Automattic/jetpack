@@ -4,27 +4,34 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Modal, Button } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRight, external } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
-import clsx from 'clsx';
-import PropTypes from 'prop-types';
+import { Button, Link } from '@wordpress/ui';
 import { useCallback, useState, useEffect } from 'react';
+import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import './style.scss';
+
+interface OwnerDisconnectDialogProps {
+	/** Whether the dialog is open. */
+	isOpen?: boolean;
+	/** Callback for when the dialog is closed. */
+	onClose: () => void;
+	/** API root URL. */
+	apiRoot: string;
+	/** API nonce. */
+	apiNonce: string;
+	/** Callback after successful disconnection. */
+	onDisconnected?: () => void;
+	/** Callback after user is unlinked. */
+	onUnlinked?: () => void;
+}
 
 /**
  * The Owner Disconnect Dialog component.
  *
- * @param {object}   props                - Component props.
- * @param {boolean}  props.isOpen         - Whether the dialog is open.
- * @param {Function} props.onClose        - Callback for when the dialog is closed.
- * @param {string}   props.apiRoot        - API root URL.
- * @param {string}   props.apiNonce       - API nonce.
- * @param {Function} props.onDisconnected - Callback after successful disconnection.
- * @param {Function} props.onUnlinked     - Callback after user is unlinked.
- * @return {import('react').Component} The OwnerDisconnectDialog component.
+ * @param {OwnerDisconnectDialogProps} props - Component props.
+ * @return {import('react').ReactNode} The OwnerDisconnectDialog component.
  */
 const OwnerDisconnectDialog = ( {
 	isOpen,
@@ -33,7 +40,7 @@ const OwnerDisconnectDialog = ( {
 	apiNonce,
 	onDisconnected,
 	onUnlinked,
-} ) => {
+}: OwnerDisconnectDialogProps ) => {
 	// Add state for disconnect status and error
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( '' );
@@ -94,13 +101,13 @@ const OwnerDisconnectDialog = ( {
 				title=""
 				contentLabel={ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
 				aria={ {
-					labelledby: 'jp-connection__disconnect-dialog__heading',
+					labelledby: 'jp-connection__owner-disconnect-dialog__heading',
 				} }
 				onRequestClose={ handleStayConnected }
 				className="jp-connection__disconnect-dialog"
 			>
 				<div className="jp-connection__disconnect-dialog__content">
-					<h1 id="jp-connection__disconnect-dialog__heading">
+					<h1 id="jp-connection__owner-disconnect-dialog__heading">
 						{ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
 					</h1>
 					<p className="jp-connection__disconnect-dialog__large-text">
@@ -112,7 +119,8 @@ const OwnerDisconnectDialog = ( {
 					<ManageConnectionActionCard
 						title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
 						link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-							site: window?.myJetpackInitialState?.siteSuffix,
+							site: ( window as Window & { myJetpackInitialState?: { siteSuffix?: string } } )
+								?.myJetpackInitialState?.siteSuffix,
 						} ) }
 						isExternal={ true }
 						action="transfer"
@@ -156,17 +164,14 @@ const OwnerDisconnectDialog = ( {
 						</div>
 						<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-4 md-col-span-7 sm-col-span-4">
 							<Button
-								variant="primary"
 								onClick={ handleStayConnected }
 								className="jp-connection__disconnect-dialog__btn-dismiss"
 							>
 								{ __( 'Stay Connected', 'jetpack-connection-js' ) }
 							</Button>
 							<Button
-								variant="primary"
 								onClick={ handleDisconnectAnyway }
 								className="jp-connection__disconnect-dialog__btn-disconnect"
-								isDestructive
 								disabled={ isDisconnecting }
 							>
 								{ isDisconnecting ? disconnectingText : disconnectText }
@@ -179,56 +184,6 @@ const OwnerDisconnectDialog = ( {
 				</div>
 			</Modal>
 		)
-	);
-};
-
-OwnerDisconnectDialog.propTypes = {
-	/** Whether the dialog is open */
-	isOpen: PropTypes.bool,
-	/** Callback for when the dialog is closed */
-	onClose: PropTypes.func,
-	/** API root URL */
-	apiRoot: PropTypes.string.isRequired,
-	/** API nonce */
-	apiNonce: PropTypes.string.isRequired,
-	/** Callback after successful disconnection */
-	onDisconnected: PropTypes.func,
-	/** Callback after user is unlinked */
-	onUnlinked: PropTypes.func,
-};
-
-const ManageConnectionActionCard = ( {
-	title,
-	onClick = () => null,
-	isExternal = false,
-	link = '#',
-	action,
-	disabled = false,
-} ) => {
-	const disabledCallback = useCallback( e => e.preventDefault(), [] );
-
-	return (
-		<div
-			className={
-				'jp-connection__manage-dialog__action-card card' + ( disabled ? ' disabled' : '' )
-			}
-		>
-			<div className="jp-connection__manage-dialog__action-card__card-content">
-				<a
-					href={ link }
-					className={ clsx( 'jp-connection__manage-dialog__action-card__card-headline', action ) }
-					onClick={ ! disabled ? onClick : disabledCallback }
-					target={ isExternal ? '_blank' : '_self' }
-					rel={ 'noopener noreferrer' }
-				>
-					{ title }
-					<Icon
-						icon={ isExternal ? external : chevronRight }
-						className="jp-connection__manage-dialog__action-card__icon"
-					/>
-				</a>
-			</div>
-		</div>
 	);
 };
 

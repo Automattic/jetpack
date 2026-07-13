@@ -97,6 +97,7 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
+export { sliceWordAdsStatsReport } from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -299,6 +300,7 @@ export type {
 	StatsVideoPlaysComparisonItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
+export { compareEmailBreakdownItems } from './processing/stats';
 export type { StatsCommentFollowersParams } from './queries/stats-comment-followers-query';
 export type { StatsReportParams } from './queries/stats-query';
 export {
