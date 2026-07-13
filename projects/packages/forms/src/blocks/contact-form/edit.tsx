@@ -124,17 +124,17 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 // "+" inside a form) shows only the first 6 prioritized blocks, and that
 // prioritized order fully overrides Gutenberg's usage-based "most used"
 // ranking. Deriving the order from child-blocks.js alone buried the most
-// commonly used fields (Name, Email, Text…) past the 6-item cutoff while
+// commonly used fields (Name, Email, Textarea…) past the 6-item cutoff while
 // surfacing incidental ones like Hidden. List the common fields explicitly
 // here; the remaining valid fields follow in their child-blocks.js order. See
 // DSGCOM-690.
 const FEATURED_INSERTER_FIELDS = [
 	'jetpack/field-name',
 	'jetpack/field-email',
-	'jetpack/field-text',
 	'jetpack/field-textarea',
+	'jetpack/field-text',
+	'jetpack/field-telephone',
 	'jetpack/field-select',
-	'jetpack/field-checkbox',
 ];
 
 const PRIORITIZED_INSERTER_BLOCKS = ( () => {
