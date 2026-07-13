@@ -29,8 +29,11 @@
 	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
 }
 
+/* `min-width: 0` lets the flex item shrink below its content width so the
+   ellipsis applies; without it a long title pushes the trailing icon out. */
 .labelTitle,
 .labelTitleLink {
+	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
