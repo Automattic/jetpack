@@ -75,41 +75,15 @@ function wpcom_add_crossorigin_to_script_elements( $tag ) {
 }
 
 /**
- * Temporary function to feature flag Sentry by segment.
- *
- * We'll be testing it on production (simple sites) for a while to see if it's feasible to
- * activate it for all sites and perhaps get rid of our custom solution. If it works well,
- * we'll activate for all simple sites and look into activating it for WoA, too.
- *
- * @param int $user_id The user id.
- * @return bool
+ * Decide whether Sentry should be activated for a given user and blog.
  */
-function wpcom_user_in_sentry_test_segment( $user_id ) {
-	$current_segment = 10; // Segment of existing users that will get this feature in %.
-	$user_segment    = $user_id % 100;
-
-	/*
-	 * We get the last two digits of the user id and that will be used to decide in what
-	 * segment the user is. i.e if current_segment is 10, then only ids that end in < 10
-	 * will be considered part of the segment.
+function wpcom_should_activate_sentry() {
+	/**
+	 * Filter to enable Sentry error reporting.
+	 *
+	 * @param bool $enabled Whether Sentry should be activated.
 	 */
-	return $user_segment < $current_segment;
-}
-
-/**
- * Return whether Sentry should be activated for a given user.
- *
- * In this phase, a12s have the possibility of configuring what error reporter to use
- * through the sticker. a12s should not be covered by the segment logic.
- *
- * Regular users have the error reporter chosen based on the segmentation logic, only.
- *
- * @param int $user_id The user id. Used to check if the user is A8C or in the Sentry test segment.
- * @param int $blog_id The blog ID. Usually the value of `get_current_blog_id`. Used to check if the sticker is applied if user is A8C.
- */
-function wpcom_should_activate_sentry( $user_id, $blog_id ) {
-	return ( is_automattician( $user_id ) && has_blog_sticker( 'error-reporting-use-sentry', $blog_id ) )
-		|| ( ! is_automattician( $user_id ) && wpcom_user_in_sentry_test_segment( $user_id ) );
+	return apply_filters( 'a8c_enable_sentry_error_reporting', false );
 }
 
 /**
