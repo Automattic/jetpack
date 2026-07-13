@@ -1221,10 +1221,44 @@
 	bottom: -2px;
 }
 
-/* Pre-upload placeholder figure: dim the locally-previewed image while
-   the upload is in flight, then snap back once the real URL is in place. */
+/* Pre-upload placeholder figure. While the upload is in flight the figure is
+   sized to the image's aspect ratio (set inline in view.js) and painted as a
+   pulsing gray skeleton box. The locally-previewed image sits on top at reduced
+   opacity so the pulse reads through it as a "still uploading" signal; when the
+   preview can't decode (e.g. HEIC) the pulsing box stands in on its own so the
+   user always sees a correctly-sized placeholder instead of nothing. The class
+   and inline aspect-ratio are removed once the real URL is in place. */
+.bw-content .bw-image-figure.bw-image-uploading {
+	background-color: #f3f4f6;
+	border-radius: 6px;
+	overflow: hidden;
+	animation: bw-image-uploading-pulse 1.4s ease-in-out infinite;
+}
+
 .bw-content .bw-image-figure.bw-image-uploading img {
-	opacity: 0.5;
+	opacity: 0.6;
+}
+
+@keyframes bw-image-uploading-pulse {
+
+	0%,
+	100% {
+		background-color: #f3f4f6;
+	}
+
+	50% {
+		background-color: #e2e4e8;
+	}
+}
+
+/* Respect reduced-motion preferences: hold a static dimmed skeleton box
+   instead of pulsing. The gray fill + dimmed preview still signal the
+   in-flight upload. */
+@media (prefers-reduced-motion: reduce) {
+
+	.bw-content .bw-image-figure.bw-image-uploading {
+		animation: none;
+	}
 }
 
 .bw-content p {

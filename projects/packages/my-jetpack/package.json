@@ -61,7 +61,7 @@
 		"@wordpress/url": "4.50.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
-		"gridicons": "3.4.2",
+		"gridicons": "3.4.3",
 		"prop-types": "15.8.1",
 		"react-router": "7.15.1"
 	},

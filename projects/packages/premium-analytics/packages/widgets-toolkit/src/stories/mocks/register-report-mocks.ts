@@ -47,11 +47,21 @@ import {
 	mockCustomersByDateComparisonData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
+	mockSingleVideoData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsSummaryData,
+	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
+	mockPlanUsageData,
+	buildEmailRateResponse,
+	mockEmailCountryBreakdown,
+	mockEmailDeviceBreakdown,
+	mockEmailClientBreakdown,
+	mockEmailInternalLinkBreakdown,
+	mockEmailUserContentLinkBreakdown,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -69,6 +79,10 @@ const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/su
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
+// Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
+// own path branch rather than a `routeStatsReport()` case.
+const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
+const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -150,6 +164,28 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 		mockStateOverrides.delete( pathFragment );
 	} else {
 		mockStateOverrides.set( pathFragment, state );
+	}
+}
+
+const mockResponseOverrides = new Map< string, unknown >();
+
+/**
+ * Force every request whose path contains `pathFragment` to resolve with a
+ * specific payload, or clear the override with `null`. Unlike
+ * `setReportMockState`, which forces a widget's loading/error/empty UI, this
+ * swaps the successful response body — for exercising a data-driven variant (an
+ * over-limit reading, a specific row shape) the default fixture doesn't cover.
+ * Same scoping caveat: keyed by path, so scope such stories out of the shared
+ * autodocs page (`tags: [ '!autodocs' ]`) and clear the override on cleanup.
+ *
+ * @param pathFragment - Substring matched against the request path.
+ * @param response     - The response body to resolve with, or `null` to clear.
+ */
+export function setReportMockResponse( pathFragment: string, response: unknown | null ): void {
+	if ( response === null ) {
+		mockResponseOverrides.delete( pathFragment );
+	} else {
+		mockResponseOverrides.set( pathFragment, response );
 	}
 }
 
@@ -867,16 +903,71 @@ function buildEmailSummaryResponse() {
 }
 
 /**
+ * Builds a mock email breakdown response for the "Email breakdown" widget. The
+ * request path ends with the breakdown dimension
+ * (`.../stats/opens|clicks/emails/{id}/{breakdown}`), so the trailing segment
+ * selects the matching fieldless fixture. The endpoints have no comparison period.
+ *
+ * @param requestPath - The request path, used to read the breakdown dimension.
+ * @return Raw email breakdown response.
+ */
+function buildEmailBreakdownResponse( requestPath: string ): unknown {
+	const breakdown = requestPath.split( '?' )[ 0 ].split( '/' ).pop() ?? '';
+
+	switch ( breakdown ) {
+		case 'country':
+			return mockEmailCountryBreakdown;
+		case 'device':
+			return mockEmailDeviceBreakdown;
+		case 'client':
+			return mockEmailClientBreakdown;
+		case 'link':
+			return mockEmailInternalLinkBreakdown;
+		case 'user-content-link':
+			return mockEmailUserContentLinkBreakdown;
+		default:
+			return {};
+	}
+}
+
+/**
  * Routes a Stats sub-path to the matching mock generator.
  *
  * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string ): unknown {
+	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
+	if ( /^\/video\/\d+$/.test( subPath ) ) {
+		return mockSingleVideoData;
+	}
+
+	// Per-post email rate breakdowns: `/opens/emails/<postId>/rate`, `/clicks/emails/<postId>/rate`.
+	const emailRate = subPath.match( /^\/(opens|clicks)\/emails\/\d+\/rate$/ );
+	if ( emailRate ) {
+		return buildEmailRateResponse( emailRate[ 1 ] as 'opens' | 'clicks' );
+	}
+
+	// Per-post email breakdowns: `/opens|clicks/emails/<postId>/<dimension>`. Matched here
+	// (after the `rate` case above) so the shared prefix can't swallow the rate endpoint.
+	if (
+		/^\/(?:opens|clicks)\/emails\/\d+\/(?:country|device|client|link|user-content-link)$/.test(
+			subPath
+		)
+	) {
+		return buildEmailBreakdownResponse( subPath );
+	}
+
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
 			return mockSiteSummary;
+		case '/summary':
+			// Period summary — alternates primary/comparison so the Site overview
+			// widget shows a period-over-period delta on each tile.
+			return nextIsComparison( 'stats/summary' )
+				? mockStatsSummaryComparisonData
+				: mockStatsSummaryData;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
@@ -972,8 +1063,78 @@ function buildVideoPlaysResponse( requestPath: string ) {
 	return { date, period: 'day', summary: { plays: rows }, days: { [ date ]: { plays: rows } } };
 }
 
+/**
+ * Builds the wordads/stats time-series response for the WordAds chart tabs.
+ *
+ * Honours the `unit`, `date`, and `quantity` query params and returns the raw
+ * WPCOM matrix shape (`fields: [ 'period', 'impressions', 'revenue', 'cpm' ]`).
+ * Impressions are anchored to each bucket's absolute date so the current window
+ * trends above the comparison window (a positive period-over-period delta), and
+ * revenue is derived from impressions and a wavy CPM so all three metrics move
+ * together and read clearly against the dashed previous-period overlay.
+ *
+ * @param query - Parsed query params (`unit`, `date`, `quantity`).
+ * @return Raw wordads/stats response in the WPCOM matrix shape.
+ */
+function buildWordAdsStatsResponse( query: URLSearchParams ) {
+	const unit = query.get( 'unit' ) || 'day';
+	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const count = Math.max( 1, Math.min( 400, Number( query.get( 'quantity' ) ) || 30 ) );
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const i = count - 1 - index;
+		const bucket = new Date( endDate );
+		let period: string;
+
+		if ( unit === 'year' ) {
+			bucket.setUTCFullYear( bucket.getUTCFullYear() - i );
+			period = `${ bucket.getUTCFullYear() }`;
+		} else if ( unit === 'month' ) {
+			bucket.setUTCMonth( bucket.getUTCMonth() - i );
+			period = `${ bucket.getUTCFullYear() }-${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }`;
+		} else if ( unit === 'week' ) {
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			// The wordads weekly label is `YYYYWMMWDD` — the week's start date.
+			period = `${ bucket.getUTCFullYear() }W${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }W${ String( bucket.getUTCDate() ).padStart( 2, '0' ) }`;
+		} else {
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			period = bucket.toISOString().slice( 0, 10 );
+		}
+
+		const absDay = Math.floor( bucket.getTime() / DAY_MS );
+		const trend = ( absDay - anchorDay ) * 3;
+		const wave = 200 * Math.sin( absDay / 9 ) + 80 * Math.cos( absDay / 13 );
+		const impressions = Math.max( 0, Math.round( 1500 + trend + wave ) );
+		const cpm = Math.max( 1, 4 + 1.5 * Math.sin( absDay / 6 ) );
+		const revenue = ( impressions / 1000 ) * cpm;
+
+		return [ period, impressions, Number( revenue.toFixed( 2 ) ), Number( cpm.toFixed( 2 ) ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit,
+		fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+		data: rows,
+	};
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
+
+	for ( const [ fragment, response ] of mockResponseOverrides ) {
+		if ( requestPath.includes( fragment ) ) {
+			return response;
+		}
+	}
 
 	for ( const [ fragment, state ] of mockStateOverrides ) {
 		if ( ! requestPath.includes( fragment ) ) {
@@ -1029,6 +1190,17 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
+	}
+
+	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
+		return mockPlanUsageData;
+	}
+
+	if ( requestPath.startsWith( STATS_WORDADS_STATS_PATH ) ) {
+		const queryIndex = requestPath.indexOf( '?' );
+		return buildWordAdsStatsResponse(
+			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
+		);
 	}
 
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {

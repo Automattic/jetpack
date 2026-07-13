@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Captions: Fix the caption manager failing to load on WordPress.com Simple sites by setting Webpack's public path explicitly.

@@ -8,7 +8,7 @@ import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import paidBlockMediaPlaceholder from './media-placeholder';
 import paidBlockMediaReplaceFlow from './media-replace-flow';
-import renderPaidIcon from './render-paid-icon.js';
+import renderPaidIcon from './render-paid-icon.jsx';
 import { blockEditWithUpgradeBanner } from './with-upgrade-banner';
 
 import './editor.scss';

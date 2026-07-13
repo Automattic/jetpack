@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: Reserve the y-axis tick label dx offset in the auto margin so the widest label no longer clips at the chart edge.

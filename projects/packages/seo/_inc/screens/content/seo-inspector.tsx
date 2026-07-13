@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
@@ -115,11 +115,15 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	// over the post's existing meta.
 	const [ local, setLocal ] = useState< EditableMeta >( EMPTY_META );
 
+	// Seed the form once per mount (the route keys this component by postId), so
+	// a background refetch changing `editedMeta` identity can't overwrite edits.
+	const hasSeeded = useRef( false );
 	const editedMeta = ( editedRecord as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
 	useEffect( () => {
-		if ( ! editedMeta ) {
+		if ( ! editedMeta || hasSeeded.current ) {
 			return;
 		}
+		hasSeeded.current = true;
 		setLocal( toEditableMeta( editedMeta ) );
 	}, [ editedMeta ] );
 
@@ -155,6 +159,9 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			// `mergedEdits`), so we only send the four SEO keys and leave any other
 			// post meta untouched.
 			editEntityRecord( 'postType', postType, postId, { meta: local } );
+			// `apiFetch` rejects on a failed request, so a save that fails can't fall
+			// through to the success notice below — the `throwOnError` that
+			// `saveEditedEntityRecord` needed for that (#50319) has no equivalent here.
 			try {
 				await apiFetch( {
 					path: `${ baseURL }/${ postId }`,
@@ -289,7 +296,11 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				<Button
 					onClick={ onSave }
 					loading={ isSaving }
-					disabled={ isSaving || isResolving || ! baseURL }
+					// Also disabled when the record failed to load (`editedMeta` never
+					// resolved): the form still holds EMPTY_META, and saving that would
+					// wipe the post's existing SEO meta. And when the entity config hasn't
+					// resolved, since `baseURL` is the route we save through.
+					disabled={ isSaving || isResolving || ! editedMeta || ! baseURL }
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
