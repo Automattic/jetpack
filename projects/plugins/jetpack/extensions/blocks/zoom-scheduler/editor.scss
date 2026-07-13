@@ -25,6 +25,9 @@
 	}
 
 	&-help {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 		margin-block-start: 1em;
 	}
 

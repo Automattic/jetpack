@@ -48,7 +48,12 @@ describe( 'ZoomSchedulerEdit', () => {
 		).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'link', {
-				name: 'Find your Zoom Scheduler booking page URL(opens in a new tab)',
+				name: 'New to Zoom Scheduler? Get started(opens in a new tab)',
+			} )
+		).toHaveAttribute( 'href', 'https://scheduler.zoom.us/sign-up?signUpFrom=wordpress.com' );
+		expect(
+			screen.getByRole( 'link', {
+				name: 'Find your booking page URL(opens in a new tab)',
 			} )
 		).toHaveAttribute(
 			'href',

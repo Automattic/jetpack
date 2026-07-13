@@ -16,6 +16,7 @@ import metadata from './block.json';
 import { getEmbedUrl, normalizeUrl } from './utils';
 
 const HELP_URL = 'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058092';
+const SIGNUP_URL = 'https://scheduler.zoom.us/sign-up?signUpFrom=wordpress.com';
 // Keep in sync with the IFRAME_HEIGHT in render.php and min-block-size in view.scss.
 const IFRAME_HEIGHT = 900;
 // Mirror the sandbox applied to the front-end iframe in render.php.
@@ -110,8 +111,11 @@ export function ZoomSchedulerEdit( props ) {
 				</Button>
 			</form>
 			<div className={ `${ defaultClassName }-help` }>
+				<Link openInNewTab href={ SIGNUP_URL }>
+					{ __( 'New to Zoom Scheduler? Get started', 'jetpack' ) }
+				</Link>
 				<Link openInNewTab href={ HELP_URL }>
-					{ __( 'Find your Zoom Scheduler booking page URL', 'jetpack' ) }
+					{ __( 'Find your booking page URL', 'jetpack' ) }
 				</Link>
 			</div>
 		</Placeholder>
