@@ -16,7 +16,7 @@ import {
 import TopPostsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -28,6 +28,10 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	// Attribute metadata drives the host-rendered chrome: the high-relevance
+	// `contentView` control in the framed header and the settings fields.
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
 	presentation: 'framed' as const,
 };
 

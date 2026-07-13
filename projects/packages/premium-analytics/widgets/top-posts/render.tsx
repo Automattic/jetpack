@@ -294,7 +294,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 				isEmpty={ rows.length === 0 }
 				error={ {
 					description: __(
-						"We couldn't load top posts. Please try again in a moment.",
+						"We couldn't load posts and pages. Please try again in a moment.",
 						'jetpack-premium-analytics'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
