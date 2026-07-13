@@ -25,7 +25,7 @@ div.jetpack-input-range {
 			vertical-align: baseline;
 
 			&.has-error {
-				outline-color: var(--color-error, #d63638);
+				outline-color: var(--wpds-color-foreground-content-error, #470000);
 				box-shadow: none;
 			}
 
