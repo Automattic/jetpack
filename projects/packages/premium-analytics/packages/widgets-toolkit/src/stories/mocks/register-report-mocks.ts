@@ -157,6 +157,28 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	}
 }
 
+const mockResponseOverrides = new Map< string, unknown >();
+
+/**
+ * Force every request whose path contains `pathFragment` to resolve with a
+ * specific payload, or clear the override with `null`. Unlike
+ * `setReportMockState`, which forces a widget's loading/error/empty UI, this
+ * swaps the successful response body — for exercising a data-driven variant (an
+ * over-limit reading, a specific row shape) the default fixture doesn't cover.
+ * Same scoping caveat: keyed by path, so scope such stories out of the shared
+ * autodocs page (`tags: [ '!autodocs' ]`) and clear the override on cleanup.
+ *
+ * @param pathFragment - Substring matched against the request path.
+ * @param response     - The response body to resolve with, or `null` to clear.
+ */
+export function setReportMockResponse( pathFragment: string, response: unknown | null ): void {
+	if ( response === null ) {
+		mockResponseOverrides.delete( pathFragment );
+	} else {
+		mockResponseOverrides.set( pathFragment, response );
+	}
+}
+
 /**
  * Returns true if the current request for the given endpoint key is the
  * comparison request (every other request), then advances the counter.
@@ -978,6 +1000,12 @@ function buildVideoPlaysResponse( requestPath: string ) {
 
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
+
+	for ( const [ fragment, response ] of mockResponseOverrides ) {
+		if ( requestPath.includes( fragment ) ) {
+			return response;
+		}
+	}
 
 	for ( const [ fragment, state ] of mockStateOverrides ) {
 		if ( ! requestPath.includes( fragment ) ) {

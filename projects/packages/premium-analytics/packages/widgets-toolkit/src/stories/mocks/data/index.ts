@@ -71,4 +71,4 @@ export { mockStatsInsightsData } from './insights';
 
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
 
-export { mockPlanUsageData } from './plan-usage';
+export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';

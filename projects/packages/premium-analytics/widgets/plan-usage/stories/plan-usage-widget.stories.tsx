@@ -15,8 +15,10 @@ import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/d
 /**
  * Internal dependencies
  */
+import { mockPlanUsageOverLimitData } from '../../../packages/widgets-toolkit/src/stories/mocks/data';
 import {
 	registerReportMocks,
+	setReportMockResponse,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
@@ -65,6 +67,34 @@ function forcePlanUsageState( state: 'loading' | 'error' | 'empty' ) {
 		queryClient.removeQueries( { queryKey: [ 'stats-app', 'plan-usage' ] } );
 		return () => {
 			setReportMockState( 'jetpack-stats/usage', null );
+			queryClient.removeQueries( { queryKey: [ 'stats-app', 'plan-usage' ] } );
+		};
+	};
+}
+
+/**
+ * Forces the plan-usage request to resolve with the over-limit reading for a
+ * story's lifetime, optionally seeding a VIP `host` so the story shows the
+ * over-limit warning being suppressed. Drops the cached usage entry on enter and
+ * cleanup (the query key is static — see `forcePlanUsageState`) and restores the
+ * script data `host` afterwards.
+ *
+ * @param options     - Story options.
+ * @param options.vip - Whether to seed `site.host = 'vip'` for the story.
+ * @return A `beforeEach` implementation returning its cleanup.
+ */
+function forcePlanUsageOverLimit( { vip }: { vip: boolean } ) {
+	return () => {
+		setReportMockResponse( 'jetpack-stats/usage', mockPlanUsageOverLimitData );
+		if ( vip ) {
+			window.JetpackScriptData.site.host = 'vip';
+		}
+		queryClient.removeQueries( { queryKey: [ 'stats-app', 'plan-usage' ] } );
+		return () => {
+			setReportMockResponse( 'jetpack-stats/usage', null );
+			if ( vip ) {
+				delete window.JetpackScriptData.site.host;
+			}
 			queryClient.removeQueries( { queryKey: [ 'stats-app', 'plan-usage' ] } );
 		};
 	};
@@ -184,6 +214,31 @@ export const Unavailable: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forcePlanUsageState( 'empty' ),
+};
+
+/**
+ * Over-limit state — usage has exceeded the limit for two consecutive cycles, so
+ * the meter fills red and the bold over-limit warning precedes the upgrade note.
+ */
+export const OverLimit: Story = {
+	render: renderPlanUsage,
+	args: { withComparison: false },
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: forcePlanUsageOverLimit( { vip: false } ),
+};
+
+/**
+ * Over-limit on a VIP site — the same over-limit reading, but `site.host` is
+ * `'vip'`, so the over-limit warning is suppressed (matching the Stats "Plan
+ * usage" section). The red fill remains; only the warning is gone.
+ */
+export const OverLimitVip: Story = {
+	render: renderPlanUsage,
+	args: { withComparison: false },
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: forcePlanUsageOverLimit( { vip: true } ),
 };
 
 interface PlanUsageDashboardStoryProps

@@ -35,3 +35,19 @@ export const mockPlanUsageData = {
 	paywall_date_from: null,
 	upgrade_deadline_date: null,
 };
+
+/**
+ * Over-limit variant: usage exceeds the limit and `over_limit_months` reports
+ * two consecutive lapses, so the meter fills red and the bold over-limit warning
+ * precedes the upgrade note. Used to review the over-limit state — and, seeded
+ * against a VIP `host`, to confirm that warning is suppressed for VIP sites.
+ */
+export const mockPlanUsageOverLimitData = {
+	...mockPlanUsageData,
+	current_usage: {
+		...mockPlanUsageData.current_usage,
+		views_count: 11500,
+	},
+	over_limit_months: 2,
+	billable_monthly_views: 11500,
+};
