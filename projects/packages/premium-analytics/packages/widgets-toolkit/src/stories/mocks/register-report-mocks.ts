@@ -55,6 +55,7 @@ import {
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
+	buildEmailRateResponse,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -879,6 +880,12 @@ function routeStatsReport( subPath: string ): unknown {
 	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
 		return mockSingleVideoData;
+	}
+
+	// Per-post email rate breakdowns: `/opens/emails/<postId>/rate`, `/clicks/emails/<postId>/rate`.
+	const emailRate = subPath.match( /^\/(opens|clicks)\/emails\/\d+\/rate$/ );
+	if ( emailRate ) {
+		return buildEmailRateResponse( emailRate[ 1 ] as 'opens' | 'clicks' );
 	}
 
 	switch ( subPath ) {
