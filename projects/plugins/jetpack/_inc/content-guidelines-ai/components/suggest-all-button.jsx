@@ -2,6 +2,7 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 import { Button, Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { lock } from '@wordpress/icons';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import useGenerateAll from '../hooks/use-generate-all';
 import { AI_STORE_NAME } from '../store';
@@ -31,9 +32,8 @@ export default function SuggestAllButton() {
 	const label = allEmpty ? generateLabel : improveLabel;
 
 	// Hide only while the empty-state banner is on screen — it carries its own
-	// "Get started" CTA. Without an AI plan the button stays visible as the
-	// page's single AI entry point: clicking it surfaces the upgrade notice
-	// (see useGenerateAll), while the per-section buttons render nothing.
+	// "Get started" CTA. Without an AI plan the button renders locked and
+	// clicking it opens the upgrade notice (see useGenerateAll).
 	const hidden = ! bannerDismissed && hasFeature;
 	const hiddenProps = hidden ? { style: { display: 'none' }, 'aria-hidden': true } : {};
 
@@ -45,7 +45,7 @@ export default function SuggestAllButton() {
 		<Button
 			{ ...hiddenProps }
 			variant="primary"
-			icon={ <JetpackLogo showText={ false } height={ 18 } logoColor="#fff" /> }
+			icon={ hasFeature ? <JetpackLogo showText={ false } height={ 18 } logoColor="#fff" /> : lock }
 			onClick={ generate }
 			disabled={ loading }
 			accessibleWhenDisabled

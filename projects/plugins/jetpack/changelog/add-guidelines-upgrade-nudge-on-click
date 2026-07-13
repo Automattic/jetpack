@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Content Guidelines AI: without an AI plan, keep the header Generate button as the single visible entry point — clicking it surfaces the upgrade notice even after a previous dismissal — and hide the per-section and block-modal buttons instead of showing them disabled. AI buttons now wait for the feature check to resolve before rendering, removing the flash on no-plan sites.
+Content Guidelines AI: without an AI plan, show the Generate/Improve buttons in a locked state (lock icon and upgrade tooltip) instead of hiding the header button and disabling the rest with no explanation; clicking a locked button opens the upgrade notice even after it was dismissed. AI buttons now wait for the feature check to resolve before rendering, removing the flash on no-plan sites.
