@@ -102,6 +102,7 @@ function PostPerformanceInner( { granularity }: PostPerformanceInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metrics }
+					distributeTabs
 					dataFormat={ DATA_FORMAT }
 					loading={ isFetching }
 					groupLabel={ __( 'Performance metric', 'jetpack-premium-analytics' ) }

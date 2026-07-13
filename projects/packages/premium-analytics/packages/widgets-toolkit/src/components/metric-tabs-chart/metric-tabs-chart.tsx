@@ -5,6 +5,7 @@ import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { SelectControl, Tabs, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -67,6 +68,11 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Show the loading overlay over the chart. */
 	loading?: boolean;
+	/**
+	 * Distribute the metric tabs evenly across the full card width (the post
+	 * detail Performance layout) instead of packing them to the start.
+	 */
+	distributeTabs?: boolean;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
 }
@@ -186,6 +192,7 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	loading = false,
+	distributeTabs = false,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics' ),
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
@@ -318,7 +325,11 @@ export function MetricTabsChart( {
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
+				<Tabs.List
+					variant="minimal"
+					className={ clsx( styles.tabs, distributeTabs && styles.tabsDistributed ) }
+					aria-label={ groupLabel }
+				>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }

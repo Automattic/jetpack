@@ -123,3 +123,9 @@
 	justify-content: center;
 	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
 }
+
+// Even 1/N distribution of the metric tabs across the card width.
+.tabsDistributed :global(button[role="tab"]) {
+	flex: 1 1 0;
+	justify-content: flex-start;
+}
