@@ -136,7 +136,12 @@ function AllTimeStatsReport( {
 				} }
 				empty={ {
 					icon: trendingUp,
-					description: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ),
+					// No metrics selected is a configuration state, not an absence of
+					// data — prompt to pick one rather than implying there are no stats.
+					description:
+						enabledMetrics.length === 0
+							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
+							: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ),
 				} }
 			>
 				<div className={ styles.list }>

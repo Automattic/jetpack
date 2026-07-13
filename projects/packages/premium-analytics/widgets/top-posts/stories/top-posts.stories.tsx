@@ -23,7 +23,7 @@ const meta: Meta< typeof TopPostsLeaderboard > = {
 		docs: {
 			description: {
 				component:
-					'The "Top posts & pages" widget. Renders the most-viewed posts and pages for the period as a leaderboard, with each row linking to the published content. This is the presentational layer — it takes already-fetched rows via props and handles the loading, error, empty, and populated states. The data-connected widget (render.tsx default export) wraps this in WidgetRoot and feeds it the designated useStatsTopPosts hook.',
+					'The "Top posts & pages" widget. Renders the most-viewed posts and pages for the period as a leaderboard, with each row linking to the published content. This is the presentational layer — it takes already-fetched rows via props and renders only the populated (ready) state; loading, error, and empty are handled by <WidgetState> in the data-connected widget (render.tsx default export), which wraps this in WidgetRoot and feeds it the designated useStatsTopPosts hook.',
 			},
 		},
 	},
