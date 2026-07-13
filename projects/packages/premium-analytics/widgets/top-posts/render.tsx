@@ -3,8 +3,7 @@
  */
 import {
 	useStatsTopPosts,
-	type StatsNormalizedReport,
-	type StatsTopPostsItem,
+	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
@@ -60,6 +59,7 @@ export type TopPostRow = {
 // Report params are dashboard-driven — WidgetRoot resolves them from the date
 // picker — but the host (and Storybook) may also inject them via `attributes`.
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
+type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
 
@@ -84,7 +84,7 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 
 		return {
 			id: `${ index }-${ row.href }`,
@@ -103,8 +103,13 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 			currentShare: ( row.value / maxCurrentViews ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined
+					? ( previousValue / maxPreviousViews ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
@@ -184,31 +189,20 @@ export const TopPostsLeaderboard = ( {
 };
 
 /**
- * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the leaderboard renders, dropping rows without a link and
- * (optionally) filtering by post type.
+ * Flatten merged data-layer top-posts rows into the `{ label, value, href, type }`
+ * rows the leaderboard renders.
  *
- * @param report       - The normalized top-posts report, or undefined while loading.
- * @param allowedTypes - Post types to keep, or null to keep all.
+ * @param items - Merged top-posts rows from the data layer.
  * @return The normalized top-posts rows.
  */
-function toTopPostRows(
-	report: StatsNormalizedReport< StatsTopPostsItem > | undefined,
-	allowedTypes: string[] | null
-): TopPostRow[] {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-
-	return items
-		.filter(
-			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
-		)
-		.map( item => ( {
-			label: String( item.label ?? '' ),
-			value: item.views,
-			href: item.link,
-			type: String( item.type ?? '' ),
-		} ) )
-		.filter( row => ! allowedTypes || allowedTypes.includes( row.type ) );
+function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
+	return items.map( item => ( {
+		label: String( item.label ?? '' ),
+		value: item.views,
+		previousValue: item.previousViews,
+		href: item.link,
+		type: String( item.type ?? '' ),
+	} ) );
 }
 
 /**
@@ -217,9 +211,7 @@ function toTopPostRows(
  * `TopPostsLeaderboard`. The date range and comparison period come from the
  * dashboard picker via `reportParams`.
  *
- * @param props          - Component props.
- * @param props.num      - Maximum number of posts to display.
- * @param props.postType - Post type(s) to keep, or undefined/empty for all.
+ * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
 function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
@@ -229,9 +221,6 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	// date range is owned by the dashboard picker and carried in `reportParams`.
 	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
-	const { primary, comparison, hasComparison, isLoading, isError } =
-		useStatsTopPosts( statsParams );
-
 	const allowedTypes = useMemo( () => {
 		if ( postType === undefined || postType === '' ) {
 			return null;
@@ -239,41 +228,13 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		return Array.isArray( postType ) ? postType : [ postType ];
 	}, [ postType ] );
 
-	const primaryRows = useMemo(
-		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem >, allowedTypes ),
-		[ primary.data, allowedTypes ]
-	);
+	const { comparisonRows, hasComparison, isLoading, isError } = useStatsTopPosts( statsParams, {
+		maxRows: num,
+		postTypes: allowedTypes,
+	} );
 
-	// Comparison-period views keyed by the same post URL the primary rows use.
-	// Empty when comparison is disabled or the comparison query returned no rows.
-	const previousViewsByHref = useMemo( () => {
-		if ( ! hasComparison ) {
-			return new Map< string, number >();
-		}
-		return new Map(
-			toTopPostRows(
-				comparison.data as StatsNormalizedReport< StatsTopPostsItem >,
-				allowedTypes
-			).map( row => [ row.href, row.value ] )
-		);
-	}, [ comparison.data, allowedTypes, hasComparison ] );
-
-	// Only render comparison UI when at least one primary row actually overlaps
-	// the comparison period; otherwise unmatched rows would fall to a placeholder
-	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
-	const withComparison =
-		hasComparison && primaryRows.some( row => previousViewsByHref.has( row.href ) );
-
-	const rows = useMemo(
-		() =>
-			withComparison
-				? primaryRows.map( row => ( {
-						...row,
-						previousValue: previousViewsByHref.get( row.href ) ?? 0,
-				  } ) )
-				: primaryRows,
-		[ primaryRows, previousViewsByHref, withComparison ]
-	);
+	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const withComparison = hasComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
@@ -297,13 +258,10 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
  * range via context, the same way the other Stats widgets read them. The
  * widget's own `num`/`postType` settings are forwarded to the inner component.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {TopPostsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function TopPosts( {
-	attributes = {},
-}: WidgetRenderProps< TopPostsRenderAttributes > ) {
+export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<TopPostsReport num={ attributes.num } postType={ attributes.postType } />

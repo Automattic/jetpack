@@ -25,13 +25,16 @@ import AllTimeStatsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const ALL_TIME_STATS_RENDER_MODULE = 'storybook/all-time-stats';
 
 interface AllTimeStatsStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
 }
 
@@ -39,8 +42,7 @@ interface AllTimeStatsStoryControls {
  * Renders the data-connected widget with report params derived from the
  * date-range picker preset.
  *
- * @param props                - The story controls.
- * @param props.withComparison - Whether to include comparison report params.
+ * @param {AllTimeStatsStoryControls} props - The story controls.
  * @return The rendered widget.
  */
 function renderAllTimeStats( { withComparison }: AllTimeStatsStoryControls ) {
@@ -71,7 +73,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< AllTimeStatsStoryControls >;
+} satisfies Meta< ComponentProps< typeof AllTimeStatsRender > & AllTimeStatsStoryControls >;
 
 export default meta;
 
@@ -105,8 +107,7 @@ interface AllTimeStatsDashboardStoryProps
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param props                - The dashboard story controls.
- * @param props.withComparison - Whether to include comparison report params.
+ * @param {AllTimeStatsDashboardStoryProps} props - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
 function AllTimeStatsDashboardStory( {

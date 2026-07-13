@@ -1,0 +1,10 @@
+.popover {
+	min-inline-size: var(--wpds-dimension-surface-width-xs);
+}
+
+.trigger {
+	max-inline-size: var(--wpds-dimension-surface-width-xs);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

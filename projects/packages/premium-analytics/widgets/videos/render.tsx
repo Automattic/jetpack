@@ -7,6 +7,7 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	formatLegendLabels,
+	toMaxRows,
 	useWidgetError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -19,28 +20,20 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildVideoPlaysData } from './build-video-plays-data';
-import type { VideosAttributes } from './widget';
+import { buildVideoPlaysDataWithComparison } from './build-video-plays-data';
+import { DEFAULT_MAX, type VideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
-
-const DEFAULT_MAX = 7;
 
 // The dashboard injects its date range and comparison state through
 // `reportParams`; the widget's own settings come from `VideosAttributes`.
 type VideosRenderAttributes = VideosAttributes & Partial< ReportParamsFieldAttributes >;
 
-type VideosRenderProps = WidgetRenderProps< VideosRenderAttributes > & {
+type VideosWidgetProps = WidgetRenderProps< VideosRenderAttributes > & {
+	/**
+	 * Dashboard error handler.
+	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
-
-// Resolve the `max` attribute to the row count requested from Stats. Per the
-// Stats widget contract `max = 0` means "all rows", so it passes through; only
-// negative or non-numeric values fall back to the default.
-const toMaxRows = ( value: string | number | undefined, fallback: number ) => {
-	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
-
-	return Number.isFinite( parsed ) && parsed >= 0 ? parsed : fallback;
 };
 
 type VideosLeaderboardProps = {
@@ -73,12 +66,7 @@ type VideosLeaderboardProps = {
  * played videos and is responsible only for the loading, empty, and populated
  * states.
  *
- * @param props                - Component props.
- * @param props.data           - Leaderboard rows to render.
- * @param props.isLoading      - Whether to render the initial loading overlay.
- * @param props.isRefetching   - Whether to layer a loading overlay over the chart.
- * @param props.withComparison - Whether to render previous-period deltas.
- * @param props.legendLabels   - Custom labels for the current/comparison periods.
+ * @param {VideosLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 function VideosLeaderboard( {
@@ -113,21 +101,27 @@ function VideosLeaderboard( {
 	);
 }
 
+type VideosReportProps = {
+	/**
+	 * Maximum number of videos to display.
+	 */
+	max: number;
+};
+
 /**
  * Fetches the video-plays report through the Jetpack Stats hook, builds the
  * leaderboard rows, and hands them to the presentational `VideosLeaderboard`.
  *
- * @param props     - Component props.
- * @param props.max - Maximum number of videos to display.
+ * @param {VideosReportProps} props - The component props.
  * @return The widget content.
  */
-function VideosReport( { max }: { max: number } ) {
+function VideosReport( { max }: VideosReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	const {
 		primary,
-		comparison,
+		comparisonRows,
 		hasComparison,
 		isLoading,
 		isFetching,
@@ -135,19 +129,18 @@ function VideosReport( { max }: { max: number } ) {
 		isError,
 		error,
 		refetch,
-	} = useStatsVideoPlays( statsParams );
+	} = useStatsVideoPlays( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
 	const isRefetching = isFetching && hasData;
-	const primaryData = primary.data;
-	const comparisonData = comparison.data;
 
-	const chartData = useMemo(
-		() => buildVideoPlaysData( primaryData, comparisonData ),
-		[ primaryData, comparisonData ]
+	const { data: chartData } = useMemo(
+		() => buildVideoPlaysDataWithComparison( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
+	const withComparison = hasComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
@@ -161,7 +154,7 @@ function VideosReport( { max }: { max: number } ) {
 			data={ chartData }
 			isLoading={ isInitialLoading }
 			isRefetching={ isRefetching }
-			withComparison={ hasComparison }
+			withComparison={ withComparison }
 			legendLabels={ legendLabels }
 		/>
 	);
@@ -174,12 +167,10 @@ function VideosReport( { max }: { max: number } ) {
  * params consumed by the inner leaderboard — resolved from the dashboard date
  * range via context, the same way the other Stats widgets read them.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error handler.
+ * @param {VideosWidgetProps} props - The widget render props.
  * @return The rendered Videos widget.
  */
-export default function Videos( { attributes = {}, setError }: VideosRenderProps ) {
+export default function Videos( { attributes = {}, setError }: VideosWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<VideosReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Extract a shared MetricTile component and use it in the Annual highlights and Subscriber highlights widgets, with a responsive row/tile layout.

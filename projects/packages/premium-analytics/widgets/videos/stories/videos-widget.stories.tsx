@@ -13,19 +13,20 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import VideosRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, { DEFAULT_MAX } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const VIDEOS_RENDER_MODULE = 'storybook/videos';
 
-const DEFAULT_MAX = 7;
-
 // Widget-specific story control: toggles the previous-period comparison.
 interface VideosStoryControls {
+	/**
+	 * Whether to request the previous-period comparison.
+	 */
 	withComparison: boolean;
 }
 
@@ -34,8 +35,7 @@ interface VideosStoryControls {
  * `withComparison` control, so the close-up stories exercise the real data flow
  * (served by `registerReportMocks`).
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to request the previous-period comparison.
+ * @param {VideosStoryControls} props - Story controls.
  * @return The rendered widget.
  */
 function renderVideos( { withComparison }: VideosStoryControls ) {
@@ -68,7 +68,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< VideosStoryControls >;
+} satisfies Meta< ComponentProps< typeof VideosRender > & VideosStoryControls >;
 
 export default meta;
 
@@ -102,8 +102,7 @@ interface VideosDashboardStoryProps
  * it appears exactly as it does in product, inheriting the size / edit-mode /
  * host-environment controls.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to request the previous-period comparison.
+ * @param {VideosDashboardStoryProps} props - Story controls.
  * @return The widget mounted in the dashboard harness.
  */
 function VideosDashboardStory( { withComparison, ...dashboardArgs }: VideosDashboardStoryProps ) {

@@ -16,7 +16,7 @@ import SubscribersChartRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -52,11 +52,11 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the in-body "Group by" dropdown chooses the bucket size (day/week/month) within that range. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. Paid subscribers render as a second line when present. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
+					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the "Group by" control is the `granularity` attribute (`relevance: \'high\'`), exposed by the widget host, and chooses the bucket size (day/week/month) within that range. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. Paid subscribers render as a second line when present. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
 			},
 		},
 	},
-} satisfies Meta< SubscribersChartStoryControls >;
+} satisfies Meta< ComponentProps< typeof SubscribersChartRender > & SubscribersChartStoryControls >;
 
 export default meta;
 

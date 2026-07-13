@@ -8,9 +8,9 @@ import {
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import TopPlatformsRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, { type TopPlatformsAttributes } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -22,11 +22,16 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	// attributes/example let the dashboard host render the real "View by"
+	// toolbar control for the `relevance: 'high'` attribute, as in Locations.
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
+	presentation: 'framed' as const,
 };
 
 interface TopPlatformsStoryControls {
 	withComparison: boolean;
+	platformDimension: NonNullable< TopPlatformsAttributes[ 'platformDimension' ] >;
 }
 
 interface TopPlatformsDashboardStoryProps
@@ -39,13 +44,19 @@ const withWidgetCanvas: Decorator = Story => (
 	</div>
 );
 
-function renderTopPlatformsWidget( { withComparison }: TopPlatformsStoryControls ) {
-	return (
-		<TopPlatformsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
-		/>
-	);
+function getTopPlatformsAttributes( {
+	withComparison,
+	platformDimension,
+}: TopPlatformsStoryControls ): ComponentProps< typeof TopPlatformsRender >[ 'attributes' ] {
+	return {
+		max: 10,
+		platformDimension,
+		reportParams: getDefaultQueryParams( withComparison ),
+	};
+}
+
+function renderTopPlatformsWidget( controls: TopPlatformsStoryControls ) {
+	return <TopPlatformsRender attributes={ getTopPlatformsAttributes( controls ) } />;
 }
 
 function TopPlatformsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -54,6 +65,7 @@ function TopPlatformsDashboardRender( props: WidgetRenderProps< unknown > ) {
 
 function TopPlatformsDashboardStory( {
 	withComparison,
+	platformDimension,
 	...dashboardArgs
 }: TopPlatformsDashboardStoryProps ) {
 	return (
@@ -64,7 +76,7 @@ function TopPlatformsDashboardStory( {
 			renderComponent={
 				TopPlatformsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ getTopPlatformsAttributes( { withComparison, platformDimension } ) }
 		/>
 	);
 }
@@ -78,16 +90,21 @@ const meta = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params.',
 		},
+		platformDimension: {
+			control: 'radio',
+			options: [ 'browser', 'platform' ],
+			description: 'The "View by" toolbar attribute rendered by the widget host.',
+		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Top Platforms" widget. Shows browser and OS breakdown as a ranked leaderboard. The active dimension (Browser / OS) is switched via a runtime dropdown in the widget header.',
+					'The "Top Platforms" widget. Shows browser and OS breakdown as a ranked leaderboard. The active dimension is the `platformDimension` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
 			},
 		},
 	},
-} satisfies Meta< TopPlatformsStoryControls >;
+} satisfies Meta< ComponentProps< typeof TopPlatformsRender > & TopPlatformsStoryControls >;
 
 export default meta;
 
@@ -95,13 +112,20 @@ type DashboardStory = StoryObj< TopPlatformsDashboardStoryProps >;
 
 export const Default: StoryObj< TopPlatformsStoryControls > = {
 	render: renderTopPlatformsWidget,
-	args: { withComparison: false },
+	args: { withComparison: false, platformDimension: 'browser' },
 	decorators: [ withWidgetCanvas ],
 };
 
 export const WithComparison: StoryObj< TopPlatformsStoryControls > = {
 	render: renderTopPlatformsWidget,
-	args: { withComparison: true },
+	args: { withComparison: true, platformDimension: 'browser' },
+	decorators: [ withWidgetCanvas ],
+};
+
+// OS view — the `platformDimension` attribute set to operating systems.
+export const ByOS: StoryObj< TopPlatformsStoryControls > = {
+	render: renderTopPlatformsWidget,
+	args: { withComparison: false, platformDimension: 'platform' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -110,12 +134,18 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		withComparison: true,
+		platformDimension: 'browser',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params.',
+		},
+		platformDimension: {
+			control: 'radio',
+			options: [ 'browser', 'platform' ],
+			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},
 };

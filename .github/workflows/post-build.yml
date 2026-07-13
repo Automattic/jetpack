@@ -473,7 +473,7 @@ jobs:
         uses: ./trunk/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
-          conclusion: ${{ job.status }}
+          conclusion: ${{ case( job.status == 'abandoned', 'cancelled', job.status ) }}
           title: ${{ case( job.status == 'success', 'Tests passed', job.status == 'cancelled', 'Cancelled', 'Tests failed' ) }}
           summary: |
             ${{ env.SUMMARY }}

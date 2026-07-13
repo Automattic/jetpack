@@ -1,0 +1,216 @@
+/**
+ * Write — post-publish next-steps checklist overlay.
+ *
+ * A centered card overlaying the published post, shown to the author right
+ * after a Write-editor publish on a Coming Soon site. Self-contained styles
+ * (scoped under .wpcom-write-ppc) so it renders consistently over any theme.
+ */
+
+.wpcom-write-ppc {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+/* Match the Write editor's typography rather than inheriting the site theme's
+   fonts. Set explicitly on text elements (not just the container) so theme
+   rules targeting h2/p/button by element don't override via the cascade. */
+.wpcom-write-ppc,
+.wpcom-write-ppc h2,
+.wpcom-write-ppc p,
+.wpcom-write-ppc span,
+.wpcom-write-ppc button {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.wpcom-write-ppc[hidden] {
+	display: none;
+}
+
+.wpcom-write-ppc__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+}
+
+.wpcom-write-ppc__card {
+	position: relative;
+	width: 100%;
+	max-width: 420px;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+	padding: 32px 32px 28px;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+.wpcom-write-ppc__close {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	background: transparent;
+	color: #6d6d6d;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.wpcom-write-ppc__close:hover {
+	background: #f0f0f0;
+}
+
+.wpcom-write-ppc__badge {
+	width: 48px;
+	height: 48px;
+	margin: 0 auto 16px;
+	border-radius: 50%;
+	background: #c5f7cc;
+	color: #007f30;
+	font-size: 26px;
+	line-height: 48px;
+}
+
+.wpcom-write-ppc__title {
+	margin: 0 0 8px;
+	font-size: 22px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.wpcom-write-ppc__desc {
+	margin: 0 0 24px;
+	font-size: 15px;
+	line-height: 1.5;
+	color: #6d6d6d;
+}
+
+.wpcom-write-ppc__list {
+	list-style: none;
+	margin: 0 0 24px;
+	padding: 0;
+	text-align: left;
+}
+
+.wpcom-write-ppc__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 12px 0;
+	border-top: 1px solid #d8d8d8;
+}
+
+.wpcom-write-ppc__item:last-child {
+	border-bottom: 1px solid #d8d8d8;
+}
+
+.wpcom-write-ppc__item.is-disabled {
+	opacity: 0.5;
+}
+
+.wpcom-write-ppc__bullet {
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	margin-top: 2px;
+	border: 2px solid #8a8a8a;
+	border-radius: 50%;
+	box-sizing: border-box;
+}
+
+.wpcom-write-ppc__item-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.wpcom-write-ppc__item-title {
+	font-size: 15px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.wpcom-write-ppc__item-desc {
+	font-size: 13px;
+	color: #6d6d6d;
+}
+
+.wpcom-write-ppc__launch {
+	display: block;
+	width: 100%;
+	padding: 12px 16px;
+	border: 0;
+	border-radius: 4px;
+	background: #3858e9;
+	color: #fff;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.wpcom-write-ppc__launch:hover {
+	background: #2e49d9;
+}
+
+/* Secondary action in the confirm-your-email step: resend verification mail. */
+.wpcom-write-ppc__resend {
+	display: block;
+	width: 100%;
+	margin-top: 8px;
+	padding: 12px 16px;
+	border: 1px solid #3858e9;
+	border-radius: 4px;
+	background: transparent;
+	color: #3858e9;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.wpcom-write-ppc__resend:hover {
+	background: #f0f3ff;
+}
+
+.wpcom-write-ppc__launch:disabled,
+.wpcom-write-ppc__resend:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+/* Feedback line for resend / re-check outcomes in the confirm step. */
+.wpcom-write-ppc__status {
+	margin: 12px 0 0;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #6d6d6d;
+}
+
+.wpcom-write-ppc__status:empty {
+	display: none;
+}
+
+.wpcom-write-ppc__dismiss {
+	display: block;
+	width: 100%;
+	margin-top: 8px;
+	padding: 10px 16px;
+	border: 0;
+	background: transparent;
+	color: #6d6d6d;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.wpcom-write-ppc__dismiss:hover {
+	color: #1e1e1e;
+	text-decoration: underline;
+}

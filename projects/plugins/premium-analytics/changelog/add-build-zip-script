@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: Add a script to create an installable Premium Analytics plugin zip from the package mirror.

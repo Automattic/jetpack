@@ -45,6 +45,12 @@ class Jetpack_WPCom_Connection_Simulator {
 	 * Modules that are safe to activate without a real WordPress.com connection.
 	 * These modules work locally without external dependencies.
 	 *
+	 * This list is install-wide: one WordPress install serves every scenario, so a module added
+	 * for one page also loads for the others. `contact-form` is needed only by the formsResponses
+	 * scenario (it registers the wp-build Forms responses dashboard), but it therefore also runs
+	 * on the jetpackConnected Dashboard page and shifts that scenario's live LCP/TTFB/FCP baseline
+	 * by one step at the commit it lands. Weigh that before adding another scenario-specific module.
+	 *
 	 * @var array
 	 */
 	private $safe_modules = array(
@@ -55,6 +61,7 @@ class Jetpack_WPCom_Connection_Simulator {
 		'seo-tools',     // SEO meta tags - fully local
 		'widget-visibility', // Widget visibility rules - fully local
 		'custom-content-types', // Custom post types (Portfolios, Testimonials) - fully local
+		'contact-form',  // Jetpack Forms - registers the Forms responses wp-build dashboard
 	);
 
 	/**

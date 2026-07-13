@@ -213,8 +213,17 @@ class Admin {
 			return;
 		}
 
-		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', __FILE__ ), array(), JPBETA_VERSION );
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', __FILE__ ), array(), JPBETA_VERSION, true );
+		// Bust the asset cache whenever the file changes (e.g. between dev/alpha
+		// builds that share a JPBETA_VERSION) by appending the file mtime.
+		$css_file  = __DIR__ . '/admin/admin.css';
+		$js_file   = __DIR__ . '/admin/admin.js';
+		$css_mtime = file_exists( $css_file ) ? filemtime( $css_file ) : false;
+		$js_mtime  = file_exists( $js_file ) ? filemtime( $js_file ) : false;
+		$css_ver   = JPBETA_VERSION . '-' . ( false !== $css_mtime ? $css_mtime : '0' );
+		$js_ver    = JPBETA_VERSION . '-' . ( false !== $js_mtime ? $js_mtime : '0' );
+
+		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', __FILE__ ), array(), $css_ver );
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', __FILE__ ), array(), $js_ver, true );
 		wp_localize_script(
 			'jetpack-admin-js',
 			'JetpackBeta',

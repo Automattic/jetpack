@@ -54,11 +54,13 @@ export type StatsPostMeta = {
 	post_date?: string;
 	post_date_gmt?: string;
 	post_status?: string;
+	comment_count?: StatsPostRawNumeric;
 };
 
 export type StatsPostRawResponse = {
 	date?: string;
 	views?: StatsPostRawNumeric;
+	like_count?: StatsPostRawNumeric;
 	years?: Record< string, StatsPostRawYear >;
 	averages?: Record< string, StatsPostRawYear >;
 	weeks?: StatsPostRawWeek[];
@@ -71,6 +73,7 @@ export type StatsPostRawResponse = {
 export type StatsPostResponse = {
 	date?: string;
 	views?: number;
+	like_count?: number;
 	years?: Record< string, StatsPostYear >;
 	averages?: Record< string, StatsPostYear >;
 	weeks?: StatsPostWeek[];
@@ -129,6 +132,9 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 	return {
 		...( typeof payload.date === 'string' ? { date: payload.date } : {} ),
 		...( payload.views !== undefined ? { views: safeParseFloat( payload.views ) } : {} ),
+		...( payload.like_count !== undefined
+			? { like_count: safeParseFloat( payload.like_count ) }
+			: {} ),
 		...( payload.years !== undefined ? { years: normalizeStatsPostYears( payload.years ) } : {} ),
 		...( payload.averages !== undefined
 			? { averages: normalizeStatsPostYears( payload.averages ) }

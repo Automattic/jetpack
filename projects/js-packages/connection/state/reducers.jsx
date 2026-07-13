@@ -10,6 +10,7 @@ import {
 	SET_AUTHORIZATION_URL,
 	SET_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
+	SET_CONNECTION_HEALTH_ERRORS,
 	SET_IS_OFFLINE_MODE,
 } from './actions';
 
@@ -96,6 +97,15 @@ const connectionErrors = ( state = {}, action ) => {
 	return state;
 };
 
+const connectionHealthErrors = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_CONNECTION_HEALTH_ERRORS:
+			return action.connectionHealthErrors;
+	}
+
+	return state;
+};
+
 const isOfflineMode = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_IS_OFFLINE_MODE:
@@ -115,6 +125,7 @@ const reducers = combineReducers( {
 	userConnectionData,
 	connectedPlugins,
 	connectionErrors,
+	connectionHealthErrors,
 	isOfflineMode,
 } );
 

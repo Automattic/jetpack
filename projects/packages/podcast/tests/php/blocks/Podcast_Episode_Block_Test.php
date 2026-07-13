@@ -29,12 +29,11 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	private $default_attrs = array( 'mediaUrl' => 'https://example.com/episode.mp3' );
 
 	/**
-	 * Force is_frontend true and prime WP_Block_Supports so direct render_block
-	 * calls don't warn from get_block_wrapper_attributes().
+	 * Prime WP_Block_Supports so direct render_block calls don't warn from
+	 * get_block_wrapper_attributes().
 	 */
 	public function set_up() {
 		parent::set_up();
-		add_filter( 'jetpack_is_frontend', '__return_true' );
 		update_option( 'date_format', 'F j, Y' );
 		WP_Block_Supports::$block_to_render = array(
 			'blockName' => 'jetpack/podcast-episode',
@@ -46,7 +45,6 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	 * Tear down filters/options/block-supports state set in set_up.
 	 */
 	public function tear_down() {
-		remove_filter( 'jetpack_is_frontend', '__return_true' );
 		delete_option( 'podcasting_image' );
 		delete_option( 'date_format' );
 		WP_Block_Supports::$block_to_render = null;
@@ -93,16 +91,17 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		return $result;
 	}
 
-	public function test_non_frontend_returns_content_unchanged() {
-		remove_filter( 'jetpack_is_frontend', '__return_true' );
-		add_filter( 'jetpack_is_frontend', '__return_false' );
+	public function test_renders_player_ignoring_saved_fallback_content() {
+		$post_id = $this->create_episode_post();
+		$result  = Podcast_Episode_Block::render_block(
+			$this->default_attrs,
+			'<a class="jetpack-podcast-episode__direct-link" href="x">x</a>',
+			$this->block_ctx( $post_id )
+		);
+		wp_delete_post( $post_id, true );
 
-		$result = Podcast_Episode_Block::render_block( array(), '<a href="x">Listen</a>' );
-
-		remove_filter( 'jetpack_is_frontend', '__return_false' );
-		add_filter( 'jetpack_is_frontend', '__return_true' );
-
-		$this->assertSame( '<a href="x">Listen</a>', $result );
+		$this->assertStringContainsString( 'jetpack-podcast-episode__player', $result );
+		$this->assertStringNotContainsString( '__direct-link', $result );
 	}
 
 	public function test_empty_media_url_returns_empty_string() {
@@ -169,12 +168,13 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 			)
 		);
 
-		$result = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+		$result    = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+		$permalink = get_permalink( $post_id );
 
 		wp_delete_post( $post_id, true );
 		wp_delete_user( $user_id );
 
-		$this->assertStringContainsString( 'Episode 7: The Renderer', $result );
+		$this->assertStringContainsString( '<a href="' . esc_url( $permalink ) . '">Episode 7: The Renderer</a>', $result );
 		$this->assertStringContainsString( 'Jane Host', $result );
 		$this->assertStringContainsString( 'itemprop="author" itemscope itemtype="https://schema.org/Person"', $result );
 		$this->assertStringContainsString( 'datetime="2026-04-15', $result );
@@ -190,12 +190,14 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( '<video', $result );
 		$this->assertStringContainsString( 'https://example.com/episode.mp4', $result );
+		$this->assertStringContainsString( 'Watch the episode</a></video>', $result );
 		$this->assertStringNotContainsString( '<audio', $result );
 	}
 
 	public function test_audio_media_type_renders_audio_element() {
 		$result = $this->render( array() );
 		$this->assertStringContainsString( '<audio', $result );
+		$this->assertStringContainsString( 'Listen to the episode</a></audio>', $result );
 		$this->assertStringNotContainsString( '<video', $result );
 	}
 

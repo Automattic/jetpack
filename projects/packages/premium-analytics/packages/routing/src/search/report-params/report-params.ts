@@ -44,3 +44,21 @@ export function pickReportDateParams(
 	}
 	return picked;
 }
+
+/**
+ * Build the `to` link back to the dashboard, preserving the shared report window.
+ *
+ * Serializes the date range and comparison (via `pickReportDateParams`) into a
+ * querystring so returning to the dashboard restores the same view. Page-scoped
+ * params are dropped.
+ *
+ * @param search - The current route search params.
+ * @return A dashboard `to` path (e.g. `/?from=…&to=…`), or `/` when none are set.
+ */
+export function buildDashboardLink( search: Record< string, unknown > | undefined ): string {
+	const params = pickReportDateParams( search );
+	const query = new URLSearchParams(
+		Object.entries( params ).map( ( [ key, value ] ) => [ key, String( value ) ] )
+	).toString();
+	return query ? `/?${ query }` : '/';
+}

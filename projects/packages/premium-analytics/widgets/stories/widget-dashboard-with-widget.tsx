@@ -2,6 +2,7 @@ import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
+import type { ArgTypes } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
 	WidgetRenderProps,
@@ -67,7 +68,7 @@ export const widgetDashboardWithWidgetArgTypes = {
 		control: 'select',
 		options: Object.keys( HOST_ROOT_FONT_SIZE ),
 	},
-};
+} satisfies Partial< ArgTypes< WidgetDashboardWithWidgetControls > >;
 
 type StoryWidgetMetadata = {
 	name: string;
@@ -187,6 +188,14 @@ export function WidgetDashboardWithWidget( {
 				 * wp-admin viewport. Without a definite height the page collapses to its
 				 * content height and the fixed-row-height grid resizes it back on every
 				 * vertical widget resize, so the two oscillate and the grid flickers.
+				 *
+				 * `isolation: isolate` keeps dashboard-internal z-indexes (widget
+				 * headers, resize handles) inside this box's stacking context. The
+				 * settings drawer has no z-index of its own (`--wp-ui-drawer-z-index`
+				 * defaults to `initial`), so without the isolation those `z-index: 1`
+				 * elements escalate to the document level and paint over the
+				 * body-portaled drawer — in the real dashboard the wp-admin shell
+				 * provides this containing stacking context.
 				 */ }
 				<div
 					style={ {
@@ -194,6 +203,7 @@ export function WidgetDashboardWithWidget( {
 						display: 'flex',
 						flexDirection: 'column',
 						inlineSize: '100%',
+						isolation: 'isolate',
 						overflowX: 'auto',
 					} }
 				>

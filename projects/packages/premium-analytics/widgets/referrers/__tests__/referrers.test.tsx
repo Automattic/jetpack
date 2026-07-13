@@ -1,0 +1,315 @@
+/**
+ * External dependencies
+ */
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+/**
+ * Internal dependencies
+ */
+import ReferrersWidget, { toReferrerRows } from '../render';
+import type { StatsNormalizedReport, StatsReferrersItem } from '@jetpack-premium-analytics/data';
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => ( {} ),
+} ) );
+
+const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+const REFERRERS_RESPONSE = {
+	date: '2026-06-29',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'Search Engines',
+				name: 'Search Engines',
+				icon: 'https://wordpress.com/i/stats/search-engine.png',
+				total: 4801,
+				results: [
+					{
+						name: 'Google Search',
+						icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+						views: 3936,
+						children: [
+							{
+								name: 'google.com',
+								url: 'https://www.google.com/',
+								views: 3920,
+							},
+						],
+					},
+					{
+						name: 'Bing',
+						icon: 'https://www.google.com/s2/favicons?domain=bing.com&sz=32',
+						views: 542,
+						children: [
+							{
+								name: 'bing.com',
+								url: 'https://www.bing.com/',
+								views: 523,
+							},
+						],
+					},
+				],
+			},
+			{
+				group: 'jetpack.com',
+				name: 'jetpack.com',
+				url: 'https://jetpack.com/',
+				total: 18,
+				results: { views: 18 },
+			},
+		],
+		other_views: 0,
+		total_views: 4819,
+	},
+};
+
+describe( 'ReferrersWidget', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( REFERRERS_RESPONSE );
+	} );
+
+	it( 'drills down through nested referrer groups and navigates back', async () => {
+		render(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const groupButton = await screen.findByRole( 'button', {
+			name: /view referrers for search engines/i,
+		} );
+
+		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		// Second level: sources inside the group can drill down again, and the
+		// back link points at the full top-level list.
+		await expect(
+			screen.findByRole( 'button', { name: /all referrers/i } )
+		).resolves.toBeInTheDocument();
+		const sourceButton = await screen.findByRole( 'button', {
+			name: /view referrers for google search/i,
+		} );
+
+		fireEvent.click( sourceButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		// Third level: URL-backed leaf domains render as outbound links and the
+		// back link is labelled after the parent list.
+		await expect( screen.findByText( 'google.com' ) ).resolves.toBeInTheDocument();
+
+		fireEvent.click( screen.getByRole( 'button', { name: /search engines/i } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		// Back at the second level, going back again returns to the top list.
+		await expect(
+			screen.findByRole( 'button', { name: /view referrers for google search/i } )
+		).resolves.toBeInTheDocument();
+
+		fireEvent.click( screen.getByRole( 'button', { name: /all referrers/i } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /all referrers/i } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'resets the drill-down to the top level when the date range changes', async () => {
+		const { rerender } = render(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const groupButton = await screen.findByRole( 'button', {
+			name: /view referrers for search engines/i,
+		} );
+
+		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await expect(
+			screen.findByRole( 'button', { name: /view all referrers/i } )
+		).resolves.toBeInTheDocument();
+
+		// A new date range loads a different report; the stale drill path should clear.
+		rerender(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+			/>
+		);
+
+		await waitFor( () =>
+			expect(
+				screen.queryByRole( 'button', { name: /view all referrers/i } )
+			).not.toBeInTheDocument()
+		);
+		await expect(
+			screen.findByRole( 'button', { name: /view referrers for search engines/i } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
+		render(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
+		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+} );
+
+describe( 'toReferrerRows', () => {
+	it( 'merges comparison values by scoped key before slicing primary rows', () => {
+		const primary = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29 00:00:00',
+					date_end: '2026-06-29 23:59:59',
+					items: [
+						{
+							label: 'Search Engines',
+							views: 4801,
+							link: null,
+							icon: 'https://example.com/search-engine.png',
+							labelIcon: null,
+							children: [
+								{
+									label: 'Google Search',
+									views: 3936,
+									link: null,
+									icon: 'https://example.com/google.png',
+									labelIcon: null,
+									children: [
+										{
+											label: 'google.com',
+											views: 3920,
+											link: 'https://www.google.com/',
+											icon: null,
+											labelIcon: 'external',
+											children: null,
+										},
+									],
+								},
+							],
+						},
+						{
+							label: 'jetpack.com',
+							views: 18,
+							link: 'https://jetpack.com/',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+					] satisfies StatsReferrersItem[],
+				},
+			],
+		} satisfies StatsNormalizedReport< StatsReferrersItem >;
+
+		const comparison = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-22',
+					date_start: '2026-06-22 00:00:00',
+					date_end: '2026-06-22 23:59:59',
+					items: [
+						{
+							label: 'Search Engines',
+							views: 4100,
+							link: null,
+							icon: 'https://example.com/search-engine.png',
+							labelIcon: null,
+							children: [
+								{
+									label: 'Google Search',
+									views: 3300,
+									link: null,
+									icon: 'https://example.com/google.png',
+									labelIcon: null,
+									children: [
+										{
+											label: 'google.com',
+											views: 3290,
+											link: 'https://www.google.com/',
+											icon: null,
+											labelIcon: 'external',
+											children: null,
+										},
+									],
+								},
+							],
+						},
+					] satisfies StatsReferrersItem[],
+				},
+			],
+		} satisfies StatsNormalizedReport< StatsReferrersItem >;
+
+		expect( toReferrerRows( primary, comparison, 1 ) ).toEqual( [
+			{
+				label: 'Search Engines',
+				value: 4801,
+				previousValue: 4100,
+				href: undefined,
+				icon: 'https://example.com/search-engine.png',
+				children: [
+					{
+						label: 'Google Search',
+						value: 3936,
+						previousValue: 3300,
+						href: undefined,
+						icon: 'https://example.com/google.png',
+						children: [
+							{
+								label: 'google.com',
+								value: 3920,
+								previousValue: 3290,
+								href: 'https://www.google.com/',
+								icon: 'https://example.com/google.png',
+								children: undefined,
+							},
+						],
+					},
+				],
+			},
+		] );
+	} );
+
+	it( 'keeps all rows when max is 0', () => {
+		const report = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29 00:00:00',
+					date_end: '2026-06-29 23:59:59',
+					items: [
+						{
+							label: 'a.com',
+							views: 2,
+							link: 'https://a.com/',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+						{
+							label: 'b.com',
+							views: 1,
+							link: 'https://b.com/',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+					] satisfies StatsReferrersItem[],
+				},
+			],
+		} satisfies StatsNormalizedReport< StatsReferrersItem >;
+
+		expect( toReferrerRows( report, undefined, 0 ) ).toHaveLength( 2 );
+	} );
+} );

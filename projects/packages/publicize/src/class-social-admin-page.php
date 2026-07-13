@@ -260,10 +260,14 @@ class Social_Admin_Page {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
+	 * The modernized Social dashboard now defaults on for every site. Hosts (and
+	 * a11ns who want the legacy view back) can still force the legacy experience
+	 * with `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
+	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**

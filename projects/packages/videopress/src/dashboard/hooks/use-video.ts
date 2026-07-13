@@ -1,7 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { useCallback } from '@wordpress/element';
+import { flattenVideoTracks } from '../../client/lib/video-tracks';
 import { buildShortcode } from '../utils/format';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
+import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem } from '../types/library';
 
 type ApiMediaItem = {
@@ -24,6 +27,7 @@ type ApiMediaItem = {
 		privacy_setting?: 0 | 1 | 2;
 		is_private?: boolean;
 		description?: string;
+		tracks?: VideoTracksResponseBodyProps;
 	};
 };
 
@@ -62,6 +66,9 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
+		// The media REST field omits `tracks` today, so this is seed-only:
+		// the caption manager modal fetches the authoritative list itself.
+		tracks: flattenVideoTracks( vp?.tracks ),
 	};
 }
 
@@ -89,5 +96,24 @@ export function useVideo( id: number | string ) {
 		isLoading: query.isLoading,
 		isError: query.isError,
 		error: query.error,
+		refetch: query.refetch,
 	};
+}
+
+/**
+ * Returns a callback that invalidates a single video's cached query so the next
+ * read refetches it. Lets any component refresh a video after mutating it
+ * out-of-band (e.g. the caption manager) without threading `refetch` through props.
+ *
+ * @return A function that invalidates the cache for the given media ID.
+ */
+export function useInvalidateVideo() {
+	const client = useQueryClient();
+	return useCallback(
+		( id: number | string ) =>
+			client.invalidateQueries( {
+				queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
+			} ),
+		[ client ]
+	);
 }

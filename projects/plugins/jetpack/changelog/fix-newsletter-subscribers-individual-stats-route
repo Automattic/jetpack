@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Rename the modernized Newsletter proxy route to subscribers/individual-stats so it no longer shadows the aggregate subscribers/stats endpoint on WordPress.com (JETPACK-1774). Flag-gated; no user-facing change.
+
+

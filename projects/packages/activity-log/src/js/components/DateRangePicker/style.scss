@@ -25,13 +25,13 @@
 		}
 
 		svg {
-			color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+			color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 			padding: 4px;
 		}
 	}
 
 	&__text {
-		color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 		padding: 0 4px;
 	}
 }
