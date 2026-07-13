@@ -15,25 +15,18 @@ const WPCOM_HOMEPAGE_CONNECTION_BANNER_DISMISSED_META = 'wpcom_pages_homepage_co
 
 /**
  * Displays the homepage connection banner in the admin notices.
+ *
+ * The markup is rendered directly (rather than via wp_admin_notice()) because
+ * wp_admin_notice() passes its output through wp_kses_post(), which strips the
+ * data-nonce attribute the dismissal AJAX request relies on.
  */
 function homepage_connection_banner() {
-	$message = sprintf(
-		'<p>%s</p><a href="%s" class="button-primary">%s</a>',
-		esc_html( __( 'Looking to customize your homepage?', 'jetpack-mu-wpcom' ) ),
+	printf(
+		'<div id="edit-homepage-banner" class="notice notice-info is-dismissible" data-nonce="%s"><p>%s</p><a href="%s" class="button-primary">%s</a></div>',
+		esc_attr( wp_create_nonce( 'dismiss_homepage_connection_banner' ) ),
+		esc_html__( 'Looking to customize your homepage?', 'jetpack-mu-wpcom' ),
 		esc_url( admin_url( 'site-editor.php' ) ),
 		esc_html__( 'Edit homepage', 'jetpack-mu-wpcom' )
-	);
-
-	wp_admin_notice(
-		$message,
-		array(
-			'type'        => 'info',
-			'id'          => 'edit-homepage-banner',
-			'dismissible' => true,
-			'attributes'  => array(
-				'data-nonce' => wp_create_nonce( 'dismiss_homepage_connection_banner' ),
-			),
-		)
 	);
 }
 
