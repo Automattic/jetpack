@@ -172,13 +172,29 @@ function SubscribersChartInner( {
 	}
 
 	if ( ! metricTabs.length ) {
+		if ( ! metricIds.length ) {
+			return (
+				<ChartEmptyState
+					icon={ trendingUp }
+					text={ __(
+						'No metric selected. Please select a metric from the metrics list.',
+						'jetpack-premium-analytics'
+					) }
+				/>
+			);
+		}
+
+		// Metrics are selected but every tab was filtered out — today that means
+		// Paid subscribers is the sole selection on a site with no paid
+		// subscribers in the window. Wait out the first fetch before claiming so.
+		if ( state.isLoading ) {
+			return null;
+		}
+
 		return (
 			<ChartEmptyState
 				icon={ trendingUp }
-				text={ __(
-					'No metric selected. Please select a metric from the metrics list.',
-					'jetpack-premium-analytics'
-				) }
+				text={ __( 'No paid subscribers in this date range.', 'jetpack-premium-analytics' ) }
 			/>
 		);
 	}
