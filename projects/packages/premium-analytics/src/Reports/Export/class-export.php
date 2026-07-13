@@ -14,7 +14,17 @@ declare( strict_types=1 );
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Items_Per_Order_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Order_Value_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Coupon_Use_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Gross_Sales_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Net_Sales_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Fulfilled_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Refunds_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Taxes_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Debug_Logger;
 
 defined( 'ABSPATH' ) || exit;
@@ -79,7 +89,17 @@ class Export {
 		// Ported faithfully from woocommerce/woocommerce-analytics (develop). Additional
 		// report controllers are registered here as they land in follow-up changes.
 		$report_controllers = array(
+			Average_Items_Per_Order_Controller::class,
+			Average_Order_Value_Controller::class,
+			Conversion_Rate_Over_Time_Controller::class,
+			Coupon_Use_Over_Time_Controller::class,
+			Gross_Sales_Over_Time_Controller::class,
+			Net_Sales_Over_Time_Controller::class,
+			Orders_Fulfilled_Over_Time_Controller::class,
 			Orders_Over_Time_Controller::class,
+			Refunds_Over_Time_Controller::class,
+			Taxes_Over_Time_Controller::class,
+			Visitors_Over_Time_Controller::class,
 		);
 
 		foreach ( $report_controllers as $report_controller ) {
