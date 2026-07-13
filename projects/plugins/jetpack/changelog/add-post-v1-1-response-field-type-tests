@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comment: Add regression tests asserting the scalar field types in the WP.com v1.1 get-post REST response.

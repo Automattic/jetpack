@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
@@ -173,5 +174,95 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 		$this->assertIsArray( $response );
 		$this->assertArrayHasKey( 'has_password', $response );
 		$this->assertFalse( $response['has_password'] );
+	}
+
+	/**
+	 * Fetches the default v1.1 response for a freshly created published post.
+	 *
+	 * @return array The rendered post response.
+	 */
+	private function get_default_post_response() {
+		$post_id = $this->create_post();
+
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/' . $post_id,
+			self::$blog_id,
+			$post_id
+		);
+
+		$this->assertIsArray( $response );
+
+		return $response;
+	}
+
+	/**
+	 * Turns a flat list of field names into named single-argument data sets, so each
+	 * field is written once but still labels its own case in the test output.
+	 *
+	 * @param string[] $fields Response field names.
+	 * @return array
+	 */
+	private static function field_cases( array $fields ) {
+		$cases = array();
+		foreach ( $fields as $field ) {
+			$cases[ $field ] = array( $field );
+		}
+		return $cases;
+	}
+
+	/**
+	 * Fields documented '(int)' in WPCOM_JSON_API_Post_v1_1_Endpoint::$post_object_format.
+	 *
+	 * @return array
+	 */
+	public static function int_response_field_provider() {
+		return self::field_cases( array( 'ID', 'site_ID', 'like_count', 'menu_order', 'attachment_count' ) );
+	}
+
+	/**
+	 * Fields documented '(bool)' in WPCOM_JSON_API_Post_v1_1_Endpoint::$post_object_format.
+	 *
+	 * @return array
+	 */
+	public static function bool_response_field_provider() {
+		return self::field_cases( array( 'sticky', 'has_password', 'likes_enabled', 'sharing_enabled', 'i_like', 'is_reblogged', 'is_following' ) );
+	}
+
+	/**
+	 * Each '(int)'-documented field must be serialized as a JSON number, never a string.
+	 *
+	 * The render_response_keys() serializer casts only ID and site_ID itself and trusts
+	 * each SAL getter for the rest, so this locks the contract and guards against a type
+	 * leak like the site_ID one recurring elsewhere.
+	 *
+	 * @dataProvider int_response_field_provider
+	 * @group json-api
+	 *
+	 * @param string $field The response field name.
+	 */
+	#[DataProvider( 'int_response_field_provider' )]
+	#[Group( 'json-api' )]
+	public function test_int_response_field_is_serialized_as_an_integer( string $field ) {
+		$response = $this->get_default_post_response();
+
+		$this->assertArrayHasKey( $field, $response, $field . ' should be present in the response' );
+		$this->assertIsInt( $response[ $field ], $field . ' should be serialized as an integer' );
+	}
+
+	/**
+	 * Each '(bool)'-documented field must be serialized as a JSON boolean, never a string.
+	 *
+	 * @dataProvider bool_response_field_provider
+	 * @group json-api
+	 *
+	 * @param string $field The response field name.
+	 */
+	#[DataProvider( 'bool_response_field_provider' )]
+	#[Group( 'json-api' )]
+	public function test_bool_response_field_is_serialized_as_a_boolean( string $field ) {
+		$response = $this->get_default_post_response();
+
+		$this->assertArrayHasKey( $field, $response, $field . ' should be present in the response' );
+		$this->assertIsBool( $response[ $field ], $field . ' should be serialized as a boolean' );
 	}
 }
