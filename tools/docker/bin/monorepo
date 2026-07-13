@@ -166,8 +166,7 @@ fi
   mkdir -p "$DOCKER_DATA_DIR"
 
   # Mark the repo as a safe directory for git, which otherwise refuses to operate on a checkout owned
-  # by another user. `$DOCKER_DATA_DIR` is the container's HOME, so this lands in git's global config;
-  # passing it via `GIT_CONFIG_*` instead would clobber, and be clobbered by, a caller's own entries.
+  # by another user. `$DOCKER_DATA_DIR` is the container's HOME, so this lands in git's global config.
   GITCONFIG="$DOCKER_DATA_DIR/.gitconfig"
   for SAFE_DIR in "$MONOREPO_ROOT" ${MAIN_GIT_DIR:+"$MAIN_GIT_DIR"}; do
       git config --file "$GITCONFIG" --get-all safe.directory 2>/dev/null | grep -qxF "$SAFE_DIR" \
