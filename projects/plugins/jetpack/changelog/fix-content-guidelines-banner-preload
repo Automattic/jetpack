@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Content Guidelines AI: read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites, where the REST endpoint class is not loaded during admin page loads.
+Content Guidelines AI: Read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites, where the REST endpoint class is not loaded during admin page loads.
