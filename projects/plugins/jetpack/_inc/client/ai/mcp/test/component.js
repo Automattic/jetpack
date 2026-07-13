@@ -5,6 +5,8 @@ import {
 	isWriteTool,
 	sortTools,
 } from '../categories';
+import { getOverridesToMatch, groupIntentKey } from '../group-intents';
+import { groupToolsByGroup, groupToolsBySubCategory } from '../groups';
 
 describe( 'MCP category mapping', () => {
 	test.each( [ 'wpcom-mcp', 'developer-testing' ] )(
@@ -77,6 +79,15 @@ describe( 'MCP category mapping', () => {
 		expect( isWriteTool( 'tool-id' ) ).toBe( false );
 	} );
 
+	test( 'prefers top-level readonly over annotations.readonly', () => {
+		expect( isWriteTool( 'tool-id', { readonly: false, annotations: { readonly: true } } ) ).toBe(
+			true
+		);
+		expect( isWriteTool( 'tool-id', { readonly: true, annotations: { readonly: false } } ) ).toBe(
+			false
+		);
+	} );
+
 	test( 'leaves tool order unchanged', () => {
 		const tools = [
 			[ 'first', {} ],
@@ -84,5 +95,76 @@ describe( 'MCP category mapping', () => {
 		];
 
 		expect( sortTools( tools ) ).toBe( tools );
+	} );
+} );
+
+const GROUPS = [
+	{
+		name: 'content-authoring',
+		label: 'Content Authoring',
+		description: 'Create posts.',
+		order: 0,
+	},
+	{ name: 'site', label: 'Site', description: 'Manage site settings.', order: 1 },
+	{ name: 'account', label: 'Account', description: 'Manage account settings.', order: 2 },
+];
+
+describe( 'MCP group-intents', () => {
+	test( 'groupIntentKey builds a read/write-scoped compound key', () => {
+		expect( groupIntentKey( 'write', 'site' ) ).toBe( 'write:site' );
+		expect( groupIntentKey( 'read', 'account' ) ).toBe( 'read:account' );
+	} );
+
+	test( 'getOverridesToMatch returns overrides only for disagreeing tools', () => {
+		const tools = [
+			[ 'wpcom-mcp/already-on', { enabled: true } ],
+			[ 'wpcom-mcp/needs-on', { enabled: false } ],
+		];
+		expect( getOverridesToMatch( tools, true ) ).toEqual( { 'wpcom-mcp/needs-on': true } );
+	} );
+
+	test( 'getOverridesToMatch returns undefined when every tool matches', () => {
+		expect( getOverridesToMatch( [ [ 'wpcom-mcp/a', { enabled: true } ] ], true ) ).toBeUndefined();
+	} );
+
+	test( 'getOverridesToMatch returns undefined for an empty list', () => {
+		expect( getOverridesToMatch( [], true ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'MCP groups', () => {
+	test( 'groupToolsByGroup orders groups by descriptor order', () => {
+		const tools = [
+			[ 'wpcom-mcp/posts-create', { group: 'content-authoring' } ],
+			[ 'wpcom-mcp/site-settings-update', { group: 'site' } ],
+		];
+		const groups = groupToolsByGroup( tools, GROUPS );
+		expect( groups.map( g => g.group?.name ) ).toEqual( [ 'content-authoring', 'site' ] );
+	} );
+
+	test( 'groupToolsByGroup buckets ungrouped tools into trailing "Other"', () => {
+		const tools = [
+			[ 'wpcom-mcp/standalone', { group: null } ],
+			[ 'wpcom-mcp/posts-create', { group: 'content-authoring' } ],
+		];
+		const groups = groupToolsByGroup( tools, GROUPS );
+		expect( groups ).toHaveLength( 2 );
+		expect( groups[ groups.length - 1 ].group ).toBeNull();
+	} );
+
+	test( 'groupToolsBySubCategory places no-category tools in trailing null bucket', () => {
+		const tools = [ [ 'wpcom-mcp/unknown', {} ] ];
+		const result = groupToolsBySubCategory( tools );
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].subCategory ).toBeNull();
+	} );
+
+	test( 'groupToolsBySubCategory orders posts before comments', () => {
+		const tools = [
+			[ 'wpcom-mcp/list-comments', { category: 'comments' } ],
+			[ 'wpcom-mcp/list-posts', { category: 'posts' } ],
+		];
+		const result = groupToolsBySubCategory( tools );
+		expect( result[ 0 ].tools[ 0 ][ 0 ] ).toBe( 'wpcom-mcp/list-posts' );
 	} );
 } );

@@ -1,6 +1,12 @@
 /**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+/**
  * Internal dependencies
  */
+import { statsAppNoticesQuery, updateStatsAppNotice } from '../stats-app-notices-query';
+import { statsAppPurchasesQuery } from '../stats-app-purchases-query';
 import { statsAppProxyQuery } from '../stats-app-query';
 import {
 	statsAppReferrersMarkSpamMutation,
@@ -17,14 +23,23 @@ import {
 	statsEmailOpensBreakdownQuery,
 } from '../stats-email-breakdown-query';
 import { statsEmailSummaryQuery } from '../stats-email-summary-query';
+import {
+	statsEmailClicksTimeSeriesQuery,
+	statsEmailOpensTimeSeriesQuery,
+} from '../stats-email-time-series-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
+import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
-import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
+import {
+	statsSubscribersCountsQuery,
+	statsSubscribersQuery,
+	statsSubscribersReportQuery,
+} from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
@@ -32,7 +47,15 @@ import { statsVisitsQuery } from '../stats-visits-query';
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
 
+jest.mock( '@wordpress/api-fetch' );
+
+const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+
 describe( 'Stats query factories', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+	} );
+
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
@@ -110,6 +133,63 @@ describe( 'Stats query factories', () => {
 	it( 'disables email breakdown queries until a positive post ID is available', () => {
 		expect( statsEmailOpensBreakdownQuery( 0, 'client' ).enabled ).toBe( false );
 		expect( statsEmailClicksBreakdownQuery( -1, 'link' ).enabled ).toBe( false );
+	} );
+
+	it( 'builds email opens time series query keys from the report date range', () => {
+		const query = statsEmailOpensTimeSeriesQuery( 41, {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-opens-time-series',
+			'1.1',
+			'stats/opens/emails/41',
+			'GET',
+			{ period: 'day', quantity: 7, date: '2026-06-07', stats_fields: 'timeline' },
+			undefined,
+			'emailTimeSeries',
+		] );
+	} );
+
+	it( 'clamps coarser intervals to daily over the full requested span', () => {
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-01',
+				to: '2026-06-30',
+				interval: 'month',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'day', quantity: 30, date: '2026-06-30', stats_fields: 'timeline' } );
+	} );
+
+	it( 'requests 24 hourly buckets per day so multi-day hourly ranges are not truncated', () => {
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-15',
+				to: '2026-06-15',
+				interval: 'hour',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'hour', quantity: 24, date: '2026-06-15', stats_fields: 'timeline' } );
+
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-14',
+				to: '2026-06-15',
+				interval: 'hour',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-15', stats_fields: 'timeline' } );
+	} );
+
+	it( 'disables email time series queries without a positive integer post ID or a date', () => {
+		const range = { from: '2026-06-01', to: '2026-06-07', interval: 'day' } as const;
+
+		expect( statsEmailOpensTimeSeriesQuery( 0, range ).enabled ).toBe( false );
+		expect( statsEmailClicksTimeSeriesQuery( -1, range ).enabled ).toBe( false );
+		expect( statsEmailOpensTimeSeriesQuery( 1.5, range ).enabled ).toBe( false );
+		expect( statsEmailOpensTimeSeriesQuery( 41, {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {
@@ -246,12 +326,12 @@ describe( 'Stats query factories', () => {
 			from: '2026-06-16',
 			to: '2026-06-16',
 			interval: 'day',
-			deviceParam: 'browser',
+			deviceProperty: 'browser',
 		} );
 
 		expect( query.queryKey ).toEqual( [
 			'stats',
-			'devices',
+			'devices-browser',
 			'1.1',
 			'stats/devices/browser',
 			'GET',
@@ -269,7 +349,7 @@ describe( 'Stats query factories', () => {
 		} );
 
 		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [ 'stats/devices/screensize', 'devices' ] )
+			expect.arrayContaining( [ 'devices-screensize', 'stats/devices/screensize', 'devices' ] )
 		);
 	} );
 
@@ -359,6 +439,7 @@ describe( 'Stats query factories', () => {
 			'stats/emails/summary',
 			'GET',
 			{
+				period: 'alltime',
 				quantity: 10,
 				sort_field: 'post_date',
 				sort_order: 'desc',
@@ -376,10 +457,60 @@ describe( 'Stats query factories', () => {
 		} );
 
 		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'alltime',
 			quantity: 5,
 			sort_field: 'opens',
 			sort_order: 'asc',
 		} );
+	} );
+
+	it( 'keeps email summary at period=alltime even when an untyped caller tries to override it', () => {
+		const query = statsEmailSummaryQuery( {
+			period: 'day',
+		} as unknown as Parameters< typeof statsEmailSummaryQuery >[ 0 ] );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'alltime',
+			quantity: 10,
+			sort_field: 'post_date',
+			sort_order: 'desc',
+		} );
+	} );
+
+	it( 'targets the single video endpoint by id with the single video sanitizer', () => {
+		const query = statsSingleVideoQuery( 31533 );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'single-video',
+			'1.1',
+			'stats/video/31533',
+			'GET',
+			{ period: 'day' },
+			undefined,
+			'singleVideo',
+		] );
+	} );
+
+	it( 'converts the report date range for the single video request', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			from: '2026-06-08',
+			to: '2026-06-14',
+			interval: 'day',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			date: '2026-06-14',
+			start_date: '2026-06-08',
+			days: 7,
+		} );
+	} );
+
+	it( 'disables the single video query until a valid video id is available', () => {
+		expect( statsSingleVideoQuery( 0 ).enabled ).toBe( false );
+		expect( statsSingleVideoQuery( NaN ).enabled ).toBe( false );
+		expect( statsSingleVideoQuery( 31533 ).enabled ).toBe( true );
 	} );
 
 	it( 'builds app query keys without report param coercion', () => {
@@ -399,6 +530,35 @@ describe( 'Stats query factories', () => {
 			{ date: '2026-06-16' },
 			{},
 		] );
+	} );
+
+	it( 'builds app notices query keys for the local REST endpoint', () => {
+		expect( statsAppNoticesQuery().queryKey ).toEqual( [ 'stats-app', 'notices', {} ] );
+		expect( statsAppNoticesQuery( { force_refresh: true } ).queryKey ).toEqual( [
+			'stats-app',
+			'notices',
+			{ force_refresh: true },
+		] );
+	} );
+
+	it( 'updates app notices through the local REST endpoint', async () => {
+		mockApiFetch.mockResolvedValue( { opt_in_new_stats: false } );
+
+		await updateStatsAppNotice( {
+			id: 'opt_in_new_stats',
+			status: 'postponed',
+			postponed_for: 300,
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack-premium-analytics/v1/notices',
+			method: 'POST',
+			data: {
+				id: 'opt_in_new_stats',
+				status: 'postponed',
+				postponed_for: 300,
+			},
+		} );
 	} );
 
 	it( 'builds highlights query keys with endpoint params and sanitizer', () => {
@@ -465,6 +625,30 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	it( 'builds app purchases query keys for the upgrades endpoint', () => {
+		expect( statsAppPurchasesQuery( { site: 41 } ).queryKey ).toEqual( [
+			'stats-app',
+			'purchases',
+			'1.2',
+			'upgrades',
+			'GET',
+			{ site: 41 },
+			{},
+		] );
+	} );
+
+	it( 'passes purchases endpoint filters without report param coercion', () => {
+		expect( statsAppPurchasesQuery( { type: 'transferred' } ).queryKey ).toEqual( [
+			'stats-app',
+			'purchases',
+			'1.2',
+			'upgrades',
+			'GET',
+			{ type: 'transferred' },
+			{},
+		] );
+	} );
+
 	it( 'builds subscribers query keys with Calypso endpoint params and default stat fields', () => {
 		const query = statsSubscribersQuery( {
 			unit: 'week',
@@ -521,7 +705,42 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'builds WordAds stats query keys with Calypso endpoint params', () => {
+	it( 'maps a daily dashboard range onto subscribers unit/quantity/date', () => {
+		const query = statsSubscribersReportQuery( {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			interval: 'day',
+		} as StatsReportParams );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			unit: 'day',
+			quantity: 30,
+			date: '2026-06-30',
+			stat_fields: 'subscribers,subscribers_paid',
+		} );
+	} );
+
+	it( 'clamps unsupported intervals to a supported subscribers unit', () => {
+		const query = statsSubscribersReportQuery( {
+			from: '2026-01-01',
+			to: '2026-06-30',
+			interval: 'quarter',
+		} as StatsReportParams );
+
+		expect( query.queryKey[ 5 ] ).toEqual(
+			expect.objectContaining( { unit: 'month', quantity: 6, date: '2026-06-30' } )
+		);
+	} );
+
+	it( 'disables the subscribers report query and omits date until a range is available', () => {
+		const query = statsSubscribersReportQuery( {} as StatsReportParams );
+
+		expect( query.enabled ).toBe( false );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'date' );
+	} );
+
+	it( 'builds WordAds stats query keys with the range translated to endpoint params', () => {
 		const query = statsWordAdsStatsQuery( {
 			from: '2026-05-01',
 			to: '2026-06-30',
@@ -538,7 +757,7 @@ describe( 'Stats query factories', () => {
 			{
 				unit: 'month',
 				date: '2026-06-30',
-				quantity: 30,
+				quantity: 2,
 			},
 			undefined,
 			'wordAdsStats',
@@ -549,18 +768,18 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'uses the WordAds yearly quantity default and preserves explicit quantity params', () => {
+	it( 'sets the WordAds quantity to the bucket count spanning the range', () => {
 		expect(
 			statsWordAdsStatsQuery( {
-				from: '2026-01-01',
-				to: '2026-12-31',
-				interval: 'year',
+				from: '2026-06-01',
+				to: '2026-06-07',
+				interval: 'day',
 			} ).queryKey
 		).toEqual(
 			expect.arrayContaining( [
 				expect.objectContaining( {
-					unit: 'year',
-					quantity: 10,
+					unit: 'day',
+					quantity: 7,
 				} ),
 			] )
 		);
@@ -579,6 +798,34 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'clamps the WordAds window end to yesterday, keeping it anchored to the range start', () => {
+		// WordAds stats are computed nightly, so a range ending today ends at
+		// yesterday instead. The window stays anchored to the range start: the
+		// unavailable trailing bucket is dropped (quantity 7 → 6), so the window
+		// does not shift a bucket earlier and overlap the comparison window.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09',
+					to: '2026-06-15',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-14',
+						quantity: 6,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'disables WordAds stats queries until a date is available', () => {

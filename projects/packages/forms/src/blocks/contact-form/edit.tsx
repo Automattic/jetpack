@@ -16,7 +16,8 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
-	Notice,
+	Button,
+	Notice as CoreNotice,
 	PanelBody,
 	TextareaControl,
 	TextControl,
@@ -27,9 +28,17 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
+import {
+	useRef,
+	useEffect,
+	useCallback,
+	lazy,
+	Suspense,
+	useState,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -41,20 +50,20 @@ import {
 	PREVIOUS_BUTTON_TEMPLATE,
 	NEXT_BUTTON_TEMPLATE,
 	NAVIGATION_TEMPLATE,
-} from '../form-step-navigation/edit.js';
-import StepControls from '../shared/components/form-step-controls/index.js';
-import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings.js';
+} from '../form-step-navigation/edit.jsx';
+import StepControls from '../shared/components/form-step-controls/index.jsx';
+import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings.jsx';
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively.js';
 import useFormSteps from '../shared/hooks/use-form-steps.js';
-import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
+import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.jsx';
 import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
 import FormStatusNotice from './components/form-status-notice.tsx';
-import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
-import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
-import NotificationsSettings from './components/notifications-settings.js';
-import WebhooksSettings from './components/webhooks-settings.js';
+import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.jsx';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.jsx';
+import NotificationsSettings from './components/notifications-settings.jsx';
+import WebhooksSettings from './components/webhooks-settings.jsx';
 import WidgetEditorReadonlyView from './components/widget-editor-readonly-view.tsx';
 import { useCreateSyncedFormOnInsertion } from './hooks/use-create-synced-form-on-insertion.ts';
 import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
@@ -62,11 +71,12 @@ import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import { getEditorContext } from './util/get-editor-context.ts';
-import VariationPicker from './variation-picker.js';
+import { isCollectingResponses } from './util/is-collecting-responses.ts';
+import VariationPicker from './variation-picker.jsx';
 
 import './util/form-styles.js';
 
-const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls.js' ) );
+const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls.jsx' ) );
 
 // Transforms
 const FormTransitionState = {
@@ -1034,9 +1044,9 @@ function JetpackContactFormEdit( {
 				? __( "You don't have permission to edit this form.", 'jetpack-forms' )
 				: _x( 'The referenced form could not be found.', 'synced form error', 'jetpack-forms' );
 		elt = (
-			<Notice status="warning" isDismissible={ false }>
+			<CoreNotice status="warning" isDismissible={ false }>
 				{ errorMessage }
-			</Notice>
+			</CoreNotice>
 		);
 	}
 	// In widget editor, synced forms (with ref) are not editable
@@ -1097,6 +1107,41 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
+					{ ! isCollectingResponses( attributes ) && (
+						<Notice.Root intent="warning" className="jetpack-contact-form__not-collecting-notice">
+							<Notice.Title>
+								{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+							</Notice.Title>
+							<Notice.Description>
+								{ createInterpolateElement(
+									__(
+										'Turn on <email>email notifications</email> or <storage>response storage</storage> settings to start collecting.',
+										'jetpack-forms'
+									),
+									{
+										email: (
+											<Button
+												variant="link"
+												onClick={ () =>
+													setOpenPanels( prev => ( { ...prev, 'form-notifications': true } ) )
+												}
+												children={ null }
+											/>
+										),
+										storage: (
+											<Button
+												variant="link"
+												onClick={ () =>
+													setOpenPanels( prev => ( { ...prev, 'responses-storage': true } ) )
+												}
+												children={ null }
+											/>
+										),
+									}
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }

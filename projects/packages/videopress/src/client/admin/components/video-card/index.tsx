@@ -131,12 +131,7 @@ export const VideoCard = ( {
 					) : (
 						<>
 							{ hasPlays && (
-								<Text
-									weight="regular"
-									size="small"
-									component="div"
-									className={ styles[ 'video-card__video-plays-counter' ] }
-								>
+								<Text component="div" className={ styles[ 'video-card__video-plays-counter' ] }>
 									<Icon icon={ chartBar } />
 									{ playsCount }
 								</Text>

@@ -78,6 +78,9 @@
 		<testsuite name="sitemaps">
 			<directory suffix="Test.php">tests/php/modules/sitemaps</directory>
 		</testsuite>
+		<testsuite name="stats">
+			<directory suffix="Test.php">tests/php/modules/stats</directory>
+		</testsuite>
 		<testsuite name="subscriptions">
 			<directory suffix="Test.php">tests/php/modules/subscriptions</directory>
 		</testsuite>

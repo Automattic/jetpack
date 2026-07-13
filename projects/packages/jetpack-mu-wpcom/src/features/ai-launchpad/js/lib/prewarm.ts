@@ -46,28 +46,21 @@ function startPrewarm( input: WizardInput ): void {
 	}
 	cache = {
 		key,
-		// The prewarmed call persists on its own; a settled-but-unread promise
-		// is harmless. Swallow rejections here so the background fire never
-		// surfaces an unhandled rejection; the Finish handler awaits its own
-		// result and handles errors there.
+		// Swallow rejections so the background fire never surfaces an unhandled rejection; the Finish handler handles errors on its own await.
 		promise: tailor( input ).catch( () => null as unknown as TailorResult ),
 	};
 }
 
 /**
- * Background-fire the tailor call while the user fills in the wizard. After
- * PREWARM_DELAY_MS of idle (no further state changes), the call starts and its
- * promise is cached in module scope keyed by the input. The Finish handler can
- * reuse it via `getPrewarmedTailor`.
+ * Background-fire the tailor call while the user fills in the wizard, caching its
+ * promise for `getPrewarmedTailor` to reuse.
  *
  * @param state - The partial wizard input collected so far.
  */
 export function usePrewarm( state: Partial< WizardInput > ): void {
-	const timer = useRef< ReturnType< typeof setTimeout > >();
+	const timer = useRef< ReturnType< typeof setTimeout > >( undefined );
 
-	// Depend on the stable cache key, not the `state` object: the call site passes
-	// a fresh object every render, so keying on identity would clear and re-arm the
-	// debounce on every unrelated re-render, eroding the head start it exists for.
+	// Depend on the stable cache key, not the `state` object, which is fresh every render and would re-arm the debounce on every re-render.
 	const input = isComplete( state ) ? state : null;
 	const key = input ? cacheKey( input ) : '';
 
@@ -77,16 +70,13 @@ export function usePrewarm( state: Partial< WizardInput > ): void {
 		}
 		timer.current = setTimeout( () => startPrewarm( input ), PREWARM_DELAY_MS );
 		return () => clearTimeout( timer.current );
-		// `key` is the stable identity of `input`; depending on `input` itself
-		// would defeat the point.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ key ] );
 }
 
 /**
  * Return the prewarmed tailor promise for this input if one is in flight or
- * settled, otherwise start a fresh tailor call. Lets the Finish handler reuse
- * the head start from `usePrewarm`.
+ * settled, otherwise start a fresh tailor call.
  *
  * @param input - The collected wizard input.
  * @return The tailored result.

@@ -114,6 +114,12 @@
 	margin: 0;
 }
 
+// The minimal small button's hover background hugs its text; give it
+// breathing room without growing the row height.
+.vp-video-details__manage-subtitles {
+	padding-inline: 8px;
+}
+
 // Mobile: stack the Thumbnail card's two columns vertically. With the
 // meta column hosting full-width copy fields + the primary action,
 // anything narrower than ~600px squashes the meta into a barely-readable

@@ -14,10 +14,8 @@ interface JsonSchema {
 }
 
 /**
- * Inlined copy of contracts/agent-output-schema.json. Bundling the schema as a
- * constant keeps this module free of JSON-import-attribute syntax that differs
- * between the webpack bundle and the node:test runner. The unit test asserts
- * this constant deep-equals the committed contract file, so drift is caught.
+ * Inlined copy of contracts/agent-output-schema.json; a unit test asserts it
+ * matches the committed contract, so drift is caught.
  */
 export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 	type: 'object',
@@ -49,6 +47,7 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 				},
 				brand_name: { type: 'string', maxLength: 80 },
 				niche: { type: 'string', maxLength: 120 },
+				theme_keyword: { type: 'string', maxLength: 40 },
 				vibe: { type: 'string', maxLength: 120 },
 				audience: { type: 'string', maxLength: 200 },
 				tagline: { type: 'string', maxLength: 200 },
@@ -73,10 +72,8 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 };
 
 /**
- * Validate a value against the subset of JSON Schema the agent output uses:
- * type, required, additionalProperties:false, enum, minLength, maxLength,
- * minItems, maxItems, items, properties. Returns a list of human-readable
- * errors; an empty list means the value is valid.
+ * Validate a value against the subset of JSON Schema the agent output uses.
+ * Returns human-readable errors; an empty list means valid.
  *
  * @param value  - The value to validate.
  * @param schema - The schema to validate against.
@@ -149,9 +146,8 @@ export function validateAgainstSchema( value: unknown, schema: JsonSchema, path 
 
 /**
  * Parse the raw `content` string returned by jetpack-ai-query and validate it
- * against the agent output schema. Returns the typed output on success, or
- * null if the JSON is malformed or fails schema validation. Callers fall back
- * to the deterministic picker on null.
+ * against the agent output schema. Returns the typed output, or null if the JSON
+ * is malformed or fails validation.
  *
  * @param content - The raw JSON string from `choices[0].message.content`.
  * @return The validated output, or null.

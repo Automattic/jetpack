@@ -2,10 +2,14 @@
  * Cookie Consent Controls Logger Integration
  *
  * Listens to consent events from the cookie consent controls and logs them via REST API.
- * This file should only be loaded when consent logging is enabled.
+ * The POST is gated on the `consent_log` feature: when it is off the REST route is not
+ * registered server-side, so the logger stays silent instead of firing a request that 404s.
  *
  */
 
+import { getCategoryPreferenceKey } from './category-preferences';
+import { isFeatureEnabled } from './features';
+import { getConsentCategories } from './utils';
 import type { ConsentEventType, ConsentTypes, ConsentEvent } from './types';
 
 interface ConsentLogResponse {
@@ -16,6 +20,11 @@ async function logConsentEvent(
 	eventType: ConsentEventType,
 	consentTypes: ConsentTypes
 ): Promise< string | undefined > {
+	// Logging off: no route to POST to, and consent is already stored client-side.
+	if ( ! isFeatureEnabled( 'consent_log' ) ) {
+		return;
+	}
+
 	// Get API URL from config (passed from PHP).
 	const apiUrl = window.jetpackCookieConsentConfig?.apiUrl;
 	if ( ! apiUrl ) {
@@ -24,12 +33,20 @@ async function logConsentEvent(
 		return;
 	}
 
+	const headers: Record< string, string > = {
+		'Content-Type': 'application/json',
+	};
+	// Send the REST nonce when present (logged-in visitors only) so the request
+	// authenticates and the consent row records the real user_id instead of 0.
+	const nonce = window.jetpackCookieConsentConfig?.nonce;
+	if ( nonce ) {
+		headers[ 'X-WP-Nonce' ] = nonce;
+	}
+
 	try {
 		const response = await fetch( apiUrl, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
+			headers,
 			body: JSON.stringify( {
 				event_type: eventType,
 				url: window.location.href,
@@ -57,11 +74,11 @@ async function logConsentEvent(
 }
 
 function mapConsentTypes( choices: ConsentEvent[ 'choices' ] ): ConsentTypes {
-	return {
-		functional: true, // Always true
-		analytics: choices.analytics || false,
-		marketing: choices.advertising || false,
-	};
+	return getConsentCategories().reduce< ConsentTypes >( ( consentTypes, category ) => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+		consentTypes[ category.key ] = category.required ? true : choices[ preferenceKey ] === true;
+		return consentTypes;
+	}, {} );
 }
 
 async function handleConsentSaved( event: CustomEvent< ConsentEvent > ): Promise< void > {

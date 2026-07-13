@@ -17,7 +17,6 @@ const fileSchema = JSON.parse(
 const LAUNCH_TASKS = new Set( [
 	'site_launched',
 	'blog_launched',
-	'woo_launch_site',
 	'link_in_bio_launched',
 	'videopress_launched',
 ] );
@@ -61,6 +60,11 @@ describe( 'selectFallback', () => {
 			assert.equal( output.inferred.goal, goal );
 		} );
 	}
+
+	it( 'leads the sell sequence with store customization then products', () => {
+		const ids = selectFallback( inputFor( 'sell' ) ).tasks.map( task => task.id );
+		assert.deepEqual( ids.slice( 0, 2 ), [ 'woo_customize_store', 'woo_products' ] );
+	} );
 
 	it( 'clamps an over-long site name to stay schema-valid', () => {
 		const longName = 'X'.repeat( 200 );

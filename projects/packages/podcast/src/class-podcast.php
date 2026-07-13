@@ -12,12 +12,11 @@ use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Loads Jetpack Podcast on Simple and Atomic sites. The package owns the
- * podcasting experience outright.
+ * Loads the Jetpack Podcast package.
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '1.2.0';
+	const PACKAGE_VERSION = '1.3.1';
 
 	/**
 	 * Whether the class has been initialized.
@@ -27,31 +26,13 @@ class Podcast {
 	private static $initialized = false;
 
 	/**
-	 * Initialize the package.
-	 *
-	 * Always loads on Simple and WoA. On self-hosted Jetpack it stays dormant
-	 * unless opted in via the `jetpack_podcast_for_the_world` filter.
+	 * Initialize the package. Loads unconditionally; callers decide whether to.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
-
-		$host = new Host();
-
-		/**
-		 * Allow the Podcast package to load on self-hosted Jetpack sites.
-		 *
-		 * @since 1.1.1
-		 *
-		 * @param bool $enabled Whether to load the package on self-hosted. Default false.
-		 */
-		$for_the_world = (bool) apply_filters( 'jetpack_podcast_for_the_world', false );
-
-		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() && ! $for_the_world ) {
-			return;
-		}
 
 		Podcast_Episode_Block::register_hooks();
 
@@ -67,11 +48,13 @@ class Podcast {
 
 		Tracks::init();
 
+		Admin_Page::init();
+
 		if ( is_admin() ) {
-			Admin_Page::init();
 			New_Episode_Prefill::init();
 		}
 
+		$host = new Host();
 		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
 			// Register the local REST routes before request-local rollout gates.
 			// Requests from public-api.wordpress.com may not satisfy those gates,

@@ -1,0 +1,38 @@
+.card {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	border:
+		var(--wpds-border-width-xs, 1px) solid
+		var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
+	border-radius: var(--wpds-border-radius-md, 8px);
+	padding: var(--wpds-dimension-padding-2xl, 24px);
+}
+
+.details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-inline-size: 0;
+}
+
+.type {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}
+
+.published {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}
+
+.image {
+	flex: 0 0 auto;
+	inline-size: 72px;
+	block-size: 72px;
+	object-fit: cover;
+	border-radius: var(--wpds-border-radius-sm, 6px);
+}

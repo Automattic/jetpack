@@ -1,0 +1,103 @@
+.heatmap-chart {
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+	font-size: var(--wpds-typography-font-size-sm, 12px);
+}
+
+.heatmap-chart__empty {
+	padding: var(--wpds-dimension-padding-lg, 16px);
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+}
+
+// Track template is set inline because CSS `repeat()` won't take a `var()`
+// count. ARIA rows are `display: contents` so their cells join this grid.
+.heatmap-chart__grid {
+	display: grid;
+	gap: var(--heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
+	flex: 1 1 0;
+	width: 100%;
+	// Override flex's auto minimum so short widgets do not scroll.
+	min-height: 0;
+
+	&:focus-visible {
+		outline:
+			var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid
+			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
+		outline-offset: 2px;
+		border-radius: var(--wpds-border-radius-sm, 2px);
+	}
+}
+
+.heatmap-chart__grid--compact {
+	flex: 0 0 auto;
+	width: max-content;
+	height: max-content;
+	min-height: 0;
+}
+
+.heatmap-chart__row {
+	display: contents;
+}
+
+.heatmap-chart__col-label,
+.heatmap-chart__row-label {
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	font-size: var(--wpds-typography-font-size-xs, 11px);
+	white-space: nowrap;
+	overflow: visible;
+}
+
+.heatmap-chart__col-label {
+	align-self: end;
+	text-align: left;
+}
+
+.heatmap-chart__row-label {
+	align-self: center;
+	justify-self: end;
+	text-align: right;
+	padding-inline-end: var(--wpds-dimension-padding-xs, 4px);
+}
+
+.heatmap-chart__cell {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 0;
+	min-height: 0;
+	border-radius: var(--wpds-border-radius-sm, 2px);
+	// Empty (no-data) default; cells with a value override it below.
+	background: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
+}
+
+// Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
+// an empty cell.
+.heatmap-chart__cell--filled {
+	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
+}
+
+.heatmap-chart__cell--selected {
+	outline:
+		var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid
+		var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
+	outline-offset: calc(-1 * var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)));
+}
+
+.heatmap-chart__cell-value {
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	font-size: var(--wpds-typography-font-size-md, 13px);
+}
+
+// Light text on fills dark enough to out-contrast dark text (decided in JS from
+// the blended fill luminance).
+.heatmap-chart__cell--strong .heatmap-chart__cell-value {
+	color: var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0);
+}
+
+.heatmap-chart__legend-swatch {
+	width: var(--wpds-dimension-size-3xs, 12px);
+	height: var(--wpds-dimension-size-3xs, 12px);
+	border-radius: var(--wpds-border-radius-sm, 2px);
+	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
+}

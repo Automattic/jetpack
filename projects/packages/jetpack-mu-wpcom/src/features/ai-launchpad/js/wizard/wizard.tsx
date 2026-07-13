@@ -3,7 +3,7 @@ import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
-import { trackViewed, trackWizardCompleted } from '../lib/tracks.ts';
+import { trackViewed, trackWizardCompleted, trackWizardSkipped } from '../lib/tracks.ts';
 import DetailsStep from './details-step.tsx';
 import GoalsStep from './goals-step.tsx';
 import {
@@ -24,12 +24,12 @@ interface Props {
 	initialSiteName?: string;
 	// Existing site tagline (blogdescription). Pre-fills the Brief description.
 	initialIntent?: string;
+	// The site's front-end URL, used to key the Calypso My Home URL on Skip.
+	siteUrl?: string;
 	// User locale, forwarded to the wizard payload and the AI call.
 	locale?: string;
-	// Fired once Finish completes, so the host can swap the wizard for the
-	// tailored list. Receives the persisted wizard input and the in-flight
-	// tailor promise, so the host can hand the promise to the tailored list and
-	// have it wait for PUT /tailored to land before reading the output back.
+	// Fired once Finish completes, with the persisted input and the in-flight
+	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
 }
 
@@ -40,6 +40,7 @@ interface Props {
  * @param props                 - Component props.
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
+ * @param props.siteUrl         - The site's front-end URL (for the Skip redirect).
  * @param props.locale          - User locale forwarded to the payload.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
@@ -47,6 +48,7 @@ interface Props {
 export function Wizard( {
 	initialSiteName = '',
 	initialIntent = '',
+	siteUrl,
 	locale = 'en',
 	onComplete,
 }: Props ) {
@@ -54,6 +56,7 @@ export function Wizard( {
 	const [ goal, setGoal ] = useState< GoalSlug | null >( null );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
+	const [ skipping, setSkipping ] = useState( false );
 
 	const state: WizardState = { goal, siteName, intent, locale };
 
@@ -74,14 +77,24 @@ export function Wizard( {
 			return;
 		}
 		const payload = buildWizardPayload( goal, state );
-		// Persist in the background; the flow advances on the tailoring promise
-		// below, so a failed best-effort save must not surface as an unhandled
-		// rejection.
+		// Persist in the background, best-effort so a failed save isn't an unhandled rejection.
+		// Once it lands, reflect the new title in the server-rendered admin bar in place —
+		// a reload instead would re-show the wizard (the tailored output isn't persisted yet).
+		// Mirrors the server's guard: an empty/whitespace Name never writes blogname.
 		apiFetch( {
 			path: '/wpcom/v2/ai-launchpad/wizard',
 			method: 'PUT',
 			data: payload,
-		} ).catch( () => {} );
+		} )
+			.then( () => {
+				const adminBarSiteName = document.querySelector( '#wp-admin-bar-site-name > a' );
+				const savedName = payload.site_name.trim();
+				if ( adminBarSiteName && savedName ) {
+					adminBarSiteName.textContent = savedName;
+				}
+			} )
+			.catch( () => {} );
+
 		const tailoring = getPrewarmedTailor( payload );
 		trackWizardCompleted();
 		onComplete?.( payload, tailoring );
@@ -91,6 +104,26 @@ export function Wizard( {
 		if ( step > 0 ) {
 			setStep( ( step - 1 ) as WizardStep );
 		}
+	};
+
+	// Skipping opts out of the AI Launchpad entirely: dismiss it server-side (which reverts
+	// the site to the regular launchpad surfaces) and leave for Calypso My Home. Calypso keys
+	// sites by their front-end host, so prefer the site URL over the wp-admin request host.
+	const handleSkip = async () => {
+		setSkipping( true );
+		trackWizardSkipped();
+		try {
+			await apiFetch( { path: '/wpcom/v2/ai-launchpad', method: 'DELETE' } );
+		} catch {
+			// Still navigate away: a failed dismiss write must not trap the user in the wizard.
+		}
+		let siteHost = window.location.hostname;
+		try {
+			siteHost = siteUrl ? new URL( siteUrl ).hostname : siteHost;
+		} catch {
+			// Malformed site URL: keep the request host.
+		}
+		window.location.href = 'https://wordpress.com/home/' + siteHost;
 	};
 
 	return (
@@ -121,16 +154,19 @@ export function Wizard( {
 			) }
 
 			<footer className="ai-launchpad-wizard__footer">
+				<Button variant="link" onClick={ handleSkip } disabled={ skipping }>
+					{ __( 'Skip', 'jetpack-mu-wpcom' ) }
+				</Button>
 				<div className="ai-launchpad-wizard__footer-right">
 					{ step > 0 && (
-						<Button variant="secondary" onClick={ handleBack }>
+						<Button variant="secondary" onClick={ handleBack } disabled={ skipping }>
 							{ __( 'Back', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
 					<Button
 						variant="primary"
 						onClick={ handleNext }
-						disabled={ ! canContinue( step, state ) }
+						disabled={ skipping || ! canContinue( step, state ) }
 					>
 						{ isLastStep( step )
 							? __( 'Finish', 'jetpack-mu-wpcom' )

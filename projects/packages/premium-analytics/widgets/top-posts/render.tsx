@@ -2,28 +2,27 @@
  * External dependencies
  */
 import {
-	computeDateRangeFromPreset,
-	localTZDate,
 	useStatsTopPosts,
-	type StatsNormalizedReport,
-	type StatsTopPostsItem,
+	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
+	formatLegendLabels,
+	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
-import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './top-posts.module.css';
+import styles from './style.module.css';
 import type { TopPostsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -57,9 +56,12 @@ export type TopPostRow = {
 	type: string;
 };
 
-type TopPostsProps = {
-	attributes?: TopPostsAttributes;
-};
+// Report params are dashboard-driven — WidgetRoot resolves them from the date
+// picker — but the host (and Storybook) may also inject them via `attributes`.
+type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
+type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
+
+type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -82,7 +84,7 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 
 		return {
 			id: `${ index }-${ row.href }`,
@@ -101,8 +103,13 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 			currentShare: ( row.value / maxCurrentViews ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined
+					? ( previousValue / maxPreviousViews ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
@@ -182,63 +189,37 @@ export const TopPostsLeaderboard = ( {
 };
 
 /**
- * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the leaderboard renders, dropping rows without a link and
- * (optionally) filtering by post type.
+ * Flatten merged data-layer top-posts rows into the `{ label, value, href, type }`
+ * rows the leaderboard renders.
  *
- * @param report       - The normalized top-posts report, or undefined while loading.
- * @param allowedTypes - Post types to keep, or null to keep all.
+ * @param items - Merged top-posts rows from the data layer.
  * @return The normalized top-posts rows.
  */
-function toTopPostRows(
-	report: StatsNormalizedReport< StatsTopPostsItem > | undefined,
-	allowedTypes: string[] | null
-): TopPostRow[] {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-
-	return items
-		.filter(
-			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
-		)
-		.map( item => ( {
-			label: String( item.label ?? '' ),
-			value: item.views,
-			href: item.link,
-			type: String( item.type ?? '' ),
-		} ) )
-		.filter( row => ! allowedTypes || allowedTypes.includes( row.type ) );
+function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
+	return items.map( item => ( {
+		label: String( item.label ?? '' ),
+		value: item.views,
+		previousValue: item.previousViews,
+		href: item.link,
+		type: String( item.type ?? '' ),
+	} ) );
 }
 
 /**
  * Fetches the top-posts report through the designated `useStatsTopPosts` Stats
  * traffic hook and hands the normalized rows to the presentational
- * `TopPostsLeaderboard`.
+ * `TopPostsLeaderboard`. The date range and comparison period come from the
+ * dashboard picker via `reportParams`.
  *
- * @param props            - Component props.
- * @param props.attributes - Widget attributes.
+ * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
-function TopPostsReport( { attributes }: TopPostsProps ) {
-	// Default to the trailing 7 days, matching the Jetpack Stats "Top posts &
-	// pages" card's default range.
-	const range = attributes?.range ?? 'last-7-days';
-	const num = attributes?.num ?? 10;
-	const postType = attributes?.postType;
+function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
+	const { reportParams } = useWidgetRootContext();
 
-	// Resolve the preset to an absolute window. `computeDateRangeFromPreset`
-	// returns ISO strings with a TZ offset; the stats query layer trims them to
-	// the date part, so the raw values can be passed straight through.
-	const today = format( localTZDate(), 'yyyy-MM-dd' );
-	const { from, to } = computeDateRangeFromPreset( range ) ?? {};
-
-	const { primary, isLoading, isError } = useStatsTopPosts( {
-		from: from ?? today,
-		to: to ?? today,
-		interval: 'day',
-		period: 'day',
-		// The widget's "Number of results" maps to the WPCOM stats API's `max`.
-		max: num,
-	} );
+	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
+	// date range is owned by the dashboard picker and carried in `reportParams`.
+	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
 	const allowedTypes = useMemo( () => {
 		if ( postType === undefined || postType === '' ) {
@@ -247,31 +228,43 @@ function TopPostsReport( { attributes }: TopPostsProps ) {
 		return Array.isArray( postType ) ? postType : [ postType ];
 	}, [ postType ] );
 
-	const rows = useMemo(
-		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem >, allowedTypes ),
-		[ primary.data, allowedTypes ]
-	);
+	const { comparisonRows, hasComparison, isLoading, isError } = useStatsTopPosts( statsParams, {
+		maxRows: num,
+		postTypes: allowedTypes,
+	} );
 
-	return <TopPostsLeaderboard rows={ rows } isLoading={ isLoading } isError={ isError } />;
+	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const withComparison = hasComparison;
+
+	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
+
+	return (
+		<TopPostsLeaderboard
+			rows={ rows }
+			isLoading={ isLoading }
+			isError={ isError }
+			withComparison={ withComparison }
+			showLegend={ withComparison }
+			legendLabels={ legendLabels }
+		/>
+	);
 }
 
 /**
  * Widget render entry point.
  *
- * Attributes flow to the inner component via props rather than
- * `WidgetRootContext` — the context's report params are WC-Analytics-shaped
- * and do not fit stats queries. Runs inside `WidgetRoot` so it can reach the
- * analytics query client, keeping the leaderboard prop-driven (and
- * Storybook-friendly).
+ * WidgetRoot provides the analytics query client, chart theme, and the report
+ * params consumed by the inner leaderboard — resolved from the dashboard date
+ * range via context, the same way the other Stats widgets read them. The
+ * widget's own `num`/`postType` settings are forwarded to the inner component.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {TopPostsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function TopPosts( { attributes }: WidgetRenderProps< TopPostsAttributes > ) {
+export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 	return (
-		<WidgetRoot>
-			<TopPostsReport attributes={ attributes } />
+		<WidgetRoot attributes={ attributes }>
+			<TopPostsReport num={ attributes.num } postType={ attributes.postType } />
 		</WidgetRoot>
 	);
 }

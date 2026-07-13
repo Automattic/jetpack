@@ -23,6 +23,12 @@ type Props = {
 	activeTab: SocialTab;
 	actions?: ReactNode;
 	children: ReactNode;
+	/**
+	 * Hide the Overview/Settings tab chrome and render `children` on their own.
+	 * Used when Social is off: there's nothing to switch between, so the page
+	 * collapses to the single turn-on surface.
+	 */
+	hideTabs?: boolean;
 };
 
 const PRODUCT_NAME = 'Social'; /** "Social" is a product name, do not translate. */
@@ -48,9 +54,15 @@ const SUBTITLES: Record< SocialTab, () => string > = {
  * @param props.activeTab - Which tab the current route represents.
  * @param props.actions   - Optional actions slot (top-right of the Page header).
  * @param props.children  - `Tabs.Panel` children.
+ * @param props.hideTabs  - Hide the tab chrome and render children on their own.
  * @return The unified Social page shell.
  */
-export default function SocialPage( { activeTab, actions, children }: Props ): JSX.Element {
+export default function SocialPage( {
+	activeTab,
+	actions,
+	children,
+	hideTabs = false,
+}: Props ): JSX.Element {
 	const navigate = useNavigate();
 
 	const { gate, dismissPricing } = useSocialGate();
@@ -59,8 +71,9 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 	// Both the Settings tab and the Overview stats chart require admin-only
 	// capabilities (`manage_options` / stats reads), so non-admins have nothing
 	// to switch between — drop the tab chrome entirely and show the lone
-	// connection-management surface the Overview route hands us.
-	const canManageOptions = currentUserCan( 'manage_options' );
+	// connection-management surface the Overview route hands us. `hideTabs` does
+	// the same when Social is off (single turn-on surface).
+	const showTabs = currentUserCan( 'manage_options' ) && ! hideTabs;
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
@@ -89,7 +102,7 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 					actions={ headerActions }
 				>
 					<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
-						{ canManageOptions ? (
+						{ showTabs ? (
 							<Tabs.Root
 								className="jetpack-social-tabs"
 								value={ activeTab }

@@ -6,6 +6,7 @@ import {
 } from '../api';
 import {
 	sanitizeStatsClicksResponse,
+	sanitizeStatsDevicesResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
@@ -13,12 +14,12 @@ import {
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
-	sanitizeStatsDevicesResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
 	sanitizeStatsTagsResponse,
 	sanitizeStatsTimeSeriesResponse,
+	sanitizeStatsEmailTimeSeriesResponse,
 	sanitizeStatsPublicizeResponse,
 	sanitizeStatsEmailBreakdownResponse,
 	sanitizeStatsEmailSummaryResponse,
@@ -26,9 +27,11 @@ import {
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
+	sanitizeStatsSingleVideoResponse,
 	sanitizeStatsSiteResponse,
 	sanitizeStatsSubscribersCountsResponse,
 	sanitizeStatsSubscribersResponse,
+	sanitizeStatsSummaryResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
@@ -40,11 +43,15 @@ import {
 	reportParamsToStatsQueryParams,
 	statsQueryParamsToApiParams,
 	type StatsQueryParams,
+	type StatsQueryParamFields,
 } from '../utils/stats-params';
 import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-export type StatsReportParams = ReportParams & StatsQueryParams;
+// Including `StatsProxyParams` confuses TypeScript because it brings in a string index signature,
+// which conflicts with `ReportParams.filters`. Endpoint-specific extras reach the proxy through
+// `statsReportQuery`'s `extraParams`, not this index signature.
+export type StatsReportParams = ReportParams & StatsQueryParamFields;
 type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
 const statsSanitizers = {
@@ -71,6 +78,7 @@ const statsSanitizers = {
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
 	timeSeries: sanitizeStatsTimeSeriesResponse,
+	emailTimeSeries: sanitizeStatsEmailTimeSeriesResponse,
 	subscribers: sanitizeStatsSubscribersResponse,
 	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
 	publicize: sanitizeStatsPublicizeResponse,
@@ -78,6 +86,8 @@ const statsSanitizers = {
 	wordAdsEarnings: sanitizeStatsWordAdsEarningsResponse,
 	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
 	emailSummary: sanitizeStatsEmailSummaryResponse,
+	singleVideo: sanitizeStatsSingleVideoResponse,
+	summary: sanitizeStatsSummaryResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;

@@ -16,6 +16,7 @@ export interface TailoredInferred {
 	goal: GoalSlug;
 	brand_name?: string;
 	niche?: string;
+	theme_keyword?: string;
 	vibe?: string;
 	audience?: string;
 	tagline?: string;
@@ -28,9 +29,8 @@ export interface FirstPostDraft {
 }
 
 /**
- * Mirrors contracts/agent-output-schema.json. Length and content constraints
- * (exactly 6 tasks, subtitle <= 200 chars, exactly 2 paragraphs, ...) are
- * enforced by Ajv validation, not by the type system.
+ * Mirrors contracts/agent-output-schema.json. Length and content constraints are
+ * enforced by validation, not by the type system.
  */
 export interface TailoredOutput {
 	tasks: TailoredTask[];

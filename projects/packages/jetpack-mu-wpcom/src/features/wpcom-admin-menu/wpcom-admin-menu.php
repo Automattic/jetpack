@@ -11,8 +11,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Status\Visitor;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 
@@ -91,6 +89,15 @@ function wpcom_can_link_to_calypso() {
  */
 function wpcom_add_my_home_menu() {
 	if ( ! wpcom_can_link_to_calypso() ) {
+		return;
+	}
+
+	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
+	if (
+		current_user_can( 'manage_options' )
+		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
+		&& wpcom_ai_launchpad_is_eligible()
+	) {
 		return;
 	}
 
@@ -392,52 +399,18 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// When the Newsletter modernization filter is on, the unified Newsletter page
-	// owns the Subscribers tab and the legacy Calypso "Subscribers" submenu is
-	// retired, replaced by a transitional announcement page that points there;
-	// otherwise we keep the legacy Calypso submenu. (The wp-admin
-	// subscriber-management variant was removed with the subscribers-dashboard
-	// package and isn't restored.)
-	//
-	// The filter default is the staged-rollout cohort: on for Automatticians (so
-	// a12s can dogfood and test fixes) and for the percentage cohort, bucketed by
-	// the site's stable wpcom blog ID. This mirrors the canonical
-	// Newsletter\Settings::is_modernization_rollout_enabled(); the newsletter
-	// package isn't a dependency of jetpack-mu-wpcom and this runs unconditionally —
-	// ahead of the class_exists-guarded Subscribers_Announcement use below — so the
-	// a11n check and the bucket math are inlined rather than referenced from the
-	// class. The rollout percentage — the one value that moves to widen the rollout —
-	// is read from the canonical MODERNIZATION_ROLLOUT_PERCENTAGE constant when the
-	// newsletter package is loaded (always so on WordPress.com), falling back to 0
-	// otherwise, so there is no second copy of the number to keep in sync. The
-	// percentage is currently 0 — the Simple-site rollout is driven from the
-	// WordPress.com backend instead.
-	//
-	// The cohort keys on the wpcom blog ID (current blog ID on Simple, stored wpcom
-	// ID on WoA) rather than the transient `IS_WPCOM` constant, so a site keeps its
-	// cohort decision when it is upgraded from Simple to Atomic and doesn't lose the
-	// modernized experience on transfer. The a12s check mirrors the canonical helper:
-	// `is_automattician()` is a WordPress.com global that only exists on Simple sites,
-	// so WoA falls back to the proxied-request check. (This mu-plugin only loads on
-	// WordPress.com, so the canonical helper's all-sites percentage gate reduces to
-	// the wpcom-blog-ID bucket here.)
+	// The unified Newsletter page now owns the Subscribers tab on every site: the
+	// legacy Calypso "Subscribers" submenu is retired and replaced by a transitional
+	// announcement page that points there. (The wp-admin subscriber-management variant
+	// was removed with the subscribers-dashboard package and isn't restored.) Hosts
+	// (and a11ns who want the legacy view back) can still force the old submenu back
+	// with add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' ).
 	//
 	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
 	// Subscribers entry, so the announcement page is registered here for both
 	// platforms; the standalone plugin's subscriptions module defers to it on
 	// wpcom to avoid a duplicate.
-	$rollout_percentage            = defined( '\Automattic\Jetpack\Newsletter\Settings::MODERNIZATION_ROLLOUT_PERCENTAGE' )
-		? (int) constant( '\Automattic\Jetpack\Newsletter\Settings::MODERNIZATION_ROLLOUT_PERCENTAGE' )
-		: 0;
-	$host                          = new Host();
-	$is_automattician              = ( function_exists( 'is_automattician' ) && is_automattician() )
-		|| ( new Visitor() )->is_automattician_feature_flags_only();
-	$rollout_blog_id               = $host->is_wpcom_simple()
-		? (int) get_current_blog_id()
-		: (int) \Jetpack_Options::get_option( 'id' );
-	$modernization_rollout_default = $is_automattician
-		|| ( $rollout_blog_id > 0 && ( $rollout_blog_id % 100 ) < $rollout_percentage );
-	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', $modernization_rollout_default ) ) {
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),

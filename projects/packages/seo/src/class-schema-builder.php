@@ -2,35 +2,34 @@
 /**
  * JSON-LD Schema.org markup emitter.
  *
- * Emits per-post structured data into the document `<head>`: Article (the
- * default for posts) and FAQPage (when the post uses `core/details` blocks).
- * The type follows the per-post `jetpack_seo_schema_type` override when set,
- * otherwise a sensible default by post type. Emission is gated on
+ * Serializes a Schema.org `@graph` document into the document `<head>`. The graph
+ * is assembled from independent, condition-gated contributions: the site-level
+ * Organization and WebSite nodes, emitted on the home page only (Google treats
+ * them as single canonical site entities), the page node (Article or FAQPage)
+ * built by {@see Post_Schema_Node} on singular requests, and Person/ProfilePage
+ * nodes on author archives. An Article references its author's full Person node
+ * (added to the same graph) by `@id`, and — like the WebSite node — references
+ * the home-page Organization as its `publisher` by stable `@id` rather than
+ * duplicating the node. Emission is gated on
  * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
  *
- * Organization / LocalBusiness (site-level) and HowTo are intentionally out of
- * scope here — they need backing config / structured input. See JETPACK-1701
- * (Expanded schema markup project).
+ * This class owns only the gating and serialization; the individual nodes and
+ * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
+ * {@see Organization_Schema_Node}, {@see Website_Schema_Node},
+ * {@see Author_Schema_Node}, {@see Schema_Node_Ids}) and are assembled by
+ * {@see Schema_Graph}.
  *
  * @package automattic/jetpack-seo-package
  */
 
 namespace Automattic\Jetpack\SEO;
 
-use Jetpack_SEO_Posts;
 use Jetpack_SEO_Utils;
-use WP_Post;
 
 /**
- * Emits Schema.org JSON-LD into the document head.
+ * Emits a Schema.org JSON-LD `@graph` into the document head.
  */
 class Schema_Builder {
-
-	/**
-	 * Max words kept for a schema `description`, so a long post body doesn't
-	 * dump its full content into the markup.
-	 */
-	const DESCRIPTION_MAX_WORDS = 55;
 
 	/**
 	 * Wire the front-end emitter.
@@ -42,167 +41,125 @@ class Schema_Builder {
 	}
 
 	/**
-	 * Build and echo the JSON-LD block for the current singular request.
+	 * Build and echo the JSON-LD `@graph` block for the current request.
 	 *
 	 * @return void
 	 */
 	public static function emit() {
 		// Both plugin classes must be loaded — they're not guaranteed in every
-		// context, and build_for_post() calls Jetpack_SEO_Posts directly.
+		// context, and the post node builder calls Jetpack_SEO_Posts directly.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack; guarded by the class_exists check on the same line.
 		if ( ! class_exists( 'Jetpack_SEO_Utils' ) || ! class_exists( 'Jetpack_SEO_Posts' ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 			return;
 		}
 
-		if ( ! is_singular() ) {
+		// build_document() gates each node itself and returns null for an empty
+		// graph, so archives and 404s (no front-page, no page node) emit nothing.
+		$document = self::build_document();
+		if ( null === $document ) {
 			return;
 		}
-
-		$node = self::build_for_post( get_queried_object() );
-		if ( ! $node ) {
-			return;
-		}
-
-		$doc = array( '@context' => 'https://schema.org' ) + $node;
 
 		printf(
 			'<script type="application/ld+json">%s</script>',
 			// Default flags escape forward slashes — important inside <script>
 			// so a "</script>" in the data can't break out of the block.
-			wp_json_encode( $doc, JSON_UNESCAPED_UNICODE ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			wp_json_encode( $document, JSON_UNESCAPED_UNICODE ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 	}
 
 	/**
-	 * Build the JSON-LD node for the queried post.
+	 * Assemble the `@graph` document for the current request.
 	 *
-	 * @param WP_Post|null $post The queried post.
+	 * The site-level nodes, author archive nodes, and singular page node are
+	 * independent, condition-gated contributions to one graph:
+	 *
+	 * - Organization and WebSite are single canonical site entities, so their full
+	 *   nodes are added on the home page only (Google's guidance). Other pages
+	 *   reference the Organization by `@id` instead of duplicating it.
+	 * - Author archives contribute the author's Person node and the ProfilePage
+	 *   wrapping it (`mainEntity` → Person `@id`).
+	 * - The page node (Article/FAQPage) is added on singular requests. An Article
+	 *   points its `publisher` at the home-page Organization's stable `@id` and its
+	 *   `author` at the full Person node added to the same graph.
+	 *
+	 * Returns null when the graph ends up empty (non-author archives, 404, a page
+	 * with no node) so the caller emits nothing rather than an empty graph.
+	 * Cross-node references are wired here rather than inside the individual node
+	 * builders, which stay self-contained and unaware of each other.
+	 *
 	 * @return array|null
 	 */
-	private static function build_for_post( $post ) {
-		if ( ! ( $post instanceof WP_Post ) ) {
-			return null;
+	private static function build_document() {
+		$graph = new Schema_Graph();
+
+		// Effective Organization settings (stored overrides merged over site identity);
+		// an unconfigured site still yields a valid node from site identity alone. Build
+		// it regardless so we know whether `@id` references to it (publisher, worksFor)
+		// will resolve, but only add the full node on the home page.
+		$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
+
+		// Site-level nodes (Organization, WebSite) describe a single canonical
+		// entity, so they belong on the home page only (Google's guidance) — never
+		// duplicated onto every post. WebSite references the Organization by @id.
+		if ( is_front_page() ) {
+			if ( null !== $organization ) {
+				$graph->add( $organization );
+			}
+
+			$website = Website_Schema_Node::build();
+			if ( null !== $website && null !== $organization ) {
+				$website['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
+			}
+			$graph->add( $website );
 		}
 
-		// Only emit structured data for published content. Previews, drafts, and
-		// private posts are viewable by logged-in users (and may be edge-cached),
-		// so we must not output JSON-LD for anything that isn't publicly published.
-		if ( 'publish' !== $post->post_status ) {
-			return null;
+		if ( is_author() ) {
+			$person = self::build_person_node( get_queried_object(), null !== $organization );
+			if ( null !== $person ) {
+				$graph->add( $person );
+				$graph->add( Author_Schema_Node::build_profile_page( get_queried_object() ) );
+			}
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; emit() guards on class_exists.
-		$override = Jetpack_SEO_Posts::get_post_schema_type( $post );
-		$type     = '' !== $override ? $override : self::default_schema_for_post( $post );
-
-		switch ( $type ) {
-			case 'faq':
-				return self::build_faq( $post );
-			case 'article':
-				return self::build_article( $post );
-			default:
-				return null;
+		if ( is_singular() ) {
+			$post      = get_queried_object();
+			$post_node = Post_Schema_Node::build( $post );
+			if ( null !== $post_node ) {
+				// Only the Article node carries publisher/author; FAQPage does not.
+				// Both are @id references: publisher points at the home-page
+				// Organization (never duplicated), author points at the full Person
+				// node added to this page's graph.
+				if ( 'Article' === ( $post_node['@type'] ?? '' ) ) {
+					if ( null !== $organization ) {
+						$post_node['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
+					}
+					$person = self::build_person_node( (int) $post->post_author, null !== $organization );
+					if ( null !== $person ) {
+						$post_node['author'] = array( '@id' => $person['@id'] );
+						$graph->add( $person );
+					}
+				}
+				$graph->add( $post_node );
+			}
 		}
+
+		return $graph->to_document();
 	}
 
 	/**
-	 * Default Schema type for a post when the user has not set an override:
-	 * Article for standard posts, none for pages, attachments, or custom types.
+	 * Build the author Person node, wiring `worksFor` to the site Organization's
+	 * stable `@id` when the Organization node resolves.
 	 *
-	 * @param WP_Post $post The post.
-	 * @return string
-	 */
-	private static function default_schema_for_post( WP_Post $post ) {
-		// Only standard posts get Article schema by default; everything else
-		// (pages, attachments, custom post types) requires an explicit override.
-		return 'post' === $post->post_type ? 'article' : '';
-	}
-
-	/**
-	 * Article JSON-LD.
-	 *
-	 * @param WP_Post $post The post.
-	 * @return array
-	 */
-	private static function build_article( WP_Post $post ) {
-		$node = array(
-			'@type'            => 'Article',
-			'headline'         => wp_strip_all_tags( get_the_title( $post ) ),
-			'datePublished'    => get_post_time( 'c', true, $post ),
-			'dateModified'     => get_post_modified_time( 'c', true, $post ),
-			'mainEntityOfPage' => array(
-				'@type' => 'WebPage',
-				'@id'   => get_permalink( $post ),
-			),
-			'author'           => array(
-				'@type' => 'Person',
-				'name'  => get_the_author_meta( 'display_name', (int) $post->post_author ),
-			),
-		);
-
-		$image = get_the_post_thumbnail_url( $post, 'full' );
-		if ( $image ) {
-			$node['image'] = $image;
-		}
-
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; emit() guards on class_exists.
-		$description = Jetpack_SEO_Posts::get_post_description( $post );
-		if ( $description ) {
-			// Cap it: get_post_description() falls back to full post_content, which
-			// would otherwise dump the whole body into the markup.
-			$node['description'] = wp_trim_words( wp_strip_all_tags( $description ), self::DESCRIPTION_MAX_WORDS, '' );
-		}
-
-		return $node;
-	}
-
-	/**
-	 * FAQPage JSON-LD, parsed from `core/details` blocks (summary = question,
-	 * rendered content = answer). Returns null when the post has none, so we
-	 * never emit an empty/invalid FAQPage.
-	 *
-	 * @param WP_Post $post The post.
+	 * @param \WP_User|int|null $user             User object or ID.
+	 * @param bool              $has_organization Whether the Organization node resolves.
 	 * @return array|null
 	 */
-	private static function build_faq( WP_Post $post ) {
-		if ( ! function_exists( 'parse_blocks' ) ) {
-			return null;
+	private static function build_person_node( $user, $has_organization ) {
+		$person = Author_Schema_Node::build_person( $user );
+		if ( null !== $person && $has_organization ) {
+			$person['worksFor'] = array( '@id' => Schema_Node_Ids::organization() );
 		}
-
-		$items = array();
-		foreach ( parse_blocks( $post->post_content ) as $block ) {
-			if ( 'core/details' !== ( $block['blockName'] ?? '' ) ) {
-				continue;
-			}
-			$question = trim( (string) ( $block['attrs']['summary'] ?? '' ) );
-
-			// Render only the inner blocks for the answer. Rendering the whole
-			// core/details block would re-include the <summary> (the question).
-			$answer_html = '';
-			foreach ( $block['innerBlocks'] ?? array() as $inner_block ) {
-				$answer_html .= render_block( $inner_block );
-			}
-			$answer = trim( wp_strip_all_tags( $answer_html ) );
-			if ( '' === $question || '' === $answer ) {
-				continue;
-			}
-			$items[] = array(
-				'@type'          => 'Question',
-				'name'           => $question,
-				'acceptedAnswer' => array(
-					'@type' => 'Answer',
-					'text'  => $answer,
-				),
-			);
-		}
-
-		if ( empty( $items ) ) {
-			return null;
-		}
-
-		return array(
-			'@type'      => 'FAQPage',
-			'mainEntity' => $items,
-		);
+		return $person;
 	}
 }

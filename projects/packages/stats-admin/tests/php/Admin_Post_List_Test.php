@@ -50,7 +50,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Assert that the 'stats' column is added
 		$this->assertArrayHasKey( 'stats', $columns_with_stats );
-		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+		$this->assertEquals( 'Views: 30 days', $columns_with_stats['stats'] );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Assert that the 'stats' column is added
 		$this->assertArrayHasKey( 'stats', $columns_with_stats );
-		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+		$this->assertEquals( 'Views: 30 days', $columns_with_stats['stats'] );
 	}
 
 	/**

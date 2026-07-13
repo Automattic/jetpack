@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast: don't show the "Connect Jetpack" prompt on Simple and Atomic sites, which have no Jetpack site connection.

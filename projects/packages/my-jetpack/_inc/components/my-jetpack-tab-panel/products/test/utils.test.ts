@@ -163,6 +163,27 @@ describe( 'searchAndRankItems', () => {
 		expect( result ).toHaveLength( 1 );
 	} );
 
+	it( 'drops a standalone module already attached to a matching card (Forms regression)', () => {
+		// buildCards attaches the contact-form module to the Forms card, while contact-form is
+		// ALSO listed as a standalone module. The card already represents it, so it appears once.
+		const formsWithModule: CardItem = { ...forms, module: formsModule };
+		const result = searchAndRankItems( [ formsWithModule ], [ formsModule ], 'forms' );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ] ).toMatchObject( { kind: 'card' } );
+	} );
+
+	it( 'drops a standalone module whose slug matches a card product slug (VideoPress regression)', () => {
+		// VideoPress is a card (slug "videopress") and is also listed as a "videopress" module.
+		const videopressCard = makeCard( { slug: 'videopress', name: 'VideoPress' } );
+		const videopressModule = makeModule( { module: 'videopress', name: 'VideoPress' } );
+		const cardWithModule: CardItem = { ...videopressCard, module: videopressModule };
+		const result = searchAndRankItems( [ cardWithModule ], [ videopressModule ], 'videopress' );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ] ).toMatchObject( { kind: 'card' } );
+	} );
+
 	it( 'returns an empty array when nothing matches', () => {
 		expect( searchAndRankItems( [ forms ], [ formsModule ], 'zzzznotathing' ) ).toEqual( [] );
 	} );
@@ -193,6 +214,50 @@ describe( 'searchAndRankItems', () => {
 		} );
 
 		expect( result ).toEqual( [] );
+	} );
+
+	it( 'requires every word of a multi-word category query to match a label (AND across labels)', () => {
+		// With one field per label, "performance recommended" matches an item in BOTH categories
+		// (each word exact-matches its own label), while an item in only "Performance" drops out —
+		// the "recommended" term has no field to match. Guards the AND-across-separate-fields
+		// contract of scoreFields that per-label scoring now leans on; a refactor collapsing the
+		// labels back into one field would silently let the "Performance"-only item through.
+		const both = makeCard( { slug: 'both', name: 'Both' } );
+		const onlyPerf = makeCard( { slug: 'only-perf', name: 'OnlyPerf' } );
+		const cardCategories = new Map( [
+			[ both.product.slug, [ 'Performance', 'Recommended' ] ],
+			[ onlyPerf.product.slug, [ 'Performance' ] ],
+		] );
+
+		const result = searchAndRankItems( [ both, onlyPerf ], [], 'performance recommended', {
+			cardCategories,
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].kind === 'card' && result[ 0 ].card.product.slug ).toBe( 'both' );
+	} );
+
+	it( 'keeps a stable order whether a category word is partially or fully typed', () => {
+		// Two cards both in "Performance"; `multi` is also in "Recommended". Each category label is
+		// scored on its own, so completing the word "Performance" boosts both equally and does not
+		// reshuffle them — previously the joined "Performance Recommended" label could only ever
+		// prefix-match, so `multi` lost the exact-match bonus and got overtaken on the last keystroke.
+		const single = makeCard( { slug: 'single', name: 'Single' } );
+		const multi = makeCard( { slug: 'multi', name: 'Multi' } );
+		const cardCategories = new Map( [
+			[ single.product.slug, [ 'Performance' ] ],
+			[ multi.product.slug, [ 'Performance', 'Recommended' ] ],
+		] );
+
+		const order = ( result: ReturnType< typeof searchAndRankItems > ) =>
+			result.map( item => ( item.kind === 'card' ? item.card.product.slug : item.module.module ) );
+
+		// `multi` is listed first so the old behavior (it getting overtaken) is observable.
+		const partial = searchAndRankItems( [ multi, single ], [], 'Performanc', { cardCategories } );
+		const full = searchAndRankItems( [ multi, single ], [], 'Performance', { cardCategories } );
+
+		expect( order( full ) ).toHaveLength( 2 );
+		expect( order( partial ) ).toEqual( order( full ) );
 	} );
 
 	it( 'is case-insensitive', () => {

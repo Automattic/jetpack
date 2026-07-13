@@ -8,9 +8,7 @@ declare global {
 
 /**
  * Records a Tracks event with `launchpad_variant: 'ai'` baked in, so call sites
- * can't forget it. Mirrors the `_tkq` recording pattern already used elsewhere
- * in jetpack-mu-wpcom (jetpack-global-styles/customizer-fonts), which is what
- * `@automattic/jetpack-analytics`'s `tracks.recordEvent` pushes under the hood.
+ * can't forget it.
  *
  * @param eventName - The Tracks event name, already feature-prefixed.
  * @param props     - Event properties. No PII: task IDs are fine, free text is not.
@@ -28,6 +26,11 @@ export function trackViewed(): void {
 /** Records the wizard-completed event. */
 export function trackWizardCompleted(): void {
 	record( 'jetpack_ai_launchpad_wizard_completed' );
+}
+
+/** Records the wizard-skipped event. */
+export function trackWizardSkipped(): void {
+	record( 'jetpack_ai_launchpad_wizard_skipped' );
 }
 
 /**
@@ -55,13 +58,18 @@ export function trackTaskClicked( props: { task_id: string } ): void {
 }
 
 /**
- * Records the launched event (the project's headline "% of new users who
- * launch" KPI).
+ * Records the task-skipped event.
  *
- * Intentionally unwired in the MVP: site launch completes server-side via the
- * Launchpad listeners — often while this page isn't open — so there is no
- * reliable client-side trigger here. Launch attribution is wired by the
- * product-analytics funnel instrumentation (DOTOBRD-473).
+ * @param props         - The event properties.
+ * @param props.task_id - The id of the skipped task.
+ */
+export function trackTaskSkipped( props: { task_id: string } ): void {
+	record( 'jetpack_ai_launchpad_task_skipped', props );
+}
+
+/**
+ * Records the launched event. Intentionally unwired in the MVP: launch completes
+ * server-side, so there is no reliable client-side trigger here.
  */
 export function trackLaunched(): void {
 	record( 'jetpack_ai_launchpad_launched' );

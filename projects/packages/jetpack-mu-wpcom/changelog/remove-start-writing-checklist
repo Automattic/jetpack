@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove the deprecated start-writing launchpad checklist and its remaining task handling.

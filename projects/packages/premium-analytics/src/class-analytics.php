@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
@@ -67,8 +68,24 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
-		// Hydrate the widget type registry from the build manifest at init.
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
+		// CSV report export pipeline (WOOA7S-1581). Must register above the is_admin() gate so its
+		// REST route hooks rest_api_init (is_admin() is false during REST requests). Self-gates on
+		// WooCommerce being active + Jetpack connected.
+		Export::configure();
+
+		// Load the widget type registry: hydration routine, registry-time and
+		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
+
+		// Apply Premium Analytics' availability policy: hooks the registry-time
+		// filter to keep developer-only types out of production.
+		require_once __DIR__ . '/widget-availability.php';
+
+		// Hydrate the registry with the availability filter in place.
+		bootstrap_widget_types();
 
 		// Expose dashboard widget modules over REST and wire them into the
 		// page import map for dynamic import() on the client.
@@ -77,6 +94,9 @@ class Analytics {
 		// Register the dashboard's default layout: the first-load preference
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
+
+		// Register dashboard sections and expose section metadata/defaults over REST.
+		require_once __DIR__ . '/dashboard-sections.php';
 
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the
@@ -162,7 +182,7 @@ class Analytics {
 			'jetpack-premium-analytics-wp-admin',
 			$render_callback,
 			'dashicons-chart-bar',
-			30
+			2
 		);
 	}
 

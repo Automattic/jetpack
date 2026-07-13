@@ -17,6 +17,9 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
+export { useStatsQuery } from './hooks/use-stats-query';
+export { latestPostQuery } from './queries/latest-post-query';
+export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';
@@ -41,6 +44,23 @@ export type {
 	StatsAppPlanPriceTier,
 	StatsAppPlanUsage,
 } from './hooks/use-stats-app-plan-usage';
+export {
+	useStatsAppNotices,
+	useStatsAppNoticeMutation,
+	type StatsAppNoticeId,
+	type StatsAppNoticeMutationParams,
+	type StatsAppNoticeMutationResponse,
+	type StatsAppNotices,
+	type StatsAppNoticesParams,
+	type StatsAppNoticeStatus,
+} from './hooks/use-stats-app-notices';
+export {
+	useStatsAppPurchases,
+	type StatsAppPurchase,
+	type StatsAppPurchaseExpiryStatus,
+	type StatsAppPurchasesParams,
+	type StatsAppPurchasesResponse,
+} from './hooks/use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export {
 	useStatsCommentFollowers,
@@ -56,13 +76,14 @@ export {
 	type StatsCommentsResponse,
 } from './hooks/use-stats-comments';
 export {
-	useStatsSubscribers,
 	useStatsSubscribersCounts,
+	useStatsSubscribersReport,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
 	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
+	type StatsSubscribersUnit,
 } from './hooks/use-stats-subscribers';
 export {
 	useStatsStreak,
@@ -76,6 +97,12 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
+export { sliceWordAdsStatsReport } from './processing/stats';
+export {
+	useStatsSummary,
+	type StatsSummaryParams,
+	type StatsSummaryResponse,
+} from './hooks/use-stats-summary';
 export { useStatsInsights } from './hooks/use-stats-insights';
 export type {
 	StatsInsightsParams,
@@ -87,12 +114,7 @@ export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export { useStatsHighlights } from './hooks/use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
-export {
-	useStatsDevices,
-	type StatsDevices,
-	type StatsDevicesDeviceParam,
-	type StatsDevicesParams,
-} from './hooks/use-stats-devices';
+export { useStatsDevices } from './hooks/use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,
@@ -139,11 +161,43 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './hooks/use-stats-email-summary';
+export {
+	useStatsSingleVideo,
+	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoPage,
+	type StatsSingleVideoParams,
+	type StatsSingleVideoResponse,
+} from './hooks/use-stats-single-video';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+	type StatsEmailTimeSeriesParams,
+	type StatsEmailTimeSeriesPeriod,
+	type StatsEmailTimeSeriesReport,
+	type StatsEmailTimeSeriesDataPoint,
+	type StatsEmailTimeSeriesSummary,
+} from './hooks/use-stats-email-time-series';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './hooks/use-stats-app-dashboard-modules';
+export type {
+	StatsAppDashboardModules,
+	StatsAppDashboardModulesMutationResponse,
+	StatsAppDashboardModuleValue,
+	StatsAppDashboardTrafficModule,
+	StatsAppDashboardInsightsModule,
+	StatsAppDashboardSubscribersModule,
+	StatsAppDashboardWordAdsModule,
+	StatsAppDashboardStoreModule,
+} from './hooks/use-stats-app-dashboard-modules';
+export type { StatsDeviceProperty } from './queries/stats-devices-query';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
 	hasComparisonEnabled,
+	type IntervalType,
 	type PresetType,
 	type ReportParams,
 } from './utils/search';
@@ -156,7 +210,12 @@ export {
 	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
+	getApiErrorCode,
+	getApiErrorStatus,
+	getStatsPlanErrorReason,
+	shouldRetryApiError,
 } from './utils';
+export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
@@ -175,6 +234,7 @@ export type {
 } from './api';
 export type {
 	StatsArchivesItem,
+	StatsClicksComparisonItem,
 	StatsClicksItem,
 	StatsCommentFollowersItem,
 	StatsCommentFollowersRawPost,
@@ -188,21 +248,22 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsEmailBreakdownItem,
+	StatsDevicesComparisonItem,
+	StatsDevicesItem,
+	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationsComparisonItem,
 	StatsLocationsItem,
-	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
 	StatsPostWeek,
@@ -212,6 +273,7 @@ export type {
 	StatsPublicizeItem,
 	StatsPublicizeService,
 	StatsReferrersItem,
+	StatsSearchTermsComparisonItem,
 	StatsSearchTermsItem,
 	StatsSubscribersCountsRawResponse,
 	StatsSubscribersDataPoint,
@@ -225,13 +287,20 @@ export type {
 	StatsTagsRawTag,
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
+	StatsTopAuthorsComparisonItem,
 	StatsTopAuthorsItem,
+	StatsTopAuthorsPostComparisonItem,
+	StatsTopPostsComparisonItem,
 	StatsTopPostsItem,
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
 	StatsUtmItem,
 	StatsUtmParam,
 	StatsUtmTopPostItem,
+	StatsVideoPlaysComparisonItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
+export { compareEmailBreakdownItems } from './processing/stats';
 export type { StatsCommentFollowersParams } from './queries/stats-comment-followers-query';
 export type { StatsReportParams } from './queries/stats-query';
 export {
@@ -241,3 +310,16 @@ export {
 	type StatsPeriod,
 	type StatsQueryParams,
 } from './utils/stats-params';
+export {
+	mergeStatsClicksComparisonRows,
+	mergeStatsComparisonRows,
+	mergeStatsDevicesComparisonRows,
+	mergeStatsFileDownloadsComparisonRows,
+	mergeStatsLocationsComparisonRows,
+	mergeStatsSearchTermsComparisonRows,
+	mergeStatsTopAuthorsComparisonRows,
+	mergeStatsTopPostsComparisonRows,
+	mergeStatsUtmComparisonRows,
+	mergeStatsVideoPlaysComparisonRows,
+} from './processing/stats';
+export type { StatsComparisonRowContext } from './processing/stats';

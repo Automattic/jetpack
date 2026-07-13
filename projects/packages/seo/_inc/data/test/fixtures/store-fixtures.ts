@@ -1,12 +1,16 @@
+import { AI_PATH, OVERVIEW_PATH, SETTINGS_PATH } from '../../get-preloaded';
 import type { AiState } from '../../ai-types';
 import type { ContentCoverage } from '../../overview-types';
+import type { SchemaSettings } from '../../schema-settings-types';
 import type { SettingsResponse } from '../../settings-types';
 
 /**
- * Seeds `window.JetpackScriptData.seo` before the `@wordpress/data` stores are
- * imported, so their module-level `DEFAULT_STATE` (read from the page bootstrap)
- * is populated. Each store test imports this module *first* — ESM evaluates
- * imports in source order, so the global is set before the store evaluates.
+ * Seeds `window.JetpackScriptData.seo.preload` before the `@wordpress/data`
+ * stores are imported, so their module-level `DEFAULT_STATE` (read from the page
+ * preload) is populated. Each store test imports this module *first* — ESM
+ * evaluates imports in source order, so the global is set before the store
+ * evaluates. Mirrors the `rest_preload_api_request()` shape: each path maps to a
+ * `{ body }` envelope.
  */
 
 export const SEEDED_COVERAGE: ContentCoverage = {
@@ -17,6 +21,11 @@ export const SEEDED_COVERAGE: ContentCoverage = {
 	with_search_visible: 8,
 };
 
+export const SEEDED_SCHEMA: SchemaSettings = {
+	organization: { name: '', description: '', sameAs: [], email: '' },
+	defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
+};
+
 export const SEEDED_SETTINGS: SettingsResponse = {
 	front_page_description: 'Welcome to the site.',
 	title_formats: {},
@@ -25,6 +34,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
+	schema: SEEDED_SCHEMA,
 };
 
 export const SEEDED_AI: AiState = {
@@ -33,8 +43,10 @@ export const SEEDED_AI: AiState = {
 
 ( window as unknown as { JetpackScriptData: unknown } ).JetpackScriptData = {
 	seo: {
-		overview: { content_coverage: SEEDED_COVERAGE },
-		settings: SEEDED_SETTINGS,
-		ai: SEEDED_AI,
+		preload: {
+			[ OVERVIEW_PATH ]: { body: { content_coverage: SEEDED_COVERAGE } },
+			[ SETTINGS_PATH ]: { body: SEEDED_SETTINGS },
+			[ AI_PATH ]: { body: SEEDED_AI },
+		},
 	},
 };

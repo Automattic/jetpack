@@ -27,7 +27,7 @@ class Maybe_Create_Ccpa_Page_Test extends TestCase {
 		$this->assertGreaterThan( 0, $page_id );
 		$this->assertNotNull( get_post( $page_id ) );
 		$this->assertSame( 'publish', get_post( $page_id )->post_status );
-		$this->assertSame( 1, get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
+		$this->assertSame( 1, (int) get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Maybe_Create_Ccpa_Page_Test extends TestCase {
 		Cookie_Consent::maybe_create_ccpa_page();
 
 		$this->assertFalse( (bool) get_option( 'jetpack_cookie_consent_ccpa_page_id' ) );
-		$this->assertSame( 1, get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
+		$this->assertSame( 1, (int) get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Maybe_Create_Ccpa_Page_Test extends TestCase {
 
 		Cookie_Consent::maybe_create_ccpa_page();
 
-		$this->assertSame( 1, get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
+		$this->assertSame( 1, (int) get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
 		$this->assertSame( (int) $page_id, (int) get_option( 'jetpack_cookie_consent_ccpa_page_id' ) );
 	}
 

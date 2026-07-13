@@ -1,0 +1,66 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+.leaderboard {
+	flex: 1 1 0;
+	min-inline-size: 0;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* Country rows: wrap the flag + name label so it fills the row and the overlay
+   bar gets a stable 36px height. */
+.label {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+	min-height: 36px;
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+}
+
+.label > * {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.flag {
+	height: 20px;
+	border-radius: var(--wpds-border-radius-sm, 2px);
+}
+
+/* Plain text rows (devices, clients). Vertical padding sets the overlay bar
+   height; the inline padding insets the text from the bar's left edge. */
+.labelText {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: inherit;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Link rows (clicked links) render as external links; mirror the chart's
+   overlay-label padding so the row height matches the other views. */
+.labelLink {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.labelLink:hover,
+.labelLink:focus {
+	text-decoration: underline;
+}

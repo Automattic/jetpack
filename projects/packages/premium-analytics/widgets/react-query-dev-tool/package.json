@@ -1,0 +1,12 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widget-react-query-dev-tool",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@jetpack-premium-analytics/data": "link:../../packages/data",
+		"@tanstack/react-query-devtools": "5.90.2",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^15.0.0"
+	}
+}

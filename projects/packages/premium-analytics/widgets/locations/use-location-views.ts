@@ -2,11 +2,7 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
-import type {
-	ReportParams,
-	StatsLocationsItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -14,24 +10,42 @@ export type GeoMode = 'country' | 'region' | 'city';
  * A single normalized location-views row for the widget.
  */
 export interface LocationView {
+	key: string;
 	label: string;
 	countryCode: string;
 	countryFull: string;
 	value: number;
+	previousValue?: number;
 	region: string;
 }
 
 interface UseLocationViewsArgs {
+	/**
+	 * PA ReportParams from WidgetRoot context.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * Maximum rows to display.
+	 */
 	max: number;
+	/**
+	 * 'country' (default), 'region', or 'city'.
+	 */
 	geoMode?: GeoMode;
+	/**
+	 * ISO country code to filter regions by (region mode).
+	 */
 	countryFilter?: string;
 }
 
 interface LocationViewsState {
 	data: LocationView[];
+	hasComparison: boolean;
 	isLoading: boolean;
+	isFetching: boolean;
+	hasData: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 }
 
 /**
@@ -40,15 +54,20 @@ interface LocationViewsState {
  * @param item - Normalized location item from the data layer.
  * @return A `LocationView` for the widget, or null if the item has no country code.
  */
-function toLocationView( item: StatsLocationsItem ): LocationView | null {
+function toLocationView( item: StatsLocationsComparisonItem ): LocationView | null {
 	if ( ! item.countryCode ) {
 		return null;
 	}
+	const label = typeof item.label === 'string' ? item.label : String( item.label );
+	const countryFull = item.countryFull ?? item.countryCode;
+
 	return {
-		label: typeof item.label === 'string' ? item.label : String( item.label ),
+		key: `${ item.countryCode }:${ label }`,
+		label,
 		countryCode: item.countryCode,
-		countryFull: item.countryFull ?? item.countryCode,
+		countryFull,
 		value: item.views,
+		previousValue: item.previousViews,
 		region: item.region ?? '',
 	};
 }
@@ -59,11 +78,7 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
  * Delegates fetching, caching, and normalization to `useStatsLocations` from
  * `@jetpack-premium-analytics/data`.
  *
- * @param args               - Hook arguments.
- * @param args.reportParams  - PA ReportParams from WidgetRoot context.
- * @param args.max           - Maximum rows to display.
- * @param args.geoMode       - 'country' (default), 'region', or 'city'.
- * @param args.countryFilter - ISO country code to filter regions by (region mode).
+ * @param {UseLocationViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
@@ -79,24 +94,29 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const { primary } = useStatsLocations( statsParams );
+	const {
+		primary,
+		comparison,
+		comparisonRows,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+	} = useStatsLocations( statsParams, { maxRows: max } );
+	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
 
-	// isLoading: true only on the initial fetch (no data yet) — used to show the
-	// full loading placeholder. isFetching covers background refetches where
-	// stale data is already available; those should not blank the widget.
-	const isLoading = primary.isLoading;
-	const isError = primary.isError;
-
-	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
+	const items = ( comparisonRows?.rows ?? [] )
 		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
+		.filter( ( v ): v is LocationView => v !== null );
 
 	return {
 		data: items,
+		hasComparison,
 		isLoading,
+		isFetching,
+		hasData,
 		isError,
+		isPlaceholderData,
 	};
 }

@@ -191,9 +191,10 @@ export type LeaderboardEntry = {
 	currentValue: number;
 
 	/**
-	 * Value of the entry in the previous period
+	 * Value of the entry in the previous period. Omit when this row has no
+	 * matching comparison-period value.
 	 */
-	previousValue: number;
+	previousValue?: number;
 
 	/**
 	 * Width of current bar, as % of the current value
@@ -201,14 +202,16 @@ export type LeaderboardEntry = {
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value
+	 * Width of previous bar, as % of the current value. Omit when this row has
+	 * no matching comparison-period value.
 	 */
-	previousShare: number;
+	previousShare?: number;
 
 	/**
-	 * Delta of the entry
+	 * Delta of the entry. Omit when this row has no matching comparison-period
+	 * value.
 	 */
-	delta: number;
+	delta?: number;
 
 	/**
 	 * Optional color for the entry's image/icon
@@ -249,8 +252,8 @@ export type GradientStop = {
 
 export type SeriesDataOptions = {
 	gradient?: {
-		from: string;
-		to: string;
+		from?: string;
+		to?: string;
 		fromOpacity?: number;
 		toOpacity?: number;
 		stops?: GradientStop[];
@@ -413,6 +416,21 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/**
+	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
+	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 */
+	heatmapChart?: {
+		/**
+		 * Color the cell scale interpolates toward at the highest value (prop > this >
+		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 */
+		primaryColor?: string;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
+	};
 };
 
 /**
@@ -440,6 +458,8 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
+		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
 
 export type AxisOptions = {

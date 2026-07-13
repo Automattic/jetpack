@@ -1,0 +1,7 @@
+{
+	"name": "jpa/posting-activity",
+	"title": "Posting activity",
+	"description": "How often you publish — a calendar heatmap of posts per day.",
+	"category": "stats",
+	"presentation": "framed"
+}

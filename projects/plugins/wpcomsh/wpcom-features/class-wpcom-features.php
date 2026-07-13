@@ -102,6 +102,8 @@ class WPCOM_Features {
 	private const JETPACK_COMPLETE_BI_YEARLY                  = 'jetpack_complete_bi_yearly'; // 2035
 	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
 	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
+	private const JETPACK_SECURITY_T0_YEARLY                  = 'jetpack_security_t0_yearly'; // 10237
+	private const JETPACK_SECURITY_T0_MONTHLY                 = 'jetpack_security_t0_monthly'; // 10238
 	private const JETPACK_SECURITY_T1_BI_YEARLY               = 'jetpack_security_t1_bi_yearly'; // 2034
 	private const JETPACK_SECURITY_T1_YEARLY                  = 'jetpack_security_t1_yearly'; // 2016
 	private const JETPACK_SECURITY_T1_MONTHLY                 = 'jetpack_security_t1_monthly'; // 2017
@@ -284,6 +286,7 @@ class WPCOM_Features {
 
 	private const JETPACK_SECURITY_DAILY_PLANS    = array( self::JETPACK_SECURITY_DAILY, self::JETPACK_SECURITY_DAILY_MONTHLY );
 	private const JETPACK_SECURITY_REALTIME_PLANS = array( self::JETPACK_SECURITY_REALTIME, self::JETPACK_SECURITY_REALTIME_MONTHLY );
+	private const JETPACK_SECURITY_T0_PLANS       = array( self::JETPACK_SECURITY_T0_MONTHLY, self::JETPACK_SECURITY_T0_YEARLY );
 	private const JETPACK_SECURITY_T1_PLANS       = array( self::JETPACK_SECURITY_T1_MONTHLY, self::JETPACK_SECURITY_T1_YEARLY, self::JETPACK_SECURITY_T1_BI_YEARLY, self::A4A_JETPACK_SECURITY_TIER_1_MONTHLY, self::A4A_JETPACK_SECURITY_TIER_1_YEARLY );
 	private const JETPACK_SECURITY_T2_PLANS       = array( self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY, self::A4A_JETPACK_SECURITY_TIER_2_MONTHLY, self::A4A_JETPACK_SECURITY_TIER_2_YEARLY );
 
@@ -319,6 +322,7 @@ class WPCOM_Features {
 		self::JETPACK_COMPLETE_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
+		self::JETPACK_SECURITY_T0_PLANS,
 		self::JETPACK_SECURITY_T1_PLANS,
 		self::JETPACK_SECURITY_T2_PLANS,
 		self::JETPACK_STARTER_PLANS,
@@ -329,6 +333,7 @@ class WPCOM_Features {
 		self::JETPACK_COMPLETE_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
+		self::JETPACK_SECURITY_T0_PLANS,
 		self::JETPACK_SECURITY_T1_PLANS,
 		self::JETPACK_SECURITY_T2_PLANS,
 	);
@@ -1190,6 +1195,7 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_SECURITY_REALTIME_PLANS,
+			self::JETPACK_SECURITY_T0_PLANS,
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
 			self::JETPACK_STARTER_PLANS,
@@ -1662,6 +1668,7 @@ class WPCOM_Features {
 				'before' => '2021-10-07',
 				self::JETPACK_SECURITY_DAILY_PLANS,
 				self::JETPACK_SECURITY_REALTIME_PLANS,
+				self::JETPACK_SECURITY_T0_PLANS,
 				self::JETPACK_SECURITY_T1_PLANS,
 				self::JETPACK_SECURITY_T2_PLANS,
 			),
@@ -1705,6 +1712,7 @@ class WPCOM_Features {
 				self::JETPACK_COMPLETE_PLANS,
 				self::JETPACK_SECURITY_DAILY_PLANS,
 				self::JETPACK_SECURITY_REALTIME_PLANS,
+				self::JETPACK_SECURITY_T0_PLANS,
 				self::JETPACK_SECURITY_T1_PLANS,
 				self::JETPACK_SECURITY_T2_PLANS,
 				self::JETPACK_PREMIUM_PLANS,

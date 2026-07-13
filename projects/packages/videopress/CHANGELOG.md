@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.40.0] - 2026-07-09
+### Added
+- Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes. [#50054]
+
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Fixed
+- Guard the block banner icon render with isValidElement so a non-element icon prop no longer trips the @wordpress/icons type check. [#49272]
+- Load VideoPress Overview stats even when the Jetpack Stats module is inactive. [#50326]
+- Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location. [#50323]
+
+## [0.39.0] - 2026-07-06
+### Added
+- Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
+- Add a site-level setting to turn off auto-generated subtitles. [#50014]
+
+### Changed
+- Dashboard: Release modernized VideoPress dashboard. [#49023]
+- Internal: Enable real typechecking on the package. [#49205]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [0.38.2] - 2026-06-29
+### Security
+- Fix an issue where the media library Heartbeat handler exposed processing status for attachments the current user is not allowed to edit. [#49931]
+
+### Changed
+- Update package dependencies. [#49271]
+
 ## [0.38.1] - 2026-06-25
 ### Changed
 - Defer loading the VideoPress REST API endpoint classes until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
@@ -2037,6 +2067,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.40.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.39.0...v0.40.0
+[0.39.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.2...v0.39.0
+[0.38.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.13...v0.37.0

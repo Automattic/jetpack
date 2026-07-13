@@ -4752,4 +4752,77 @@ class Contact_Form_Test extends BaseTestCase {
 			'image-select (hyphenated)'      => array( 'image-select' ),
 		);
 	}
+
+	/**
+	 * A manually-set field ID that collides with another field in the same form
+	 * (e.g. from duplicating or copy/pasting the block) should be suffixed so
+	 * each field keeps a unique input name. The suffix starts at -2 to match
+	 * generateUniqueFormFieldId() on the editor side. See FORMS-724.
+	 */
+	public function test_duplicate_manual_field_ids_are_made_unique() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='name'/][contact-field label='Second' type='text' id='name'/][contact-field label='Third' type='text' id='name'/]"
+		);
+
+		$this->assertSame(
+			array( 'name', 'name-2', 'name-3' ),
+			array_keys( $form->fields ),
+			'Duplicate manual field IDs should be suffixed so each field stays unique.'
+		);
+	}
+
+	/**
+	 * A single, non-colliding manual field ID must be preserved verbatim — the
+	 * de-duplication should only kick in on an actual collision.
+	 */
+	public function test_unique_manual_field_id_is_preserved() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='full_name'/][contact-field label='Second' type='email' id='contact_email'/]"
+		);
+
+		$this->assertSame(
+			array( 'full_name', 'contact_email' ),
+			array_keys( $form->fields ),
+			'Non-colliding manual field IDs should be left untouched.'
+		);
+	}
+
+	/**
+	 * Two distinct duplicated IDs in the same form must be de-duplicated
+	 * independently — the counter is per-ID, so "tel" collisions don't inherit
+	 * the "name" count. See FORMS-724.
+	 */
+	public function test_mixed_manual_field_ids_are_deduped_independently() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='name'/][contact-field label='Second' type='text' id='name'/][contact-field label='Third' type='text' id='name'/][contact-field label='Fourth' type='text' id='tel'/][contact-field label='Fifth' type='text' id='tel'/][contact-field label='Sixth' type='text' id='name'/]"
+		);
+
+		$this->assertSame(
+			array( 'name', 'name-2', 'name-3', 'tel', 'tel-2', 'name-4' ),
+			array_keys( $form->fields ),
+			'Each colliding ID should be suffixed against its own base, not a shared counter.'
+		);
+	}
+
+	/**
+	 * When a form already contains suffixed IDs, generated suffixes must skip the
+	 * ones already in use rather than collide with them. See FORMS-724.
+	 */
+	public function test_pre_suffixed_manual_field_ids_stay_unique() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='name'/][contact-field label='Second' type='text' id='name'/][contact-field label='Third' type='text' id='name'/][contact-field label='Fourth' type='text' id='name-2'/][contact-field label='Fifth' type='text' id='tel'/][contact-field label='Sixth' type='text' id='name-3'/]"
+		);
+
+		// The explicit "name-2"/"name-3" collide with generated ones and fall back
+		// to a further suffix, but every resulting ID stays unique.
+		$this->assertSame(
+			array( 'name', 'name-2', 'name-3', 'name-2-2', 'tel', 'name-3-2' ),
+			array_keys( $form->fields ),
+			'Explicit suffixed IDs that collide with generated ones should still resolve to unique IDs.'
+		);
+	}
 }

@@ -90,6 +90,79 @@ class Contact_Form_Block {
 		// Load AI integration after Jetpack_Gutenberg registers extensions (priority 10)
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'maybe_load_ai_integration' ), 11 );
 	}
+
+	/**
+	 * Disable the block "visibility" support on form field and input blocks.
+	 *
+	 * FORMS-694 (interim). The per-viewport "Hide on…" option is not honored in
+	 * the forms render pipeline — fields flatten to a shortcode and bypass core's
+	 * render_block class injection — and on a required field it cannot be made
+	 * safe (server- and client-side validation are both viewport-blind). "Hide
+	 * everywhere" does work for fields, but the control bundles both modes under
+	 * one boolean, so we disable it wholesale on fields, inputs, and choice/option
+	 * blocks as an interim. This mirrors the JS registration. The label is the
+	 * only block that keeps visibility support — it honors hiding (full-hide via
+	 * labelhiddenbyblockvisibility, per-viewport via wp-block-hidden-* classes)
+	 * and never affects validation or submission. Full field visibility is a
+	 * separate decision.
+	 *
+	 * @param array  $args       Block type registration args.
+	 * @param string $block_name Block name being registered.
+	 * @return array
+	 */
+	public static function disable_field_visibility_support( $args, $block_name ) {
+		// TODO: refactor into an array_merge'd shared supports array mirroring the JS defaultSettings, instead of this filter.
+		// Fields, incl. the deprecated field-option-* choice blocks.
+		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0;
+		// All input variants: jetpack/input, input-range, input-rating,
+		// input-image-option, plus the differently-named phone-input and dropzone.
+		$is_input = strpos( $block_name, 'jetpack/input' ) === 0 || in_array( $block_name, array( 'jetpack/phone-input', 'jetpack/dropzone' ), true );
+		// Choice/option containers.
+		$is_option = in_array( $block_name, array( 'jetpack/option', 'jetpack/options', 'jetpack/fieldset-image-options' ), true );
+
+		if ( $is_input || $is_field || $is_option ) {
+			if ( ! isset( $args['supports'] ) || ! is_array( $args['supports'] ) ) {
+				$args['supports'] = array();
+			}
+			$args['supports']['visibility'] = false;
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Drop a field that has been hidden everywhere via block visibility.
+	 *
+	 * FORMS-694. "Hide everywhere" (metadata.blockVisibility === false) must keep
+	 * working on fields even though we disable the visibility *support* on them
+	 * (see disable_field_visibility_support). We can't rely on core's render_block
+	 * visibility filter for this: on released WP it gates the full-hide branch
+	 * behind the support check, so once support is false the field would reappear
+	 * (the fix that reorders those — WordPress/gutenberg#78780 — is unreleased).
+	 *
+	 * Dropping the field's rendered output ('') before Contact_Form::parse() sees
+	 * it removes the [contact-field] shortcode entirely, so the field is never
+	 * parsed, rendered, or validated — which is what makes this required-safe (a
+	 * required hidden-everywhere field simply isn't in the form). This is a full
+	 * removal, not a CSS hide; the per-viewport "Hide on…" mode (which leaves the
+	 * field in place and only display:none's it) is intentionally not honored on
+	 * fields for exactly that reason.
+	 *
+	 * @param string $block_content Rendered block content.
+	 * @param array  $block         Parsed block.
+	 * @return string
+	 */
+	public static function drop_field_hidden_everywhere( $block_content, $block ) {
+		$block_name       = $block['blockName'] ?? '';
+		$block_visibility = $block['attrs']['metadata']['blockVisibility'] ?? null;
+
+		if ( false === $block_visibility && strpos( $block_name, 'jetpack/field-' ) === 0 ) {
+			return '';
+		}
+
+		return $block_content;
+	}
+
 	/**
 	 * Register the contact form block feature flag.
 	 *
@@ -171,6 +244,15 @@ class Contact_Form_Block {
 			return;
 		}
 
+		// Keep the PHP-registered "visibility" support in sync with the JS
+		// registration (src/blocks/shared/settings/index.js and
+		// src/blocks/input/index.js), which disables it on fields and inputs.
+		add_filter( 'register_block_type_args', array( __CLASS__, 'disable_field_visibility_support' ), 10, 2 );
+
+		// Honor "hide everywhere" on fields ourselves, independent of core's
+		// version-dependent visibility filter. See drop_field_hidden_everywhere().
+		add_filter( 'render_block', array( __CLASS__, 'drop_field_hidden_everywhere' ), 10, 2 );
+
 		// Field inner block types.
 		Blocks::jetpack_register_block(
 			'jetpack/input',
@@ -209,12 +291,12 @@ class Contact_Form_Block {
 			'jetpack/label',
 			array(
 				'supports'     => array(
-					'color'           => array(
+					'color'      => array(
 						'text'       => true,
 						'background' => false,
 						'gradients'  => false,
 					),
-					'typography'      => array(
+					'typography' => array(
 						'fontSize'                     => true,
 						'lineHeight'                   => true,
 						'__experimentalFontFamily'     => true,
@@ -224,7 +306,10 @@ class Contact_Form_Block {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
-					'blockVisibility' => true,
+					// The real support key is `visibility`, not `blockVisibility`
+					// (that's the per-instance saved attribute). The label is the
+					// only forms block that keeps the control — see FORMS-694.
+					'visibility' => true,
 				),
 				'uses_context' => array(
 					'jetpack/field-required',

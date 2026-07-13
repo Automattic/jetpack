@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { selectFallback } from './fallback.ts';
 import { requestJwt } from './jwt.ts';
-import { buildTailorPrompt } from './prompts.ts';
+import { buildTailorPrompt, chooseTailoringMenu } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
 import { trackAiResponseReceived } from './tracks.ts';
 import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
@@ -15,11 +15,8 @@ interface AiQueryResponse {
 }
 
 /**
- * Outcome of a single jetpack-ai-query attempt. `retryable` distinguishes
- * transient failures worth a second attempt (5xx/429, empty content, or
- * malformed/schema-invalid JSON that a re-roll often fixes) from failures where
- * a retry would not help or would only add latency (auth/quota 4xx, network
- * errors, and timeouts).
+ * Outcome of a single jetpack-ai-query attempt; `retryable` flags transient
+ * failures worth a second attempt.
  */
 type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryable: boolean };
 
@@ -27,10 +24,14 @@ type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryabl
  * Call jetpack-ai-query once with the combined prompt and return the validated
  * output, or a failure outcome tagging whether the failure is worth retrying.
  *
- * @param input - The collected wizard input.
+ * @param input            - The collected wizard input.
+ * @param availableTaskIds - Task ids the prompt may offer (filters the menu).
  * @return The attempt outcome.
  */
-async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
+async function fetchAiOutput(
+	input: WizardInput,
+	availableTaskIds: readonly string[]
+): Promise< FetchOutcome > {
 	const controller = new AbortController();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- the timeout must arm before the awaited request and is cleared in finally.
 	const timeout = setTimeout( () => controller.abort(), AI_QUERY_TIMEOUT_MS );
@@ -44,7 +45,7 @@ async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
 				Authorization: 'Bearer ' + token,
 			},
 			body: JSON.stringify( {
-				messages: [ { role: 'user', content: buildTailorPrompt( input ) } ],
+				messages: [ { role: 'user', content: buildTailorPrompt( input, availableTaskIds ) } ],
 				feature: 'ai-launchpad',
 				model: 'gpt-4o',
 				max_tokens: 1800,
@@ -73,9 +74,7 @@ async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
 
 		return { ok: true, output };
 	} catch {
-		// Network error or timeout (abort): fall back to the deterministic picker.
-		// Not retried - a timeout retry only doubles the wait before the fallback.
-		// The AI call itself is logged server-side by the AI Proxy.
+		// Network error or timeout: not retried, since a retry only doubles the wait before the fallback.
 		return { ok: false, retryable: false };
 	} finally {
 		clearTimeout( timeout );
@@ -84,24 +83,50 @@ async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
 
 /**
  * Call jetpack-ai-query, retrying once on a transient/validation failure, and
- * return the validated output or null. The retry hardens the happy path against
- * the occasional malformed JSON or transient proxy error without unbounded
- * latency: timeouts and auth/quota failures are not retried.
+ * return the validated output or null.
  *
- * @param input - The collected wizard input.
+ * @param input            - The collected wizard input.
+ * @param availableTaskIds - Task ids the prompt may offer (filters the menu).
  * @return The validated output, or null.
  */
-async function fetchAiOutputWithRetry( input: WizardInput ): Promise< TailoredOutput | null > {
-	let outcome = await fetchAiOutput( input );
+async function fetchAiOutputWithRetry(
+	input: WizardInput,
+	availableTaskIds: readonly string[]
+): Promise< TailoredOutput | null > {
+	let outcome = await fetchAiOutput( input, availableTaskIds );
 	if ( ! outcome.ok && outcome.retryable ) {
-		outcome = await fetchAiOutput( input );
+		outcome = await fetchAiOutput( input, availableTaskIds );
 	}
 	return outcome.ok ? outcome.output : null;
 }
 
 /**
- * Persist the tailored output via Stream B's PUT /tailored. The body is the
- * unwrapped schema payload; the source is passed as a query parameter.
+ * Fetch the task ids the prompt's menu may offer for this goal: the actionable ids, relaxed to all renderable
+ * ids when completion leaves too few to fill a valid list (see chooseTailoringMenu). Returns an empty list on
+ * failure, which leaves the prompt using the full menu.
+ *
+ * @param goal - The selected goal.
+ * @return The task ids to offer, or an empty array.
+ */
+async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[] > {
+	try {
+		const response = ( await apiFetch( {
+			path: addQueryArgs( '/wpcom/v2/ai-launchpad/available-tasks', { goal } ),
+		} ) ) as { available_task_ids?: string[]; renderable_task_ids?: string[] };
+		const actionable = Array.isArray( response.available_task_ids )
+			? response.available_task_ids
+			: [];
+		const renderable = Array.isArray( response.renderable_task_ids )
+			? response.renderable_task_ids
+			: [];
+		return chooseTailoringMenu( actionable, renderable );
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * Persist the tailored output via Stream B's PUT /tailored.
  *
  * @param output - The tailored output to persist.
  * @param source - Whether the output came from AI or the fallback.
@@ -115,20 +140,16 @@ async function persist( output: TailoredOutput, source: TailorSource ): Promise<
 }
 
 /**
- * Tailor the launchpad from the wizard input: call jetpack-ai-query with the
- * combined prompt (retrying once on a transient/validation failure), validate
- * the response against the agent output schema, and fall back to the
- * deterministic picker on any failure (network, timeout, auth, quota, malformed
- * or schema-invalid output). The result is persisted via Stream B's
- * PUT /tailored, tagged with its source. If the AI output is rejected by the
- * server (422), retry the persist with the deterministic fallback.
+ * Tailor the launchpad from the wizard input, falling back to the deterministic
+ * picker on any failure and persisting the result tagged with its source.
  *
  * @param input - The collected wizard input.
  * @return The tailored result, tagged with whether it came from AI or fallback.
  */
 export async function tailor( input: WizardInput ): Promise< TailorResult > {
 	const start = performance.now();
-	const aiOutput = await fetchAiOutputWithRetry( input );
+	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
+	const aiOutput = await fetchAiOutputWithRetry( input, availableTaskIds );
 
 	if ( aiOutput ) {
 		try {
@@ -139,8 +160,7 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 			} );
 			return { source: 'ai', output: aiOutput };
 		} catch {
-			// PUT rejected the AI output (e.g. 422 / per-site catalog filtering);
-			// fall through to the deterministic fallback below.
+			// PUT rejected the AI output; fall through to the deterministic fallback below.
 		}
 	}
 
@@ -148,9 +168,7 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 	try {
 		await persist( fallbackOutput, 'fallback' );
 	} catch {
-		// The deterministic fallback is meant to be guaranteed. Even if the write
-		// fails, still return it so the consumer renders the local list instead of
-		// an empty launchpad.
+		// Even if the write fails, still return the fallback so the consumer renders a list, not an empty launchpad.
 	}
 	trackAiResponseReceived( {
 		duration_ms: Math.round( performance.now() - start ),

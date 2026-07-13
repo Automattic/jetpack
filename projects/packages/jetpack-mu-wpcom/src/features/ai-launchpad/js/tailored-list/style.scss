@@ -1,9 +1,6 @@
 .ai-launchpad-tailored-list {
 
-	// The centered content column shared by the loaded list and its loading
-	// state: heading + progress line, then a two-column grid (tasks | preview).
-	// A responsive, generous top pad pushes the content off the admin chrome
-	// without relying on a fixed-height container to vertically center.
+	// Centered content column: heading + progress, then a tasks | preview grid.
 	&__layout {
 		max-width: 960px;
 		margin: 0 auto;
@@ -40,15 +37,13 @@
 		gap: 32px;
 		align-items: start;
 
-		// Reserve the preview track only when there's a preview to show, so a
-		// missing site URL doesn't leave an empty gutter squeezing the tasks.
+		// Reserve the preview track only when there's a preview to show.
 		&.has-preview {
 			grid-template-columns: minmax(0, 1fr) 300px;
 		}
 	}
 
-	// Stack the preview under the tasks on narrow screens (WP admin's mobile
-	// breakpoint), so neither column gets squeezed.
+	// Stack the preview under the tasks on narrow screens.
 	@media (max-width: 782px) {
 
 		&__columns.has-preview {
@@ -56,9 +51,8 @@
 		}
 	}
 
-	// The task column itself: a vertical stack of cards (and skeleton bars),
-	// wrapped in a padded grey container so the white cards read as a grouped
-	// checklist. The padding matches the inter-card gap.
+	// The task column: a padded grey container so the white cards read as a
+	// grouped checklist.
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -66,17 +60,14 @@
 	background: #f6f7f7;
 	border-radius: 8px;
 
-	// Tighten the @wordpress/ui Card padding so the cards read as compact
-	// checklist rows rather than full content cards. Zero the header→content
-	// margin (it otherwise leaves a gap below the header even when collapsed);
-	// the expanded gap is re-added on the subtitle, inside the clipped panel.
+	// Tighten the Card padding for compact rows; zero the header→content margin
+	// (re-added on the subtitle, so a collapsed card shows no gap).
 	&__card {
 		--wp-ui-card-padding: 16px;
 		--wp-ui-card-header-content-margin: 0;
 	}
 
-	// The icon + title row placed inside the (clickable) card header. The
-	// CollapsibleCard supplies the chevron trigger beside it.
+	// The icon + title row inside the clickable card header.
 	&__header-inner {
 		display: flex;
 		align-items: center;
@@ -87,31 +78,32 @@
 	&__title {
 		font-weight: 500;
 		font-size: 14px;
+		color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
 
 		&.is-done {
 			text-decoration: line-through;
-			color: #757575;
+			color: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
 		}
 	}
 
-	// The inline SVG task icons use `currentColor`, so tone them via `color`.
+	// The WPDS task icons fill from `currentColor`, so tone them via `color`.
+	// To-do and in-progress share the neutral foreground; only done is dimmed,
+	// keeping each icon the same color as its title.
 	&__icon {
 		flex-shrink: 0;
+		display: inline-flex;
+		color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
 
-		// Incomplete tasks: a light dashed ring.
-		&.is-todo {
-			color: #c3c4c7;
+		svg {
+			fill: currentColor;
 		}
 
-		// Completed tasks: a check-in-circle, greyed to sit alongside the
-		// struck-through title.
 		&.is-done {
-			color: #757575;
+			color: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
 		}
 	}
 
-	// 8px top re-creates the header→content gap (the card's own margin is zeroed
-	// above); being inside the panel, it's clipped when the card is collapsed.
+	// Re-creates the header→content gap zeroed above; clipped when collapsed.
 	&__subtitle {
 		margin: 8px 0 16px;
 		color: #757575;
@@ -123,19 +115,34 @@
 		gap: 8px;
 	}
 
-	// The site-preview card in the right column: a live scaled site preview +
-	// name + link.
+	// A locked preview of a task that isn't reachable yet: title and lock icon are
+	// dimmed (no line-through — it isn't done) to read as "coming later".
+	&__card.is-disabled {
+
+		.ai-launchpad-tailored-list__title,
+		.ai-launchpad-tailored-list__icon {
+			color: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
+		}
+	}
+
+	// The "available once…" line shown in place of the actions on a disabled card.
+	&__hint {
+		margin: 0 0 8px;
+		font-style: italic;
+		color: #757575;
+	}
+
+	// The site-preview card in the right column.
 	&__preview {
 		display: flex;
 		flex-direction: column;
 	}
 
-	// A square frame holding a desktop-width iframe scaled down to fit, mirroring
-	// the wp-admin dashboard site-management widget (renders immediately, no
-	// mShots wait). The iframe is 4× the frame and scaled 0.25, so the frame
-	// shows a ~1200px-wide front-end view regardless of the frame's actual size.
+	// A frame holding a desktop-width iframe scaled to 0.25 (4× the frame) so it
+	// shows a ~1200px-wide front-end view.
 	&__preview-frame {
 		position: relative;
+		display: block;
 		width: 100%;
 		max-width: 300px;
 		aspect-ratio: 4 / 3;
@@ -143,6 +150,42 @@
 		border: 1px solid #e0e0e0;
 		border-radius: 8px;
 		background: #f6f7f7;
+
+		// Reveal the "Edit site" overlay on hover or when the button is focused.
+		&.is-editable {
+
+			&:hover,
+			&:focus-within {
+
+				.ai-launchpad-tailored-list__preview-edit {
+					opacity: 1;
+				}
+			}
+		}
+	}
+
+	// The dimmed overlay that centers the "Edit site" button over the thumbnail.
+	&__preview-edit {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.55);
+		opacity: 0;
+		transition: opacity 120ms ease;
+
+		// The Button renders as a link; wp-admin's unlayered `a { color }` would win
+		// over its layered foreground color, so re-assert it with an unlayered rule.
+		a {
+
+			&,
+			&:hover,
+			&:focus,
+			&:active {
+				color: var(--wp-ui-button-foreground-color, #fff);
+			}
+		}
 	}
 
 	&__preview-iframe {
@@ -154,10 +197,9 @@
 		border: 0;
 		transform: scale(0.25);
 		transform-origin: top left;
-		// Nudge the scaled view up to crop the logged-in admin bar (~32px at the
-		// 1200px render width → ~8px at scale 0.25), mirroring the dashboard widget.
+		// Nudge up to crop the logged-in admin bar (~32px → ~8px at scale 0.25).
 		translate: 0 -8px;
-		// Purely a thumbnail — the link below is the interactive affordance.
+		// Purely a thumbnail; the link below is interactive.
 		pointer-events: none;
 	}
 
@@ -171,8 +213,7 @@
 		font-size: 13px;
 	}
 
-	// Stacked under the tasks on mobile, the preview spans the full column width.
-	// Declared after the base rule above so it wins at the mobile breakpoint.
+	// Full-width on mobile; placed after the base rule to win at the breakpoint.
 	@media (max-width: 782px) {
 
 		&__preview-frame {
@@ -180,7 +221,7 @@
 		}
 	}
 
-	// Loading placeholders: solid shimmering bars standing in for the task cards.
+	// Loading placeholders standing in for the task cards.
 	&__skeleton-bar {
 		display: block;
 		height: 56px;

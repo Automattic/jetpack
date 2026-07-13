@@ -36,6 +36,23 @@ export type {
 	StatsAppPlanPriceTier,
 	StatsAppPlanUsage,
 } from './use-stats-app-plan-usage';
+export {
+	useStatsAppNotices,
+	useStatsAppNoticeMutation,
+	type StatsAppNoticeId,
+	type StatsAppNoticeMutationParams,
+	type StatsAppNoticeMutationResponse,
+	type StatsAppNotices,
+	type StatsAppNoticesParams,
+	type StatsAppNoticeStatus,
+} from './use-stats-app-notices';
+export {
+	useStatsAppPurchases,
+	type StatsAppPurchase,
+	type StatsAppPurchaseExpiryStatus,
+	type StatsAppPurchasesParams,
+	type StatsAppPurchasesResponse,
+} from './use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
 	useStatsCommentFollowers,
@@ -52,13 +69,14 @@ export {
 	type StatsCommentsResponse,
 } from './use-stats-comments';
 export {
-	useStatsSubscribers,
 	useStatsSubscribersCounts,
+	useStatsSubscribersReport,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
 	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
+	type StatsSubscribersUnit,
 } from './use-stats-subscribers';
 export {
 	useStatsStreak,
@@ -82,12 +100,7 @@ export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-s
 export { useStatsHighlights } from './use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
-export {
-	useStatsDevices,
-	type StatsDevices,
-	type StatsDevicesDeviceParam,
-	type StatsDevicesParams,
-} from './use-stats-devices';
+export { useStatsDevices } from './use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,
@@ -134,6 +147,36 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './use-stats-email-summary';
+export {
+	useStatsSingleVideo,
+	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoPage,
+	type StatsSingleVideoParams,
+	type StatsSingleVideoResponse,
+} from './use-stats-single-video';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+	type StatsEmailTimeSeriesParams,
+	type StatsEmailTimeSeriesPeriod,
+	type StatsEmailTimeSeriesReport,
+	type StatsEmailTimeSeriesDataPoint,
+	type StatsEmailTimeSeriesSummary,
+} from './use-stats-email-time-series';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './use-stats-app-dashboard-modules';
+export type {
+	StatsAppDashboardModules,
+	StatsAppDashboardModulesMutationResponse,
+	StatsAppDashboardModuleValue,
+	StatsAppDashboardTrafficModule,
+	StatsAppDashboardInsightsModule,
+	StatsAppDashboardSubscribersModule,
+	StatsAppDashboardWordAdsModule,
+	StatsAppDashboardStoreModule,
+} from './use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

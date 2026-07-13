@@ -30,6 +30,14 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private static $instance = null;
 
 	/**
+	 * Resolved `log` config injected via init(), or empty when constructed
+	 * directly (as the existing unit tests do) without going through init().
+	 *
+	 * @var array
+	 */
+	private $log_config = array();
+
+	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
@@ -55,7 +63,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION = '0.0.1';
+	private const DB_VERSION = '0.0.3';
 
 	/**
 	 * Default retention period in days.
@@ -63,13 +71,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * @var int
 	 */
 	private const DEFAULT_RETENTION_DAYS = 30;
-
-	/**
-	 * Default consent types.
-	 *
-	 * @var array
-	 */
-	private const DEFAULT_CONSENT_TYPES = array( 'functional', 'analytics', 'marketing' );
 
 	/**
 	 * Default rate-limit window in seconds for the public create route.
@@ -117,20 +118,27 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * Initialize the controller: create the table, schedule cleanup,
 	 * register REST routes, and wire the cleanup cron callback.
 	 *
+	 * @param array $log_config Resolved `log` config from Config_Schema::resolve(); only
+	 *                          `ip_mode` and `retention_days` are read here. The
+	 *                          `policy_version`/`banner_version` entries are sourced
+	 *                          separately via Cookie_Consent::get_log_versions().
 	 * @return Consent_Log_Controller
 	 */
-	public static function init() {
+	public static function init( array $log_config = array() ) {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 
-		$instance = self::$instance;
+		$instance             = self::$instance;
+		$instance->log_config = $log_config;
 
 		$instance->maybe_create_table();
 		$instance->schedule_cleanup();
 
 		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
 		add_action( self::CLEANUP_HOOK, array( $instance, 'cleanup_expired_logs' ) );
+
+		Consent_Log_Privacy::init();
 
 		return $instance;
 	}
@@ -140,7 +148,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	private static function get_table_name() {
+	public static function get_table_name() {
 		global $wpdb;
 		return $wpdb->prefix . self::TABLE_NAME;
 	}
@@ -175,6 +183,10 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public static function deactivate() {
 		self::unschedule_cleanup();
 
+		// Privacy filters are registered statically in init() regardless of the
+		// singleton, so unhook them unconditionally (before the instance guard).
+		Consent_Log_Privacy::deactivate();
+
 		if ( null === self::$instance ) {
 			return;
 		}
@@ -207,15 +219,17 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			consent_id varchar(36) DEFAULT NULL,
 			event_type varchar(50) NOT NULL,
-			customer_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-			ip_address varchar(45) DEFAULT NULL,
+			user_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+			ip_address varchar(64) DEFAULT NULL,
 			url text DEFAULT NULL,
 			consent_types longtext DEFAULT NULL,
+			policy_version varchar(191) NOT NULL DEFAULT '1',
+			banner_version varchar(191) NOT NULL DEFAULT '1',
 			date_created datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 			date_created_gmt datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 			PRIMARY KEY (id),
 			KEY consent_id (consent_id),
-			KEY customer_id (customer_id),
+			KEY user_id (user_id),
 			KEY event_type (event_type),
 			KEY date_created_gmt (date_created_gmt)
 		) {$charset_collate};";
@@ -233,8 +247,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				array(
-					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
+				0        => array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_consent_log' ),
 					// Public, unauthenticated route — anonymous visitors submit consent. Abuse is
@@ -280,40 +293,39 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				array(
-					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
+				0        => array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_consent_logs' ),
 					'permission_callback' => array( $this, 'check_read_permission' ),
 					'args'                => array(
-						'customer_id' => array(
+						'user_id'  => array(
 							'type'              => 'integer',
 							'description'       => __( 'Filter by WordPress user ID.', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
-						'before'      => array(
+						'before'   => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'description'       => __( 'Filter logs created before this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'after'       => array(
+						'after'    => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'description'       => __( 'Filter logs created after this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'page'        => array(
+						'page'     => array(
 							'type'              => 'integer',
 							'description'       => __( 'Current page of the collection.', 'jetpack-cookie-consent' ),
 							'default'           => 1,
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
-						'per_page'    => array(
+						'per_page' => array(
 							'type'              => 'integer',
 							'description'       => __( 'Maximum number of items to return (max 100).', 'jetpack-cookie-consent' ),
 							'default'           => 50,
@@ -569,14 +581,11 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			return null;
 		}
 
-		/**
-		 * Filter the allowed consent types.
-		 *
-		 * @param array $allowed_types Array of allowed consent type keys.
-		 */
-		$allowed_types = apply_filters(
-			'jetpack_cookie_consent_allowed_consent_types',
-			self::DEFAULT_CONSENT_TYPES
+		$allowed_types = array_map(
+			static function ( $category ) {
+				return $category['key'];
+			},
+			Cookie_Consent::get_current_consent_categories()
 		);
 
 		$sanitized = array();
@@ -624,14 +633,17 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		// Get consent types and encode as JSON.
 		$consent_types = $request->get_param( 'consent_types' );
 		$consent_json  = ! empty( $consent_types ) ? wp_json_encode( $consent_types, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : null;
+		$log_versions  = $this->get_log_versions();
 
 		$data = array(
 			'consent_id'       => $consent_id,
 			'event_type'       => $request->get_param( 'event_type' ),
-			'customer_id'      => get_current_user_id(),
-			'ip_address'       => $ip,
+			'user_id'          => get_current_user_id(),
+			'ip_address'       => $this->get_consent_log_ip_address( $ip ),
 			'url'              => $request->get_param( 'url' ),
 			'consent_types'    => $consent_json,
+			'policy_version'   => $log_versions['policy_version'],
+			'banner_version'   => $log_versions['banner_version'],
 			'date_created'     => $current_time_local,
 			'date_created_gmt' => $current_time_gmt,
 		);
@@ -639,7 +651,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			self::get_table_name(),
 			$data,
-			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
+			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		if ( false === $result ) {
@@ -651,6 +663,107 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( array( 'consent_id' => $consent_id ) );
+	}
+
+	/**
+	 * Get the IP address value to persist for the consent log.
+	 *
+	 * @param string|null $ip_address Resolved client IP address.
+	 * @return string|null
+	 */
+	private function get_consent_log_ip_address( $ip_address = null ) {
+		// Guard against a null IP: format_ip_address_for_log() would otherwise hash the empty
+		// string or hand null to wp_privacy_anonymize_ip() (which returns 0.0.0.0). The 'drop'
+		// mode itself is already handled by that method's default branch.
+		if ( null === $ip_address ) {
+			return null;
+		}
+
+		return $this->format_ip_address_for_log( $ip_address, $this->get_ip_mode() );
+	}
+
+	/**
+	 * Get the configured IP address handling mode.
+	 *
+	 * Prefers the log config injected via init(); falls back to Cookie_Consent's
+	 * global config for controller instances constructed directly (as the unit
+	 * tests do) without going through init().
+	 *
+	 * @return string
+	 */
+	private function get_ip_mode() {
+		$ip_mode = $this->log_config['ip_mode'] ?? Cookie_Consent::get_config()['log']['ip_mode'];
+		$ip_mode = sanitize_key( $ip_mode );
+
+		if ( ! in_array( $ip_mode, Config_Schema::ip_modes(), true ) ) {
+			return Config_Schema::default_ip_mode();
+		}
+
+		return $ip_mode;
+	}
+
+	/**
+	 * Format an IP address for the configured log storage mode.
+	 *
+	 * @param string $ip_address Valid IP address.
+	 * @param string $ip_mode    IP address handling mode.
+	 * @return string|null
+	 */
+	private function format_ip_address_for_log( $ip_address, $ip_mode ) {
+		switch ( $ip_mode ) {
+			case 'raw':
+				return $ip_address;
+
+			case 'hash':
+				// 64-char hex digest; the ip_address column must stay at least varchar(64) to hold it.
+				return hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ) );
+
+			case 'truncate':
+				return $this->truncate_ip_address( $ip_address );
+
+			case 'drop':
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Truncate an IP address so the full address is not persisted.
+	 *
+	 * @param string $ip_address Valid IP address.
+	 * @return string|null
+	 */
+	private function truncate_ip_address( $ip_address ) {
+		if ( function_exists( 'wp_privacy_anonymize_ip' ) ) {
+			return wp_privacy_anonymize_ip( $ip_address );
+		}
+
+		if ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			$octets    = explode( '.', $ip_address );
+			$octets[3] = '0';
+			return implode( '.', $octets );
+		}
+
+		if ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$packed = inet_pton( $ip_address );
+			if ( false === $packed ) {
+				return null;
+			}
+
+			$bytes = unpack( 'C*', $packed );
+			if ( false === $bytes ) {
+				return null;
+			}
+
+			for ( $i = 9; $i <= 16; $i++ ) {
+				$bytes[ $i ] = 0;
+			}
+
+			$truncated = inet_ntop( pack( 'C*', ...array_values( $bytes ) ) );
+			return false === $truncated ? null : $truncated;
+		}
+
+		return null;
 	}
 
 	/**
@@ -667,9 +780,9 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$where  = array( '1=1' );
 		$values = array();
 
-		if ( $request->get_param( 'customer_id' ) ) {
-			$where[]  = 'customer_id = %d';
-			$values[] = $request->get_param( 'customer_id' );
+		if ( $request->get_param( 'user_id' ) ) {
+			$where[]  = 'user_id = %d';
+			$values[] = $request->get_param( 'user_id' );
 		}
 
 		if ( $request->get_param( 'after' ) ) {
@@ -722,6 +835,38 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private function get_client_ip() {
 		$ip = IP_Utils::get_ip();
 		return is_string( $ip ) && '' !== $ip ? $ip : null;
+	}
+
+	/**
+	 * Get configured log versions for proof-of-consent records.
+	 *
+	 * @return array
+	 */
+	private function get_log_versions() {
+		$log_versions = Cookie_Consent::get_log_versions();
+
+		return array(
+			'policy_version' => $this->truncate_log_version( $log_versions['policy_version'] ),
+			'banner_version' => $this->truncate_log_version( $log_versions['banner_version'] ),
+		);
+	}
+
+	/**
+	 * Truncate a normalized log version to the storage column length.
+	 *
+	 * Values arrive already sanitized and non-empty from
+	 * Cookie_Consent::get_log_versions(); this only enforces the varchar(191)
+	 * column limit. Use multibyte-aware truncation when available.
+	 *
+	 * @param string $version Normalized version value.
+	 * @return string
+	 */
+	private function truncate_log_version( $version ) {
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $version, 0, 191 );
+		}
+
+		return substr( $version, 0, 191 );
 	}
 
 	/**
@@ -778,15 +923,15 @@ class Consent_Log_Controller extends WP_REST_Controller {
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
-					'customer_id'      => array(
+					'user_id'          => array(
 						'description' => __( 'The WordPress user ID.', 'jetpack-cookie-consent' ),
 						'type'        => 'integer',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'ip_address'       => array(
-						'description' => __( 'The client IP address.', 'jetpack-cookie-consent' ),
-						'type'        => 'string',
+						'description' => __( 'The stored client IP address value.', 'jetpack-cookie-consent' ),
+						'type'        => array( 'string', 'null' ),
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
@@ -798,6 +943,18 @@ class Consent_Log_Controller extends WP_REST_Controller {
 					),
 					'consent_types'    => array(
 						'description' => __( 'Consent status for different cookie types as JSON string.', 'jetpack-cookie-consent' ),
+						'type'        => 'string',
+						'context'     => array( 'view' ),
+						'readonly'    => true,
+					),
+					'policy_version'   => array(
+						'description' => __( 'Policy version in effect when consent was captured.', 'jetpack-cookie-consent' ),
+						'type'        => 'string',
+						'context'     => array( 'view' ),
+						'readonly'    => true,
+					),
+					'banner_version'   => array(
+						'description' => __( 'Banner version in effect when consent was captured.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
@@ -830,12 +987,20 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public function cleanup_expired_logs() {
 		global $wpdb;
 
+		// The retention period comes from the log config injected via init(). The
+		// dedicated filter stays as a back-compat override point for sites that do
+		// not own that init() call; filter_var + the guard below sanitize whatever
+		// it returns.
+		$retention_days = $this->log_config['retention_days'] ?? self::DEFAULT_RETENTION_DAYS;
+
 		/**
-		 * Filters the retention period for consent logs.
+		 * Filters the consent-log retention period, in days.
 		 *
-		 * @param int $retention_days The retention period in days.
+		 * @since $$next-version$$
+		 *
+		 * @param int $retention_days Retention period in days from the injected log config.
 		 */
-		$retention_days = filter_var( apply_filters( 'jetpack_cookie_consent_log_retention_days', self::DEFAULT_RETENTION_DAYS ), FILTER_VALIDATE_INT );
+		$retention_days = filter_var( apply_filters( 'jetpack_cookie_consent_log_retention_days', $retention_days ), FILTER_VALIDATE_INT );
 
 		if ( false === $retention_days || $retention_days <= 0 ) {
 			$retention_days = self::DEFAULT_RETENTION_DAYS;
