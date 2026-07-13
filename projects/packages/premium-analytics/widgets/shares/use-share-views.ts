@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
@@ -52,8 +56,26 @@ const SERVICE_LABELS: Record< string, string > = {
 	print: 'Print',
 	email: 'Email',
 	press_this: 'Press This',
-	jetpack_whatsapp: 'WhatsApp',
+	custom: __( 'Custom share buttons', 'jetpack-premium-analytics' ),
 };
+
+function canonicalService( service: string ): string {
+	const normalized = service.replace( /-/g, '_' );
+
+	if ( normalized.startsWith( 'custom_' ) ) {
+		return 'custom';
+	}
+
+	if ( normalized.startsWith( 'google_plus' ) ) {
+		return 'google_plus';
+	}
+
+	if ( normalized === 'jetpack_whatsapp' ) {
+		return 'whatsapp';
+	}
+
+	return normalized;
+}
 
 function serviceLabel( service: string ): string {
 	return (
@@ -64,6 +86,34 @@ function serviceLabel( service: string ): string {
 			.map( part => part.charAt( 0 ).toUpperCase() + part.slice( 1 ) )
 			.join( ' ' )
 	);
+}
+
+export function buildShareViews( summary: Record< string, unknown >, max: number ): ShareView[] {
+	const byService = new Map< string, ShareView >();
+
+	Object.entries( summary ).forEach( ( [ key, value ] ) => {
+		if ( ! key.startsWith( SHARES_PREFIX ) ) {
+			return;
+		}
+
+		const count = Number( value ) || 0;
+		if ( count <= 0 ) {
+			return;
+		}
+
+		const service = canonicalService( key.slice( SHARES_PREFIX.length ) );
+		const previous = byService.get( service );
+
+		byService.set( service, {
+			service,
+			label: serviceLabel( service ),
+			value: ( previous?.value ?? 0 ) + count,
+		} );
+	} );
+
+	return [ ...byService.values() ]
+		.sort( ( a, b ) => b.value - a.value )
+		.slice( 0, max > 0 ? max : undefined );
 }
 
 /**
@@ -81,15 +131,7 @@ export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsS
 
 	const summary = ( data as { stats?: Record< string, unknown > } | undefined )?.stats ?? {};
 
-	const items = Object.entries( summary )
-		.filter( ( [ key ] ) => key.startsWith( SHARES_PREFIX ) )
-		.map( ( [ key, value ] ) => {
-			const service = key.slice( SHARES_PREFIX.length );
-			return { service, label: serviceLabel( service ), value: Number( value ) || 0 };
-		} )
-		.filter( item => item.value > 0 )
-		.sort( ( a, b ) => b.value - a.value )
-		.slice( 0, max > 0 ? max : undefined );
+	const items = buildShareViews( summary, max );
 
 	return {
 		data: items,
