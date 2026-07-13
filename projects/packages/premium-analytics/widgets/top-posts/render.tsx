@@ -8,12 +8,14 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
+import { Icon, external } from '@wordpress/icons';
 import {
 	LeaderboardChart,
 	WidgetBackLink,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -49,10 +51,15 @@ export type TopPostRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * URL of the published post/page. Rows without one (the Archives view's
-	 * aggregate rows) render a plain label instead of a link.
+	 * Public URL of the content (post, page, or archive page). Rows with one
+	 * get a trailing external-link icon that opens it in a new tab.
 	 */
 	href?: string;
+	/**
+	 * Internal analytics post-detail href. Only post/page rows with a real
+	 * post ID get one; their title links here (same tab).
+	 */
+	detailHref?: string;
 	/**
 	 * Post type, e.g. `post` or `page`.
 	 */
@@ -79,11 +86,12 @@ const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, 
  * and per-row deltas are derived from each row's `previousValue`; otherwise
  * the comparison fields are zeroed.
  *
- * Each row's label is a link that opens the published post/page in a new tab
- * — unless the row has children, in which case it becomes a drill-down row
- * (per the widget drill-down convention: rows with children must not render
- * as external links). The label fills its row so the leaderboard overlay bar
- * gets its height from it.
+ * Post/page titles link to the internal analytics post-detail page (same
+ * tab); rows with a public URL also get a trailing external-link icon that
+ * opens the site in a new tab. Rows with children instead become drill-down
+ * rows (per the widget drill-down convention they carry no anchors), and
+ * rows with neither (e.g. the homepage entry) render plain text. The label
+ * fills its row so the leaderboard overlay bar gets its height from it.
  *
  * @param rows           - The normalized top-posts rows.
  * @param withComparison - Whether to derive previous-period shares and deltas.
@@ -102,24 +110,45 @@ function buildLeaderboardData(
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! hasChildren;
+		// Rows inside a drill-down button cannot carry anchors, and only rows
+		// with a real post ID have an internal detail page to link to.
+		const titleLink = ! hasChildren && row.detailHref;
+		const externalLink = ! hasChildren && row.href;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: shouldRenderLink ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<Text className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</Text>
+			label: (
+				<span className={ styles.labelRow }>
+					{ titleLink ? (
+						<Link
+							className={ styles.labelTitleLink }
+							href={ row.detailHref }
+							variant="unstyled"
+							title={ row.label }
+						>
+							{ row.label }
+						</Link>
+					) : (
+						<Text className={ styles.labelTitle } title={ row.label }>
+							{ row.label }
+						</Text>
+					) }
+					{ externalLink && (
+						<Link
+							className={ styles.externalLink }
+							href={ row.href }
+							variant="unstyled"
+							openInNewTab
+							aria-label={ sprintf(
+								/* translators: %s is a post, page, or archive page title. */
+								__( 'Open %s in a new tab', 'jetpack-premium-analytics' ),
+								row.label
+							) }
+						>
+							<Icon icon={ external } size={ 16 } />
+						</Link>
+					) }
+				</span>
 			),
 			currentValue: row.value,
 			currentShare: ( row.value / maxCurrentViews ) * 100,
@@ -193,20 +222,33 @@ export const TopPostsLeaderboard = ( {
  * Map the data layer's merged top-posts rows onto the shape the leaderboard
  * renders. Rows without a link are kept but render unlinked — with
  * `skip_archives=1` the API still returns the "Homepage (Latest posts)"
- * entry, which has no URL. Missing comparison matches stay `undefined`.
+ * entry, which has no URL or post ID. Missing comparison matches stay
+ * `undefined`.
  *
- * @param items - The merged comparison rows from `useStatsTopPosts`.
+ * @param items           - The merged comparison rows from `useStatsTopPosts`.
+ * @param buildDetailHref - Maps a post ID to the internal post-detail href.
  * @return The normalized top-posts rows.
  */
-function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
-	return items.map( item => ( {
-		// A row without a title still needs a visible, clickable label.
-		label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
-		value: item.views,
-		...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
-		...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
-		type: String( item.type ?? '' ),
-	} ) );
+function toTopPostRows(
+	items: StatsTopPostsComparisonItem[],
+	buildDetailHref: ( postId: number | string ) => string
+): TopPostRow[] {
+	return items.map( item => {
+		const postId = Number( item.id );
+
+		return {
+			// A row without a title still needs a visible, clickable label.
+			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
+			value: item.views,
+			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
+			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			// The homepage entry (id 0) has no post-detail page.
+			...( Number.isFinite( postId ) && postId > 0
+				? { detailHref: buildDetailHref( postId ) }
+				: {} ),
+			type: String( item.type ?? '' ),
+		};
+	} );
 }
 
 /**
@@ -236,7 +278,11 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams, { maxRows: num } );
 
-	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const buildDetailHref = usePostDetailHrefBuilder();
+	const rows = useMemo(
+		() => toTopPostRows( comparisonRows?.rows ?? [], buildDetailHref ),
+		[ comparisonRows, buildDetailHref ]
+	);
 	const withComparison = hasComparison;
 
 	return (

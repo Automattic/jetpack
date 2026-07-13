@@ -106,6 +106,7 @@ export {
 	useSeriesStyles,
 	useWidgetError,
 	useWidgetDrillDown,
+	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**

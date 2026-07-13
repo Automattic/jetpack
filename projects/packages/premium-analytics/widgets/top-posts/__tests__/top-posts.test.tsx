@@ -57,13 +57,20 @@ describe( 'TopPostsWidget', () => {
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
 
-	it( 'renders the fetched top posts as links', async () => {
+	it( 'links titles to the post-detail page and appends an external link icon', async () => {
 		render( <TopPostsWidget attributes={ { num: 10 } } /> );
 
-		// The `@wordpress/ui` `Link` appends an "(opens in a new tab)" indicator
-		// to the accessible name, so match the title as a substring.
-		const link = await screen.findByRole( 'link', { name: /Hello World Post/ } );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
+		// The title links to the internal analytics post-detail route (the SPA
+		// path rides in the `p` query param), in the same tab.
+		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
+		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( 'p=%2Fpost%2F1' ) );
+
+		// The trailing icon opens the public page in a new tab.
+		const externalLink = screen.getByRole( 'link', {
+			name: /open hello world post in a new tab/i,
+		} );
+		expect( externalLink ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
+
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );
 
@@ -75,7 +82,7 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		await expect(
-			screen.findByRole( 'link', { name: /Hello World Post/ } )
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
 
 		const topPostsPath = mockApiFetch.mock.calls
@@ -131,7 +138,7 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		await expect(
-			screen.findByRole( 'link', { name: /Hello World Post/ } )
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
 
 		const requestedPaths = mockApiFetch.mock.calls.map(
@@ -191,7 +198,7 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		await expect(
-			screen.findByRole( 'link', { name: /Hello World Post/ } )
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
 		// No fabricated per-row delta from placeholder zeros.
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
@@ -237,7 +244,7 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		await expect(
-			screen.findByRole( 'link', { name: /Hello World Post/ } )
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
 	} );
@@ -282,7 +289,7 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		await expect(
-			screen.findByRole( 'link', { name: /Hello World Post/ } )
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
 		// Matched row: real delta (42 vs 21 → +100%). Unmatched row: placeholder.
 		expect( screen.getByText( /100%/ ) ).toBeInTheDocument();
@@ -510,8 +517,11 @@ describe( 'TopPostsWidget', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		fireEvent.click( drillDownButton );
 
-		// Child rows are individual archive pages linking to their URL.
-		const termLink = await screen.findByRole( 'link', { name: /pricing/ } );
+		// Child rows are individual archive pages: titles are not clickable, and
+		// the trailing icon links out to the archive page.
+		await expect( screen.findByText( 'pricing' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^pricing$/ } ) ).not.toBeInTheDocument();
+		const termLink = screen.getByRole( 'link', { name: /open pricing in a new tab/i } );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
 
 		const backLink = screen.getByRole( 'button', { name: /back to the previous archive list/i } );
@@ -546,7 +556,9 @@ describe( 'TopPostsWidget', () => {
 			await screen.findByRole( 'button', { name: /view category archive pages/i } )
 		);
 
-		const termLink = await screen.findByRole( 'link', { name: /News/ } );
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^News$/ } ) ).not.toBeInTheDocument();
+		const termLink = screen.getByRole( 'link', { name: /open news in a new tab/i } );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/category/news/' );
 	} );
 } );
