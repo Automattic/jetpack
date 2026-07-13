@@ -13,6 +13,11 @@ require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
 /**
+ * Filter through which WooCommerce section availability is resolved.
+ */
+const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
+
+/**
  * Registers a dashboard section.
  *
  * @param string $dashboard_name Dashboard identifier.
@@ -46,6 +51,31 @@ function get_available_dashboard_sections( $dashboard_name ) {
 }
 
 /**
+ * Whether the WooCommerce dashboard section should be exposed.
+ *
+ * @return bool True when WooCommerce is active.
+ */
+function is_woocommerce_dashboard_section_available() {
+	$is_available = class_exists( 'WooCommerce' ) || function_exists( 'WC' );
+
+	/**
+	 * Filters whether the WooCommerce dashboard section is available.
+	 *
+	 * @param bool $is_available Whether WooCommerce was detected in the current request.
+	 */
+	return (bool) apply_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
+}
+
+/**
+ * Returns the default widget layout for the WooCommerce dashboard section.
+ *
+ * @return array Array of widget instances.
+ */
+function get_woocommerce_dashboard_section_default_layout() {
+	return get_dashboard_default_layout_for( 'woocommerce/store' );
+}
+
+/**
  * Registers the default Premium Analytics dashboard sections.
  *
  * @return void
@@ -58,16 +88,28 @@ function register_default_dashboard_sections() {
 			'label'          => __( 'Traffic', 'jetpack-premium-analytics' ),
 			'order'          => 10,
 			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( DASHBOARD_NAME );
+				return get_dashboard_default_layout_for( 'analytics/traffic' );
 			},
 		),
 		'analytics/insights'    => array(
-			'label' => __( 'Insights', 'jetpack-premium-analytics' ),
-			'order' => 20,
+			'label'          => __( 'Insights', 'jetpack-premium-analytics' ),
+			'order'          => 20,
+			'default_layout' => static function () {
+				return get_dashboard_default_layout_for( 'analytics/insights' );
+			},
 		),
 		'analytics/subscribers' => array(
-			'label' => __( 'Subscribers', 'jetpack-premium-analytics' ),
-			'order' => 30,
+			'label'          => __( 'Subscribers', 'jetpack-premium-analytics' ),
+			'order'          => 30,
+			'default_layout' => static function () {
+				return get_dashboard_default_layout_for( 'analytics/subscribers' );
+			},
+		),
+		'woocommerce/store'     => array(
+			'label'          => __( 'WooCommerce', 'jetpack-premium-analytics' ),
+			'order'          => 40,
+			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available',
+			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 	);
 

@@ -73,7 +73,19 @@
 }
 
 .valueContainer {
+	align-items: center;
 	justify-content: flex-end;
+}
+
+.deltaValue {
+	display: inline-block;
+	font-variant-numeric: tabular-nums;
+	min-width: 3ch;
+	text-align: end;
+}
+
+.deltaPlaceholder {
+	text-align: center;
 }
 
 .overlayLabel {

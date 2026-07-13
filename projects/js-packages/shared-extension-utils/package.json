@@ -16,7 +16,7 @@
 		".": "./index.js",
 		"./components": "./src/components/index.js",
 		"./components/wpcom-support-link": "./src/components/wpcom-support-link.jsx",
-		"./icons": "./src/icons.js",
+		"./icons": "./src/icons.jsx",
 		"./site-type-utils": "./src/site-type-utils.js",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
 		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
@@ -49,7 +49,8 @@
 		"@wordpress/ui": "0.17.0",
 		"@wordpress/url": "4.50.0",
 		"clsx": "2.1.1",
-		"debug": "4.4.3"
+		"debug": "4.4.3",
+		"social-logos": "workspace:*"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

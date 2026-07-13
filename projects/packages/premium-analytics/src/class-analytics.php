@@ -127,9 +127,6 @@ class Analytics {
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
-		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
-		// place. Runs after Stats registers itself (admin_menu priority 999).
-		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
@@ -187,20 +184,6 @@ class Analytics {
 			'dashicons-chart-bar',
 			2
 		);
-	}
-
-	/**
-	 * Remove the standalone Jetpack "Stats" top-level menu so Premium Analytics
-	 * replaces it, but only when Stats actually registered its menu.
-	 *
-	 * @return void
-	 */
-	public static function remove_stats_menu() {
-		if ( ! isset( $GLOBALS['admin_page_hooks']['stats'] ) ) {
-			return;
-		}
-
-		remove_menu_page( 'stats' );
 	}
 
 	/**

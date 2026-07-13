@@ -51,6 +51,10 @@ const FORMS_LCP_KEY = 'forms-responses-connection-sim-largestContentfulPaint';
 const FORMS_TTFB_KEY = 'forms-responses-connection-sim-timeToFirstByte';
 const FORMS_FCP_KEY = 'forms-responses-connection-sim-firstContentfulPaint';
 const FORMS_DECODED_KEY = 'forms-responses-connection-sim-decodedBytesKB';
+const MJ_LCP_KEY = 'my-jetpack-connection-sim-largestContentfulPaint';
+const MJ_TTFB_KEY = 'my-jetpack-connection-sim-timeToFirstByte';
+const MJ_FCP_KEY = 'my-jetpack-connection-sim-firstContentfulPaint';
+const MJ_DECODED_KEY = 'my-jetpack-connection-sim-decodedBytesKB';
 
 /**
  * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
@@ -82,15 +86,38 @@ function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229
 }
 
 /**
+ * Build the nested per-field summary the myJetpack scenario reads: the same shape as
+ * formsSummary (three timing fields + the bundle-size field). LCP (~640) and decodedBytesKB
+ * (~5860) track the observed local medians; ttfb/fcp are plausible in-range fillers. All four
+ * sit inside SANITY_RANGES so they post cleanly unless a test overrides one.
+ */
+function myJetpackSummary( { lcp = 640, ttfb = 220, fcp = 560, decodedBytesKB = 5860 } = {} ) {
+	return {
+		median: lcp,
+		lcp: { median: lcp },
+		ttfb: { median: ttfb },
+		fcp: { median: fcp },
+		decodedBytesKB: { median: decodedBytesKB },
+	};
+}
+
+/**
  * Write a results fixture and return its path. `median` is the LCP median (kept as the
  * first positional arg so existing single-arg call sites read the same); TTFB and FCP
  * default to in-range values so the two new metrics post cleanly unless overridden. Pass
- * `forms` (an object of field overrides) to also include a `formsResponses` measurement; omit
- * it and only `jetpackConnected` is written, exactly as before.
+ * `forms` and/or `myJetpack` (objects of field overrides) to also include those measurements;
+ * omit both and only `jetpackConnected` is written, exactly as before.
  */
 function writeResults(
 	median,
-	{ ttfb = 150, fcp = 400, hash = 'testhash', branch = 'trunk', forms = null } = {}
+	{
+		ttfb = 150,
+		fcp = 400,
+		hash = 'testhash',
+		branch = 'trunk',
+		forms = null,
+		myJetpack = null,
+	} = {}
 ) {
 	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-results-' ) );
 	const file = path.join( dir, 'results.json' );
@@ -99,6 +126,9 @@ function writeResults(
 	};
 	if ( forms ) {
 		measurements.formsResponses = { summary: formsSummary( forms ) };
+	}
+	if ( myJetpack ) {
+		measurements.myJetpack = { summary: myJetpackSummary( myJetpack ) };
 	}
 	fs.writeFileSync( file, JSON.stringify( { git: { hash, branch }, measurements } ) );
 	return file;
@@ -486,6 +516,50 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	);
 } );
 
+test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
+	// Pins the FORMS-717 config: the My Jetpack admin page (the heaviest Jetpack admin bundle)
+	// carries the bundle-size metric (summary.decodedBytesKB.median) alongside the timing metrics,
+	// each on its own production key. A dropped/renamed key, or a decoded metric with no type
+	// (which would post unchecked), fails here rather than silently in the append-only store.
+	const scenario = SCENARIOS.find( s => s.key === 'myJetpack' );
+	assert.ok( scenario, 'myJetpack scenario must exist' );
+	assert.ok( Array.isArray( scenario.metrics ), 'myJetpack must use the metrics array' );
+	assert.deepEqual(
+		scenario.metrics.map( m => ( {
+			field: m.field,
+			codevitalsKey: m.codevitalsKey,
+			type: m.type,
+		} ) ),
+		[
+			{ field: 'lcp', codevitalsKey: MJ_LCP_KEY, type: 'lcp' },
+			{ field: 'ttfb', codevitalsKey: MJ_TTFB_KEY, type: 'ttfb' },
+			{ field: 'fcp', codevitalsKey: MJ_FCP_KEY, type: 'fcp' },
+			{ field: 'decodedBytesKB', codevitalsKey: MJ_DECODED_KEY, type: 'decodedBytesKB' },
+		]
+	);
+	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
+	// The selector is the AdminPage frame that appears only after React renders MyJetpackScreen
+	// into the (initially empty) container, so a run measures the rendered app, not the shell.
+	assert.equal( scenario.path, '/wp-admin/admin.php?page=my-jetpack' );
+	assert.equal( scenario.waitForSelector, '#my-jetpack-container .jp-admin-page' );
+	// A weak guard on its own: My Jetpack is a single-slug SPA, so every view keeps
+	// `page=my-jetpack` — even the not-connected redirect to `&step=onboarding`. What actually
+	// stops a wrong-view post is the `.jp-admin-page` selector above (OnboardingScreen renders
+	// without AdminPage, so it never matches). expectUrlIncludes only catches a redirect that
+	// leaves My Jetpack entirely.
+	assert.equal( scenario.expectUrlIncludes, 'page=my-jetpack' );
+	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
+	// Pin the exact value (siblings pin every field by equality) so a later edit toward the
+	// ~90-resource load can't erode the margin silently, and exercise the real guard at the
+	// boundary: one below the floor must throw, the floor itself must not.
+	assert.equal( scenario.minResourceCount, 64 );
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 63 }, scenario ),
+		/Incomplete capture: 63 resources < expected minimum 64/
+	);
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
+} );
+
 // --- redactToken (keeps the token out of logs and errors) ---
 
 test( 'redactToken strips the exact token and any token query param', () => {
@@ -527,6 +601,25 @@ test( 'dry-run with both scenarios present posts all 7 keys, including the Forms
 	assert.equal( result.payload.metrics[ FORMS_FCP_KEY ], 500 );
 	assert.equal( result.payload.metrics[ FORMS_DECODED_KEY ], 8229 );
 	assert.equal( Object.keys( result.payload.metrics ).length, 7 );
+} );
+
+test( 'dry-run with all three scenarios present posts all 11 keys, including the My Jetpack decoded-bytes key', async () => {
+	// The full automated run measures all three scenarios, so the payload carries jetpackConnected's
+	// 3 timing keys, formsResponses' 4, AND myJetpack's 4 (timing + decodedBytesKB). The config test
+	// pins the myJetpack keys statically; this proves they reach the payload with the right values
+	// under the exact production key names, so a wiring regression in the scenario-agnostic loop
+	// (a dropped/renamed myJetpack metric) fails here rather than silently in the append-only store.
+	const file = writeResults( 120, {
+		forms: { decodedBytesKB: 8229 },
+		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860 },
+	} );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ MJ_LCP_KEY ], 640 );
+	assert.equal( result.payload.metrics[ MJ_TTFB_KEY ], 220 );
+	assert.equal( result.payload.metrics[ MJ_FCP_KEY ], 560 );
+	assert.equal( result.payload.metrics[ MJ_DECODED_KEY ], 5860 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 11 );
 } );
 
 test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {

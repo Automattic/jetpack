@@ -1,5 +1,20 @@
-import { sanitizeStatsTopPostsResponse } from '..';
+import { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from '..';
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
+import type { StatsNormalizedReport, StatsTopPostsItem } from '..';
+
+function makeReport( items: StatsTopPostsItem[] ): StatsNormalizedReport< StatsTopPostsItem > {
+	return {
+		summary: {},
+		data: [
+			{
+				time_interval: '2026-06-25',
+				date_start: '2026-06-25T00:00:00+00:00',
+				date_end: '2026-06-25T23:59:59+00:00',
+				items,
+			},
+		],
+	};
+}
 
 describe( 'Stats top posts normalizer', () => {
 	it( 'normalizes summarized top posts into range data', () => {
@@ -110,5 +125,55 @@ describe( 'Stats top posts normalizer', () => {
 			'2026-06-15',
 			'2026-06-16',
 		] );
+	} );
+
+	it( 'detects comparison overlap after applying visible max and post type filters', () => {
+		const primary = makeReport( [
+			{
+				label: 'Homepage',
+				views: 10,
+				link: 'https://example.com/home/',
+				type: 'page',
+				children: null,
+			},
+			{
+				label: 'Post',
+				views: 8,
+				link: 'https://example.com/post/',
+				type: 'post',
+				children: null,
+			},
+		] );
+		const comparison = makeReport( [
+			{
+				label: 'Post',
+				views: 0,
+				link: 'https://example.com/post/',
+				type: 'post',
+				children: null,
+			},
+		] );
+
+		expect( mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows: 1 } ) ).toEqual( {
+			hasComparison: false,
+			rows: [
+				expect.objectContaining( {
+					label: 'Homepage',
+					previousViews: undefined,
+				} ),
+			],
+		} );
+
+		expect(
+			mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows: 1, postTypes: [ 'post' ] } )
+		).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( {
+					label: 'Post',
+					previousViews: 0,
+				} ),
+			],
+		} );
 	} );
 } );

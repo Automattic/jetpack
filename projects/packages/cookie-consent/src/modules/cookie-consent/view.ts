@@ -6,6 +6,7 @@
  */
 
 import { store, getContext, getConfig, withSyncEvent } from '@wordpress/interactivity';
+import { isFeatureEnabled } from './features';
 import {
 	trackPrivacyBannerAccept,
 	trackPrivacyBannerCustomize,
@@ -543,13 +544,18 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return;
 			}
 
-			// Update cookie banner context if present
+			// Always resolve region-driven consent (CCPA auto-grant, non-regulated implied
+			// consent, GDPR+GPC opt-out) — that's independent of the banner. The banner
+			// feature only controls whether the banner itself is surfaced; its markup may
+			// still render on a banner-disabled site to back the footer modal, so we pass
+			// the flag down rather than skipping the whole call.
 			if ( 'showBanner' in context ) {
 				handleConsentByRegion(
 					geoData.countryCode || UNKNOWN_COUNTRY_CODE,
 					geoData.region || '',
 					config,
-					context as CookieBannerContext
+					context as CookieBannerContext,
+					isFeatureEnabled( 'banner' )
 				);
 			}
 
@@ -619,8 +625,9 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				// getConfig() is not typed, so we need to assert the type.
 				const config = getConfig() as unknown as StoreConfig;
 
-				// Check for force preview mode
-				if ( config.forcePreview ) {
+				// Force-preview, like the auto-show above, only applies when the banner
+				// feature is on (the markup may exist only to back the footer modal).
+				if ( config.forcePreview && isFeatureEnabled( 'banner' ) ) {
 					context.showBanner = true;
 					trackPrivacyBannerView();
 					return;

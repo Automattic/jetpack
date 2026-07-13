@@ -43,7 +43,7 @@
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "14.0.0",
 		"email-validator": "2.0.4",
-		"gridicons": "3.4.2",
+		"gridicons": "3.4.3",
 		"lodash": "4.18.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add optional per-tile comparison, note, and value-title support to the shared MetricTileGrid, and render the Site overview widget through it.

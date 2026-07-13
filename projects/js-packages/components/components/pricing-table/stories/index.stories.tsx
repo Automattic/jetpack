@@ -5,7 +5,7 @@ import PricingTable, {
 	PricingTableHeader,
 	PricingTableItem,
 } from '../index.tsx';
-import Logo from './logo.js';
+import Logo from './logo.jsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 /**

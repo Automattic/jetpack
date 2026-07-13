@@ -1,7 +1,10 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
+import { flattenVideoTracks } from '../../client/lib/video-tracks';
 import { buildShortcode } from '../utils/format';
+import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
 import type { View } from '@wordpress/dataviews';
 
@@ -30,6 +33,7 @@ type ApiMediaItem = {
 		is_private?: boolean;
 		description?: string;
 		caption?: string;
+		tracks?: VideoTracksResponseBodyProps;
 	};
 };
 
@@ -172,7 +176,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
 		type: isVideoPress ? 'videopress' : 'local',
-		title: raw.title?.rendered ?? raw.slug ?? '',
+		title: decodeEntities( raw.title?.rendered ?? raw.slug ?? '' ),
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
 		thumbnailUrl: poster ?? null,
 		durationSeconds,
@@ -188,6 +192,9 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
+		// The media REST field omits `tracks` today, so this is seed-only:
+		// the caption manager modal fetches the authoritative list itself.
+		tracks: flattenVideoTracks( vp?.tracks ),
 	};
 }
 
