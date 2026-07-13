@@ -20,7 +20,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { link } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -371,7 +371,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: chartBar,
+					icon: link,
 					description: __( 'No clicks in this period.', 'jetpack-premium-analytics' ),
 				} }
 			>

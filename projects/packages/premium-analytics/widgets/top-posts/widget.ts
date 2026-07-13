@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { postList } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -31,7 +31,7 @@ export type TopPostsAttributes = {
 export default {
 	name: 'jpa/stats-top-posts',
 	title: __( 'Top pages by views', 'jetpack-premium-analytics' ),
-	icon: chartBar,
+	icon: postList,
 	attributes: [
 		{
 			id: 'num',

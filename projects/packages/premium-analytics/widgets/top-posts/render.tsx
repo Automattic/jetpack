@@ -18,7 +18,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { postList } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
@@ -274,7 +274,7 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 			} }
 			empty={ {
-				icon: chartBar,
+				icon: postList,
 				description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
 			} }
 		>

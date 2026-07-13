@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Widgets: align the generic empty-state fallback copy with the "No X in this period." house style so over-time metric widgets no longer read "No data found for this date range."

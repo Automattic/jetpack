@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { link } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -24,7 +24,7 @@ export type ClicksAttributes = {
 export default {
 	name: 'jpa/clicks',
 	title: __( 'Clicks', 'jetpack-premium-analytics' ),
-	icon: chartBar,
+	icon: link,
 	attributes: [
 		{
 			id: 'max',
