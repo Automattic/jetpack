@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Store performance: Define the visible metrics as a metrics array attribute with an inline header control.

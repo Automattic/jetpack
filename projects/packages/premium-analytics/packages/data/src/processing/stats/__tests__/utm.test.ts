@@ -1,5 +1,20 @@
-import { sanitizeStatsUtmResponse } from '..';
+import { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from '..';
 import { utmFixture, utmWithTopPostsFixture } from '../__fixtures__/utm';
+import type { StatsNormalizedReport, StatsUtmItem } from '..';
+
+function makeReport( items: StatsUtmItem[] ): StatsNormalizedReport< StatsUtmItem > {
+	return {
+		summary: {},
+		data: [
+			{
+				time_interval: '2026-06-16',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-16T23:59:59+00:00',
+				items,
+			},
+		],
+	};
+}
 
 describe( 'Stats UTM normalizer', () => {
 	it( 'normalizes raw UTM top values into sorted report items', () => {
@@ -143,5 +158,72 @@ describe( 'Stats UTM normalizer', () => {
 				children: null,
 			},
 		] );
+	} );
+
+	it( 'merges parent and child comparison rows without fabricating missing children', () => {
+		const primary = makeReport( [
+			{
+				label: 'spring-sale / google / organic',
+				value: 100,
+				children: [
+					{
+						id: 1,
+						label: 'Landing page',
+						value: 60,
+						href: 'https://example.com/landing/',
+						page: '/stats/post/1',
+						actions: [],
+						children: null,
+					},
+					{
+						id: 2,
+						label: 'Signup page',
+						value: 40,
+						href: 'https://example.com/signup/',
+						page: '/stats/post/2',
+						actions: [],
+						children: null,
+					},
+				],
+			},
+		] );
+		const comparison = makeReport( [
+			{
+				label: 'spring-sale / google / organic',
+				value: 50,
+				children: [
+					{
+						id: 1,
+						label: 'Landing page',
+						value: 0,
+						href: 'https://example.com/landing/',
+						page: '/stats/post/1',
+						actions: [],
+						children: null,
+					},
+				],
+			},
+		] );
+
+		expect( mergeStatsUtmComparisonRows( primary, comparison ) ).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( {
+					label: 'spring-sale / google / organic',
+					previousValue: 50,
+					childrenHaveComparison: true,
+					children: [
+						expect.objectContaining( {
+							label: 'Landing page',
+							previousValue: 0,
+						} ),
+						expect.objectContaining( {
+							label: 'Signup page',
+							previousValue: undefined,
+						} ),
+					],
+				} ),
+			],
+		} );
 	} );
 } );

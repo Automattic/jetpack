@@ -8,6 +8,7 @@ module.exports = ( api, opts = {} ) => {
 		sourceType: opts.sourceType || 'unambiguous',
 		presets: [],
 		plugins: [],
+		overrides: [],
 	};
 
 	if ( opts.autoWpPolyfill !== false ) {
@@ -60,10 +61,12 @@ module.exports = ( api, opts = {} ) => {
 		] );
 	}
 	if ( opts.presetReact !== false ) {
-		ret.presets.push( [
-			require.resolve( '@babel/preset-react' ),
-			opts.presetReact ?? { runtime: 'automatic' },
-		] );
+		ret.overrides.push( {
+			test: /\.[jt]sx$/,
+			presets: [
+				[ require.resolve( '@babel/preset-react' ), opts.presetReact ?? { runtime: 'automatic' } ],
+			],
+		} );
 	}
 	if ( opts.presetTypescript !== false ) {
 		ret.presets.push( [

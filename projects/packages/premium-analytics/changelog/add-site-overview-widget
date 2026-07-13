@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a Site overview widget to the Analytics dashboard, showing the selected period's views, visitors, likes, and comments with period-over-period change.

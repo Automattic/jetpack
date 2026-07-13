@@ -16,17 +16,16 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
-			"types": "./dist/types/index.d.ts",
-			"import": "./dist/esm/index.js",
-			"require": "./dist/cjs/index.cjs"
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
 		}
 	},
-	"main": "./dist/cjs/index.cjs",
-	"module": "./dist/esm/index.js",
-	"types": "./dist/types/index.d.ts",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:ts",
-		"build:ts": "duel --dirs",
+		"build:ts": "tsdown",
 		"clean": "rm -rf dist",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
@@ -34,17 +33,16 @@
 	},
 	"dependencies": {
 		"@wordpress/date": "^5.19.0",
-		"debug": "^4.4.0",
-		"tslib": "^2.5.0"
+		"debug": "^4.4.0"
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.7",
 		"@jest/globals": "30.4.1",
-		"@knighted/duel": "4.0.2",
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jest": "30.4.2",
 		"jetpack-js-tools": "workspace:*",
+		"tsdown": "0.22.2",
 		"typescript": "5.9.3"
 	}
 }

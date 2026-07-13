@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { buildTailorPrompt, TASK_MENU } from './prompts.ts';
+import { buildTailorPrompt, chooseTailoringMenu, TASK_MENU } from './prompts.ts';
 import type { WizardInput } from './types.ts';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
@@ -35,6 +35,41 @@ describe( 'buildTailorPrompt', () => {
 		assert.ok( TASK_MENU.includes( 'site_theme_selected' ) );
 		assert.ok( ! TASK_MENU.includes( 'design_selected' ) );
 		assert.ok( ! TASK_MENU.includes( 'design_completed' ) );
+	} );
+
+	it( 'restricts the offered menu to the available tasks when given', () => {
+		const available = [ 'first_post_published', 'site_theme_selected', 'site_launched' ];
+		const prompt = buildTailorPrompt( fixtures[ 0 ].input, available );
+		// A menu section lists only the available ids...
+		for ( const id of available ) {
+			assert.ok( prompt.includes( '- ' + id ), `available ID "${ id }" missing from menu` );
+		}
+		// ...and a menu-only task that is not available is dropped from the list.
+		const dropped = TASK_MENU.find( id => ! available.includes( id ) ) as string;
+		assert.ok(
+			! prompt.includes( '- ' + dropped ),
+			`unavailable ID "${ dropped }" should be dropped`
+		);
+	} );
+
+	it( 'falls back to the full menu when the available list is empty', () => {
+		const prompt = buildTailorPrompt( fixtures[ 0 ].input, [] );
+		for ( const id of TASK_MENU ) {
+			assert.ok( prompt.includes( '- ' + id ), `menu ID "${ id }" missing from prompt` );
+		}
+	} );
+
+	it( 'offers the actionable ids while enough of them remain on the menu', () => {
+		const actionable = TASK_MENU.slice( 0, 12 );
+		const renderable = [ ...actionable, 'first_post_published_extra' ];
+		assert.equal( chooseTailoringMenu( actionable, renderable ), actionable );
+	} );
+
+	it( 'relaxes to the renderable ids when completion leaves too few actionable menu tasks', () => {
+		// Ids off the menu do not count toward the threshold: the prompt's menu is the intersection.
+		const actionable = [ ...TASK_MENU.slice( 0, 4 ), 'off_menu_task_a', 'off_menu_task_b' ];
+		const renderable = TASK_MENU.slice( 0, 20 );
+		assert.equal( chooseTailoringMenu( actionable, renderable ), renderable );
 	} );
 
 	it( 'instructs the model to return only JSON', () => {

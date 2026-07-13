@@ -1075,3 +1075,18 @@ export const heatmapCalendarSeries: DataPointDate[] = Array.from(
 		value: Math.round( Math.abs( Math.sin( index ) ) * 4 ),
 	} )
 );
+
+/**
+ * Calendar series starting on 2023-06-28 to exercise partial first-month labels.
+ *
+ * - Category: time-series
+ * - Data points: 365
+ * - Suitable for: HeatmapChart (calendar layout)
+ */
+export const heatmapPartialMonthCalendarSeries: DataPointDate[] = Array.from(
+	{ length: 365 },
+	( _, index ) => ( {
+		date: new Date( 2023, 5, 28 + index ),
+		value: Math.round( Math.abs( Math.sin( index ) ) * 4 ),
+	} )
+);

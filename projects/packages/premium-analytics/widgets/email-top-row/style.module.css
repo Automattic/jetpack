@@ -1,0 +1,19 @@
+/* No outer padding: the host frames the widget and owns the padding. */
+.root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+/* Fills the widget body so WidgetState centers its loading/empty/error states
+ * and so MetricTileGrid — a size container that takes no height of its own —
+ * has a definite-height parent to stretch into. */
+.content {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+}

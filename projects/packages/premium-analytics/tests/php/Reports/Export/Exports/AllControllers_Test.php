@@ -25,7 +25,17 @@ class AllControllers_Test extends TestCase {
 	 */
 	public static function controller_provider(): array {
 		$classes = array(
+			Average_Items_Per_Order_Controller::class,
+			Average_Order_Value_Controller::class,
+			Conversion_Rate_Over_Time_Controller::class,
+			Coupon_Use_Over_Time_Controller::class,
+			Gross_Sales_Over_Time_Controller::class,
+			Net_Sales_Over_Time_Controller::class,
+			Orders_Fulfilled_Over_Time_Controller::class,
 			Orders_Over_Time_Controller::class,
+			Refunds_Over_Time_Controller::class,
+			Taxes_Over_Time_Controller::class,
+			Visitors_Over_Time_Controller::class,
 		);
 
 		$cases = array();
@@ -83,6 +93,6 @@ class AllControllers_Test extends TestCase {
 		}
 
 		$this->assertSame( $keys, array_unique( $keys ), 'report keys must be unique across controllers' );
-		$this->assertCount( 1, $keys );
+		$this->assertCount( 11, $keys );
 	}
 }

@@ -122,7 +122,7 @@ export function AuthorsLeaderboard( {
 
 	const chartData: LeaderboardChartData = useMemo( () => {
 		// Drilled-in: show the selected author's posts. Rows are not interactive;
-		// the data builder already aligned current/comparison values, including
+		// the data layer already aligned current/comparison values, including
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => {
@@ -248,7 +248,8 @@ type AuthorsReportProps = {
 
 /**
  * Fetches the top-authors report through the Jetpack Stats hook, builds the
- * leaderboard rows, and hands them to the presentational `AuthorsLeaderboard`.
+ * leaderboard rows from the data layer's merged comparison rows, and hands
+ * them to the presentational `AuthorsLeaderboard`.
  *
  * @param {AuthorsReportProps} props - The component props.
  * @return The widget content.
@@ -259,7 +260,7 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 
 	const {
 		primary,
-		comparison,
+		comparisonRows,
 		hasComparison,
 		isLoading,
 		isFetching,
@@ -267,18 +268,16 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 		isError,
 		error,
 		refetch,
-	} = useStatsTopAuthors( statsParams );
+	} = useStatsTopAuthors( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
 	const isRefetching = isFetching && hasData;
-	const primaryData = primary.data;
-	const comparisonData = comparison.data;
 
 	const rows = useMemo(
-		() => buildTopAuthorsData( primaryData, comparisonData ),
-		[ primaryData, comparisonData ]
+		() => buildTopAuthorsData( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );

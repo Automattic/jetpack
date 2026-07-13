@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Daily Writing Prompt widget: decode HTML entities so quotation marks render correctly instead of showing entity names like &quot;.
