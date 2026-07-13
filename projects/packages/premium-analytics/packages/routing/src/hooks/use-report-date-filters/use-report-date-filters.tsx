@@ -1,35 +1,22 @@
 /**
  * External dependencies
  */
-import {
-	getSiteTimezone,
-	localTZDate,
-	type ReportQueryParams,
-} from '@jetpack-premium-analytics/data';
-import {
-	isSelectablePreset,
-	type ComparisonPresetId,
-	type DateRange,
-	type PrimaryPresetId,
-} from '@jetpack-premium-analytics/datetime';
+import { getSiteTimezone, localTZDate } from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { endOfDay, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../../search/comparison';
 import { encodeDateToSearchParam } from '../../search/date-range';
 import { useStagedSearch } from '../use-staged-search';
-
-type ReportQuerySearchParams = Partial<
-	ReportQueryParams & {
-		preset?: PrimaryPresetId;
-		compare_preset?: ComparisonPresetId;
-		comp?: '1';
-	}
->;
+import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
+import type {
+	ComparisonPresetId,
+	DateRange,
+	PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`, minus the
@@ -110,40 +97,9 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 
 	const onChange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			if ( ! nextRange && ! nextPresetId ) {
-				return;
-			}
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
 
-			const patch: ReportQuerySearchParams = {};
-
-			if ( nextRange?.from && nextRange.to ) {
-				/*
-				 * Preset ranges are authoritative: rolling presets like
-				 * last-24-hours end at the current time. Calendar and manual
-				 * edits stage midnight `to` dates, so only those are adjusted
-				 * to the end of the day.
-				 */
-				const rangeFrom = encodeDateToSearchParam( nextRange.from );
-				const rangeTo = encodeDateToSearchParam(
-					isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
-				);
-				patch.from = rangeFrom;
-				patch.to = rangeTo;
-
-				if ( effective.comp === '1' ) {
-					const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
-					if ( derived ) {
-						patch.compare_from = derived.compare_from;
-						patch.compare_to = derived.compare_to;
-					}
-				}
-			}
-
-			if ( nextPresetId ) {
-				patch.preset = nextPresetId;
-			}
-
-			if ( Object.keys( patch ).length > 0 ) {
+			if ( patch ) {
 				stage( patch );
 			}
 		},
