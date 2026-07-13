@@ -7,7 +7,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { fetchVideoItem } from '../fetch-video-item';
-import getMediaToken from '../get-media-token';
+import getMediaToken, { mintSimpleUploadToken } from '../get-media-token';
 import { DeleteTrackDataProps, UploadTrackDataProps } from './types';
 /**
  * Types
@@ -459,10 +459,9 @@ const shouldUseJetpackVideoFetch = () => window?.videoPressEditorState?.siteType
  * @return {boolean} Whether this is the Simple dashboard.
  */
 const isSimpleDashboard = () =>
-	Boolean(
-		( window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: { siteData?: { isSimple?: boolean } } } )
-			?.JPVIDEOPRESS_INITIAL_STATE?.siteData?.isSimple
-	);
+	typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+		? Boolean( JPVIDEOPRESS_INITIAL_STATE?.siteData?.isSimple )
+		: false;
 
 /**
  * Whether track upload/delete must use the one-time upload token + direct
@@ -482,16 +481,8 @@ const shouldUseUploadTokenFetch = () => shouldUseJetpackVideoFetch() || isSimple
  * @param {string} [filename] - Optional file name to scope the token to.
  * @return {Promise<MediaTokenProps>} The resolved `{ token, blogId }` pair.
  */
-const getUploadTokenData = async ( filename?: string ): Promise< MediaTokenProps > => {
-	if ( isSimpleDashboard() ) {
-		const response = ( await apiFetch( {
-			path: '/rest/v1.1/media/token',
-			method: 'POST',
-		} ) ) as { upload_token: string; upload_blog_id: number };
-		return { token: response.upload_token, blogId: String( response.upload_blog_id ) };
-	}
-	return getMediaToken( 'upload', filename ? { filename } : undefined );
-};
+const getUploadTokenData = ( filename?: string ): Promise< MediaTokenProps > =>
+	isSimpleDashboard() ? mintSimpleUploadToken() : getMediaToken( 'upload', { filename } );
 
 const PUBLIC_TRACKS_API_BASE = 'https://public-api.wordpress.com/rest/v1.1';
 
