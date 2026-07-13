@@ -34,11 +34,20 @@ describe( 'withResponsive', () => {
 			expect( component ).toHaveStyle( { height: '300px' } );
 		} );
 
-		test( 'calculates height from aspectRatio when provided', () => {
+		test( 'derives height from width when the parent is taller than the derived height', () => {
+			// aspectRatio 0.4: derived height = 600 * 0.4 = 240, which fits the 300px
+			// parent, so the chart keeps the full measured width.
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			const component = screen.getByTestId( 'mock-component' );
+			expect( component ).toHaveStyle( { width: '600px', height: '240px' } );
+		} );
+
+		test( 'contains within the parent height when it is shorter than the derived height', () => {
+			// aspectRatio 0.75: derived height = 600 * 0.75 = 450 > 300, so both axes
+			// shrink to fit the 300px parent while preserving the ratio: 300 / 0.75 = 400.
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
 			const component = screen.getByTestId( 'mock-component' );
-			// With aspectRatio, height = width * aspectRatio = 600 * 0.75 = 450
-			expect( component ).toHaveStyle( { height: '450px' } );
+			expect( component ).toHaveStyle( { width: '400px', height: '300px' } );
 		} );
 
 		test( 'respects maxWidth configuration', () => {
@@ -67,24 +76,29 @@ describe( 'withResponsive', () => {
 			expect( wrapper ).toHaveStyle( { width: '200px', height: '200px' } );
 		} );
 
-		test( 'wrapper uses auto height with aspectRatio', () => {
+		test( 'wrapper fills the parent (height 100%) with aspectRatio so it can measure both axes', () => {
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } /> );
 			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { width: '100%', height: 'auto' } );
+			expect( wrapper ).toHaveStyle( { width: '100%', height: '100%' } );
 		} );
 
-		test( 'wrapper expresses aspectRatio in CSS and caps at maxWidth', () => {
-			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } maxWidth={ 800 } /> );
-			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			// CSS aspect-ratio is width/height, so 1 / 0.5 = 2.
-			expect( wrapper ).toHaveStyle( { aspectRatio: '2', maxWidth: '800px' } );
+		test( 'no content box is rendered without an aspectRatio', () => {
+			render( <ResponsiveComponent data={ [] } /> );
+			expect( screen.queryByTestId( 'responsive-content' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'wrapper omits the maxWidth cap when an explicit width is set', () => {
-			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } width={ 300 } /> );
-			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { aspectRatio: '2', width: '300px' } );
-			expect( wrapper ).not.toHaveStyle( { maxWidth: '1200px' } );
+		test( 'renders the contained chart in an inner content box sized to the aspect ratio', () => {
+			// aspectRatio 0.4: 600 * 0.4 = 240 fits the 300px parent.
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			const content = screen.getByTestId( 'responsive-content' );
+			expect( content ).toHaveStyle( { width: '600px', height: '240px' } );
+		} );
+
+		test( 'content box contains to the parent height when it is shorter than the derived height', () => {
+			// aspectRatio 0.75: 600 * 0.75 = 450 > 300, so it shrinks to 400 × 300.
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
+			const content = screen.getByTestId( 'responsive-content' );
+			expect( content ).toHaveStyle( { width: '400px', height: '300px' } );
 		} );
 	} );
 
