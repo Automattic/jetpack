@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: Replace Calypso `--color-*` tokens with WPDS tokens in block editor styles and remove custom upsell nudge Calypso overrides.
