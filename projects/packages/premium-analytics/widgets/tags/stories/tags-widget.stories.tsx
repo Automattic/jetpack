@@ -1,4 +1,4 @@
-import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -38,14 +38,16 @@ function renderTags( { withComparison }: TagsStoryControls ) {
 	);
 }
 
-// Renders the widget on a preset distinct from the other stories. The query key
-// derives from the date range, so a unique preset gives the forced-state stories
-// their own cache entry and they hit the mock fresh instead of reading another
-// story's cached success from the shared query client.
-function renderTagsOnPreset( preset: PresetType ) {
-	return (
-		<TagsRender attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } } />
-	);
+// Renders the widget with a distinct `max` so each forced-state story gets its
+// own cache entry. The `stats/tags` query key collapses the date range to just
+// `{ date, max }` (the range's end date), so every "last N days" preset ending
+// today resolves to the SAME key — a distinct preset would NOT isolate these
+// stories (unlike date-range-keyed widgets). `max` IS in the key, and it doesn't
+// change what a loading/error/empty state renders, so it is the reliable
+// isolator: without it the Loading story's never-resolving query would poison
+// Default (and Empty/Error would leave cached rows) on same-tab story switches.
+function renderTagsWithMax( max: number ) {
+	return <TagsRender attributes={ { max, reportParams: getDefaultQueryParams( false ) } } />;
 }
 
 function TagsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -123,7 +125,7 @@ export const WithComparison: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderTagsOnPreset( 'last-90-days' ),
+	render: () => renderTagsWithMax( 9 ),
 	// Kept off the shared autodocs page: the mock override is keyed by path, so it
 	// would otherwise force the sibling stories on that page into the same state.
 	tags: [ '!autodocs' ],
@@ -139,7 +141,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderTagsOnPreset( 'last-7-days' ),
+	render: () => renderTagsWithMax( 8 ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -153,7 +155,7 @@ export const Error: Story = {
  * and "Learn about your most visited tags & categories to track engaging topics.").
  */
 export const Empty: Story = {
-	render: () => renderTagsOnPreset( 'last-365-days' ),
+	render: () => renderTagsWithMax( 7 ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
