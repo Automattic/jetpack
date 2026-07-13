@@ -423,6 +423,11 @@ class Jetpack_Mu_Wpcom {
 		// Initialize My Jetpack so the dashboard and products page are available
 		// on Simple sites (where the full Jetpack plugin doesn't run).
 		if ( class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ) {
+			// Must come first: it registers the filters that serve My Jetpack's WordPress.com data
+			// locally. Simple sites have no blog token, so the HTTP path those lookups normally take
+			// cannot succeed.
+			require_once __DIR__ . '/features/my-jetpack/my-jetpack.php';
+
 			\Automattic\Jetpack\My_Jetpack\Initializer::init();
 		}
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+My Jetpack: serve the products, purchases, plan, features and site info from the local WordPress.com store on Simple sites, which have no blog token to sign an API request with.
