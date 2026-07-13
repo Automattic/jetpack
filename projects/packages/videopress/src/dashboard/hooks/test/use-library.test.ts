@@ -188,6 +188,18 @@ describe( 'on WordPress.com Simple', () => {
 				} )
 			).toEqual( { privacy: 'private', type: 'local' } );
 		} );
+
+		it( 'treats the videopress type filter as server-satisfied (returns null)', () => {
+			// `videopress_only_videos` already restricts the Simple query to VideoPress
+			// videos, so a videopress type filter needs no client-side pass — keeping the
+			// exact server total and the count query's perPage:1.
+			expect(
+				getClientSideFilters( {
+					...DEFAULT_VIEW,
+					filters: [ { field: 'type', operator: 'is', value: 'videopress' } ],
+				} )
+			).toBeNull();
+		} );
 	} );
 
 	describe( 'matchesClientSideFilters', () => {
@@ -339,6 +351,31 @@ describe( 'on WordPress.com Simple', () => {
 			expect( result.current.items ).toHaveLength( 20 );
 			expect( result.current.items[ 0 ].id ).toBe( '51' );
 			expect( result.current.items[ 19 ].id ).toBe( '110' );
+		} );
+
+		it( 'keeps a videopress-type view on the single-request path (honors perPage, server total)', async () => {
+			// Regression guard: useFreeTier's COUNT_VIEW filters by type=videopress at
+			// perPage:1. On Simple `videopress_only_videos` already restricts to VideoPress
+			// videos, so this must stay a single request at the caller's per_page and read
+			// the exact X-WP-Total — not fall into the client-filter over-fetch.
+			const requestedPaths = mockPagedMedia( [ [ rawVideo( 1, false ) ] ], 42 );
+
+			const view: View = {
+				...DEFAULT_VIEW,
+				perPage: 1,
+				filters: [ { field: 'type', operator: 'is', value: 'videopress' } ],
+			};
+			const { result } = renderHook( () => useLibrary( view ), {
+				wrapper: createTestWrapper(),
+			} );
+
+			await waitFor( () => expect( result.current.paginationInfo.totalItems ).toBe( 42 ) );
+			// Exactly one request, at the caller's per_page — not the over-fetch size.
+			expect( requestedPaths ).toHaveLength( 1 );
+			expect( requestedPaths[ 0 ] ).not.toContain( 'per_page=100' );
+			expect( requestedPaths[ 0 ] ).toMatch( /[?&]per_page=1(?:&|$)/ );
+			// Exact server total, not a client-filtered window.
+			expect( result.current.paginationInfo.totalPages ).toBe( 1 );
 		} );
 
 		it( 'keeps the unfiltered browse path a single request with server totals', async () => {

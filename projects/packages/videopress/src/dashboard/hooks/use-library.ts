@@ -201,9 +201,12 @@ type ClientSideFilters = {
 
 /**
  * Extract the view filters that must be applied client-side on
- * WordPress.com Simple, where the server can't narrow by VideoPress
- * privacy or type (both are postmeta-backed off-platform; the data
- * lives in WPCOM's videos table there).
+ * WordPress.com Simple. Privacy and the `local` type can't be narrowed
+ * server-side there (both are postmeta-backed off-platform; the data lives
+ * in WPCOM's videos table). The `videopress` type is the exception — the
+ * always-sent `videopress_only_videos` already restricts the query to
+ * VideoPress videos — so it's left out, keeping exact server totals and
+ * avoiding a needless over-fetch.
  *
  * @param view - The current DataViews view state.
  * @return The active client-side filters, or `null` when none apply.
@@ -216,7 +219,13 @@ export function getClientSideFilters( view: View ): ClientSideFilters | null {
 		}
 		if ( filter.field === 'privacy' ) {
 			filters.privacy = filter.value as LibraryItemPrivacy;
-		} else if ( filter.field === 'type' ) {
+		} else if ( filter.field === 'type' && filter.value === 'local' ) {
+			// The `videopress` type needs no client-side pass: viewToQueryArgs always
+			// sends `videopress_only_videos`, so the server already restricts results to
+			// VideoPress videos. Treating it as a client filter would be redundant and
+			// force the bounded over-fetch below — capping totals at the window and
+			// defeating the count query's `perPage: 1` (see useFreeTier's COUNT_VIEW).
+			// `local` (non-VideoPress videos the server can't isolate) still needs it.
 			filters.type = filter.value as LibraryItem[ 'type' ];
 		}
 	}
@@ -349,8 +358,8 @@ function keepOnlyVideos( raw: ApiMediaItem[], simple: boolean ): ApiMediaItem[] 
 /**
  * Fetch a page of VideoPress media items from the REST API.
  *
- * On WordPress.com Simple with an active privacy/type filter, the
- * server can't narrow the query, so this over-fetches a bounded window
+ * On WordPress.com Simple with an active privacy or `local`-type filter,
+ * the server can't narrow the query, so this over-fetches a bounded window
  * (up to CLIENT_FILTER_MAX_PAGES × CLIENT_FILTER_PER_PAGE rows, in
  * parallel and preserving server order), filters client-side, and
  * paginates the filtered list locally. Tradeoff: libraries with more
