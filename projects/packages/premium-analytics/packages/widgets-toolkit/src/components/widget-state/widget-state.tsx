@@ -126,10 +126,7 @@ export function WidgetState( {
 				// the error state, which always carries its own glyph. `null`
 				// suppresses `ChartEmptyState`'s own `cautionFilled` default.
 				icon={ empty?.icon ?? null }
-				text={
-					empty?.description ??
-					__( 'No data found for this date range.', 'jetpack-premium-analytics' )
-				}
+				text={ empty?.description ?? __( 'No data in this period.', 'jetpack-premium-analytics' ) }
 			/>
 		);
 	}
