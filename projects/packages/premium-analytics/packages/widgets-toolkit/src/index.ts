@@ -89,6 +89,7 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
 	toVideoItems,
