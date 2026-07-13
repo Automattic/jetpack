@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feedback: Parse versionless JSON `post_content` as JSON instead of falling through to the legacy plain-text parser. [#50380]
 - Fix an invalid Stack "gap" value ("s" -> "sm") in the single-response actions bar, surfaced as a type error by the @wordpress/ui update. [#49272]
 - Fix the Form Responses quick link disappearing from the admin bar on mobile viewports, and align its icon with the native items. [#50421]
-- Stop loading the unused legacy dashboard SPA bundle on the new (wp-build) Forms dashboard, removing a large amount of unnecessary JavaScript from the page. [#50219]
+- Stop loading the unused legacy dashboard SPA bundle on the new (wp-build) Forms dashboard. [#50219]
 
 ## [7.23.0] - 2026-07-06
 ### Added

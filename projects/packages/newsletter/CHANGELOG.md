@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
 
 ### Fixed
-- Daily Writing Prompt: Decode HTML entities so quotation marks render correctly instead of showing entity names like &quot;. [#50405]
+- Daily Writing Prompt: Decode HTML entities so quotation marks render correctly instead of showing entity names like `&quot;`. [#50405]
 - Subscribers: Show the styled "Subscribers moved" announcement page instead of the bare fallback. [#50349]
 
 ## [0.11.2] - 2026-07-06
