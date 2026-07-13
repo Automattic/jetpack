@@ -48,7 +48,7 @@ describe( 'DateRangeFilter', () => {
 		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toHaveFocus();
 
 		await user.keyboard( '{ArrowLeft}' );
-		expect( screen.getByRole( 'button', { name: 'Last 90 days' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'button', { name: 'Last 12 months' } ) ).toHaveFocus();
 	} );
 
 	it( 'applies a preset immediately on click', async () => {

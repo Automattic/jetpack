@@ -29,13 +29,13 @@ export const SELECTABLE_PRESETS = [
 ] as const;
 
 /**
- * Rolling-window presets shown as surface pills in the date-range filter.
+ * Quick presets shown as surface pills in the date-range filter.
  */
 export const QUICK_SURFACE_PRESETS = [
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
-	PRESET_LAST_90_DAYS,
+	PRESET_LAST_12_MONTHS,
 ] as const;
 
 /**
