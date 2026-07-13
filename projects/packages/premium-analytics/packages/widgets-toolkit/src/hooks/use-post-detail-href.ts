@@ -22,7 +22,13 @@ import { useCallback } from 'react';
  * @return A builder mapping a post ID to a post-detail href.
  */
 export function usePostDetailHrefBuilder(): ( postId: number | string ) => string {
-	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
+	let search: Record< string, unknown > | undefined;
+	try {
+		// eslint-disable-next-line react-hooks/rules-of-hooks -- useSearch may throw outside a matched route
+		search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
+	} catch {
+		// Rendered outside a router (Storybook, tests): fall back to no params.
+	}
 
 	return useCallback(
 		( postId: number | string ) => {
