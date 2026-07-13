@@ -20,6 +20,10 @@ describe( 'withResponsive', () => {
 
 	const ResponsiveComponent = withResponsive( MockComponent );
 
+	const { useParentSize } = jest.requireMock( '@visx/responsive' );
+	const DEFAULT_SIZE = { parentRef: { current: null }, width: 600, height: 300 };
+	afterEach( () => useParentSize.mockReturnValue( DEFAULT_SIZE ) );
+
 	describe( 'component dimensions', () => {
 		test( 'passes measured parent width to component', () => {
 			render( <ResponsiveComponent data={ [] } /> );
@@ -48,6 +52,15 @@ describe( 'withResponsive', () => {
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
 			const component = screen.getByTestId( 'mock-component' );
 			expect( component ).toHaveStyle( { width: '400px', height: '300px' } );
+		} );
+
+		test( 'derives height from width when the parent has no measured height', () => {
+			// parentHeight 0 (unconstrained or not-yet-measured parent): the contain
+			// clamp must not run, so the height stays width-derived (600 * 0.4 = 240).
+			useParentSize.mockReturnValue( { parentRef: { current: null }, width: 600, height: 0 } );
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			const component = screen.getByTestId( 'mock-component' );
+			expect( component ).toHaveStyle( { width: '600px', height: '240px' } );
 		} );
 
 		test( 'respects maxWidth configuration', () => {
