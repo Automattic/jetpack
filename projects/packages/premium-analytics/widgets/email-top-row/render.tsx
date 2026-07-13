@@ -7,7 +7,7 @@ import {
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
 import {
-	MetricWithComparison,
+	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -16,7 +16,7 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chartBar, envelope, link, people, percent, seen, send } from '@wordpress/icons';
-import { Icon, Stack, Text } from '@wordpress/ui';
+import { Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -45,13 +45,6 @@ const RATE_FORMAT: DataFormat = {
 	type: 'percentage',
 	options: { decimals: 1, signDisplay: 'never' },
 };
-
-// Shown in place of a rate tile's value when the email has no rate yet. Mirrors
-// the Jetpack Stats top row, which renders "-" for a missing or zero rate: in
-// wp-calypso, `client/my-sites/stats/stats-email-top-row/index.jsx` passes
-// `counts?.opens_rate ? … : null` (a truthy check, so 0 becomes null) and
-// `top-card.jsx` renders a null value as "-".
-const NO_RATE_PLACEHOLDER = '—';
 
 /**
  * One row of the metric table below: everything that describes a top-row tile —
@@ -185,9 +178,11 @@ function readCount( summary: EmailRateSummary, key: string ): number {
 /**
  * Reads a rate field (0–100 percentage) off a rate summary and converts it to a
  * fraction for the percentage formatter. Returns `null` for a missing or zero
- * rate so the tile can render the placeholder — verified against the Jetpack
- * Stats top row, which treats a zero rate the same way (see the
- * `NO_RATE_PLACEHOLDER` comment above for the upstream files).
+ * rate so the tile renders the grid's placeholder ("—") instead of "0%". Mirrors
+ * the Jetpack Stats top row, which renders "-" for a missing or zero rate: in
+ * wp-calypso, `client/my-sites/stats/stats-email-top-row/index.jsx` passes
+ * `counts?.opens_rate ? … : null` (a truthy check, so 0 becomes null) and
+ * `top-card.jsx` renders a null value as "-".
  *
  * @param summary - The email rate summary.
  * @param key     - The rate field to read.
@@ -326,26 +321,7 @@ const EmailTopRowTiles = ( {
 							: __( 'Select an email to see its stats.', 'jetpack-premium-analytics' ),
 					} }
 				>
-					<div className={ styles.grid }>
-						{ metrics?.map( metric => (
-							<div key={ metric.key } className={ styles.tile }>
-								<div className={ styles.tileHeader }>
-									<Icon icon={ metric.icon } size={ 24 } className={ styles.tileIcon } />
-									<Text className={ styles.tileLabel }>{ metric.label }</Text>
-								</div>
-								{ metric.value === null ? (
-									<Text className={ styles.tilePlaceholder }>{ NO_RATE_PLACEHOLDER }</Text>
-								) : (
-									<MetricWithComparison
-										value={ metric.value }
-										dataFormat={ metric.dataFormat }
-										fontSize="xl"
-										className={ styles.tileValue }
-									/>
-								) }
-							</div>
-						) ) }
-					</div>
+					<MetricTileGrid tiles={ metrics ?? [] } />
 				</WidgetState>
 			</div>
 		</Stack>
