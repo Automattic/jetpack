@@ -17,8 +17,9 @@ export type TopPostsAttributes = {
 	 */
 	num?: number;
 	/**
-	 * Which report the widget shows: published posts and pages, or archive
-	 * pages (home, taxonomy, post-type, search, and date archives).
+	 * Which report the widget shows: published posts and pages (including the
+	 * homepage entry, via `skip_archives=1`), or archive pages (taxonomy,
+	 * post-type, search, and date archives).
 	 */
 	contentView?: 'posts' | 'archives';
 };
