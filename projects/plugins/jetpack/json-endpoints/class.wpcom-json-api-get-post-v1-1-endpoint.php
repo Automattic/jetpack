@@ -20,7 +20,7 @@ new WPCOM_JSON_API_Get_Post_v1_1_Endpoint(
 
 		// The %d token is substituted with the real post ID by the transport (build_concrete_rest_route).
 		'rest_route'                           => '/posts/%d',
-		'rest_min_jp_version'                  => '16.0',
+		'rest_min_jp_version'                  => '17.0-a.1',
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 
@@ -44,7 +44,7 @@ new WPCOM_JSON_API_Get_Post_v1_1_Endpoint(
 
 		// The slug:%s token is substituted with the real slug by the transport (build_concrete_rest_route).
 		'rest_route'                           => '/posts/slug:%s',
-		'rest_min_jp_version'                  => '16.0',
+		'rest_min_jp_version'                  => '17.0-a.1',
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 
