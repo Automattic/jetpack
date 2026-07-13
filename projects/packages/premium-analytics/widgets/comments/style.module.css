@@ -1,0 +1,96 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Segmented view selector: a subtle track above the content, with the active
+   segment raised onto the base surface. Kept a sibling of the content so it
+   stays visible in every widget state. */
+.viewControl {
+	display: flex;
+	flex: 0 0 auto;
+	gap: var(--wpds-dimension-gap-xs);
+	padding: var(--wpds-dimension-padding-xs);
+	margin-block-end: var(--wpds-dimension-padding-sm);
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.viewOption {
+	flex: 1 1 0;
+	min-width: 0;
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+	border: 0;
+	border-radius: var(--wpds-border-radius-sm);
+	background: transparent;
+	color: var(--wpds-color-foreground-interactive-neutral);
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: 500;
+	line-height: 1.4;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.viewOption:hover {
+	color: var(--wpds-color-foreground-interactive-neutral-strong);
+}
+
+.viewOption:focus-visible {
+	outline: 2px solid var(--wpds-color-foreground-interactive-brand);
+	outline-offset: -2px;
+}
+
+.viewOptionActive {
+	background: var(--wpds-color-background-surface-neutral);
+	color: var(--wpds-color-foreground-interactive-neutral-strong);
+}
+
+/* Positioned anchor so WidgetState's overlay (position: absolute; inset: 0)
+   resolves against the widget body, not the host frame. */
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+/* Round the author avatar; a fixed size keeps the leaderboard row height
+   stable. */
+.avatar {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+/* Post rows have no avatar, so the post label sizes the row: pad the block to
+   set the overlay bar height and inset the text from the bar's rounded left
+   edge. */
+.postLabel {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+a.postLabel:hover,
+a.postLabel:focus {
+	text-decoration: underline;
+}
+
+/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
+   to all images inside the media cell, overriding our 20px avatar size.
+   Restore correct sizing for avatar images in any inert context. */
+:global([inert]) .root img {
+	width: 20px;
+	height: 20px;
+	object-fit: cover;
+}

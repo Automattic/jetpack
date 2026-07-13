@@ -45,6 +45,7 @@ import {
 	mockCustomersComparisonData,
 	mockCustomersByDateData,
 	mockCustomersByDateComparisonData,
+	mockCommentsData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
@@ -898,6 +899,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/summary' )
 				? mockStatsSummaryComparisonData
 				: mockStatsSummaryData;
+		case '/comments':
+			// All-time report with no comparison period; the same body serves
+			// both the primary and comparison requests.
+			return mockCommentsData;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
