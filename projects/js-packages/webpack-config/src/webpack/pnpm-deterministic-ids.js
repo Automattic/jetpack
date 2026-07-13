@@ -13,7 +13,7 @@ const {
 const { compareModulesByPreOrderIndexOrIdentifier } = require( 'webpack/lib/util/comparators' );
 
 const PNPM_PATH_REGEXP =
-	/(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/]*\/node_modules\/([^|!]+)/g;
+	/(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/!|]*\/node_modules\/([^|!]+)/g;
 
 /*
  * With `enableGlobalVirtualStore`, packages live in the pnpm store instead of `node_modules/.pnpm`,
@@ -22,7 +22,7 @@ const PNPM_PATH_REGEXP =
  * store-version directory keeps this from matching a project path that merely contains `links/`.
  */
 const PNPM_GLOBAL_STORE_PATH_REGEXP =
-	/(?<=^|[|!])[^|!]*?\/v[0-9]+\/links\/[^/]+\/[^/]+\/[^/]+\/[0-9a-f]{32,}\/node_modules\/([^|!]+)/g;
+	/(?<=^|[|!])[^|!]*?\/v[0-9]+\/links\/@[^/!|]*\/[^/!|]+\/[^/!|]+\/[0-9a-f]{32,}\/node_modules\/([^|!]+)/g;
 
 /**
  * Replace pnpm store paths in an identifier.
