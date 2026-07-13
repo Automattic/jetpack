@@ -31,78 +31,54 @@ class Dashboard_Layout_Test extends TestCase {
 	}
 
 	/**
-	 * The Premium Analytics dashboard receives the UTM Insights widget.
+	 * The base Premium Analytics dashboard keeps using the traffic tab default.
 	 */
-	public function test_seed_default_dashboard_layout_adds_utm_insights_widget() {
-		$layout          = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
-		$layout_by_uuid  = array_column( $layout, null, 'uuid' );
-		$utm_widget_uuid = 'default-utm-insights-widget-instance';
+	public function test_dashboard_name_resolves_traffic_default() {
+		$layout       = get_dashboard_default_layout_for( DASHBOARD_NAME );
+		$traffic      = get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID );
+		$layout_types = array_column( $layout, 'type' );
 
-		$this->assertArrayHasKey( 'default-hello-world-widget-instance', $layout_by_uuid );
+		$this->assertSame( $traffic, $layout );
+		$this->assertContains( 'jpa/traffic-chart', $layout_types );
+		$this->assertNotContains( 'jpa/hello-world', $layout_types );
+	}
+
+	/**
+	 * Traffic section aliases resolve to the same default layout.
+	 */
+	public function test_traffic_aliases_resolve_same_default_layout() {
+		$this->assertSame(
+			get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ),
+			get_dashboard_default_layout_for( 'analytics/traffic' )
+		);
+	}
+
+	/**
+	 * The traffic tab receives its bundled traffic widgets.
+	 */
+	public function test_seed_default_dashboard_layout_adds_traffic_widgets() {
+		$layout              = seed_default_dashboard_layout( array(), DASHBOARD_TRAFFIC_SECTION_ID );
+		$layout_by_uuid      = array_column( $layout, null, 'uuid' );
+		$layout_types        = array_column( $layout, 'type' );
+		$utm_widget_uuid     = 'default-utm-insights-widget-instance';
+		$top_posts_uuid      = 'default-stats-top-posts-widget-instance';
+		$traffic_chart_uuid  = 'default-traffic-chart-widget-instance';
+		$file_downloads_uuid = 'default-file-downloads-widget-instance';
+
+		$this->assertContains( 'jpa/traffic-chart', $layout_types );
+		$this->assertContains( 'jpa/stats-top-posts', $layout_types );
+		$this->assertContains( 'jpa/referrers', $layout_types );
 		$this->assertArrayHasKey( 'default-locations-widget-instance', $layout_by_uuid );
 		$this->assertArrayHasKey( $utm_widget_uuid, $layout_by_uuid );
+		$this->assertArrayHasKey( $file_downloads_uuid, $layout_by_uuid );
 
 		$this->assertSame(
 			array(
 				'uuid'       => $utm_widget_uuid,
 				'type'       => 'jpa/utm-insights',
 				'attributes' => array(
-					'utmParam' => 'utm_source,utm_medium',
-					'max'      => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 5,
-				),
-			),
-			$layout_by_uuid[ $utm_widget_uuid ]
-		);
-	}
-
-	/**
-	 * The Premium Analytics dashboard receives the File Downloads widget.
-	 */
-	public function test_seed_default_dashboard_layout_adds_file_downloads_widget() {
-		$layout                     = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
-		$layout_by_uuid             = array_column( $layout, null, 'uuid' );
-		$file_downloads_widget_uuid = 'default-file-downloads-widget-instance';
-
-		$this->assertArrayHasKey( $file_downloads_widget_uuid, $layout_by_uuid );
-
-		$this->assertSame(
-			array(
-				'uuid'       => $file_downloads_widget_uuid,
-				'type'       => 'jpa/file-downloads',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 6,
-				),
-			),
-			$layout_by_uuid[ $file_downloads_widget_uuid ]
-		);
-	}
-
-	/**
-	 * The Premium Analytics dashboard receives the Clicks widget.
-	 */
-	public function test_seed_default_dashboard_layout_adds_clicks_widget() {
-		$layout             = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
-		$layout_by_uuid     = array_column( $layout, null, 'uuid' );
-		$clicks_widget_uuid = 'default-clicks-widget-instance';
-
-		$this->assertArrayHasKey( $clicks_widget_uuid, $layout_by_uuid );
-
-		$this->assertSame(
-			array(
-				'uuid'       => $clicks_widget_uuid,
-				'type'       => 'jpa/clicks',
-				'attributes' => array(
-					'max' => 10,
+					'utmDimension' => 'utm_source,utm_medium',
+					'max'          => 10,
 				),
 				'placement'  => array(
 					'width'  => 1,
@@ -110,74 +86,115 @@ class Dashboard_Layout_Test extends TestCase {
 					'order'  => 7,
 				),
 			),
-			$layout_by_uuid[ $clicks_widget_uuid ]
+			$layout_by_uuid[ $utm_widget_uuid ]
+		);
+
+		$this->assertSame(
+			array(
+				'uuid'       => $top_posts_uuid,
+				'type'       => 'jpa/stats-top-posts',
+				'attributes' => array(
+					'num' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 1,
+				),
+			),
+			$layout_by_uuid[ $top_posts_uuid ]
+		);
+
+		$this->assertSame( 'jpa/traffic-chart', $layout_by_uuid[ $traffic_chart_uuid ]['type'] );
+	}
+
+	/**
+	 * The insights tab receives its bundled stats widgets.
+	 */
+	public function test_seed_default_dashboard_layout_adds_insights_widgets() {
+		$layout       = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
+		$layout_types = array_column( $layout, 'type' );
+
+		$this->assertContains( 'jpa/annual-highlights', $layout_types );
+		$this->assertContains( 'jpa/all-time-stats', $layout_types );
+		$this->assertContains( 'jpa/latest-post', $layout_types );
+		$this->assertContains( 'jpa/posting-activity', $layout_types );
+		$this->assertContains( 'jpa/authors', $layout_types );
+		$this->assertContains( 'jpa/stats-emails', $layout_types );
+		$this->assertSame(
+			get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ),
+			get_dashboard_default_layout_for( 'analytics/insights' )
 		);
 	}
 
 	/**
-	 * An existing UTM Insights default instance is not duplicated.
+	 * The subscribers tab receives its bundled subscriber widgets.
 	 */
-	public function test_seed_default_dashboard_layout_does_not_duplicate_utm_insights_widget() {
-		$existing_utm_widget = array(
+	public function test_seed_default_dashboard_layout_adds_subscribers_widgets() {
+		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_SUBSCRIBERS_SECTION_ID );
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+		$layout_types   = array_column( $layout, 'type' );
+
+		$this->assertContains( 'jpa/subscriber-highlights', $layout_types );
+		$this->assertContains( 'jpa/subscribers-chart', $layout_types );
+		$this->assertContains( 'jpa/subscribers-list', $layout_types );
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-subscribers-list-widget-instance',
+				'type'       => 'jpa/subscribers-list',
+				'attributes' => array(
+					'num' => 6,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 2,
+				),
+			),
+			$layout_by_uuid['default-subscribers-list-widget-instance']
+		);
+		$this->assertSame(
+			get_dashboard_default_layout_for( DASHBOARD_SUBSCRIBERS_SECTION_ID ),
+			get_dashboard_default_layout_for( 'analytics/subscribers' )
+		);
+	}
+
+	/**
+	 * The store tab receives its bundled store widgets.
+	 */
+	public function test_seed_default_dashboard_layout_adds_store_widgets() {
+		$layout       = seed_default_dashboard_layout( array(), DASHBOARD_STORE_SECTION_ID );
+		$layout_types = array_column( $layout, 'type' );
+
+		$this->assertContains( 'jpa/store-performance', $layout_types );
+		$this->assertContains( 'jpa/total-sales-over-time', $layout_types );
+		$this->assertContains( 'jpa/conversion-rate', $layout_types );
+		$this->assertContains( 'jpa/orders-over-time', $layout_types );
+		$this->assertContains( 'jpa/top-performing-products', $layout_types );
+		$this->assertSame(
+			get_dashboard_default_layout_for( DASHBOARD_STORE_SECTION_ID ),
+			get_dashboard_default_layout_for( 'woocommerce/store' )
+		);
+	}
+
+	/**
+	 * An existing default instance is not duplicated.
+	 */
+	public function test_seed_default_dashboard_layout_does_not_duplicate_existing_widget() {
+		$existing_widget = array(
 			'uuid' => 'default-utm-insights-widget-instance',
 			'type' => 'jpa/utm-insights',
 		);
 
-		$layout      = seed_default_dashboard_layout( array( $existing_utm_widget ), DASHBOARD_NAME );
-		$utm_widgets = array_filter(
+		$layout  = seed_default_dashboard_layout( array( $existing_widget ), DASHBOARD_TRAFFIC_SECTION_ID );
+		$widgets = array_filter(
 			$layout,
 			static function ( $widget ) {
 				return 'default-utm-insights-widget-instance' === $widget['uuid'];
 			}
 		);
 
-		$this->assertCount( 1, $utm_widgets );
-	}
-
-	/**
-	 * An existing File Downloads default instance is not duplicated.
-	 */
-	public function test_seed_default_dashboard_layout_does_not_duplicate_file_downloads_widget() {
-		$existing_file_downloads_widget = array(
-			'uuid'       => 'default-file-downloads-widget-instance',
-			'type'       => 'jpa/file-downloads',
-			'attributes' => array( 'max' => 5 ),
-			'placement'  => array(
-				'width'  => 2,
-				'height' => 1,
-				'order'  => 9,
-			),
-		);
-
-		$layout                 = seed_default_dashboard_layout( array( $existing_file_downloads_widget ), DASHBOARD_NAME );
-		$file_downloads_widgets = array_filter(
-			$layout,
-			static function ( $widget ) {
-				return 'default-file-downloads-widget-instance' === $widget['uuid'];
-			}
-		);
-
-		$this->assertCount( 1, $file_downloads_widgets );
-		$this->assertSame( $existing_file_downloads_widget, reset( $file_downloads_widgets ) );
-	}
-
-	/**
-	 * An existing Clicks default instance is not duplicated.
-	 */
-	public function test_seed_default_dashboard_layout_does_not_duplicate_clicks_widget() {
-		$existing_clicks_widget = array(
-			'uuid' => 'default-clicks-widget-instance',
-			'type' => 'jpa/clicks',
-		);
-
-		$layout         = seed_default_dashboard_layout( array( $existing_clicks_widget ), DASHBOARD_NAME );
-		$clicks_widgets = array_filter(
-			$layout,
-			static function ( $widget ) {
-				return 'default-clicks-widget-instance' === $widget['uuid'];
-			}
-		);
-
-		$this->assertCount( 1, $clicks_widgets );
+		$this->assertCount( 1, $widgets );
+		$this->assertSame( $existing_widget, reset( $widgets ) );
 	}
 }

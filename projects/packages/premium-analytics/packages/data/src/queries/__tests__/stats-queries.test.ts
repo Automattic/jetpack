@@ -486,23 +486,24 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/video/31533',
 			'GET',
-			{},
+			{ period: 'day' },
 			undefined,
 			'singleVideo',
 		] );
 	} );
 
-	it( 'passes single video params through to the request', () => {
+	it( 'converts the report date range for the single video request', () => {
 		const query = statsSingleVideoQuery( 31533, {
-			period: 'day',
-			end_date: '2026-06-14',
-			statType: 'watch_time',
+			from: '2026-06-08',
+			to: '2026-06-14',
+			interval: 'day',
 		} );
 
 		expect( query.queryKey[ 5 ] ).toEqual( {
 			period: 'day',
 			date: '2026-06-14',
-			statType: 'watch_time',
+			start_date: '2026-06-08',
+			days: 7,
 		} );
 	} );
 

@@ -47,12 +47,16 @@ import {
 	mockCustomersByDateComparisonData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
+	mockSingleVideoData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsSummaryData,
+	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
 	mockPlanUsageData,
+	buildEmailRateResponse,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -899,10 +903,27 @@ function buildEmailSummaryResponse() {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string ): unknown {
+	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
+	if ( /^\/video\/\d+$/.test( subPath ) ) {
+		return mockSingleVideoData;
+	}
+
+	// Per-post email rate breakdowns: `/opens/emails/<postId>/rate`, `/clicks/emails/<postId>/rate`.
+	const emailRate = subPath.match( /^\/(opens|clicks)\/emails\/\d+\/rate$/ );
+	if ( emailRate ) {
+		return buildEmailRateResponse( emailRate[ 1 ] as 'opens' | 'clicks' );
+	}
+
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
 			return mockSiteSummary;
+		case '/summary':
+			// Period summary — alternates primary/comparison so the Site overview
+			// widget shows a period-over-period delta on each tile.
+			return nextIsComparison( 'stats/summary' )
+				? mockStatsSummaryComparisonData
+				: mockStatsSummaryData;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData

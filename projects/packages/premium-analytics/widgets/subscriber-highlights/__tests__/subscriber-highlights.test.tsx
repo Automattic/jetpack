@@ -99,8 +99,8 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( 'Unable to load subscriber highlights.' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hides a metric tile when its visibility attribute is off', async () => {
-		render( <SubscriberHighlightsWidget attributes={ { showPaid: false, showSocial: false } } /> );
+	it( 'hides a metric tile when it is not in the metrics attribute', async () => {
+		render( <SubscriberHighlightsWidget attributes={ { metrics: [ 'total', 'free' ] } } /> );
 
 		await expect( screen.findByText( 'Total subscribers' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Free subscribers' ) ).toBeInTheDocument();
@@ -108,17 +108,8 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( 'Social followers' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'prompts to select a metric when every tile is disabled', async () => {
-		render(
-			<SubscriberHighlightsWidget
-				attributes={ {
-					showTotal: false,
-					showPaid: false,
-					showFree: false,
-					showSocial: false,
-				} }
-			/>
-		);
+	it( 'prompts to select a metric when the metrics attribute is empty', async () => {
+		render( <SubscriberHighlightsWidget attributes={ { metrics: [] } } /> );
 
 		await expect(
 			screen.findByText( 'Select at least one metric to display.' )

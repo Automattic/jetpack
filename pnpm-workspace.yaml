@@ -34,6 +34,7 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
+  - 'gridicons'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

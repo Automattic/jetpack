@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Guard the block banner icon render with isValidElement so a non-element icon prop no longer trips the @wordpress/icons type check.

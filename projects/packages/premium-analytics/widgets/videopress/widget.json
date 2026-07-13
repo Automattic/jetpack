@@ -1,0 +1,7 @@
+{
+	"name": "jpa/videopress",
+	"title": "VideoPress",
+	"description": "Your most played VideoPress videos, sourced from Jetpack Stats.",
+	"category": "stats",
+	"presentation": "framed"
+}

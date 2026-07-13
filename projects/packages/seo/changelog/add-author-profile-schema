@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Person and ProfilePage structured data for authors, with an author profile form in the Schema settings.
