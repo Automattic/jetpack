@@ -110,6 +110,25 @@ const SECTIONS = [
 ];
 
 /**
+ * Filter sections down to the feature rows the endpoint reported. A toggle
+ * without a backend would render stuck at "off" and save nothing, so a row
+ * only renders when its key is present in the settings response; sections
+ * left with no rows are dropped entirely.
+ *
+ * @param {Array}  sections - SECTIONS-shaped list.
+ * @param {object} features - The features object from the settings response.
+ * @return {Array} Sections containing only reported feature rows.
+ */
+export function visibleSections( sections, features ) {
+	return sections
+		.map( section => ( {
+			...section,
+			features: section.features.filter( feature => features[ feature.key ] !== undefined ),
+		} ) )
+		.filter( section => section.features.length > 0 );
+}
+
+/**
  * A single feature row: toggle + description + optional action link.
  *
  * @param {object}   props          - Component props.
@@ -162,13 +181,7 @@ function FeatureRow( { feature, checked, isSaving, onChange } ) {
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
 
-	// Only render rows whose feature the endpoint actually reported: a toggle
-	// without a backend would render stuck at "off" and save nothing. Keeps the
-	// view correct when the UI ships ahead of a feature's backend (or vice versa).
-	const sections = SECTIONS.map( section => ( {
-		...section,
-		features: section.features.filter( feature => features[ feature.key ] !== undefined ),
-	} ) ).filter( section => section.features.length > 0 );
+	const sections = visibleSections( SECTIONS, features );
 
 	const handleToggle = useCallback(
 		( key, enabled ) => {
