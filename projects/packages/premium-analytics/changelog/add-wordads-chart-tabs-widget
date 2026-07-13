@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+WordAds: Add the WordAds chart tabs widget — ads served, average CPM, and revenue as metric tabs over a comparative line chart. A "Group by" control sets the bucket granularity and a "Metrics" control selects which metrics show as tabs. Requires WordAds to be active on the site.

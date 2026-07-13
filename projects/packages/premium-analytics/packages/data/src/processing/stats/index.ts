@@ -43,7 +43,11 @@ export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsPublicizeResponse } from './publicize';
-export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
+export {
+	sanitizeStatsWordAdsStatsResponse,
+	sanitizeStatsWordAdsEarningsResponse,
+	sliceWordAdsStatsReport,
+} from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
