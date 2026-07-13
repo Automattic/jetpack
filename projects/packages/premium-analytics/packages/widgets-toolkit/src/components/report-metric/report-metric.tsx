@@ -149,7 +149,7 @@ export function ReportMetricWidget( {
 			} }
 			empty={ {
 				icon: emptyStateIcon,
-				description: emptyStateText ?? __( 'No data in this period.', 'jetpack-premium-analytics' ),
+				description: emptyStateText,
 			} }
 		>
 			<MetricComparisonWidget
