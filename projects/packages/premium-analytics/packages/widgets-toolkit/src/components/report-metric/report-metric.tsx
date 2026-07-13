@@ -137,8 +137,8 @@ export function ReportMetricWidget( {
 			// across range changes, so only surface the error when there is
 			// nothing to show.
 			isError={ isError && ! hasData }
-			// A resolved report with no time-series rows has nothing meaningful to
-			// chart — a bare summary (even an all-zero one) still renders as ready.
+			// Empty keys off the time-series row count, not summary values: no rows
+			// means nothing to chart, while rows with an all-zero summary stay ready.
 			isEmpty={ ! primaryData?.data?.length }
 			error={ {
 				description: __(
