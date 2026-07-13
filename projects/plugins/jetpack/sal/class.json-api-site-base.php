@@ -1539,8 +1539,18 @@ abstract class SAL_Site {
 		// the stickered staging build target, whose own options blob is empty, so
 		// resolve to the purchase blog before reading — otherwise a post-submit
 		// staging target reports itself as pre-submit.
+		//
+		// resolve_purchase_site_id() ships in the wpcom DIFM Lite site-role
+		// pointers change. This Jetpack code can deploy before that lands, so
+		// fall back to the current blog when it is unavailable — no retargeted
+		// builds can exist until that change is live, so the current blog is the
+		// purchase blog in that window.
+		$purchase_blog_id = $this->blog_id;
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
-		$purchase_blog_id = \DIFM_Lite_Options::resolve_purchase_site_id( $this->blog_id );
+		if ( method_exists( '\DIFM_Lite_Options', 'resolve_purchase_site_id' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+			$purchase_blog_id = \DIFM_Lite_Options::resolve_purchase_site_id( $this->blog_id );
+		}
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
 		$difm_lite_options = new \DIFM_Lite_Options( $purchase_blog_id );
 		return array(
