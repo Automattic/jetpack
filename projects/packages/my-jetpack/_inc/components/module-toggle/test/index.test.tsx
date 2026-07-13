@@ -1,21 +1,24 @@
 import '@testing-library/jest-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
 import { setPendingSuccessNotice } from '../../my-jetpack-tab-panel/products/pending-notice';
 import { reloadPage } from '../../my-jetpack-tab-panel/products/reload-page';
 import { ModuleToggle } from '../index';
+import type { ReactNode } from 'react';
 
-const mockToggleModule = jest.fn( () => Promise.resolve( true ) );
+// Invokes onSuccess like a successful mutation so notice/reload side effects run.
+const mockToggleModule = jest.fn( ( _vars, options?: { onSuccess?: () => void } ) =>
+	options?.onSuccess?.()
+);
 const mockTrackProductAction = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 
-jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
-
-jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { updateJetpackModuleStatus: mockToggleModule } ),
-	useSelect: callback => callback( () => ( { isModuleUpdating: () => false } ) ),
+jest.mock( '../../../data/use-simple-mutation', () => ( {
+	__esModule: true,
+	default: () => ( { mutate: mockToggleModule, isPending: false } ),
 } ) );
 
 jest.mock( '@wordpress/components', () => {
@@ -78,6 +81,14 @@ const buildModule = ( overrides = {} ) =>
 		...overrides,
 	} ) as unknown as MyJetpackModule;
 
+const renderModuleToggle = ( ui: ReactNode ) => {
+	const queryClient = new QueryClient( {
+		defaultOptions: { queries: { retry: false } },
+	} );
+
+	return render( <QueryClientProvider client={ queryClient }>{ ui }</QueryClientProvider> );
+};
+
 describe( 'ModuleToggle', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -94,7 +105,7 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it( 'links inactive sharedaddy to the Single template on block themes', () => {
-		render( <ModuleToggle module={ sharedaddyModule } /> );
+		renderModuleToggle( <ModuleToggle module={ sharedaddyModule } /> );
 
 		expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
 			'href',
@@ -104,8 +115,7 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it( 'deactivates legacy sharing when switching to the block', async () => {
-		mockToggleModule.mockResolvedValue( true );
-		render( <ModuleToggle module={ { ...sharedaddyModule, activated: true } } /> );
+		renderModuleToggle( <ModuleToggle module={ { ...sharedaddyModule, activated: true } } /> );
 
 		// The legacy toggle is replaced by the switch action.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
@@ -115,7 +125,10 @@ describe( 'ModuleToggle', () => {
 		);
 
 		// Deactivating legacy sharing reveals the Site Editor link ( two-step, no redirect ).
-		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sharedaddy', active: false } );
+		expect( mockToggleModule ).toHaveBeenCalledWith(
+			{ data: { active: false } },
+			expect.objectContaining( { onSuccess: expect.any( Function ) } )
+		);
 
 		// The switch path tracks the deactivation, like the toggle path.
 		expect( mockTrackProductAction ).toHaveBeenCalledWith(
@@ -128,7 +141,7 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it( 'keeps forced-active legacy sharing non-actionable', () => {
-		render(
+		renderModuleToggle(
 			<ModuleToggle module={ { ...sharedaddyModule, activated: true, override: 'active' } } />
 		);
 
@@ -144,11 +157,14 @@ describe( 'ModuleToggle', () => {
 		[ 'subscriptions', 'Newsletter' ],
 		[ 'wpcom-reader', 'WordPress.com Reader' ],
 	] )( 'reloads the page after toggling the menu-registering %s module', async ( slug, name ) => {
-		render( <ModuleToggle module={ buildModule( { module: slug, name } ) } /> );
+		renderModuleToggle( <ModuleToggle module={ buildModule( { module: slug, name } ) } /> );
 
 		await userEvent.click( screen.getByRole( 'checkbox' ) );
 
-		expect( mockToggleModule ).toHaveBeenCalledWith( { name: slug, active: false } );
+		expect( mockToggleModule ).toHaveBeenCalledWith(
+			{ data: { active: false } },
+			expect.objectContaining( { onSuccess: expect.any( Function ) } )
+		);
 		// Persists a notice so it survives the reload, then reloads. No inline notice.
 		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
 			expect.stringContaining( 'deactivated' )
@@ -158,11 +174,16 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it( 'does not reload for a regular module and shows an inline notice instead', async () => {
-		render( <ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } /> );
+		renderModuleToggle(
+			<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+		);
 
 		await userEvent.click( screen.getByRole( 'checkbox' ) );
 
-		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sitemaps', active: false } );
+		expect( mockToggleModule ).toHaveBeenCalledWith(
+			{ data: { active: false } },
+			expect.objectContaining( { onSuccess: expect.any( Function ) } )
+		);
 		expect( reloadPage ).not.toHaveBeenCalled();
 		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
 		expect( mockCreateSuccessNotice ).toHaveBeenCalled();

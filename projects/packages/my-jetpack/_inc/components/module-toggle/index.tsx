@@ -39,7 +39,6 @@ const MODULES_REQUIRING_RELOAD = [ 'podcast', 'subscriptions', 'wpcom-reader' ];
 export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
 	const { createSuccessNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
-	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
 	const queryClient = useQueryClient();
 
 	const { mutate: toggleModule, isPending: isUpdating } = useSimpleMutation( {
@@ -107,6 +106,8 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	if ( isProductsOnlyMode() ) {
 		return null;
 	}
+
+	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
 
 	if ( sharingBlockEditorUrl ) {
 		if ( $module.activated ) {
