@@ -17,8 +17,8 @@ import { Link, Stack } from '@wordpress/ui';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useCommentViews, { type CommentRow, type CommentView } from './use-comment-views';
-import { type CommentsAttributes } from './widget';
+import useCommentViews, { type CommentRow } from './use-comment-views';
+import { type CommentsAttributes, type CommentsView } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ReactElement } from 'react';
 
@@ -27,10 +27,10 @@ type CommentsWidgetProps = WidgetRenderProps< CommentsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-const COMMENT_VIEWS: CommentView[] = [ 'authors', 'posts' ];
+const COMMENT_VIEWS: CommentsView[] = [ 'authors', 'posts' ];
 
-function isCommentView( value: unknown ): value is CommentView {
-	return typeof value === 'string' && COMMENT_VIEWS.includes( value as CommentView );
+function isCommentView( value: unknown ): value is CommentsView {
+	return typeof value === 'string' && COMMENT_VIEWS.includes( value as CommentsView );
 }
 
 /**
@@ -39,11 +39,11 @@ function isCommentView( value: unknown ): value is CommentView {
  * permalink). Author rows carry no link in the normalized data, so they are
  * always static labels.
  *
- * @param {CommentRow}  row  - The row to label.
- * @param {CommentView} view - The active view.
+ * @param {CommentRow}   row  - The row to label.
+ * @param {CommentsView} view - The active view.
  * @return The label node.
  */
-function buildRowLabel( row: CommentRow, view: CommentView ): ReactElement {
+function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 	if ( view === 'authors' ) {
 		return (
 			<LeaderboardLabel
@@ -89,7 +89,7 @@ interface CommentsInnerProps {
 	 * The active view. Owned by the widget host: the `view` attribute is
 	 * `relevance: 'high'`, so the host renders the "View by" header control.
 	 */
-	view: CommentView;
+	view: CommentsView;
 }
 
 /**

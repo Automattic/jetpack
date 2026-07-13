@@ -16,9 +16,9 @@ export type CommentsAttributes = {
 	 */
 	max?: number;
 	/**
-	 * The view the widget opens on: comment authors or commented posts. Both
-	 * views are always available through the in-widget selector; this is only
-	 * the initial selection.
+	 * The active view: comment authors or commented posts. The host renders
+	 * this as the "View by" header control (the attribute is `relevance:
+	 * 'high'`), so it is not shown in the widget body.
 	 */
 	view?: CommentsView;
 };

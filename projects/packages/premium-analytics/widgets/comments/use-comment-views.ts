@@ -2,17 +2,13 @@
  * Internal dependencies
  */
 import { useStatsComments } from '@jetpack-premium-analytics/data';
+import type { CommentsView } from './widget';
 import type {
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,
 	StatsCommentsPostItem,
 	StatsCommentsResponse,
 } from '@jetpack-premium-analytics/data';
-
-/**
- * Which of the two Comments views is active.
- */
-export type CommentView = 'authors' | 'posts';
 
 export interface CommentRow {
 	/**
@@ -41,7 +37,7 @@ interface UseCommentViewsArgs {
 	/**
 	 * The active view: comment authors or commented posts.
 	 */
-	view: CommentView;
+	view: CommentsView;
 	/**
 	 * Maximum rows to display; `0` means all.
 	 */
