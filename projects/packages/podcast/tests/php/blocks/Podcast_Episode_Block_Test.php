@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\Podcast_Episode_Block;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Block;
@@ -39,16 +40,35 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 			'blockName' => 'jetpack/podcast-episode',
 			'attrs'     => array(),
 		);
+
+		// Grant podcast product access so render_block() returns the full player.
+		// Mirrors Admin_Page_Test's self-hosted purchase priming.
+		$this->set_product_access( true );
 	}
 
 	/**
 	 * Tear down filters/options/block-supports state set in set_up.
 	 */
 	public function tear_down() {
+		Podcast_Gate::flush_purchases_cache();
 		delete_option( 'podcasting_image' );
 		delete_option( 'date_format' );
 		WP_Block_Supports::$block_to_render = null;
 		parent::tear_down();
+	}
+
+	/**
+	 * Toggle the site's podcast product access by priming the gate's purchase
+	 * cache — a Growth purchase grants access, an empty list denies it.
+	 *
+	 * @param bool $has_access Whether the site should have product access.
+	 */
+	private function set_product_access( bool $has_access ) {
+		Podcast_Gate::flush_purchases_cache();
+		set_transient(
+			Podcast_Gate::PURCHASES_TRANSIENT,
+			$has_access ? array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) : array()
+		);
 	}
 
 	private function create_episode_post( $title = 'Test Episode' ) {
@@ -102,6 +122,39 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'jetpack-podcast-episode__player', $result );
 		$this->assertStringNotContainsString( '__direct-link', $result );
+	}
+
+	public function test_renders_basic_audio_fallback_without_product_access() {
+		$this->set_product_access( false );
+
+		$result = $this->render( array() );
+
+		$this->assertStringContainsString( 'jetpack-podcast-episode--basic', $result );
+		$this->assertStringContainsString( '<audio', $result );
+		$this->assertStringContainsString( 'src="https://example.com/episode.mp3"', $result );
+		// The rich player and its Podcasting 2.0 chrome stay gated.
+		$this->assertStringNotContainsString( 'jetpack-podcast-episode__player', $result );
+	}
+
+	public function test_renders_basic_video_fallback_without_product_access() {
+		$this->set_product_access( false );
+
+		$result = $this->render(
+			array(
+				'mediaUrl'  => 'https://example.com/episode.mp4',
+				'mediaType' => 'video',
+			)
+		);
+
+		$this->assertStringContainsString( 'jetpack-podcast-episode--basic', $result );
+		$this->assertStringContainsString( '<video', $result );
+		$this->assertStringNotContainsString( 'jetpack-podcast-episode__player', $result );
+	}
+
+	public function test_basic_fallback_rejects_invalid_media_url() {
+		$this->set_product_access( false );
+
+		$this->assertSame( '', $this->render( array( 'mediaUrl' => 'not-a-valid-url' ) ) );
 	}
 
 	public function test_empty_media_url_returns_empty_string() {
