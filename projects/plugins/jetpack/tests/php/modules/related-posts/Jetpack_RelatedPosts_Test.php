@@ -81,8 +81,14 @@ class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
 		wp_dequeue_style( 'jetpack_related-posts' );
 		$this->assertFalse( wp_style_is( 'jetpack_related-posts', 'enqueued' ) );
 
+		// isServerRendered mirrors the get_server_rendered_html() path: calling
+		// render_block() directly never registers a block, so block supports must
+		// be skipped (otherwise WP_Block_Supports::apply_block_supports() reads an
+		// offset on a null block_to_render and warns). The enqueue under test runs
+		// before that branch, so this does not affect what we are asserting.
 		$output = $related_posts->render_block(
 			array(
+				'isServerRendered'  => true,
 				'displayThumbnails' => false,
 				'displayDate'       => false,
 			),
