@@ -35,6 +35,7 @@ const PrimaryLink = props => {
 				className="jp-license-activation-screen-success-info--button"
 				loading
 				loadingAnnouncement={ __( 'Loading…', 'jetpack-licensing' ) }
+				aria-label={ __( 'Loading…', 'jetpack-licensing' ) }
 			/>
 		);
 	}
