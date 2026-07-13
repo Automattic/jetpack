@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import {
 	buildSummary,
 	computeRunOutcome,
+	finalizeMeasurement,
 	findIncompleteSummaryFields,
 	resolveScenarioSet,
 } from './measure-lcp.js';
@@ -191,7 +192,7 @@ test( 'findIncompleteSummaryFields checks the flat LCP mirror for scenarios with
 test( 'a majority-rule field drop in buildSummary is caught as incomplete', () => {
 	// End-to-end through the real aggregation: 3 valid iterations where ttfb was finite in
 	// only 1 (no strict majority) — buildSummary drops the ttfb block, and the completeness
-	// check must flag it so main() records a scenario error instead of a green partial.
+	// check must flag it so the measure step records a scenario error, not a green partial.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const iterations = [
 		{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
@@ -208,6 +209,81 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 		3
 	);
 	assert.deepEqual( findIncompleteSummaryFields( forms, healthy ), [] );
+} );
+
+test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] fallback invariant)", () => {
+	// findIncompleteSummaryFields checks legacy metricKey/metricPrefix scenarios via the
+	// lcp block, which is only sound while buildSummary keeps mirroring that block's stats
+	// (median first among them) onto the summary root. Pin the invariant so a buildSummary
+	// refactor that drops the mirror fails here instead of silently un-covering the legacy
+	// posting shapes.
+	const summary = buildSummary(
+		[
+			{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
+			{ lcp: 310, metrics: { ttfb: 210, fcp: 510, decodedBytesKB: 8229 } },
+		],
+		2
+	);
+	assert.equal( summary.median, summary.lcp.median );
+	assert.equal( summary.mean, summary.lcp.mean );
+} );
+
+// --- finalizeMeasurement (the measure step's refusal paths, without a browser) ---
+
+// Per-iteration fixtures shaped like measureLCP's results array: lcp flat, the other
+// posted fields on `metrics`.
+const healthyIteration = i => ( {
+	iteration: i,
+	lcp: 300 + i,
+	metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 },
+} );
+
+test( 'finalizeMeasurement returns the measurement for healthy iterations', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const results = [ 1, 2, 3 ].map( healthyIteration );
+	const measurement = finalizeMeasurement( forms, results, 3, 'http://example.test' );
+	assert.equal( measurement.url, 'http://example.test' );
+	assert.equal( measurement.results, results );
+	assert.equal( measurement.summary.lcp.median, 302 );
+	assert.deepEqual( findIncompleteSummaryFields( forms, measurement.summary ), [] );
+} );
+
+test( 'finalizeMeasurement throws when every iteration failed', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.throws(
+		() => finalizeMeasurement( forms, [ { iteration: 1, error: 'boom' } ], 1, 'u' ),
+		/All iterations failed/
+	);
+} );
+
+test( 'finalizeMeasurement throws on a partial summary, naming the dropped field', () => {
+	// The CASE P wiring, pinned through the real measure tail: a posted field finite in
+	// only a minority of valid iterations must throw INSIDE the measure step (so main()'s
+	// catch records a scenario error the optional/required policy classifies), never
+	// return a truthy-but-incomplete measurement for the artifact.
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const results = [ 1, 2, 3 ].map( healthyIteration );
+	results[ 1 ].metrics = { ...results[ 1 ].metrics, ttfb: null };
+	results[ 2 ].metrics = { ...results[ 2 ].metrics, ttfb: null };
+	assert.throws(
+		() => finalizeMeasurement( forms, results, 3, 'u' ),
+		/summary is missing posted field\(s\): ttfb — too few finite samples across the 3 valid iteration\(s\)/
+	);
+} );
+
+test( 'finalizeMeasurement counts valid iterations, not attempted ones, in the partial message', () => {
+	// 5 attempted, 2 errored, 3 valid — the message must say 3: the majority rule runs
+	// over the VALID iterations, and a misleading count sends the operator to the wrong
+	// denominator when reading the build log.
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const results = [
+		...[ 1, 2, 3 ].map( healthyIteration ),
+		{ iteration: 4, error: 'boom' },
+		{ iteration: 5, error: 'boom' },
+	];
+	results[ 1 ].metrics = { ...results[ 1 ].metrics, ttfb: null };
+	results[ 2 ].metrics = { ...results[ 2 ].metrics, ttfb: null };
+	assert.throws( () => finalizeMeasurement( forms, results, 5, 'u' ), /the 3 valid iteration/ );
 } );
 
 // --- tcEscape (TeamCity service-message value escaping) ---

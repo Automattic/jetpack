@@ -312,20 +312,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 		}
 	}
 
-	// Calculate statistics
-	const validResults = results.filter( r => ! r.error && r.lcp != null );
-
-	if ( validResults.length === 0 ) {
-		throw new Error(
-			'All iterations failed - check WordPress is accessible and credentials are correct'
-		);
-	}
-
-	return {
-		summary: buildSummary( validResults, iterations ),
-		results,
-		url,
-	};
+	return finalizeMeasurement( scenario, results, iterations, url );
 }
 
 /**
@@ -438,9 +425,10 @@ function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
  * poster reads summary.<field>.median for every scenario.metrics[] entry; an omitted block
  * reaches it as undefined, fails the sanity-range check, and — because the sanity gate is
  * deliberately atomic — blanks the ENTIRE post, required survivors included. An incomplete
- * summary is a MEASUREMENT failure, not a data-integrity event, so main() converts it into
- * a scenario error, where the `optional` flag can isolate it and the skipped-scenario
- * warnings name the culprit. Scenarios without a metrics[] array (legacy
+ * summary is a MEASUREMENT failure, not a data-integrity event, so finalizeMeasurement()
+ * below throws on it and main()'s catch records a scenario error, where the `optional`
+ * flag can isolate it and the skipped-scenario warnings name the culprit. Scenarios
+ * without a metrics[] array (legacy
  * metricKey/metricPrefix shapes) post from the flat LCP mirror, covered by the 'lcp'
  * fallback.
  *
@@ -453,6 +441,44 @@ function findIncompleteSummaryFields( scenario, summary ) {
 		? scenario.metrics.map( metric => metric.field )
 		: [ 'lcp' ];
 	return fields.filter( field => ! Number.isFinite( summary?.[ field ]?.median ) );
+}
+
+/**
+ * Turn the raw per-iteration results into the scenario's final measurement, or throw.
+ *
+ * The tail of measureLCP(), extracted pure so its two refusal paths are unit-testable
+ * without a browser: (1) no valid iterations at all; (2) an INCOMPLETE summary — a posted
+ * field dropped by summarizeField's majority rule. Both must throw INSIDE the measure
+ * step, so main()'s catch records a scenario error the optional/required policy can
+ * classify. An incomplete summary let through would green this step with no warning
+ * naming the scenario, then trip the poster's atomic sanity gate on the undefined
+ * median — one flaky optional field blanking the whole post, required survivors included.
+ *
+ * @param {object} scenario   - Scenario definition; its metrics[] names the posted fields.
+ * @param {Array}  results    - Raw per-iteration results (successes and error records).
+ * @param {number} iterations - Total iterations attempted (for the summary counters).
+ * @param {string} url        - The measured URL, echoed into the saved measurement.
+ * @return {object} The measurement: `{ summary, results, url }`.
+ */
+function finalizeMeasurement( scenario, results, iterations, url ) {
+	const validResults = results.filter( r => ! r.error && r.lcp != null );
+
+	if ( validResults.length === 0 ) {
+		throw new Error(
+			'All iterations failed - check WordPress is accessible and credentials are correct'
+		);
+	}
+
+	const summary = buildSummary( validResults, iterations );
+	const incompleteFields = findIncompleteSummaryFields( scenario, summary );
+	if ( incompleteFields.length > 0 ) {
+		throw new Error(
+			`summary is missing posted field(s): ${ incompleteFields.join( ', ' ) } — ` +
+				`too few finite samples across the ${ validResults.length } valid iteration(s)`
+		);
+	}
+
+	return { summary, results, url };
 }
 
 /**
@@ -680,21 +706,16 @@ async function main() {
 		console.log( '-'.repeat( scenario.header.length ) );
 
 		try {
-			const measurement = await measureLCP( url, username, password, iterations, scenario );
-			// An incomplete summary (a posted field dropped by summarizeField's majority rule)
-			// must fail HERE, as a measurement failure the optional flag can isolate. Let
-			// through, it would green this step with no warning naming the scenario, then trip
-			// the poster's atomic sanity gate on the undefined median — one flaky optional
-			// field blanking the whole post, required survivors included.
-			const incompleteFields = findIncompleteSummaryFields( scenario, measurement.summary );
-			if ( incompleteFields.length > 0 ) {
-				throw new Error(
-					`summary is missing posted field(s): ${ incompleteFields.join( ', ' ) } — ` +
-						`too few finite samples across ${ iterations } iteration(s)`
-				);
-			}
-			measurements[ scenario.key ] = measurement;
-			console.log( `✓ ${ scenario.name } median LCP: ${ measurement.summary.median }ms\n` );
+			measurements[ scenario.key ] = await measureLCP(
+				url,
+				username,
+				password,
+				iterations,
+				scenario
+			);
+			console.log(
+				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms\n`
+			);
 		} catch ( error ) {
 			console.error( `✗ ${ scenario.name } measurement failed:`, error.message, '\n' );
 			// Guarantee a truthy error record: computeRunOutcome classifies failure by the
@@ -810,6 +831,7 @@ export {
 	resolveResultsGit,
 	buildSummary,
 	findIncompleteSummaryFields,
+	finalizeMeasurement,
 	assertCaptureComplete,
 	assertExpectedUrl,
 	summarizeResources,
