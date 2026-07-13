@@ -9,9 +9,21 @@ interface ConnectedPlugin {
 	slug: string;
 }
 
+/**
+ * Legacy shape for connected plugins: an object keyed by plugin slug, where the
+ * slug lives on the key rather than in each value. Still emitted by the classic
+ * Jetpack dashboard (initialState.connectedPlugins -> Plugin_Storage::get_all()),
+ * which reaches this component via ConnectButton's DisconnectDialog. Superseded
+ * by ConnectedPlugin[] (the connection-package store + REST return an array).
+ */
+type ConnectedPluginsMap = Record< string, Omit< ConnectedPlugin, 'slug' > >;
+
 interface ConnectedPluginsProps {
-	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins?: ConnectedPlugin[];
+	/**
+	 * Plugins that are using the Jetpack connection. Accepts either an array of
+	 * plugins (modern) or a legacy object keyed by slug (classic dashboard).
+	 */
+	connectedPlugins?: ConnectedPlugin[] | ConnectedPluginsMap;
 	/** Slug of the plugin that has initiated the disconnect. */
 	disconnectingPlugin?: string;
 }
@@ -28,15 +40,20 @@ const ConnectedPlugins = ( { connectedPlugins, disconnectingPlugin }: ConnectedP
 	 * amongst the other plugins still using the connection.
 	 */
 	const connectedPluginsArray = useMemo( () => {
-		if ( connectedPlugins ) {
-			return connectedPlugins.filter( plugin => disconnectingPlugin !== plugin.slug );
+		if ( ! connectedPlugins ) {
+			// No connected plugins.
+			return [];
 		}
 
-		// No connected plugins.
-		return [];
+		// Normalize the legacy slug-keyed object (classic dashboard) into an array.
+		const plugins = Array.isArray( connectedPlugins )
+			? connectedPlugins
+			: Object.entries( connectedPlugins ).map( ( [ slug, plugin ] ) => ( { slug, ...plugin } ) );
+
+		return plugins.filter( plugin => disconnectingPlugin !== plugin.slug );
 	}, [ connectedPlugins, disconnectingPlugin ] );
 
-	if ( connectedPlugins && connectedPluginsArray.length > 0 ) {
+	if ( connectedPluginsArray.length > 0 ) {
 		return (
 			<Fragment>
 				<div className="jp-connection__disconnect-dialog__step-copy">

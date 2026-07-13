@@ -119,6 +119,16 @@ const ManageConnectionDialog = ( {
 		return !! connectedUser.currentUser?.permissions?.manage_options;
 	}, [ connectedUser.currentUser ] );
 
+	// Map the connected user into the shape DisconnectDialog expects. Memoized so a
+	// fresh object literal each render doesn't re-fire the dialog's analytics effect.
+	const disconnectDialogUser = useMemo(
+		() => ( {
+			ID: connectedUser.currentUser?.id,
+			login: connectedUser.currentUser?.username,
+		} ),
+		[ connectedUser.currentUser?.id, connectedUser.currentUser?.username ]
+	);
+
 	const _disconnectUser = useCallback( () => {
 		// Not connected to WPCOM? bail.
 		if ( ! connectedUser.currentUser?.isConnected ) {
@@ -265,10 +275,7 @@ const ManageConnectionDialog = ( {
 							onDisconnected={ onDisconnected }
 							connectedPlugins={ connectedPlugins }
 							connectedSiteId={ connectedSiteId }
-							connectedUser={ {
-								ID: connectedUser.currentUser?.id,
-								login: connectedUser.currentUser?.username,
-							} }
+							connectedUser={ disconnectDialogUser }
 							isOpen={ isDisconnectDialogOpen }
 							onClose={ closeDisconnectDialog }
 							context={ context }
