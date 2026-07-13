@@ -59,7 +59,10 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 			? `https://videos.files.wordpress.com/${ vp.guid }/${ details.thumb }`
 			: vpDetails?.poster;
 	const finished = vpDetails?.finished;
-	const isProcessing = ! simple && isVideoPress && ( ! poster || finished === false );
+	// A VideoPress item with no poster isn't displayable yet: still transcoding, or —
+	// on Simple — an unprocessed/orphaned record whose media_details is empty. Self-hosted
+	// also has finished===false; on Simple that flag is absent so the poster check carries it.
+	const isProcessing = isVideoPress && ( ! poster || finished === false );
 	return {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
