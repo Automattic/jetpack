@@ -103,16 +103,19 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		stats: StatsCard, // Rendered explicitly (large or compact card), never through the grid loop below.
+		stats: StatsCard, // Rendered explicitly when showFullJetpackStatsCard is on; otherwise via the grid loop below.
 		crm: CrmCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
 	};
 
-	// Stats is handled explicitly — the large card above the grid, or the compact card prepended
-	// to the grid — so always remove it from the owned-products loop to avoid rendering it twice.
+	// When we render Stats explicitly (the large card above the grid, or the compact card prepended
+	// into it) remove it from the owned-products loop so it isn't rendered twice. When neither
+	// explicit card applies — e.g. the full-stats-card flag is off in a standalone plugin that
+	// doesn't bundle the main Jetpack plugin — leave it in the loop so it still renders as a grid card.
+	const statsRenderedExplicitly = showFullStatsCard || showCompactStatsCard;
 	const filteredSlugs = slugs.filter( slug => {
-		if ( slug === PRODUCT_SLUGS.STATS ) {
+		if ( slug === PRODUCT_SLUGS.STATS && statsRenderedExplicitly ) {
 			return false;
 		}
 

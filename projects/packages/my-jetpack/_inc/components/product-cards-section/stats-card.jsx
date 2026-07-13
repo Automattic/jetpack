@@ -3,8 +3,9 @@ import { PRODUCT_SLUGS } from '../../data/constants';
 import ProductCard from '../connected-product-card';
 
 const StatsCard = props => {
-	// Compact grid fallback, rendered when the large Stats card is hidden (e.g. Stats module disabled).
-	// When the Stats module is active, product-cards-section/index.tsx renders the large Stats card instead.
+	// Compact Stats card, shown in the grid as a fallback when the large "Views in the last 7 days"
+	// card isn't rendered — i.e. when the Stats module isn't active, or when the full-stats-card flag
+	// (the main Jetpack plugin) is off. See product-cards-section/index.tsx for the gating.
 	return <ProductCard slug={ PRODUCT_SLUGS.STATS } showMenu { ...props } />;
 };
 
