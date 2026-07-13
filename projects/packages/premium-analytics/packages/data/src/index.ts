@@ -159,6 +159,7 @@ export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
 	type StatsSingleVideoPage,
+	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
 } from './hooks/use-stats-single-video';
 export {
