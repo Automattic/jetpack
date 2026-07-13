@@ -72,6 +72,22 @@ const SECTIONS = [
 					href: getRedirectUrl( 'jetpack-support-ai' ),
 				},
 			},
+			{
+				key: 'feature_clip',
+				label: __( 'Feature Clip', 'jetpack' ),
+				description: __(
+					'Generate a short AI video clip from your post and set it as the post’s feature clip.',
+					'jetpack'
+				),
+				enabledAction: {
+					label: __( 'Try it out in the editor', 'jetpack' ),
+					href: 'post-new.php',
+				},
+				disabledAction: {
+					label: __( 'Learn more', 'jetpack' ),
+					href: getRedirectUrl( 'jetpack-support-ai' ),
+				},
+			},
 		],
 	},
 	{
