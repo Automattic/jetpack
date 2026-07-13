@@ -163,6 +163,7 @@ class Jetpack_Gutenberg {
 		'donations'              => 'value_bundle',
 		'payment-buttons'        => 'value_bundle',
 		'paypal-payment-buttons' => 'value_bundle',
+		'podcast-episode'        => 'value_bundle',
 	);
 
 	/**

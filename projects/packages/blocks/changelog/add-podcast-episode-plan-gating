@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Preserve block.json attributes when registering the plan-gated Podcast Episode block.

@@ -69,6 +69,8 @@ class Podcast_Episode_Block {
 				'render_callback'       => array( __CLASS__, 'render_block' ),
 				'style'                 => self::STYLE_HANDLE,
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
+				// Paid feature: gate availability behind a Premium (WordPress.com) / Growth (Jetpack) plan.
+				'plan_check'            => true,
 			)
 		);
 	}
