@@ -40,7 +40,6 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
@@ -64,6 +63,7 @@
 		"@wordpress/icons": "15.1.0",
 		"@wordpress/interactivity": "6.50.0",
 		"@wordpress/server-side-render": "6.26.0",
+		"@wordpress/theme": "0.17.0",
 		"@wordpress/ui": "0.17.0",
 		"@wordpress/url": "4.50.0",
 		"@wordpress/viewport": "6.50.0",
@@ -87,7 +87,6 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
-		"@csstools/postcss-global-data": "4.0.0",
 		"@size-limit/file": "^12.1.0",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/preact": "3.2.4",
@@ -103,7 +102,6 @@
 		"core-js": "3.38.1",
 		"jest": "30.4.2",
 		"postcss": "8.5.14",
-		"postcss-custom-properties": "12.1.11",
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",

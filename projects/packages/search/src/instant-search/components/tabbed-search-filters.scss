@@ -17,7 +17,7 @@
 		display: none;
 
 		&:checked + .jetpack-instant-search__search-filter-list-label {
-			border-bottom: 3px solid var(--color-primary);
+			border-bottom: 3px solid helper.$color-tabbed-filter-border-active;
 		}
 	}
 }

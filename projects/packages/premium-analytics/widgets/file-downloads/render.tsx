@@ -3,8 +3,7 @@
  */
 import {
 	useStatsFileDownloads,
-	type StatsFileDownloadsItem,
-	type StatsNormalizedReport,
+	type StatsFileDownloadsComparisonItem,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 /**
@@ -155,7 +154,7 @@ function buildLeaderboardData(
 	const maxPreviousValue = Math.max( ...rows.map( r => r.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
@@ -178,40 +177,28 @@ function buildLeaderboardData(
 			currentShare: ( row.value / maxValue ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousValue ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined
+					? ( previousValue / maxPreviousValue ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
 
-function getFileDownloadItemKey( item: StatsFileDownloadsItem ) {
-	return item.link ?? String( item.label ?? item.shortLabel ?? '' );
-}
-
 /**
- * Flattens a normalized file-downloads report into `FileDownloadRow[]`.
+ * Flattens data-layer file-downloads rows into `FileDownloadRow[]`.
  *
- * @param report           - Normalized report from the data layer, or undefined while loading.
- * @param max              - Maximum rows to keep (0 = all).
- * @param comparisonReport - Optional normalized comparison report.
+ * @param items - Merged file-download rows from the data layer.
  * @return Normalized rows ready for the leaderboard.
  */
-function toFileDownloadRows(
-	report: StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-	max: number,
-	comparisonReport?: StatsNormalizedReport< StatsFileDownloadsItem >
-): FileDownloadRow[] {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-	const sliced = max > 0 ? items.slice( 0, max ) : items;
-	const comparisonItems = comparisonReport?.data.flatMap( point => point.items ) ?? [];
-	const comparisonByKey = new Map(
-		comparisonItems.map( item => [ getFileDownloadItemKey( item ), item.downloads ] )
-	);
-
-	return sliced.map( item => ( {
+function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDownloadRow[] {
+	return items.map( item => ( {
 		label: item.shortLabel ?? String( item.label ?? '' ),
 		value: item.downloads,
-		previousValue: comparisonByKey.get( getFileDownloadItemKey( item ) ),
+		previousValue: item.previousDownloads,
 		href: item.link,
 	} ) );
 }
@@ -302,23 +289,16 @@ type FileDownloadsInnerProps = {
  */
 function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error } =
-		useStatsFileDownloads( reportParams as StatsReportParams );
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, error } =
+		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
 	const showLoading = isLoading || ( isFetching && hasData );
 	const errorMessage = getFileDownloadsErrorMessage( error );
 
 	const rows = useMemo(
-		() =>
-			toFileDownloadRows(
-				primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-				max,
-				hasComparison
-					? ( comparison.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined )
-					: undefined
-			),
-		[ primary.data, max, hasComparison, comparison.data ]
+		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
-	const withComparison = hasComparison && rows.some( row => typeof row.previousValue === 'number' );
+	const withComparison = hasComparison;
 
 	return (
 		<div className={ styles.content }>

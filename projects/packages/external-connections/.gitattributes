@@ -6,5 +6,5 @@ src/build/**      production-include
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
-src/setting.js         production-exclude
+src/settings.jsx       production-exclude
 src/*.scss             production-exclude
