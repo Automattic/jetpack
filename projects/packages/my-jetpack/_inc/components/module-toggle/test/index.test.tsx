@@ -1,18 +1,16 @@
 import '@testing-library/jest-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ModuleToggle } from '../index';
+import type { ReactNode } from 'react';
 
 const mockToggleModule = jest.fn();
 const mockTrackProductAction = jest.fn();
 
-jest.mock( '@automattic/jetpack-shared-stores', () => ( {
-	store: {},
-} ) );
-
-jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { updateJetpackModuleStatus: mockToggleModule } ),
-	useSelect: callback => callback( () => ( { isModuleUpdating: () => false } ) ),
+jest.mock( '../../../data/use-simple-mutation', () => ( {
+	__esModule: true,
+	default: () => ( { mutate: mockToggleModule, isPending: false } ),
 } ) );
 
 jest.mock( '@wordpress/components', () => {
@@ -59,6 +57,14 @@ const sharedaddyModule = {
 	search_terms: '',
 };
 
+const renderModuleToggle = ( ui: ReactNode ) => {
+	const queryClient = new QueryClient( {
+		defaultOptions: { queries: { retry: false } },
+	} );
+
+	return render( <QueryClientProvider client={ queryClient }>{ ui }</QueryClientProvider> );
+};
+
 describe( 'ModuleToggle', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -75,7 +81,7 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it( 'links inactive sharedaddy to the Single template on block themes', () => {
-		render( <ModuleToggle module={ sharedaddyModule } /> );
+		renderModuleToggle( <ModuleToggle module={ sharedaddyModule } /> );
 
 		expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
 			'href',
@@ -85,8 +91,7 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it( 'deactivates legacy sharing when switching to the block', async () => {
-		mockToggleModule.mockResolvedValue( true );
-		render( <ModuleToggle module={ { ...sharedaddyModule, activated: true } } /> );
+		renderModuleToggle( <ModuleToggle module={ { ...sharedaddyModule, activated: true } } /> );
 
 		// The legacy toggle is replaced by the switch action.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
@@ -96,7 +101,10 @@ describe( 'ModuleToggle', () => {
 		);
 
 		// Deactivating legacy sharing reveals the Site Editor link ( two-step, no redirect ).
-		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sharedaddy', active: false } );
+		expect( mockToggleModule ).toHaveBeenCalledWith(
+			{ data: { active: false } },
+			expect.objectContaining( { onSuccess: expect.any( Function ) } )
+		);
 
 		// The switch path tracks the deactivation, like the toggle path.
 		expect( mockTrackProductAction ).toHaveBeenCalledWith(
@@ -109,7 +117,7 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it( 'keeps forced-active legacy sharing non-actionable', () => {
-		render(
+		renderModuleToggle(
 			<ModuleToggle module={ { ...sharedaddyModule, activated: true, override: 'active' } } />
 		);
 

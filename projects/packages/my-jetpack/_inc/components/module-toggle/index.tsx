@@ -32,7 +32,6 @@ export type ModuleToggleProps = {
 export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
 	const { createSuccessNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
-	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
 	const queryClient = useQueryClient();
 
 	const { mutate: toggleModule, isPending: isUpdating } = useSimpleMutation( {
@@ -94,6 +93,8 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	if ( isProductsOnlyMode() ) {
 		return null;
 	}
+
+	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
 
 	if ( sharingBlockEditorUrl ) {
 		if ( $module.activated ) {
