@@ -67,4 +67,6 @@ export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors'
 
 export { mockSiteSummary } from './site-summary';
 
+export { mockStatsPostData } from './stats-post';
+
 export { mockStatsInsightsData } from './insights';

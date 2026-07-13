@@ -5,14 +5,13 @@
  * `hasPostScope` control toggles it to exercise the scopeless empty state a
  * user sees when adding the widget outside a post detail page.
  *
- * Metrics come from the proxied `stats/post/{id}` endpoint, covered here by an
- * `apiFetch` middleware that runs before the shared report mocks.
+ * Metrics come from the proxied `stats/post/{id}` endpoint, covered by the
+ * shared report mocks' `stats-post` fixture.
  */
 /**
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
@@ -25,48 +24,15 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import PostDetailHighlightsRender from '../render';
 import widgetDefinition from '../widget';
-import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
-const STATS_POST_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/post/';
+// Any post ID resolves to the shared `stats-post` fixture; this one matches
+// the fixture's own post row for coherence.
 const MOCK_POST_ID = 779;
-
-const mockPostStatsResponse = {
-	views: 3820,
-	like_count: 24,
-	post: { ID: MOCK_POST_ID, post_title: 'Ten things I learned', comment_count: 8 },
-};
-
-let postStatsMocksRegistered = false;
-
-/**
- * Registers an `apiFetch` middleware resolving the proxied `stats/post`
- * request with fixture totals. Idempotent.
- */
-function registerPostStatsMocks(): void {
-	if ( postStatsMocksRegistered ) {
-		return;
-	}
-	postStatsMocksRegistered = true;
-
-	const middleware: APIFetchMiddleware = ( options: APIFetchOptions, next ) => {
-		const path = options.path ?? options.url ?? '';
-
-		if ( path.startsWith( STATS_POST_PATH ) ) {
-			return Promise.resolve( mockPostStatsResponse );
-		}
-
-		return next( options );
-	};
-
-	apiFetch.use( middleware );
-}
-
-registerPostStatsMocks();
 
 const POST_DETAIL_HIGHLIGHTS_RENDER_MODULE = 'storybook/post-detail-highlights';
 

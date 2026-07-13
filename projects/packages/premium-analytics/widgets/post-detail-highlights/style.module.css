@@ -29,12 +29,6 @@
 	font-size: var(--wpds-typography-font-size-lg, 15px);
 }
 
-.placeholder {
-	margin: auto;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}
-
 /* Narrow tiles: tighten the gap so three tiles fit without overflowing. */
 @container widget (max-width: 599px) {
 

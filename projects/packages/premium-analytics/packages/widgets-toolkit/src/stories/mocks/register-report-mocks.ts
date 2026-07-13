@@ -51,6 +51,7 @@ import {
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsPostData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -869,6 +870,12 @@ function buildEmailSummaryResponse() {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string ): unknown {
+	// Single-post lifetime totals — `stats/post/{id}`. Any post ID resolves to
+	// the shared fixture so post-scoped widgets render real values.
+	if ( subPath.startsWith( '/post/' ) ) {
+		return mockStatsPostData;
+	}
+
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
