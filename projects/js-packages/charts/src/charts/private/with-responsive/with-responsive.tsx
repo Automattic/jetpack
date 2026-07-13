@@ -60,9 +60,10 @@ const useResponsiveDimensions = ( {
 		height = availableWidth * aspectRatio;
 		// Contain: when the parent bounds the height and the width-derived height
 		// would overflow it, shrink both axes to fit, preserving the ratio. The 1px
-		// slack keeps the self-referential auto-height case — a parent with no height
-		// of its own collapses onto this box, so measured height ≈ derived height —
-		// from clamping against itself.
+		// slack is not a workaround for a rare case — it covers the normal
+		// unconstrained-parent path (no explicit height on the parent), where this
+		// wrapper's own height comes from this box's content, so the measured height
+		// equals the derived height and a bare `>` would clamp it against itself.
 		if ( parentHeight > 0 && height > parentHeight + 1 ) {
 			height = parentHeight;
 			width = height / aspectRatio;
