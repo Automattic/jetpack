@@ -136,13 +136,9 @@ fi
       DOCKER_DATA_DIR="$MONOREPO_ROOT/tools/docker/data/monorepo"
   fi
 
-  # Set pnpm store directory.
-  # `enableGlobalVirtualStore` makes node_modules a tree of relative symlinks into the store's
-  # `links/` dir, so the store has to sit at the same absolute path inside the container as it does
-  # on the host. Together with mounting the repo at its host path (below), that keeps one set of
-  # symlinks valid on both sides.
-  # Without pnpm on the host there's no host store to share, and no host node_modules pointing into
-  # one. Let the container fall back to its own store, as it did before.
+  # Mirror the host pnpm store into the container at the same path, so node_modules' symlinks into it
+  # resolve on both sides. With no host pnpm there's no host store to share; fall back to the
+  # container's own store, as before.
   PNPM_STORE_PATH="$( cd "$MONOREPO_ROOT" && command -v pnpm >/dev/null 2>&1 && pnpm store path 2>/dev/null )"
 
   PNPM_STORE_DOCKER_ARGS=()
