@@ -15,7 +15,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { computeRunOutcome, resolveScenarioSet } from './measure-lcp.js';
+import {
+	buildSummary,
+	computeRunOutcome,
+	findIncompleteSummaryFields,
+	resolveScenarioSet,
+} from './measure-lcp.js';
 import { tcEscape, reportSkippedScenarios } from './run-performance-tests.js';
 import { SCENARIOS } from './scenarios.js';
 
@@ -140,6 +145,71 @@ test( 'empty measurements: exit 1 (backstop behind the validated filter)', () =>
 	assert.equal( computeRunOutcome( {}, SCENARIOS ).exitCode, 1 );
 } );
 
+// --- findIncompleteSummaryFields (the partial-summary → measurement-failure boundary) ---
+
+test( 'findIncompleteSummaryFields returns [] for a complete summary', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const summary = {
+		median: 300,
+		lcp: { median: 300 },
+		ttfb: { median: 200 },
+		fcp: { median: 500 },
+		decodedBytesKB: { median: 8229 },
+	};
+	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [] );
+} );
+
+test( 'findIncompleteSummaryFields names a posted field whose block the summary dropped', () => {
+	// The partial-summary case: the scenario neither threw nor came back summary-less, but
+	// one posted field (here ttfb) missed the majority rule and buildSummary omitted its
+	// block. Undetected, this sails past every `.error` check, greens the measure step, and
+	// then trips the poster's ATOMIC sanity gate on the undefined median — one flaky
+	// optional field blanking the required Dashboard's post with no warning naming it.
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const summary = {
+		median: 300,
+		lcp: { median: 300 },
+		fcp: { median: 500 },
+		decodedBytesKB: { median: 8229 },
+	};
+	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [ 'ttfb' ] );
+	// A block that exists but has no finite median is just as unusable as a missing block.
+	assert.deepEqual( findIncompleteSummaryFields( forms, { ...summary, ttfb: { median: null } } ), [
+		'ttfb',
+	] );
+} );
+
+test( 'findIncompleteSummaryFields checks the flat LCP mirror for scenarios without metrics[]', () => {
+	// Legacy metricKey/metricPrefix scenarios post from summary.median (the flat LCP
+	// mirror), which buildSummary emits exactly when the lcp block exists — so checking
+	// the lcp block covers them.
+	const legacy = { key: 'legacy', name: 'Legacy', metricKey: 'legacy-lcp', metricType: 'lcp' };
+	assert.deepEqual( findIncompleteSummaryFields( legacy, { lcp: { median: 120 } } ), [] );
+	assert.deepEqual( findIncompleteSummaryFields( legacy, { median: undefined } ), [ 'lcp' ] );
+} );
+
+test( 'a majority-rule field drop in buildSummary is caught as incomplete', () => {
+	// End-to-end through the real aggregation: 3 valid iterations where ttfb was finite in
+	// only 1 (no strict majority) — buildSummary drops the ttfb block, and the completeness
+	// check must flag it so main() records a scenario error instead of a green partial.
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const iterations = [
+		{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
+		{ lcp: 310, metrics: { ttfb: null, fcp: 510, decodedBytesKB: 8229 } },
+		{ lcp: 305, metrics: { ttfb: null, fcp: 505, decodedBytesKB: 8229 } },
+	];
+	const summary = buildSummary( iterations, 3 );
+	assert.equal( summary.ttfb, undefined, 'precondition: the majority rule dropped ttfb' );
+	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [ 'ttfb' ] );
+
+	// The healthy control: every field finite in a majority — nothing flagged.
+	const healthy = buildSummary(
+		iterations.map( it => ( { ...it, metrics: { ...it.metrics, ttfb: 200 } } ) ),
+		3
+	);
+	assert.deepEqual( findIncompleteSummaryFields( forms, healthy ), [] );
+} );
+
 // --- tcEscape (TeamCity service-message value escaping) ---
 
 test( 'tcEscape escapes every character TeamCity requires', () => {
@@ -147,6 +217,8 @@ test( 'tcEscape escapes every character TeamCity requires', () => {
 	assert.equal( tcEscape( "it's" ), "it|'s" );
 	assert.equal( tcEscape( '[tag]' ), '|[tag|]' );
 	assert.equal( tcEscape( 'line1\nline2\rline3' ), 'line1|nline2|rline3' );
+	// The Unicode line terminators the spec also requires: NEL, LS, PS.
+	assert.equal( tcEscape( 'a\u0085b\u2028c\u2029d' ), 'a|xb|lc|pd' );
 	assert.equal( tcEscape( 'plain text stays' ), 'plain text stays' );
 } );
 

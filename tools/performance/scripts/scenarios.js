@@ -60,10 +60,12 @@ export const SCENARIOS = [
 		//     scenarios from posting; this scenario's own keys simply skip that build.
 		// Default NEW scenarios to optional: true; promoting one to required is a deliberate
 		// act (see README → Safeguards → Per-scenario failure isolation).
-		// Scope: this flag isolates MEASUREMENT failures (a scenario that throws / produces
-		// no summary). A successfully-measured value that fails its SANITY_RANGES check is a
-		// data-integrity event, and the poster's atomic gate still refuses the whole post on
-		// purpose (see README → Safeguards → Sanity-range assertions).
+		// Scope: this flag isolates MEASUREMENT failures — a scenario that throws, produces
+		// no summary, or produces a PARTIAL one (a posted field dropped by the summary's
+		// majority rule; measure-lcp.js converts that into a scenario error). A
+		// successfully-measured value that fails its SANITY_RANGES check is a data-integrity
+		// event, and the poster's atomic gate still refuses the whole post on purpose (see
+		// README → Safeguards → Sanity-range assertions).
 		optional: false,
 	},
 	{

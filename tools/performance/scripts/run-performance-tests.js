@@ -66,9 +66,11 @@ function shouldFailBuildOnPostError( err, allowCodeVitalsFailure ) {
 /**
  * Escape a string for use inside a TeamCity service-message single-quoted value.
  *
- * Per the TeamCity spec, `|`, `'`, `[`, `]` and newlines must be pipe-escaped; an
- * unescaped character silently corrupts the message (TeamCity swallows or truncates it
- * rather than erroring). `|` is escaped first so it doesn't double-escape the others.
+ * Per the TeamCity spec, `|`, `'`, `[`, `]`, and every line terminator — `\r`, `\n`, and
+ * the Unicode ones (U+0085 next line, U+2028 line separator, U+2029 paragraph separator) —
+ * must be pipe-escaped; an unescaped character silently corrupts the message (TeamCity
+ * swallows or truncates it rather than erroring). `|` is escaped first so it doesn't
+ * double-escape the others.
  *
  * @param {string} str - Raw text.
  * @return {string} Escaped text, safe inside `text='…'`.
@@ -80,7 +82,10 @@ function tcEscape( str ) {
 		.replace( /\[/g, '|[' )
 		.replace( /\]/g, '|]' )
 		.replace( /\r/g, '|r' )
-		.replace( /\n/g, '|n' );
+		.replace( /\n/g, '|n' )
+		.replace( /\u0085/g, '|x' )
+		.replace( /\u2028/g, '|l' )
+		.replace( /\u2029/g, '|p' );
 }
 
 /**

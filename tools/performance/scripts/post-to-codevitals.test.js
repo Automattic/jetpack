@@ -697,6 +697,51 @@ test( 'the skip warning carries the optional suffix for optional scenarios only'
 	);
 } );
 
+test( 'a stale artifact with an optional PARTIAL summary hits the atomic gate: nothing posts, no fetch', async () => {
+	// The poster-side backstop for the partial-summary case. measure-lcp now converts a
+	// summary missing a posted field into a scenario error before the artifact is written,
+	// so a NORMAL run never produces this shape — but a stale or hand-saved artifact can
+	// still reach `pnpm report` with one. The truthy-but-incomplete summary passes the
+	// required-side guard (it keys on error/no-summary), the missing median reads as
+	// undefined, its sanity check fails, and the pre-existing ATOMIC gate refuses the whole
+	// post (exit-2 class): fail closed, never post a survivor subset from ambiguous data.
+	const partialForms = formsSummary();
+	delete partialForms.ttfb;
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-partial-optional-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary() },
+				formsResponses: { summary: partialForms },
+			},
+		} )
+	);
+	const origFetch = global.fetch;
+	let fetchCalled = false;
+	global.fetch = async () => {
+		fetchCalled = true;
+		return { ok: true, status: 200, json: async () => ( {} ), text: async () => '' };
+	};
+	let result;
+	try {
+		result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok',
+			} )
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.equal( result.validationFailed, true );
+	assert.equal( result.posted, false );
+	assert.equal( fetchCalled, false, 'the atomic gate must stop the POST before fetch' );
+} );
+
 // --- redactToken (keeps the token out of logs and errors) ---
 
 test( 'redactToken strips the exact token and any token query param', () => {
