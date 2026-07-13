@@ -78,8 +78,6 @@ const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/su
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
-const STATS_EMAIL_OPENS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/opens/emails';
-const STATS_EMAIL_CLICKS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/clicks/emails';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -923,6 +921,16 @@ function routeStatsReport( subPath: string ): unknown {
 		return buildEmailRateResponse( emailRate[ 1 ] as 'opens' | 'clicks' );
 	}
 
+	// Per-post email breakdowns: `/opens|clicks/emails/<postId>/<dimension>`. Matched here
+	// (after the `rate` case above) so the shared prefix can't swallow the rate endpoint.
+	if (
+		/^\/(?:opens|clicks)\/emails\/\d+\/(?:country|device|client|link|user-content-link)$/.test(
+			subPath
+		)
+	) {
+		return buildEmailBreakdownResponse( subPath );
+	}
+
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
@@ -1081,13 +1089,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
 		return buildEmailSummaryResponse();
-	}
-
-	if (
-		requestPath.startsWith( STATS_EMAIL_OPENS_PATH ) ||
-		requestPath.startsWith( STATS_EMAIL_CLICKS_PATH )
-	) {
-		return buildEmailBreakdownResponse( requestPath );
 	}
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {

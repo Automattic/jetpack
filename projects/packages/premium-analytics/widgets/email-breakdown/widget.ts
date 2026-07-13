@@ -96,6 +96,9 @@ export default {
 					value: 'clicks',
 				},
 			],
+			// The `links` view always reads the clicks breakdown, so the opens/clicks
+			// metric has no effect there — hide the control to keep it from looking live.
+			isVisible: ( { view } ) => view !== 'links',
 		},
 		{
 			id: 'max',
