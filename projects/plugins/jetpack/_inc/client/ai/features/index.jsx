@@ -8,16 +8,10 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	Card,
-	CardBody,
-	ExternalLink,
-	ToggleControl,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Card, Link, Stack, Text } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
 // Per the design, a row's action link depends on the toggle state: enabled
@@ -42,6 +36,7 @@ const SECTIONS = [
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-support-ai' ),
+					external: true,
 				},
 			},
 			{
@@ -51,6 +46,7 @@ const SECTIONS = [
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: 'https://jetpack.com/support/create-better-post-excerpts-with-ai/',
+					external: true,
 				},
 			},
 		],
@@ -70,6 +66,7 @@ const SECTIONS = [
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-support-ai' ),
+					external: true,
 				},
 			},
 			{
@@ -86,6 +83,7 @@ const SECTIONS = [
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-support-ai' ),
+					external: true,
 				},
 			},
 		],
@@ -143,9 +141,13 @@ function FeatureRow( { feature, checked, isSaving, onChange } ) {
 				onChange={ handleChange }
 			/>
 			{ action && (
-				<ExternalLink className="jetpack-ai-features__action" href={ action.href }>
+				<Link
+					className="jetpack-ai-features__action"
+					href={ action.href }
+					openInNewTab={ !! action.external }
+				>
 					{ action.label }
-				</ExternalLink>
+				</Link>
 			) }
 		</Stack>
 	);
@@ -182,10 +184,10 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	return (
 		<Stack direction="column" gap="md">
 			{ sections.map( section => (
-				<Card key={ section.key }>
-					<CardBody>
+				<Card.Root key={ section.key }>
+					<Card.Content>
 						<Stack direction="column" gap="md">
-							<Text as="h3" weight={ 600 }>
+							<Text as="h3" weight="600">
 								{ section.title }
 							</Text>
 							{ section.features.map( feature => (
@@ -198,8 +200,8 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 								/>
 							) ) }
 						</Stack>
-					</CardBody>
-				</Card>
+					</Card.Content>
+				</Card.Root>
 			) ) }
 		</Stack>
 	);
