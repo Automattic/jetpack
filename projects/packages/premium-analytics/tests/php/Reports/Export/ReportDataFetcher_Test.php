@@ -139,4 +139,19 @@ class ReportDataFetcher_Test extends TestCase {
 			$result->get_error_data()
 		);
 	}
+
+	public function test_build_external_api_error_uses_fallback_status_without_external_details() {
+		$response = new WP_REST_Response( array(), 0 );
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status' => 500,
+			),
+			$result->get_error_data()
+		);
+	}
 }
