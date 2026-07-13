@@ -279,6 +279,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
+	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
@@ -321,7 +322,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 			>
 				<ClicksLeaderboard
 					rows={ activeRows }
-					withComparison={ hasComparison }
+					withComparison={ withComparison }
 					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
 				/>
 			</WidgetState>

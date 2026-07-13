@@ -154,7 +154,7 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
-						withComparison={ hasComparison }
+						withComparison={ withComparison }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
