@@ -1,7 +1,7 @@
 .labelIcon {
 	--jpa-leaderboard-image-width: 16px;
 	--jpa-leaderboard-image-height: 16px;
-	border-radius: var(--wpds-border-radius-sm);
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
 }
 
 /* Flex keeps the Link's external-arrow icon on the same line as the label;
@@ -21,22 +21,6 @@
 
 .labelLink {
 	gap: var(--wpds-dimension-gap-xs, 4px);
-}
-
-/* Let the label Stack shrink inside the flex wrapper so the text can
-   truncate. */
-.labelLink > div,
-.labelText > div {
-	min-inline-size: 0;
-	max-inline-size: 100%;
-}
-
-.labelLink > div > span,
-.labelText > div > span {
-	min-inline-size: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .labelLink:hover,

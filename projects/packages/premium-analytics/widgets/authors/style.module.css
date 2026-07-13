@@ -21,7 +21,7 @@
 .avatar {
 	--jpa-leaderboard-image-width: 20px;
 	--jpa-leaderboard-image-height: 20px;
-	border-radius: 50%;
+	--jpa-leaderboard-image-radius: 50%;
 }
 
 /* Drilled-in post rows have no avatar, so the post label sizes the row.
