@@ -4,7 +4,7 @@
 import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-analytics/data';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
-	MetricWithComparison,
+	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -12,8 +12,8 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, comment, globe, people, seen, starEmpty } from '@wordpress/icons';
-import { Text, VisuallyHidden } from '@wordpress/ui';
+import { comment, globe, people, seen, starEmpty } from '@wordpress/icons';
+import { Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -127,6 +127,26 @@ function SiteOverviewReport( {
 	const isEmpty =
 		! summary || visibleMetrics.every( ( { id } ) => TILE_CONFIG[ id ].value( summary ) === 0 );
 
+	const tiles = visibleMetrics.map( ( { id, label } ) => {
+		const { icon, note, value: metricValue } = TILE_CONFIG[ id ];
+		const value = summary ? metricValue( summary ) : 0;
+		return {
+			key: id,
+			icon,
+			label,
+			value,
+			// Only pair a comparison value when the comparison period actually
+			// returned a summary; a `null` keeps the tile in the comparison layout
+			// (no fabricated delta) so tile sizing stays consistent whether or not
+			// comparison data is available.
+			previousValue: hasComparison && comparisonSummary ? metricValue( comparisonSummary ) : null,
+			note,
+			// The tile shows a shortened count (e.g. 18K); the hover title carries
+			// the exact total, as the upstream Stats tooltip does.
+			valueTitle: formatMetricValue( value, 'number', { decimals: 0 } ),
+		};
+	} );
+
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -149,45 +169,7 @@ function SiteOverviewReport( {
 					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics' ),
 				} }
 			>
-				<div className={ styles.grid }>
-					{ visibleMetrics.map( ( { id, label } ) => {
-						const { icon, note, value: metricValue } = TILE_CONFIG[ id ];
-						const value = summary ? metricValue( summary ) : 0;
-						return (
-							<div key={ id } className={ styles.tile }>
-								<div className={ styles.tileHeader } title={ note }>
-									<Icon className={ styles.tileIcon } icon={ icon } size={ 24 } />
-									<Text className={ styles.tileLabel }>{ label }</Text>
-									{ /* The `title` tooltip is invisible to keyboard and screen-reader
-									     users, so the caveat is repeated as visually hidden text. */ }
-									{ note && <VisuallyHidden>{ note }</VisuallyHidden> }
-								</div>
-								{ /* The tile shows a shortened count (e.g. 18K); the hover title
-								     carries the exact total, as the upstream Stats tooltip does.
-								     Both go through the package formatter so they agree on locale. */ }
-								<div
-									className={ styles.tileValue }
-									title={ formatMetricValue( value, 'number', { decimals: 0 } ) }
-								>
-									<MetricWithComparison
-										value={ value }
-										// Only wire a comparison value when the comparison period
-										// actually returned a summary; otherwise the tile renders as a
-										// bare current-period total rather than showing a delta
-										// derived from missing data.
-										previousValue={
-											hasComparison && comparisonSummary
-												? metricValue( comparisonSummary )
-												: undefined
-										}
-										dataFormat={ COUNT_FORMAT }
-										fontSize="xl"
-									/>
-								</div>
-							</div>
-						);
-					} ) }
-				</div>
+				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);
