@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2026-07-13
+### Changed
+- Podcast: stop exposing the `podcasting_*` options through core `/wp/v2/settings`. The dashboard reads and writes them via the dedicated `wpcom/v2/podcast/settings` endpoint; the registered `sanitize_callback`s are kept so writes stay validated. [#50458]
+- Podcast: update README and MD files [#50248]
+- Update package dependencies. [#49272]
+
+### Fixed
+- Podcast: include full episode show notes in the feed so podcast apps stop showing blank episodes. [#50312]
+- Podcast: load the package whenever the module system initializes it. Host and `jetpack_podcast_for_the_world` load-gating now lives solely in the module availability layer, so self-hosted sites with the module active load the package correctly. [#50242]
+- Podcast distribution: mirror the Pocket Casts submission verdict onto the local site options so the dashboard reflects show state on Jetpack/Atomic sites. [#50228]
+- Podcast Episode: render the full player in all contexts (including the RSS feed) so it shows in the WPCOM Reader on Atomic and Jetpack sites, with a linked title and a native media fallback link for clients that strip the player. [#50286]
+- Podcast feed: emit a single <enclosure> per episode when a post has accumulated duplicate enclosure meta rows. [#50331]
+
 ## [1.3.1] - 2026-07-06
 ### Added
 - Podcast Episode block: Render the full interactive player in the WordPress.com Reader. [#50057]
@@ -158,6 +171,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.3.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.1.1...v1.2.0

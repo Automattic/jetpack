@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.41.0] - 2026-07-13
+### Added
+- Captions: Add a shared manager for uploading, drafting, editing, publishing, and deleting caption tracks. [#49336]
+
+### Changed
+- Captions: Surface outcome and async error messages as snackbars, keeping only form-validation errors as an inline notice. [#50430]
+- Media Library: reuse the attachment title, description and caption for the VideoPress video when promoting a video with the "Upload to VideoPress" action, instead of only the file name. [#50427]
+
+### Fixed
+- Captions: Fix the caption manager failing to load on WordPress.com Simple sites by setting Webpack's public path explicitly. [#50417]
+- VideoPress: Decode HTML entities in video titles so they no longer display as raw entities (e.g. `&#8217;`) in the dashboard library and video details header. [#50429]
+
 ## [0.40.0] - 2026-07-09
 ### Added
 - Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes. [#50054]
@@ -2067,6 +2079,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.41.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.2...v0.39.0
 [0.38.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.1...v0.38.2

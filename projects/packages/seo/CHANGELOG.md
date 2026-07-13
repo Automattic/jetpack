@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-07-13
+### Added
+- Add Person and ProfilePage structured data for authors, with an author profile form in the Schema settings. [#50225]
+
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Fixed
+- Clarify Google site verification actions and configured-code labels. [#50227]
+- Content tab: Rename the row action column from "Actions" to "Edit SEO". [#50332]
+- Fix SEO inspector save issues: report failed saves, block saving over unloaded meta, and keep edits scoped to their post. [#50319]
+- Validate schema profile URLs without DNS lookups, so front-end rendering never blocks on name resolution and well-formed URLs on unresolvable hosts are kept. [#50225]
+
 ## [0.4.0] - 2026-07-06
 ### Added
 - Add a collapsible Schema settings section to SEO > Settings, below Site verification, as the container for upcoming site-level schema controls. [#50071]
@@ -73,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.5.0]: https://github.com/Automattic/jetpack-seo/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-seo/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/Automattic/jetpack-seo/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-seo/compare/0.2.0...0.3.0

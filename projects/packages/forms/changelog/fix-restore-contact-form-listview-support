@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Contact Form: restore the listView block support so form fields can be managed from the editor List View (regressed when block attributes were ported to block.json metadata).
