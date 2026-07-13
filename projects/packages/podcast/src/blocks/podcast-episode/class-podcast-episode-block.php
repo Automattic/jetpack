@@ -63,29 +63,42 @@ class Podcast_Episode_Block {
 			)
 		);
 
-		// Paid feature: only register (and render) the block when the site has
-		// podcast product access — Premium on WordPress.com, Growth/Complete on
-		// self-hosted Jetpack (see Podcast_Gate). Otherwise flag it as plan-gated
-		// so the editor surfaces the upgrade banner instead of the block.
-		if ( Podcast_Gate::has_product_access() ) {
-			Blocks::jetpack_register_block(
-				__DIR__,
-				array(
-					'render_callback'       => array( __CLASS__, 'render_block' ),
-					'style'                 => self::STYLE_HANDLE,
-					'render_email_callback' => array( __CLASS__, 'render_email' ),
-				)
-			);
-		} elseif ( class_exists( \Jetpack_Gutenberg::class ) ) {
-			\Jetpack_Gutenberg::set_extension_unavailable(
-				'podcast-episode',
-				'missing_plan',
-				array(
-					'required_feature' => 'podcast-episode',
-					'required_plan'    => Podcast_Gate::get_required_plan_slug(),
-				)
-			);
+		// Register in every context so the front-end and RSS feed render the full
+		// player (with product access) or a basic audio/video fallback (without) —
+		// see render_block().
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'render_callback'       => array( __CLASS__, 'render_block' ),
+				'style'                 => self::STYLE_HANDLE,
+				'render_email_callback' => array( __CLASS__, 'render_email' ),
+			)
+		);
+
+		// Paid feature: without podcast product access (Premium on WordPress.com,
+		// Growth/Complete on self-hosted Jetpack — see Podcast_Gate), flag the
+		// block as plan-gated so the editor shows an upgrade prompt. Runs after
+		// jetpack_register_block's own availability action (priority 10), so the
+		// plan-gated state wins.
+		if ( class_exists( \Jetpack_Gutenberg::class ) && ! Podcast_Gate::has_product_access() ) {
+			add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'flag_plan_gated' ), 11 );
 		}
+	}
+
+	/**
+	 * Flag the block as requiring a paid plan so the editor surfaces the upgrade
+	 * prompt. Hooked on `jetpack_register_gutenberg_extensions` after the block's
+	 * default availability registration, overriding it to "unavailable".
+	 */
+	public static function flag_plan_gated() {
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			'podcast-episode',
+			'missing_plan',
+			array(
+				'required_feature' => 'podcast-episode',
+				'required_plan'    => Podcast_Gate::get_required_plan_slug(),
+			)
+		);
 	}
 
 	/**
@@ -199,6 +212,36 @@ class Podcast_Episode_Block {
 	}
 
 	/**
+	 * Render a basic audio/video element — the front-end and feed fallback for
+	 * sites without podcast product access. Keeps published episodes playable
+	 * while the rich player stays a paid feature.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string
+	 */
+	private static function render_basic_media( array $attributes ): string {
+		$media_url = esc_url_raw( (string) ( $attributes['mediaUrl'] ?? '' ) );
+		if ( '' === $media_url || ! wp_http_validate_url( $media_url ) ) {
+			return '';
+		}
+
+		$is_video           = isset( $attributes['mediaType'] ) && 'video' === $attributes['mediaType'];
+		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'jetpack-podcast-episode--basic' ) );
+
+		ob_start();
+		?>
+		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns pre-escaped attribute output. ?>>
+			<?php if ( $is_video ) : ?>
+				<video class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"></video>
+			<?php else : ?>
+				<audio class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"></audio>
+			<?php endif; ?>
+		</div>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/**
 	 * Render callback.
 	 *
 	 * Renders the full player in every context so the RSS feed carries it — how the WPCOM Reader shows
@@ -216,6 +259,14 @@ class Podcast_Episode_Block {
 	public static function render_block( $attributes, $content, $block = null ) {
 		if ( empty( $attributes['mediaUrl'] ) ) {
 			return '';
+		}
+
+		// Paid feature: without product access, degrade the rich player to a
+		// basic audio/video element so published episodes stay playable while the
+		// full player (chapters, transcript, soundbites, Podcasting 2.0 metadata)
+		// remains gated.
+		if ( ! Podcast_Gate::has_product_access() ) {
+			return self::render_basic_media( $attributes );
 		}
 
 		// Resolve the post that backs this episode. Prefer block context (set by Query Loop / singular

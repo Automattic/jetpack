@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Podcast Episode: gate the block behind a paid plan (Premium on WordPress.com, Growth on Jetpack) so it is only available to add on qualifying sites.
+Podcast Episode: make the rich player a paid feature. Sites without a qualifying plan (Premium on WordPress.com, Growth/Complete on Jetpack) get a basic audio/video fallback on the front end and in feeds, plus an upgrade prompt in the editor.
