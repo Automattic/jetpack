@@ -66,6 +66,8 @@ export {
 	type ReportRecordsTableProps,
 	DownloadCsvButton,
 	type DownloadCsvButtonProps,
+	WordAdsEarningsHistoryWidget,
+	type WordAdsEarningsBreakdownKey,
 } from './components';
 
 /**
@@ -146,8 +148,6 @@ export {
 	type TopPerformingProductsWidgetProps,
 	TopPerformingBookingsWidget,
 	type TopPerformingBookingsWidgetProps,
-	WordAdsEarningsHistoryWidget,
-	type WordAdsEarningsBreakdownKey,
 } from './widgets';
 
 /**

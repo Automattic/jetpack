@@ -7,7 +7,9 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { ReportRecordsTable, WidgetState, useWidgetRootContext } from '../../components';
+import { ReportRecordsTable } from '../report-page';
+import { useWidgetRootContext } from '../widget-root';
+import { WidgetState } from '../widget-state';
 import {
 	EARNINGS_HISTORY_VIEW,
 	flattenEarningsBreakdown,

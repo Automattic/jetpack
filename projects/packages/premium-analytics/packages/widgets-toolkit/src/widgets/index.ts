@@ -23,7 +23,3 @@ export {
 export { CouponUseWidget } from './coupon-use';
 export { OrdersFulfillmentWidget } from './orders-fulfillment';
 export { VisitorsByLocationWidget } from './visitors-by-location';
-export {
-	WordAdsEarningsHistoryWidget,
-	type WordAdsEarningsBreakdownKey,
-} from './wordads-earnings-history';

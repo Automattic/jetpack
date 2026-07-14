@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { WidgetRoot } from '../../../components';
+import { WidgetRoot } from '../../widget-root';
 import { WordAdsEarningsHistoryWidget } from '../wordads-earnings-history-widget';
 
 jest.mock( '@wordpress/api-fetch' );
