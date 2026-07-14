@@ -143,8 +143,7 @@ class Admin_Page {
 			$data = array();
 		}
 
-		$is_wpcom     = ( new Host() )->is_wpcom_platform();
-		$is_connected = $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected();
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
 
 		if ( ! $is_wpcom && empty( $data['site']['wpcom']['blog_id'] ) ) {
 			$blog_id = (int) Connection_Manager::get_site_id( true );
@@ -153,30 +152,14 @@ class Admin_Page {
 			}
 		}
 
-		// Resolve the site's purchases on this admin request, off the front-end
-		// render path (where `has_product_access()` reads the cache locally).
-		// No-op on WordPress.com, which gates via `Current_Plan`.
-		if ( ! $is_wpcom ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$returning_from_checkout = isset( $_GET[ self::PURCHASE_RETURN_QUERY_VAR ] );
-
-			// A buyer returning from checkout: drop the stale (pre-purchase)
-			// cache so it can't mask the new plan. Cheap local delete, so it runs
-			// regardless of connection.
-			if ( $returning_from_checkout ) {
-				Podcast_Gate::flush_purchases_cache();
-			}
-
-			// The (blocking) `/upgrades` fetch needs a connection. On return,
-			// pull fresh so the paid surfaces unlock now; otherwise just warm a
-			// cold cache so the dashboard is accurate before the first heartbeat.
-			if ( $is_connected ) {
-				if ( $returning_from_checkout ) {
-					Podcast_Gate::refresh_purchases_cache();
-				} else {
-					Podcast_Gate::prime_purchases_cache();
-				}
-			}
+		// A buyer returning from checkout carries the purchase marker; drop the
+		// stale cached purchases so the `has_product_access()` read below re-reads
+		// `/upgrades` and unlocks the paid surfaces now instead of after the TTL.
+		// This admin request is the right place for that (blocking) lookup; the
+		// front-end render path reads the cache it leaves behind.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET[ self::PURCHASE_RETURN_QUERY_VAR ] ) ) {
+			Podcast_Gate::flush_purchases_cache();
 		}
 
 		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
@@ -184,7 +167,7 @@ class Admin_Page {
 		// product name shown in the locked-preview copy (not translated).
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
-			'is_connected'        => $is_connected,
+			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.

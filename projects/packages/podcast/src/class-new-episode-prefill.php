@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack\Podcast;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Status\Host;
-
 /**
  * Prefills the new-post screen with the configured podcast category and an
  * inserted media block: the Podcast Episode block on qualifying plans, or a
@@ -52,15 +49,6 @@ class New_Episode_Prefill {
 
 		if ( (int) get_option( 'podcasting_category_id', 0 ) <= 0 ) {
 			return;
-		}
-
-		// Warm the plan cache on this admin request so the prefill below picks the
-		// Podcast Episode block for a paying self-hosted site even before the
-		// background heartbeat first runs — keeping the network fetch off the
-		// front-end render path. WordPress.com gates via Current_Plan (no fetch),
-		// and a disconnected site can't reach `/upgrades` anyway.
-		if ( ! ( new Host() )->is_wpcom_platform() && ( new Connection_Manager( 'jetpack' ) )->is_connected() ) {
-			Podcast_Gate::prime_purchases_cache();
 		}
 
 		add_action( 'wp_insert_post', array( __CLASS__, 'assign_category' ), 10, 3 );
