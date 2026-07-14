@@ -249,6 +249,26 @@ class Podcast_Episode_Block {
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
+		// Drop incomplete rows up front so an all-empty list doesn't enqueue the seek script or emit a bare <ul>.
+		$soundbites           = array_values(
+			array_filter(
+				$soundbites,
+				static function ( $soundbite ) {
+					return is_array( $soundbite ) && isset( $soundbite['startTime'] );
+				}
+			)
+		);
+		$alternate_enclosures = array_values(
+			array_filter(
+				$alternate_enclosures,
+				static function ( $alt ) {
+					return is_array( $alt )
+						&& ! empty( $alt['url'] )
+						&& wp_http_validate_url( esc_url_raw( (string) $alt['url'] ) );
+				}
+			)
+		);
+
 		// Only ship the click-to-seek script when there are soundbites to wire.
 		if ( ! empty( $soundbites ) ) {
 			self::enqueue_view_script();

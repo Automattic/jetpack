@@ -194,7 +194,13 @@ function SoundbitesEditor( { soundbites, onChange }: SoundbitesEditorProps ) {
 	const removeSoundbite = ( index: number ) =>
 		onChange( soundbites.filter( ( _, i ) => i !== index ) );
 	const addSoundbite = () => onChange( [ ...soundbites, { title: '' } ] );
-	const toSeconds = ( value: string ) => ( value === '' ? undefined : Number( value ) );
+	const toSeconds = ( value: string ) => {
+		if ( value === '' ) {
+			return undefined;
+		}
+		const seconds = Number( value );
+		return Number.isFinite( seconds ) ? Math.max( 0, seconds ) : undefined;
+	};
 
 	return (
 		<>
@@ -263,6 +269,12 @@ function AlternateEnclosuresEditor( {
 		onChange( alternateEnclosures.filter( ( _, i ) => i !== index ) );
 	const addEnclosure = () =>
 		onChange( [ ...alternateEnclosures, { url: '', type: '', title: '', lang: '' } ] );
+	const toBitrate = ( value: string ) => {
+		const bitrate = Number( value );
+		return value === '' || ! Number.isFinite( bitrate ) || bitrate < 0
+			? undefined
+			: Math.floor( bitrate );
+	};
 
 	return (
 		<>
@@ -309,9 +321,7 @@ function AlternateEnclosuresEditor( {
 						type="number"
 						min={ 0 }
 						value={ alt.bitrate ?? '' }
-						onChange={ value =>
-							updateEnclosure( index, { bitrate: value === '' ? undefined : Number( value ) } )
-						}
+						onChange={ value => updateEnclosure( index, { bitrate: toBitrate( value ) } ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
