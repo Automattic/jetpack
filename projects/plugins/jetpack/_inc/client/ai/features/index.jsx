@@ -15,12 +15,8 @@ import { Card, Link, Stack, Text } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
 // Per the design, a row's action link depends on the toggle state: enabled
-// features invite you to try them, disabled ones link to documentation.
-// The SEO settings link is the exception and shows in both states.
-//
-// @todo Register the jetpack-support-ai-<feature> source handlers in the
-// Jetpack Redirects service before release — unregistered sources currently
-// land on the Jetpack connect/install flow, not the docs.
+// features invite you to try them (AI SEO opens its settings), disabled ones
+// link to documentation via registered Jetpack Redirects handlers.
 const SECTIONS = [
 	{
 		key: 'content',
@@ -39,7 +35,7 @@ const SECTIONS = [
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai-writing-assistant' ),
+					href: getRedirectUrl( 'jetpack-ai-settings-writing-assistant-learn-more' ),
 					external: true,
 				},
 			},
@@ -53,7 +49,7 @@ const SECTIONS = [
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai-excerpt' ),
+					href: getRedirectUrl( 'jetpack-ai-settings-excerpt-learn-more' ),
 					external: true,
 				},
 			},
@@ -73,7 +69,7 @@ const SECTIONS = [
 				enabledAction: { label: __( 'Try it out', 'jetpack' ), href: 'upload.php' },
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai-image-editor' ),
+					href: getRedirectUrl( 'jetpack-ai-settings-image-editor-learn-more' ),
 					external: true,
 				},
 			},
@@ -87,7 +83,7 @@ const SECTIONS = [
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai-feature-clip' ),
+					href: getRedirectUrl( 'jetpack-ai-settings-feature-clip-learn-more' ),
 					external: true,
 				},
 			},
@@ -110,7 +106,7 @@ const SECTIONS = [
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-support-ai-seo' ),
+					href: getRedirectUrl( 'jetpack-ai-settings-seo-learn-more' ),
 					external: true,
 				},
 			},
