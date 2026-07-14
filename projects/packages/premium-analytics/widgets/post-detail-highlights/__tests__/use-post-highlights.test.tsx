@@ -65,7 +65,52 @@ describe( 'usePostHighlights', () => {
 		expect( result.current.likes ).toBe( 24 );
 	} );
 
-	it( 'sums the comparison window when comparison bounds are present', async () => {
+	it( 'sums the comparison window when comparison is on with valid bounds', async () => {
+		const { result } = renderHook(
+			() =>
+				usePostHighlights(
+					779,
+					reportParams( {
+						from: '2026-07-03T00:00:00.000+08:00',
+						to: '2026-07-04T23:59:59.999+08:00',
+						comp: '1',
+						compare_from: '2026-07-01T00:00:00.000+08:00',
+						compare_to: '2026-07-02T23:59:59.999+08:00',
+					} )
+				),
+			{ wrapper }
+		);
+
+		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
+
+		expect( result.current.views ).toBe( 12 );
+		expect( result.current.viewsPrevious ).toBe( 5 );
+		expect( result.current.hasComparison ).toBe( true );
+	} );
+
+	it( 'reports a null comparison when comparison is on but a bound is missing or malformed', async () => {
+		const { result } = renderHook(
+			() =>
+				usePostHighlights(
+					779,
+					reportParams( {
+						from: '2026-07-03T00:00:00.000+08:00',
+						to: '2026-07-04T23:59:59.999+08:00',
+						comp: '1',
+						compare_from: 'not-a-date',
+						compare_to: '2026-07-02T23:59:59.999+08:00',
+					} )
+				),
+			{ wrapper }
+		);
+
+		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
+
+		expect( result.current.hasComparison ).toBe( true );
+		expect( result.current.viewsPrevious ).toBeNull();
+	} );
+
+	it( 'treats comparison as off when compare bounds are present without comp', async () => {
 		const { result } = renderHook(
 			() =>
 				usePostHighlights(
@@ -82,30 +127,8 @@ describe( 'usePostHighlights', () => {
 
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 
-		expect( result.current.views ).toBe( 12 );
-		expect( result.current.viewsPrevious ).toBe( 5 );
-		expect( result.current.hasComparison ).toBe( true );
-	} );
-
-	it( 'reports a null comparison when a compare bound is missing or malformed', async () => {
-		const { result } = renderHook(
-			() =>
-				usePostHighlights(
-					779,
-					reportParams( {
-						from: '2026-07-03T00:00:00.000+08:00',
-						to: '2026-07-04T23:59:59.999+08:00',
-						compare_from: 'not-a-date',
-						compare_to: '2026-07-02T23:59:59.999+08:00',
-					} )
-				),
-			{ wrapper }
-		);
-
-		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
-
-		expect( result.current.hasComparison ).toBe( true );
-		expect( result.current.viewsPrevious ).toBeNull();
+		expect( result.current.hasComparison ).toBe( false );
+		expect( result.current.viewsPrevious ).toBeUndefined();
 	} );
 
 	it( 'falls back to the all-time sum when the primary window is missing', async () => {

@@ -24,7 +24,7 @@ export interface PostHighlightsState {
 	comments: number;
 	/** Lifetime like count. */
 	likes: number;
-	/** Whether the report params carry a comparison period. */
+	/** Whether comparison is requested (`comp === '1'` in the report params). */
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
@@ -93,7 +93,10 @@ export default function usePostHighlights(
 		const to = toDay( reportParams.to );
 		const compareFrom = toDay( reportParams.compare_from );
 		const compareTo = toDay( reportParams.compare_to );
-		const hasComparison = !! ( reportParams.compare_from || reportParams.compare_to );
+		// `comp` is the comparison toggle in the report params contract; the
+		// compare bounds may be missing or malformed in a hand-edited deep link,
+		// in which case comparison is on but has no comparable window.
+		const hasComparison = reportParams.comp === '1';
 
 		// The history covers every day since publication, so the unwindowed sum
 		// is the all-time total.
@@ -116,6 +119,7 @@ export default function usePostHighlights(
 		};
 	}, [
 		data,
+		reportParams.comp,
 		reportParams.from,
 		reportParams.to,
 		reportParams.compare_from,
