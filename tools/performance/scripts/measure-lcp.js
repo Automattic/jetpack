@@ -69,6 +69,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 	// whole scenario; readiness is then carried by the visible-selector + hydration + resource-count
 	// settle below, not by network quiescence. See scenarios.js (formsResponses) and FORMS-729.
 	const navWaitUntil = scenario.loadState || 'networkidle';
+	// The one predicate the readiness plumbing branches on, bound once so the ledger creation,
+	// the warm-up settle and the measured settle can never disagree about which path they are on.
+	const useResourceSettle = navWaitUntil !== 'networkidle';
 
 	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
 
@@ -103,8 +106,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 		// settle can refuse to report quiet while legitimate work is still in flight (the
 		// completed-entries count alone cannot see an in-flight request). null on the networkidle
 		// path, which needs no ledger — Playwright's networkidle already tracks in-flight requests.
-		const pendingRequests =
-			navWaitUntil !== 'networkidle' ? trackPendingRequests( page, isStuckSettingsProbe ) : null;
+		const pendingRequests = useResourceSettle
+			? trackPendingRequests( page, isStuckSettingsProbe )
+			: null;
 
 		try {
 			console.log( `  Iteration ${ i + 1 }/${ iterations }...` );
@@ -171,17 +175,14 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 					timeout: 60000,
 				} );
 				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
-				if ( navWaitUntil !== 'networkidle' ) {
+				if ( useResourceSettle ) {
 					// Warm-up parity with the networkidle scenarios: on the default path this goto
 					// waits for network quiescence, so every cacheable resource is warm before the
 					// measured reload. With `load` the goto returns while route/post-mount resources
 					// may still be in flight, and reloading then would abort them — measuring a
 					// partially cold cache. Settle on the resource count here so the reload below
 					// measures the same warmed page networkidle used to guarantee.
-					assertResourceCountSettled(
-						await waitForResourceCountIdle( page, { pendingCount: pendingRequests.count } ),
-						'warm-up navigation'
-					);
+					await settleOrThrow( page, pendingRequests, 'warm-up navigation' );
 				}
 			}
 
@@ -212,7 +213,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 
 			// Wait for the resource payload to finish loading and LCP to finalize (LCP stops
 			// updating after user input or visibility change).
-			if ( navWaitUntil === 'networkidle' ) {
+			if ( ! useResourceSettle ) {
 				// Default path (Dashboard, My Jetpack): network quiescence is a reliable
 				// "everything loaded" signal and more robust than a fixed timeout on slow systems.
 				await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
@@ -225,10 +226,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				// genuine late resources still hold the wait open via the ledger or the count. If
 				// either signal is still active when the cap expires, fail the iteration (fail
 				// closed) rather than capture a still-loading page's bundle size.
-				assertResourceCountSettled(
-					await waitForResourceCountIdle( page, { pendingCount: pendingRequests.count } ),
-					'measured reload'
-				);
+				await settleOrThrow( page, pendingRequests, 'measured reload' );
 			}
 
 			// Additional short wait for any final rendering after network settles
@@ -642,13 +640,22 @@ function isStuckSettingsProbe( request ) {
 	if ( request.method() !== 'OPTIONS' ) {
 		return false;
 	}
-	let url = request.url();
+	let parsed;
 	try {
-		url = decodeURIComponent( url );
+		parsed = new URL( request.url() );
 	} catch {
-		// Malformed escape sequence — match against the raw URL instead.
+		// Not an absolute URL — cannot be the probe; leave it in the ledger (fail closed).
+		return false;
 	}
-	return url.includes( '/wp/v2/settings' );
+	// The REST route this request targets: the `rest_route` query value (the fixture's
+	// plain-permalink shape — searchParams decodes the %2F encoding), or the /wp-json/<route>
+	// pathname under pretty permalinks. Compared EXACTLY (modulo a trailing slash) so adjacent
+	// routes (/wp/v2/settings/child, /wp/v2/settings-extra) and unrelated URLs that merely
+	// carry the string in a query value never match — those must stay in the ledger and fail
+	// the iteration if they get stuck.
+	const route =
+		parsed.searchParams.get( 'rest_route' ) ?? parsed.pathname.replace( /^\/wp-json(?=\/)/, '' );
+	return route.replace( /\/+$/, '' ) === '/wp/v2/settings';
 }
 
 /**
@@ -698,10 +705,38 @@ function trackPendingRequests( page, isExcluded ) {
  */
 function assertResourceCountSettled( result, phase ) {
 	if ( ! result.settled ) {
+		// Neutral wording on purpose: settled:false means the completed count was still moving
+		// OR a relevant request was still in flight at the deadline — the result cannot say
+		// which, so the message must not claim "count still changing" when a stuck request may
+		// be the actual holdout.
 		throw new Error(
-			`Resource count never settled during ${ phase }: still changing at ${ result.count } resources when the deadline expired — failing this iteration rather than measuring a still-loading page`
+			`Page never settled during ${ phase }: resources or in-flight requests were still active (completed count ${ result.count }) when the deadline expired — failing this iteration rather than measuring a still-loading page`
 		);
 	}
+}
+
+/**
+ * The settle-or-throw step both non-networkidle readiness sites share (warm-up navigation and
+ * measured reload): run the in-flight-aware settle with the iteration's pending-request ledger
+ * threaded in, and fail the iteration (fail closed) if it caps out. Extracted so the ledger
+ * threading is a single, unit-tested seam — a call site that silently dropped `pendingCount`
+ * would reopen the slow-response undercount this exists to close, and as a plain inline option
+ * object that regression survived the whole test suite.
+ *
+ * @param {import('playwright').Page}   page            - The page being measured.
+ * @param {{count: function(): number}} pendingRequests - The iteration's ledger (trackPendingRequests).
+ * @param {string}                      phase           - Which settle this is (for the error message).
+ * @param {object}                      [settleOpts]    - waitForResourceCountIdle tuning overrides (tests only; `pendingCount` cannot be overridden).
+ * @throws {Error} When the settle caps out instead of reaching stability.
+ */
+async function settleOrThrow( page, pendingRequests, phase, settleOpts = {} ) {
+	assertResourceCountSettled(
+		await waitForResourceCountIdle( page, {
+			...settleOpts,
+			pendingCount: pendingRequests.count,
+		} ),
+		phase
+	);
 }
 
 /**
@@ -1022,6 +1057,7 @@ export {
 	assertExpectedUrl,
 	assertResourceCountSettled,
 	isStuckSettingsProbe,
+	settleOrThrow,
 	trackPendingRequests,
 	summarizeResources,
 	resolveScenarioSet,

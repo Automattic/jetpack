@@ -121,8 +121,10 @@ export const SCENARIOS = [
 		// observed count — the same ratio as myJetpack. Honest scope: the floor only catches a
 		// capture BELOW 64; a settle during a gap where nothing is in flight and the next wave is
 		// not yet issued can pass it at 64–90 — the same residual window `networkidle` itself has
-		// always had (its 500ms quiet can fall in such a gap too), narrowed here by the in-flight
-		// ledger and backstopped by SANITY_RANGES. Still count-based, not editor-asset-based:
+		// always had (its 500ms quiet can fall in such a gap too). In that window the working
+		// defense is the settle's ~1s-quiet requirement (double networkidle's 500ms) — the
+		// decodedBytesKB SANITY range is far too wide to catch an undercount and is NOT a
+		// backstop for this. Still count-based, not editor-asset-based:
 		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
 		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
 		minResourceCount: 64,
