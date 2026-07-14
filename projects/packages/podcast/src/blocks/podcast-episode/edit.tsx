@@ -192,9 +192,7 @@ function SoundbitesEditor( { soundbites, onChange }: SoundbitesEditorProps ) {
 		onChange( soundbites.map( ( sb, i ) => ( i === index ? { ...sb, ...patch } : sb ) ) );
 	};
 	const removeSoundbite = ( index: number ) => onChange( soundbites.filter( ( _, i ) => i !== index ) );
-	const addSoundbite = () => onChange( [ ...soundbites, { startTime: 0, duration: 0, title: '' } ] );
-	// startTime/duration are seconds — parse empty as undefined so a cleared field
-	// doesn't coerce to 0 and emit a bogus feed entry.
+	const addSoundbite = () => onChange( [ ...soundbites, { title: '' } ] );
 	const toSeconds = ( value: string ) => ( value === '' ? undefined : Number( value ) );
 
 	return (
