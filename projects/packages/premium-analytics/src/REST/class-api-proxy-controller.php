@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -99,6 +100,10 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  → only `<id>/likes`, never post content). Anchored on both ends and
 	 *                  enforced in the route regex AND in `validate_data_endpoint()` (the route
 	 *                  capture can be shadowed with `?endpoint=`). Omit to allow the whole group.
+	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
+	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
+	 *                  that reject blog-token auth but serve public data without credentials.
+	 *                  Reads only; the group's `capability` still gates the local request.
 	 *
 	 * Maintaining endpoints (this table is the only edit needed for a pass-through endpoint):
 	 *  - ADD a group:   add a key with at least `capability`. Reads work immediately at
@@ -137,10 +142,14 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			'path'       => '/upgrades?site=%d',
 		),
 		'posts'                         => array(
-			'capability' => 'view_stats',
+			'capability'      => 'view_stats',
 			// Only a post's likers list — never post content (the blog token could
 			// otherwise read private posts for any view_stats user).
-			'pattern'    => '[0-9]+/likes',
+			'pattern'         => '[0-9]+/likes',
+			// The likes endpoint rejects blog-token auth ("That API call is not
+			// allowed for this account") but serves public posts without
+			// credentials; forward unsigned, mirroring stats-admin's Odyssey proxy.
+			'unauthenticated' => true,
 		),
 	);
 
@@ -357,13 +366,16 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 		$version = (string) $request->get_param( 'version' );
 
+		$config = $this->config_for( $endpoint );
+
 		return $this->forward(
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'       => $version,
-				'base'          => $this->base_for_version( $version ),
-				'bust_on_write' => $this->busts_cache( $endpoint ),
+				'version'         => $version,
+				'base'            => $this->base_for_version( $version ),
+				'bust_on_write'   => $this->busts_cache( $endpoint ),
+				'unauthenticated' => ! empty( $config['unauthenticated'] ),
 			)
 		);
 	}
@@ -463,6 +475,17 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			}
 		}
 
+		// Unsigned forwards need no tokens — only the blog id baked into the path —
+		// so they skip the connection gate (its blog-token requirement) entirely.
+		if ( ! empty( $opts['unauthenticated'] ) && $is_read ) {
+			$response = $this->request_unauthenticated( $request, $wpcom_path, $version, $base );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			return $this->cache_and_build_response( $response, $cache_key );
+		}
+
 		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
 			return new WP_Error(
 				'no_connection',
@@ -508,6 +531,50 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		$this->maybe_bust_read_cache( $response, ! $is_read, $opts, $wpcom_path, $version, $base );
 
 		return $this->cache_and_build_response( $response, $cache_key );
+	}
+
+	/**
+	 * Forward a read to WPCOM without signing, for `unauthenticated` endpoint groups. Mirrors
+	 * stats-admin's Odyssey proxy (`get_single_post_likes()`): the target endpoint rejects
+	 * blog-token auth but serves public data to credential-less requests. Private posts/sites
+	 * return WPCOM's own restricted error — the same limitation Odyssey has.
+	 *
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path without the forwarded query string.
+	 * @param string          $version    WPCOM API version.
+	 * @param string          $base       WPCOM API base (`rest` or `wpcom`).
+	 *
+	 * @return array|WP_Error Raw HTTP response, or an error.
+	 */
+	private function request_unauthenticated( WP_REST_Request $request, string $wpcom_path, string $version, string $base ) {
+		// The path embeds the blog id; without one the request would target site 0.
+		if ( ! (int) Jetpack_Options::get_option( 'id' ) ) {
+			return new WP_Error(
+				'no_connection',
+				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$api_base = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		if ( empty( $api_base ) ) {
+			$api_base = 'https://public-api.wordpress.com';
+		}
+
+		$response = wp_remote_get(
+			sprintf( '%s/%s/v%s%s', $api_base, $base, $version, $this->append_forwarded_params( $request, $wpcom_path ) ),
+			array( 'timeout' => self::API_TIMEOUT )
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'api_error',
+				__( 'Error communicating with the data service.', 'jetpack-premium-analytics' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $response;
 	}
 
 	/**

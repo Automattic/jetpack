@@ -20,7 +20,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		{
 			uuid: 'post-likes',
 			type: 'jpa/post-likes',
-			placement: { width: 2, height: 2, order: 2 },
+			placement: { width: 1, height: 2, order: 2 },
 		},
 	],
 	'email-opens': [],

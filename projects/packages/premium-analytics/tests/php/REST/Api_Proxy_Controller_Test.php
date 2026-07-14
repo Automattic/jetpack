@@ -396,6 +396,47 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'upgrades/foo' ) );
 	}
 
+	public function test_post_likes_forwards_unsigned() {
+		// The likes endpoint rejects blog-token auth but serves public posts without
+		// credentials, so the `posts` group forwards unsigned (no connection needed).
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		$captured = null;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'found' => 1,
+							'likes' => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 1, $response->get_data()->found );
+		$this->assertStringContainsString( '/rest/v1.2/sites/4242/posts/91/likes', $captured['url'] );
+		$this->assertArrayNotHasKey( 'Authorization', (array) ( $captured['args']['headers'] ?? array() ) );
+	}
+
 	public function test_validate_data_endpoint_enforces_the_posts_pattern() {
 		// `posts` only exposes a post's likers list — never post content, which the blog token
 		// could otherwise read for any view_stats user.

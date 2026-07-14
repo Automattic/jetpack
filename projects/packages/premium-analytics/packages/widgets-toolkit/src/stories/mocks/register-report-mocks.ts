@@ -90,7 +90,7 @@ const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/worda
 // Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
 // matched with its own pattern rather than through routeStatsReport().
 const POST_LIKES_PATH_PATTERN =
-	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/likes(?:\?|$)/;
+	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.2\/posts\/\d+\/likes(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {

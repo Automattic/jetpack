@@ -23,7 +23,9 @@ export const statsPostLikesQuery = (
 
 	return statsProxyQuery( {
 		name: 'post-likes',
-		version: '1.1',
+		// v1.2 matches stats-admin's Odyssey forward; the proxy sends this
+		// endpoint unsigned (the likes endpoint rejects blog-token auth).
+		version: '1.2',
 		endpoint: `posts/${ params.postId }/likes`,
 		params: likesParams,
 		sanitizer: 'postLikes',
