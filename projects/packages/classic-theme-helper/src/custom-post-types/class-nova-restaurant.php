@@ -87,13 +87,15 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		protected $menu_item_loop_current_term = false;
 
 		/**
-		 * Whether the CPT and its utilities have already been registered.
+		 * Whether the CPT and its utilities have already been registered for this request.
 		 *
-		 * Private so that a subclass declaring a property of the same name doesn't hit a visibility fatal.
+		 * The post type and taxonomies are registered globally and the hooks below are global too, so this is
+		 * shared by every instance: a second instance must not attach a duplicate set. Private so that a
+		 * subclass declaring a property of the same name doesn't hit a visibility fatal.
 		 *
 		 * @var bool
 		 */
-		private $registered = false;
+		private static $registered = false;
 
 		/**
 		 * Initialize class.
@@ -140,11 +142,21 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 * Register the CPT and its utilities, if the site supports them.
 		 */
 		public function maybe_register_cpt() {
-			if ( $this->registered || ! $this->site_supports_nova() ) {
+			if ( ! $this->site_supports_nova() ) {
 				return;
 			}
 
-			$this->registered = true;
+			// Loop markup is per-instance state, so every instance needs it, registering or not. Registration
+			// can also run after `init()` has stored a caller's markup, so don't clobber that either.
+			if ( ! $this->menu_item_loop_markup ) {
+				$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
+			}
+
+			if ( self::$registered ) {
+				return;
+			}
+
+			self::$registered = true;
 
 			$this->register_taxonomies();
 			$this->register_post_types();
@@ -157,11 +169,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			add_filter( 'posts_results', array( $this, 'sort_menu_item_queries_by_menu_taxonomy' ), 10, 2 );
 
 			add_action( 'wp_insert_post', array( $this, 'add_post_meta' ) );
-
-			// Registration can run after `init()` has stored a caller's markup, so don't clobber it.
-			if ( ! $this->menu_item_loop_markup ) {
-				$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
-			}
 
 			// Only output our Menu Item Loop Markup on a real blog view.  Not feeds, XML-RPC, admin, etc.
 			add_filter( 'template_include', array( $this, 'setup_menu_item_loop_markup__in_filter' ) );
