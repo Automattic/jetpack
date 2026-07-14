@@ -9,7 +9,8 @@ interface Props {
 }
 
 /**
- * AI tab. Hosts the AI SEO Enhancer toggle today; llms.txt and AI-crawler
+ * GEO (Generative Engine Optimization) tab — internal id/route still keyed
+ * `ai`. Hosts the AI SEO Enhancer toggle today; llms.txt and AI-crawler
  * controls land here later (tracked separately). State + auto-save live in the
  * `form` controller (passed from the page root so it survives tab switches);
  * this component is the presentation.
@@ -28,7 +29,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		return (
 			<Notice.Root intent="error">
 				<Notice.Description>
-					{ __( 'Unable to load AI settings.', 'jetpack-seo' ) }
+					{ __( 'Unable to load GEO settings.', 'jetpack-seo' ) }
 				</Notice.Description>
 			</Notice.Root>
 		);
@@ -41,7 +42,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		return (
 			<Notice.Root intent="info">
 				<Notice.Description>
-					{ __( 'More AI tools for your SEO are on the way.', 'jetpack-seo' ) }
+					{ __( 'More tools to optimize for AI search engines are on the way.', 'jetpack-seo' ) }
 				</Notice.Description>
 			</Notice.Root>
 		);

@@ -51,7 +51,7 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
 					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 					<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
-					<Tabs.Tab value="ai">{ __( 'AI', 'jetpack-seo' ) }</Tabs.Tab>
+					<Tabs.Tab value="ai">{ __( 'GEO', 'jetpack-seo' ) }</Tabs.Tab>
 				</Tabs.List>
 			</div>
 			{ children }
