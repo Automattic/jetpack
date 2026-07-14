@@ -15,6 +15,7 @@ Main chart component with responsive behavior by default.
 | `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
 | `width` | `number?` | responsive | Chart width in pixels |
 | `height` | `number?` | responsive | Chart height in pixels |
+| `aspectRatio` | `number` | - | Height as a fraction of width (e.g. `0.4`) for responsive charts. The chart fills the available width and derives its height, but if the parent is shorter it shrinks both axes to fit rather than overflowing (contained on both axes), and is centered horizontally when narrower than the parent. Used when `width`/`height` are omitted. |
 | `curveType` | `'smooth' \| 'linear' \| 'monotone'?` | `'smooth'` | Line curve interpolation type |
 | `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
 | `withTooltips` | `boolean` | `true` | Enable interactive tooltips |

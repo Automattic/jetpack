@@ -15,6 +15,7 @@ A horizontal bar chart component optimized for list-style data presentation.
 | `data` | `SeriesData[]` | - | **Required.** Array of series data objects |
 | `width` | `number` | - | Chart width in pixels |
 | `height` | `number` | `400` | Chart height in pixels |
+| `aspectRatio` | `number` | - | Height as a fraction of width (e.g. `0.4`) for responsive charts. The chart fills the available width and derives its height, but if the parent is shorter it shrinks both axes to fit rather than overflowing (contained on both axes), and is centered horizontally when narrower than the parent. Used when `width`/`height` are omitted. |
 | `margin` | `ChartMargin` | `{ left: 0, right: 20, bottom: 0, top: 0 }` | Chart margins |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Bars stretch from left to right. Automatically respects user's `prefers-reduced-motion` system setting |

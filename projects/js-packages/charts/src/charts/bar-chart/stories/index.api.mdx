@@ -16,6 +16,7 @@ Main chart component with responsive behavior by default.
 | `chartId` | `string` | auto-generated | Optional unique identifier for the chart |
 | `width` | `number` | responsive | Chart width in pixels |
 | `height` | `number` | `400` | Chart height in pixels |
+| `aspectRatio` | `number` | - | Height as a fraction of width (e.g. `0.4`) for responsive charts. The chart fills the available width and derives its height, but if the parent is shorter it shrinks both axes to fit rather than overflowing (contained on both axes), and is centered horizontally when narrower than the parent. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
