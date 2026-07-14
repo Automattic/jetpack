@@ -41,11 +41,15 @@ function PostDetail(): JSX.Element {
 	const postId = Number( postIdParam );
 
 	// Tabs whose fixed composition has not been ported yet are hidden until
-	// their widgets land (their page tasks own that content).
-	const tabs = useMemo(
-		() => getPostDetailTabs().filter( tab => POST_DETAIL_TAB_LAYOUTS[ tab.id ].length > 0 ),
-		[]
-	);
+	// their widgets land (their page tasks own that content). If no tab has
+	// content (e.g. mid-refactor), fall back to the full list so the page
+	// never dereferences an empty tab set.
+	const tabs = useMemo( () => {
+		const withContent = getPostDetailTabs().filter(
+			tab => POST_DETAIL_TAB_LAYOUTS[ tab.id ].length > 0
+		);
+		return withContent.length > 0 ? withContent : getPostDetailTabs();
+	}, [] );
 	const [ storedTab, setActiveTab ] = useActiveTab();
 	// The `?section=` param may point at a hidden tab; fall back to the first
 	// visible one.
@@ -68,9 +72,17 @@ function PostDetail(): JSX.Element {
 		select =>
 			(
 				select( coreStore ) as unknown as {
-					getEntityRecords: ( kind: string, name: string ) => WidgetModuleRecord[] | null;
+					getEntityRecords: (
+						kind: string,
+						name: string,
+						query?: Record< string, unknown >
+					) => WidgetModuleRecord[] | null;
 				}
-			 ).getEntityRecords( 'root', 'widgetModule' ),
+			 )
+				// `per_page: -1` returns every widget type. Without it, core-data's
+				// default query (`per_page: 10`) caps the records at 10 and could
+				// silently drop the widgets this page's fixed layout requires.
+				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
 		[]
 	);
 
