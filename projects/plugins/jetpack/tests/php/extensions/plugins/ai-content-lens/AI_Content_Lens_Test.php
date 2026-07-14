@@ -3,7 +3,7 @@
  * AI Content Lens (excerpt generator) extension tests.
  *
  * Locks down the registration gates: connection, the jetpack_ai_enabled master
- * filter (historically missing here), and the excerpt toggle from the AI
+ * filter (historically missing here), and the writing toggle from the AI
  * settings page.
  *
  * @package automattic/jetpack
@@ -33,7 +33,7 @@ class AI_Content_Lens_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
-		delete_option( 'jetpack_ai_excerpt_enabled' );
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -92,10 +92,10 @@ class AI_Content_Lens_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The excerpt toggle from the AI settings page turns the extension off.
+	 * The writing toggle from the AI settings page turns the extension off.
 	 */
-	public function test_not_registered_when_excerpt_toggle_off() {
-		update_option( 'jetpack_ai_excerpt_enabled', 0 );
+	public function test_not_registered_when_writing_toggle_off() {
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
 		Content_Lens\register_plugin();
 

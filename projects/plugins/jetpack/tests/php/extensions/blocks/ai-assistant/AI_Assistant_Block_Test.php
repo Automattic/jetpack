@@ -37,7 +37,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
-		delete_option( 'jetpack_ai_excerpt_enabled' );
+		delete_option( 'jetpack_ai_image_editor_enabled' );
 		update_option( 'jetpack_ai_enabled', 1 );
 
 		$this->registered_block = WP_Block_Type_Registry::get_instance()->get_registered( self::BLOCK_NAME );
@@ -59,7 +59,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
-		delete_option( 'jetpack_ai_excerpt_enabled' );
+		delete_option( 'jetpack_ai_image_editor_enabled' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		Jetpack_Gutenberg::reset();
@@ -106,10 +106,10 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The writing and excerpt extensions are available by default.
+	 * The writing extensions are available by default.
 	 */
 	public function test_extensions_registered_with_default_settings() {
-		// Both child options intentionally default to enabled when absent.
+		// The writing option intentionally defaults to enabled when absent.
 		do_action( 'jetpack_register_gutenberg_extensions' );
 
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
@@ -117,26 +117,31 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Disabling writing does not disable the independently controlled excerpt extension.
+	 * Disabling writing disables the writing and excerpt extensions.
 	 */
-	public function test_writing_toggle_does_not_disable_excerpt_extension() {
+	public function test_writing_toggle_disables_writing_and_excerpt_extensions() {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
 		do_action( 'jetpack_register_gutenberg_extensions' );
 
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
-		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-featured-image-generator' ) );
 	}
 
 	/**
-	 * Disabling excerpts does not disable the independently controlled writing extension.
+	 * Disabling image editing prevents every legacy image extension from loading.
 	 */
-	public function test_excerpt_toggle_does_not_disable_writing_extension() {
-		update_option( 'jetpack_ai_excerpt_enabled', 0 );
+	public function test_image_toggle_disables_legacy_image_extensions() {
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
 
 		do_action( 'jetpack_register_gutenberg_extensions' );
 
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
-		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-featured-image-generator' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-experimental-image-generation-support' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-general-purpose-image-generator' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-site-logo-support' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-image-extension' ) );
 	}
 }

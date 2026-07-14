@@ -54,7 +54,6 @@ class Jetpack_AI_Settings {
 		'writing_assistant' => 'jetpack_ai_writing_assistant_enabled',
 		'image_editor'      => 'jetpack_ai_image_editor_enabled',
 		'image_label'       => 'jetpack_ai_image_label_enabled',
-		'excerpt'           => 'jetpack_ai_excerpt_enabled',
 		'seo_enhancer'      => 'ai_seo_enhancer_enabled',
 		'ai_search'         => 'jetpack_search_ai_answers_enabled',
 	);
@@ -69,7 +68,6 @@ class Jetpack_AI_Settings {
 		'writing_assistant' => true,
 		'image_editor'      => true,
 		'image_label'       => true,
-		'excerpt'           => true,
 		'seo_enhancer'      => false,
 		'ai_search'         => false,
 	);
@@ -80,7 +78,7 @@ class Jetpack_AI_Settings {
 	 *
 	 * @var array
 	 */
-	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'image_label', 'excerpt' );
+	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'image_label' );
 
 	/**
 	 * Whether init() has already run.
@@ -126,7 +124,6 @@ class Jetpack_AI_Settings {
 			self::FEATURE_OPTIONS['writing_assistant'] => __( 'Whether the Jetpack AI writing assistant is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_editor']      => __( 'Whether the Jetpack AI image editor is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_label']       => __( 'Whether images generated with Jetpack AI are marked as AI-generated.', 'jetpack' ),
-			self::FEATURE_OPTIONS['excerpt']           => __( 'Whether the Jetpack AI excerpt generator is enabled.', 'jetpack' ),
 		);
 
 		foreach ( $options as $option => $description ) {
