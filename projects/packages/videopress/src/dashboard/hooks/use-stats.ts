@@ -393,9 +393,26 @@ export function useStats() {
 		}
 	}, [] );
 
+	// Destructure the refetch handlers so the callback depends on stable
+	// references, not the per-render `useQueries` result objects.
+	const { refetch: refetchCurrent } = currentQuery;
+	const { refetch: refetchPrevious } = previousQuery;
+	const refetch = useCallback( () => {
+		void refetchCurrent();
+		void refetchPrevious();
+	}, [ refetchCurrent, refetchPrevious ] );
+
 	return {
 		stats,
 		isLoading: currentQuery.isLoading || previousQuery.isLoading,
+		// Surface fetch failures so the Overview can distinguish "couldn't
+		// load" from a genuine zero-activity site. `transformVideoPlays`
+		// yields `EMPTY_STATS` (all zeros) whenever both windows are missing
+		// — which is exactly what an errored query looks like — so without
+		// this flag a failed request renders as fabricated zeros.
+		isError: currentQuery.isError || previousQuery.isError,
+		error: currentQuery.error ?? previousQuery.error,
+		refetch,
 		dateRange,
 		granularity,
 		activeMetric,

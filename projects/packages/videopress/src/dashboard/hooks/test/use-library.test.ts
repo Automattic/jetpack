@@ -2,7 +2,14 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
-import { useLibrary, viewToQueryArgs, privacyStringToInt } from '../use-library';
+import {
+	useLibrary,
+	viewToQueryArgs,
+	privacyStringToInt,
+	libraryRefetchInterval,
+	LIBRARY_POLL_INTERVAL_MS,
+	PROCESSING_POLL_MAX_MS,
+} from '../use-library';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_VIEW: View = {
@@ -64,6 +71,27 @@ describe( 'viewToQueryArgs', () => {
 		expect( viewToQueryArgs( { ...DEFAULT_VIEW, search: 'foo' } ) ).toMatchObject( {
 			search: 'foo',
 		} );
+	} );
+} );
+
+describe( 'libraryRefetchInterval', () => {
+	it( 'does not poll when nothing is processing', () => {
+		expect( libraryRefetchInterval( false, 0 ) ).toBe( false );
+		// Elapsed time is irrelevant once processing has cleared.
+		expect( libraryRefetchInterval( false, PROCESSING_POLL_MAX_MS * 2 ) ).toBe( false );
+	} );
+
+	it( 'polls while processing and under the cap', () => {
+		expect( libraryRefetchInterval( true, 0 ) ).toBe( LIBRARY_POLL_INTERVAL_MS );
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS - 1 ) ).toBe(
+			LIBRARY_POLL_INTERVAL_MS
+		);
+	} );
+
+	it( 'stops polling once the cap is reached, even while still processing (VIDP-298)', () => {
+		// An orphaned record stuck isProcessing forever must not poll unbounded.
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS ) ).toBe( false );
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS + 1 ) ).toBe( false );
 	} );
 } );
 

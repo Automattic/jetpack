@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
@@ -298,5 +298,24 @@ describe( 'useStats', () => {
 
 		expect( result.current.activeMetric ).toBe( 'impressions' );
 		expect( result.current.compare ).toBe( 'secondary_and_previous_period' );
+	} );
+
+	it( 'surfaces isError on a failed fetch instead of laundering it into zero data', async () => {
+		// A rejected request leaves both windows undefined, so `stats` still
+		// reads as EMPTY_STATS (all zeros). The consumer must be able to tell
+		// that apart from a genuine zero-activity site — that's what `isError`
+		// (and `error`) are for.
+		mockApiFetch( async () => {
+			throw new Error( 'network boom' );
+		} );
+
+		const { result } = renderHook( () => useStats(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( result.current.error ).toBeInstanceOf( Error );
+		expect( result.current.isLoading ).toBe( false );
+		// The zeros are still present (nothing loaded), but they're now flagged
+		// as an error rather than presented as real data.
+		expect( result.current.stats.views ).toEqual( { current: 0, previousPeriod: 0 } );
 	} );
 } );

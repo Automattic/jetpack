@@ -1,5 +1,6 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
@@ -309,6 +310,40 @@ async function fetchLibrary(
 	};
 }
 
+export const LIBRARY_POLL_INTERVAL_MS = 2000;
+
+// VIDP-298: cap how long the "still processing" poll runs. An orphaned
+// wpcom Simple record can be stuck `isProcessing` forever (empty
+// media_details, no backend transcode job to ever finish it), which would
+// otherwise poll /wp/v2/media every 2s without bound. 15 minutes of
+// continuous polling comfortably outlasts a real transcode, so a genuine
+// upload is never cut off; a genuinely stuck record stops polling — and
+// stops implying ongoing work — once the cap is hit.
+export const PROCESSING_POLL_MAX_MS = 15 * 60 * 1000;
+
+/**
+ * Decide the library-list poll interval. Pure so the cap logic is testable
+ * without wrangling react-query's timers.
+ *
+ * Polls every {@link LIBRARY_POLL_INTERVAL_MS} while at least one visible
+ * item is still processing AND the current processing run has lasted under
+ * {@link PROCESSING_POLL_MAX_MS}; otherwise returns false to stop the
+ * interval (VIDP-298).
+ *
+ * @param hasProcessing - Whether any current item is still processing.
+ * @param elapsedMs     - Time since processing first began for this query key.
+ * @return The next poll interval in ms, or false to stop polling.
+ */
+export function libraryRefetchInterval(
+	hasProcessing: boolean,
+	elapsedMs: number
+): number | false {
+	if ( ! hasProcessing || elapsedMs >= PROCESSING_POLL_MAX_MS ) {
+		return false;
+	}
+	return LIBRARY_POLL_INTERVAL_MS;
+}
+
 /**
  * Fetch and cache the VideoPress media library from /wp/v2/media.
  *
@@ -316,18 +351,42 @@ async function fetchLibrary(
  * @return Items, loading/error state, pagination info, and a refetch callback.
  */
 export function useLibrary( view: View ) {
+	// Anchor (per query key) for when the current processing run began, so the
+	// VIDP-298 poll cap can measure elapsed time across refetches without
+	// causing re-renders. Stored in a ref, not state, so mutating it never
+	// re-runs the hook or the interval callback.
+	const processingStartRef = useRef< { key: string; startedAt: number } | null >( null );
+
 	const query = useQuery( {
 		// Every filter (privacy, type, sort, search, page, perPage) is now
 		// encoded in the server query args, so they alone key the cache.
 		queryKey: [ LIBRARY_QUERY_KEY, viewToQueryArgs( view ) ],
 		queryFn: () => fetchLibrary( view ),
 		placeholderData: keepPreviousData,
-		// While any item on the current page is still being processed
-		// by the VideoPress backend (no poster yet / finished=false),
-		// re-fetch every 2s so the placeholder is replaced as soon as
-		// the data is ready. React-query pauses this when the tab is
-		// hidden, so it's cheap.
-		refetchInterval: q => ( q.state.data?.items.some( item => item.isProcessing ) ? 2000 : false ),
+		// While any item on the current page is still being processed by the
+		// VideoPress backend (no poster yet / finished=false), re-fetch every
+		// 2s so the placeholder is replaced as soon as the data is ready.
+		// React-query pauses this when the tab is hidden, so it's cheap.
+		// Capped after PROCESSING_POLL_MAX_MS of continuous processing so an
+		// orphaned/stuck record can't poll forever (VIDP-298); the anchor is
+		// keyed by queryHash so it resets when filters/page/search change.
+		refetchInterval: q => {
+			const hasProcessing = Boolean( q.state.data?.items.some( item => item.isProcessing ) );
+			if ( ! hasProcessing ) {
+				// Processing cleared (or never started) for this query — drop the
+				// anchor so the next processing item gets a fresh time budget.
+				if ( processingStartRef.current?.key === q.queryHash ) {
+					processingStartRef.current = null;
+				}
+				return libraryRefetchInterval( false, 0 );
+			}
+			// First sighting of processing for this query key (or the key
+			// changed): stamp the start so elapsed time is measured from here.
+			if ( processingStartRef.current?.key !== q.queryHash ) {
+				processingStartRef.current = { key: q.queryHash, startedAt: Date.now() };
+			}
+			return libraryRefetchInterval( true, Date.now() - processingStartRef.current.startedAt );
+		},
 	} );
 
 	return {
