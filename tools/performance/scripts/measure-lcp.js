@@ -62,6 +62,13 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 	// against measuring the wrong page — e.g. a bare Forms URL redirecting to /forms instead of
 	// the responses inbox — which would populate this scenario's permanent keys from off-target.
 	const expectUrlIncludes = scenario.expectUrlIncludes || null;
+	// The Playwright load state each navigation waits for. Defaults to 'networkidle' (the settled
+	// signal every scenario used originally). A scenario whose page keeps a request perpetually
+	// pending — e.g. the Forms dashboard's canUser OPTIONS to /wp/v2/settings stalls in the
+	// headless-Chromium fixture — sets 'load' so a single un-settling request cannot blackhole the
+	// whole scenario; readiness is then carried by the visible-selector + hydration + resource-count
+	// settle below, not by network quiescence. See scenarios.js (formsResponses) and FORMS-729.
+	const navWaitUntil = scenario.loadState || 'networkidle';
 
 	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
 
@@ -118,7 +125,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// ready selector before measuring. The Dashboard scenario has no path and skips this.
 			if ( targetPath ) {
 				await page.goto( `${ url }${ targetPath }`, {
-					waitUntil: 'networkidle',
+					waitUntil: navWaitUntil,
 					timeout: 60000,
 				} );
 				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
@@ -155,7 +162,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 
 			// Step 3: Reload for a clean measurement of the current page — the Dashboard, or the
 			// page navigated to above.
-			await page.reload( { waitUntil: 'networkidle', timeout: 60000 } );
+			await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
 
 			// Wait for the measured page's content to be present after reload.
 			if ( pageReadySelector ) {
@@ -178,10 +185,21 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				await page.waitForSelector( '#dashboard-widgets, #wpbody-content', { timeout: 30000 } );
 			}
 
-			// Wait for network to settle and LCP to finalize
-			// LCP stops updating after user input or visibility change
-			// Using networkidle is more reliable than a fixed timeout on slow systems
-			await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+			// Wait for the resource payload to finish loading and LCP to finalize (LCP stops
+			// updating after user input or visibility change).
+			if ( navWaitUntil === 'networkidle' ) {
+				// Default path (Dashboard, My Jetpack): network quiescence is a reliable
+				// "everything loaded" signal and more robust than a fixed timeout on slow systems.
+				await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+			} else {
+				// Resilient path (scenarios with a perpetually-pending request, e.g. Forms — see
+				// navWaitUntil): `networkidle` never fires, so settle on the completed-resource count
+				// going quiet instead. A never-delivered request never adds a resource-timing entry,
+				// so a stuck request can't stall this, while genuine late resources (lazy editor
+				// modules) still push the count up and extend the wait. This keeps decodedBytesKB
+				// capture complete without depending on network quiescence.
+				await waitForResourceCountIdle( page );
+			}
 
 			// Additional short wait for any final rendering after network settles
 			await page.waitForTimeout( 500 );
@@ -519,6 +537,48 @@ function summarizeResources( resources ) {
 }
 
 /**
+ * Settle by watching the completed-resource count go quiet — a `networkidle` substitute that a
+ * perpetually-pending request cannot stall.
+ *
+ * `page.waitForLoadState('networkidle')` fires only when there are ~no in-flight requests for
+ * 500ms; a single request that never delivers a response (the Forms dashboard's canUser OPTIONS to
+ * /wp/v2/settings does exactly this in the headless-Chromium fixture) keeps it in-flight forever, so
+ * networkidle never fires and the whole measurement times out. This instead polls
+ * `performance.getEntriesByType('resource').length`, which only counts *completed* requests: a
+ * never-delivered request never appears, so it can't hold the count from settling, while genuine
+ * late resources (lazy editor modules) still bump the count and extend the wait. Resolves once the
+ * count is unchanged across `stableChecks` consecutive polls, or when `maxWaitMs` elapses (whichever
+ * first), so a page that keeps streaming resources still returns rather than hanging.
+ *
+ * @param {import('playwright').Page} page                   - The page being measured.
+ * @param {object}                    [opts]                 - Tuning knobs.
+ * @param {number}                    [opts.intervalMs=200]  - Poll interval.
+ * @param {number}                    [opts.stableChecks=5]  - Consecutive unchanged polls required (≈1s quiet).
+ * @param {number}                    [opts.maxWaitMs=20000] - Hard cap so this can never hang.
+ * @return {Promise<void>}
+ */
+async function waitForResourceCountIdle( page, opts = {} ) {
+	const { intervalMs = 200, stableChecks = 5, maxWaitMs = 20000 } = opts;
+	const deadline = Date.now() + maxWaitMs;
+	let last = -1;
+	let stable = 0;
+	while ( Date.now() < deadline ) {
+		const count = await page.evaluate( () => performance.getEntriesByType( 'resource' ).length );
+
+		if ( count === last ) {
+			stable += 1;
+			if ( stable >= stableChecks ) {
+				return;
+			}
+		} else {
+			stable = 0;
+			last = count;
+		}
+		await page.waitForTimeout( intervalMs );
+	}
+}
+
+/**
  * Content-completeness guard for the bundle-size metric. When a scenario declares the minimum
  * resource count a healthy load produces (`minResourceCount`), throw if the capture returned
  * fewer — a hydrated-but-partial page, or a `networkidle` window that settled in a gap before
@@ -837,4 +897,5 @@ export {
 	summarizeResources,
 	resolveScenarioSet,
 	computeRunOutcome,
+	waitForResourceCountIdle,
 };

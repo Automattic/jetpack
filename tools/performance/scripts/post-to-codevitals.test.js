@@ -23,6 +23,7 @@ import {
 	assertCaptureComplete,
 	assertExpectedUrl,
 	summarizeResources,
+	waitForResourceCountIdle,
 } from './measure-lcp.js';
 import {
 	checkSanityRange,
@@ -2568,4 +2569,67 @@ test( 'a dry run makes no dedup read even when dedup is fully configured', async
 	} finally {
 		global.fetch = origFetch;
 	}
+} );
+
+// --- FORMS-729: forms readiness selector + stuck-request-proof settle ---
+
+/**
+ * Fake Playwright page for waitForResourceCountIdle. `counts` is the sequence
+ * performance.getEntriesByType('resource').length returns on successive polls; the
+ * last value is repeated once the sequence is exhausted. waitForTimeout is a no-op
+ * so the test doesn't actually sleep.
+ */
+function fakeResourcePage( counts ) {
+	let i = 0;
+	return {
+		evaluate: async () => counts[ Math.min( i++, counts.length - 1 ) ],
+		waitForTimeout: async () => {},
+	};
+}
+
+test( 'waitForResourceCountIdle resolves once the completed-resource count holds steady', async () => {
+	// Count climbs 10→40→90 then holds; five equal polls (default stableChecks) settle it.
+	const page = fakeResourcePage( [ 10, 40, 90, 90, 90, 90, 90, 90 ] );
+	await waitForResourceCountIdle( page, { intervalMs: 0, stableChecks: 5, maxWaitMs: 5000 } );
+	// Resolving (not throwing/hanging) is the assertion.
+	assert.ok( true );
+} );
+
+test( 'waitForResourceCountIdle caps at maxWaitMs instead of hanging when the count never settles', async () => {
+	// A count that increases every poll models a page that keeps streaming (or a buggy
+	// stub); the maxWait cap must return rather than loop forever. A never-delivered
+	// request is the real case: it never adds a resource entry, so the count would instead
+	// go flat — this test pins the harder "never flat" bound.
+	let polls = 0;
+	const page = {
+		evaluate: async () => ++polls, // strictly increasing: never stable
+		waitForTimeout: async () => {},
+	};
+	await waitForResourceCountIdle( page, { intervalMs: 0, stableChecks: 5, maxWaitMs: 50 } );
+	assert.ok( polls > 0, 'it should have polled at least once' );
+} );
+
+test( 'formsResponses waits on the visible layout, not the 0-height mount point', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.ok( forms, 'formsResponses scenario must exist' );
+	// The mount point #jetpack-forms-responses-wp-admin-app.boot-layout-container computes to
+	// height 0 post-#49272 (content moved into a position:absolute child), so a *visible*-state
+	// wait on it never resolves. The selector must instead target the rendered .boot-layout.
+	assert.equal(
+		forms.waitForSelector,
+		'#jetpack-forms-responses-wp-admin-app .boot-layout',
+		'forms selector must target the rendered layout, not the 0-height container'
+	);
+	assert.ok(
+		! /\.boot-layout-container/.test( forms.waitForSelector ),
+		'forms selector must not wait on the 0-height boot-layout-container'
+	);
+} );
+
+test( 'formsResponses opts out of networkidle so a stuck request cannot blackhole it', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.equal( forms.loadState, 'load' );
+	// The scenarios that measure a settled page keep the default (undefined → 'networkidle').
+	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).loadState, undefined );
+	assert.equal( SCENARIOS.find( s => s.key === 'myJetpack' ).loadState, undefined );
 } );

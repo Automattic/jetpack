@@ -90,8 +90,29 @@ export const SCENARIOS = [
 		// would populate the `forms-responses-*` keys from the wrong page. `expectUrlIncludes` makes
 		// measure-lcp.js fail the run if a future redirect change moves us off the inbox.
 		path: '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox',
-		waitForSelector: '#jetpack-forms-responses-wp-admin-app.boot-layout-container',
+		// Wait for the app's rendered layout, NOT the mount point. The wp-build `boot` shell
+		// (rebuilt in Automattic/jetpack#49272) renders the whole dashboard inside a
+		// `position: absolute` `.boot-layout` element nested under `display: contents` wrappers,
+		// so the outer `#jetpack-forms-responses-wp-admin-app.boot-layout-container` mount point
+		// now computes to height 0. measure-lcp.js waits for the selector to be *visible*, and a
+		// 0-height element is never visible, so waiting on the container timed out every iteration
+		// even though the dashboard rendered fine ("locator resolved to hidden"). `.boot-layout` is
+		// the positioned surface that actually fills the viewport (a stable, non-hashed BEM class
+		// from the wp-build boot framework), so it reflects the rendered page. Scoped by the app id
+		// so it can only match this dashboard's layout. See FORMS-729.
+		waitForSelector: '#jetpack-forms-responses-wp-admin-app .boot-layout',
 		expectUrlIncludes: '/responses/inbox',
+		// Don't gate the measurement on `networkidle`. The wp-build dashboard framework fires a
+		// `canUser` OPTIONS probe to `/wp/v2/settings` during boot; in the headless-Chromium Docker
+		// fixture that request's response is intermittently not delivered to the browser (the server
+		// answers in ~0.02s and the request completes for curl/isolated fetches — it is a local
+		// boot-burst delivery stall, confirmed local-only), so `networkidle` never settles and every
+		// navigation timed out at 60s. `load` + the visible-selector + hydration waits below are a
+		// deterministic readiness signal that a single perpetually-pending request cannot blackhole;
+		// completeness for decodedBytesKB is then guarded by `minResourceCount` and a resource-count
+		// settle in measure-lcp.js rather than by network quiescence. Other scenarios keep the
+		// default 'networkidle'. See FORMS-729.
+		loadState: 'load',
 		// A healthy load of this page fetches ~80 resources; measure-lcp.js fails the run if it
 		// captures fewer than this, so a truncated/partial capture can't post an in-range but
 		// undercounted decodedBytesKB. Kept well below the real count (2x margin) and count-based,
