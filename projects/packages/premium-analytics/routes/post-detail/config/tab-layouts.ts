@@ -1,23 +1,23 @@
-import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
+import { POST_DETAIL_TAB_IDS } from './tabs';
 import type { PostDetailTabId } from './tabs';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
+export type PostDetailTabLayouts = Partial< Record< PostDetailTabId, DashboardWidget[] > >;
+
+const TAB_IDS = new Set< string >( POST_DETAIL_TAB_IDS );
+
 /**
- * Fixed widget composition for each post-detail tab.
+ * Check whether a value can be used as the persisted tab layout map.
  *
- * The post detail page is not user-customizable (WOOA7S-1622): each tab
- * renders a fixed arrangement so required widgets and their sizing cannot be
- * removed or reshaped. Tabs whose composition has not been ported yet stay
- * empty and are hidden from the tab bar until their widgets land.
+ * @param value - Candidate preference value.
+ * @return Whether the value is a valid tab layout map.
  */
-export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[] > = {
-	'post-traffic': [
-		{
-			uuid: 'post-detail-highlights',
-			type: 'jpa/post-detail-highlights',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
-		},
-	],
-	'email-opens': [],
-	'email-clicks': [],
-};
+export function isPostDetailTabLayouts( value: unknown ): value is PostDetailTabLayouts {
+	if ( ! value || typeof value !== 'object' || Array.isArray( value ) ) {
+		return false;
+	}
+
+	return Object.entries( value ).every(
+		( [ tabId, layout ] ) => TAB_IDS.has( tabId ) && Array.isArray( layout )
+	);
+}

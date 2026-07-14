@@ -8,4 +8,4 @@ export {
 	type PostDetailTabId,
 } from './tabs';
 
-export { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
+export { isPostDetailTabLayouts, type PostDetailTabLayouts } from './tab-layouts';
