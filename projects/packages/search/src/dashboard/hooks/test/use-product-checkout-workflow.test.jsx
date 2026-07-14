@@ -99,10 +99,13 @@ describe( 'useProductCheckoutWorkflow', () => {
 			useProductCheckoutWorkflow( { ...baseProps, isWpcom: true } )
 		);
 
-		// jsdom's `window.location.href` setter is locked (can't be
-		// spied/redefined), so `run()` triggering it surfaces as jsdom's
-		// "Not implemented: navigation" console error -- that's the evidence
-		// a redirect was actually attempted, alongside the URL it was built with.
+		// jsdom's `window.location.href` setter is locked (can't be spied/redefined),
+		// so `run()` still actually assigns it, which jsdom surfaces as a "Not
+		// implemented: navigation" console error. `@wordpress/jest-console`'s strict
+		// guard requires that be explicitly acknowledged (an unhandled console.error
+		// fails the test on its own) -- `toHaveErrored()` is that acknowledgement, not
+		// a check on the navigation itself; `getProductCheckoutUrl`'s asserted args
+		// below are the real signal for the built URL.
 		act( () => result.current.run() );
 
 		expect( mockConnectedRun ).not.toHaveBeenCalled();

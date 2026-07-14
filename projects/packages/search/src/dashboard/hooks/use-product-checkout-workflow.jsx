@@ -33,7 +33,7 @@ const { siteSuffix: defaultSiteSuffix } = window?.JP_CONNECTION_INITIAL_STATE
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @param {Function} props.from                           - The plugin slug initiated the flow.
  * @param {Function} props.isWpcom                        - Whether it's WPCOM site.
- * @return {Function} - The useEffect hook.
+ * @return {{run: Function, isRegistered: boolean, hasCheckoutStarted: boolean}} The checkout workflow handle.
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
@@ -49,6 +49,10 @@ export default function useProductCheckoutWorkflow( {
 
 	const { isUserConnected, isRegistered } = useConnection( { redirectUri, from } );
 
+	// `useBlogIdSuffix` re-checks truthiness against the connection package's own
+	// `getBlogId()` selector, not this `blogID` prop -- both ultimately read the same
+	// `Jetpack_Options::get_option( 'id' )` PHP option within the same request, via two
+	// separate `window` initial-state globals, so they agree in practice.
 	const { run: runConnectedCheckout } = useConnectionCheckoutWorkflow( {
 		productSlug,
 		redirectUrl: redirectUri,
