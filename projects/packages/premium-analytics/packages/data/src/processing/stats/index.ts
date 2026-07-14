@@ -53,6 +53,7 @@ export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
 export type { StatsSummaryResponse } from './summary';
 export type {
+	StatsPostDay,
 	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
