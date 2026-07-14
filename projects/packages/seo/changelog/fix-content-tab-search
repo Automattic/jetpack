@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Content tab: make the search box match titles, SEO titles and meta descriptions instead of returning no results
