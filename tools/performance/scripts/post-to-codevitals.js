@@ -482,10 +482,16 @@ async function postToCodeVitals( resultsPath, config ) {
 					}); this results file comes from a failed run, which must post nothing`
 				);
 			}
+			// Two distinct skip cases, and the log must not conflate them: an ABSENT scenario
+			// was never in the run set (normal for a targeted SCENARIO run — nothing went
+			// wrong), while a PRESENT-but-unusable one (only ever optional here; required
+			// throws above) is a real measurement failure.
 			console.warn(
-				`Warning: No measurement data for ${ scenario.name }${
-					scenario.optional ? ' (optional scenario — its keys skip this build)' : ''
-				}`
+				measurement
+					? `Warning: ${ scenario.name } measurement failed (${
+							measurement.error ? `error: ${ measurement.error }` : 'no summary'
+					  }; optional scenario — its keys skip this build)`
+					: `Warning: ${ scenario.name } not in this results file (not part of the run set; its keys skip this build)`
 			);
 			continue;
 		}

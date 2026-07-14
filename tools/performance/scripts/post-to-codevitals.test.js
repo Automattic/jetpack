@@ -668,8 +668,8 @@ test( 'the skip warning carries the optional suffix for optional scenarios only'
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
 				jetpackConnected: { summary: jetpackSummary() },
-				formsResponses: { error: 'boom' }, // optional: skipped with the suffix
-				// myJetpack absent: unselected, also warned — with the suffix (it's optional)
+				formsResponses: { error: 'boom' }, // optional, present-but-failed: the failure wording
+				// myJetpack absent: unselected — warned with the not-in-run-set wording instead
 			},
 		} )
 	);
@@ -688,7 +688,12 @@ test( 'the skip warning carries the optional suffix for optional scenarios only'
 	assert.equal( result.validationFailed, false );
 	const formsWarn = warns.find( w => w.includes( 'Forms responses' ) );
 	assert.ok( formsWarn, 'expected a skip warning for the errored optional scenario' );
-	assert.ok( formsWarn.includes( '(optional scenario — its keys skip this build)' ) );
+	assert.ok( formsWarn.includes( 'measurement failed (error: boom' ) );
+	assert.ok( formsWarn.includes( 'optional scenario — its keys skip this build' ) );
+	const myJetpackWarn = warns.find( w => w.includes( 'My Jetpack' ) );
+	assert.ok( myJetpackWarn, 'expected a skip warning for the absent scenario' );
+	assert.ok( myJetpackWarn.includes( 'not in this results file' ) );
+	assert.ok( ! myJetpackWarn.includes( 'measurement failed' ) );
 	// The required Dashboard measured fine here, so no warning may name it at all.
 	assert.equal(
 		warns.find( w => w.includes( 'Jetpack (connected sim)' ) ),
