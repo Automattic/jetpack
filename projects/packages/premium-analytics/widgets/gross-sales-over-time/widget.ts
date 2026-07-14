@@ -25,6 +25,11 @@ export type GrossSalesOverTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/gross-sales-over-time',
 	title: __( 'Gross sales over time', 'jetpack-premium-analytics' ),
-	description: __( 'Gross sales over the selected time period.', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Monitor your total revenue — before any discounts, returns, or adjustments — over a set period of time.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

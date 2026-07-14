@@ -38,6 +38,12 @@ export type CommentsAttributes = {
 export default {
 	name: 'jpa/comments',
 	title: __( 'Comments', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Learn about the comments your site receives by authors, posts, and pages.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: comment,
 	attributes: [
 		{

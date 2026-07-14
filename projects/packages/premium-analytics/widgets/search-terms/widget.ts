@@ -24,6 +24,12 @@ export type SearchTermsAttributes = {
 export default {
 	name: 'jpa/search-terms',
 	title: __( 'Search Terms', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Learn about popular terms visitors use to find your site content on search engines.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: search,
 	attributes: [
 		{

@@ -24,6 +24,12 @@ export type ClicksAttributes = {
 export default {
 	name: 'jpa/clicks',
 	title: __( 'Clicks', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Most clicked external links to track engaging content.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 	attributes: [
 		{

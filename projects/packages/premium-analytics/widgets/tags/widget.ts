@@ -25,6 +25,12 @@ export type TagsAttributes = {
 export default {
 	name: 'jpa/tags',
 	title: __( 'Tags & categories', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Most visited tags & categories. Learn about the most engaging topics.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: tag,
 	attributes: [
 		{

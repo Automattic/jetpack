@@ -67,6 +67,12 @@ export const DEFAULT_SUBSCRIBERS_CHART_METRICS: SubscribersChartMetricId[] =
 export default {
 	name: 'jpa/subscribers-chart',
 	title: __( 'Subscribers', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Track subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: trendingUp,
 	attributes: [
 		{

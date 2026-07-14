@@ -25,9 +25,11 @@ export type SessionsByDeviceAttributes = Record< never, never >;
 export default {
 	name: 'jpa/sessions-by-device',
 	title: __( 'Sessions by device', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the sessions breakdown by device type over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'See which devices visitors are using to browse your store.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

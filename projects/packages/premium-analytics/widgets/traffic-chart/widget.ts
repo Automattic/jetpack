@@ -70,6 +70,12 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
 export default {
 	name: 'jpa/traffic-chart',
 	title: __( 'Traffic', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 	attributes: [
 		{
