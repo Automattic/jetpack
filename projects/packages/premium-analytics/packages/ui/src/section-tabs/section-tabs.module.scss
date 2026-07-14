@@ -5,6 +5,17 @@
 	margin-block-end: var(--wpds-dimension-gap-lg, 16px);
 }
 
+/*
+ * The tablist sizes to its content (width: fit-content) and its tabs can
+ * neither shrink nor wrap, so without a clamp it overflows the page on
+ * narrow viewports instead of scrolling in place. Clamping to the wrapper
+ * width activates the tablist's own overflow handling: inline scrolling
+ * plus the fade masks at the clipped edge(s).
+ */
+.tabList :global([role="tablist"]) {
+	max-inline-size: 100%;
+}
+
 .tabList :global([role="tab"][aria-selected="true"]) {
 	color: var(--wp-admin-theme-color, #3858e9);
 }
