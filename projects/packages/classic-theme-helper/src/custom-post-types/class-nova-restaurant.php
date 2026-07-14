@@ -120,20 +120,13 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 */
 		public function __construct() {
 			/*
-			 * On WordPress.com Simple, the REST API does not load the theme before `init`; the theme's
-			 * `after_setup_theme` and `init` callbacks are replayed later, on `restapi_theme_after_setup_theme`
-			 * and `restapi_theme_init`. Theme support is therefore still undeclared here, so re-check once the
-			 * theme has been loaded.
+			 * WordPress.com Simple does not load the theme before `init` on REST requests; it replays the
+			 * theme's `after_setup_theme` and `init` callbacks on the two hooks below instead. Theme support
+			 * is undeclared until then, so check again as each replay finishes.
 			 *
-			 * Themes are expected to declare support from `after_setup_theme`, so register at the end of that
-			 * replay: the post type then exists before any of the theme's own `init` callbacks run, as it
-			 * would on an ordinary request.
-			 *
-			 * The `restapi_theme_init` pass is a fallback for support declared from `init` instead. Priority
-			 * matters in both directions there. Replayed callbacks keep their original priority and are hooked
-			 * after this one, so running at the default 10 would miss support declared at 10; and consumers
-			 * that enumerate registered post types (post likes, sharing) run at 20, so the post type has to
-			 * exist before then. Registration is idempotent, so the two passes are safe together.
+			 * The replayed callbacks keep their own priority and are hooked after ours, hence the offsets:
+			 * last on the setup replay, and after a default-priority `init` but before post likes and sharing
+			 * enumerate the registered post types at 20.
 			 */
 			add_action( 'restapi_theme_after_setup_theme', array( $this, 'maybe_register_cpt' ), PHP_INT_MAX );
 			add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ), 15 );
@@ -163,7 +156,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 			add_action( 'wp_insert_post', array( $this, 'add_post_meta' ) );
 
-			// Registration can happen after `init()` has stored a caller's markup, so don't clobber it.
+			// Registration can run after `init()` has stored a caller's markup, so don't clobber it.
 			if ( ! $this->menu_item_loop_markup ) {
 				$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
 			}
