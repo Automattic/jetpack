@@ -226,6 +226,52 @@ class Nova_Restaurant_Test extends TestCase {
 	}
 
 	/**
+	 * Themes have to declare support before we run, i.e. from `after_setup_theme` (as Canape and Confit do,
+	 * and as the Jetpack docs recommend) or from an `init` callback at a priority below ours. Support declared
+	 * later cannot be seen, because the replayed callback is hooked after ours at the same priority.
+	 */
+	public function test_theme_support_declared_after_our_priority_is_not_picked_up() {
+		$this->create_nova();
+
+		add_action(
+			'restapi_theme_init',
+			function () {
+				add_theme_support( Nova_Restaurant::MENU_ITEM_POST_TYPE );
+			},
+			15
+		);
+
+		do_action( 'restapi_theme_init' );
+
+		$this->assertFalse( post_type_exists( Nova_Restaurant::MENU_ITEM_POST_TYPE ) );
+	}
+
+	/**
+	 * `init()` can store a caller's markup before the theme is replayed and the post type is registered.
+	 * Deferred registration must not reset that markup back to the defaults.
+	 */
+	public function test_deferred_registration_keeps_caller_supplied_markup() {
+		$nova              = Nova_Restaurant::init( array( 'menu_tag' => 'aside' ) );
+		$this->instances[] = $nova;
+
+		add_action(
+			'restapi_theme_init',
+			function () {
+				add_theme_support( Nova_Restaurant::MENU_ITEM_POST_TYPE );
+			},
+			10
+		);
+
+		do_action( 'restapi_theme_init' );
+
+		$markup = $nova->get_menu_item_loop_markup();
+
+		$this->assertTrue( post_type_exists( Nova_Restaurant::MENU_ITEM_POST_TYPE ) );
+		$this->assertSame( 'aside', $markup['menu_tag'] );
+		$this->assertSame( 'menu-items', $markup['menu_class'], 'Unspecified fields still fall back to the defaults.' );
+	}
+
+	/**
 	 * Registration is idempotent: an instance that already registered on `init` must not hook its callbacks a
 	 * second time when `restapi_theme_init` fires.
 	 */

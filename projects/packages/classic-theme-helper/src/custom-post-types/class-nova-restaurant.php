@@ -157,7 +157,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 			add_action( 'wp_insert_post', array( $this, 'add_post_meta' ) );
 
-			$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
+			// Registration can happen after `init()` has stored a caller's markup, so don't clobber it.
+			if ( ! $this->menu_item_loop_markup ) {
+				$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
+			}
 
 			// Only output our Menu Item Loop Markup on a real blog view.  Not feeds, XML-RPC, admin, etc.
 			add_filter( 'template_include', array( $this, 'setup_menu_item_loop_markup__in_filter' ) );
