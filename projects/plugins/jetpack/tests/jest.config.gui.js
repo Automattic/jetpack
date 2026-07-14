@@ -3,7 +3,11 @@ const baseConfig = require( './jest.config.base.js' );
 module.exports = {
 	...baseConfig,
 	roots: [ '<rootDir>/_inc/client/' ],
-	testMatch: [ '<rootDir>/_inc/client/test/main.js', '<rootDir>/_inc/client/**/test/component.js' ],
+	testMatch: [
+		'<rootDir>/_inc/client/test/main.js',
+		'<rootDir>/_inc/client/**/test/component.js',
+		'<rootDir>/_inc/client/sharing/test/component.jsx',
+	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/gui',
 	// This is necessary to allow css from uplot, @wordpress/admin-ui, and @gravatar-com (the

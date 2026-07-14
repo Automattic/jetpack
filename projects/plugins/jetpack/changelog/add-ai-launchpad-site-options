@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Expose the AI Launchpad state options (enabled, dismissed, completed) in the /sites endpoint options, so Calypso clients can gate My Home and launchpad surfaces on them.

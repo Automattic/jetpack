@@ -23,7 +23,17 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Net_Sales_Over_Ti
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Fulfilled_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Refunds_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Revenue_By_Customer_Type_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Campaign_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Channel_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Coupon_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Device_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Source_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sessions_By_Device_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sessions_By_Location_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Tax_Rate_Breakdown_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Taxes_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Top_Performing_Products_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Debug_Logger;
 
@@ -86,8 +96,7 @@ class Export {
 		$email->register();
 
 		// Report-type controllers self-register into the Report_Registry on register().
-		// Ported faithfully from woocommerce/woocommerce-analytics (develop). Additional
-		// report controllers are registered here as they land in follow-up changes.
+		// Ported faithfully from woocommerce/woocommerce-analytics (develop).
 		$report_controllers = array(
 			Average_Items_Per_Order_Controller::class,
 			Average_Order_Value_Controller::class,
@@ -98,7 +107,17 @@ class Export {
 			Orders_Fulfilled_Over_Time_Controller::class,
 			Orders_Over_Time_Controller::class,
 			Refunds_Over_Time_Controller::class,
+			Revenue_By_Customer_Type_Controller::class,
+			Sales_By_Campaign_Controller::class,
+			Sales_By_Channel_Controller::class,
+			Sales_By_Coupon_Controller::class,
+			Sales_By_Device_Controller::class,
+			Sales_By_Source_Controller::class,
+			Sessions_By_Device_Controller::class,
+			Sessions_By_Location_Controller::class,
 			Taxes_Over_Time_Controller::class,
+			Tax_Rate_Breakdown_Controller::class,
+			Top_Performing_Products_Controller::class,
 			Visitors_Over_Time_Controller::class,
 		);
 

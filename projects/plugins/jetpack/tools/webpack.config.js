@@ -171,7 +171,18 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				// Match the AI admin build: @wordpress/ui (pulled in via the licensing
+				// activation screen) drags in @wordpress/theme and @wordpress/private-apis.
+				// They are not registered as WP script handles on the main Jetpack admin
+				// path (WP < 7.0 has no core wp-theme, and this page does not load the
+				// wp-build-polyfills shim), so bundle them instead of externalizing to
+				// avoid the whole dashboard script failing to enqueue.
+				requestMap: {
+					'@wordpress/theme': { external: false },
+					'@wordpress/private-apis': { external: false },
+				},
+			} ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,

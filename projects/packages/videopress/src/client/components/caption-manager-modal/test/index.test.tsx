@@ -182,6 +182,18 @@ jest.mock( '@wordpress/components', () => ( {
 			</div>
 		) : null,
 	Notice: ( { children } ) => <div role="alert">{ children }</div>,
+	SnackbarList: ( { notices, onRemove } ) => (
+		<div data-testid="snackbar-list">
+			{ notices.map( ( notice: { id: string; content: string } ) => (
+				<div key={ notice.id } data-testid="snackbar">
+					{ notice.content }
+					<button aria-label="Dismiss notice" onClick={ () => onRemove( notice.id ) }>
+						Dismiss
+					</button>
+				</div>
+			) ) }
+		</div>
+	),
 	TextareaControl: ( { label, onChange, value } ) => (
 		<label htmlFor={ label }>
 			{ label }
@@ -737,9 +749,11 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getAllByText( 'Edit' )[ 0 ] );
 
-		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Unable to load subtitle content. You can try again from the track list or start from an empty subtitle track.'
-		);
+		await expect(
+			screen.findByText(
+				'Unable to load subtitle content. You can try again from the track list or start from an empty subtitle track.'
+			)
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'pauses the preview only while the user is actively typing', async () => {
@@ -875,7 +889,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
 		await user.click( screen.getByText( 'Create cues' ) );
 
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Subtitle text imported.' );
+		expect( screen.getByText( 'Subtitle text imported.' ) ).toBeInTheDocument();
 		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
 		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Trail closed.' );
 		expect( screen.getAllByLabelText( 'Cue start' )[ 0 ] ).toHaveValue( '00:00:00.000' );
@@ -899,7 +913,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
 		await user.click( screen.getByText( 'Create cues' ) );
 
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Subtitle text imported.' );
+		expect( screen.getByText( 'Subtitle text imported.' ) ).toBeInTheDocument();
 		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
 		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Trail closed.' );
 		expect( screen.getAllByLabelText( 'Cue text' )[ 1 ] ).toHaveValue( 'Trail open.' );
@@ -1060,9 +1074,9 @@ describe( 'CaptionManagerModal', () => {
 		);
 		await user.click( screen.getByText( 'Upload track' ) );
 
-		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Track error: Unsupported caption format.'
-		);
+		await expect(
+			screen.findByText( 'Track error: Unsupported caption format.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'rejects generated language keys for the upload language', async () => {
@@ -1263,9 +1277,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Publish' ) );
 
 		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
-		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Subtitles published.'
-		);
+		await expect( screen.findByText( 'Subtitles published.' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Subtitle track published.' ) ).not.toBeInTheDocument();
 	} );
 
@@ -1283,9 +1295,11 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Publish' ) );
 
 		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
-		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Subtitles were published to the video, but saving the editable copy failed. Reopen the track to keep editing.'
-		);
+		await expect(
+			screen.findByText(
+				'Subtitles were published to the video, but saving the editable copy failed. Reopen the track to keep editing.'
+			)
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Unable to save subtitle track.' ) ).not.toBeInTheDocument();
 		// The VTT is live despite the failed save, so the track list must reflect it.
 		expect( onTracksChange ).toHaveBeenCalledWith( [
@@ -1380,9 +1394,9 @@ describe( 'CaptionManagerModal', () => {
 
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
 		expect( saveCaptionTrack ).not.toHaveBeenCalled();
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-			'Track error: VideoPress rejected the subtitle file.'
-		);
+		await expect(
+			screen.findByText( 'Track error: VideoPress rejected the subtitle file.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'duplicates generated captions into a manual subtitle track instead of overwriting auto tracks', async () => {
@@ -1715,9 +1729,9 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
 		await user.click( screen.getByText( 'Save draft' ) );
 
-		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Unable to save subtitle track.'
-		);
+		await expect(
+			screen.findByText( 'Unable to save subtitle track.' )
+		).resolves.toBeInTheDocument();
 
 		// The save failed, so leaving the editor must still prompt about unsaved edits.
 		await user.click( screen.getByText( 'Back to tracks' ) );
@@ -1748,9 +1762,9 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( within( getConfirmDialog() ).getByText( 'Delete' ) );
 
 		await waitFor( () => expect( deleteCaptionTrack ).toHaveBeenCalledWith( 202 ) );
-		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Unable to delete the subtitle draft.'
-		);
+		await expect(
+			screen.findByText( 'Unable to delete the subtitle draft.' )
+		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Portuguese' ) ).toBeInTheDocument();
 	} );
 
@@ -1768,9 +1782,11 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Publish' ) );
 
 		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
-		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Subtitles published, but the previous language’s track couldn’t be removed and may still appear.'
-		);
+		await expect(
+			screen.findByText(
+				'Subtitles published, but the previous language’s track couldn’t be removed and may still appear.'
+			)
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'ignores a stale track-content fetch after switching to another track', async () => {
@@ -1809,7 +1825,7 @@ describe( 'CaptionManagerModal', () => {
 		} );
 
 		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Second track text' );
-		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'snackbar' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'treats a language-only change as an unsaved edit', async () => {

@@ -14,7 +14,7 @@ use WorDBless\Options as WorDBless_Options;
  *
  * @package automattic/jetpack-sync
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 #[CoversClass( Dedicated_Sender::class )]
 class Dedicated_Sender_Test extends BaseTestCase {
 	/**

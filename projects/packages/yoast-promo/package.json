@@ -36,7 +36,7 @@
 		"@wordpress/i18n": "6.23.0",
 		"@wordpress/plugins": "7.50.0",
 		"@wordpress/ui": "0.17.0",
-		"gridicons": "3.4.2",
+		"gridicons": "3.4.3",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},

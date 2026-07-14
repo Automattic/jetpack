@@ -214,6 +214,7 @@ export {
 	getApiErrorStatus,
 	getStatsPlanErrorReason,
 	shouldRetryApiError,
+	useSiteHomeUrl,
 } from './utils';
 export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
@@ -233,6 +234,7 @@ export type {
 	StatsProxyVersion,
 } from './api';
 export type {
+	StatsArchivesComparisonItem,
 	StatsArchivesItem,
 	StatsClicksComparisonItem,
 	StatsClicksItem,
@@ -272,6 +274,7 @@ export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,
 	StatsPublicizeService,
+	StatsReferrersComparisonItem,
 	StatsReferrersItem,
 	StatsSearchTermsComparisonItem,
 	StatsSearchTermsItem,
@@ -311,7 +314,9 @@ export {
 	type StatsQueryParams,
 } from './utils/stats-params';
 export {
+	mergeStatsArchivesComparisonRows,
 	mergeStatsClicksComparisonRows,
+	mergeStatsReferrersComparisonRows,
 	mergeStatsComparisonRows,
 	mergeStatsDevicesComparisonRows,
 	mergeStatsFileDownloadsComparisonRows,

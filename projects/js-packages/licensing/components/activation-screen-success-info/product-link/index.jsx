@@ -41,6 +41,7 @@ const ProductLink = props => {
 			{ productLink && (
 				<Link
 					openInNewTab
+					rel="noopener noreferrer"
 					className="jp-license-activation-screen-success-info--external-link"
 					href={ getRedirectUrl( productLink.redirectSource, { site: siteRawUrl } ) }
 				>

@@ -1,6 +1,17 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+// Import the tab resolver from `config/tabs` directly rather than the report's
+// `config` barrel. `route.ts` imports this registry in `beforeLoad`, so the
+// registry must stay free of React/UI at module scope; the `config/index.ts`
+// barrel re-exports `fields.tsx` (JSX + `@wordpress/route` Link), which would
+// pull the UI into the route guard's import chain. `config/tabs.ts` only
+// depends on the routing helper and i18n, so it's safe to import here.
+import { resolveTabId } from './posts/config/tabs';
 import type { ComponentType } from 'react';
 
 /**
@@ -53,25 +64,19 @@ export type ReportDefinition = {
 /**
  * The report registry: one entry per report, keyed by its `id`.
  *
- * EMPTY for now — the report-page framework ships without any registered
- * reports. A follow-up registers the first report (`posts`). To add a report,
- * drop a `<id>/` module folder under `routes/reports/` that default-exports its
- * page component and add one entry here; no new route is needed (see this
- * folder's README):
- *
- * ```ts
- * import { __ } from '@wordpress/i18n';
- *
- * export const REPORTS: Record< string, ReportDefinition > = {
- * 	posts: {
- * 		id: 'posts',
- * 		getTitle: () => __( 'Posts & pages', 'jetpack-premium-analytics' ),
- * 		load: () => import( './posts/page' ),
- * 	},
- * };
- * ```
+ * To add a report, drop a `<id>/` module folder under `routes/reports/` that
+ * default-exports its page component and add one entry here; no new route is
+ * needed (see this folder's README).
  */
-export const REPORTS: Record< string, ReportDefinition > = {};
+export const REPORTS: Record< string, ReportDefinition > = {
+	posts: {
+		id: 'posts',
+		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ),
+		getDescription: () => __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ),
+		resolveSection: resolveTabId,
+		load: () => import( './posts/page' ),
+	},
+};
 
 /**
  * Look up a report definition by its id.

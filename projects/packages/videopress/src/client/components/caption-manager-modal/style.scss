@@ -606,3 +606,20 @@
 	justify-content: flex-end;
 	gap: 8px;
 }
+
+/*
+ * Transient outcome and error snackbars float over the bottom of the modal.
+ * The list spans the modal so it can't push layout, but only the bubbles
+ * themselves capture clicks, leaving the content behind interactive.
+ */
+.videopress-caption-manager__snackbars {
+	position: absolute;
+	inset-block-end: 16px;
+	inset-inline: 16px;
+	z-index: 11;
+	pointer-events: none;
+
+	.components-snackbar {
+		pointer-events: auto;
+	}
+}
