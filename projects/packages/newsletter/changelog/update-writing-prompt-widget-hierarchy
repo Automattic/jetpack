@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Daily Writing Prompt widget: improve the prompt hierarchy — larger prompt text, icon-only previous/next arrow buttons, a refined primary call to action, a facepile (with a "+N" overflow count) alongside the "View responses" external link, and a footer divider. Also bundle the WPDS design tokens into the widget stylesheet so the styling renders on self-hosted Jetpack, where those tokens are not otherwise defined.
+Daily Writing Prompt widget: refresh the layout and fix its styling on self-hosted Jetpack.
