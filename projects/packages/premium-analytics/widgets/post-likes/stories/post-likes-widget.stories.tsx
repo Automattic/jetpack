@@ -3,9 +3,8 @@
  * scoped post's likers as an avatar roster with an "N more" footer. The post
  * scope arrives through `reportParams.post_id` (seeded from the detail page
  * URL in product); the `hasPostScope` control toggles it to exercise the
- * scopeless empty state. The likes endpoint reports lifetime likers with no
- * timestamps, so rows carry no relative time and the list ignores the
- * dashboard date range.
+ * scopeless empty state. Rows carry the like's relative time (`date_liked`);
+ * the list is a lifetime roster and ignores the dashboard date range.
  *
  * Data comes from the proxied `posts/{id}/likes` endpoint, covered by the
  * shared report mocks' `post-likes` fixture.
@@ -91,7 +90,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Latest likes" widget: the scoped post\'s likers as an avatar roster with an "N more" footer — the post detail Traffic view\'s likes card. The likes endpoint reports lifetime likers with no timestamps, so rows carry no relative time. Without a post scope the widget renders a scopeless empty state.',
+					'The "Latest likes" widget: the scoped post\'s likers as an avatar roster with an "N more" footer — the post detail Traffic view\'s likes card. Each row carries the like\'s relative time. Without a post scope the widget renders a scopeless empty state.',
 			},
 		},
 	},

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useStatsPostLikes } from '@jetpack-premium-analytics/data';
+import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
@@ -31,11 +32,10 @@ const LIKES_SHOWN = 10;
 
 /**
  * Latest likes inner component. Reads the post scope from WidgetRoot's report
- * params and lists the post's likers through `SubscriberList` — avatar and
- * name (linked to the liker's profile when available), most recent first,
- * with an "N more" footer. The likes endpoint reports lifetime likers with no
- * timestamps, so rows carry no relative time and the list ignores the
- * dashboard date range.
+ * params and lists the post's likers through `SubscriberList` — avatar, name
+ * (linked to the liker's Reader profile), and the like's relative time, most
+ * recent first, with an "N more" footer. The list is a lifetime roster and
+ * ignores the dashboard date range.
  *
  * @return The rendered widget content.
  */
@@ -57,6 +57,7 @@ function PostLikesInner() {
 				// Likers link to their WordPress.com Reader profile, mirroring
 				// Calypso's post-likes block (getUserProfileUrl).
 				href: like.login ? `https://wordpress.com/reader/users/${ like.login }` : undefined,
+				secondaryText: formatRelativeSince( like.date_liked ),
 			} ) ),
 		[ data ]
 	);

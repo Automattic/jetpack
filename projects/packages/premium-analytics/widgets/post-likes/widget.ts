@@ -18,10 +18,9 @@ export type PostLikesAttributes = Record< never, never >;
  * Widget type definition.
  *
  * Ported from the Jetpack Stats post detail "Post likes" card. Lists the
- * scoped post's likers — avatar and name, most recent first, with an "N more"
- * footer when the total exceeds the rows shown. The likes endpoint reports
- * lifetime likers with no timestamps, so the list is not date-scoped and rows
- * carry no relative time.
+ * scoped post's likers — avatar, name, and the like's relative time, most
+ * recent first, with an "N more" footer when the total exceeds the rows
+ * shown. The list is a lifetime roster and is not date-scoped.
  */
 export default {
 	name: 'jpa/post-likes',

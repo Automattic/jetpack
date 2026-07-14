@@ -11,6 +11,7 @@ describe( 'sanitizeStatsPostLikesResponse', () => {
 						name: 'Olivia Park',
 						login: 'oliviapark',
 						avatar_URL: 'https://gravatar.com/avatar/1',
+						date_liked: '2026-07-14 15:50:49',
 					},
 					{ ID: '102', name: 'Hiroshi Tanaka', login: 'hiroshit' },
 					{ name: 'No id' },
@@ -25,6 +26,8 @@ describe( 'sanitizeStatsPostLikesResponse', () => {
 					name: 'Olivia Park',
 					login: 'oliviapark',
 					avatar_URL: 'https://gravatar.com/avatar/1',
+					// The plain UTC `date_liked` is normalized to ISO 8601.
+					date_liked: '2026-07-14T15:50:49Z',
 				},
 				{ ID: 102, name: 'Hiroshi Tanaka', login: 'hiroshit' },
 			],

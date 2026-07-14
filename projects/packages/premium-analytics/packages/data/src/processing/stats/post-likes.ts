@@ -2,14 +2,15 @@ import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
 /**
- * One liker from the `posts/{id}/likes` endpoint. The endpoint returns user
- * rows with no like timestamp, so the list is recency-ordered but undated.
+ * One liker from the `posts/{id}/likes` endpoint (v1.2), most recent first.
  */
 export type StatsPostLike = {
 	ID: number;
 	name: string;
 	login: string;
 	avatar_URL?: string;
+	/** When the like happened, normalized to ISO 8601 UTC. */
+	date_liked?: string;
 };
 
 export type StatsPostLikesResponse = {
@@ -17,6 +18,18 @@ export type StatsPostLikesResponse = {
 	found: number;
 	likes: StatsPostLike[];
 };
+
+/**
+ * Normalize the endpoint's `date_liked` — a plain UTC `YYYY-MM-DD HH:mm:ss`
+ * with no zone marker — to ISO 8601 so consumers can parse it with standard
+ * tooling. Values already carrying a `T` (ISO) pass through untouched.
+ *
+ * @param value - The raw `date_liked` value.
+ * @return The ISO 8601 date-time.
+ */
+function normalizeStatsPostLikeDate( value: string ): string {
+	return value.includes( 'T' ) ? value : value.replace( ' ', 'T' ) + 'Z';
+}
 
 function normalizeStatsPostLike( value: unknown ): StatsPostLike[] {
 	if ( ! isStatsRecord( value ) ) {
@@ -36,6 +49,9 @@ function normalizeStatsPostLike( value: unknown ): StatsPostLike[] {
 			name: typeof like.name === 'string' ? like.name : '',
 			login: typeof like.login === 'string' ? like.login : '',
 			...( typeof like.avatar_URL === 'string' ? { avatar_URL: like.avatar_URL } : {} ),
+			...( typeof like.date_liked === 'string' && like.date_liked
+				? { date_liked: normalizeStatsPostLikeDate( like.date_liked ) }
+				: {} ),
 		},
 	];
 }
