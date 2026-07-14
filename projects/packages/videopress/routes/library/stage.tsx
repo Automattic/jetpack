@@ -4,7 +4,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button } from '@wordpress/ui';
+import { Button, Notice } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
@@ -74,7 +74,14 @@ const StageInner = () => {
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
-	const { items, isLoading, paginationInfo, refetch } = useLibrary( view );
+	const {
+		items,
+		isLoading,
+		paginationInfo,
+		isError,
+		error: libraryError,
+		refetch,
+	} = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -456,19 +463,39 @@ const StageInner = () => {
 						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
 						onFilesDrop={ handleFilesDrop }
 					/>
-					<DataViews< LibraryItem >
-						data={ renderedItems }
-						fields={ libraryFields }
-						actions={ actions }
-						view={ view }
-						onChangeView={ onChangeView }
-						selection={ selection }
-						onChangeSelection={ setSelection }
-						getItemId={ getItemId }
-						paginationInfo={ paginationInfo }
-						isLoading={ isLoading }
-						defaultLayouts={ defaultLayouts }
-					/>
+					{ isError ? (
+						// A failed listing request would otherwise render as DataViews'
+						// "No results" — indistinguishable from an empty library. Surface
+						// the error explicitly with a Retry that refetches. Non-dismissible
+						// (no Notice.CloseIcon): there's nothing else to show underneath.
+						<Notice.Root intent="error" className="vp-library__error">
+							<Notice.Description>
+								{ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
+								{ libraryError instanceof Error && libraryError.message
+									? ` ${ libraryError.message }`
+									: '' }
+							</Notice.Description>
+							<Notice.Actions>
+								<Notice.ActionButton onClick={ () => void refetch() }>
+									{ __( 'Retry', 'jetpack-videopress-pkg' ) }
+								</Notice.ActionButton>
+							</Notice.Actions>
+						</Notice.Root>
+					) : (
+						<DataViews< LibraryItem >
+							data={ renderedItems }
+							fields={ libraryFields }
+							actions={ actions }
+							view={ view }
+							onChangeView={ onChangeView }
+							selection={ selection }
+							onChangeSelection={ setSelection }
+							getItemId={ getItemId }
+							paginationInfo={ paginationInfo }
+							isLoading={ isLoading }
+							defaultLayouts={ defaultLayouts }
+						/>
+					) }
 				</div>
 			</UploadActionsProvider>
 			{ captionVideo && (

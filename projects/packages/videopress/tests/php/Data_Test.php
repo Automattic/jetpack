@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -217,6 +218,71 @@ class Data_Test extends BaseTestCase {
 			),
 			$args['meta_query'],
 			'no_videopress must keep producing its meta_query entry off-WPCOM'
+		);
+	}
+
+	/**
+	 * Test that off-WPCOM the new WPCOM-only `videopress_has_guid` param is a
+	 * no-op: the videos-table ID-set logic is IS_WPCOM-guarded, so on a
+	 * self-hosted site it must not add a post__in constraint or a meta_query
+	 * entry. (The WPCOM branch itself can't be exercised here because IS_WPCOM
+	 * can't be defined in this test environment.)
+	 */
+	public function test_videopress_has_guid_is_ignored_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_has_guid', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertArrayNotHasKey( 'post__in', $args, 'Off-WPCOM the param must not add a post__in constraint' );
+		$this->assertSame( array(), $args['meta_query'], 'No meta_query entries should be added for this param' );
+	}
+
+	/**
+	 * Test the pure effective-visibility folding used to build the WPCOM
+	 * privacy ID set. It must reproduce the client's old matchesClientSideFilters:
+	 * effective_private = setting===1 OR ((setting===2 or absent) AND site private);
+	 * the 'site-default' request (2) matches the stored setting (2 or absent).
+	 *
+	 * @dataProvider provider_privacy_value_set
+	 *
+	 * @param int[] $requested       Requested privacy codes.
+	 * @param bool  $site_is_private Whether the site default resolves to private.
+	 * @param int[] $expected_values Expected acceptable stored privacy_setting values.
+	 * @param bool  $expected_null   Whether an absent meta row should qualify.
+	 */
+	#[DataProvider( 'provider_privacy_value_set' )]
+	public function test_wpcom_privacy_value_set( $requested, $site_is_private, $expected_values, $expected_null ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'wpcom_privacy_value_set' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		list( $values, $inc_null ) = $method->invoke( self::$videopress_rest_data, $requested, $site_is_private );
+
+		$this->assertSame( $expected_values, $values );
+		$this->assertSame( $expected_null, $inc_null );
+	}
+
+	/**
+	 * Data provider for test_wpcom_privacy_value_set.
+	 *
+	 * @return array<string, array{0:int[],1:bool,2:int[],3:bool}>
+	 */
+	public static function provider_privacy_value_set() {
+		return array(
+			// On a private-by-default site, site-default + absent fold into "private".
+			'private on private site'       => array( array( 1 ), true, array( 1, 2 ), true ),
+			'public on private site'        => array( array( 0 ), true, array( 0 ), false ),
+			// On a public-by-default site, site-default + absent fold into "public".
+			'private on public site'        => array( array( 1 ), false, array( 1 ), false ),
+			'public on public site'         => array( array( 0 ), false, array( 0, 2 ), true ),
+			// Site-default matches the stored setting regardless of resolved privacy.
+			'site-default on private site'  => array( array( 2 ), true, array( 2 ), true ),
+			'site-default on public site'   => array( array( 2 ), false, array( 2 ), true ),
+			// A comma list unions the per-code sets (deduped).
+			'private+public on public site' => array( array( 1, 0 ), false, array( 1, 0, 2 ), true ),
 		);
 	}
 

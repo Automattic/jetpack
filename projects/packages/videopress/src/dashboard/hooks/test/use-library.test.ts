@@ -1,15 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { makeLibraryItem } from '../../test-utils/library-item';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
-import {
-	useLibrary,
-	viewToQueryArgs,
-	privacyStringToInt,
-	getClientSideFilters,
-	matchesClientSideFilters,
-} from '../use-library';
+import { useLibrary, viewToQueryArgs, privacyStringToInt } from '../use-library';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_VIEW: View = {
@@ -148,106 +141,37 @@ describe( 'on WordPress.com Simple', () => {
 			expect( args ).not.toHaveProperty( 'media_type' );
 		} );
 
-		it( 'omits videopress_privacy_setting for privacy filters (client-side there)', () => {
+		it( 'sends videopress_privacy_setting for privacy filters (server-side now)', () => {
 			const args = viewToQueryArgs( {
 				...DEFAULT_VIEW,
 				filters: [ { field: 'privacy', operator: 'is', value: 'private' } ],
 			} );
-			expect( args ).not.toHaveProperty( 'videopress_privacy_setting' );
+			expect( args ).toMatchObject( { videopress_privacy_setting: '1' } );
 		} );
 
-		it( 'keeps the broad video query for type filters (client-side there)', () => {
+		it( 'sends videopress_has_guid for the videopress type filter (server-side now)', () => {
 			const args = viewToQueryArgs( {
 				...DEFAULT_VIEW,
 				filters: [ { field: 'type', operator: 'is', value: 'videopress' } ],
 			} );
-			expect( args ).toMatchObject( { mime_type: 'video/*' } );
+			// The videos-table constraint rides on top of the always-sent
+			// videopress_only_videos + video/* mime — never the video/videopress
+			// mime, which returns nothing on Simple.
+			expect( args ).toMatchObject( {
+				mime_type: 'video/*',
+				videopress_only_videos: 1,
+				videopress_has_guid: 1,
+			} );
 			expect( args ).not.toHaveProperty( 'no_videopress' );
 		} );
-	} );
 
-	describe( 'getClientSideFilters', () => {
-		it( 'returns null when no privacy/type filter is active', () => {
-			expect( getClientSideFilters( DEFAULT_VIEW ) ).toBeNull();
-			expect(
-				getClientSideFilters( {
-					...DEFAULT_VIEW,
-					filters: [ { field: 'privacy', operator: 'is', value: 'all' } ],
-				} )
-			).toBeNull();
-		} );
-
-		it( 'collects active privacy and type filters', () => {
-			expect(
-				getClientSideFilters( {
-					...DEFAULT_VIEW,
-					filters: [
-						{ field: 'privacy', operator: 'is', value: 'private' },
-						{ field: 'type', operator: 'is', value: 'local' },
-					],
-				} )
-			).toEqual( { privacy: 'private', type: 'local' } );
-		} );
-
-		it( 'treats the videopress type filter as server-satisfied (returns null)', () => {
-			// `videopress_only_videos` already restricts the Simple query to VideoPress
-			// videos, so a videopress type filter needs no client-side pass — keeping the
-			// exact server total and the count query's perPage:1.
-			expect(
-				getClientSideFilters( {
-					...DEFAULT_VIEW,
-					filters: [ { field: 'type', operator: 'is', value: 'videopress' } ],
-				} )
-			).toBeNull();
-		} );
-	} );
-
-	describe( 'matchesClientSideFilters', () => {
-		const publicItem = makeLibraryItem( { privacy: 'public', isPrivate: false } );
-		const privateItem = makeLibraryItem( { privacy: 'private', isPrivate: true } );
-		// Site default resolves to private on a private-by-default site.
-		const defaultPrivateItem = makeLibraryItem( { privacy: 'site-default', isPrivate: true } );
-		const defaultPublicItem = makeLibraryItem( { privacy: 'site-default', isPrivate: false } );
-		const localItem = makeLibraryItem( { type: 'local', guid: '' } );
-
-		it( "privacy 'private' matches effective visibility (isPrivate)", () => {
-			expect( matchesClientSideFilters( privateItem, { privacy: 'private' } ) ).toBe( true );
-			expect( matchesClientSideFilters( defaultPrivateItem, { privacy: 'private' } ) ).toBe( true );
-			expect( matchesClientSideFilters( publicItem, { privacy: 'private' } ) ).toBe( false );
-			expect( matchesClientSideFilters( defaultPublicItem, { privacy: 'private' } ) ).toBe( false );
-		} );
-
-		it( "privacy 'public' matches effective visibility (not isPrivate)", () => {
-			expect( matchesClientSideFilters( publicItem, { privacy: 'public' } ) ).toBe( true );
-			expect( matchesClientSideFilters( defaultPublicItem, { privacy: 'public' } ) ).toBe( true );
-			expect( matchesClientSideFilters( privateItem, { privacy: 'public' } ) ).toBe( false );
-			expect( matchesClientSideFilters( defaultPrivateItem, { privacy: 'public' } ) ).toBe( false );
-		} );
-
-		it( "privacy 'site-default' matches the stored setting, not the effective one", () => {
-			expect( matchesClientSideFilters( defaultPrivateItem, { privacy: 'site-default' } ) ).toBe(
-				true
-			);
-			expect( matchesClientSideFilters( defaultPublicItem, { privacy: 'site-default' } ) ).toBe(
-				true
-			);
-			expect( matchesClientSideFilters( publicItem, { privacy: 'site-default' } ) ).toBe( false );
-			expect( matchesClientSideFilters( privateItem, { privacy: 'site-default' } ) ).toBe( false );
-		} );
-
-		it( 'type matches the guid-derived label', () => {
-			expect( matchesClientSideFilters( localItem, { type: 'local' } ) ).toBe( true );
-			expect( matchesClientSideFilters( publicItem, { type: 'local' } ) ).toBe( false );
-			expect( matchesClientSideFilters( publicItem, { type: 'videopress' } ) ).toBe( true );
-		} );
-
-		it( 'combines filters conjunctively', () => {
-			expect(
-				matchesClientSideFilters( privateItem, { privacy: 'private', type: 'videopress' } )
-			).toBe( true );
-			expect( matchesClientSideFilters( privateItem, { privacy: 'private', type: 'local' } ) ).toBe(
-				false
-			);
+		it( 'sends no_videopress for the local type filter', () => {
+			const args = viewToQueryArgs( {
+				...DEFAULT_VIEW,
+				filters: [ { field: 'type', operator: 'is', value: 'local' } ],
+			} );
+			expect( args ).toMatchObject( { no_videopress: 1 } );
+			expect( args ).not.toHaveProperty( 'videopress_has_guid' );
 		} );
 	} );
 
@@ -317,22 +241,15 @@ describe( 'on WordPress.com Simple', () => {
 			expect( result.current.items[ 0 ].id ).toBe( '1' );
 		} );
 
-		it( 'over-fetches bounded pages, filters client-side, and paginates locally', async () => {
-			// Two server pages of 100; page 1 = 60 private + 40 public,
-			// page 2 = 10 private + 90 public → 70 private total.
-			const page1 = [
-				...Array.from( { length: 60 }, ( _, i ) => rawVideo( i + 1, true ) ),
-				...Array.from( { length: 40 }, ( _, i ) => rawVideo( i + 61, false ) ),
-			];
-			const page2 = [
-				...Array.from( { length: 10 }, ( _, i ) => rawVideo( i + 101, true ) ),
-				...Array.from( { length: 90 }, ( _, i ) => rawVideo( i + 111, false ) ),
-			];
-			const requestedPaths = mockPagedMedia( [ page1, page2 ], 200 );
+		it( 'sends the privacy filter as a server param in a single request, totals from headers', async () => {
+			// Server-side filtering: the privacy filter is a query param, the
+			// server does the narrowing, and the hook reads X-WP-Total verbatim.
+			// No over-fetch, no local pagination, no truncation past a page cap.
+			const requestedPaths = mockPagedMedia( [ [ rawVideo( 1, true ), rawVideo( 2, true ) ] ], 70 );
 
 			const view: View = {
 				...DEFAULT_VIEW,
-				page: 2,
+				page: 1,
 				perPage: 50,
 				filters: [ { field: 'privacy', operator: 'is', value: 'private' } ],
 			};
@@ -342,22 +259,21 @@ describe( 'on WordPress.com Simple', () => {
 
 			await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
 
-			// Both server pages requested at the over-fetch page size.
-			expect( requestedPaths.filter( p => p.includes( 'per_page=100' ) ) ).toHaveLength( 2 );
-			// Totals reflect the filtered set, not the server headers.
+			// One request, carrying the privacy param and the caller's pagination.
+			expect( requestedPaths ).toHaveLength( 1 );
+			expect( requestedPaths[ 0 ] ).toContain( 'videopress_privacy_setting=1' );
+			expect( requestedPaths[ 0 ] ).toMatch( /[?&]per_page=50(?:&|$)/ );
+			expect( requestedPaths[ 0 ] ).toMatch( /[?&]page=1(?:&|$)/ );
+			// Totals come straight from the response headers, not a local recount.
 			expect( result.current.paginationInfo.totalItems ).toBe( 70 );
-			expect( result.current.paginationInfo.totalPages ).toBe( 2 );
-			// Local page 2 of 50 → the remaining 20 private items, in server order.
-			expect( result.current.items ).toHaveLength( 20 );
-			expect( result.current.items[ 0 ].id ).toBe( '51' );
-			expect( result.current.items[ 19 ].id ).toBe( '110' );
+			expect( result.current.paginationInfo.totalPages ).toBe( 1 );
 		} );
 
-		it( 'keeps a videopress-type view on the single-request path (honors perPage, server total)', async () => {
+		it( 'sends the videopress type filter as videopress_has_guid in a single request', async () => {
 			// Regression guard: useFreeTier's COUNT_VIEW filters by type=videopress at
-			// perPage:1. On Simple `videopress_only_videos` already restricts to VideoPress
-			// videos, so this must stay a single request at the caller's per_page and read
-			// the exact X-WP-Total — not fall into the client-filter over-fetch.
+			// perPage:1. It must stay a single request at the caller's per_page and read
+			// the exact X-WP-Total (the videos-table count), resolving the free-tier
+			// overcount of local videos.
 			const requestedPaths = mockPagedMedia( [ [ rawVideo( 1, false ) ] ], 42 );
 
 			const view: View = {
@@ -370,12 +286,31 @@ describe( 'on WordPress.com Simple', () => {
 			} );
 
 			await waitFor( () => expect( result.current.paginationInfo.totalItems ).toBe( 42 ) );
-			// Exactly one request, at the caller's per_page — not the over-fetch size.
 			expect( requestedPaths ).toHaveLength( 1 );
-			expect( requestedPaths[ 0 ] ).not.toContain( 'per_page=100' );
+			expect( requestedPaths[ 0 ] ).toContain( 'videopress_has_guid=1' );
 			expect( requestedPaths[ 0 ] ).toMatch( /[?&]per_page=1(?:&|$)/ );
-			// Exact server total, not a client-filtered window.
 			expect( result.current.paginationInfo.totalPages ).toBe( 1 );
+		} );
+
+		it( 'sends the local type filter as no_videopress in a single request', async () => {
+			const requestedPaths = mockPagedMedia(
+				[ [ { id: 9, title: { rendered: 'Local' }, mime_type: 'video/mp4' } ] ],
+				5
+			);
+
+			const view: View = {
+				...DEFAULT_VIEW,
+				filters: [ { field: 'type', operator: 'is', value: 'local' } ],
+			};
+			const { result } = renderHook( () => useLibrary( view ), {
+				wrapper: createTestWrapper(),
+			} );
+
+			await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
+			expect( requestedPaths ).toHaveLength( 1 );
+			expect( requestedPaths[ 0 ] ).toContain( 'no_videopress=1' );
+			expect( result.current.items[ 0 ].type ).toBe( 'local' );
+			expect( result.current.paginationInfo.totalItems ).toBe( 5 );
 		} );
 
 		it( 'keeps the unfiltered browse path a single request with server totals', async () => {
