@@ -446,9 +446,10 @@ class Podcast_Episode_Block {
 								}
 								$start_label     = self::format_seconds_label( $soundbite['startTime'] );
 								$soundbite_title = isset( $soundbite['title'] ) ? trim( (string) $soundbite['title'] ) : '';
-								$start_seconds   = (int) floor( max( 0, (float) $soundbite['startTime'] ) );
+								// Keep fractional offsets so the seek button and Clip metadata match the feed.
+								$start_seconds   = max( 0, (float) $soundbite['startTime'] );
 								$end_seconds     = isset( $soundbite['duration'] )
-									? $start_seconds + (int) floor( max( 0, (float) $soundbite['duration'] ) )
+									? $start_seconds + max( 0, (float) $soundbite['duration'] )
 									: null;
 								?>
 								<li
