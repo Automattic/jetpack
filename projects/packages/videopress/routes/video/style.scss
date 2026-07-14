@@ -110,9 +110,10 @@
 // The "Update thumbnail" trigger is a @wordpress/components Button (36px
 // tall) sitting next to a @wordpress/ui Button, which sizes off the WPDS
 // size-lg token (40px). Pin the trigger to the same token so the two
-// actions read as one row; the fallback matches the token's built value.
+// actions read as one row. (No fallback — the build injects token
+// fallbacks automatically.)
 .vp-thumbnail-update__trigger .components-button {
-	height: var(--wpds-dimension-size-lg, 40px);
+	height: var(--wpds-dimension-size-lg);
 }
 
 // "FILE NAME" / "UPLOADED ON" caption labels (Figma uses uppercase
