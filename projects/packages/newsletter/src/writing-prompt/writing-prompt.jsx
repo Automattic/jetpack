@@ -15,7 +15,7 @@ import {
 	useState,
 } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
 import { Button, IconButton, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
@@ -165,11 +165,7 @@ export default () => {
 											className="wpcom-daily-writing-prompt--answered-users-more"
 											variant="body-sm"
 										>
-											{ sprintf(
-												/* translators: %d is how many more people answered the prompt beyond the avatars shown. */
-												__( '+%d', 'jetpack-newsletter' ),
-												prompt.answered_users_count - prompt.answered_users_sample.length
-											) }
+											{ `+${ prompt.answered_users_count - prompt.answered_users_sample.length }` }
 										</Text>
 									) }
 								</span>
