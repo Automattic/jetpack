@@ -90,54 +90,82 @@ interface CrawlerSectionProps {
 	title: string;
 	intro: string;
 	crawlers: AiCrawler[];
+	type: AiCrawler[ 'type' ];
 	overrides: Record< string, boolean >;
 	disabled: boolean;
 	onToggle: ( slug: string, blocked: boolean ) => void;
+	onToggleAll: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
 }
 
 /**
  * A collapsible card listing one group of crawler toggles (answer engines or
- * training crawlers) with a one-line explanation of what the group does.
- * Collapsed by default — the AI-crawler controls sit at the bottom of the tab and
- * most people won't need to open them.
+ * training crawlers) with a one-line explanation of what the group does and an
+ * "Allow all" master toggle for the group. Collapsed by default — the AI-crawler
+ * controls sit at the bottom of the tab and most people won't need to open them.
  *
- * @param props           - Component props.
- * @param props.title     - Section title.
- * @param props.intro     - One-line description of the group's purpose.
- * @param props.crawlers  - The crawlers in this group.
- * @param props.overrides - The sparse override map (`slug => blocked`).
- * @param props.disabled  - Whether toggles are disabled (mid-save).
- * @param props.onToggle  - Called with `(slug, blocked)` on change.
+ * @param props             - Component props.
+ * @param props.title       - Section title.
+ * @param props.intro       - One-line description of the group's purpose.
+ * @param props.crawlers    - The crawlers in this group.
+ * @param props.type        - The group's crawler type (`answer` or `training`).
+ * @param props.overrides   - The sparse override map (`slug => blocked`).
+ * @param props.disabled    - Whether toggles are disabled (mid-save).
+ * @param props.onToggle    - Called with `(slug, blocked)` on a single toggle.
+ * @param props.onToggleAll - Called with `(type, blocked)` on the "Allow all" toggle.
  * @return The section card.
  */
 const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	title,
 	intro,
 	crawlers,
+	type,
 	overrides,
 	disabled,
 	onToggle,
-} ) => (
-	<CollapsibleCard.Root>
-		<CollapsibleCard.Header>
-			<Card.Title>{ title }</Card.Title>
-		</CollapsibleCard.Header>
-		<CollapsibleCard.Content>
-			<Stack direction="column" gap="md">
-				<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
-				{ crawlers.map( crawler => (
-					<CrawlerToggle
-						key={ crawler.slug }
-						crawler={ crawler }
-						blocked={ isCrawlerBlocked( crawler, overrides ) }
-						disabled={ disabled }
-						onToggle={ onToggle }
-					/>
-				) ) }
-			</Stack>
-		</CollapsibleCard.Content>
-	</CollapsibleCard.Root>
-);
+	onToggleAll,
+} ) => {
+	// "Allow all" is on only when every crawler in the group is allowed; toggling
+	// it writes the whole group in one save (see `setCrawlerGroupBlocked`).
+	const allAllowed = crawlers.every( crawler => ! isCrawlerBlocked( crawler, overrides ) );
+
+	// Extracted (not an inline arrow) for a stable callback, matching CrawlerToggle.
+	// Switching "Allow all" *on* means "allow the whole group" (blocked = false).
+	const handleToggleAll = useCallback(
+		( allowed: boolean ) => onToggleAll( type, ! allowed ),
+		[ type, onToggleAll ]
+	);
+
+	return (
+		<CollapsibleCard.Root>
+			<CollapsibleCard.Header>
+				<Card.Title>{ title }</Card.Title>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<Stack direction="column" gap="md">
+					<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
+					<div className="jetpack-seo-ai__crawler-bulk">
+						<ToggleControl
+							label={ __( 'Allow all', 'jetpack-seo' ) }
+							checked={ allAllowed }
+							onChange={ handleToggleAll }
+							disabled={ disabled }
+							__nextHasNoMarginBottom
+						/>
+					</div>
+					{ crawlers.map( crawler => (
+						<CrawlerToggle
+							key={ crawler.slug }
+							crawler={ crawler }
+							blocked={ isCrawlerBlocked( crawler, overrides ) }
+							disabled={ disabled }
+							onToggle={ onToggle }
+						/>
+					) ) }
+				</Stack>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
+	);
+};
 
 /**
  * GEO (Generative Engine Optimization) tab — internal id/route still keyed `ai`.
@@ -165,6 +193,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		setEnhancerEnabled,
 		setLlmsTxtEnabled,
 		setCrawlerBlocked,
+		setCrawlerGroupBlocked,
 	} = form;
 
 	const navigate = useNavigate();
@@ -265,9 +294,11 @@ const AiScreen: FC< Props > = ( { form } ) => {
 						'jetpack-seo'
 					) }
 					crawlers={ answerCrawlers }
+					type="answer"
 					overrides={ crawlers.overrides }
 					disabled={ isSaving }
 					onToggle={ setCrawlerBlocked }
+					onToggleAll={ setCrawlerGroupBlocked }
 				/>
 				<CrawlerSection
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
@@ -276,9 +307,11 @@ const AiScreen: FC< Props > = ( { form } ) => {
 						'jetpack-seo'
 					) }
 					crawlers={ trainingCrawlers }
+					type="training"
 					overrides={ crawlers.overrides }
 					disabled={ isSaving }
 					onToggle={ setCrawlerBlocked }
+					onToggleAll={ setCrawlerGroupBlocked }
 				/>
 			</>
 		);

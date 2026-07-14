@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { aiStore } from './ai-store';
-import type { AiState } from './ai-types';
+import type { AiCrawler, AiState } from './ai-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
 // in place by "Settings saved." (or an error) — matches the Settings tab.
@@ -21,6 +21,8 @@ export interface AiForm {
 	setLlmsTxtEnabled: ( next: boolean ) => void;
 	/** Allow or block a single AI crawler and save immediately. */
 	setCrawlerBlocked: ( slug: string, blocked: boolean ) => void;
+	/** Allow or block every AI crawler in a group (answer/training) in one save. */
+	setCrawlerGroupBlocked: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
 }
 
 /**
@@ -147,6 +149,38 @@ export function useAiForm(): AiForm {
 		[ crawlers, runSave, persistCrawlers ]
 	);
 
+	const setCrawlerGroupBlocked = useCallback(
+		( type: AiCrawler[ 'type' ], blocked: boolean ) => {
+			if ( ! crawlers ) {
+				return;
+			}
+			// Every bot in a group shares one default policy (answer → allowed,
+			// training → blocked), so an override matching that default is dropped to
+			// keep the stored map sparse — same rule as the single-crawler setter.
+			const defaultBlocked = type === 'training';
+			const nextOverrides = { ...crawlers.overrides };
+			crawlers.catalog
+				.filter( bot => bot.type === type )
+				.forEach( bot => {
+					if ( blocked === defaultBlocked ) {
+						delete nextOverrides[ bot.slug ];
+					} else {
+						nextOverrides[ bot.slug ] = blocked;
+					}
+				} );
+
+			const prevCrawlers = crawlers;
+			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			setCrawlers( nextCrawlers );
+			runSave(
+				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				() => persistCrawlers( nextCrawlers ),
+				() => setCrawlers( prevCrawlers )
+			);
+		},
+		[ crawlers, runSave, persistCrawlers ]
+	);
+
 	return {
 		enhancer,
 		llmsTxt,
@@ -155,5 +189,6 @@ export function useAiForm(): AiForm {
 		setEnhancerEnabled,
 		setLlmsTxtEnabled,
 		setCrawlerBlocked,
+		setCrawlerGroupBlocked,
 	};
 }

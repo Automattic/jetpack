@@ -37,3 +37,10 @@
 	margin-inline-start: 40px;
 	font-size: 12px;
 }
+
+// The group-level "Allow all" master toggle, divided from the per-crawler
+// rows below so it reads as a control over the whole group.
+.jetpack-seo-ai__crawler-bulk {
+	padding-block-end: var(--wpds-dimension-gap-md, 12px);
+	border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+}
