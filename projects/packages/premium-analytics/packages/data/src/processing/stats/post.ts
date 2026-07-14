@@ -117,13 +117,19 @@ function normalizeStatsPostYears( value: unknown ) {
 }
 
 function normalizeStatsPostDays( value: unknown ): StatsPostDay[] {
-	return coerceStatsArray( value ).flatMap( entry => {
-		if ( ! Array.isArray( entry ) || typeof entry[ 0 ] !== 'string' ) {
-			return [];
-		}
+	return (
+		coerceStatsArray( value )
+			.flatMap( entry => {
+				if ( ! Array.isArray( entry ) || typeof entry[ 0 ] !== 'string' ) {
+					return [];
+				}
 
-		return [ { date: entry[ 0 ], views: safeParseFloat( entry[ 1 ] ) } ];
-	} );
+				return [ { date: entry[ 0 ], views: safeParseFloat( entry[ 1 ] ) } ];
+			} )
+			// Consumers clamp date windows against the first/last entries, so
+			// guarantee oldest-first ordering regardless of the API's order.
+			.sort( ( a, b ) => a.date.localeCompare( b.date ) )
+	);
 }
 
 function normalizeStatsPostWeek( value: unknown ): StatsPostWeek {
