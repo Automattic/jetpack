@@ -94,6 +94,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$response = $endpoint->videopress_update_settings( $request );
 
 		$this->assertSame( 'success', $response->get_data()['code'] );
+		// Off-WPCOM every supplied param is honored, so nothing is reported ignored.
+		$this->assertArrayNotHasKey( 'ignored', $response->get_data() );
 		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
 	}

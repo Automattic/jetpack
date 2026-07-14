@@ -3,8 +3,11 @@ import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import { useSettings, useUpdateSettings } from '../../src/dashboard/hooks/use-settings';
-import { isSimpleSite } from '../../src/dashboard/utils/is-simple';
+import {
+	isPrivateForSiteServerControlled,
+	useSettings,
+	useUpdateSettings,
+} from '../../src/dashboard/hooks/use-settings';
 import './style.scss';
 
 const SettingsForm = () => {
@@ -14,11 +17,13 @@ const SettingsForm = () => {
 	const autoSubtitlesDisabled = settings.data?.videoPressAutoSubtitlesDisabled ?? false;
 	const disabled = settings.isLoading || update.isPending;
 
-	// On WordPress.com Simple there's no independent "private videos for site"
-	// setting — VideoPress privacy follows the whole-site Privacy setting. Reflect
-	// that value read-only rather than offering a toggle whose write is a no-op.
-	const simple = isSimpleSite();
-	const privateForSiteChecked = simple ? settings.data?.siteIsPrivate ?? false : privateForSite;
+	// The "private videos for site" value is resolved server-side on WordPress.com
+	// Simple (it follows the whole-site Privacy setting) and on private Atomic/WoA
+	// sites (a private site forces every video private). In both cases the server
+	// ignores writes to this setting, so reflect the effective value read-only
+	// instead of offering a toggle whose write is a no-op. Deciding from the
+	// settings response — not the ENV — keeps both hosts in sync with the server.
+	const privateForSiteServerControlled = isPrivateForSiteServerControlled( settings.data );
 
 	return (
 		<Card.Root>
@@ -31,18 +36,15 @@ const SettingsForm = () => {
 						__nextHasNoMarginBottom
 						label={ __( 'Only logged-in users can play your videos', 'jetpack-videopress-pkg' ) }
 						help={
-							simple
-								? __(
-										'On WordPress.com this follows your site’s Privacy setting.',
-										'jetpack-videopress-pkg'
-								  )
+							privateForSiteServerControlled
+								? __( 'This follows your site’s Privacy setting.', 'jetpack-videopress-pkg' )
 								: __(
 										"Private videos won't play for signed-out visitors.",
 										'jetpack-videopress-pkg'
 								  )
 						}
-						checked={ privateForSiteChecked }
-						disabled={ disabled || simple }
+						checked={ privateForSite }
+						disabled={ disabled || privateForSiteServerControlled }
 						onChange={ next => update.mutate( { videoPressVideosPrivateForSite: next } ) }
 					/>
 					<ToggleControl

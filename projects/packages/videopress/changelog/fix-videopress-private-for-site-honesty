@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress dashboard: show the "make all videos private" toggle read-only on WordPress.com Simple and private Atomic sites, where the value is resolved server-side and writes are ignored (previously private Atomic rendered a live toggle whose write was silently dropped). The Simple settings endpoint now reports such ignored parameters instead of claiming they were saved.

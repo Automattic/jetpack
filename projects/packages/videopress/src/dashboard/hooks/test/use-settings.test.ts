@@ -2,7 +2,37 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
-import { useSettings, useUpdateSettings } from '../use-settings';
+import { isPrivateForSiteServerControlled, useSettings, useUpdateSettings } from '../use-settings';
+
+describe( 'isPrivateForSiteServerControlled', () => {
+	it( 'is server-controlled on WordPress.com Simple regardless of site privacy', () => {
+		expect( isPrivateForSiteServerControlled( { siteType: 'simple', siteIsPrivate: true } ) ).toBe(
+			true
+		);
+		expect( isPrivateForSiteServerControlled( { siteType: 'simple', siteIsPrivate: false } ) ).toBe(
+			true
+		);
+	} );
+
+	it( 'is server-controlled (non-writable) on private Atomic / WoA sites', () => {
+		expect( isPrivateForSiteServerControlled( { siteType: 'atomic', siteIsPrivate: true } ) ).toBe(
+			true
+		);
+	} );
+
+	it( 'stays writable on public Atomic and self-hosted Jetpack sites', () => {
+		expect( isPrivateForSiteServerControlled( { siteType: 'atomic', siteIsPrivate: false } ) ).toBe(
+			false
+		);
+		expect(
+			isPrivateForSiteServerControlled( { siteType: 'jetpack', siteIsPrivate: false } )
+		).toBe( false );
+	} );
+
+	it( 'defaults to writable while settings are still loading', () => {
+		expect( isPrivateForSiteServerControlled( undefined ) ).toBe( false );
+	} );
+} );
 
 describe( 'useSettings', () => {
 	it( 'fetches videopress/v1/settings', async () => {

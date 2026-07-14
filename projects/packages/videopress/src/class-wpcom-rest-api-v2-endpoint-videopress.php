@@ -257,7 +257,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * on WPCOM only `videopress_auto_subtitles_disabled` is honored:
 	 * `videopress_private_enabled_for_site` is a dead option on Simple,
 	 * where the site-default privacy derives from the site's own privacy
-	 * setting.
+	 * setting. When a caller supplies that param on WPCOM it is not
+	 * persisted, and the response reports it under `ignored` so consumers
+	 * are not told a write succeeded when it was silently discarded.
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_REST_Response The response object.
@@ -266,7 +268,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 
+		$ignored = array();
+
+		// On WordPress.com Simple the site-default privacy derives from the
+		// site's own privacy setting, so `videopress_private_enabled_for_site`
+		// is a dead option. Drop the param rather than pretend to persist it,
+		// and surface it as ignored so the response stays truthful.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( null !== $private_for_site ) {
+				$ignored[] = 'videopress_videos_private_for_site';
+			}
 			$private_for_site = null;
 		}
 
@@ -278,13 +289,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			update_option( 'videopress_auto_subtitles_disabled', $auto_subtitles_disabled );
 		}
 
-		return rest_ensure_response(
-			array(
-				'code'    => 'success',
-				'message' => __( 'VideoPress settings updated successfully.', 'jetpack-videopress-pkg' ),
-				'data'    => 200,
-			)
+		$response = array(
+			'code'    => 'success',
+			'message' => __( 'VideoPress settings updated successfully.', 'jetpack-videopress-pkg' ),
+			'data'    => 200,
 		);
+
+		if ( ! empty( $ignored ) ) {
+			$response['ignored'] = $ignored;
+			$response['message'] = __( 'VideoPress settings updated. Some settings are not configurable on this site and were ignored.', 'jetpack-videopress-pkg' );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**

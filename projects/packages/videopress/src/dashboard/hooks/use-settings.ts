@@ -20,6 +20,32 @@ export type SettingsPatch = Partial<
 	Pick< Settings, 'videoPressVideosPrivateForSite' | 'videoPressAutoSubtitlesDisabled' >
 >;
 
+/**
+ * Whether `videoPressVideosPrivateForSite` is resolved server-side and therefore
+ * not independently writable from this screen.
+ *
+ * This mirrors `Data::get_videopress_videos_private_for_site()` on the server.
+ * WordPress.com Simple always derives VideoPress privacy from the whole-site
+ * Privacy setting (there is no independent option), so it is always locked.
+ * Private Atomic/WoA sites force every video private, locking the value to its
+ * effective (true) state. On public Atomic and self-hosted Jetpack the stored
+ * option is honored, so the toggle stays writable. Deciding from the settings
+ * response — not the ENV — keeps Simple and private Atomic in sync with what
+ * the server actually accepts.
+ *
+ * @param settings - The resolved settings data, or undefined while loading.
+ * @return true when the value is server-controlled (render it read-only).
+ */
+export function isPrivateForSiteServerControlled(
+	settings: Pick< Settings, 'siteType' | 'siteIsPrivate' > | undefined
+): boolean {
+	if ( ! settings ) {
+		return false;
+	}
+	const { siteType, siteIsPrivate } = settings;
+	return siteType === 'simple' || ( siteType === 'atomic' && siteIsPrivate );
+}
+
 const QUERY_KEY = [ 'jetpack-videopress-settings' ] as const;
 
 /**
