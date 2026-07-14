@@ -88,8 +88,16 @@ function VideosReport( { max }: VideosReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const { primary, comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
-		useStatsVideoPlays( statsParams, { maxRows: max } );
+	const {
+		primary,
+		comparisonRows,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		refetch,
+	} = useStatsVideoPlays( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).

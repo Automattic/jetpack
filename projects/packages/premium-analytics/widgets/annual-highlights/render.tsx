@@ -194,7 +194,6 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 				) }
 			</WidgetState>
 		</div>
-
 	);
 }
 
