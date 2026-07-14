@@ -22,6 +22,7 @@ import {
 	resolveResultsGit,
 	assertCaptureComplete,
 	assertExpectedUrl,
+	assertResourceCountSettled,
 	summarizeResources,
 	waitForResourceCountIdle,
 } from './measure-lcp.js';
@@ -508,13 +509,17 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	// wrong tab cannot quietly populate the responses keys from the forms list.
 	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
 	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
-	// Lower bound is 40 (not 1): a degenerate floor of a handful of resources would pass the old
-	// `> 0` check while catching nothing. Upper bound stays below the real ~80-resource load so the
-	// floor keeps its 2x margin and never clips the legitimate editor-lazy-load drop.
-	assert.ok(
-		scenario.minResourceCount >= 40 && scenario.minResourceCount < 80,
-		'formsResponses must declare a resource-count floor of >=40 and below the real ~80-resource load'
+	// Pin the exact value (siblings pin every field by equality) so a later edit toward the
+	// ~91-resource load can't erode the margin silently, and exercise the real guard at the
+	// boundary: one below the floor must throw, the floor itself must not. The floor matters
+	// more here than on myJetpack: this scenario settles on the resource count instead of
+	// networkidle, so the floor is what catches a settle that fired early in a mid-load plateau.
+	assert.equal( scenario.minResourceCount, 64 );
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 63 }, scenario ),
+		/Incomplete capture: 63 resources < expected minimum 64/
 	);
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
 test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
@@ -2577,36 +2582,84 @@ test( 'a dry run makes no dedup read even when dedup is fully configured', async
  * Fake Playwright page for waitForResourceCountIdle. `counts` is the sequence
  * performance.getEntriesByType('resource').length returns on successive polls; the
  * last value is repeated once the sequence is exhausted. waitForTimeout is a no-op
- * so the test doesn't actually sleep.
+ * so the test doesn't actually sleep. `polls()` reports how many times the count
+ * was read, so a test can pin WHERE the loop stopped, not just that it stopped.
  */
 function fakeResourcePage( counts ) {
 	let i = 0;
 	return {
 		evaluate: async () => counts[ Math.min( i++, counts.length - 1 ) ],
 		waitForTimeout: async () => {},
+		polls: () => i,
 	};
 }
 
-test( 'waitForResourceCountIdle resolves once the completed-resource count holds steady', async () => {
-	// Count climbs 10→40→90 then holds; five equal polls (default stableChecks) settle it.
-	const page = fakeResourcePage( [ 10, 40, 90, 90, 90, 90, 90, 90 ] );
-	await waitForResourceCountIdle( page, { intervalMs: 0, stableChecks: 5, maxWaitMs: 5000 } );
-	// Resolving (not throwing/hanging) is the assertion.
-	assert.ok( true );
+test( 'waitForResourceCountIdle settles via early stability, not the deadline fallback', async () => {
+	// Count climbs 10→40→90 then holds; five equal polls (stableChecks) settle it. Pinning the
+	// exact poll count (3 climbing + 5 stable = 8) and settled:true distinguishes a working
+	// stability detector from a broken one that only returns because the cap expired — a
+	// disabled stability branch would read far past 8 polls and report settled:false.
+	const page = fakeResourcePage( [ 10, 40, 90, 90, 90, 90, 90, 90, 90, 90 ] );
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+	} );
+	assert.equal( result.settled, true, 'must reach genuine stability, not the cap' );
+	assert.equal( result.count, 90, 'must report the stable count it observed' );
+	assert.equal( page.polls(), 8, 'must stop at the 5th stable read, not poll to the cap' );
 } );
 
-test( 'waitForResourceCountIdle caps at maxWaitMs instead of hanging when the count never settles', async () => {
+test( 'waitForResourceCountIdle resets its stability streak when the count moves again', async () => {
+	// Four equal reads of 50 (one short of stableChecks:5) then movement to 80: the streak must
+	// reset instead of counting the pre-movement reads toward stability, then five equal reads
+	// of 80 settle it. Total polls: 1×50-first + 4×50-stable + 1×80-first + 5×80-stable = 11.
+	const page = fakeResourcePage( [ 50, 50, 50, 50, 50, 80, 80, 80, 80, 80, 80, 80 ] );
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+	} );
+	assert.equal( result.settled, true );
+	assert.equal( result.count, 80, 'must settle on the post-movement count, not the plateau' );
+	assert.equal( page.polls(), 11, 'the 4-read plateau must not count toward the new streak' );
+} );
+
+test( 'waitForResourceCountIdle caps at maxWaitMs and reports it did NOT settle', async () => {
 	// A count that increases every poll models a page that keeps streaming (or a buggy
-	// stub); the maxWait cap must return rather than loop forever. A never-delivered
-	// request is the real case: it never adds a resource entry, so the count would instead
-	// go flat — this test pins the harder "never flat" bound.
+	// stub); the maxWait cap must return rather than loop forever, and must say so via
+	// settled:false — measure-lcp.js turns that into a failed iteration (fail closed)
+	// instead of capturing a still-loading page. A never-delivered request is the real
+	// stuck case: it never adds a resource entry, so the count would instead go flat —
+	// this test pins the harder "never flat" bound.
 	let polls = 0;
 	const page = {
 		evaluate: async () => ++polls, // strictly increasing: never stable
 		waitForTimeout: async () => {},
 	};
-	await waitForResourceCountIdle( page, { intervalMs: 0, stableChecks: 5, maxWaitMs: 50 } );
+	const start = Date.now();
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 50,
+	} );
+	assert.equal( result.settled, false, 'cap expiry must be reported, not disguised as a settle' );
 	assert.ok( polls > 0, 'it should have polled at least once' );
+	// The deadline must bound the loop: returning takes ~maxWaitMs, not multiples of it.
+	assert.ok( Date.now() - start < 2000, 'must return near maxWaitMs, not far past it' );
+} );
+
+test( 'assertResourceCountSettled fails a capped-out settle and passes a clean one', () => {
+	// The fail-closed gate measure-lcp.js applies to both settle sites (warm-up navigation and
+	// measured reload): a capped-out settle must throw (failing the iteration before capture),
+	// a genuine settle must not.
+	assert.throws(
+		() => assertResourceCountSettled( { settled: false, count: 55 }, 'measured reload' ),
+		/never settled during measured reload.*55 resources/
+	);
+	assert.doesNotThrow( () =>
+		assertResourceCountSettled( { settled: true, count: 91 }, 'measured reload' )
+	);
 } );
 
 test( 'formsResponses waits on the visible layout, not the 0-height mount point', () => {
@@ -2619,10 +2672,6 @@ test( 'formsResponses waits on the visible layout, not the 0-height mount point'
 		forms.waitForSelector,
 		'#jetpack-forms-responses-wp-admin-app .boot-layout',
 		'forms selector must target the rendered layout, not the 0-height container'
-	);
-	assert.ok(
-		! /\.boot-layout-container/.test( forms.waitForSelector ),
-		'forms selector must not wait on the 0-height boot-layout-container'
 	);
 } );
 

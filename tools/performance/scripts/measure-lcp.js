@@ -47,7 +47,7 @@ const calibration = loadCalibration();
  * @param {string} password   - wp-admin password.
  * @param {number} iterations - Number of measurement iterations.
  * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, and `minResourceCount`.
+ *                            `expectUrlIncludes`, `loadState`, and `minResourceCount`.
  * @return {Promise<object>} { summary, results, url }.
  */
 async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
@@ -129,6 +129,18 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 					timeout: 60000,
 				} );
 				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
+				if ( navWaitUntil !== 'networkidle' ) {
+					// Warm-up parity with the networkidle scenarios: on the default path this goto
+					// waits for network quiescence, so every cacheable resource is warm before the
+					// measured reload. With `load` the goto returns while route/post-mount resources
+					// may still be in flight, and reloading then would abort them — measuring a
+					// partially cold cache. Settle on the resource count here so the reload below
+					// measures the same warmed page networkidle used to guarantee.
+					assertResourceCountSettled(
+						await waitForResourceCountIdle( page ),
+						'warm-up navigation'
+					);
+				}
 			}
 
 			// Step 2: Set up LCP capture using addInitScript
@@ -196,9 +208,10 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				// navWaitUntil): `networkidle` never fires, so settle on the completed-resource count
 				// going quiet instead. A never-delivered request never adds a resource-timing entry,
 				// so a stuck request can't stall this, while genuine late resources (lazy editor
-				// modules) still push the count up and extend the wait. This keeps decodedBytesKB
-				// capture complete without depending on network quiescence.
-				await waitForResourceCountIdle( page );
+				// modules) still push the count up and extend the wait. If the count is still
+				// changing when the cap expires, fail the iteration (fail closed) rather than
+				// capture a still-loading page's bundle size.
+				assertResourceCountSettled( await waitForResourceCountIdle( page ), 'measured reload' );
 			}
 
 			// Additional short wait for any final rendering after network settles
@@ -550,12 +563,16 @@ function summarizeResources( resources ) {
  * count is unchanged across `stableChecks` consecutive polls, or when `maxWaitMs` elapses (whichever
  * first), so a page that keeps streaming resources still returns rather than hanging.
  *
+ * The result says WHICH of the two happened: `settled: true` means genuine stability was observed;
+ * `settled: false` means the cap expired with the count still changing — an incomplete capture the
+ * caller must treat as a failed iteration (see assertResourceCountSettled), never measure.
+ *
  * @param {import('playwright').Page} page                   - The page being measured.
  * @param {object}                    [opts]                 - Tuning knobs.
  * @param {number}                    [opts.intervalMs=200]  - Poll interval.
  * @param {number}                    [opts.stableChecks=5]  - Consecutive unchanged polls required (≈1s quiet).
- * @param {number}                    [opts.maxWaitMs=20000] - Hard cap so this can never hang.
- * @return {Promise<void>}
+ * @param {number}                    [opts.maxWaitMs=20000] - Deadline on the polling loop. Checked between polls, so it bounds loop scheduling — it does not interrupt a single wedged `page.evaluate` (that failure mode throws or hangs the CDP session itself).
+ * @return {Promise<{settled: boolean, count: number}>} Whether stability was reached before the deadline, and the last completed-resource count observed.
  */
 async function waitForResourceCountIdle( page, opts = {} ) {
 	const { intervalMs = 200, stableChecks = 5, maxWaitMs = 20000 } = opts;
@@ -568,13 +585,35 @@ async function waitForResourceCountIdle( page, opts = {} ) {
 		if ( count === last ) {
 			stable += 1;
 			if ( stable >= stableChecks ) {
-				return;
+				return { settled: true, count };
 			}
 		} else {
 			stable = 0;
 			last = count;
 		}
 		await page.waitForTimeout( intervalMs );
+	}
+	return { settled: false, count: last };
+}
+
+/**
+ * Fail-closed gate on the resource-count settle: a capped-out settle means the page was still
+ * loading resources when the deadline hit, so measuring it would record a truncated bundle size
+ * (and possibly a premature LCP) that passes the coarse `minResourceCount`/SANITY_RANGES guards
+ * and lands on a permanent, no-rollback CodeVitals key looking exactly like a real regression.
+ * Throwing here turns that silent undercount into a failed iteration: the per-iteration catch in
+ * measureLCP records the error and the run continues on the remaining iterations, so one slow
+ * load costs a sample, not the scenario.
+ *
+ * @param {{settled: boolean, count: number}} result - Return value of waitForResourceCountIdle.
+ * @param {string}                            phase  - Which settle this was (for the error message).
+ * @throws {Error} When the settle capped out instead of reaching stability.
+ */
+function assertResourceCountSettled( result, phase ) {
+	if ( ! result.settled ) {
+		throw new Error(
+			`Resource count never settled during ${ phase }: still changing at ${ result.count } resources when the deadline expired — failing this iteration rather than measuring a still-loading page`
+		);
 	}
 }
 
@@ -894,6 +933,7 @@ export {
 	finalizeMeasurement,
 	assertCaptureComplete,
 	assertExpectedUrl,
+	assertResourceCountSettled,
 	summarizeResources,
 	resolveScenarioSet,
 	computeRunOutcome,

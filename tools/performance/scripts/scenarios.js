@@ -9,7 +9,8 @@
  * To add a new scenario:
  * 1. Add an entry to the SCENARIOS array below.
  * 2. To measure another PAGE on an existing WordPress instance, reuse that instance's
- * dockerService/wpPath/envVar/defaultUrl and set `path` + `waitForSelector` (see formsResponses);
+ * dockerService/wpPath/envVar/defaultUrl and set `path` + `waitForSelector` (see formsResponses),
+ * plus the optional `expectUrlIncludes`, `minResourceCount` and `loadState` guards;
  * no new Docker service or setup is needed.
  * 3. Only when introducing a NEW WordPress instance, add the Docker service in
  * docker/docker-compose.yml and its setup in docker/setup-wordpress.sh.
@@ -113,11 +114,15 @@ export const SCENARIOS = [
 		// settle in measure-lcp.js rather than by network quiescence. Other scenarios keep the
 		// default 'networkidle'. See FORMS-729.
 		loadState: 'load',
-		// A healthy load of this page fetches ~80 resources; measure-lcp.js fails the run if it
-		// captures fewer than this, so a truncated/partial capture can't post an in-range but
-		// undercounted decodedBytesKB. Kept well below the real count (2x margin) and count-based,
-		// not editor-asset-based, so it never clips the legitimate drop when the editor lazy-loads.
-		minResourceCount: 40,
+		// A healthy load of this page fetches ~91 resources (stable across iterations locally);
+		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
+		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the
+		// observed count — the same ratio as myJetpack — because this scenario settles on the
+		// resource count rather than networkidle, so the floor is the guard against an early
+		// settle, not just gross truncation. Still count-based, not editor-asset-based: lazy-loading
+		// the editor removes a few large files, not the bulk of the count (see the
+		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
+		minResourceCount: 64,
 		// These four post straight to PRODUCTION keys — the `-staging` window in the README
 		// Safeguards is deliberately waived here (owner decision). The substitute for that window is
 		// the SANITY_RANGES + all-or-nothing gate plus manual sign-off before the first live post;
