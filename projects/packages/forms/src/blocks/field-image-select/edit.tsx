@@ -16,7 +16,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
 import useAddImageOption from '../shared/hooks/use-add-image-option.ts';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';

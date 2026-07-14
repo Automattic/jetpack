@@ -1,0 +1,50 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Hosts the WidgetState (or the no-video prompt); its `.ready` wrapper fills
+   this box so the list can scroll within the widget frame. */
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-block-size: 0;
+}
+
+.content > * {
+	flex: 1 1 0;
+	min-block-size: 0;
+}
+
+.list {
+	block-size: 100%;
+	margin: 0;
+	padding: 0;
+	overflow-y: auto;
+	list-style: none;
+}
+
+.item {
+	border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+}
+
+.item:last-child {
+	border-block-end: none;
+}
+
+/* A stable 36px row height for the common single-line label case. */
+.link {
+	display: block;
+	min-block-size: 36px;
+	padding-block: var(--wpds-dimension-padding-sm, 8px);
+	padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: var(--wpds-color-foreground-interactive-brand);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

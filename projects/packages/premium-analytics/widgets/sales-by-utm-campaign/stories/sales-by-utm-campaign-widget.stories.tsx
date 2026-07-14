@@ -19,14 +19,20 @@ const SALES_BY_UTM_CAMPAIGN_RENDER_MODULE = 'storybook/sales-by-utm-campaign';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByUtmCampaignRenderProps = ComponentProps< typeof SalesByUtmCampaignRender >;
+type SalesByUtmCampaignWidgetProps = ComponentProps< typeof SalesByUtmCampaignRender >;
 
 interface SalesByUtmCampaignStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset used to generate report params.
+	 */
 	preset: SelectablePresetId;
 }
 
-type SalesByUtmCampaignStoryProps = SalesByUtmCampaignRenderProps & SalesByUtmCampaignStoryControls;
+type SalesByUtmCampaignStoryProps = SalesByUtmCampaignWidgetProps & SalesByUtmCampaignStoryControls;
 
 interface SalesByUtmCampaignDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +47,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSalesByUtmCampaignAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByUtmCampaignRenderProps[ 'attributes' ] {
+): SalesByUtmCampaignWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -86,9 +92,7 @@ function renderSalesByUtmCampaign( { withComparison, preset }: SalesByUtmCampaig
 /**
  * Story wrapper for rendering the sales by UTM campaign widget in dashboard chrome.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether to include comparison report params.
- * @param root0.preset         - Date-range preset used to generate report params.
+ * @param {SalesByUtmCampaignDashboardStoryProps} props - Story controls.
  * @return The rendered Storybook story.
  */
 function SalesByUtmCampaignDashboardStory( {

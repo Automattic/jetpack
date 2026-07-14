@@ -73,6 +73,47 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * A retired flow slug has no checklist, but clients still pass it explicitly
+	 * from stale site options. It must degrade to a complete, well-typed empty
+	 * response rather than a 400, so a strict client schema still decodes it.
+	 */
+	public function test_get_data_accepts_retired_checklist_slug() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/launchpad' );
+		$request->set_param( 'checklist_slug', 'start-writing' );
+		$result = rest_do_request( $request );
+		$data   = $result->get_data();
+
+		$this->assertEquals( 200, $result->get_status() );
+		$this->assertSame( array(), $data['checklist'] );
+		// is_enabled is a required boolean in the client type, never null.
+		$this->assertFalse( $data['is_enabled'] );
+		$this->assertFalse( $data['is_dismissed'] );
+		$this->assertFalse( $data['is_dismissible'] );
+	}
+
+	/**
+	 * Retired slugs are read-only compatibility. Dismissing one is a mutation and
+	 * must be rejected, so no dismissal is persisted for a checklist that is gone.
+	 */
+	public function test_dismissing_a_retired_checklist_slug_is_rejected() {
+		wp_set_current_user( $this->admin_id );
+
+		$result = $this->call_launchpad_api(
+			Requests::POST,
+			array(
+				'is_checklist_dismissed' => array(
+					'slug'         => 'start-writing',
+					'is_dismissed' => true,
+				),
+			)
+		);
+
+		$this->assertEquals( 400, $result->get_status() );
+	}
+
+	/**
 	 * Test can_access.
 	 */
 	public function test_can_access() {
@@ -410,7 +451,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		update_option( 'site_goals', $site_goals );
 
 		$data = array(
-			'checklist_slug'             => 'start-writing', // This should get ignored, due to the use_goals flag.
+			'checklist_slug'             => 'design-first', // This should get ignored, due to the use_goals flag.
 			'launchpad_context'          => 'customer-home',
 			'use_goals'                  => true,
 			'enable_checklist_for_goals' => $enable_checklist_for_goals,

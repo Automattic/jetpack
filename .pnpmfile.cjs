@@ -267,12 +267,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated, deprecated dependency.
-	// https://github.com/fontello/svg2ttf/issues/123
-	if ( pkg.name === 'svg2ttf' && pkg.dependencies?.[ '@xmldom/xmldom' ] === '^0.7.2' ) {
-		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
-	}
-
 	// Outdated, vulnerable dep. Seems to work with the updated version.
 	// https://github.com/istanbuljs/load-nyc-config/issues/26
 	if (

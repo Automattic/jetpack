@@ -108,6 +108,10 @@ class SchemaSettingsControllerTest extends TestCase {
 		// ...and the site identity is exposed as placeholder defaults.
 		$this->assertSame( 'Acme Co', $data['defaults']['organization']['name'] );
 		$this->assertSame( 'We make things', $data['defaults']['organization']['description'] );
+		$this->assertArrayHasKey( 'localBusiness', $data );
+		$this->assertArrayHasKey( 'localBusiness', $data['defaults'] );
+		$this->assertFalse( $data['localBusiness']['enabled'] );
+		$this->assertSame( '', $data['localBusiness']['address']['streetAddress'] );
 	}
 
 	/**
@@ -141,5 +145,97 @@ class SchemaSettingsControllerTest extends TestCase {
 
 		// Persisted: the store now returns the saved override.
 		$this->assertSame( 'Acme Corporation', Schema_Settings::get_organization()['name'] );
+	}
+
+	/**
+	 * A LocalBusiness write sanitizes, persists, and returns the stored payload.
+	 */
+	public function test_update_item_round_trips_local_business_payload() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/seo/schema-settings' );
+		$request->set_body_params(
+			array(
+				'localBusiness' => array(
+					'enabled' => true,
+					'address' => array(
+						'streetAddress' => '123 Main St',
+					),
+					'geo'     => array(
+						'latitude'  => '40.7128',
+						'longitude' => '-74.0060',
+					),
+				),
+			)
+		);
+
+		$response = Schema_Settings_Controller::update_item( $request );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$data = $response->get_data();
+		$this->assertTrue( $data['localBusiness']['enabled'] );
+		$this->assertSame( '123 Main St', $data['localBusiness']['address']['streetAddress'] );
+		$this->assertSame(
+			array(
+				'latitude'  => '40.7128',
+				'longitude' => '-74.0060',
+			),
+			$data['localBusiness']['geo']
+		);
+	}
+
+	/**
+	 * Invalid LocalBusiness values are cleared in a successful REST response.
+	 */
+	public function test_update_item_sanitizes_invalid_local_business_values() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/seo/schema-settings' );
+		$request->set_body_params(
+			array(
+				'localBusiness' => array(
+					'address'    => array( 'addressCountry' => 'United States' ),
+					'telephone'  => '555.123.4567',
+					'priceRange' => str_repeat( '€', 100 ),
+				),
+			)
+		);
+
+		$response = Schema_Settings_Controller::update_item( $request );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertSame( '', $data['localBusiness']['address']['addressCountry'] );
+		$this->assertSame( '', $data['localBusiness']['telephone'] );
+		$this->assertSame( '', $data['localBusiness']['priceRange'] );
+	}
+
+	/**
+	 * Posting only Organization preserves stored LocalBusiness settings.
+	 */
+	public function test_update_item_with_organization_only_preserves_local_business() {
+		Schema_Settings::update(
+			array(
+				'localBusiness' => array(
+					'enabled' => true,
+					'address' => array(
+						'streetAddress' => '123 Main St',
+					),
+				),
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/seo/schema-settings' );
+		$request->set_body_params(
+			array(
+				'organization' => array(
+					'name' => 'Acme Corporation',
+				),
+			)
+		);
+
+		$response = Schema_Settings_Controller::update_item( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 'Acme Corporation', $data['organization']['name'] );
+		$this->assertTrue( $data['localBusiness']['enabled'] );
+		$this->assertSame( '123 Main St', $data['localBusiness']['address']['streetAddress'] );
 	}
 }

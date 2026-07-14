@@ -12,8 +12,9 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
  *
  * The container the per-schema site controls plug into. Today it holds the
  * Organization / Business info form (name, description, social profiles, contact
- * email); the BreadcrumbList toggle and other primary schema types
- * (LocalBusiness, Person / ProfilePage) ship in their own issues and land here.
+ * email); the BreadcrumbList toggle and other site-level schema types
+ * (LocalBusiness) ship in their own issues and land here. The per-user Author
+ * profile (Person / ProfilePage) lives in its own card.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site
@@ -36,17 +37,21 @@ interface Props {
  */
 function SchemaCard( { initialSettings, onSave }: Props ) {
 	const form = useSchemaSettings( initialSettings, onSave );
-	const { organization, defaults } = form;
+	const { organization, defaults, localBusiness, localBusinessDefaults } = form;
 
 	// Whether each Organization field counts as "set" for the header badge: `name` /
 	// `description` count when overridden here OR present in site identity (Site Title /
 	// Tagline); `sameAs` when it has a profile; `email` when filled. So a typical site
 	// reads "2 of 4 set" before the admin adds anything.
+	const localBusinessAddressSet =
+		Object.values( localBusiness.address ).some( Boolean ) ||
+		Object.values( localBusinessDefaults.address ).some( Boolean );
 	const fieldsSet = [
 		organization.name || defaults.name,
 		organization.description || defaults.description,
 		organization.sameAs.length > 0,
 		organization.email,
+		...( localBusiness.enabled ? [ localBusinessAddressSet ] : [] ),
 	];
 	const setCount = fieldsSet.filter( Boolean ).length;
 

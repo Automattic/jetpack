@@ -49,9 +49,12 @@ class Menu_Renderer_Test extends TestCase {
 
 		$this->assertStringContainsString( 'count-15', $GLOBALS['submenu']['jetpack'][0][0] );
 		$this->assertStringContainsString( 'data-jp-menu-count="15"', $GLOBALS['submenu']['jetpack'][0][0] );
+		// Submenu badges do NOT get the core `awaiting-mod` class — only `menu-counter`.
+		$this->assertStringNotContainsString( 'awaiting-mod', $GLOBALS['submenu']['jetpack'][0][0] );
 		$this->assertStringContainsString( 'count-1', $GLOBALS['submenu']['jetpack'][1][0] );
-		// Top-level total = 15 + 1 = 16.
+		// Top-level total = 15 + 1 = 16, and it carries the core classes for standard bubble styling.
 		$this->assertStringContainsString( 'count-16', $GLOBALS['menu'][3][0] );
+		$this->assertStringContainsString( 'awaiting-mod update-plugins menu-counter', $GLOBALS['menu'][3][0] );
 		$this->assertStringContainsString( 'data-jp-menu-badge-total="1"', $GLOBALS['menu'][3][0] );
 	}
 

@@ -14,7 +14,9 @@ const baseConfig = {
 	rules: {
 		'plugin-wpds/no-unknown-ds-tokens': true,
 		'plugin-wpds/no-setting-wpds-custom-properties': true,
-		'plugin-wpds/no-token-fallback-values': null, // Disabled because `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks` is not configured yet.
+		// Disabled globally: only wp-build dashboards configure `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks`
+		// which adds fallbacks at build time.
+		'plugin-wpds/no-token-fallback-values': null,
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
 		'@stylistic/max-line-length': [
 			80,
@@ -84,6 +86,27 @@ const baseConfig = {
 			},
 		],
 	},
+	overrides: [
+		{
+			// Packages with `build:wp-build` in package.json.
+			files: [
+				'projects/packages/backup/routes/**/*.{css,scss,sass}',
+				'projects/packages/forms/routes/**/*.{css,scss,sass}',
+				'projects/packages/forms/src/dashboard/wp-build/**/*.{css,scss,sass}',
+				'projects/packages/jetpack-mu-wpcom/routes/**/*.{css,scss,sass}',
+				'projects/packages/newsletter/routes/**/*.{css,scss,sass}',
+				'projects/packages/podcast/routes/**/*.{css,scss,sass}',
+				'projects/packages/premium-analytics/routes/**/*.{css,scss,sass}',
+				'projects/packages/publicize/routes/**/*.{css,scss,sass}',
+				'projects/packages/scan/routes/**/*.{css,scss,sass}',
+				'projects/packages/seo/routes/**/*.{css,scss,sass}',
+				'projects/packages/videopress/routes/**/*.{css,scss,sass}',
+			],
+			rules: {
+				'plugin-wpds/no-token-fallback-values': true,
+			},
+		},
+	],
 };
 
 export default baseConfig;

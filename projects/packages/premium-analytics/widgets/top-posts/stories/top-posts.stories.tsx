@@ -1,195 +1,157 @@
 /**
+ * External dependencies
+ */
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+/**
  * Internal dependencies
  */
-import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
-import { TopPostsLeaderboard, type TopPostRow } from '../render';
-import type { Meta, StoryObj, Decorator } from '@storybook/react';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
+import {
+	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
+	widgetDashboardWithWidgetArgTypes,
+	type WidgetDashboardWithWidgetControls,
+} from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
+import TopPostsRender from '../render';
+import widgetDefinition from '../widget';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import type { ComponentProps, ComponentType } from 'react';
 
-const meta: Meta< typeof TopPostsLeaderboard > = {
+registerReportMocks();
+registerStatsMocks();
+
+const TOP_POSTS_RENDER_MODULE = 'storybook/top-posts';
+
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	icon: widgetDefinition.icon,
+	// Attribute metadata drives the host-rendered chrome: the high-relevance
+	// `contentView` control in the framed header and the settings fields.
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
+	presentation: 'framed' as const,
+};
+
+interface TopPostsStoryControls {
+	withComparison: boolean;
+	contentView: 'posts' | 'archives';
+}
+
+interface TopPostsDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		TopPostsStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '340px' } }>
+		<Story />
+	</div>
+);
+
+function renderTopPostsWidget( { withComparison, contentView }: TopPostsStoryControls ) {
+	return (
+		<TopPostsRender
+			attributes={ {
+				num: 10,
+				contentView,
+				reportParams: getDefaultQueryParams( withComparison ),
+			} }
+		/>
+	);
+}
+
+function TopPostsDashboardStory( {
+	withComparison,
+	contentView,
+	...dashboardArgs
+}: TopPostsDashboardStoryProps ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ storyWidgetType }
+			renderModule={ TOP_POSTS_RENDER_MODULE }
+			renderComponent={ TopPostsRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ {
+				num: 10,
+				contentView,
+				reportParams: getDefaultQueryParams( withComparison ),
+			} }
+		/>
+	);
+}
+
+const meta = {
 	title: 'Packages/Premium Analytics/Widgets/TopPosts',
-	component: TopPostsLeaderboard,
+	component: TopPostsRender,
 	tags: [ 'autodocs' ],
+	argTypes: {
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params and deltas.',
+		},
+		contentView: {
+			control: 'inline-radio',
+			options: [ 'posts', 'archives' ],
+			description:
+				'Which report the widget shows: posts & pages, or aggregate archive-page views. Rendered as an inline control in the widget frame header by the host.',
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Top posts & pages" widget. Renders the most-viewed posts and pages for the period as a leaderboard, with each row linking to the published content. This is the presentational layer — it takes already-fetched rows via props and handles the loading, error, empty, and populated states. The data-connected widget (render.tsx default export) wraps this in WidgetRoot and feeds it the designated useStatsTopPosts hook.',
+					'The "Most viewed" widget. Shows the most-viewed posts and pages as a ranked leaderboard, using the global dashboard date range; each row links to the published content, and the homepage-as-latest-posts views from the archives report are folded into the list. The `contentView` attribute switches to aggregate archive-page views (taxonomy, post-type, search, and date archives).',
 			},
 		},
 	},
-	decorators: [ withChartTheme ],
-};
+} satisfies Meta< ComponentProps< typeof TopPostsRender > & TopPostsStoryControls >;
 
 export default meta;
 
-type Story = StoryObj< typeof TopPostsLeaderboard >;
+type Story = StoryObj< TopPostsStoryControls >;
+type DashboardStory = StoryObj< TopPostsDashboardStoryProps >;
 
-const mockRows: TopPostRow[] = [
-	{
-		label: 'How we cut our build times in half',
-		value: 12840,
-		previousValue: 9870,
-		href: 'https://example.com/cut-build-times-in-half',
-		type: 'post',
-	},
-	{
-		label: 'Pricing',
-		value: 9320,
-		previousValue: 10110,
-		href: 'https://example.com/pricing',
-		type: 'page',
-	},
-	{
-		label: '10 lessons from scaling to a million users',
-		value: 7610,
-		previousValue: 5400,
-		href: 'https://example.com/lessons-scaling-million-users',
-		type: 'post',
-	},
-	{
-		label: 'About us',
-		value: 4180,
-		previousValue: 4360,
-		href: 'https://example.com/about',
-		type: 'page',
-	},
-	{
-		label: 'A practical guide to feature flags',
-		value: 2950,
-		previousValue: 0,
-		href: 'https://example.com/guide-to-feature-flags',
-		type: 'post',
-	},
-];
-
-const mockLongLabelRows: TopPostRow[] = [
-	{
-		label:
-			'An exhaustively long, keyword-stuffed headline that almost certainly needs to be truncated before it overflows the row',
-		value: 8400,
-		href: 'https://example.com/very-long-headline-that-needs-truncation',
-		type: 'post',
-	},
-	{
-		label: 'Frequently asked questions about billing, refunds, and account management',
-		value: 5120,
-		href: 'https://example.com/faq-billing-refunds-account-management',
-		type: 'page',
-	},
-	{
-		label: 'Changelog',
-		value: 2010,
-		href: 'https://example.com/changelog',
-		type: 'page',
-	},
-];
-
-/**
- * Default populated state — a mix of posts and pages ranked by views.
- */
 export const Default: Story = {
-	args: {
-		rows: mockRows,
-	},
+	render: renderTopPostsWidget,
+	args: { withComparison: false, contentView: 'posts' },
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
-/**
- * Comparison state — each value shows its change versus the previous period
- * (green for gains, red for losses), driven by each row's `previousValue`.
- * Mirrors the overlay comparison mode of the toolkit's `LeaderboardChart`.
- */
 export const WithComparison: Story = {
-	args: {
-		rows: mockRows,
-		withComparison: true,
-		showLegend: true,
-		legendLabels: {
-			primary: 'Jun 1 – 18, 2026',
-			comparison: 'May 14 – 31, 2026',
+	render: renderTopPostsWidget,
+	args: { withComparison: true, contentView: 'posts' },
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+};
+
+export const Archives: Story = {
+	render: renderTopPostsWidget,
+	args: { withComparison: true, contentView: 'archives' },
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Archives view: one aggregate row per archive type (taxonomy, post-type, and search archives), with comparison deltas when the previous period overlaps. Grouped rows drill down into their individual archive pages (taxonomies drill twice: taxonomy → terms) with a back link, following the Locations/Clicks drill-down convention. The homepage entry is surfaced in the Posts & pages view instead, matching the Stats card.',
+			},
 		},
 	},
 };
 
-/**
- * Loading state — the chart renders its loading overlay while data is fetched.
- */
-export const Loading: Story = {
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <TopPostsDashboardStory { ...args } />,
 	args: {
-		rows: [],
-		isLoading: true,
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		withComparison: true,
+		contentView: 'posts',
 	},
-};
-
-/**
- * Empty state — no views were recorded for the selected period.
- */
-export const NoViews: Story = {
-	args: {
-		rows: [],
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params and deltas.',
+		},
 	},
-};
-
-/**
- * Error state — the report could not be loaded.
- */
-export const ErrorState: Story = {
-	args: {
-		isError: true,
-	},
-};
-
-/**
- * Long titles are truncated with an ellipsis so rows stay single-line.
- */
-export const LongLabels: Story = {
-	args: {
-		rows: mockLongLabelRows,
-	},
-};
-
-/**
- * Creates a decorator that wraps the story in a fixed-size container so the
- * widget's responsiveness can be inspected at a given width.
- *
- * @param width    - The container width (any CSS length).
- * @param [height] - The container height; defaults to `auto`.
- * @return A Storybook decorator.
- */
-const createSizeDecorator = ( width: string, height = 'auto' ): Decorator => {
-	return Story => (
-		<div
-			style={ {
-				width,
-				height,
-				border: '1px dashed #ccc',
-				borderRadius: '8px',
-				padding: '16px',
-				background: '#fafafa',
-				containerType: 'inline-size',
-				containerName: 'widget',
-			} }
-		>
-			<Story />
-		</div>
-	);
-};
-
-/**
- * Medium container (448px / md breakpoint).
- */
-export const SizeMedium: Story = {
-	args: {
-		rows: mockRows,
-	},
-	decorators: [ createSizeDecorator( '448px' ) ],
-};
-
-/**
- * Large container (576px / xl breakpoint).
- */
-export const SizeLarge: Story = {
-	args: {
-		rows: mockRows,
-	},
-	decorators: [ createSizeDecorator( '576px' ) ],
 };

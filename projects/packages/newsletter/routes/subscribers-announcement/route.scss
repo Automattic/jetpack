@@ -29,12 +29,12 @@ body.admin_page_jetpack-subscribers {
 
 	&__inner {
 		align-items: flex-start;
-		padding: 48px var(--wpds-dimension-padding-2xl, 24px) 64px;
+		padding: 48px var(--wpds-dimension-padding-2xl) 64px;
 	}
 
 	&__subtitle {
 		margin-block: 12px 0;
-		color: var(--wpds-color-foreground-content-neutral-weak, #3c434a);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	&__cta {

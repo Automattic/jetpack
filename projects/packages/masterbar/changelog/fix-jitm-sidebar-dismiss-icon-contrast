@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sidebar notice: Fix the dismiss icon being invisible against the dark admin menu background.

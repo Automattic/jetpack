@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type SessionsByDeviceRenderAttributes = SessionsByDeviceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type SessionsByDeviceRenderProps = WidgetRenderProps< SessionsByDeviceRenderAttributes > & {
+type SessionsByDeviceWidgetProps = WidgetRenderProps< SessionsByDeviceRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,11 +28,14 @@ type SessionsByDeviceRenderProps = WidgetRenderProps< SessionsByDeviceRenderAttr
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; SessionsByDeviceWidget
  * fetches the sessions-by-device report and renders the device breakdown.
+ *
+ * @param {SessionsByDeviceWidgetProps} props - The widget render props.
+ * @return The rendered widget.
  */
 export default function SessionsByDeviceRender( {
 	attributes = {},
 	setError,
-}: SessionsByDeviceRenderProps ) {
+}: SessionsByDeviceWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SessionsByDeviceWidget />

@@ -29,6 +29,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack;
 use WP_Error;
 
@@ -42,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.40.5';
+	const PACKAGE_VERSION = '5.40.6';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -248,11 +249,36 @@ class Initializer {
 	}
 
 	/**
+	 * Register polyfills for the wp-notices / wp-private-apis / wp-theme handles the
+	 * My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships with an
+	 * incomplete allowlist).
+	 *
+	 * @return void
+	 */
+	public static function register_wp_build_polyfills() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array( 'wp-notices', 'wp-private-apis', 'wp-theme' )
+		);
+	}
+
+	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		// Register the wp-build-polyfills shim before the extension hook below or
+		// the app script can enqueue against wp-theme / wp-private-apis / wp-notices.
+		// WP_Build_Polyfills registers synchronously on its first caller, so calling
+		// it after a hook consumer would leave our handles recorded but unregistered
+		// for this request.
+		self::register_wp_build_polyfills();
+
 		/**
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
@@ -260,6 +286,7 @@ class Initializer {
 		 * @since 4.35.7
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -349,6 +376,27 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Add My Jetpack data to the unified script data object.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function add_script_data( $data ) {
+		$block_availability = class_exists( '\Jetpack_Gutenberg' )
+			? \Jetpack_Gutenberg::get_cached_availability()
+			: array();
+
+		$data['myJetpack']['siteEditor'] = array(
+			'isBlockTheme'            => function_exists( 'wp_is_block_theme' ) && wp_is_block_theme(),
+			'isSharingBlockAvailable' => isset( $block_availability['sharing-buttons'] )
+				&& $block_availability['sharing-buttons']['available'],
+			'activeThemeStylesheet'   => get_stylesheet(),
+		);
+
+		return $data;
 	}
 
 	/**

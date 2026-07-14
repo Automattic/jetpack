@@ -41,16 +41,22 @@ function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
+type DevicesInnerProps = {
+	/**
+	 * Max rows to display.
+	 */
+	max: number;
+};
+
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param props     - Props.
- * @param props.max - Max rows to display.
+ * @param {DevicesInnerProps} props - The component props.
  * @return The rendered semi-circle chart or state placeholder.
  */
-function DevicesInner( { max }: { max: number } ) {
+function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { data, comparisonData, hasComparison, isLoading, isError, errorReason } = useDeviceViews( {
+	const { data, hasComparison, isLoading, isError, errorReason } = useDeviceViews( {
 		reportParams,
 		max,
 		deviceProperty: 'screensize',
@@ -99,9 +105,7 @@ function DevicesInner( { max }: { max: number } ) {
 		);
 	}
 
-	const comparisonMap = new Map(
-		comparisonData.map( item => [ item.label, toRatio( item.percentage ) ] )
-	);
+	const withComparison = hasComparison;
 
 	const legendData: LegendItem[] = data.map( item => ( {
 		label: item.displayLabel,
@@ -111,7 +115,10 @@ function DevicesInner( { max }: { max: number } ) {
 			PERCENTAGE_DATA_FORMAT.type,
 			PERCENTAGE_DATA_FORMAT.options
 		),
-		comparison: hasComparison ? comparisonMap.get( item.label ) ?? 0 : undefined,
+		comparison:
+			withComparison && item.previousPercentage !== undefined
+				? toRatio( item.previousPercentage )
+				: undefined,
 	} ) );
 	const styledLegendData = legendData.map( ( item, index ) => ( {
 		...item,
@@ -128,7 +135,7 @@ function DevicesInner( { max }: { max: number } ) {
 					showMetric={ false }
 					dataFormat={ PERCENTAGE_DATA_FORMAT }
 				/>
-				<Legend items={ styledLegendData } withComparison={ hasComparison } />
+				<Legend items={ styledLegendData } withComparison={ withComparison } />
 			</div>
 		</div>
 	);
@@ -139,8 +146,7 @@ function DevicesInner( { max }: { max: number } ) {
  *
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes (max).
+ * @param {DevicesWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {

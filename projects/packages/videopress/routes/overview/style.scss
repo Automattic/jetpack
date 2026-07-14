@@ -32,7 +32,7 @@
 				inset-inline: 0;
 				bottom: 0;
 				height: 3px;
-				background: var(--wpds-color-stroke-interactive-neutral-strong, #1d35b4);
+				background: var(--wpds-color-stroke-interactive-neutral-strong);
 				border-end-start-radius: inherit;
 				border-end-end-radius: inherit;
 				opacity: 0;
@@ -50,7 +50,7 @@
 			}
 
 			&:focus-visible {
-				outline: 2px solid var(--wpds-color-stroke-focus, #1d35b4);
+				outline: 2px solid var(--wpds-color-stroke-focus);
 				outline-offset: -2px;
 			}
 		}
@@ -210,26 +210,26 @@
 	// than the LineChart's default light card. The chart's visx-tooltip
 	// system handles positioning; we only style the inner content.
 	&__chart-tooltip {
-		padding: var(--wpds-dimension-padding-sm, 8px);
+		padding: var(--wpds-dimension-padding-sm);
 		background-color: rgba(0, 0, 0, 0.85);
 		color: #fff;
-		border-radius: var(--wpds-border-radius-md, 4px);
-		font-size: var(--wpds-typography-font-size-md, 13px);
+		border-radius: var(--wpds-border-radius-md);
+		font-size: var(--wpds-typography-font-size-md);
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 	}
 
 	&__chart-tooltip-date {
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
-		padding-bottom: var(--wpds-dimension-padding-md, 12px);
+		font-weight: var(--wpds-typography-font-weight-medium);
+		padding-bottom: var(--wpds-dimension-padding-md);
 	}
 
 	&__chart-tooltip-row {
-		padding: var(--wpds-dimension-padding-xs, 4px) 0;
+		padding: var(--wpds-dimension-padding-xs) 0;
 	}
 
 	&__chart-tooltip-label {
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
-		padding-right: var(--wpds-dimension-padding-lg, 16px);
+		font-weight: var(--wpds-typography-font-weight-medium);
+		padding-right: var(--wpds-dimension-padding-lg);
 	}
 
 	&__storage-meter {

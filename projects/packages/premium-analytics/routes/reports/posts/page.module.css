@@ -1,0 +1,25 @@
+.page {
+	min-block-size: 0;
+}
+
+.content {
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+
+	/*
+	 * Match the horizontal padding of the header so the report sections line up
+	 * with it instead of sitting flush to the edge.
+	 */
+	padding-block-end: 24px;
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.dateFilters {
+
+	/*
+	 * The responsive-measurement target for DateFiltersPanel; full width so the
+	 * panel's wide layout can use it.
+	 */
+	inline-size: 100%;
+}

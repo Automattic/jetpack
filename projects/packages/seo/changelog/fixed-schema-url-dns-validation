@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Validate schema profile URLs without DNS lookups, so front-end rendering never blocks on name resolution and well-formed URLs on unresolvable hosts are kept.

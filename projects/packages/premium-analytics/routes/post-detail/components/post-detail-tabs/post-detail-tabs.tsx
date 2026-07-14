@@ -1,5 +1,4 @@
-import { Tabs } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { SectionTabs } from '@jetpack-premium-analytics/ui';
 import styles from './post-detail-tabs.module.scss';
 import type { PostDetailTab, PostDetailTabId } from '../../config';
 import type { ReactNode } from 'react';
@@ -41,23 +40,9 @@ type PostDetailTabsProps = {
  * @return The tab bar element.
  */
 export function PostDetailTabs( { tabs, value, onChange, children }: PostDetailTabsProps ) {
-	const handleValueChange = useCallback(
-		( tabId: string ) => onChange( tabId as PostDetailTabId ),
-		[ onChange ]
-	);
-
 	return (
-		<Tabs.Root value={ value } onValueChange={ handleValueChange }>
-			<div className={ styles.tabList }>
-				<Tabs.List variant="minimal">
-					{ tabs.map( tab => (
-						<Tabs.Tab key={ tab.id } value={ tab.id }>
-							{ tab.label }
-						</Tabs.Tab>
-					) ) }
-				</Tabs.List>
-			</div>
+		<SectionTabs tabs={ tabs } value={ value } onChange={ onChange } className={ styles.tabList }>
 			{ children }
-		</Tabs.Root>
+		</SectionTabs>
 	);
 }

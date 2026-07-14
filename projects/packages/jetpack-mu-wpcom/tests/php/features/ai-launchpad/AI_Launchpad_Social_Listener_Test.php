@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Publicize\Connections;
-use Automattic\Jetpack\Publicize\Publicize_Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once __DIR__ . '/fixtures/social-stubs.php';
@@ -31,9 +30,8 @@ class AI_Launchpad_Social_Listener_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 		wpcom_register_default_launchpad_checklists();
-		Publicize_Utils::$active = false;
-		Connections::$all        = array();
-		$_GET['page']            = 'site-setup-wp-admin';
+		Connections::$all = array();
+		$_GET['page']     = 'site-setup-wp-admin';
 	}
 
 	/**
@@ -73,34 +71,51 @@ class AI_Launchpad_Social_Listener_Test extends \WorDBless\BaseTestCase {
 	public function test_completes_only_when_selected_signalled_and_on_page() {
 		$task_lists = wpcom_launchpad_checklists();
 
-		// Selected + on-page, but signals off: nothing completes.
-		$this->seed_tasks( array( 'post_sharing_enabled', 'connect_social_media', 'drive_traffic' ) );
+		// Selected + on-page, but no connection yet: nothing completes.
+		$this->seed_tasks( array( 'connect_social_media', 'drive_traffic' ) );
 		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
-		$this->assertFalse( $task_lists->is_task_id_complete( 'post_sharing_enabled' ) );
 		$this->assertFalse( $task_lists->is_task_id_complete( 'connect_social_media' ) );
 
-		// Turn the signals on for the remaining cases.
-		Publicize_Utils::$active = true;
-		Connections::$all        = array( array( 'connection_id' => '1' ) );
+		// Turn the signal on for the remaining cases.
+		Connections::$all = array( array( 'connection_id' => '1' ) );
 
 		// Signalled + selected, but off the launchpad page: still nothing.
 		$_GET['page'] = 'some-other-page';
 		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
-		$this->assertFalse( $task_lists->is_task_id_complete( 'post_sharing_enabled' ) );
 		$this->assertFalse( $task_lists->is_task_id_complete( 'connect_social_media' ) );
 
 		// Signalled + on-page, but the tasks are not AI-selected: still nothing.
 		$_GET['page'] = 'site-setup-wp-admin';
 		$this->seed_tasks( array( 'site_launched' ) );
 		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
-		$this->assertFalse( $task_lists->is_task_id_complete( 'post_sharing_enabled' ) );
 		$this->assertFalse( $task_lists->is_task_id_complete( 'connect_social_media' ) );
 
 		// All three conditions met: the selected social tasks complete.
-		$this->seed_tasks( array( 'post_sharing_enabled', 'connect_social_media', 'drive_traffic' ) );
+		$this->seed_tasks( array( 'connect_social_media', 'drive_traffic' ) );
 		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
-		$this->assertTrue( $task_lists->is_task_id_complete( 'post_sharing_enabled' ) );
 		$this->assertTrue( $task_lists->is_task_id_complete( 'connect_social_media' ) );
 		$this->assertTrue( $task_lists->is_task_id_complete( 'drive_traffic' ) );
+	}
+
+	/**
+	 * Test that an output persisted before the post_sharing_enabled remap counts as
+	 * selecting connect_social_media: the always-true module-active signal completes
+	 * nothing anymore, and the connection signal completes the remapped task.
+	 */
+	public function test_pre_remap_post_sharing_output_completes_connection_task() {
+		$task_lists = wpcom_launchpad_checklists();
+
+		// A pre-remap output that selected post_sharing_enabled, but no connection exists:
+		// nothing may complete — post_sharing_enabled used to be born-completed here off the
+		// always-on module-active signal, which the listener no longer consults.
+		$this->seed_tasks( array( 'post_sharing_enabled' ) );
+		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
+		$this->assertFalse( $task_lists->is_task_id_complete( 'post_sharing_enabled' ) );
+		$this->assertFalse( $task_lists->is_task_id_complete( 'connect_social_media' ) );
+
+		// A connection appears: the task the card actually renders as completes.
+		Connections::$all = array( array( 'connection_id' => '1' ) );
+		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
+		$this->assertTrue( $task_lists->is_task_id_complete( 'connect_social_media' ) );
 	}
 }

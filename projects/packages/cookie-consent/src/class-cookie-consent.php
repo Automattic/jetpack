@@ -63,6 +63,13 @@ class Cookie_Consent {
 	private static $initialized = false;
 
 	/**
+	 * Resolved configuration, stashed on first access.
+	 *
+	 * @var array|null
+	 */
+	private static $config = null;
+
+	/**
 	 * Whether the required footer legal links were injected into a footer
 	 * navigation block (Block Hooks) for the current rendered response.
 	 *
@@ -77,56 +84,92 @@ class Cookie_Consent {
 	/**
 	 * Initialize the package. Idempotent; safe to call multiple times.
 	 *
-	 * Public entry point a consumer calls to activate cookie consent. Registers
-	 * the front-end controls (banner, CCPA flow, enqueue) and boots the consent
-	 * log REST controller (table creation, cron scheduling, route registration).
+	 * Public entry point a consumer calls to activate cookie consent. Resolves
+	 * and stashes the configuration, bails entirely when `enabled` is false, and
+	 * otherwise registers each hook slice only when its `features.*` toggle is on.
+	 *
+	 * The first call latches, including when `enabled` is false: a disabled init is a
+	 * sticky no-op, so a later caller cannot re-enable the feature within the same
+	 * request. Only deactivate() clears the latch.
+	 *
+	 * @param array $config Partial consumer config, resolved via Config_Schema.
 	 */
-	public static function init() {
+	public static function init( array $config = array() ) {
 		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
+		$resolved          = self::resolve_config( $config );
+		self::$config      = $resolved;
+		if ( empty( $resolved['enabled'] ) ) {
+			return;
+		}
 
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
-		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		$features = $resolved['features'];
 
-		// Classic-theme (and footer-nav-less block theme) fallback for the required
-		// legal links. Runs late so any Block Hooks injection has already happened
-		// and flipped self::$footer_links_injected.
-		add_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
+		// Gate each shared frontend resource on every feature that needs it, not on the
+		// banner alone — otherwise disabling the banner would break the CCPA opt-out button
+		// and the footer "Manage Privacy Preferences" link, which reuse the same module and
+		// modal. The consent-log route stays gated on `consent_log`; the frontend skips its
+		// POST when that's off (see logger.ts).
+		$needs_module = $features['banner'] || $features['ccpa_page'] || $features['footer_links'];
+		$needs_modal  = $features['banner'] || $features['footer_links'];
 
-		// Create the CCPA opt-out page once (guarded), now that the Atomic
-		// garden_site_provisioning hook is no longer available in this context.
-		add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
+		if ( $needs_module ) {
+			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		}
 
-		// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
-		add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
-		add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
-		// Flag that the required links were injected into a footer nav (covers all
-		// three, including the Privacy Policy link which has no directive filter),
-		// so the wp_footer fallback does not duplicate them.
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10, 2 );
+		if ( $needs_modal ) {
+			// Also rendered for footer-links-only sites so the manage-preferences link can
+			// reopen the modal; it only auto-shows when the banner feature is on (view.ts).
+			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		}
 
-		// Add Interactivity API directive to CCPA opt-out button.
-		add_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10, 2 );
+		if ( $features['footer_links'] ) {
+			// Classic-theme (and footer-nav-less block theme) fallback for the required
+			// legal links. Runs late so any Block Hooks injection has already happened
+			// and flipped self::$footer_links_injected.
+			add_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
 
-		// Add Interactivity API directives to CCPA group block and inject snackbar.
-		add_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10, 2 );
+			// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
+			add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
+			add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
+			// Flag that the required links were injected into a footer nav (covers all
+			// three, including the Privacy Policy link which has no directive filter),
+			// so the wp_footer fallback does not duplicate them.
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10, 2 );
+		}
 
-		// Exclude CCPA page from page-list block using get_pages filter.
-		add_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10, 2 );
+		if ( $features['ccpa_page'] ) {
+			// Create the CCPA opt-out page once (guarded), now that the Atomic
+			// garden_site_provisioning hook is no longer available in this context.
+			add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
 
-		// Register the CCPA page id setting for REST access.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
+			// Add Interactivity API directive to CCPA opt-out button.
+			add_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10, 2 );
 
-		// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
-		add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+			// Add Interactivity API directives to CCPA group block and inject snackbar.
+			add_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10, 2 );
 
-		// Consent log REST controller: table, cron cleanup, routes.
-		Consent_Log_Controller::init();
+			// Exclude CCPA page from page-list block using get_pages filter.
+			add_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10, 2 );
+
+			// Register the CCPA page id setting for REST access.
+			add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
+		}
+
+		if ( $features['geo'] ) {
+			// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
+			add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+		}
+
+		if ( $features['consent_log'] ) {
+			// Consent log REST controller: table, cron cleanup, routes.
+			Consent_Log_Controller::init( $resolved['log'] );
+		}
 	}
 
 	/**
@@ -139,12 +182,15 @@ class Cookie_Consent {
 	 * @since $$next-version$$
 	 */
 	public static function deactivate() {
-		// These mirror init()'s front-end registrations and matter only when a
-		// consumer deactivates within the same request (e.g. a runtime toggle).
-		// The standard register_deactivation_hook path runs in a separate admin
-		// request where these hooks never fire, so the durable cleanup is the
-		// cron unschedule and setting unregister below. Keep this list in sync
-		// with init() whenever a hook is added there.
+		// These mirror the full set of hooks init() can register across every
+		// features.* toggle, and matter only when a consumer deactivates within
+		// the same request (e.g. a runtime toggle). Removing a hook that a gated
+		// init() never added is a harmless no-op, so this list stays unconditional
+		// rather than re-deriving which toggles were on. The standard
+		// register_deactivation_hook path runs in a separate admin request where
+		// these hooks never fire, so the durable cleanup is the cron unschedule and
+		// setting unregister below. Keep this list in sync with init() whenever a
+		// hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 		remove_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
@@ -326,6 +372,21 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Whether the CCPA "Your Privacy Choices" footer link should be surfaced.
+	 *
+	 * The opt-out page must be published AND the `ccpa_page` feature on. The link's
+	 * region-gating interactivity directives (add_ccpa_interactivity_directives), its
+	 * page-list exclusion (exclude_ccpa_from_get_pages), and the trashed-page 404 guard
+	 * are all registered only inside init()'s ccpa_page branch, so injecting the link
+	 * while that feature is off would render an unguarded, always-visible dead link.
+	 *
+	 * @return bool
+	 */
+	private static function ccpa_footer_link_enabled() {
+		return self::ccpa_page_is_published() && ! empty( self::get_config()['features']['ccpa_page'] );
+	}
+
+	/**
 	 * Whether the site's Privacy Policy page exists and is published.
 	 *
 	 * Mirrors ccpa_page_is_published(): a trashed page still resolves via
@@ -355,8 +416,11 @@ class Cookie_Consent {
 		}
 
 		ob_start();
-		// Get config for template (consumed by ccpa-content.php via include scope).
+		// Get config for template (consumed by ccpa-content.php via include scope). $copy is
+		// pre-resolved here so the template can use it directly instead of re-resolving via
+		// get_copy() — the config is already stashed and fully normalized at this point.
 		$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$copy   = $config['copy']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		include $template_path;
 		return ob_get_clean();
 	}
@@ -422,8 +486,9 @@ class Cookie_Consent {
 			$privacy_policy_exists = true;
 		}
 
-		// Check CCPA page (must be published — a trashed page still resolves).
-		if ( self::ccpa_page_is_published() ) {
+		// Check CCPA page (must be published — a trashed page still resolves — and the
+		// ccpa_page feature on, which owns the link's directives and page-list exclusion).
+		if ( self::ccpa_footer_link_enabled() ) {
 			$ccpa_page_exists = true;
 		}
 
@@ -467,7 +532,7 @@ class Cookie_Consent {
 		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
 		$privacy_policy_exists  = self::privacy_policy_is_published();
 
-		$ccpa_page_exists = self::ccpa_page_is_published();
+		$ccpa_page_exists = self::ccpa_footer_link_enabled();
 		$ccpa_page_id     = get_option( self::CCPA_PAGE_ID_OPTION );
 
 		// Process Privacy Policy first (if it exists and hasn't been processed).
@@ -830,58 +895,6 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get default UI copy.
-	 *
-	 * Defaults are translated in the package text domain. Consumers can override
-	 * any key through the `copy` config group and translate those overrides in
-	 * their own text domain before returning them from the config filter.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array Default copy keyed by semantic UI location.
-	 */
-	public static function get_default_copy() {
-		return array(
-			'banner_title'                     => __( 'Use of your personal data', 'jetpack-cookie-consent' ),
-			'banner_description'               => __( 'We and our partners process your personal data, such as browsing data, IP addresses, cookie information, and other unique identifiers, based on your consent and/or our legitimate interest to improve our website, marketing activities, and your user experience.', 'jetpack-cookie-consent' ),
-			'banner_accept_button'             => __( 'Accept', 'jetpack-cookie-consent' ),
-			'banner_reject_button'             => __( 'Reject', 'jetpack-cookie-consent' ),
-			'banner_customize_button'          => __( 'Customize', 'jetpack-cookie-consent' ),
-			'modal_title'                      => __( 'Customize preferences', 'jetpack-cookie-consent' ),
-			'modal_close_label'                => __( 'Close modal', 'jetpack-cookie-consent' ),
-			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below.', 'jetpack-cookie-consent' ),
-			'privacy_policy_link'              => __( 'Privacy Policy', 'jetpack-cookie-consent' ),
-			'modal_links_lead'                 => __( 'Learn more in our', 'jetpack-cookie-consent' ),
-			'modal_links_conjunction'          => __( 'and', 'jetpack-cookie-consent' ),
-			'cookie_policy_link'               => __( 'Cookie Policy', 'jetpack-cookie-consent' ),
-			'category_toggle_label'            => __( 'Toggle category description', 'jetpack-cookie-consent' ),
-			'required_category_label'          => __( 'Required', 'jetpack-cookie-consent' ),
-			'always_active_label'              => __( 'Always active', 'jetpack-cookie-consent' ),
-			'required_category_description'    => __( 'These cookies are essential for our websites and services to perform basic functions and are necessary for us to operate certain features. Examples include your IP address, browser type, requested URLs, response codes, and operating system data.', 'jetpack-cookie-consent' ),
-			'analytics_category_label'         => __( 'Analytics', 'jetpack-cookie-consent' ),
-			'analytics_category_description'   => __( 'These cookies allow us to improve performance by collecting information on how users interact with our websites.', 'jetpack-cookie-consent' ),
-			'advertising_category_label'       => __( 'Advertising', 'jetpack-cookie-consent' ),
-			'advertising_category_description' => __( 'These cookies are set by us and our advertising partners to provide you with relevant content and to understand that content\'s effectiveness.', 'jetpack-cookie-consent' ),
-			'save_preferences_button'          => __( 'Save preferences', 'jetpack-cookie-consent' ),
-			'accept_all_button'                => __( 'Accept all', 'jetpack-cookie-consent' ),
-			'reject_all_button'                => __( 'Reject all', 'jetpack-cookie-consent' ),
-			'manage_preferences_link'          => __( 'Manage Privacy Preferences', 'jetpack-cookie-consent' ),
-			'ccpa_page_title'                  => __( 'Your Privacy Choices', 'jetpack-cookie-consent' ),
-			'ccpa_intro'                       => __( 'We value your privacy and want you to feel in control of your personal information. Like most websites, we use cookies and similar tools to improve your website experience and show you relevant ads. Sometimes we share this information with trusted partners to do so.', 'jetpack-cookie-consent' ),
-			'ccpa_laws_notice'                 => __( 'Some U.S. state laws consider this kind of data sharing a sale or sharing of personal information. Depending on where you live, you may have the right to opt out.', 'jetpack-cookie-consent' ),
-			'ccpa_heading'                     => __( 'How to Opt Out', 'jetpack-cookie-consent' ),
-			'ccpa_browser_opt_out'             => __( 'Browser Opt-Out: Click the Opt Out button below to stop your browser from sharing this data.', 'jetpack-cookie-consent' ),
-			'ccpa_account_opt_out'             => __( 'Account Opt-Out: To apply this choice to your account, check the box and enter your email.', 'jetpack-cookie-consent' ),
-			'ccpa_gpc_opt_out'                 => __( 'Automatic Opt-Out: If you use a browser with Global Privacy Control (GPC) turned on, we will recognize it and respect your choice automatically.', 'jetpack-cookie-consent' ),
-			'ccpa_preferences_notice'          => __( 'Your preferences will only affect how we use your information for personalized ads and similar activities. It will not affect how we use your information for other purposes, like security or site functionality.', 'jetpack-cookie-consent' ),
-			'ccpa_button_instruction'          => __( 'Click the Opt Out button to stop this browser from sharing personal data.', 'jetpack-cookie-consent' ),
-			'ccpa_opt_out_button'              => __( 'Opt Out', 'jetpack-cookie-consent' ),
-			'ccpa_snackbar_success'            => __( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
-			'ccpa_snackbar_dismiss_label'      => __( 'Dismiss', 'jetpack-cookie-consent' ),
-		);
-	}
-
-	/**
 	 * Normalize a configured log version value for callers.
 	 *
 	 * @param mixed  $version Version value from config.
@@ -910,55 +923,13 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get the default consent category registry.
-	 *
-	 * Category keys are the internal/persistence names. The frontend keeps the
-	 * existing `required` and `advertising` aliases for the default `functional`
-	 * and `marketing` categories.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array|null $copy Optional normalized copy array.
-	 * @return array Default consent categories.
-	 */
-	public static function get_default_consent_categories( $copy = null ) {
-		$copy = is_array( $copy ) ? self::normalize_copy( $copy, self::get_default_copy() ) : self::get_default_copy();
-
-		return array(
-			array(
-				'key'             => 'functional',
-				'label'           => $copy['required_category_label'],
-				'description'     => $copy['required_category_description'],
-				'required'        => true,
-				'default_checked' => true,
-				'wp_consent_map'  => array( 'functional' ),
-			),
-			array(
-				'key'             => 'analytics',
-				'label'           => $copy['analytics_category_label'],
-				'description'     => $copy['analytics_category_description'],
-				'required'        => false,
-				'default_checked' => true,
-				'wp_consent_map'  => array( 'statistics', 'statistics-anonymous' ),
-			),
-			array(
-				'key'             => 'marketing',
-				'label'           => $copy['advertising_category_label'],
-				'description'     => $copy['advertising_category_description'],
-				'required'        => false,
-				'default_checked' => false,
-				'wp_consent_map'  => array( 'marketing' ),
-			),
-		);
-	}
-
-	/**
 	 * Resolve UI copy for a template, backfilling any missing keys with defaults.
 	 *
 	 * Templates normally receive a fully normalized `copy` group from get_config(),
 	 * but they can also be included directly (tests, Storybook). Routing through this
 	 * helper guarantees every key is present so a partial or absent `copy` array can't
-	 * cause undefined-index access.
+	 * cause undefined-index access. An empty (the default) $config reads the already
+	 * resolved and stashed get_config() instead of re-resolving from scratch.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -966,12 +937,18 @@ class Cookie_Consent {
 	 * @return array Copy with every key present.
 	 */
 	public static function get_copy( $config = array() ) {
-		$copy = is_array( $config ) && isset( $config['copy'] ) ? $config['copy'] : array();
-		return self::normalize_copy( $copy, self::get_default_copy() );
+		if ( empty( $config ) ) {
+			return self::get_config()['copy'];
+		}
+
+		return Config_Schema::resolve( $config )['copy'];
 	}
 
 	/**
 	 * Get normalized consent categories from a configuration array.
+	 *
+	 * An empty (the default) $config reads the already resolved and stashed
+	 * get_config() instead of re-resolving from scratch.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -979,11 +956,11 @@ class Cookie_Consent {
 	 * @return array Normalized consent categories.
 	 */
 	public static function get_consent_categories( $config = array() ) {
-		$copy       = self::get_copy( $config );
-		$defaults   = self::get_default_consent_categories( $copy );
-		$categories = $config['consent']['categories'] ?? $defaults;
+		if ( empty( $config ) ) {
+			return self::get_config()['consent']['categories'];
+		}
 
-		return self::normalize_consent_categories( $categories, $defaults );
+		return Config_Schema::resolve( $config )['consent']['categories'];
 	}
 
 	/**
@@ -1062,387 +1039,47 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Normalize configured copy by merging consumer overrides with defaults.
-	 *
-	 * @param array $copy     Copy values supplied by configuration.
-	 * @param array $defaults Default copy values.
-	 * @return array Normalized copy.
-	 */
-	private static function normalize_copy( $copy, $defaults ) {
-		if ( ! is_array( $copy ) ) {
-			return $defaults;
-		}
-
-		foreach ( $copy as $key => $value ) {
-			if ( ! is_string( $key ) ) {
-				continue;
-			}
-
-			if ( is_scalar( $value ) ) {
-				$defaults[ $key ] = (string) $value;
-				continue;
-			}
-
-			// A non-scalar override can't render, so the default is kept. Surface it
-			// so an integrating developer notices the override was dropped instead of
-			// silently shipping the default copy.
-			_doing_it_wrong(
-				__METHOD__,
-				/* translators: %s is the copy configuration key. */
-				esc_html( sprintf( __( 'Cookie consent copy override for "%s" was ignored because it is not a scalar value.', 'jetpack-cookie-consent' ), $key ) ),
-				''
-			);
-		}
-
-		return $defaults;
-	}
-
-	/**
-	 * Normalize configured consent categories.
-	 *
-	 * @param array $categories Categories supplied by configuration.
-	 * @param array $defaults   Default categories.
-	 * @return array Normalized categories.
-	 */
-	private static function normalize_consent_categories( $categories, $defaults ) {
-		if ( ! is_array( $categories ) ) {
-			return $defaults;
-		}
-
-		$normalized           = array();
-		$seen_keys            = array();
-		$seen_preference_keys = array();
-
-		// The frontend aliases the default `functional`/`marketing` categories to the
-		// `required`/`advertising` preference keys, so those alias strings are reserved.
-		// A consumer category whose key (or derived preference key) collides with one
-		// would otherwise silently overwrite a built-in category's consent state.
-		$reserved_keys = array( 'required', 'advertising' );
-
-		foreach ( $categories as $category ) {
-			if ( ! is_array( $category ) || empty( $category['key'] ) ) {
-				continue;
-			}
-
-			$key = self::normalize_consent_category_key( $category['key'] );
-			if ( '' === $key || isset( $seen_keys[ $key ] ) ) {
-				continue;
-			}
-
-			$preference_key = self::get_category_preference_key( $key );
-			if ( in_array( $key, $reserved_keys, true ) || isset( $seen_preference_keys[ $preference_key ] ) ) {
-				_doing_it_wrong(
-					__METHOD__,
-					/* translators: %s is the consent category key. */
-					esc_html( sprintf( __( 'Cookie consent category "%s" was ignored because it collides with a reserved preference key.', 'jetpack-cookie-consent' ), $key ) ),
-					''
-				);
-				continue;
-			}
-
-			$wp_consent_map = array();
-			if ( isset( $category['wp_consent_map'] ) && is_array( $category['wp_consent_map'] ) ) {
-				foreach ( $category['wp_consent_map'] as $wp_consent_key ) {
-					$wp_consent_key = sanitize_key( $wp_consent_key );
-					if ( '' !== $wp_consent_key && ! in_array( $wp_consent_key, $wp_consent_map, true ) ) {
-						$wp_consent_map[] = $wp_consent_key;
-					}
-				}
-			}
-
-			if ( empty( $wp_consent_map ) ) {
-				$wp_consent_map = array( $key );
-			}
-
-			$required = ! empty( $category['required'] );
-
-			$normalized[] = array(
-				'key'             => $key,
-				'label'           => isset( $category['label'] ) && is_scalar( $category['label'] ) ? (string) $category['label'] : $key,
-				'description'     => isset( $category['description'] ) && is_scalar( $category['description'] ) ? (string) $category['description'] : '',
-				'required'        => $required,
-				'default_checked' => $required || ! empty( $category['default_checked'] ),
-				'wp_consent_map'  => $wp_consent_map,
-			);
-
-			$seen_keys[ $key ]                       = true;
-			$seen_preference_keys[ $preference_key ] = true;
-		}
-
-		return empty( $normalized ) ? $defaults : $normalized;
-	}
-
-	/**
-	 * Normalize a consent category key for PHP arrays and Interactivity paths.
-	 *
-	 * @param mixed $key Consent category key.
-	 * @return string Normalized key.
-	 */
-	private static function normalize_consent_category_key( $key ) {
-		$key = sanitize_key( (string) $key );
-		return preg_replace( '/[^a-z0-9_]/', '_', $key );
-	}
-
-	/**
-	 * Normalize configured links by merging consumer overrides with defaults.
-	 *
-	 * @param array $config   Configuration array supplied through filters.
-	 * @param array $defaults Default link values.
-	 * @return array Normalized links.
-	 */
-	private static function normalize_links( $config, $defaults ) {
-		$links = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
-
-		foreach ( $links as $key => $value ) {
-			if ( ! is_string( $key ) ) {
-				continue;
-			}
-
-			if ( is_scalar( $value ) ) {
-				$defaults[ $key ] = trim( (string) $value );
-			}
-		}
-
-		return $defaults;
-	}
-
-	/**
-	 * Get default GDPR country list.
-	 *
-	 * @return string[] Country codes where opt-in consent applies.
-	 */
-	private static function get_default_gdpr_countries() {
-		return array(
-			// European Member countries.
-			'AT', // Austria.
-			'BE', // Belgium.
-			'BG', // Bulgaria.
-			'CY', // Cyprus.
-			'CZ', // Czech Republic.
-			'DE', // Germany.
-			'DK', // Denmark.
-			'EE', // Estonia.
-			'ES', // Spain.
-			'FI', // Finland.
-			'FR', // France.
-			'GR', // Greece.
-			'HR', // Croatia.
-			'HU', // Hungary.
-			'IE', // Ireland.
-			'IT', // Italy.
-			'LT', // Lithuania.
-			'LU', // Luxembourg.
-			'LV', // Latvia.
-			'MT', // Malta.
-			'NL', // Netherlands.
-			'PL', // Poland.
-			'PT', // Portugal.
-			'RO', // Romania.
-			'SE', // Sweden.
-			'SI', // Slovenia.
-			'SK', // Slovakia.
-			'GB', // United Kingdom.
-			// Single Market Countries that GDPR applies to.
-			'CH', // Switzerland.
-			'IS', // Iceland.
-			'LI', // Liechtenstein.
-			'NO', // Norway.
-		);
-	}
-
-	/**
-	 * Get default CCPA-style region list.
-	 *
-	 * @return string[] Lower-case region names where opt-out consent applies.
-	 */
-	private static function get_default_ccpa_regions() {
-		return array(
-			/* US regions/states that are treated like California for Do Not Sell requests. */
-			'california',
-			'utah',
-			'virginia',
-			'colorado',
-			'connecticut',
-			'texas',
-			'tennessee',
-			'oregon',
-			'new jersey',
-			'montana',
-			'iowa',
-			'indiana',
-			'delaware',
-		);
-	}
-
-	/**
-	 * Get default geo provider configuration.
-	 *
-	 * @return array Geo configuration.
-	 */
-	private static function get_default_geo_config() {
-		return array(
-			'provider'            => 'wpcom',
-			'api_url'             => 'https://public-api.wordpress.com/geo/',
-			'country_code_cookie' => 'country_code',
-			'region_cookie'       => 'region',
-			'cookie_duration'     => 6 * HOUR_IN_SECONDS, // 6 hours.
-			'gdpr_countries'      => self::get_default_gdpr_countries(),
-			'ccpa_regions'        => self::get_default_ccpa_regions(),
-			'show_on_error'       => true, // Show banner if geolocation fails.
-		);
-	}
-
-	/**
-	 * Get default configuration.
-	 *
-	 * Legacy top-level geo keys are included so existing filters that append to the
-	 * defaults keep working. normalize_config() folds them into the nested geo schema.
-	 *
-	 * @return array Configuration array.
-	 */
-	private static function get_default_config() {
-		$default_copy = self::get_default_copy();
-		$geo_config   = self::get_default_geo_config();
-
-		return array(
-			'geo'                 => $geo_config,
-			'geo_provider'        => $geo_config['provider'],
-			'geo_api_url'         => $geo_config['api_url'],
-			'geo_cookie_duration' => $geo_config['cookie_duration'],
-			'country_code_cookie' => $geo_config['country_code_cookie'],
-			'region_cookie'       => $geo_config['region_cookie'],
-			'gdpr_countries'      => $geo_config['gdpr_countries'],
-			'ccpa_regions'        => $geo_config['ccpa_regions'],
-			'show_on_error'       => $geo_config['show_on_error'],
-			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
-			'links'               => array(
-				'cookie_policy_url' => '', // Empty hides the Cookie Policy link; set it to link a consumer's own cookie policy page.
-			),
-			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
-			'features'            => array(
-				'tracks' => true,
-			),
-			'log'                 => array(
-				'policy_version' => '1',
-				'banner_version' => '1',
-				'ip_mode'        => 'drop',
-			),
-			'copy'                => $default_copy,
-			'consent'             => array(
-				'categories' => self::get_default_consent_categories( $default_copy ),
-			),
-		);
-	}
-
-	/**
-	 * Normalize GDPR country codes for case-insensitive matching.
-	 *
-	 * @param string[] $countries Country codes.
-	 * @return string[] Upper-case country codes.
-	 */
-	private static function normalize_gdpr_countries( $countries ) {
-		return array_map( 'strtoupper', array_values( $countries ) );
-	}
-
-	/**
-	 * Normalize CCPA region names for case-insensitive matching.
-	 *
-	 * @param string[] $regions Region names.
-	 * @return string[] Lower-case region names.
-	 */
-	private static function normalize_ccpa_regions( $regions ) {
-		return array_map( 'strtolower', array_values( $regions ) );
-	}
-
-	/**
-	 * Normalize filtered configuration into the current schema.
-	 *
-	 * @param array $config         Filtered configuration.
-	 * @param array $default_config Default configuration.
-	 * @return array Normalized configuration.
-	 */
-	private static function normalize_config( $config, $default_config ) {
-		if ( ! is_array( $config ) ) {
-			$config = array();
-		}
-
-		$nested_geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
-		$geo        = array_merge( $default_config['geo'], $nested_geo );
-
-		$legacy_geo_keys = array(
-			'geo_provider'        => 'provider',
-			'geo_api_url'         => 'api_url',
-			'geo_cookie_duration' => 'cookie_duration',
-			'country_code_cookie' => 'country_code_cookie',
-			'region_cookie'       => 'region_cookie',
-			'gdpr_countries'      => 'gdpr_countries',
-			'ccpa_regions'        => 'ccpa_regions',
-			'show_on_error'       => 'show_on_error',
-		);
-
-		foreach ( $legacy_geo_keys as $legacy_key => $geo_key ) {
-			$has_nested_override = array_key_exists( $geo_key, $nested_geo );
-			if ( ! $has_nested_override && array_key_exists( $legacy_key, $config ) && $config[ $legacy_key ] !== $default_config[ $legacy_key ] ) {
-				$geo[ $geo_key ] = $config[ $legacy_key ];
-			}
-		}
-
-		if ( ! in_array( $geo['provider'], array( 'wpcom', 'custom' ), true ) ) {
-			$geo['provider'] = 'wpcom';
-			$geo['api_url']  = $default_config['geo']['api_url'];
-		}
-		if ( ! is_string( $geo['api_url'] ) ) {
-			$geo['api_url'] = '';
-		}
-		if ( 'wpcom' === $geo['provider'] && '' === $geo['api_url'] ) {
-			$geo['api_url'] = $default_config['geo']['api_url'];
-		}
-		$geo['country_code_cookie'] = is_string( $geo['country_code_cookie'] ) && '' !== $geo['country_code_cookie'] ? $geo['country_code_cookie'] : $default_config['geo']['country_code_cookie'];
-		$geo['region_cookie']       = is_string( $geo['region_cookie'] ) && '' !== $geo['region_cookie'] ? $geo['region_cookie'] : $default_config['geo']['region_cookie'];
-		$geo['cookie_duration']     = is_numeric( $geo['cookie_duration'] ) ? (int) $geo['cookie_duration'] : $default_config['geo']['cookie_duration'];
-		$geo['gdpr_countries']      = is_array( $geo['gdpr_countries'] ) ? self::normalize_gdpr_countries( $geo['gdpr_countries'] ) : $default_config['geo']['gdpr_countries'];
-		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
-		$geo['show_on_error']       = (bool) $geo['show_on_error'];
-
-		$config['geo']                = $geo;
-		$config['links']              = self::normalize_links( $config, $default_config['links'] );
-		$config['event_prefix']       = $config['event_prefix'] ?? $default_config['event_prefix'];
-		$config['features']           = array_merge(
-			$default_config['features'],
-			isset( $config['features'] ) && is_array( $config['features'] ) ? $config['features'] : array()
-		);
-		$config['features']['tracks'] = (bool) $config['features']['tracks'];
-		$config['copy']               = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
-		$config['consent']            = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
-
-		$default_categories = self::get_default_consent_categories( $config['copy'] );
-		$categories         = $config['consent']['categories'] ?? $default_categories;
-
-		if ( $categories === $default_config['consent']['categories'] ) {
-			$categories = $default_categories;
-		}
-
-		$config['consent']['categories'] = self::normalize_consent_categories( $categories, $default_categories );
-
-		return $config;
-	}
-
-	/**
-	 * Get package configuration with filters.
+	 * Get package configuration, resolving and stashing it on first access.
 	 *
 	 * @internal This accessor is for package classes only and is not part of the public API.
 	 *
 	 * @return array Configuration array.
 	 */
 	public static function get_config() {
-		$default_config = self::get_default_config();
+		if ( null === self::$config ) {
+			self::$config = self::resolve_config();
+		}
+
+		return self::$config;
+	}
+
+	/**
+	 * Resolve a partial config against the schema, let consumers filter the
+	 * result, then re-resolve so any filtered value is re-validated.
+	 *
+	 * The consuming plugin injects its config through init(); this filter is the
+	 * override point for other code on the site that does not own that init()
+	 * call. Because the filtered array is resolved a second time, unknown or
+	 * malformed values a filter returns are sanitized back to schema defaults
+	 * rather than trusted verbatim. resolve() is idempotent, so re-resolving an
+	 * unfiltered config is a no-op.
+	 *
+	 * @param array $config Partial consumer config.
+	 * @return array Fully resolved, filtered, and re-validated config.
+	 */
+	private static function resolve_config( array $config = array() ) {
+		$resolved = Config_Schema::resolve( $config );
 
 		/**
-		 * Filter cookie consent configuration
+		 * Filters the resolved Cookie Consent configuration.
 		 *
-		 * @param array $config Configuration array
+		 * @since $$next-version$$
+		 *
+		 * @param array $resolved The fully resolved configuration array.
 		 */
-		return self::normalize_config( apply_filters( 'jetpack_cookie_consent_config', $default_config ), $default_config );
+		$filtered = apply_filters( 'jetpack_cookie_consent_config', $resolved );
+
+		return Config_Schema::resolve( is_array( $filtered ) ? $filtered : $resolved );
 	}
 
 	/**
@@ -1453,6 +1090,13 @@ class Cookie_Consent {
 		if ( is_admin() ) {
 			return;
 		}
+
+		$config   = self::get_config();
+		$features = $config['features'];
+
+		// init() registers this only when a consent UI feature needs the runtime, so no bail
+		// here. w.js (Tracks) is loaded by the module on the frontend, gated on consent
+		// (tracks-utils.ts); PHP must never enqueue it here.
 
 		// Register and enqueue the Interactivity API script module built by webpack.
 		// Only the build version is read from the asset file; module dependencies are
@@ -1483,7 +1127,6 @@ class Cookie_Consent {
 		);
 
 		// Resolve the configured Tracks event prefix once so it can be shared below.
-		$config              = self::get_config();
 		$frontend_categories = self::get_frontend_consent_categories( $config['consent']['categories'] );
 
 		$config_data = array(
@@ -1522,7 +1165,10 @@ class Cookie_Consent {
 			'cookiePolicyUrl' => $config['links']['cookie_policy_url'],
 			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
 			'forcePreview'    => $force_preview,
-			'categories'      => $frontend_categories,
+			'geoEnabled'      => (bool) $features['geo'],
+			// Always emit the full geo sub-array, even when the geo feature is off:
+			// the banner JS dereferences config.geo unconditionally, so omitting it
+			// (rather than gating on geoEnabled) would break the module.
 			'geo'             => array(
 				'provider'          => $config['geo']['provider'],
 				'apiUrl'            => $config['geo']['api_url'],
@@ -1554,7 +1200,12 @@ class Cookie_Consent {
 		$template_path = plugin_dir_path( __FILE__ ) . 'cookie-banner-content.php';
 		if ( file_exists( $template_path ) ) {
 			// Get config for template (consumed by cookie-banner-content.php via include scope).
-			$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			// $copy/$categories are pre-resolved here so the template can use them directly
+			// instead of re-resolving via get_copy()/get_consent_categories() — the config is
+			// already stashed and fully normalized at this point.
+			$config     = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$copy       = $config['copy']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$categories = $config['consent']['categories']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			ob_start();
 			include $template_path;
 			$html = ob_get_clean();
