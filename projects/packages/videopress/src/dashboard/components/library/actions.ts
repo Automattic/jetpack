@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { isSimpleSite } from '../../utils/is-simple';
 import type { LibraryItem, LibraryItemPrivacy } from '../../types/library';
 import type { Action } from '@wordpress/dataviews';
 
@@ -112,7 +113,11 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			label: __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ),
 			isPrimary: true,
 			supportsBulk: false,
+			// Not offered on WordPress.com Simple: the promote flow walks
+			// /videopress/v1/upload/{id}, and the videopress/v1 namespace never
+			// reaches the REST dispatcher there — the action could only fail.
 			isEligible: item =>
+				! isSimpleSite() &&
 				item.type === 'local' &&
 				item.upload.status !== 'uploading' &&
 				item.upload.status !== 'failed',

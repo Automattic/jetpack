@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { formatDuration } from '../../utils/format';
+import { isSimpleSite } from '../../utils/is-simple';
 import { useUploadActions } from './upload-actions-context';
 import type { LibraryItem } from '../../types/library';
 
@@ -87,16 +88,21 @@ export default function ThumbnailField( { item }: Props ) {
 					>
 						<Text>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</Text>
 					</Stack>
-					<Stack
-						direction="row"
-						align="center"
-						justify="center"
-						className="vp-library__hover-action"
-					>
-						<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
-							{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</Stack>
+					{ /* The promote flow walks /videopress/v1/upload/{id}, which never
+					     reaches the REST dispatcher on WordPress.com Simple — don't
+					     offer a button that can only fail there. */ }
+					{ ! isSimpleSite() && (
+						<Stack
+							direction="row"
+							align="center"
+							justify="center"
+							className="vp-library__hover-action"
+						>
+							<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
+								{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</Stack>
+					) }
 				</>
 			) : null }
 
