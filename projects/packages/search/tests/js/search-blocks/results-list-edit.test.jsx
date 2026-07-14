@@ -66,6 +66,20 @@ jest.mock( '@wordpress/components', () => ( {
 			</>
 		);
 	},
+	TextareaControl: ( { label, value, onChange, placeholder } ) => {
+		const id = `textarea-${ String( label ).toLowerCase().replace( /\s+/g, '-' ) }`;
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<textarea
+					id={ id }
+					value={ value || '' }
+					placeholder={ placeholder }
+					onChange={ event => onChange( event.target.value ) }
+				/>
+			</>
+		);
+	},
 } ) );
 
 jest.mock( '@wordpress/i18n', () => ( {
@@ -282,11 +296,21 @@ describe( 'ResultsListEdit', () => {
 		);
 
 		// The success-state preview is the only thing rendered on the canvas;
-		// the empty and error copy live in the Inspector controls only.
+		// the empty and error copy live in the Inspector controls only. The
+		// no-results fields are textareas, whose values surface as text
+		// content, so assert any match sits inside the Inspector rather than
+		// expecting zero matches document-wide.
 		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Try a broader query.' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Clear a filter to see results.' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Search is offline right now.' ) ).not.toBeInTheDocument();
+		const inspector = screen.getByTestId( 'inspector' );
+		for ( const copy of [
+			'Try a broader query.',
+			'Clear a filter to see results.',
+			'Search is offline right now.',
+		] ) {
+			for ( const element of screen.queryAllByText( copy ) ) {
+				expect( inspector ).toContainElement( element );
+			}
+		}
 	} );
 } );
 

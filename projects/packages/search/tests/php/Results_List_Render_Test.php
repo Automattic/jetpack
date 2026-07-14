@@ -313,8 +313,14 @@ class Results_List_Render_Test extends TestCase {
 			)
 		);
 		$this->assertStringNotContainsString( '<script>', $markup );
-		$this->assertStringNotContainsString( '<img', $markup );
-		$this->assertStringContainsString( 'Nothing found.', $markup );
+		$this->assertStringNotContainsString( 'onerror', $markup );
+		// Scoped to the message `<p>` — the results template legitimately
+		// contains an `<img>` (the result thumbnail), so assert the tags were
+		// stripped from the message itself rather than the whole markup.
+		$this->assertStringContainsString(
+			'<p data-wp-bind--hidden="state.hasActiveFilters">alert(1)Nothing found.</p>',
+			$markup
+		);
 	}
 
 	/**
