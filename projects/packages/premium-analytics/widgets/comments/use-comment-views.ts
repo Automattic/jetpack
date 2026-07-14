@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useMemo } from '@wordpress/element';
+/**
  * Internal dependencies
  */
 import { useStatsComments } from '@jetpack-premium-analytics/data';
@@ -74,39 +78,44 @@ interface CommentViewsState {
 export default function useCommentViews( { view, max }: UseCommentViewsArgs ): CommentViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsComments();
 
-	const report = data as StatsCommentsResponse | undefined;
-	const items = report?.data?.[ 0 ]?.items ?? [];
-	const group = items.find( item => item.label === view ) as StatsCommentsGroupItem | undefined;
-	const children = group?.children ?? [];
+	// Memoize on the query's stable `data` reference so the row array keeps a
+	// stable identity across unrelated re-renders; otherwise every render hands
+	// a fresh array to render.tsx and defeats its downstream `useMemo`.
+	const rows: CommentRow[] = useMemo( () => {
+		const report = data as StatsCommentsResponse | undefined;
+		const items = report?.data?.[ 0 ]?.items ?? [];
+		const group = items.find( item => item.label === view ) as StatsCommentsGroupItem | undefined;
+		const children = group?.children ?? [];
 
-	// Derive the row key from the item's own identity, not its position, so it
-	// stays stable across refetches and can't collide on a repeated label (e.g.
-	// two "Anonymous" authors): posts key on their post id, authors on their
-	// gravatar hash, each falling back to the label when that is missing.
-	const rows: CommentRow[] = children
-		.map( child => {
-			if ( view === 'authors' ) {
-				const author = child as StatsCommentsAuthorItem;
-				const label = toLabel( author.label );
+		// Derive the row key from the item's own identity, not its position, so it
+		// stays stable across refetches and can't collide on a repeated label (e.g.
+		// two "Anonymous" authors): posts key on their post id, authors on their
+		// gravatar hash, each falling back to the label when that is missing.
+		return children
+			.map( child => {
+				if ( view === 'authors' ) {
+					const author = child as StatsCommentsAuthorItem;
+					const label = toLabel( author.label );
+					return {
+						id: author.icon ?? `author-${ label }`,
+						label,
+						value: author.value,
+						avatarUrl: author.icon ?? undefined,
+					};
+				}
+
+				const post = child as StatsCommentsPostItem;
+				const label = toLabel( post.label );
 				return {
-					id: author.icon ?? `author-${ label }`,
+					id: post.id != null ? String( post.id ) : post.link ?? `post-${ label }`,
 					label,
-					value: author.value,
-					avatarUrl: author.icon ?? undefined,
+					value: post.value,
+					link: post.link ?? undefined,
 				};
-			}
-
-			const post = child as StatsCommentsPostItem;
-			const label = toLabel( post.label );
-			return {
-				id: post.id != null ? String( post.id ) : post.link ?? `post-${ label }`,
-				label,
-				value: post.value,
-				link: post.link ?? undefined,
-			};
-		} )
-		.sort( ( a, b ) => b.value - a.value )
-		.slice( 0, max > 0 ? max : undefined );
+			} )
+			.sort( ( a, b ) => b.value - a.value )
+			.slice( 0, max > 0 ? max : undefined );
+	}, [ data, view, max ] );
 
 	return {
 		data: rows,
