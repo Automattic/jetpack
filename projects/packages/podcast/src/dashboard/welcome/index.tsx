@@ -14,12 +14,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
-import {
-	buildUpgradeCheckoutUrl,
-	getUpgradeProductSlug,
-	getUpgradePlanName,
-	withPurchaseReturnMarker,
-} from '../upgrade';
+import { buildUpgradeCheckoutUrl, getUpgradeProductSlug, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
 interface WelcomeProps {
@@ -47,12 +42,8 @@ const getUpgradeCheckoutUrl = (): string => {
 	}
 
 	// `tab=settings` bypasses the welcome gate so buyers continue configuring
-	// the podcast instead of re-seeing this same pricing card after checkout;
-	// the purchase marker busts the server's cached plan so access flips on
-	// arrival.
-	const returnTo = adminUrl
-		? withPurchaseReturnMarker( getAdminUrl( 'admin.php?page=jetpack-podcast&tab=settings' ) )
-		: '';
+	// the podcast instead of re-seeing this pricing card after checkout.
+	const returnTo = adminUrl ? getAdminUrl( 'admin.php?page=jetpack-podcast&tab=settings' ) : '';
 
 	return buildUpgradeCheckoutUrl( {
 		siteSlug: slug,

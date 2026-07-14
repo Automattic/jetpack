@@ -29,24 +29,35 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			remove_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ), 10 );
 		}
 		delete_option( 'podcasting_category_id' );
-		Podcast_Gate::flush_purchases_cache();
+		$this->set_purchases_cache( null );
 		$_GET = array();
 		$this->reset_prefill_state();
 		parent::tearDown();
 	}
 
 	/**
-	 * Prime the gate's purchase cache: a Growth purchase grants access, an empty
+	 * Prime the gate's request memo: a Growth purchase grants access, an empty
 	 * list denies it.
 	 *
 	 * @param bool $has_access Whether the site should have product access.
 	 */
 	private function set_product_access( bool $has_access ) {
-		Podcast_Gate::flush_purchases_cache();
-		set_transient(
-			Podcast_Gate::PURCHASES_TRANSIENT,
+		$this->set_purchases_cache(
 			$has_access ? array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) : array()
 		);
+	}
+
+	/**
+	 * Set the gate's private request memo (reflection; null clears it).
+	 *
+	 * @param array|null $purchases Purchases to memoize, or null to reset.
+	 */
+	private function set_purchases_cache( ?array $purchases ) {
+		$property = new \ReflectionProperty( Podcast_Gate::class, 'purchases_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $purchases );
 	}
 
 	public function test_maybe_register_handlers_requires_flagged_post_new_screen_and_configured_category() {

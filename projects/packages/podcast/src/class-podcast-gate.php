@@ -33,14 +33,8 @@ class Podcast_Gate {
 	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**
-	 * Short-lived cache of the `/upgrades` response, mainly to dedupe the lookup
-	 * across a page load. Busted on checkout return via `flush_purchases_cache()`.
-	 */
-	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
-
-	/**
-	 * Request-scoped memo of the purchases lookup (including failures, so a
-	 * failed fetch isn't retried mid-request). Null until first resolved.
+	 * Request-scoped cache of the `/upgrades` lookup (failures included, so a
+	 * bad fetch isn't retried mid-request). Null until first resolved.
 	 *
 	 * @var array|null
 	 */
@@ -79,16 +73,6 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * Drop the cached purchases lookup so the next check re-reads `/upgrades`.
-	 * Called on checkout return so a fresh plan unlocks the paid surfaces
-	 * immediately rather than after the TTL.
-	 */
-	public static function flush_purchases_cache(): void {
-		delete_transient( self::PURCHASES_TRANSIENT );
-		self::$purchases_cache = null;
-	}
-
-	/**
 	 * Whether a self-hosted site owns a Growth/Complete plan. Matches purchased
 	 * product slugs, not the `podcasting` feature (which is true for every Jetpack
 	 * site on WordPress.com and can't tell free from paid here).
@@ -109,21 +93,13 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * The site's current purchases from WordPress.com (`/upgrades`).
-	 *
-	 * Fails closed: an unreachable or malformed response returns no purchases and
-	 * isn't cached, so the next lookup retries.
+	 * The site's current purchases from WordPress.com (`/upgrades`), fetched once
+	 * per request. Fails closed to an empty list on any error.
 	 *
 	 * @return array Purchase entries; empty on failure.
 	 */
 	private static function get_site_current_purchases(): array {
 		if ( null !== self::$purchases_cache ) {
-			return self::$purchases_cache;
-		}
-
-		$cached = get_transient( self::PURCHASES_TRANSIENT );
-		if ( is_array( $cached ) ) {
-			self::$purchases_cache = $cached;
 			return self::$purchases_cache;
 		}
 
@@ -139,13 +115,7 @@ class Podcast_Gate {
 		}
 
 		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $decoded ) ) {
-			self::$purchases_cache = array();
-			return self::$purchases_cache;
-		}
-
-		set_transient( self::PURCHASES_TRANSIENT, $decoded, 30 );
-		self::$purchases_cache = $decoded;
+		self::$purchases_cache = is_array( $decoded ) ? $decoded : array();
 		return self::$purchases_cache;
 	}
 

@@ -29,7 +29,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		// self-hosted cases clear it explicitly via `as_self_hosted()`.
 		Constants::set_constant( 'IS_WPCOM', true );
 		self::reset_active_plan_cache();
-		Podcast_Gate::flush_purchases_cache();
+		self::set_purchases_cache( null );
 	}
 
 	protected function tearDown(): void {
@@ -38,7 +38,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		self::reset_active_plan_cache();
-		Podcast_Gate::flush_purchases_cache();
+		self::set_purchases_cache( null );
 		parent::tearDown();
 	}
 
@@ -83,19 +83,30 @@ class Podcast_Gate_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Seed the cached `/upgrades` response the self-hosted path reads.
+	 * Prime the gate's request memo with the given purchase slugs, so the
+	 * self-hosted path reads them without a fetch.
 	 *
 	 * @param array $slugs Product slugs to present as current purchases.
 	 */
 	private static function seed_purchases( array $slugs ): void {
-		// Clear the memo (and any stale transient) first, then seed, so the
-		// gate reads the seeded value fresh.
-		Podcast_Gate::flush_purchases_cache();
 		$purchases = array();
 		foreach ( $slugs as $slug ) {
 			$purchases[] = array( 'product_slug' => $slug );
 		}
-		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, $purchases );
+		self::set_purchases_cache( $purchases );
+	}
+
+	/**
+	 * Set the gate's private request memo (reflection; null clears it).
+	 *
+	 * @param array|null $purchases Purchases to memoize, or null to reset.
+	 */
+	private static function set_purchases_cache( ?array $purchases ): void {
+		$property = ( new \ReflectionClass( Podcast_Gate::class ) )->getProperty( 'purchases_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $purchases );
 	}
 
 	/**
@@ -205,13 +216,9 @@ class Podcast_Gate_Test extends BaseTestCase {
 		add_filter( 'pre_http_request', self::upgrades_response( array( 'jetpack_growth_yearly' ) ) );
 
 		$this->assertTrue( Podcast_Gate::has_product_access() );
-		$this->assertSame(
-			array( array( 'product_slug' => 'jetpack_growth_yearly' ) ),
-			get_transient( Podcast_Gate::PURCHASES_TRANSIENT )
-		);
 	}
 
-	public function test_self_hosted_fetch_http_error_denies_and_does_not_cache(): void {
+	public function test_self_hosted_fetch_http_error_denies_access(): void {
 		self::as_connected_self_hosted();
 		add_filter(
 			'pre_http_request',
@@ -226,21 +233,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( Podcast_Gate::has_product_access() );
-		// Fails closed without caching, so the next allowed lookup retries.
-		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
-	}
-
-	public function test_flush_purchases_cache_drops_transient_and_memo(): void {
-		self::as_self_hosted();
-		self::seed_purchases( array( 'jetpack_growth_yearly' ) );
-		// Prime the request-scoped memo.
-		$this->assertTrue( Podcast_Gate::has_product_access() );
-
-		Podcast_Gate::flush_purchases_cache();
-
-		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
-		// Memo cleared too: the uncached lookup now fails closed (no connection).
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 }

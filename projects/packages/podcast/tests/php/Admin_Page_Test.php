@@ -38,10 +38,7 @@ class Admin_Page_Test extends BaseTestCase {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
-		unset( $_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] );
-		// Drops the transient and the request-scoped memo so neither leaks into
-		// a sibling test.
-		Podcast_Gate::flush_purchases_cache();
+		$this->set_purchases_cache( null );
 		( new Connection_Manager() )->reset_connection_status();
 		WorDBless_Options::init()->clear_options();
 		wp_set_current_user( 0 );
@@ -198,12 +195,7 @@ class Admin_Page_Test extends BaseTestCase {
 	 * `/upgrades` request).
 	 */
 	public function test_inject_script_data_targets_growth_on_self_hosted() {
-		// Clear the memo first, then seed, so the transient is read fresh.
-		Podcast_Gate::flush_purchases_cache();
-		set_transient(
-			Podcast_Gate::PURCHASES_TRANSIENT,
-			array( array( 'product_slug' => 'jetpack_growth_yearly' ) )
-		);
+		$this->set_purchases_cache( array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) );
 
 		$data = Admin_Page::inject_podcast_script_data( array() );
 
@@ -224,8 +216,7 @@ class Admin_Page_Test extends BaseTestCase {
 	 * hermetic.
 	 */
 	public function test_inject_script_data_sets_blog_id_from_option_on_self_hosted() {
-		Podcast_Gate::flush_purchases_cache();
-		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
+		$this->set_purchases_cache( array() );
 		Jetpack_Options::update_option( 'id', 456 );
 
 		$data = Admin_Page::inject_podcast_script_data( array() );
@@ -273,20 +264,15 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A buyer returning from checkout carries the purchase marker, which drops
-	 * the stale (pre-purchase) cached purchases so access is recomputed fresh.
+	 * Set the gate's private request memo (reflection; null clears it).
+	 *
+	 * @param array|null $purchases Purchases to memoize, or null to reset.
 	 */
-	public function test_inject_script_data_busts_stale_purchases_on_return() {
-		// Stale "free" lookup cached before the purchase completed.
-		Podcast_Gate::flush_purchases_cache();
-		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
-		$_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] = '1';
-
-		Admin_Page::inject_podcast_script_data( array() );
-
-		$this->assertFalse(
-			get_transient( Podcast_Gate::PURCHASES_TRANSIENT ),
-			'The purchase marker should drop the stale cached purchases.'
-		);
+	private function set_purchases_cache( ?array $purchases ) {
+		$property = new \ReflectionProperty( Podcast_Gate::class, 'purchases_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $purchases );
 	}
 }
