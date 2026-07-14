@@ -24,9 +24,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-if ( class_exists( 'Jetpack_AI_Settings' ) ) {
-	return;
-}
+// All consumers require this canonical file once. A class_exists() guard here
+// would be true on the first load because PHP registers unconditional classes
+// before executing the file, returning before the self-initialization below.
 
 /**
  * Registers the Jetpack AI master switch and per-feature toggle options, and
@@ -257,7 +257,5 @@ class Jetpack_AI_Settings {
 // Self-initialize on load. The consuming AI extension files require this file
 // directly (__DIR__-relative) because on WordPress.com Simple the plugin's
 // extension files load through wpcom's own loader and load-jetpack.php never
-// runs — a bootstrap-only init would leave the class missing and the gate
-// filters unattached there. init() is idempotent, so the additional
-// bootstrap call from load-jetpack.php on other platforms is harmless.
+// runs. This keeps filter registration identical in both bootstrap paths.
 Jetpack_AI_Settings::init();
