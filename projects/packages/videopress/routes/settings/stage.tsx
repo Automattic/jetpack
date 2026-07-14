@@ -23,15 +23,18 @@ const SettingsForm = () => {
 
 	// The mutation rolls the optimistic value back on failure; without a notice
 	// the toggle would just silently snap back and read as if the save took.
+	// Depend on `mutate` (stable across renders), not the per-render mutation
+	// result object, so the memoization actually holds.
+	const { mutate } = update;
 	const save = useCallback(
 		( patch: SettingsPatch ) =>
-			update.mutate( patch, {
+			mutate( patch, {
 				onError: () =>
 					createErrorNotice(
 						__( 'Your setting couldn’t be saved. Please try again.', 'jetpack-videopress-pkg' )
 					),
 			} ),
-		[ update, createErrorNotice ]
+		[ mutate, createErrorNotice ]
 	);
 
 	// The "private videos for site" value is resolved server-side on WordPress.com

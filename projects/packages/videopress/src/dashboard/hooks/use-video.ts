@@ -37,7 +37,6 @@ export function useVideo( id: number | string ) {
 		refetchInterval: q => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				q.queryHash,
 				q.state.data?.isProcessing ? [ String( id ) ] : [],
 				Date.now()
 			);

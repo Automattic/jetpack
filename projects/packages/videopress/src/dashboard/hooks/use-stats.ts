@@ -412,10 +412,15 @@ export function useStats() {
 		// this flag a failed request renders as fabricated zeros.
 		isError: currentQuery.isError || previousQuery.isError,
 		error: currentQuery.error ?? previousQuery.error,
-		// Whether the current window has real (possibly cached) data behind it.
-		// Lets the Overview keep rendering cached stats through a failed
-		// background refetch instead of swapping working KPIs for the error pane.
-		hasData: currentQuery.data !== undefined,
+		// Whether every window still has real (possibly cached) data behind it,
+		// per window. Lets the Overview keep rendering cached stats through a
+		// failed background refetch (the failed window retains its data), while
+		// a window that failed with nothing behind it — e.g. the previous
+		// window on first load — surfaces the error pane instead of rendering
+		// its side of the comparison as fabricated zeros.
+		hasData:
+			currentQuery.data !== undefined &&
+			( ! previousQuery.isError || previousQuery.data !== undefined ),
 		refetch,
 		dateRange,
 		granularity,

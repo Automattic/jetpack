@@ -339,7 +339,6 @@ export function libraryRefetchInterval(
 }
 
 export type ProcessingPollAnchor = {
-	queryHash: string;
 	/** Sorted, comma-joined ids of the items that were processing when stamped. */
 	idsKey: string;
 	startedAt: number;
@@ -348,38 +347,37 @@ export type ProcessingPollAnchor = {
 /**
  * Advance the processing-poll anchor and decide the next poll interval.
  *
- * The anchor pins when the CURRENT set of processing items was first seen for
- * a query, and re-stamps whenever that set changes — a new upload appearing,
- * or one of several finishing — so every distinct set gets a fresh
+ * The anchor pins when the CURRENT set of processing items was first seen,
+ * and re-stamps whenever that set changes — a new upload appearing, or one of
+ * several finishing — so every distinct set gets a fresh
  * {@link PROCESSING_POLL_MAX_MS} budget. Without this, a permanently-stuck
  * orphan (the VIDP-298 case) would burn the budget once and then starve every
- * later upload on the same view of polling. Pure so the whole cap behavior is
- * unit-testable without wrangling react-query's timers.
+ * later upload of polling. The budget is keyed by the SET, not the view: the
+ * same stuck orphan seen through different filters/pages/searches keeps one
+ * budget instead of re-arming on every view change. (Passing through a view
+ * with no processing items — or a remount — drops the anchor and re-arms;
+ * that's bounded by user action, which is fine: the cap exists to stop
+ * unbounded *idle* polling.) Pure so the cap behavior is unit-testable
+ * without wrangling react-query's timers.
  *
  * @param anchor        - The previously stored anchor, or null.
- * @param queryHash     - The react-query hash of the query being polled.
  * @param processingIds - Ids of the items currently processing (any order).
  * @param now           - Current epoch ms.
  * @return The anchor to store and the poll interval (false stops polling).
  */
 export function nextProcessingPoll(
 	anchor: ProcessingPollAnchor | null,
-	queryHash: string,
 	processingIds: string[],
 	now: number
 ): { anchor: ProcessingPollAnchor | null; interval: number | false } {
 	if ( processingIds.length === 0 ) {
-		// Processing cleared (or never started) for this query — drop its anchor
-		// so the next processing item gets a fresh budget. Another query's
-		// anchor is kept: its budget is its own.
-		return {
-			anchor: anchor?.queryHash === queryHash ? null : anchor,
-			interval: libraryRefetchInterval( false, 0 ),
-		};
+		// Processing cleared (or never started) — drop the anchor so the next
+		// processing item gets a fresh budget.
+		return { anchor: null, interval: libraryRefetchInterval( false, 0 ) };
 	}
 	const idsKey = [ ...processingIds ].sort().join( ',' );
-	if ( anchor?.queryHash !== queryHash || anchor.idsKey !== idsKey ) {
-		anchor = { queryHash, idsKey, startedAt: now };
+	if ( anchor?.idsKey !== idsKey ) {
+		anchor = { idsKey, startedAt: now };
 	}
 	return { anchor, interval: libraryRefetchInterval( true, now - anchor.startedAt ) };
 }
@@ -413,7 +411,6 @@ export function useLibrary( view: View ) {
 		refetchInterval: q => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				q.queryHash,
 				( q.state.data?.items ?? [] ).filter( item => item.isProcessing ).map( item => item.id ),
 				Date.now()
 			);
@@ -434,11 +431,6 @@ export function useLibrary( view: View ) {
 		paginationInfo: query.data?.paginationInfo ?? { totalItems: 0, totalPages: 0 },
 		isError: query.isError,
 		error: query.error,
-		// True while `items` is the previous view's data held by
-		// keepPreviousData. Lets the stage tell "this view failed to load"
-		// (placeholder rows would be the wrong view's) from "a background
-		// refresh of the rows on screen failed" (rows are still valid).
-		isPlaceholderData: query.isPlaceholderData,
 		refetch: query.refetch,
 	};
 }

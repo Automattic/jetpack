@@ -81,7 +81,6 @@ const StageInner = () => {
 		paginationInfo,
 		isError,
 		error: libraryError,
-		isPlaceholderData,
 		refetch,
 	} = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
@@ -465,14 +464,17 @@ const StageInner = () => {
 						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
 						onFilesDrop={ handleFilesDrop }
 					/>
-					{ isError && ( renderedItems.length === 0 || isPlaceholderData ) ? (
+					{ isError && items.length === 0 ? (
 						// A failed listing request would otherwise render as DataViews'
 						// "No results" — indistinguishable from an empty library. Surface
-						// the error explicitly with a Retry that refetches. Only when
-						// there's nothing valid to show: a failed *background* refresh of
-						// rows already on screen keeps the grid (self-heals on the next
-						// poll), while placeholder rows held by keepPreviousData belong
-						// to the previous view, so a failed view change still errors.
+						// the error explicitly with a Retry that refetches. Only when the
+						// QUERY has nothing valid to show: a failed *background* refresh
+						// keeps its cached rows (grid stays, self-heals on the next
+						// poll), while a failed view change / first load leaves data
+						// undefined (react-query drops keepPreviousData placeholders on
+						// error), so it lands here. Deliberately `items`, not
+						// `renderedItems` — the latter splices in in-flight upload rows,
+						// which must not mask a failed listing.
 						<FetchErrorNotice
 							className="vp-library__error"
 							message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }

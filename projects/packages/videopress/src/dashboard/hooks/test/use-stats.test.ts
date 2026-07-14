@@ -330,4 +330,27 @@ describe( 'useStats', () => {
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 		expect( result.current.isError ).toBe( false );
 	} );
+
+	it( 'withholds hasData when only the previous window fails on first load', async () => {
+		// A previous-window-only failure must not render: transformVideoPlays
+		// would fabricate previousPeriod zeros for every KPI and chart bucket,
+		// presented as real comparison data. useQueries fires the current
+		// window's queryFn first (array order), so the second distinct path is
+		// the previous window.
+		const seen: string[] = [];
+		mockApiFetch( async ( { path } ) => {
+			if ( ! seen.includes( path ?? '' ) ) {
+				seen.push( path ?? '' );
+			}
+			if ( seen.indexOf( path ?? '' ) === 1 ) {
+				throw new Error( 'previous window boom' );
+			}
+			return { days: {} };
+		} );
+
+		const { result } = renderHook( () => useStats(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( result.current.hasData ).toBe( false );
+	} );
 } );

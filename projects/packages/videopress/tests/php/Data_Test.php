@@ -373,6 +373,20 @@ class Data_Test extends BaseTestCase {
 			'in, empty set -> sentinel'       => array( array(), 'in', array(), array( 'post__in' => array( 0 ) ) ),
 			'in intersects REST include'      => array( array( 'post__in' => array( 5, 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 5 ) ) ),
 			'in disjoint include -> sentinel' => array( array( 'post__in' => array( 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'in folds a lone REST exclude'    => array( array( 'post__not_in' => array( 3 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 5 ) ) ),
+			'in exclude-swallows -> sentinel' => array( array( 'post__not_in' => array( 3, 5 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'in include+exclude: core precedence (exclude dropped)' => array(
+				array(
+					'post__in'     => array( 3, 9 ),
+					'post__not_in' => array( 3 ),
+				),
+				'in',
+				array( 3, 5 ),
+				array(
+					'post__in'     => array( 3 ),
+					'post__not_in' => array( 3 ),
+				),
+			),
 			'not_in, plain'                   => array( array(), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 3, 5 ) ) ),
 			'not_in, empty set -> untouched'  => array( array( 'post__not_in' => array( 7 ) ), 'not_in', array(), array( 'post__not_in' => array( 7 ) ) ),
 			'not_in merges REST exclude'      => array( array( 'post__not_in' => array( 7, 3 ) ), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 7, 3, 5 ) ) ),

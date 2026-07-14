@@ -256,8 +256,12 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * Apply a resolved (mode, ids) constraint to WP_Query args, composing with
 	 * any include/exclude constraints core already mapped onto post__in /
 	 * post__not_in (the REST `include`/`exclude` params) rather than clobbering
-	 * them. WP_Query ignores post__not_in whenever post__in is present, so an
-	 * exclusion is folded into a pre-existing include list by subtraction.
+	 * them. WP_Query ignores post__not_in whenever post__in is present, so
+	 * whenever this method *introduces* a post__in where none existed, a
+	 * pre-existing exclusion (which WOULD have been honored) is folded into it
+	 * by subtraction. A request carrying both include and exclude keeps core's
+	 * own precedence (include wins, exclude is dropped), matching what the
+	 * off-Simple meta_query path yields.
 	 *
 	 * Pure (args in, args out) so the composition rules are unit-testable
 	 * off-platform; only the resolution of $ids touches wpcom.
@@ -268,7 +272,10 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * @return array The args with the constraint applied.
 	 */
 	private function apply_wpcom_id_constraint( $args, $mode, $ids ) {
-		$existing_in = isset( $args['post__in'] ) ? array_map( 'intval', (array) $args['post__in'] ) : array();
+		// WP_Query normalizes these lists with absint; mirror it so the
+		// composition operates on the values that would actually be queried.
+		$existing_in     = isset( $args['post__in'] ) ? array_map( 'absint', (array) $args['post__in'] ) : array();
+		$existing_not_in = isset( $args['post__not_in'] ) ? array_map( 'absint', (array) $args['post__not_in'] ) : array();
 
 		switch ( $mode ) {
 			case 'in':
@@ -277,7 +284,15 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 				// result must fall back to a sentinel that matches no attachment
 				// (post ID 0 never exists) — otherwise it would leak the library.
 				if ( array() !== $existing_in ) {
+					// Include + exclude together: core drops the exclude, keep
+					// that precedence and intersect the include list only.
 					$ids = array_values( array_intersect( $existing_in, $ids ) );
+				} elseif ( array() !== $existing_not_in ) {
+					// A lone exclude WOULD have been honored by WP_Query, but the
+					// post__in set here would make it ignored — fold it in by
+					// subtraction and drop the now-dead arg.
+					$ids = array_values( array_diff( $ids, $existing_not_in ) );
+					unset( $args['post__not_in'] );
 				}
 				$args['post__in'] = array() === $ids ? array( 0 ) : $ids;
 				break;
@@ -294,7 +309,6 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 					$args['post__in'] = array() === $kept ? array( 0 ) : $kept;
 					break;
 				}
-				$existing_not_in      = isset( $args['post__not_in'] ) ? array_map( 'intval', (array) $args['post__not_in'] ) : array();
 				$args['post__not_in'] = array_values( array_unique( array_merge( $existing_not_in, $ids ) ) );
 				break;
 

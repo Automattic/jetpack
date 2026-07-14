@@ -32,12 +32,8 @@ describe( 'useFreeTier', () => {
 					json: async () => [],
 				};
 			}
-			// /videopress/v1/features default response
-			return {
-				isVideoPressSupported: true,
-				isVideoPress1TBSupported: false,
-				isVideoPressUnlimitedSupported: false,
-			};
+			// No other endpoints are fetched by this hook anymore.
+			throw new Error( 'unexpected parsed request' );
 		} );
 
 		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
@@ -68,11 +64,7 @@ describe( 'useFreeTier', () => {
 					json: async () => [],
 				};
 			}
-			return {
-				isVideoPressSupported: true,
-				isVideoPress1TBSupported: false,
-				isVideoPressUnlimitedSupported: false,
-			};
+			throw new Error( 'unexpected parsed request' );
 		} );
 
 		try {
