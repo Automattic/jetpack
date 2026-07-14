@@ -86,6 +86,38 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Outside WordPress.com, `difm_lite_site_options` must be omitted from the get-site
+	 * `options` object even while a DIFM build is flagged in progress: the SAL getter
+	 * returns null on the non-WPCOM path and the endpoint must not emit the key at all.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_difm_lite_site_options_omitted_outside_wpcom() {
+		// The test bootstrap mocks has_blog_sticker() as get_option(), so this makes
+		// is_difm_lite_in_progress() report an active build in this environment.
+		update_option( 'difm-lite-in-progress', true );
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array( 'fields' => 'ID,options' )
+		);
+
+		foreach ( array( 'xmlrpc' => $xmlrpc, 'rest' => $rest ) as $transport => $body ) {
+			$this->assertArrayHasKey( 'options', $body, "get-site ($transport) did not render `options`." );
+			$options = (array) $body['options'];
+			if ( empty( $options['is_difm_lite_in_progress'] ) ) {
+				$this->markTestSkipped( 'Environment did not surface an in-progress DIFM build; nothing to assert.' );
+			}
+			$this->assertArrayNotHasKey(
+				'difm_lite_site_options',
+				$options,
+				"`difm_lite_site_options` must be omitted ($transport) when the SAL getter returns null."
+			);
+		}
+	}
+
+	/**
 	 * Retrieve the registered v1.1 get-site endpoint.
 	 *
 	 * @return WPCOM_JSON_API_GET_Site_Endpoint
