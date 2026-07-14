@@ -36,10 +36,12 @@ export type SubscribersChartAttributes = {
 export default {
 	name: 'jpa/subscribers-chart',
 	title: __( 'Subscribers', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Track subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: trendingUp,
 	attributes: [
 		{

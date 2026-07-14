@@ -38,6 +38,12 @@ export type TopPostsAttributes = {
 export default {
 	name: 'jpa/stats-top-posts',
 	title: __( 'Most viewed', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Most viewed posts, pages and archive. Learn about what content resonates the most.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 	attributes: [
 		{

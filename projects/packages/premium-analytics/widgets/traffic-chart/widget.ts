@@ -37,10 +37,12 @@ export type TrafficChartAttributes = {
 export default {
 	name: 'jpa/traffic-chart',
 	title: __( 'Traffic', 'jetpack-premium-analytics' ),
-	description: __(
-		'Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 	attributes: [
 		{
