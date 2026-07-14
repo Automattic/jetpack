@@ -1,7 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { mintSimpleUploadToken } from '../../client/lib/get-media-token';
-import { isSimpleSite } from '../utils/is-simple';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
 import type { LibraryItem } from '../types/library';
 
@@ -45,23 +43,10 @@ type PosterApiResponse = {
  * @return An object containing the final poster URL, or undefined if generation did not complete.
  */
 async function mutationFn( vars: UpdatePosterVars ): Promise< { poster?: string } > {
-	const data: Record< string, unknown > = buildBody( vars );
-
-	// On WordPress.com Simple the backend can't mint the one-time upload token the
-	// poster update needs — the `media/token` endpoint is classic rest/v1.1, which the
-	// in-process transport there can't reach — so mint it here, where the user's auth
-	// reaches the site-scoped proxy, and hand it to the endpoint.
-	if ( isSimpleSite() ) {
-		const { token } = await mintSimpleUploadToken();
-		if ( token ) {
-			data.upload_token = token;
-		}
-	}
-
 	const postResp = ( await apiFetch( {
 		path: `/wpcom/v2/videopress/${ vars.guid }/poster`,
 		method: 'POST',
-		data,
+		data: buildBody( vars ),
 	} ) ) as PosterApiResponse;
 
 	let generating = postResp?.data?.generating;

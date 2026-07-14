@@ -205,27 +205,4 @@ async function getMediaToken(
 	return tokenData;
 }
 
-/**
- * Mint a one-time VideoPress upload token via the site-scoped `media/token`
- * proxy endpoint.
- *
- * On WordPress.com Simple the admin-ajax minter (`getMediaToken('upload')`) can't
- * obtain this token — its classic `media/token` (rest/v1.1) call isn't dispatchable
- * in-process there — but the user's auth reaches the endpoint through the wp-admin
- * apiFetch proxy. Returns a blog-scoped, single-use token the native VideoPress
- * upload endpoints accept. Only call this on the Simple dashboard, where
- * `wp.apiFetch` (with the wpcom proxy middleware) is available.
- *
- * @return {Promise<MediaTokenProps>} The resolved `{ token, blogId }` pair.
- */
-export async function mintSimpleUploadToken(): Promise< MediaTokenProps > {
-	// `WpGlobal`'s apiFetch is typed to return a `Response` (the module's other call
-	// passes `parse: false`); this call parses, so assert the decoded shape via unknown.
-	const response = ( await ( window.wp as Required< WpGlobal > ).apiFetch( {
-		path: '/rest/v1.1/media/token',
-		method: 'POST',
-	} ) ) as unknown as { upload_token: string; upload_blog_id: number };
-	return { token: response.upload_token, blogId: String( response.upload_blog_id ) };
-}
-
 export default getMediaToken;
