@@ -146,11 +146,16 @@ function PostLikesDashboardStory( {
 	);
 }
 
+/**
+ * Mirrors the production placement (1 column × 2 rows). The fixture's ten
+ * rows exceed that tile height, so this story also demonstrates the roster
+ * scrolling inside the widget frame's content viewport.
+ */
 export const WidgetDashboardWithWidget: StoryObj< PostLikesDashboardStoryProps > = {
 	render: args => <PostLikesDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 2,
+		widgetWidth: 1,
 		widgetHeight: 2,
 		hasPostScope: true,
 	},
