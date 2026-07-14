@@ -116,7 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertTrue( $features['image_editor']['enabled'] );
 		$this->assertTrue( $features['image_editor']['sub']['image_label']['enabled'] );
 		$this->assertTrue( $features['image_editor']['sub']['image_label']['available'] );
-		$this->assertTrue( $features['excerpt']['enabled'] );
+		$this->assertArrayNotHasKey( 'excerpt', $features );
 		$this->assertFalse( $features['seo_enhancer']['enabled'] );
 		$this->assertFalse( $features['ai_search']['enabled'] );
 		// No Search plan in the test environment.
@@ -147,19 +147,21 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 			'POST',
 			array(
 				'features' => array(
-					'excerpt'      => false,
-					'seo_enhancer' => array( 'enabled' => true ),
+					'writing_assistant' => false,
+					'seo_enhancer'      => array( 'enabled' => true ),
+					// A stale client may still send the removed excerpt key. It is ignored.
+					'excerpt'           => false,
 				),
 			)
 		)->get_data();
 
-		$this->assertFalse( $data['features']['excerpt']['enabled'] );
+		$this->assertFalse( $data['features']['writing_assistant']['enabled'] );
 		$this->assertTrue( $data['features']['seo_enhancer']['enabled'] );
 		// Untouched keys keep their defaults.
-		$this->assertTrue( $data['features']['writing_assistant']['enabled'] );
+		$this->assertTrue( $data['features']['image_editor']['enabled'] );
 
 		// The options actually changed — this is what the load points read.
-		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'excerpt' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 	}
 
