@@ -125,6 +125,7 @@ export function normalizeReportParams(
 		to,
 		interval: interval ?? defaults.interval,
 		preset,
+		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		date_type: search?.date_type ?? 'created',
 		// Preserve the single-resource scope so detail-page widgets stay bound to
 		// their post/page. Coerce to a positive integer and drop anything else

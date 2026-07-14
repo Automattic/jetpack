@@ -2,13 +2,14 @@ import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
-	createStatsListDataPoint,
+	createStatsDataPoint,
 	createStatsSummaryDataPoint,
 	emptyStatsReport,
 	getStatsBuckets,
 	getStatsLabel,
 	getStatsReportItems,
 	getStatsTopLevelDataDate,
+	getStatsTopLevelPeriod,
 	limitStatsRows,
 	mergeStatsComparisonRows,
 } from './utils';
@@ -74,11 +75,15 @@ export function sanitizeStatsArchivesResponse(
 			.map( ( [ archiveType, archiveItems ] ) => {
 				const children = normalizeArchiveChildren( archiveType, archiveItems );
 				const value = children.reduce( ( total, item ) => total + item.value, 0 );
+				const collapseHome = archiveType === 'home' && children.length < 2;
 
 				return {
 					label: archiveType,
 					value,
-					children: archiveType === 'home' && children.length < 2 ? null : children,
+					...( collapseHome && children[ 0 ]?.link !== undefined
+						? { link: children[ 0 ].link }
+						: {} ),
+					children: collapseHome ? null : children,
 				};
 			} )
 			.filter( item => item.value > 0 )
@@ -101,28 +106,28 @@ export function sanitizeStatsArchivesResponse(
 		return emptyStatsReport();
 	}
 
-	const data = buckets
-		.map( ( [ date, bucket ] ) => {
-			const items = Object.entries( bucket )
-				.map( ( [ archiveType, archiveItems ] ) => {
-					const children = normalizeArchiveChildren( archiveType, archiveItems );
-					const value = children.reduce( ( total, item ) => total + item.value, 0 );
+	const data = buckets.map( ( [ date, bucket ] ) => {
+		const items = Object.entries( bucket )
+			.map( ( [ archiveType, archiveItems ] ) => {
+				const children = normalizeArchiveChildren( archiveType, archiveItems );
+				const value = children.reduce( ( total, item ) => total + item.value, 0 );
+				const collapseHome = archiveType === 'home' && children.length < 2;
 
-					return {
-						label: archiveType,
-						value,
-						children: archiveType === 'home' && children.length < 2 ? null : children,
-					};
-				} )
-				.filter( item => item.value > 0 )
-				.sort( ( a, b ) => b.value - a.value );
-
-			return {
-				...createStatsListDataPoint( { date }, query, items ),
-				time_interval: date,
-			};
-		} )
-		.filter( point => point.items.length );
+				return {
+					label: archiveType,
+					value,
+					...( collapseHome && children[ 0 ]?.link !== undefined
+						? { link: children[ 0 ].link }
+						: {} ),
+					children: collapseHome ? null : children,
+				};
+			} )
+			.filter( item => item.value > 0 )
+			.sort( ( a, b ) => b.value - a.value );
+		return {
+			...createStatsDataPoint( date, getStatsTopLevelPeriod( response, query ), items ),
+		};
+	} );
 
 	return {
 		summary: {

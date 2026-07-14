@@ -13,6 +13,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import TopPostsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -116,19 +117,19 @@ type DashboardStory = StoryObj< TopPostsDashboardStoryProps >;
 export const Default: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: false, contentView: 'posts' },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'posts' },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const Archives: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'archives' },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	parameters: {
 		docs: {
 			description: {
