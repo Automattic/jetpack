@@ -39,6 +39,17 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Loading the settings class registers every master-gate filter.
+	 */
+	public function test_class_self_initializes_on_load() {
+		$callback = array( Jetpack_AI_Settings::class, 'apply_master_gates' );
+
+		$this->assertNotFalse( has_filter( 'jetpack_ai_enabled', $callback ) );
+		$this->assertNotFalse( has_filter( 'jetpack_search_ai_answers_enabled', $callback ) );
+		$this->assertNotFalse( has_filter( 'jetpack_ai_sidebar_enabled', $callback ) );
+	}
+
+	/**
 	 * The master gate must never turn a no into a yes: call sites pass their own
 	 * computed default (false on plain self-hosted sites in Jetpack_AI_Helper).
 	 */
