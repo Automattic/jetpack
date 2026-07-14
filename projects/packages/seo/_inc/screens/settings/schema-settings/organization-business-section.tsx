@@ -16,10 +16,8 @@ interface Props {
 }
 
 /**
- * The "Organization / Business info" form inside the Schema settings card. Edits
- * the site-level Organization schema values WordPress has no native source for —
- * social profiles (`sameAs`), an optional contact email — plus optional `name` /
- * `description` overrides. Saved through the package's own REST route (never
+ * The shared site-level Schema form. Edits BreadcrumbList, Organization, and
+ * LocalBusiness settings through the package's own REST route (never
  * `/jetpack/v4/settings`).
  *
  * Presentational: the Schema card owns the {@link useSchemaSettings} controller
@@ -31,11 +29,13 @@ interface Props {
  */
 const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 	const {
+		breadcrumbList,
 		organization,
 		defaults,
 		localBusiness,
 		isSaving,
 		isDirty,
+		setBreadcrumbListField,
 		setOrganizationField,
 		setLocalBusinessField,
 		save,
@@ -46,6 +46,18 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
+			<ToggleControl
+				label={ __( 'Enable breadcrumb schema', 'jetpack-seo' ) }
+				help={ __(
+					'Adds breadcrumb structured data to help search engines understand your site hierarchy.',
+					'jetpack-seo'
+				) }
+				checked={ breadcrumbList.enabled }
+				onChange={ next => setBreadcrumbListField( { enabled: next } ) }
+				disabled={ isSaving }
+				__nextHasNoMarginBottom
+			/>
+
 			<TextControl
 				label={ __( 'Organization name', 'jetpack-seo' ) }
 				help={ __(

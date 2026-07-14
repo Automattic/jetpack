@@ -10,11 +10,8 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
 /**
  * Site-level Schema settings section.
  *
- * The container the per-schema site controls plug into. Today it holds the
- * Organization / Business info form (name, description, social profiles, contact
- * email); the BreadcrumbList toggle and other site-level schema types
- * (LocalBusiness) ship in their own issues and land here. The per-user Author
- * profile (Person / ProfilePage) lives in its own card.
+ * Holds the site-level BreadcrumbList, Organization, and LocalBusiness controls.
+ * The per-user Author profile (Person / ProfilePage) lives in its own card.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site

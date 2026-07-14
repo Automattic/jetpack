@@ -13,6 +13,7 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 // `jest.unstable_mockModule`, then import the card dynamically. Mocking the hook
 // keeps the card test off the network while exercising the real section + card UI.
 const setOrganizationField = jest.fn();
+const setBreadcrumbListField = jest.fn();
 const setLocalBusinessField = jest.fn();
 const save = jest.fn();
 
@@ -21,12 +22,14 @@ let mockForm: SchemaSettingsForm;
 
 const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettingsForm => ( {
 	// No stored override; the Site Title / Tagline come through as placeholder defaults.
+	breadcrumbList: { enabled: true },
 	organization: { name: '', description: '', sameAs: [], email: '' },
 	defaults: { name: 'Acme Co', description: 'We make things' },
 	localBusiness: EMPTY_LOCAL_BUSINESS,
 	localBusinessDefaults: EMPTY_LOCAL_BUSINESS_DEFAULTS,
 	isSaving: false,
 	isDirty: false,
+	setBreadcrumbListField,
 	setOrganizationField,
 	setLocalBusinessField,
 	save,
@@ -73,6 +76,34 @@ describe( 'SchemaCard', () => {
 		expect( nameField ).toHaveValue( '' );
 		expect( nameField ).toHaveAttribute( 'placeholder', 'Acme Co' );
 		expect( screen.getByRole( 'button', { name: /Add profile/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the enabled breadcrumb toggle above the Organization fields and updates it', () => {
+		renderCard();
+		expand();
+
+		const toggle = screen.getByRole( 'checkbox', { name: 'Enable breadcrumb schema' } );
+		const nameField = screen.getByRole( 'textbox', { name: /Organization name/ } );
+		expect( toggle ).toBeChecked();
+		expect(
+			// eslint-disable-next-line no-bitwise -- compareDocumentPosition returns a bitmask.
+			toggle.compareDocumentPosition( nameField ) & Node.DOCUMENT_POSITION_FOLLOWING
+		).toBeTruthy();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( toggle );
+		expect( setBreadcrumbListField ).toHaveBeenCalledWith( { enabled: false } );
+	} );
+
+	it( 'renders an explicitly disabled breadcrumb toggle without changing the badge', () => {
+		mockForm = makeForm( { breadcrumbList: { enabled: false } } );
+		renderCard();
+
+		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
+		expand();
+		expect(
+			screen.getByRole( 'checkbox', { name: 'Enable breadcrumb schema' } )
+		).not.toBeChecked();
 	} );
 
 	it( 'adds a social-profile row through the hook', () => {

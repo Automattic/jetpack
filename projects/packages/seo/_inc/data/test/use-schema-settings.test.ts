@@ -33,6 +33,7 @@ describe( 'useSchemaSettings', () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 		expect( result.current.organization ).toEqual( RESPONSE.organization );
 		expect( result.current.localBusiness ).toEqual( RESPONSE.localBusiness );
 		expect( result.current.defaults ).toEqual( RESPONSE.defaults.organization );
@@ -45,9 +46,11 @@ describe( 'useSchemaSettings', () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE, onSave ) );
 
 		act( () => result.current.setOrganizationField( { sameAs: [ 'https://twitter.com/acme' ] } ) );
+		act( () => result.current.setBreadcrumbListField( { enabled: false } ) );
 		expect( result.current.isDirty ).toBe( true );
 
 		const saved = {
+			breadcrumbList: { enabled: false },
 			organization: { ...RESPONSE.organization, sameAs: [ 'https://twitter.com/acme' ] },
 			localBusiness: RESPONSE.localBusiness,
 			defaults: RESPONSE.defaults,
@@ -63,11 +66,13 @@ describe( 'useSchemaSettings', () => {
 		);
 		const options = post![ 0 ] as {
 			path: string;
-			data: { organization: { sameAs: string[] }; localBusiness: typeof RESPONSE.localBusiness };
+			data: Pick< SchemaSettings, 'breadcrumbList' | 'organization' | 'localBusiness' >;
 		};
 		expect( options.path ).toBe( '/jetpack/v4/seo/schema-settings' );
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
+		expect( options.data.breadcrumbList ).toEqual( { enabled: false } );
 		expect( options.data.localBusiness ).toEqual( RESPONSE.localBusiness );
+		expect( result.current.breadcrumbList ).toEqual( { enabled: false } );
 		expect( result.current.localBusiness ).toEqual( saved.localBusiness );
 		expect( onSave ).toHaveBeenCalledWith( saved );
 		expect( createSuccessNotice ).toHaveBeenCalled();
@@ -167,9 +172,10 @@ describe( 'useSchemaSettings', () => {
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
 		);
 		const options = post![ 0 ] as {
-			data: { organization: { sameAs: string[] }; localBusiness: typeof RESPONSE.localBusiness };
+			data: Pick< SchemaSettings, 'breadcrumbList' | 'organization' | 'localBusiness' >;
 		};
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
+		expect( options.data.breadcrumbList ).toEqual( RESPONSE.breadcrumbList );
 		expect( options.data.localBusiness ).toEqual( RESPONSE.localBusiness );
 	} );
 } );

@@ -38,6 +38,10 @@ class SchemaBuilderTest extends TestCase {
 		\Jetpack_SEO_Utils::$enabled     = true;
 		\Jetpack_SEO_Posts::$schema_type = '';
 		\Jetpack_SEO_Posts::$description = '';
+		\WooCommerce::$is_template       = false;
+		$this->remove_schema_builder_hooks();
+		$this->remove_woo_schema_hooks();
+		\WC()->structured_data->reset_data();
 	}
 
 	/**
@@ -49,6 +53,10 @@ class SchemaBuilderTest extends TestCase {
 		remove_all_filters( 'pre_option_blogname' );
 		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'home_url' );
+		\WooCommerce::$is_template = false;
+		$this->remove_schema_builder_hooks();
+		$this->remove_woo_schema_hooks();
+		\WC()->structured_data->reset_data();
 		delete_option( Schema_Settings::OPTION_NAME );
 		wp_set_current_user( 0 );
 		foreach ( $this->user_ids as $user_id ) {
@@ -57,6 +65,38 @@ class SchemaBuilderTest extends TestCase {
 			}
 		}
 		parent::tearDown();
+	}
+
+	/**
+	 * Remove the WooCommerce callbacks used by duplicate-output tests.
+	 *
+	 * @return void
+	 */
+	private function remove_woo_schema_hooks() {
+		$structured_data = \WC()->structured_data;
+		remove_action( 'woocommerce_breadcrumb', array( $structured_data, 'generate_breadcrumblist_data' ) );
+		remove_action( 'wp_footer', array( $structured_data, 'output_structured_data' ) );
+	}
+
+	/**
+	 * Remove Schema_Builder's front-end hooks so lifecycle tests stay isolated.
+	 *
+	 * @return void
+	 */
+	private function remove_schema_builder_hooks() {
+		remove_action( 'wp_head', array( Schema_Builder::class, 'emit' ), 5 );
+		remove_action( 'wp_footer', array( Schema_Builder::class, 'emit_woocommerce_breadcrumb_fallback' ), 11 );
+	}
+
+	/**
+	 * Register the standard WooCommerce breadcrumb generator and footer emitter.
+	 *
+	 * @return void
+	 */
+	private function register_woo_schema_hooks() {
+		$structured_data = \WC()->structured_data;
+		add_action( 'woocommerce_breadcrumb', array( $structured_data, 'generate_breadcrumblist_data' ) );
+		add_action( 'wp_footer', array( $structured_data, 'output_structured_data' ) );
 	}
 
 	/**
@@ -194,6 +234,70 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * Capture Jetpack's head output, optional WooCommerce breadcrumb generation,
+	 * and the footer output where WooCommerce emits data and Jetpack can fall back.
+	 *
+	 * @param WP_Post $post                  Queried singular post.
+	 * @param bool    $render_woo_breadcrumb Whether the template renders WooCommerce breadcrumbs.
+	 * @return string Captured lifecycle output.
+	 */
+	private function capture_woo_schema_lifecycle( WP_Post $post, $render_woo_breadcrumb ) {
+		global $wp_query;
+		$wp_query                    = new \WP_Query();
+		$wp_query->is_singular       = true;
+		$wp_query->queried_object    = $post;
+		$wp_query->queried_object_id = $post->ID;
+
+		Schema_Builder::init();
+		// Invoked directly rather than via do_action( 'wp_footer' ), which would
+		// also fire core's own footer callbacks (one is deprecated and fails the
+		// suite). The assertion pins the ordering the direct calls simulate.
+		$this->assertSame(
+			11,
+			has_action( 'wp_footer', array( Schema_Builder::class, 'emit_woocommerce_breadcrumb_fallback' ) )
+		);
+
+		ob_start();
+		Schema_Builder::emit();
+		if ( $render_woo_breadcrumb ) {
+			do_action( 'woocommerce_breadcrumb' );
+		}
+		\WC()->structured_data->output_structured_data();
+		Schema_Builder::emit_woocommerce_breadcrumb_fallback();
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Find all nodes of a given type across every captured JSON-LD script.
+	 *
+	 * @param string $html Captured HTML.
+	 * @param string $type Schema.org type.
+	 * @return array<int, array>
+	 */
+	private function schema_nodes_of_type_from_html( $html, $type ) {
+		preg_match_all( '#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches );
+
+		$found = array();
+		foreach ( $matches[1] as $json ) {
+			$document = json_decode( $json, true );
+			if ( ! is_array( $document ) ) {
+				continue;
+			}
+
+			$nodes = isset( $document['@graph'] ) && is_array( $document['@graph'] )
+				? $document['@graph']
+				: array( $document );
+			foreach ( $nodes as $node ) {
+				if ( is_array( $node ) && $type === ( $node['@type'] ?? '' ) ) {
+					$found[] = $node;
+				}
+			}
+		}
+
+		return $found;
+	}
+
+	/**
 	 * Drive Schema_Builder::emit() against an author archive.
 	 *
 	 * @param \WP_User $user Queried author.
@@ -238,12 +342,9 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * Nothing is emitted on a non-singular request that is not the front page
-	 * (archives, 404, search): no page node and no Organization, so the graph is
-	 * empty. The front page is the one non-singular request that does emit — see
-	 * test_emits_organization_on_front_page().
+	 * Nothing is emitted on an unsupported non-singular request.
 	 */
-	public function test_emits_nothing_on_non_singular() {
+	public function test_emits_nothing_on_unsupported_request() {
 		$this->assertNull( $this->emit_document( null ) );
 	}
 
@@ -255,10 +356,23 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * A page with no schema override yields no page node, so the request emits
-	 * nothing at all (no standalone site-level graph).
+	 * A page with no page-schema override can still emit the default-enabled
+	 * BreadcrumbList as the graph's only node.
 	 */
-	public function test_emits_nothing_for_page_without_override() {
+	public function test_emits_breadcrumb_for_page_without_override() {
+		$doc = $this->emit_document( $this->make_post( array( 'post_type' => 'page' ) ) );
+
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
+		$this->assertNull( $this->node_of_type( $doc, 'Article' ) );
+	}
+
+	/**
+	 * Disabling BreadcrumbList preserves the empty-graph behavior for a page with
+	 * no page-schema override.
+	 */
+	public function test_disabled_breadcrumb_emits_nothing_for_page_without_override() {
+		Schema_Settings::update( array( 'breadcrumbList' => array( 'enabled' => false ) ) );
+
 		$this->assertNull( $this->emit_document( $this->make_post( array( 'post_type' => 'page' ) ) ) );
 	}
 
@@ -277,6 +391,7 @@ class SchemaBuilderTest extends TestCase {
 
 		$article = $this->node_of_type( $doc, 'Article' );
 		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
 		$this->assertArrayHasKey( 'headline', $article );
 		$this->assertArrayHasKey( 'datePublished', $article );
 		$this->assertArrayHasKey( 'mainEntityOfPage', $article );
@@ -418,6 +533,7 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertIsArray( $profile_page, 'Expected a ProfilePage node in the graph.' );
 		$this->assertSame( $person['@id'], $profile_page['mainEntity']['@id'] );
 		$this->assertArrayNotHasKey( 'worksFor', $person );
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
 	}
 
 	/**
@@ -532,6 +648,98 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertSame( 'Organization', $organization['@type'] );
 		$this->assertArrayNotHasKey( 'address', $organization );
 		$this->assertNull( $this->node_of_type( $doc, 'LocalBusiness' ) );
+	}
+
+	/**
+	 * A Woo template that never renders its breadcrumb gets Jetpack's late
+	 * fallback instead of ending the request with no BreadcrumbList.
+	 */
+	public function test_woo_template_without_rendered_breadcrumb_emits_jetpack_fallback() {
+		\WooCommerce::$is_template = true;
+		$this->register_woo_schema_hooks();
+
+		$html  = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), false );
+		$nodes = $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' );
+
+		$this->assertCount( 1, $nodes );
+		$this->assertArrayNotHasKey( '@id', $nodes[0], 'Expected Jetpack fallback data, not the WooCommerce fixture.' );
+	}
+
+	/**
+	 * A Woo template that generated BreadcrumbList data remains authoritative and
+	 * does not receive a duplicate Jetpack fallback in the footer.
+	 */
+	public function test_woo_template_with_rendered_breadcrumb_emits_only_woocommerce_node() {
+		\WooCommerce::$is_template = true;
+		$this->register_woo_schema_hooks();
+
+		$html  = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), true );
+		$nodes = $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' );
+
+		$this->assertCount( 1, $nodes );
+		$this->assertSame( 'https://example.test/#woocommerce-breadcrumb', $nodes[0]['@id'] );
+	}
+
+	/**
+	 * Firing WooCommerce's breadcrumb action is not enough when its generator
+	 * returns without storing data; Jetpack still supplies the late fallback.
+	 */
+	public function test_woo_breadcrumb_action_without_generated_data_emits_jetpack_fallback() {
+		\WooCommerce::$is_template                       = true;
+		\WC()->structured_data->generate_breadcrumb_data = false;
+		$this->register_woo_schema_hooks();
+
+		$html  = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), true );
+		$nodes = $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' );
+
+		$this->assertCount( 1, $nodes );
+		$this->assertArrayNotHasKey( '@id', $nodes[0], 'Expected Jetpack fallback data, not the WooCommerce fixture.' );
+	}
+
+	/**
+	 * Disabling Jetpack BreadcrumbList output also disables its WooCommerce
+	 * fallback when the template did not generate one.
+	 */
+	public function test_disabled_breadcrumb_setting_does_not_emit_woo_fallback() {
+		\WooCommerce::$is_template = true;
+		$this->register_woo_schema_hooks();
+		Schema_Settings::update( array( 'breadcrumbList' => array( 'enabled' => false ) ) );
+
+		$html = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), false );
+
+		$this->assertCount( 0, $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' ) );
+	}
+
+	/**
+	 * Both WooCommerce callbacks are required before Jetpack suppresses its node.
+	 */
+	public function test_woo_template_does_not_suppress_breadcrumb_with_only_one_callback() {
+		$structured_data           = \WC()->structured_data;
+		\WooCommerce::$is_template = true;
+		$callbacks                 = array(
+			array( 'woocommerce_breadcrumb', 'generate_breadcrumblist_data' ),
+			array( 'wp_footer', 'output_structured_data' ),
+		);
+
+		foreach ( $callbacks as $callback ) {
+			$this->remove_woo_schema_hooks();
+			add_action( $callback[0], array( $structured_data, $callback[1] ) );
+
+			$doc = $this->emit_document( $this->make_post( array( 'post_type' => 'page' ) ) );
+			$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
+		}
+	}
+
+	/**
+	 * Active WooCommerce callbacks do not suppress Jetpack on an ordinary post.
+	 */
+	public function test_woo_callbacks_do_not_suppress_breadcrumb_on_regular_post() {
+		$this->register_woo_schema_hooks();
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$this->assertIsArray( $this->node_of_type( $doc, 'Article' ) );
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
 	}
 
 	/**

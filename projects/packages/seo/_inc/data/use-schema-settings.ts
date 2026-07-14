@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { cleanLocalBusiness, cleanOrganization } from './schema-settings-utils';
 import type {
+	BreadcrumbListSettings,
 	LocalBusinessDefaults,
 	LocalBusinessSettings,
 	OrganizationDefaults,
@@ -16,14 +17,20 @@ const ENDPOINT = '/jetpack/v4/seo/schema-settings';
 // Single snackbar id reused across a save so "Saving…" is replaced in place by the result.
 const NOTICE_ID = 'jetpack-seo-schema-settings-save';
 
-type EditableSchemaSections = Pick< SchemaSettings, 'organization' | 'localBusiness' >;
+type EditableSchemaSections = Pick<
+	SchemaSettings,
+	'breadcrumbList' | 'organization' | 'localBusiness'
+>;
 
 const cleanSections = ( sections: EditableSchemaSections ): EditableSchemaSections => ( {
+	breadcrumbList: { ...sections.breadcrumbList },
 	organization: cleanOrganization( sections.organization ),
 	localBusiness: cleanLocalBusiness( sections.localBusiness ),
 } );
 
 export interface SchemaSettingsForm {
+	/** The editable BreadcrumbList setting. */
+	breadcrumbList: BreadcrumbListSettings;
 	/** The editable Organization overrides. */
 	organization: OrganizationSettings;
 	/** Site-identity values shown as field placeholders (what an empty override falls back to). */
@@ -37,6 +44,8 @@ export interface SchemaSettingsForm {
 	isDirty: boolean;
 	/** Patch one or more Organization fields locally (persisted by `save()`). */
 	setOrganizationField: ( patch: Partial< OrganizationSettings > ) => void;
+	/** Patch the BreadcrumbList setting locally (persisted by `save()`). */
+	setBreadcrumbListField: ( patch: Partial< BreadcrumbListSettings > ) => void;
 	/** Patch one or more LocalBusiness fields locally (persisted by `save()`). */
 	setLocalBusinessField: ( patch: Partial< LocalBusinessSettings > ) => void;
 	/** Persist the current schema values through the schema-settings route. */
@@ -56,6 +65,7 @@ export function useSchemaSettings(
 	onSave?: ( settings: SchemaSettings ) => void
 ): SchemaSettingsForm {
 	const [ sections, setSections ] = useState< EditableSchemaSections >( {
+		breadcrumbList: initialSettings.breadcrumbList,
 		organization: initialSettings.organization,
 		localBusiness: initialSettings.localBusiness,
 	} );
@@ -67,10 +77,24 @@ export function useSchemaSettings(
 	// value without re-creating its callback.
 	const baselineRef = useRef< EditableSchemaSections >(
 		cleanSections( {
+			breadcrumbList: initialSettings.breadcrumbList,
 			organization: initialSettings.organization,
 			localBusiness: initialSettings.localBusiness,
 		} )
 	);
+
+	const setBreadcrumbListField = useCallback( ( patch: Partial< BreadcrumbListSettings > ) => {
+		setSections( current => {
+			const next = {
+				...current,
+				breadcrumbList: { ...current.breadcrumbList, ...patch },
+			};
+			setIsDirty(
+				JSON.stringify( cleanSections( next ) ) !== JSON.stringify( baselineRef.current )
+			);
+			return next;
+		} );
+	}, [] );
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
 		setSections( current => {
@@ -119,6 +143,7 @@ export function useSchemaSettings(
 				// the placeholder again rather than re-freezing.
 				baselineRef.current = cleanSections( settings );
 				setSections( {
+					breadcrumbList: settings.breadcrumbList,
 					organization: settings.organization,
 					localBusiness: settings.localBusiness,
 				} );
@@ -140,12 +165,14 @@ export function useSchemaSettings(
 	}, [ sections, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ] );
 
 	return {
+		breadcrumbList: sections.breadcrumbList,
 		organization: sections.organization,
 		defaults: initialSettings.defaults.organization,
 		localBusiness: sections.localBusiness,
 		localBusinessDefaults: initialSettings.defaults.localBusiness,
 		isSaving,
 		isDirty,
+		setBreadcrumbListField,
 		setOrganizationField,
 		setLocalBusinessField,
 		save,
