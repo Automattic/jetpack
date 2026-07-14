@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Content Guidelines AI: Without an AI plan, show the Generate/Improve buttons in a locked state (lock icon and upgrade tooltip) instead of hiding the header button and disabling the rest with no explanation; clicking a locked button opens the upgrade notice even after it was dismissed. AI buttons now wait for the feature check to resolve before rendering, removing the flash on no-plan sites.
+Content Guidelines AI: Show the Generate/Improve buttons in a locked state for sites without an AI plan, and open the upgrade notice when clicked (even after dismissal). Prevent the AI buttons from briefly appearing unlocked while the feature check resolves.
