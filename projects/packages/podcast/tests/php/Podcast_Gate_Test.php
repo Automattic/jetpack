@@ -16,11 +16,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
+require_once __DIR__ . '/lib/trait-purchases-cache.php';
+
 /**
  * @covers \Automattic\Jetpack\Podcast\Podcast_Gate
  */
 #[CoversClass( Podcast_Gate::class )]
 class Podcast_Gate_Test extends BaseTestCase {
+
+	use Purchases_Cache_Trait;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -94,19 +98,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 			$purchases[] = array( 'product_slug' => $slug );
 		}
 		self::set_purchases_cache( $purchases );
-	}
-
-	/**
-	 * Set the gate's private request memo (reflection; null clears it).
-	 *
-	 * @param array|null $purchases Purchases to memoize, or null to reset.
-	 */
-	private static function set_purchases_cache( ?array $purchases ): void {
-		$property = ( new \ReflectionClass( Podcast_Gate::class ) )->getProperty( 'purchases_cache' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, $purchases );
 	}
 
 	/**
@@ -216,6 +207,11 @@ class Podcast_Gate_Test extends BaseTestCase {
 		add_filter( 'pre_http_request', self::upgrades_response( array( 'jetpack_growth_yearly' ) ) );
 
 		$this->assertTrue( Podcast_Gate::has_product_access() );
+		// A successful fetch is cached so successive gate checks skip the request.
+		$this->assertSame(
+			array( array( 'product_slug' => 'jetpack_growth_yearly' ) ),
+			get_transient( Podcast_Gate::PURCHASES_TRANSIENT )
+		);
 	}
 
 	public function test_self_hosted_fetch_http_error_denies_access(): void {
@@ -234,5 +230,26 @@ class Podcast_Gate_Test extends BaseTestCase {
 		);
 
 		$this->assertFalse( Podcast_Gate::has_product_access() );
+		// Fails closed without caching, so the next request retries.
+		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
+	}
+
+	public function test_self_hosted_fetch_malformed_body_denies_and_does_not_cache(): void {
+		self::as_connected_self_hosted();
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'body'     => 'not-json',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			}
+		);
+
+		$this->assertFalse( Podcast_Gate::has_product_access() );
+		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
 }

@@ -11,18 +11,21 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
-use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
+require_once __DIR__ . '/lib/trait-purchases-cache.php';
+
 /**
  * @covers \Automattic\Jetpack\Podcast\Admin_Page
  */
 #[CoversClass( Admin_Page::class )]
 class Admin_Page_Test extends BaseTestCase {
+
+	use Purchases_Cache_Trait;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -261,18 +264,5 @@ class Admin_Page_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 789, $data['site']['wpcom']['blog_id'] );
-	}
-
-	/**
-	 * Set the gate's private request memo (reflection; null clears it).
-	 *
-	 * @param array|null $purchases Purchases to memoize, or null to reset.
-	 */
-	private function set_purchases_cache( ?array $purchases ) {
-		$property = new \ReflectionProperty( Podcast_Gate::class, 'purchases_cache' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, $purchases );
 	}
 }

@@ -33,6 +33,13 @@ class Podcast_Gate {
 	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**
+	 * Transient holding the cached `/upgrades` response. Short-lived (30s): dedupes
+	 * the lookup across the successive editor/admin loads that consult the gate,
+	 * without a synchronous WPCOM request on each one.
+	 */
+	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
+
+	/**
 	 * Request-scoped cache of the `/upgrades` lookup (failures included, so a
 	 * bad fetch isn't retried mid-request). Null until first resolved.
 	 *
@@ -93,13 +100,21 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * The site's current purchases from WordPress.com (`/upgrades`), fetched once
-	 * per request. Fails closed to an empty list on any error.
+	 * The site's current purchases from WordPress.com (`/upgrades`). Cached in a
+	 * short transient (and a request memo) so successive gate checks don't each
+	 * fire a WPCOM request. Fails closed to an empty list on any error, without
+	 * caching it, so the next request retries rather than serving a stale empty.
 	 *
 	 * @return array Purchase entries; empty on failure.
 	 */
 	private static function get_site_current_purchases(): array {
 		if ( null !== self::$purchases_cache ) {
+			return self::$purchases_cache;
+		}
+
+		$cached = get_transient( self::PURCHASES_TRANSIENT );
+		if ( is_array( $cached ) ) {
+			self::$purchases_cache = $cached;
 			return self::$purchases_cache;
 		}
 
@@ -115,7 +130,13 @@ class Podcast_Gate {
 		}
 
 		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
-		self::$purchases_cache = is_array( $decoded ) ? $decoded : array();
+		if ( ! is_array( $decoded ) ) {
+			self::$purchases_cache = array();
+			return self::$purchases_cache;
+		}
+
+		set_transient( self::PURCHASES_TRANSIENT, $decoded, 30 );
+		self::$purchases_cache = $decoded;
 		return self::$purchases_cache;
 	}
 

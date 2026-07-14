@@ -6,15 +6,18 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\New_Episode_Prefill;
-use Automattic\Jetpack\Podcast\Podcast_Gate;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
+
+require_once __DIR__ . '/lib/trait-purchases-cache.php';
 
 /**
  * @covers \Automattic\Jetpack\Podcast\New_Episode_Prefill
  */
 #[CoversClass( New_Episode_Prefill::class )]
 class New_Episode_Prefill_Test extends BaseTestCase {
+
+	use Purchases_Cache_Trait;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -45,19 +48,6 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		$this->set_purchases_cache(
 			$has_access ? array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) : array()
 		);
-	}
-
-	/**
-	 * Set the gate's private request memo (reflection; null clears it).
-	 *
-	 * @param array|null $purchases Purchases to memoize, or null to reset.
-	 */
-	private function set_purchases_cache( ?array $purchases ) {
-		$property = new \ReflectionProperty( Podcast_Gate::class, 'purchases_cache' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, $purchases );
 	}
 
 	public function test_maybe_register_handlers_requires_flagged_post_new_screen_and_configured_category() {
