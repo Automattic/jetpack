@@ -110,17 +110,20 @@ export const SCENARIOS = [
 		// boot-burst delivery stall, confirmed local-only), so `networkidle` never settles and every
 		// navigation timed out at 60s. `load` + the visible-selector + hydration waits below are a
 		// deterministic readiness signal that a single perpetually-pending request cannot blackhole;
-		// completeness for decodedBytesKB is then guarded by `minResourceCount` and a resource-count
-		// settle in measure-lcp.js rather than by network quiescence. Other scenarios keep the
-		// default 'networkidle'. See FORMS-729.
+		// completeness for decodedBytesKB is then guarded by an in-flight-aware resource settle in
+		// measure-lcp.js (networkidle's quiet + nothing-in-flight guarantee minus only that one
+		// stuck probe, failing the iteration at its deadline) plus the `minResourceCount` floor
+		// below. Other scenarios keep the default 'networkidle'. See FORMS-729.
 		loadState: 'load',
 		// A healthy load of this page fetches ~91 resources (stable across iterations locally);
 		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
 		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the
-		// observed count — the same ratio as myJetpack — because this scenario settles on the
-		// resource count rather than networkidle, so the floor is the guard against an early
-		// settle, not just gross truncation. Still count-based, not editor-asset-based: lazy-loading
-		// the editor removes a few large files, not the bulk of the count (see the
+		// observed count — the same ratio as myJetpack. Honest scope: the floor only catches a
+		// capture BELOW 64; a settle during a gap where nothing is in flight and the next wave is
+		// not yet issued can pass it at 64–90 — the same residual window `networkidle` itself has
+		// always had (its 500ms quiet can fall in such a gap too), narrowed here by the in-flight
+		// ledger and backstopped by SANITY_RANGES. Still count-based, not editor-asset-based:
+		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
 		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
 		minResourceCount: 64,
 		// These four post straight to PRODUCTION keys — the `-staging` window in the README

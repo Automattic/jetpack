@@ -23,6 +23,8 @@ import {
 	assertCaptureComplete,
 	assertExpectedUrl,
 	assertResourceCountSettled,
+	isStuckSettingsProbe,
+	trackPendingRequests,
 	summarizeResources,
 	waitForResourceCountIdle,
 } from './measure-lcp.js';
@@ -511,9 +513,10 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
 	// Pin the exact value (siblings pin every field by equality) so a later edit toward the
 	// ~91-resource load can't erode the margin silently, and exercise the real guard at the
-	// boundary: one below the floor must throw, the floor itself must not. The floor matters
-	// more here than on myJetpack: this scenario settles on the resource count instead of
-	// networkidle, so the floor is what catches a settle that fired early in a mid-load plateau.
+	// boundary: one below the floor must throw, the floor itself must not. Honest scope: the
+	// floor only catches captures BELOW 64 — a quiet-gap settle at 64–90 passes it (the same
+	// residual window networkidle itself has; see the residual-risk test in the FORMS-729
+	// block) — so it is a backstop under the in-flight-aware settle, not a completeness proof.
 	assert.equal( scenario.minResourceCount, 64 );
 	assert.throws(
 		() => assertCaptureComplete( { totalRequests: 63 }, scenario ),
@@ -2660,6 +2663,141 @@ test( 'assertResourceCountSettled fails a capped-out settle and passes a clean o
 	assert.doesNotThrow( () =>
 		assertResourceCountSettled( { settled: true, count: 91 }, 'measured reload' )
 	);
+} );
+
+test( 'an in-flight request holds the settle open even while the completed count is flat', async () => {
+	// The completed-resource count cannot see an in-flight request (an entry appears only at
+	// responseEnd), so a flat count during a slow legitimate response would otherwise settle
+	// early and capture before that response lands. With pendingCount wired in, polls made
+	// while a request is in flight must not count toward stability: here the count is flat at
+	// 89 throughout, pending is 1 for the first 3 polls, so settling must take 3 + 5 polls —
+	// settling at poll 6 (ignoring pending) would reproduce the exact live fail-open this
+	// guards against.
+	let poll = 0;
+	const page = {
+		evaluate: async () => {
+			poll += 1;
+			return 89;
+		},
+		waitForTimeout: async () => {},
+	};
+	const pendingByPoll = [ 1, 1, 1 ]; // then 0 forever
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+		pendingCount: () => pendingByPoll[ poll - 1 ] || 0,
+	} );
+	assert.equal( result.settled, true );
+	assert.equal( result.count, 89 );
+	assert.equal( poll, 8, 'the 3 in-flight polls must not have counted toward stability' );
+} );
+
+test( 'a request that never finishes (other than the excluded probe) fails the settle closed', async () => {
+	// A non-excluded request stuck in flight forever must hold the settle open until the
+	// deadline and be reported as settled:false — assertResourceCountSettled then fails the
+	// iteration instead of capturing a page still waiting on a legitimate response.
+	const page = {
+		evaluate: async () => 89, // completed count flat: quiet from the count's point of view
+		waitForTimeout: async () => {},
+	};
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 50,
+		pendingCount: () => 1, // never clears
+	} );
+	assert.equal( result.settled, false );
+	assert.throws( () => assertResourceCountSettled( result, 'measured reload' ) );
+} );
+
+test( 'documents the accepted residual: a quiet-gap settle at or above the floor still passes', async () => {
+	// Accepted residual risk, on record: when NOTHING is in flight and the page has not yet
+	// issued its next resource wave, the settle sees genuine quiet and reports settled at a
+	// count that can clear the 64 floor (here 70 of an eventual 91). networkidle has this exact
+	// window too (its 500ms quiet can fall in the same gap) — this is parity, not a new hole.
+	// The backstops are minResourceCount (catches < 64) and SANITY_RANGES. If this test starts
+	// failing, the settle got stricter and this documentation should be updated, not the settle
+	// loosened.
+	const page = fakeResourcePage( [ 70, 70, 70, 70, 70, 70, 91 ] );
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+		pendingCount: () => 0, // nothing in flight: the gap is invisible to the ledger too
+	} );
+	assert.equal( result.settled, true );
+	assert.equal( result.count, 70, 'settles at the plateau, never seeing the later resources' );
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.doesNotThrow(
+		() => assertCaptureComplete( { totalRequests: 70 }, forms ),
+		'70 >= the 64 floor: the floor does not catch this case, by design'
+	);
+} );
+
+test( 'isStuckSettingsProbe matches only the settings OPTIONS probe', () => {
+	const req = ( method, url ) => ( { method: () => method, url: () => url } );
+	// The real fixture shape: OPTIONS via the encoded rest_route form.
+	assert.equal(
+		isStuckSettingsProbe(
+			req( 'OPTIONS', 'http://localhost:8083/index.php?rest_route=%2Fwp%2Fv2%2Fsettings' )
+		),
+		true
+	);
+	// Pretty-permalink shape.
+	assert.equal(
+		isStuckSettingsProbe( req( 'OPTIONS', 'http://localhost:8083/wp-json/wp/v2/settings' ) ),
+		true
+	);
+	// Same URL but a real data request: never excluded.
+	assert.equal(
+		isStuckSettingsProbe( req( 'GET', 'http://localhost:8083/wp-json/wp/v2/settings' ) ),
+		false
+	);
+	// Other OPTIONS probes: never excluded — any of them getting stuck must fail the iteration.
+	assert.equal(
+		isStuckSettingsProbe(
+			req( 'OPTIONS', 'http://localhost:8083/index.php?rest_route=%2Fwp%2Fv2%2Ffeedback' )
+		),
+		false
+	);
+	// A malformed escape sequence must not throw; it falls back to matching the raw URL.
+	assert.equal( isStuckSettingsProbe( req( 'OPTIONS', 'http://x/%E0%A4%A' ) ), false );
+} );
+
+test( 'trackPendingRequests counts in-flight requests, skips excluded ones, and detaches cleanly', () => {
+	// Fake Playwright page event surface: on/off registries keyed by event name.
+	const handlers = {};
+	const page = {
+		on: ( event, fn ) => {
+			( handlers[ event ] ||= [] ).push( fn );
+		},
+		off: ( event, fn ) => {
+			handlers[ event ] = ( handlers[ event ] || [] ).filter( h => h !== fn );
+		},
+	};
+	const emit = ( event, arg ) => ( handlers[ event ] || [] ).forEach( fn => fn( arg ) );
+	const excluded = { id: 'stuck' };
+	const tracker = trackPendingRequests( page, r => r === excluded );
+
+	const a = { id: 'a' };
+	const b = { id: 'b' };
+	emit( 'request', a );
+	emit( 'request', b );
+	emit( 'request', excluded ); // the stuck probe: never enters the ledger
+	assert.equal( tracker.count(), 2 );
+	emit( 'requestfinished', a );
+	assert.equal( tracker.count(), 1 );
+	// Navigations abort outstanding requests as requestfailed — must also clear the ledger.
+	emit( 'requestfailed', b );
+	assert.equal( tracker.count(), 0 );
+	// Removing something never added (the excluded probe finishing) is a harmless no-op.
+	emit( 'requestfinished', excluded );
+	assert.equal( tracker.count(), 0 );
+
+	tracker.dispose();
+	emit( 'request', { id: 'after-dispose' } );
+	assert.equal( tracker.count(), 0, 'a disposed tracker must not keep counting' );
 } );
 
 test( 'formsResponses waits on the visible layout, not the 0-height mount point', () => {
