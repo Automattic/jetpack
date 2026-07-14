@@ -273,6 +273,7 @@ export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,
 	StatsPublicizeService,
+	StatsReferrersComparisonItem,
 	StatsReferrersItem,
 	StatsSearchTermsComparisonItem,
 	StatsSearchTermsItem,
@@ -314,6 +315,7 @@ export {
 export {
 	mergeStatsArchivesComparisonRows,
 	mergeStatsClicksComparisonRows,
+	mergeStatsReferrersComparisonRows,
 	mergeStatsComparisonRows,
 	mergeStatsDevicesComparisonRows,
 	mergeStatsFileDownloadsComparisonRows,

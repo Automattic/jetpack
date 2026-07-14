@@ -7,8 +7,8 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import ReferrersWidget, { toReferrerRows } from '../render';
-import type { StatsNormalizedReport, StatsReferrersItem } from '@jetpack-premium-analytics/data';
+import ReferrersWidget, { toReferrerRow } from '../render';
+import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -162,154 +162,49 @@ describe( 'ReferrersWidget', () => {
 	} );
 } );
 
-describe( 'toReferrerRows', () => {
-	it( 'merges comparison values by scoped key before slicing primary rows', () => {
-		const primary = {
-			summary: {},
-			data: [
+describe( 'toReferrerRow', () => {
+	it( 'maps merged data-layer items onto leaderboard rows', () => {
+		const item: StatsReferrersComparisonItem = {
+			label: 'Search Engines',
+			views: 4801,
+			previousValue: 4100,
+			link: null,
+			icon: 'https://example.com/search-engine.png',
+			labelIcon: null,
+			childrenHaveComparison: true,
+			children: [
 				{
-					time_interval: '2026-06-29',
-					date_start: '2026-06-29 00:00:00',
-					date_end: '2026-06-29 23:59:59',
-					items: [
-						{
-							label: 'Search Engines',
-							views: 4801,
-							link: null,
-							icon: 'https://example.com/search-engine.png',
-							labelIcon: null,
-							children: [
-								{
-									label: 'Google Search',
-									views: 3936,
-									link: null,
-									icon: 'https://example.com/google.png',
-									labelIcon: null,
-									children: [
-										{
-											label: 'google.com',
-											views: 3920,
-											link: 'https://www.google.com/',
-											icon: null,
-											labelIcon: 'external',
-											children: null,
-										},
-									],
-								},
-							],
-						},
-						{
-							label: 'jetpack.com',
-							views: 18,
-							link: 'https://jetpack.com/',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-					] satisfies StatsReferrersItem[],
+					label: 'google.com',
+					views: 3920,
+					previousValue: undefined,
+					link: 'https://www.google.com/',
+					icon: 'https://example.com/google.png',
+					labelIcon: 'external',
+					children: null,
+					childrenHaveComparison: false,
 				},
 			],
-		} satisfies StatsNormalizedReport< StatsReferrersItem >;
+		};
 
-		const comparison = {
-			summary: {},
-			data: [
+		expect( toReferrerRow( item ) ).toEqual( {
+			label: 'Search Engines',
+			value: 4801,
+			previousValue: 4100,
+			href: undefined,
+			icon: 'https://example.com/search-engine.png',
+			childrenHaveComparison: true,
+			children: [
 				{
-					time_interval: '2026-06-22',
-					date_start: '2026-06-22 00:00:00',
-					date_end: '2026-06-22 23:59:59',
-					items: [
-						{
-							label: 'Search Engines',
-							views: 4100,
-							link: null,
-							icon: 'https://example.com/search-engine.png',
-							labelIcon: null,
-							children: [
-								{
-									label: 'Google Search',
-									views: 3300,
-									link: null,
-									icon: 'https://example.com/google.png',
-									labelIcon: null,
-									children: [
-										{
-											label: 'google.com',
-											views: 3290,
-											link: 'https://www.google.com/',
-											icon: null,
-											labelIcon: 'external',
-											children: null,
-										},
-									],
-								},
-							],
-						},
-					] satisfies StatsReferrersItem[],
+					label: 'google.com',
+					value: 3920,
+					// Missing comparison matches stay undefined so the chart
+					// suppresses the delta instead of showing a fake change.
+					previousValue: undefined,
+					href: 'https://www.google.com/',
+					icon: 'https://example.com/google.png',
+					children: undefined,
 				},
 			],
-		} satisfies StatsNormalizedReport< StatsReferrersItem >;
-
-		expect( toReferrerRows( primary, comparison, 1 ) ).toEqual( [
-			{
-				label: 'Search Engines',
-				value: 4801,
-				previousValue: 4100,
-				href: undefined,
-				icon: 'https://example.com/search-engine.png',
-				children: [
-					{
-						label: 'Google Search',
-						value: 3936,
-						previousValue: 3300,
-						href: undefined,
-						icon: 'https://example.com/google.png',
-						children: [
-							{
-								label: 'google.com',
-								value: 3920,
-								previousValue: 3290,
-								href: 'https://www.google.com/',
-								icon: 'https://example.com/google.png',
-								children: undefined,
-							},
-						],
-					},
-				],
-			},
-		] );
-	} );
-
-	it( 'keeps all rows when max is 0', () => {
-		const report = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-29',
-					date_start: '2026-06-29 00:00:00',
-					date_end: '2026-06-29 23:59:59',
-					items: [
-						{
-							label: 'a.com',
-							views: 2,
-							link: 'https://a.com/',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-						{
-							label: 'b.com',
-							views: 1,
-							link: 'https://b.com/',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-					] satisfies StatsReferrersItem[],
-				},
-			],
-		} satisfies StatsNormalizedReport< StatsReferrersItem >;
-
-		expect( toReferrerRows( report, undefined, 0 ) ).toHaveLength( 2 );
+		} );
 	} );
 } );
