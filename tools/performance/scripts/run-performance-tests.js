@@ -8,6 +8,7 @@ import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { config as dotenvConfig } from 'dotenv';
+import { computeRunOutcome } from './measure-lcp.js';
 import { isDirectInvocation, VALIDATION_FAILED_EXIT_CODE } from './post-to-codevitals.js';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 
@@ -60,6 +61,67 @@ function execFile( cmd, args = [], options = {} ) {
 function shouldFailBuildOnPostError( err, allowCodeVitalsFailure ) {
 	const isValidationFailure = err?.status === VALIDATION_FAILED_EXIT_CODE;
 	return isValidationFailure || ! allowCodeVitalsFailure;
+}
+
+/**
+ * Escape a string for use inside a TeamCity service-message single-quoted value.
+ *
+ * Per the TeamCity spec, `|`, `'`, `[`, `]`, and every line terminator — `\r`, `\n`, and
+ * the Unicode ones (U+0085 next line, U+2028 line separator, U+2029 paragraph separator) —
+ * must be pipe-escaped; an unescaped character silently corrupts the message (TeamCity
+ * swallows or truncates it rather than erroring). `|` is escaped first so it doesn't
+ * double-escape the others.
+ *
+ * @param {string} str - Raw text.
+ * @return {string} Escaped text, safe inside `text='…'`.
+ */
+function tcEscape( str ) {
+	return String( str )
+		.replace( /\|/g, '||' )
+		.replace( /'/g, "|'" )
+		.replace( /\[/g, '|[' )
+		.replace( /\]/g, '|]' )
+		.replace( /\r/g, '|r' )
+		.replace( /\n/g, '|n' )
+		.replace( /\u0085/g, '|x' )
+		.replace( /\u2028/g, '|l' )
+		.replace( /\u2029/g, '|p' );
+}
+
+/**
+ * Surface optional-scenario failures on a build that stays green.
+ *
+ * measure-lcp.js exits 0 when every REQUIRED scenario measured, so a failed optional
+ * scenario no longer fails the build — but it must not be silent either: its CodeVitals
+ * keys skip this build. Read the results file the measure child wrote and emit one
+ * TeamCity WARNING service message (shown on the build page without failing it), plus a
+ * plain console warning for local runs. The optional/required classification comes from
+ * computeRunOutcome so it lives in exactly one tested place; this runs only after a green
+ * measure exit, so the outcome's requiredFailures is empty by construction.
+ *
+ * @param {string} outputPath - Path to the measure-lcp results JSON (OUTPUT_PATH).
+ */
+function reportSkippedScenarios( outputPath ) {
+	let optionalFailures;
+	try {
+		const results = JSON.parse( fs.readFileSync( outputPath, 'utf8' ) );
+		( { optionalFailures } = computeRunOutcome( results.measurements, SCENARIOS ) );
+	} catch ( err ) {
+		// A green measure exit always writes the results file, so an unreadable one here is
+		// unexpected — say so rather than silently no-opping. Posting correctness is
+		// unaffected either way; only this warning channel is.
+		console.warn( `Could not read results for skipped-scenario reporting: ${ err.message }` );
+		return;
+	}
+	if ( optionalFailures.length === 0 ) {
+		return;
+	}
+	const many = optionalFailures.length > 1;
+	const text = `${ optionalFailures.join( ', ' ) } measurement${ many ? 's' : '' } failed; ${
+		many ? 'their' : 'its'
+	} CodeVitals keys skip this build`;
+	console.warn( `\n⚠ ${ text }` );
+	console.log( `##teamcity[message text='${ tcEscape( text ) }' status='WARNING']` );
 }
 
 /** Execute a docker compose command. */
@@ -538,12 +600,20 @@ async function main() {
 	console.log( '═══════════════════════════════════════════════════════' );
 	console.log( '' );
 
+	// A non-zero exit here means a REQUIRED scenario (or the whole run) failed:
+	// fail the build before the posting step, so a red build posts nothing and a retry
+	// cannot append duplicate points (see computeRunOutcome in measure-lcp.js). Optional
+	// scenario failures exit 0 and flow through to posting; the poster skips their
+	// errored measurements and posts the survivors.
 	try {
 		execFile( 'node', [ path.join( __dirname, 'measure-lcp.js' ) ] );
 	} catch {
 		console.error( '\n✗ Performance measurements failed' );
 		process.exit( 1 );
 	}
+
+	// Green build, but any failed optional scenario must stay visible on the build page.
+	reportSkippedScenarios( process.env.OUTPUT_PATH );
 
 	// Post to CodeVitals (if configured and not skipped)
 	if ( ! options.skipCodeVitals && process.env.CODEVITALS_TOKEN ) {
@@ -609,4 +679,10 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { shouldFailBuildOnPostError, getGitInfo, resolveCommitTimestampEnv };
+export {
+	shouldFailBuildOnPostError,
+	getGitInfo,
+	resolveCommitTimestampEnv,
+	tcEscape,
+	reportSkippedScenarios,
+};

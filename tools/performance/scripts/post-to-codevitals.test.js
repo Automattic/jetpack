@@ -560,6 +560,193 @@ test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to productio
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
+test( 'every scenario declares an explicit failure policy; the Dashboard stays required', () => {
+	// FORMS-728: computeRunOutcome reads `optional` off every scenario, so the flag must be
+	// an explicit boolean — a missing flag would silently classify a scenario as required
+	// (undefined is falsy) and let its failure blank every other trend.
+	for ( const scenario of SCENARIOS ) {
+		assert.equal(
+			typeof scenario.optional,
+			'boolean',
+			`${ scenario.key } must declare a boolean optional flag`
+		);
+		// isBaseline was the dead predecessor of this flag; a remnant means a bad rebase.
+		assert.ok(
+			! ( 'isBaseline' in scenario ),
+			`${ scenario.key } must not carry the removed isBaseline field`
+		);
+	}
+	// Guard against accidentally demoting the baseline: the wp-admin Dashboard is the one
+	// required scenario, whose failure reds the build and suppresses ALL posting.
+	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).optional, false );
+	// Pin the exact live policy map, not just the flag's type: Forms or My Jetpack silently
+	// becoming required would reincarnate the FORMS-728 failure coupling with every generic
+	// test still green. Any policy change must show up as an explicit test edit in review.
+	assert.equal( SCENARIOS.find( s => s.key === 'formsResponses' ).optional, true );
+	assert.equal( SCENARIOS.find( s => s.key === 'myJetpack' ).optional, true );
+	assert.ok(
+		SCENARIOS.some( s => s.optional === false ),
+		'at least one required scenario must exist — an all-optional run set can never red the build for a real outage'
+	);
+	// Scenario identity must be unambiguous: resolveScenarioSet matches by cliName and the
+	// results file keys by scenario key, so a duplicate of either would make selection or
+	// outcome classification silently pick a winner.
+	const keys = SCENARIOS.map( s => s.key );
+	assert.equal( new Set( keys ).size, keys.length, 'scenario keys must be unique' );
+	const cliNames = SCENARIOS.map( s => s.cliName );
+	assert.equal( new Set( cliNames ).size, cliNames.length, 'scenario cliNames must be unique' );
+} );
+
+test( 'the poster fails closed on an errored REQUIRED scenario — a red run cannot post survivors', async () => {
+	// The runner never posts after a required failure (it exits first), but the direct
+	// `pnpm report` entrypoint reads the same saved artifact — and measure-lcp writes it
+	// before applying the non-zero exit. Posting the optional survivors from that red run
+	// would set up duplicate trend points when the red build is retried, so the poster
+	// itself must enforce the required side of the retry-safety invariant.
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-red-required-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { error: 'All iterations failed' },
+				formsResponses: { summary: formsSummary() },
+			},
+		} )
+	);
+	const origFetch = global.fetch;
+	let fetchCalled = false;
+	global.fetch = async () => {
+		fetchCalled = true;
+		return { ok: true, status: 200, json: async () => ( {} ), text: async () => '' };
+	};
+	try {
+		await assert.rejects(
+			silenced( () =>
+				postToCodeVitals( file, {
+					dryRun: false,
+					codeVitalsUrl: 'https://codevitals.test',
+					codeVitalsToken: 'tok',
+				} )
+			),
+			/Required scenario "Jetpack \(connected sim\)" has no usable measurement/
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.equal( fetchCalled, false, 'survivors from a red required run must never reach fetch' );
+} );
+
+test( 'a targeted optional-run artifact (required scenario absent, not errored) still posts', async () => {
+	// SCENARIO=forms-responses writes only the forms key: the required Dashboard is absent
+	// because it was never selected, which is NOT a failure. The required-side guard above
+	// keys on a present-but-unusable measurement, so targeted runs keep working.
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-targeted-opt-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: { formsResponses: { summary: formsSummary() } },
+		} )
+	);
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, false );
+	assert.equal( Object.keys( result.payload.metrics ).length, 4 );
+	assert.equal( result.payload.metrics[ FORMS_LCP_KEY ], 300 );
+} );
+
+test( 'the skip warning carries the optional suffix for optional scenarios only', async () => {
+	// An inverted ternary (or reading the wrong loop variable) would mislabel a skipped
+	// required scenario as optional in the build log — assert both sides of the suffix.
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-warn-suffix-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary() },
+				formsResponses: { error: 'boom' }, // optional, present-but-failed: the failure wording
+				// myJetpack absent: unselected — warned with the not-in-run-set wording instead
+			},
+		} )
+	);
+	const warns = [];
+	const origWarn = console.warn;
+	const origLog = console.log;
+	console.warn = ( ...args ) => warns.push( args.join( ' ' ) );
+	console.log = () => {};
+	let result;
+	try {
+		result = await postToCodeVitals( file, { dryRun: true } );
+	} finally {
+		console.warn = origWarn;
+		console.log = origLog;
+	}
+	assert.equal( result.validationFailed, false );
+	const formsWarn = warns.find( w => w.includes( 'Forms responses' ) );
+	assert.ok( formsWarn, 'expected a skip warning for the errored optional scenario' );
+	assert.ok( formsWarn.includes( 'measurement failed (error: boom' ) );
+	assert.ok( formsWarn.includes( 'optional scenario — its keys skip this build' ) );
+	const myJetpackWarn = warns.find( w => w.includes( 'My Jetpack' ) );
+	assert.ok( myJetpackWarn, 'expected a skip warning for the absent scenario' );
+	assert.ok( myJetpackWarn.includes( 'not in this results file' ) );
+	assert.ok( ! myJetpackWarn.includes( 'measurement failed' ) );
+	// The required Dashboard measured fine here, so no warning may name it at all.
+	assert.equal(
+		warns.find( w => w.includes( 'Jetpack (connected sim)' ) ),
+		undefined,
+		'a measured required scenario must not be warned about'
+	);
+} );
+
+test( 'a stale artifact with an optional PARTIAL summary hits the atomic gate: nothing posts, no fetch', async () => {
+	// The poster-side backstop for the partial-summary case. measure-lcp now converts a
+	// summary missing a posted field into a scenario error before the artifact is written,
+	// so a NORMAL run never produces this shape — but a stale or hand-saved artifact can
+	// still reach `pnpm report` with one. The truthy-but-incomplete summary passes the
+	// required-side guard (it keys on error/no-summary), the missing median reads as
+	// undefined, its sanity check fails, and the pre-existing ATOMIC gate refuses the whole
+	// post (exit-2 class): fail closed, never post a survivor subset from ambiguous data.
+	const partialForms = formsSummary();
+	delete partialForms.ttfb;
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-partial-optional-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary() },
+				formsResponses: { summary: partialForms },
+			},
+		} )
+	);
+	const origFetch = global.fetch;
+	let fetchCalled = false;
+	global.fetch = async () => {
+		fetchCalled = true;
+		return { ok: true, status: 200, json: async () => ( {} ), text: async () => '' };
+	};
+	let result;
+	try {
+		result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok',
+			} )
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.equal( result.validationFailed, true );
+	assert.equal( result.posted, false );
+	assert.equal( fetchCalled, false, 'the atomic gate must stop the POST before fetch' );
+} );
+
 // --- redactToken (keeps the token out of logs and errors) ---
 
 test( 'redactToken strips the exact token and any token query param', () => {
@@ -915,10 +1102,12 @@ test( 'a results file with no measurements object fails closed as a validation e
 	}
 } );
 
-test( 'a measurement with no summary is skipped, not a TypeError crash, and fails closed', async () => {
+test( 'a required measurement with no summary fails closed, not a TypeError crash', async () => {
 	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-nosummary-' ) );
 	const file = path.join( dir, 'results.json' );
 	// Measurement present, no error, but no summary object — must not crash on summary.median.
+	// Since the scenario is REQUIRED, the poster's required-side guard fails closed directly
+	// (it used to skip and fall through to the empty-payload guard's "No metrics to post").
 	fs.writeFileSync(
 		file,
 		JSON.stringify( {
@@ -930,7 +1119,10 @@ test( 'a measurement with no summary is skipped, not a TypeError crash, and fail
 		await assert.rejects(
 			() => silenced( () => postToCodeVitals( file, { dryRun: true } ) ),
 			err => {
-				assert.match( err.message, /No metrics to post/ );
+				assert.match(
+					err.message,
+					/Required scenario "Jetpack \(connected sim\)" has no usable measurement \(no summary\)/
+				);
 				assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
 				return true;
 			}
