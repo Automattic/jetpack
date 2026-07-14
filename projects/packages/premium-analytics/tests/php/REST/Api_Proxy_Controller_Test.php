@@ -401,7 +401,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		// credentials, so the `posts` group forwards unsigned (no connection needed).
 		\Jetpack_Options::update_option( 'id', 4242 );
 
-		$captured = null;
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
 		add_filter(
 			'pre_http_request',
 			function ( $pre, $args, $url ) use ( &$captured ) {
@@ -435,6 +438,38 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 1, $response->get_data()->found );
 		$this->assertStringContainsString( '/rest/v1.2/sites/4242/posts/91/likes', $captured['url'] );
 		$this->assertArrayNotHasKey( 'Authorization', (array) ( $captured['args']['headers'] ?? array() ) );
+	}
+
+	public function test_post_likes_requires_a_blog_id() {
+		// Unsigned forwards skip the connection gate but still need the blog id
+		// baked into the path; without one the request must not leave the site.
+		\Jetpack_Options::delete_option( 'id' );
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'no_connection', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data()['status'] );
+	}
+
+	public function test_post_likes_maps_transport_errors_to_api_error() {
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_failed', 'boom' );
+			}
+		);
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'api_error', $response->get_error_code() );
+		$this->assertSame( 500, $response->get_error_data()['status'] );
 	}
 
 	public function test_validate_data_endpoint_enforces_the_posts_pattern() {
