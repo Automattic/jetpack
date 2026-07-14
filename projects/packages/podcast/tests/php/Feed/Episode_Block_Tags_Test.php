@@ -28,14 +28,17 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 	}
 
 	private function render_post( string $content ): string {
-		$post = new WP_Post(
+		$post  = new WP_Post(
 			(object) array(
 				'ID'           => 1,
 				'post_content' => $content,
 			)
 		);
+		$attrs = Episode_Block_Tags::get_block_attrs( $post );
 		ob_start();
-		Episode_Block_Tags::render( $post );
+		if ( ! empty( $attrs ) ) {
+			Episode_Block_Tags::render_from_attrs( $attrs );
+		}
 		return (string) ob_get_clean();
 	}
 
