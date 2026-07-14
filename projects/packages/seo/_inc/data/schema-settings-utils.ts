@@ -31,6 +31,11 @@ export const cleanOrganization = ( organization: OrganizationSettings ): Organiz
 
 const trim = ( value: string ): string => value.trim();
 
+const normalizeCountryCode = ( value: string ): string => {
+	const trimmed = trim( value );
+	return /^[A-Za-z]{2}$/.test( trimmed ) ? trimmed.toUpperCase() : trimmed;
+};
+
 const OPENING_DAYS: OpeningHoursDay[] = [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su' ];
 
 export const cleanLocalBusiness = (
@@ -42,7 +47,7 @@ export const cleanLocalBusiness = (
 		addressLocality: trim( localBusiness.address.addressLocality ),
 		addressRegion: trim( localBusiness.address.addressRegion ),
 		postalCode: trim( localBusiness.address.postalCode ),
-		addressCountry: trim( localBusiness.address.addressCountry ),
+		addressCountry: normalizeCountryCode( localBusiness.address.addressCountry ),
 	},
 	telephone: trim( localBusiness.telephone ),
 	geo: {

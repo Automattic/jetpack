@@ -248,12 +248,12 @@ class Schema_Settings {
 				'addressLocality' => self::text( $address['addressLocality'] ?? '' ),
 				'addressRegion'   => self::text( $address['addressRegion'] ?? '' ),
 				'postalCode'      => self::text( $address['postalCode'] ?? '' ),
-				'addressCountry'  => self::text( $address['addressCountry'] ?? '' ),
+				'addressCountry'  => self::country_code( $address['addressCountry'] ?? '' ),
 			),
-			'telephone'    => self::text( $raw['telephone'] ?? '' ),
+			'telephone'    => self::telephone( $raw['telephone'] ?? '' ),
 			'geo'          => self::geo( $raw['geo'] ?? array() ),
 			'openingHours' => self::opening_hours( $raw['openingHours'] ?? array() ),
-			'priceRange'   => self::text( $raw['priceRange'] ?? '' ),
+			'priceRange'   => self::price_range( $raw['priceRange'] ?? '' ),
 		);
 	}
 
@@ -288,7 +288,7 @@ class Schema_Settings {
 		$address['postalCode']      = self::text( (string) get_option( 'woocommerce_store_postcode', '' ) );
 
 		$country_region            = explode( ':', self::text( (string) get_option( 'woocommerce_default_country', '' ) ), 2 );
-		$address['addressCountry'] = $country_region[0] ?? '';
+		$address['addressCountry'] = self::country_code( $country_region[0] ?? '' );
 		$address['addressRegion']  = $country_region[1] ?? '';
 
 		return $address;
@@ -391,6 +391,65 @@ class Schema_Settings {
 
 		$value = trim( $value );
 		return preg_match( '/^([01][0-9]|2[0-3]):[0-5][0-9]$/', $value ) ? $value : '';
+	}
+
+	/**
+	 * Normalize an optional ISO 3166-1 alpha-2 country code.
+	 *
+	 * @param mixed $value Raw country code.
+	 * @return string
+	 */
+	private static function country_code( $value ) {
+		$value = self::text( $value );
+		if ( '' === $value || 1 !== preg_match( '/^[A-Za-z]{2}$/D', $value ) ) {
+			return '';
+		}
+
+		return strtoupper( $value );
+	}
+
+	/**
+	 * Normalize an optional telephone number using a permissive common format.
+	 *
+	 * @param mixed $value Raw telephone number.
+	 * @return string
+	 */
+	private static function telephone( $value ) {
+		$value = self::text( $value );
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$has_valid_characters = 1 === preg_match( '/^\+?[0-9 ()-]+$/D', $value );
+		$has_digit            = 1 === preg_match( '/[0-9]/', $value );
+
+		return $has_valid_characters && $has_digit ? $value : '';
+	}
+
+	/**
+	 * Normalize an optional LocalBusiness price range.
+	 *
+	 * @param mixed $value Raw price range.
+	 * @return string
+	 */
+	private static function price_range( $value ) {
+		$value = self::text( $value );
+		return self::unicode_length( $value ) < 100 ? $value : '';
+	}
+
+	/**
+	 * Count Unicode code points, including when the mbstring extension is absent.
+	 *
+	 * @param string $value Value to measure.
+	 * @return int
+	 */
+	private static function unicode_length( $value ) {
+		if ( function_exists( 'mb_strlen' ) ) {
+			return mb_strlen( $value, 'UTF-8' );
+		}
+
+		$length = preg_match_all( '/./us', $value, $matches );
+		return false === $length ? strlen( $value ) : $length;
 	}
 
 	/**

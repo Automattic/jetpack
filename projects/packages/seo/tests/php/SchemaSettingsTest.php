@@ -252,7 +252,7 @@ class SchemaSettingsTest extends TestCase {
 						'addressLocality' => '  New York  ',
 						'addressRegion'   => '  NY  ',
 						'postalCode'      => '  10001  ',
-						'addressCountry'  => '  US  ',
+						'addressCountry'  => '  us  ',
 					),
 					'telephone'    => '  +1 555 123 4567  ',
 					'geo'          => array(
@@ -272,6 +272,10 @@ class SchemaSettingsTest extends TestCase {
 							'opens'  => '09:00',
 							'closes' => '',
 						),
+						'Th' => array(
+							'opens'  => '20:45',
+							'closes' => '06:15',
+						),
 						'XX' => array(
 							'opens'  => '09:00',
 							'closes' => '17:00',
@@ -286,6 +290,7 @@ class SchemaSettingsTest extends TestCase {
 		$this->assertTrue( $local_business['enabled'] );
 		$this->assertSame( '123 Main St', $local_business['address']['streetAddress'] );
 		$this->assertSame( 'New York', $local_business['address']['addressLocality'] );
+		$this->assertSame( 'US', $local_business['address']['addressCountry'] );
 		$this->assertSame( '+1 555 123 4567', $local_business['telephone'] );
 		$this->assertSame( '$$', $local_business['priceRange'] );
 		$this->assertSame(
@@ -316,8 +321,99 @@ class SchemaSettingsTest extends TestCase {
 			),
 			$local_business['openingHours']['We']
 		);
+		$this->assertSame(
+			array(
+				'opens'  => '20:45',
+				'closes' => '06:15',
+			),
+			$local_business['openingHours']['Th']
+		);
 		$this->assertArrayNotHasKey( 'XX', $local_business['openingHours'] );
 		$this->assertSame( array( 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su' ), array_keys( $local_business['openingHours'] ) );
+	}
+
+	/**
+	 * Country codes are optional, limited to two ASCII letters, and uppercased.
+	 */
+	public function test_sanitize_validates_country_code() {
+		foreach (
+			array(
+				''              => '',
+				' us '          => 'US',
+				'zz'            => 'ZZ',
+				'USA'           => '',
+				'U1'            => '',
+				'Mé'            => '',
+				'United States' => '',
+			) as $input => $expected
+		) {
+			$clean = Schema_Settings::sanitize(
+				array(
+					'localBusiness' => array(
+						'address' => array( 'addressCountry' => $input ),
+					),
+				)
+			);
+
+			$this->assertSame( $expected, $clean['localBusiness']['address']['addressCountry'], $input );
+		}
+	}
+
+	/**
+	 * Telephone numbers require a digit and use the permissive Forms-compatible
+	 * character set, with `+` allowed only as the first character.
+	 */
+	public function test_sanitize_validates_telephone() {
+		foreach (
+			array(
+				''                   => '',
+				' +36 (1) 234-5678 ' => '+36 (1) 234-5678',
+				' 1 '                => '1',
+				'(555) 123-4567'     => '(555) 123-4567',
+				'+'                  => '',
+				'()- '               => '',
+				'555.123.4567'       => '',
+				'+1 ext 2'           => '',
+				'12+34'              => '',
+				"555\t123"           => '',
+			) as $input => $expected
+		) {
+			$clean = Schema_Settings::sanitize(
+				array(
+					'localBusiness' => array( 'telephone' => $input ),
+				)
+			);
+
+			$this->assertSame( $expected, $clean['localBusiness']['telephone'], $input );
+		}
+	}
+
+	/**
+	 * Price ranges accept free text shorter than 100 Unicode code points.
+	 */
+	public function test_sanitize_validates_price_range_length() {
+		$ascii_99    = str_repeat( '$', 99 );
+		$ascii_100   = str_repeat( '$', 100 );
+		$unicode_99  = str_repeat( '€', 99 );
+		$unicode_100 = str_repeat( '€', 100 );
+
+		foreach (
+			array(
+				''           => '',
+				$ascii_99    => $ascii_99,
+				$ascii_100   => '',
+				$unicode_99  => $unicode_99,
+				$unicode_100 => '',
+			) as $input => $expected
+		) {
+			$clean = Schema_Settings::sanitize(
+				array(
+					'localBusiness' => array( 'priceRange' => $input ),
+				)
+			);
+
+			$this->assertSame( $expected, $clean['localBusiness']['priceRange'] );
+		}
 	}
 
 	/**

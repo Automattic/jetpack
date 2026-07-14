@@ -199,6 +199,10 @@ class LocalBusinessSchemaNodeTest extends TestCase {
 			'opens'  => '09:00',
 			'closes' => '',
 		);
+		$settings['openingHours']['Fr']       = array(
+			'opens'  => '20:45',
+			'closes' => '06:15',
+		);
 
 		$extended = Local_Business_Schema_Node::extend( $this->organization(), $settings );
 
@@ -215,6 +219,12 @@ class LocalBusinessSchemaNodeTest extends TestCase {
 					'dayOfWeek' => 'Wednesday',
 					'opens'     => '10:00',
 					'closes'    => '16:00',
+				),
+				array(
+					'@type'     => 'OpeningHoursSpecification',
+					'dayOfWeek' => 'Friday',
+					'opens'     => '20:45',
+					'closes'    => '06:15',
 				),
 			),
 			$extended['openingHoursSpecification']

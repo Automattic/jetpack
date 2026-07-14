@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { cleanLocalBusiness } from '../schema-settings-utils';
 import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SchemaSettings } from '../schema-settings-types';
 
@@ -105,6 +106,43 @@ describe( 'useSchemaSettings', () => {
 		expect( options.data.localBusiness.enabled ).toBe( true );
 		expect( options.data.localBusiness.address.streetAddress ).toBe( '123 Main St' );
 		expect( result.current.localBusiness ).toEqual( saved.localBusiness );
+	} );
+
+	it( 'trims and uppercases the country code when saving LocalBusiness settings', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+
+		act( () =>
+			result.current.setLocalBusinessField( {
+				address: { ...RESPONSE.localBusiness.address, addressCountry: ' us ' },
+			} )
+		);
+
+		const saved: SchemaSettings = {
+			...RESPONSE,
+			localBusiness: {
+				...RESPONSE.localBusiness,
+				address: { ...RESPONSE.localBusiness.address, addressCountry: 'US' },
+			},
+		};
+		mockApiFetch.mockResolvedValueOnce( saved );
+		act( () => result.current.save() );
+		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
+
+		const post = mockApiFetch.mock.calls.find(
+			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
+		);
+		const options = post![ 0 ] as {
+			data: { localBusiness: { address: { addressCountry: string } } };
+		};
+		expect( options.data.localBusiness.address.addressCountry ).toBe( 'US' );
+		expect( result.current.localBusiness.address.addressCountry ).toBe( 'US' );
+	} );
+
+	it( 'does not normalize non-ASCII country input into a valid code', () => {
+		const localBusiness = structuredClone( RESPONSE.localBusiness );
+		localBusiness.address.addressCountry = ' ſs ';
+
+		expect( cleanLocalBusiness( localBusiness ).address.addressCountry ).toBe( 'ſs' );
 	} );
 
 	it( 'drops empty, invalid, and duplicate profile rows when tracking dirtiness and saving', async () => {
