@@ -102,6 +102,19 @@ describe( 'withResponsive', () => {
 			const component = screen.getByTestId( 'mock-component' );
 			expect( component ).toHaveAttribute( 'data-size', '200' );
 		} );
+
+		test( 'assigns the wrapper to an object-shaped parentRef from useParentSize', () => {
+			// useParentSize hands back a callback ref in practice, but older versions
+			// return a RefObject; the wrapper must populate that shape too.
+			const objectRef: { current: HTMLElement | null } = { current: null };
+			useParentSize.mockImplementation( () => ( {
+				parentRef: objectRef,
+				width: 600,
+				height: 300,
+			} ) );
+			render( <ResponsiveComponent data={ [] } /> );
+			expect( objectRef.current ).toBe( screen.getByTestId( 'responsive-wrapper' ) );
+		} );
 	} );
 
 	describe( 'wrapper dimensions', () => {
@@ -197,6 +210,89 @@ describe( 'withResponsive', () => {
 			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
 				width: '375px',
 				height: '150px',
+			} );
+		} );
+
+		test( 'releases containment when the parent grows tall enough', () => {
+			// Parent starts at 150px of height, so aspectRatio 0.4 (derives 240 at width
+			// 600) is contained to 375 × 150.
+			mockClientHeight = 150;
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 150,
+			} ) );
+			const { rerender } = render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '375px',
+				height: '150px',
+			} );
+
+			// Parent grows to 300px — now taller than the 240px derived height — so
+			// containment releases and the chart returns to its full width-derived size.
+			mockClientHeight = 300;
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 300,
+			} ) );
+			rerender( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '600px',
+				height: '240px',
+			} );
+		} );
+
+		test( 'and re-contains to the new height when the parent shrinks further', () => {
+			// Parent allows 300px; aspectRatio 0.75 derives 450, so it contains to 400 × 300.
+			mockClientHeight = 300;
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 300,
+			} ) );
+			const { rerender } = render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '400px',
+				height: '300px',
+			} );
+
+			// Parent shrinks to 150px — still shorter than the 450px derived height — so the
+			// chart re-contains to the new available height: 150 / 0.75 = 200 × 150.
+			mockClientHeight = 150;
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 150,
+			} ) );
+			rerender( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '200px',
+				height: '150px',
+			} );
+		} );
+
+		test( 'releases containment when aspectRatio is removed', () => {
+			// Contained first (derived 450 > the 300px parent → 400 × 300).
+			mockClientHeight = 300;
+			useParentSize.mockImplementation( () => ( {
+				parentRef: () => {},
+				width: 600,
+				height: 300,
+			} ) );
+			const { rerender } = render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '400px',
+				height: '300px',
+			} );
+
+			// Dropping aspectRatio clears the containment and fills the parent again; the
+			// inner content box is gone.
+			rerender( <ResponsiveComponent data={ [] } /> );
+			expect( screen.queryByTestId( 'responsive-content' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+				width: '600px',
+				height: '300px',
 			} );
 		} );
 	} );

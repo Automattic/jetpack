@@ -122,11 +122,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				}
 				return;
 			}
-			const node = wrapperRef.current;
-			if ( ! node ) {
-				return;
-			}
-			const available = node.clientHeight;
+			const available = wrapperRef.current?.clientHeight ?? 0;
 			const derivedHeight = availableWidth * aspectRatio;
 			if ( containedHeight === null ) {
 				if ( available > 0 && derivedHeight > available + 1 ) {
