@@ -117,21 +117,22 @@ export default meta;
 type Story = StoryObj< PostPerformanceStoryControls >;
 
 /**
- * Default — the scoped post's performance with a comparison overlay.
+ * Default — the scoped post's performance for the primary period only; the
+ * Views tab shows no delta and the chart no overlay.
  */
 export const Default: Story = {
 	render: renderPostPerformance,
-	args: { withComparison: true, hasPostScope: true, granularity: 'day' },
+	args: { withComparison: false, hasPostScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * WithoutComparison — the primary period only; the Views tab shows no delta
- * and the chart no overlay.
+ * WithComparison — the previous-period comparison from the date range picker;
+ * the Views tab carries a delta and the chart a dashed overlay.
  */
-export const WithoutComparison: Story = {
+export const WithComparison: Story = {
 	render: renderPostPerformance,
-	args: { withComparison: false, hasPostScope: true, granularity: 'day' },
+	args: { withComparison: true, hasPostScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 

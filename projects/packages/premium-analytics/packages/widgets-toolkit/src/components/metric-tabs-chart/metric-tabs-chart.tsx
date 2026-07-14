@@ -69,14 +69,15 @@ export interface MetricTabsChartProps {
 	/** Show the loading overlay over the chart. */
 	loading?: boolean;
 	/**
-	 * Distribute the metric tabs evenly across the full card width (the post
-	 * detail Performance layout) instead of packing them to the start.
+	 * Tab row layout: `distributed` spreads the metric tabs evenly across the
+	 * full card width (the post detail Performance layout); `default` packs
+	 * them to the start.
 	 */
-	distributeTabs?: boolean;
+	variant?: 'default' | 'distributed';
+	/** Gap between the tab row and the chart. */
+	gap?: 'md' | 'xl';
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
-	/** Extra class for the root element, for widget-specific style overrides. */
-	className?: string;
 }
 
 /**
@@ -194,9 +195,9 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	loading = false,
-	distributeTabs = false,
+	variant = 'default',
+	gap = 'md',
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics' ),
-	className,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -253,7 +254,7 @@ export function MetricTabsChart( {
 			metricItems.find( item => item.value === activeMetric?.key ) ?? metricItems[ 0 ];
 
 		return (
-			<div ref={ measureRef } className={ clsx( styles.root, className ) }>
+			<div ref={ measureRef } className={ clsx( styles.root, gap === 'xl' && styles.gapXl ) }>
 				<div className={ styles.header }>
 					{ /* Stops pointer-down from starting a widget drag and opens the select
 					     on click (see `isDropdownOpen`). Mouse-only supplement — keyboard
@@ -325,12 +326,12 @@ export function MetricTabsChart( {
 			ref={ measureRef }
 			value={ activeMetric?.key }
 			onValueChange={ handleValueChange }
-			className={ clsx( styles.root, className ) }
+			className={ clsx( styles.root, gap === 'xl' && styles.gapXl ) }
 		>
 			<div className={ styles.header }>
 				<Tabs.List
 					variant="minimal"
-					className={ clsx( styles.tabs, distributeTabs && styles.tabsDistributed ) }
+					className={ clsx( styles.tabs, variant === 'distributed' && styles.tabsDistributed ) }
 					aria-label={ groupLabel }
 				>
 					{ metrics.map( metric => (

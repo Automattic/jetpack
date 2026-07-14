@@ -5,10 +5,3 @@
 	height: 100%;
 	overflow: hidden;
 }
-
-/* Card-specific MetricTabsChart overrides per the post detail Performance
- * design: more room between the metric tabs and the chart. Doubled class to
- * outrank the component's own equal-specificity gap rule. */
-.metricTabs.metricTabs {
-	gap: var(--wpds-dimension-gap-xl, 24px);
-}

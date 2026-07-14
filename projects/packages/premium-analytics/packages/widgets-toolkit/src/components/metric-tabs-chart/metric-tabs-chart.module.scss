@@ -15,6 +15,12 @@
 	min-height: 0;
 }
 
+/* The `gap="xl"` variant: more room between the tab row and the chart (the
+ * post detail Performance layout). */
+.gapXl {
+	gap: var(--wpds-dimension-gap-xl, 24px);
+}
+
 .header {
 	display: flex;
 	flex-direction: row;

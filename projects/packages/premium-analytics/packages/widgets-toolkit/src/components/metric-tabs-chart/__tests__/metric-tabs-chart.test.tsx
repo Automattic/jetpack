@@ -15,6 +15,7 @@ import type { ReactElement } from 'react';
 // what the component applies.
 jest.mock( '../metric-tabs-chart.module.scss', () => ( {
 	root: 'root',
+	gapXl: 'gapXl',
 	header: 'header',
 	tabs: 'tabs',
 	tabsDistributed: 'tabsDistributed',
@@ -64,9 +65,13 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.getByText( 'No trend data for this metric.' ) ).toBeInTheDocument();
 	} );
 
-	it( 'distributes the tab list only when distributeTabs is set', () => {
+	it( 'distributes the tab list only in the distributed variant', () => {
 		const { unmount } = renderWithCharts(
-			<MetricTabsChart metrics={ VALUE_ONLY_METRICS } dataFormat={ DATA_FORMAT } distributeTabs />
+			<MetricTabsChart
+				metrics={ VALUE_ONLY_METRICS }
+				dataFormat={ DATA_FORMAT }
+				variant="distributed"
+			/>
 		);
 		expect( screen.getByRole( 'tablist' ) ).toHaveClass( 'tabsDistributed' );
 		unmount();

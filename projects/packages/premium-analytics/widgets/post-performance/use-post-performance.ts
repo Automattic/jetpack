@@ -91,13 +91,15 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 
 /**
  * Bucket the post's daily view history into chart points for a window: day
- * buckets pass through, week/month buckets sum into their period start. The
- * window is clamped to the history's actual span, then every calendar bucket
- * inside it is zero-seeded before summing — the endpoint may omit zero-view
- * days, and the chart's comparison overlay aligns series by index, so both
- * windows must always yield one point per bucket. The full history is
- * bucketed client-side because the endpoint's `weeks` field only covers a
- * fixed recent window.
+ * buckets pass through, week/month buckets sum into their period start.
+ * Every calendar bucket of the full requested window is zero-seeded before
+ * summing — the endpoint may omit zero-view days and the history only starts
+ * at publication, while the chart's comparison overlay aligns series by
+ * index, so the primary and comparison windows must always yield the same
+ * bucket count. Pre-publication days are genuinely zero views, so the
+ * zero-fill is factual, not fabricated. The full history is bucketed
+ * client-side because the endpoint's `weeks` field only covers a fixed
+ * recent window.
  *
  * @param days   - The post's daily views, oldest first.
  * @param window - The date-only window to keep.
@@ -105,14 +107,9 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  * @return One point per calendar bucket, oldest first.
  */
 function bucketDays( days: StatsPostDay[], window: DayWindow, period: PostPerformancePeriod ) {
-	if ( ! days.length ) {
-		return [];
-	}
-
-	const from = window.from > days[ 0 ].date ? window.from : days[ 0 ].date;
-	const to = window.to < days[ days.length - 1 ].date ? window.to : days[ days.length - 1 ].date;
-
-	if ( from > to ) {
+	// The URL is user-editable, so an inverted range must not reach
+	// `eachDayOfInterval()` (it throws).
+	if ( window.from > window.to ) {
 		return [];
 	}
 
@@ -126,7 +123,7 @@ function bucketDays( days: StatsPostDay[], window: DayWindow, period: PostPerfor
 		return format( start, 'yyyy-MM-dd' );
 	};
 
-	const interval = { start: parseISO( from ), end: parseISO( to ) };
+	const interval = { start: parseISO( window.from ), end: parseISO( window.to ) };
 	let bucketStarts = eachDayOfInterval( interval );
 	if ( period === 'week' ) {
 		bucketStarts = eachWeekOfInterval( interval, { weekStartsOn: 1 } );
@@ -139,7 +136,7 @@ function bucketDays( days: StatsPostDay[], window: DayWindow, period: PostPerfor
 	);
 
 	for ( const day of days ) {
-		if ( day.date < from || day.date > to ) {
+		if ( day.date < window.from || day.date > window.to ) {
 			continue;
 		}
 
@@ -182,7 +179,6 @@ export default function usePostPerformance(
 
 		const current = window ? bucketDays( days, window, period ) : [];
 		const previous = compareWindow ? bucketDays( days, compareWindow, period ) : undefined;
-		const hasPrevious = !! previous?.length;
 
 		const sum = ( points: { value: number }[] ) =>
 			points.reduce( ( total, point ) => total + point.value, 0 );
@@ -192,9 +188,9 @@ export default function usePostPerformance(
 				key: 'views',
 				label: __( 'Views', 'jetpack-premium-analytics' ),
 				value: sum( current ),
-				previousValue: hasPrevious ? sum( previous ) : undefined,
+				previousValue: previous?.length ? sum( previous ) : undefined,
 				current,
-				previous: hasPrevious ? previous : undefined,
+				previous: previous?.length ? previous : undefined,
 			},
 			{
 				key: 'comments',
