@@ -20,6 +20,8 @@ export type MostPopularDayAttributes = Record< never, never >;
 export default {
 	name: 'jpa/most-popular-day',
 	title: __( 'Most popular day', 'jetpack-premium-analytics' ),
-	description: __( 'The day your site received the most views.', 'jetpack-premium-analytics' ),
+	help: {
+		content: __( 'The day your site received the most views.', 'jetpack-premium-analytics' ),
+	},
 	icon: calendar,
 };

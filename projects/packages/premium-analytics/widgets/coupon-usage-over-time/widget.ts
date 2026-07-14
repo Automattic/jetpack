@@ -24,6 +24,11 @@ export type CouponUsageOverTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/coupon-usage-over-time',
 	title: __( 'Coupon usage over time', 'jetpack-premium-analytics' ),
-	description: __( 'Coupon usage over the selected time period.', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Track how effective your discounts and promotions have been over a set period of time.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

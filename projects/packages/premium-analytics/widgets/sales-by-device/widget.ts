@@ -25,9 +25,11 @@ export type SalesByDeviceAttributes = Record< never, never >;
 export default {
 	name: 'jpa/sales-by-device',
 	title: __( 'Sales by device', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the sales breakdown by device type over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'See which devices your customers are using to make purchases in your store.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

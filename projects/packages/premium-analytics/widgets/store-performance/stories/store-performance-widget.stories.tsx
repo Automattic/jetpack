@@ -31,7 +31,7 @@ const ensureLineChartComposition = () => LineChart.Legend;
 const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
-	description: widgetDefinition.description,
+	help: widgetDefinition.help,
 	icon: widgetDefinition.icon,
 	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
 	example: widgetDefinition.example,

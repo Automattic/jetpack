@@ -26,10 +26,6 @@ export type VideoDetailEmbedsAttributes = Record< never, never >;
 export default {
 	name: 'jpa/video-detail-embeds',
 	title: __( 'Video embeds', 'jetpack-premium-analytics' ),
-	description: __(
-		'Pages where the selected video is embedded, sourced from Jetpack Stats.',
-		'jetpack-premium-analytics'
-	),
 	help: {
 		content: __(
 			'Lists every page on your site where the selected video is embedded, so you can see where it is being watched.',
