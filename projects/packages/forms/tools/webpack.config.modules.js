@@ -82,7 +82,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 								loader: 'postcss-loader',
 								options: {
 									postcssOptions: {
-										config: path.join( __dirname, '..', 'postcss.config.cjs' ),
+										config: path.join( __dirname, '..', 'postcss.config.js' ),
 									},
 								},
 							},
