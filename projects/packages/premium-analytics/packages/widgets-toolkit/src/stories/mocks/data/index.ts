@@ -62,6 +62,7 @@ export {
 	mockCustomersByDateComparisonData,
 } from './customers';
 
+export { mockCommentsData } from './comments';
 export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';
 export { mockSingleVideoData } from './single-video';
 export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors';
