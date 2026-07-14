@@ -69,7 +69,7 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/stats-top-posts', $layout_types );
 		$this->assertContains( 'jpa/referrers', $layout_types );
 		$this->assertContains( 'jpa/authors', $layout_types );
-		$this->assertContains( 'jpa/videos', $layout_types );
+		$this->assertContains( 'jpa/videopress', $layout_types );
 		$this->assertContains( 'jpa/plan-usage', $layout_types );
 		$this->assertArrayHasKey( 'default-locations-widget-instance', $layout_by_uuid );
 		$this->assertArrayHasKey( $utm_widget_uuid, $layout_by_uuid );
@@ -124,7 +124,7 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/latest-post', $layout_types );
 		$this->assertContains( 'jpa/posting-activity', $layout_types );
 		$this->assertNotContains( 'jpa/authors', $layout_types );
-		$this->assertNotContains( 'jpa/videos', $layout_types );
+		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		$this->assertContains( 'jpa/stats-emails', $layout_types );
 		$this->assertContains( 'jpa/shares', $layout_types );
 		$this->assertSame(

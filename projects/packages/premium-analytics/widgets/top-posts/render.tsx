@@ -11,7 +11,9 @@ import { reports } from '@jetpack-premium-analytics/icons';
 import { Icon, external } from '@wordpress/icons';
 import {
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
@@ -552,6 +554,12 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 				) : (
 					<TopPostsReport num={ num } />
 				) }
+				<WidgetFooter>
+					<ReportLink
+						report="posts"
+						section={ contentView === 'archives' ? 'archives' : 'posts-pages' }
+					/>
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

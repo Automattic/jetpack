@@ -40,6 +40,10 @@ export {
 	type WidgetStateEmpty,
 	WidgetBackLink,
 	type WidgetBackLinkProps,
+	WidgetFooter,
+	type WidgetFooterProps,
+	ReportLink,
+	type ReportLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
@@ -95,7 +99,6 @@ export {
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
-	toVideoItems,
 	toMaxRows,
 } from './helpers';
 

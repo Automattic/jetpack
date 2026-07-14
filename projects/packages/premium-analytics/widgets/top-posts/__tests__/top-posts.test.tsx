@@ -4,6 +4,7 @@
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -11,9 +12,37 @@ import TopPostsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
+type MockRouteLinkProps = {
+	to: string;
+	params?: Record< string, unknown >;
+	search?: Record< string, unknown >;
+	children: ReactNode;
+} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
+
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => ( {
+	Link: ( { to, params, search, children, ...props }: MockRouteLinkProps ) => {
+		// Interpolate `$name` path segments from `params`, mirroring the router,
+		// so a param route like `/reports/$report` resolves to `/reports/posts`.
+		const path = Object.entries( params ?? {} ).reduce(
+			( acc, [ key, value ] ) => acc.replace( `$${ key }`, String( value ) ),
+			to
+		);
+		const query = new URLSearchParams();
+		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
+			if ( value !== undefined && value !== null ) {
+				query.set( key, String( value ) );
+			}
+		} );
+		const queryString = query.toString();
+
+		return (
+			<a href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
+				{ children }
+			</a>
+		);
+	},
 	useSearch: () => ( {} ),
 } ) );
 
@@ -94,6 +123,15 @@ describe( 'TopPostsWidget', () => {
 		// and the post list excludes archive pages (they have their own view).
 		expect( topPostsPath ).toContain( 'period=day' );
 		expect( topPostsPath ).toContain( 'skip_archives=1' );
+	} );
+
+	it( 'links to the Posts & Pages report', () => {
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+
+		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/posts' )
+		);
 	} );
 
 	it( 'requests the comparison window and aligns previous views by post URL', async () => {

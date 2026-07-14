@@ -25,6 +25,7 @@ export type StatsQueryParamFields = {
 	max?: number;
 	summarize?: number | boolean;
 	complete_stats?: number | boolean;
+	skip_archives?: number | boolean;
 };
 
 export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;
@@ -43,6 +44,7 @@ const statsParamKeys = [
 	'max',
 	'summarize',
 	'complete_stats',
+	'skip_archives',
 ] as const satisfies Array< keyof StatsQueryParamFields >;
 
 function datePart( value?: string ) {

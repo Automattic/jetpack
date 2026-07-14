@@ -1,0 +1,9 @@
+.homepageLink {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.externalIcon {
+	flex-shrink: 0;
+}

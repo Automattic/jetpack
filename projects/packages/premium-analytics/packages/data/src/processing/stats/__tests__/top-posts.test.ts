@@ -90,6 +90,42 @@ describe( 'Stats top posts normalizer', () => {
 		] );
 	} );
 
+	it( 'preserves the homepage row id and title when archives are skipped', () => {
+		const result = sanitizeStatsTopPostsResponse(
+			{
+				days: {
+					'2026-06-16': {
+						postviews: [
+							{
+								id: 0,
+								href: null,
+								date: null,
+								title: 'Homepage (Latest posts)',
+								type: 'homepage',
+								views: 12,
+							},
+						],
+					},
+				},
+			},
+			{
+				period: 'day',
+				end_date: '2026-06-16',
+				skip_archives: 1,
+			}
+		);
+
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				id: 0,
+				label: 'Homepage (Latest posts)',
+				link: null,
+				page: null,
+				type: 'homepage',
+			} )
+		);
+	} );
+
 	it( 'keeps all by-date buckets when the query has a range end date', () => {
 		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
 			period: 'day',
