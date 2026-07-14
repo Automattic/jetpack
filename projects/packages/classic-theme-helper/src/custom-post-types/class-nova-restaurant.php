@@ -87,6 +87,13 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		protected $menu_item_loop_current_term = false;
 
 		/**
+		 * Whether the CPT and its utilities have already been registered.
+		 *
+		 * @var bool
+		 */
+		protected $registered = false;
+
+		/**
 		 * Initialize class.
 		 *
 		 * @param array $menu_item_loop_markup Array of markup for the menu items.
@@ -112,9 +119,25 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 * Hook into WordPress to create CPT and utilities if needed.
 		 */
 		public function __construct() {
-			if ( ! $this->site_supports_nova() ) {
+			/*
+			 * On WordPress.com Simple, the REST API does not load the theme before `init`; the theme's
+			 * `init` callbacks are replayed later on `restapi_theme_init`. Theme support is therefore
+			 * still undeclared here, so re-check once the theme has been loaded.
+			 */
+			add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
+
+			$this->maybe_register_cpt();
+		}
+
+		/**
+		 * Register the CPT and its utilities, if the site supports them.
+		 */
+		public function maybe_register_cpt() {
+			if ( $this->registered || ! $this->site_supports_nova() ) {
 				return;
 			}
+
+			$this->registered = true;
 
 			$this->register_taxonomies();
 			$this->register_post_types();
