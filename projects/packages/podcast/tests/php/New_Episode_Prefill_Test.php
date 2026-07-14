@@ -36,8 +36,8 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Toggle the site's podcast product access by priming the gate's purchase
-	 * cache — a Growth purchase grants access, an empty list denies it.
+	 * Prime the gate's purchase cache: a Growth purchase grants access, an empty
+	 * list denies it.
 	 *
 	 * @param bool $has_access Whether the site should have product access.
 	 */
@@ -62,7 +62,6 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		New_Episode_Prefill::maybe_register_handlers();
 
 		$this->assertSame( 10, has_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ) ) );
-		// The prefill filter always registers; the plan decides which block it inserts.
 		$this->assertSame( 10, has_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ) ) );
 	}
 
@@ -88,8 +87,7 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
-		// WorDBless lacks the term-relationships table; spy on set_object_terms
-		// to verify the call instead of reading the assignment back.
+		// WorDBless lacks the term-relationships table; spy on set_object_terms.
 		$spy    = array();
 		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy ) {
 			$spy[] = array(
@@ -146,7 +144,6 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
-		// Same set_object_terms spy as above; here we assert no call fires.
 		$spy    = array();
 		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy, $post_id ) {
 			if ( (int) $object_id === (int) $post_id && 'category' === $taxonomy ) {
@@ -215,7 +212,6 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 
 	private function reset_prefill_state() {
 		$property = new \ReflectionProperty( New_Episode_Prefill::class, 'handled_post_id' );
-		// setAccessible is required on PHP < 8.1; deprecated but still works on later versions.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}

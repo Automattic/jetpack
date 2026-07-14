@@ -13,19 +13,13 @@ use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
- * Premium podcast feature gate.
- *
- * Resolves the paid surfaces (episode dashboard, stats, episode block) two
- * ways depending on the host:
+ * Premium podcast feature gate (dashboard, stats, episode block). Two paths:
  *
  * - WordPress.com (Simple/WoA): the `podcasting` plan feature via
- *   `Current_Plan::supports`, plus the launch-day grandfather rule. Reads
- *   request-scoped state, so callers gating a different blog must
- *   `switch_to_blog` first.
- * - Self-hosted Jetpack: the site's purchased plan over the Jetpack
- *   connection. Per PODS-123, the Growth (and Complete) plans unlock the paid
- *   surfaces; everything else is feed-only. Only consulted in admin/editor
- *   contexts (the editor gate, the dashboard) — the block renders unconditionally.
+ *   `Current_Plan::supports`, plus the launch-day grandfather rule. Request-
+ *   scoped, so gating another blog needs `switch_to_blog` first.
+ * - Self-hosted Jetpack: a Growth/Complete purchase over the connection
+ *   (PODS-123). Only consulted in admin/editor contexts.
  */
 class Podcast_Gate {
 
@@ -75,13 +69,10 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * The minimum plan to upsell when the site lacks podcast product access.
+	 * The minimum plan slug to upsell: WordPress.com Premium (`value_bundle`) or
+	 * Jetpack Growth (`jetpack_growth_yearly`).
 	 *
-	 * WordPress.com Premium (`value_bundle`) or Jetpack Growth
-	 * (`jetpack_growth_yearly`) — the entry points to the paid podcast surfaces
-	 * resolved by {@see self::has_product_access()}.
-	 *
-	 * @return string Plan slug used to build the editor upgrade nudge.
+	 * @return string
 	 */
 	public static function get_required_plan_slug(): string {
 		return ( new Host() )->is_wpcom_platform() ? 'value_bundle' : 'jetpack_growth_yearly';
@@ -98,19 +89,15 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * Whether a self-hosted Jetpack site owns a Growth (or Complete) plan.
-	 *
-	 * Mirrors the bundle-detection pattern used by My Jetpack's Growth/Security
-	 * products: match purchased product slugs rather than the `podcasting`
-	 * feature, which maps to all Jetpack sites on WordPress.com and so can't
-	 * distinguish free from paid here.
+	 * Whether a self-hosted site owns a Growth/Complete plan. Matches purchased
+	 * product slugs, not the `podcasting` feature (which is true for every Jetpack
+	 * site on WordPress.com and can't tell free from paid here).
 	 */
 	private static function self_hosted_has_paid_plan(): bool {
 		foreach ( self::get_site_current_purchases() as $purchase ) {
 			$slug = is_array( $purchase ) && isset( $purchase['product_slug'] ) ? $purchase['product_slug'] : '';
 
-			// Growth and Complete bundles unlock the paid surfaces; matched as
-			// prefixes so every billing term/tier counts.
+			// Prefix match so every Growth/Complete billing term counts.
 			foreach ( array( 'jetpack_growth', 'jetpack_complete' ) as $prefix ) {
 				if ( is_string( $slug ) && 0 === strpos( $slug, $prefix ) ) {
 					return true;

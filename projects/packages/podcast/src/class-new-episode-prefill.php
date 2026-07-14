@@ -8,9 +8,8 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Prefills the new-post screen with the configured podcast category and an
- * inserted media block: the Podcast Episode block on qualifying plans, or a
- * core Audio block otherwise — mirroring the front-end's basic-media fallback.
+ * Prefills the new-post screen with the configured podcast category and a media
+ * block: the Podcast Episode block on qualifying plans, a core Audio block otherwise.
  */
 class New_Episode_Prefill {
 
@@ -52,18 +51,12 @@ class New_Episode_Prefill {
 		}
 
 		add_action( 'wp_insert_post', array( __CLASS__, 'assign_category' ), 10, 3 );
-
-		// Always prefill a media block; the plan decides which one — see
-		// prefill_block_content().
 		add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
 	}
 
 	/**
-	 * Assign the configured podcast category to the new auto-draft.
-	 *
-	 * Narrowed to the initial auto-draft so user-driven saves later in the
-	 * session aren't re-overridden; self-unhooks so sibling auto-drafts in the
-	 * same request are left alone.
+	 * Assign the configured podcast category to the initial auto-draft only, so
+	 * later user saves aren't overridden. Self-unhooks after handling one draft.
 	 *
 	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post    Post object.
@@ -95,13 +88,8 @@ class New_Episode_Prefill {
 	}
 
 	/**
-	 * Inject the new post's initial media block: the Podcast Episode block when
-	 * the site has product access, otherwise a core Audio block so free sites
-	 * still get a usable starting point instead of an empty editor — matching
-	 * the basic-media fallback the block renders on the front end.
-	 *
-	 * No-op if another plugin has already filled `$content`, so this composes
-	 * politely.
+	 * Inject the new post's initial media block: the Podcast Episode block with
+	 * product access, else a core Audio block. No-op if `$content` is already set.
 	 *
 	 * @param string   $content Default post content.
 	 * @param \WP_Post $post    Post object.
