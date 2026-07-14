@@ -337,8 +337,11 @@ class Blaze {
 			: 'Jetpack';
 
 		$dashboard_url = admin_url( 'admin.php?page=' . $menu_slug );
-		$image_path    = dirname( __DIR__ ) . '/assets/images/blaze-ads-moved.webp';
-		$image_url     = plugins_url( 'assets/images/blaze-ads-moved.webp', __DIR__ );
+		$image_file    = 'woocommerce-marketing' === $parent_slug
+			? 'blaze-ads-moved-woo.webp'
+			: 'blaze-ads-moved.webp';
+		$image_path    = dirname( __DIR__ ) . '/assets/images/' . $image_file;
+		$image_url     = plugins_url( 'assets/images/' . $image_file, __DIR__ );
 
 		?>
 		<div class="wrap blaze-ads-migration">
