@@ -100,11 +100,27 @@ For full legend configuration options, see the [Legend component docs](./?path=/
 
 ## Responsive Behavior
 
-By default, charts fill their parent container's dimensions. The parent must have an explicit height, or the chart must receive an `aspectRatio` prop:
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height, or the chart must receive an `aspectRatio`:
 
 <Canvas of={ AreaChartStories.AspectRatio } />
 
-For more details, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design).
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<AreaChart data={ data } />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<AreaChart data={ data } aspectRatio={ 0.5 } />
+	</div>
+
+	// Fixed dimensions
+	<AreaChart data={ data } width={ 800 } height={ 400 } />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 
