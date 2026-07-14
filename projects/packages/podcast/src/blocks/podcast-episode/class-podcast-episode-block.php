@@ -75,12 +75,15 @@ class Podcast_Episode_Block {
 			)
 		);
 
-		// Paid feature: without podcast product access (Premium on WordPress.com,
-		// Growth/Complete on self-hosted Jetpack — see Podcast_Gate), flag the
-		// block as plan-gated so the editor shows an upgrade prompt. Runs after
-		// jetpack_register_block's own availability action (priority 10), so the
-		// plan-gated state wins.
-		if ( class_exists( \Jetpack_Gutenberg::class ) && ! Podcast_Gate::has_product_access() ) {
+		// Paid feature: flag the block as plan-gated so the editor shows an
+		// upgrade prompt when the site lacks podcast product access (Premium on
+		// WordPress.com, Growth/Complete on self-hosted Jetpack — see
+		// Podcast_Gate). Runs after jetpack_register_block's own availability
+		// action (priority 10), so the plan-gated state wins. The access check
+		// itself lives in the callback: it only fires when the editor extensions
+		// register, keeping its (possibly remote) plan lookup off the front-end
+		// init path, where the callback never runs.
+		if ( class_exists( \Jetpack_Gutenberg::class ) ) {
 			add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'flag_plan_gated' ), 11 );
 		}
 	}
@@ -88,7 +91,8 @@ class Podcast_Episode_Block {
 	/**
 	 * Flag the block as requiring a paid plan so the editor surfaces the upgrade
 	 * prompt. Hooked on `jetpack_register_gutenberg_extensions` after the block's
-	 * default availability registration, overriding it to "unavailable".
+	 * default availability registration, overriding it to "unavailable" — unless
+	 * the site has product access, in which case the default available state stands.
 	 *
 	 * Follows the standard paid-block behavior: the nudge only shows where Jetpack
 	 * enables it (Atomic / WordPress.com Simple). On self-hosted Jetpack, where
@@ -96,6 +100,10 @@ class Podcast_Episode_Block {
 	 * other paid block — the self-hosted upsell lives in the podcast dashboard.
 	 */
 	public static function flag_plan_gated() {
+		if ( Podcast_Gate::has_product_access() ) {
+			return;
+		}
+
 		\Jetpack_Gutenberg::set_extension_unavailable(
 			'podcast-episode',
 			'missing_plan',
@@ -237,9 +245,9 @@ class Podcast_Episode_Block {
 		?>
 		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns pre-escaped attribute output. ?>>
 			<?php if ( $is_video ) : ?>
-				<video class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"></video>
+				<video class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Watch the episode', 'jetpack-podcast' ); ?></a></video>
 			<?php else : ?>
-				<audio class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"></audio>
+				<audio class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Listen to the episode', 'jetpack-podcast' ); ?></a></audio>
 			<?php endif; ?>
 		</div>
 		<?php

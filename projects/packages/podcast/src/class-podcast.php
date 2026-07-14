@@ -55,6 +55,14 @@ class Podcast {
 		}
 
 		$host = new Host();
+
+		// Self-hosted: refresh the site's podcast-plan lookup on the background
+		// heartbeat so `has_product_access()` reads a local cache — never the
+		// network — when rendering the block on the front end and in feeds.
+		if ( ! $host->is_wpcom_platform() ) {
+			add_action( 'jetpack_heartbeat', array( Podcast_Gate::class, 'refresh_purchases_cache' ) );
+		}
+
 		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
 			// Register the local REST routes before request-local rollout gates.
 			// Requests from public-api.wordpress.com may not satisfy those gates,

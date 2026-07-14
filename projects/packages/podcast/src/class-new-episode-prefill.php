@@ -7,9 +7,13 @@
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
+
 /**
- * Prefills the new-post screen with the configured podcast category and, on
- * Premium, an inserted Podcast Episode block.
+ * Prefills the new-post screen with the configured podcast category and an
+ * inserted media block: the Podcast Episode block on qualifying plans, or a
+ * core Audio block otherwise — mirroring the front-end's basic-media fallback.
  */
 class New_Episode_Prefill {
 
@@ -50,11 +54,20 @@ class New_Episode_Prefill {
 			return;
 		}
 
+		// Warm the plan cache on this admin request so the prefill below picks the
+		// Podcast Episode block for a paying self-hosted site even before the
+		// background heartbeat first runs — keeping the network fetch off the
+		// front-end render path. WordPress.com gates via Current_Plan (no fetch),
+		// and a disconnected site can't reach `/upgrades` anyway.
+		if ( ! ( new Host() )->is_wpcom_platform() && ( new Connection_Manager( 'jetpack' ) )->is_connected() ) {
+			Podcast_Gate::prime_purchases_cache();
+		}
+
 		add_action( 'wp_insert_post', array( __CLASS__, 'assign_category' ), 10, 3 );
 
-		if ( Podcast_Gate::has_product_access() ) {
-			add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
-		}
+		// Always prefill a media block; the plan decides which one — see
+		// prefill_block_content().
+		add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
 	}
 
 	/**
@@ -94,7 +107,10 @@ class New_Episode_Prefill {
 	}
 
 	/**
-	 * Inject a Podcast Episode block as the new post's initial content.
+	 * Inject the new post's initial media block: the Podcast Episode block when
+	 * the site has product access, otherwise a core Audio block so free sites
+	 * still get a usable starting point instead of an empty editor — matching
+	 * the basic-media fallback the block renders on the front end.
 	 *
 	 * No-op if another plugin has already filled `$content`, so this composes
 	 * politely.
@@ -116,7 +132,9 @@ class New_Episode_Prefill {
 
 		remove_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10 );
 
-		return "<!-- wp:jetpack/podcast-episode /-->\n";
+		return Podcast_Gate::has_product_access()
+			? "<!-- wp:jetpack/podcast-episode /-->\n"
+			: "<!-- wp:audio /-->\n";
 	}
 
 	/**

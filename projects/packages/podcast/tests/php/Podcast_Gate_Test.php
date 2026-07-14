@@ -231,19 +231,21 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 
-	public function test_self_hosted_fetches_growth_over_connection_grants_access(): void {
+	public function test_refresh_fetches_growth_over_connection_and_grants_access(): void {
 		self::as_connected_self_hosted();
 		add_filter( 'pre_http_request', self::upgrades_response( array( 'jetpack_growth_yearly' ) ) );
 
+		Podcast_Gate::refresh_purchases_cache();
+
 		$this->assertTrue( Podcast_Gate::has_product_access() );
-		// A successful fetch is cached for reuse within the page load.
+		// A successful fetch is cached for the read path to reuse.
 		$this->assertSame(
 			array( array( 'product_slug' => 'jetpack_growth_yearly' ) ),
 			get_transient( Podcast_Gate::PURCHASES_TRANSIENT )
 		);
 	}
 
-	public function test_self_hosted_fetch_http_error_denies_and_does_not_cache(): void {
+	public function test_refresh_http_error_denies_and_does_not_cache(): void {
 		self::as_connected_self_hosted();
 		add_filter(
 			'pre_http_request',
@@ -258,12 +260,14 @@ class Podcast_Gate_Test extends BaseTestCase {
 			}
 		);
 
+		Podcast_Gate::refresh_purchases_cache();
+
 		$this->assertFalse( Podcast_Gate::has_product_access() );
-		// Fails closed without caching, so the next request retries.
+		// Fails closed without caching, so the next refresh retries.
 		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
 
-	public function test_self_hosted_fetch_malformed_body_denies_access(): void {
+	public function test_refresh_malformed_body_denies_access(): void {
 		self::as_connected_self_hosted();
 		add_filter(
 			'pre_http_request',
@@ -278,8 +282,58 @@ class Podcast_Gate_Test extends BaseTestCase {
 			}
 		);
 
+		Podcast_Gate::refresh_purchases_cache();
+
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
+	}
+
+	/**
+	 * The read path must never hit the network — the block renders it on the
+	 * front end and in feeds. With a cold cache, access is denied even though a
+	 * qualifying purchase would be fetchable over the connection.
+	 */
+	public function test_has_product_access_never_fetches_on_read_path(): void {
+		self::as_connected_self_hosted();
+		$called = false;
+		add_filter(
+			'pre_http_request',
+			static function () use ( &$called ) {
+				$called = true;
+				return self::upgrades_response( array( 'jetpack_growth_yearly' ) )();
+			}
+		);
+
+		$this->assertFalse( Podcast_Gate::has_product_access() );
+		$this->assertFalse( $called, 'has_product_access() must not issue an HTTP request.' );
+	}
+
+	public function test_prime_warms_a_cold_cache(): void {
+		self::as_connected_self_hosted();
+		add_filter( 'pre_http_request', self::upgrades_response( array( 'jetpack_growth_yearly' ) ) );
+
+		Podcast_Gate::prime_purchases_cache();
+
+		$this->assertTrue( Podcast_Gate::has_product_access() );
+	}
+
+	public function test_prime_leaves_a_warm_cache_untouched(): void {
+		self::as_connected_self_hosted();
+		self::seed_purchases( array() );
+		$called = false;
+		add_filter(
+			'pre_http_request',
+			static function () use ( &$called ) {
+				$called = true;
+				return self::upgrades_response( array( 'jetpack_growth_yearly' ) )();
+			}
+		);
+
+		Podcast_Gate::prime_purchases_cache();
+
+		// An empty array is a populated cache; prime must not re-fetch over it.
+		$this->assertFalse( $called, 'prime_purchases_cache() must not refetch a populated cache.' );
+		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 
 	public function test_flush_purchases_cache_drops_transient_and_memo(): void {

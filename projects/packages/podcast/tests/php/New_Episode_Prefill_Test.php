@@ -6,6 +6,7 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\New_Episode_Prefill;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -28,9 +29,24 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			remove_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ), 10 );
 		}
 		delete_option( 'podcasting_category_id' );
+		Podcast_Gate::flush_purchases_cache();
 		$_GET = array();
 		$this->reset_prefill_state();
 		parent::tearDown();
+	}
+
+	/**
+	 * Toggle the site's podcast product access by priming the gate's purchase
+	 * cache — a Growth purchase grants access, an empty list denies it.
+	 *
+	 * @param bool $has_access Whether the site should have product access.
+	 */
+	private function set_product_access( bool $has_access ) {
+		Podcast_Gate::flush_purchases_cache();
+		set_transient(
+			Podcast_Gate::PURCHASES_TRANSIENT,
+			$has_access ? array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) : array()
+		);
 	}
 
 	public function test_maybe_register_handlers_requires_flagged_post_new_screen_and_configured_category() {
@@ -46,7 +62,8 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		New_Episode_Prefill::maybe_register_handlers();
 
 		$this->assertSame( 10, has_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ) ) );
-		$this->assertFalse( has_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ) ) );
+		// The prefill filter always registers; the plan decides which block it inserts.
+		$this->assertSame( 10, has_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ) ) );
 	}
 
 	public function test_assign_category_sets_configured_category_for_initial_auto_draft() {
@@ -152,6 +169,8 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 	}
 
 	public function test_prefill_block_content_only_inserts_for_empty_post_content() {
+		$this->set_product_access( true );
+
 		$post_id = wp_insert_post(
 			array(
 				'post_title'  => 'Auto Draft',
@@ -168,6 +187,26 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 
 		$this->assertSame(
 			"<!-- wp:jetpack/podcast-episode /-->\n",
+			New_Episode_Prefill::prefill_block_content( '', $post )
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
+	public function test_prefill_block_content_falls_back_to_audio_block_without_product_access() {
+		$this->set_product_access( false );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Auto Draft',
+				'post_type'   => 'post',
+				'post_status' => 'auto-draft',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertSame(
+			"<!-- wp:audio /-->\n",
 			New_Episode_Prefill::prefill_block_content( '', $post )
 		);
 
