@@ -6,18 +6,15 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\New_Episode_Prefill;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
-
-require_once __DIR__ . '/lib/trait-purchases-cache.php';
 
 /**
  * @covers \Automattic\Jetpack\Podcast\New_Episode_Prefill
  */
 #[CoversClass( New_Episode_Prefill::class )]
 class New_Episode_Prefill_Test extends BaseTestCase {
-
-	use Purchases_Cache_Trait;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -32,20 +29,21 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			remove_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ), 10 );
 		}
 		delete_option( 'podcasting_category_id' );
-		$this->set_purchases_cache( null );
+		delete_transient( Podcast_Gate::PURCHASES_TRANSIENT );
 		$_GET = array();
 		$this->reset_prefill_state();
 		parent::tearDown();
 	}
 
 	/**
-	 * Prime the gate's request memo: a Growth purchase grants access, an empty
+	 * Seed the gate's purchases lookup: a Growth purchase grants access, an empty
 	 * list denies it.
 	 *
 	 * @param bool $has_access Whether the site should have product access.
 	 */
 	private function set_product_access( bool $has_access ) {
-		$this->set_purchases_cache(
+		set_transient(
+			Podcast_Gate::PURCHASES_TRANSIENT,
 			$has_access ? array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) : array()
 		);
 	}

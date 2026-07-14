@@ -11,21 +11,18 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
-require_once __DIR__ . '/lib/trait-purchases-cache.php';
-
 /**
  * @covers \Automattic\Jetpack\Podcast\Admin_Page
  */
 #[CoversClass( Admin_Page::class )]
 class Admin_Page_Test extends BaseTestCase {
-
-	use Purchases_Cache_Trait;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -41,7 +38,6 @@ class Admin_Page_Test extends BaseTestCase {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
-		$this->set_purchases_cache( null );
 		( new Connection_Manager() )->reset_connection_status();
 		WorDBless_Options::init()->clear_options();
 		wp_set_current_user( 0 );
@@ -198,7 +194,7 @@ class Admin_Page_Test extends BaseTestCase {
 	 * `/upgrades` request).
 	 */
 	public function test_inject_script_data_targets_growth_on_self_hosted() {
-		$this->set_purchases_cache( array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) );
+		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) );
 
 		$data = Admin_Page::inject_podcast_script_data( array() );
 
@@ -219,7 +215,7 @@ class Admin_Page_Test extends BaseTestCase {
 	 * hermetic.
 	 */
 	public function test_inject_script_data_sets_blog_id_from_option_on_self_hosted() {
-		$this->set_purchases_cache( array() );
+		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
 		Jetpack_Options::update_option( 'id', 456 );
 
 		$data = Admin_Page::inject_podcast_script_data( array() );

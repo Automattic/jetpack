@@ -40,14 +40,6 @@ class Podcast_Gate {
 	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
 
 	/**
-	 * Request-scoped cache of the `/upgrades` lookup (failures included, so a
-	 * bad fetch isn't retried mid-request). Null until first resolved.
-	 *
-	 * @var array|null
-	 */
-	private static $purchases_cache = null;
-
-	/**
 	 * Whether the current site can use the paid podcast surfaces.
 	 *
 	 * @return bool
@@ -101,21 +93,16 @@ class Podcast_Gate {
 
 	/**
 	 * The site's current purchases from WordPress.com (`/upgrades`). Cached in a
-	 * short transient (and a request memo) so successive gate checks don't each
-	 * fire a WPCOM request. Fails closed to an empty list on any error, without
-	 * caching it, so the next request retries rather than serving a stale empty.
+	 * short transient so successive gate checks don't each fire a WPCOM request.
+	 * Fails closed to an empty list on any error, without caching it, so the next
+	 * request retries rather than serving a stale empty.
 	 *
 	 * @return array Purchase entries; empty on failure.
 	 */
 	private static function get_site_current_purchases(): array {
-		if ( null !== self::$purchases_cache ) {
-			return self::$purchases_cache;
-		}
-
 		$cached = get_transient( self::PURCHASES_TRANSIENT );
 		if ( is_array( $cached ) ) {
-			self::$purchases_cache = $cached;
-			return self::$purchases_cache;
+			return $cached;
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -125,19 +112,16 @@ class Podcast_Gate {
 		);
 
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			self::$purchases_cache = array();
-			return self::$purchases_cache;
+			return array();
 		}
 
 		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $decoded ) ) {
-			self::$purchases_cache = array();
-			return self::$purchases_cache;
+			return array();
 		}
 
 		set_transient( self::PURCHASES_TRANSIENT, $decoded, 30 );
-		self::$purchases_cache = $decoded;
-		return self::$purchases_cache;
+		return $decoded;
 	}
 
 	/**

@@ -16,15 +16,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
-require_once __DIR__ . '/lib/trait-purchases-cache.php';
-
 /**
  * @covers \Automattic\Jetpack\Podcast\Podcast_Gate
  */
 #[CoversClass( Podcast_Gate::class )]
 class Podcast_Gate_Test extends BaseTestCase {
-
-	use Purchases_Cache_Trait;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -33,7 +29,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		// self-hosted cases clear it explicitly via `as_self_hosted()`.
 		Constants::set_constant( 'IS_WPCOM', true );
 		self::reset_active_plan_cache();
-		self::set_purchases_cache( null );
 	}
 
 	protected function tearDown(): void {
@@ -42,7 +37,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		self::reset_active_plan_cache();
-		self::set_purchases_cache( null );
 		parent::tearDown();
 	}
 
@@ -87,8 +81,8 @@ class Podcast_Gate_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Prime the gate's request memo with the given purchase slugs, so the
-	 * self-hosted path reads them without a fetch.
+	 * Seed the cached `/upgrades` response the self-hosted path reads, so it
+	 * resolves the given purchases without a fetch.
 	 *
 	 * @param array $slugs Product slugs to present as current purchases.
 	 */
@@ -97,7 +91,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		foreach ( $slugs as $slug ) {
 			$purchases[] = array( 'product_slug' => $slug );
 		}
-		self::set_purchases_cache( $purchases );
+		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, $purchases );
 	}
 
 	/**
