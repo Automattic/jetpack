@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getComparisonRangeFromPreset } from '../get-comparison-range';
+import { COMPARISON_PRESETS, getComparisonRangeFromPreset } from '../get-comparison-range';
 
 describe( 'getComparisonRangeFromPreset', () => {
 	it( 'returns undefined when the reference range is incomplete', () => {
@@ -64,6 +64,53 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-year' ) ).toEqual( {
 				from: new Date( 2025, 6, 9, 14, 30, 0, 0 ),
 				to: new Date( 2025, 6, 10, 14, 30, 0, 0 ),
+			} );
+		} );
+	} );
+
+	describe( 'rolling (sub-day) references across shorter months and leap day', () => {
+		// A rolling 24-hour window at the end of March; February is shorter,
+		// so a plain calendar shift would collapse both endpoints onto Feb 28.
+		const endOfMarch = {
+			from: new Date( 2026, 2, 30, 14, 0, 0, 0 ),
+			to: new Date( 2026, 2, 31, 14, 0, 0, 0 ),
+		};
+
+		it.each( COMPARISON_PRESETS )( 'preserves the window duration for %s', presetId => {
+			const comparison = getComparisonRangeFromPreset( endOfMarch, presetId );
+			const durationMs = ( comparison?.to?.getTime() ?? 0 ) - ( comparison?.from?.getTime() ?? 0 );
+
+			expect( durationMs ).toBe( 24 * 60 * 60 * 1000 );
+		} );
+
+		it( 'keeps a 24h window for previous-month when both endpoints would clamp', () => {
+			expect( getComparisonRangeFromPreset( endOfMarch, 'previous-month' ) ).toEqual( {
+				from: new Date( 2026, 1, 27, 14, 0, 0, 0 ),
+				to: new Date( 2026, 1, 28, 14, 0, 0, 0 ),
+			} );
+		} );
+
+		it( 'keeps a 48h window for previous-month when one endpoint would clamp', () => {
+			const rolling48h = {
+				from: new Date( 2026, 2, 30, 14, 0, 0, 0 ),
+				to: new Date( 2026, 3, 1, 14, 0, 0, 0 ),
+			};
+
+			expect( getComparisonRangeFromPreset( rolling48h, 'previous-month' ) ).toEqual( {
+				from: new Date( 2026, 1, 27, 14, 0, 0, 0 ),
+				to: new Date( 2026, 2, 1, 14, 0, 0, 0 ),
+			} );
+		} );
+
+		it( 'keeps a 24h window for previous-year across leap day', () => {
+			const leapDay = {
+				from: new Date( 2028, 1, 28, 14, 0, 0, 0 ),
+				to: new Date( 2028, 1, 29, 14, 0, 0, 0 ),
+			};
+
+			expect( getComparisonRangeFromPreset( leapDay, 'previous-year' ) ).toEqual( {
+				from: new Date( 2027, 1, 27, 14, 0, 0, 0 ),
+				to: new Date( 2027, 1, 28, 14, 0, 0, 0 ),
 			} );
 		} );
 	} );

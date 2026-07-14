@@ -79,22 +79,35 @@ export function getComparisonRangeFromPreset(
 		refFrom.getTime() === startOfDay( refFrom ).getTime() &&
 		refTo.getTime() === endOfDay( refTo ).getTime();
 
-	const clampDayBound = ( date: Date, bound: 0 | 1 ) => {
-		if ( ! isDayAligned ) {
-			return date;
+	// Sub-day windows shift only their end, then rebuild `from` from the
+	// original duration: calendar shifts clamp day-of-month (Mar 31 - 1 month
+	// = Feb 28) and would otherwise shrink or collapse the window.
+	if ( ! isDayAligned ) {
+		const windowMs = differenceInMilliseconds( refTo, refFrom );
+		let to: Date;
+
+		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
+			to = subMilliseconds( refTo, windowMs );
+		} else if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
+			to = subWeeks( refTo, 1 );
+		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
+			to = subMonths( refTo, 1 );
+		} else if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
+			to = subYears( refTo, 1 );
+		} else {
+			return undefined;
 		}
-		return bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
-	};
+
+		return {
+			from: subMilliseconds( to, windowMs ),
+			to,
+		};
+	}
+
+	const clampDayBound = ( date: Date, bound: 0 | 1 ) =>
+		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-		if ( ! isDayAligned ) {
-			const windowMs = differenceInMilliseconds( refTo, refFrom );
-			return {
-				from: subMilliseconds( refFrom, windowMs ),
-				to: subMilliseconds( refTo, windowMs ),
-			};
-		}
-
 		const daysInclusive = differenceInDays( refTo, refFrom ) + 1;
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
