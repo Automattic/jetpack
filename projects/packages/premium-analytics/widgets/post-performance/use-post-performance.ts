@@ -51,6 +51,25 @@ type DayWindow = {
 };
 
 /**
+ * Extract a validated `YYYY-MM-DD` day from an ISO report param. The report
+ * params originate from URL search params, so the shape and calendar validity
+ * are both checked — `bucketDays()` feeds these to `parseISO()`/
+ * `each*OfInterval()`, which throw on invalid dates.
+ *
+ * @param value - The ISO date-time string.
+ * @return The date-only day, or undefined when missing/malformed.
+ */
+function toValidDay( value?: string ): string | undefined {
+	const day = value?.slice( 0, 10 );
+
+	if ( ! day || ! /^\d{4}-\d{2}-\d{2}$/.test( day ) || Number.isNaN( parseISO( day ).getTime() ) ) {
+		return undefined;
+	}
+
+	return day;
+}
+
+/**
  * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
  * either bound is missing/malformed. The endpoint's day keys are date-only,
  * so comparing date prefixes keeps the slice timezone-stable.
@@ -60,8 +79,8 @@ type DayWindow = {
  * @return The date-only window.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
-	const fromDay = from?.slice( 0, 10 );
-	const toDay = to?.slice( 0, 10 );
+	const fromDay = toValidDay( from );
+	const toDay = toValidDay( to );
 
 	if ( ! fromDay || ! toDay ) {
 		return undefined;
@@ -153,7 +172,7 @@ export default function usePostPerformance(
 ): PostPerformanceState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,
-		fields: [ 'data', 'views', 'like_count', 'post' ],
+		fields: [ 'data', 'like_count', 'post' ],
 	} );
 
 	const metrics = useMemo< MetricTab[] >( () => {
