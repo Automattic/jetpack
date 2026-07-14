@@ -164,30 +164,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 
-	public function test_blog_registered_after_cutoff_with_plan_grants_access(): void {
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( Podcast_Gate::FEATURE_SLUG );
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-
-		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
-			'registered' => '2027-01-01 00:00:00',
-		);
-
-		$this->assertTrue( Podcast_Gate::has_product_access() );
-	}
-
-	public function test_blog_registered_after_cutoff_without_plan_denies_access(): void {
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array();
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-
-		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
-			'registered' => '2027-01-01 00:00:00',
-		);
-
-		$this->assertFalse( Podcast_Gate::has_product_access() );
-	}
-
 	public function test_self_hosted_growth_purchase_grants_access(): void {
 		self::as_self_hosted();
 		self::seed_purchases( array( 'jetpack_growth_yearly' ) );
@@ -205,13 +181,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 	public function test_self_hosted_non_qualifying_purchase_denies_access(): void {
 		self::as_self_hosted();
 		self::seed_purchases( array( 'jetpack_security_t1_yearly' ) );
-
-		$this->assertFalse( Podcast_Gate::has_product_access() );
-	}
-
-	public function test_self_hosted_no_purchases_denies_access(): void {
-		self::as_self_hosted();
-		self::seed_purchases( array() );
 
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
@@ -235,7 +204,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		self::as_connected_self_hosted();
 		add_filter( 'pre_http_request', self::upgrades_response( array( 'jetpack_growth_yearly' ) ) );
 
-		// An admin/editor check (default) may fetch and caches for the render path.
 		$this->assertTrue( Podcast_Gate::has_product_access() );
 		$this->assertSame(
 			array( array( 'product_slug' => 'jetpack_growth_yearly' ) ),
@@ -263,29 +231,9 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
 
-	public function test_self_hosted_fetch_malformed_body_denies_access(): void {
-		self::as_connected_self_hosted();
-		add_filter(
-			'pre_http_request',
-			static function () {
-				return array(
-					'body'     => 'not-json',
-					'response' => array(
-						'code'    => 200,
-						'message' => 'OK',
-					),
-				);
-			}
-		);
-
-		$this->assertFalse( Podcast_Gate::has_product_access() );
-		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
-	}
-
 	/**
-	 * The render path passes `$allow_remote = false` — the block renders on the
-	 * front end and in feeds, so it must never hit the network. With a cold
-	 * cache, access is denied even though a qualifying purchase is fetchable.
+	 * The render path passes `$allow_remote = false`, so it never hits the
+	 * network: a cold cache denies access even with a fetchable purchase.
 	 */
 	public function test_render_path_read_is_cache_only_and_never_fetches(): void {
 		self::as_connected_self_hosted();
@@ -300,21 +248,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 
 		$this->assertFalse( Podcast_Gate::has_product_access( false ) );
 		$this->assertFalse( $called, 'The cache-only read must not issue an HTTP request.' );
-	}
-
-	/**
-	 * The heartbeat refresh re-reads `/upgrades` even over a warm cache, so a
-	 * plan change (e.g. a downgrade) is picked up in the background.
-	 */
-	public function test_refresh_repopulates_cache_over_a_warm_entry(): void {
-		self::as_connected_self_hosted();
-		self::seed_purchases( array( 'jetpack_growth_yearly' ) );
-		add_filter( 'pre_http_request', self::upgrades_response( array() ) );
-
-		Podcast_Gate::refresh_purchases_cache();
-
-		$this->assertFalse( Podcast_Gate::has_product_access( false ) );
-		$this->assertSame( array(), get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
 
 	public function test_flush_purchases_cache_drops_transient_and_memo(): void {

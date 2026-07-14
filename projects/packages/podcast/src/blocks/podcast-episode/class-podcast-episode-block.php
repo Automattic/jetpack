@@ -277,8 +277,7 @@ class Podcast_Episode_Block {
 		// Paid feature: without product access, degrade the rich player to a
 		// basic audio/video element so published episodes stay playable while the
 		// full player (chapters, transcript, soundbites, Podcasting 2.0 metadata)
-		// remains gated. Cache-only check (`$allow_remote = false`) so the render
-		// path never fetches `/upgrades` — admin/editor/heartbeat warm the cache.
+		// remains gated.
 		if ( ! Podcast_Gate::has_product_access( false ) ) {
 			return self::render_basic_media( $attributes );
 		}

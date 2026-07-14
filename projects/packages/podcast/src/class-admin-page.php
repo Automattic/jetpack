@@ -152,11 +152,9 @@ class Admin_Page {
 			}
 		}
 
-		// A buyer returning from checkout carries the purchase marker; drop the
-		// stale cached purchases so the `has_product_access()` read below re-reads
-		// `/upgrades` and unlocks the paid surfaces now instead of after the TTL.
-		// This admin request is the right place for that (blocking) lookup; the
-		// front-end render path reads the cache it leaves behind.
+		// A buyer returning from checkout carries the purchase marker; bust the
+		// cached purchases lookup so the gate re-reads `/upgrades` and unlocks
+		// the paid surfaces now instead of after the transient expires.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET[ self::PURCHASE_RETURN_QUERY_VAR ] ) ) {
 			Podcast_Gate::flush_purchases_cache();

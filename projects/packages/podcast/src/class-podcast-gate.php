@@ -24,10 +24,9 @@ use Jetpack_Options;
  *   `switch_to_blog` first.
  * - Self-hosted Jetpack: the site's purchased plan over the Jetpack
  *   connection. Per PODS-123, the Growth (and Complete) plans unlock the paid
- *   surfaces; everything else is feed-only. The lookup hits `/upgrades` and
- *   caches the result; callers on the render path pass `$allow_remote = false`
- *   to read that cache only, keeping the blocking request off the front end and
- *   feeds. The background `jetpack_heartbeat` cron keeps the cache warm.
+ *   surfaces; everything else is feed-only. Render-path callers pass
+ *   `$allow_remote = false` to read the cached `/upgrades` result rather than
+ *   fetch; the `jetpack_heartbeat` cron keeps that cache warm.
  */
 class Podcast_Gate {
 
@@ -41,9 +40,8 @@ class Podcast_Gate {
 	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**
-	 * Transient caching the `/upgrades` response. Populated by any admin/editor
-	 * access check (and the heartbeat); the front-end render path reads it but
-	 * never writes it. The week-long TTL bounds staleness between heartbeats.
+	 * Caches the `/upgrades` response. Admin/editor checks and the heartbeat
+	 * write it; the render path only reads it. Week-long TTL.
 	 */
 	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
 
@@ -59,8 +57,7 @@ class Podcast_Gate {
 	 * Whether the current site can use the paid podcast surfaces.
 	 *
 	 * @param bool $allow_remote On self-hosted, whether an uncached lookup may
-	 *                           fetch `/upgrades`. Pass false on the render path
-	 *                           (front end, feeds) to read the local cache only.
+	 *                           fetch `/upgrades`. Pass false on the render path.
 	 * @return bool
 	 */
 	public static function has_product_access( bool $allow_remote = true ): bool {
@@ -104,9 +101,8 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * Re-read the site's purchases from WordPress.com, refreshing the cache.
-	 * Wired to the background `jetpack_heartbeat` cron so the cache stays warm
-	 * for the front-end render path without any request ever fetching there.
+	 * Re-read the site's purchases, refreshing the cache. Wired to the
+	 * `jetpack_heartbeat` cron so the render path's cache stays warm.
 	 */
 	public static function refresh_purchases_cache(): void {
 		self::flush_purchases_cache();
@@ -142,14 +138,12 @@ class Podcast_Gate {
 	/**
 	 * The site's current purchases from WordPress.com (`/upgrades`).
 	 *
-	 * Reads the request memo, then the transient. On a miss it fetches only when
-	 * `$allow_remote` is true (admin/editor/heartbeat); the render path passes
-	 * false and gets an empty list rather than a blocking request. Fails closed:
-	 * an unreachable or malformed response returns no purchases and isn't cached,
-	 * so the next allowed lookup retries.
+	 * Reads the memo, then the transient. On a miss, fetches only when
+	 * `$allow_remote` is true; the render path passes false and gets an empty
+	 * list. Fails closed — failures return empty and aren't cached.
 	 *
 	 * @param bool $allow_remote Whether a cache miss may fetch over the connection.
-	 * @return array List of purchase entries (associative arrays); empty on miss/failure.
+	 * @return array Purchase entries; empty on miss/failure.
 	 */
 	private static function get_site_current_purchases( bool $allow_remote ): array {
 		if ( null !== self::$purchases_cache ) {
