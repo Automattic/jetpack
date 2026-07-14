@@ -140,17 +140,17 @@ When you omit dimension props, the chart expands to fill its parent container:
 
 #### Aspect Ratio Mode
 
-For layouts where you want height calculated from width, pass the `aspectRatio` prop:
+For layouts where the container width varies but you want consistent proportions, pass the `aspectRatio` prop:
 
 <Source
 	language="jsx"
-	code={`// Height = width × aspectRatio (e.g., 2:1 ratio)
+	code={`// Height from width; contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<LineChart data={data} aspectRatio={0.5} />
 	</div>`}
 />
 
-This is useful for responsive layouts where the container width varies but you want consistent proportions. The chart is contained within its parent on both axes: it fills the available width and derives its height, but if the parent is shorter than that derived height it shrinks both axes to fit rather than overflowing (and is centered horizontally when narrower than the parent). Because the chart keeps its aspect ratio, a parent that is taller than the derived height will show empty space below the chart rather than stretching it.
+The chart keeps this ratio, contained within its parent on both axes: it fills the available width and derives its height, but shrinks both axes to fit a shorter parent rather than overflowing. A taller parent leaves space below rather than stretching the chart.
 
 #### Fixed Dimensions
 
