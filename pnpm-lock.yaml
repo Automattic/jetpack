@@ -5157,7 +5157,7 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       '@wordpress/icons':
         specifier: ^13.0.0
         version: 13.1.0(@types/react@18.3.28)(react@18.3.1)
@@ -5174,8 +5174,8 @@ importers:
         specifier: ^0.16.0
         version: 0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme':
-        specifier: ^0.15.0
-        version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^0.17.0
+        version: 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: ^0.13.0
         version: 0.13.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -25254,7 +25254,7 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.4.1
@@ -25276,7 +25276,7 @@ snapshots:
       '@wordpress/boot': 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/private-apis': 1.50.0
       '@wordpress/route': 0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/theme': 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme': 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@babel/core'
       - browserslist
