@@ -21,7 +21,7 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 /**
@@ -304,6 +304,18 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
 	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
+
+	// The view already falls back to the top list when the selected link is
+	// missing or no longer drillable (no children); clear the stored selection
+	// too once data has settled without a drillable match, so stale state
+	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
+	// placeholder rows and errors aren't settled data, so a valid selection
+	// survives refetches and transient failures.
+	useEffect( () => {
+		if ( selectedClickLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
+			clearSelectedClick();
+		}
+	}, [ selectedClickLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedClick ] );
 
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {

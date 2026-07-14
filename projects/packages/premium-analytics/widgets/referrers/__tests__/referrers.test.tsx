@@ -116,7 +116,7 @@ describe( 'ReferrersWidget', () => {
 		expect( screen.queryByRole( 'button', { name: /all referrers/i } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'resets the drill-down to the top level when the date range changes', async () => {
+	it( 'keeps the drill-down across date range changes while the path still resolves', async () => {
 		const { rerender } = render(
 			<ReferrersWidget
 				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
@@ -132,7 +132,55 @@ describe( 'ReferrersWidget', () => {
 			screen.findByRole( 'button', { name: /view all referrers/i } )
 		).resolves.toBeInTheDocument();
 
-		// A new date range loads a different report; the stale drill path should clear.
+		// The new range still contains the drilled group, so the selection
+		// survives — matching how Locations keeps its country across ranges.
+		rerender(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'button', { name: /view referrers for google search/i } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /view all referrers/i } ) ).toBeInTheDocument();
+	} );
+
+	it( 'resets the drill-down when the drilled group disappears from the data', async () => {
+		const { rerender } = render(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const groupButton = await screen.findByRole( 'button', {
+			name: /view referrers for search engines/i,
+		} );
+
+		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await expect(
+			screen.findByRole( 'button', { name: /view all referrers/i } )
+		).resolves.toBeInTheDocument();
+
+		// The next range's report no longer contains the drilled group, so the
+		// stale path is dropped once the new data settles.
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-29',
+			days: {},
+			summary: {
+				groups: [
+					{
+						group: 'jetpack.com',
+						name: 'jetpack.com',
+						url: 'https://jetpack.com/',
+						total: 18,
+						results: { views: 18 },
+					},
+				],
+				other_views: 0,
+				total_views: 18,
+			},
+		} );
 		rerender(
 			<ReferrersWidget
 				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
@@ -144,9 +192,7 @@ describe( 'ReferrersWidget', () => {
 				screen.queryByRole( 'button', { name: /view all referrers/i } )
 			).not.toBeInTheDocument()
 		);
-		await expect(
-			screen.findByRole( 'button', { name: /view referrers for search engines/i } )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
