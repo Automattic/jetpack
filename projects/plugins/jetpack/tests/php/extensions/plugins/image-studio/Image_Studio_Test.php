@@ -87,6 +87,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		delete_option( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		delete_option( 'big_sky_enable' );
@@ -520,8 +521,33 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		update_option( 'jetpack_ai_enabled', 0 );
 
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
 
-		delete_option( 'jetpack_ai_enabled' );
+	/**
+	 * Test that the AI master switch also wins over Big Sky's environment gate.
+	 */
+	public function test_master_option_off_disables_image_studio_in_big_sky() {
+		$this->enable_big_sky();
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+
+		update_option( 'jetpack_ai_enabled', 0 );
+		$this->set_block_editor_screen();
+		ImageStudio\register_plugin();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( ImageStudio\FEATURE_NAME . '-style', 'enqueued' ) );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
 	/**

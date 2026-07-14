@@ -47,10 +47,11 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
  * @return bool
  */
 function is_image_studio_enabled() {
-	// The image editor toggle on the AI settings page wins over every
-	// environment-based enable below: off must mean Jetpack loads nothing,
-	// even when Big Sky or CIAB would otherwise turn Image Studio on.
-	if ( ! \Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) ) {
+	// The host, master, and image editor settings win over every environment-based
+	// enable below: off must mean Jetpack loads nothing, even in Big Sky or CIAB.
+	if ( ! \Jetpack_AI_Settings::apply_master_gates( true )
+		|| ! \Jetpack_AI_Settings::is_feature_enabled( 'image_editor' )
+	) {
 		return false;
 	}
 
