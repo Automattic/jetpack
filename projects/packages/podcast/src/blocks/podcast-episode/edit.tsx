@@ -191,7 +191,8 @@ function SoundbitesEditor( { soundbites, onChange }: SoundbitesEditorProps ) {
 	const updateSoundbite = ( index: number, patch: Partial< Soundbite > ) => {
 		onChange( soundbites.map( ( sb, i ) => ( i === index ? { ...sb, ...patch } : sb ) ) );
 	};
-	const removeSoundbite = ( index: number ) => onChange( soundbites.filter( ( _, i ) => i !== index ) );
+	const removeSoundbite = ( index: number ) =>
+		onChange( soundbites.filter( ( _, i ) => i !== index ) );
 	const addSoundbite = () => onChange( [ ...soundbites, { title: '' } ] );
 	const toSeconds = ( value: string ) => ( value === '' ? undefined : Number( value ) );
 
@@ -249,7 +250,10 @@ interface AlternateEnclosuresEditorProps {
 	onChange: ( next: AlternateEnclosure[] ) => void;
 }
 
-function AlternateEnclosuresEditor( { alternateEnclosures, onChange }: AlternateEnclosuresEditorProps ) {
+function AlternateEnclosuresEditor( {
+	alternateEnclosures,
+	onChange,
+}: AlternateEnclosuresEditorProps ) {
 	const updateEnclosure = ( index: number, patch: Partial< AlternateEnclosure > ) => {
 		onChange(
 			alternateEnclosures.map( ( alt, i ) => ( i === index ? { ...alt, ...patch } : alt ) )
