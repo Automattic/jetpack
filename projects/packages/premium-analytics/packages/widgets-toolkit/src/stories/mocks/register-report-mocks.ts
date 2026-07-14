@@ -87,6 +87,7 @@ const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/v
 // own path branch rather than a `routeStatsReport()` case.
 const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
+const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings';
 // Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
 // matched with its own pattern rather than through routeStatsReport().
 const POST_LIKES_PATH_PATTERN =
@@ -1149,6 +1150,32 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 	};
 }
 
+/**
+ * Builds the wordads/earnings response for the WordAds earnings widget.
+ *
+ * The earnings module reports all-time totals (not period-scoped), so this
+ * returns a fixed raw WPCOM payload: `total_earnings` and `total_amount_owed`
+ * feed the widget's Earnings / Paid / Outstanding cards (paid = earnings −
+ * owed). The per-period breakdowns are included for shape fidelity even though
+ * the highlights widget does not read them.
+ *
+ * @return Raw wordads/earnings response in the WPCOM shape.
+ */
+function buildWordAdsEarningsResponse() {
+	return {
+		earnings: {
+			total_earnings: 1284.57,
+			total_amount_owed: 342.19,
+			wordads: {
+				'2026-06': { amount: 212.34, pageviews: 84210, status: 1 },
+				'2026-05': { amount: 198.72, pageviews: 79880, status: 2 },
+			},
+			sponsored: {},
+			adjustment: {},
+		},
+	};
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
@@ -1227,6 +1254,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		return buildWordAdsStatsResponse(
 			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
 		);
+	}
+
+	if ( requestPath.startsWith( STATS_WORDADS_EARNINGS_PATH ) ) {
+		return buildWordAdsEarningsResponse();
 	}
 
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {
