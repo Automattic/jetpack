@@ -115,20 +115,24 @@ const SECTIONS = [
 ];
 
 /**
- * Filter sections down to the feature rows the endpoint reported. A toggle
- * without a backend would render stuck at "off" and save nothing, so a row
- * only renders when its key is present in the settings response; sections
- * left with no rows are dropped entirely.
+ * Filter sections down to the feature rows the endpoint reported as usable.
+ * A toggle without a backend would render stuck at "off" and save nothing,
+ * so a row only renders when its key is present in the settings response —
+ * and not explicitly marked unavailable (e.g. the SEO enhancer where the
+ * seo-tools module is off). Sections left with no rows are dropped entirely.
  *
  * @param {Array}  sections - SECTIONS-shaped list.
  * @param {object} features - The features object from the settings response.
- * @return {Array} Sections containing only reported feature rows.
+ * @return {Array} Sections containing only reported, available feature rows.
  */
 export function visibleSections( sections, features ) {
 	return sections
 		.map( section => ( {
 			...section,
-			features: section.features.filter( feature => features[ feature.key ] !== undefined ),
+			features: section.features.filter( feature => {
+				const reported = features[ feature.key ];
+				return reported !== undefined && reported.available !== false;
+			} ),
 		} ) )
 		.filter( section => section.features.length > 0 );
 }
