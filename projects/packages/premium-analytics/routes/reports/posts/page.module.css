@@ -12,7 +12,7 @@
 	 * with it instead of sitting flush to the edge.
 	 */
 	padding-block-end: 24px;
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .dateFilters {
