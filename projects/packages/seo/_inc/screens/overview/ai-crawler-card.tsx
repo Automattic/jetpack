@@ -64,7 +64,9 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 	// When the settings can't apply, which reason to show — ordered by precedence
 	// (staging → not indexed → robots.txt out of reach). Module-scope labels keep
 	// the i18n minifier from folding a `? __() : __()` ternary.
-	let blockedLabel = cantReachRobotsLabel;
+	// Typed `string` (not the inferred branded `TransformedText` of the first
+	// label) so the branches below, each a different translated literal, assign.
+	let blockedLabel: string = cantReachRobotsLabel;
 	if ( data.restrictedSubdomain ) {
 		blockedLabel = cantCrawlStagingLabel;
 	} else if ( ! searchEnginesVisible ) {
