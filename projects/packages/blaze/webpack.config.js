@@ -5,7 +5,7 @@ module.exports = [
 	{
 		devtool: jetpackWebpackConfig.devtool,
 		entry: {
-			editor: './src/js/editor.js',
+			editor: './src/js/editor.jsx',
 		},
 		externals: {
 			...jetpackWebpackConfig.externals,

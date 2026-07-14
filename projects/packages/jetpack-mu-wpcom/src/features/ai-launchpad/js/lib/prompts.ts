@@ -13,8 +13,6 @@ export const TASK_MENU: readonly string[] = [
 	'update_about_page',
 	'edit_page',
 	'design_edited',
-	'design_completed',
-	'design_selected',
 	'domain_claim',
 	'domain_upsell',
 	'domain_customize',
@@ -24,7 +22,6 @@ export const TASK_MENU: readonly string[] = [
 	'setup_general',
 	'site_launched',
 	'blog_launched',
-	'woo_launch_site',
 	'link_in_bio_launched',
 	'set_up_payments',
 	'stripe_connected',
@@ -39,7 +36,6 @@ export const TASK_MENU: readonly string[] = [
 	'subscribers_added',
 	'import_subscribers',
 	'newsletter_plan_created',
-	'setup_newsletter',
 	'customize_welcome_message',
 	'enable_subscribers_modal',
 	'manage_subscribers',
@@ -52,23 +48,53 @@ export const TASK_MENU: readonly string[] = [
 	'setup_ssh',
 	'site_monitoring_page',
 	'mobile_app_installed',
-	'post_sharing_enabled',
 	'share_site',
 	'front_page_updated',
 	'drive_traffic',
 	'start_building_your_audience',
 ];
 
+// The AI must return exactly six tasks, so the offered menu needs comfortable headroom beyond six.
+const MIN_TAILORING_MENU = 10;
+
+/**
+ * Pick the task ids the prompt's menu is filtered to: the actionable ids (renderable and not already complete),
+ * unless completion leaves too few of them on the menu to fill a valid six-task list — then relax to every
+ * renderable id, since a completed card still renders fine and beats making valid AI output impossible.
+ *
+ * @param actionableTaskIds - Renderable-and-not-completed ids from the available-tasks endpoint.
+ * @param renderableTaskIds - All renderable ids, regardless of completion.
+ * @return The ids to filter the menu to.
+ */
+export function chooseTailoringMenu(
+	actionableTaskIds: readonly string[],
+	renderableTaskIds: readonly string[]
+): readonly string[] {
+	const menuCount = TASK_MENU.filter( id => actionableTaskIds.includes( id ) ).length;
+	return menuCount >= MIN_TAILORING_MENU ? actionableTaskIds : renderableTaskIds;
+}
+
 /**
  * Build the single combined prompt sent to jetpack-ai-query, producing the
  * inferred blob, task list, and first-post draft in one JSON response. Hard rules
  * mirror the server-side validation so valid output is not rejected.
  *
- * @param input - The collected wizard input.
+ * @param input            - The collected wizard input.
+ * @param availableTaskIds - Task ids that will render on this site+goal; the menu is filtered to these. Optional; the full menu is used when omitted or empty.
  * @return The prompt string.
  */
-export function buildTailorPrompt( input: WizardInput ): string {
+export function buildTailorPrompt(
+	input: WizardInput,
+	availableTaskIds?: readonly string[]
+): string {
 	const { goal, site_name, description } = input;
+
+	// Offer only tasks that will actually render on this site+goal, so the model never spends a pick on a task the
+	// server would drop. Falls back to the full menu when availability is unknown (e.g. the lookup failed).
+	const menu =
+		availableTaskIds && availableTaskIds.length
+			? TASK_MENU.filter( id => availableTaskIds.includes( id ) )
+			: TASK_MENU;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
@@ -83,6 +109,7 @@ First, read the description closely and infer the site's context. You will use t
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
+- "theme_keyword": ONE lowercase word used to search for matching site designs. Pick the single most significant word for what the site is about, preferring the subject or site type over incidental modifiers: for "my weekend hiking trips" it is "hiking" (never "weekend"); for a handmade-ceramics shop it is "ceramics".
 - "vibe": aesthetic hint if implied (e.g. "minimal and editorial", "warm and personal"). Omit if neutral.
 - "audience": who the site is for, if implied (e.g. "home cooks", "small-business owners").
 - "tagline": a polished site tagline drafted from the description. Max 200 characters. Noun phrase or third person, not first-person.
@@ -101,10 +128,11 @@ HARD RULES (do not break - the server rejects output that violates these):
 - Every "id" MUST come from the menu below, verbatim. Never invent IDs. Drop any task you cannot map to a menu ID.
 - Return exactly 6 tasks.
 - At least one task must create content (e.g. "first_post_published", "first_post_published_newsletter", "woo_products", or "add_about_page").
-- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", "woo_launch_site", or "link_in_bio_launched".
+- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", or "link_in_bio_launched".
 - Only include "woo_products", "woo_customize_store", "set_up_payments", "stripe_connected", or "woo_woocommerce_payments" if the goal is sell OR the user explicitly mentions selling, products, store, shop, or commerce.
+- For the sell goal, order the commerce tasks store-first: "woo_customize_store", then "woo_products", then "set_up_payments", keeping the launch task last. Installing WooCommerce is added automatically as the first step, so do not include a task for it.
 - Only include "add_10_email_subscribers", "subscribers_added", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
-- For the social tasks "connect_social_media", "drive_traffic", and "post_sharing_enabled", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
+- For the social tasks "connect_social_media" and "drive_traffic", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].
 
 ============ STEP 3 - first_post_draft ============
@@ -117,13 +145,13 @@ Write a friendly starter blog post the user can edit and publish.
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
 ============ available task menu ============
-${ TASK_MENU.map( id => '- ' + id ).join( '\n' ) }
+${ menu.map( id => '- ' + id ).join( '\n' ) }
 
 ============ format ============
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "brand_name": "...", "niche": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] }
 }`;

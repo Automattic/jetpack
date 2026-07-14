@@ -11,10 +11,14 @@ import {
 	type StatsVisitsStatFields,
 } from '@jetpack-premium-analytics/data';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import {
+	DEFAULT_TRAFFIC_CHART_METRICS,
+	TRAFFIC_CHART_METRICS,
+	type TrafficChartMetricId,
+} from './widget';
 import type { MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -119,16 +123,23 @@ function toVisitsParams(
  * visitors ride one request, likes and comments a second — split (rather than a
  * single four-field request) because the visits endpoint's latency grows with
  * the number of requested fields, so two smaller requests resolve faster in
- * parallel. Mirrors how Calypso's chart tabs fetch each pair.
+ * parallel. Mirrors how Calypso's chart tabs fetch each pair. A pair's request
+ * is skipped entirely while neither of its fields is selected.
  *
  * @param reportParams - The dashboard date range + comparison state.
  * @param period       - The selected bucket granularity (day/week/month).
- * @return The metric tabs and combined load/error state.
+ * @param metricIds    - Selected metric tab ids; defaults to every metric.
+ * @return The selected metric tabs and combined load/error state.
  */
 export default function useTrafficChart(
 	reportParams: ReportParams,
-	period: TrafficPeriod
+	period: TrafficPeriod,
+	metricIds: TrafficChartMetricId[] = DEFAULT_TRAFFIC_CHART_METRICS
 ): TrafficChartState {
+	const selected = useMemo( () => new Set( metricIds ), [ metricIds ] );
+	const needsViewsVisitors = selected.has( 'views' ) || selected.has( 'visitors' );
+	const needsLikesComments = selected.has( 'likes' ) || selected.has( 'comments' );
+
 	// Memoize each request's params (as sibling Stats widgets do) so the query key
 	// is stable across renders.
 	const viewsVisitorsParams = useMemo(
@@ -140,8 +151,8 @@ export default function useTrafficChart(
 		[ reportParams, period ]
 	);
 
-	const viewsVisitors = useStatsVisits( viewsVisitorsParams );
-	const likesComments = useStatsVisits( likesCommentsParams );
+	const viewsVisitors = useStatsVisits( viewsVisitorsParams, { enabled: needsViewsVisitors } );
+	const likesComments = useStatsVisits( likesCommentsParams, { enabled: needsLikesComments } );
 
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
 	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
@@ -150,38 +161,21 @@ export default function useTrafficChart(
 	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
 
+	// One tab per selected metric, in canonical definition order regardless of
+	// the order the ids were toggled in.
 	const metrics = useMemo(
-		() => [
-			toMetric(
-				vvPrimary,
-				vvComparison,
-				vvHasComparison,
-				'views',
-				__( 'Views', 'jetpack-premium-analytics' )
-			),
-			toMetric(
-				vvPrimary,
-				vvComparison,
-				vvHasComparison,
-				'visitors',
-				__( 'Visitors', 'jetpack-premium-analytics' )
-			),
-			toMetric(
-				lcPrimary,
-				lcComparison,
-				lcHasComparison,
-				'likes',
-				__( 'Likes', 'jetpack-premium-analytics' )
-			),
-			toMetric(
-				lcPrimary,
-				lcComparison,
-				lcHasComparison,
-				'comments',
-				__( 'Comments', 'jetpack-premium-analytics' )
-			),
-		],
-		[ vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
+		() =>
+			TRAFFIC_CHART_METRICS.filter( metric => selected.has( metric.id ) ).map( metric => {
+				const isViewsVisitors = metric.id === 'views' || metric.id === 'visitors';
+				return toMetric(
+					isViewsVisitors ? vvPrimary : lcPrimary,
+					isViewsVisitors ? vvComparison : lcComparison,
+					isViewsVisitors ? vvHasComparison : lcHasComparison,
+					metric.id,
+					metric.label
+				);
+			} ),
+		[ selected, vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
 	);
 
 	// Depend on the underlying refetch callbacks (each a stable `useReport`

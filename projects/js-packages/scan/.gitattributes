@@ -5,3 +5,4 @@
 # Files to exclude from the mirror repo
 # (see also entries in the monorepo root .gitattributes)
 **/stories/**     production-exclude
+**/test/**        production-exclude

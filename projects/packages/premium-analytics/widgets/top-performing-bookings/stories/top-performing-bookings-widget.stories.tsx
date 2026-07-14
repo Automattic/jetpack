@@ -136,14 +136,20 @@ const TOP_PERFORMING_BOOKINGS_RENDER_MODULE = 'storybook/top-performing-bookings
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type TopPerformingBookingsRenderProps = ComponentProps< typeof TopPerformingBookingsRender >;
+type TopPerformingBookingsWidgetProps = ComponentProps< typeof TopPerformingBookingsRender >;
 
 interface TopPerformingBookingsStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset used for report params.
+	 */
 	preset: SelectablePresetId;
 }
 
-type TopPerformingBookingsStoryProps = TopPerformingBookingsRenderProps &
+type TopPerformingBookingsStoryProps = TopPerformingBookingsWidgetProps &
 	TopPerformingBookingsStoryControls;
 
 interface TopPerformingBookingsDashboardStoryProps
@@ -159,7 +165,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getTopPerformingBookingsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): TopPerformingBookingsRenderProps[ 'attributes' ] {
+): TopPerformingBookingsWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -207,9 +213,7 @@ function renderTopPerformingBookings( {
 /**
  * Story wrapper for rendering the top performing bookings widget in dashboard chrome.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether to include comparison report params.
- * @param root0.preset         - Date-range preset used for report params.
+ * @param {TopPerformingBookingsDashboardStoryProps} props - Story controls.
  * @return The rendered Storybook story.
  */
 function TopPerformingBookingsDashboardStory( {
@@ -259,7 +263,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< TopPerformingBookingsStoryControls >;
 type DashboardStory = StoryObj< TopPerformingBookingsDashboardStoryProps >;
 
 /**

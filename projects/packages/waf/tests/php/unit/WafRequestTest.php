@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\TestWith;
 /**
  * Request test suite.
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */]
 class WafRequestTest extends PHPUnit\Framework\TestCase {
 
 	/**

@@ -25,9 +25,11 @@ export type BookingsRevenueByCustomerTypeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/bookings-revenue-by-customer-type',
 	title: __( 'Bookings revenue by customer type', 'jetpack-premium-analytics' ),
-	description: __(
-		'Revenue breakdown from new customers vs returning customers for bookings over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Revenue breakdown from new customers vs returning customers for bookings over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

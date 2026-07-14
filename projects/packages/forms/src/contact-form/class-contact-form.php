@@ -346,6 +346,121 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Determine whether a form is configured to collect its responses anywhere.
+	 *
+	 * A form "collects responses" when submissions are delivered to at least one
+	 * destination: emailed to a recipient, saved to the responses dashboard, or
+	 * routed to an active data integration. When all three are off, submissions
+	 * are silently dropped.
+	 *
+	 * This must run on the RAW block attributes (as authored), not the values
+	 * merged with Contact_Form's runtime defaults — e.g. `jetpackCRM` defaults to
+	 * `true` at render time but is only "on" when explicitly enabled on the form.
+	 *
+	 * Keep this in sync with the JS helper `isCollectingResponses()` in
+	 * blocks/contact-form/util/is-collecting-responses.ts.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param mixed $attributes Raw contact-form block attributes. Non-arrays are
+	 *                          treated as collecting (no warning).
+	 * @return bool True when the form has at least one response destination.
+	 */
+	public static function is_collecting_responses( $attributes ) {
+		if ( ! is_array( $attributes ) ) {
+			return true;
+		}
+
+		// Email destination: on by default. A blank or invalid recipient is not a
+		// dead end — submissions fall back to the site admin email at send time —
+		// so email being on always counts as a real destination.
+		$email_active = self::attribute_is_truthy( $attributes, 'emailNotifications', true );
+
+		// Saving to the responses dashboard: on by default.
+		$saving_active = self::attribute_is_truthy( $attributes, 'saveResponses', true );
+
+		// Integrations that actually persist or route the submission. Akismet
+		// (spam filtering) and Google Drive (exports already-saved responses) are
+		// intentionally excluded — neither is an independent destination.
+		//
+		// Webhooks (`postToUrl`/`webhooks`) are also excluded: they only fire when
+		// the form author has `manage_options` (see
+		// Jetpack_Forms::should_honor_content_destinations()), so whether they're a
+		// real destination depends on author capability, not the attributes alone.
+		// This shared helper is intentionally context-free so PHP and JS agree, so
+		// counting them here would wrongly silence the warning for editor-authored
+		// forms whose webhook never runs.
+		$integration_active = self::attribute_is_truthy( $attributes, 'jetpackCRM', false )
+			|| ! empty( $attributes['mailpoet']['enabledForForm'] )
+			|| ! empty( $attributes['hostingerReach']['enabledForForm'] )
+			|| (
+				! empty( $attributes['salesforceData']['sendToSalesforce'] )
+				&& ! empty( $attributes['salesforceData']['organizationId'] )
+			);
+
+		return $email_active || $saving_active || $integration_active;
+	}
+
+	/**
+	 * Normalize a possibly-boolean-or-string block attribute to a boolean.
+	 *
+	 * Toggle attributes arrive as JS booleans from the editor but are persisted
+	 * as `'yes'`/`'no'` strings in some contexts, so both forms must be handled.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $key        Attribute name.
+	 * @param bool   $default    Value to use when the attribute is absent.
+	 * @return bool
+	 */
+	private static function attribute_is_truthy( $attributes, $key, $default ) {
+		if ( ! array_key_exists( $key, $attributes ) ) {
+			return $default;
+		}
+
+		$value = $attributes[ $key ];
+
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+
+		if ( is_string( $value ) ) {
+			return ! in_array( strtolower( trim( $value ) ), array( '', 'no', 'false', '0' ), true );
+		}
+
+		return (bool) $value;
+	}
+
+	/**
+	 * Render an admin-only notice when a form isn't collecting responses.
+	 *
+	 * Shown on the live front-end form and in form previews, but only to users
+	 * who can manage forms (`edit_pages`) — never to visitors.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param array $attributes Raw contact-form block attributes.
+	 * @return string Notice HTML, or an empty string.
+	 */
+	private static function render_not_collecting_notice( $attributes ) {
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return '';
+		}
+
+		if ( self::is_collecting_responses( $attributes ) ) {
+			return '';
+		}
+
+		wp_enqueue_style( 'jetpack-form-status-notice' );
+
+		return sprintf(
+			'<div class="jetpack-form-status-notice jetpack-form-status-notice--warning jetpack-form-not-collecting-notice"><p>%s</p></div>',
+			esc_html__( 'Only you can see this. This form isn’t collecting responses. Turn on email notifications or response storage in form settings.', 'jetpack-forms' )
+		);
+	}
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -1195,6 +1310,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 			)
 		);
+
+		// The icon SVG fills with currentColor. On desktop it inherits the item's full-brightness text color, so
+		// it renders brighter than the native admin bar icons -- core dims those to rgba(240,246,252,0.6) via
+		// `.ab-icon::before` rules our SVG can't match. Fade it to 0.6 opacity to match, and restore full opacity
+		// on hover/focus; using opacity (not a hardcoded color) keeps the hover state tracking the user's admin
+		// color scheme accent, like the native icons. On mobile (<=782px) core instead dims the item's own text
+		// color, which the SVG already inherits, so reset opacity to 1 there to avoid dimming the icon twice.
+		//
+		// The <=782px block also handles core hiding every non-allowlisted top-level item on mobile: re-show ours
+		// and size the icon to the native touch target (52px box, centered 28px glyph). The `.ab-icon` sizing uses
+		// !important because the SVG carries its desktop sizing in an inline style attribute that otherwise wins.
+		echo '<style>' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms .ab-icon{opacity:0.6;}' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms:hover .ab-icon,' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms .ab-item:focus .ab-icon{opacity:1;}' .
+			'@media screen and (max-width: 782px){' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms{display:block;}' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms>.ab-item{display:flex;align-items:center;justify-content:center;width:52px;padding:0;}' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms .ab-icon{width:28px!important;height:28px!important;top:0!important;margin:0!important;opacity:1;}' .
+			'}</style>';
 	}
 
 	/**
@@ -1561,6 +1696,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$r .= '</div>';
+
+		// Surface an admin-only warning above the form when nothing will capture its responses.
+		$r = self::render_not_collecting_notice( $attributes ) . $r;
 
 		/**
 		 * Filter the contact form, allowing plugins to modify the HTML.

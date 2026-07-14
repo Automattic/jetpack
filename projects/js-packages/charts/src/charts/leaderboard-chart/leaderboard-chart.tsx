@@ -1,5 +1,5 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalGrid as Grid } from '@wordpress/components';
+import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
@@ -348,7 +348,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
 							{ data.map( entry => {
 								const showComparisonColumn = withComparison && isComparisonVisible;
-								const showComparisonValue = showComparisonColumn && hasComparisonValue( entry );
+								const hasDeltaValue = hasComparisonValue( entry );
+								const showComparisonValue = showComparisonColumn && hasDeltaValue;
+								const showComparisonPlaceholder = showComparisonColumn && ! hasDeltaValue;
 								const colorIndex = showComparisonValue ? Math.sign( entry.delta ) + 1 : 1;
 								const deltaColor = deltaColors[ colorIndex ];
 
@@ -382,12 +384,15 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												</Text>
 											) }
 
-											{ showComparisonColumn && ! showComparisonValue && (
+											{ showComparisonPlaceholder && (
 												<Text
 													className={ clsx( styles.deltaValue, styles.deltaPlaceholder ) }
 													style={ { color: deltaColor } }
 												>
-													-
+													<span aria-hidden="true">-</span>
+													<VisuallyHidden as="span">
+														{ __( 'No comparison data', 'jetpack-charts' ) }
+													</VisuallyHidden>
 												</Text>
 											) }
 										</Stack>

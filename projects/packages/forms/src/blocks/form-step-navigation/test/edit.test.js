@@ -40,7 +40,7 @@ await jest.unstable_mockModule( '../../../store/form-step-preview.js', () => ( {
 	store: 'jetpack/form-step-preview',
 } ) );
 
-await jest.unstable_mockModule( '../../shared/components/form-step-controls/index.js', () => ( {
+await jest.unstable_mockModule( '../../shared/components/form-step-controls/index.jsx', () => ( {
 	default: jest.fn( () => null ),
 } ) );
 
@@ -53,7 +53,7 @@ await jest.unstable_mockModule( '../../shared/hooks/use-parent-form-client-id.js
 } ) );
 
 // Import the functions we want to test after mocks are set up
-const { getButtonType, migrateLegacyButton } = await import( '../edit.js' );
+const { getButtonType, migrateLegacyButton } = await import( '../edit.jsx' );
 const { createBlock } = await import( '@wordpress/blocks' );
 
 describe( 'getButtonType', () => {

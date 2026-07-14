@@ -28,6 +28,11 @@ export function trackWizardCompleted(): void {
 	record( 'jetpack_ai_launchpad_wizard_completed' );
 }
 
+/** Records the wizard-skipped event. */
+export function trackWizardSkipped(): void {
+	record( 'jetpack_ai_launchpad_wizard_skipped' );
+}
+
 /**
  * Records the AI-response-received event.
  *
@@ -50,6 +55,16 @@ export function trackAiResponseReceived( props: {
  */
 export function trackTaskClicked( props: { task_id: string } ): void {
 	record( 'jetpack_ai_launchpad_task_clicked', props );
+}
+
+/**
+ * Records the task-skipped event.
+ *
+ * @param props         - The event properties.
+ * @param props.task_id - The id of the skipped task.
+ */
+export function trackTaskSkipped( props: { task_id: string } ): void {
+	record( 'jetpack_ai_launchpad_task_skipped', props );
 }
 
 /**

@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { HeatmapChart, buildCalendarHeatmapData } from '@automattic/charts';
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
 import {
+	HeatmapChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	buildCalendarHeatmapData,
 	useWidgetRootContext,
+	type DataPointDate,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -17,13 +19,13 @@ import { useMemo } from 'react';
  */
 import styles from './style.module.css';
 import type { PostingActivityAttributes } from './widget';
-import type { DataPointDate } from '@automattic/charts';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // Report params are dashboard-driven — WidgetRoot resolves them from the date
 // picker — but the host (and Storybook) may also inject them via `attributes`.
 type PostingActivityRenderAttributes = PostingActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
+type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
 /**
  * Fetches the posting-activity streak through the designated `useStatsStreak`
@@ -112,13 +114,10 @@ function PostingActivityInner() {
  * via context, the same way the other Stats widgets read them. This widget has
  * no own settings, so nothing is forwarded to the inner component.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {PostingActivityWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function PostingActivity( {
-	attributes = {},
-}: WidgetRenderProps< PostingActivityRenderAttributes > ) {
+export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>

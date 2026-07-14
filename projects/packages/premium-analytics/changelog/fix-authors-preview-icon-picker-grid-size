@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Authors widget: fix the author avatar rendering oversized in the Add widget picker grid preview.

@@ -1,0 +1,18 @@
+/* No outer padding: the host frames the widget and owns the padding. */
+.root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}

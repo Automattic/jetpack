@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.8.0';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -269,11 +269,10 @@ class Agents_Manager {
 			}
 		}
 
-		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, expose the entry
-		// points in that editor admin bar (CIAB is excluded — it has its own Site Hub UI). The Help
-		// "?" dropdown shows only in the full unified experience (mirroring wp-admin); the Ask AI
-		// button shows whenever Agents Manager is enabled in this editor. The wp-calypso admin-bar
-		// integration wires both, so no frontend change is needed.
+		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, add the entry
+		// points to that editor admin bar. CIAB is excluded — it has its own Site Hub UI.
+		// Mirroring wp-admin: the Help "?" dropdown shows only in the full unified experience;
+		// the Ask AI button shows whenever Agents Manager is enabled in this editor.
 		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
 			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
 			if ( self::is_unified_experience() ) {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Feedback: parse versionless JSON post_content as JSON instead of falling through to the legacy plain-text parser.

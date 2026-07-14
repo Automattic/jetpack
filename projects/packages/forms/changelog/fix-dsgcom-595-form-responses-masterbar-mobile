@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Form Responses quick link disappearing from the admin bar on mobile viewports, and align its icon with the native items.

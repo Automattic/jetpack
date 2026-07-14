@@ -1,7 +1,7 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
@@ -31,7 +31,7 @@ function Dashboard(): JSX.Element {
 		DASHBOARD_NAME,
 		activeSection
 	);
-	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
+	const [ gridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
 		select =>
@@ -74,12 +74,13 @@ function Dashboard(): JSX.Element {
 				onLayoutChange={ setLayout }
 				onLayoutReset={ resetLayout }
 				gridSettings={ gridSettings }
-				onGridSettingsChange={ setGridSettings }
 				editMode={ editMode }
 				onEditChange={ setEditMode }
 			>
 				<Page
-					title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
+					breadcrumbs={
+						<Breadcrumbs items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics' ) } ] } />
+					}
 					subTitle={ __(
 						'Track your site performance and visitor insights.',
 						'jetpack-premium-analytics'

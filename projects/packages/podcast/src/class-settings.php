@@ -8,11 +8,10 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Registers the `podcasting_*` options with their `sanitize_callback`s and
- * `show_in_rest` so they keep appearing in core `/wp/v2/settings`. The dashboard
- * now reads and writes them through the dedicated {@see Podcast_Settings_Endpoint}
- * (`wpcom/v2/podcast/settings`); the core exposure stays for now and is removed
- * in a follow-up once WPCOM's settings-controller test is decoupled.
+ * Registers the `podcasting_*` options with their `sanitize_callback`s so writes
+ * through any path stay validated. The dashboard reads and writes them through the
+ * dedicated {@see Podcast_Settings_Endpoint} (`wpcom/v2/podcast/settings`); they
+ * are intentionally not exposed through core `/wp/v2/settings`.
  *
  * Array-shaped options merge against stored values on sanitize, not replace —
  * the SPA can PATCH partial entries without losing the rest.
@@ -68,30 +67,23 @@ class Settings {
 	);
 
 	/**
-	 * Whether `register()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
-	private static $registered = false;
-
-	/**
-	 * Wire option registrations + Jetpack Sync opt-in. Idempotent.
+	 * Wire option registrations + Jetpack Sync opt-in. Idempotent: every
+	 * callback is named, so WordPress dedupes repeat calls.
 	 */
 	public static function register() {
-		if ( self::$registered ) {
-			return;
-		}
-		self::$registered = true;
-
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
+		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_to_sync_whitelist' ) );
+	}
 
-		add_filter(
-			'jetpack_sync_options_whitelist',
-			static function ( $options ) {
-				return array_merge( $options, self::OPTION_NAMES );
-			}
-		);
+	/**
+	 * Add the podcast options to the Jetpack Sync whitelist.
+	 *
+	 * @param string[] $options Whitelisted option names.
+	 * @return string[]
+	 */
+	public static function add_to_sync_whitelist( $options ) {
+		return array_merge( $options, self::OPTION_NAMES );
 	}
 
 	/**
@@ -119,7 +111,6 @@ class Settings {
 					'type'              => $type,
 					'default'           => $default,
 					'sanitize_callback' => $sanitize,
-					'show_in_rest'      => true,
 				)
 			);
 		}
@@ -131,13 +122,6 @@ class Settings {
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'    => 'string',
-						'default' => '',
-						'format'  => 'uri',
-					),
-				),
 			)
 		);
 
@@ -148,12 +132,11 @@ class Settings {
 				'type'              => 'boolean',
 				'default'           => false,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
-				'show_in_rest'      => true,
 			)
 		);
 
-		// Registered under WP core's `options` group: REST-only settings that
-		// WPCOM never wired into the Settings API.
+		// Registered under WP core's `options` group: settings WPCOM never wired
+		// into a Settings API form.
 		register_setting(
 			'options',
 			'podcasting_email',
@@ -161,7 +144,6 @@ class Settings {
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_email',
-				'show_in_rest'      => true,
 			)
 		);
 
@@ -172,12 +154,8 @@ class Settings {
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
 			)
 		);
-
-		$podcatcher_keys = array_keys( self::SHOW_URL_HOSTS );
-		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
 
 		register_setting(
 			'options',
@@ -186,20 +164,6 @@ class Settings {
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'       => 'object',
-						'default'    => $empty_map,
-						'properties' => array_fill_keys(
-							$podcatcher_keys,
-							array(
-								'type'      => 'string',
-								'format'    => 'uri',
-								'maxLength' => self::SHOW_URL_MAX_LENGTH,
-							)
-						),
-					),
-				),
 			)
 		);
 
@@ -210,19 +174,6 @@ class Settings {
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'       => 'object',
-						'default'    => $empty_map,
-						'properties' => array_fill_keys(
-							$podcatcher_keys,
-							array(
-								'type' => 'string',
-								'enum' => array( '', 'pending', 'active' ),
-							)
-						),
-					),
-				),
 			)
 		);
 	}

@@ -10,10 +10,9 @@
  * simply omitted until configured, so an unconfigured site still emits a valid
  * node.
  *
- * The `$settings` argument is the seam the "Organization / Business info" settings
- * UI plugs into later: it may carry admin overrides for the site-identity fields
- * plus the `sameAs` / `email` values WordPress can't supply. Today the graph passes
- * an empty array, so the node is built purely from site identity.
+ * The `$settings` argument carries the effective values from
+ * {@see Schema_Settings::get_organization()}: admin overrides for site-identity
+ * fields, plus the `sameAs` / `email` values WordPress can't supply.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -64,7 +63,7 @@ class Organization_Schema_Node {
 			$node['logo'] = $logo;
 		}
 
-		$same_as = self::url_list( $settings['sameAs'] ?? array() );
+		$same_as = Schema_Settings::sanitize_url_list( $settings['sameAs'] ?? array() );
 		if ( ! empty( $same_as ) ) {
 			$node['sameAs'] = $same_as;
 		}
@@ -123,41 +122,5 @@ class Organization_Schema_Node {
 			return '';
 		}
 		return trim( wp_strip_all_tags( $value ) );
-	}
-
-	/**
-	 * Normalize a list of profile URLs (`sameAs`): keep only non-empty, valid URLs.
-	 *
-	 * @param mixed $value Raw value (expected to be an array of URLs).
-	 * @return array<int, string>
-	 */
-	private static function url_list( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$urls = array();
-		foreach ( $value as $url ) {
-			if ( ! is_string( $url ) ) {
-				continue;
-			}
-
-			$url = trim( $url );
-			if ( '' === $url ) {
-				continue;
-			}
-
-			$validated = wp_http_validate_url( $url );
-			if ( false === $validated ) {
-				continue;
-			}
-
-			$clean = esc_url_raw( $validated, array( 'http', 'https' ) );
-			if ( '' !== $clean ) {
-				$urls[] = $clean;
-			}
-		}
-
-		return array_values( array_unique( $urls ) );
 	}
 }
