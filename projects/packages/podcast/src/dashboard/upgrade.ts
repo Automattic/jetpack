@@ -17,24 +17,6 @@ export const getUpgradeProductSlug = (): string =>
 export const getUpgradePlanName = (): string =>
 	getScriptData()?.podcast?.upgrade?.plan_name ?? 'Premium';
 
-/**
- * Append the post-checkout marker to a return URL so the server re-reads the
- * site's plan on arrival and unlocks the paid surfaces without waiting on cache.
- *
- * The `podcast_purchased` literal must match `Admin_Page::PURCHASE_RETURN_QUERY_VAR`.
- *
- * @param {string} url - The checkout return URL; an empty string is passed through.
- * @return {string} The URL carrying the purchase-return marker.
- */
-export const withPurchaseReturnMarker = ( url: string ): string => {
-	if ( ! url ) {
-		return url;
-	}
-	const next = new URL( url );
-	next.searchParams.set( 'podcast_purchased', '1' );
-	return next.toString();
-};
-
 interface UpgradeCheckoutUrlArgs {
 	/** Calypso site fragment (`site.suffix`); empty falls back to `noSiteSlugUrl`. */
 	siteSlug: string;

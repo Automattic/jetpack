@@ -27,9 +27,8 @@ class Podcast_Episode_Block {
 	const STYLE_HANDLE = 'jetpack-block-podcast-episode';
 
 	/**
-	 * Front-end view script handle. Enqueued from the render callback
-	 * because the block.json `viewScript` field can't resolve to the
-	 * package's dist directory from the deployed src location.
+	 * Front-end view script handle. Enqueued from the render callback because
+	 * block.json `viewScript` can't resolve the package's dist dir.
 	 */
 	const VIEW_HANDLE = 'jetpack-podcast-episode-view';
 
@@ -42,18 +41,11 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Register the block.
-	 *
-	 * Also registers the front-end style bundle (built separately from the
-	 * editor bundle so it actually ships on the public post page) and hands
-	 * the handle to `register_block_type` via the `style` arg, which auto-
-	 * enqueues it whenever the block is rendered.
+	 * Register the block and its front-end style bundle (auto-enqueued via the
+	 * `style` arg whenever the block renders).
 	 */
 	public static function register_block() {
-		// Assets::register_script side-loads the sibling style.css and
-		// registers a style handle under the same name. The accompanying
-		// (essentially empty) style.js handle is registered too but never
-		// enqueued — only the style is passed to register_block_type below.
+		// Side-loads the sibling style.css and registers it under STYLE_HANDLE.
 		Assets::register_script(
 			self::STYLE_HANDLE,
 			'../../../dist/blocks/podcast-episode/style.js',
@@ -63,6 +55,8 @@ class Podcast_Episode_Block {
 			)
 		);
 
+		// Register in every context so the RSS feed carries the player — how the
+		// WPCOM Reader shows it on Atomic/Jetpack sites.
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
@@ -71,15 +65,40 @@ class Podcast_Episode_Block {
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
 			)
 		);
+
+		// Flag as plan-gated for the editor upgrade prompt. Priority 11 runs after
+		// jetpack_register_block's own availability action (10), so this wins.
+		// Admin-only: only the editor consumes this availability entry (the
+		// front-end render isn't availability-gated), and the self-hosted access
+		// check can hit WPCOM — it must never run during a front-end page render.
+		if ( is_admin() && class_exists( \Jetpack_Gutenberg::class ) ) {
+			add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'flag_plan_gated' ), 11 );
+		}
 	}
 
 	/**
-	 * Register and enqueue the front-end view script that wires chapter and
-	 * soundbite buttons to the audio player. Called from the render callback
-	 * so the script only ships on pages that actually contain the block.
-	 *
-	 * `Assets::register_script` dedups internally, so calling this for each
-	 * rendered instance of the block is safe.
+	 * Mark the block plan-gated so the editor shows the upgrade prompt (no-op if
+	 * the site has access). Standard paid-block behavior: nudge on Atomic/Simple,
+	 * hidden on self-hosted Jetpack where nudges are off — upsell in the dashboard.
+	 */
+	public static function flag_plan_gated() {
+		if ( Podcast_Gate::has_product_access() ) {
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			'podcast-episode',
+			'missing_plan',
+			array(
+				'required_feature' => 'podcast-episode',
+				'required_plan'    => Podcast_Gate::get_required_plan_slug(),
+			)
+		);
+	}
+
+	/**
+	 * Register + enqueue the front-end view script (wires soundbite buttons).
+	 * Called from render so it only ships on pages with the block; dedups internally.
 	 */
 	private static function enqueue_view_script() {
 		Assets::register_script(
@@ -108,20 +127,14 @@ class Podcast_Episode_Block {
 			)
 		);
 
-		// Add the script_loader_src rewrite only while the editor script is
-		// in flight, so the filter doesn't run on every front-end script load.
+		// Only hook the src rewrite while the editor script is loading.
 		add_filter( 'script_loader_src', array( __CLASS__, 'filter_editor_script_src' ), 10, 2 );
 	}
 
 	/**
-	 * Rewrite the editor script src to match the admin scheme.
-	 *
-	 * On WPCOM sites with a custom domain mapping that lacks SSL, `home_url()`
-	 * (and therefore `plugins_url()`) returns `http://mapped-domain.test` even
-	 * though wp-admin is served from `.wordpress.com` over HTTPS. The script
-	 * URL then trips the browser's mixed-content block. Routing through the
-	 * canonical `script_loader_src` filter keeps the URL valid in both cases
-	 * without mutating `$wp_scripts->registered` directly.
+	 * Rewrite the editor script src to the admin scheme, avoiding a mixed-content
+	 * block on WPCOM custom domains without SSL (where `plugins_url()` returns
+	 * http but wp-admin is https).
 	 *
 	 * @param string $src    Script source URL.
 	 * @param string $handle Script handle.
@@ -184,18 +197,12 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Render callback.
-	 *
-	 * Renders the full player in every context so the RSS feed carries it — how the WPCOM Reader shows
-	 * it on Atomic/Jetpack sites. Email is handled separately by render_email().
-	 *
-	 * Pulls title, author, and date from the surrounding post — the post is
-	 * the episode. Cover art falls back to the show-level `podcasting_image`
-	 * option when the block has no episode-specific override.
+	 * Render callback. Full player in every context so the RSS feed carries it
+	 * (how the WPCOM Reader shows it on Atomic/Jetpack). Email uses render_email().
 	 *
 	 * @param array     $attributes Block attributes.
-	 * @param string    $content    Saved inner content from save.js; unused, the block renders its own markup.
-	 * @param \WP_Block $block      The parsed block instance, used to read post context.
+	 * @param string    $content    Saved inner content; unused, the block renders its own markup.
+	 * @param \WP_Block $block      Parsed block instance, used for post context.
 	 * @return string
 	 */
 	public static function render_block( $attributes, $content, $block = null ) {
@@ -203,9 +210,8 @@ class Podcast_Episode_Block {
 			return '';
 		}
 
-		// Resolve the post that backs this episode. Prefer block context (set by Query Loop / singular
-		// templates / post-bound block contexts) and fall back to the global loop for direct theme
-		// rendering. With no resolvable post, the block has nothing to display.
+		// Resolve the backing post: block context (Query Loop / singular) first,
+		// then the global loop.
 		$post_id = 0;
 		if ( $block && isset( $block->context['postId'] ) ) {
 			$post_id = (int) $block->context['postId'];
@@ -243,8 +249,7 @@ class Podcast_Episode_Block {
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
-		// Only ship the click-to-seek script on episodes that actually have soundbites to wire.
-		// Chapters are hosted as an external JSON file and consumed by Podcasting 2.0 players directly.
+		// Only ship the click-to-seek script when there are soundbites to wire.
 		if ( ! empty( $soundbites ) ) {
 			self::enqueue_view_script();
 		}
@@ -262,18 +267,15 @@ class Podcast_Episode_Block {
 		$episode_url      = get_permalink( $post );
 		$transcript_type  = isset( $attributes['transcriptType'] ) ? (string) $attributes['transcriptType'] : '';
 
-		// Show-level data backs the `partOfSeries` PodcastSeries reference so
-		// search engines can connect the episode to its parent show.
+		// Show-level data backs the `partOfSeries` schema reference.
 		$show_title     = (string) get_option( 'podcasting_title', '' );
 		$show_image_url = (string) get_option( 'podcasting_image', '' );
 		$show_email     = (string) get_option( 'podcasting_email', '' );
 
-		// Cover art chain resolved unconditionally so schema metadata always carries
-		// the image; the `$show_poster` toggle only gates the visible figure and the
-		// video poster.
+		// Resolve cover art unconditionally so schema always carries the image;
+		// `$show_poster` only gates the visible figure/poster.
 		$image_url = self::resolve_cover_art_url( $attributes, $post, 'full' );
 
-		// AudioObject/VideoObject @type for the embedded media.
 		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
 
 		$wrapper_attributes = get_block_wrapper_attributes();
@@ -575,11 +577,8 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Render the block for email via the WooCommerce Email Editor.
-	 *
-	 * Email clients can't run the interactive player, so render a static
-	 * episode card — cover art, title, byline, duration — linking back to
-	 * the episode post, where the full player lives.
+	 * Render the block for email (WooCommerce Email Editor). Email can't run the
+	 * player, so render a static card linking back to the episode post.
 	 *
 	 * @param string $block_content     The original block HTML content.
 	 * @param array  $parsed_block      The parsed block data including attributes.
@@ -671,10 +670,8 @@ class Podcast_Episode_Block {
 				esc_url( $image_url )
 			);
 
-			// Padding lives on an inner wrapper, not the cell: the engine's
-			// mobile media query zeroes `.layout-flex-item` horizontal padding
-			// when it stacks the card, which would otherwise flush the content
-			// against the border.
+			// Padding on an inner wrapper, not the cell: the mobile media query
+			// zeroes `.layout-flex-item` padding when the card stacks.
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
 				'<div style="padding: 16px 0 0 16px;">' . $image_link . '</div>',
@@ -687,12 +684,8 @@ class Podcast_Episode_Block {
 			);
 		}
 
-		// Wrap the body in a nested table rather than dropping the loose <p>/<h3>
-		// straight into the layout cell. Core blocks (e.g. Media_Text) never put
-		// bare block-level elements in a cell — they table-wrap content so it
-		// survives email pipelines intact. The padding rides on the nested cell,
-		// which the engine's mobile `.layout-flex-item td` rule leaves untouched,
-		// so it also stays put when the card stacks.
+		// Table-wrap the body so bare <p>/<h3> survive email pipelines (core
+		// blocks do the same); padding rides the nested cell, safe when stacked.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		$body_table = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
 			$body,
@@ -709,8 +702,7 @@ class Podcast_Episode_Block {
 			)
 		);
 
-		// Cap the card to the email layout width when the context exposes it
-		// (method_exists guards against older email editor versions).
+		// Cap to the email layout width when the context exposes it.
 		$target_width = 600;
 		if ( method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
@@ -720,25 +712,19 @@ class Podcast_Episode_Block {
 			}
 		}
 
-		// Preserve the vertical gap from email_attrs — the engine's spacing
-		// preprocessor sets `margin-top`; horizontal root padding is applied
-		// to the callback output by the engine itself.
+		// Preserve the vertical gap from email_attrs (the engine sets margin-top).
 		$email_attrs        = $parsed_block['email_attrs'] ?? array();
 		$table_margin_style = (string) \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' );
 
-		// `layout-flex-wrapper` opts the card into the engine's own mobile
-		// stacking: its template-canvas.css media query collapses
-		// `.layout-flex-wrapper`/`.layout-flex-item` to full-width blocks under
-		// 660px, so no custom media query (or template-style filter) is needed.
-		// border-collapse must stay `separate` for the rounded card border to render.
+		// `layout-flex-wrapper` opts into the engine's mobile stacking (collapses
+		// under 660px). border-collapse must stay `separate` for the rounded border.
 		$table_style = sprintf(
 			'%s width: 100%%; max-width: %dpx; border-collapse: separate; border: 1px solid #ddd; border-radius: 6px;',
 			$table_margin_style ? $table_margin_style : 'margin: 16px 0;',
 			$target_width
 		);
 
-		// Append user-set block supports (padding, border, colors) so editor
-		// styling overrides the card defaults.
+		// Append user block supports so editor styling overrides the defaults.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		$user_styles = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::get_block_styles( $attrs, $rendering_context, array( 'padding', 'border', 'background-color', 'color' ) );
 		if ( ! empty( $user_styles['css'] ) ) {
