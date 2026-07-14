@@ -47,7 +47,7 @@ export default {
 		},
 		{
 			id: 'contentView',
-			label: __( 'Show', 'jetpack-premium-analytics' ),
+			label: __( 'View', 'jetpack-premium-analytics' ),
 			type: 'text',
 			elements: [
 				{ label: __( 'Posts & pages', 'jetpack-premium-analytics' ), value: 'posts' },
