@@ -15,8 +15,9 @@ import {
 	useState,
 } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
-import { Button, Link, Stack, Text } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { arrowLeft, arrowRight } from '@wordpress/icons';
+import { Button, IconButton, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 
 export default () => {
@@ -95,59 +96,56 @@ export default () => {
 		<Stack direction="column" gap="md">
 			{ hasPrompt ? (
 				<>
-					<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
-						<Text variant="body-md" render={ <p /> }>
+					<Stack
+						className="wpcom-daily-writing-prompt--prompt"
+						direction="row"
+						align="center"
+						gap="sm"
+					>
+						<Text
+							className="wpcom-daily-writing-prompt--prompt-text"
+							variant="body-xl"
+							render={ <p /> }
+						>
 							{ decodeEntities( prompt.text ) }
 						</Text>
-						<Stack direction="row" justify="flex-end">
-							<Button
-								variant="minimal"
-								size="small"
+						<Stack
+							className="wpcom-daily-writing-prompt--prompt-nav"
+							direction="row"
+							gap="xs"
+							align="center"
+						>
+							<IconButton
+								icon={ arrowLeft }
+								label={ __( 'Previous prompt', 'jetpack-newsletter' ) }
+								variant="outline"
+								tone="neutral"
+								size="compact"
 								onClick={ goToPrevious }
 								disabled={ index === 0 }
-							>
-								{ __( '← Previous', 'jetpack-newsletter' ) }
-							</Button>
-							<Button
-								variant="minimal"
-								size="small"
+							/>
+							<IconButton
+								icon={ arrowRight }
+								label={ __( 'Next prompt', 'jetpack-newsletter' ) }
+								variant="outline"
+								tone="neutral"
+								size="compact"
 								onClick={ goToNext }
 								disabled={ index === prompts.length - 1 }
-							>
-								{ __( 'Next →', 'jetpack-newsletter' ) }
-							</Button>
+							/>
 						</Stack>
 					</Stack>
 					<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
-						{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
 						<Button variant="outline" size="compact" onClick={ postAnswer }>
-							{ __( 'Post Answer', 'jetpack-newsletter' ) }
+							{ __( 'Post your answer', 'jetpack-newsletter' ) }
 						</Button>
 						{ prompt.answered_users_sample.length > 0 && (
 							<Stack
 								className="wpcom-daily-writing-prompt--answered-users"
 								direction="row"
 								align="center"
-								gap="xs"
+								gap="sm"
 							>
-								{ prompt.answered_users_count > 0 && (
-									<Button
-										variant="outline"
-										size="compact"
-										tone="neutral"
-										nativeButton={ false }
-										onClick={ recordViewResponsesClick }
-										render={
-											<a
-												href={ new URL( prompt.answered_link ).toString() }
-												target="_blank"
-												rel="noreferrer noopener"
-											/>
-										}
-									>
-										{ __( 'View responses', 'jetpack-newsletter' ) }
-									</Button>
-								) }
 								<span>
 									{ prompt.answered_users_sample.map( sample => {
 										return (
@@ -162,7 +160,29 @@ export default () => {
 											/>
 										);
 									} ) }
+									{ prompt.answered_users_count > prompt.answered_users_sample.length && (
+										<Text
+											className="wpcom-daily-writing-prompt--answered-users-more"
+											variant="body-sm"
+										>
+											{ sprintf(
+												/* translators: %d is how many more people answered the prompt beyond the avatars shown. */
+												__( '+%d', 'jetpack-newsletter' ),
+												prompt.answered_users_count - prompt.answered_users_sample.length
+											) }
+										</Text>
+									) }
 								</span>
+								{ prompt.answered_users_count > 0 && (
+									<Link
+										href={ new URL( prompt.answered_link ).toString() }
+										openInNewTab
+										rel="noreferrer noopener"
+										onClick={ recordViewResponsesClick }
+									>
+										{ __( 'View responses', 'jetpack-newsletter' ) }
+									</Link>
+								) }
 							</Stack>
 						) }
 					</Stack>
