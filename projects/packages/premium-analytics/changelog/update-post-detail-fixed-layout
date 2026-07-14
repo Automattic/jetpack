@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Post detail: make the page a fixed composition — add the Post highlights tiles card, render it by default, and remove widget editing

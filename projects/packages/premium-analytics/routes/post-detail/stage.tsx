@@ -4,7 +4,7 @@ import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
@@ -15,19 +15,25 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard } from './components';
-import { getPostDetailTabs, type PostDetailTabId } from './config';
-import { useActiveTab, usePostDetailTabLayout, usePostSummary } from './hooks';
+import { getPostDetailTabs, POST_DETAIL_TAB_LAYOUTS, type PostDetailTabId } from './config';
+import { useActiveTab, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
+// The layout is fixed, so the change callback never fires; the dashboard
+// still requires one because it owns a staging copy internally.
+const noopLayoutChange = () => {};
+
 /**
  * Premium Analytics post/page detail page stage component.
  *
- * Mirrors the dashboard — customizable, per-tab widget grids driven by a shared
- * date range and comparison — but is scoped to a single post/page and carries
- * its own header (breadcrumb + summary card) and tab set.
+ * A fixed, non-customizable page (WOOA7S-1622): each tab renders the widget
+ * composition from `POST_DETAIL_TAB_LAYOUTS`, scoped to a single post/page
+ * and driven by a shared date range and comparison, with its own header
+ * (breadcrumb + summary card) and tab set. There is no edit mode — required
+ * widgets and their sizing cannot be removed or reshaped.
  *
  * @return {JSX.Element} The post detail page.
  */
@@ -35,9 +41,19 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	const tabs = useMemo( () => getPostDetailTabs(), [] );
-	const [ activeTab, setActiveTab ] = useActiveTab();
-	const [ layout, setLayout, resetLayout ] = usePostDetailTabLayout( activeTab );
+	// Tabs whose fixed composition has not been ported yet are hidden until
+	// their widgets land (their page tasks own that content).
+	const tabs = useMemo(
+		() => getPostDetailTabs().filter( tab => POST_DETAIL_TAB_LAYOUTS[ tab.id ].length > 0 ),
+		[]
+	);
+	const [ storedTab, setActiveTab ] = useActiveTab();
+	// The `?section=` param may point at a hidden tab; fall back to the first
+	// visible one.
+	const activeTab: PostDetailTabId = tabs.some( tab => tab.id === storedTab )
+		? storedTab
+		: tabs[ 0 ].id;
+	const layout = POST_DETAIL_TAB_LAYOUTS[ activeTab ];
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const summary = usePostSummary( postId );
@@ -54,20 +70,6 @@ function PostDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
 
-	const [ editMode, setEditMode ] = useState( false );
-
-	// Switching tabs returns to view mode. Edit mode is page-level, and an empty
-	// tab force-enables it via the dashboard provider's empty-layout effect, so
-	// without this a non-empty tab would stay stuck in customize view after
-	// visiting an empty one.
-	const handleTabChange = useCallback(
-		( id: PostDetailTabId ) => {
-			setEditMode( false );
-			setActiveTab( id );
-		},
-		[ setActiveTab ]
-	);
-
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
@@ -81,24 +83,12 @@ function PostDetail(): JSX.Element {
 
 	return (
 		<GlobalErrorProvider>
-			{ /*
-			 * Key the dashboard by the active tab so its staging layout resets on
-			 * every switch. Empty tabs otherwise share one `EMPTY_LAYOUT` identity,
-			 * and the provider only resets staging when the `layout` prop identity
-			 * changes — so staged-but-unsaved widgets could render on, and be saved
-			 * under, the wrong tab. Remount cost is negligible (only the active
-			 * tab's panel renders).
-			 */ }
 			<WidgetDashboard
-				key={ activeTab }
 				widgetTypes={ widgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				layout={ layout }
-				onLayoutChange={ setLayout }
-				onLayoutReset={ resetLayout }
+				onLayoutChange={ noopLayoutChange }
 				gridSettings={ gridSettings }
-				editMode={ editMode }
-				onEditChange={ setEditMode }
 			>
 				<Page
 					breadcrumbs={
@@ -109,10 +99,9 @@ function PostDetail(): JSX.Element {
 							] }
 						/>
 					}
-					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.page }
 				>
-					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange }>
+					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						{ /*
 						 * The summary card and date filters are shared by every tab
 						 * (same post, same date range), so they render once below the
@@ -130,17 +119,10 @@ function PostDetail(): JSX.Element {
 						</div>
 						{ tabs.map( tab => (
 							<Tabs.Panel key={ tab.id } value={ tab.id } className={ styles.content }>
-								{ activeTab === tab.id ? (
-									<>
-										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets />
-									</>
-								) : null }
+								{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
 							</Tabs.Panel>
 						) ) }
 					</PostDetailTabs>
-
-					<WidgetDashboard.Commands />
 				</Page>
 			</WidgetDashboard>
 		</GlobalErrorProvider>
