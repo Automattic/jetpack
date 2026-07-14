@@ -106,7 +106,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 			array( 'fields' => 'ID,options' )
 		);
 
-		foreach ( array( 'xmlrpc' => $xmlrpc, 'rest' => $rest ) as $transport => $body ) {
+		$bodies = array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		);
+		foreach ( $bodies as $transport => $body ) {
 			$this->assertArrayHasKey( 'options', $body, "get-site ($transport) did not render `options`." );
 			$options = (array) $body['options'];
 			if ( empty( $options['is_difm_lite_in_progress'] ) ) {
