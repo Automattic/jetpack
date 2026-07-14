@@ -6,3 +6,11 @@
 	padding: var(--wpds-dimension-padding-lg);
 	overflow: hidden;
 }
+
+.emptyState {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 250px;
+	color: var(--wpds-color-foreground-content-neutral-weak, #646970);
+}
