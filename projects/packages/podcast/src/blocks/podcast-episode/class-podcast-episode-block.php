@@ -64,8 +64,7 @@ class Podcast_Episode_Block {
 		);
 
 		// Register in every context so the front-end and RSS feed render the full
-		// player (with product access) or a basic audio/video fallback (without) —
-		// see render_block().
+		// player — how the WPCOM Reader shows it on Atomic/Jetpack sites.
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
@@ -225,36 +224,6 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Render a basic audio/video element — the front-end and feed fallback for
-	 * sites without podcast product access. Keeps published episodes playable
-	 * while the rich player stays a paid feature.
-	 *
-	 * @param array $attributes Block attributes.
-	 * @return string
-	 */
-	private static function render_basic_media( array $attributes ): string {
-		$media_url = esc_url_raw( (string) ( $attributes['mediaUrl'] ?? '' ) );
-		if ( '' === $media_url || ! wp_http_validate_url( $media_url ) ) {
-			return '';
-		}
-
-		$is_video           = isset( $attributes['mediaType'] ) && 'video' === $attributes['mediaType'];
-		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'jetpack-podcast-episode--basic' ) );
-
-		ob_start();
-		?>
-		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns pre-escaped attribute output. ?>>
-			<?php if ( $is_video ) : ?>
-				<video class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Watch the episode', 'jetpack-podcast' ); ?></a></video>
-			<?php else : ?>
-				<audio class="jetpack-podcast-episode__basic-media" controls preload="metadata" src="<?php echo esc_url( $media_url ); ?>"><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Listen to the episode', 'jetpack-podcast' ); ?></a></audio>
-			<?php endif; ?>
-		</div>
-		<?php
-		return (string) ob_get_clean();
-	}
-
-	/**
 	 * Render callback.
 	 *
 	 * Renders the full player in every context so the RSS feed carries it — how the WPCOM Reader shows
@@ -272,14 +241,6 @@ class Podcast_Episode_Block {
 	public static function render_block( $attributes, $content, $block = null ) {
 		if ( empty( $attributes['mediaUrl'] ) ) {
 			return '';
-		}
-
-		// Paid feature: without product access, degrade the rich player to a
-		// basic audio/video element so published episodes stay playable while the
-		// full player (chapters, transcript, soundbites, Podcasting 2.0 metadata)
-		// remains gated.
-		if ( ! Podcast_Gate::has_product_access( false ) ) {
-			return self::render_basic_media( $attributes );
 		}
 
 		// Resolve the post that backs this episode. Prefer block context (set by Query Loop / singular

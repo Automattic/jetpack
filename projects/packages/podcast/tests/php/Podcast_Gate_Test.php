@@ -231,25 +231,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
 
-	/**
-	 * The render path passes `$allow_remote = false`, so it never hits the
-	 * network: a cold cache denies access even with a fetchable purchase.
-	 */
-	public function test_render_path_read_is_cache_only_and_never_fetches(): void {
-		self::as_connected_self_hosted();
-		$called = false;
-		add_filter(
-			'pre_http_request',
-			static function () use ( &$called ) {
-				$called = true;
-				return self::upgrades_response( array( 'jetpack_growth_yearly' ) )();
-			}
-		);
-
-		$this->assertFalse( Podcast_Gate::has_product_access( false ) );
-		$this->assertFalse( $called, 'The cache-only read must not issue an HTTP request.' );
-	}
-
 	public function test_flush_purchases_cache_drops_transient_and_memo(): void {
 		self::as_self_hosted();
 		self::seed_purchases( array( 'jetpack_growth_yearly' ) );

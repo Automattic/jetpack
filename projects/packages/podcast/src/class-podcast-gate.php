@@ -24,9 +24,8 @@ use Jetpack_Options;
  *   `switch_to_blog` first.
  * - Self-hosted Jetpack: the site's purchased plan over the Jetpack
  *   connection. Per PODS-123, the Growth (and Complete) plans unlock the paid
- *   surfaces; everything else is feed-only. Render-path callers pass
- *   `$allow_remote = false` to read the cached `/upgrades` result rather than
- *   fetch; the `jetpack_heartbeat` cron keeps that cache warm.
+ *   surfaces; everything else is feed-only. Only consulted in admin/editor
+ *   contexts (the editor gate, the dashboard) — the block renders unconditionally.
  */
 class Podcast_Gate {
 
@@ -40,8 +39,8 @@ class Podcast_Gate {
 	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**
-	 * Caches the `/upgrades` response. Admin/editor checks and the heartbeat
-	 * write it; the render path only reads it. Week-long TTL.
+	 * Short-lived cache of the `/upgrades` response, mainly to dedupe the lookup
+	 * across a page load. Busted on checkout return via `flush_purchases_cache()`.
 	 */
 	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
 
@@ -56,13 +55,11 @@ class Podcast_Gate {
 	/**
 	 * Whether the current site can use the paid podcast surfaces.
 	 *
-	 * @param bool $allow_remote On self-hosted, whether an uncached lookup may
-	 *                           fetch `/upgrades`. Pass false on the render path.
 	 * @return bool
 	 */
-	public static function has_product_access( bool $allow_remote = true ): bool {
+	public static function has_product_access(): bool {
 		if ( ! ( new Host() )->is_wpcom_platform() ) {
-			return self::self_hosted_has_paid_plan( $allow_remote );
+			return self::self_hosted_has_paid_plan();
 		}
 
 		$blog_id = get_current_blog_id();
@@ -91,22 +88,13 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * Drop the cached purchases lookup so the next allowed check re-reads
-	 * `/upgrades`. Called on checkout return so a fresh plan unlocks the paid
-	 * surfaces immediately rather than after the TTL.
+	 * Drop the cached purchases lookup so the next check re-reads `/upgrades`.
+	 * Called on checkout return so a fresh plan unlocks the paid surfaces
+	 * immediately rather than after the TTL.
 	 */
 	public static function flush_purchases_cache(): void {
 		delete_transient( self::PURCHASES_TRANSIENT );
 		self::$purchases_cache = null;
-	}
-
-	/**
-	 * Re-read the site's purchases, refreshing the cache. Wired to the
-	 * `jetpack_heartbeat` cron so the render path's cache stays warm.
-	 */
-	public static function refresh_purchases_cache(): void {
-		self::flush_purchases_cache();
-		self::get_site_current_purchases( true );
 	}
 
 	/**
@@ -116,11 +104,9 @@ class Podcast_Gate {
 	 * products: match purchased product slugs rather than the `podcasting`
 	 * feature, which maps to all Jetpack sites on WordPress.com and so can't
 	 * distinguish free from paid here.
-	 *
-	 * @param bool $allow_remote Whether an uncached lookup may fetch `/upgrades`.
 	 */
-	private static function self_hosted_has_paid_plan( bool $allow_remote ): bool {
-		foreach ( self::get_site_current_purchases( $allow_remote ) as $purchase ) {
+	private static function self_hosted_has_paid_plan(): bool {
+		foreach ( self::get_site_current_purchases() as $purchase ) {
 			$slug = is_array( $purchase ) && isset( $purchase['product_slug'] ) ? $purchase['product_slug'] : '';
 
 			// Growth and Complete bundles unlock the paid surfaces; matched as
@@ -138,14 +124,12 @@ class Podcast_Gate {
 	/**
 	 * The site's current purchases from WordPress.com (`/upgrades`).
 	 *
-	 * Reads the memo, then the transient. On a miss, fetches only when
-	 * `$allow_remote` is true; the render path passes false and gets an empty
-	 * list. Fails closed — failures return empty and aren't cached.
+	 * Fails closed: an unreachable or malformed response returns no purchases and
+	 * isn't cached, so the next lookup retries.
 	 *
-	 * @param bool $allow_remote Whether a cache miss may fetch over the connection.
-	 * @return array Purchase entries; empty on miss/failure.
+	 * @return array Purchase entries; empty on failure.
 	 */
-	private static function get_site_current_purchases( bool $allow_remote ): array {
+	private static function get_site_current_purchases(): array {
 		if ( null !== self::$purchases_cache ) {
 			return self::$purchases_cache;
 		}
@@ -154,10 +138,6 @@ class Podcast_Gate {
 		if ( is_array( $cached ) ) {
 			self::$purchases_cache = $cached;
 			return self::$purchases_cache;
-		}
-
-		if ( ! $allow_remote ) {
-			return array();
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -177,7 +157,7 @@ class Podcast_Gate {
 			return self::$purchases_cache;
 		}
 
-		set_transient( self::PURCHASES_TRANSIENT, $decoded, WEEK_IN_SECONDS );
+		set_transient( self::PURCHASES_TRANSIENT, $decoded, 30 );
 		self::$purchases_cache = $decoded;
 		return self::$purchases_cache;
 	}
