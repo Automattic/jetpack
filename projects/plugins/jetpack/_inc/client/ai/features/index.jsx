@@ -109,8 +109,9 @@ const SECTIONS = [
 					href: 'admin.php?page=jetpack#/traffic',
 				},
 				disabledAction: {
-					label: __( 'Open SEO Settings', 'jetpack' ),
-					href: 'admin.php?page=jetpack#/traffic',
+					label: __( 'Learn more', 'jetpack' ),
+					href: getRedirectUrl( 'jetpack-support-ai-seo' ),
+					external: true,
 				},
 			},
 		],
