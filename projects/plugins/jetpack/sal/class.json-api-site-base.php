@@ -1535,6 +1535,11 @@ abstract class SAL_Site {
 			return null;
 		}
 		require_lib( 'difm-lite' );
+		if ( ! class_exists( '\DIFM_Lite_Options' ) ) {
+			// Fail closed if the library did not define the class; this method
+			// documents null for every path where the options are unavailable.
+			return null;
+		}
 		// The submission state is canonical on the purchase blog. This site may be
 		// the stickered staging build target, whose own options blob is empty, so
 		// resolve to the purchase blog before reading — otherwise a post-submit
