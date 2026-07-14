@@ -146,6 +146,8 @@ export {
 	type TopPerformingProductsWidgetProps,
 	TopPerformingBookingsWidget,
 	type TopPerformingBookingsWidgetProps,
+	WordAdsEarningsHistoryWidget,
+	type WordAdsEarningsBreakdownKey,
 } from './widgets';
 
 /**
