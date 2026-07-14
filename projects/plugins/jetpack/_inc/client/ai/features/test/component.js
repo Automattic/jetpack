@@ -139,6 +139,19 @@ describe( 'visibleSections', () => {
 		] );
 	} );
 
+	test( 'drops a row the endpoint marks unavailable', () => {
+		const sections = visibleSections( SECTIONS, {
+			writing_assistant: { enabled: true },
+			excerpt: { enabled: false, available: false },
+			feature_clip: { enabled: true, available: true },
+		} );
+
+		expect( sections.map( s => s.features.map( f => f.key ) ) ).toEqual( [
+			[ 'writing_assistant' ],
+			[ 'feature_clip' ],
+		] );
+	} );
+
 	test( 'drops a section whose rows are all unreported', () => {
 		const sections = visibleSections( SECTIONS, { writing_assistant: { enabled: true } } );
 
