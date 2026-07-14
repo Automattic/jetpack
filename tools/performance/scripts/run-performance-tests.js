@@ -116,9 +116,10 @@ function reportSkippedScenarios( outputPath ) {
 	if ( optionalFailures.length === 0 ) {
 		return;
 	}
-	const text = `${ optionalFailures.join(
-		', '
-	) } measurement failed; its CodeVitals keys skip this build`;
+	const many = optionalFailures.length > 1;
+	const text = `${ optionalFailures.join( ', ' ) } measurement${ many ? 's' : '' } failed; ${
+		many ? 'their' : 'its'
+	} CodeVitals keys skip this build`;
 	console.warn( `\n⚠ ${ text }` );
 	console.log( `##teamcity[message text='${ tcEscape( text ) }' status='WARNING']` );
 }

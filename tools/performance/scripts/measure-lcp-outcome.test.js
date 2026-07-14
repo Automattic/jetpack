@@ -346,8 +346,12 @@ test( 'reportSkippedScenarios names every failed optional scenario in one messag
 		myJetpack: { error: 'also boom' },
 	} );
 	const lines = captureConsole( () => reportSkippedScenarios( file ) );
-	assert.equal( lines.log.length, 1 );
-	assert.ok( lines.log[ 0 ].includes( `${ forms.name }, ${ myJetpack.name }` ) );
+	const expectedText = `${ forms.name }, ${ myJetpack.name } measurements failed; their CodeVitals keys skip this build`;
+	assert.deepEqual( lines.log, [
+		`##teamcity[message text='${ tcEscape( expectedText ) }' status='WARNING']`,
+	] );
+	assert.equal( lines.warn.length, 1 );
+	assert.ok( lines.warn[ 0 ].includes( expectedText ) );
 } );
 
 test( 'reportSkippedScenarios stays silent when nothing failed', () => {
