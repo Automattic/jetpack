@@ -5,7 +5,6 @@ import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { SelectControl, Tabs, Text } from '@wordpress/ui';
-import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -68,14 +67,6 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Show the loading overlay over the chart. */
 	loading?: boolean;
-	/**
-	 * Tab row layout: `distributed` spreads the metric tabs evenly across the
-	 * full card width (the post detail Performance layout); `default` packs
-	 * them to the start.
-	 */
-	variant?: 'default' | 'distributed';
-	/** Gap between the tab row and the chart. */
-	gap?: 'md' | 'xl';
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
 }
@@ -151,16 +142,6 @@ function MetricChart( {
 	// pattern on the previous-period series.
 	const seriesStyles = useSeriesStyles( series );
 
-	// Value-only metrics (no per-period history) get a note instead of an
-	// empty axis area.
-	if ( ! metric.current.length && ! metric.previous?.length ) {
-		return (
-			<Text className={ styles.noTrend } variant="body-md">
-				{ __( 'No trend data for this metric.', 'jetpack-premium-analytics' ) }
-			</Text>
-		);
-	}
-
 	return (
 		<>
 			<ComparativeLineChart
@@ -195,8 +176,6 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	loading = false,
-	variant = 'default',
-	gap = 'md',
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics' ),
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
@@ -254,7 +233,7 @@ export function MetricTabsChart( {
 			metricItems.find( item => item.value === activeMetric?.key ) ?? metricItems[ 0 ];
 
 		return (
-			<div ref={ measureRef } className={ clsx( styles.root, gap === 'xl' && styles.gapXl ) }>
+			<div ref={ measureRef } className={ styles.root }>
 				<div className={ styles.header }>
 					{ /* Stops pointer-down from starting a widget drag and opens the select
 					     on click (see `isDropdownOpen`). Mouse-only supplement — keyboard
@@ -326,14 +305,10 @@ export function MetricTabsChart( {
 			ref={ measureRef }
 			value={ activeMetric?.key }
 			onValueChange={ handleValueChange }
-			className={ clsx( styles.root, gap === 'xl' && styles.gapXl ) }
+			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List
-					variant="minimal"
-					className={ clsx( styles.tabs, variant === 'distributed' && styles.tabsDistributed ) }
-					aria-label={ groupLabel }
-				>
+				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }

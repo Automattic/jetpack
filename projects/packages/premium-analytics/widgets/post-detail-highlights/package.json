@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/jetpack-premium-analytics-widget-post-performance",
+	"name": "@automattic/jetpack-premium-analytics-widget-post-detail-highlights",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module",
@@ -10,7 +10,6 @@
 		"@wordpress/element": "8.2.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/widget-primitives": "0.2.0",
-		"date-fns": "4.1.0"
+		"@wordpress/widget-primitives": "0.2.0"
 	}
 }
