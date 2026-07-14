@@ -18,7 +18,7 @@
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
 		"@wordpress/route": "0.16.0",
-		"@wordpress/ui": "0.13.0",
+		"@wordpress/ui": "0.17.0",
 		"react": "18.3.1"
 	},
 	"devDependencies": {
