@@ -45,6 +45,20 @@ interface CoverArt {
 	url?: string;
 }
 
+interface Soundbite {
+	startTime?: number;
+	duration?: number;
+	title?: string;
+}
+
+interface AlternateEnclosure {
+	url?: string;
+	type?: string;
+	title?: string;
+	lang?: string;
+	bitrate?: number;
+}
+
 interface PodcastEpisodeAttributes {
 	mediaId?: number;
 	mediaUrl?: string;
@@ -65,6 +79,8 @@ interface PodcastEpisodeAttributes {
 	people?: Person[];
 	showPoster?: boolean;
 	coverArt?: CoverArt;
+	soundbites?: Soundbite[];
+	alternateEnclosures?: AlternateEnclosure[];
 }
 
 interface MediaAttachment {
@@ -166,6 +182,149 @@ function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
 	);
 }
 
+interface SoundbitesEditorProps {
+	soundbites: Soundbite[];
+	onChange: ( next: Soundbite[] ) => void;
+}
+
+function SoundbitesEditor( { soundbites, onChange }: SoundbitesEditorProps ) {
+	const updateSoundbite = ( index: number, patch: Partial< Soundbite > ) => {
+		onChange( soundbites.map( ( sb, i ) => ( i === index ? { ...sb, ...patch } : sb ) ) );
+	};
+	const removeSoundbite = ( index: number ) => onChange( soundbites.filter( ( _, i ) => i !== index ) );
+	const addSoundbite = () => onChange( [ ...soundbites, { startTime: 0, duration: 0, title: '' } ] );
+	// startTime/duration are seconds — parse empty as undefined so a cleared field
+	// doesn't coerce to 0 and emit a bogus feed entry.
+	const toSeconds = ( value: string ) => ( value === '' ? undefined : Number( value ) );
+
+	return (
+		<>
+			{ soundbites.map( ( soundbite, index ) => (
+				<div
+					className={ clsx( 'jetpack-podcast-episode__person-editor', {
+						'jetpack-podcast-episode__person-editor--alt': index % 2 === 1,
+					} ) }
+					key={ index }
+				>
+					<TextControl
+						label={ __( 'Start time (seconds)', 'jetpack-podcast' ) }
+						type="number"
+						min={ 0 }
+						step="any"
+						value={ soundbite.startTime ?? '' }
+						onChange={ value => updateSoundbite( index, { startTime: toSeconds( value ) } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<TextControl
+						label={ __( 'Duration (seconds)', 'jetpack-podcast' ) }
+						help={ __( 'Required — soundbites with no duration are skipped.', 'jetpack-podcast' ) }
+						type="number"
+						min={ 0 }
+						step="any"
+						value={ soundbite.duration ?? '' }
+						onChange={ value => updateSoundbite( index, { duration: toSeconds( value ) } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<TextControl
+						label={ __( 'Title', 'jetpack-podcast' ) }
+						value={ soundbite.title || '' }
+						onChange={ title => updateSoundbite( index, { title } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<Button variant="link" isDestructive onClick={ () => removeSoundbite( index ) }>
+						{ __( 'Remove soundbite', 'jetpack-podcast' ) }
+					</Button>
+				</div>
+			) ) }
+			<Button variant="secondary" onClick={ addSoundbite }>
+				{ __( 'Add soundbite', 'jetpack-podcast' ) }
+			</Button>
+		</>
+	);
+}
+
+interface AlternateEnclosuresEditorProps {
+	alternateEnclosures: AlternateEnclosure[];
+	onChange: ( next: AlternateEnclosure[] ) => void;
+}
+
+function AlternateEnclosuresEditor( { alternateEnclosures, onChange }: AlternateEnclosuresEditorProps ) {
+	const updateEnclosure = ( index: number, patch: Partial< AlternateEnclosure > ) => {
+		onChange(
+			alternateEnclosures.map( ( alt, i ) => ( i === index ? { ...alt, ...patch } : alt ) )
+		);
+	};
+	const removeEnclosure = ( index: number ) =>
+		onChange( alternateEnclosures.filter( ( _, i ) => i !== index ) );
+	const addEnclosure = () =>
+		onChange( [ ...alternateEnclosures, { url: '', type: '', title: '', lang: '' } ] );
+
+	return (
+		<>
+			{ alternateEnclosures.map( ( alt, index ) => (
+				<div
+					className={ clsx( 'jetpack-podcast-episode__person-editor', {
+						'jetpack-podcast-episode__person-editor--alt': index % 2 === 1,
+					} ) }
+					key={ index }
+				>
+					<TextControl
+						label={ __( 'File URL', 'jetpack-podcast' ) }
+						type="url"
+						value={ alt.url || '' }
+						onChange={ url => updateEnclosure( index, { url } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<TextControl
+						label={ __( 'MIME type', 'jetpack-podcast' ) }
+						help={ __( 'Required — e.g. audio/mpeg or video/mp4.', 'jetpack-podcast' ) }
+						value={ alt.type || '' }
+						onChange={ type => updateEnclosure( index, { type } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<TextControl
+						label={ __( 'Title', 'jetpack-podcast' ) }
+						value={ alt.title || '' }
+						onChange={ title => updateEnclosure( index, { title } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<TextControl
+						label={ __( 'Language', 'jetpack-podcast' ) }
+						help={ __( 'BCP 47 code, e.g. en or es-MX.', 'jetpack-podcast' ) }
+						value={ alt.lang || '' }
+						onChange={ lang => updateEnclosure( index, { lang } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<TextControl
+						label={ __( 'Bitrate (bits per second)', 'jetpack-podcast' ) }
+						type="number"
+						min={ 0 }
+						value={ alt.bitrate ?? '' }
+						onChange={ value =>
+							updateEnclosure( index, { bitrate: value === '' ? undefined : Number( value ) } )
+						}
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<Button variant="link" isDestructive onClick={ () => removeEnclosure( index ) }>
+						{ __( 'Remove alternate file', 'jetpack-podcast' ) }
+					</Button>
+				</div>
+			) ) }
+			<Button variant="secondary" onClick={ addEnclosure }>
+				{ __( 'Add alternate file', 'jetpack-podcast' ) }
+			</Button>
+		</>
+	);
+}
+
 export default function PodcastEpisodeEdit( { attributes, setAttributes, context }: EditProps ) {
 	const validated = useMemo(
 		() => getValidatedAttributes( metadata.attributes, attributes ) as PodcastEpisodeAttributes,
@@ -191,6 +350,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		people = [],
 		showPoster,
 		coverArt,
+		soundbites = [],
+		alternateEnclosures = [],
 	} = validated;
 
 	const { postId, postType } = context || {};
@@ -614,6 +775,36 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						<PeopleEditor
 							people={ people }
 							onChange={ value => setAttributes( { people: value } ) }
+						/>
+					</BaseControl>
+					<BaseControl __nextHasNoMarginBottom>
+						<BaseControl.VisualLabel>
+							{ __( 'Soundbites', 'jetpack-podcast' ) }
+						</BaseControl.VisualLabel>
+						<p className="components-base-control__help">
+							{ __(
+								'Highlight clips by start time and length. Podcasting 2.0 apps surface them for sharing, and the post page shows click-to-seek buttons.',
+								'jetpack-podcast'
+							) }
+						</p>
+						<SoundbitesEditor
+							soundbites={ soundbites }
+							onChange={ value => setAttributes( { soundbites: value } ) }
+						/>
+					</BaseControl>
+					<BaseControl __nextHasNoMarginBottom>
+						<BaseControl.VisualLabel>
+							{ __( 'Alternate files', 'jetpack-podcast' ) }
+						</BaseControl.VisualLabel>
+						<p className="components-base-control__help">
+							{ __(
+								'Offer the episode in other formats, bitrates, or languages. Listed on the post page and in the feed as alternate enclosures.',
+								'jetpack-podcast'
+							) }
+						</p>
+						<AlternateEnclosuresEditor
+							alternateEnclosures={ alternateEnclosures }
+							onChange={ value => setAttributes( { alternateEnclosures: value } ) }
 						/>
 					</BaseControl>
 				</PanelBody>

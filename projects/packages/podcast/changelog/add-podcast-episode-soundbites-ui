@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Podcast Episode: add editor controls for soundbites and alternate audio/video files, so the front-end seek buttons and Podcasting 2.0 feed tags that already render can now be authored.
