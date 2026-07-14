@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	useStatsArchives,
 	useStatsTopPosts,
@@ -83,10 +82,6 @@ type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = { num: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-
-function areClientSideCsvExportsEnabled(): boolean {
-	return getScriptData()?.premium_analytics?.client_side_csv_exports_enabled === true;
-}
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -323,8 +318,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	// params. Stats queries keep the previous period's rows as placeholder data
 	// while a refetch is in flight, so exporting mid-fetch (or after an error)
 	// could hand the user stale rows under the new-period `csvFilename`.
-	const canExport =
-		areClientSideCsvExportsEnabled() && rows.length > 0 && ! isFetching && ! isError;
+	const canExport = rows.length > 0 && ! isFetching && ! isError;
 
 	return (
 		<div className={ styles.content }>

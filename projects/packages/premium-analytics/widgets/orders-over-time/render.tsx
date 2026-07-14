@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	DownloadCsvButton,
 	OrderMetricWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
@@ -39,6 +40,7 @@ export default function OrdersOverTimeRender( {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="orders_no" />
+			<DownloadCsvButton reportType="ordersovertime" />
 		</WidgetRoot>
 	);
 }

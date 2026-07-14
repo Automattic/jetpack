@@ -1,2 +1,13 @@
-export { exportReport } from './report-export-fetch';
-export type { ExportReportParams, ExportReportResponse } from './report-export-fetch';
+export {
+	buildReportExportBody,
+	downloadReport,
+	exportReport,
+	getFilenameFromContentDisposition,
+	saveBlob,
+} from './report-export-fetch';
+export type {
+	DownloadReportParams,
+	DownloadReportResponse,
+	ExportReportParams,
+	ExportReportResponse,
+} from './report-export-fetch';

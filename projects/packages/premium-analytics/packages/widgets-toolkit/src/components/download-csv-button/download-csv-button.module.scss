@@ -23,6 +23,11 @@
 	text-decoration: none;
 }
 
+.downloadCsv:disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
 .downloadCsv:focus-visible {
 	border-radius: var(--wpds-border-radius-sm, 2px);
 	outline:
