@@ -13,7 +13,7 @@ type VideoChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 /**
  * Map a daily bucket date onto its chart bucket key for the selected period —
  * the date itself for days, the start of the ISO week for weeks, and the
- * `YYYY-MM` month prefix for months.
+ * first-of-month date (`YYYY-MM-01`) for months.
  *
  * @param date   - The daily bucket date (`YYYY-MM-DD`).
  * @param period - The chart bucket period.
