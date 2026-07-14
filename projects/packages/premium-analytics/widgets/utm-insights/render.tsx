@@ -83,6 +83,16 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 	);
 	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
 
+	// The view already falls back to the top list when the selected row is
+	// missing; clear the stored selection too once data has settled without
+	// it, so stale state can't resurface on a later refetch (WOOA7S-1666).
+	// In-flight fetches keep placeholder rows, so a valid selection survives.
+	useEffect( () => {
+		if ( selectedUtmLabel && ! selectedUtm && ! isLoading && ! isFetching ) {
+			clearSelectedUtm();
+		}
+	}, [ selectedUtmLabel, selectedUtm, isLoading, isFetching, clearSelectedUtm ] );
+
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
 		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ?? 0 ), 1 );

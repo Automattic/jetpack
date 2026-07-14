@@ -216,14 +216,6 @@ function ReferrersInner( { max }: { max: number } ) {
 		resetDrillDown,
 	} = useWidgetDrillDown< string[] >();
 
-	// Changing the dashboard date range loads a different set of referrers, so
-	// any drill-down path from the previous range no longer makes sense — return
-	// to the top-level list. Keyed on the range only, so background refetches and
-	// comparison toggles keep the current drill position.
-	useEffect( () => {
-		resetDrillDown();
-	}, [ reportParams.from, reportParams.to, resetDrillDown ] );
-
 	// Resolve the path against the current rows each render, so a refetch that
 	// drops a selected row falls back to the deepest level that still exists.
 	const trail = useMemo( () => {
@@ -243,6 +235,24 @@ function ReferrersInner( { max }: { max: number } ) {
 
 		return matched;
 	}, [ rows, drillPath ] );
+
+	// When settled data no longer resolves the whole stored path (e.g. the
+	// date range changed and the drilled group disappeared), trim it to the
+	// deepest level that still exists so stored state matches the view and
+	// stale levels can't resurface on a later refetch (WOOA7S-1666). A path
+	// that still resolves survives range changes, and in-flight fetches keep
+	// placeholder rows, so a valid selection survives refetches.
+	useEffect( () => {
+		if ( ! drillPath?.length || isLoading || isFetching || trail.length === drillPath.length ) {
+			return;
+		}
+
+		if ( trail.length ) {
+			setDrillPath( trail.map( row => row.label ) );
+		} else {
+			resetDrillDown();
+		}
+	}, [ drillPath, trail, isLoading, isFetching, setDrillPath, resetDrillDown ] );
 
 	const currentRow = trail.length ? trail[ trail.length - 1 ] : null;
 	const activeRows = currentRow ? currentRow.children ?? [] : rows;
