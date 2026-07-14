@@ -725,30 +725,33 @@ class Initializer {
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Aggregate count with no core API equivalent; $sql is the prepared statement built directly above. The result is cached in self::COVERAGE_COUNTS_TRANSIENT by the get_content_coverage() wrapper, which is the only caller — the sniff just can't see across the two methods.
-		$row = $wpdb->get_row( $sql );
+		$row = $wpdb->get_row( $sql, ARRAY_A );
 
-		if ( ! $row ) {
-			return array(
-				'total'               => 0,
-				'with_schema'         => 0,
-				'with_title'          => 0,
-				'with_description'    => 0,
-				'with_search_visible' => 0,
-			);
-		}
-
-		$total     = (int) $row->total;
-		$noindexed = (int) $row->noindexed;
+		// Defaults, so a query that returns nothing at all reads as an empty site rather
+		// than fataling on a missing key.
+		$counts = array_map(
+			'intval',
+			array_merge(
+				array(
+					'total'            => 0,
+					'with_schema'      => 0,
+					'with_title'       => 0,
+					'with_description' => 0,
+					'noindexed'        => 0,
+				),
+				is_array( $row ) ? $row : array()
+			)
+		);
 
 		return array(
-			'total'               => $total,
-			'with_schema'         => (int) $row->with_schema,
-			'with_title'          => (int) $row->with_title,
-			'with_description'    => (int) $row->with_description,
+			'total'               => $counts['total'],
+			'with_schema'         => $counts['with_schema'],
+			'with_title'          => $counts['with_title'],
+			'with_description'    => $counts['with_description'],
 			// Search-engine visibility is the inverse of the per-post noindex meta: a
 			// post is visible unless it's explicitly set to noindex (stored as '1'), so
 			// most posts (no meta row) count as visible.
-			'with_search_visible' => max( 0, $total - $noindexed ),
+			'with_search_visible' => max( 0, $counts['total'] - $counts['noindexed'] ),
 		);
 	}
 

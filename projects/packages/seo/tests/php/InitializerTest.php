@@ -18,17 +18,32 @@ use PHPUnit\Framework\TestCase;
 class InitializerTest extends TestCase {
 
 	/**
-	 * The coverage cache and its once-per-request guard are process state, so they leak
-	 * between tests unless both are cleared.
+	 * The cache, its once-per-request guard and the database all persist between tests
+	 * here, so every one of them has to start from a known-empty state.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 		$this->reset_coverage_cache();
+		$this->reset_content();
 	}
 
 	protected function tearDown(): void {
+		$this->reset_content();
 		$this->reset_coverage_cache();
 		parent::tearDown();
+	}
+
+	/**
+	 * Empty the posts tables. WorDBless keeps the SQLite database between tests, so
+	 * content created by one test would otherwise be counted by the next.
+	 */
+	private function reset_content() {
+		global $wpdb;
+
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$wpdb->posts}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		wp_cache_flush();
 	}
 
 	/**
@@ -151,18 +166,11 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * With no database behind it (this suite runs WorDBless dbless), the coverage
-	 * query returns nothing. It has to degrade to a well-formed all-zero payload —
-	 * the Overview card destructures all five counts unconditionally — and do it
-	 * without emitting a notice, which PHPUnit is configured to fail on.
+	 * An empty site still gets a well-formed payload. The aggregate has no GROUP BY, so
+	 * it returns its row even with nothing to count, and the Overview card destructures
+	 * all five counts unconditionally.
 	 */
-	public function test_content_coverage_degrades_to_zeros_without_a_database() {
-		$method = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
-		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
+	public function test_content_coverage_is_all_zeros_on_an_empty_site() {
 		$this->assertSame(
 			array(
 				'total'               => 0,
@@ -171,7 +179,110 @@ class InitializerTest extends TestCase {
 				'with_description'    => 0,
 				'with_search_visible' => 0,
 			),
-			$method->invoke( null )
+			$this->invoke_private( 'get_content_coverage' )
+		);
+	}
+
+	/**
+	 * The counts against real content. Every fixture here is one the query could plausibly
+	 * get wrong: a post with two rows for the same meta key must be counted once, not
+	 * twice; an empty-string value means "not set"; noindex only counts on an exact '1',
+	 * so '0' leaves the post search-visible; and drafts, trashed posts and other post types
+	 * are not part of the published set at all.
+	 */
+	public function test_content_coverage_counts_published_posts_and_pages() {
+		// Published, everything set, and hidden from search.
+		$this->publish(
+			array(
+				Initializer::META_SCHEMA_TYPE => 'Article',
+				Initializer::META_TITLE       => 'A title',
+				Initializer::META_DESCRIPTION => 'A description',
+				Initializer::META_NOINDEX     => '1',
+			)
+		);
+
+		// Published, nothing set.
+		$this->publish();
+
+		// Empty strings are not "set".
+		$this->publish(
+			array(
+				Initializer::META_TITLE       => '',
+				Initializer::META_DESCRIPTION => '',
+			)
+		);
+
+		// noindex '0' is not noindexed — the post stays search-visible.
+		$this->publish( array( Initializer::META_NOINDEX => '0' ) );
+
+		// Two rows for one key: the post has a title, and counts once.
+		$duplicated = $this->publish();
+		$this->add_meta_row( $duplicated, Initializer::META_TITLE, 'first' );
+		$this->add_meta_row( $duplicated, Initializer::META_TITLE, 'second' );
+
+		// A page counts alongside posts.
+		$this->publish( array( Initializer::META_DESCRIPTION => 'Page description' ), 'page' );
+
+		// None of these are part of the published set.
+		$this->publish( array( Initializer::META_TITLE => 'Draft title' ), 'post', 'draft' );
+		$this->publish( array( Initializer::META_TITLE => 'Trashed title' ), 'post', 'trash' );
+		$this->publish( array( Initializer::META_TITLE => 'Attachment title' ), 'attachment' );
+
+		$this->assertSame(
+			array(
+				'total'               => 6,
+				'with_schema'         => 1,
+				'with_title'          => 2,
+				'with_description'    => 2,
+				'with_search_visible' => 5,
+			),
+			$this->invoke_private( 'get_content_coverage' )
+		);
+	}
+
+	/**
+	 * Publish a post with the given SEO meta.
+	 *
+	 * @param array  $meta      Meta keys to set.
+	 * @param string $post_type Post type.
+	 * @param string $status    Post status.
+	 * @return int Post ID.
+	 */
+	private function publish( $meta = array(), $post_type = 'post', $status = 'publish' ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test post',
+				'post_status' => $status,
+				'post_type'   => $post_type,
+			)
+		);
+
+		foreach ( $meta as $key => $value ) {
+			update_post_meta( $post_id, $key, $value );
+		}
+
+		return $post_id;
+	}
+
+	/**
+	 * Add a postmeta row directly, so a post can end up with two rows for one key —
+	 * which `update_post_meta()` would never produce, and which the counts must dedupe.
+	 *
+	 * @param int    $post_id Post to attach the row to.
+	 * @param string $key     Meta key.
+	 * @param string $value   Meta value.
+	 * @return void
+	 */
+	private function add_meta_row( $post_id, $key, $value ) {
+		global $wpdb;
+
+		$wpdb->insert(
+			$wpdb->postmeta,
+			array(
+				'post_id'    => $post_id,
+				'meta_key'   => $key,
+				'meta_value' => $value,
+			)
 		);
 	}
 
