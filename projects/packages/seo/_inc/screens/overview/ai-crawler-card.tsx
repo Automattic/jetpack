@@ -26,12 +26,17 @@ const cantCrawlIndexingLabel = __(
 	"AI crawlers can't reach this site while search engines are blocked",
 	'jetpack-seo'
 );
+const cantReachRobotsLabel = __(
+	"Crawler settings can't apply — we can't reach this site's robots.txt file",
+	'jetpack-seo'
+);
 
 /**
- * Overview card summarizing AI crawler access. When the site can't be crawled at
- * all — search engines blocked, or a `*.wpcomstaging.com` staging address — that
- * is the card's headline state, since per-crawler settings can't take effect.
- * Otherwise it shows a one-line summary of the two crawler groups. Reads the same
+ * Overview card summarizing AI crawler access. When the per-crawler settings
+ * can't take effect — search engines blocked, a `*.wpcomstaging.com` staging
+ * address, or a host-managed robots.txt we can't reach — that reason is the
+ * card's headline state. Otherwise it shows a one-line summary of the two crawler
+ * groups. Reads the same
  * `aiStore` slice that drives the GEO tab (no separate Overview payload), and the
  * "Manage" button deep-links there.
  *
@@ -43,6 +48,9 @@ const cantCrawlIndexingLabel = __(
  */
 const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) => {
 	const canBeCrawled = searchEnginesVisible && ! data.restrictedSubdomain;
+	// Per-crawler settings only take effect when the site is crawlable AND we can
+	// reach its robots.txt to write the directives (see JETPACK-1834).
+	const settingsApply = canBeCrawled && ! data.staticRobotsTxt;
 
 	// A crawler is blocked when its override says so, else by its group default
 	// (training blocked, answer allowed) — same resolution as the GEO tab.
@@ -53,13 +61,23 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 	const answerAllowed = answerBots.filter( bot => ! isBotBlocked( bot ) ).length;
 	const trainingBlocked = trainingBots.filter( bot => isBotBlocked( bot ) ).length;
 
+	// When the settings can't apply, which reason to show — ordered by precedence
+	// (staging → not indexed → robots.txt out of reach). Module-scope labels keep
+	// the i18n minifier from folding a `? __() : __()` ternary.
+	let blockedLabel = cantReachRobotsLabel;
+	if ( data.restrictedSubdomain ) {
+		blockedLabel = cantCrawlStagingLabel;
+	} else if ( ! searchEnginesVisible ) {
+		blockedLabel = cantCrawlIndexingLabel;
+	}
+
 	return (
 		<Card.Root>
 			<Card.Header>
 				<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				{ canBeCrawled ? (
+				{ settingsApply ? (
 					<Stack direction="column" gap="xs">
 						<StatusDot
 							status={ answerAllowed > 0 ? 'ok' : 'warn' }
@@ -81,10 +99,7 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 						/>
 					</Stack>
 				) : (
-					<StatusDot
-						status="warn"
-						label={ data.restrictedSubdomain ? cantCrawlStagingLabel : cantCrawlIndexingLabel }
-					/>
+					<StatusDot status="warn" label={ blockedLabel } />
 				) }
 				<div className="jetpack-seo-overview__card-footer">
 					<Button variant="outline" tone="neutral" onClick={ onManage }>

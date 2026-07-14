@@ -214,7 +214,8 @@ const AiScreen: FC< Props > = ( { form } ) => {
 
 	/**
 	 * The AI-crawler portion of the tab: either the two control sections, or — when
-	 * the site can't be crawled — a single card explaining why.
+	 * the site can't be crawled, or its robots.txt is out of our reach — a single
+	 * card explaining why.
 	 *
 	 * @return The crawler cards, or null when there's no crawler bootstrap.
 	 */
@@ -272,21 +273,34 @@ const AiScreen: FC< Props > = ( { form } ) => {
 			);
 		}
 
+		// A static or host-managed robots.txt sits in front of WordPress, so our
+		// virtual robots.txt (and these directives) never reach crawlers — the
+		// toggles would silently do nothing. Explain, and point to the host.
+		if ( crawlers.staticRobotsTxt ) {
+			return (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									"These settings can't take effect because we can't access this site's robots.txt file. It's likely managed by your host — check with your hosting provider to control AI crawler access.",
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			);
+		}
+
 		const answerCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'answer' );
 		const trainingCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'training' );
 
 		return (
 			<>
-				{ crawlers.staticRobotsTxt && (
-					<Notice.Root intent="warning">
-						<Notice.Description>
-							{ __(
-								'A static robots.txt on your host may prevent these directives from taking effect. This is common on local, sandbox, and staging sites.',
-								'jetpack-seo'
-							) }
-						</Notice.Description>
-					</Notice.Root>
-				) }
 				<CrawlerSection
 					title={ __( 'Answer engines', 'jetpack-seo' ) }
 					intro={ __(
