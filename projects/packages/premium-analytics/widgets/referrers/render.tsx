@@ -240,10 +240,17 @@ function ReferrersInner( { max }: { max: number } ) {
 	// date range changed and the drilled group disappeared), trim it to the
 	// deepest level that still exists so stored state matches the view and
 	// stale levels can't resurface on a later refetch (WOOA7S-1666). A path
-	// that still resolves survives range changes, and in-flight fetches keep
-	// placeholder rows, so a valid selection survives refetches.
+	// that still resolves survives range changes; in-flight fetches keep
+	// placeholder rows and errors aren't settled data, so a valid selection
+	// survives refetches and transient failures.
 	useEffect( () => {
-		if ( ! drillPath?.length || isLoading || isFetching || trail.length === drillPath.length ) {
+		if (
+			! drillPath?.length ||
+			isLoading ||
+			isFetching ||
+			isError ||
+			trail.length === drillPath.length
+		) {
 			return;
 		}
 
@@ -252,7 +259,7 @@ function ReferrersInner( { max }: { max: number } ) {
 		} else {
 			resetDrillDown();
 		}
-	}, [ drillPath, trail, isLoading, isFetching, setDrillPath, resetDrillDown ] );
+	}, [ drillPath, trail, isLoading, isFetching, isError, setDrillPath, resetDrillDown ] );
 
 	const currentRow = trail.length ? trail[ trail.length - 1 ] : null;
 	const activeRows = currentRow ? currentRow.children ?? [] : rows;

@@ -86,12 +86,13 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 	// The view already falls back to the top list when the selected row is
 	// missing; clear the stored selection too once data has settled without
 	// it, so stale state can't resurface on a later refetch (WOOA7S-1666).
-	// In-flight fetches keep placeholder rows, so a valid selection survives.
+	// In-flight fetches keep placeholder rows and errors aren't settled data,
+	// so a valid selection survives refetches and transient failures.
 	useEffect( () => {
-		if ( selectedUtmLabel && ! selectedUtm && ! isLoading && ! isFetching ) {
+		if ( selectedUtmLabel && ! selectedUtm && ! isLoading && ! isFetching && ! isError ) {
 			clearSelectedUtm();
 		}
-	}, [ selectedUtmLabel, selectedUtm, isLoading, isFetching, clearSelectedUtm ] );
+	}, [ selectedUtmLabel, selectedUtm, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );

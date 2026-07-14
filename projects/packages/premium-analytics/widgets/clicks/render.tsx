@@ -308,12 +308,13 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	// The view already falls back to the top list when the selected link is
 	// missing; clear the stored selection too once data has settled without
 	// it, so stale state can't resurface on a later refetch (WOOA7S-1666).
-	// In-flight fetches keep placeholder rows, so a valid selection survives.
+	// In-flight fetches keep placeholder rows and errors aren't settled data,
+	// so a valid selection survives refetches and transient failures.
 	useEffect( () => {
-		if ( selectedClickLabel && ! selectedClick && ! isLoading && ! isFetching ) {
+		if ( selectedClickLabel && ! selectedClick && ! isLoading && ! isFetching && ! isError ) {
 			clearSelectedClick();
 		}
-	}, [ selectedClickLabel, selectedClick, isLoading, isFetching, clearSelectedClick ] );
+	}, [ selectedClickLabel, selectedClick, isLoading, isFetching, isError, clearSelectedClick ] );
 
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
