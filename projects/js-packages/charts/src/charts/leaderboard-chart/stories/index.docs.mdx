@@ -487,16 +487,21 @@ Leaderboard Charts integrate seamlessly with the chart theming system. The defau
 
 ## Responsive Behavior
 
-By default, leaderboard charts fill their parent container dimensions. The parent must provide an explicit height for constrained layouts:
+By default, leaderboard charts **fill their parent container's dimensions**. The parent must have an explicit height, or the chart must receive an `aspectRatio`:
 
 <Source
 	language="tsx"
-	code={ `// Responsive by default (fills parent container)
+	code={ `// Fill parent container (default) - parent needs explicit height
 		<div style={{ width: '100%', height: '320px' }}>
 			<LeaderboardChart data={ data } showLegend={ true } />
 		</div>
 
-		// Fixed-size exception
+		// Use aspect ratio - height from width, contained if the parent is shorter
+		<div style={{ width: '100%' }}>
+			<LeaderboardChart data={ data } aspectRatio={ 0.4 } showLegend={ true } />
+		</div>
+
+		// Fixed dimensions
 		<LeaderboardChart
 			data={ data }
 			width={ 300 }
