@@ -7,6 +7,7 @@ import {
 	viewToQueryArgs,
 	privacyStringToInt,
 	libraryRefetchInterval,
+	nextProcessingPoll,
 	LIBRARY_POLL_INTERVAL_MS,
 	PROCESSING_POLL_MAX_MS,
 } from '../use-library';
@@ -92,6 +93,68 @@ describe( 'libraryRefetchInterval', () => {
 		// An orphaned record stuck isProcessing forever must not poll unbounded.
 		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS ) ).toBe( false );
 		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS + 1 ) ).toBe( false );
+	} );
+} );
+
+describe( 'nextProcessingPoll', () => {
+	const HASH = '["library",{"page":1}]';
+
+	it( 'stamps a fresh anchor on first sighting and polls', () => {
+		const { anchor, interval } = nextProcessingPoll( null, HASH, [ '7' ], 1_000 );
+		expect( anchor ).toEqual( { queryHash: HASH, idsKey: '7', startedAt: 1_000 } );
+		expect( interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
+	} );
+
+	it( 'keeps the anchor while the same set is processing and caps on its budget', () => {
+		const stamped = nextProcessingPoll( null, HASH, [ '7' ], 1_000 ).anchor;
+		const underCap = nextProcessingPoll(
+			stamped,
+			HASH,
+			[ '7' ],
+			1_000 + PROCESSING_POLL_MAX_MS - 1
+		);
+		expect( underCap.anchor ).toBe( stamped );
+		expect( underCap.interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
+		const atCap = nextProcessingPoll( stamped, HASH, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS );
+		expect( atCap.interval ).toBe( false );
+	} );
+
+	it( 'restamps when the processing set changes, so a new upload is polled after a stuck orphan hit the cap', () => {
+		// Orphan "7" alone burned its budget…
+		const orphanOnly = nextProcessingPoll( null, HASH, [ '7' ], 0 ).anchor;
+		expect( nextProcessingPoll( orphanOnly, HASH, [ '7' ], PROCESSING_POLL_MAX_MS ).interval ).toBe(
+			false
+		);
+		// …then a new upload "9" appears at t=16min: fresh budget, polling resumes.
+		const later = PROCESSING_POLL_MAX_MS + 60_000;
+		const { anchor, interval } = nextProcessingPoll( orphanOnly, HASH, [ '9', '7' ], later );
+		expect( anchor ).toEqual( { queryHash: HASH, idsKey: '7,9', startedAt: later } );
+		expect( interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
+	} );
+
+	it( 'treats the set as order-insensitive', () => {
+		const stamped = nextProcessingPoll( null, HASH, [ '9', '7' ], 0 ).anchor;
+		expect( nextProcessingPoll( stamped, HASH, [ '7', '9' ], 5_000 ).anchor ).toBe( stamped );
+	} );
+
+	it( 'drops the anchor when processing clears for this query, keeping other queries’ anchors', () => {
+		const stamped = nextProcessingPoll( null, HASH, [ '7' ], 0 ).anchor;
+		const cleared = nextProcessingPoll( stamped, HASH, [], 5_000 );
+		expect( cleared.anchor ).toBeNull();
+		expect( cleared.interval ).toBe( false );
+		const otherQuery = nextProcessingPoll( stamped, 'other-hash', [], 5_000 );
+		expect( otherQuery.anchor ).toBe( stamped );
+	} );
+
+	it( 'restamps when the query hash changes even for the same ids', () => {
+		const stamped = nextProcessingPoll( null, HASH, [ '7' ], 0 ).anchor;
+		const other = nextProcessingPoll( stamped, 'other-hash', [ '7' ], PROCESSING_POLL_MAX_MS );
+		expect( other.anchor ).toEqual( {
+			queryHash: 'other-hash',
+			idsKey: '7',
+			startedAt: PROCESSING_POLL_MAX_MS,
+		} );
+		expect( other.interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
 	} );
 } );
 

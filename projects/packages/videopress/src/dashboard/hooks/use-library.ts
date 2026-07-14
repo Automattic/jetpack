@@ -315,10 +315,12 @@ export const LIBRARY_POLL_INTERVAL_MS = 2000;
 // VIDP-298: cap how long the "still processing" poll runs. An orphaned
 // wpcom Simple record can be stuck `isProcessing` forever (empty
 // media_details, no backend transcode job to ever finish it), which would
-// otherwise poll /wp/v2/media every 2s without bound. 15 minutes of
-// continuous polling comfortably outlasts a real transcode, so a genuine
-// upload is never cut off; a genuinely stuck record stops polling — and
-// stops implying ongoing work — once the cap is hit.
+// otherwise poll /wp/v2/media every 2s without bound. Each distinct set of
+// processing items gets 15 minutes of wall-clock polling — comfortably past
+// a typical transcode — so a stuck record stops polling (and stops implying
+// ongoing work) without starving a later upload of its own budget. A
+// transcode that genuinely outlasts the cap still resolves via the
+// while-processing focus refetch in useLibrary/useVideo.
 export const PROCESSING_POLL_MAX_MS = 15 * 60 * 1000;
 
 /**
@@ -331,7 +333,7 @@ export const PROCESSING_POLL_MAX_MS = 15 * 60 * 1000;
  * interval (VIDP-298).
  *
  * @param hasProcessing - Whether any current item is still processing.
- * @param elapsedMs     - Time since processing first began for this query key.
+ * @param elapsedMs     - Time since the current processing set was first seen.
  * @return The next poll interval in ms, or false to stop polling.
  */
 export function libraryRefetchInterval(
@@ -344,6 +346,52 @@ export function libraryRefetchInterval(
 	return LIBRARY_POLL_INTERVAL_MS;
 }
 
+export type ProcessingPollAnchor = {
+	queryHash: string;
+	/** Sorted, comma-joined ids of the items that were processing when stamped. */
+	idsKey: string;
+	startedAt: number;
+};
+
+/**
+ * Advance the processing-poll anchor and decide the next poll interval.
+ *
+ * The anchor pins when the CURRENT set of processing items was first seen for
+ * a query, and re-stamps whenever that set changes — a new upload appearing,
+ * or one of several finishing — so every distinct set gets a fresh
+ * {@link PROCESSING_POLL_MAX_MS} budget. Without this, a permanently-stuck
+ * orphan (the VIDP-298 case) would burn the budget once and then starve every
+ * later upload on the same view of polling. Pure so the whole cap behavior is
+ * unit-testable without wrangling react-query's timers.
+ *
+ * @param anchor        - The previously stored anchor, or null.
+ * @param queryHash     - The react-query hash of the query being polled.
+ * @param processingIds - Ids of the items currently processing (any order).
+ * @param now           - Current epoch ms.
+ * @return The anchor to store and the poll interval (false stops polling).
+ */
+export function nextProcessingPoll(
+	anchor: ProcessingPollAnchor | null,
+	queryHash: string,
+	processingIds: string[],
+	now: number
+): { anchor: ProcessingPollAnchor | null; interval: number | false } {
+	if ( processingIds.length === 0 ) {
+		// Processing cleared (or never started) for this query — drop its anchor
+		// so the next processing item gets a fresh budget. Another query's
+		// anchor is kept: its budget is its own.
+		return {
+			anchor: anchor?.queryHash === queryHash ? null : anchor,
+			interval: libraryRefetchInterval( false, 0 ),
+		};
+	}
+	const idsKey = [ ...processingIds ].sort().join( ',' );
+	if ( anchor?.queryHash !== queryHash || anchor.idsKey !== idsKey ) {
+		anchor = { queryHash, idsKey, startedAt: now };
+	}
+	return { anchor, interval: libraryRefetchInterval( true, now - anchor.startedAt ) };
+}
+
 /**
  * Fetch and cache the VideoPress media library from /wp/v2/media.
  *
@@ -351,11 +399,11 @@ export function libraryRefetchInterval(
  * @return Items, loading/error state, pagination info, and a refetch callback.
  */
 export function useLibrary( view: View ) {
-	// Anchor (per query key) for when the current processing run began, so the
+	// Anchor for when the current processing set was first seen, so the
 	// VIDP-298 poll cap can measure elapsed time across refetches without
 	// causing re-renders. Stored in a ref, not state, so mutating it never
 	// re-runs the hook or the interval callback.
-	const processingStartRef = useRef< { key: string; startedAt: number } | null >( null );
+	const processingStartRef = useRef< ProcessingPollAnchor | null >( null );
 
 	const query = useQuery( {
 		// Every filter (privacy, type, sort, search, page, perPage) is now
@@ -367,26 +415,25 @@ export function useLibrary( view: View ) {
 		// VideoPress backend (no poster yet / finished=false), re-fetch every
 		// 2s so the placeholder is replaced as soon as the data is ready.
 		// React-query pauses this when the tab is hidden, so it's cheap.
-		// Capped after PROCESSING_POLL_MAX_MS of continuous processing so an
-		// orphaned/stuck record can't poll forever (VIDP-298); the anchor is
-		// keyed by queryHash so it resets when filters/page/search change.
+		// Capped per processing set after PROCESSING_POLL_MAX_MS so an
+		// orphaned/stuck record can't poll forever (VIDP-298); see
+		// nextProcessingPoll for the anchor semantics.
 		refetchInterval: q => {
-			const hasProcessing = Boolean( q.state.data?.items.some( item => item.isProcessing ) );
-			if ( ! hasProcessing ) {
-				// Processing cleared (or never started) for this query — drop the
-				// anchor so the next processing item gets a fresh time budget.
-				if ( processingStartRef.current?.key === q.queryHash ) {
-					processingStartRef.current = null;
-				}
-				return libraryRefetchInterval( false, 0 );
-			}
-			// First sighting of processing for this query key (or the key
-			// changed): stamp the start so elapsed time is measured from here.
-			if ( processingStartRef.current?.key !== q.queryHash ) {
-				processingStartRef.current = { key: q.queryHash, startedAt: Date.now() };
-			}
-			return libraryRefetchInterval( true, Date.now() - processingStartRef.current.startedAt );
+			const { anchor, interval } = nextProcessingPoll(
+				processingStartRef.current,
+				q.queryHash,
+				( q.state.data?.items ?? [] ).filter( item => item.isProcessing ).map( item => item.id ),
+				Date.now()
+			);
+			processingStartRef.current = anchor;
+			return interval;
 		},
+		// The dashboard disables focus refetches globally, but while something
+		// is processing a return to the tab is exactly when the user expects
+		// fresh state — and it's the recovery path once the poll cap above has
+		// fired: a transcode that genuinely outlasts the cap flips to ready on
+		// the next focus instead of never.
+		refetchOnWindowFocus: q => Boolean( q.state.data?.items.some( item => item.isProcessing ) ),
 	} );
 
 	return {

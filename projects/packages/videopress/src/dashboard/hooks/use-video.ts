@@ -1,11 +1,17 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
 import { buildShortcode } from '../utils/format';
 import { isSimpleSite } from '../utils/is-simple';
-import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
+import {
+	LIBRARY_ITEM_QUERY_SEGMENT,
+	LIBRARY_QUERY_KEY,
+	nextProcessingPoll,
+	privacyIntToString,
+} from './use-library';
+import type { ProcessingPollAnchor } from './use-library';
 import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem } from '../types/library';
 
@@ -96,6 +102,9 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
  * @return An object with the video item, loading/error state, and the raw error.
  */
 export function useVideo( id: number | string ) {
+	// VIDP-298 poll-cap anchor — same machinery as useLibrary, over one item.
+	const processingStartRef = useRef< ProcessingPollAnchor | null >( null );
+
 	const query = useQuery< LibraryItem >( {
 		queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
 		queryFn: async () => {
@@ -103,9 +112,22 @@ export function useVideo( id: number | string ) {
 			return toLibraryItem( raw );
 		},
 		enabled: Boolean( id ),
-		// Re-fetch every 2s while the backend is still processing this
-		// video so the poster / duration appear without a manual reload.
-		refetchInterval: q => ( q.state.data?.isProcessing ? 2000 : false ),
+		// Re-fetch every 2s while the backend is still processing this video so
+		// the poster / duration appear without a manual reload — capped like the
+		// library list so a stuck record can't poll forever (VIDP-298).
+		refetchInterval: q => {
+			const { anchor, interval } = nextProcessingPoll(
+				processingStartRef.current,
+				q.queryHash,
+				q.state.data?.isProcessing ? [ String( id ) ] : [],
+				Date.now()
+			);
+			processingStartRef.current = anchor;
+			return interval;
+		},
+		// Recovery path once the cap has fired: a longer-than-cap transcode
+		// flips to ready on the next tab focus (globally this is disabled).
+		refetchOnWindowFocus: q => Boolean( q.state.data?.isProcessing ),
 	} );
 
 	return {
