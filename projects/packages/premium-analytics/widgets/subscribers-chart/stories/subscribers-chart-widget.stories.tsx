@@ -13,23 +13,50 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscribersChartRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, {
+	DEFAULT_SUBSCRIBERS_CHART_METRICS,
+	type SubscribersChartMetricId,
+} from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const SUBSCRIBERS_CHART_RENDER_MODULE = 'storybook/subscribers-chart';
 
+// Carry the widget's metadata, including the metric-visibility attribute schema
+// so the dashboard story's settings drawer renders the real controls. The
+// attribute schema is typed loosely on the widget definition, so it is cast to
+// the WidgetType shape.
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	icon: widgetDefinition.icon,
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
+};
+
 interface SubscribersChartStoryControls {
 	withComparison: boolean;
+	metrics: SubscribersChartMetricId[];
 }
 
-function renderSubscribersChart( { withComparison }: SubscribersChartStoryControls ) {
+const METRIC_ARG_TYPES = {
+	metrics: {
+		control: 'check',
+		options: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+	},
+} as const;
+
+const ALL_METRICS_ARGS = {
+	metrics: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+} as const;
+
+function renderSubscribersChart( { withComparison, metrics }: SubscribersChartStoryControls ) {
 	return (
 		<SubscribersChartRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
 		/>
 	);
 }
@@ -47,12 +74,13 @@ const meta = {
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the "Group by" control is the `granularity` attribute (`relevance: \'high\'`), exposed by the widget host, and chooses the bucket size (day/week/month) within that range. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. Paid subscribers render as a second line when present. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
+					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the "Group by" control is the `granularity` attribute and the tab selection is the `metrics` attribute (both `relevance: \'high\'`), exposed by the widget host. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. The Paid subscribers tab renders only when the site has paid subscribers, even while selected. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
 			},
 		},
 	},
@@ -67,7 +95,7 @@ type Story = StoryObj< SubscribersChartStoryControls >;
  */
 export const Default: Story = {
 	render: renderSubscribersChart,
-	args: { withComparison: false },
+	args: { withComparison: false, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -77,7 +105,7 @@ export const Default: Story = {
  */
 export const WithComparison: Story = {
 	render: renderSubscribersChart,
-	args: { withComparison: true },
+	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -87,15 +115,16 @@ interface SubscribersChartDashboardStoryProps
 
 function SubscribersChartDashboardStory( {
 	withComparison,
+	metrics,
 	...dashboardArgs
 }: SubscribersChartDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ storyWidgetType }
 			renderModule={ SUBSCRIBERS_CHART_RENDER_MODULE }
 			renderComponent={ SubscribersChartRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
 		/>
 	);
 }
@@ -108,9 +137,11 @@ export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStory
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		withComparison: true,
+		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 };
