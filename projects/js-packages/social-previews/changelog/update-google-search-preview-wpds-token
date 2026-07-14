@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: Replace Calypso `--color-neutral-0` with WPDS `--wpds-color-stroke-surface-neutral` in Google search preview styles.

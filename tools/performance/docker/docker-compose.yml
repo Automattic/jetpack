@@ -27,7 +27,7 @@ services:
   # WordPress with Jetpack simulated connection
   # Uses mu-plugin to fake connection tokens and intercept WP.com API calls with artificial latency
   wordpress-jetpack-connected:
-    image: wordpress:6.9-php8.2-apache
+    image: wordpress:7.0-php8.2-apache
     ports:
       - "80"  # Dynamic port - use 'docker compose port wordpress-jetpack-connected 80' to discover
     restart: unless-stopped

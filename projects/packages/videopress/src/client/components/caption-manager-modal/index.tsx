@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Button, DropZone, Modal, Notice } from '@wordpress/components';
+import { Button, DropZone, Modal, Notice, SnackbarList } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from '@wordpress/element';
 import { __, _x, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, close, plus, upload } from '@wordpress/icons';
@@ -56,6 +56,7 @@ import {
 } from './track-helpers';
 import TrackList from './track-list';
 import UploadWorkspace from './upload-workspace';
+import { useCaptionSnackbars } from './use-caption-snackbars';
 import { useCaptionTracks } from './use-caption-tracks';
 import { useTrackMutations } from './use-track-mutations';
 import { useVideoTracks } from './use-video-tracks';
@@ -69,7 +70,7 @@ import './style.scss';
  * Types
  */
 import type { CaptionPreviewPlayerHandle, CaptionPreviewProps } from './caption-preview-player';
-import type { CaptionCueBlock, ManualTrack, NoticeState } from './track-helpers';
+import type { CaptionCueBlock, ManualTrack } from './track-helpers';
 import type { TrackListBusy } from './track-list';
 import type { CaptionManagerModalProps } from './types';
 import type { WorkspaceAction } from './workspace-reducer';
@@ -151,7 +152,10 @@ function CaptionManagerModalInner( {
 	}, [] );
 
 	const [ workspace, dispatch ] = useReducer( workspaceReducer, initialWorkspaceState );
-	const [ notice, setNotice ] = useState< NoticeState >( null );
+	// Sticky, inline error for form-validation the current action can't proceed past.
+	const [ validationNotice, setValidationNotice ] = useState< string | null >( null );
+	// Transient snackbars for outcomes and async failures; see use-caption-snackbars.ts.
+	const { snackbars, notify, removeSnackbar, clearSnackbars } = useCaptionSnackbars();
 	const [ confirmation, setConfirmation ] = useState< ConfirmationState | null >( null );
 	// Whether the manual editor holds unsaved track edits; reported by the
 	// editor on transitions and reset with each new workspace instance.
@@ -166,10 +170,10 @@ function CaptionManagerModalInner( {
 		[]
 	);
 
-	// Workspace transitions and form edits clear any lingering notice.
+	// Workspace transitions and form edits clear any lingering validation notice.
 	const dispatchAndClearNotice = useCallback( ( action: WorkspaceAction ) => {
 		dispatch( action );
-		setNotice( null );
+		setValidationNotice( null );
 	}, [] );
 
 	// Editor-wide bits the cue blocks can't receive as props; see caption-editor-context.ts.
@@ -181,25 +185,23 @@ function CaptionManagerModalInner( {
 		isPrivate,
 		tracks,
 		onError: () =>
-			setNotice( {
-				status: 'error',
-				message: __(
+			notify(
+				__(
 					'Couldn’t load the latest track list for this video. It may be incomplete.',
 					'jetpack-videopress-pkg'
-				),
-			} ),
+				)
+			),
 	} );
 	const { captionTracks, setCaptionTracks, isLoadingCaptionTracks } = useCaptionTracks( {
 		guid,
 		isOpen,
 		onError: () =>
-			setNotice( {
-				status: 'error',
-				message: __(
+			notify(
+				__(
 					'Couldn’t load saved subtitle drafts. Any existing drafts may not appear.',
 					'jetpack-videopress-pkg'
-				),
-			} ),
+				)
+			),
 	} );
 
 	const {
@@ -221,7 +223,7 @@ function CaptionManagerModalInner( {
 		setManagedTracks,
 		setCaptionTracks,
 		onTracksChange,
-		setNotice,
+		notify,
 	} );
 
 	const resetToTrackList = useCallback( () => {
@@ -233,8 +235,9 @@ function CaptionManagerModalInner( {
 		if ( isOpen ) {
 			resetToTrackList();
 			setConfirmation( null );
+			clearSnackbars();
 		}
-	}, [ isOpen, resetToTrackList ] );
+	}, [ isOpen, resetToTrackList, clearSnackbars ] );
 
 	/*
 	 * The discard confirmation only guards in-modal navigation; this guards the
@@ -357,13 +360,9 @@ function CaptionManagerModalInner( {
 	const concludeTrackFlow = useCallback(
 		( cleanupFailed: boolean, successMessage: string, cleanupFailedMessage: string ) => {
 			resetToTrackList();
-			setNotice(
-				cleanupFailed
-					? { status: 'error', message: cleanupFailedMessage }
-					: { status: 'success', message: successMessage }
-			);
+			notify( cleanupFailed ? cleanupFailedMessage : successMessage );
 		},
-		[ resetToTrackList ]
+		[ notify, resetToTrackList ]
 	);
 
 	/*
@@ -464,13 +463,12 @@ function CaptionManagerModalInner( {
 				dispatch( { type: 'CONTENT_LOAD_FAILED', requestId } );
 				// Only surface the failure if this workspace is still the current one.
 				if ( isCurrentWorkspace( requestId ) ) {
-					setNotice( {
-						status: 'error',
-						message: __(
+					notify(
+						__(
 							'Unable to load subtitle content. You can try again from the track list or start from an empty subtitle track.',
 							'jetpack-videopress-pkg'
-						),
-					} );
+						)
+					);
 				}
 			}
 		},
@@ -481,6 +479,7 @@ function CaptionManagerModalInner( {
 			isCurrentWorkspace,
 			loadTrackText,
 			nextRequestId,
+			notify,
 		]
 	);
 
@@ -540,14 +539,13 @@ function CaptionManagerModalInner( {
 			}
 
 			if ( ! isAcceptedTrackFile( file ) ) {
-				setNotice( {
-					status: 'error',
-					message: sprintf(
+				setValidationNotice(
+					sprintf(
 						/* translators: %s: comma-separated list of accepted subtitle file extensions. */
 						__( 'Accepted formats: %s.', 'jetpack-videopress-pkg' ),
 						SUPPORTED_CAPTION_FORMATS_LABEL
-					),
-				} );
+					)
+				);
 				return;
 			}
 
@@ -575,7 +573,7 @@ function CaptionManagerModalInner( {
 			managedTracks,
 		} );
 		if ( 'error' in result ) {
-			setNotice( { status: 'error', message: result.error } );
+			setValidationNotice( result.error );
 			return;
 		}
 
@@ -620,10 +618,7 @@ function CaptionManagerModalInner( {
 			captionTracks,
 		} );
 		if ( ! payload ) {
-			setNotice( {
-				status: 'error',
-				message: __( 'Choose a subtitle language.', 'jetpack-videopress-pkg' ),
-			} );
+			setValidationNotice( __( 'Choose a subtitle language.', 'jetpack-videopress-pkg' ) );
 			return;
 		}
 
@@ -655,28 +650,21 @@ function CaptionManagerModalInner( {
 			captionTracks,
 		} );
 		if ( ! payload ) {
-			setNotice( {
-				status: 'error',
-				message: __( 'Choose a subtitle language.', 'jetpack-videopress-pkg' ),
-			} );
+			setValidationNotice( __( 'Choose a subtitle language.', 'jetpack-videopress-pkg' ) );
 			return;
 		}
 
 		const cueValidationErrors = getCaptionCueValidationErrors( cueBlocks );
 		if ( cueValidationErrors.length ) {
-			setNotice( {
-				status: 'error',
-				message: getCueValidationNoticeMessage( cueValidationErrors[ 0 ] ),
-			} );
+			setValidationNotice( getCueValidationNoticeMessage( cueValidationErrors[ 0 ] ) );
 			return;
 		}
 
 		const cues = captionBlocksToCues( cueBlocks );
 		if ( ! cues.length ) {
-			setNotice( {
-				status: 'error',
-				message: __( 'Add at least one subtitle cue before publishing.', 'jetpack-videopress-pkg' ),
-			} );
+			setValidationNotice(
+				__( 'Add at least one subtitle cue before publishing.', 'jetpack-videopress-pkg' )
+			);
 			return;
 		}
 
@@ -739,10 +727,9 @@ function CaptionManagerModalInner( {
 
 			const cues = parseCaptionTextInput( workspace.textImportValue );
 			if ( ! cues.length ) {
-				setNotice( {
-					status: 'error',
-					message: __( 'Paste subtitle text before importing.', 'jetpack-videopress-pkg' ),
-				} );
+				setValidationNotice(
+					__( 'Paste subtitle text before importing.', 'jetpack-videopress-pkg' )
+				);
 				return false;
 			}
 
@@ -752,13 +739,10 @@ function CaptionManagerModalInner( {
 				cueBlocks: cues.map( createCueBlock ),
 				currentCueBlocks: cueBlocksRef.current,
 			} );
-			setNotice( {
-				status: 'success',
-				message: __( 'Subtitle text imported.', 'jetpack-videopress-pkg' ),
-			} );
+			notify( __( 'Subtitle text imported.', 'jetpack-videopress-pkg' ) );
 			return true;
 		},
-		[ workspace ]
+		[ notify, workspace ]
 	);
 
 	const requestDeleteTrack = useCallback(
@@ -1009,9 +993,9 @@ function CaptionManagerModalInner( {
 						</div>
 					</div>
 
-					{ notice && (
-						<Notice status={ notice.status } isDismissible={ false }>
-							{ notice.message }
+					{ validationNotice && (
+						<Notice status="error" isDismissible={ false }>
+							{ validationNotice }
 						</Notice>
 					) }
 
@@ -1104,6 +1088,12 @@ function CaptionManagerModalInner( {
 							onCancel={ () => setConfirmation( null ) }
 						/>
 					) }
+
+					<SnackbarList
+						notices={ snackbars }
+						className="videopress-caption-manager__snackbars"
+						onRemove={ removeSnackbar }
+					/>
 				</div>
 			</Modal>
 		</CaptionEditorContext.Provider>

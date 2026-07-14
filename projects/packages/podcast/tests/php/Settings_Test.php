@@ -15,14 +15,15 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Settings::class )]
 class Settings_Test extends BaseTestCase {
 
-	public function test_register_settings_exposes_every_option_to_rest() {
+	public function test_register_settings_keeps_sanitizers_but_not_core_rest_exposure() {
 		Settings::register_settings();
 
 		$registered = get_registered_settings();
 
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$this->assertArrayHasKey( $name, $registered, "$name should be registered" );
-			$this->assertNotEmpty( $registered[ $name ]['show_in_rest'], "$name should declare show_in_rest" );
+			$this->assertNotEmpty( $registered[ $name ]['sanitize_callback'], "$name should keep its sanitize_callback" );
+			$this->assertEmpty( $registered[ $name ]['show_in_rest'], "$name should not be exposed through core /wp/v2/settings" );
 		}
 	}
 

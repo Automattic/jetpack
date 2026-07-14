@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats reports: request day-bucketed windows instead of leaking the dashboard chart interval as the API period, and exclude archive pages from the top-posts list.

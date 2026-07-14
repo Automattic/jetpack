@@ -120,7 +120,30 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
 );
 
-const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
+// Fields surfaced first in the block inserter. The quick inserter (the inline
+// "+" inside a form) shows only the first 6 prioritized blocks, and that
+// prioritized order fully overrides Gutenberg's usage-based "most used"
+// ranking. Deriving the order from child-blocks.js alone buried the most
+// commonly used fields (Name, Email, Textarea…) past the 6-item cutoff while
+// surfacing incidental ones like Hidden. List the common fields explicitly
+// here; the remaining valid fields follow in their child-blocks.js order. See
+// DSGCOM-690.
+const FEATURED_INSERTER_FIELDS = [
+	'jetpack/field-name',
+	'jetpack/field-email',
+	'jetpack/field-textarea',
+	'jetpack/field-text',
+	'jetpack/field-telephone',
+	'jetpack/field-select',
+];
+
+const PRIORITIZED_INSERTER_BLOCKS = ( () => {
+	const validFieldNames = validFields.map( block => `jetpack/${ block.name }` );
+	return [
+		...FEATURED_INSERTER_FIELDS.filter( name => validFieldNames.includes( name ) ),
+		...validFieldNames.filter( name => ! FEATURED_INSERTER_FIELDS.includes( name ) ),
+	];
+} )();
 
 // Determine if a block has a required attribute. Exclude hidden fields.
 const isInputWithRequiredField = ( fullName?: string ): boolean => {

@@ -40,46 +40,42 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
  * Maps normalized video rows onto the shape `LeaderboardChart` expects. Each
  * row's label opens the video's page in a new tab when the report carries a
  * URL. Shares are computed against the largest value of either period so the
- * overlay bars stay proportional.
+ * overlay bars stay proportional. Rows without a matching comparison-period
+ * value keep `previousValue`/`previousShare`/`delta` as `undefined` so the
+ * chart suppresses their delta instead of fabricating a vs-zero change.
  *
- * @param rows           - The normalized video-plays rows.
- * @param withComparison - Whether to derive previous-period shares and deltas.
+ * @param rows - The normalized video-plays rows.
  * @return The leaderboard chart data.
  */
-function buildLeaderboardData(
-	rows: VideoPlaysRow[],
-	withComparison: boolean
-): LeaderboardChartData {
+function buildLeaderboardData( rows: VideoPlaysRow[] ): LeaderboardChartData {
 	// `1` guards against division by zero when every value is 0.
 	const maxPlays = Math.max( ...rows.flatMap( row => [ row.plays, row.previousPlays ?? 0 ] ), 1 );
 
-	return rows.map( row => {
-		const previousValue = row.previousPlays ?? 0;
-
-		return {
-			id: row.key,
-			label: row.link ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.link }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</span>
-			),
-			currentValue: row.plays,
-			currentShare: ( row.plays / maxPlays ) * 100,
-			previousValue,
-			previousShare: withComparison ? ( previousValue / maxPlays ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.plays, previousValue ) : 0,
-		};
-	} );
+	return rows.map( row => ( {
+		id: row.key,
+		label: row.link ? (
+			<Link
+				className={ styles.labelLink }
+				href={ row.link }
+				variant="unstyled"
+				openInNewTab
+				title={ row.label }
+			>
+				{ row.label }
+			</Link>
+		) : (
+			<span className={ styles.labelText } title={ row.label }>
+				{ row.label }
+			</span>
+		),
+		currentValue: row.plays,
+		currentShare: ( row.plays / maxPlays ) * 100,
+		previousValue: row.previousPlays,
+		previousShare:
+			row.previousPlays !== undefined ? ( row.previousPlays / maxPlays ) * 100 : undefined,
+		delta:
+			row.previousPlays !== undefined ? calculateDelta( row.plays, row.previousPlays ) : undefined,
+	} ) );
 }
 
 type VideoPressReportProps = {
@@ -100,28 +96,27 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
-		useStatsVideoPlays( statsParams );
+	// The hook merges comparison rows in the data layer and gates
+	// `hasComparison` on at least one visible row (`maxRows`) having a matching
+	// comparison row, so the chart never fabricates vs-zero deltas.
+	const {
+		primary,
+		comparisonRows,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		refetch,
+	} = useStatsVideoPlays( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
-	const primaryData = primary.data;
-	const comparisonData = comparison.data;
 
-	const rows = useMemo(
-		() => toVideoPlaysRows( primaryData, comparisonData ),
-		[ primaryData, comparisonData ]
-	);
+	const rows = useMemo( () => toVideoPlaysRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
 
-	// Only render comparison UI when at least one primary row matched a
-	// comparison row; otherwise every row would show a fabricated vs-zero delta.
-	const withComparison = hasComparison && rows.some( row => row.previousPlays !== null );
-
-	const chartData = useMemo(
-		() => buildLeaderboardData( rows, withComparison ),
-		[ rows, withComparison ]
-	);
+	const chartData = useMemo( () => buildLeaderboardData( rows ), [ rows ] );
 
 	return (
 		<WidgetState
@@ -146,7 +141,7 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 		>
 			<LeaderboardChart
 				data={ chartData }
-				withComparison={ withComparison }
+				withComparison={ hasComparison }
 				withOverlayLabel
 				showLegend={ false }
 				dataFormat={ {

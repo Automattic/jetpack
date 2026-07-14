@@ -7,7 +7,7 @@ export {
 export type { StatsComparisonRowContext } from './utils';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
-export { sanitizeStatsReferrersResponse } from './referrers';
+export { mergeStatsReferrersComparisonRows, sanitizeStatsReferrersResponse } from './referrers';
 export { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from './clicks';
 export {
 	mergeStatsSearchTermsComparisonRows,
@@ -31,7 +31,7 @@ export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
-export { sanitizeStatsArchivesResponse } from './archives';
+export { mergeStatsArchivesComparisonRows, sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
 export { sanitizeStatsCommentsResponse } from './comments';
@@ -61,7 +61,7 @@ export type {
 	StatsPostWeekDay,
 	StatsPostYear,
 } from './post';
-export type { StatsReferrersItem } from './referrers';
+export type { StatsReferrersComparisonItem, StatsReferrersItem } from './referrers';
 export type { StatsClicksComparisonItem, StatsClicksItem } from './clicks';
 export type { StatsSearchTermsComparisonItem, StatsSearchTermsItem } from './search-terms';
 export type { StatsFileDownloadsComparisonItem, StatsFileDownloadsItem } from './file-downloads';
@@ -94,7 +94,7 @@ export type {
 } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
-export type { StatsArchivesItem } from './archives';
+export type { StatsArchivesComparisonItem, StatsArchivesItem } from './archives';
 export type {
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,

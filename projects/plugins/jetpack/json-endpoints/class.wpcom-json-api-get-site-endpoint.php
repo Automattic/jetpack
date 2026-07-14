@@ -243,6 +243,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_classic_early_release',
 		'jetpack_recovery_mode_status',
 		'apm_enabled',
+		'wpcom_ai_launchpad_enabled',
+		'wpcom_ai_launchpad_dismissed',
+		'wpcom_ai_launchpad_completed',
 	);
 
 	/**
@@ -1009,6 +1012,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'apm_enabled':
 					$options[ $key ] = $site->get_apm_enabled();
+					break;
+				case 'wpcom_ai_launchpad_enabled':
+					$options[ $key ] = $site->is_ai_launchpad_enabled();
+					break;
+				case 'wpcom_ai_launchpad_dismissed':
+					$options[ $key ] = $site->is_ai_launchpad_dismissed();
+					break;
+				case 'wpcom_ai_launchpad_completed':
+					$options[ $key ] = $site->is_ai_launchpad_completed();
 					break;
 			}
 		}

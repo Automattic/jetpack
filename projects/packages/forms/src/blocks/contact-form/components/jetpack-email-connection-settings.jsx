@@ -90,7 +90,6 @@ const JetpackEmailConnectionSettings = ( {
 			<ToggleControl
 				label={ __( 'Email me new responses', 'jetpack-forms' ) }
 				checked={ emailNotifications }
-				help={ __( 'Get incoming form responses sent to your email inbox.', 'jetpack-forms' ) }
 				onChange={ value => setAttributes( { emailNotifications: value } ) }
 				__nextHasNoMarginBottom={ true }
 			/>
