@@ -674,13 +674,24 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that the Agents Manager block-editor gate opens in the post editor.
+	 * Test that the existing Simple post editor remains available outside internal testing.
 	 */
-	public function test_enable_agents_manager_on_provider_surfaces_enables_post_editor() {
+	public function test_enable_agents_manager_on_provider_surfaces_enables_simple_post_editor_outside_internal_testing() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->simulate_wpcom_simple();
 
 		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_on_provider_surfaces( false ) );
+	}
+
+	/**
+	 * Test that newly supported editor surfaces remain limited to internal testing.
+	 */
+	public function test_enable_agents_manager_on_provider_surfaces_gates_new_surfaces_outside_internal_testing() {
+		$this->set_page_block_editor_screen();
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_on_provider_surfaces( false ) );
+
+		$this->set_site_editor_screen();
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_on_provider_surfaces( false ) );
 	}
 
 	/**
@@ -804,11 +815,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A non-internal testing environment does not emit sidebar data, even if the
-	 * generic feature filter tries to enable in-development suggestions.
+	 * The public post editor keeps AI Editorial Review while in-development suggestions
+	 * remain disabled outside internal testing, even when the generic filter enables them.
 	 */
-	public function test_add_agents_manager_data_preview_features_filter_cannot_bypass_internal_testing_gate() {
+	public function test_add_agents_manager_data_keeps_aer_and_gates_in_development_features_outside_internal_testing() {
 		$this->set_block_editor_screen();
+		$this->simulate_wpcom_simple();
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
 			function ( $features ) {
@@ -823,8 +835,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
-		$this->assertArrayNotHasKey( 'agentId', $data );
-		$this->assertArrayNotHasKey( 'jetpackAiSidebar', $data );
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
+		$this->assertTrue( $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
+		$this->assertFalse( $data['jetpackAiSidebar']['features']['generateFeedback'] );
+		$this->assertFalse( $data['jetpackAiSidebar']['features']['proofreadContent'] );
+		$this->assertFalse( $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertFalse( $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+		$this->assertFalse( $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
 	}
 
 	/**
@@ -1274,10 +1291,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that abilities script is not enqueued outside internal testing environments.
+	 * Test that abilities script is not enqueued in the page editor outside internal testing.
 	 */
-	public function test_abilities_script_skips_outside_internal_testing_environment() {
-		$this->set_block_editor_screen();
+	public function test_abilities_script_skips_page_editor_outside_internal_testing_environment() {
+		$this->set_page_block_editor_screen();
 		$this->cache_sidebar_asset_data();
 
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
@@ -1286,12 +1303,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that abilities script is enqueued in the post block editor.
+	 * Test that abilities script remains enqueued in the post editor outside internal testing.
 	 */
-	public function test_abilities_script_enqueues_in_block_editor() {
+	public function test_abilities_script_enqueues_in_post_editor_outside_internal_testing() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->simulate_wpcom_simple();
 
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
 
@@ -1422,10 +1439,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that register_provider returns existing providers outside internal testing environments.
+	 * Test that register_provider returns existing providers on new surfaces outside internal testing.
 	 */
-	public function test_register_provider_skips_outside_internal_testing_environment() {
-		$this->set_block_editor_screen();
+	public function test_register_provider_skips_page_editor_outside_internal_testing_environment() {
+		$this->set_page_block_editor_screen();
 		$this->cache_sidebar_asset_data();
 
 		$existing  = array( 'https://example.com/provider-a.mjs' );

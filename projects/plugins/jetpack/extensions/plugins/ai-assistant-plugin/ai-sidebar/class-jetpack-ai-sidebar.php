@@ -431,16 +431,16 @@ class Jetpack_AI_Sidebar {
 	 * Whether the Jetpack AI provider bundle should be exposed for this request.
 	 *
 	 * This is scoped to the supported editor surfaces: post editor, page editor,
-	 * and site editor. It stays behind the same internal rollout gate as Generate
-	 * Feedback: preview enabled, internal testing environment, and AI features
-	 * available.
+	 * and site editor. The existing post editor surface remains available when
+	 * preview and AI feature gates pass, while the new page and site editor
+	 * surfaces require an internal testing environment.
 	 *
 	 * @return bool
 	 */
 	private static function should_expose_provider(): bool {
 		return self::is_jetpack_ai_sidebar_preview_enabled()
 			&& self::is_supported_provider_surface()
-			&& jetpack_is_internal_testing_environment()
+			&& self::is_provider_rollout_enabled()
 			&& self::has_ai_features();
 	}
 
@@ -684,6 +684,26 @@ class Jetpack_AI_Sidebar {
 		return self::is_block_editor()
 			&& 'post' === $screen->base
 			&& in_array( $screen->post_type, array( 'post', 'page' ), true );
+	}
+
+	/**
+	 * Keep the existing post editor rollout while gating newly supported surfaces.
+	 *
+	 * @return bool
+	 */
+	private static function is_provider_rollout_enabled(): bool {
+		if ( jetpack_is_internal_testing_environment() ) {
+			return true;
+		}
+
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		return $screen instanceof \WP_Screen
+			&& 'post' === $screen->base
+			&& 'post' === $screen->post_type;
 	}
 
 	/**
