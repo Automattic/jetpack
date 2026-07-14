@@ -102,9 +102,29 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
-// `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
-// still falls back to the default copy instead of rendering a blank message.
-$no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
+/*
+ * Basic inline HTML authors may use in the no-results messages (SEARCH-308).
+ * Anything outside this list is stripped by `wp_kses()`.
+ */
+$no_results_allowed_html = array(
+	'a'      => array(
+		'href'   => true,
+		'target' => true,
+		'rel'    => true,
+	),
+	'b'      => array(),
+	'br'     => array(),
+	'em'     => array(),
+	'i'      => array(),
+	'strong' => array(),
+);
+
+/*
+ * Sanitize before the trim check so a message that kses strips to nothing
+ * (or a whitespace-only attribute an author saved) still falls back to the
+ * default copy instead of rendering a blank message.
+ */
+$no_results_message = trim( wp_kses( (string) ( $attrs['noResultsMessage'] ?? '' ), $no_results_allowed_html ) );
 if ( '' === $no_results_message ) {
 	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
 }
@@ -112,7 +132,7 @@ if ( '' === $no_results_message ) {
 // Filter-aware variant — shown when `state.hasActiveFilters` is true. Both
 // variants live in the markup so the store's existing reactive getter picks
 // which `<p>` is visible without a store-side message-resolution branch.
-$no_results_with_filters_message = trim( (string) ( $attrs['noResultsWithFiltersMessage'] ?? '' ) );
+$no_results_with_filters_message = trim( wp_kses( (string) ( $attrs['noResultsWithFiltersMessage'] ?? '' ), $no_results_allowed_html ) );
 if ( '' === $no_results_with_filters_message ) {
 	$no_results_with_filters_message = __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' );
 }
@@ -344,8 +364,8 @@ if ( '' === $error_message ) {
 		// adding initial `hidden` to one of the variants, or both messages
 		// will flash briefly on hydration.
 		?>
-		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo esc_html( $no_results_message ); ?></p>
-		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo esc_html( $no_results_with_filters_message ); ?></p>
+		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo wp_kses( $no_results_message, $no_results_allowed_html ); ?></p>
+		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo wp_kses( $no_results_with_filters_message, $no_results_allowed_html ); ?></p>
 	</div>
 	<div
 		class="jetpack-search-results__error"

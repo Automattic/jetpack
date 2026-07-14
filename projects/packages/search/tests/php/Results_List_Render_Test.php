@@ -24,15 +24,19 @@ class Results_List_Render_Test extends TestCase {
 			'jetpack-search/results-list',
 			array(
 				'attributes'      => array(
-					'layout'           => array(
+					'layout'                      => array(
 						'type'    => 'string',
 						'default' => 'expanded',
 					),
-					'noResultsMessage' => array(
+					'noResultsMessage'            => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'errorMessage'     => array(
+					'noResultsWithFiltersMessage' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'errorMessage'                => array(
 						'type'    => 'string',
 						'default' => '',
 					),
@@ -271,13 +275,67 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Both message attributes are user-controlled, so the template must
-	 * escape HTML to prevent stored XSS through a crafted attribute value.
+	 * The no-results messages support a small allowlist of inline HTML
+	 * (SEARCH-308) — links, emphasis, and line breaks survive rendering.
 	 */
-	public function test_no_results_message_is_html_escaped() {
-		$markup = $this->render( array( 'noResultsMessage' => '<script>alert(1)</script>' ) );
-		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
-		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
+	public function test_no_results_message_keeps_allowed_inline_html() {
+		$markup = $this->render(
+			array(
+				'noResultsMessage' => 'Try <a href="/archive" target="_blank" rel="noopener">the archive</a> or <strong>browse</strong>.',
+			)
+		);
+		$this->assertStringContainsString( '<a href="/archive" target="_blank" rel="noopener">the archive</a>', $markup );
+		$this->assertStringContainsString( '<strong>browse</strong>', $markup );
+	}
+
+	/**
+	 * The filter-aware variant runs through the same kses allowlist.
+	 */
+	public function test_no_results_with_filters_message_keeps_allowed_inline_html() {
+		$markup = $this->render(
+			array(
+				'noResultsWithFiltersMessage' => 'Clear filters or <a href="/help">get help</a>.',
+			)
+		);
+		$this->assertStringContainsString( '<a href="/help">get help</a>.', $markup );
+		$this->assertStringNotContainsString( 'No results match these filters.', $markup );
+	}
+
+	/**
+	 * The message attributes are user-controlled, so anything outside the
+	 * allowlist must be stripped to prevent stored XSS through a crafted
+	 * attribute value.
+	 */
+	public function test_no_results_message_strips_disallowed_html() {
+		$markup = $this->render(
+			array(
+				'noResultsMessage' => '<script>alert(1)</script><img src="x" onerror="alert(1)">Nothing found.',
+			)
+		);
+		$this->assertStringNotContainsString( '<script>', $markup );
+		$this->assertStringNotContainsString( '<img', $markup );
+		$this->assertStringContainsString( 'Nothing found.', $markup );
+	}
+
+	/**
+	 * Disallowed attributes on allowed tags are stripped while the tag
+	 * itself survives.
+	 */
+	public function test_no_results_message_strips_disallowed_attributes() {
+		$markup = $this->render(
+			array( 'noResultsMessage' => '<a href="/x" onclick="alert(1)">link</a>' )
+		);
+		$this->assertStringContainsString( '<a href="/x">link</a>', $markup );
+		$this->assertStringNotContainsString( 'onclick', $markup );
+	}
+
+	/**
+	 * A message kses strips to nothing (e.g. a lone disallowed tag) falls
+	 * back to the default copy instead of rendering a blank message.
+	 */
+	public function test_no_results_message_that_sanitizes_to_nothing_falls_back_to_default() {
+		$markup = $this->render( array( 'noResultsMessage' => '<img src="x">' ) );
+		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
 	}
 
 	/**

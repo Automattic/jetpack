@@ -15,7 +15,13 @@
  * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { Button, PanelBody, RadioControl, TextControl } from '@wordpress/components';
+import {
+	Button,
+	PanelBody,
+	RadioControl,
+	TextControl,
+	TextareaControl,
+} from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
@@ -217,27 +223,25 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					<TextControl
-						__next40pxDefaultSize
+					<TextareaControl
 						__nextHasNoMarginBottom
 						label={ __( 'No-results message', 'jetpack-search-pkg' ) }
 						value={ attributes?.noResultsMessage || '' }
 						placeholder={ noResultsDefault }
 						onChange={ value => setAttributes( { noResultsMessage: value } ) }
 						help={ __(
-							'Shown when a search returns nothing. Leave empty for the default.',
+							'Shown when a search returns nothing. Basic HTML is supported: <a>, <strong>, <em>, <b>, <i>, and <br>. Leave empty for the default.',
 							'jetpack-search-pkg'
 						) }
 					/>
-					<TextControl
-						__next40pxDefaultSize
+					<TextareaControl
 						__nextHasNoMarginBottom
 						label={ __( 'No-results message (when filters are active)', 'jetpack-search-pkg' ) }
 						value={ attributes?.noResultsWithFiltersMessage || '' }
 						placeholder={ noResultsWithFiltersDefault }
 						onChange={ value => setAttributes( { noResultsWithFiltersMessage: value } ) }
 						help={ __(
-							'Shown when active filters return zero results. Leave empty for the default.',
+							'Shown when active filters return zero results. Basic HTML is supported: <a>, <strong>, <em>, <b>, <i>, and <br>. Leave empty for the default.',
 							'jetpack-search-pkg'
 						) }
 					/>
