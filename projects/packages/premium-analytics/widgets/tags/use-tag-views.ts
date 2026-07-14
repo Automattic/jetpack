@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useMemo } from '@wordpress/element';
+/**
  * Internal dependencies
  */
 import { useStatsTags } from '@jetpack-premium-analytics/data';
@@ -102,28 +106,40 @@ export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): T
 		max,
 	} );
 
-	const report = data as StatsNormalizedReport< StatsTagsItem > | undefined;
-	const items = ( report?.data?.[ 0 ]?.items ?? [] )
-		.slice( 0, max > 0 ? max : undefined )
-		.map( ( item, index ): TagView => {
-			const children = ( item.children ?? [] ).map(
-				( child, childIndex ): TagChildView => ( {
-					id: `${ index }-${ childIndex }-${ child.label }`,
-					label: child.label,
-					labelIcon: child.labelIcon,
-					link: child.link,
-				} )
-			);
+	// Memoize on the query's stable `data` reference so the row array keeps a
+	// stable identity across unrelated re-renders; otherwise every render hands a
+	// fresh array to render.tsx and defeats its downstream memos and drill-down
+	// effect.
+	const items = useMemo< TagView[] >( () => {
+		const report = data as StatsNormalizedReport< StatsTagsItem > | undefined;
 
-			return {
-				id: `${ index }-${ item.labelText }`,
-				label: item.labelText,
-				labelIcon: item.label[ 0 ]?.labelIcon ?? '',
-				value: item.value,
-				link: item.link,
-				children,
-			};
-		} );
+		return ( report?.data?.[ 0 ]?.items ?? [] )
+			.slice( 0, max > 0 ? max : undefined )
+			.map( ( item ): TagView => {
+				// Key on the row's own identity, not its position, so keys stay stable
+				// across refetches that reorder or drop rows: a single tag/category
+				// keys on its archive URL, a grouped row on its combined label (which
+				// the drill-down already treats as the row's unique id).
+				const parentId = item.link ?? item.labelText;
+				const children = ( item.children ?? [] ).map(
+					( child ): TagChildView => ( {
+						id: child.link ?? `${ parentId }-${ child.label }`,
+						label: child.label,
+						labelIcon: child.labelIcon,
+						link: child.link,
+					} )
+				);
+
+				return {
+					id: parentId,
+					label: item.labelText,
+					labelIcon: item.label[ 0 ]?.labelIcon ?? '',
+					value: item.value,
+					link: item.link,
+					children,
+				};
+			} );
+	}, [ data, max ] );
 
 	return {
 		data: items,
