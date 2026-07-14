@@ -59,9 +59,16 @@ describe( 'useProductCheckoutWorkflow', () => {
 
 		const { result } = renderHook( () => useProductCheckoutWorkflow( baseProps ) );
 
-		expect( useConnectionCheckoutWorkflow ).toHaveBeenCalledWith(
-			expect.objectContaining( { connectAfterCheckout: true } )
-		);
+		expect( useConnectionCheckoutWorkflow ).toHaveBeenCalledWith( {
+			productSlug: baseProps.productSlug,
+			redirectUrl: baseProps.redirectUri,
+			siteSuffix: baseProps.siteSuffix,
+			adminUrl: baseProps.adminUrl,
+			from: baseProps.from,
+			siteProductAvailabilityHandler: null,
+			connectAfterCheckout: true,
+			useBlogIdSuffix: true,
+		} );
 
 		act( () => result.current.run() );
 
