@@ -281,6 +281,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_ai_writing_assistant_enabled'         => false,
 			'jetpack_ai_image_editor_enabled'              => false,
 			'jetpack_ai_image_label_enabled'               => false,
+			'jetpack_ai_feature_clip_enabled'              => false,
 			'jetpack_ai_agents_enabled'                    => false,
 			'wpcom_classic_early_release'                  => true,
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',

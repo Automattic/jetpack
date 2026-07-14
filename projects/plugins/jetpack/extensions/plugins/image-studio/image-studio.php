@@ -163,6 +163,13 @@ function image_studio_can_generate_video_clips() {
 		return false;
 	}
 
+	// The Feature Clip toggle on the AI settings page wins over every
+	// environment-based enable below: off must mean no clip generation,
+	// even where Image Studio itself stays available.
+	if ( ! \Jetpack_AI_Settings::is_feature_enabled( 'feature_clip' ) ) {
+		return false;
+	}
+
 	if ( function_exists( 'wpcom_site_can_upload_videos' ) && ! wpcom_site_can_upload_videos() ) {
 		return false;
 	}
