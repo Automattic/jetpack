@@ -23490,12 +23490,12 @@ snapshots:
 
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
-      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
+      webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
-      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
+      webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.5)(webpack@5.107.2)':
@@ -23507,7 +23507,7 @@ snapshots:
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
-      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
+      webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@wordpress/a11y@4.50.0':
@@ -36128,7 +36128,7 @@ snapshots:
       neo-async: 2.6.2
     optionalDependencies:
       sass-embedded: 1.97.3
-      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
+      webpack: 5.107.2(webpack-cli@6.0.1)
 
   sax@1.6.0: {}
 
@@ -37592,7 +37592,7 @@ snapshots:
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
+      webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
 
   webpack-dev-middleware@7.4.5(webpack@5.107.2):
