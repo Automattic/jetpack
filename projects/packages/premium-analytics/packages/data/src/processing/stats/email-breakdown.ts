@@ -33,18 +33,33 @@ function normalizeEmailBreakdownScalarSummary( response: StatsRecord ) {
 	);
 }
 
+/**
+ * Comparator ordering breakdown items by value, descending, with the
+ * aggregated "Other" row pinned last. Exported for consumers that merge rows
+ * from several breakdown reports and need to restore this order — e.g. the
+ * email breakdown widget's links view.
+ *
+ * @param a - The first item.
+ * @param b - The second item.
+ * @return A standard comparator result.
+ */
+export function compareEmailBreakdownItems(
+	a: Pick< StatsEmailBreakdownItem, 'label' | 'value' >,
+	b: Pick< StatsEmailBreakdownItem, 'label' | 'value' >
+): number {
+	if ( a.label === 'Other' ) {
+		return 1;
+	}
+
+	if ( b.label === 'Other' ) {
+		return -1;
+	}
+
+	return b.value - a.value;
+}
+
 function sortEmailBreakdownItems( items: StatsEmailBreakdownItem[] ): StatsEmailBreakdownItem[] {
-	return [ ...items ].sort( ( a, b ) => {
-		if ( a.label === 'Other' ) {
-			return 1;
-		}
-
-		if ( b.label === 'Other' ) {
-			return -1;
-		}
-
-		return b.value - a.value;
-	} );
+	return [ ...items ].sort( compareEmailBreakdownItems );
 }
 
 function parseFieldlessEmailCountryRows( response: StatsRecord ): StatsEmailBreakdownItem[] {

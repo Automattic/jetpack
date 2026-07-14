@@ -46,7 +46,8 @@
 				"style": true,
 				"width": true
 			}
-		}
+		},
+		"listView": true
 	},
 	"attributes": {},
 	"editorScript": "file:./editor.js",

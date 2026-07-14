@@ -32,6 +32,8 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	ChartEmptyState,
+	type ChartEmptyStateProps,
 	WidgetState,
 	type WidgetStateProps,
 	type WidgetStateError,
@@ -97,7 +99,6 @@ export {
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
-	toVideoItems,
 	toMaxRows,
 } from './helpers';
 
@@ -111,6 +112,7 @@ export {
 	useSeriesStyles,
 	useWidgetError,
 	useWidgetDrillDown,
+	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**

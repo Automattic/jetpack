@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardLabel,
 	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -173,22 +174,6 @@ export function toReferrerRows(
 	return sliced.map( toReferrerRow );
 }
 
-function ReferrerLabel( { row }: { row: ReferrerRow } ) {
-	return (
-		<span className={ styles.labelContent }>
-			{ /* The fixed-size box (not the img) owns the favicon dimensions: the
-			     widget-picker preview grid stretches raw `img` elements to 100%,
-			     so sizing the parent keeps the icon 16px in both contexts. */ }
-			{ row.icon && (
-				<span className={ styles.labelIconBox }>
-					<img src={ row.icon } alt="" className={ styles.labelIcon } />
-				</span>
-			) }
-			<span className={ styles.labelTitle }>{ row.label }</span>
-		</span>
-	);
-}
-
 /**
  * Maps normalized referrer rows onto the shape `LeaderboardChart` expects.
  *
@@ -209,6 +194,15 @@ function buildLeaderboardData(
 		const previousValue = row.previousValue ?? 0;
 		const hasChildren = !! row.children?.length;
 		const shouldRenderLink = !! row.href && ! hasChildren;
+		const label = (
+			<LeaderboardLabel
+				label={ row.label }
+				imageUrl={ row.icon ?? undefined }
+				imageAlt=""
+				imageFallback="hidden"
+				imageClassName={ styles.labelIcon }
+			/>
+		);
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
@@ -220,11 +214,11 @@ function buildLeaderboardData(
 					openInNewTab
 					title={ row.label }
 				>
-					<ReferrerLabel row={ row } />
+					{ label }
 				</Link>
 			) : (
 				<span className={ styles.labelText } title={ row.label }>
-					<ReferrerLabel row={ row } />
+					{ label }
 				</span>
 			),
 			currentValue: row.value,

@@ -1,0 +1,8 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: var(--wpds-dimension-padding-lg);
+	overflow: hidden;
+}

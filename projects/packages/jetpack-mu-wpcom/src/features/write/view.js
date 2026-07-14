@@ -516,8 +516,19 @@ function stripRuntimeFigureControls( root ) {
 		wrapper.remove();
 	} );
 	root
-		.querySelectorAll( '.bw-img-delete, .bw-img-caption-btn, .bw-img-edit' )
+		.querySelectorAll(
+			'.bw-img-delete, .bw-img-caption-btn, .bw-img-edit, .bw-image-uploading-status'
+		)
 		.forEach( el => el.remove() );
+	// Drop the in-flight upload treatment (pulsing skeleton class, the inline
+	// aspect-ratio that reserves the placeholder box, and the aria-busy flag)
+	// so a save or undo capture taken mid-upload never bakes the runtime-only
+	// styling or state into stored HTML.
+	root.querySelectorAll( '.bw-image-uploading' ).forEach( fig => {
+		fig.classList.remove( 'bw-image-uploading' );
+		fig.style.removeProperty( 'aspect-ratio' );
+		fig.removeAttribute( 'aria-busy' );
+	} );
 }
 
 /**
@@ -3354,14 +3365,54 @@ function uploadAndInsertImage( file ) {
 	figure.className = 'bw-image-figure bw-image-uploading size-large';
 	const img = document.createElement( 'img' );
 	const localUrl = URL.createObjectURL( file );
+	// Reserve the image's box up-front so the pulsing placeholder is the right
+	// size before (or even without) the local preview decoding, and so the
+	// figure doesn't reflow when the uploaded URL swaps in. Start from a 3:2
+	// fallback, then refine to the real proportions once the preview reports
+	// its natural dimensions. Some formats (e.g. HEIC) never decode in-browser,
+	// in which case the fallback box stands in and the user still sees a
+	// correctly-sized, pulsing placeholder instead of nothing.
+	figure.style.aspectRatio = '3 / 2';
+	img.addEventListener(
+		'load',
+		() => {
+			// Guard on the uploading class: if the upload finished before the
+			// local preview decoded, the swap below already reassigned img.src
+			// and cleared the reserved box. Without this check the load event
+			// for the swapped-in URL would re-add an inline aspect-ratio to a
+			// completed figure, which stripRuntimeFigureControls (scoped to
+			// .bw-image-uploading) would then miss and leak into saved HTML.
+			if (
+				figure.classList.contains( 'bw-image-uploading' ) &&
+				img.naturalWidth &&
+				img.naturalHeight
+			) {
+				figure.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+			}
+		},
+		{ once: true }
+	);
 	img.src = localUrl;
 	img.alt = '';
 	figure.appendChild( img );
+
+	// Announce the in-flight upload to assistive tech: the pulsing box is a
+	// purely visual cue, so pair it with aria-busy and a visually-hidden live
+	// region. Both are removed on swap (and stripped from any save/undo capture
+	// taken mid-upload) so they never reach stored HTML.
+	figure.setAttribute( 'aria-busy', 'true' );
+	const srStatus = document.createElement( 'span' );
+	srStatus.className = 'bw-visually-hidden bw-image-uploading-status';
+	srStatus.setAttribute( 'role', 'status' );
+	figure.appendChild( srStatus );
 
 	const p = insertMediaBlock( figure );
 	if ( p ) {
 		placeCursorAt( p );
 	}
+	// Set the text after the live region is in the DOM so assistive tech
+	// reliably picks up the change as an announcement.
+	srStatus.textContent = i18n.uploadingImage || 'Uploading image…';
 	// Deliberately do NOT push undo history here: the placeholder figure's
 	// img.src is a blob: URL that gets revoked when the upload completes.
 	// Capturing the placeholder in an undo snapshot would let Cmd+Z restore
@@ -3384,6 +3435,13 @@ function uploadAndInsertImage( file ) {
 			img.alt = media.alt_text || '';
 			img.className = 'wp-image-' + media.id;
 			figure.className = 'bw-image-figure size-large';
+			// Release the reserved placeholder box — the swapped-in image now
+			// dictates the figure height. It shares the preview's aspect ratio,
+			// so clearing this produces no visible reflow.
+			figure.style.aspectRatio = '';
+			// Tear down the in-flight a11y affordances now the upload is done.
+			figure.removeAttribute( 'aria-busy' );
+			srStatus.remove();
 			mediaSizesCache.set( media.id, media.media_details?.sizes || null );
 			// The figure was decorated by addDeleteButtons() before upload,
 			// so it's missing the Size button (that branch is gated on

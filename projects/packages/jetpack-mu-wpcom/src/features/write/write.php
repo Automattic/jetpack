@@ -96,6 +96,7 @@ function wpcom_write_get_editor_strings() {
 		'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
 		// translators: %s is the error message from the upload failure.
 		'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+		'uploadingImage'       => __( 'Uploading image…', 'jetpack-mu-wpcom' ),
 		'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
 		'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
 		'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
