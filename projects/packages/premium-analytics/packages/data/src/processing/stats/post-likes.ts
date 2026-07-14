@@ -10,7 +10,6 @@ export type StatsPostLike = {
 	name: string;
 	login: string;
 	avatar_URL?: string;
-	profile_URL?: string;
 };
 
 export type StatsPostLikesResponse = {
@@ -37,7 +36,6 @@ function normalizeStatsPostLike( value: unknown ): StatsPostLike[] {
 			name: typeof like.name === 'string' ? like.name : '',
 			login: typeof like.login === 'string' ? like.login : '',
 			...( typeof like.avatar_URL === 'string' ? { avatar_URL: like.avatar_URL } : {} ),
-			...( typeof like.profile_URL === 'string' ? { profile_URL: like.profile_URL } : {} ),
 		},
 	];
 }

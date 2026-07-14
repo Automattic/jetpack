@@ -54,7 +54,9 @@ function PostLikesInner() {
 				id: like.ID,
 				name: like.name || like.login,
 				avatarUrl: like.avatar_URL,
-				href: like.profile_URL,
+				// Likers link to their WordPress.com Reader profile, mirroring
+				// Calypso's post-likes block (getUserProfileUrl).
+				href: like.login ? `https://wordpress.com/reader/users/${ like.login }` : undefined,
 			} ) ),
 		[ data ]
 	);

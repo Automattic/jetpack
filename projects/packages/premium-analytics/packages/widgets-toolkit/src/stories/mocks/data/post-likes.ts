@@ -31,7 +31,6 @@ export const mockPostLikesData = {
 			// Deterministic distinct identicons, so rows are visually distinct
 			// without bundling image assets.
 			avatar_URL: `https://gravatar.com/avatar/mock-liker-${ index }?d=identicon&s=96`,
-			profile_URL: `https://gravatar.com/${ login }`,
 		};
 	} ),
 };
