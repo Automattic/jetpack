@@ -95,7 +95,12 @@ class VideoPressToken {
 			 */
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				if ( ! class_exists( '\Jetpack_Server_Upload_Token' ) && defined( 'ABSPATH' ) ) {
-					require_once ABSPATH . 'wp-content/mu-plugins/jetpack/class.jetpack-server-upload-token.php';
+					// file_exists-guarded so a relocated wpcom mu-plugins file degrades
+					// to the friendly exception below instead of a require fatal.
+					$upload_token_file = ABSPATH . 'wp-content/mu-plugins/jetpack/class.jetpack-server-upload-token.php';
+					if ( file_exists( $upload_token_file ) ) {
+						require_once $upload_token_file;
+					}
 				}
 				if ( class_exists( '\Jetpack_Data' ) && class_exists( '\Jetpack_Server_Upload_Token' ) && defined( 'JETPACK__ANY_USER_TOKEN' ) ) {
 					$jetpack_token = \Jetpack_Data::get_access_token_by_blog_id_user_id( $blog_id, JETPACK__ANY_USER_TOKEN );

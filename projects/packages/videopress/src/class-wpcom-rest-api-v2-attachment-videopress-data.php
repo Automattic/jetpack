@@ -245,28 +245,66 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			$privacy
 		);
 
+		$ids = in_array( $mode, array( 'in', 'not_in' ), true )
+			? $this->get_wpcom_videopress_post_ids( $set )
+			: array();
+
+		return $this->apply_wpcom_id_constraint( $args, $mode, $ids );
+	}
+
+	/**
+	 * Apply a resolved (mode, ids) constraint to WP_Query args, composing with
+	 * any include/exclude constraints core already mapped onto post__in /
+	 * post__not_in (the REST `include`/`exclude` params) rather than clobbering
+	 * them. WP_Query ignores post__not_in whenever post__in is present, so an
+	 * exclusion is folded into a pre-existing include list by subtraction.
+	 *
+	 * Pure (args in, args out) so the composition rules are unit-testable
+	 * off-platform; only the resolution of $ids touches wpcom.
+	 *
+	 * @param array  $args The WP_Query args.
+	 * @param string $mode How to apply the set: 'in' | 'not_in' | 'empty' | 'none'.
+	 * @param int[]  $ids  The resolved ID set for 'in'/'not_in'.
+	 * @return array The args with the constraint applied.
+	 */
+	private function apply_wpcom_id_constraint( $args, $mode, $ids ) {
+		$existing_in = isset( $args['post__in'] ) ? array_map( 'intval', (array) $args['post__in'] ) : array();
+
 		switch ( $mode ) {
 			case 'in':
-				$ids = $this->get_wpcom_videopress_post_ids( $set );
-				// WP_Query silently ignores an empty post__in, so a restrict-set
-				// that matched nothing must fall back to a sentinel that matches no
-				// attachment (post ID 0 never exists) — otherwise it would leak the
-				// whole library.
+				// Intersect with a pre-existing include list rather than clobber
+				// it. WP_Query silently skips an empty post__in, so an empty
+				// result must fall back to a sentinel that matches no attachment
+				// (post ID 0 never exists) — otherwise it would leak the library.
+				if ( array() !== $existing_in ) {
+					$ids = array_values( array_intersect( $existing_in, $ids ) );
+				}
 				$args['post__in'] = array() === $ids ? array( 0 ) : $ids;
 				break;
+
 			case 'not_in':
-				$ids = $this->get_wpcom_videopress_post_ids( $set );
-				// An empty exclude-set must be omitted (exclude nothing); sending
-				// post__not_in = array() would be a no-op, but keep the args clean.
-				if ( array() !== $ids ) {
-					$args['post__not_in'] = $ids;
+				// An empty exclude-set excludes nothing; leave the args untouched.
+				if ( array() === $ids ) {
+					break;
 				}
+				if ( array() !== $existing_in ) {
+					// post__not_in would be ignored next to post__in — express the
+					// exclusion by subtracting from the include list instead.
+					$kept             = array_values( array_diff( $existing_in, $ids ) );
+					$args['post__in'] = array() === $kept ? array( 0 ) : $kept;
+					break;
+				}
+				$existing_not_in      = isset( $args['post__not_in'] ) ? array_map( 'intval', (array) $args['post__not_in'] ) : array();
+				$args['post__not_in'] = array_values( array_unique( array_merge( $existing_not_in, $ids ) ) );
 				break;
+
 			case 'empty':
 				// The requested combination can't match anything (e.g. local +
-				// private): force an empty result with the match-nothing sentinel.
+				// private). A pre-existing include intersected with the empty set
+				// is still empty, so the match-nothing sentinel stands either way.
 				$args['post__in'] = array( 0 );
 				break;
+
 			case 'none':
 			default:
 				// No type or privacy narrowing — the browse default stands.

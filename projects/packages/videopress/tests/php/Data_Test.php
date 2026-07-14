@@ -342,6 +342,50 @@ class Data_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that apply_wpcom_id_constraint composes with core's include/exclude
+	 * (post__in / post__not_in) instead of clobbering them, and keeps the
+	 * match-nothing sentinel on empty restrict-sets.
+	 *
+	 * @dataProvider provider_apply_id_constraint
+	 *
+	 * @param array  $args     Incoming WP_Query args.
+	 * @param string $mode     Constraint mode: none|in|not_in|empty.
+	 * @param int[]  $ids      Resolved ID set.
+	 * @param array  $expected Expected outgoing args.
+	 */
+	#[DataProvider( 'provider_apply_id_constraint' )]
+	public function test_apply_wpcom_id_constraint( $args, $mode, $ids, $expected ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'apply_wpcom_id_constraint' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( self::$videopress_rest_data, $args, $mode, $ids ) );
+	}
+
+	/**
+	 * Data provider for test_apply_wpcom_id_constraint.
+	 *
+	 * @return array<string, array{0:array,1:string,2:int[],3:array}>
+	 */
+	public static function provider_apply_id_constraint() {
+		return array(
+			'in, plain'                       => array( array(), 'in', array( 3, 5 ), array( 'post__in' => array( 3, 5 ) ) ),
+			'in, empty set -> sentinel'       => array( array(), 'in', array(), array( 'post__in' => array( 0 ) ) ),
+			'in intersects REST include'      => array( array( 'post__in' => array( 5, 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 5 ) ) ),
+			'in disjoint include -> sentinel' => array( array( 'post__in' => array( 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'not_in, plain'                   => array( array(), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 3, 5 ) ) ),
+			'not_in, empty set -> untouched'  => array( array( 'post__not_in' => array( 7 ) ), 'not_in', array(), array( 'post__not_in' => array( 7 ) ) ),
+			'not_in merges REST exclude'      => array( array( 'post__not_in' => array( 7, 3 ) ), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 7, 3, 5 ) ) ),
+			'not_in subtracts REST include'   => array( array( 'post__in' => array( 3, 9 ) ), 'not_in', array( 3, 5 ), array( 'post__in' => array( 9 ) ) ),
+			'not_in swallows include whole'   => array( array( 'post__in' => array( 3, 5 ) ), 'not_in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'empty overrides include'         => array( array( 'post__in' => array( 9 ) ), 'empty', array(), array( 'post__in' => array( 0 ) ) ),
+			'none leaves args alone'          => array( array( 'post__in' => array( 9 ) ), 'none', array(), array( 'post__in' => array( 9 ) ) ),
+		);
+	}
+
+	/**
 	 * Invokes the private Data::prepare_videopress_video_data() method.
 	 *
 	 * @param array|object $video A single video entry from the media REST endpoint.

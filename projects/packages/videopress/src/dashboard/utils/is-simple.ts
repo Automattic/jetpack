@@ -5,8 +5,9 @@
  * absent (falsy) on self-hosted Jetpack and Atomic, which keep the standalone
  * REST/media behavior. Reading it lets the shared media mapping branch to the Simple
  * `/wp/v2/media` response shape — poster/duration on `media_details` directly, no
- * `videopress` sub-object, no server-side VideoPress-type filtering — without touching
- * self-hosted behavior.
+ * `videopress` sub-object — and the query layer send the Simple-only filter params
+ * (`videopress_only_videos`, `videopress_has_guid`) without touching self-hosted
+ * behavior.
  *
  * Guards for the global being undefined so tests and the legacy page — where
  * `var JPVIDEOPRESS_INITIAL_STATE` isn't inlined — resolve to `false`.

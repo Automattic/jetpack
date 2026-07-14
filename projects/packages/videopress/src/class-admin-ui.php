@@ -79,10 +79,10 @@ class Admin_UI {
 	 * Load the wp-build dashboard assets when modernization is enabled and the current
 	 * request targets the VideoPress admin page.
 	 *
-	 * Extracted so wpcom Simple can trigger the same wp-build load at admin_menu:1 (the
-	 * standalone/Atomic path still does it inline in init()). Requiring build.php here
-	 * defines the render function that add_wp_admin_submenu() selects at admin_menu:999999,
-	 * and registers the SCRIPT_HANDLE that Initial_State::enqueue() hydrates from.
+	 * The single wp-build load path on every host, hooked at admin_menu:1 from init().
+	 * Requiring build.php here defines the render function that enable_menu() /
+	 * add_wp_admin_submenu() select later in the same hook, and registers the
+	 * SCRIPT_HANDLE that Initial_State::enqueue() hydrates from.
 	 *
 	 * @return void
 	 */
