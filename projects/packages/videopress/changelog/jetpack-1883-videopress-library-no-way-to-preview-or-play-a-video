@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: play videos directly on the library's video details page via an embedded VideoPress player, replacing the static thumbnail

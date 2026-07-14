@@ -12,12 +12,11 @@ type Props = {
 };
 
 /**
- * Overlay button that opens the thumbnail-update menu with two actions:
+ * Button that opens the thumbnail-update menu with two actions:
  * "Select from video" and "Upload image". Uses the same `@wordpress/components`
  * DropdownMenu as the page header's ⋯ menu so both menus share the design
- * system's look — including MenuItem's default right-aligned icons. Sits on
- * top of the video thumbnail inside ThumbnailCard via the
- * `vp-thumbnail-update__trigger` class.
+ * system's look — including MenuItem's default right-aligned icons. Rendered
+ * inline next to the "Add video to new post" action inside ThumbnailCard.
  *
  * @param props                    - Component props.
  * @param props.canSelectFromVideo - Whether the frame-picker action is available.
@@ -25,7 +24,7 @@ type Props = {
  * @param props.isBusy             - When true, the trigger button is disabled.
  * @param props.onSelectFromVideo  - Called when the user chooses "Select from video".
  * @param props.onUploadImage      - Called when the user chooses "Upload image".
- * @return The overlay button element.
+ * @return The dropdown button element.
  */
 export default function ThumbnailUpdateButton( {
 	canSelectFromVideo,
@@ -38,8 +37,13 @@ export default function ThumbnailUpdateButton( {
 		<DropdownMenu
 			icon={ pencil }
 			label={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+			text={
+				isBusy
+					? __( 'Updating…', 'jetpack-videopress-pkg' )
+					: __( 'Update thumbnail', 'jetpack-videopress-pkg' )
+			}
 			className="vp-thumbnail-update__trigger"
-			toggleProps={ { size: 'compact', disabled: isBusy } }
+			toggleProps={ { variant: 'secondary', disabled: isBusy, isBusy } }
 		>
 			{ ( { onClose } ) => (
 				<MenuGroup>
