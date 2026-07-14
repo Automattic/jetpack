@@ -67,9 +67,11 @@ class Podcast_Episode_Block {
 		);
 
 		// Flag as plan-gated for the editor upgrade prompt. Priority 11 runs after
-		// jetpack_register_block's own availability action (10), so this wins. The
-		// lookup lives in the callback, which only fires for the editor.
-		if ( class_exists( \Jetpack_Gutenberg::class ) ) {
+		// jetpack_register_block's own availability action (10), so this wins.
+		// Admin-only: only the editor consumes this availability entry (the
+		// front-end render isn't availability-gated), and the self-hosted access
+		// check can hit WPCOM — it must never run during a front-end page render.
+		if ( is_admin() && class_exists( \Jetpack_Gutenberg::class ) ) {
 			add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'flag_plan_gated' ), 11 );
 		}
 	}
