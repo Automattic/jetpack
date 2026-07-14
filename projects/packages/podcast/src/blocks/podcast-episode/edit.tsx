@@ -271,9 +271,7 @@ function AlternateEnclosuresEditor( {
 		onChange( [ ...alternateEnclosures, { url: '', type: '', title: '', lang: '' } ] );
 	const toBitrate = ( value: string ) => {
 		const bitrate = Number( value );
-		return value === '' || ! Number.isFinite( bitrate ) || bitrate < 0
-			? undefined
-			: Math.floor( bitrate );
+		return value === '' || ! Number.isInteger( bitrate ) || bitrate < 0 ? undefined : bitrate;
 	};
 
 	return (

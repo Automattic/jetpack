@@ -301,6 +301,16 @@ class Episode_Block_Tags {
 			} elseif ( ! empty( $alt['url'] ) ) {
 				$sources[] = (string) $alt['url'];
 			}
+
+			// Drop unvalidated URIs so we never emit an empty or malformed <podcast:source>.
+			$sources = array_values(
+				array_filter(
+					$sources,
+					static function ( $uri ) {
+						return wp_http_validate_url( esc_url_raw( $uri ) );
+					}
+				)
+			);
 			if ( empty( $sources ) ) {
 				continue;
 			}

@@ -262,9 +262,14 @@ class Podcast_Episode_Block {
 			array_filter(
 				$alternate_enclosures,
 				static function ( $alt ) {
-					return is_array( $alt )
-						&& ! empty( $alt['url'] )
-						&& wp_http_validate_url( esc_url_raw( (string) $alt['url'] ) );
+					if ( ! is_array( $alt ) || empty( $alt['url'] ) ) {
+						return false;
+					}
+					if ( ! wp_http_validate_url( esc_url_raw( (string) $alt['url'] ) ) ) {
+						return false;
+					}
+					// `type` is required per spec — mirror the feed, which skips typeless entries.
+					return '' !== ( isset( $alt['type'] ) ? trim( (string) $alt['type'] ) : '' );
 				}
 			)
 		);
