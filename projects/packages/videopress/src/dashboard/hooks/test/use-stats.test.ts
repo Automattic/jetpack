@@ -317,5 +317,17 @@ describe( 'useStats', () => {
 		// The zeros are still present (nothing loaded), but they're now flagged
 		// as an error rather than presented as real data.
 		expect( result.current.stats.views ).toEqual( { current: 0, previousPeriod: 0 } );
+		// No data ever loaded — the Overview should show the error pane, not
+		// cached stats.
+		expect( result.current.hasData ).toBe( false );
+	} );
+
+	it( 'reports hasData once the current window has loaded', async () => {
+		mockApiFetch( async () => ( { days: {} } ) );
+
+		const { result } = renderHook( () => useStats(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
+		expect( result.current.isError ).toBe( false );
 	} );
 } );

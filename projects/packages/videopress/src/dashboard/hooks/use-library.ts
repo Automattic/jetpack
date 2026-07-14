@@ -442,6 +442,11 @@ export function useLibrary( view: View ) {
 		paginationInfo: query.data?.paginationInfo ?? { totalItems: 0, totalPages: 0 },
 		isError: query.isError,
 		error: query.error,
+		// True while `items` is the previous view's data held by
+		// keepPreviousData. Lets the stage tell "this view failed to load"
+		// (placeholder rows would be the wrong view's) from "a background
+		// refresh of the rows on screen failed" (rows are still valid).
+		isPlaceholderData: query.isPlaceholderData,
 		refetch: query.refetch,
 	};
 }
