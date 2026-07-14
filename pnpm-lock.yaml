@@ -5461,6 +5461,12 @@ importers:
       '@wordpress/i18n':
         specifier: 6.23.0
         version: 6.23.0
+      '@wordpress/theme':
+        specifier: 0.15.1
+        version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -5476,6 +5482,9 @@ importers:
       postcss:
         specifier: 8.5.14
         version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(typescript@5.9.3)(webpack@5.107.2)
       process:
         specifier: 0.11.10
         version: 0.11.10
@@ -11729,6 +11738,10 @@ packages:
       '@types/react':
         optional: true
 
+  '@wordpress/style-runtime@0.4.1':
+    resolution: {integrity: sha512-guZ0p9a5ZQyyCFPwVqDkhDNVXdXAhIqNkPGSNIGguEtt3OtSOskEMwYJHyXZYX8nlbH0FyKflGJhE4G6QlIWlw==}
+    engines: {node: '>=20.10.0', npm: '>=10.2.3'}
+
   '@wordpress/style-runtime@0.5.0':
     resolution: {integrity: sha512-hrXvdDUJpOzT1KIomgtysysgbc5bkkwAuJyEUAXiOCgVBXBeMkZlgfN19W0PuNY51j53K7VQ42txfayxgVmfgA==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
@@ -11752,6 +11765,17 @@ packages:
   '@wordpress/sync@1.50.0':
     resolution: {integrity: sha512-Ig0qHewnNEea7XHlFxgMPE37WMjTyOQRuboQxxVtVYXwyWgTQI83+AE9jc8cKQ051dk1UDoAwa+Sd145/79htQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/theme@0.15.1':
+    resolution: {integrity: sha512-0SqH40Sd4pKH8YkDjQ4JM2NJzdhliO19QTPHAOAGA+tXuh+YwHOwFxX8Mg0v/vvI4XJD11zuiKGr+grBI7icTQ==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      stylelint: '>=16.8.2'
+    peerDependenciesMeta:
+      stylelint:
+        optional: true
 
   '@wordpress/theme@0.17.0':
     resolution: {integrity: sha512-BU+PLBLxMBM4WJYrd1QEwy+IA64vUP+8IEEB9lLx2NfB+3/45vvuvXx9o3qPKRDHvtMtEaRArld4Kn05UIW9IA==}
@@ -29348,6 +29372,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.28
 
+  '@wordpress/style-runtime@0.4.1': {}
+
   '@wordpress/style-runtime@0.5.0': {}
 
   '@wordpress/style-runtime@0.6.0': {}
@@ -29376,6 +29402,17 @@ snapshots:
       lib0: 0.2.99
       y-protocols: 1.0.7(yjs@13.6.29)
       yjs: 13.6.29
+
+  '@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@types/react': 18.3.28
+      '@wordpress/element': 8.2.0
+      '@wordpress/private-apis': 1.50.0
+      '@wordpress/style-runtime': 0.4.1
+      colorjs.io: 0.6.1
+      memize: 2.1.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@wordpress/theme@0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
