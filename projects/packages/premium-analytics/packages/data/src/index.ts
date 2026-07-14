@@ -233,6 +233,7 @@ export type {
 	StatsProxyVersion,
 } from './api';
 export type {
+	StatsArchivesComparisonItem,
 	StatsArchivesItem,
 	StatsClicksComparisonItem,
 	StatsClicksItem,
@@ -311,6 +312,7 @@ export {
 	type StatsQueryParams,
 } from './utils/stats-params';
 export {
+	mergeStatsArchivesComparisonRows,
 	mergeStatsClicksComparisonRows,
 	mergeStatsComparisonRows,
 	mergeStatsDevicesComparisonRows,
