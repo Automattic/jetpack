@@ -695,6 +695,16 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the provider remains disabled when no editor screen is available.
+	 */
+	public function test_enable_agents_manager_on_provider_surfaces_skips_without_current_screen() {
+		$GLOBALS['current_screen']      = null;
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_on_provider_surfaces( false ) );
+	}
+
+	/**
 	 * Test that the Agents Manager block-editor gate opens in the page editor provider surface.
 	 */
 	public function test_enable_agents_manager_on_provider_surfaces_enables_page_editor_provider_surface() {

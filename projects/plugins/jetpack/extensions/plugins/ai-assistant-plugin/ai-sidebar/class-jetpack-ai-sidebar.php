@@ -595,9 +595,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::should_expose_provider() ) {
-			return;
-		}
+
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
 		// registered handle and serializes correctly regardless of when the
 		// enqueue lands in the dependency graph.
@@ -605,14 +603,15 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
-		// Build the assignments from the same field source as the data filter so the
-		// two emit paths cannot drift. agentId is guarded client-side because the
-		// externally emitted payload may already define the active agent.
+		// The fields getter carries the provider exposure gate.
 		$fields = self::get_agents_manager_data_fields();
 		if ( ! $fields ) {
 			return;
 		}
 
+		// Build the assignments from the same field source as the data filter so the
+		// two emit paths cannot drift. agentId is guarded client-side because the
+		// externally emitted payload may already define the active agent.
 		$assignments = '';
 		foreach ( $fields as $key => $value ) {
 			$assignment_value = wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
@@ -668,11 +667,7 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function is_supported_provider_surface(): bool {
-		if ( ! function_exists( 'get_current_screen' ) ) {
-			return false;
-		}
-
-		$screen = get_current_screen();
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		if ( ! $screen instanceof \WP_Screen ) {
 			return false;
 		}
@@ -696,11 +691,7 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		if ( ! function_exists( 'get_current_screen' ) ) {
-			return false;
-		}
-
-		$screen = get_current_screen();
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		return $screen instanceof \WP_Screen
 			&& 'post' === $screen->base
 			&& 'post' === $screen->post_type;
