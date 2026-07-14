@@ -4,7 +4,7 @@ import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -14,8 +14,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard } from './components';
-import { getPostDetailTabs, POST_DETAIL_TAB_LAYOUTS, type PostDetailTabId } from './config';
-import { useActiveTab, usePostSummary } from './hooks';
+import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
@@ -40,30 +39,7 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	// Tabs whose fixed composition has not been ported yet are hidden until
-	// their widgets land (their page tasks own that content). If no tab has
-	// content (e.g. mid-refactor), fall back to the full list so the page
-	// never dereferences an empty tab set.
-	const tabs = useMemo( () => {
-		const withContent = getPostDetailTabs().filter(
-			tab => POST_DETAIL_TAB_LAYOUTS[ tab.id ].length > 0
-		);
-		return withContent.length > 0 ? withContent : getPostDetailTabs();
-	}, [] );
-	const [ storedTab, setActiveTab ] = useActiveTab();
-	// The `?section=` param may point at a hidden tab; fall back to the first
-	// visible one.
-	const activeTab: PostDetailTabId = tabs.some( tab => tab.id === storedTab )
-		? storedTab
-		: tabs[ 0 ].id;
-	// Normalize a deep link that points at a hidden tab so the URL matches the
-	// rendered tab; `replace` keeps the redirect out of history.
-	useEffect( () => {
-		if ( storedTab !== activeTab ) {
-			setActiveTab( activeTab, { replace: true } );
-		}
-	}, [ storedTab, activeTab, setActiveTab ] );
-	const layout = POST_DETAIL_TAB_LAYOUTS[ activeTab ];
+	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs();
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const summary = usePostSummary( postId );
