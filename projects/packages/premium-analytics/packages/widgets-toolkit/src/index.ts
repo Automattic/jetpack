@@ -95,7 +95,6 @@ export {
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
-	toVideoItems,
 	toMaxRows,
 } from './helpers';
 
