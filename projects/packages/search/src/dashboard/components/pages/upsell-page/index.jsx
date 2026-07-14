@@ -15,7 +15,12 @@ import {
 	Button as JetpackButton,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import {
+	CONNECTION_STORE_ID,
+	ConnectionError,
+	useConnectionErrorNotice,
+	useProductCheckoutWorkflow,
+} from '@automattic/jetpack-connection';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -25,7 +30,6 @@ import { useCallback, useMemo } from 'react';
 import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
-import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
 
 import './styles.scss';
@@ -47,37 +51,43 @@ export default function UpsellPage( { isLoading = false } ) {
 	);
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+	// When the user isn't connected to WordPress.com the site isn't in their
+	// account yet, so a site-scoped checkout URL has nowhere to resolve to and
+	// dead-ends on the wpcom "Select a site" screen. `connectAfterCheckout`
+	// routes those sites through the `checkout/jetpack/...&from_site_slug=` flow
+	// instead, connecting the site after checkout completes.
+	const isUserConnected = useSelect(
+		select => select( CONNECTION_STORE_ID ).getConnectionStatus()?.isUserConnected,
+		[]
+	);
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
 		restApi.setApiNonce( APINonce );
-		fetchSearchPlanInfo().then( response => response?.supports_search );
+		return fetchSearchPlanInfo().then( response => response?.supports_search );
 	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
 		useProductCheckoutWorkflow( {
 			productSlug: 'jetpack_search',
 			adminUrl,
-			redirectUri: 'admin.php?page=jetpack-search&just_upgraded=1',
+			redirectUrl: 'admin.php?page=jetpack-search&just_upgraded=1',
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+			connectAfterCheckout: ! isUserConnected,
 			from: 'jetpack-search',
 			siteSuffix: domain,
-			blogID,
-			isWpcom,
 		} );
 
 	const { run: sendToCartFree, hasCheckoutStarted: hasCheckoutStartedFree } =
 		useProductCheckoutWorkflow( {
 			productSlug: 'jetpack_search_free',
 			adminUrl,
-			redirectUri: 'admin.php?page=jetpack-search',
+			redirectUrl: 'admin.php?page=jetpack-search',
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+			connectAfterCheckout: ! isUserConnected,
 			from: 'jetpack-search',
 			siteSuffix: domain,
-			blogID,
-			isWpcom,
 		} );
 
 	const isPageLoading = useSelect(

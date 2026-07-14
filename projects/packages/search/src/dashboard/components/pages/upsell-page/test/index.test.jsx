@@ -34,8 +34,10 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 jest.mock( '@automattic/jetpack-api', () => ( { setApiNonce: jest.fn() } ) );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_STORE_ID: 'jetpack-connection',
 	ConnectionError: () => <div data-testid="connection-error" />,
 	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
+	useProductCheckoutWorkflow: () => ( { run: jest.fn(), hasCheckoutStarted: false } ),
 } ) );
 
 jest.mock( '@automattic/number-formatters', () => ( {
@@ -59,10 +61,6 @@ jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-plugin' } ) );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/price', () => () => <span data-testid="price" /> );
 jest.mock( 'components/search-promotion', () => () => <div data-testid="search-promotion" /> );
-jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
-	run: jest.fn(),
-	hasCheckoutStarted: false,
-} ) );
 
 import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
@@ -75,6 +73,7 @@ const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 	getSearchPricing: jest.fn( () => ( {} ) ),
 	getCalypsoSlug: jest.fn( () => 'example.com' ),
 	getBlogId: jest.fn( () => 123 ),
+	getConnectionStatus: jest.fn( () => ( { isUserConnected: false } ) ),
 	isResolving: jest.fn( () => false ),
 	hasStartedResolution: jest.fn( () => true ),
 	getPriceBefore: jest.fn( () => 120 ),

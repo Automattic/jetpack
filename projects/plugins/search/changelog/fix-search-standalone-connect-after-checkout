@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Fixed the "Start for free" and upgrade flows so a site that has never been connected to WordPress.com can complete checkout, instead of being redirected to a "Select a site" page with no way to proceed.

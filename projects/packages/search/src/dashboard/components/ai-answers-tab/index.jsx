@@ -1,11 +1,10 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { CONNECTION_STORE_ID, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice, Stack } from '@wordpress/ui';
 import useAiAnswersSettings, { DEFAULT_PERSONALITY } from 'hooks/use-ai-answers-settings';
-import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import useSearchSettings from 'hooks/use-search-settings';
 import { STORE_ID } from 'store';
 import './style.scss';
@@ -21,19 +20,23 @@ export default function AiAnswersTab() {
 		[]
 	);
 	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan(), [] );
-	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+	// Not-connected sites can't use a site-scoped checkout URL, so route them
+	// through the connect-after-checkout flow. See useProductCheckoutWorkflow.
+	const isUserConnected = useSelect(
+		select => select( CONNECTION_STORE_ID ).getConnectionStatus()?.isUserConnected,
+		[]
+	);
 
 	const { isAiAnswersEnabled, isInstantSearchEnabled, setAiAnswersEnabled } = useSearchSettings();
 
 	const { run: sendToCart } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
 		adminUrl: siteAdminUrl,
-		redirectUri: 'admin.php?page=jetpack-search&just_upgraded=1',
+		redirectUrl: 'admin.php?page=jetpack-search&just_upgraded=1',
+		connectAfterCheckout: ! isUserConnected,
 		from: 'jetpack-search',
 		siteSuffix: getSiteFragment(),
-		blogID,
-		isWpcom: isWpcomPlatformSite(),
 	} );
 
 	const { content, setContent, isSaving, isLoading, error, saved, isUnavailable, savePersonality } =

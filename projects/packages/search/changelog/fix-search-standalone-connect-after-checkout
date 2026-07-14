@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Use the shared connect-after-checkout workflow for the upsell and AI Answers checkout flows, so sites that have never been connected to WordPress.com can complete checkout instead of dead-ending on the "Select a site" screen.

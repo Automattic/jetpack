@@ -5,8 +5,9 @@ import AiAnswersTab from '../ai-answers-tab';
 
 jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-plugin' } ) );
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	isWpcomPlatformSite: () => false,
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_STORE_ID: 'jetpack-connection',
+	useProductCheckoutWorkflow: () => ( { run: jest.fn(), hasCheckoutStarted: false } ),
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
@@ -48,11 +49,6 @@ jest.mock( '@wordpress/ui', () => ( {
 		Description: ( { children } ) => <div>{ children }</div>,
 	},
 	Stack: ( { children, className } ) => <div className={ className }>{ children }</div>,
-} ) );
-
-jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
-	run: jest.fn(),
-	hasCheckoutStarted: false,
 } ) );
 
 jest.mock( 'hooks/use-ai-answers-settings', () => ( {
@@ -99,6 +95,7 @@ function setupStore( {
 			isAiAnswersEnabled: () => isAiAnswersEnabled,
 			getBlogId: () => 1,
 			getSiteAdminUrl: () => 'http://example.com/wp-admin/',
+			getConnectionStatus: () => ( { isUserConnected: true } ),
 		} ) )
 	);
 }
