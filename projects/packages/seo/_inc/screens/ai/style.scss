@@ -1,4 +1,4 @@
-// AI tab layout. A single, centered fixed-width column matching the Settings
+// GEO tab layout. A single, centered fixed-width column matching the Settings
 // tab's treatment — 660px is the established Jetpack settings-page width (see
 // settings/style.scss). The cards stack with a consistent gap.
 .jetpack-seo-ai {
@@ -21,7 +21,7 @@
 // margins so it sits flush in the card's Stack.
 .jetpack-seo-ai__crawlers-intro {
 	margin: 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
 }
 
 // One crawler row: the allow/block toggle plus its "Learn what … does" link.
