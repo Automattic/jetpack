@@ -4,7 +4,7 @@ import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
@@ -53,6 +53,13 @@ function PostDetail(): JSX.Element {
 	const activeTab: PostDetailTabId = tabs.some( tab => tab.id === storedTab )
 		? storedTab
 		: tabs[ 0 ].id;
+	// Normalize a deep link that points at a hidden tab so the URL matches the
+	// rendered tab; `replace` keeps the redirect out of history.
+	useEffect( () => {
+		if ( storedTab !== activeTab ) {
+			setActiveTab( activeTab, { replace: true } );
+		}
+	}, [ storedTab, activeTab, setActiveTab ] );
 	const layout = POST_DETAIL_TAB_LAYOUTS[ activeTab ];
 	const [ gridSettings ] = useDashboardGridSettings();
 
