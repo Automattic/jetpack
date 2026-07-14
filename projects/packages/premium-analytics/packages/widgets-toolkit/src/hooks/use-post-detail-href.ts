@@ -38,6 +38,12 @@ export function usePostDetailHrefBuilder(): ( postId: number | string ) => strin
 			).toString();
 			const to = `/post/${ postId }${ query ? `?${ query }` : '' }`;
 
+			// Outside a browser (SSR, bare test environments) the SPA path is
+			// still a usable href.
+			if ( typeof window === 'undefined' ) {
+				return to;
+			}
+
 			const browserParams = new URLSearchParams( window.location.search );
 			browserParams.set( 'p', to );
 
