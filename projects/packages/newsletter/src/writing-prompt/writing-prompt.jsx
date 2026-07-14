@@ -99,12 +99,12 @@ export default () => {
 					<Stack
 						className="wpcom-daily-writing-prompt--prompt"
 						direction="row"
-						align="center"
+						align="flex-start"
 						gap="sm"
 					>
 						<Text
 							className="wpcom-daily-writing-prompt--prompt-text"
-							variant="body-xl"
+							variant="body-lg"
 							render={ <p /> }
 						>
 							{ decodeEntities( prompt.text ) }
@@ -152,10 +152,10 @@ export default () => {
 											<img
 												alt={ __( 'User avatar', 'jetpack-newsletter' ) }
 												src={ addQueryArgs( sample.avatar, {
-													s: 22 * 2,
+													s: 24 * 2,
 												} ) }
-												width={ 22 }
-												height={ 22 }
+												width={ 24 }
+												height={ 24 }
 												key={ sample.avatar }
 											/>
 										);

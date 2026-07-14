@@ -1,14 +1,9 @@
 @import "@wordpress/theme/design-tokens.css";
 
-.wpcom-daily-writing-prompt--prompt {
-	background-color: var(--wpds-color-background-surface-neutral-weak);
-	padding: var(--wpds-dimension-padding-md);
-	border-radius: var(--wpds-border-radius-md);
-}
-
 .wpcom-daily-writing-prompt--prompt-text {
 	flex: 1;
 	margin: 0;
+	text-wrap: pretty;
 }
 
 .wpcom-daily-writing-prompt--prompt-nav {
@@ -39,8 +34,10 @@
 	align-items: center;
 	justify-content: center;
 	vertical-align: middle;
-	width: 22px;
-	height: 22px;
+	width: 24px;
+	height: 24px;
+	font-size: 0.625rem;
+	font-variant-numeric: tabular-nums;
 	line-height: 1;
 	border-radius: 50%;
 	border: var(--wpds-border-width-sm) solid var(--wpds-color-background-surface-neutral);
