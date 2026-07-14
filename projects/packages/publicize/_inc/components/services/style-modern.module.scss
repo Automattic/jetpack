@@ -15,7 +15,7 @@
 		margin: 0;
 
 		&:not(:first-child) {
-			border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+			border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		}
 	}
 
@@ -23,31 +23,31 @@
 		display: flex;
 		flex: 1;
 		flex-direction: column;
-		gap: var(--wpds-dimension-gap-xs, 4px);
+		gap: var(--wpds-dimension-gap-xs);
 		min-width: 0;
 	}
 
 	.heading {
 		align-items: center;
 		display: flex;
-		gap: var(--wpds-dimension-gap-lg, 16px);
+		gap: var(--wpds-dimension-gap-lg);
 	}
 
 	// Size comes from the `body-lg` Text variant; keep the colour + medium weight.
 	.title {
-		color: var(--wpds-color-foreground-content-neutral, var(--jp-gray-80));
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-medium);
 		line-height: 1.4;
 	}
 
 	.description {
-		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
-		font-size: var(--wpds-typography-font-size-md, 13px);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
 	}
 
 	.actions {
 		display: flex;
-		gap: var(--wpds-dimension-gap-sm, 8px);
+		gap: var(--wpds-dimension-gap-sm);
 	}
 
 	.active-connection {
@@ -61,7 +61,7 @@
 	}
 
 	.service-connection-list {
-		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		padding-top: 1rem;
 
 		li:not(:last-child) {
@@ -79,15 +79,15 @@
 // and the chassis Overview share the same visual language.
 .service-row {
 	align-items: center;
-	cursor: var(--wpds-cursor-control, pointer);
+	cursor: var(--wpds-cursor-control);
 	display: flex;
-	gap: var(--wpds-dimension-gap-lg, 16px);
-	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-2xl, 24px);
+	gap: var(--wpds-dimension-gap-lg);
+	padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
 	width: 100%;
 
 	&:focus-visible {
-		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
-		outline-offset: calc(var(--wpds-border-width-focus, 2px) * -1);
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: calc(var(--wpds-border-width-focus) * -1);
 	}
 
 	&[data-panel-open] {
@@ -103,11 +103,11 @@
 }
 
 .chevron {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral);
 	flex-shrink: 0;
 
 	@media not (prefers-reduced-motion) {
-		transition: rotate var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+		transition: rotate var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
 	}
 }
 
@@ -128,12 +128,12 @@
 	}
 
 	@media not (prefers-reduced-motion) {
-		transition: all var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+		transition: all var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
 	}
 }
 
 .service-panel-inner {
-	padding: 0 var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
+	padding: 0 var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-xl);
 }
 
 .example-wrapper {
