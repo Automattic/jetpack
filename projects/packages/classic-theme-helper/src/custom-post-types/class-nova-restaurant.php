@@ -121,13 +121,16 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		public function __construct() {
 			/*
 			 * On WordPress.com Simple, the REST API does not load the theme before `init`; the theme's
-			 * `after_setup_theme` and `init` callbacks are replayed later on `restapi_theme_after_setup_theme`
+			 * `after_setup_theme` and `init` callbacks are replayed later, on `restapi_theme_after_setup_theme`
 			 * and `restapi_theme_init`. Theme support is therefore still undeclared here, so re-check once the
-			 * theme has been loaded. The replayed callbacks keep their original priority and are hooked after
-			 * this one, so run last to see support that a theme declares from `init` rather than
-			 * `after_setup_theme`.
+			 * theme has been loaded.
+			 *
+			 * Priority matters in both directions. Replayed callbacks keep their original priority and are
+			 * hooked after this one, so running at the default 10 would miss support declared from a theme's
+			 * `init`; and consumers that enumerate registered post types (post likes, sharing) run at 20, so
+			 * the post type has to exist before then.
 			 */
-			add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ), PHP_INT_MAX );
+			add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ), 15 );
 
 			$this->maybe_register_cpt();
 		}

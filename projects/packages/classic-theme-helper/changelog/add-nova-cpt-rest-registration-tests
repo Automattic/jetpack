@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Food Menus: add tests covering Nova custom post type registration during REST API requests.
