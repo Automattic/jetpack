@@ -106,4 +106,21 @@ describe( 'report export downloads', () => {
 			getFilenameFromContentDisposition( "attachment; filename*=UTF-8''orders%20over%20time.csv" )
 		).toBe( 'orders over time.csv' );
 	} );
+
+	it( 'builds a safe fallback filename without regex backtracking', async () => {
+		mockApiFetch.mockResolvedValue( {
+			ok: true,
+			status: 200,
+			headers: new Headers(),
+			blob: jest.fn().mockResolvedValue( new Blob( [ 'report' ] ) ),
+		} as unknown as Response );
+
+		await expect(
+			downloadReport( {
+				reportType: `${ '-'.repeat( 10_000 ) }orders${ '-'.repeat( 10_000 ) }`,
+				from: '2026-06-01T00:00:00+02:00',
+				to: '2026-06-30T23:59:59+02:00',
+			} )
+		).resolves.toEqual( { filename: 'orders-2026-06-01-to-2026-06-30.csv' } );
+	} );
 } );

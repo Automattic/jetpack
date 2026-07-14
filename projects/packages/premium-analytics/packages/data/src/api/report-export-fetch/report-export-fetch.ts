@@ -187,11 +187,22 @@ function buildFallbackFilename( params: DownloadReportParams ): string {
 }
 
 function sanitizeFilenamePart( value: string ): string {
-	return value
+	const sanitized = value
 		.trim()
 		.toLowerCase()
-		.replace( /[^a-z0-9._-]+/g, '-' )
-		.replace( /^-+|-+$/g, '' );
+		.replace( /[^a-z0-9._-]+/g, '-' );
+	let start = 0;
+	let end = sanitized.length;
+
+	while ( sanitized[ start ] === '-' ) {
+		start++;
+	}
+
+	while ( end > start && sanitized[ end - 1 ] === '-' ) {
+		end--;
+	}
+
+	return sanitized.slice( start, end );
 }
 
 function datePart( value: string ): string {
