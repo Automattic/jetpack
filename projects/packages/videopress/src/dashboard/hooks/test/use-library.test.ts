@@ -8,6 +8,7 @@ import {
 	privacyStringToInt,
 	libraryRefetchInterval,
 	nextProcessingPoll,
+	toLibraryItem,
 	LIBRARY_POLL_INTERVAL_MS,
 	PROCESSING_POLL_MAX_MS,
 } from '../use-library';
@@ -226,10 +227,15 @@ describe( 'on WordPress.com Simple', () => {
 	afterEach( unsetSimpleSite );
 
 	describe( 'viewToQueryArgs', () => {
-		it( 'sends videopress_only_videos and omits media_type', () => {
+		it( 'sends videopress_only_videos and omits the params that are dead on Simple', () => {
 			const args = viewToQueryArgs( DEFAULT_VIEW );
 			expect( args ).toMatchObject( { videopress_only_videos: 1 } );
+			// media_type is rejected (400) on Simple; mime_type doesn't narrow
+			// there; hide_already_uploaded targets meta only the videopress/v1
+			// promote flow writes, which can't run on Simple.
 			expect( args ).not.toHaveProperty( 'media_type' );
+			expect( args ).not.toHaveProperty( 'mime_type' );
+			expect( args ).not.toHaveProperty( 'videopress_hide_already_uploaded' );
 		} );
 
 		it( 'sends videopress_privacy_setting for privacy filters (server-side now)', () => {
@@ -246,13 +252,13 @@ describe( 'on WordPress.com Simple', () => {
 				filters: [ { field: 'type', operator: 'is', value: 'videopress' } ],
 			} );
 			// The videos-table constraint rides on top of the always-sent
-			// videopress_only_videos + video/* mime — never the video/videopress
-			// mime, which returns nothing on Simple.
+			// videopress_only_videos — never the video/videopress mime, which
+			// returns nothing on Simple.
 			expect( args ).toMatchObject( {
-				mime_type: 'video/*',
 				videopress_only_videos: 1,
 				videopress_has_guid: 1,
 			} );
+			expect( args ).not.toHaveProperty( 'mime_type' );
 			expect( args ).not.toHaveProperty( 'no_videopress' );
 		} );
 
@@ -312,24 +318,55 @@ describe( 'on WordPress.com Simple', () => {
 			};
 		}
 
-		it( 'drops non-video rows (poster jpegs) before mapping', async () => {
-			mockPagedMedia(
-				[
-					[
-						rawVideo( 1, false ),
-						{ id: 2, title: { rendered: 'Poster' }, mime_type: 'image/jpeg' },
-					],
-				],
-				2
+		it( 'maps the Simple media shape: CDN poster from guid + thumb, duration from milliseconds', () => {
+			// On Simple there is no media_details.videopress sub-object; the
+			// poster is a bare `thumb` filename resolved against the VideoPress
+			// CDN, and the duration arrives as `duration_milliseconds`.
+			const item = toLibraryItem(
+				{
+					id: 7,
+					title: { rendered: 'Simple video' },
+					mime_type: 'video/mp4',
+					media_details: { thumb: 'video-7_std.original.jpg', duration_milliseconds: 12_345 },
+					jetpack_videopress: { guid: 'abc123', privacy_setting: 0 },
+				},
+				true
 			);
 
-			const { result } = renderHook( () => useLibrary( DEFAULT_VIEW ), {
-				wrapper: createTestWrapper(),
-			} );
+			expect( item.thumbnailUrl ).toBe(
+				'https://videos.files.wordpress.com/abc123/video-7_std.original.jpg'
+			);
+			expect( item.durationSeconds ).toBe( 12 );
+			expect( item.isProcessing ).toBe( false );
+			expect( item.type ).toBe( 'videopress' );
+		} );
 
-			await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
-			expect( result.current.items ).toHaveLength( 1 );
-			expect( result.current.items[ 0 ].id ).toBe( '1' );
+		it( 'flags a Simple VideoPress record with no thumb as processing (no finished flag there)', () => {
+			// An unprocessed/orphaned Simple record has a guid but an empty
+			// media_details — no thumb, no duration, and no `finished` flag to
+			// carry the signal, so the poster check does.
+			const item = toLibraryItem(
+				{
+					id: 8,
+					title: { rendered: 'Still cooking' },
+					mime_type: 'video/mp4',
+					media_details: {},
+					jetpack_videopress: { guid: 'def456' },
+				},
+				true
+			);
+
+			expect( item.isProcessing ).toBe( true );
+			expect( item.thumbnailUrl ).toBeNull();
+
+			// A local video (no guid) is never "processing" — there's no
+			// transcode to wait for.
+			const local = toLibraryItem(
+				{ id: 9, title: { rendered: 'Local' }, mime_type: 'video/mp4', media_details: {} },
+				true
+			);
+			expect( local.isProcessing ).toBe( false );
+			expect( local.type ).toBe( 'local' );
 		} );
 
 		it( 'sends the privacy filter as a server param in a single request, totals from headers', async () => {

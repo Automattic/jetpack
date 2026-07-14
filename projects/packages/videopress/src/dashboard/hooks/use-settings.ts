@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { isSimpleSite } from '../utils/is-simple';
 
 type ApiSettings = {
 	videopress_videos_private_for_site: boolean;
@@ -48,16 +47,12 @@ export function isPrivateForSiteServerControlled(
 
 const QUERY_KEY = [ 'jetpack-videopress-settings' ] as const;
 
-/**
- * Resolve the settings endpoint for the current host. The videopress/v1
- * namespace never reaches the REST dispatcher on WordPress.com Simple,
- * so the wpcom/v2 twin (same response shape) is used there.
- *
- * @return The REST path for reading/writing VideoPress settings.
- */
-function settingsPath(): string {
-	return isSimpleSite() ? '/wpcom/v2/videopress/settings' : '/videopress/v1/settings';
-}
+// One path for every host. The wpcom/v2 route exists everywhere (the package
+// registers it through the standard WPCOM_REST_API_V2 loader) with host-safe
+// callbacks, and it's the only namespace that reaches the REST dispatcher on
+// WordPress.com Simple — videopress/v1 doesn't. Its videopress/v1/settings
+// twin stays for the legacy dashboard and external consumers.
+const SETTINGS_PATH = '/wpcom/v2/videopress/settings';
 
 /**
  * Convert a raw REST API settings object to the camelCase shape used in JS.
@@ -83,7 +78,7 @@ export function useSettings() {
 	return useQuery< Settings >( {
 		queryKey: QUERY_KEY,
 		queryFn: async () => {
-			const raw = await apiFetch< ApiSettings >( { path: settingsPath() } );
+			const raw = await apiFetch< ApiSettings >( { path: SETTINGS_PATH } );
 			return fromApi( raw );
 		},
 		staleTime: 5 * 60_000,
@@ -116,7 +111,7 @@ export function useUpdateSettings() {
 				return;
 			}
 			await apiFetch( {
-				path: settingsPath(),
+				path: SETTINGS_PATH,
 				method: 'POST',
 				data,
 			} );

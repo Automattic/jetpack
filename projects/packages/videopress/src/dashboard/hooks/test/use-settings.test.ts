@@ -35,9 +35,9 @@ describe( 'isPrivateForSiteServerControlled', () => {
 } );
 
 describe( 'useSettings', () => {
-	it( 'fetches videopress/v1/settings', async () => {
+	it( 'fetches wpcom/v2/videopress/settings on every host', async () => {
 		mockApiFetch( async ( { path } ) => {
-			if ( path === '/videopress/v1/settings' ) {
+			if ( path === '/wpcom/v2/videopress/settings' ) {
 				return {
 					videopress_videos_private_for_site: true,
 					videopress_auto_subtitles_disabled: true,

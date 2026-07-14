@@ -447,13 +447,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 						$code = 2;
 						break;
 				}
-				list( $values, $inc_null ) = $this->wpcom_privacy_value_set( array( $code ), $site_is_private );
-			}
-
-			// A privacy filter that admits no stored value and no absent-meta row
-			// matches nothing; short-circuit before touching the database.
-			if ( array() === $values && ! $inc_null ) {
-				return array();
+				list( $values, $inc_null ) = $this->wpcom_privacy_value_set( $code, $site_is_private );
 			}
 
 			$privacy_join = 'LEFT OUTER JOIN video_meta AS privacy ON privacy.guid = videos.guid AND privacy.meta_key = \'privacy_setting\'';
@@ -498,7 +492,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	}
 
 	/**
-	 * Translate requested privacy codes into the concrete set of stored
+	 * Translate a requested privacy code into the concrete set of stored
 	 * `privacy_setting` values — plus whether an absent meta row qualifies —
 	 * that reproduce, for VideoPress videos, the same effective visibility the
 	 * client's old matchesClientSideFilters computed for them.
@@ -517,40 +511,22 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 *
 	 * Pure (no wpcom globals) so it's unit-testable off-platform.
 	 *
-	 * @param int[] $requested       Requested privacy codes: 0 public, 1 private, 2 site-default.
-	 * @param bool  $site_is_private Whether the site default resolves to private.
+	 * @param int  $code            Requested privacy code: 0 public, 1 private, 2 site-default.
+	 * @param bool $site_is_private Whether the site default resolves to private.
 	 * @return array{0:int[],1:bool} [ acceptable stored privacy_setting values, whether absent meta qualifies ].
 	 */
-	private function wpcom_privacy_value_set( array $requested, $site_is_private ) {
-		$values   = array();
-		$inc_null = false;
-
-		foreach ( $requested as $code ) {
-			switch ( (int) $code ) {
-				case 1: // Private -- wpcom constant IS_PRIVATE.
-					$values[] = 1;
-					if ( $site_is_private ) {
-						// Site-default and absent-meta videos resolve to private.
-						$values[] = 2;
-						$inc_null = true;
-					}
-					break;
-				case 0: // Public -- wpcom constant IS_PUBLIC.
-					$values[] = 0;
-					if ( ! $site_is_private ) {
-						// Site-default and absent-meta videos resolve to public.
-						$values[] = 2;
-						$inc_null = true;
-					}
-					break;
-				case 2: // Site default (SITE_DEFAULT) — match the stored setting, not the resolved visibility.
-					$values[] = 2;
-					$inc_null = true;
-					break;
-			}
+	private function wpcom_privacy_value_set( $code, $site_is_private ) {
+		switch ( (int) $code ) {
+			case 1: // Private -- wpcom constant IS_PRIVATE. Site-default and
+				// absent-meta videos resolve to private on a private site.
+				return $site_is_private ? array( array( 1, 2 ), true ) : array( array( 1 ), false );
+			case 0: // Public -- wpcom constant IS_PUBLIC. Site-default and
+				// absent-meta videos resolve to public on a public site.
+				return $site_is_private ? array( array( 0 ), false ) : array( array( 0, 2 ), true );
+			case 2: // Site default (SITE_DEFAULT) — match the stored setting,
+			default: // not the resolved visibility.
+				return array( array( 2 ), true );
 		}
-
-		return array( array_values( array_unique( $values ) ), $inc_null );
 	}
 
 	/**

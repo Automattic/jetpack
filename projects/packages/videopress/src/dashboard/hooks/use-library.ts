@@ -12,7 +12,9 @@ import type { View } from '@wordpress/dataviews';
 
 const REST_PATH = '/wp/v2/media';
 
-type ApiMediaItem = {
+// The raw /wp/v2/media item shape consumed by toLibraryItem. Shared with
+// use-video.ts, which fetches a single item from the same endpoint.
+export type ApiMediaItem = {
 	id: number;
 	title?: { rendered?: string };
 	slug?: string;
@@ -106,21 +108,24 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 	// exact and there's no client-side over-fetch.
 	const simple = isSimpleSite();
 	const args: Record< string, string | number > = {
-		mime_type: 'video/*',
 		page: view.page ?? 1,
 		per_page: view.perPage ?? 12,
-		// Always hide local attachments that already have a VideoPress
-		// sibling (they carry the `_videopress_uploaded_id` post-meta).
-		// The sibling is the row we want to surface; the original local
-		// is a leftover that would let users try to re-upload it.
-		videopress_hide_already_uploaded: 1,
 	};
 	if ( ! simple ) {
 		args.media_type = 'video';
+		args.mime_type = 'video/*';
+		// Hide local attachments that already have a VideoPress sibling (they
+		// carry the `_videopress_uploaded_id` post-meta). The sibling is the
+		// row we want to surface; the original local is a leftover that would
+		// let users try to re-upload it. Off-Simple only: the meta is written
+		// by the videopress/v1 promote flow, which can't run on Simple, and
+		// the wpcom filter branch doesn't implement the param.
+		args.videopress_hide_already_uploaded = 1;
 	} else {
-		// `mime_type=video/*` doesn't narrow the query on Simple; this custom
-		// param is handled by the package's PHP `rest_attachment_query` filter
-		// (post_mime_type LIKE 'video/%'), keeping the X-WP-Total headers exact.
+		// `media_type` is rejected (HTTP 400) and `mime_type=video/*` doesn't
+		// narrow the query on Simple; this custom param is handled by the
+		// package's PHP `rest_attachment_query` filter (post_mime_type LIKE
+		// 'video/%'), keeping the X-WP-Total headers exact.
 		args.videopress_only_videos = 1;
 	}
 
@@ -193,11 +198,15 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 /**
  * Transform a raw /wp/v2/media API item into a LibraryItem.
  *
+ * The single media mapper for the dashboard — the library list and the video
+ * detail view (use-video.ts) consume the same endpoint and must map it
+ * identically, Simple media-shape branch included.
+ *
  * @param raw    - The raw media item from the REST API response.
  * @param simple - Whether the dashboard is running on WordPress.com Simple (drives the media-shape branch).
  * @return A normalized LibraryItem for the VideoPress library UI.
  */
-function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem {
+export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem {
 	const vp = raw.jetpack_videopress;
 	const isVideoPress = Boolean( vp?.guid );
 	const details = raw.media_details;
@@ -268,32 +277,15 @@ async function fetchMediaPage(
 }
 
 /**
- * Drop non-video rows on WordPress.com Simple. The mime is the
- * discriminator on purpose: filtering on `jetpack_videopress.guid`
- * presence instead would let poster jpegs (which carry no guid)
- * masquerade as "local videos" — guid only labels videopress-vs-local
- * among actual videos.
- *
- * @param raw    - Raw media items from the REST API.
- * @param simple - Whether the dashboard runs on WordPress.com Simple.
- * @return The rows to map into LibraryItems.
- */
-function keepOnlyVideos( raw: ApiMediaItem[], simple: boolean ): ApiMediaItem[] {
-	if ( ! simple ) {
-		return raw;
-	}
-	return raw.filter( item => item.mime_type?.startsWith( 'video/' ) );
-}
-
-/**
  * Fetch a page of VideoPress media items from the REST API.
  *
- * Every filter — privacy, type, search, date — is now a server-side WP_Query
+ * Every filter — privacy, type, search, date — is a server-side WP_Query
  * constraint (on Simple via the videos-table ID sets resolved in the package's
- * `rest_attachment_query` PHP filter; off-Simple via mime + postmeta), so this
- * is always a single request whose `X-WP-Total` / `X-WP-TotalPages` headers are
- * exact. `keepOnlyVideos` stays as a cheap one-page safety net; it can't reduce
- * the totals since the server already restricted the query to `video/*`.
+ * `rest_attachment_query` PHP filter, which also restricts the query to
+ * `post_mime_type` video; off-Simple via mime + postmeta), so this is always a
+ * single request whose rows match its exact `X-WP-Total` / `X-WP-TotalPages`
+ * headers. No client-side re-filtering: dropping a row here couldn't fix the
+ * server-derived totals, only desynchronize the two.
  *
  * @param view - The current DataViews view (sort, filters, search, pagination).
  * @return Items array and pagination metadata derived from response headers.
@@ -305,7 +297,7 @@ async function fetchLibrary(
 	const args = viewToQueryArgs( view );
 	const { raw, totalItems, totalPages } = await fetchMediaPage( args );
 	return {
-		items: keepOnlyVideos( raw, simple ).map( item => toLibraryItem( item, simple ) ),
+		items: raw.map( item => toLibraryItem( item, simple ) ),
 		paginationInfo: { totalItems, totalPages },
 	};
 }

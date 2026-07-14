@@ -246,20 +246,20 @@ class Data_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provider_privacy_value_set
 	 *
-	 * @param int[] $requested       Requested privacy codes.
+	 * @param int   $code            Requested privacy code.
 	 * @param bool  $site_is_private Whether the site default resolves to private.
 	 * @param int[] $expected_values Expected acceptable stored privacy_setting values.
 	 * @param bool  $expected_null   Whether an absent meta row should qualify.
 	 */
 	#[DataProvider( 'provider_privacy_value_set' )]
-	public function test_wpcom_privacy_value_set( $requested, $site_is_private, $expected_values, $expected_null ) {
+	public function test_wpcom_privacy_value_set( $code, $site_is_private, $expected_values, $expected_null ) {
 		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'wpcom_privacy_value_set' );
 
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		list( $values, $inc_null ) = $method->invoke( self::$videopress_rest_data, $requested, $site_is_private );
+		list( $values, $inc_null ) = $method->invoke( self::$videopress_rest_data, $code, $site_is_private );
 
 		$this->assertSame( $expected_values, $values );
 		$this->assertSame( $expected_null, $inc_null );
@@ -268,21 +268,19 @@ class Data_Test extends BaseTestCase {
 	/**
 	 * Data provider for test_wpcom_privacy_value_set.
 	 *
-	 * @return array<string, array{0:int[],1:bool,2:int[],3:bool}>
+	 * @return array<string, array{0:int,1:bool,2:int[],3:bool}>
 	 */
 	public static function provider_privacy_value_set() {
 		return array(
 			// On a private-by-default site, site-default + absent fold into "private".
-			'private on private site'       => array( array( 1 ), true, array( 1, 2 ), true ),
-			'public on private site'        => array( array( 0 ), true, array( 0 ), false ),
+			'private on private site'      => array( 1, true, array( 1, 2 ), true ),
+			'public on private site'       => array( 0, true, array( 0 ), false ),
 			// On a public-by-default site, site-default + absent fold into "public".
-			'private on public site'        => array( array( 1 ), false, array( 1 ), false ),
-			'public on public site'         => array( array( 0 ), false, array( 0, 2 ), true ),
+			'private on public site'       => array( 1, false, array( 1 ), false ),
+			'public on public site'        => array( 0, false, array( 0, 2 ), true ),
 			// Site-default matches the stored setting regardless of resolved privacy.
-			'site-default on private site'  => array( array( 2 ), true, array( 2 ), true ),
-			'site-default on public site'   => array( array( 2 ), false, array( 2 ), true ),
-			// A comma list unions the per-code sets (deduped).
-			'private+public on public site' => array( array( 1, 0 ), false, array( 1, 0, 2 ), true ),
+			'site-default on private site' => array( 2, true, array( 2 ), true ),
+			'site-default on public site'  => array( 2, false, array( 2 ), true ),
 		);
 	}
 
