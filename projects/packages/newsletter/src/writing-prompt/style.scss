@@ -1,8 +1,3 @@
-// The widget's styles rely on WPDS design tokens (`--wpds-*`). On WordPress.com
-// these are globally available, but on self-hosted Jetpack wp-admin nothing
-// defines them, so the tokens resolve to nothing and the custom styling (footer
-// divider, prompt card, facepile chip) silently breaks. Bundle the token
-// definitions into this stylesheet, mirroring the Newsletter settings page.
 @import "@wordpress/theme/design-tokens.css";
 
 .wpcom-daily-writing-prompt--prompt {
@@ -12,8 +7,6 @@
 }
 
 .wpcom-daily-writing-prompt--prompt-text {
-	// Let the prompt grow so the navigation arrows stay pinned beside it, and
-	// drop the default wp-admin paragraph margins that would offset the row.
 	flex: 1;
 	margin: 0;
 }
@@ -24,9 +17,6 @@
 
 .wpcom-daily-writing-prompt--branding {
 	padding-block-start: var(--wpds-dimension-padding-md);
-	// A clearly visible divider separating the footer from the prompt content,
-	// matching the dashboard's other widgets. The `-weak` stroke (#f0f0f0) reads
-	// as invisible against the white widget, so use the standard neutral stroke.
 	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 }
 
@@ -45,9 +35,6 @@
 }
 
 .wpcom-daily-writing-prompt--answered-users-more {
-	// A count chip that closes the facepile ("+45"), overlapping the last avatar
-	// the same way the avatars overlap each other. Typography comes from the
-	// Text `body-sm` variant; this only shapes the neutral circle.
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
