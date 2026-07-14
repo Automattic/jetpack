@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast: derive the no-site-slug upsell checkout fallback from the injected upgrade product instead of hardcoding wpcom URLs, so the fallback points at the right product (e.g. `jetpack_growth`) on self-hosted rather than a generic pricing page.
+Podcast: fix hardcoded upsell fallback URL to use the injected upgrade product.
