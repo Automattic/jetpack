@@ -8,22 +8,6 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
- * Whether the site is eligible for Error Reporting, which is a feature that's specific to WPCOM.
- *
- * By default, sites should not be eligible.
- *
- * @return bool True if current site is eligible for error reporting, false otherwise.
- */
-function wpcom_is_site_eligible_for_error_reporting() {
-	/**
-	 * Can be used to toggle the Error Reporting functionality.
-	 *
-	 * @param bool true if Error Reporting should be enabled, false otherwise.
-	 */
-	return apply_filters( 'a8c_enable_error_reporting', false );
-}
-
-/**
  * Inline  error handler that will capture errors before the main handler has a chance to.
  *
  * Errors are pushed to a global array called `_jsErr` which is then verified in the main handler.
@@ -75,18 +59,6 @@ function wpcom_add_crossorigin_to_script_elements( $tag ) {
 }
 
 /**
- * Decide whether Sentry should be activated for a given user and blog.
- */
-function wpcom_should_activate_sentry() {
-	/**
-	 * Filter to enable Sentry error reporting.
-	 *
-	 * @param bool $enabled Whether Sentry should be activated.
-	 */
-	return apply_filters( 'a8c_enable_sentry_error_reporting', false );
-}
-
-/**
  * Enqueue assets
  */
 function wpcom_enqueue_error_reporting_script() {
@@ -108,17 +80,29 @@ function wpcom_enqueue_error_reporting_script() {
 		true
 	);
 
+	/**
+	 * Filter to enable Sentry error reporting.
+	 *
+	 * @param bool $enabled Whether Sentry should be activated.
+	 */
+	$activate_sentry = apply_filters( 'a8c_enable_sentry_error_reporting', false );
+
 	wp_localize_script(
 		$script_id,
 		'WPcom_Error_Reporting_Config',
 		array(
-			'shouldActivateSentry' => wpcom_should_activate_sentry( get_current_user_id(), get_current_blog_id() ) ? 'true' : 'false',
+			'shouldActivateSentry' => $activate_sentry ? 'true' : 'false',
 			'releaseName'          => defined( 'WPCOM_DEPLOYED_GIT_HASH' ) ? 'WPCOM_' . WPCOM_DEPLOYED_GIT_HASH : 'WPCOM_NO_RELEASE',
 		)
 	);
 }
 
-if ( wpcom_is_site_eligible_for_error_reporting() ) {
+/**
+ * Can be used to toggle the Error Reporting functionality.
+ *
+ * @param bool true if Error Reporting should be enabled, false otherwise.
+ */
+if ( apply_filters( 'a8c_enable_error_reporting', false ) ) {
 	add_action( 'admin_print_scripts', 'wpcom_head_error_handler', 0 );
 	add_filter( 'script_loader_tag', 'wpcom_add_crossorigin_to_script_elements', 99, 2 );
 
