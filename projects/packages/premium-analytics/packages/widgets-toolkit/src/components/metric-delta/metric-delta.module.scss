@@ -1,4 +1,7 @@
 .delta {
+	// Centers the delta relative to the taller metric value beside it, instead of
+	// sitting on its baseline, where the fallback dash reads as an underscore.
+	align-self: center;
 	font-size: var(--wpds-typography-font-size-md);
 	font-weight: 400;
 	line-height: var(--wpds-typography-font-size-lg);

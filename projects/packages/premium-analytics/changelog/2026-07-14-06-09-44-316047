@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Traffic and Subscribers widgets: fix the metric delta so the fallback dash (shown when the previous period has no comparable value) no longer reads as an underscore next to the headline number.
