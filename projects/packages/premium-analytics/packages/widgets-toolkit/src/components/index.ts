@@ -62,3 +62,4 @@ export {
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
 } from './report-page';
+export { DownloadCsvButton, type DownloadCsvButtonProps } from './download-csv-button';

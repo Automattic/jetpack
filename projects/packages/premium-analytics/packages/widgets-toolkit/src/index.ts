@@ -64,6 +64,8 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	DownloadCsvButton,
+	type DownloadCsvButtonProps,
 } from './components';
 
 /**
@@ -96,6 +98,9 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	buildCsv,
+	saveCsv,
+	type CsvColumn,
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,

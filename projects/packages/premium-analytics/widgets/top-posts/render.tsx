@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	useStatsArchives,
 	useStatsTopPosts,
@@ -10,6 +11,7 @@ import {
 import { reports } from '@jetpack-premium-analytics/icons';
 import { Icon, external } from '@wordpress/icons';
 import {
+	DownloadCsvButton,
 	LeaderboardChart,
 	ReportLink,
 	WidgetBackLink,
@@ -20,6 +22,7 @@ import {
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	type CsvColumn,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -80,6 +83,10 @@ type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = { num: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+
+function areClientSideCsvExportsEnabled(): boolean {
+	return getScriptData()?.premium_analytics?.client_side_csv_exports_enabled === true;
+}
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -287,6 +294,38 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	);
 	const withComparison = hasComparison;
 
+	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
+	// client-side "Download CSV" (bounded to the rows already in the browser).
+	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
+		const base: CsvColumn< TopPostRow >[] = [
+			{ key: 'label', label: __( 'Title', 'jetpack-premium-analytics' ) },
+			{ key: 'value', label: __( 'Views', 'jetpack-premium-analytics' ) },
+			{ key: 'type', label: __( 'Type', 'jetpack-premium-analytics' ) },
+			{ key: 'href', label: __( 'URL', 'jetpack-premium-analytics' ) },
+		];
+		if ( withComparison ) {
+			base.splice( 2, 0, {
+				key: 'previousValue',
+				label: __( 'Previous views', 'jetpack-premium-analytics' ),
+			} );
+		}
+		return base;
+	}, [ withComparison ] );
+
+	// Date-stamp the download so exports of different periods don't collide.
+	// `from`/`to` are coerced because the router JSON-parses search params, so a
+	// hand-edited numeric `?from=123` would otherwise throw on `.slice`.
+	const csvFilename = `top-posts-${ String( reportParams.from ).slice( 0, 10 ) }_${ String(
+		reportParams.to
+	).slice( 0, 10 ) }`;
+
+	// Only expose the export once the query has settled on data for the current
+	// params. Stats queries keep the previous period's rows as placeholder data
+	// while a refetch is in flight, so exporting mid-fetch (or after an error)
+	// could hand the user stale rows under the new-period `csvFilename`.
+	const canExport =
+		areClientSideCsvExportsEnabled() && rows.length > 0 && ! isFetching && ! isError;
+
 	return (
 		<div className={ styles.content }>
 			<WidgetState
@@ -308,6 +347,11 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 			>
 				<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
 			</WidgetState>
+			{ canExport && (
+				<div className={ styles.contentExport }>
+					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+				</div>
+			) }
 		</div>
 	);
 }

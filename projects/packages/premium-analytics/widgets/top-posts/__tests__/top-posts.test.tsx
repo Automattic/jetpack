@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
@@ -10,6 +11,9 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react';
  */
 import TopPostsWidget from '../render';
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: jest.fn(),
+} ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 type MockRouteLinkProps = {
@@ -46,7 +50,24 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
+const mockGetScriptData = getScriptData as jest.Mock;
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
+	return (
+		<section aria-labelledby="top-posts-widget-title">
+			<div>
+				<div id="top-posts-widget-title">Top pages by views</div>
+				<div>
+					<div data-testid="widget-toolbar">
+						<button type="button">Widget settings</button>
+					</div>
+				</div>
+			</div>
+			{ children }
+		</section>
+	);
+}
 
 // The widget requests a multi-day window, so the stats query layer summarizes
 // the views into the top-level `summary` bucket rather than per-day `days`
@@ -82,6 +103,9 @@ describe( 'TopPostsWidget', () => {
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: { client_side_csv_exports_enabled: true },
+		} );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
@@ -240,6 +264,94 @@ describe( 'TopPostsWidget', () => {
 		).resolves.toBeInTheDocument();
 		// No fabricated per-row delta from placeholder zeros.
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'exposes the CSV export in the widget content once the fetched rows are on screen', async () => {
+		render(
+			<DashboardWidgetChromeFixture>
+				<TopPostsWidget attributes={ { num: 10 } } />
+			</DashboardWidgetChromeFixture>
+		);
+
+		await expect(
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
+		).resolves.toBeInTheDocument();
+
+		const toolbar = screen.getByTestId( 'widget-toolbar' );
+		expect(
+			within( toolbar ).queryByRole( 'button', { name: /Download CSV/ } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the CSV export when the server flag is disabled', async () => {
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: { client_side_csv_exports_enabled: false },
+		} );
+
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+
+		await expect(
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the export while a new date range is still fetching, then restores it', async () => {
+		// Hold the second range's fetch open so we can observe the in-flight
+		// window. During it the stats query keeps the prior period's rows as
+		// placeholder data, so `rows.length > 0` stays true while `isFetching`
+		// is true. That is the exact state that used to let stale rows download
+		// under the new-period filename.
+		let resolveSecond: ( value: unknown ) => void = () => {};
+		const secondFetch = new Promise( resolve => {
+			resolveSecond = resolve;
+		} );
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( 'start_date=2026-05-01' ) ? secondFetch : Promise.resolve( TOP_POSTS_RESPONSE )
+		);
+
+		const { rerender } = render(
+			<DashboardWidgetChromeFixture>
+				<TopPostsWidget
+					attributes={ {
+						num: 10,
+						reportParams: { from: '2026-03-01', to: '2026-03-10' },
+					} }
+				/>
+			</DashboardWidgetChromeFixture>
+		);
+
+		// First range settles: rows and the export are both present.
+		await expect(
+			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+
+		// Switch date range on the same tree; the new fetch is still pending.
+		rerender(
+			<DashboardWidgetChromeFixture>
+				<TopPostsWidget
+					attributes={ {
+						num: 10,
+						reportParams: { from: '2026-05-01', to: '2026-05-10' },
+					} }
+				/>
+			</DashboardWidgetChromeFixture>
+		);
+
+		// Placeholder data keeps the prior rows visible, but the export must be
+		// gated off while the active query is fetching.
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
+		);
+		expect( screen.getByRole( 'link', { name: /^Hello World Post$/ } ) ).toBeInTheDocument();
+
+		// Once the new range settles, the export returns.
+		resolveSecond( TOP_POSTS_RESPONSE );
+		await expect(
+			screen.findByRole( 'button', { name: /Download CSV/ } )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders a delta when an overlapping comparison row has zero views', async () => {
