@@ -211,7 +211,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'analytics', $route );
 		$this->assertStringContainsString( 'stats', $route );
 		$this->assertStringContainsString( 'commercial', $route );
-		$this->assertStringNotContainsString( 'posts', $route );
+		// `posts` is pattern-constrained: only the likers list is anchored in the route.
+		$this->assertStringContainsString( 'posts/[0-9]+/likes', $route );
 		$this->assertStringNotContainsString( 'media', $route );
 	}
 
@@ -395,6 +396,16 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'upgrades/foo' ) );
 	}
 
+	public function test_validate_data_endpoint_enforces_the_posts_pattern() {
+		// `posts` only exposes a post's likers list — never post content, which the blog token
+		// could otherwise read for any view_stats user.
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/likes' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/likes/' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123/likes/extra' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/slug/likes' ) );
+	}
+
 	/**
 	 * Unsupported endpoints must not route at all — the request never reaches the handler and the
 	 * blog token is never forwarded. Covers other resources, foreign namespaces, prefix-extension
@@ -460,7 +471,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		// A prefix outside the config fails closed (config lookup misses) — admins included.
-		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'posts' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'media' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wp/v2/users' ) ) );
 	}
 
@@ -578,6 +589,9 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// Purchases — site-less path (view_stats).
 			'purchases'            => array( 'upgrades', $stats, false, '/upgrades?site=%d' ),
+
+			// Post likes — the only `posts` sub-path the `pattern` exposes (view_stats).
+			'post likes'           => array( 'posts/123/likes', $stats, false, '/sites/%d/posts/123/likes' ),
 		);
 	}
 

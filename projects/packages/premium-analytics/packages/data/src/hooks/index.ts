@@ -12,6 +12,11 @@ export {
 	type StatsPostParams,
 	type StatsPostResponse,
 } from './use-stats-post';
+export {
+	useStatsPostLikes,
+	type StatsPostLikesParams,
+	type StatsPostLikesResponse,
+} from './use-stats-post-likes';
 export { useStatsTopPosts } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';
