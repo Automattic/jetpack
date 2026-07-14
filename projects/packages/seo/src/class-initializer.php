@@ -127,11 +127,35 @@ class Initializer {
 	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
 
 	/**
+	 * Transient holding the Overview's content-coverage counts.
+	 *
+	 * Versioned, so a future change to the payload's shape can't read a stale array
+	 * written by an older version of this code.
+	 *
+	 * @var string
+	 */
+	const COVERAGE_COUNTS_TRANSIENT = 'jetpack_seo_content_coverage_counts_v1';
+
+	/**
+	 * How long the content-coverage counts survive without being invalidated.
+	 *
+	 * @var int
+	 */
+	const COVERAGE_COUNTS_TTL = HOUR_IN_SECONDS;
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
 	 */
 	private static $initialized = false;
+
+	/**
+	 * Whether the coverage transient has already been dropped during this request.
+	 *
+	 * @var bool
+	 */
+	private static $coverage_invalidated = false;
 
 	/**
 	 * Initialize the package.
@@ -185,6 +209,12 @@ class Initializer {
 		// dashboard recovers its data instead of dead-ending. Registered whenever the
 		// surface is visible (independent of the seo-tools module, like the Overview).
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_reads' ) );
+
+		// Keep the Overview's cached content-coverage counts honest. Hooked here rather than
+		// alongside the admin surface above because posts are written from everywhere — the
+		// block editor (REST), the classic editor, wp-cli, cron, other plugins — and the
+		// cache has to be dropped wherever that happens, not just where it's read.
+		self::register_coverage_invalidation();
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
@@ -597,9 +627,56 @@ class Initializer {
 	 * posts/pages have each SEO field set. State, not a score — the card shows
 	 * proportions + raw counts and lets the admin decide what matters.
 	 *
+	 * Served from {@see self::COVERAGE_COUNTS_TRANSIENT} when it's warm. The counts are read on
+	 * every load of the SEO page — and by every tab of it, since the dashboard preloads
+	 * all of its REST reads at once — so without a cache a plain reload pays for the
+	 * query again having changed nothing.
+	 *
 	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
 	 */
 	private static function get_content_coverage() {
+		$cached = get_transient( self::COVERAGE_COUNTS_TRANSIENT );
+
+		if ( self::is_content_coverage( $cached ) ) {
+			return $cached;
+		}
+
+		$coverage = self::compute_content_coverage();
+
+		set_transient( self::COVERAGE_COUNTS_TRANSIENT, $coverage, self::COVERAGE_COUNTS_TTL );
+		// The cache is warm again, so a later write in this same request has something
+		// to invalidate and must not be swallowed by the once-per-request guard.
+		self::$coverage_invalidated = false;
+
+		return $coverage;
+	}
+
+	/**
+	 * Whether a value read back from the cache is a coverage payload this code can use.
+	 *
+	 * @param mixed $value Value read from the transient.
+	 * @return bool
+	 */
+	private static function is_content_coverage( $value ) {
+		if ( ! is_array( $value ) ) {
+			return false;
+		}
+
+		foreach ( array( 'total', 'with_schema', 'with_title', 'with_description', 'with_search_visible' ) as $key ) {
+			if ( ! isset( $value[ $key ] ) || ! is_int( $value[ $key ] ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Count the coverage metrics straight from the database.
+	 *
+	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
+	 */
+	private static function compute_content_coverage() {
 		global $wpdb;
 
 		$post_types = self::coverage_post_types();
@@ -647,7 +724,7 @@ class Initializer {
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Aggregate count with no core API equivalent; $sql is the prepared statement built directly above.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Aggregate count with no core API equivalent; $sql is the prepared statement built directly above. The result is cached in self::COVERAGE_COUNTS_TRANSIENT by the get_content_coverage() wrapper, which is the only caller — the sniff just can't see across the two methods.
 		$row = $wpdb->get_row( $sql );
 
 		if ( ! $row ) {
@@ -673,6 +750,91 @@ class Initializer {
 			// most posts (no meta row) count as visible.
 			'with_search_visible' => max( 0, $total - $noindexed ),
 		);
+	}
+
+	/**
+	 * Hook the writes that can move the content-coverage counts.
+	 *
+	 * @return void
+	 */
+	public static function register_coverage_invalidation() {
+		// Covers publish, unpublish, trash, untrash and scheduled posts going live — every
+		// route by which a post enters or leaves the published set.
+		add_action( 'transition_post_status', array( __CLASS__, 'invalidate_content_coverage_on_status_change' ), 10, 3 );
+		add_action( 'deleted_post', array( __CLASS__, 'invalidate_content_coverage_on_delete' ), 10, 2 );
+
+		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'invalidate_content_coverage_on_meta_change' ), 10, 3 );
+		}
+	}
+
+	/**
+	 * Drop the cached counts when a post enters or leaves the published set.
+	 *
+	 * @param string        $new_status Status the post is moving to.
+	 * @param string        $old_status Status the post is moving from.
+	 * @param \WP_Post|null $post       The post being transitioned.
+	 * @return void
+	 */
+	public static function invalidate_content_coverage_on_status_change( $new_status, $old_status, $post ) {
+		if ( ! $post instanceof \WP_Post || ! in_array( $post->post_type, self::coverage_post_types(), true ) ) {
+			return;
+		}
+
+		// Draft to draft, pending to draft, and the like never touch the counts.
+		if ( 'publish' !== $new_status && 'publish' !== $old_status ) {
+			return;
+		}
+
+		self::invalidate_content_coverage();
+	}
+
+	/**
+	 * Drop the cached counts when a post is deleted outright.
+	 *
+	 * Trashing already goes through `transition_post_status`; this catches a hard delete,
+	 * which for an already-trashed post transitions nothing.
+	 *
+	 * @param int           $post_id Deleted post ID.
+	 * @param \WP_Post|null $post    The post that was deleted.
+	 * @return void
+	 */
+	public static function invalidate_content_coverage_on_delete( $post_id, $post = null ) {
+		if ( ! $post instanceof \WP_Post || ! in_array( $post->post_type, self::coverage_post_types(), true ) ) {
+			return;
+		}
+
+		self::invalidate_content_coverage();
+	}
+
+	/**
+	 * Drop the cached counts when one of the SEO fields they count is written.
+	 *
+	 * @param int|int[] $meta_id   Meta row ID, or IDs on delete. Unused.
+	 * @param int       $object_id Post the meta belongs to. Unused.
+	 * @param string    $meta_key  Meta key written.
+	 * @return void
+	 */
+	public static function invalidate_content_coverage_on_meta_change( $meta_id, $object_id, $meta_key ) {
+		if ( ! in_array( $meta_key, self::coverage_meta_keys(), true ) ) {
+			return;
+		}
+
+		self::invalidate_content_coverage();
+	}
+
+	/**
+	 * Drop the cached counts, at most once per request.
+	 *
+	 * @return void
+	 */
+	private static function invalidate_content_coverage() {
+		if ( self::$coverage_invalidated ) {
+			return;
+		}
+
+		self::$coverage_invalidated = true;
+		delete_transient( self::COVERAGE_COUNTS_TRANSIENT );
 	}
 
 	/**
