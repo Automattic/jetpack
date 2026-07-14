@@ -141,6 +141,17 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function add_wp_admin_submenu() {
+		// Unlike standalone/Atomic, Simple has no working fallback: the legacy
+		// React dashboard's data layer rides videopress/v1, which never reaches
+		// the REST dispatcher there. With modernization off (e.g. a site outside
+		// the staged rollout), register no menu rather than a dead page. The
+		// function_exists half of the callback selection can't gate this — the
+		// wp-build render function is only loaded on the VideoPress page itself,
+		// and the menu must register on every admin page.
+		if ( ! self::is_modernized() ) {
+			return;
+		}
+
 		$callback = self::get_dashboard_render_callback();
 
 		$page_suffix = add_submenu_page(
