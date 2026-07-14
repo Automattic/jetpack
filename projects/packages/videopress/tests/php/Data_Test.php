@@ -287,6 +287,61 @@ class Data_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the pure (type, privacy) → ID-set-constraint mapping that reproduces
+	 * the old client-side matchesClientSideFilters. Exhaustively covers all 12
+	 * (type ∈ {none, videopress, local}) × (privacy ∈ {none, private, public,
+	 * site-default}) combinations. This plan is independent of the resolved site
+	 * privacy — only the *contents* of each named set depend on it — so it's
+	 * asserted directly against ($mode, $set).
+	 *
+	 * @dataProvider provider_privacy_type_plan
+	 *
+	 * @param bool        $has_guid Type filter = VideoPress.
+	 * @param bool        $no_vp    Type filter = local.
+	 * @param int|null    $privacy  Single privacy code (0/1/2) or null.
+	 * @param string      $mode     Expected mode: none|in|not_in|empty.
+	 * @param string|null $set      Expected named set: all|priv|pub|sd|expl|null.
+	 */
+	#[DataProvider( 'provider_privacy_type_plan' )]
+	public function test_wpcom_privacy_type_plan( $has_guid, $no_vp, $privacy, $mode, $set ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'wpcom_privacy_type_plan' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame(
+			array( $mode, $set ),
+			$method->invoke( self::$videopress_rest_data, $has_guid, $no_vp, $privacy )
+		);
+	}
+
+	/**
+	 * Data provider for test_wpcom_privacy_type_plan — the full 12-combo truth table.
+	 *
+	 * @return array<string, array{0:bool,1:bool,2:int|null,3:string,4:string|null}>
+	 */
+	public static function provider_privacy_type_plan() {
+		return array(
+			// type = none (no type filter): privacy folds L into Public/Site-default.
+			'none / none'               => array( false, false, null, 'none', null ),
+			'none / private'            => array( false, false, 1, 'in', 'priv' ),
+			'none / public'             => array( false, false, 0, 'not_in', 'priv' ),
+			'none / site-default'       => array( false, false, 2, 'not_in', 'expl' ),
+			// type = videopress: always restrict to videos-table members.
+			'videopress / none'         => array( true, false, null, 'in', 'all' ),
+			'videopress / private'      => array( true, false, 1, 'in', 'priv' ),
+			'videopress / public'       => array( true, false, 0, 'in', 'pub' ),
+			'videopress / site-default' => array( true, false, 2, 'in', 'sd' ),
+			// type = local: exclude members; locals are public + site-default, never private.
+			'local / none'              => array( false, true, null, 'not_in', 'all' ),
+			'local / private'           => array( false, true, 1, 'empty', null ),
+			'local / public'            => array( false, true, 0, 'not_in', 'all' ),
+			'local / site-default'      => array( false, true, 2, 'not_in', 'all' ),
+		);
+	}
+
+	/**
 	 * Invokes the private Data::prepare_videopress_video_data() method.
 	 *
 	 * @param array|object $video A single video entry from the media REST endpoint.

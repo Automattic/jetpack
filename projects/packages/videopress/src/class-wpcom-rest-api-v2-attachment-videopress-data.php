@@ -98,8 +98,9 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * `videopress_has_guid`: (WPCOM only) restrict results to VideoPress videos
 	 *                        (members of wpcom's videos table)
 	 * `videopress_only_videos`: (WPCOM only) restrict results to video attachments
-	 * `videopress_privacy_setting`: restrict by privacy (0/1/2, comma-separated);
-	 *                               honored on Simple via the videos table too
+	 * `videopress_privacy_setting`: restrict by privacy (0/1/2). Off-Simple this
+	 *                               is a comma list; on Simple it's a single
+	 *                               DataViews `is` code, resolved via the videos table
 	 *
 	 * @param array           $args The original list of args before the filtering.
 	 * @param WP_REST_Request $request The original request data.
@@ -216,83 +217,160 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			$args['post_mime_type'] = 'video';
 		}
 
-		$post_in     = null; // int[]|null — restrict results to these attachment IDs.
-		$post_not_in = null; // int[]|null — exclude these attachment IDs.
-
 		/*
-		 * Privacy filter → restrict to the VideoPress videos whose *effective*
-		 * visibility matches (see wpcom_privacy_value_set()).
-		 *
-		 * DELIBERATE BEHAVIOR CHANGE vs the old client filter: this applies to
-		 * VideoPress videos only. The old matchesClientSideFilters treated a
-		 * "local" (non-VideoPress) video as public + site-default — its is_private
-		 * defaulted to false and its privacy to 'site-default' — so it surfaced
-		 * under the Public and Site-default filters. Local videos carry no
-		 * videos-table privacy row, so here they're excluded from every
-		 * privacy-filtered view. Privacy is a VideoPress concept and a Simple site
-		 * holding non-VideoPress videos is rare; the Private filter is unchanged
-		 * (local videos were never private). See PR #50410 discussion.
+		 * Normalize the privacy filter to a single code. The dashboard's DataViews
+		 * control uses the `is` operator, so it sends one value: 0 = public,
+		 * 1 = private, 2 = site-default. Anything else (empty, malformed, a stray
+		 * comma list) means "no privacy filter".
 		 */
+		$privacy = null;
 		if ( isset( $request['videopress_privacy_setting'] ) ) {
-			$requested_privacy = array_map(
-				'intval',
-				array_filter( explode( ',', (string) $request['videopress_privacy_setting'] ), 'is_numeric' )
-			);
-			// A malformed/empty value narrows nothing — don't accidentally
-			// restrict the grid to videos-table members.
-			if ( ! empty( $requested_privacy ) ) {
-				$privacy_ids = $this->get_wpcom_videopress_post_ids( $requested_privacy );
-				$post_in     = null === $post_in ? $privacy_ids : array_values( array_intersect( $post_in, $privacy_ids ) );
+			$raw = trim( (string) $request['videopress_privacy_setting'] );
+			if ( '0' === $raw || '1' === $raw || '2' === $raw ) {
+				$privacy = (int) $raw;
 			}
 		}
 
 		/*
-		 * Type filter. `videopress_has_guid` restricts to videos-table members;
-		 * `no_videopress` excludes them (the "local", non-VideoPress videos).
-		 * Both replace the postmeta-backed logic used off-Simple.
+		 * Resolve the (type, privacy) pair into a single WP_Query ID-set
+		 * constraint. This reproduces the old client-side matchesClientSideFilters
+		 * exactly — including its treatment of a "local" (non-VideoPress) video as
+		 * public + site-default: locals carry no videos-table privacy row, so they
+		 * surface under the Public and Site-default filters and never under
+		 * Private. See wpcom_privacy_type_plan().
 		 */
-		if ( isset( $request['videopress_has_guid'] ) ) {
-			$vp_ids  = $this->get_wpcom_videopress_post_ids();
-			$post_in = null === $post_in ? $vp_ids : array_values( array_intersect( $post_in, $vp_ids ) );
-		} elseif ( isset( $request['no_videopress'] ) ) {
-			$post_not_in = $this->get_wpcom_videopress_post_ids();
-		}
+		list( $mode, $set ) = $this->wpcom_privacy_type_plan(
+			isset( $request['videopress_has_guid'] ),
+			isset( $request['no_videopress'] ),
+			$privacy
+		);
 
-		/*
-		 * A restrict-set combined with an exclude-set (e.g. a privacy filter plus
-		 * type=local) can't be expressed with both post__in and post__not_in —
-		 * WP_Query doesn't support the pair — so collapse to a single post__in
-		 * difference. In practice this combination is empty: local videos have no
-		 * videos-table privacy row, so they're never in the privacy set.
-		 */
-		if ( null !== $post_in && null !== $post_not_in ) {
-			$post_in     = array_values( array_diff( $post_in, $post_not_in ) );
-			$post_not_in = null;
-		}
-
-		if ( null !== $post_in ) {
-			// WP_Query silently ignores an empty post__in, so a filter that
-			// matched nothing must fall back to a sentinel that matches no
-			// attachment (post ID 0 never exists) — otherwise it would leak the
-			// whole library.
-			$args['post__in'] = array() === $post_in ? array( 0 ) : $post_in;
-		}
-		if ( null !== $post_not_in && array() !== $post_not_in ) {
-			$args['post__not_in'] = $post_not_in;
+		switch ( $mode ) {
+			case 'in':
+				$ids = $this->get_wpcom_videopress_post_ids( $set );
+				// WP_Query silently ignores an empty post__in, so a restrict-set
+				// that matched nothing must fall back to a sentinel that matches no
+				// attachment (post ID 0 never exists) — otherwise it would leak the
+				// whole library.
+				$args['post__in'] = array() === $ids ? array( 0 ) : $ids;
+				break;
+			case 'not_in':
+				$ids = $this->get_wpcom_videopress_post_ids( $set );
+				// An empty exclude-set must be omitted (exclude nothing); sending
+				// post__not_in = array() would be a no-op, but keep the args clean.
+				if ( array() !== $ids ) {
+					$args['post__not_in'] = $ids;
+				}
+				break;
+			case 'empty':
+				// The requested combination can't match anything (e.g. local +
+				// private): force an empty result with the match-nothing sentinel.
+				$args['post__in'] = array( 0 );
+				break;
+			case 'none':
+			default:
+				// No type or privacy narrowing — the browse default stands.
+				break;
 		}
 
 		return $args;
 	}
 
 	/**
+	 * Map a (type, privacy) filter pair to a single WP_Query ID-set constraint,
+	 * reproducing the old client-side matchesClientSideFilters exactly.
+	 *
+	 * The library holds two kinds of video attachment: L = local (not a member of
+	 * wpcom's `videos` table) and V = VideoPress (a member). The old client filter
+	 * treated every local video as public + site-default (is_private defaulted to
+	 * false, privacy to 'site-default'), so locals appeared under the Public and
+	 * Site-default privacy views and never under Private. This mapping preserves
+	 * that parity: privacy is resolved across the whole video library, not just V.
+	 *
+	 * Over the site's video/* attachments, the V sub-sets are:
+	 *   Vall  — all (non-soft-deleted) videos-table members.
+	 *   Vpriv — effectively private: setting 1, or (setting 2 / absent) on a private site.
+	 *   Vpub  — effectively public: setting 0, or (setting 2 / absent) on a public site.
+	 *   Vsd   — stored site-default: setting 2 or absent.
+	 *   Vexpl — an explicit setting: setting IN (0,1).
+	 *
+	 * Returns [ $mode, $set ], where $mode is how to apply the set and $set names it:
+	 *   'none'   / null  — no constraint (show everything).
+	 *   'in'     / <set> — post__in     = <set>.
+	 *   'not_in' / <set> — post__not_in = <set>.
+	 *   'empty'  / null  — match nothing.
+	 *
+	 * Pure and independent of the resolved site privacy — only the *contents* of
+	 * each named set depend on it (see get_wpcom_videopress_post_ids()) — so this
+	 * is exhaustively unit-testable off-platform.
+	 *
+	 * @param bool     $has_guid Type filter = VideoPress (videos-table members only).
+	 * @param bool     $no_vp    Type filter = local (exclude videos-table members).
+	 * @param int|null $privacy  Single privacy code (0/1/2), or null for no privacy filter.
+	 * @return array{0:string,1:string|null} [ $mode, $set ].
+	 */
+	private function wpcom_privacy_type_plan( $has_guid, $no_vp, $privacy ) {
+		// Strict comparisons throughout: a switch would match `case 0` for a null
+		// $privacy (PHP's loose null == 0), collapsing "no privacy filter" into
+		// the Public view.
+		if ( $has_guid ) {
+			// Type = VideoPress: always restrict to videos-table members, then
+			// narrow to the effective/stored privacy set when asked.
+			if ( 1 === $privacy ) {
+				return array( 'in', 'priv' );
+			}
+			if ( 0 === $privacy ) {
+				return array( 'in', 'pub' );
+			}
+			if ( 2 === $privacy ) {
+				return array( 'in', 'sd' );
+			}
+			return array( 'in', 'all' );
+		}
+
+		if ( $no_vp ) {
+			// Type = local: exclude every videos-table member. Locals are all
+			// public + site-default and never private, so only the Private view is
+			// empty; the rest just return L.
+			if ( 1 === $privacy ) {
+				return array( 'empty', null );
+			}
+			return array( 'not_in', 'all' );
+		}
+
+		// No type filter: privacy applies across the whole video library.
+		if ( 1 === $privacy ) {
+			// Vpriv only — locals are never private.
+			return array( 'in', 'priv' );
+		}
+		if ( 0 === $privacy ) {
+			// L ∪ Vpub — everything except the effectively-private videos.
+			return array( 'not_in', 'priv' );
+		}
+		if ( 2 === $privacy ) {
+			// L ∪ Vsd — everything except videos with an explicit setting.
+			return array( 'not_in', 'expl' );
+		}
+		return array( 'none', null );
+	}
+
+	/**
 	 * List this blog's VideoPress attachment post IDs from wpcom's global
-	 * `videos` table, optionally narrowed to an effective-visibility set.
+	 * `videos` table, optionally narrowed to a named privacy set.
 	 *
 	 * Membership in the `videos` table — not postmeta or the mime type — is what
 	 * distinguishes a VideoPress video from a local one on Simple. Soft-deleted
 	 * rows (a `video_meta` row with meta_key 'deleted_at') are always excluded,
 	 * matching every canonical wpcom query over these tables
 	 * (e.g. helpers.php:videopress_get_jetpack_storage_used()).
+	 *
+	 * The named sets mirror wpcom_privacy_type_plan():
+	 *   'all'  — every member, no privacy predicate (Vall).
+	 *   'priv' — effectively private (Vpriv).
+	 *   'pub'  — effectively public (Vpub).
+	 *   'sd'   — stored site-default (Vsd).
+	 *   'expl' — an explicit privacy_setting IN (0,1) (Vexpl); absent meta does
+	 *            NOT qualify, since a missing row is stored site-default.
 	 *
 	 * The literal meta_key strings map to wpcom's VIDEOPRESS_META_KEYS constants:
 	 * 'deleted_at' = DELETED_AT, 'privacy_setting' = PRIVACY_SETTING. The privacy
@@ -301,20 +379,38 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * classes, which aren't present off-platform; this method is only ever called
 	 * from the IS_WPCOM-guarded branch above.
 	 *
-	 * @param int[] $requested_privacy Privacy codes to filter by (0/1/2). Empty
-	 *                                 for no privacy predicate (all members).
+	 * @param string $set Named privacy set: 'all'|'priv'|'pub'|'sd'|'expl'.
 	 * @return int[] Attachment post IDs.
 	 */
-	private function get_wpcom_videopress_post_ids( $requested_privacy = array() ) {
+	private function get_wpcom_videopress_post_ids( $set = 'all' ) {
 		global $wpdb;
 
 		$privacy_join  = '';
 		$privacy_where = '';
 		$prepare_args  = array( get_current_blog_id() );
 
-		if ( ! empty( $requested_privacy ) ) {
-			$site_is_private           = Data::get_videopress_videos_private_for_site();
-			list( $values, $inc_null ) = $this->wpcom_privacy_value_set( $requested_privacy, $site_is_private );
+		if ( 'all' !== $set ) {
+			if ( 'expl' === $set ) {
+				// Videos with an explicit setting only. A missing privacy_setting
+				// row is stored site-default, so absent meta does NOT qualify.
+				$values   = array( 0, 1 );
+				$inc_null = false;
+			} else {
+				$site_is_private = Data::get_videopress_videos_private_for_site();
+				switch ( $set ) {
+					case 'priv':
+						$code = 1;
+						break;
+					case 'pub':
+						$code = 0;
+						break;
+					case 'sd':
+					default:
+						$code = 2;
+						break;
+				}
+				list( $values, $inc_null ) = $this->wpcom_privacy_value_set( array( $code ), $site_is_private );
+			}
 
 			// A privacy filter that admits no stored value and no absent-meta row
 			// matches nothing; short-circuit before touching the database.
@@ -367,9 +463,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * Translate requested privacy codes into the concrete set of stored
 	 * `privacy_setting` values — plus whether an absent meta row qualifies —
 	 * that reproduce, for VideoPress videos, the same effective visibility the
-	 * client's old matchesClientSideFilters computed for them. (Local, non-
-	 * videos-table videos are excluded from privacy views by the caller — see
-	 * the note there.)
+	 * client's old matchesClientSideFilters computed for them.
 	 *
 	 * Effective visibility is private when the stored setting is 1 (IS_PRIVATE),
 	 * or when the setting is 2 (SITE_DEFAULT) or the meta row is absent AND the
@@ -377,6 +471,11 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * SITE_DEFAULT. The 'site-default' request (2) matches the *stored* setting
 	 * (2 or absent) regardless of the resolved site privacy, mirroring the
 	 * client's `site-default` branch on item.privacy.
+	 *
+	 * This resolves the Vpriv (code 1), Vpub (code 0) and Vsd (code 2) sets used
+	 * by get_wpcom_videopress_post_ids(). Local (non-videos-table) videos carry no
+	 * row here; the caller folds them back into the Public and Site-default views
+	 * via post__not_in, restoring the old client filter's parity.
 	 *
 	 * Pure (no wpcom globals) so it's unit-testable off-platform.
 	 *
