@@ -28,10 +28,12 @@ export type PostDetailHighlightsAttributes = Record< never, never >;
 export default {
 	name: 'jpa/post-detail-highlights',
 	title: __( 'Post highlights', 'jetpack-premium-analytics' ),
-	description: __(
-		'Views, comments, and likes for the post or page being viewed.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Views, comments, and likes for the post or page being viewed.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: starEmpty,
 	attributes: [] as WidgetAttributeField< PostDetailHighlightsAttributes >[],
 	example: {
