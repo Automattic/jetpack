@@ -93,6 +93,23 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			? 'https://wordpress.com/activity-log/' . $activity_log_site
 			: admin_url( 'admin.php?page=jetpack-activity-log' );
 
+		/*
+		 * Link SEO settings to the dedicated Jetpack SEO page where it exists,
+		 * falling back to the Traffic settings card. Checking the `rsm_jetpack_seo`
+		 * filter is required in addition to the cohort check: is_seo_surface_visible()
+		 * alone returns true on all of wpcom-platform even while the flag is off —
+		 * it answers only the cohort half, and page registration requires both
+		 * (see packages/seo Initializer::init()).
+		 */
+		$seo_settings_url = admin_url( 'admin.php?page=jetpack#/traffic' );
+		if (
+			class_exists( '\Automattic\Jetpack\SEO\Initializer' )
+			&& (bool) apply_filters( 'rsm_jetpack_seo', false )
+			&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
+		) {
+			$seo_settings_url = admin_url( 'admin.php?page=jetpack-seo' );
+		}
+
 		wp_enqueue_script(
 			'jetpack-ai-admin',
 			plugins_url( '_inc/build/jetpack-ai-admin.js', JETPACK__PLUGIN_FILE ),
@@ -109,6 +126,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 				array(
 					'blogId'         => $blog_id ? (int) $blog_id : 0,
 					'activityLogUrl' => $activity_log_url,
+					'seoSettingsUrl' => $seo_settings_url,
 					'siteAdminUrl'   => admin_url(),
 					'apiRoot'        => esc_url_raw( rest_url() ),
 					'apiNonce'       => wp_create_nonce( 'wp_rest' ),

@@ -14,6 +14,11 @@ import { __ } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
+// Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
+// where it exists, the Traffic settings card otherwise. Falls back to Traffic
+// when jetpackAiSettings is unavailable (e.g. in tests).
+const { seoSettingsUrl } = window?.jetpackAiSettings ?? {};
+
 // Per the design, a row's action link depends on the toggle state: enabled
 // features invite you to try them (AI SEO opens its settings), disabled ones
 // link to documentation via registered Jetpack Redirects handlers.
@@ -102,7 +107,7 @@ const SECTIONS = [
 				),
 				enabledAction: {
 					label: __( 'Open SEO Settings', 'jetpack' ),
-					href: 'admin.php?page=jetpack#/traffic',
+					href: seoSettingsUrl || 'admin.php?page=jetpack#/traffic',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
