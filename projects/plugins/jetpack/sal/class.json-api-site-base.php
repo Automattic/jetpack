@@ -1546,7 +1546,7 @@ abstract class SAL_Site {
 		// builds can exist until that change is live, so the current blog is the
 		// purchase blog in that window.
 		$purchase_blog_id = $this->blog_id;
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- wpcom-only class, guarded above.
 		if ( method_exists( '\DIFM_Lite_Options', 'resolve_purchase_site_id' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
 			$purchase_blog_id = \DIFM_Lite_Options::resolve_purchase_site_id( $this->blog_id );
