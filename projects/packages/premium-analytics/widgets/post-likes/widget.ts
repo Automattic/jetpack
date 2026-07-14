@@ -26,10 +26,12 @@ export type PostLikesAttributes = Record< never, never >;
 export default {
 	name: 'jpa/post-likes',
 	title: __( 'Latest likes', 'jetpack-premium-analytics' ),
-	description: __(
-		'The people who liked the post or page being viewed.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'The people who liked the post or page being viewed.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: starEmpty,
 	attributes: [] as WidgetAttributeField< PostLikesAttributes >[],
 	example: {
