@@ -37,7 +37,14 @@ export default function SuggestAllButton() {
 	const hidden = ! bannerDismissed && hasFeature;
 	const hiddenProps = hidden ? { style: { display: 'none' }, 'aria-hidden': true } : {};
 
-	if ( ! featureResolved ) {
+	// Before the feature check resolves, only render when the banner was
+	// dismissed: in that state the button is visible on every plan and just
+	// morphs to the locked look if the check says no plan (the optimistic
+	// hasFeature default gives the unlocked presentation meanwhile, and
+	// useGenerateAll ignores clicks until the check answers). When the banner
+	// was not dismissed, button-vs-banner depends on the plan, so wait for
+	// the real answer to avoid rendering the wrong one.
+	if ( ! featureResolved && ! bannerDismissed ) {
 		return null;
 	}
 

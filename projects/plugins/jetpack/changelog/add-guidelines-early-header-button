@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Content Guidelines AI: Start the AI feature check at script load instead of after the guidelines list renders, and render the header button immediately when the banner was already dismissed — removing most of the button's pop-in delay. Clicks are ignored during the brief window before the check resolves.

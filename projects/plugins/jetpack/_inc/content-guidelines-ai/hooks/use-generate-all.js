@@ -20,12 +20,25 @@ export default function useGenerateAll() {
 	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
 	const { hasFeature } = useAiFeature();
 
+	const featureResolved = useSelect(
+		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
+		[]
+	);
+
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
 		return Object.fromEntries( VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] ) );
 	}, [] );
 
 	const generate = useCallback( async () => {
+		// The header button can render before the feature check resolves (see
+		// SuggestAllButton). hasFeature is only an optimistic default until
+		// then — acting on it could fire a request destined to 403 on no-plan
+		// sites, surfacing a misleading error. Ignore clicks in that window.
+		if ( ! featureResolved ) {
+			return;
+		}
+
 		if ( ! hasFeature ) {
 			// No AI plan: surface the upgrade notice instead of generating. The
 			// click is a fresh intent signal, so the notice reappears even after
@@ -67,6 +80,7 @@ export default function useGenerateAll() {
 			stopLoading();
 		}
 	}, [
+		featureResolved,
 		hasFeature,
 		allGuidelines,
 		startLoading,
