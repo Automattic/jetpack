@@ -188,14 +188,13 @@ class Initial_State {
 	 * @return bool
 	 */
 	public static function has_videopress_access() {
-		// On WordPress.com Simple, access is governed by the site's plan feature —
-		// the same gate that surfaces the dashboard menu — not the storage-tier
-		// product features used off-platform (which don't resolve on Simple). Uses
-		// the bare 'videopress' slug, matching Admin_UI's existing feature check.
-		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
-			return (bool) wpcom_site_has_feature( 'videopress' );
-		}
-
+		// Any paid storage tier grants access; on the WPCOM platform (Simple or
+		// Atomic) the legacy `videopress` slug does too. No Simple special-case is
+		// needed here: each has_videopress_feature() call already routes through the
+		// Simple-local wpcom_site_has_feature() check under IS_WPCOM, and
+		// is_wpcom_platform() is true on Simple, so the third term reduces to
+		// wpcom_site_has_feature( 'videopress' ) there — the check the old early
+		// return performed, minus the redundancy.
 		return self::has_videopress_feature( 'videopress-1tb-storage' )
 			|| self::has_videopress_feature( 'videopress-unlimited-storage' )
 			|| ( ( new Host() )->is_wpcom_platform() && self::has_videopress_feature( 'videopress' ) );

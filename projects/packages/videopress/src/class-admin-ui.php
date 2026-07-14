@@ -44,6 +44,15 @@ class Admin_UI {
 	 */
 	public static function init() {
 
+		// Load the wp-build dashboard assets on the VideoPress admin page, on every
+		// host. Registered before enable_menu() below — both hook admin_menu:1, and
+		// same-priority callbacks fire in registration order — so the render function
+		// and SCRIPT_HANDLE exist by the time the menu callback is selected: on
+		// standalone/Atomic by enable_menu(), on wpcom Simple by add_wp_admin_submenu()
+		// (wpcom-admin-menu.php, admin_menu:999999). maybe_load_wp_build() self-gates
+		// to the VideoPress admin request, so it's inert on every other page.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
 		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used:
 		// the Jetpack parent menu is created late (admin_menu priority 999999) by
 		// wpcom-admin-menu.php, which registers the VideoPress submenu directly via
@@ -51,11 +60,8 @@ class Admin_UI {
 		// Jetpack/Atomic media-library hooks below — the media hooks are Phase 3 media
 		// parity, out of scope for menu + boot, and would patch a media library wpcom
 		// owns (their VideoPress branches are inert on Simple anyway: videos keep their
-		// original mime, never video/videopress). We only need the wp-build dashboard
-		// assets so the page boots; maybe_load_wp_build() at admin_menu:1 runs before
-		// the 999999 submenu registration, so the render function is defined in time.
+		// original mime, never video/videopress).
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 			return;
 		}
 
@@ -67,11 +73,6 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
-
-		if ( self::is_modernized() && self::is_videopress_admin_request() ) {
-			self::load_wp_build();
-			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		}
 	}
 
 	/**
@@ -95,14 +96,26 @@ class Admin_UI {
 	}
 
 	/**
+	 * Select the dashboard render callback: the modernized wp-build render function
+	 * when modernization is on and it's available (loaded by maybe_load_wp_build()),
+	 * otherwise the legacy React root. Shared by enable_menu() (standalone/Atomic)
+	 * and add_wp_admin_submenu() (wpcom Simple).
+	 *
+	 * @return string|array Callback for Admin_Menu::add_menu()/add_submenu_page().
+	 */
+	private static function get_dashboard_render_callback() {
+		return self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
+			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
+			: array( __CLASS__, 'plugin_settings_page' );
+	}
+
+	/**
 	 * Enable the menu, separately to init due to translations needing to run early for the page suffix.
 	 *
 	 * @return void
 	 */
 	public static function enable_menu() {
-		$callback = self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
-			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
-			: array( __CLASS__, 'plugin_settings_page' );
+		$callback = self::get_dashboard_render_callback();
 
 		$page_suffix = Admin_Menu::add_menu(
 			// "VideoPress" is a product name, do not translate.
@@ -128,9 +141,7 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function add_wp_admin_submenu() {
-		$callback = self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
-			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
-			: array( __CLASS__, 'plugin_settings_page' );
+		$callback = self::get_dashboard_render_callback();
 
 		$page_suffix = add_submenu_page(
 			'jetpack',
