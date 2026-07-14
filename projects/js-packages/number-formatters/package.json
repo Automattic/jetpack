@@ -43,6 +43,6 @@
 		"jest": "30.4.2",
 		"jetpack-js-tools": "workspace:*",
 		"tsdown": "0.22.2",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3"
 	}
 }

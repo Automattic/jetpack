@@ -74,6 +74,6 @@
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"jest": "30.4.2",
 		"storybook": "10.4.6",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3"
 	}
 }
