@@ -12,7 +12,9 @@
  * presets always intersect it regardless of when the story runs.
  */
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+import { format, subDays } from 'date-fns';
+
+const DAY_FORMAT = 'yyyy-MM-dd';
 const SERIES_DAYS = 400;
 
 const seriesEnd = new Date();
@@ -20,16 +22,16 @@ const seriesEnd = new Date();
 const mockPostDailyViews: Array< [ string, number ] > = Array.from(
 	{ length: SERIES_DAYS },
 	( _, index ) => {
-		const date = new Date( seriesEnd.getTime() - ( SERIES_DAYS - 1 - index ) * DAY_MS );
+		const date = subDays( seriesEnd, SERIES_DAYS - 1 - index );
 		const launchSpike = index < 14 ? ( 14 - index ) * 25 : 0;
 		const weeklyWave = 60 + Math.round( 20 * Math.sin( ( ( index % 7 ) / 7 ) * Math.PI * 2 ) );
 
-		return [ date.toISOString().slice( 0, 10 ), Math.max( 5, weeklyWave + launchSpike ) ];
+		return [ format( date, DAY_FORMAT ), Math.max( 5, weeklyWave + launchSpike ) ];
 	}
 );
 
 export const mockStatsPostData = {
-	views: 3820,
+	views: mockPostDailyViews.reduce( ( total, [ , views ] ) => total + views, 0 ),
 	like_count: 24,
 	data: mockPostDailyViews,
 	post: {

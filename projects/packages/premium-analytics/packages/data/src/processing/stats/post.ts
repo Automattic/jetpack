@@ -1,3 +1,4 @@
+import { format, isValid, parse } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
@@ -95,6 +96,23 @@ export type StatsPostResponse = {
 	post?: StatsPostMeta;
 };
 
+const STATS_POST_DAY_FORMAT = 'yyyy-MM-dd';
+
+/**
+ * Check whether a value is a real calendar day in the API's date format.
+ *
+ * @param value - Candidate date key.
+ * @return Whether the value is a valid `YYYY-MM-DD` day.
+ */
+function isValidStatsPostDay( value: string ): boolean {
+	if ( ! /^\d{4}-\d{2}-\d{2}$/.test( value ) ) {
+		return false;
+	}
+
+	const parsed = parse( value, STATS_POST_DAY_FORMAT, new Date( 0 ) );
+	return isValid( parsed ) && format( parsed, STATS_POST_DAY_FORMAT ) === value;
+}
+
 function normalizeStatsPostYear( value: unknown ): StatsPostYear {
 	const year = coerceStatsRecord( value );
 	const months = coerceStatsRecord( year.months );
@@ -120,7 +138,11 @@ function normalizeStatsPostDays( value: unknown ): StatsPostDay[] {
 	return (
 		coerceStatsArray( value )
 			.flatMap( entry => {
-				if ( ! Array.isArray( entry ) || typeof entry[ 0 ] !== 'string' ) {
+				if (
+					! Array.isArray( entry ) ||
+					typeof entry[ 0 ] !== 'string' ||
+					! isValidStatsPostDay( entry[ 0 ] )
+				) {
 					return [];
 				}
 
