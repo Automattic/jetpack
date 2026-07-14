@@ -60,23 +60,58 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * `count_published_with_meta()` supports an exact-value match (used for the
-	 * schema-type metric) in addition to the default "non-empty" mode. Exercised
-	 * directly because the Overview only ever calls the non-empty mode, so the
-	 * value-match branch would otherwise go uncovered. Returns an integer count
-	 * (zero in the empty test environment).
+	 * The coverage query joins `wp_postmeta` on the key list `coverage_meta_keys()`
+	 * returns, but counts each metric with its own CASE arm naming a `META_*`
+	 * constant directly. Those two have to name the same keys: a key dropped from
+	 * the join list (or a CASE arm pointing at a key the join never selected) makes
+	 * the affected metric silently count zero rather than fail. Pin both lists.
 	 */
-	public function test_count_published_with_meta_supports_exact_value() {
-		$method = new \ReflectionMethod( Initializer::class, 'count_published_with_meta' );
+	public function test_coverage_targets_the_seo_meta_keys_and_post_types() {
+		$meta_keys  = new \ReflectionMethod( Initializer::class, 'coverage_meta_keys' );
+		$post_types = new \ReflectionMethod( Initializer::class, 'coverage_post_types' );
+		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$meta_keys->setAccessible( true );
+			$post_types->setAccessible( true );
+		}
+
+		$this->assertEqualsCanonicalizing(
+			array(
+				Initializer::META_SCHEMA_TYPE,
+				Initializer::META_TITLE,
+				Initializer::META_DESCRIPTION,
+				Initializer::META_NOINDEX,
+			),
+			$meta_keys->invoke( null ),
+			'Every meta key a CASE arm counts must also be selected by the join.'
+		);
+
+		$this->assertSame( array( 'post', 'page' ), $post_types->invoke( null ) );
+	}
+
+	/**
+	 * With no database behind it (this suite runs WorDBless dbless), the coverage
+	 * query returns nothing. It has to degrade to a well-formed all-zero payload —
+	 * the Overview card destructures all five counts unconditionally — and do it
+	 * without emitting a notice, which PHPUnit is configured to fail on.
+	 */
+	public function test_content_coverage_degrades_to_zeros_without_a_database() {
+		$method = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
 		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		$count = $method->invoke( null, array( 'post', 'page' ), 'jetpack_seo_schema_type', 'article' );
-
-		$this->assertIsInt( $count );
-		$this->assertSame( 0, $count );
+		$this->assertSame(
+			array(
+				'total'               => 0,
+				'with_schema'         => 0,
+				'with_title'          => 0,
+				'with_description'    => 0,
+				'with_search_visible' => 0,
+			),
+			$method->invoke( null )
+		);
 	}
 
 	/**

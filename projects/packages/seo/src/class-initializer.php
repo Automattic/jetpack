@@ -570,6 +570,29 @@ class Initializer {
 	}
 
 	/**
+	 * Post types the content-coverage counts span.
+	 *
+	 * @return string[]
+	 */
+	private static function coverage_post_types() {
+		return array( 'post', 'page' );
+	}
+
+	/**
+	 * The SEO post-meta keys the content-coverage counts read.
+	 *
+	 * @return string[]
+	 */
+	private static function coverage_meta_keys() {
+		return array(
+			self::META_SCHEMA_TYPE,
+			self::META_TITLE,
+			self::META_DESCRIPTION,
+			self::META_NOINDEX,
+		);
+	}
+
+	/**
 	 * Factual content-coverage counts for the Overview card: how many published
 	 * posts/pages have each SEO field set. State, not a score — the card shows
 	 * proportions + raw counts and lets the admin decide what matters.
@@ -577,63 +600,79 @@ class Initializer {
 	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
 	 */
 	private static function get_content_coverage() {
-		$post_types = array( 'post', 'page' );
+		global $wpdb;
 
-		$total = 0;
-		foreach ( $post_types as $post_type ) {
-			$counts = wp_count_posts( $post_type );
-			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
+		$post_types = self::coverage_post_types();
+		$meta_keys  = self::coverage_meta_keys();
+
+		$meta_key_placeholders  = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
+		$post_type_placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+
+		/*
+		 * Driven from `wp_postmeta`, not `wp_posts`: most sites have far more published
+		 * posts than SEO fields set, so the join starts from the small side, where the
+		 * `meta_key` index serves `meta_key IN (…)` directly.
+		 *
+		 * The aggregate has no GROUP BY, so it still returns its single row — counts at
+		 * zero, `total` intact — on a site with no SEO meta at all.
+		 *
+		 * COUNT( DISTINCT p.ID ) because a post can carry more than one row for the same
+		 * meta key. `<> ''` counts a field as set; noindex alone is an exact `= '1'`.
+		 */
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$sql = $wpdb->prepare(
+			"SELECT
+				(
+					SELECT COUNT(*)
+					FROM {$wpdb->posts}
+					WHERE post_status = 'publish' AND post_type IN ( {$post_type_placeholders} )
+				) AS total,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value <> '' THEN p.ID END ) AS with_schema,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value <> '' THEN p.ID END ) AS with_title,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value <> '' THEN p.ID END ) AS with_description,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value = '1' THEN p.ID END ) AS noindexed
+			FROM {$wpdb->postmeta} pm
+			INNER JOIN {$wpdb->posts} p
+				ON p.ID = pm.post_id
+				AND p.post_status = 'publish'
+				AND p.post_type IN ( {$post_type_placeholders} )
+			WHERE pm.meta_key IN ( {$meta_key_placeholders} )",
+			array_merge(
+				$post_types,
+				// The CASE arms above, in the order they appear.
+				array( self::META_SCHEMA_TYPE, self::META_TITLE, self::META_DESCRIPTION, self::META_NOINDEX ),
+				$post_types,
+				$meta_keys
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Aggregate count with no core API equivalent; $sql is the prepared statement built directly above.
+		$row = $wpdb->get_row( $sql );
+
+		if ( ! $row ) {
+			return array(
+				'total'               => 0,
+				'with_schema'         => 0,
+				'with_title'          => 0,
+				'with_description'    => 0,
+				'with_search_visible' => 0,
+			);
 		}
 
-		// Search-engine visibility is the inverse of the per-post noindex meta: a
-		// post is visible unless it's explicitly set to noindex (stored as '1'), so
-		// most posts (no meta row) count as visible.
-		$noindexed = self::count_published_with_meta( $post_types, self::META_NOINDEX, '1' );
+		$total     = (int) $row->total;
+		$noindexed = (int) $row->noindexed;
 
 		return array(
 			'total'               => $total,
-			'with_schema'         => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
-			'with_title'          => self::count_published_with_meta( $post_types, self::META_TITLE ),
-			'with_description'    => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
+			'with_schema'         => (int) $row->with_schema,
+			'with_title'          => (int) $row->with_title,
+			'with_description'    => (int) $row->with_description,
+			// Search-engine visibility is the inverse of the per-post noindex meta: a
+			// post is visible unless it's explicitly set to noindex (stored as '1'), so
+			// most posts (no meta row) count as visible.
 			'with_search_visible' => max( 0, $total - $noindexed ),
 		);
-	}
-
-	/**
-	 * Count published posts/pages whose meta is set. With no `$value`, counts a
-	 * non-empty string meta; with a `$value`, counts an exact match.
-	 *
-	 * @param string[]    $post_types Post types to count across.
-	 * @param string      $meta_key   Meta key to test.
-	 * @param string|null $value      Exact value to match, or null for "non-empty".
-	 * @return int
-	 */
-	private static function count_published_with_meta( $post_types, $meta_key, $value = null ) {
-		$clause = null === $value
-			? array(
-				'key'     => $meta_key,
-				'value'   => '',
-				'compare' => '!=',
-			)
-			: array(
-				'key'   => $meta_key,
-				'value' => $value,
-			);
-
-		$query = new \WP_Query(
-			array(
-				'post_type'              => $post_types,
-				'post_status'            => 'publish',
-				'posts_per_page'         => 1,
-				'fields'                 => 'ids',
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Overview snapshot; one count query per metric on the SEO page only.
-				'meta_query'             => array( $clause ),
-			)
-		);
-
-		return (int) $query->found_posts;
 	}
 
 	/**
