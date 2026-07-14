@@ -330,7 +330,7 @@ Like other charts in this library, GeoChart supports responsive sizing. By defau
 		<GeoChart data={ordersByCountry} />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<GeoChart data={ordersByCountry} aspectRatio={0.625} />
 	</div>

@@ -233,7 +233,7 @@ By default, the chart **fills its parent container's dimensions**, reflowing as 
 		<HeatmapChart data={ columns } rowLabels={ rowLabels } />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<HeatmapChart data={ columns } rowLabels={ rowLabels } aspectRatio={ 0.4 } />
 	</div>

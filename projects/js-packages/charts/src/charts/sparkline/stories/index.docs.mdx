@@ -215,7 +215,7 @@ The default `Sparkline` export includes responsive behavior. By default, it **fi
 		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%', maxWidth: '200px' }}>
 		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" aspectRatio={0.3} />
 	</div>` }

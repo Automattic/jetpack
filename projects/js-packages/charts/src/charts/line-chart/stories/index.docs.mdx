@@ -551,7 +551,7 @@ By default, charts **fill their parent container's dimensions**. The parent must
 		<LineChart data={data} />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<LineChart data={data} aspectRatio={0.5} />
 	</div>
