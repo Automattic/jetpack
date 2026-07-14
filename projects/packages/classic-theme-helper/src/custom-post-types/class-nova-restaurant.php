@@ -89,9 +89,11 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		/**
 		 * Whether the CPT and its utilities have already been registered.
 		 *
+		 * Private so that a subclass declaring a property of the same name doesn't hit a visibility fatal.
+		 *
 		 * @var bool
 		 */
-		protected $registered = false;
+		private $registered = false;
 
 		/**
 		 * Initialize class.
