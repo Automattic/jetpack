@@ -54,7 +54,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	 *
 	 * @var string[]
 	 */
-	const FEATURE_KEYS = array( 'writing_assistant', 'image_editor', 'image_label', 'excerpt', 'seo_enhancer', 'ai_search' );
+	const FEATURE_KEYS = array( 'writing_assistant', 'image_editor', 'image_label', 'seo_enhancer', 'ai_search' );
 
 	/**
 	 * Constructor.
@@ -203,7 +203,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					),
 				),
 				'seo_enhancer'      => array( 'enabled' => $stored['seo_enhancer'] ),
-				'excerpt'           => array( 'enabled' => $stored['excerpt'] ),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
 					'requires_upgrade' => ! $supports_search,

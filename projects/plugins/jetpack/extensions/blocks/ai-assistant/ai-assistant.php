@@ -74,24 +74,14 @@ add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
 		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			// The excerpt generator has its own toggle on the AI settings page,
-			// independent of the writing assistant.
-			if ( \Jetpack_AI_Settings::is_feature_enabled( 'excerpt' ) ) {
-				Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
-			}
-
 			if ( \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-usage-panel' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-featured-image-generator' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-experimental-image-generation-support' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-general-purpose-image-generator' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-site-logo-support' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-image-extension' );
 
 				$site_locale = get_locale();
 				// Only enable Write Brief for sites with an English locale.
@@ -103,6 +93,14 @@ add_action(
 				if ( apply_filters( 'ai_correct_spelling_enabled', false ) ) {
 					Jetpack_Gutenberg::set_extension_available( 'ai-correct-spelling' );
 				}
+			}
+
+			if ( \Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'ai-featured-image-generator' );
+				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-experimental-image-generation-support' );
+				Jetpack_Gutenberg::set_extension_available( 'ai-general-purpose-image-generator' );
+				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-site-logo-support' );
+				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-image-extension' );
 			}
 
 			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) ) {

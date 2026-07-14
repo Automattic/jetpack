@@ -113,7 +113,6 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_label' ) );
-		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'excerpt' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'no_such_feature' ) );
@@ -123,9 +122,9 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * A feature's option turns it off.
 	 */
 	public function test_feature_option_off() {
-		update_option( 'jetpack_ai_excerpt_enabled', 0 );
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
-		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'excerpt' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 	}
 
 	/**
@@ -158,7 +157,6 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertContains( 'jetpack_ai_writing_assistant_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_image_editor_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_image_label_enabled', $whitelist );
-		$this->assertContains( 'jetpack_ai_excerpt_enabled', $whitelist );
 	}
 
 	/**
@@ -173,6 +171,5 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'jetpack_ai_writing_assistant_enabled', $registered );
 		$this->assertArrayHasKey( 'jetpack_ai_image_editor_enabled', $registered );
 		$this->assertArrayHasKey( 'jetpack_ai_image_label_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_excerpt_enabled', $registered );
 	}
 }

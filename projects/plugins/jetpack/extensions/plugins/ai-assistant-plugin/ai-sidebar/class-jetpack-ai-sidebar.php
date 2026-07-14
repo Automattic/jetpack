@@ -371,7 +371,7 @@ class Jetpack_AI_Sidebar {
 	 * UI feature flag for the Generate Excerpt suggestion.
 	 *
 	 * Exposed only in internal testing environments while the feature is in development,
-	 * and only while the excerpt toggle on the AI settings page is on.
+	 * and only while the writing toggle on the AI settings page is on.
 	 * No plan gate: the excerpt is a core editorial field, and the ability's own
 	 * permission callback (edit_posts) gates execution server-side.
 	 *
@@ -379,7 +379,7 @@ class Jetpack_AI_Sidebar {
 	 */
 	private static function is_excerpt_suggestion_enabled(): bool {
 		return jetpack_is_internal_testing_environment()
-			&& \Jetpack_AI_Settings::is_feature_enabled( 'excerpt' );
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
 	}
 
 	/**
