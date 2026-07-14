@@ -21,7 +21,7 @@
 		"@automattic/_jetpack-e2e-commons": "workspace:*",
 		"@playwright/test": "1.60.0",
 		"@types/node": "^24.12.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"allure-playwright": "2.15.1",
 		"config": "4.4.1",
 		"playwright-ctrf-json-reporter": "^0.0.26"

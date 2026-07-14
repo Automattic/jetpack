@@ -34,7 +34,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/base-styles": "10.2.0",
 		"@wordpress/browserslist-config": "6.50.0",
 		"autoprefixer": "10.4.20",

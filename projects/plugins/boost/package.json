@@ -65,7 +65,7 @@
 		"@testing-library/dom": "10.4.1",
 		"@types/jest": "30.0.0",
 		"@types/jquery": "3.5.33",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.50.0",
 		"@wordpress/i18n": "6.23.0",
 		"@wordpress/theme": "0.17.0",

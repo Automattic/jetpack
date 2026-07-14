@@ -47,7 +47,7 @@
 		"@rollup/plugin-replace": "5.0.2",
 		"@rollup/plugin-terser": "1.0.0",
 		"@rollup/plugin-typescript": "12.1.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"concurrently": "10.0.3",
 		"jest": "30.4.2",
 		"postcss": "8.5.14",

@@ -30,7 +30,7 @@
 		"@rollup/plugin-node-resolve": "15.3.0",
 		"@rollup/plugin-terser": "1.0.0",
 		"@rollup/plugin-typescript": "12.1.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/i18n": "6.23.0",
 		"postcss": "8.5.14",
 		"rollup": "3.30.0",
