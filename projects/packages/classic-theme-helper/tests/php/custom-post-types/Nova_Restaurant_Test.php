@@ -31,17 +31,18 @@ class Nova_Restaurant_Test extends TestCase {
 	 * @var array<string, string>
 	 */
 	private const HOOKS = array(
-		'restapi_theme_init'     => 'maybe_register_cpt',
-		'admin_menu'             => 'add_admin_menus',
-		'admin_enqueue_scripts'  => 'enqueue_nova_styles',
-		'admin_head'             => 'set_custom_font_icon',
-		'parse_query'            => 'sort_menu_item_queries_by_menu_order',
-		'posts_results'          => 'sort_menu_item_queries_by_menu_taxonomy',
-		'wp_insert_post'         => 'add_post_meta',
-		'template_include'       => 'setup_menu_item_loop_markup__in_filter',
-		'enter_title_here'       => 'change_default_title',
-		'post_updated_messages'  => 'updated_messages',
-		'dashboard_glance_items' => 'add_to_dashboard',
+		'restapi_theme_after_setup_theme' => 'maybe_register_cpt',
+		'restapi_theme_init'              => 'maybe_register_cpt',
+		'admin_menu'                      => 'add_admin_menus',
+		'admin_enqueue_scripts'           => 'enqueue_nova_styles',
+		'admin_head'                      => 'set_custom_font_icon',
+		'parse_query'                     => 'sort_menu_item_queries_by_menu_order',
+		'posts_results'                   => 'sort_menu_item_queries_by_menu_taxonomy',
+		'wp_insert_post'                  => 'add_post_meta',
+		'template_include'                => 'setup_menu_item_loop_markup__in_filter',
+		'enter_title_here'                => 'change_default_title',
+		'post_updated_messages'           => 'updated_messages',
+		'dashboard_glance_items'          => 'add_to_dashboard',
 	);
 
 	/**
@@ -96,8 +97,9 @@ class Nova_Restaurant_Test extends TestCase {
 
 		foreach ( $this->instances as $nova ) {
 			foreach ( self::HOOKS as $hook => $method ) {
-				remove_filter( $hook, array( $nova, $method ), 15 );
-				remove_filter( $hook, array( $nova, $method ) );
+				foreach ( array( 10, 15, PHP_INT_MAX ) as $priority ) {
+					remove_filter( $hook, array( $nova, $method ), $priority );
+				}
 			}
 		}
 		$this->instances = array();
@@ -151,7 +153,8 @@ class Nova_Restaurant_Test extends TestCase {
 
 	/**
 	 * The production path for a theme like Canape, which declares support from `after_setup_theme`: the REST
-	 * loader replays those callbacks on `restapi_theme_after_setup_theme` before firing `restapi_theme_init`.
+	 * loader replays those callbacks on `restapi_theme_after_setup_theme`, and the post type is registered by
+	 * the time that hook has finished, without waiting for `restapi_theme_init`.
 	 */
 	public function test_registers_post_type_when_theme_support_is_replayed_on_after_setup_theme() {
 		$this->create_nova();
@@ -166,9 +169,37 @@ class Nova_Restaurant_Test extends TestCase {
 		);
 
 		do_action( 'restapi_theme_after_setup_theme' );
-		do_action( 'restapi_theme_init' );
 
 		$this->assertTrue( post_type_exists( Nova_Restaurant::MENU_ITEM_POST_TYPE ) );
+	}
+
+	/**
+	 * Because support declared from `after_setup_theme` registers the post type during that replay, the
+	 * theme's own `init` callbacks see the post type when they run, just as they would on an ordinary request.
+	 */
+	public function test_post_type_exists_for_theme_init_callbacks_on_the_delayed_path() {
+		$this->create_nova();
+
+		add_action(
+			'restapi_theme_after_setup_theme',
+			function () {
+				add_theme_support( Nova_Restaurant::MENU_ITEM_POST_TYPE );
+			}
+		);
+
+		$seen_by_theme_init = null;
+		add_action(
+			'restapi_theme_init',
+			function () use ( &$seen_by_theme_init ) {
+				$seen_by_theme_init = post_type_exists( Nova_Restaurant::MENU_ITEM_POST_TYPE );
+			},
+			10
+		);
+
+		do_action( 'restapi_theme_after_setup_theme' );
+		do_action( 'restapi_theme_init' );
+
+		$this->assertTrue( $seen_by_theme_init, "A theme's own init callback should see the post type." );
 	}
 
 	/**
