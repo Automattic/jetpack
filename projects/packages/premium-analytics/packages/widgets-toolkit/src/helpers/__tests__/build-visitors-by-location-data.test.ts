@@ -37,20 +37,6 @@ describe( 'buildVisitorsByLocationData', () => {
 		expect( tw.delta ).toBe( 0 );
 	} );
 
-	it( 'treats a real 0 in the comparison period as a value, not as missing data', () => {
-		const { leaderboardData } = buildVisitorsByLocationData( {
-			primaryData: [ { id: 'US', label: 'United States', value: 10 } ],
-			comparisonData: [ { id: 'US', label: 'United States', value: 0 } ],
-			region: 'world',
-		} );
-
-		// The location is in the comparison period, it just had no visitors.
-		// That is a known previous value, so it earns a real delta.
-		expect( leaderboardData[ 0 ].previousValue ).toBe( 0 );
-		expect( leaderboardData[ 0 ].previousShare ).toBe( 0 );
-		expect( leaderboardData[ 0 ].delta ).toBe( 100 );
-	} );
-
 	it( 'leaves comparison fields undefined for a location absent from the comparison period', () => {
 		const { leaderboardData } = buildVisitorsByLocationData( {
 			primaryData,
@@ -64,6 +50,23 @@ describe( 'buildVisitorsByLocationData', () => {
 		expect( japan?.previousValue ).toBeUndefined();
 		expect( japan?.previousShare ).toBeUndefined();
 		expect( japan?.delta ).toBeUndefined();
+	} );
+
+	it( 'keeps comparison fields for a location with a real zero value', () => {
+		const { leaderboardData } = buildVisitorsByLocationData( {
+			primaryData,
+			comparisonData: [ ...comparisonData, { id: 'JP', label: 'Japan', value: 0 } ],
+			region: 'world',
+		} );
+
+		const japan = leaderboardData.find( row => row.id === 'JP' );
+
+		// A real 0 is a known previous value, so the row keeps a delta rather
+		// than falling back to the placeholder. 0 visitors to 1 is calculateDelta's
+		// documented "new/appeared" case, matching every other comparison widget.
+		expect( japan?.previousValue ).toBe( 0 );
+		expect( japan?.previousShare ).toBe( 0 );
+		expect( japan?.delta ).toBe( 100 );
 	} );
 
 	it( 'leaves comparison fields undefined for every row when no comparison data is provided', () => {
