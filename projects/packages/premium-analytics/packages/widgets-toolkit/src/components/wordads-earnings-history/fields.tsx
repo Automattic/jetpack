@@ -150,14 +150,16 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 	];
 }
 
-/** Default view: newest period first, figures right-aligned. */
+/** Default view: newest period first, with responsive equal-width columns. */
 export const EARNINGS_HISTORY_VIEW: Partial< View > = {
 	sort: { field: 'period', direction: 'desc' },
 	layout: {
 		density: 'compact',
 		styles: {
-			amount: { align: 'end' },
-			pageviews: { align: 'end' },
+			period: { width: '25%' },
+			amount: { align: 'end', width: '25%' },
+			pageviews: { align: 'end', width: '25%' },
+			status: { width: '25%' },
 		},
 	},
 };

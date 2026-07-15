@@ -1,4 +1,19 @@
-import { flattenEarningsBreakdown, getEarningsStatus } from '../fields';
+import { EARNINGS_HISTORY_VIEW, flattenEarningsBreakdown, getEarningsStatus } from '../fields';
+
+describe( 'EARNINGS_HISTORY_VIEW', () => {
+	it( 'distributes the table evenly across the available width', () => {
+		expect( EARNINGS_HISTORY_VIEW ).toMatchObject( {
+			layout: {
+				styles: {
+					period: { width: '25%' },
+					amount: { align: 'end', width: '25%' },
+					pageviews: { align: 'end', width: '25%' },
+					status: { width: '25%' },
+				},
+			},
+		} );
+	} );
+} );
 
 describe( 'getEarningsStatus', () => {
 	it( 'maps known WordAds statuses to labels', () => {

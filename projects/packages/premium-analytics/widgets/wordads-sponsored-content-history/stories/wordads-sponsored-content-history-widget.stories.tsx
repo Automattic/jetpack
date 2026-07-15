@@ -3,8 +3,6 @@
  * `wordads/earnings` fixture (registered by `registerReportMocks`) resolves the
  * table. The shared fixture includes sponsored rows, while `Empty` exercises
  * the no-history state.
- * The earnings endpoint is not period-scoped, so `WithComparison` renders
- * identically to `Default` even though comparison report params are supplied.
  * Loading / Error / Empty force the request into each state via
  * `setReportMockState`.
  */
@@ -109,25 +107,6 @@ export const Default: Story = {
 	render: renderWordAdsSponsoredContentHistory,
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Comparison state — comparison report params are supplied, but the earnings
- * endpoint is not period-scoped and has no comparison period, so this renders
- * identically to Default.
- */
-export const WithComparison: Story = {
-	render: renderWordAdsSponsoredContentHistory,
-	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'The earnings endpoint has no comparison period, so this renders identically to Default even when comparison report params are supplied.',
-			},
-		},
-	},
 };
 
 /** First load — the request is in flight. */
