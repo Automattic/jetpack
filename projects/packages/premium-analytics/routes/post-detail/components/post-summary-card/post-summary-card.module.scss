@@ -12,6 +12,7 @@
 	// subtitle against its bottom.
 	justify-content: space-between;
 	block-size: 72px;
+	flex: 1 1 auto;
 	min-inline-size: 0;
 }
 
@@ -21,11 +22,17 @@
 	font-size: 32px;
 	font-weight: 500;
 	line-height: 1.2;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .subtitle {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: 13px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .image,

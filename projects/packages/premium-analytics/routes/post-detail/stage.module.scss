@@ -24,15 +24,36 @@
 	justify-content: space-between;
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-lg);
+	container-type: inline-size;
 	padding-block: 40px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .summary {
-	flex: 1 1 auto;
-	min-inline-size: 0;
+	flex: 1 1 360px;
+	min-inline-size: min(100%, 320px);
 }
 
 .dateFilters {
-	flex: 0 0 auto;
+	display: flex;
+	flex: 0 1 auto;
+	justify-content: flex-end;
+	min-inline-size: min(100%, 600px);
+}
+
+@container (max-width: 960px) {
+
+	.summary,
+	.dateFilters {
+		flex-basis: 100%;
+		min-inline-size: 0;
+	}
+
+	.dateFilters {
+		justify-content: flex-start;
+	}
+
+	.dateFilters :global(.date-filters-panel) {
+		inline-size: 100%;
+	}
 }
