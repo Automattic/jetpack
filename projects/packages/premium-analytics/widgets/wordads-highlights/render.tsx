@@ -72,8 +72,11 @@ function WordAdsHighlightsReport( {
 }: {
 	metrics?: WordAdsEarningsMetricId[];
 } ) {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
 	const enabledMetrics = new Set( metrics );
+	const hasEnabledMetrics = WORDADS_EARNINGS_METRICS.some( ( { id } ) => enabledMetrics.has( id ) );
+	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings( undefined, {
+		enabled: hasEnabledMetrics,
+	} );
 
 	const tiles = WORDADS_EARNINGS_METRICS.filter( ( { id } ) => enabledMetrics.has( id ) ).map(
 		( { id, label } ) => ( {
@@ -90,7 +93,7 @@ function WordAdsHighlightsReport( {
 				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
-				isEmpty={ tiles.length === 0 }
+				isEmpty={ ! hasEnabledMetrics }
 				error={ {
 					description: __(
 						"We couldn't load WordAds earnings. Please try again in a moment.",

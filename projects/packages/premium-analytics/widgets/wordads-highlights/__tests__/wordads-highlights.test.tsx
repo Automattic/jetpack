@@ -95,11 +95,10 @@ describe( 'WordAdsHighlightsWidget', () => {
 		expect( screen.queryByText( 'Outstanding amount' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'prompts to select a metric when the metrics attribute is empty', async () => {
+	it( 'prompts to select a metric without requesting earnings when metrics are empty', () => {
 		render( <WordAdsHighlightsWidget attributes={ { metrics: [] } } /> );
 
-		await expect(
-			screen.findByText( 'Select at least one metric to display.' )
-		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Select at least one metric to display.' ) ).toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );
