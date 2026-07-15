@@ -98,10 +98,8 @@ function PostTrafficActivityInner() {
 		refetch,
 	} = usePostTrafficActivity( postId, reportParams, weeksForWidth( width ) * 7 );
 
-	// Ragged edges: the hook already trims days outside the visible span, so
-	// the slots completing those first/last weeks render empty, not blank.
 	const { data: heatmapData, rowLabels } = useMemo(
-		() => buildCalendarHeatmapData( days, { hideOutOfRangeDays: true } ),
+		() => buildCalendarHeatmapData( days ),
 		[ days ]
 	);
 

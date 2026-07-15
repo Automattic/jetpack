@@ -6,13 +6,6 @@ export type HeatmapCell = {
 	/** Per-cell label used in the tooltip / accessible name. */
 	label?: string;
 	value: number | null;
-	/**
-	 * Leave the cell's grid slot empty: nothing is painted and the cell is
-	 * skipped by hover and keyboard navigation, while the slot keeps its
-	 * place so the rest of the grid doesn't shift. For calendar edges, where
-	 * days completing the first/last week fall outside the covered range.
-	 */
-	hidden?: boolean;
 };
 
 /** A heatmap column (rendered left→right); its cells render top→bottom. */

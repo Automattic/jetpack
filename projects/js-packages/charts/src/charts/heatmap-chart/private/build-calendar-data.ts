@@ -25,19 +25,9 @@ const toDate = ( point: DataPointDate ): Date | null => {
 
 export const buildCalendarHeatmapData = (
 	series: DataPointDate[],
-	options: {
-		weekStartsOn?: 0 | 1;
-		/**
-		 * Mark the days completing the first/last week outside the series'
-		 * date span as hidden cells (empty grid slots) instead of blank
-		 * cells, giving the calendar ragged edges. Days inside the span stay
-		 * blank cells even when the series has no entry for them.
-		 */
-		hideOutOfRangeDays?: boolean;
-	} = {}
+	options: { weekStartsOn?: 0 | 1 } = {}
 ): CalendarHeatmapResult => {
 	const weekStartsOn = options.weekStartsOn ?? 1;
-	const hideOutOfRangeDays = options.hideOutOfRangeDays ?? false;
 
 	const entries = series
 		.map( point => ( { date: toDate( point ), value: point.value } ) )
@@ -62,11 +52,6 @@ export const buildCalendarHeatmapData = (
 
 	const gridStart = startOfWeek( minDate, { weekStartsOn } );
 	const weekCount = differenceInCalendarWeeks( maxDate, gridStart, { weekStartsOn } ) + 1;
-
-	// Day-key bounds for the ragged-edge option: calendar-day comparison, so
-	// entries carrying a time of day can't shift the span.
-	const minDayKey = format( minDate, 'yyyy-MM-dd' );
-	const maxDayKey = format( maxDate, 'yyyy-MM-dd' );
 
 	const rowLabels = Array.from( { length: 7 }, ( _, row ) =>
 		LABELLED_ROWS.includes( row ) ? format( addDays( gridStart, row ), 'EEE' ) : ''
@@ -100,14 +85,10 @@ export const buildCalendarHeatmapData = (
 		for ( let row = 0; row < 7; row++ ) {
 			const day = addDays( gridStart, week * 7 + row );
 			const key = format( day, 'yyyy-MM-dd' );
-			const cell: HeatmapCell = {
+			cells.push( {
 				label: format( day, 'EEE, MMM d, yyyy' ),
 				value: valueByDay.has( key ) ? ( valueByDay.get( key ) as number | null ) : null,
-			};
-			if ( hideOutOfRangeDays && ( key < minDayKey || key > maxDayKey ) ) {
-				cell.hidden = true;
-			}
-			cells.push( cell );
+			} );
 		}
 		data.push( { label, data: cells } );
 	}
