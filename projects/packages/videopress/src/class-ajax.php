@@ -229,8 +229,9 @@ class AJAX {
 			try {
 				$upload_token = VideoPressToken::videopress_onetime_upload_token();
 			} catch ( Upload_Exception $e ) {
-				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
-				wp_send_json_error( array( 'message' => $e->getMessage() ), null, JSON_UNESCAPED_SLASHES );
+				// Explicit 200: identical to the null default (admin-ajax errors
+				// ride the success:false envelope), but typed as the phpdoc wants.
+				wp_send_json_error( array( 'message' => $e->getMessage() ), 200, JSON_UNESCAPED_SLASHES );
 				return;
 			}
 
@@ -238,13 +239,12 @@ class AJAX {
 			// that helper isn't loaded in the Simple admin-ajax context, and only the
 			// legacy upload-form flow reads it — the track/poster consumers use the token
 			// and blog id, not the URL.
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_success(
 				array(
 					'upload_token'   => $upload_token,
 					'upload_blog_id' => $video_blog_id,
 				),
-				null,
+				200,
 				JSON_UNESCAPED_SLASHES
 			);
 			return;

@@ -103,8 +103,11 @@ class VideoPressToken {
 					}
 				}
 				if ( class_exists( '\Jetpack_Data' ) && class_exists( '\Jetpack_Server_Upload_Token' ) && defined( 'JETPACK__ANY_USER_TOKEN' ) ) {
-					$jetpack_token = \Jetpack_Data::get_access_token_by_blog_id_user_id( $blog_id, JETPACK__ANY_USER_TOKEN );
-					$token         = \Jetpack_Server_Upload_Token::create_token( $blog_id, $jetpack_token );
+					// blog_id() types as int|string (the Jetpack-option path), but on
+					// WPCOM it's get_current_blog_id() — narrow for the int-typed stubs.
+					$wpcom_blog_id = (int) $blog_id;
+					$jetpack_token = \Jetpack_Data::get_access_token_by_blog_id_user_id( $wpcom_blog_id, JETPACK__ANY_USER_TOKEN );
+					$token         = \Jetpack_Server_Upload_Token::create_token( $wpcom_blog_id, $jetpack_token );
 					if ( is_array( $token ) && ! empty( $token['hash'] ) ) {
 						return $token['hash'];
 					}
