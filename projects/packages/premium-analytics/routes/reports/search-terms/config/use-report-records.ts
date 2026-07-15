@@ -13,6 +13,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { aggregateSearchTermRows, searchTermsToTimeSeries } from './aggregate';
 
+type SearchTermsChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+
 /**
  * Fetch and derive the chart and table records for the Search terms report.
  *
@@ -22,7 +24,7 @@ import { aggregateSearchTermRows, searchTermsToTimeSeries } from './aggregate';
  */
 export function useSearchTermsReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: StatsPeriod
+	chartPeriod: SearchTermsChartPeriod
 ) {
 	/*
 	 * One bucketed report feeds both the chart and table. `summarize: 0` keeps
@@ -34,24 +36,24 @@ export function useSearchTermsReportRecords(
 			...reportParams,
 			max: 0,
 			summarize: 0,
-			period: chartPeriod,
+			period: 'day',
 		} ),
-		[ reportParams, chartPeriod ]
+		[ reportParams ]
 	);
 	const report = useStatsSearchTerms( recordsParams );
 	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics' );
 
 	const chartPrimary = useMemo(
-		() => searchTermsToTimeSeries( report.primary.data ),
-		[ report.primary.data ]
+		() => searchTermsToTimeSeries( report.primary.data, chartPeriod ),
+		[ report.primary.data, chartPeriod ]
 	);
 	const chartComparison = useMemo( () => {
 		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
 			return undefined;
 		}
 
-		return searchTermsToTimeSeries( report.comparison.data );
-	}, [ reportParams, report.comparison.data ] );
+		return searchTermsToTimeSeries( report.comparison.data, chartPeriod );
+	}, [ reportParams, report.comparison.data, chartPeriod ] );
 	const rows = useMemo(
 		() => aggregateSearchTermRows( report.primary.data, unknownLabel ),
 		[ report.primary.data, unknownLabel ]

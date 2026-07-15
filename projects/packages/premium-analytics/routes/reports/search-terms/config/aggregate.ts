@@ -4,6 +4,7 @@
 import type {
 	StatsNormalizedDataPoint,
 	StatsNormalizedReport,
+	StatsPeriod,
 	StatsSearchTermsItem,
 	StatsTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
@@ -20,6 +21,32 @@ export type SearchTermRow = {
 type SearchTermsDataPoint = StatsNormalizedDataPoint< StatsSearchTermsItem > & {
 	encrypted_search_terms?: unknown;
 };
+
+type SearchTermsChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+
+/**
+ * Map a daily bucket date onto its chart bucket key for the selected period.
+ *
+ * @param date   - The daily bucket date (`YYYY-MM-DD`).
+ * @param period - The chart bucket period.
+ * @return The bucket key the date aggregates into.
+ */
+function getChartBucketKey( date: string, period: SearchTermsChartPeriod ): string {
+	if ( period === 'day' ) {
+		return date;
+	}
+
+	const bucketDate = new Date( `${ date.slice( 0, 10 ) }T00:00:00Z` );
+
+	if ( period === 'week' ) {
+		const daysSinceMonday = ( bucketDate.getUTCDay() + 6 ) % 7;
+		bucketDate.setUTCDate( bucketDate.getUTCDate() - daysSinceMonday );
+	} else {
+		bucketDate.setUTCDate( 1 );
+	}
+
+	return bucketDate.toISOString().slice( 0, 10 );
+}
 
 /**
  * Read the aggregate encrypted-search count that the Stats payload stores
@@ -46,30 +73,49 @@ function getTermLabel( item: StatsSearchTermsItem ): string {
 }
 
 /**
- * Build a views-per-bucket series from a bucketed search-terms report.
+ * Build the chart's views-per-bucket series from daily search-terms data.
  * Known-term views and the encrypted aggregate are both included so the chart
- * represents the same records shown in the table.
+ * represents the same records shown in the table. Week and month intervals are
+ * derived client-side so changing the chart does not change the requested range.
  *
  * @param report - The bucketed search-terms report.
+ * @param period - The chart bucket period.
  * @return The chart-ready time series.
  */
 export function searchTermsToTimeSeries(
-	report: StatsNormalizedReport< StatsSearchTermsItem > | undefined
+	report: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
+	period: SearchTermsChartPeriod = 'day'
 ): StatsTimeSeriesReport {
-	const data = ( report?.data ?? [] ).map( point => {
+	const buckets = new Map< string, StatsTimeSeriesReport[ 'data' ][ number ] >();
+	const points = [ ...( report?.data ?? [] ) ].sort( ( a, b ) =>
+		a.time_interval.localeCompare( b.time_interval )
+	);
+
+	for ( const point of points ) {
 		const knownViews = point.items.reduce( ( total, item ) => total + item.views, 0 );
 		const views = knownViews + ( getEncryptedSearchTerms( point ) ?? 0 );
+		const key = getChartBucketKey( point.time_interval, period );
+		const existing = buckets.get( key );
 
-		return {
-			time_interval: point.time_interval,
+		if ( existing ) {
+			existing.date_end = point.date_end;
+			existing.value = Number( existing.value ) + views;
+			existing.views = Number( existing.views ) + views;
+			continue;
+		}
+
+		buckets.set( key, {
+			time_interval: key,
 			date_start: point.date_start,
 			date_end: point.date_end,
-			label: point.time_interval,
+			label: key,
 			items: [],
 			value: views,
 			views,
-		};
-	} );
+		} );
+	}
+
+	const data = [ ...buckets.values() ];
 	const first = data[ 0 ];
 	const last = data[ data.length - 1 ];
 
