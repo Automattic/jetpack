@@ -36,10 +36,7 @@ export interface PodcastSettings {
 // `podcasting_show_urls` is Partial because the server merges patches into the
 // stored map — callers can send `{ apple: 'url' }` without touching siblings.
 export type PodcastSettingsUpdate = Partial<
-	Omit<
-		PodcastSettings,
-		'podcasting_show_urls' | 'podcasting_show_states' | 'podcasting_feed_url'
-	>
+	Omit< PodcastSettings, 'podcasting_show_urls' | 'podcasting_show_states' | 'podcasting_feed_url' >
 > & {
 	podcasting_show_urls?: Partial< PodcastShowUrls >;
 	podcasting_show_states?: Partial< PodcastShowStates >;

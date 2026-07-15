@@ -259,8 +259,7 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	public function test_feed_url_uses_canonical_category_feed_api() {
-		$term   = wp_insert_term( 'Podcast Cat', 'category' );
-		$cat_id = $term['term_id'];
+		$cat_id = $this->seed_category_term( 7 );
 		update_option( 'podcasting_category_id', $cat_id );
 
 		$feed_url = Settings::feed_url();
@@ -279,7 +278,7 @@ class Settings_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '&amp;', $feed_url );
 
 		delete_option( 'podcasting_category_id' );
-		wp_delete_term( $cat_id, 'category' );
+		wp_cache_flush();
 	}
 
 	public function test_feed_url_is_empty_without_a_category() {
@@ -294,16 +293,45 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	public function test_get_all_includes_the_derived_feed_url() {
-		$term   = wp_insert_term( 'Feed Cat', 'category' );
-		$cat_id = $term['term_id'];
+		$cat_id = $this->seed_category_term( 8 );
 		update_option( 'podcasting_category_id', $cat_id );
 
 		$all = Settings::get_all();
 
 		$this->assertArrayHasKey( 'podcasting_feed_url', $all );
+		$this->assertNotEmpty( $all['podcasting_feed_url'] );
 		$this->assertSame( Settings::feed_url(), $all['podcasting_feed_url'] );
 
 		delete_option( 'podcasting_category_id' );
-		wp_delete_term( $cat_id, 'category' );
+		wp_cache_flush();
+	}
+
+	/**
+	 * WorDBless doesn't register core taxonomies or hydrate inserted terms
+	 * through get_term(), which get_term_feed_link() relies on. Register
+	 * `category` and seed the `terms` object cache with a fully-formed WP_Term so
+	 * get_term() resolves it — mirrors Customize_Feed_Test's approach.
+	 *
+	 * @param int $id Term ID to seed.
+	 * @return int The same term ID, for convenience.
+	 */
+	private function seed_category_term( int $id ): int {
+		if ( ! taxonomy_exists( 'category' ) ) {
+			register_taxonomy( 'category', 'post', array( 'hierarchical' => true ) );
+		}
+		wp_cache_set(
+			$id,
+			new \WP_Term(
+				(object) array(
+					'term_id'          => $id,
+					'name'             => 'Podcast Cat',
+					'slug'             => 'podcast-cat-' . $id,
+					'taxonomy'         => 'category',
+					'term_taxonomy_id' => $id,
+				)
+			),
+			'terms'
+		);
+		return $id;
 	}
 }
