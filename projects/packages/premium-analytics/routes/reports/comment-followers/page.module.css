@@ -11,6 +11,6 @@
 	 * Match the horizontal padding of the header so the report sections line up
 	 * with it instead of sitting flush to the edge.
 	 */
-	padding-block-end: 24px;
+	padding-block-end: var(--wpds-dimension-padding-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
