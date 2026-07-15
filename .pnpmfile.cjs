@@ -403,7 +403,6 @@ function fixPeerDeps( pkg ) {
 	if (
 		( pkg.name === 'stylelint-config-recommended' ||
 			pkg.name === 'stylelint-config-recommended-scss' ||
-			pkg.name === '@stylistic/stylelint-plugin' ||
 			pkg.name === 'stylelint-scss' ) &&
 		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
 	) {
