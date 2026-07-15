@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
+import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
+import { type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
-import type { StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
 
 /**
  * DataViews field config for the Comments Subscribers records table.

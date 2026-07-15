@@ -8,9 +8,10 @@
 	overflow-y: auto;
 
 	/*
-	 * Match the horizontal padding of the header so the report sections line up
-	 * with it instead of sitting flush to the edge.
+	 * Keep the report sections aligned with the header and separated from its
+	 * bottom border.
 	 */
+	padding-block-start: var(--wpds-dimension-padding-lg);
 	padding-block-end: var(--wpds-dimension-padding-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }

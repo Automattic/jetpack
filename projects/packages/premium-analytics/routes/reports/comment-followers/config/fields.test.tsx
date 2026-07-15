@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { getCommentFollowersFields } from './fields';
-import type { StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
 
 /**
  * Mount the post field's render component for a table row.
