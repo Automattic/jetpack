@@ -5,10 +5,7 @@ import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analyti
 /**
  * Internal dependencies
  */
-import {
-	registerReportMocks,
-	setReportMockState,
-} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -16,6 +13,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TopPostsRender from '../render';
@@ -183,8 +181,8 @@ export const Loading: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
-		setReportMockState( 'stats/top-posts', 'loading' );
-		return () => setReportMockState( 'stats/top-posts', null );
+		forceStatsMockState( 'stats/top-posts', 'loading' );
+		return () => forceStatsMockState( 'stats/top-posts', null );
 	},
 };
 
@@ -197,8 +195,8 @@ export const Error: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
-		setReportMockState( 'stats/top-posts', 'error' );
-		return () => setReportMockState( 'stats/top-posts', null );
+		forceStatsMockState( 'stats/top-posts', 'error' );
+		return () => forceStatsMockState( 'stats/top-posts', null );
 	},
 };
 
@@ -211,7 +209,7 @@ export const Empty: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
-		setReportMockState( 'stats/top-posts', 'empty' );
-		return () => setReportMockState( 'stats/top-posts', null );
+		forceStatsMockState( 'stats/top-posts', 'empty' );
+		return () => forceStatsMockState( 'stats/top-posts', null );
 	},
 };
