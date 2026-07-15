@@ -19,7 +19,7 @@ const mockNoticesDispatch = jest.fn( () => ( {
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	getUserConnectionUrl: jest.fn(
-		() => 'https://example.com/wp-admin/admin.php?connect_url_redirect=1'
+		() => 'https://example.com/wp-admin/admin.php?connect_url_redirect=1&redirect_after_auth=test'
 	),
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {

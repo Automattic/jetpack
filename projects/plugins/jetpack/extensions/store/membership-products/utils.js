@@ -11,7 +11,10 @@ export const onSuccess = ( message, registry ) =>
 
 export const handleResolverError = ( error, registry ) => {
 	if ( error?.code === 'rest_unauthorized' && ! isSimpleSite() ) {
-		const connectUrl = getUserConnectionUrl( { from: 'editor' } );
+		const connectUrl = getUserConnectionUrl( {
+			from: 'editor',
+			redirect_url: window.location.href,
+		} );
 		registry
 			.dispatch( noticesStore )
 			.createNotice(
