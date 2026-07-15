@@ -5,10 +5,11 @@ import {
 	useStatsSubscribersCounts,
 	type StatsSubscribersCounts,
 } from '@jetpack-premium-analytics/data';
+import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -57,9 +58,10 @@ const TILE_CONFIG: Record<
 
 /**
  * Fetches the subscriber counts through the designated `useStatsSubscribersCounts`
- * Stats hook and renders the totals as a `MetricTileGrid`. The counts module
- * has no comparison period, so each tile shows a bare formatted count. Which
- * tiles appear is controlled by the `metrics` attribute.
+ * Stats hook and renders the totals as a `MetricTileGrid`, with the loading /
+ * error / empty states rendered through `<WidgetState>`. The counts module has
+ * no comparison period, so each tile shows a bare formatted count. Which tiles
+ * appear is controlled by the `metrics` attribute.
  *
  * @param {SubscriberMetricId[]} metrics - Enabled metric tile ids.
  * @return The widget content.
@@ -69,26 +71,12 @@ function SubscriberHighlightsReport( {
 }: {
 	metrics?: SubscriberMetricId[];
 } ) {
-	const { data, isLoading, isError } = useStatsSubscribersCounts();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSubscribersCounts();
 	const enabledMetrics = new Set( metrics );
 
-	if ( isError ) {
-		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Unable to load subscriber highlights.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
-		);
-	}
-
-	if ( isLoading && ! data ) {
-		return (
-			<div className={ styles.root }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
+	// Every counts field is optional in the sanitized payload; a response
+	// carrying none of them has nothing meaningful to show.
+	const hasCounts = !! data && Object.values( data ).some( value => value !== undefined );
 
 	const tiles = SUBSCRIBER_METRICS.filter( ( { id } ) => enabledMetrics.has( id ) ).map(
 		( { id, label } ) => ( {
@@ -101,13 +89,34 @@ function SubscriberHighlightsReport( {
 
 	return (
 		<div className={ styles.root }>
-			{ tiles.length === 0 ? (
-				<Text className={ styles.placeholder }>
-					{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
-				</Text>
-			) : (
-				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
-			) }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps the prior response via `placeholderData`, so a failed
+				// refetch leaves the tiles on screen; only surface the error when there
+				// is nothing to show.
+				isError={ isError && ! hasCounts }
+				isEmpty={ ! hasCounts }
+				error={ {
+					description: __(
+						"We couldn't load subscriber highlights. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: customer,
+					description: __( 'No subscriber counts available yet.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				{ tiles.length === 0 ? (
+					<Text className={ styles.placeholder }>
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+					</Text>
+				) : (
+					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				) }
+			</WidgetState>
 		</div>
 	);
 }

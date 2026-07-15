@@ -7,6 +7,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -39,7 +40,14 @@ export default function OrdersOverTimeRender( {
 }: OrdersOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<OrderMetricWidget metricKey="orders_no" />
+			<OrderMetricWidget
+				metricKey="orders_no"
+				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
+				errorText={ __(
+					"We couldn't load orders. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				) }
+			/>
 			<DownloadCsvButton reportType="ordersovertime" />
 		</WidgetRoot>
 	);

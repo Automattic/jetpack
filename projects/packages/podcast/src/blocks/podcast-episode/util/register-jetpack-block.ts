@@ -2,8 +2,10 @@
  * Lightweight `registerJetpackBlock` for this package.
  *
  * Bridges Jetpack's extension-availability gate (via `Jetpack_Gutenberg`) to
- * `registerBlockType`. Strips paid-plan / child-block / prefix branches that
- * the full shared helper carries — this block has none of those.
+ * `registerBlockType`. Strips child-block / prefix branches that the full
+ * shared helper carries — this block has none of those. Paid-plan gating is
+ * kept: an insufficient plan reports `missing_plan`, in which case the block
+ * still registers so the shared paid-block layer can show its upgrade banner.
  *
  * @todo Replace with `@automattic/jetpack-shared-extension-utils` export when one lands.
  */
@@ -11,8 +13,11 @@
 import {
 	getJetpackExtensionAvailability,
 	getBlockIconProp,
+	requiresPaidPlan,
+	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
 
 interface BlockMetadataLike {
 	name: string;
@@ -30,9 +35,14 @@ export function registerJetpackBlockFromMetadata(
 	settings: BlockSettings
 ): RegisterBlockResult | false {
 	const rawName = metadata.name.replace( /^jetpack\//, '' );
-	const { available, unavailableReason } = getJetpackExtensionAvailability( rawName );
+	const { available, details, unavailableReason } = getJetpackExtensionAvailability( rawName );
 
-	if ( ! available ) {
+	const requiredPlan = requiresPaidPlan( unavailableReason, details );
+
+	// Bail only when the block is genuinely unavailable. When it's merely gated
+	// behind a paid plan, register it anyway so the paid-block layer can surface
+	// the upgrade banner.
+	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -42,7 +52,7 @@ export function registerJetpackBlockFromMetadata(
 		return false;
 	}
 
-	return registerBlockType(
+	const result = registerBlockType(
 		metadata as RegisterBlockArg0,
 		{
 			...settings,
@@ -50,4 +60,14 @@ export function registerJetpackBlockFromMetadata(
 			attributes: metadata.attributes || {},
 		} as RegisterBlockArg1
 	);
+
+	if ( requiredPlan ) {
+		addFilter(
+			'editor.BlockListBlock',
+			`${ metadata.name }-with-has-warning-is-interactive-class-names`,
+			withHasWarningIsInteractiveClassNames( metadata.name )
+		);
+	}
+
+	return result;
 }

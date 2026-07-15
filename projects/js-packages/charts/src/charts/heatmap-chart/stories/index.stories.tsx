@@ -26,6 +26,26 @@ const meta: Meta< StoryArgs > = {
 		...themeArgTypes,
 		compact: { control: 'boolean', table: { category: 'Visual Style' } },
 		showValues: { control: 'boolean', table: { category: 'Visual Style' } },
+		maxCellWidth: {
+			control: { type: 'number', min: 1 },
+			description: 'Maximum cell width in pixels in non-compact mode',
+			table: { category: 'Cell Size' },
+		},
+		maxCellHeight: {
+			control: { type: 'number', min: 1 },
+			description: 'Maximum cell height in pixels in non-compact mode',
+			table: { category: 'Cell Size' },
+		},
+		minCellWidth: {
+			control: { type: 'number', min: 0 },
+			description: 'Minimum cell width in pixels in non-compact mode',
+			table: { category: 'Cell Size' },
+		},
+		minCellHeight: {
+			control: { type: 'number', min: 0 },
+			description: 'Minimum cell height in pixels in non-compact mode',
+			table: { category: 'Cell Size' },
+		},
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -49,6 +69,26 @@ export const LargeValues: Story = {
 	args: {
 		...Default.args,
 		data: heatmapLargeValueMatrix,
+	},
+};
+
+export const MaximumCellSize: Story = {
+	args: {
+		...Default.args,
+		containerWidth: '1000px',
+		containerHeight: '420px',
+		maxCellWidth: 64,
+		maxCellHeight: 42,
+	},
+};
+
+export const MinimumCellSize: Story = {
+	args: {
+		...Default.args,
+		containerWidth: '480px',
+		containerHeight: '280px',
+		minCellWidth: 44,
+		minCellHeight: 32,
 	},
 };
 

@@ -4,12 +4,12 @@
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
 	MetricWithComparison,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, comment, people, postContent, seen } from '@wordpress/icons';
+import { Icon, comment, people, postContent, seen, trendingUp } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
@@ -93,7 +93,7 @@ function AllTimeStatsReport( {
 } ) {
 	// The summary is all-time, so the query takes no date params — its key stays
 	// stable across dashboard date-range and comparison changes.
-	const { data, isLoading, isError } = useStatsSite();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
 
@@ -115,47 +115,52 @@ function AllTimeStatsReport( {
 		[ enabledMetrics, summary ]
 	);
 
-	let content;
-	if ( isError ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>{ __( 'Unable to load all-time stats.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
-	} else if ( isLoading && rows.length === 0 ) {
-		content = <WidgetLoadingOverlay />;
-	} else if ( rows.length === 0 ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>
-					{ enabledMetrics.length === 0
-						? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
-						: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
-		);
-	} else {
-		content = (
-			<div className={ styles.list }>
-				{ rows.map( row => (
-					<div key={ row.key } className={ styles.row }>
-						<Icon className={ styles.icon } icon={ row.icon } />
-						<Text className={ styles.label }>{ row.label }</Text>
-						<MetricWithComparison
-							className={ styles.value }
-							value={ row.value }
-							dataFormat={ COUNT_FORMAT }
-							fontSize="md"
-						/>
-					</div>
-				) ) }
-			</div>
-		);
-	}
-
 	// The states share the `.root` body wrapper so sizing (and the widget-picker
 	// aspect-ratio) stays consistent whether data, a spinner, or a message shows.
-	return <div className={ styles.root }>{ content }</div>;
+	return (
+		<div className={ styles.root }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the totals visible; only surface the error
+				// when there is nothing to show.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load all-time stats. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: trendingUp,
+					// No metrics selected is a configuration state, not an absence of
+					// data — prompt to pick one rather than implying there are no stats.
+					description:
+						enabledMetrics.length === 0
+							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
+							: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<div className={ styles.list }>
+					{ rows.map( row => (
+						<div key={ row.key } className={ styles.row }>
+							<Icon className={ styles.icon } icon={ row.icon } />
+							<Text className={ styles.label }>{ row.label }</Text>
+							<MetricWithComparison
+								className={ styles.value }
+								value={ row.value }
+								dataFormat={ COUNT_FORMAT }
+								fontSize="md"
+							/>
+						</div>
+					) ) }
+				</div>
+			</WidgetState>
+		</div>
+	);
 }
 
 /**

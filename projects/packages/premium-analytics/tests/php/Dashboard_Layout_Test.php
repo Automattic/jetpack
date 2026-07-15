@@ -159,6 +159,7 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/subscriber-highlights', $layout_types );
 		$this->assertContains( 'jpa/subscribers-chart', $layout_types );
 		$this->assertContains( 'jpa/subscribers-list', $layout_types );
+		$this->assertContains( 'jpa/stats-emails', $layout_types );
 		$this->assertSame(
 			array(
 				'uuid'       => 'default-subscribers-list-widget-instance',
@@ -167,12 +168,28 @@ class Dashboard_Layout_Test extends TestCase {
 					'num' => 6,
 				),
 				'placement'  => array(
-					'width'  => 1,
+					'width'  => 2,
 					'height' => 2,
 					'order'  => 2,
 				),
 			),
 			$layout_by_uuid['default-subscribers-list-widget-instance']
+		);
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-subscribers-emails-widget-instance',
+				'type'       => 'jpa/stats-emails',
+				'attributes' => array(
+					'max'    => 10,
+					'metric' => 'opens',
+				),
+				'placement'  => array(
+					'width'  => 2,
+					'height' => 2,
+					'order'  => 3,
+				),
+			),
+			$layout_by_uuid['default-subscribers-emails-widget-instance']
 		);
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_SUBSCRIBERS_SECTION_ID ),

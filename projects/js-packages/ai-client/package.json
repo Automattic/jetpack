@@ -71,9 +71,9 @@
 		"@testing-library/dom": "10.4.1",
 		"@types/markdown-it": "14.1.2",
 		"@types/turndown": "5.0.6",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"jest": "30.4.2",
 		"storybook": "10.4.6",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3"
 	}
 }

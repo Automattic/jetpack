@@ -115,7 +115,6 @@ export {
 	useChartTheme,
 	useSegmentStyles,
 	useSeriesStyles,
-	useWidgetError,
 	useWidgetDrillDown,
 	usePostDetailHrefBuilder,
 } from './hooks';
@@ -165,6 +164,7 @@ export {
 	GeoChart,
 	GlobalChartsProvider,
 	HeatmapChart,
+	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,

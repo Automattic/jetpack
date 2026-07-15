@@ -34,10 +34,11 @@ export type TrafficPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export interface TrafficChartState {
 	metrics: MetricTab[];
+	/** True while either request's first load is in flight (no data yet). */
+	isLoading: boolean;
 	/** True while either request is fetching, including comparison refetches. */
 	isFetching: boolean;
 	isError: boolean;
-	error: Error | null | undefined;
 	refetch: () => void;
 }
 
@@ -188,11 +189,19 @@ export default function useTrafficChart(
 		refetchLikesComments();
 	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
+	// Gate the error per query — the two independent queries back separate tabs, so
+	// one failing on first load must surface an error rather than render as empty
+	// tabs beside the other's populated chart. `placeholderData` keeps a query's
+	// prior rows on a transient refetch failure, so a query with rows is not errored.
+	const isError =
+		( viewsVisitors.isError && ! vvPrimary?.data?.length ) ||
+		( likesComments.isError && ! lcPrimary?.data?.length );
+
 	return {
 		metrics,
+		isLoading: viewsVisitors.isLoading || likesComments.isLoading,
 		isFetching: viewsVisitors.isFetching || likesComments.isFetching,
-		isError: viewsVisitors.isError || likesComments.isError,
-		error: viewsVisitors.error ?? likesComments.error,
+		isError,
 		refetch,
 	};
 }

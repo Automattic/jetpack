@@ -9,16 +9,16 @@ import {
 	BOOKINGS_FILTER,
 	MetricTabsChart,
 	WidgetRoot,
-	WidgetLoadingOverlay,
+	WidgetState,
 	buildTimeSeriesChartData,
 	getFormatByMetricKey,
-	useWidgetError,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 	type TimeSeriesData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { store } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 import {
 	DEFAULT_STORE_PERFORMANCE_METRICS,
@@ -29,7 +29,6 @@ import {
 import styles from './styles.module.scss';
 import type { StorePerformanceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 /** Fallback chart format; each metric supplies its own via `getFormatByMetricKey`. */
 const DEFAULT_DATA_FORMAT = {
@@ -39,14 +38,11 @@ const DEFAULT_DATA_FORMAT = {
 
 // Report params (date range + comparison) arrive from the host via WidgetRoot;
 // the widget's own `metrics` attribute selects which store metrics render as
-// tabs. `setError` surfaces load failures in the dashboard frame, matching the
-// other analytics widgets.
+// tabs. Load failures surface through `<WidgetState>` in the widget body.
 type StorePerformanceRenderAttributes = StorePerformanceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type StorePerformanceRenderProps = WidgetRenderProps< StorePerformanceRenderAttributes > & {
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+type StorePerformanceRenderProps = WidgetRenderProps< StorePerformanceRenderAttributes >;
 
 /** The `{ primary, comparison }` pair every report hook returns. */
 type ReportPair< H extends ( ...args: never[] ) => { primary: unknown; comparison: unknown } > =
@@ -255,16 +251,16 @@ function StorePerformanceContent( {
 			customersReport,
 		]
 	);
-	const isError = activeReports.some( report => report.isError );
-	const error = activeReports.map( report => report.error ).find( Boolean ) ?? null;
+	// Gate the error per report — each metric tab has its own report, so a failed
+	// one must surface an error rather than render as an empty chart beside the
+	// others. Placeholder data keeps a report's rows on a transient refetch failure,
+	// so a report with data is not errored.
+	const isError = activeReports.some( report => report.isError && ! report.hasData );
+	// Retry re-runs every active metric report, not only the failed one.
 	const refetch = useCallback(
 		() => Promise.all( activeReports.map( report => report.refetch() ) ),
 		[ activeReports ]
 	);
-
-	// Surfaces load failures in the dashboard frame (notice + Retry) and logs the
-	// underlying error; shared with every other analytics widget.
-	const hasError = useWidgetError( isError, error, refetch );
 
 	const enrichedMetrics = useMemo(
 		() =>
@@ -364,37 +360,49 @@ function StorePerformanceContent( {
 		[ enrichedMetrics, dataSources ]
 	);
 
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary.
-	}
-
 	const isInitialLoading = activeReports.some( report => report.isLoading && ! report.hasData );
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	if ( ! metricTabs.length ) {
-		return (
-			<div className={ styles.emptyState }>
-				{ __(
-					'No metric selected. Please select a metric from the metrics list.',
-					'jetpack-premium-analytics'
-				) }
-			</div>
-		);
-	}
-
-	const isRefetching = activeReports.some( report => report.isFetching && report.hasData );
+	const isFetching = activeReports.some( report => report.isFetching );
 
 	return (
 		<div className={ styles.widgetRoot }>
-			<MetricTabsChart
-				metrics={ metricTabs }
-				dataFormat={ DEFAULT_DATA_FORMAT }
-				loading={ isRefetching }
-				groupLabel={ __( 'Store metric', 'jetpack-premium-analytics' ) }
-			/>
+			<WidgetState
+				isLoading={ isInitialLoading }
+				isError={ isError }
+				isEmpty={ ! metricTabs.length }
+				error={ {
+					description: __(
+						"We couldn't load store performance data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: store,
+					description: __(
+						'No metric selected. Please select a metric from the metrics list.',
+						'jetpack-premium-analytics'
+					),
+				} }
+				// First load keeps the widget's chart-shaped skeleton (the metric tabs
+				// over the chart's own loading overlay) instead of the default overlay.
+				renderLoading={
+					<MetricTabsChart
+						metrics={ metricTabs }
+						dataFormat={ DEFAULT_DATA_FORMAT }
+						loading
+						groupLabel={ __( 'Store metric', 'jetpack-premium-analytics' ) }
+					/>
+				}
+			>
+				{ /* Background refetches keep the overlay scoped to the chart area so
+				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
+				<MetricTabsChart
+					metrics={ metricTabs }
+					dataFormat={ DEFAULT_DATA_FORMAT }
+					loading={ isFetching }
+					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics' ) }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
@@ -407,12 +415,9 @@ function StorePerformanceContent( {
  * component renders the metrics selected by the `metrics` attribute with a
  * comparison line chart.
  */
-export default function StorePerformanceRender( {
-	attributes = {},
-	setError,
-}: StorePerformanceRenderProps ) {
+export default function StorePerformanceRender( { attributes = {} }: StorePerformanceRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
 			<StorePerformanceContent metricIds={ attributes.metrics } />
 		</WidgetRoot>
 	);

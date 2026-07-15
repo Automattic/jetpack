@@ -4,6 +4,8 @@
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
@@ -122,7 +124,10 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 		<WidgetState
 			isLoading={ isInitialLoading }
 			isFetching={ isFetching }
-			isError={ isError }
+			// The Stats queries carry `placeholderData`, so a failed range change keeps
+			// the prior period's rows visible; only surface the error when there is
+			// nothing to show.
+			isError={ rows.length === 0 && isError }
 			isEmpty={ rows.length === 0 }
 			error={ {
 				description: __(
@@ -133,10 +138,7 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 			} }
 			empty={ {
 				icon: video,
-				description: __(
-					'Learn which VideoPress videos your visitors watch most to understand what keeps them engaged.',
-					'jetpack-premium-analytics'
-				),
+				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics' ),
 			} }
 		>
 			<LeaderboardChart
@@ -167,6 +169,9 @@ export default function VideoPress( { attributes = {}, setError }: VideoPressWid
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<WidgetFooter>
+				<ReportLink report="videos" />
+			</WidgetFooter>
 		</WidgetRoot>
 	);
 }

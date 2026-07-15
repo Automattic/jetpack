@@ -301,6 +301,18 @@ class Episode_Block_Tags {
 			} elseif ( ! empty( $alt['url'] ) ) {
 				$sources[] = (string) $alt['url'];
 			}
+
+			// Drop empty/malformed URIs so we never emit a blank <podcast:source>.
+			// Match the emit-side esc_url() rather than wp_http_validate_url(), which
+			// resolves DNS — we're printing a URI for clients, not fetching it.
+			$sources = array_values(
+				array_filter(
+					$sources,
+					static function ( $uri ) {
+						return '' !== esc_url_raw( (string) $uri );
+					}
+				)
+			);
 			if ( empty( $sources ) ) {
 				continue;
 			}

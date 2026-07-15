@@ -4,14 +4,14 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -85,24 +85,9 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 
 type EmailsLeaderboardProps = {
 	/**
-	 * Normalized email rows to render. When omitted, the empty state is shown
-	 * (unless `isLoading` is set).
+	 * Normalized email rows to render.
 	 */
 	rows?: EmailRow[];
-	/**
-	 * When `true` and there are no rows yet, the full loading overlay is shown.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, an in-place chart spinner is shown over existing rows during a
-	 * background refetch. Unlike `isLoading`, this stays `true` while stale data
-	 * is on screen.
-	 */
-	isFetching?: boolean;
-	/**
-	 * When `true`, an error message is rendered in place of the chart.
-	 */
-	isError?: boolean;
 	/**
 	 * Which rate to display. Defaults to `opens`.
 	 */
@@ -113,54 +98,33 @@ type EmailsLeaderboardProps = {
  * Presentational leaderboard for the "Emails" widget. Lists the most recently
  * sent emails with their open or click rate.
  *
- * Takes already-fetched rows and the active metric via props and owns only the
- * loading, error, empty, and populated states. Exported so Storybook can
- * exercise those states with fixture rows (there is no analytics backend in
- * Storybook, so the data-connected entry point would only ever show chrome).
+ * Renders the populated (ready) state only — loading, error, and empty are
+ * handled by `<WidgetState>` in the data-connected `EmailsReport`. Exported so
+ * Storybook can exercise the chart with fixture rows (there is no analytics
+ * backend in Storybook, so the data-connected entry point would only ever show
+ * chrome).
  *
  * @param {EmailsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
-export const EmailsLeaderboard = ( {
-	rows = [],
-	isLoading = false,
-	isFetching = false,
-	isError = false,
-	metric = 'opens',
-}: EmailsLeaderboardProps ) => {
+export const EmailsLeaderboard = ( { rows = [], metric = 'opens' }: EmailsLeaderboardProps ) => {
 	const data = useMemo( () => buildLeaderboardData( rows, metric ), [ rows, metric ] );
 
-	let body;
-	if ( isError ) {
-		body = (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	} else if ( isLoading && rows.length === 0 ) {
-		body = <WidgetLoadingOverlay />;
-	} else {
-		body = (
+	return (
+		<div className={ styles.root }>
 			<LeaderboardChart
 				className={ styles.leaderboard }
 				data={ data }
-				loading={ isFetching }
 				withComparison={ false }
 				withOverlayLabel
 				showLegend={ false }
-				emptyStateText={ __(
-					'Your latest emails will appear here once you send a newsletter.',
-					'jetpack-premium-analytics'
-				) }
 				dataFormat={ {
 					type: 'percentage',
 					options: { decimals: 2, signDisplay: 'never' },
 				} }
 			/>
-		);
-	}
-
-	return <div className={ styles.root }>{ body }</div>;
+		</div>
+	);
 };
 
 /**
@@ -191,7 +155,8 @@ type EmailsReportProps = {
 
 /**
  * Fetches the email-summary report through the `useStatsEmailSummary` Stats
- * hook and hands the normalized rows to the presentational `EmailsLeaderboard`.
+ * hook and hands the normalized rows to the presentational `EmailsLeaderboard`,
+ * with the loading / error / empty states rendered through `<WidgetState>`.
  *
  * @param {EmailsReportProps} props - The component props.
  * @return The widget content.
@@ -203,18 +168,36 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	// range to 10, so request its maximum when the widget wants "all rows".
 	const quantity = max > 0 ? Math.min( max, 30 ) : 30;
 
-	const { data, isLoading, isFetching, isError } = useStatsEmailSummary( { quantity } );
+	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( { quantity } );
 
 	const rows = useMemo( () => toEmailRows( data, max ), [ data, max ] );
 
 	return (
-		<EmailsLeaderboard
-			rows={ rows }
+		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			isError={ isError }
-			metric={ metric }
-		/>
+			// The query keeps the prior response via `placeholderData`, so a failed
+			// refetch leaves rows on screen; only surface the error when there is
+			// nothing to show.
+			isError={ rows.length === 0 && isError }
+			isEmpty={ rows.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load email stats. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: envelope,
+				description: __(
+					'Your latest emails will appear here once you send a newsletter.',
+					'jetpack-premium-analytics'
+				),
+			} }
+		>
+			<EmailsLeaderboard rows={ rows } metric={ metric } />
+		</WidgetState>
 	);
 }
 

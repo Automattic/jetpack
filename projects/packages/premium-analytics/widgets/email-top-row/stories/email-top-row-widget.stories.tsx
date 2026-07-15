@@ -28,10 +28,11 @@ import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailTopRowRender from '../render';
 import widgetDefinition from '../widget';
 import type { EmailMetric } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -63,13 +64,6 @@ function renderEmailTopRow(
 		/>
 	);
 }
-
-// Close-up canvas so the tiles fill the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/EmailTopRow',
@@ -130,8 +124,7 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: args => renderEmailTopRow( args, 2001 ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	args: { metric: 'opens', withComparison: false },
 	decorators: [ withWidgetCanvas ],

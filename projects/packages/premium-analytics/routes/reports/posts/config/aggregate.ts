@@ -1,21 +1,24 @@
 /**
+ * External dependencies
+ */
+import {
+	bucketStatsTimeSeries,
+	type StatsChartBucketPeriod,
+	type StatsArchivesItem,
+	type StatsNormalizedReport,
+	type StatsTimeSeriesReport,
+	type StatsTopPostsItem,
+} from '@jetpack-premium-analytics/data';
+/**
  * Internal dependencies
  */
 import { flattenArchiveRows, type ArchiveRow } from './fields';
-import type {
-	StatsArchivesItem,
-	StatsNormalizedItem,
-	StatsNormalizedReport,
-	StatsTimeSeriesReport,
-	StatsTopPostsItem,
-} from '@jetpack-premium-analytics/data';
 
 /**
  * The report pages fetch each tab's module report without `summarize`, so the
- * response arrives as per-interval buckets (one data point per day/week/month
- * with that bucket's rows). One query then feeds both page sections:
+ * response arrives as daily buckets. One query then feeds both page sections:
  *
- * - the performance chart, by summing each bucket's rows into a time series;
+ * - the performance chart, by grouping daily buckets client-side;
  * - the records table, by aggregating the rows across buckets.
  *
  * Deriving both from the same report keeps the chart scoped to exactly the
@@ -27,70 +30,44 @@ import type {
  */
 
 /**
- * Build a chart time series from a bucketed report.
+ * Build the chart's views-per-bucket time series for the Posts & Pages tab
+ * from daily top-posts data.
  *
- * The query owns the bucket size (`period=day|week|month`), and the normalizer
- * resolves each bucket's `date_start` / `date_end`. The report page only sums
- * each bucket's rows for the chart metric.
- *
- * @param report - The bucketed module report.
- * @param sum    - Sums one bucket's rows into the bucket's value.
- * @return The chart-ready time series.
- */
-function toTimeSeries< TItem extends StatsNormalizedItem >(
-	report: StatsNormalizedReport< TItem > | undefined,
-	sum: ( items: TItem[] ) => number
-): StatsTimeSeriesReport {
-	const data = ( report?.data ?? [] ).map( point => {
-		const views = sum( point.items );
-
-		return {
-			time_interval: point.time_interval,
-			date_start: point.date_start,
-			date_end: point.date_end,
-			label: point.time_interval,
-			items: [],
-			value: views,
-			views,
-		};
-	} );
-	const first = data[ 0 ];
-	const last = data[ data.length - 1 ];
-
-	return {
-		summary: {
-			...report?.summary,
-			...( first ? { date_start: first.date_start } : {} ),
-			...( last ? { date_end: last.date_end } : {} ),
-		},
-		data,
-	};
-}
-
-/**
- * Views-per-bucket time series for the Posts & Pages tab.
- *
- * @param report - The bucketed top-posts report.
+ * @param report - The daily top-posts report.
+ * @param period - The chart bucket period.
  * @return The chart-ready time series.
  */
 export function postsToTimeSeries(
-	report: StatsNormalizedReport< StatsTopPostsItem > | undefined
+	report: StatsNormalizedReport< StatsTopPostsItem > | undefined,
+	period: StatsChartBucketPeriod = 'day'
 ): StatsTimeSeriesReport {
-	return toTimeSeries( report, items => items.reduce( ( total, item ) => total + item.views, 0 ) );
+	return bucketStatsTimeSeries( report, period, point => {
+		const views = point.items.reduce( ( total, item ) => total + item.views, 0 );
+
+		return { value: views, views };
+	} );
 }
 
 /**
- * Views-per-bucket time series for the Archives tab.
+ * Build the chart's views-per-bucket time series for the Archives tab from
+ * daily archives data.
  *
- * @param report - The bucketed archives report.
+ * @param report - The daily archives report.
+ * @param period - The chart bucket period.
  * @return The chart-ready time series.
  */
 export function archivesToTimeSeries(
-	report: StatsNormalizedReport< StatsArchivesItem > | undefined
+	report: StatsNormalizedReport< StatsArchivesItem > | undefined,
+	period: StatsChartBucketPeriod = 'day'
 ): StatsTimeSeriesReport {
-	return toTimeSeries( report, items =>
-		flattenArchiveRows( items ).reduce( ( total, row ) => total + row.views, 0 )
-	);
+	return bucketStatsTimeSeries( report, period, point => {
+		const views = flattenArchiveRows( point.items ).reduce(
+			( total, row ) => total + row.views,
+			0
+		);
+
+		return { value: views, views };
+	} );
 }
 
 /**

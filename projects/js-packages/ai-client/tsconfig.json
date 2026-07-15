@@ -4,6 +4,7 @@
 	"compilerOptions": {
 		"sourceMap": false,
 		"outDir": "./build/",
+		"rootDir": "./src",
 		"target": "esnext"
 	}
 }

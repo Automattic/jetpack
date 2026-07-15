@@ -38,6 +38,7 @@ export interface WordAdsChartState {
 	isLoading: boolean;
 	/** True while the request is fetching, including comparison refetches. */
 	isFetching: boolean;
+	/** True only when the request failed with no rows left to show. */
 	isError: boolean;
 	/** True when the current period resolved without any rows. */
 	isEmpty: boolean;
@@ -186,7 +187,10 @@ export default function useWordAdsChart(
 		metrics,
 		isLoading,
 		isFetching,
-		isError,
+		// The query keeps prior data via `placeholderData`, so a failed range change
+		// keeps the previous period's chart while `isError` flips true. Gate the
+		// error on having nothing to show, as `useTrafficChart` does.
+		isError: isError && ! primaryData?.data?.length,
 		isEmpty: primaryData !== undefined && ! primaryData.data?.length,
 		refetch,
 	};

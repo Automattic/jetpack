@@ -467,6 +467,7 @@ function wpcom_add_jetpack_submenu() {
 		array(
 			'my-jetpack',
 			'stats',
+			'advertising',
 			'boost',
 			'social',
 			'akismet-key-config',
@@ -703,7 +704,7 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising',
+			'advertising-moved',
 			'marketing',
 			'monetize',
 			'import',

@@ -1,0 +1,30 @@
+.date-range-filter {
+	width: 100%;
+}
+
+// Composite group: preset pills plus the custom-range trigger presented as
+// one control. The frame copies the @wordpress/ui input-layout tokens (same
+// stroke and radius) so the group reads as a sibling of the comparison select.
+.date-range-filter__group {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0;
+	width: fit-content;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+
+	// Hairline dividers between the flush items.
+	> * + * {
+		border-inline-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// Raise the focused item above its flush siblings, whose fill or divider
+	// would otherwise paint over the focus ring. No z-index token exists in
+	// WPDS; flex items honor z-index without a position. `:focus-within`
+	// (rather than `:focus-visible`) also matches the custom trigger, which
+	// is wrapped in the Dropdown container.
+	> :focus-within {
+		z-index: 1;
+	}
+}

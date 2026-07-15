@@ -59,6 +59,7 @@ function getAllowedIntervalsForPeriod(
 	switch ( period ) {
 		case 'today':
 		case 'yesterday':
+		case 'last-24-hours':
 			return [ 'hour', 'day' ];
 		case 'last-7-days':
 			return [ 'day' ];

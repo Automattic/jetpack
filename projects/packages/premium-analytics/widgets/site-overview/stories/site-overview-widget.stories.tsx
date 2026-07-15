@@ -24,12 +24,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import SiteOverviewRender from '../render';
 import widgetDefinition, {
 	DEFAULT_SITE_OVERVIEW_METRICS,
 	type SiteOverviewMetricId,
 } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -78,15 +79,7 @@ function renderSiteOverview( { withComparison, metrics }: SiteOverviewStoryContr
 	);
 }
 
-/**
- * Renders the widget on a preset distinct from the other stories. The query key
- * derives from the date range, so a unique preset gives the forced-state stories
- * their own cache entry and they hit the mock fresh instead of reading another
- * story's cached success from the shared query client.
- *
- * @param preset - The date-range preset for this story.
- * @return The rendered widget.
- */
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderSiteOverviewOnPreset( preset: PresetType ) {
 	return (
 		<SiteOverviewRender
@@ -106,13 +99,6 @@ const METRIC_ARG_TYPES = {
 const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_SITE_OVERVIEW_METRICS,
 } as const;
-
-// Close-up canvas so the metric grid fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', maxWidth: '560px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SiteOverview',
@@ -161,8 +147,7 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderSiteOverviewOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

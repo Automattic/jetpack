@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Likes: Restore the per-post Likes toggle in the block editor, which failed to register when withSelect returned a memo object.

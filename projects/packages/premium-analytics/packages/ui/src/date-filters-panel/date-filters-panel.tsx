@@ -14,12 +14,13 @@ import { useMemo, useCallback, useState } from 'react';
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
-import { DateRangePopover } from '../date-range-popover';
+import { DateRangeFilter } from '../date-range-filter';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
+import './date-filters-panel.scss';
 
-type DateRangePopoverProps = Parameters< typeof DateRangePopover >[ 0 ];
+type DateRangeFilterProps = Parameters< typeof DateRangeFilter >[ 0 ];
 
-export type DateRange = DateRangePopoverProps[ 'range' ];
+export type DateRange = DateRangeFilterProps[ 'range' ];
 
 export type DateFiltersPanelProps = {
 	/**
@@ -53,7 +54,7 @@ export type DateFiltersPanelProps = {
 	/**
 	 * Callback when the primary date range changes.
 	 */
-	onChange: DateRangePopoverProps[ 'onChange' ];
+	onChange: DateRangeFilterProps[ 'onChange' ];
 
 	/**
 	 * Callback when the comparison date range changes.
@@ -67,19 +68,20 @@ export type DateFiltersPanelProps = {
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
 	/**
-	 * Props for the date comparison dropdown.
+	 * Props for the date comparison dropdown. A string `label` renders as the
+	 * comparison select's own visible label instead of a BaseControl label.
 	 */
 	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
 	/**
 	 * Callback when the primary date range is applied.
 	 */
-	onApply: DateRangePopoverProps[ 'onApply' ];
+	onApply: DateRangeFilterProps[ 'onApply' ];
 
 	/**
 	 * Callback when the primary date range is canceled.
 	 */
-	onCancel: DateRangePopoverProps[ 'onCancel' ];
+	onCancel: DateRangeFilterProps[ 'onCancel' ];
 
 	/**
 	 * Whether the primary date range can be applied.
@@ -94,8 +96,8 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * Optional external container element for responsive calculations.
-	 * When provided, the DateRangePopover will measure this container's width
-	 * instead of its own wrapper to determine mobile/wide layouts.
+	 * When provided, the date-range filter will measure this container's width
+	 * instead of its own wrapper to determine compact/wide layouts.
 	 */
 	containerElement?: HTMLElement | null;
 };
@@ -174,32 +176,6 @@ export function DateFiltersPanel( {
 	// picker is currently reflecting (draft while open, applied while closed).
 	const presets = useComparisonDatePresets( comparisonSourceRange );
 
-	/**
-	 * Determines the default preset ID to use when comparison is enabled.
-	 * Priority order:
-	 * 1. 'previous-period'
-	 * 2. 'previous-month'
-	 * 3. First available preset
-	 */
-	const defaultPresetId = useMemo( () => {
-		return (
-			presets.find( p => p.id === 'previous-period' )?.id ??
-			presets.find( p => p.id === 'previous-month' )?.id ??
-			presets[ 0 ]?.id
-		);
-	}, [ presets ] );
-
-	/**
-	 * Currently selected comparison preset,
-	 * based on the validated stored preset ID, or the default preset.
-	 * Returns undefined if no preset is selected
-	 * or if the ID doesn't match any available preset.
-	 */
-	const preset = useMemo( () => {
-		const id = validatedComparisonPresetId ?? defaultPresetId;
-		return id ? presets.find( p => p.id === id ) : undefined;
-	}, [ presets, validatedComparisonPresetId, defaultPresetId ] );
-
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
 			const nextPreset = presets.find( p => p.id === id );
@@ -216,22 +192,15 @@ export function DateFiltersPanel( {
 		onComparisonChange( undefined, undefined );
 	}, [ onComparisonChange ] );
 
-	const handleEnable = useCallback( () => {
-		// Use validated ID with fallback to default
-		const presetIdToUse = validatedComparisonPresetId ?? defaultPresetId;
-		if ( preset?.range && presetIdToUse ) {
-			onComparisonChange( preset.range, presetIdToUse );
-		}
-	}, [ onComparisonChange, preset, validatedComparisonPresetId, defaultPresetId ] );
-
 	return (
-		<Stack gap="sm" wrap="wrap">
+		<Stack className="date-filters-panel" direction="row" gap="sm" wrap="wrap" align="center">
 			<BaseControl
+				className="date-filters-panel__primary"
 				label={ rangeControlProps.label }
 				id="date-range-popover-button"
 				help={ rangeControlProps.help }
 			>
-				<DateRangePopover
+				<DateRangeFilter
 					presetId={ validatedPresetId }
 					range={ range }
 					appliedPresetId={ validatedAppliedPresetId }
@@ -246,17 +215,16 @@ export function DateFiltersPanel( {
 				/>
 			</BaseControl>
 
-			<BaseControl
-				label={ comparisonControlProps.label }
-				id="date-comparison-dropdown-button"
-				help={ comparisonControlProps.help }
-			>
+			<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
 				<DateComparisonDropdown
 					presets={ presets }
 					enabled={ comparisonEnabled }
 					presetId={ validatedComparisonPresetId }
-					removeCompareToPrefix={ !! comparisonControlProps.label }
-					onEnable={ handleEnable }
+					label={
+						typeof comparisonControlProps.label === 'string'
+							? comparisonControlProps.label
+							: undefined
+					}
 					onPresetChange={ presetChange }
 					onClear={ clearComparison }
 				/>

@@ -75,6 +75,7 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `jetpack-stats-dashboard`                                         | `view_stats`       | whole prefix (busts read cache) |
 | `commercial-classification`                                       | `view_stats`       | exact path                      |
 | `upgrades` (not under `/sites/`)                                  | `view_stats`       | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`       | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
@@ -217,7 +218,8 @@ not be merged.
    It mounts the real `WidgetDashboard` with this single widget and exposes the standard
    dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
    actually renders in product. The `Default` / `WithComparison` close-up stories use the
-   simpler canvas decorator from the template below — but never ship _only_ a bare-div story.
+   shared `withWidgetCanvas` decorator from the template below — but never ship _only_ a
+   close-up story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
    - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
@@ -257,10 +259,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -279,12 +282,9 @@ function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
 	);
 }
 
-// Close-up canvas so the chart fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
+// Close-up canvas: `withWidgetCanvas` from `widgets/stories/with-widget-canvas` frames the
+// story in a white, widget-sized card so each state reads as a real dashboard widget. Import
+// the shared decorator — do not redefine a local bare-div canvas.
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/MyWidget',
