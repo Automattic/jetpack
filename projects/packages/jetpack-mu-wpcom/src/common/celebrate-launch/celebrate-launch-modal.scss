@@ -88,11 +88,18 @@
 	background-color: $gray-100;
 	display: flex;
 	flex-direction: column;
-	gap: $grid-unit-20;
+	gap: $grid-unit-15;
+	justify-content: center;
 	margin: $grid-unit-30 -#{$grid-unit-30} -#{$grid-unit-30} -#{$grid-unit-30};
 	padding: $grid-unit-30;
 
 	p {
 		margin: 0;
+	}
+
+	@media (min-width: $break-small) {
+		align-items: center;
+		flex-direction: row;
+		gap: $grid-unit-30;
 	}
 }
