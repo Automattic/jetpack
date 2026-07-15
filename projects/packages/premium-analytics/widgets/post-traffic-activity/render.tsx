@@ -78,7 +78,9 @@ function PostTrafficActivityInner() {
 	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
 		const rect = entries[ 0 ]?.contentRect;
 		if ( rect ) {
-			setWidth( rect.width );
+			// Round and dedupe so subpixel resize reports don't churn renders.
+			const next = Math.round( rect.width );
+			setWidth( previous => ( previous === next ? previous : next ) );
 		}
 	} );
 
@@ -116,15 +118,14 @@ function PostTrafficActivityInner() {
 						),
 						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 					} }
+					// A post with no traffic renders the all-blank grid (the sparse
+					// treatment), so the empty state only covers the missing scope.
 					empty={ {
 						icon: reports,
-						description:
-							postId <= 0
-								? __(
-										'Open a post or page report to see its traffic activity here.',
-										'jetpack-premium-analytics'
-								  )
-								: __( 'No traffic activity in this period yet.', 'jetpack-premium-analytics' ),
+						description: __(
+							'Open a post or page report to see its traffic activity here.',
+							'jetpack-premium-analytics'
+						),
 					} }
 				>
 					<div className={ styles.content }>

@@ -3,7 +3,15 @@
  */
 import { useStatsPost, type ReportParams } from '@jetpack-premium-analytics/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { addDays, eachDayOfInterval, format, parseISO, subDays } from 'date-fns';
+import {
+	addDays,
+	eachDayOfInterval,
+	endOfWeek,
+	format,
+	parseISO,
+	startOfWeek,
+	subDays,
+} from 'date-fns';
 import type { DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -89,21 +97,27 @@ export default function usePostTrafficActivity(
 		const history = data?.data ?? [];
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
-		const rangeStart = parseISO( from );
-		const rangeEnd = parseISO( to );
-		const paged = rangeStart < subDays( rangeEnd, pageSpanDays - 1 );
+		// Pages snap to week boundaries: the chart grids Monday-start week
+		// columns from the window's first week, so an unaligned window would
+		// span one more column than the width measurement sized the card for.
+		// With both bounds aligned, a page is exactly `pageSpanDays / 7`
+		// columns; the days past the range edges inside those weeks stay
+		// blank filler.
+		const firstWeekStart = startOfWeek( parseISO( from ), { weekStartsOn: 1 } );
+		const newestPageEnd = endOfWeek( parseISO( to ), { weekStartsOn: 1 } );
+		const paged = firstWeekStart < subDays( newestPageEnd, pageSpanDays - 1 );
 
-		let pageEnd = subDays( rangeEnd, pageOffset * pageSpanDays );
+		let pageEnd = subDays( newestPageEnd, pageOffset * pageSpanDays );
 		let pageStart = subDays( pageEnd, pageSpanDays - 1 );
 
-		// The oldest page of a paged range clamps to the range start and fills
-		// forward (overlapping the previous page), instead of padding months of
-		// out-of-range blanks before it. Short ranges keep padding backward
-		// from the range end so the grid still fills the card.
-		if ( paged && pageStart < rangeStart ) {
-			pageStart = rangeStart;
-			const clampedEnd = addDays( rangeStart, pageSpanDays - 1 );
-			pageEnd = clampedEnd < rangeEnd ? clampedEnd : rangeEnd;
+		// The oldest page of a paged range clamps to the range's first week
+		// and fills forward (overlapping the previous page), instead of
+		// padding months of out-of-range blanks before it. Short ranges keep
+		// padding backward from the range end so the grid still fills the card.
+		if ( paged && pageStart < firstWeekStart ) {
+			pageStart = firstWeekStart;
+			const clampedEnd = addDays( firstWeekStart, pageSpanDays - 1 );
+			pageEnd = clampedEnd < newestPageEnd ? clampedEnd : newestPageEnd;
 		}
 
 		const points = eachDayOfInterval( { start: pageStart, end: pageEnd } ).map( date => {
@@ -119,7 +133,7 @@ export default function usePostTrafficActivity(
 		return {
 			days: points,
 			isPaged: paged,
-			canShowOlder: rangeStart < pageStart,
+			canShowOlder: firstWeekStart < pageStart,
 		};
 	}, [ data, from, to, pageOffset, pageSpanDays ] );
 
