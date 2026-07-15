@@ -156,7 +156,10 @@ function SiteOverviewReport( {
 				// the background and the busy overlay layers over the stale tiles.
 				isLoading={ ( isLoading || primary.isPending ) && ! summary }
 				isFetching={ isFetching }
-				isError={ isError }
+				// As with `isLoading` above: the stale totals stay on screen through a
+				// transient refetch failure, so only surface the error when there is
+				// nothing to show.
+				isError={ ! summary && isError }
 				isEmpty={ isEmpty }
 				error={ {
 					description: __(

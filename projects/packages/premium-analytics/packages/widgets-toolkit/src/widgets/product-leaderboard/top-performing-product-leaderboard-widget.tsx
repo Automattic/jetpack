@@ -7,16 +7,16 @@ import {
 	type FilterCondition,
 } from '@jetpack-premium-analytics/data';
 import { productBlouse } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { useWidgetRootContext } from '../../components/widget-root';
+import { WidgetState } from '../../components/widget-state';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../../components/widget-root';
 import { formatLegendLabels, calculateDelta } from '../../helpers';
-import { useWidgetError } from '../../hooks';
 
 export type TopPerformingProductLeaderboardWidgetProps = {
 	/**
@@ -37,6 +37,18 @@ export type TopPerformingProductLeaderboardWidgetProps = {
 	 * Defaults to productBlouse icon.
 	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
+
+	/**
+	 * Text to display in the empty state.
+	 * Defaults to a "no product sales" message.
+	 */
+	emptyStateText?: string;
+
+	/**
+	 * Text to display in the error state.
+	 * Defaults to a "couldn't load product data" message.
+	 */
+	errorText?: string;
 };
 
 /**
@@ -61,6 +73,8 @@ export type TopPerformingProductLeaderboardWidgetProps = {
  * @param props.limit          - Maximum number of products to display (default: 5)
  * @param props.filter         - Optional product type filter
  * @param props.emptyStateIcon - Icon to display in empty state (default: productBlouse)
+ * @param props.emptyStateText - Text to display in empty state
+ * @param props.errorText      - Text to display in error state
  *
  * @example
  * // All product types
@@ -81,6 +95,8 @@ export function TopPerformingProductLeaderboardWidget( {
 	limit = 5,
 	filter,
 	emptyStateIcon = productBlouse,
+	emptyStateText,
+	errorText,
 }: TopPerformingProductLeaderboardWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -92,17 +108,8 @@ export function TopPerformingProductLeaderboardWidget( {
 		[ reportParams, filter ]
 	);
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportProducts( params, limit );
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportProducts( params, limit );
 
 	const { data } = primary;
 	const { data: comparisonData } = comparison;
@@ -117,9 +124,6 @@ export function TopPerformingProductLeaderboardWidget( {
 	const { data: productImages, isLoading: imagesLoading } = useProductImages( {
 		productIds,
 	} );
-
-	const isInitialLoading = ( isLoading || imagesLoading ) && ! hasData;
-	const isRefetching = ( isFetching || imagesLoading ) && hasData;
 
 	const chartData = useMemo( () => {
 		const comparisonItems = comparisonData?.data || [];
@@ -174,26 +178,37 @@ export function TopPerformingProductLeaderboardWidget( {
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ ( isLoading || imagesLoading ) && ! hasData }
+			isFetching={ isFetching || imagesLoading }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ chartData.length === 0 }
+			error={ {
+				description:
+					errorText ??
+					__(
+						"We couldn't load product data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: emptyStateIcon,
+				description:
+					emptyStateText ?? __( 'No product sales in this period.', 'jetpack-premium-analytics' ),
+			} }
+		>
 			<LeaderboardChart
 				data={ chartData }
 				withComparison={ hasComparison }
 				legendLabels={ legendLabels }
 				withOverlayLabel={ true }
 				showLegend={ false }
-				emptyStateIcon={ emptyStateIcon }
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

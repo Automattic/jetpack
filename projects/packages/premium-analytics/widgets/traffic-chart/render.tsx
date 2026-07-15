@@ -4,10 +4,11 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
-	useWidgetError,
+	WidgetState,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { reports } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -89,16 +90,12 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 
 	const {
 		metrics: metricTabs,
+		isLoading,
 		isFetching,
 		isError,
-		error,
 		refetch,
 	} = useTrafficChart( reportParams, period, metrics );
-
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary.
-	}
+	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics' );
 
 	if ( ! metricTabs.length ) {
 		return (
@@ -113,12 +110,47 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 
 	return (
 		<div className={ styles.root }>
-			<MetricTabsChart
-				metrics={ metricTabs }
-				dataFormat={ DATA_FORMAT }
-				loading={ isFetching }
-				groupLabel={ __( 'Traffic metric', 'jetpack-premium-analytics' ) }
-			/>
+			<WidgetState
+				isLoading={ isLoading }
+				// `isFetching` is deliberately not passed: the chart renders its own
+				// scoped overlay below, so WidgetState's full-widget one would double
+				// up and cover the metric tabs.
+				//
+				// `useTrafficChart` already gates `isError` per query on that query
+				// having no rows, so a transient refetch failure keeps the chart.
+				isError={ isError }
+				isEmpty={ metricTabs.every( metric => metric.current.length === 0 ) }
+				error={ {
+					description: __(
+						"We couldn't load traffic data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: reports,
+					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics' ),
+				} }
+				// First load keeps the widget's chart-shaped skeleton (the metric tabs
+				// over the chart's own loading overlay) instead of the default overlay.
+				renderLoading={
+					<MetricTabsChart
+						metrics={ metricTabs }
+						dataFormat={ DATA_FORMAT }
+						loading
+						groupLabel={ groupLabel }
+					/>
+				}
+			>
+				{ /* Background refetches keep the overlay scoped to the chart area so
+				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
+				<MetricTabsChart
+					metrics={ metricTabs }
+					dataFormat={ DATA_FORMAT }
+					loading={ isFetching }
+					groupLabel={ groupLabel }
+				/>
+			</WidgetState>
 		</div>
 	);
 }

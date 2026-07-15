@@ -307,7 +307,11 @@ function ReferrersInner( { max }: { max: number } ) {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
 				isEmpty={ rows.length === 0 }
 				error={ {
 					description: __(

@@ -6,15 +6,6 @@
 	overflow: hidden;
 }
 
-.placeholder {
-	flex: 1 1 0;
-	min-block-size: 0;
-	inline-size: 100%;
-	min-height: 200px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}
-
 .backLink {
 	order: 1;
 	align-self: center;
@@ -32,26 +23,26 @@
 }
 
 .bodyHeader {
-
-	/* Above WidgetLoadingOverlay (z-index: 1): body chrome like the back link
-	 * stays usable during refetches, per the widget loading-state convention. */
-	position: relative;
-	z-index: 2;
 	flex-wrap: wrap;
 	justify-content: flex-end;
 	gap: var(--wpds-dimension-gap-sm, 8px) var(--wpds-dimension-gap-lg, 16px);
 	margin-block-end: var(--wpds-dimension-gap-md, 12px);
 }
 
+.stateArea {
+	position: relative;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
 .chartArea {
+	height: 100%;
 	display: grid;
 	grid-template-columns: 280fr 400fr;
 	grid-template-rows: minmax(0, 1fr);
 	column-gap: var(--wpds-dimension-gap-lg);
 	align-items: stretch;
 	min-width: 0;
-	flex: 1 1 0;
-	min-height: 0;
 }
 
 .leaderboardPanel {
