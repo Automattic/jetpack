@@ -8,7 +8,6 @@
 		"helpers",
 		"state",
 		"types.ts",
-		"declarations.d.ts",
-		"images.d.ts"
+		"declarations.d.ts"
 	]
 }
