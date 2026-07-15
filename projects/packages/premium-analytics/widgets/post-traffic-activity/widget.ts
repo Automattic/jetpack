@@ -20,8 +20,8 @@ export type PostTrafficActivityAttributes = Record< never, never >;
  * The post detail Traffic view's activity card, replacing the legacy Calypso
  * post detail months table (`post-detail-table-section`) per the new design:
  * the scoped post's daily views over the dashboard date range as a calendar
- * heatmap — week columns, weekday rows, view counts in the cells. Days the
- * endpoint omits are zero-filled so the grid stays complete.
+ * heatmap — week columns, weekday rows, view counts in the cells. Days without
+ * traffic stay blank cells, per the design, while the grid stays complete.
  */
 export default {
 	name: 'jpa/post-traffic-activity',

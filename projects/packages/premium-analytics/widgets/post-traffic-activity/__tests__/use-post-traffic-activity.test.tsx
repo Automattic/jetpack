@@ -39,7 +39,7 @@ describe( 'usePostTrafficActivity', () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 	} );
 
-	it( 'zero-fills every calendar day of the window', async () => {
+	it( 'fills every calendar day of the window, blanking no-traffic days', async () => {
 		const { result } = renderHook(
 			() =>
 				usePostTrafficActivity(
@@ -56,9 +56,9 @@ describe( 'usePostTrafficActivity', () => {
 
 		expect( result.current.days ).toEqual( [
 			{ dateString: '2026-07-01', value: 2 },
-			{ dateString: '2026-07-02', value: 0 },
+			{ dateString: '2026-07-02', value: null },
 			{ dateString: '2026-07-03', value: 5 },
-			{ dateString: '2026-07-04', value: 0 },
+			{ dateString: '2026-07-04', value: null },
 		] );
 	} );
 

@@ -37,10 +37,9 @@ function toDay( value?: string ): string | undefined {
 
 /**
  * Fetch the scoped post's daily view activity for the dashboard's report
- * params. The `stats/post` daily history covers every day since publication
- * but omits zero-view days, so every calendar day of the window is
- * zero-seeded — the heatmap renders a complete grid, and pre-publication
- * days are genuinely zero views.
+ * params. Every calendar day of the window gets a point so the heatmap grid
+ * stays complete, but days without traffic carry `null` — the design leaves
+ * them as blank cells rather than zero labels.
  *
  * @param postId       - The scoped post ID (0 disables the request).
  * @param reportParams - The dashboard date range.
@@ -68,8 +67,10 @@ export default function usePostTrafficActivity(
 
 		return eachDayOfInterval( { start: parseISO( from ), end: parseISO( to ) } ).map( date => {
 			const dateString = format( date, 'yyyy-MM-dd' );
+			const views = viewsByDay.get( dateString );
 
-			return { dateString, value: viewsByDay.get( dateString ) ?? 0 };
+			// Blank (null) for no-traffic days, per the design — not a `0` label.
+			return { dateString, value: views ? views : null };
 		} );
 	}, [ data, reportParams.from, reportParams.to ] );
 

@@ -4,8 +4,8 @@
  * calendar heatmap (week columns, weekday rows, view counts in the cells).
  * The post scope arrives through `reportParams.post_id` (seeded from the
  * detail page URL in product); the `hasPostScope` control toggles it to
- * exercise the scopeless empty state. Days the endpoint omits are
- * zero-filled so the grid stays complete.
+ * exercise the scopeless empty state. Days without traffic stay blank
+ * cells, per the design, while the grid stays complete.
  *
  * Data comes from the proxied `stats/post/{id}` endpoint, covered by the
  * shared report mocks' `stats-post` fixture (a deterministic daily series
@@ -94,7 +94,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Traffic activity" widget: the scoped post\'s daily views over the dashboard date range as a calendar heatmap — the post detail Traffic view\'s activity card, replacing the legacy months table. Days the endpoint omits are zero-filled so the grid stays complete. Without a post scope the widget renders a scopeless empty state.',
+					'The "Traffic activity" widget: the scoped post\'s daily views over the dashboard date range as a calendar heatmap — the post detail Traffic view\'s activity card, replacing the legacy months table. Days without traffic stay blank cells, per the design, while the grid stays complete. Without a post scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
