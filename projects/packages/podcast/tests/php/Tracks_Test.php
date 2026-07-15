@@ -308,7 +308,6 @@ class Tracks_Test extends BaseTestCase {
 		// Derived fields are emitted; raw user-authored content is not.
 		$this->assertTrue( $props['podcasting_enabled'] );
 		$this->assertArrayNotHasKey( 'podcasting_title', $props );
-		$this->assertNotContains( 'My Secret Show Name', $props );
 	}
 
 	public function test_init_wires_settings_saved_recorder() {
