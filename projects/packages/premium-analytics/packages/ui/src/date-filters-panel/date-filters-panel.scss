@@ -30,6 +30,12 @@
 				.date-filters-panel-button {
 					width: 100%;
 					justify-content: space-between;
+
+					// The Button pads its inline edges symmetrically (12px), but the
+					// sibling SelectControl trims its inline-end by 4px so the caret
+					// sits closer to the edge. Match that inset so both triggers'
+					// carets align. Start padding (12px) already matches.
+					padding-inline-end: calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xs));
 				}
 			}
 		}
