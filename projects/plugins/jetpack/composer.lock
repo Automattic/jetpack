@@ -3386,16 +3386,16 @@
         },
         {
             "name": "automattic/jetpack-wp-build-polyfills",
-            "version": "v0.2.0",
+            "version": "v0.2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-wp-build-polyfills.git",
-                "reference": "48204eb6bbdea2dbe0788d0273e62a07080ee256"
+                "reference": "d2be8c044744d8e079e69466966f60fef7c1c853"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-wp-build-polyfills/zipball/48204eb6bbdea2dbe0788d0273e62a07080ee256",
-                "reference": "48204eb6bbdea2dbe0788d0273e62a07080ee256",
+                "url": "https://api.github.com/repos/Automattic/jetpack-wp-build-polyfills/zipball/d2be8c044744d8e079e69466966f60fef7c1c853",
+                "reference": "d2be8c044744d8e079e69466966f60fef7c1c853",
                 "shasum": ""
             },
             "require": {
@@ -3429,9 +3429,9 @@
             ],
             "description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-wp-build-polyfills/tree/v0.2.0"
+                "source": "https://github.com/Automattic/jetpack-wp-build-polyfills/tree/v0.2.0.1"
             },
-            "time": "2026-07-06T15:27:22+00:00"
+            "time": "2026-07-15T16:20:05+00:00"
         },
         {
             "name": "automattic/woocommerce-analytics",
