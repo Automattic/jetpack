@@ -1,0 +1,7 @@
+{
+	"name": "jpa/wordads-adjustments-history",
+	"title": "Adjustments History",
+	"description": "WordAds earnings adjustments by period, with amounts and payment status.",
+	"category": "stats",
+	"presentation": "framed"
+}
