@@ -1,0 +1,74 @@
+<?php
+/**
+ * Jetpack Stats front-end tracking configuration.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
+
+namespace Automattic\Jetpack\PremiumAnalytics;
+
+use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Stats\Main as Stats_Main;
+
+/**
+ * Configures the existing Jetpack Stats front-end tracking pipeline.
+ */
+class Jetpack_Stats_Tracker {
+
+	/**
+	 * Whether the tracker has been configured.
+	 *
+	 * @var bool
+	 */
+	private static $configured = false;
+
+	/**
+	 * Initialize Stats tracking and its standalone module lifecycle.
+	 *
+	 * @return void
+	 */
+	public static function configure() {
+		if ( self::$configured ) {
+			return;
+		}
+
+		self::$configured = true;
+
+		add_filter( 'jetpack_get_available_standalone_modules', array( static::class, 'add_stats_module' ) );
+		add_action( 'jetpack_site_registered', array( static::class, 'activate_stats_module' ) );
+
+		if ( did_action( 'plugins_loaded' ) ) {
+			Stats_Main::init();
+		} else {
+			$config = new Config();
+			$config->ensure( 'stats' );
+		}
+
+		if ( ( new Connection_Manager() )->is_connected() ) {
+			self::activate_stats_module();
+		}
+	}
+
+	/**
+	 * Make Stats available to the module controller when Jetpack is not installed.
+	 *
+	 * @param array $modules Available standalone module slugs.
+	 * @return array
+	 */
+	public static function add_stats_module( $modules ) {
+		$modules[] = 'stats';
+
+		return array_values( array_unique( $modules ) );
+	}
+
+	/**
+	 * Activate Stats without redirecting or ending the request.
+	 *
+	 * @return void
+	 */
+	public static function activate_stats_module() {
+		( new Modules() )->activate( 'stats', false, false );
+	}
+}

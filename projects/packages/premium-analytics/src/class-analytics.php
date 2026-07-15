@@ -68,6 +68,9 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
+		// Emit front-end page views into the Jetpack Stats pipeline.
+		Jetpack_Stats_Tracker::configure();
+
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
