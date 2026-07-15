@@ -33,6 +33,38 @@ describe( 'buildCalendarHeatmapData', () => {
 		expect( data[ 0 ].data[ 1 ].value ).toBeNull(); // Tue Jan 2 has no datum
 	} );
 
+	test( 'hideOutOfRangeDays hides the week-completion days outside the span', () => {
+		const midWeek: DataPointDate[] = [
+			{ dateString: '2024-01-03', value: 5 }, // Wed
+			{ dateString: '2024-01-09', value: 2 }, // Tue (2nd week)
+		];
+		const { data } = buildCalendarHeatmapData( midWeek, {
+			weekStartsOn: 1,
+			hideOutOfRangeDays: true,
+		} );
+
+		// Mon Jan 1 and Tue Jan 2 precede the span — hidden; Wed Jan 3 opens it.
+		expect( data[ 0 ].data[ 0 ].hidden ).toBe( true );
+		expect( data[ 0 ].data[ 1 ].hidden ).toBe( true );
+		expect( data[ 0 ].data[ 2 ].hidden ).toBeUndefined();
+
+		// Thu Jan 4 is inside the span with no entry — a blank cell, not hidden.
+		expect( data[ 0 ].data[ 3 ].hidden ).toBeUndefined();
+		expect( data[ 0 ].data[ 3 ].value ).toBeNull();
+
+		// Tue Jan 9 closes the span; Wed Jan 10 onward is hidden.
+		expect( data[ 1 ].data[ 1 ].hidden ).toBeUndefined();
+		expect( data[ 1 ].data[ 2 ].hidden ).toBe( true );
+		expect( data[ 1 ].data[ 6 ].hidden ).toBe( true );
+	} );
+
+	test( 'out-of-span days stay blank cells without hideOutOfRangeDays', () => {
+		const midWeek: DataPointDate[] = [ { dateString: '2024-01-03', value: 5 } ]; // Wed
+		const { data } = buildCalendarHeatmapData( midWeek, { weekStartsOn: 1 } );
+		expect( data[ 0 ].data[ 0 ].hidden ).toBeUndefined();
+		expect( data[ 0 ].data[ 0 ].value ).toBeNull();
+	} );
+
 	test( 'labels only the first column of each month', () => {
 		const multiMonth: DataPointDate[] = [
 			{ dateString: '2024-01-01', value: 1 },

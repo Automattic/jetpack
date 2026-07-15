@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Charts: add hidden heatmap cells for ragged calendar edges — buildCalendarHeatmapData's hideOutOfRangeDays option renders week-completion days outside the series' span as empty grid slots skipped by hover and keyboard navigation.
