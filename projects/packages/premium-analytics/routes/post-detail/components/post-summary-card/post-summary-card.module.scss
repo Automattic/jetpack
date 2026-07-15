@@ -15,7 +15,9 @@
 	min-inline-size: 0;
 }
 
-.title {
+// Outranks the Text heading variant's `:is(h1,…).__heading` font-size rule
+// ((0,1,1)) without touching its private custom properties.
+.details h1.title {
 	font-size: 32px;
 	font-weight: 500;
 	line-height: 1.2;
