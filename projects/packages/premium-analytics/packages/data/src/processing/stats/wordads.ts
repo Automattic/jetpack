@@ -128,20 +128,16 @@ export function sliceWordAdsStatsReport(
 	return { ...report, data, summary: summarizeWordAdsStats( data, report.summary ) };
 }
 
-function parseOptionalFloat( value: unknown ): number | undefined {
-	if ( value === undefined || value === null || value === '' ) {
-		return undefined;
-	}
-
-	const num = parseFloat( String( value ) );
-	return isNaN( num ) ? undefined : num;
-}
-
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
+	// Not `safeParseFloat`: its `fallback = 0` default fires on an explicit
+	// `undefined`, and `0` is itself a status ("Unpaid"), so an absent or
+	// unparseable status has to stay absent rather than collapse into it.
+	const status = parseFloat( String( value.status ) );
+
 	return {
 		amount: safeParseFloat( value.amount ),
 		pageviews: safeParseFloat( value.pageviews ),
-		status: parseOptionalFloat( value.status ),
+		status: isNaN( status ) ? undefined : status,
 	};
 }
 
