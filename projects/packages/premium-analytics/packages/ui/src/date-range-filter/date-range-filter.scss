@@ -23,16 +23,4 @@
 	> :focus-within {
 		z-index: 1;
 	}
-
-	// Compact (mobile) layout: the preset select and custom trigger become two
-	// separate bordered controls, so drop the shared frame and the flush
-	// hairline dividers and space them with a gap instead.
-	&.is-compact {
-		border: 0;
-		gap: var(--wpds-dimension-gap-xs);
-
-		> * + * {
-			border-inline-start: 0;
-		}
-	}
 }
