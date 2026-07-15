@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -45,15 +45,70 @@ beforeEach( () => {
 	mockApiFetch.mockResolvedValue( EARNINGS );
 } );
 
+const ERROR_DESCRIPTION = "We couldn't load WordAds earnings. Please try again in a moment.";
+
 it( 'renders earnings rows newest-first with formatted currency and status', async () => {
 	renderWidget( 'wordads' );
 	await expect( screen.findByText( '07-2026' ) ).resolves.toBeInTheDocument();
-	expect( screen.getByText( '$30.00' ) ).toBeInTheDocument();
+
+	// Read the cells in document order: ordering is produced by the view's sort
+	// over the raw period key, and only reading it back pins that composition.
+	expect( screen.getAllByText( /^\d{2}-\d{4}$/ ).map( el => el.textContent ) ).toEqual( [
+		'07-2026',
+		'06-2026',
+	] );
+	expect( screen.getAllByText( /^\$[\d,]+\.\d{2}$/ ).map( el => el.textContent ) ).toEqual( [
+		'$30.00',
+		'$90.00',
+	] );
+	expect( screen.getAllByText( /^[\d,]+$/ ).map( el => el.textContent ) ).toEqual( [
+		'20,000',
+		'60,000',
+	] );
 	expect( screen.getByText( 'Unpaid' ) ).toBeInTheDocument();
 	expect( screen.getByText( 'Paid' ) ).toBeInTheDocument();
 } );
 
-it( 'shows the empty state when the chosen breakdown is empty', async () => {
+it( 'falls back to "?" rather than "Unpaid" when a period omits its status', async () => {
+	// `0` is itself "Unpaid", so a missing status must not collapse into it.
+	mockApiFetch.mockResolvedValue( {
+		earnings: {
+			...EARNINGS.earnings,
+			wordads: { '2026-07': { amount: '30.00', pageviews: 20000 } },
+		},
+	} );
+	renderWidget( 'wordads' );
+
+	await expect( screen.findByText( '?' ) ).resolves.toBeInTheDocument();
+	expect( screen.queryByText( 'Unpaid' ) ).not.toBeInTheDocument();
+} );
+
+it( 'shows a breakdown-specific empty state when the chosen breakdown is empty', async () => {
 	renderWidget( 'sponsored' );
-	await expect( screen.findByText( /No earnings history/i ) ).resolves.toBeInTheDocument();
+	await expect(
+		screen.findByText( 'No sponsored content earnings to show yet.' )
+	).resolves.toBeInTheDocument();
+} );
+
+it( 'shows the error state when the earnings request fails', async () => {
+	// Reject with a non-retryable (403) error so React Query surfaces the
+	// failure immediately instead of retrying with backoff.
+	mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+	renderWidget( 'wordads' );
+
+	await expect( screen.findByText( ERROR_DESCRIPTION ) ).resolves.toBeInTheDocument();
+	expect( screen.queryByText( '07-2026' ) ).not.toBeInTheDocument();
+} );
+
+it( 'recovers via Retry after a failed earnings request', async () => {
+	// Only the first request fails, so rows can only come from Retry's refetch.
+	mockApiFetch.mockRejectedValueOnce( { status: 403, message: 'Forbidden' } );
+	renderWidget( 'wordads' );
+
+	await expect( screen.findByText( ERROR_DESCRIPTION ) ).resolves.toBeInTheDocument();
+
+	// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+	fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+	await expect( screen.findByText( '07-2026' ) ).resolves.toBeInTheDocument();
 } );

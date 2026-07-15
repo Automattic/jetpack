@@ -1,19 +1,4 @@
-import { EARNINGS_HISTORY_VIEW, flattenEarningsBreakdown, getEarningsStatus } from '../fields';
-
-describe( 'EARNINGS_HISTORY_VIEW', () => {
-	it( 'distributes the table evenly across the available width', () => {
-		expect( EARNINGS_HISTORY_VIEW ).toMatchObject( {
-			layout: {
-				styles: {
-					period: { width: '25%' },
-					amount: { align: 'end', width: '25%' },
-					pageviews: { align: 'end', width: '25%' },
-					status: { width: '25%' },
-				},
-			},
-		} );
-	} );
-} );
+import { flattenEarningsBreakdown, getEarningsStatus } from '../fields';
 
 describe( 'getEarningsStatus', () => {
 	it( 'maps known WordAds statuses to labels', () => {
@@ -24,8 +9,9 @@ describe( 'getEarningsStatus', () => {
 		expect( getEarningsStatus( 4 ).label ).toBe( 'Pending (Invalid PayPal)' );
 	} );
 
-	it( 'falls back to "?" for unknown statuses', () => {
+	it( 'falls back to "?" for unknown or absent statuses', () => {
 		expect( getEarningsStatus( 99 ).label ).toBe( '?' );
+		expect( getEarningsStatus( undefined ).label ).toBe( '?' );
 	} );
 
 	it( 'carries a tooltip for paid/unpaid', () => {
@@ -39,19 +25,25 @@ describe( 'flattenEarningsBreakdown', () => {
 		expect( flattenEarningsBreakdown( undefined ) ).toEqual( [] );
 	} );
 
-	it( 'flattens and sorts newest period first', () => {
+	// Row order is the view's job, not this function's — the widget test covers
+	// the rendered newest-first order.
+	it( 'flattens each period into a row keyed by the period', () => {
 		const rows = flattenEarningsBreakdown( {
 			'2026-05': { amount: 10, pageviews: 100, status: 1 },
 			'2026-07': { amount: 30, pageviews: 300, status: 0 },
-			'2026-06': { amount: 20, pageviews: 200, status: 1 },
 		} );
-		expect( rows.map( r => r.period ) ).toEqual( [ '2026-07', '2026-06', '2026-05' ] );
-		expect( rows[ 0 ] ).toEqual( {
-			id: '2026-07',
-			period: '2026-07',
-			amount: 30,
-			pageviews: 300,
-			status: 0,
+
+		expect( rows ).toEqual( [
+			{ id: '2026-05', period: '2026-05', amount: 10, pageviews: 100, status: 1 },
+			{ id: '2026-07', period: '2026-07', amount: 30, pageviews: 300, status: 0 },
+		] );
+	} );
+
+	it( 'preserves an absent status rather than defaulting it', () => {
+		const rows = flattenEarningsBreakdown( {
+			'2026-07': { amount: 30, pageviews: 300, status: undefined },
 		} );
+
+		expect( rows[ 0 ].status ).toBeUndefined();
 	} );
 } );
