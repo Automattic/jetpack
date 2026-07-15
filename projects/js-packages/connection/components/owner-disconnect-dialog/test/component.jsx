@@ -71,10 +71,10 @@ describe( 'OwnerDisconnectDialog', () => {
 			).toBeInTheDocument();
 		} );
 
-		it( 'calls onClose when "Stay Connected" is clicked', async () => {
+		it( 'calls onClose when "Stay connected" is clicked', async () => {
 			const user = userEvent.setup();
 			render( <OwnerDisconnectDialog { ...testProps } /> );
-			await user.click( screen.getByRole( 'button', { name: 'Stay Connected' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stay connected' } ) );
 			expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );

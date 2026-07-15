@@ -41,7 +41,6 @@
 
 		&:focus {
 			color: var(--jp-black);
-			box-shadow: none !important;
 		}
 
 		&--bold {
@@ -74,9 +73,13 @@
 		}
 	}
 
-	.jp-row {
-		align-items: center;
-		width: calc(100% - 48px); // Help with the margin on the row.
+	// The help message grows to fill the row; the button pair keeps its natural
+	// width beside it and wraps below once the row runs out of room. The
+	// flex-basis biases toward wrapping early, while `min-width: 0` lets the
+	// message shrink and wrap its own text instead of overflowing the viewport.
+	&__help {
+		flex: 1 1 260px;
+		min-width: 0;
 	}
 
 	&__actions {
@@ -117,11 +120,11 @@
 	}
 
 	&__button-wrap {
-		text-align: left;
-
-		@media (min-width: 960px) {
-			text-align: center;
-		}
+		// `flex: 0 1` + `min-width: 0` lets the pair shrink below its
+		// two-button max-content on narrow screens, so its own `wrap` can stack
+		// the buttons instead of overflowing the viewport.
+		flex: 0 1 auto;
+		min-width: 0;
 	}
 
 	&__error {
@@ -131,6 +134,16 @@
 	&__survey {
 		margin-bottom: 1.5rem;
 		max-width: 100%;
+	}
+
+	// The thank-you step wraps its copy in a @wordpress/ui Stack, so let the
+	// Stack `gap` token own the vertical rhythm rather than element margins.
+	&__copy {
+
+		h1,
+		p {
+			margin: 0;
+		}
 	}
 
 	// Limit the copy width on the steps.
@@ -215,9 +228,5 @@
 		&__actions {
 			padding: 2rem 3rem;
 		}
-	}
-
-	.jp-row {
-		margin-left: 0;
 	}
 }
