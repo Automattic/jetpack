@@ -208,7 +208,7 @@ export const Error: Story = {
 
 /**
  * Resolved with no order-attribution rows: the widget shows its empty state (the
- * neutral device glyph and "No sales data in this period.").
+ * neutral device glyph and "No booking data in this period.").
  */
 export const Empty: Story = {
 	render: () => renderBookingsByDeviceOnPreset( 'last-365-days' ),

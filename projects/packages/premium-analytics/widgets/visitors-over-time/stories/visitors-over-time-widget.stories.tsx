@@ -221,8 +221,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no visitor data: the widget shows its empty state ("No data
- * found for this date range.").
+ * Resolved with no visitor data: the widget shows its empty state ("No visitors
+ * in this period.").
  */
 export const Empty: Story = {
 	render: () => renderVisitorsOverTimeOnPreset( 'last-365-days' ),

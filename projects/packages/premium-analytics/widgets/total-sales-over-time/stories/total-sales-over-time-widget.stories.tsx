@@ -218,8 +218,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no sales data: the widget shows its empty state ("No data found
- * for this date range.").
+ * Resolved with no sales data: the widget shows its empty state ("No sales in
+ * this period.").
  */
 export const Empty: Story = {
 	render: () => renderTotalSalesOverTimeOnPreset( 'last-365-days' ),

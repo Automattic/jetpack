@@ -21,6 +21,16 @@ type SalesByDeviceWidgetProps = {
 	 * When omitted, shows data for all product types.
 	 */
 	filter?: FilterCondition;
+
+	/**
+	 * Copy for the empty state.
+	 */
+	emptyStateText?: string;
+
+	/**
+	 * Copy for the error state.
+	 */
+	errorText?: string;
 };
 
 /**
@@ -34,8 +44,10 @@ type SalesByDeviceWidgetProps = {
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  *
- * @param props        - Component props
- * @param props.filter - Optional product type filter
+ * @param props                - Component props
+ * @param props.filter         - Optional product type filter
+ * @param props.emptyStateText - Copy for the empty state
+ * @param props.errorText      - Copy for the error state
  *
  * @example
  * // All product types
@@ -49,7 +61,11 @@ type SalesByDeviceWidgetProps = {
  *     <SalesByDeviceWidget filter={ BOOKINGS_FILTER } />
  * </WidgetRoot>
  */
-export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
+export function SalesByDeviceWidget( {
+	filter,
+	emptyStateText,
+	errorText,
+}: SalesByDeviceWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	// Add the device view to params
@@ -82,15 +98,18 @@ export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyChartData( chartData ) }
 			error={ {
-				description: __(
-					"We couldn't load sales by device data. Please try again in a moment.",
-					'jetpack-premium-analytics'
-				),
+				description:
+					errorText ??
+					__(
+						"We couldn't load sales by device data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: device,
-				description: __( 'No sales data in this period.', 'jetpack-premium-analytics' ),
+				description:
+					emptyStateText ?? __( 'No sales data in this period.', 'jetpack-premium-analytics' ),
 			} }
 		>
 			<BarChart

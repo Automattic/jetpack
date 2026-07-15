@@ -7,7 +7,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -17,16 +17,41 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SharesRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const SHARES_RENDER_MODULE = 'storybook/shares';
+const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
+
+/**
+ * Forces the all-time site summary into a state for a story's lifetime.
+ *
+ * `useStatsSite()` has a constant query key because its summary ignores the
+ * dashboard date range. Remove that shared entry before and after each forced
+ * story so it reaches the mock and cannot leak its result into another story.
+ *
+ * @param state - The forced report-mock state.
+ * @return The `beforeEach` cleanup callback.
+ */
+function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
+	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
+	setReportMockState( SITE_SUMMARY_PATH_FRAGMENT, state );
+
+	return () => {
+		setReportMockState( SITE_SUMMARY_PATH_FRAGMENT, null );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
+	};
+}
 
 // Pick only the fields that StoryWidgetMetadata accepts; the attribute schema and
 // example arrays are typed differently in WidgetType and cause a type error.
@@ -52,26 +77,6 @@ function renderShares( { withComparison }: SharesStoryControls ) {
 function SharesDashboardRender( props: WidgetRenderProps< unknown > ) {
 	return <SharesRender { ...( props as ComponentProps< typeof SharesRender > ) } />;
 }
-
-// Close-up frame: a white, widget-sized card so the leaderboard reads the way it
-// does as a real dashboard widget (in product the host supplies this frame).
-const withWidgetCanvas: Decorator = Story => (
-	<div
-		style={ {
-			width: '380px',
-			height: '520px',
-			margin: '0 auto',
-			padding: '16px',
-			boxSizing: 'border-box',
-			background: '#fff',
-			border: '1px solid #e0e0e0',
-			borderRadius: '8px',
-			overflow: 'hidden',
-		} }
-	>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/Shares',
@@ -120,6 +125,39 @@ export const WithComparison: Story = {
 			},
 		},
 	},
+};
+
+/**
+ * First load: the all-time site summary is in flight, so the widget shows its
+ * loading state. The mock never resolves for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderShares( { withComparison: false } ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'loading' ),
+};
+
+/**
+ * The site-summary request failed: the widget shows its shares-specific error
+ * state with a Retry action.
+ */
+export const Error: Story = {
+	render: () => renderShares( { withComparison: false } ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'error' ),
+};
+
+/**
+ * Resolved without positive share counts: the widget shows its empty-state
+ * megaphone and guidance copy.
+ */
+export const Empty: Story = {
+	render: () => renderShares( { withComparison: false } ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'empty' ),
 };
 
 interface SharesDashboardStoryProps

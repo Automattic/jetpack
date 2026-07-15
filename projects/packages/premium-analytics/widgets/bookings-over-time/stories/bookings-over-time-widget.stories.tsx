@@ -219,8 +219,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no booking data: the widget shows its empty state ("No data
- * found for this date range.").
+ * Resolved with no booking data: the widget shows its empty state ("No bookings
+ * in this period.").
  */
 export const Empty: Story = {
 	render: () => renderBookingsOverTimeOnPreset( 'last-365-days' ),

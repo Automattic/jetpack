@@ -214,8 +214,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no order data: the widget shows its empty state ("No data found
- * for this date range.").
+ * Resolved with no order data: the widget shows its empty state ("No orders in
+ * this period.").
  */
 export const Empty: Story = {
 	render: () => renderAverageItemsPerOrderOnPreset( 'last-365-days' ),
