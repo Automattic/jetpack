@@ -1,6 +1,7 @@
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
+import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './thumbnail-field';
 import { useUploadActions } from './upload-actions-context';
@@ -59,7 +60,12 @@ const privacyLabel = ( privacy: LibraryItem[ 'privacy' ] ): string => {
 };
 
 const TitleCell = ( { item }: { item: LibraryItem } ) => {
-	const { upload, type, isProcessing } = item;
+	const { upload, type, isProcessing, guid, isPrivate } = item;
+	const processingProgress = useProcessingProgress(
+		guid,
+		isPrivate,
+		type === 'videopress' && upload.status === 'idle' && isProcessing
+	);
 	let pill: { intent: BadgeIntent; label: string } | null = null;
 	if ( upload.status === 'uploading' ) {
 		pill = {
@@ -88,7 +94,14 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 	} else if ( isProcessing ) {
 		pill = {
 			intent: 'informational',
-			label: __( 'Processing', 'jetpack-videopress-pkg' ),
+			label:
+				processingProgress !== null
+					? sprintf(
+							/* translators: %d: transcoding progress percentage */
+							__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
+							processingProgress
+					  )
+					: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( type === 'local' ) {
 		pill = {
