@@ -89,7 +89,7 @@
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.50.0",
 		"@wordpress/build": "0.18.0",
 		"autoprefixer": "10.4.20",
@@ -103,7 +103,7 @@
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"storybook": "10.4.6",
-		"typescript": "5.9.3",
+		"typescript": "6.0.3",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	},

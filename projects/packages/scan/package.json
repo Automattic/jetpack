@@ -68,7 +68,7 @@
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.50.0",
 		"@wordpress/build": "0.18.0",
 		"browserslist": "^4.24.0",

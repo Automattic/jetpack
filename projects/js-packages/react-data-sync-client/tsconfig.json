@@ -4,6 +4,7 @@
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src" ],
 		"sourceMap": true,
-		"outDir": "./build/"
+		"outDir": "./build/",
+		"rootDir": "./src"
 	}
 }

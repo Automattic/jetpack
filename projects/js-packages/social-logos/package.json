@@ -37,7 +37,7 @@
 	"devDependencies": {
 		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"glob": "13.0.6",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",

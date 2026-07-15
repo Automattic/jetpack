@@ -67,7 +67,7 @@
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.50.0",
 		"@wordpress/build": "0.18.0",
 		"browserslist": "^4.24.0",
