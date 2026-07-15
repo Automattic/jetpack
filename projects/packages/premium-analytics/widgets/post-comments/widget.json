@@ -1,0 +1,7 @@
+{
+	"name": "jpa/post-comments",
+	"title": "Latest comments",
+	"description": "The latest comments on the post or page being viewed.",
+	"category": "stats",
+	"presentation": "framed"
+}

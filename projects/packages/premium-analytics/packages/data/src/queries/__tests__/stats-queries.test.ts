@@ -31,6 +31,7 @@ import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
+import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
@@ -97,6 +98,28 @@ describe( 'Stats query factories', () => {
 	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
 		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
+	} );
+
+	it( 'builds latest post comments query keys', () => {
+		const query = statsPostCommentsQuery( { postId: 41, number: 10 } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'post-comments',
+			'1.1',
+			'posts/41/replies',
+			'GET',
+			{ number: 10, type: 'comment', status: 'approved', order: 'DESC' },
+			undefined,
+			'postComments',
+		] );
+		expect( query.enabled ).toBe( true );
+	} );
+
+	it( 'disables post comments queries until a positive integer post ID is available', () => {
+		expect( statsPostCommentsQuery( { postId: 0 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: -1 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: 1.5 } ).enabled ).toBe( false );
 	} );
 
 	it( 'builds all-time email opens breakdown query keys without query params', () => {
