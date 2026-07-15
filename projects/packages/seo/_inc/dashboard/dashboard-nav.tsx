@@ -56,9 +56,7 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
 					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
-					{ ! gated && (
-						<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
-					) }
+					{ ! gated && <Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab> }
 					{ ! gated && (
 						<Tabs.Tab value="ai">
 							{ _x(

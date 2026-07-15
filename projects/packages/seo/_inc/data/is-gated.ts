@@ -11,6 +11,11 @@ interface SeoScriptData {
 	seo?: { gating?: GatingData };
 }
 
+/**
+ * The bootstrapped plan-gating slice, or `undefined` when it isn't present.
+ *
+ * @return The gating slice.
+ */
 function getGating(): GatingData | undefined {
 	return ( getScriptData() as SeoScriptData )?.seo?.gating;
 }
