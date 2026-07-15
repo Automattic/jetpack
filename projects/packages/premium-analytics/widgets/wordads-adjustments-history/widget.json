@@ -3,5 +3,5 @@
 	"title": "Adjustments History",
 	"description": "WordAds earnings adjustments by period, with amounts, ads served, and payment status.",
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "content-bleed"
 }

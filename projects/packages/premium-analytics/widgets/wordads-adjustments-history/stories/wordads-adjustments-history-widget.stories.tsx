@@ -153,7 +153,7 @@ function WordAdsAdjustmentsHistoryDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
+			widgetType={ { ...widgetDefinition, presentation: 'content-bleed' } }
 			renderModule={ RENDER_MODULE }
 			renderComponent={
 				WordAdsAdjustmentsHistoryRender as ComponentType< WidgetRenderProps< unknown > >

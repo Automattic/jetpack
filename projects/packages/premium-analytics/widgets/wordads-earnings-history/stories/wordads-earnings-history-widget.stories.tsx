@@ -149,7 +149,7 @@ function WordAdsEarningsHistoryDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
+			widgetType={ { ...widgetDefinition, presentation: 'content-bleed' } }
 			renderModule={ RENDER_MODULE }
 			renderComponent={
 				WordAdsEarningsHistoryRender as ComponentType< WidgetRenderProps< unknown > >

@@ -154,7 +154,7 @@ function WordAdsSponsoredContentHistoryDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
+			widgetType={ { ...widgetDefinition, presentation: 'content-bleed' } }
 			renderModule={ RENDER_MODULE }
 			renderComponent={
 				WordAdsSponsoredContentHistoryRender as ComponentType< WidgetRenderProps< unknown > >

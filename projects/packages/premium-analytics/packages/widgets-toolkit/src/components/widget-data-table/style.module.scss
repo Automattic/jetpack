@@ -1,7 +1,7 @@
-/* DataViews supplies its own 24px inline cell/footer inset. Let that replace
- * the framed host's body inset so table content aligns with other widgets. */
+/* DataViews supplies its own inline cell/footer inset, so widgets using this
+ * table declare `presentation: "content-bleed"` and the host contributes no
+ * body padding; otherwise the two stack and the table sits doubly inset. */
 .root {
 	min-width: 0;
-	margin-inline: calc(0px - var(--wpds-dimension-padding-2xl));
 	overflow: hidden;
 }

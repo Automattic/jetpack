@@ -3,5 +3,5 @@
 	"title": "Earnings History",
 	"description": "Your WordAds earnings by period, with amounts, ads served, and payment status.",
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "content-bleed"
 }

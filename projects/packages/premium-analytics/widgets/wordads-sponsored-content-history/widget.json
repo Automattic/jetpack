@@ -3,5 +3,5 @@
 	"title": "Sponsored Content History",
 	"description": "Your WordAds sponsored-content earnings by period, with amounts, ads served, and payment status.",
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "content-bleed"
 }
