@@ -8,8 +8,9 @@ import disconnectImage from '../images/disconnect-thanks.jpg';
 /**
  * Show the "thank you" step following survey submission
  *
- * @param {object} props - The properties.
- * @return {import('react').Component} - The StepThankYou Component
+ * @param {object}   props        - The properties.
+ * @param {Function} props.onExit - Callback function to close the disconnect modal.
+ * @return {import('react').ReactNode} - The StepThankYou Component
  */
 const StepThankYou = props => {
 	const { onExit } = props;
@@ -43,7 +44,7 @@ const StepThankYou = props => {
 	);
 };
 
-StepThankYou.PropTypes = {
+StepThankYou.propTypes = {
 	/** Callback function to close the disconnect modal. */
 	onExit: PropTypes.func,
 	/** Base URL for where webpack-ed images will be stored for the consumer of this component. */

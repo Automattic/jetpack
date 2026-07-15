@@ -10,7 +10,7 @@ import disconnectImage from '../images/disconnect-confirm.jpg';
  * Will only show option to provide feedback if the canProvideFeedback prop is true.
  *
  * @param {object} props - The properties.
- * @return {import('react').Component} - StepDisconnectConfirm Component
+ * @return {import('react').ReactNode} - StepDisconnectConfirm Component
  */
 const StepDisconnectConfirm = props => {
 	const { onExit, canProvideFeedback, onProvideFeedback } = props;
