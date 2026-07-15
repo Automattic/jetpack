@@ -7,6 +7,7 @@ export {
 export type { StatsComparisonRowContext } from './utils';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
+export { sanitizeStatsPostCommentsResponse } from './post-comments';
 export { sanitizeStatsPostLikesResponse } from './post-likes';
 export { mergeStatsReferrersComparisonRows, sanitizeStatsReferrersResponse } from './referrers';
 export { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from './clicks';
@@ -63,6 +64,7 @@ export type {
 	StatsPostWeekDay,
 	StatsPostYear,
 } from './post';
+export type { StatsPostComment, StatsPostCommentsResponse } from './post-comments';
 export type { StatsPostLike, StatsPostLikesResponse } from './post-likes';
 export type { StatsReferrersComparisonItem, StatsReferrersItem } from './referrers';
 export type { StatsClicksComparisonItem, StatsClicksItem } from './clicks';

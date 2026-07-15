@@ -17,6 +17,11 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
+export { useStatsPostComments } from './hooks/use-stats-post-comments';
+export type {
+	StatsPostCommentsParams,
+	StatsPostCommentsResponse,
+} from './hooks/use-stats-post-comments';
 export { useStatsPostLikes } from './hooks/use-stats-post-likes';
 export type { StatsPostLikesParams, StatsPostLikesResponse } from './hooks/use-stats-post-likes';
 export { useStatsQuery } from './hooks/use-stats-query';

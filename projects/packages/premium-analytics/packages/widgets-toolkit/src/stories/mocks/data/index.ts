@@ -75,6 +75,7 @@ export { mockStatsInsightsData } from './insights';
 export { mockStatsPostData } from './stats-post';
 
 export { mockPostLikesData } from './post-likes';
+export { mockPostCommentsData } from './post-comments';
 
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 
