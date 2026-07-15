@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast feed: stop podcast feed pages from showing up short or empty.
+Podcast: only count episodes that have an audio enclosure, so feed pages and the episodes dashboard stop showing up short or with inflated totals.

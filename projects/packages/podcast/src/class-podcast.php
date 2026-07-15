@@ -46,6 +46,10 @@ class Podcast {
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
 
+		// Let the episodes dashboard's REST query constrain to posts that
+		// actually have an enclosure, so its pagination and totals stay honest.
+		Episodes_Query::init();
+
 		Tracks::init();
 
 		Admin_Page::init();
