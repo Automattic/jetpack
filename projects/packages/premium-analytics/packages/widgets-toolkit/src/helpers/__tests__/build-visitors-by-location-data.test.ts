@@ -37,6 +37,20 @@ describe( 'buildVisitorsByLocationData', () => {
 		expect( tw.delta ).toBe( 0 );
 	} );
 
+	it( 'treats a real 0 in the comparison period as a value, not as missing data', () => {
+		const { leaderboardData } = buildVisitorsByLocationData( {
+			primaryData: [ { id: 'US', label: 'United States', value: 10 } ],
+			comparisonData: [ { id: 'US', label: 'United States', value: 0 } ],
+			region: 'world',
+		} );
+
+		// The location is in the comparison period, it just had no visitors.
+		// That is a known previous value, so it earns a real delta.
+		expect( leaderboardData[ 0 ].previousValue ).toBe( 0 );
+		expect( leaderboardData[ 0 ].previousShare ).toBe( 0 );
+		expect( leaderboardData[ 0 ].delta ).toBe( 100 );
+	} );
+
 	it( 'leaves comparison fields undefined for a location absent from the comparison period', () => {
 		const { leaderboardData } = buildVisitorsByLocationData( {
 			primaryData,

@@ -5,6 +5,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { calculateDelta } from './calculate-delta';
+import { sharePercentage } from './share-percentage';
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
 import type { GeoData } from '@automattic/charts';
 
@@ -64,29 +66,24 @@ export function buildVisitorsByLocationData( {
 	// Build leaderboard data (top N items)
 	const leaderboardData: LeaderboardChartData = primaryData.slice( 0, limit ).map( item => {
 		const comparisonItem = comparisonData?.find( c => c.id === item.id );
-		const comparisonValue = comparisonItem?.value ?? 0;
-		const currentShare = maxPrimaryValue > 0 ? ( item.value / maxPrimaryValue ) * 100 : 0;
 
 		// A location absent from the comparison period has an unknown previous
-		// value, not a real 0. Leave the comparison fields undefined so the
-		// chart shows an em dash instead of a fabricated delta.
-		const hasComparisonValue = comparisonValue > 0;
-		const previousShare =
-			hasComparisonValue && maxComparisonValue > 0
-				? ( comparisonValue / maxComparisonValue ) * 100
-				: undefined;
-		const delta = hasComparisonValue
-			? ( ( item.value - comparisonValue ) / comparisonValue ) * 100
-			: undefined;
+		// value, not a real 0, so leave the comparison fields undefined and let
+		// the chart show a placeholder instead of a fabricated delta. A location
+		// present with 0 visitors has a known previous value and keeps its delta.
+		const previousValue = comparisonItem?.value;
+		const hasComparisonValue = previousValue !== undefined;
 
 		return {
 			id: item.id,
 			label: item.label,
 			currentValue: item.value,
-			previousValue: hasComparisonValue ? comparisonValue : undefined,
-			currentShare,
-			previousShare,
-			delta,
+			previousValue,
+			currentShare: sharePercentage( item.value, maxPrimaryValue ),
+			previousShare: hasComparisonValue
+				? sharePercentage( previousValue, maxComparisonValue )
+				: undefined,
+			delta: hasComparisonValue ? calculateDelta( item.value, previousValue ) : undefined,
 		};
 	} );
 
