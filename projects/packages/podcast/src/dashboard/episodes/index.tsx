@@ -2,13 +2,14 @@
 // merged client-side, so those columns are display-only (not sortable).
 
 import { getSiteData } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
+import { getUpgradePlanName } from '../upgrade';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
@@ -167,7 +168,11 @@ const EpisodesTab = () => {
 	const posts = useMemo( () => episodesPage?.episodes ?? [], [ episodesPage ] );
 
 	const postIds = useMemo( () => posts.map( p => p.id ), [ posts ] );
-	const { data: stats = [] } = useEpisodeStatsQuery( postIds );
+	const {
+		data: stats = [],
+		premiumRequired: statsPremiumRequired,
+		isError: statsError,
+	} = useEpisodeStatsQuery( postIds );
 
 	const statsByPostId = useMemo( () => {
 		const m = new Map< number, EpisodeStats >();
@@ -327,22 +332,44 @@ const EpisodesTab = () => {
 	const hasFiltersOrSearch = !! view.search || ( view.filters?.length ?? 0 ) > 0;
 
 	return (
-		<DataViews< EpisodeRow >
-			data={ rows }
-			fields={ fields }
-			view={ view }
-			onChangeView={ setView }
-			actions={ actions }
-			paginationInfo={ {
-				totalItems: episodesPage?.total ?? 0,
-				totalPages: episodesPage?.totalPages ?? 0,
-			} }
-			getItemId={ getEpisodeRowId }
-			isLoading={ isLoading }
-			defaultLayouts={ { table: {} } }
-			empty={ hasFiltersOrSearch ? undefined : <EmptyEpisodes /> }
-			search
-		/>
+		<>
+			{ statsPremiumRequired && (
+				<Notice status="warning" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %s: upgrade plan name, e.g. "Premium" */
+						__(
+							'Play counts and episode duration are available on the %s plan.',
+							'jetpack-podcast'
+						),
+						getUpgradePlanName()
+					) }
+				</Notice>
+			) }
+			{ ! statsPremiumRequired && statsError && (
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						"Couldn't load play counts and duration. The values below may be missing or out of date.",
+						'jetpack-podcast'
+					) }
+				</Notice>
+			) }
+			<DataViews< EpisodeRow >
+				data={ rows }
+				fields={ fields }
+				view={ view }
+				onChangeView={ setView }
+				actions={ actions }
+				paginationInfo={ {
+					totalItems: episodesPage?.total ?? 0,
+					totalPages: episodesPage?.totalPages ?? 0,
+				} }
+				getItemId={ getEpisodeRowId }
+				isLoading={ isLoading }
+				defaultLayouts={ { table: {} } }
+				empty={ hasFiltersOrSearch ? undefined : <EmptyEpisodes /> }
+				search
+			/>
+		</>
 	);
 };
 
