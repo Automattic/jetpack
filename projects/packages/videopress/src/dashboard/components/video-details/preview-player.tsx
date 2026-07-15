@@ -1,10 +1,7 @@
-import { ProgressBar } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useEffect, useState } from 'react';
 import getMediaToken from '../../../client/lib/get-media-token';
-import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -34,9 +31,12 @@ const getVideoPressEmbedUrl = ( guid: string, isPrivate: boolean, playbackToken?
  * Playable preview at the top of the Video details screen. Embeds the same
  * VideoPress player the block renders in post content (an iframe from
  * videopress.com), so playback, captions, quality and fullscreen all behave
- * exactly as they do for site visitors. Private videos get a playback token
- * minted before the embed loads; local items without a VideoPress GUID fall
- * back to a native `<video>` on their direct source.
+ * exactly as they do for site visitors. Videos still being transcoded render
+ * the embed too: the player's own converting screen reports the live
+ * processing percentage and starts playback when it completes. Private
+ * videos get a playback token minted before the embed loads; local items
+ * without a VideoPress GUID fall back to a native `<video>` on their direct
+ * source.
  *
  * @param props       - Component props.
  * @param props.video - The current video record.
@@ -45,8 +45,8 @@ const getVideoPressEmbedUrl = ( guid: string, isPrivate: boolean, playbackToken?
 export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 	const { guid, isPrivate } = video;
 	// null = token fetch pending, '' = failed or not needed, string = minted token.
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Hook must run unconditionally (Rules of Hooks); its value is only read after the early return below.
 	const [ playbackToken, setPlaybackToken ] = useState< string | null >( null );
-	const processingProgress = useProcessingProgress( guid, isPrivate, video.isProcessing );
 
 	/*
 	 * Private videos require a playback token on the embed URL. Mint one when
@@ -74,26 +74,6 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 			isCurrent = false;
 		};
 	}, [ guid, isPrivate ] );
-
-	if ( video.isProcessing ) {
-		return (
-			<div className="vp-video-details__player vp-video-details__player-processing">
-				<Text>
-					{ processingProgress !== null
-						? sprintf(
-								/* translators: %d: transcoding progress percentage */
-								__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
-								processingProgress
-						  )
-						: __( 'Processing', 'jetpack-videopress-pkg' ) }
-				</Text>
-				<ProgressBar
-					className="vp-video-details__player-progress-bar"
-					value={ processingProgress ?? undefined }
-				/>
-			</div>
-		);
-	}
 
 	if ( ! guid ) {
 		if ( ! video.sourceUrl ) {
