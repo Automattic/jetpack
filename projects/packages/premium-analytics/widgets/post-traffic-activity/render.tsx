@@ -10,7 +10,8 @@ import {
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useResizeObserver } from '@wordpress/compose';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Button, Stack } from '@wordpress/ui';
@@ -25,6 +26,35 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PostTrafficActivityRenderAttributes = PostTrafficActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostTrafficActivityWidgetProps = WidgetRenderProps< PostTrafficActivityRenderAttributes >;
+
+/**
+ * Sizing the page to the card: one page shows as many whole week columns as
+ * fit at the design's cell width. The constants mirror the chart's
+ * non-compact metrics — 64px design cells, the 4px cell gap, and an
+ * allowance for the weekday-label gutter.
+ */
+const CELL_WIDTH = 64;
+const CELL_GAP = 4;
+const LABEL_GUTTER = 48;
+const MIN_PAGE_WEEKS = 4;
+const DEFAULT_PAGE_WEEKS = 16;
+
+/**
+ * Whole week columns that fit the measured card width.
+ *
+ * @param width - The measured content width, if known yet.
+ * @return The page width in week columns.
+ */
+function weeksForWidth( width?: number ): number {
+	if ( ! width ) {
+		return DEFAULT_PAGE_WEEKS;
+	}
+
+	return Math.max(
+		MIN_PAGE_WEEKS,
+		Math.floor( ( width - LABEL_GUTTER ) / ( CELL_WIDTH + CELL_GAP ) )
+	);
+}
 
 /**
  * Traffic activity inner component. Reads the post scope and date range from
@@ -42,6 +72,16 @@ function PostTrafficActivityInner() {
 	const parsedPostId = Number( reportParams.post_id );
 	const postId = Number.isInteger( parsedPostId ) && parsedPostId > 0 ? parsedPostId : 0;
 
+	// One page spans the whole week columns that fit the measured card width,
+	// so the grid fills the card without horizontal scrolling.
+	const [ width, setWidth ] = useState< number >();
+	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
+		const rect = entries[ 0 ]?.contentRect;
+		if ( rect ) {
+			setWidth( rect.width );
+		}
+	} );
+
 	const {
 		days,
 		isPaged,
@@ -54,7 +94,7 @@ function PostTrafficActivityInner() {
 		isError,
 		hasData,
 		refetch,
-	} = usePostTrafficActivity( postId, reportParams );
+	} = usePostTrafficActivity( postId, reportParams, weeksForWidth( width ) * 7 );
 
 	const { data: heatmapData, rowLabels } = useMemo(
 		() => buildCalendarHeatmapData( days ),
@@ -62,7 +102,7 @@ function PostTrafficActivityInner() {
 	);
 
 	return (
-		<div className={ styles.root }>
+		<div ref={ measureRef } className={ styles.root }>
 			{ /* Pager chrome stays a sibling of WidgetState so it is available in
 			     every state; it only renders when the range exceeds one page. */ }
 			{ isPaged && (
@@ -121,13 +161,10 @@ function PostTrafficActivityInner() {
 							rowLabels={ rowLabels }
 							primaryColor="var(--wp-admin-theme-color, #3858e9)"
 							withTooltips
-							// Cap cells at the design's 64x42 so a short range doesn't
-							// blow the few columns up to the card width, and floor the
-							// width so narrow cards scroll a page instead of crushing
-							// cells.
+							// Cap cells at the design's 64x42; the page span is already
+							// sized to the card, so tracks never need to shrink below it.
 							maxCellWidth={ 64 }
 							maxCellHeight={ 42 }
-							minCellWidth={ 44 }
 							className={ styles.heatmap }
 						/>
 					</div>

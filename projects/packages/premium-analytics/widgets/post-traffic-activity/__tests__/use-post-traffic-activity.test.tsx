@@ -115,7 +115,8 @@ describe( 'usePostTrafficActivity', () => {
 			() =>
 				usePostTrafficActivity(
 					779,
-					reportParams( { from: 'not-a-date', to: '2026-07-04T23:59:59.999+08:00' } )
+					reportParams( { from: 'not-a-date', to: '2026-07-04T23:59:59.999+08:00' } ),
+					168
 				),
 			{ wrapper }
 		);
@@ -126,7 +127,7 @@ describe( 'usePostTrafficActivity', () => {
 	} );
 
 	it( 'never fires a request without a post scope', () => {
-		const { result } = renderHook( () => usePostTrafficActivity( 0, reportParams( {} ) ), {
+		const { result } = renderHook( () => usePostTrafficActivity( 0, reportParams( {} ), 168 ), {
 			wrapper,
 		} );
 

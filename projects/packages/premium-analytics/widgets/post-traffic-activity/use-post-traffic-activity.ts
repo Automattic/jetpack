@@ -44,42 +44,39 @@ function toDay( value?: string ): string | undefined {
 }
 
 /**
- * Days one heatmap page spans (24 week columns). The design fills the card
- * with blank cells even when the selected range is short, so a range at or
- * under one page pads backward to `range end − (PAGE_SPAN_DAYS − 1)` with
- * blank filler weeks. A longer range is paged: the newest page shows first
- * and the header arrows step through the range one page at a time, the
- * oldest page padding backward the same way. Values always render only
- * inside the selected range. At the chart's 44–64px cell-width bounds, 24
- * columns cover roughly 1050–1550px of card width.
- */
-const PAGE_SPAN_DAYS = 168;
-
-/**
  * Fetch the scoped post's daily view activity for the dashboard's report
- * params and expose one page of it. Every calendar day of the page gets a
- * point so the heatmap grid stays complete, but days without traffic — and
- * filler days outside the selected range — carry `null`: the design renders
- * them as blank cells rather than zero labels.
+ * params and expose one page of it. The caller derives `pageSpanDays` from
+ * the card width (whole week columns that fit), so one page always fills the
+ * card exactly: a range at or under one page pads backward to
+ * `range end − (pageSpanDays − 1)` with blank filler weeks, and a longer
+ * range is paged — the newest page shows first and the header arrows step
+ * through the range one page at a time, the oldest page padding backward the
+ * same way. Every calendar day of the page gets a point so the heatmap grid
+ * stays complete, but days without traffic — and filler days outside the
+ * selected range — carry `null`: the design renders them as blank cells
+ * rather than zero labels.
  *
  * @param postId       - The scoped post ID (0 disables the request).
  * @param reportParams - The dashboard date range.
+ * @param pageSpanDays - Days one page spans (a whole number of weeks).
  * @return The visible page's daily points, paging controls, and load/error state.
  */
 export default function usePostTrafficActivity(
 	postId: number,
-	reportParams: ReportParams
+	reportParams: ReportParams,
+	pageSpanDays: number
 ): PostTrafficActivityState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,
 		fields: [ 'data' ],
 	} );
 
-	// Pages step back from the range end; a new range starts at the newest page.
+	// Pages step back from the range end; a new range (or a resize that
+	// changes the page span) starts back at the newest page.
 	const [ pageOffset, setPageOffset ] = useState( 0 );
 	useEffect( () => {
 		setPageOffset( 0 );
-	}, [ reportParams.from, reportParams.to ] );
+	}, [ reportParams.from, reportParams.to, pageSpanDays ] );
 
 	const from = toDay( reportParams.from );
 	const to = toDay( reportParams.to );
@@ -93,8 +90,8 @@ export default function usePostTrafficActivity(
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
 		const rangeStart = parseISO( from );
-		const pageEnd = subDays( parseISO( to ), pageOffset * PAGE_SPAN_DAYS );
-		const pageStart = subDays( pageEnd, PAGE_SPAN_DAYS - 1 );
+		const pageEnd = subDays( parseISO( to ), pageOffset * pageSpanDays );
+		const pageStart = subDays( pageEnd, pageSpanDays - 1 );
 
 		const points = eachDayOfInterval( { start: pageStart, end: pageEnd } ).map( date => {
 			const dateString = format( date, 'yyyy-MM-dd' );
@@ -108,10 +105,10 @@ export default function usePostTrafficActivity(
 
 		return {
 			days: points,
-			isPaged: rangeStart < subDays( parseISO( to ), PAGE_SPAN_DAYS - 1 ),
+			isPaged: rangeStart < subDays( parseISO( to ), pageSpanDays - 1 ),
 			canShowOlder: rangeStart < pageStart,
 		};
-	}, [ data, from, to, pageOffset ] );
+	}, [ data, from, to, pageOffset, pageSpanDays ] );
 
 	const showOlder = useCallback( () => {
 		setPageOffset( offset => ( canShowOlder ? offset + 1 : offset ) );
