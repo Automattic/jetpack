@@ -1,9 +1,9 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { queryOptions, useQueries } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import { DATE_RANGE_DAYS } from '../types/stats';
-import { isSimpleSite } from '../utils/is-simple';
 import type {
 	ActiveMetric,
 	ChartCompare,

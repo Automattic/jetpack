@@ -1,18 +1,18 @@
 /**
- * Flip the dashboard into WordPress.com Simple mode by seeding the boot
- * global consumed by `isSimpleSite()`. Pair with {@link unsetSimpleSite}
+ * Flip the dashboard into WordPress.com Simple mode by seeding the
+ * `JetpackScriptData` global that `isSimpleSite()` (from
+ * `@automattic/jetpack-script-data`) reads. Pair with {@link unsetSimpleSite}
  * in afterEach so mode never leaks between tests.
  */
 export function setSimpleSite(): void {
-	( window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: unknown } ).JPVIDEOPRESS_INITIAL_STATE = {
-		siteData: { isSimple: true },
+	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+		site: { host: 'wpcom' },
 	};
 }
 
 /**
- * Remove the boot global so subsequent tests run in self-hosted mode.
+ * Remove the script-data global so subsequent tests run in self-hosted mode.
  */
 export function unsetSimpleSite(): void {
-	delete ( window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: unknown } )
-		.JPVIDEOPRESS_INITIAL_STATE;
+	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 }

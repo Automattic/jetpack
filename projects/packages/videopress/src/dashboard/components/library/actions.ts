@@ -1,5 +1,5 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { isSimpleSite } from '../../utils/is-simple';
 import type { LibraryItem, LibraryItemPrivacy } from '../../types/library';
 import type { Action } from '@wordpress/dataviews';
 

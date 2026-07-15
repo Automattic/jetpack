@@ -1,6 +1,6 @@
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
-import { isSimpleSite } from '../../utils/is-simple';
 import ConnectScreen from './connect-screen';
 import PricingUpsell from './pricing-upsell';
 import type { ReactNode } from 'react';

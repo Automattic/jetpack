@@ -1,7 +1,7 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useRef } from '@wordpress/element';
-import { isSimpleSite } from '../utils/is-simple';
 import {
 	LIBRARY_ITEM_QUERY_SEGMENT,
 	LIBRARY_QUERY_KEY,

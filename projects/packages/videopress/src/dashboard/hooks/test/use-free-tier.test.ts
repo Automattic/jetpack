@@ -5,6 +5,9 @@ import { useFreeTier } from '../use-free-tier';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isWoASite: jest.fn( () => false ),
+	// These suites run in self-hosted mode; Simple-mode suites use the real
+	// module with the JetpackScriptData global via test-utils/simple-site.
+	isSimpleSite: jest.fn( () => false ),
 } ) );
 
 jest.mock( '../use-upload', () => ( {

@@ -1,6 +1,6 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { isSimpleSite } from '../utils/is-simple';
 
 export type SiteInfo = {
 	options?: {

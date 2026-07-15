@@ -114,10 +114,6 @@ class Initial_State {
 			),
 			'siteData'               => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),
-				// WordPress.com Simple indicator so the dashboard can branch its data
-				// mapping (e.g. media_details.videopress is absent on Simple). False on
-				// Atomic/self-hosted, where the frontend treats absent and false alike.
-				'isSimple'              => ( new Host() )->is_wpcom_simple(),
 				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 				'adminUrl'              => esc_url_raw( admin_url() ),
 				'slug'                  => is_string( $home_host ) ? $home_host : '',

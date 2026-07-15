@@ -1,9 +1,9 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { formatDuration } from '../../utils/format';
-import { isSimpleSite } from '../../utils/is-simple';
 import { useUploadActions } from './upload-actions-context';
 import type { LibraryItem } from '../../types/library';
 

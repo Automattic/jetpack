@@ -24,9 +24,6 @@ export declare global {
 					hasVideoPressAccess: boolean;
 					isVideoPress1TB?: boolean;
 					isVideoPressUnlimited?: boolean;
-					// WordPress.com Simple only. Emitted by class-initial-state.php via
-					// Host::is_wpcom_simple(); absent/falsy on self-hosted Jetpack and Atomic.
-					isSimple?: boolean;
 				};
 				assets: {
 					buildUrl: string;
