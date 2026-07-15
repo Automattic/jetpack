@@ -3,7 +3,6 @@
  */
 import {
 	computePrimaryRange,
-	getDefaultDateRangePresets,
 	getQuickSurfacePresets,
 	PRESET_CUSTOM,
 	type SelectablePresetId,
@@ -46,11 +45,7 @@ export function DateRangeQuickPresets( {
 	timeZone,
 	isCompact = false,
 }: DateRangeQuickPresetsProps ) {
-	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
-
-	const allPresets = useMemo( () => getDefaultDateRangePresets( timeZone ), [ timeZone ] );
-
-	const presets = isCompact ? allPresets : surfacePresets;
+	const presets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
 
 	const items = useMemo(
 		() =>

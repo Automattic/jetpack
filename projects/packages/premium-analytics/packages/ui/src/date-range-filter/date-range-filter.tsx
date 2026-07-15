@@ -5,7 +5,7 @@ import { PRESET_CUSTOM, type SelectablePresetId } from '@jetpack-premium-analyti
 import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -103,17 +103,9 @@ export function DateRangeFilter( {
 			isWideScreen={ isWideScreen }
 			onOpenChange={ onOpenChange }
 			triggerAsCompositeItem={ ! isCompact }
+			isCompact={ isCompact }
 		/>
 	);
-
-	if ( isCompact ) {
-		return (
-			<Stack className="date-range-filter" direction="row" gap="sm" wrap="wrap" align="center">
-				{ quickPresets }
-				{ customRangePopover }
-			</Stack>
-		);
-	}
 
 	/*
 	 * One composite group: preset pills plus the custom-range trigger share a
@@ -121,7 +113,7 @@ export function DateRangeFilter( {
 	 */
 	return (
 		<Composite
-			className="date-range-filter__group"
+			className={ clsx( 'date-range-filter__group', { 'is-compact': isCompact } ) }
 			role="toolbar"
 			aria-label={ __( 'Date range', 'jetpack-premium-analytics' ) }
 			orientation="horizontal"

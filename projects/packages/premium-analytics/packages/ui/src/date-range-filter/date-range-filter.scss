@@ -1,7 +1,3 @@
-.date-range-filter {
-	width: 100%;
-}
-
 // Composite group: preset pills plus the custom-range trigger presented as
 // one control. The frame copies the @wordpress/ui input-layout tokens (same
 // stroke and radius) so the group reads as a sibling of the comparison select.
@@ -26,5 +22,17 @@
 	// is wrapped in the Dropdown container.
 	> :focus-within {
 		z-index: 1;
+	}
+
+	// Compact (mobile) layout: the preset select and custom trigger become two
+	// separate bordered controls, so drop the shared frame and the flush
+	// hairline dividers and space them with a gap instead.
+	&.is-compact {
+		border: 0;
+		gap: var(--wpds-dimension-gap-xs);
+
+		> * + * {
+			border-inline-start: 0;
+		}
 	}
 }
