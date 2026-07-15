@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack_SEO_Titles;
@@ -357,7 +358,53 @@ class Initializer {
 		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
 		$data[ self::SCRIPT_DATA_KEY ]['site']          = self::get_site_data();
 
+		// Plan-gating signal for below-Premium WordPress.com sites: when gated, the
+		// dashboard reduces to a free subset and surfaces the upsell banner. Self-hosted
+		// is never gated (see self::is_gated()).
+		$data[ self::SCRIPT_DATA_KEY ]['gating'] = array(
+			'is_gated'   => self::is_gated(),
+			'upsell_url' => self::get_upsell_url(),
+		);
+
 		return $data;
+	}
+
+	/**
+	 * Whether the SEO dashboard is plan-gated for this site.
+	 *
+	 * Gating applies only on WordPress.com (Simple + Atomic): `advanced-seo` is in the
+	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
+	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
+	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
+	 * Enhancer's plan check in {@see self::get_ai_data()}.
+	 *
+	 * `Current_Plan` is provided by the host Jetpack plugin, not a package dependency,
+	 * so it's guarded with `class_exists` like the other host-plugin helpers here.
+	 *
+	 * @return bool
+	 */
+	private static function is_gated() {
+		return ( new Host() )->is_wpcom_platform()
+			&& class_exists( 'Automattic\\Jetpack\\Current_Plan' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
+			&& ! \Automattic\Jetpack\Current_Plan::supports( 'advanced-seo' );
+	}
+
+	/**
+	 * The WordPress.com Premium checkout URL for this site, used by the upsell banner
+	 * shown to gated sites.
+	 *
+	 * Built server-side because the client doesn't have the site slug. `value_bundle`
+	 * is the wpcom Premium plan slug (see the `premium` entry in
+	 * `Automattic\Jetpack\Current_Plan`), and `Status::get_site_suffix()` resolves the
+	 * Calypso site slug (via `WPCOM_Masterbar::get_calypso_site_slug()` on wpcom).
+	 *
+	 * @return string
+	 */
+	private static function get_upsell_url() {
+		$site_slug = ( new Status() )->get_site_suffix();
+
+		return sprintf( 'https://wordpress.com/checkout/%s/value_bundle', $site_slug );
 	}
 
 	/**

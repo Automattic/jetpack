@@ -6,9 +6,11 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
+import UpsellBanner from '../../components/upsell-banner';
 import { aiStore } from '../../data/ai-store';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
+import { isGated } from '../../data/is-gated';
 import { settingsStore } from '../../data/settings-store';
 import AiCrawlerCard from './ai-crawler-card';
 import ContentCoverageCard from './content-coverage-card';
@@ -56,6 +58,33 @@ const OverviewScreen: FC = () => {
 			<Notice.Root intent="error">
 				<Notice.Description>{ __( 'Unable to load overview.', 'jetpack-seo' ) }</Notice.Description>
 			</Notice.Root>
+		);
+	}
+
+	// On plan-gated sites (below-Premium WordPress.com) the Overview reduces to the
+	// two always-valid cards (site visibility + verification, both backed by core
+	// WordPress options) topped with the upsell banner. The AI-crawler and
+	// content-coverage cards and the disable control are paid surfaces, hidden here.
+	if ( isGated() ) {
+		return (
+			<div className="jetpack-seo-overview">
+				<UpsellBanner />
+				<div className="jetpack-seo-overview__grid">
+					<SiteVisibilityCard
+						data={ {
+							...data.site_visibility,
+							search_engines_visible:
+								settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
+							sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
+						} }
+						onManage={ () => goToSection( 'visibility' ) }
+					/>
+					<SiteVerificationCard
+						data={ data.site_verification }
+						onManage={ () => goToSection( 'verification' ) }
+					/>
+				</div>
+			</div>
 		);
 	}
 
