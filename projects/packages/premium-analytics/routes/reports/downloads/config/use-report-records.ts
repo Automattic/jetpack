@@ -4,17 +4,15 @@
 import {
 	useStatsFileDownloads,
 	type ReportParams,
+	type StatsChartBucketPeriod,
 	type StatsFileDownloadsItem,
 	type StatsNormalizedReport,
-	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { aggregateDownloadRows, downloadsToTimeSeries } from './aggregate';
-
-type DownloadChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * Fetch and derive chart and table data for the File downloads report.
@@ -25,7 +23,7 @@ type DownloadChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export function useDownloadsReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: DownloadChartPeriod
+	chartPeriod: StatsChartBucketPeriod
 ) {
 	// One unsummarized query supplies both the interval chart and the complete
 	// client-side table. `max: 0` requests every file row.

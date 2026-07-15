@@ -1,6 +1,5 @@
 import { useStatsFileDownloads } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
-import { getChartBucketKey } from './aggregate';
 import { useDownloadsReportRecords } from './use-report-records';
 import type {
 	ReportParams,
@@ -89,7 +88,6 @@ describe( 'useDownloadsReportRecords', () => {
 	it( 'keeps the request day-bucketed while grouping the chart by week', () => {
 		const dayResult = renderHook( () => useDownloadsReportRecords( params, 'day' ) ).result;
 		const weekResult = renderHook( () => useDownloadsReportRecords( params, 'week' ) ).result;
-		const weekKey = getChartBucketKey( report.data[ 0 ].time_interval, 'week' );
 
 		expect( mockUseStatsFileDownloads ).toHaveBeenLastCalledWith( {
 			...params,
@@ -97,9 +95,17 @@ describe( 'useDownloadsReportRecords', () => {
 			summarize: 0,
 			period: 'day',
 		} );
-		expect( weekKey ).toBe( '2026-07-06' );
+		expect( weekResult.current.chart.primary.summary ).toEqual( {
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
+		} );
 		expect( weekResult.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( { time_interval: weekKey, downloads: 13 } ),
+			expect.objectContaining( {
+				time_interval: '2026-07-06',
+				date_start: '2026-07-06T00:00:00+00:00',
+				date_end: '2026-07-10T23:59:59+00:00',
+				downloads: 13,
+			} ),
 		] );
 		expect( weekResult.current.rows ).toEqual( dayResult.current.rows );
 	} );
