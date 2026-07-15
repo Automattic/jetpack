@@ -18,6 +18,9 @@ type SummaryTilesProps = {
 	byApp?: PodcastStatsAppRow[];
 	byCountry?: PodcastStatsCountryRow[];
 	topDay?: PodcastStatsTopDay | null;
+	// Scope note for the Top day tile when its window differs from the selected
+	// period (top_day always reflects the last 90 days).
+	topDayScope?: string;
 	isLoading?: boolean;
 };
 
@@ -25,6 +28,7 @@ type Tile = {
 	heading: string;
 	value: string;
 	note?: string;
+	scope?: string;
 };
 
 const SummaryTiles = ( {
@@ -32,6 +36,7 @@ const SummaryTiles = ( {
 	byApp = [],
 	byCountry = [],
 	topDay,
+	topDayScope,
 	isLoading = false,
 }: SummaryTilesProps ) => {
 	const topApp = byApp[ 0 ];
@@ -67,6 +72,7 @@ const SummaryTiles = ( {
 							formatNumber( topDay.plays )
 					  )
 					: undefined,
+			scope: ! loadingValue ? topDayScope : undefined,
 		},
 	];
 
@@ -88,6 +94,11 @@ const SummaryTiles = ( {
 					{ tile.note && (
 						<Text size={ 12 } variant="muted">
 							{ tile.note }
+						</Text>
+					) }
+					{ tile.scope && (
+						<Text size={ 12 } variant="muted">
+							{ tile.scope }
 						</Text>
 					) }
 				</VStack>

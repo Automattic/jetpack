@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast stats: label each panel's time window in the All time view, and stop relabeling stale stats as the newly selected period while the request is still loading.

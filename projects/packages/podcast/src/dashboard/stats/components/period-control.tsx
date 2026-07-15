@@ -25,10 +25,11 @@ export function getPeriodHeading( selection: PodcastStatsSelection ): string {
 	if ( period === '90d' ) {
 		return __( 'Last 90 days', 'jetpack-podcast' );
 	}
-	// 'all' is a 365-day window from the API's cap. Label matches the preset
-	// button the user clicks.
+	// The headline total for 'all' is lifetime, so name the view "All time".
+	// The sub-panels (365-day chart, 30-day breakdowns, 90-day top day) carry
+	// their own scope labels since the API can't report those over all time.
 	if ( period === 'all' ) {
-		return __( 'Last 12 months', 'jetpack-podcast' );
+		return __( 'All time', 'jetpack-podcast' );
 	}
 	return formatLabel( localDateFromYmd( range.from ), localDateFromYmd( range.to ), getLocale() );
 }
