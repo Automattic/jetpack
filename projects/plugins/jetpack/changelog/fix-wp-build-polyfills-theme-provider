@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms and VideoPress: fix the admin dashboards rendering a blank "Something went wrong!" error on WordPress 6.9.
+Fix the Forms and VideoPress admin dashboards rendering a blank "Something went wrong!" error on WordPress 6.9.
