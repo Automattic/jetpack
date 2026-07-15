@@ -110,6 +110,7 @@ export function DateRangeQuickPresets( {
 							className="date-range-quick-presets__pill"
 							variant="minimal"
 							tone="neutral"
+							size="small"
 							aria-pressed={ value === id }
 							onClick={ () => selectPreset( id ) }
 						/>
