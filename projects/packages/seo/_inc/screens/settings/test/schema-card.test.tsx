@@ -13,7 +13,7 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 // `jest.unstable_mockModule`, then import the card dynamically. Mocking the hook
 // keeps the card test off the network while exercising the real section + card UI.
 const setOrganizationField = jest.fn();
-const setBreadcrumbListField = jest.fn();
+const commitBreadcrumbList = jest.fn();
 const setLocalBusinessField = jest.fn();
 const save = jest.fn();
 
@@ -29,7 +29,7 @@ const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettin
 	localBusinessDefaults: EMPTY_LOCAL_BUSINESS_DEFAULTS,
 	isSaving: false,
 	isDirty: false,
-	setBreadcrumbListField,
+	commitBreadcrumbList,
 	setOrganizationField,
 	setLocalBusinessField,
 	save,
@@ -92,7 +92,7 @@ describe( 'SchemaCard', () => {
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( toggle );
-		expect( setBreadcrumbListField ).toHaveBeenCalledWith( { enabled: false } );
+		expect( commitBreadcrumbList ).toHaveBeenCalledWith( { enabled: false } );
 	} );
 
 	it( 'renders an explicitly disabled breadcrumb toggle without changing the badge', () => {

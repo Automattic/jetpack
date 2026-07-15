@@ -35,7 +35,7 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 		localBusiness,
 		isSaving,
 		isDirty,
-		setBreadcrumbListField,
+		commitBreadcrumbList,
 		setOrganizationField,
 		setLocalBusinessField,
 		save,
@@ -53,7 +53,7 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 					'jetpack-seo'
 				) }
 				checked={ breadcrumbList.enabled }
-				onChange={ next => setBreadcrumbListField( { enabled: next } ) }
+				onChange={ next => commitBreadcrumbList( { enabled: next } ) }
 				disabled={ isSaving }
 				__nextHasNoMarginBottom
 			/>

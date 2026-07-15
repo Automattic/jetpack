@@ -44,8 +44,8 @@ export interface SchemaSettingsForm {
 	isDirty: boolean;
 	/** Patch one or more Organization fields locally (persisted by `save()`). */
 	setOrganizationField: ( patch: Partial< OrganizationSettings > ) => void;
-	/** Patch the BreadcrumbList setting locally (persisted by `save()`). */
-	setBreadcrumbListField: ( patch: Partial< BreadcrumbListSettings > ) => void;
+	/** Patch the BreadcrumbList setting and persist it immediately (toggles auto-save). */
+	commitBreadcrumbList: ( patch: Partial< BreadcrumbListSettings > ) => void;
 	/** Patch one or more LocalBusiness fields locally (persisted by `save()`). */
 	setLocalBusinessField: ( patch: Partial< LocalBusinessSettings > ) => void;
 	/** Persist the current schema values through the schema-settings route. */
@@ -83,18 +83,53 @@ export function useSchemaSettings(
 		} )
 	);
 
-	const setBreadcrumbListField = useCallback( ( patch: Partial< BreadcrumbListSettings > ) => {
-		setSections( current => {
-			const next = {
-				...current,
-				breadcrumbList: { ...current.breadcrumbList, ...patch },
-			};
-			setIsDirty(
-				JSON.stringify( cleanSections( next ) ) !== JSON.stringify( baselineRef.current )
-			);
-			return next;
-		} );
-	}, [] );
+	const commitBreadcrumbList = useCallback(
+		( patch: Partial< BreadcrumbListSettings > ) => {
+			// Update local for immediate UI feedback, but persist only this section
+			// so pending Organization / LocalBusiness edits stay local until their
+			// own Save — matching the toggle sections of the main Settings form.
+			const next = { ...sections.breadcrumbList, ...patch };
+			setSections( current => ( { ...current, breadcrumbList: next } ) );
+			setIsSaving( true );
+			createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
+				id: NOTICE_ID,
+				type: 'snackbar',
+				isDismissible: false,
+			} );
+			apiFetch< SchemaSettings >( {
+				path: ENDPOINT,
+				method: 'POST',
+				data: { breadcrumbList: next },
+			} )
+				.then( settings => {
+					baselineRef.current = {
+						...baselineRef.current,
+						breadcrumbList: { ...settings.breadcrumbList },
+					};
+					setSections( current => {
+						const merged = { ...current, breadcrumbList: settings.breadcrumbList };
+						setIsDirty(
+							JSON.stringify( cleanSections( merged ) ) !== JSON.stringify( baselineRef.current )
+						);
+						return merged;
+					} );
+					onSave?.( settings );
+					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
+						id: NOTICE_ID,
+						type: 'snackbar',
+					} );
+				} )
+				.catch( ( error: { message?: string } ) => {
+					createErrorNotice(
+						error?.message ??
+							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
+						{ id: NOTICE_ID, type: 'snackbar' }
+					);
+				} )
+				.finally( () => setIsSaving( false ) );
+		},
+		[ sections, onSave, createInfoNotice, createSuccessNotice, createErrorNotice ]
+	);
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
 		setSections( current => {
@@ -172,7 +207,7 @@ export function useSchemaSettings(
 		localBusinessDefaults: initialSettings.defaults.localBusiness,
 		isSaving,
 		isDirty,
-		setBreadcrumbListField,
+		commitBreadcrumbList,
 		setOrganizationField,
 		setLocalBusinessField,
 		save,
