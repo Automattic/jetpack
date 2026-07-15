@@ -81,9 +81,12 @@ function PostTrafficActivityInner() {
 						primaryColor="var(--wp-admin-theme-color, #3858e9)"
 						withTooltips
 						// Cap the cell size so a short range doesn't blow the few
-						// columns up to the card width (the design's ~88x56 cells).
+						// columns up to the card width (the design's ~88x56 cells),
+						// and floor the width so long ranges overflow into the
+						// wrapper's horizontal scroll instead of crushing cells.
 						maxCellWidth={ 88 }
 						maxCellHeight={ 56 }
+						minCellWidth={ 44 }
 						className={ styles.heatmap }
 					/>
 				</div>

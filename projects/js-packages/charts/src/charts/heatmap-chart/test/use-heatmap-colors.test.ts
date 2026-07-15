@@ -31,4 +31,8 @@ describe( 'getNormalizedValue', () => {
 	test( 'returns 1 when min === max', () => {
 		expect( getNormalizedValue( 7, [ 7, 7 ] ) ).toBe( 1 );
 	} );
+
+	test( 'returns 0 for an all-zero extent so a no-activity grid stays at the scale bottom', () => {
+		expect( getNormalizedValue( 0, [ 0, 0 ] ) ).toBe( 0 );
+	} );
 } );

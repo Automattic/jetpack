@@ -42,6 +42,14 @@ export interface HeatmapChartProps
 	/** Cap a cell's height (px) in non-compact mode; see `maxCellWidth`. */
 	maxCellHeight?: number;
 	/**
+	 * Floor a cell's width (px) in non-compact mode. Below it the grid stops
+	 * shrinking and overflows its container instead, so a scrollable wrapper
+	 * can take over for long ranges. Default 0 (cells shrink freely).
+	 */
+	minCellWidth?: number;
+	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
+	minCellHeight?: number;
+	/**
 	 * Color the cell scale interpolates toward at the highest value
 	 * (this prop > theme `heatmapChart.primaryColor` > palette `colors[0]`).
 	 */

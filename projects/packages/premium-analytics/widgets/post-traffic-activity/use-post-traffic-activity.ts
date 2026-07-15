@@ -3,7 +3,7 @@
  */
 import { useStatsPost, type ReportParams } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
-import { eachDayOfInterval, format, parseISO } from 'date-fns';
+import { eachDayOfInterval, format, parseISO, subDays } from 'date-fns';
 import type { DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -36,10 +36,19 @@ function toDay( value?: string ): string | undefined {
 }
 
 /**
+ * Minimum days the grid spans (~16 week columns). The design fills the card
+ * with blank cells even when the selected range is short, so ranges below
+ * this pad backward with blank filler weeks; the values still render only
+ * inside the selected range.
+ */
+const MIN_GRID_DAYS = 112;
+
+/**
  * Fetch the scoped post's daily view activity for the dashboard's report
- * params. Every calendar day of the window gets a point so the heatmap grid
- * stays complete, but days without traffic carry `null` — the design leaves
- * them as blank cells rather than zero labels.
+ * params. Every calendar day of the grid gets a point so the heatmap stays
+ * complete, but days without traffic — and the backfilled padding before a
+ * short range — carry `null`: the design renders them as blank cells rather
+ * than zero labels.
  *
  * @param postId       - The scoped post ID (0 disables the request).
  * @param reportParams - The dashboard date range.
@@ -65,11 +74,20 @@ export default function usePostTrafficActivity(
 
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
-		return eachDayOfInterval( { start: parseISO( from ), end: parseISO( to ) } ).map( date => {
-			const dateString = format( date, 'yyyy-MM-dd' );
-			const views = viewsByDay.get( dateString );
+		// Pad short ranges backward to the minimum span so the grid fills the
+		// card; the filler days stay blank regardless of history.
+		const end = parseISO( to );
+		const rangeStart = parseISO( from );
+		const paddedStart = subDays( end, MIN_GRID_DAYS - 1 );
+		const gridStart = rangeStart < paddedStart ? rangeStart : paddedStart;
 
-			// Blank (null) for no-traffic days, per the design — not a `0` label.
+		return eachDayOfInterval( { start: gridStart, end } ).map( date => {
+			const dateString = format( date, 'yyyy-MM-dd' );
+			const inRange = dateString >= from && dateString <= to;
+			const views = inRange ? viewsByDay.get( dateString ) : undefined;
+
+			// Blank (null) for no-traffic and filler days, per the design —
+			// not a `0` label.
 			return { dateString, value: views ? views : null };
 		} );
 	}, [ data, reportParams.from, reportParams.to ] );

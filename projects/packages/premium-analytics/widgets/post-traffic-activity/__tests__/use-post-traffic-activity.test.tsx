@@ -15,9 +15,11 @@ jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
-// Daily history with a gap on 2026-07-02 (the endpoint omits zero-view days).
+// Daily history with a gap on 2026-07-02 (the endpoint omits zero-view days)
+// and a day before the selected range (must stay blank in the padded grid).
 const STATS_POST_RESPONSE = {
 	data: [
+		[ '2026-06-30', 9 ],
 		[ '2026-07-01', 2 ],
 		[ '2026-07-03', 5 ],
 	],
@@ -39,7 +41,7 @@ describe( 'usePostTrafficActivity', () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 	} );
 
-	it( 'fills every calendar day of the window, blanking no-traffic days', async () => {
+	it( 'pads short ranges to the minimum grid span, blanking filler and no-traffic days', async () => {
 		const { result } = renderHook(
 			() =>
 				usePostTrafficActivity(
@@ -54,12 +56,21 @@ describe( 'usePostTrafficActivity', () => {
 
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 
-		expect( result.current.days ).toEqual( [
+		const { days } = result.current;
+
+		// The 4-day range pads backward to the minimum grid span (112 days).
+		expect( days ).toHaveLength( 112 );
+
+		// Values render only inside the selected range; the in-range gap is blank.
+		expect( days.slice( -4 ) ).toEqual( [
 			{ dateString: '2026-07-01', value: 2 },
 			{ dateString: '2026-07-02', value: null },
 			{ dateString: '2026-07-03', value: 5 },
 			{ dateString: '2026-07-04', value: null },
 		] );
+
+		// Filler days stay blank even where the history has views (2026-06-30).
+		expect( days.slice( 0, -4 ).every( day => day.value === null ) ).toBe( true );
 	} );
 
 	it( 'returns no days when a window bound is missing or malformed', async () => {

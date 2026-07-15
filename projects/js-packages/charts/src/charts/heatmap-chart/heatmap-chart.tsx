@@ -48,6 +48,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	showValues,
 	maxCellWidth,
 	maxCellHeight,
+	minCellWidth,
+	minCellHeight,
 	rowLabels = [],
 	primaryColor,
 	gap = 'md',
@@ -246,14 +248,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	}
 
 	// Non-compact tracks split the container by default; a max cap makes them
-	// stop growing there instead, so sparse ranges keep sensible cell sizes
-	// while narrow containers still shrink them.
+	// stop growing there instead, so sparse ranges keep sensible cell sizes,
+	// and a min floor makes the grid overflow (for a scrollable wrapper)
+	// rather than crushing cells on long ranges.
 	const columnTrack = compact
 		? 'var(--heatmap-cell-size)'
-		: `minmax(0, ${ maxCellWidth ? `${ maxCellWidth }px` : '1fr' })`;
+		: `minmax(${ minCellWidth ?? 0 }px, ${ maxCellWidth ? `${ maxCellWidth }px` : '1fr' })`;
 	const rowTrack = compact
 		? 'var(--heatmap-cell-size)'
-		: `minmax(0, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
+		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	const gridStyle: Record< string, string | number > = {
 		'--heatmap-primary': primaryColorHex,
 		'--heatmap-bg': theme.backgroundColor,
