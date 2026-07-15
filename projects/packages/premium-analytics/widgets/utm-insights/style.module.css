@@ -1,4 +1,9 @@
 .root {
+
+	/* Anchor the absolute loading overlay here: without a positioned ancestor
+	 * inside the widget it would reach the framed host card and cover the
+	 * header title. */
+	position: relative;
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
