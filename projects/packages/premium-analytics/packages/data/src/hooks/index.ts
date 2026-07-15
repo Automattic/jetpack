@@ -61,6 +61,7 @@ export {
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
 	useStatsCommentFollowers,
+	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersParams,
 	type StatsCommentFollowersResponse,
 } from './use-stats-comment-followers';
