@@ -77,10 +77,41 @@ describe( 'useVideosReportRecords', () => {
 			max: 0,
 			summarize: 0,
 			period: 'day',
+			complete_stats: 1,
 		} );
 		expect( result.current.rows ).toEqual( [
 			expect.objectContaining( { id: 441, plays: 13, impressions: 22 } ),
 		] );
 		expect( result.current.chart.primary.data.map( point => point.plays ) ).toEqual( [ 7, 6 ] );
+	} );
+
+	it( 'keeps the request day-bucketed while grouping the chart by week', () => {
+		mockUseStatsVideoPlays.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: undefined },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsVideoPlays > );
+		const params: ReportParams = {
+			from: '2026-07-09',
+			to: '2026-07-10',
+			interval: 'day',
+		};
+
+		const { result } = renderHook( () => useVideosReportRecords( params, 'week' ) );
+
+		expect( mockUseStatsVideoPlays ).toHaveBeenCalledWith( {
+			...params,
+			max: 0,
+			summarize: 0,
+			period: 'day',
+			complete_stats: 1,
+		} );
+		expect( result.current.chart.primary.data ).toEqual( [
+			expect.objectContaining( { time_interval: '2026-07-06', plays: 13 } ),
+		] );
+		expect( result.current.rows ).toEqual( [
+			expect.objectContaining( { id: 441, plays: 13, impressions: 22 } ),
+		] );
 	} );
 } );

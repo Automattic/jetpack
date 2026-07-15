@@ -30,9 +30,10 @@ export function useVideosReportRecords(
 			...reportParams,
 			max: 0,
 			summarize: 0,
-			period: chartPeriod,
+			period: 'day',
+			complete_stats: 1,
 		} ),
-		[ reportParams, chartPeriod ]
+		[ reportParams ]
 	);
 	const videos = useStatsVideoPlays( recordsParams );
 	const primaryData = videos.primary.data;
