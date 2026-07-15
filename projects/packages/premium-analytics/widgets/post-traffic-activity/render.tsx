@@ -80,6 +80,10 @@ function PostTrafficActivityInner() {
 						rowLabels={ rowLabels }
 						primaryColor="var(--wp-admin-theme-color, #3858e9)"
 						withTooltips
+						// Cap the cell size so a short range doesn't blow the few
+						// columns up to the card width (the design's ~88x56 cells).
+						maxCellWidth={ 88 }
+						maxCellHeight={ 56 }
 						className={ styles.heatmap }
 					/>
 				</div>

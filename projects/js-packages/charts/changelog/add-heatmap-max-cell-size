@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Charts: add HeatmapChart maxCellWidth/maxCellHeight caps so sparse non-compact grids keep sensible cell sizes.
