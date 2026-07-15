@@ -153,13 +153,13 @@ function PostTrafficActivityDashboardStory( {
 }
 
 /**
- * Mirrors the production placement (3 columns × 2 rows, beside the likes card).
+ * Mirrors the production placement (full width × 2 rows).
  */
 export const WidgetDashboardWithWidget: StoryObj< PostTrafficActivityDashboardStoryProps > = {
 	render: args => <PostTrafficActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 3,
+		widgetWidth: 4,
 		widgetHeight: 2,
 		hasPostScope: true,
 	},
