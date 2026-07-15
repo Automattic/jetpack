@@ -5,3 +5,11 @@
 	flex-direction: column;
 	min-height: 100%;
 }
+
+/* Grow the state container to the tile: WidgetState centers error/empty via a
+ * percentage block-size, which can't resolve against the root's min-height
+ * (auto height), so give it real height through flex instead. Basis stays
+ * auto so a long roster still grows past the tile and scrolls. */
+.root > * {
+	flex: 1 0 auto;
+}
