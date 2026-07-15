@@ -10,6 +10,7 @@ import {
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, EmptyState, Text } from '@wordpress/ui';
@@ -80,14 +81,19 @@ function CommentFollowersReport(): JSX.Element {
 		>
 			<div className={ styles.content }>
 				<ReportPageLayout>
-					{ records.allPostsFollowers !== undefined && ! records.isError ? (
-						<ReportPageSection className={ styles.summary }>
-							<Text variant="heading-md" render={ <h3 /> }>
-								{ __( 'All Posts', 'jetpack-premium-analytics' ) }
-							</Text>
-							<MetricValue value={ records.allPostsFollowers } dataFormat={ { type: 'number' } } />
-						</ReportPageSection>
-					) : null }
+					<ReportPageSection className={ styles.summary }>
+						<Text variant="heading-md" render={ <h3 /> }>
+							{ __( 'All Posts', 'jetpack-premium-analytics' ) }
+						</Text>
+						{ records.isLoading ? <Spinner /> : null }
+						{ ! records.isLoading && records.isError ? <Text aria-hidden="true">—</Text> : null }
+						{ ! records.isLoading && ! records.isError ? (
+							<MetricValue
+								value={ records.allPostsFollowers ?? 0 }
+								dataFormat={ { type: 'number' } }
+							/>
+						) : null }
+					</ReportPageSection>
 					<ReportRecordsTable< StatsCommentFollowersItem >
 						data={ records.rows }
 						fields={ fields }
