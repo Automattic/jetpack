@@ -257,4 +257,53 @@ class Settings_Test extends BaseTestCase {
 
 		$this->assertSame( '', Settings::raw_show_image_url() );
 	}
+
+	public function test_feed_url_uses_canonical_category_feed_api() {
+		$term   = wp_insert_term( 'Podcast Cat', 'category' );
+		$cat_id = $term['term_id'];
+		update_option( 'podcasting_category_id', $cat_id );
+
+		$feed_url = Settings::feed_url();
+
+		// Built from WordPress's own category-feed API, never the malformed
+		// `?cat=Nfeed/` a naive `feed/` concatenation produces on plain/no-
+		// trailing-slash permalinks.
+		$this->assertNotEmpty( $feed_url );
+		$this->assertStringNotContainsString( 'feed/', $feed_url );
+		$this->assertNotFalse( filter_var( $feed_url, FILTER_VALIDATE_URL ) );
+
+		// Entity-decoded so it's a usable copy-paste URL: the raw core value
+		// HTML-escapes the separator to `&amp;` (for HTML attributes), which would
+		// drop the `cat` filter and serve the whole-site feed if pasted as-is.
+		$this->assertSame( html_entity_decode( get_term_feed_link( $cat_id, 'category' ), ENT_QUOTES ), $feed_url );
+		$this->assertStringNotContainsString( '&amp;', $feed_url );
+
+		delete_option( 'podcasting_category_id' );
+		wp_delete_term( $cat_id, 'category' );
+	}
+
+	public function test_feed_url_is_empty_without_a_category() {
+		delete_option( 'podcasting_category_id' );
+
+		$this->assertSame( '', Settings::feed_url() );
+
+		update_option( 'podcasting_category_id', 0 );
+		$this->assertSame( '', Settings::feed_url() );
+
+		delete_option( 'podcasting_category_id' );
+	}
+
+	public function test_get_all_includes_the_derived_feed_url() {
+		$term   = wp_insert_term( 'Feed Cat', 'category' );
+		$cat_id = $term['term_id'];
+		update_option( 'podcasting_category_id', $cat_id );
+
+		$all = Settings::get_all();
+
+		$this->assertArrayHasKey( 'podcasting_feed_url', $all );
+		$this->assertSame( Settings::feed_url(), $all['podcasting_feed_url'] );
+
+		delete_option( 'podcasting_category_id' );
+		wp_delete_term( $cat_id, 'category' );
+	}
 }
