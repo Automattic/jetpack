@@ -109,6 +109,35 @@ export const Calendar: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
 	},
 };
 
+// The ragged-edge option: week-completion days outside the series' span
+// render as empty slots instead of blank cells.
+export const CalendarRaggedEdges: StoryObj<
+	StoryArgs & { weekStartsOn: 0 | 1; hideOutOfRangeDays: boolean }
+> = {
+	render: ( { weekStartsOn, hideOutOfRangeDays, ...args } ) => {
+		// A mid-week span (Wed → Wed) so both calendar edges are ragged.
+		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries.slice( 2, 115 ), {
+			weekStartsOn,
+			hideOutOfRangeDays,
+		} );
+		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+	},
+	args: {
+		...sharedThemeArgs,
+		withTooltips: true,
+		weekStartsOn: 1,
+		hideOutOfRangeDays: true,
+	},
+	argTypes: {
+		weekStartsOn: {
+			control: { type: 'inline-radio', labels: { 0: 'Sunday', 1: 'Monday' } },
+			options: [ 1, 0 ],
+			table: { category: 'Calendar' },
+		},
+		hideOutOfRangeDays: { control: 'boolean', table: { category: 'Calendar' } },
+	},
+};
+
 // Regression story for a one-column first month label in compact mode.
 export const CompactCalendarPartialMonth: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
 	render: ( { weekStartsOn, ...args } ) => {
