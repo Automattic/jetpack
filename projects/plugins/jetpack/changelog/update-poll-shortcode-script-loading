@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Poll shortcode: Require HTTPS and an exact script path when loading the poll script.
