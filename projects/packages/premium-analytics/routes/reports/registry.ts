@@ -81,6 +81,12 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
 	},
+	videos: {
+		id: 'videos',
+		getTitle: () => __( 'Videos', 'jetpack-premium-analytics' ),
+		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics' ),
+		load: () => import( './videos/page' ),
+	},
 };
 
 /**
