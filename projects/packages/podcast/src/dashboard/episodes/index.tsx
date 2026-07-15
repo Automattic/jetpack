@@ -9,7 +9,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
-import { getUpgradePlanName } from '../upgrade';
+import { getDashboardUpgradeUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
@@ -342,7 +342,10 @@ const EpisodesTab = () => {
 							'jetpack-podcast'
 						),
 						getUpgradePlanName()
-					) }
+					) }{ ' ' }
+					<Button variant="link" href={ getDashboardUpgradeUrl() }>
+						{ __( 'Upgrade', 'jetpack-podcast' ) }
+					</Button>
 				</Notice>
 			) }
 			{ ! statsPremiumRequired && statsError && (
