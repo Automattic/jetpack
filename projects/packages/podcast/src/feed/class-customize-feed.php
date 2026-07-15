@@ -49,9 +49,14 @@ class Customize_Feed {
 
 		add_action( 'wp', array( __CLASS__, 'maybe_register_feed_hooks' ) );
 
-		// `the_posts` fires during query execution — before the `wp` action —
-		// so it has to be registered up-front and self-gated to the podcast
-		// feed query, rather than wired conditionally in `maybe_register_feed_hooks`.
+		// Both hooks fire during query execution — before the `wp` action — so
+		// they're registered up-front and self-gated to the podcast feed query,
+		// rather than wired conditionally in `maybe_register_feed_hooks`.
+		//
+		// `posts_where` constrains the SQL itself so LIMIT/OFFSET paginate over
+		// episodes that actually have an enclosure; `the_posts` is a cheap final
+		// guard for the rare row the SQL constraint can't reach.
+		add_filter( 'posts_where', array( __CLASS__, 'constrain_feed_query' ), 10, 2 );
 		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
 	}
 
@@ -354,24 +359,50 @@ class Customize_Feed {
 	}
 
 	/**
+	 * Constrain the podcast feed's main query to episodes that carry an
+	 * `enclosure` meta row, so the SQL `LIMIT`/`OFFSET` paginate over valid
+	 * episodes only. Without this the enclosure filter runs on `the_posts` —
+	 * after pagination — so a nominal ten-item page could come back short or
+	 * empty while older valid episodes sit stranded on later pages.
+	 *
+	 * A correlated `EXISTS` subquery (semi-join) is used rather than a
+	 * `meta_query` clause on purpose: episodes routinely accumulate several
+	 * `enclosure` meta rows (see {@see self::rewrite_enclosure()}), and a
+	 * single-clause `meta_query` INNER JOIN would multiply those into duplicate
+	 * posts, breaking the `LIMIT` count all over again.
+	 *
+	 * @param string    $where The `WHERE` clause of the query.
+	 * @param \WP_Query $query Query about to run.
+	 * @return string
+	 */
+	public static function constrain_feed_query( $where, $query ) {
+		if ( ! self::is_podcast_feed_query( $query ) ) {
+			return $where;
+		}
+
+		global $wpdb;
+
+		// `enclosure` is a static literal, so no `$wpdb->prepare()` is needed;
+		// table names come from `$wpdb` and are trusted.
+		$where .= " AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = 'enclosure' )";
+
+		return $where;
+	}
+
+	/**
 	 * A podcast item without an enclosure is invalid per Apple's spec and can
 	 * take down the whole submission. The `enclosure` post meta is what
 	 * `rss_enclosure()` reads, so it's the authoritative signal here too.
+	 *
+	 * The SQL constraint in {@see self::constrain_feed_query()} already excludes
+	 * these at query time; this stays as a cheap final guard.
 	 *
 	 * @param WP_Post[] $posts Posts about to be looped over.
 	 * @param \WP_Query $query Query that produced them.
 	 * @return WP_Post[]
 	 */
 	public static function filter_posts_with_enclosure( $posts, $query ) {
-		if ( ! $query->is_main_query() || ! $query->is_feed() || ! $query->is_category() ) {
-			return $posts;
-		}
-		$category_id = self::resolve_category_id();
-		if ( 0 === $category_id ) {
-			return $posts;
-		}
-		$queried = $query->get_queried_object();
-		if ( ! $queried || ! isset( $queried->term_id ) || (int) $queried->term_id !== $category_id ) {
+		if ( ! self::is_podcast_feed_query( $query ) ) {
 			return $posts;
 		}
 		return array_values(
@@ -383,6 +414,27 @@ class Customize_Feed {
 				}
 			)
 		);
+	}
+
+	/**
+	 * Whether `$query` is the main podcast category feed query — the shared gate
+	 * for the two query-time hooks ({@see self::constrain_feed_query()} and
+	 * {@see self::filter_posts_with_enclosure()}), which fire before the `wp`
+	 * action and so can't lean on `maybe_register_feed_hooks()`.
+	 *
+	 * @param \WP_Query $query Query to inspect.
+	 * @return bool
+	 */
+	private static function is_podcast_feed_query( $query ): bool {
+		if ( ! $query->is_main_query() || ! $query->is_feed() || ! $query->is_category() ) {
+			return false;
+		}
+		$category_id = self::resolve_category_id();
+		if ( 0 === $category_id ) {
+			return false;
+		}
+		$queried = $query->get_queried_object();
+		return $queried && isset( $queried->term_id ) && (int) $queried->term_id === $category_id;
 	}
 
 	/**
