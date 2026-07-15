@@ -39,7 +39,11 @@ export interface HeatmapChartProps
 	 * them. Ignored in compact mode, which uses a fixed cell size.
 	 */
 	maxCellWidth?: number;
-	/** Cap a cell's height (px) in non-compact mode; see `maxCellWidth`. */
+	/**
+	 * Cap a cell's height (px) in non-compact mode. Applying this cap
+	 * content-sizes the chart vertically so rows do not absorb unused height.
+	 * Ignored in compact mode, which uses a fixed cell size.
+	 */
 	maxCellHeight?: number;
 	/**
 	 * Floor a cell's width (px) in non-compact mode. Below it the grid stops

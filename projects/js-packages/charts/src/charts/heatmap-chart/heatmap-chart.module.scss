@@ -5,9 +5,10 @@
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 }
 
-// Capped grids are content-sized, so the wrapper hugs them instead of
-// stretching — the consumer decides how to place it in leftover space.
-.heatmap-chart--capped {
+// Height-capped grids are content-sized vertically, so the wrapper hugs them
+// instead of stretching — the consumer decides how to place it in leftover
+// space. Width-only caps keep the normal full-height layout.
+.heatmap-chart--height-capped {
 	height: max-content;
 }
 
@@ -42,9 +43,10 @@
 	min-height: 0;
 }
 
-// Cell-size caps make the tracks content-bound, so the grid must not stretch:
-// leftover container height would otherwise be absorbed by the auto label row.
-.heatmap-chart__grid--capped {
+// A cell-height cap makes the row tracks content-bound, so the grid must not
+// stretch: leftover container height would otherwise be absorbed by the auto
+// label row. A width-only cap does not change vertical flex sizing.
+.heatmap-chart__grid--height-capped {
 	flex: 0 0 auto;
 	height: max-content;
 	min-height: 0;

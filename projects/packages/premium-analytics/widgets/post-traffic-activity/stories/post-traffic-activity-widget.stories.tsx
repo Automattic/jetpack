@@ -41,6 +41,8 @@ const POST_TRAFFIC_ACTIVITY_RENDER_MODULE = 'storybook/post-traffic-activity';
 
 interface PostTrafficActivityStoryControls {
 	hasPostScope: boolean;
+	withComparison: boolean;
+	preset: 'last-30-days' | 'last-365-days';
 }
 
 /**
@@ -52,12 +54,14 @@ interface PostTrafficActivityStoryControls {
  */
 function getPostTrafficActivityAttributes( {
 	hasPostScope,
+	withComparison,
+	preset,
 }: PostTrafficActivityStoryControls ): ComponentProps<
 	typeof PostTrafficActivityRender
 >[ 'attributes' ] {
 	return {
 		reportParams: {
-			...getDefaultQueryParams( false ),
+			...getDefaultQueryParams( withComparison, preset ),
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
 		},
 	};
@@ -75,7 +79,7 @@ function renderPostTrafficActivity( controls: PostTrafficActivityStoryControls )
 
 // Close-up canvas sized to the heatmap outside the dashboard grid.
 const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '360px' } }>
+	<div style={ { width: '100%', height: '400px' } }>
 		<Story />
 	</div>
 );
@@ -88,6 +92,15 @@ const meta = {
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include the date range picker comparison parameters.',
+		},
+		preset: {
+			control: 'select',
+			options: [ 'last-30-days', 'last-365-days' ],
+			description: 'Dashboard date range used to exercise single-page and paged layouts.',
 		},
 	},
 	parameters: {
@@ -111,7 +124,36 @@ type Story = StoryObj< PostTrafficActivityStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostTrafficActivity,
-	args: { hasPostScope: true },
+	args: { hasPostScope: true, withComparison: false, preset: 'last-30-days' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * WithComparison — verifies that comparison report params from the date range
+ * picker pass through the widget host. The stats/post endpoint has no separate
+ * comparison rows, so the activity grid intentionally remains primary-only.
+ */
+export const WithComparison: Story = {
+	render: renderPostTrafficActivity,
+	args: { hasPostScope: true, withComparison: true, preset: 'last-30-days' },
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The stats/post endpoint does not return a comparison series. This story verifies that comparison report parameters are accepted without inventing comparison activity.',
+			},
+		},
+	},
+};
+
+/**
+ * Paged — a deterministic year-long range that always exceeds one page at
+ * the default story width, exposing both pager controls for direct review.
+ */
+export const Paged: Story = {
+	render: renderPostTrafficActivity,
+	args: { hasPostScope: true, withComparison: false, preset: 'last-365-days' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -122,7 +164,7 @@ export const Default: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostTrafficActivity,
-	args: { hasPostScope: false },
+	args: { hasPostScope: false, withComparison: false, preset: 'last-30-days' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -139,6 +181,8 @@ interface PostTrafficActivityDashboardStoryProps
  */
 function PostTrafficActivityDashboardStory( {
 	hasPostScope,
+	withComparison,
+	preset,
 	...dashboardArgs
 }: PostTrafficActivityDashboardStoryProps ) {
 	return (
@@ -147,7 +191,7 @@ function PostTrafficActivityDashboardStory( {
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ POST_TRAFFIC_ACTIVITY_RENDER_MODULE }
 			renderComponent={ PostTrafficActivityRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostTrafficActivityAttributes( { hasPostScope } ) }
+			attributes={ getPostTrafficActivityAttributes( { hasPostScope, withComparison, preset } ) }
 		/>
 	);
 }
@@ -162,12 +206,23 @@ export const WidgetDashboardWithWidget: StoryObj< PostTrafficActivityDashboardSt
 		widgetWidth: 4,
 		widgetHeight: 2,
 		hasPostScope: true,
+		withComparison: true,
+		preset: 'last-30-days',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include the date range picker comparison parameters.',
+		},
+		preset: {
+			control: 'select',
+			options: [ 'last-30-days', 'last-365-days' ],
+			description: 'Dashboard date range used to exercise single-page and paged layouts.',
 		},
 	},
 };
