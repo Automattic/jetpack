@@ -372,10 +372,11 @@ describe( 'LeaderboardChart', () => {
 	} );
 
 	describe( 'Responsive wrapper', () => {
-		it( 'fills parent container (height:100%) by default', () => {
+		it( 'fills parent container by default (via CSS, no inline height)', () => {
 			render( <LeaderboardChart data={ mockData } /> );
 			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { height: '100%' } );
+			expect( wrapper ).toHaveClass( 'container' );
+			expect( wrapper ).not.toHaveAttribute( 'style' );
 		} );
 
 		it( 'applies explicit width and height to chart container', () => {

@@ -118,10 +118,12 @@ describe( 'withResponsive', () => {
 	} );
 
 	describe( 'wrapper dimensions', () => {
-		test( 'wrapper defaults to 100% width and height when no props', () => {
+		test( 'wrapper has no inline dimensions by default (fills the parent via CSS)', () => {
 			render( <ResponsiveComponent data={ [] } /> );
 			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { width: '100%', height: '100%' } );
+			expect( wrapper ).toHaveClass( 'container' );
+			expect( wrapper ).not.toHaveClass( 'isContained' );
+			expect( wrapper ).not.toHaveAttribute( 'style' );
 		} );
 
 		test( 'wrapper uses explicit width/height for dimensions when provided', () => {
@@ -130,10 +132,10 @@ describe( 'withResponsive', () => {
 			expect( wrapper ).toHaveStyle( { width: '200px', height: '200px' } );
 		} );
 
-		test( 'wrapper fills the parent (height 100%) with aspectRatio so it can measure both axes', () => {
+		test( 'wrapper gets the contained class with aspectRatio (centering lives in CSS)', () => {
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } /> );
 			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { width: '100%', height: '100%' } );
+			expect( wrapper ).toHaveClass( 'isContained' );
 		} );
 
 		test( 'no content box is rendered without an aspectRatio', () => {
@@ -141,20 +143,21 @@ describe( 'withResponsive', () => {
 			expect( screen.queryByTestId( 'responsive-content' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'renders the contained chart in an inner content box sized to the aspect ratio', () => {
-			// aspectRatio 0.4: 600 * 0.4 = 240 fits the 300px parent.
+		test( 'renders the contained chart in an inner content box sized by width + aspect-ratio', () => {
+			// aspectRatio 0.4: 600 * 0.4 = 240 fits the 300px parent. Only the width is set
+			// inline; the height comes from the CSS aspect-ratio.
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
 			const content = screen.getByTestId( 'responsive-content' );
-			expect( content ).toHaveStyle( { width: '600px', height: '240px' } );
+			expect( content ).toHaveStyle( { width: '600px', aspectRatio: '1 / 0.4' } );
 		} );
 
 		test( 'content box contains to the parent height when the parent limits the available height', () => {
-			// aspectRatio 0.75 derives 450 > the 300px the parent allows, so it shrinks
-			// to 400 × 300.
+			// aspectRatio 0.75 derives 450 > the 300px the parent allows, so the width
+			// shrinks to 400 (300 / 0.75) and the aspect-ratio keeps the height at 300.
 			mockClientHeight = 300;
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
 			const content = screen.getByTestId( 'responsive-content' );
-			expect( content ).toHaveStyle( { width: '400px', height: '300px' } );
+			expect( content ).toHaveStyle( { width: '400px', aspectRatio: '1 / 0.75' } );
 		} );
 	} );
 

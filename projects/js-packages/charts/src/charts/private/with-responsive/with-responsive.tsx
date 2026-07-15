@@ -1,4 +1,5 @@
 import { useParentSize } from '@visx/responsive';
+import clsx from 'clsx';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
@@ -142,30 +143,28 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			/>
 		);
 
-		// The outer element fills the parent so its live height reflects the real
-		// available space. With an aspectRatio the chart is placed in an inner box sized
-		// to the contained dimensions (centered horizontally, top-aligned) so it keeps
-		// its proportions and fits within the parent on both axes. Charts that fill their
-		// container via CSS (e.g. the heatmap grid) then track that contained box. Without
-		// an aspectRatio the chart fills the parent directly, exactly as before.
+		// The outer element fills the parent (via CSS) so its live height reflects the
+		// real available space; JS sets width/height only when they are passed
+		// explicitly. With an aspectRatio the chart is placed in an inner box whose width
+		// is set here and whose height follows from the CSS aspect-ratio, so it keeps its
+		// proportions and fits within the parent on both axes (centered by CSS). Charts
+		// that fill their container via CSS (e.g. the heatmap grid) then track that box.
+		// Without an aspectRatio the chart fills the parent directly.
 		return (
 			<div
 				ref={ setWrapperRef }
 				data-testid="responsive-wrapper"
-				className={ styles.container }
+				className={ clsx( styles.container, hasAspectRatio && styles.isContained ) }
 				style={ {
-					width: width ?? '100%',
-					height: height ?? '100%',
-					...( hasAspectRatio
-						? { display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }
-						: null ),
+					...( width !== undefined ? { width } : null ),
+					...( height !== undefined ? { height } : null ),
 				} }
 			>
 				{ hasAspectRatio ? (
 					<div
 						data-testid="responsive-content"
 						className={ styles.content }
-						style={ { width: boxWidth, height: boxHeight } }
+						style={ { width: boxWidth, aspectRatio: `1 / ${ aspectRatio }` } }
 					>
 						{ wrappedComponent }
 					</div>
