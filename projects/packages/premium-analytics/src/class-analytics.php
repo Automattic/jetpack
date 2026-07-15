@@ -57,6 +57,9 @@ class Analytics {
 			self::$menu_title = $options['menu_title'];
 		}
 
+		// Keep the shared connection available when another connection-owning plugin is deactivated.
+		Connection_Configuration::configure();
+
 		// Always on: sync runs in cron; REST routes + registry serve REST requests
 		// (is_admin() false). REST_REQUEST isn't defined this early, so they
 		// self-gate on their own rest_api_init / init hooks.

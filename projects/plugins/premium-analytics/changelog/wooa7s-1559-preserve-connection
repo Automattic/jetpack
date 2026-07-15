@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Preserve the shared WordPress.com connection when Jetpack is deactivated.

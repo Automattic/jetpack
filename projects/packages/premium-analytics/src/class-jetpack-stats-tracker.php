@@ -79,10 +79,19 @@ class Jetpack_Stats_Tracker {
 	 */
 	public static function activate_stats_module() {
 		// When Jetpack is active, respect its Stats module setting.
-		if ( class_exists( 'Jetpack' ) ) {
+		if ( static::is_jetpack_plugin_active() ) {
 			return;
 		}
 
 		( new Modules() )->activate( 'stats', false, false );
+	}
+
+	/**
+	 * Whether the Jetpack plugin is active and owns the Stats module setting.
+	 *
+	 * @return bool
+	 */
+	protected static function is_jetpack_plugin_active() {
+		return class_exists( 'Jetpack' );
 	}
 }

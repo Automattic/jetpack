@@ -12,8 +12,6 @@ use Automattic\Jetpack\Stats\Main as Stats_Main;
 use Automattic\Jetpack\Stats\Tracking_Pixel;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -117,17 +115,11 @@ class Jetpack_Stats_Tracker_Test extends TestCase {
 
 	/**
 	 * An active Jetpack plugin owns the module setting, including a user's choice to disable Stats.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_activate_stats_module_respects_jetpack_setting() {
-		require_once __DIR__ . '/fixtures/class-jetpack-plugin-stub.php';
-		class_alias( Jetpack_Plugin_Stub::class, 'Jetpack' );
+		require_once __DIR__ . '/fixtures/class-jetpack-stats-tracker-with-jetpack-stub.php';
 
-		Jetpack_Stats_Tracker::activate_stats_module();
+		Jetpack_Stats_Tracker_With_Jetpack_Stub::activate_stats_module();
 
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules' ) );
 	}
