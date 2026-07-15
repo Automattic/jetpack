@@ -3,6 +3,7 @@
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/route';
 import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@wordpress/dataviews';
 
@@ -33,6 +34,18 @@ export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 			getValue: ( { item } ) => getVideoTitle( item ),
 			render: ( { item } ) => {
 				const title = getVideoTitle( item );
+				const videoId = Number( item.id );
+
+				if ( Number.isInteger( videoId ) && videoId > 0 ) {
+					return (
+						<Link
+							to="/video/$videoId"
+							params={ { videoId: String( item.id ) } as unknown as never }
+						>
+							{ title }
+						</Link>
+					);
+				}
 
 				if ( ! item.link ) {
 					return <>{ title }</>;

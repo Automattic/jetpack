@@ -180,6 +180,7 @@ export type {
 export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
+	StatsSingleVideoPost,
 	StatsSingleVideoReport,
 } from './single-video';
 export type {
