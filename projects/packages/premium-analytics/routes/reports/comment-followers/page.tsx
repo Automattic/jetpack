@@ -3,11 +3,16 @@
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
-import { ReportPageLayout, ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	MetricValue,
+	ReportPageLayout,
+	ReportPageSection,
+	ReportRecordsTable,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { EmptyState } from '@wordpress/ui';
+import { Button, EmptyState, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -50,6 +55,10 @@ function getCommentFollowerRowId( item: StatsCommentFollowersItem ): string {
 function CommentFollowersReport(): JSX.Element {
 	const records = useCommentFollowersReportRecords();
 	const fields = useMemo( () => getCommentFollowersFields(), [] );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
 	// Preserve the shared report window when returning to the dashboard.
 	const dashboardLink = useDashboardLink();
@@ -71,6 +80,14 @@ function CommentFollowersReport(): JSX.Element {
 		>
 			<div className={ styles.content }>
 				<ReportPageLayout>
+					{ records.allPostsFollowers !== undefined && ! records.isError ? (
+						<ReportPageSection className={ styles.summary }>
+							<Text variant="heading-md" render={ <h3 /> }>
+								{ __( 'All Posts', 'jetpack-premium-analytics' ) }
+							</Text>
+							<MetricValue value={ records.allPostsFollowers } dataFormat={ { type: 'number' } } />
+						</ReportPageSection>
+					) : null }
 					<ReportRecordsTable< StatsCommentFollowersItem >
 						data={ records.rows }
 						fields={ fields }
@@ -81,6 +98,13 @@ function CommentFollowersReport(): JSX.Element {
 						empty={
 							<EmptyState.Root>
 								<EmptyState.Title>{ emptyStateTitle }</EmptyState.Title>
+								{ records.isError ? (
+									<EmptyState.Actions>
+										<Button onClick={ retry }>
+											{ __( 'Retry', 'jetpack-premium-analytics' ) }
+										</Button>
+									</EmptyState.Actions>
+								) : null }
 							</EmptyState.Root>
 						}
 					/>

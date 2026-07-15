@@ -18,14 +18,23 @@ import { useMemo } from '@wordpress/element';
 export function useCommentFollowersReportRecords() {
 	const report = useStatsCommentFollowersAllPages();
 
-	const rows = useMemo< StatsCommentFollowersItem[] >(
+	const allRows = useMemo< StatsCommentFollowersItem[] >(
 		() => report.data?.flatMap( page => page.data.flatMap( point => point.items ) ) ?? [],
 		[ report.data ]
+	);
+	const { allPosts, rows } = useMemo(
+		() => ( {
+			allPosts: allRows.find( row => row.id === 0 ),
+			rows: allRows.filter( row => row.id !== 0 ),
+		} ),
+		[ allRows ]
 	);
 
 	return {
 		rows,
+		allPostsFollowers: allPosts?.followers,
 		isLoading: report.isLoading,
 		isError: report.isError,
+		refetch: report.refetch,
 	};
 }

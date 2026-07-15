@@ -2,9 +2,6 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
-jest.mock( '@wordpress/i18n', () => ( {
-	__: ( text: string ) => ( text === 'All Posts' ? '全部文章' : text ),
-} ) );
 /**
  * Internal dependencies
  */
@@ -47,21 +44,6 @@ describe( 'comment followers fields', () => {
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		// eslint-disable-next-line testing-library/no-node-access -- The external-link icon SVG has no accessible role or text to query.
 		expect( link.querySelector( 'svg' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders the translated All Posts summary as plain text', () => {
-		renderPostField( {
-			id: 0,
-			label: 'All Posts',
-			followers: 20,
-			value: 20,
-			link: null,
-			children: null,
-		} );
-
-		expect( screen.getByText( '全部文章' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'All Posts' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'uses followers as the Subscribers field value', () => {

@@ -4,9 +4,13 @@ import {
 } from '../use-stats-comment-followers';
 import type { StatsCommentFollowersResponse } from '../../queries/stats-comment-followers-query';
 
-function createReport( page: number, pages: number ): StatsCommentFollowersResponse {
+function createReport(
+	page: number,
+	pages: number | undefined,
+	total = ( pages ?? 1 ) * 20
+): StatsCommentFollowersResponse {
 	return {
-		summary: { page, pages, total: pages * 20 },
+		summary: { page, pages, total },
 		data: [],
 	};
 }
@@ -43,5 +47,47 @@ describe( 'fetchAllStatsCommentFollowers', () => {
 			report,
 		] );
 		expect( fetchQuery ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'derives the page count from total when pages is missing', async () => {
+		const reports = [
+			createReport( 1, undefined, 41 ),
+			createReport( 2, undefined, 41 ),
+			createReport( 3, undefined, 41 ),
+		];
+		const fetchQuery = jest
+			.fn()
+			.mockResolvedValueOnce( reports[ 0 ] )
+			.mockResolvedValueOnce( reports[ 1 ] )
+			.mockResolvedValueOnce( reports[ 2 ] );
+
+		await expect( fetchAllStatsCommentFollowers( { fetchQuery } as never ) ).resolves.toEqual(
+			reports
+		);
+		expect( fetchQuery ).toHaveBeenCalledTimes( 3 );
+	} );
+
+	it( 'limits concurrent page requests', async () => {
+		let activeRequests = 0;
+		let maxActiveRequests = 0;
+		const fetchQuery = jest.fn( async query => {
+			const params = query.queryKey[ 5 ] as { page: number };
+
+			if ( params.page === 1 ) {
+				return createReport( 1, 7 );
+			}
+
+			activeRequests += 1;
+			maxActiveRequests = Math.max( maxActiveRequests, activeRequests );
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+			activeRequests -= 1;
+
+			return createReport( params.page, 7 );
+		} );
+
+		await fetchAllStatsCommentFollowers( { fetchQuery } as never );
+
+		expect( maxActiveRequests ).toBe( 4 );
+		expect( fetchQuery ).toHaveBeenCalledTimes( 7 );
 	} );
 } );

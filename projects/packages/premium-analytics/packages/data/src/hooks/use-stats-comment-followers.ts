@@ -19,6 +19,7 @@ import type {
 } from '../queries/stats-comment-followers-query';
 
 const COMMENT_FOLLOWERS_PAGE_SIZE = 20;
+const COMMENT_FOLLOWERS_MAX_CONCURRENCY = 4;
 
 export type { StatsCommentFollowersParams, StatsCommentFollowersResponse };
 
@@ -49,21 +50,36 @@ export async function fetchAllStatsCommentFollowers(
 	const firstPage = await queryClient.fetchQuery(
 		statsCommentFollowersQuery( { page: 1, max: COMMENT_FOLLOWERS_PAGE_SIZE } )
 	);
-	const pageCount =
-		typeof firstPage.summary.pages === 'number' ? Math.max( 1, firstPage.summary.pages ) : 1;
+	const reportedPageCount = firstPage.summary.pages;
+	const totalItems = firstPage.summary.total;
+	let pageCount = 1;
 
-	if ( pageCount === 1 ) {
-		return [ firstPage ];
+	if ( typeof reportedPageCount === 'number' ) {
+		pageCount = Math.max( 1, reportedPageCount );
+	} else if ( typeof totalItems === 'number' ) {
+		pageCount = Math.max( 1, Math.ceil( totalItems / COMMENT_FOLLOWERS_PAGE_SIZE ) );
 	}
 
-	const remainingPages = await Promise.all(
-		Array.from( { length: pageCount - 1 }, ( _, index ) =>
-			queryClient.fetchQuery(
+	const remainingPages = new Array< StatsCommentFollowersResponse >( pageCount - 1 );
+	let nextPageIndex = 0;
+
+	async function fetchNextPage(): Promise< void > {
+		while ( nextPageIndex < remainingPages.length ) {
+			const pageIndex = nextPageIndex;
+			nextPageIndex += 1;
+			remainingPages[ pageIndex ] = await queryClient.fetchQuery(
 				statsCommentFollowersQuery( {
-					page: index + 2,
+					page: pageIndex + 2,
 					max: COMMENT_FOLLOWERS_PAGE_SIZE,
 				} )
-			)
+			);
+		}
+	}
+
+	await Promise.all(
+		Array.from(
+			{ length: Math.min( COMMENT_FOLLOWERS_MAX_CONCURRENCY, remainingPages.length ) },
+			() => fetchNextPage()
 		)
 	);
 

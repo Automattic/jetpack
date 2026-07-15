@@ -25,13 +25,10 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 			label: __( 'Post', 'jetpack-premium-analytics' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
-			getValue: ( { item } ) =>
-				item.id === 0 ? __( 'All Posts', 'jetpack-premium-analytics' ) : item.label,
+			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				const label = item.id === 0 ? __( 'All Posts', 'jetpack-premium-analytics' ) : item.label;
-
 				if ( ! item.link ) {
-					return <>{ label }</>;
+					return <>{ item.label }</>;
 				}
 
 				return (
@@ -41,7 +38,7 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						{ label }
+						{ item.label }
 						{ item.labelIcon === 'external' ? (
 							<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
 						) : null }
