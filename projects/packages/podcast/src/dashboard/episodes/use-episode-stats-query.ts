@@ -1,5 +1,7 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import type { EpisodeStats } from '../types';
 
@@ -29,6 +31,9 @@ export function useEpisodeStatsQuery( postIds: number[] ): {
 	const [ data, setData ] = useState< EpisodeStats[] >( [] );
 	const [ premiumRequired, setPremiumRequired ] = useState( false );
 	const [ isError, setIsError ] = useState( false );
+	// Fire the fail-open divergence event at most once per mount so paging
+	// through a gated site doesn't inflate the count.
+	const premiumTracked = useRef( false );
 	// Sort so the effect dep is stable regardless of incoming order.
 	const key = useMemo( () => [ ...postIds ].sort( ( a, b ) => a - b ).join( ',' ), [ postIds ] );
 
@@ -71,6 +76,16 @@ export function useEpisodeStatsQuery( postIds: number[] ): {
 						setData( [] );
 						if ( err?.code === 'podcast_premium_required' ) {
 							setPremiumRequired( true );
+							// Client access gate is fail-open, so an unentitled user can
+							// reach this real request and get rejected server-side. Record
+							// the divergence so the stale/fail-open rate is visible rather
+							// than silent.
+							if ( ! premiumTracked.current ) {
+								premiumTracked.current = true;
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_stats_premium_gate_hit', {
+									current_plan: getSiteData()?.plan?.product_slug ?? '',
+								} );
+							}
 						} else {
 							setIsError( true );
 						}
