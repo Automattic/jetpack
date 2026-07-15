@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: removed
 
-Podcast: keep raw settings values out of the settings-saved analytics event.
+Podcast: drop the settings-saved analytics event.

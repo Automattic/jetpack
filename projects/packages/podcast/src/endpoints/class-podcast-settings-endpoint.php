@@ -107,16 +107,13 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function update_item( $request ) {
-		$previous = Settings::get_all();
-		$touched  = array();
-		$saved    = false;
+		$saved = false;
 
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$value = $request->get_param( $name );
 			if ( null === $value ) {
 				continue;
 			}
-			$touched[] = $name;
 			if ( update_option( $name, $value ) ) {
 				$saved = true;
 			}
@@ -126,16 +123,9 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 			/**
 			 * Fires after a podcast settings write changes at least one option.
 			 *
-			 * Passes only the pre-write snapshot and the touched option names so
-			 * listeners can derive aggregates without re-reading state — never a
-			 * vehicle for the raw values themselves.
-			 *
 			 * @since 1.1.1
-			 *
-			 * @param array    $previous Full settings record captured before the write.
-			 * @param string[] $touched  Option names present in the request payload.
 			 */
-			do_action( 'jetpack_podcast_settings_saved', $previous, $touched );
+			do_action( 'jetpack_podcast_settings_saved' );
 		}
 
 		return rest_ensure_response( Settings::get_all() );
