@@ -8,40 +8,81 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRight, external } from '@wordpress/icons';
 import { Button, Link, Text } from '@wordpress/ui';
-import clsx from 'clsx';
-import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
+import useRestApiInit from '../../hooks/use-rest-api-init';
 /**
  * Internal dependencies
  */
 import ConnectionErrorNotice from '../connection-error-notice';
 import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
+import ManageConnectionActionCard from '../shared/manage-connection-action-card';
+import type { MouseEvent } from 'react';
 import './style.scss';
+
+interface ManageConnectionUser {
+	/** The currently logged-in user's connection details. */
+	currentUser?: {
+		/** The user's WordPress.com ID. */
+		id?: number;
+		/** The user's WordPress.com login. */
+		username?: string;
+		/** Whether the user is connected to WordPress.com. */
+		isConnected?: boolean;
+		/** Whether the user is the connection owner. */
+		isMaster?: boolean;
+		/** The user's capabilities. */
+		permissions?: {
+			manage_options?: boolean;
+		};
+	};
+}
+
+interface ManageConnectionDialogProps {
+	/** The modal title. */
+	title?: string;
+	/** API root URL, required. */
+	apiRoot: string;
+	/** API Nonce, required. */
+	apiNonce: string;
+	/** Plugins that are using the Jetpack connection. */
+	connectedPlugins?: Array< { name: string; slug: string } >;
+	/** The callback to be called upon disconnection success. */
+	onDisconnected?: () => void;
+	/** The callback to be called upon user unlink success. */
+	onUnlinked: () => void;
+	/** The context in which this component is being used. */
+	context?: string;
+	/** An object representing the connected user. */
+	connectedUser?: ManageConnectionUser;
+	/** ID of the currently connected site. */
+	connectedSiteId?: number;
+	/** Whether or not the dialog modal should be open. */
+	isOpen?: boolean;
+	/** Callback function for when the modal closes. */
+	onClose: () => void;
+}
 
 /**
  * The RNA Manage Connection Dialog component.
  *
- * @param {object} props -- The properties.
- * @return {import('react').JSX} The `ManageConnectionDialog` component.
+ * @param {ManageConnectionDialogProps} props -- The properties.
+ * @return {import('react').ReactNode} The `ManageConnectionDialog` component.
  */
-const ManageConnectionDialog = props => {
-	const {
-		title = __( 'Manage your Jetpack connection', 'jetpack-connection-js' ),
-		apiRoot,
-		apiNonce,
-		connectedPlugins,
-		onDisconnected,
-		onUnlinked,
-		context = 'jetpack-dashboard',
-		connectedUser = {}, // Pass empty object to avoid undefined errors.
-		connectedSiteId,
-		isOpen = false,
-		onClose,
-	} = props;
-
+const ManageConnectionDialog = ( {
+	title = __( 'Manage your Jetpack connection', 'jetpack-connection-js' ),
+	apiRoot,
+	apiNonce,
+	connectedPlugins,
+	onDisconnected,
+	onUnlinked,
+	context = 'jetpack-dashboard',
+	connectedUser = {}, // Pass empty object to avoid undefined errors.
+	connectedSiteId,
+	isOpen = false,
+	onClose,
+}: ManageConnectionDialogProps ) => {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
 	const [ unlinkError, setUnlinkError ] = useState( '' );
@@ -50,16 +91,13 @@ const ManageConnectionDialog = props => {
 	/**
 	 * Initialize the REST API.
 	 */
-	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
+	useRestApiInit( apiRoot, apiNonce );
 
 	/**
 	 * Open the Disconnect Dialog.
 	 */
 	const openDisconnectDialog = useCallback(
-		e => {
+		( e?: MouseEvent< HTMLElement > ) => {
 			e && e.preventDefault();
 			setIsDisconnectDialogOpen( true );
 		},
@@ -70,7 +108,7 @@ const ManageConnectionDialog = props => {
 	 * Close the Disconnect Dialog.
 	 */
 	const closeDisconnectDialog = useCallback(
-		e => {
+		( e?: MouseEvent< HTMLElement > ) => {
 			e && e.preventDefault();
 			setIsDisconnectDialogOpen( false );
 		},
@@ -80,6 +118,16 @@ const ManageConnectionDialog = props => {
 	const isCurrentUserAdmin = useMemo( () => {
 		return !! connectedUser.currentUser?.permissions?.manage_options;
 	}, [ connectedUser.currentUser ] );
+
+	// Map the connected user into the shape DisconnectDialog expects. Memoized so a
+	// fresh object literal each render doesn't re-fire the dialog's analytics effect.
+	const disconnectDialogUser = useMemo(
+		() => ( {
+			ID: connectedUser.currentUser?.id,
+			login: connectedUser.currentUser?.username,
+		} ),
+		[ connectedUser.currentUser?.id, connectedUser.currentUser?.username ]
+	);
 
 	const _disconnectUser = useCallback( () => {
 		// Not connected to WPCOM? bail.
@@ -100,7 +148,7 @@ const ManageConnectionDialog = props => {
 				onUnlinked();
 			} )
 			.catch( () => {
-				let errorMessage = __(
+				let errorMessage: string = __(
 					'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
 					'jetpack-connection-js'
 				);
@@ -123,7 +171,7 @@ const ManageConnectionDialog = props => {
 	] );
 
 	const handleDisconnectUser = useCallback(
-		e => {
+		( e?: MouseEvent< HTMLElement > ) => {
 			e && e.preventDefault();
 
 			// If user is connection owner, show warning modal instead of disconnecting
@@ -163,6 +211,7 @@ const ManageConnectionDialog = props => {
 						aria={ {
 							labelledby: 'jp-connection__manage-dialog__heading',
 						} }
+						onRequestClose={ onClose }
 						shouldCloseOnClickOutside={ false }
 						shouldCloseOnEsc={ false }
 						isDismissible={ false }
@@ -182,7 +231,9 @@ const ManageConnectionDialog = props => {
 									<ManageConnectionActionCard
 										title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
 										link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-											site: window?.myJetpackInitialState?.siteSuffix,
+											site: (
+												window as Window & { myJetpackInitialState?: { siteSuffix?: string } }
+											 )?.myJetpackInitialState?.siteSuffix,
 										} ) }
 										isExternal={ true }
 										key="transfer"
@@ -217,70 +268,42 @@ const ManageConnectionDialog = props => {
 							) }
 						</div>
 						<HelpFooter onClose={ onClose } disabled={ isControlsDisabled } />
+
+						<DisconnectDialog
+							apiRoot={ apiRoot }
+							apiNonce={ apiNonce }
+							onDisconnected={ onDisconnected }
+							connectedPlugins={ connectedPlugins }
+							connectedSiteId={ connectedSiteId }
+							connectedUser={ disconnectDialogUser }
+							isOpen={ isDisconnectDialogOpen }
+							onClose={ closeDisconnectDialog }
+							context={ context }
+						/>
+
+						<OwnerDisconnectDialog
+							isOpen={ isOwnerDisconnectDialogOpen }
+							onClose={ handleCloseOwnerDialog }
+							apiRoot={ apiRoot }
+							apiNonce={ apiNonce }
+							onDisconnected={ onDisconnected }
+							onUnlinked={ onUnlinked }
+						/>
 					</Modal>
-
-					<DisconnectDialog
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						onDisconnected={ onDisconnected }
-						connectedPlugins={ connectedPlugins }
-						connectedSiteId={ connectedSiteId }
-						connectedUser={ connectedUser }
-						isOpen={ isDisconnectDialogOpen }
-						onClose={ closeDisconnectDialog }
-						context={ context }
-					/>
-
-					<OwnerDisconnectDialog
-						isOpen={ isOwnerDisconnectDialogOpen }
-						onClose={ handleCloseOwnerDialog }
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						onDisconnected={ onDisconnected }
-						onUnlinked={ onUnlinked }
-					/>
 				</>
 			) }
 		</>
 	);
 };
 
-const ManageConnectionActionCard = ( {
-	title,
-	onClick = () => null,
-	isExternal = false,
-	link = '#',
-	action,
-	disabled = false,
-} ) => {
-	const disabledCallback = useCallback( e => e.preventDefault(), [] );
+interface HelpFooterProps {
+	/** Callback function for when the cancel button is clicked. */
+	onClose: () => void;
+	/** Whether the cancel button is disabled. */
+	disabled?: boolean;
+}
 
-	return (
-		<div
-			className={
-				'jp-connection__manage-dialog__action-card card' + ( disabled ? ' disabled' : '' )
-			}
-		>
-			<div className="jp-connection__manage-dialog__action-card__card-content">
-				<a
-					href={ link }
-					className={ clsx( 'jp-connection__manage-dialog__action-card__card-headline', action ) }
-					onClick={ ! disabled ? onClick : disabledCallback }
-					target={ isExternal ? '_blank' : '_self' }
-					rel={ 'noopener noreferrer' }
-				>
-					{ title }
-					<Icon
-						icon={ isExternal ? external : chevronRight }
-						className="jp-connection__manage-dialog__action-card__icon"
-					/>
-				</a>
-			</div>
-		</div>
-	);
-};
-
-const HelpFooter = ( { onClose, disabled } ) => {
+const HelpFooter = ( { onClose, disabled }: HelpFooterProps ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
 			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-9 md-col-span-7 sm-col-span-3">
@@ -326,31 +349,6 @@ const HelpFooter = ( { onClose, disabled } ) => {
 			</div>
 		</div>
 	);
-};
-
-ManageConnectionDialog.propTypes = {
-	/** The modal title. */
-	title: PropTypes.string,
-	/** API root URL, required. */
-	apiRoot: PropTypes.string.isRequired,
-	/** API Nonce, required. */
-	apiNonce: PropTypes.string.isRequired,
-	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins: PropTypes.oneOfType( [ PropTypes.array, PropTypes.object ] ),
-	/** The callback to be called upon disconnection success. */
-	onDisconnected: PropTypes.func,
-	/** The callback to be called upon user unlink success. */
-	onUnlinked: PropTypes.func,
-	/** The context in which this component is being used. */
-	context: PropTypes.string,
-	/** An object representing the connected user. */
-	connectedUser: PropTypes.object,
-	/** ID of the currently connected site. */
-	connectedSiteId: PropTypes.number,
-	/** Whether or not the dialog modal should be open. */
-	isOpen: PropTypes.bool,
-	/** Callback function for when the modal closes. */
-	onClose: PropTypes.func,
 };
 
 export default ManageConnectionDialog;

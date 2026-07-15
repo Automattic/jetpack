@@ -1,14 +1,17 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MyJetpackModule } from '../../../types';
+import { setPendingSuccessNotice } from '../../my-jetpack-tab-panel/products/pending-notice';
+import { reloadPage } from '../../my-jetpack-tab-panel/products/reload-page';
 import { ModuleToggle } from '../index';
 
-const mockToggleModule = jest.fn();
+const mockToggleModule = jest.fn( () => Promise.resolve( true ) );
 const mockTrackProductAction = jest.fn();
+const mockCreateSuccessNotice = jest.fn();
+const mockCreateErrorNotice = jest.fn();
 
-jest.mock( '@automattic/jetpack-shared-stores', () => ( {
-	store: {},
-} ) );
+jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { updateJetpackModuleStatus: mockToggleModule } ),
@@ -40,14 +43,22 @@ jest.mock( '@wordpress/ui', () => {
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	useGlobalNotices: () => ( {
-		createSuccessNotice: jest.fn(),
-		createErrorNotice: jest.fn(),
+		createSuccessNotice: mockCreateSuccessNotice,
+		createErrorNotice: mockCreateErrorNotice,
 	} ),
 } ) );
 
 jest.mock( '../../my-jetpack-tab-panel/products/products-tracking-context', () => ( {
 	useProductFiltersContext: () => ( { trackProductAction: mockTrackProductAction } ),
 } ) );
+
+jest.mock( '../../../utils/module-benefit-messages', () => ( {
+	getModuleActivationMessage: ( _slug: string, name: string ) => `${ name } activated.`,
+} ) );
+
+// window.location can't be mocked directly, so reloadPage is its own mockable wrapper.
+jest.mock( '../../my-jetpack-tab-panel/products/reload-page' );
+jest.mock( '../../my-jetpack-tab-panel/products/pending-notice' );
 
 const sharedaddyModule = {
 	module: 'sharedaddy',
@@ -58,6 +69,14 @@ const sharedaddyModule = {
 	long_description: '',
 	search_terms: '',
 };
+
+const buildModule = ( overrides = {} ) =>
+	( {
+		module: 'podcast',
+		name: 'Podcast',
+		activated: true,
+		...overrides,
+	} ) as unknown as MyJetpackModule;
 
 describe( 'ModuleToggle', () => {
 	beforeEach( () => {
@@ -118,5 +137,34 @@ describe( 'ModuleToggle', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
 		).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'podcast', 'Podcast' ],
+		[ 'subscriptions', 'Newsletter' ],
+		[ 'wpcom-reader', 'WordPress.com Reader' ],
+	] )( 'reloads the page after toggling the menu-registering %s module', async ( slug, name ) => {
+		render( <ModuleToggle module={ buildModule( { module: slug, name } ) } /> );
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockToggleModule ).toHaveBeenCalledWith( { name: slug, active: false } );
+		// Persists a notice so it survives the reload, then reloads. No inline notice.
+		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
+			expect.stringContaining( 'deactivated' )
+		);
+		expect( reloadPage ).toHaveBeenCalled();
+		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not reload for a regular module and shows an inline notice instead', async () => {
+		render( <ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } /> );
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sitemaps', active: false } );
+		expect( reloadPage ).not.toHaveBeenCalled();
+		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
+		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
 	} );
 } );

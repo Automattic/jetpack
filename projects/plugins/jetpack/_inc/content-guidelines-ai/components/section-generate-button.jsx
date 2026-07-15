@@ -16,14 +16,6 @@ export default function SectionGenerateButton( { slug } ) {
 		useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
 
-	// The plans store defaults hasFeature to true until its fetch resolves, so
-	// rendering before resolution would flash the unlocked state on no-plan
-	// sites. Wait for the real answer instead.
-	const featureResolved = useSelect(
-		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
-		[]
-	);
-
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
@@ -75,10 +67,6 @@ export default function SectionGenerateButton( { slug } ) {
 		showUpgradeNotice,
 		createErrorNotice,
 	] );
-
-	if ( ! featureResolved ) {
-		return null;
-	}
 
 	const button = (
 		<Button

@@ -4,6 +4,8 @@
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
@@ -167,6 +169,9 @@ export default function VideoPress( { attributes = {}, setError }: VideoPressWid
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<WidgetFooter>
+				<ReportLink report="videos" />
+			</WidgetFooter>
 		</WidgetRoot>
 	);
 }

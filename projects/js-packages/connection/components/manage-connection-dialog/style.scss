@@ -62,6 +62,8 @@
 	}
 
 	&__action-card {
+		--wp-ui-card-padding: 0;
+
 		background-color: var(--jp-white);
 		width: 750px;
 		max-width: 100%;
@@ -72,16 +74,28 @@
 		text-align: left;
 		border: none;
 		position: relative;
+		font-size: var(--font-body);
+		font-weight: 600;
+		line-height: calc(var(--spacing-base) * 3);
 
-		&__card-headline {
-			font-size: var(--font-body);
-			font-weight: 600;
+		&,
+		&:hover,
+		&:focus,
+		&:active {
 			text-decoration: none;
-			line-height: calc(var(--spacing-base) * 3);
 		}
 
-		&__icon {
-			float: right;
+		// The action slug is now applied to the card root itself, not a descendant.
+		&.transfer,
+		&.unlink,
+		&.check-users {
+			color: var(--jp-black);
+			fill: var(--jp-black);
+		}
+
+		&.disconnect {
+			color: var(--jp-red);
+			fill: var(--jp-red);
 		}
 
 		&.disabled::before {
@@ -96,23 +110,6 @@
 			border-radius: 3px;
 			background: var(--jp-black);
 		}
-
-		.transfer,
-		.unlink {
-			color: var(--jp-black);
-			fill: var(--jp-black);
-		}
-
-		.disconnect {
-			color: var(--jp-red);
-			fill: var(--jp-red);
-		}
-
-		.check-users {
-			color: var(--jp-black);
-			fill: var(--jp-black);
-		}
-
 	}
 
 	.components-notice {

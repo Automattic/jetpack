@@ -66,6 +66,7 @@ export {
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export {
 	useStatsCommentFollowers,
+	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersResponse,
 } from './hooks/use-stats-comment-followers';
 export { useStatsFollowers } from './hooks/use-stats-followers';
@@ -99,7 +100,11 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
-export { sliceWordAdsStatsReport } from './processing/stats';
+export {
+	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
+	sliceWordAdsStatsReport,
+} from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -238,6 +243,7 @@ export type {
 export type {
 	StatsArchivesComparisonItem,
 	StatsArchivesItem,
+	StatsChartBucketPeriod,
 	StatsClicksComparisonItem,
 	StatsClicksItem,
 	StatsCommentFollowersItem,

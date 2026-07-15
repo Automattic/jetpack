@@ -259,6 +259,36 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.gridTemplateColumns ).toContain( 'var(--heatmap-cell-size)' );
 	} );
 
+	test( 'caps cell width without changing the normal vertical layout', () => {
+		renderChart( { maxCellWidth: 64 } );
+		const chart = screen.getByTestId( 'heatmap-chart' );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(0px, 64px)' );
+		expect( grid.style.gridTemplateRows ).toContain( 'minmax(0px, 1fr)' );
+		expect( chart ).not.toHaveClass( 'heatmap-chart--height-capped' );
+		expect( grid ).not.toHaveClass( 'heatmap-chart__grid--height-capped' );
+	} );
+
+	test( 'content-sizes the vertical layout when cell height is capped', () => {
+		renderChart( { maxCellHeight: 42 } );
+		const chart = screen.getByTestId( 'heatmap-chart' );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(0px, 1fr)' );
+		expect( grid.style.gridTemplateRows ).toContain( 'minmax(0px, 42px)' );
+		expect( chart ).toHaveClass( 'heatmap-chart--height-capped' );
+		expect( grid ).toHaveClass( 'heatmap-chart__grid--height-capped' );
+	} );
+
+	test( 'applies independent minimum cell width and height floors', () => {
+		renderChart( { minCellWidth: 44, minCellHeight: 32 } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(44px, 1fr)' );
+		expect( grid.style.gridTemplateRows ).toContain( 'minmax(32px, 1fr)' );
+	} );
+
 	test( 'applies the primaryColor prop as the cell-scale color', () => {
 		renderChart( { primaryColor: '#abcdef' } );
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
