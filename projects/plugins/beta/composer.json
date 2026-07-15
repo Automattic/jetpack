@@ -8,10 +8,10 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-admin-ui": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-admin-ui": "^0.9.10",
+		"automattic/jetpack-autoloader": "^5.0.21",
+		"automattic/jetpack-logo": "^3.0.9",
+		"automattic/jetpack-redirect": "^3.0.15",
 		"composer/semver": "3.4.3",
 		"erusev/parsedown": "1.7.4"
 	},
@@ -21,15 +21,7 @@
 			"src/"
 		]
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
