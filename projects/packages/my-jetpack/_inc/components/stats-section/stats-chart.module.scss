@@ -34,7 +34,7 @@
 
 	.empty-state-card__icon {
 		align-self: center;
-		color: var(--color-neutral-80);
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 		flex-shrink: 0;
 		margin-inline-end: 20px;
 	}
@@ -44,14 +44,14 @@
 	}
 
 	.empty-state-card-heading {
-		color: var(--color-neutral-80);
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 
 		@include gb.heading-large;
 		margin-bottom: 8px;
 	}
 
 	.empty-state-card-info {
-		color: var(--color-neutral-40);
+		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 
 		@include gb.body-medium;
 	}

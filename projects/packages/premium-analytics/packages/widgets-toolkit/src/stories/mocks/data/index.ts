@@ -62,13 +62,19 @@ export {
 	mockCustomersByDateComparisonData,
 } from './customers';
 
+export { mockCommentsData } from './comments';
 export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';
 export { mockSingleVideoData } from './single-video';
+export { mockTagsData } from './tags';
 export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors';
 
 export { mockSiteSummary } from './site-summary';
 
 export { mockStatsInsightsData } from './insights';
+
+export { mockStatsPostData } from './stats-post';
+
+export { mockPostLikesData } from './post-likes';
 
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 

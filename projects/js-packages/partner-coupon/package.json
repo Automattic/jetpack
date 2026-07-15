@@ -38,14 +38,14 @@
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/base-styles": "10.2.0",
 		"@wordpress/data": "10.50.0",
 		"jest": "30.4.2",
 		"jest-extended": "7.0.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0",

@@ -1,0 +1,61 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Positioned anchor so the WidgetState busy overlay (position: absolute;
+   inset: 0) resolves against the widget body, not the host frame. */
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+/* Icon + label row for the leaderboard. min-height keeps a stable 36px row for
+   both single tag/category rows and grouped (drill-down) rows. */
+.itemLabel {
+	gap: var(--wpds-dimension-padding-sm, 8px);
+	min-height: 36px;
+	min-width: 0;
+	padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+}
+
+/* Keep the category/tag glyph from shrinking when the label is long. */
+.itemIcon {
+	flex-shrink: 0;
+}
+
+.itemLabelText {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+a.itemLabelText:hover,
+a.itemLabelText:focus {
+	text-decoration: underline;
+}
+
+/* Drilled-in group members: a scrollable list of the individual
+   tags/categories. The Stats endpoint reports no per-member views, so these
+   rows are links only, without leaderboard bars. */
+.childList {
+	flex: 1 1 0;
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.childRow {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-padding-sm, 8px);
+	min-height: 36px;
+	padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+}

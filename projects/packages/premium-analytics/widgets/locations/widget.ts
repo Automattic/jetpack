@@ -29,6 +29,12 @@ export type LocationsAttributes = {
 export default {
 	name: 'jpa/locations',
 	title: __( 'Locations', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Visitors’ viewing location by countries, regions and cities.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: mapMarker,
 	attributes: [
 		{

@@ -7,14 +7,15 @@ import {
 	type StatsNormalizedReport,
 } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
+import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	WidgetRoot,
+	WidgetState,
 	type ReportParamsFieldAttributes,
 	type SubscriberListItem,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -48,18 +49,9 @@ function toSubscriberItems(
 
 type SubscribersRosterProps = {
 	/**
-	 * Subscriber rows to render. When omitted the empty state is shown (unless
-	 * `isLoading` is set).
+	 * Subscriber rows to render.
 	 */
 	items?: SubscriberListItem[];
-	/**
-	 * When `true` and there are no rows yet, render the loading overlay.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, render an error message instead of the list.
-	 */
-	isError?: boolean;
 	/**
 	 * Count of subscribers beyond those shown; renders an "N more" footer.
 	 */
@@ -67,33 +59,20 @@ type SubscribersRosterProps = {
 };
 
 /**
- * Presentational subscriber roster, handling the loading, error, empty, and
- * populated states. The card title ("Latest Subscribers") is rendered by the
- * dashboard host from the widget's `title`, so this body renders the list only.
- * Takes already-fetched rows via props so Storybook can exercise every state
+ * Presentational subscriber roster. The card title ("Latest Subscribers") is
+ * rendered by the dashboard host from the widget's `title`, so this body
+ * renders the list only; loading, error, and empty are handled by
+ * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
+ * already-fetched rows via props so Storybook can exercise the populated state
  * without an analytics backend.
  *
  * @param {SubscribersRosterProps} props - The component props.
  * @return The rendered card body.
  */
-export const SubscribersRoster = ( {
-	items = [],
-	isLoading = false,
-	isError = false,
-	moreCount = 0,
-}: SubscribersRosterProps ) => {
+export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => {
 	return (
 		<div>
-			{ isError ? (
-				<Text>{ __( 'Unable to load subscribers.', 'jetpack-premium-analytics' ) }</Text>
-			) : (
-				<SubscriberList
-					items={ items }
-					loading={ isLoading }
-					moreCount={ moreCount }
-					emptyStateText={ __( 'No subscribers yet.', 'jetpack-premium-analytics' ) }
-				/>
-			) }
+			<SubscriberList items={ items } moreCount={ moreCount } />
 		</div>
 	);
 };
@@ -107,7 +86,8 @@ type SubscribersReportProps = {
 
 /**
  * Fetches the latest subscribers through the designated `useStatsFollowers`
- * Stats hook and hands the normalized rows to the presentational roster.
+ * Stats hook and hands the normalized rows to the presentational roster, with
+ * the loading / error / empty states rendered through `<WidgetState>`.
  *
  * @param {SubscribersReportProps} props - The component props.
  * @return The widget content.
@@ -118,7 +98,10 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	// since an explicit `0` from the number field is not nullish.
 	const num = attributes?.num && attributes.num > 0 ? attributes.num : 6;
 
-	const { data, isLoading, isError } = useStatsFollowers( { type: 'all', max: num } );
+	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
+		type: 'all',
+		max: num,
+	} );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;
 	const items = useMemo( () => toSubscriberItems( report ), [ report ] );
@@ -129,12 +112,28 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	const moreCount = Math.max( total - items.length, 0 );
 
 	return (
-		<SubscribersRoster
-			items={ items }
+		<WidgetState
 			isLoading={ isLoading }
-			isError={ isError }
-			moreCount={ moreCount }
-		/>
+			isFetching={ isFetching }
+			// The query keeps the prior response via `placeholderData`, so a failed
+			// refetch leaves rows on screen; only surface the error when there is
+			// nothing to show.
+			isError={ items.length === 0 && isError }
+			isEmpty={ items.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load subscribers. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: customer,
+				description: __( 'No subscribers yet.', 'jetpack-premium-analytics' ),
+			} }
+		>
+			<SubscribersRoster items={ items } moreCount={ moreCount } />
+		</WidgetState>
 	);
 }
 

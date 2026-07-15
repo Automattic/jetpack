@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Captions: Surface outcome and async error messages as snackbars, keeping only form-validation errors as an inline notice.

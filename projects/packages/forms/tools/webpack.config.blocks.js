@@ -4,7 +4,6 @@
 
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
-import autoprefixer from 'autoprefixer';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const __dirname = import.meta.dirname;
@@ -61,7 +60,6 @@ const sharedWebpackConfig = {
 				includeNodeModules: [
 					'@automattic/',
 					'debug/',
-					'gridicons/',
 					'punycode/',
 					'query-string/',
 					'split-on-first/',
@@ -79,8 +77,9 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							postcssOptions: { plugins: [ autoprefixer ] },
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
 						},
 					},
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },

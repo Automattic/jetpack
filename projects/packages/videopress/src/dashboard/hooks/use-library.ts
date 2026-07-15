@@ -1,5 +1,6 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
 import { buildShortcode } from '../utils/format';
@@ -175,7 +176,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
 		type: isVideoPress ? 'videopress' : 'local',
-		title: raw.title?.rendered ?? raw.slug ?? '',
+		title: decodeEntities( raw.title?.rendered ?? raw.slug ?? '' ),
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
 		thumbnailUrl: poster ?? null,
 		durationSeconds,

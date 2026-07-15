@@ -40,6 +40,10 @@ export {
 	type WidgetStateEmpty,
 	WidgetBackLink,
 	type WidgetBackLinkProps,
+	WidgetFooter,
+	type WidgetFooterProps,
+	ReportLink,
+	type ReportLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
@@ -60,6 +64,8 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	DownloadCsvButton,
+	type DownloadCsvButtonProps,
 } from './components';
 
 /**
@@ -92,10 +98,12 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	buildCsv,
+	saveCsv,
+	type CsvColumn,
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
-	toVideoItems,
 	toMaxRows,
 } from './helpers';
 
@@ -107,8 +115,8 @@ export {
 	useChartTheme,
 	useSegmentStyles,
 	useSeriesStyles,
-	useWidgetError,
 	useWidgetDrillDown,
+	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**
@@ -156,6 +164,7 @@ export {
 	GeoChart,
 	GlobalChartsProvider,
 	HeatmapChart,
+	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,

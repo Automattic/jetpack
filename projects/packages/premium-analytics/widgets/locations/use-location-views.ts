@@ -46,6 +46,7 @@ interface LocationViewsState {
 	hasData: boolean;
 	isError: boolean;
 	isPlaceholderData: boolean;
+	refetch: () => void;
 }
 
 /**
@@ -103,6 +104,7 @@ export default function useLocationViews( {
 		isFetching,
 		hasData,
 		isError,
+		refetch,
 	} = useStatsLocations( statsParams, { maxRows: max } );
 	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
 
@@ -116,7 +118,14 @@ export default function useLocationViews( {
 		isLoading,
 		isFetching,
 		hasData,
-		isError,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && isError,
 		isPlaceholderData,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

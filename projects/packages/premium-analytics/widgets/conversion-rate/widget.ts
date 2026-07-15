@@ -24,9 +24,11 @@ export type ConversionRateAttributes = Record< never, never >;
 export default {
 	name: 'jpa/conversion-rate',
 	title: __( 'Store conversion rate', 'jetpack-premium-analytics' ),
-	description: __(
-		'Store conversion rate over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Conversion funnel from visitors to completed purchases over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

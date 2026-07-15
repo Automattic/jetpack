@@ -3,9 +3,10 @@
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { calendar } from '@jetpack-premium-analytics/icons';
 import {
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
@@ -27,26 +28,17 @@ type MostPopularDayWidgetProps = WidgetRenderProps< MostPopularDayRenderAttribut
 
 type MostPopularDayHighlightProps = {
 	/**
-	 * The all-time best day for views. When absent, the empty state is shown
-	 * (unless `isLoading` is set).
+	 * The all-time best day for views.
 	 */
-	date?: Date;
+	date: Date;
 	/**
 	 * The number of views recorded on `date`.
 	 */
-	views?: number;
+	views: number;
 	/**
 	 * The share of all-time views that fall on `date`, as a fraction (0–1).
 	 */
 	share?: number;
-	/**
-	 * When `true` and there is no data yet, the loading overlay is shown.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, an error message is rendered in place of the highlight.
-	 */
-	isError?: boolean;
 };
 
 type MostPopularDayFieldProps = {
@@ -73,9 +65,10 @@ const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProp
 );
 
 /**
- * Presentational body for the "Most popular day" widget. Shows the all-time
- * best day for views and how many views it drew. Owns the loading, error,
- * empty, and populated states so Storybook can exercise them with fixtures.
+ * Presentational body for the "Most popular day" widget: the all-time best day
+ * for views and how many views it drew. Loading / error / empty are handled by
+ * `<WidgetState>` in the report component, so this only renders the populated
+ * highlight.
  *
  * @param {MostPopularDayHighlightProps} props - The component props.
  * @return The rendered highlight.
@@ -84,51 +77,24 @@ export const MostPopularDayHighlight = ( {
 	date,
 	views,
 	share = 0,
-	isLoading = false,
-	isError = false,
-}: MostPopularDayHighlightProps ) => {
-	let body;
-	if ( isError ) {
-		body = (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load stats.', 'jetpack-premium-analytics' ) }
-			</Text>
-		);
-	} else if ( isLoading && ( ! date || views === undefined ) ) {
-		body = <WidgetLoadingOverlay />;
-	} else if ( ! date || views === undefined ) {
-		body = (
-			<Text className={ styles.placeholder }>
-				{ __( 'Not enough views yet to pick a most popular day.', 'jetpack-premium-analytics' ) }
-			</Text>
-		);
-	} else {
-		body = (
-			<>
-				<MostPopularDayField
-					label={ __( 'Day', 'jetpack-premium-analytics' ) }
-					value={ formatDate( date, 'MMMM d' ) }
-					caption={ formatDate( date, 'year' ) }
-				/>
-				<MostPopularDayField
-					label={ __( 'Views', 'jetpack-premium-analytics' ) }
-					value={ formatMetricValue( views, 'number', { useMultipliers: true, decimals: 1 } ) }
-					caption={ sprintf(
-						/* translators: %s is a percentage, e.g. "0.32%". */
-						__( '%s of views', 'jetpack-premium-analytics' ),
-						formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
-					) }
-				/>
-			</>
-		);
-	}
-
-	return (
-		<Stack className={ styles.root } direction="column" gap="xl">
-			{ body }
-		</Stack>
-	);
-};
+}: MostPopularDayHighlightProps ) => (
+	<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
+		<MostPopularDayField
+			label={ __( 'Day', 'jetpack-premium-analytics' ) }
+			value={ formatDate( date, 'MMMM d' ) }
+			caption={ formatDate( date, 'year' ) }
+		/>
+		<MostPopularDayField
+			label={ __( 'Views', 'jetpack-premium-analytics' ) }
+			value={ formatMetricValue( views, 'number', { useMultipliers: true, decimals: 1 } ) }
+			caption={ sprintf(
+				/* translators: %s is a percentage, e.g. "0.32%". */
+				__( '%s of views', 'jetpack-premium-analytics' ),
+				formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
+			) }
+		/>
+	</Stack>
+);
 
 /**
  * Reads a numeric summary field, returning `undefined` when the key is absent
@@ -174,21 +140,54 @@ function readBestDay( summary: Record< string, unknown > | undefined ) {
  * @return The widget content.
  */
 function MostPopularDayReport() {
-	const { data, isLoading, isError } = useStatsSite();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
 
 	const summary = data?.stats;
 	const date = readBestDay( summary );
 	const views = readCount( summary, 'views_best_day_total' );
 	const totalViews = readCount( summary, 'views' );
+	const isEmpty = date === undefined || views === undefined;
 
 	return (
-		<MostPopularDayHighlight
-			date={ date }
-			views={ views }
-			share={ views !== undefined && totalViews ? views / totalViews : 0 }
-			isLoading={ isLoading }
-			isError={ isError }
-		/>
+		<Stack className={ styles.root } direction="column">
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The query keeps the previous response via `placeholderData`, so only
+					// surface the error when there is nothing to show.
+					isError={ isError && isEmpty }
+					isEmpty={ isEmpty }
+					error={ {
+						description: __(
+							"We couldn't load your most popular day. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [
+							{
+								label: __( 'Retry', 'jetpack-premium-analytics' ),
+								onClick: () => void refetch(),
+							},
+						],
+					} }
+					empty={ {
+						icon: calendar,
+						description: __(
+							'Not enough views yet to pick a most popular day.',
+							'jetpack-premium-analytics'
+						),
+					} }
+				>
+					{ date !== undefined && views !== undefined && (
+						<MostPopularDayHighlight
+							date={ date }
+							views={ views }
+							share={ totalViews ? views / totalViews : 0 }
+						/>
+					) }
+				</WidgetState>
+			</div>
+		</Stack>
 	);
 }
 

@@ -25,7 +25,7 @@
 		"@tanstack/eslint-plugin-query": "5.100.14",
 		"@testing-library/dom": "^10.4.1",
 		"@testing-library/jest-dom": "6.9.1",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/eslint-plugin": "25.6.0",
 		"@wordpress/jest-console": "8.50.0",
 		"@wordpress/stylelint-config": "23.42.0",
@@ -73,7 +73,7 @@
 		"stylelint-scss": "7.0.0",
 		"svelte": "5.55.7",
 		"svelte-eslint-parser": "1.4.1",
-		"typescript": "5.9.3",
+		"typescript": "6.0.3",
 		"typescript-eslint": "8.63.0",
 		"yaml": "2.8.3"
 	}

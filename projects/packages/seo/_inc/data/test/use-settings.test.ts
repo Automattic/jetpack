@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
 
 // True-ESM Jest (`--experimental-vm-modules`): register mocks with
@@ -19,10 +20,7 @@ const SEED: SettingsResponse = {
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
-	schema: {
-		organization: { name: '', description: '', sameAs: [], email: '' },
-		defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
-	},
+	schema: makeSchemaSettings(),
 };
 
 const SETTINGS_STORE = 'seo/settings';

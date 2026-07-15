@@ -34,7 +34,7 @@
 		"@babel/runtime": "7.29.7",
 		"@jest/globals": "30.4.1",
 		"@types/jest": "30.0.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.50.0",
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.3",

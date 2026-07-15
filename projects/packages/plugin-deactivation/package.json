@@ -23,7 +23,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"tslib": "2.8.1",

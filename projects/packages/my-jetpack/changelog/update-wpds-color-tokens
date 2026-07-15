@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Replace Calypso --color-* and --studio-* CSS variables with WPDS design tokens in stats chart and tab panel styles.

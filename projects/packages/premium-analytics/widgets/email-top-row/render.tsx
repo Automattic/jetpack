@@ -392,7 +392,10 @@ function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 			hasSelection={ hasSelection }
 			isLoading={ active.isLoading }
 			isFetching={ active.isFetching }
-			isError={ active.isError }
+			// The query keeps prior data via `placeholderData`, so a transient refetch
+			// failure keeps the tiles visible; only surface the error when there is
+			// nothing to show.
+			isError={ active.isError && ! metrics }
 			onRetry={ active.refetch }
 		/>
 	);

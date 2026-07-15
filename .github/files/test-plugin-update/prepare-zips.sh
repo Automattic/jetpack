@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BETAJSON="$(curl -L --fail --url "https://betadownload.jetpack.me/plugins.json")"
+BETAJSON="$(curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) --url "https://betadownload.jetpack.me/plugins.json")"
 jq -e '.' <<<"$BETAJSON" &>/dev/null
 
 mkdir work
@@ -29,13 +29,13 @@ else
 	if [[ -z "$URL" ]]; then
 		echo "Beta slug $BETASLUG is not in plugins.json, skipping"
 	else
-		JSON="$(curl -L --fail --url "$URL")"
+		JSON="$(curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) --url "$URL")"
 		if jq -e '.' <<<"$JSON" &>/dev/null; then
 			URL="$(jq -r '.trunk.download_url // .master.download_url // ""' <<<"$JSON")"
 			if [[ -z "$URL" ]]; then
 				echo "Plugin has no trunk build."
 			else
-				curl -L --fail --url "$URL" --output "work/tmp.zip" 2>&1
+				curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) --url "$URL" --output "work/tmp.zip" 2>&1
 				(cd work && unzip -q tmp.zip)
 				mv "work/$BETASLUG-dev" "work/$PLUGIN_SLUG"
 				(cd work && zip -qr "../zips/${PLUGIN_SLUG}-trunk.zip" "$PLUGIN_SLUG")

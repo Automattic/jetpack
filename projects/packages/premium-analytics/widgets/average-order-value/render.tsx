@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 import type { AverageOrderValueAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -39,7 +40,14 @@ export default function AverageOrderValueRender( {
 }: AverageOrderValueWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<OrderMetricWidget metricKey="average_order_value" />
+			<OrderMetricWidget
+				metricKey="average_order_value"
+				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
+				errorText={ __(
+					"We couldn't load average order value. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				) }
+			/>
 		</WidgetRoot>
 	);
 }

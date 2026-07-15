@@ -39,6 +39,9 @@ export type EmailsAttributes = {
 export default {
 	name: 'jpa/stats-emails',
 	title: __( 'Emails', 'jetpack-premium-analytics' ),
+	help: {
+		content: __( 'Latest emails sent and their performance.', 'jetpack-premium-analytics' ),
+	},
 	icon: envelope,
 	attributes: [
 		{

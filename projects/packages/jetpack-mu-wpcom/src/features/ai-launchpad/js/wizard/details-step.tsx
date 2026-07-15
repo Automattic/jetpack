@@ -111,7 +111,7 @@ export default function DetailsStep( {
 			<TextControl
 				__nextHasNoMarginBottom
 				__next40pxDefaultSize
-				label={ __( 'Name', 'jetpack-mu-wpcom' ) }
+				label={ __( 'Site name', 'jetpack-mu-wpcom' ) }
 				value={ siteName }
 				onChange={ onSiteNameChange }
 			/>

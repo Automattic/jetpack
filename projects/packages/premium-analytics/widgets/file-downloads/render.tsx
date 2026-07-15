@@ -11,12 +11,13 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { download } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -212,63 +213,32 @@ export type FileDownloadsLeaderboardProps = {
 	 */
 	rows?: FileDownloadRow[];
 	/**
-	 * When true, show a loading overlay.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When true, show an error message.
-	 */
-	isError?: boolean;
-	/**
 	 * When true, render previous-period deltas.
 	 */
 	withComparison?: boolean;
-	/**
-	 * Custom error message to show when `isError` is true.
-	 */
-	errorMessage?: string;
 };
 
 /**
  * Presentational leaderboard for the "File downloads" widget.
  *
- * Accepts already-fetched rows and handles loading, error, empty, and
- * populated states. Exported so Storybook can exercise those states with
- * fixture rows without needing a live WordPress backend.
+ * Accepts already-fetched rows and renders only the populated (ready) state —
+ * loading, error, and empty are handled by `<WidgetState>` in the
+ * data-connected inner component. Exported so Storybook can render fixture
+ * rows without needing a live WordPress backend.
  *
  * @param {FileDownloadsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
-	errorMessage,
 }: FileDownloadsLeaderboardProps ) {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>
-					{ errorMessage ??
-						__( 'Could not load file download data.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
@@ -289,10 +259,11 @@ type FileDownloadsInnerProps = {
  */
 function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, error } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
-	const showLoading = isLoading || ( isFetching && hasData );
-	const errorMessage = getFileDownloadsErrorMessage( error );
+	// File downloads has a known unsupported case (404 on Jetpack sites); Retry
+	// can't succeed there, so the action is dropped for that message.
+	const unavailableMessage = getFileDownloadsErrorMessage( error );
 
 	const rows = useMemo(
 		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
@@ -302,13 +273,32 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 
 	return (
 		<div className={ styles.content }>
-			<FileDownloadsLeaderboard
-				rows={ rows }
-				isLoading={ showLoading }
-				isError={ isError }
-				withComparison={ withComparison }
-				errorMessage={ errorMessage }
-			/>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData`, so a failed range change
+				// keeps the prior period's rows visible; only surface the error when
+				// there is nothing to show.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description:
+						unavailableMessage ??
+						__(
+							"We couldn't load file downloads. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+					actions: unavailableMessage
+						? []
+						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: download,
+					description: __( 'No file downloads in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
+			</WidgetState>
 		</div>
 	);
 }

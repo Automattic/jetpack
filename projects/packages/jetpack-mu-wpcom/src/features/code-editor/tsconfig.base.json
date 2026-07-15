@@ -14,8 +14,7 @@
 		"composite": true,
 
 		"erasableSyntaxOnly": true,
-		"isolatedModules": true,
-		"esModuleInterop": false
+		"isolatedModules": true
 	},
 	"include": [],
 	"files": []

@@ -25,6 +25,9 @@ export type FileDownloadsAttributes = {
 export default {
 	name: 'jpa/file-downloads',
 	title: __( 'File downloads', 'jetpack-premium-analytics' ),
+	help: {
+		content: __( 'Most downloaded files from your site.', 'jetpack-premium-analytics' ),
+	},
 	icon: download,
 	attributes: [
 		{

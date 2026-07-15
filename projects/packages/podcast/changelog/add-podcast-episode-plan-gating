@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Podcast Episode: the rich player is now a paid feature, gated in the editor for sites without a qualifying plan (an upgrade prompt on WordPress.com, hidden on self-hosted Jetpack like other paid blocks).
