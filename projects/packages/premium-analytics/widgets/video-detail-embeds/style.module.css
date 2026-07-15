@@ -30,7 +30,7 @@
 }
 
 .item {
-	border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+	border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 }
 
 .item:last-child {
@@ -41,8 +41,8 @@
 .link {
 	display: block;
 	min-block-size: 36px;
-	padding-block: var(--wpds-dimension-padding-sm, 8px);
-	padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-sm);
 	overflow: hidden;
 	color: var(--wpds-color-foreground-interactive-brand);
 	text-overflow: ellipsis;
