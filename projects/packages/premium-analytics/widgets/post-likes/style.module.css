@@ -1,0 +1,7 @@
+/* Fill the tile so empty/error states center, but let a long roster grow past
+ * it — the framed widget host's content area is the scroll viewport. */
+.root {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}

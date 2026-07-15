@@ -25,9 +25,11 @@ export type TotalReturnsAttributes = Record< never, never >;
 export default {
 	name: 'jpa/total-returns',
 	title: __( 'Total returns', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows refunds and net sales over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Total value of returns issued for physical products over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

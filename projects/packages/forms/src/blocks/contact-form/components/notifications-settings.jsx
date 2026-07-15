@@ -1,12 +1,9 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { FormTokenField, ToggleControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, createInterpolateElement } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
 import JetpackEmailConnectionSettings from './jetpack-email-connection-settings.jsx';
 
 const NotificationsSettings = ( {
@@ -58,11 +55,6 @@ const NotificationsSettings = ( {
 	// All available user names for suggestions
 	const allUserNames = eligibleUsers.map( user => user.name || user.slug );
 
-	const isWpcom = isWpcomPlatformSite();
-	const wpcomSupportLink =
-		'https://wordpress.com/support/wordpress-editor/blocks/form-block/view-contact-form-messages/#receive-push-notifications';
-	const jetpackSupportLink = 'https://jetpack.com/support/notifications/';
-
 	return (
 		<>
 			<JetpackEmailConnectionSettings
@@ -76,19 +68,6 @@ const NotificationsSettings = ( {
 			<>
 				<ToggleControl
 					label={ __( 'Send me push notifications', 'jetpack-forms' ) }
-					help={ createInterpolateElement(
-						__(
-							'Receive push notifications when someone fills out your form. <pushNotificationsLink>Learn more.</pushNotificationsLink>',
-							'jetpack-forms'
-						),
-						{
-							pushNotificationsLink: isWpcom ? (
-								<WpcomSupportLink supportLink={ wpcomSupportLink } />
-							) : (
-								<Link openInNewTab href={ jetpackSupportLink } />
-							),
-						}
-					) }
 					checked={ localFormNotifications }
 					onChange={ value => {
 						if ( value ) {

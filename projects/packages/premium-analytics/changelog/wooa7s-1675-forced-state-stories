@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bookings by device: Use booking-specific empty and error messages.

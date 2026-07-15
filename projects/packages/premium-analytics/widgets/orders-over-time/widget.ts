@@ -25,9 +25,11 @@ export type OrdersOverTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/orders-over-time',
 	title: __( 'Orders over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'See a breakdown of when orders are placed to identify peak selling periods.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'See a breakdown of when orders are placed to identify peak selling periods.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

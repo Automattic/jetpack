@@ -31,7 +31,11 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
 };
 
 /**
- * Normalize a value to 0–1 within the extent. A flat extent (min === max) maps to 1.
+ * Normalize a value to 0–1 within the extent. A flat extent (min === max)
+ * maps to 1 — every cell is equally the "highest" — except an all-zero
+ * extent, which maps to 0 so a no-activity grid renders at the scale's
+ * bottom instead of full intensity.
+ *
  * @param value  - The value to normalize
  * @param extent - Tuple of [min, max] values for the normalization range
  * @return Normalized value between 0 and 1
@@ -39,7 +43,7 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
 export const getNormalizedValue = ( value: number, extent: [ number, number ] ): number => {
 	const [ min, max ] = extent;
 	if ( min === max ) {
-		return 1;
+		return max === 0 ? 0 : 1;
 	}
 	return Math.min( 1, Math.max( 0, ( value - min ) / ( max - min ) ) );
 };

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -89,6 +89,50 @@ describe( 'ClicksWidget', () => {
 
 		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
 		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
+	} );
+
+	it( 'clears the stored drill-down when the selected link leaves the data', async () => {
+		const { rerender } = render(
+			<ClicksWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const drillDownButton = await screen.findByRole( 'button', {
+			name: /view clicked links for wordpress\.org/i,
+		} );
+		fireEvent.click( drillDownButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await expect(
+			screen.findByRole( 'button', { name: /view all clicks/i } )
+		).resolves.toBeInTheDocument();
+
+		// The next range's report no longer contains the drilled domain, so the
+		// stale selection is dropped once the new data settles (WOOA7S-1666).
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-29',
+			days: {},
+			summary: {
+				clicks: [
+					{
+						name: 'jetpack.com',
+						views: 18,
+						url: 'https://jetpack.com/',
+					},
+				],
+			},
+		} );
+		rerender(
+			<ClicksWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+			/>
+		);
+
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: /view all clicks/i } ) ).not.toBeInTheDocument()
+		);
+		await expect(
+			screen.findByRole( 'link', { name: /jetpack\.com/i } )
+		).resolves.toBeInTheDocument();
 	} );
 } );
 

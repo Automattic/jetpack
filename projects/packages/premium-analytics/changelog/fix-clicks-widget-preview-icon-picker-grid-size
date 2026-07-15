@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Clicks widget: fix favicons rendering oversized in the Add widget picker grid preview by rendering row labels through the shared LeaderboardLabel component.

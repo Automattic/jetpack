@@ -24,6 +24,7 @@ import {
 	sanitizeStatsEmailBreakdownResponse,
 	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPostLikesResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
@@ -31,6 +32,7 @@ import {
 	sanitizeStatsSiteResponse,
 	sanitizeStatsSubscribersCountsResponse,
 	sanitizeStatsSubscribersResponse,
+	sanitizeStatsSummaryResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
@@ -56,6 +58,7 @@ type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQuer
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
 	post: sanitizeStatsPostResponse,
+	postLikes: sanitizeStatsPostLikesResponse,
 	site: sanitizeStatsSiteResponse,
 	topPosts: sanitizeStatsTopPostsResponse,
 	referrers: sanitizeStatsReferrersResponse,
@@ -86,6 +89,7 @@ const statsSanitizers = {
 	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
 	emailSummary: sanitizeStatsEmailSummaryResponse,
 	singleVideo: sanitizeStatsSingleVideoResponse,
+	summary: sanitizeStatsSummaryResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
@@ -170,6 +174,12 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
+		// List reports are day-bucketed: `days` counts calendar days and the
+		// summarized window is `period` × `days`, so the dashboard's chart
+		// interval must not leak in as the period (e.g. `period=week` with
+		// `days=189` would cover 189 weeks). Callers can still force a period
+		// explicitly via `params.period`.
+		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
 		typeof statsParams.days === 'number' &&

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: remove the unused `Episode_Block_Tags::render()` seam; production and tests compose `get_block_attrs()` + `render_from_attrs()` directly. No behavior change.

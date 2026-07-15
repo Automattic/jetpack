@@ -100,7 +100,7 @@ describe( 'VideoPressWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( /which VideoPress videos your visitors watch most/ )
+			screen.findByText( 'No VideoPress plays in this period.' )
 		).resolves.toBeInTheDocument();
 	} );
 

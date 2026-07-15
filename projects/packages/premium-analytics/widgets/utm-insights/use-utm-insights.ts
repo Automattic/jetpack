@@ -44,8 +44,8 @@ interface UtmInsightsState {
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
-	hasData: boolean;
 	isError: boolean;
+	refetch: () => void;
 }
 
 function getLabel( item: { label: unknown } ): string {
@@ -83,7 +83,7 @@ export default function useUtmInsights( {
 	max,
 }: UseUtmInsightsArgs ): UtmInsightsState {
 	const params = { ...reportParams, utmParam, max } as Parameters< typeof useStatsUtm >[ 0 ];
-	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } = useStatsUtm(
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsUtm(
 		params,
 		{ maxRows: max }
 	);
@@ -94,7 +94,11 @@ export default function useUtmInsights( {
 		hasComparison,
 		isLoading,
 		isFetching,
-		hasData,
-		isError,
+		// Stats queries keep previous data via `placeholderData`, so a failed
+		// range refetch should not replace populated rows with the error state.
+		isError: rows.length === 0 && isError,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

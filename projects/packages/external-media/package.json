@@ -52,7 +52,7 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"jetpack-js-tools": "workspace:*",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",

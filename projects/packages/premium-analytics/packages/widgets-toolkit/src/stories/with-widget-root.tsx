@@ -15,9 +15,8 @@ registerReportMocks();
  *
  * `WidgetRoot` provides everything a widget needs to render: the report-params
  * context, a `GlobalChartsProvider`, and the analytics react-query client. Use
- * this for any story whose component reads `useWidgetRootContext` (directly or
- * via `useWidgetError`) or fetches report data — wrapping in the bare context
- * provider is not enough.
+ * this for any story whose component reads `useWidgetRootContext` or fetches
+ * report data — wrapping in the bare context provider is not enough.
  *
  * Note: there is no analytics backend in Storybook, so data-fetching widgets
  * render their loading/empty/error chrome rather than live data.

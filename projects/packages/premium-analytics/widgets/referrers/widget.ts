@@ -23,6 +23,12 @@ export type ReferrersAttributes = {
 export default {
 	name: 'jpa/referrers',
 	title: __( 'Referrers', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Websites referring visitors sorted by most clicked. Learn about where your audience comes from.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: globe,
 	attributes: [
 		{

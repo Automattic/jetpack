@@ -68,6 +68,9 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/traffic-chart', $layout_types );
 		$this->assertContains( 'jpa/stats-top-posts', $layout_types );
 		$this->assertContains( 'jpa/referrers', $layout_types );
+		$this->assertContains( 'jpa/authors', $layout_types );
+		$this->assertContains( 'jpa/videopress', $layout_types );
+		$this->assertContains( 'jpa/plan-usage', $layout_types );
 		$this->assertArrayHasKey( 'default-locations-widget-instance', $layout_by_uuid );
 		$this->assertArrayHasKey( $utm_widget_uuid, $layout_by_uuid );
 		$this->assertArrayHasKey( $file_downloads_uuid, $layout_by_uuid );
@@ -112,15 +115,33 @@ class Dashboard_Layout_Test extends TestCase {
 	 * The insights tab receives its bundled stats widgets.
 	 */
 	public function test_seed_default_dashboard_layout_adds_insights_widgets() {
-		$layout       = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
-		$layout_types = array_column( $layout, 'type' );
+		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+		$layout_types   = array_column( $layout, 'type' );
 
 		$this->assertContains( 'jpa/annual-highlights', $layout_types );
 		$this->assertContains( 'jpa/all-time-stats', $layout_types );
 		$this->assertContains( 'jpa/latest-post', $layout_types );
 		$this->assertContains( 'jpa/posting-activity', $layout_types );
-		$this->assertContains( 'jpa/authors', $layout_types );
+		$this->assertNotContains( 'jpa/authors', $layout_types );
+		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		$this->assertContains( 'jpa/stats-emails', $layout_types );
+		$this->assertContains( 'jpa/shares', $layout_types );
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-shares-widget-instance',
+				'type'       => 'jpa/shares',
+				'attributes' => array(
+					'max' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 5,
+				),
+			),
+			$layout_by_uuid['default-shares-widget-instance']
+		);
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ),
 			get_dashboard_default_layout_for( 'analytics/insights' )
@@ -138,6 +159,7 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/subscriber-highlights', $layout_types );
 		$this->assertContains( 'jpa/subscribers-chart', $layout_types );
 		$this->assertContains( 'jpa/subscribers-list', $layout_types );
+		$this->assertContains( 'jpa/stats-emails', $layout_types );
 		$this->assertSame(
 			array(
 				'uuid'       => 'default-subscribers-list-widget-instance',
@@ -146,12 +168,28 @@ class Dashboard_Layout_Test extends TestCase {
 					'num' => 6,
 				),
 				'placement'  => array(
-					'width'  => 1,
+					'width'  => 2,
 					'height' => 2,
 					'order'  => 2,
 				),
 			),
 			$layout_by_uuid['default-subscribers-list-widget-instance']
+		);
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-subscribers-emails-widget-instance',
+				'type'       => 'jpa/stats-emails',
+				'attributes' => array(
+					'max'    => 10,
+					'metric' => 'opens',
+				),
+				'placement'  => array(
+					'width'  => 2,
+					'height' => 2,
+					'order'  => 3,
+				),
+			),
+			$layout_by_uuid['default-subscribers-emails-widget-instance']
 		);
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_SUBSCRIBERS_SECTION_ID ),

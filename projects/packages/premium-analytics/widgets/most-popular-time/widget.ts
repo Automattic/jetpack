@@ -22,5 +22,11 @@ export type MostPopularTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/most-popular-time',
 	title: __( 'Most popular time', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'The day of week and hour of day when your site gets the most views.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: scheduled,
 };

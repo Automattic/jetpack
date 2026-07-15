@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: Remove manual WPDS token fallbacks from wp-build route styles so build-time PostCSS injects canonical design-token fallbacks.

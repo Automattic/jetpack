@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -94,6 +95,15 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *  - `path`       (string, optional) printf template (`%d` = blog id) for groups NOT under
 	 *                  `/sites/<id>/` (e.g. `upgrades` → `/upgrades?site=%d`). A group with a
 	 *                  fixed `path` takes no sub-path. Omit for the normal `/sites/<id>/<key>/…`.
+	 *  - `pattern`    (string, optional) Regex the sub-path (after `<key>/`) must fully match,
+	 *                  for groups where only specific endpoints are safe to expose (e.g. `posts`
+	 *                  → only `<id>/likes`, never post content). Anchored on both ends and
+	 *                  enforced in the route regex AND in `validate_data_endpoint()` (the route
+	 *                  capture can be shadowed with `?endpoint=`). Omit to allow the whole group.
+	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
+	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
+	 *                  that reject blog-token auth but serve public data without credentials.
+	 *                  Reads only; the group's `capability` still gates the local request.
 	 *
 	 * Maintaining endpoints (this table is the only edit needed for a pass-through endpoint):
 	 *  - ADD a group:   add a key with at least `capability`. Reads work immediately at
@@ -130,6 +140,16 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		'upgrades'                      => array(
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
+		),
+		'posts'                         => array(
+			'capability'      => 'view_stats',
+			// Only a post's likers list — never post content (the blog token could
+			// otherwise read private posts for any view_stats user).
+			'pattern'         => '[0-9]+/likes',
+			// The likes endpoint rejects blog-token auth ("That API call is not
+			// allowed for this account") but serves public posts without
+			// credentials; forward unsigned, mirroring stats-admin's Odyssey proxy.
+			'unauthenticated' => true,
 		),
 	);
 
@@ -186,7 +206,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		// allowlist is anchored into the route.
 		register_rest_route(
 			$this->namespace,
-			'/proxy/v(?P<version>[0-9]+(?:\.[0-9]+)?)/(?P<endpoint>(?:' . $this->allowed_prefix_pattern() . ')(?:/.*)?)',
+			'/proxy/v(?P<version>[0-9]+(?:\.[0-9]+)?)/(?P<endpoint>' . $this->allowed_endpoint_pattern() . ')',
 			array(
 				'methods'             => WP_REST_Server::READABLE . ',' . WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'handle_data_request' ),
@@ -209,21 +229,21 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Regex alternation of the allowed prefixes (the {@see PREFIX_CONFIG} keys), used to anchor
-	 * the data route.
+	 * Regex alternation of the allowed endpoints, used to anchor the data route: each
+	 * {@see PREFIX_CONFIG} key followed by its `pattern`-constrained sub-path when set, or any
+	 * sub-path otherwise.
 	 *
 	 * @return string
 	 */
-	private function allowed_prefix_pattern(): string {
-		return implode(
-			'|',
-			array_map(
-				static function ( string $prefix ): string {
-					return preg_quote( $prefix, '#' );
-				},
-				array_keys( self::PREFIX_CONFIG )
-			)
-		);
+	private function allowed_endpoint_pattern(): string {
+		$alternatives = array();
+
+		foreach ( self::PREFIX_CONFIG as $prefix => $config ) {
+			$suffix         = isset( $config['pattern'] ) ? '/' . $config['pattern'] : '(?:/.*)?';
+			$alternatives[] = preg_quote( $prefix, '#' ) . $suffix;
+		}
+
+		return '(?:' . implode( '|', $alternatives ) . ')';
 	}
 
 	/**
@@ -300,6 +320,15 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			}
 		}
 
+		// A `pattern`-constrained prefix only exposes matching sub-paths. Re-checked here, not
+		// just in the route regex, because `get_param()` can be shadowed with `?endpoint=`.
+		if ( isset( $config['pattern'] ) ) {
+			$prefix = strtolower( explode( '/', $value )[0] );
+			if ( ! preg_match( '#^' . preg_quote( $prefix, '#' ) . '/' . $config['pattern'] . '$#i', rtrim( $value, '/' ) ) ) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -337,13 +366,16 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 		$version = (string) $request->get_param( 'version' );
 
+		$config = $this->config_for( $endpoint );
+
 		return $this->forward(
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'       => $version,
-				'base'          => $this->base_for_version( $version ),
-				'bust_on_write' => $this->busts_cache( $endpoint ),
+				'version'         => $version,
+				'base'            => $this->base_for_version( $version ),
+				'bust_on_write'   => $this->busts_cache( $endpoint ),
+				'unauthenticated' => ! empty( $config['unauthenticated'] ),
 			)
 		);
 	}
@@ -443,6 +475,17 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			}
 		}
 
+		// Unsigned forwards need no tokens — only the blog id baked into the path —
+		// so they skip the connection gate (its blog-token requirement) entirely.
+		if ( ! empty( $opts['unauthenticated'] ) && $is_read ) {
+			$response = $this->request_unauthenticated( $request, $wpcom_path, $version, $base );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			return $this->cache_and_build_response( $response, $cache_key );
+		}
+
 		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
 			return new WP_Error(
 				'no_connection',
@@ -488,6 +531,50 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		$this->maybe_bust_read_cache( $response, ! $is_read, $opts, $wpcom_path, $version, $base );
 
 		return $this->cache_and_build_response( $response, $cache_key );
+	}
+
+	/**
+	 * Forward a read to WPCOM without signing, for `unauthenticated` endpoint groups. Mirrors
+	 * stats-admin's Odyssey proxy (`get_single_post_likes()`): the target endpoint rejects
+	 * blog-token auth but serves public data to credential-less requests. Private posts/sites
+	 * return WPCOM's own restricted error — the same limitation Odyssey has.
+	 *
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path without the forwarded query string.
+	 * @param string          $version    WPCOM API version.
+	 * @param string          $base       WPCOM API base (`rest` or `wpcom`).
+	 *
+	 * @return array|WP_Error Raw HTTP response, or an error.
+	 */
+	private function request_unauthenticated( WP_REST_Request $request, string $wpcom_path, string $version, string $base ) {
+		// The path embeds the blog id; without one the request would target site 0.
+		if ( ! (int) Jetpack_Options::get_option( 'id' ) ) {
+			return new WP_Error(
+				'no_connection',
+				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$api_base = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		if ( empty( $api_base ) ) {
+			$api_base = 'https://public-api.wordpress.com';
+		}
+
+		$response = wp_remote_get(
+			sprintf( '%s/%s/v%s%s', $api_base, $base, $version, $this->append_forwarded_params( $request, $wpcom_path ) ),
+			array( 'timeout' => self::API_TIMEOUT )
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'api_error',
+				__( 'Error communicating with the data service.', 'jetpack-premium-analytics' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $response;
 	}
 
 	/**

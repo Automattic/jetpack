@@ -221,7 +221,8 @@ class SchemaBuilderTest extends TestCase {
 	 */
 	private function node_of_type( array $document, string $type ) {
 		foreach ( $document['@graph'] as $node ) {
-			if ( is_array( $node ) && ( $node['@type'] ?? '' ) === $type ) {
+			$node_type = is_array( $node ) ? ( $node['@type'] ?? '' ) : '';
+			if ( $type === $node_type || ( is_array( $node_type ) && in_array( $type, $node_type, true ) ) ) {
 				return $node;
 			}
 		}
@@ -479,6 +480,58 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertSame( 'Acme Co', $organization['name'] );
 		$this->assertArrayNotHasKey( 'sameAs', $organization );
 		$this->assertArrayNotHasKey( 'email', $organization );
+	}
+
+	/**
+	 * Enabled LocalBusiness settings with an address decorate the front-page
+	 * Organization node in place.
+	 */
+	public function test_front_page_organization_emits_local_business_details_when_configured() {
+		$this->set_site_name( 'Acme Co' );
+		Schema_Settings::update(
+			array(
+				'localBusiness' => array(
+					'enabled' => true,
+					'address' => array(
+						'streetAddress' => '123 Main St',
+					),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$organization   = $this->node_of_type( $doc, 'Organization' );
+		$local_business = $this->node_of_type( $doc, 'LocalBusiness' );
+		$this->assertIsArray( $organization, 'Expected the Organization node to remain findable.' );
+		$this->assertSame( $organization, $local_business );
+		$this->assertSame( array( 'Organization', 'LocalBusiness' ), $organization['@type'] );
+		$this->assertSame( 'PostalAddress', $organization['address']['@type'] );
+		$this->assertSame( '123 Main St', $organization['address']['streetAddress'] );
+	}
+
+	/**
+	 * Disabled LocalBusiness settings keep the front-page Organization node plain.
+	 */
+	public function test_front_page_organization_stays_plain_when_local_business_disabled() {
+		$this->set_site_name( 'Acme Co' );
+		Schema_Settings::update(
+			array(
+				'localBusiness' => array(
+					'enabled' => false,
+					'address' => array(
+						'streetAddress' => '123 Main St',
+					),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertSame( 'Organization', $organization['@type'] );
+		$this->assertArrayNotHasKey( 'address', $organization );
+		$this->assertNull( $this->node_of_type( $doc, 'LocalBusiness' ) );
 	}
 
 	/**

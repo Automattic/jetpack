@@ -2,16 +2,16 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { device } from '@jetpack-premium-analytics/icons';
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
 import {
 	Legend,
 	SemiCircleChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	useSegmentStyles,
 	useWidgetRootContext,
 	type LegendItem,
@@ -52,60 +52,23 @@ type DevicesInnerProps = {
  * Inner component — rendered inside WidgetRoot.
  *
  * @param {DevicesInnerProps} props - The component props.
- * @return The rendered semi-circle chart or state placeholder.
+ * @return The rendered widget content.
  */
 function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isError, errorReason } = useDeviceViews( {
-		reportParams,
-		max,
-		deviceProperty: 'screensize',
-	} );
+	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
+		useDeviceViews( {
+			reportParams,
+			max,
+			deviceProperty: 'screensize',
+		} );
 
 	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: item.displayLabel,
 		value: toRatio( item.percentage ),
 	} ) );
 
-	// Must be called unconditionally before any early return.
 	const segmentStyles = useSegmentStyles( chartData );
-
-	if ( isError ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>
-						{ errorReason === 'upgrade-required'
-							? __(
-									'Device stats are not included in your current plan.',
-									'jetpack-premium-analytics'
-							  )
-							: __( 'Could not load device data.', 'jetpack-premium-analytics' ) }
-					</Text>
-				</Stack>
-			</div>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<div className={ styles.content }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( data.length === 0 ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'No device data in this period.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</div>
-		);
-	}
-
-	const withComparison = hasComparison;
 
 	const legendData: LegendItem[] = data.map( item => ( {
 		label: item.displayLabel,
@@ -116,7 +79,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 			PERCENTAGE_DATA_FORMAT.options
 		),
 		comparison:
-			withComparison && item.previousPercentage !== undefined
+			hasComparison && item.previousPercentage !== undefined
 				? toRatio( item.previousPercentage )
 				: undefined,
 	} ) );
@@ -125,18 +88,49 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 		color: segmentStyles[ index ]?.color,
 	} ) );
 
+	// A plan error can't be fixed by retrying, so the Retry action is only
+	// offered for regular fetch failures.
+	const isPlanError = errorReason === 'upgrade-required';
+
 	return (
 		<div className={ styles.content }>
-			<div className={ styles.chartShell }>
-				<SemiCircleChart
-					chartData={ chartData }
-					styles={ segmentStyles }
-					showLegend={ false }
-					showMetric={ false }
-					dataFormat={ PERCENTAGE_DATA_FORMAT }
-				/>
-				<Legend items={ styledLegendData } withComparison={ withComparison } />
-			</div>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ data.length === 0 }
+				error={ {
+					description: isPlanError
+						? __(
+								'Device stats are not included in your current plan.',
+								'jetpack-premium-analytics'
+						  )
+						: __(
+								"We couldn't load device data. Please try again in a moment.",
+								'jetpack-premium-analytics'
+						  ),
+					actions: isPlanError
+						? undefined
+						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: device,
+					description: __( 'No device data in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<div className={ styles.chartWrap }>
+					<div className={ styles.chartShell }>
+						<SemiCircleChart
+							chartData={ chartData }
+							styles={ segmentStyles }
+							showLegend={ false }
+							showMetric={ false }
+							dataFormat={ PERCENTAGE_DATA_FORMAT }
+						/>
+						<Legend items={ styledLegendData } withComparison={ hasComparison } />
+					</div>
+				</div>
+			</WidgetState>
 		</div>
 	);
 }

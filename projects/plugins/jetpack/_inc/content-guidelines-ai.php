@@ -91,10 +91,30 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	// suppressed the banner and upgrade notice.
 	// Keep the key in sync with WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed::META_KEY.
 	$banner_dismissed = (bool) get_user_meta( get_current_user_id(), 'jetpack_content_guidelines_ai_banner_dismissed', true );
+
+	$initial_state = array( 'bannerDismissed' => $banner_dismissed );
+
+	// Resolve the AI feature state server-side so the bundle can hydrate the
+	// wordpress-com/plans store at boot and render the correct locked/unlocked
+	// buttons on first paint, with no client-side plan fetch. On WordPress.com
+	// Simple this is a synchronous local lookup; on Atomic/self-hosted it is
+	// transient-cached with a blocking remote refresh when cold. On failure
+	// the key is omitted and the bundle renders no AI UI for this load (fail
+	// closed) rather than guessing.
+	if ( ! class_exists( 'Jetpack_AI_Helper' ) && is_readable( JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+	}
+	if ( class_exists( 'Jetpack_AI_Helper' ) ) {
+		$ai_feature = Jetpack_AI_Helper::get_ai_assistance_feature();
+		if ( ! is_wp_error( $ai_feature ) ) {
+			$initial_state['aiFeature'] = $ai_feature;
+		}
+	}
+
 	wp_add_inline_script(
 		'jetpack-content-guidelines-ai',
 		'window.jetpackContentGuidelinesAi = ' . wp_json_encode(
-			array( 'bannerDismissed' => $banner_dismissed ),
+			$initial_state,
 			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 		) . ';',
 		'before'

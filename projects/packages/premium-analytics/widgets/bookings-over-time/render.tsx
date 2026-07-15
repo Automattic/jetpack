@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -41,7 +42,14 @@ export default function BookingsOverTimeRender( {
 }: BookingsOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<BookingOrderMetricWidget metricKey="orders_no" />
+			<BookingOrderMetricWidget
+				metricKey="orders_no"
+				emptyStateText={ __( 'No bookings in this period.', 'jetpack-premium-analytics' ) }
+				errorText={ __(
+					"We couldn't load bookings. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				) }
+			/>
 		</WidgetRoot>
 	);
 }

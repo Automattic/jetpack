@@ -17,7 +17,7 @@ import {
 } from './model.ts';
 import { TailoredListSkeleton } from './skeleton.tsx';
 import { TaskCard } from './task-card.tsx';
-import type { TailoredOutput, TailorResult } from '../lib/types.ts';
+import type { GoalSlug, TailoredOutput, TailorResult } from '../lib/types.ts';
 
 import './style.scss';
 
@@ -44,6 +44,9 @@ interface Props {
 	// Site context for the preview card, passed on the wizard→list path too so the
 	// skeleton can show the preview. The fetched site takes precedence.
 	site?: SiteData;
+
+	// The wizard goal, used for the heading until the AI output supplies its own.
+	goal?: GoalSlug;
 }
 
 /**
@@ -56,9 +59,10 @@ interface Props {
  * @param props.pendingTailor - In-flight tailor call to await before fetching.
  * @param props.initialData   - Composite read supplied by the host (returning users).
  * @param props.site          - Site context for the preview (always supplied by the host).
+ * @param props.goal          - The wizard goal (wizard→list path), for the heading.
  * @return The tailored-list element.
  */
-export function TailoredList( { pendingTailor, initialData, site }: Props = {} ) {
+export function TailoredList( { pendingTailor, initialData, site, goal }: Props = {} ) {
 	// Returning users seed straight from initialData so the first frame isn't the
 	// loading copy. The wizard→list path has no initialData and starts as loading.
 	const [ tasks, setTasks ] = useState< EnrichedTask[] | null >( () => initialData?.tasks ?? null );
@@ -157,10 +161,14 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		[ tasks, skippedIds ]
 	);
 
+	// Prefer the goal from the loaded AI output; fall back to the wizard's.
+	const effectiveGoal = output?.inferred?.goal ?? goal ?? null;
+
 	if ( ! tasks ) {
 		return (
 			<Layout
 				progressLabel={ __( 'Tailoring your checklist…', 'jetpack-mu-wpcom' ) }
+				goal={ effectiveGoal }
 				siteUrl={ siteUrl }
 				siteTitle={ siteTitle }
 				siteEditUrl={ siteEditUrl }
@@ -264,6 +272,7 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 	return (
 		<Layout
 			progressLabel={ progressLabel }
+			goal={ effectiveGoal }
 			siteUrl={ siteUrl }
 			siteTitle={ siteTitle }
 			siteEditUrl={ siteEditUrl }

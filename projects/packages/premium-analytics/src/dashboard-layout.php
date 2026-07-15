@@ -352,6 +352,33 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
+			get_dashboard_default_widget_instance(
+				'default-authors-widget-instance',
+				'jpa/authors',
+				10,
+				1,
+				2,
+				array(
+					'max' => 7,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-videopress-widget-instance',
+				'jpa/videopress',
+				11,
+				1,
+				2,
+				array(
+					'max' => 7,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-plan-usage-widget-instance',
+				'jpa/plan-usage',
+				12,
+				2,
+				1
+			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
 			get_dashboard_default_widget_instance(
@@ -383,29 +410,9 @@ function get_dashboard_default_section_layouts() {
 				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
-				4,
-				1,
-				2,
-				array(
-					'max' => 7,
-				)
-			),
-			get_dashboard_default_widget_instance(
-				'default-videos-widget-instance',
-				'jpa/videos',
-				5,
-				1,
-				2,
-				array(
-					'max' => 7,
-				)
-			),
-			get_dashboard_default_widget_instance(
 				'default-emails-widget-instance',
 				'jpa/stats-emails',
-				6,
+				4,
 				1,
 				2,
 				array(
@@ -414,16 +421,26 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
+				'default-shares-widget-instance',
+				'jpa/shares',
+				5,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
 				'default-most-popular-day-widget-instance',
 				'jpa/most-popular-day',
-				7,
+				6,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-time-widget-instance',
 				'jpa/most-popular-time',
-				8,
+				7,
 				1,
 				1
 			),
@@ -433,7 +450,7 @@ function get_dashboard_default_section_layouts() {
 				'default-subscriber-highlights-widget-instance',
 				'jpa/subscriber-highlights',
 				0,
-				2,
+				4,
 				1,
 				array(
 					'showTotal'  => true,
@@ -446,8 +463,8 @@ function get_dashboard_default_section_layouts() {
 				'default-subscribers-chart-widget-instance',
 				'jpa/subscribers-chart',
 				1,
-				2,
-				2,
+				4,
+				1,
 				array(
 					'granularity' => 'auto',
 				)
@@ -456,10 +473,21 @@ function get_dashboard_default_section_layouts() {
 				'default-subscribers-list-widget-instance',
 				'jpa/subscribers-list',
 				2,
-				1,
+				2,
 				2,
 				array(
 					'num' => 6,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-subscribers-emails-widget-instance',
+				'jpa/stats-emails',
+				3,
+				2,
+				2,
+				array(
+					'max'    => 10,
+					'metric' => 'opens',
 				)
 			),
 		),

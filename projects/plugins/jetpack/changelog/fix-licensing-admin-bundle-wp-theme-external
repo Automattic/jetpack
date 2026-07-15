@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Bundle @wordpress/theme and @wordpress/private-apis into the admin build so the Jetpack dashboard script still loads on WordPress versions that do not register those script handles.

@@ -6,10 +6,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import OrdersFulfillmentRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -31,12 +35,6 @@ type OrdersFulfillmentStoryProps = OrdersFulfillmentWidgetProps & OrdersFulfillm
 interface OrdersFulfillmentDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		OrdersFulfillmentStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getOrdersFulfillmentAttributes(
 	withComparison = false,
@@ -81,6 +79,11 @@ function renderOrdersFulfillment( { withComparison, preset }: OrdersFulfillmentS
 			attributes={ getOrdersFulfillmentAttributes( withComparison, preset ) }
 		/>
 	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderOrdersFulfillmentOnPreset( preset: SelectablePresetId ) {
+	return <OrdersFulfillmentRender attributes={ getOrdersFulfillmentAttributes( false, preset ) } />;
 }
 
 function OrdersFulfillmentDashboardStory( {
@@ -170,6 +173,51 @@ export const WithComparison: Story = {
 				) => getOrdersFulfillmentSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: both fulfillment reports (fulfilled and unfulfilled) are in
+ * flight, so the widget shows its loading state. The mock is forced to never
+ * resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderOrdersFulfillmentOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'loading' );
+		return () => setReportMockState( 'orders/by-date', null );
+	},
+};
+
+/**
+ * Both fulfillment reports failed: the widget shows its error state with a
+ * Retry action (which re-runs both queries — still mocked as failing while
+ * this story is active).
+ */
+export const Error: Story = {
+	render: () => renderOrdersFulfillmentOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'error' );
+		return () => setReportMockState( 'orders/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no fulfilled or unfulfilled orders: the widget shows its empty
+ * state ("No orders in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderOrdersFulfillmentOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'empty' );
+		return () => setReportMockState( 'orders/by-date', null );
 	},
 };
 

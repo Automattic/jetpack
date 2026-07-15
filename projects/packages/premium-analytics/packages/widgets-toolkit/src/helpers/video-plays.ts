@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
+import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 
 /**
  * Shared helpers for widgets built on the Stats `video-plays` report
- * (`jpa/videos`, `jpa/videopress`). Each widget keeps its own row builder;
- * these cover the report-shape concerns they have in common.
+ * (`jpa/videopress`). Comparison-row matching lives in the data layer
+ * (`mergeStatsVideoPlaysComparisonRows`); these cover the presentation
+ * concerns widgets resolve per row.
  */
 
 /**
@@ -24,13 +25,12 @@ export function getVideoLabel( video: StatsVideoPlaysItem ) {
 }
 
 /**
- * Resolve the key used to align a video across the primary and comparison
- * periods, and to identify its leaderboard row. Prefers the stable post ID,
- * then the video URL, and only falls back to the display label when the API
- * omits both — so multiple untitled videos don't collapse onto one key.
+ * Resolve the key identifying a video's leaderboard row. Prefers the stable
+ * post ID, then the video URL, and only falls back to the display label when
+ * the API omits both — so multiple untitled videos don't collapse onto one key.
  *
  * @param video - The video-plays item.
- * @return The alignment key.
+ * @return The row key.
  */
 export function getVideoKey( video: StatsVideoPlaysItem ) {
 	if ( video.id != null ) {
@@ -38,19 +38,4 @@ export function getVideoKey( video: StatsVideoPlaysItem ) {
 	}
 
 	return video.link || getVideoLabel( video );
-}
-
-/**
- * Flatten a normalized video-plays report into its per-video items. The Stats
- * query layer summarizes multi-day ranges server-side and the endpoint returns
- * videos already ranked and limited by `max`, so the report carries a single
- * data point of per-video totals.
- *
- * @param report - The normalized video-plays report, or undefined while loading.
- * @return The per-video items for the period.
- */
-export function toVideoItems(
-	report: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
-): StatsVideoPlaysItem[] {
-	return report?.data.flatMap( point => point.items ) ?? [];
 }
