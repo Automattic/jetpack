@@ -11,6 +11,15 @@ import EmailBreakdownWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
+// Google Charts loads asynchronously and is outside this widget's concern. Keep
+// the map observable while recording how many country rows it receives.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	GeoChart: ( { data }: { data: unknown[] } ) => (
+		<div data-testid="geo-chart" data-row-count={ data.length - 1 } />
+	),
+} ) );
+
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => ( {
@@ -110,6 +119,27 @@ describe( 'EmailBreakdownWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234/country' );
+	} );
+
+	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {
+		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+		render(
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'countries',
+					metric: 'clicks',
+					max: 1,
+					showMap: true,
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'United Kingdom' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'email-breakdown-map' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-row-count', '2' );
 	} );
 
 	it( 'merges internal link types with clicked links for the links view', async () => {

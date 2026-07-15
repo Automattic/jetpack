@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	GeoChart,
 	LeaderboardChart,
 	LeaderboardLabel,
 	WidgetRoot,
@@ -9,6 +10,7 @@ import {
 	flagUrl,
 	useWidgetRootContext,
 	type LeaderboardChartData,
+	type GeoData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -32,6 +34,27 @@ type EmailBreakdownRenderAttributes = EmailBreakdownAttributes &
 type EmailBreakdownWidgetProps = WidgetRenderProps< EmailBreakdownRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+
+/**
+ * Builds the complete country dataset consumed by `GeoChart`.
+ *
+ * @param rows   - All normalized rows from the country breakdown report.
+ * @param metric - Whether the map represents opens or clicks.
+ * @return GeoChart header and country rows.
+ */
+function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMetric ): GeoData {
+	return [
+		[
+			__( 'Country', 'jetpack-premium-analytics' ),
+			metric === 'clicks'
+				? __( 'Clicks', 'jetpack-premium-analytics' )
+				: __( 'Opens', 'jetpack-premium-analytics' ),
+		],
+		...rows
+			.filter( row => Boolean( row.countryCode ) )
+			.map( row => [ row.countryCode as string, row.value ] as [ string, number ] ),
+	];
+}
 
 /**
  * Returns the URL only when it parses as an http(s) link, so remote link data
@@ -160,9 +183,18 @@ type EmailBreakdownLeaderboardProps = {
 	 */
 	rows?: EmailBreakdownRow[];
 	/**
+	 * Complete row set used by the country map. This can contain more entries
+	 * than the capped leaderboard `rows`.
+	 */
+	mapRows?: EmailBreakdownRow[];
+	/**
 	 * The active breakdown view; drives the label rendering and empty-state copy.
 	 */
 	view?: EmailBreakdownView;
+	/** Whether to render a map beside the countries leaderboard. */
+	showMap?: boolean;
+	/** Metric label to use for the map values. */
+	metric?: EmailBreakdownMetric;
 	/**
 	 * When `true` and there are no rows yet, the loading state is shown.
 	 */
@@ -202,7 +234,10 @@ type EmailBreakdownLeaderboardProps = {
  */
 export const EmailBreakdownLeaderboard = ( {
 	rows = [],
+	mapRows = rows,
 	view = 'countries',
+	showMap = false,
+	metric = 'opens',
 	isLoading = false,
 	isFetching = false,
 	isError = false,
@@ -210,6 +245,8 @@ export const EmailBreakdownLeaderboard = ( {
 	onRetry,
 }: EmailBreakdownLeaderboardProps ) => {
 	const data = useMemo( () => buildLeaderboardData( rows, view ), [ rows, view ] );
+	const geoData = useMemo( () => buildEmailGeoData( mapRows, metric ), [ mapRows, metric ] );
+	const renderMap = showMap && view === 'countries' && geoData.length > 1;
 
 	return (
 		<div className={ styles.root }>
@@ -234,14 +271,21 @@ export const EmailBreakdownLeaderboard = ( {
 						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics' ),
 				} }
 			>
-				<LeaderboardChart
-					className={ styles.leaderboard }
-					data={ data }
-					withComparison={ false }
-					withOverlayLabel
-					showLegend={ false }
-					dataFormat={ DATA_FORMAT }
-				/>
+				<div className={ renderMap ? styles.locationContent : styles.content }>
+					<LeaderboardChart
+						className={ styles.leaderboard }
+						data={ data }
+						withComparison={ false }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+					{ renderMap && (
+						<div className={ styles.map } data-testid="email-breakdown-map">
+							<GeoChart data={ geoData } />
+						</div>
+					) }
+				</div>
 			</WidgetState>
 		</div>
 	);
@@ -251,6 +295,7 @@ type EmailBreakdownReportProps = {
 	view: EmailBreakdownView;
 	metric: EmailBreakdownMetric;
 	max: number;
+	showMap: boolean;
 };
 
 /**
@@ -277,11 +322,11 @@ function toPostId( postId: string | number | undefined ): number {
  * @param {EmailBreakdownReportProps} props - The component props.
  * @return The widget content.
  */
-function EmailBreakdownReport( { view, metric, max }: EmailBreakdownReportProps ) {
+function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { rows, isLoading, isFetching, isError, refetch } = useEmailBreakdownRows( {
+	const { allRows, rows, isLoading, isFetching, isError, refetch } = useEmailBreakdownRows( {
 		postId,
 		view,
 		metric,
@@ -291,7 +336,10 @@ function EmailBreakdownReport( { view, metric, max }: EmailBreakdownReportProps 
 	return (
 		<EmailBreakdownLeaderboard
 			rows={ rows }
+			mapRows={ allRows }
 			view={ view }
+			showMap={ showMap }
+			metric={ metric }
 			isLoading={ isLoading }
 			isFetching={ isFetching }
 			isError={ isError }
@@ -319,10 +367,11 @@ export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidge
 	const view = attributes.view ?? 'countries';
 	const metric = attributes.metric ?? 'opens';
 	const max = attributes.max ?? 10;
+	const showMap = attributes.showMap ?? false;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailBreakdownReport view={ view } metric={ metric } max={ max } />
+			<EmailBreakdownReport view={ view } metric={ metric } max={ max } showMap={ showMap } />
 		</WidgetRoot>
 	);
 }

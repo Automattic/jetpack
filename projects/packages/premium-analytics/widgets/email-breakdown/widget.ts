@@ -38,6 +38,11 @@ export type EmailBreakdownAttributes = {
 	 * Number of rows to show. `0` means as many as the endpoint returns.
 	 */
 	max?: number;
+	/**
+	 * Whether the countries view also renders a world map. Used by the wide
+	 * Location clicks card in the fixed post-detail composition.
+	 */
+	showMap?: boolean;
 };
 
 /**

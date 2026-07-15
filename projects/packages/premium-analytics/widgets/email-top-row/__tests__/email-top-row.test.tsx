@@ -86,11 +86,22 @@ describe( 'EmailTopRowWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Total clicks' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Unique opens' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Total clicks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Click rate' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Total opens' ) ).toBeInTheDocument();
-		// Opens-only tiles are not in the Clicks view.
-		expect( screen.queryByText( 'Unique opens' ) ).not.toBeInTheDocument();
+		// Total opens remains specific to the Opens view.
+		expect( screen.queryByText( 'Total opens' ) ).not.toBeInTheDocument();
+
+		// The Clicks design combines send/open context from the opens summary with
+		// click totals from the clicks summary.
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect( requestedPaths.some( path => path.includes( 'stats/opens/emails/2000/rate' ) ) ).toBe(
+			true
+		);
+		expect( requestedPaths.some( path => path.includes( 'stats/clicks/emails/2000/rate' ) ) ).toBe(
+			true
+		);
 	} );
 
 	it( 'shows the empty state when the email has no stats', async () => {
@@ -170,12 +181,18 @@ describe( 'toEmailTopRowMetrics', () => {
 
 	it( 'builds the Clicks view tiles in order', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_opens: 400, total_clicks: 40, clicks_rate: 3.81 } ),
+			asSummary( {
+				total_sends: 1000,
+				unique_opens: 380,
+				total_clicks: 40,
+				clicks_rate: 3.81,
+			} ),
 			'clicks'
 		);
 
 		expect( metrics.map( metric => metric.key ) ).toEqual( [
-			'total_opens',
+			'total_sends',
+			'unique_opens',
 			'total_clicks',
 			'clicks_rate',
 		] );

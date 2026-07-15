@@ -57,17 +57,44 @@ describe( 'usePostDetailTabs', () => {
 	} );
 
 	it( 'falls back from a hidden tab and replaces the URL', async () => {
-		const { stage, commit } = mockSearch( 'email-opens' );
+		const layouts = POST_DETAIL_TAB_LAYOUTS as Record< string, DashboardWidget[] >;
+		const emailOpensLayout = layouts[ 'email-opens' ];
+		layouts[ 'email-opens' ] = [];
+
+		try {
+			const { stage, commit } = mockSearch( 'email-opens' );
+
+			const { result } = renderHook( () => usePostDetailTabs() );
+
+			expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
+				'post-traffic',
+				'email-clicks',
+			] );
+			expect( result.current.activeTab ).toBe( 'post-traffic' );
+
+			await waitFor( () => {
+				expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
+				expect( commit ).toHaveBeenCalledWith( { replace: true } );
+			} );
+		} finally {
+			layouts[ 'email-opens' ] = emailOpensLayout;
+		}
+	} );
+
+	it( 'exposes the email tabs and selects their fixed layouts', () => {
+		const { stage, commit } = mockSearch( 'email-clicks' );
 
 		const { result } = renderHook( () => usePostDetailTabs() );
 
-		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
-		expect( result.current.activeTab ).toBe( 'post-traffic' );
-
-		await waitFor( () => {
-			expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
-			expect( commit ).toHaveBeenCalledWith( { replace: true } );
-		} );
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
+			'post-traffic',
+			'email-opens',
+			'email-clicks',
+		] );
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not navigate when the selected tab is visible', () => {

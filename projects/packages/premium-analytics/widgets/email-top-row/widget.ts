@@ -32,7 +32,8 @@ export type EmailMetric = 'opens' | 'clicks';
 export type EmailTopRowAttributes = {
 	/**
 	 * Which headline metrics to show: the Opens view (sends, unique opens, opens,
-	 * open rate) or the Clicks view (opens, clicks, click rate). Defaults to `opens`.
+	 * open rate) or the Clicks view (sends, unique opens, clicks, click rate).
+	 * Defaults to `opens`.
 	 */
 	metric?: EmailMetric;
 };
@@ -54,7 +55,7 @@ export default {
 	icon: envelope,
 	help: {
 		content: __(
-			'Headline stats for a single email. The Opens view shows total sends, unique opens, total opens, and open rate; the Clicks view shows total opens, total clicks, and click rate. Rates are measured against total sends. Figures are all-time and are not affected by the dashboard date range.',
+			'Headline stats for a single email. The Opens view shows total sends, unique opens, total opens, and open rate; the Clicks view shows total sends, unique opens, total clicks, and click rate. Rates are measured against total sends. Figures are all-time and are not affected by the dashboard date range.',
 			'jetpack-premium-analytics'
 		),
 	},
