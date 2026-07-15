@@ -12,9 +12,9 @@
 	 * row doesn't hug the header border — tabbed reports skip this because the
 	 * tab strip is designed to sit flush under the header.
 	 */
-	padding-block-start: var(--wpds-dimension-padding-lg, 16px);
+	padding-block-start: var(--wpds-dimension-padding-lg);
 	padding-block-end: 24px;
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .dateFilters {
