@@ -18,8 +18,8 @@ use PHPUnit\Framework\TestCase;
 class InitializerTest extends TestCase {
 
 	/**
-	 * The cache, its once-per-request guard and the database all persist between tests
-	 * here, so every one of them has to start from a known-empty state.
+	 * The cache and the database both persist between tests here, so every one of them
+	 * has to start from a known-empty state.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -47,16 +47,10 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Drop the cached counts and re-arm the once-per-request invalidation guard.
+	 * Drop the cached counts.
 	 */
 	private function reset_coverage_cache() {
 		delete_transient( Initializer::COVERAGE_COUNTS_TRANSIENT );
-
-		$guard = new \ReflectionProperty( Initializer::class, 'coverage_invalidated' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$guard->setAccessible( true );
-		}
-		$guard->setValue( null, false );
 	}
 
 	/**
@@ -428,27 +422,19 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * A bulk write fires the invalidation hooks once per post; the cache only needs
-	 * clearing once, so the second call is a no-op. But reading the counts warms the cache
-	 * again, and a write after that must invalidate for real — otherwise a long-running
-	 * process that reads then keeps writing would leave stale numbers behind.
+	 * Every tracked write drops the transient, with no once-per-request guard: a later
+	 * write in the same request must clear a cache a concurrent read re-warmed in between,
+	 * so an intermediate count can't survive to the end of a bulk update.
 	 */
-	public function test_invalidation_runs_once_per_request_until_the_cache_is_warm_again() {
+	public function test_every_tracked_write_invalidates_the_cache() {
 		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
 
 		Initializer::invalidate_content_coverage_on_meta_change( 1, 123, Initializer::META_TITLE );
 		$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
 
-		// Nothing has re-read the counts, so a second write has nothing to drop and must
-		// not issue another delete.
+		// A concurrent read re-warms the cache mid-write; the next write must still clear it.
 		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
 		Initializer::invalidate_content_coverage_on_meta_change( 2, 124, Initializer::META_TITLE );
-		$this->assertSame( $this->seeded_coverage(), get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
-
-		// Reading re-warms the cache and re-arms the guard, so the next write invalidates.
-		$this->reset_coverage_cache();
-		$this->invoke_private( 'get_content_coverage' );
-		Initializer::invalidate_content_coverage_on_meta_change( 3, 125, Initializer::META_TITLE );
 		$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
 	}
 

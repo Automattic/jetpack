@@ -151,13 +151,6 @@ class Initializer {
 	private static $initialized = false;
 
 	/**
-	 * Whether the coverage transient has already been dropped during this request.
-	 *
-	 * @var bool
-	 */
-	private static $coverage_invalidated = false;
-
-	/**
 	 * Initialize the package.
 	 *
 	 * Called from the Jetpack plugin's `late_initialization()` hook.
@@ -644,9 +637,6 @@ class Initializer {
 		$coverage = self::compute_content_coverage();
 
 		set_transient( self::COVERAGE_COUNTS_TRANSIENT, $coverage, self::COVERAGE_COUNTS_TTL );
-		// The cache is warm again, so a later write in this same request has something
-		// to invalidate and must not be swallowed by the once-per-request guard.
-		self::$coverage_invalidated = false;
 
 		return $coverage;
 	}
@@ -774,6 +764,12 @@ class Initializer {
 	/**
 	 * Drop the cached counts when a post enters or leaves the published set.
 	 *
+	 * Known limitation: this hook only ever sees the post's new type, so converting a
+	 * published post to an uncounted post type (or the reverse) isn't caught here and
+	 * leaves `total` stale until the next tracked write or the transient's TTL expiry.
+	 * A direct `set_post_type()` bypasses every hook anyway, so the TTL backstop is what
+	 * ultimately bounds that staleness.
+	 *
 	 * @param string        $new_status Status the post is moving to.
 	 * @param string        $old_status Status the post is moving from.
 	 * @param \WP_Post|null $post       The post being transitioned.
@@ -827,16 +823,11 @@ class Initializer {
 	}
 
 	/**
-	 * Drop the cached counts, at most once per request.
+	 * Drop the cached counts.
 	 *
 	 * @return void
 	 */
 	private static function invalidate_content_coverage() {
-		if ( self::$coverage_invalidated ) {
-			return;
-		}
-
-		self::$coverage_invalidated = true;
 		delete_transient( self::COVERAGE_COUNTS_TRANSIENT );
 	}
 
