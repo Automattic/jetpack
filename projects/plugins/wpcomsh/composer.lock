@@ -469,7 +469,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "6f33631a30fe59d482659c8ce80da39e349a0e83"
+                "reference": "be03d0b4ed8fc8ed13ac0d9e0a6171553d218eef"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
