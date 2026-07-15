@@ -41,11 +41,17 @@ export function useStatsCommentFollowers(
  * the normal Stats query factory so responses retain their individual cache
  * entries and normalization.
  *
+ * `signal` stops further pages from being scheduled once the caller loses
+ * interest. It cannot abort a request already in flight: `fetchQuery` owns each
+ * page's own signal and takes no external one.
+ *
  * @param queryClient - The React Query client.
+ * @param signal      - Aborted when the consuming query is cancelled.
  * @return All normalized comment-followers pages.
  */
 export async function fetchAllStatsCommentFollowers(
-	queryClient: Pick< QueryClient, 'fetchQuery' >
+	queryClient: Pick< QueryClient, 'fetchQuery' >,
+	signal?: AbortSignal
 ): Promise< StatsCommentFollowersResponse[] > {
 	const firstPage = await queryClient.fetchQuery(
 		statsCommentFollowersQuery( { page: 1, max: COMMENT_FOLLOWERS_PAGE_SIZE } )
@@ -62,17 +68,31 @@ export async function fetchAllStatsCommentFollowers(
 
 	const remainingPages = new Array< StatsCommentFollowersResponse >( pageCount - 1 );
 	let nextPageIndex = 0;
+	// `Promise.all` rejects on the first failure but does not stop the other
+	// workers, so they would keep draining `nextPageIndex` long after the error
+	// UI is up. Shared across workers so any failure drains the queue for all.
+	let stopped = false;
 
 	async function fetchNextPage(): Promise< void > {
 		while ( nextPageIndex < remainingPages.length ) {
+			if ( stopped || signal?.aborted ) {
+				return;
+			}
+
 			const pageIndex = nextPageIndex;
 			nextPageIndex += 1;
-			remainingPages[ pageIndex ] = await queryClient.fetchQuery(
-				statsCommentFollowersQuery( {
-					page: pageIndex + 2,
-					max: COMMENT_FOLLOWERS_PAGE_SIZE,
-				} )
-			);
+
+			try {
+				remainingPages[ pageIndex ] = await queryClient.fetchQuery(
+					statsCommentFollowersQuery( {
+						page: pageIndex + 2,
+						max: COMMENT_FOLLOWERS_PAGE_SIZE,
+					} )
+				);
+			} catch ( error ) {
+				stopped = true;
+				throw error;
+			}
 		}
 	}
 
@@ -100,7 +120,7 @@ export function statsCommentFollowersAllPagesQuery(): UseQueryOptions<
 > {
 	return {
 		queryKey: [ 'stats', 'comment-followers', 'all-pages', COMMENT_FOLLOWERS_PAGE_SIZE ],
-		queryFn: ( { client } ) => fetchAllStatsCommentFollowers( client ),
+		queryFn: ( { client, signal } ) => fetchAllStatsCommentFollowers( client, signal ),
 		retry: false,
 	};
 }

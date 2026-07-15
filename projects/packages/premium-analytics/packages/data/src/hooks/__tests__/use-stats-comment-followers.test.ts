@@ -67,6 +67,59 @@ describe( 'fetchAllStatsCommentFollowers', () => {
 		expect( fetchQuery ).toHaveBeenCalledTimes( 3 );
 	} );
 
+	it( 'stops fetching the remaining pages once one fails', async () => {
+		const failure = new Error( 'Page 2 failed' );
+		const fetchQuery = jest.fn( async query => {
+			const { page } = query.queryKey[ 5 ] as { page: number };
+
+			if ( page === 1 ) {
+				return createReport( 1, 20 );
+			}
+
+			// Let every concurrent worker start before the first rejection lands,
+			// so the test covers the queue draining rather than a single worker.
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+			if ( page === 2 ) {
+				throw failure;
+			}
+
+			return createReport( page, 20 );
+		} );
+
+		await expect( fetchAllStatsCommentFollowers( { fetchQuery } as never ) ).rejects.toThrow(
+			failure
+		);
+
+		// `Promise.all` rejects while the other workers are still running, so the
+		// count has to settle before it means anything — asserting here is what
+		// the bug itself looked like.
+		await new Promise( resolve => setTimeout( resolve, 10 ) );
+
+		// The first page plus one batch of concurrent workers — never all 20 pages.
+		expect( fetchQuery.mock.calls.length ).toBeLessThanOrEqual( 5 );
+	} );
+
+	it( 'stops fetching the remaining pages once the signal aborts', async () => {
+		const controller = new AbortController();
+		const fetchQuery = jest.fn( async query => {
+			const { page } = query.queryKey[ 5 ] as { page: number };
+
+			if ( page === 1 ) {
+				return createReport( 1, 20 );
+			}
+
+			controller.abort();
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+			return createReport( page, 20 );
+		} );
+
+		await fetchAllStatsCommentFollowers( { fetchQuery } as never, controller.signal );
+
+		expect( fetchQuery.mock.calls.length ).toBeLessThanOrEqual( 5 );
+	} );
+
 	it( 'limits concurrent page requests', async () => {
 		let activeRequests = 0;
 		let maxActiveRequests = 0;
