@@ -3,8 +3,7 @@
  */
 import {
 	useStatsReferrers,
-	type StatsNormalizedReport,
-	type StatsReferrersItem,
+	type StatsReferrersComparisonItem,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -14,6 +13,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -47,7 +47,9 @@ export type ReferrerRow = {
 	 */
 	value: number;
 	/**
-	 * View count for the comparison period.
+	 * View count for the comparison period. Undefined when the row has no
+	 * match in the comparison report, so charts suppress the delta instead of
+	 * rendering a fake change.
 	 */
 	previousValue?: number;
 	/**
@@ -64,115 +66,29 @@ export type ReferrerRow = {
 	 * (e.g. Search Engines → Google Search → google.com).
 	 */
 	children?: ReferrerRow[];
+	/**
+	 * Whether the child rows have any matching comparison-period rows.
+	 */
+	childrenHaveComparison?: boolean;
 };
-
-function getItemLabel( item: StatsReferrersItem ): string {
-	if ( typeof item.label === 'string' && item.label ) {
-		return item.label;
-	}
-
-	return item.link ?? '';
-}
-
-type NormalizedReferrerItem = {
-	key: string;
-	label: string;
-	value: number;
-	previousValue: number;
-	href?: string;
-	icon?: string | null;
-	children?: NormalizedReferrerItem[];
-};
-
-// Keys are scoped by the parent chain so same-named rows at different drill
-// levels (e.g. a "google.com" group and a "google.com" child of Google Search)
-// don't collide in the comparison lookup.
-function getItemKey( item: StatsReferrersItem, parentKey?: string ): string {
-	const ownKey = item.link ?? getItemLabel( item );
-
-	return parentKey ? `${ parentKey } > ${ ownKey }` : ownKey;
-}
-
-function buildReferrerItemLookup(
-	items: StatsReferrersItem[],
-	parentKey?: string
-): Map< string, StatsReferrersItem > {
-	const lookup = new Map< string, StatsReferrersItem >();
-
-	items.forEach( item => {
-		const key = getItemKey( item, parentKey );
-		lookup.set( key, item );
-		buildReferrerItemLookup( item.children ?? [], key ).forEach( ( value, childKey ) => {
-			lookup.set( childKey, value );
-		} );
-	} );
-
-	return lookup;
-}
-
-function normalizeReferrerItem(
-	item: StatsReferrersItem,
-	comparisonLookup: Map< string, StatsReferrersItem >,
-	parent?: { key: string; icon?: string | null }
-): NormalizedReferrerItem {
-	const key = getItemKey( item, parent?.key );
-	const children = ( item.children ?? [] ).map( child =>
-		normalizeReferrerItem( child, comparisonLookup, { key, icon: item.icon ?? parent?.icon } )
-	);
-
-	return {
-		key,
-		label: getItemLabel( item ),
-		value: item.views,
-		previousValue: comparisonLookup.get( key )?.views ?? 0,
-		href: item.link ?? undefined,
-		icon: item.icon ?? parent?.icon,
-		children: children.length ? sortReferrerItems( children ) : undefined,
-	};
-}
-
-function sortReferrerItems( items: NormalizedReferrerItem[] ): NormalizedReferrerItem[] {
-	return [ ...items ].sort( ( a, b ) => b.value - a.value );
-}
-
-function toReferrerRow( item: NormalizedReferrerItem ): ReferrerRow {
-	return {
-		label: item.label,
-		value: item.value,
-		previousValue: item.previousValue,
-		href: item.href,
-		icon: item.icon,
-		children: item.children?.map( toReferrerRow ),
-	};
-}
-
-function getItems(
-	report: StatsNormalizedReport< StatsReferrersItem > | undefined
-): StatsReferrersItem[] {
-	return report?.data.flatMap( point => point.items ) ?? [];
-}
 
 /**
- * Flattens a normalized referrers report into `ReferrerRow[]` and attaches
- * matching comparison values when a comparison report is present.
+ * Maps a merged data-layer row (comparison matching, sorting, and the row cap
+ * happen in `mergeStatsReferrersComparisonRows`) onto the widget's row shape.
  *
- * @param report           - Primary referrers report.
- * @param comparisonReport - Comparison referrers report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
+ * @param item - Merged referrers comparison item.
+ * @return Row ready for the leaderboard.
  */
-export function toReferrerRows(
-	report: StatsNormalizedReport< StatsReferrersItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsReferrersItem > | undefined,
-	max: number
-): ReferrerRow[] {
-	const comparisonLookup = buildReferrerItemLookup( getItems( comparisonReport ) );
-	const sorted = sortReferrerItems(
-		getItems( report ).map( item => normalizeReferrerItem( item, comparisonLookup ) )
-	);
-	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
-
-	return sliced.map( toReferrerRow );
+export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow {
+	return {
+		label: item.label,
+		value: item.views,
+		previousValue: item.previousValue,
+		href: item.link ?? undefined,
+		icon: item.icon,
+		children: item.children?.map( toReferrerRow ),
+		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
+	};
 }
 
 /**
@@ -192,7 +108,8 @@ function buildLeaderboardData(
 	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
+		const hasPrevious = withComparison && previousValue !== undefined;
 		const hasChildren = !! row.children?.length;
 		const shouldRenderLink = !! row.href && ! hasChildren;
 		const label = (
@@ -225,9 +142,8 @@ function buildLeaderboardData(
 			currentValue: row.value,
 			currentShare: ( row.value / maxCurrentViews ) * 100,
 			previousValue,
-			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+			previousShare: hasPrevious ? sharePercentage( previousValue, maxPreviousViews ) : undefined,
+			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
 			...( hasChildren &&
 				onDrillDown && {
 					onClick: () => onDrillDown( row ),
@@ -248,7 +164,8 @@ export type ReferrersLeaderboardProps = {
 };
 
 /**
- * Presentational leaderboard for the Referrers widget.
+ * Presentational leaderboard for the Referrers widget. Loading, error, and
+ * empty states are owned by the inner component's `WidgetState`.
  *
  * @param props                - Component props.
  * @param props.rows           - Normalized referrer rows.
@@ -278,21 +195,16 @@ function ReferrersInner( { max }: { max: number } ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsReferrers( statsParams );
 
-	const comparisonReport = comparison.data as
-		| StatsNormalizedReport< StatsReferrersItem >
-		| undefined;
+	// Row matching (per level, so same-named rows at different drill levels
+	// cannot cross-match), the visible-row cap, and the comparison-overlap
+	// gate all live in the data layer's merge helper (see AGENTS.md).
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsReferrers( statsParams, { maxRows: max } );
 
 	const rows = useMemo(
-		() =>
-			toReferrerRows(
-				primary.data as StatsNormalizedReport< StatsReferrersItem > | undefined,
-				comparisonReport,
-				max
-			),
-		[ primary.data, comparisonReport, max ]
+		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
+		[ comparisonRows ]
 	);
 
 	// Referrer groups nest twice (group → source → domain), so the drill-down
@@ -303,14 +215,6 @@ function ReferrersInner( { max }: { max: number } ) {
 		drillDown: setDrillPath,
 		resetDrillDown,
 	} = useWidgetDrillDown< string[] >();
-
-	// Changing the dashboard date range loads a different set of referrers, so
-	// any drill-down path from the previous range no longer makes sense — return
-	// to the top-level list. Keyed on the range only, so background refetches and
-	// comparison toggles keep the current drill position.
-	useEffect( () => {
-		resetDrillDown();
-	}, [ reportParams.from, reportParams.to, resetDrillDown ] );
 
 	// Resolve the path against the current rows each render, so a refetch that
 	// drops a selected row falls back to the deepest level that still exists.
@@ -332,7 +236,36 @@ function ReferrersInner( { max }: { max: number } ) {
 		return matched;
 	}, [ rows, drillPath ] );
 
-	const activeRows = trail.length ? trail[ trail.length - 1 ].children ?? [] : rows;
+	// When settled data no longer resolves the whole stored path (e.g. the
+	// date range changed and the drilled group disappeared), trim it to the
+	// deepest level that still exists so stored state matches the view and
+	// stale levels can't resurface on a later refetch (WOOA7S-1666). A path
+	// that still resolves survives range changes; in-flight fetches keep
+	// placeholder rows and errors aren't settled data, so a valid selection
+	// survives refetches and transient failures.
+	useEffect( () => {
+		if (
+			! drillPath?.length ||
+			isLoading ||
+			isFetching ||
+			isError ||
+			trail.length === drillPath.length
+		) {
+			return;
+		}
+
+		if ( trail.length ) {
+			setDrillPath( trail.map( row => row.label ) );
+		} else {
+			resetDrillDown();
+		}
+	}, [ drillPath, trail, isLoading, isFetching, isError, setDrillPath, resetDrillDown ] );
+
+	const currentRow = trail.length ? trail[ trail.length - 1 ] : null;
+	const activeRows = currentRow ? currentRow.children ?? [] : rows;
+	// Drilled levels gate the comparison UI on their own rows' overlap, so a
+	// subtree without comparison matches doesn't render placeholder deltas.
+	const withComparison = currentRow ? !! currentRow.childrenHaveComparison : hasComparison;
 
 	const drillInto = useCallback(
 		( row: ReferrerRow ) => {
@@ -379,7 +312,7 @@ function ReferrersInner( { max }: { max: number } ) {
 				// Only surface the error when there's nothing to show, so a transient refetch
 				// failure doesn't replace populated rows with the error state.
 				isError={ rows.length === 0 && isError }
-				isEmpty={ activeRows.length === 0 }
+				isEmpty={ rows.length === 0 }
 				error={ {
 					description: __(
 						"We couldn't load referrers. Please try again in a moment.",
@@ -394,7 +327,7 @@ function ReferrersInner( { max }: { max: number } ) {
 			>
 				<ReferrersLeaderboard
 					rows={ activeRows }
-					withComparison={ hasComparison }
+					withComparison={ withComparison }
 					onDrillDown={ drillInto }
 				/>
 			</WidgetState>

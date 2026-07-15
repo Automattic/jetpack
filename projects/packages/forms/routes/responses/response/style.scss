@@ -6,7 +6,7 @@ $inspector-padding: 16px;
 
 .jp-forms-response-header {
 	padding: 8px;
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
 }
 
 .jp-forms-response-header-actions {
@@ -14,7 +14,7 @@ $inspector-padding: 16px;
 }
 
 .jp-forms__inbox__tip-container {
-	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
 	margin: auto 0 0 0;
 	padding: $inspector-padding;
 	text-wrap: pretty;

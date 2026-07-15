@@ -1310,6 +1310,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 			)
 		);
+
+		// The icon SVG fills with currentColor. On desktop it inherits the item's full-brightness text color, so
+		// it renders brighter than the native admin bar icons -- core dims those to rgba(240,246,252,0.6) via
+		// `.ab-icon::before` rules our SVG can't match. Fade it to 0.6 opacity to match, and restore full opacity
+		// on hover/focus; using opacity (not a hardcoded color) keeps the hover state tracking the user's admin
+		// color scheme accent, like the native icons. On mobile (<=782px) core instead dims the item's own text
+		// color, which the SVG already inherits, so reset opacity to 1 there to avoid dimming the icon twice.
+		//
+		// The <=782px block also handles core hiding every non-allowlisted top-level item on mobile: re-show ours
+		// and size the icon to the native touch target (52px box, centered 28px glyph). The `.ab-icon` sizing uses
+		// !important because the SVG carries its desktop sizing in an inline style attribute that otherwise wins.
+		echo '<style>' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms .ab-icon{opacity:0.6;}' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms:hover .ab-icon,' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms .ab-item:focus .ab-icon{opacity:1;}' .
+			'@media screen and (max-width: 782px){' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms{display:block;}' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms>.ab-item{display:flex;align-items:center;justify-content:center;width:52px;padding:0;}' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms .ab-icon{width:28px!important;height:28px!important;top:0!important;margin:0!important;opacity:1;}' .
+			'}</style>';
 	}
 
 	/**

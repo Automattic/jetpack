@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Block editor: surface the most common fields (Name, Email, Text…) first in the form's block inserter instead of burying them past the quick-inserter cutoff.

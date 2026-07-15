@@ -116,11 +116,14 @@ export function AuthorsLeaderboard( {
 		[ rows, selectedAuthorId ]
 	);
 
+	// Clear the stored selection only once data has settled without the
+	// author — an in-flight load or refetch must not wipe a valid selection
+	// while rows are briefly empty or stale (see WOOA7S-1666).
 	useEffect( () => {
-		if ( selectedAuthorId && ! selectedAuthor ) {
+		if ( selectedAuthorId && ! selectedAuthor && ! isLoading && ! isFetching ) {
 			clearSelectedAuthor();
 		}
-	}, [ selectedAuthorId, selectedAuthor, clearSelectedAuthor ] );
+	}, [ selectedAuthorId, selectedAuthor, isLoading, isFetching, clearSelectedAuthor ] );
 
 	const chartData: LeaderboardChartData = useMemo( () => {
 		// Drilled-in: show the selected author's posts. Rows are not interactive;

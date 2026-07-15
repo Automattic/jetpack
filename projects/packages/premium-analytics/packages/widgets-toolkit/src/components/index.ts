@@ -38,6 +38,8 @@ export {
 	type WidgetStateEmpty,
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
+export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
+export { ReportLink, type ReportLinkProps } from './report-link';
 export {
 	SubscriberList,
 	type SubscriberListItem,
@@ -60,3 +62,4 @@ export {
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
 } from './report-page';
+export { DownloadCsvButton, type DownloadCsvButtonProps } from './download-csv-button';

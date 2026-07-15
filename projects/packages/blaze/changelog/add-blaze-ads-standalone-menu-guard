@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Blaze: avoid a duplicate Blaze Ads menu when the standalone Blaze Ads plugin is active, and point campaign/promote links (and the legacy advertising URL) at the standalone's page so they resolve and preserve their deep-link route.

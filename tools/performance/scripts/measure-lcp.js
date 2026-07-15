@@ -312,20 +312,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 		}
 	}
 
-	// Calculate statistics
-	const validResults = results.filter( r => ! r.error && r.lcp != null );
-
-	if ( validResults.length === 0 ) {
-		throw new Error(
-			'All iterations failed - check WordPress is accessible and credentials are correct'
-		);
-	}
-
-	return {
-		summary: buildSummary( validResults, iterations ),
-		results,
-		url,
-	};
+	return finalizeMeasurement( scenario, results, iterations, url );
 }
 
 /**
@@ -418,13 +405,80 @@ function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
 		// older readers of summary.median). Nothing above enforces a FINITE LCP (the
 		// validResults filter only drops null/undefined), so in the degenerate case where
 		// every LCP sample is non-finite, perField.lcp is absent: the flat mirror is
-		// simply omitted and the poster fails closed on the missing field.
+		// simply omitted and findIncompleteSummaryFields() classifies the scenario as a
+		// measurement failure (the poster's undefined-median rejection is the backstop
+		// for stale artifacts).
 		...( perField.lcp ?? {} ),
 		successfulIterations: validResults.length,
 		totalIterations: iterations,
 		// Per-field nested blocks for the multi-metric poster path (reads summary.<field>.median).
 		...perField,
 	};
+}
+
+/**
+ * Names of the posted fields a scenario's summary failed to aggregate.
+ *
+ * A summary can be truthy yet incomplete: summarizeField() returns null for a field whose
+ * finite samples miss a strict majority of the valid iterations (the flaky-page case the
+ * `optional` flag exists for), so buildSummary() omits that field's block entirely. The
+ * poster reads summary.<field>.median for every scenario.metrics[] entry; an omitted block
+ * reaches it as undefined, fails the sanity-range check, and — because the sanity gate is
+ * deliberately atomic — blanks the ENTIRE post, required survivors included. An incomplete
+ * summary is a MEASUREMENT failure, not a data-integrity event, so finalizeMeasurement()
+ * below throws on it and main()'s catch records a scenario error, where the `optional`
+ * flag can isolate it and the skipped-scenario warnings name the culprit. Scenarios
+ * without a metrics[] array (legacy
+ * metricKey/metricPrefix shapes) post from the flat LCP mirror, covered by the 'lcp'
+ * fallback.
+ *
+ * @param {object} scenario - Scenario definition; its metrics[] names the posted fields.
+ * @param {object} summary  - Summary produced by buildSummary().
+ * @return {string[]} Posted fields with no finite median (empty when the summary is complete).
+ */
+function findIncompleteSummaryFields( scenario, summary ) {
+	const fields = Array.isArray( scenario.metrics )
+		? scenario.metrics.map( metric => metric.field )
+		: [ 'lcp' ];
+	return fields.filter( field => ! Number.isFinite( summary?.[ field ]?.median ) );
+}
+
+/**
+ * Turn the raw per-iteration results into the scenario's final measurement, or throw.
+ *
+ * The tail of measureLCP(), extracted pure so its two refusal paths are unit-testable
+ * without a browser: (1) no valid iterations at all; (2) an INCOMPLETE summary — a posted
+ * field dropped by summarizeField's majority rule. Both must throw INSIDE the measure
+ * step, so main()'s catch records a scenario error the optional/required policy can
+ * classify. An incomplete summary let through would green this step with no warning
+ * naming the scenario, then trip the poster's atomic sanity gate on the undefined
+ * median — one flaky optional field blanking the whole post, required survivors included.
+ *
+ * @param {object} scenario   - Scenario definition; its metrics[] names the posted fields.
+ * @param {Array}  results    - Raw per-iteration results (successes and error records).
+ * @param {number} iterations - Total iterations attempted (for the summary counters).
+ * @param {string} url        - The measured URL, echoed into the saved measurement.
+ * @return {object} The measurement: `{ summary, results, url }`.
+ */
+function finalizeMeasurement( scenario, results, iterations, url ) {
+	const validResults = results.filter( r => ! r.error && r.lcp != null );
+
+	if ( validResults.length === 0 ) {
+		throw new Error(
+			'All iterations failed - check WordPress is accessible and credentials are correct'
+		);
+	}
+
+	const summary = buildSummary( validResults, iterations );
+	const incompleteFields = findIncompleteSummaryFields( scenario, summary );
+	if ( incompleteFields.length > 0 ) {
+		throw new Error(
+			`summary is missing posted field(s): ${ incompleteFields.join( ', ' ) } — ` +
+				`too few finite samples across the ${ validResults.length } valid iteration(s)`
+		);
+	}
+
+	return { summary, results, url };
 }
 
 /**
@@ -526,11 +580,83 @@ function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
 	}
 }
 
+/**
+ * Resolve the SCENARIO filter to the set of scenarios to run.
+ *
+ * Fails fast on a filter that matches nothing (e.g. the typo `SCENARIO=my-jetpak`).
+ * Before this guard, an unknown value silently matched zero scenarios: the run wrote an
+ * empty measurements object and exited 0 — a green build that measured and posted nothing.
+ *
+ * @param {string}        scenarioFilter - The SCENARIO env value ('all' or a scenario cliName).
+ * @param {Array<object>} scenarios      - Scenario definitions (SCENARIOS, or a test double).
+ * @return {Array<object>} The scenarios to run. Non-empty when filtered by cliName; the
+ * 'all' passthrough returns the caller's array verbatim.
+ * @throws {Error} When the filter matches no scenario; the message lists the valid values.
+ */
+function resolveScenarioSet( scenarioFilter, scenarios ) {
+	if ( scenarioFilter === 'all' ) {
+		return scenarios;
+	}
+	const matched = scenarios.filter( s => s.cliName === scenarioFilter );
+	if ( matched.length === 0 ) {
+		const valid = [ 'all', ...scenarios.map( s => s.cliName ) ].join( ', ' );
+		throw new Error( `Unknown SCENARIO "${ scenarioFilter }". Valid values: ${ valid }` );
+	}
+	return matched;
+}
+
+/**
+ * Decide the process exit code from the per-scenario measurement outcomes.
+ *
+ * The posting policy lives here, once: exit 0 means "every required scenario measured —
+ * safe to post". The runner treats a non-zero exit as fatal and never reaches the posting
+ * step, which is the retry-safety invariant: a red build has posted nothing, so re-running
+ * it cannot append duplicate points to the append-only, dedup-off CodeVitals store. A
+ * failed `optional` scenario therefore must NOT fail the build — it warns, its keys skip
+ * the build, and the poster skips its errored measurement. Two deliberate hard edges:
+ * every scenario in the run set failed → exit 1 even when all of them are optional, so a
+ * targeted single-scenario run (SCENARIO=forms-responses) still fails loudly; and empty
+ * measurements → exit 1 (backstop; resolveScenarioSet already rejects a filter that
+ * matches nothing).
+ *
+ * @param {Object<string, {error?: string}>} measurements - Per-scenario results, keyed by scenario key.
+ * @param {Array<object>}                    scenarios    - Scenario definitions (only those present in measurements count).
+ * @return {{exitCode: number, requiredFailures: string[], optionalFailures: string[]}} The outcome; failure arrays carry scenario names.
+ */
+function computeRunOutcome( measurements, scenarios ) {
+	const requiredFailures = [];
+	const optionalFailures = [];
+	let successes = 0;
+	for ( const scenario of scenarios ) {
+		const measurement = measurements[ scenario.key ];
+		if ( ! measurement ) {
+			continue; // Not part of this run (SCENARIO filter).
+		}
+		if ( measurement.error ) {
+			( scenario.optional ? optionalFailures : requiredFailures ).push( scenario.name );
+		} else {
+			successes++;
+		}
+	}
+	const exitCode = requiredFailures.length > 0 || successes === 0 ? 1 : 0;
+	return { exitCode, requiredFailures, optionalFailures };
+}
+
 async function main() {
 	const username = process.env.WP_ADMIN_USER || 'admin';
 	const password = process.env.WP_ADMIN_PASS || 'password';
 	const iterations = parseInt( process.env.ITERATIONS || '5', 10 );
 	const scenarioFilter = process.env.SCENARIO || 'all';
+
+	// Validate the filter before any browser work: a typo must fail the build, not
+	// green-exit with zero measurements.
+	let scenariosToRun;
+	try {
+		scenariosToRun = resolveScenarioSet( scenarioFilter, SCENARIOS );
+	} catch ( error ) {
+		console.error( `✗ ${ error.message }` );
+		process.exit( 1 );
+	}
 
 	console.log( 'WordPress Performance Testing - LCP Measurement' );
 	console.log( '================================================' );
@@ -572,13 +698,8 @@ async function main() {
 
 	const measurements = {};
 
-	// Run each scenario
-	for ( const scenario of SCENARIOS ) {
-		// Skip if filtering to a specific scenario
-		if ( scenarioFilter !== 'all' && scenarioFilter !== scenario.cliName ) {
-			continue;
-		}
-
+	// Run each scenario in the resolved set
+	for ( const scenario of scenariosToRun ) {
 		const url = getScenarioUrl( scenario );
 
 		console.log( scenario.header );
@@ -597,7 +718,12 @@ async function main() {
 			);
 		} catch ( error ) {
 			console.error( `✗ ${ scenario.name } measurement failed:`, error.message, '\n' );
-			measurements[ scenario.key ] = { error: error.message };
+			// Guarantee a truthy error record: computeRunOutcome classifies failure by the
+			// truthiness of `.error`, so a thrown Error('') (falsy .message) must not let a
+			// failed required scenario slip into the success branch and green the build.
+			measurements[ scenario.key ] = {
+				error: error?.message || String( error ) || 'measurement failed',
+			};
 		}
 	}
 
@@ -611,8 +737,18 @@ async function main() {
 		}
 		if ( measurement && ! measurement.error ) {
 			console.log( `  ${ scenario.name }: ${ measurement.summary.median }ms` );
+		} else if ( scenario.optional ) {
+			console.log(
+				`  ${ scenario.name }: FAILED (optional — build continues, its keys skip this build) - ${
+					measurement?.error || 'unknown error'
+				}`
+			);
 		} else {
-			console.log( `  ${ scenario.name }: FAILED - ${ measurement?.error || 'unknown error' }` );
+			console.log(
+				`  ${ scenario.name }: FAILED (required — build fails, nothing posts) - ${
+					measurement?.error || 'unknown error'
+				}`
+			);
 		}
 	}
 	console.log( '' );
@@ -648,8 +784,15 @@ async function main() {
 	fs.writeFileSync( outputPath, JSON.stringify( output, null, 2 ) );
 	console.log( `Results saved to: ${ outputPath }` );
 
-	const hasFailures = Object.values( measurements ).some( m => m.error );
-	process.exit( hasFailures ? 1 : 0 );
+	const outcome = computeRunOutcome( measurements, SCENARIOS );
+	if ( outcome.exitCode === 0 && outcome.optionalFailures.length > 0 ) {
+		console.warn(
+			`Warning: optional scenario(s) failed — their CodeVitals keys skip this build: ${ outcome.optionalFailures.join(
+				', '
+			) }`
+		);
+	}
+	process.exit( outcome.exitCode );
 }
 
 /**
@@ -687,7 +830,11 @@ export {
 	measureLCP,
 	resolveResultsGit,
 	buildSummary,
+	findIncompleteSummaryFields,
+	finalizeMeasurement,
 	assertCaptureComplete,
 	assertExpectedUrl,
 	summarizeResources,
+	resolveScenarioSet,
+	computeRunOutcome,
 };

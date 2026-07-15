@@ -13,15 +13,13 @@ export const UpsellNudge = ( { requiredPlan } ) => {
 		} );
 	} );
 	return (
-		<div className="jetpack-forms-upsell-nudge">
-			<Nudge
-				className=""
-				title={ __( 'Upgrade to a paid plan to use file uploads.', 'jetpack-forms' ) }
-				buttonText={ __( 'Upgrade', 'jetpack-forms' ) }
-				checkoutUrl={ checkoutUrl }
-				isRedirecting={ isRedirecting }
-				goToCheckoutPage={ goToCheckoutPage }
-			/>
-		</div>
+		<Nudge
+			className=""
+			title={ __( 'Upgrade to a paid plan to use file uploads.', 'jetpack-forms' ) }
+			buttonText={ __( 'Upgrade', 'jetpack-forms' ) }
+			checkoutUrl={ checkoutUrl }
+			isRedirecting={ isRedirecting }
+			goToCheckoutPage={ goToCheckoutPage }
+		/>
 	);
 };

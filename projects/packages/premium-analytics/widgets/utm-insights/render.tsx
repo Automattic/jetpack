@@ -83,6 +83,18 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 	);
 	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
 
+	// The view already falls back to the top list when the selected row is
+	// missing or no longer drillable (no children); clear the stored selection
+	// too once data has settled without a drillable match, so stale state
+	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
+	// placeholder rows and errors aren't settled data, so a valid selection
+	// survives refetches and transient failures.
+	useEffect( () => {
+		if ( selectedUtmLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
+			clearSelectedUtm();
+		}
+	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
+
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
 		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ?? 0 ), 1 );

@@ -6,6 +6,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../../types';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
+import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
+import SecondaryButton from '../action-button/secondary-button';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
 import type { ChangeEvent } from 'react';
 
@@ -25,6 +27,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
+	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
 
 	const isUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -69,10 +72,8 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		[ $module.module, $module.name, createErrorNotice, createSuccessNotice ]
 	);
 
-	const onChange = useCallback(
-		async ( event: ChangeEvent< HTMLInputElement > ) => {
-			const active = event.target.checked;
-
+	const setModuleActive = useCallback(
+		async ( active: boolean ) => {
 			// Track module activation/deactivation if we're in the Products tab context
 			if ( trackProductAction ) {
 				trackProductAction( {
@@ -97,9 +98,35 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		[ toggleModule, $module, showToggleNotice, trackProductAction ]
 	);
 
+	const onChange = useCallback(
+		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),
+		[ setModuleActive ]
+	);
+	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
+
+	if ( sharingBlockEditorUrl ) {
+		if ( $module.activated ) {
+			return (
+				<SecondaryButton
+					label={ __( 'Switch to Sharing Buttons block', 'jetpack-my-jetpack' ) }
+					onClick={ deactivateModule }
+					isLoading={ isUpdating }
+					loadingAnnouncement={ __( 'Deactivating legacy sharing…', 'jetpack-my-jetpack' ) }
+				/>
+			);
+		}
+
+		return (
+			<SecondaryButton
+				href={ sharingBlockEditorUrl }
+				label={ __( 'Open Site Editor', 'jetpack-my-jetpack' ) }
+			/>
+		);
+	}
+
 	return (
 		<FormToggle
-			disabled={ isUpdating }
+			disabled={ isUpdating || !! $module.override }
 			checked={ $module.activated }
 			onChange={ onChange }
 			aria-label={ sprintf(

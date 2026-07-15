@@ -376,6 +376,33 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'period' );
 	} );
 
+	it( 'keeps list reports day-bucketed when the dashboard interval is coarser', () => {
+		const query = statsTopPostsQuery( {
+			from: '2026-01-01',
+			to: '2026-06-07',
+			interval: 'week',
+		} );
+
+		// `days` counts calendar days, so a leaked `period=week` would cover
+		// `days` weeks instead of the requested range.
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [ expect.objectContaining( { period: 'day', days: 158 } ) ] )
+		);
+	} );
+
+	it( 'lets callers force a list report period explicitly', () => {
+		const query = statsTopPostsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			period: 'week',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [ expect.objectContaining( { period: 'week' } ) ] )
+		);
+	} );
+
 	it( 'preserves explicit summarize params', () => {
 		const query = statsTopPostsQuery( {
 			from: '2026-06-01',

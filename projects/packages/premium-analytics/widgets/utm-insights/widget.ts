@@ -32,6 +32,12 @@ export type UtmInsightsAttributes = {
 export default {
 	name: 'jpa/utm-insights',
 	title: __( 'UTM Insights', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Track your campaign UTM performance data. Generate URL codes with our builder.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: trendingUp,
 	attributes: [
 		{

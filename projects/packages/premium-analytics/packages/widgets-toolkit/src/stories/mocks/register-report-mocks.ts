@@ -45,16 +45,21 @@ import {
 	mockCustomersComparisonData,
 	mockCustomersByDateData,
 	mockCustomersByDateComparisonData,
+	mockCommentsData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
+	mockTagsData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsPostData,
+	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
+	mockPlanUsageData,
 	buildEmailRateResponse,
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,
@@ -78,7 +83,14 @@ const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/su
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
+// Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
+// own path branch rather than a `routeStatsReport()` case.
+const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
+// Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
+// matched with its own pattern rather than through routeStatsReport().
+const POST_LIKES_PATH_PATTERN =
+	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.2\/posts\/\d+\/likes(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -160,6 +172,28 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 		mockStateOverrides.delete( pathFragment );
 	} else {
 		mockStateOverrides.set( pathFragment, state );
+	}
+}
+
+const mockResponseOverrides = new Map< string, unknown >();
+
+/**
+ * Force every request whose path contains `pathFragment` to resolve with a
+ * specific payload, or clear the override with `null`. Unlike
+ * `setReportMockState`, which forces a widget's loading/error/empty UI, this
+ * swaps the successful response body — for exercising a data-driven variant (an
+ * over-limit reading, a specific row shape) the default fixture doesn't cover.
+ * Same scoping caveat: keyed by path, so scope such stories out of the shared
+ * autodocs page (`tags: [ '!autodocs' ]`) and clear the override on cleanup.
+ *
+ * @param pathFragment - Substring matched against the request path.
+ * @param response     - The response body to resolve with, or `null` to clear.
+ */
+export function setReportMockResponse( pathFragment: string, response: unknown | null ): void {
+	if ( response === null ) {
+		mockResponseOverrides.delete( pathFragment );
+	} else {
+		mockResponseOverrides.set( pathFragment, response );
 	}
 }
 
@@ -911,6 +945,12 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string ): unknown {
+	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
+	// shared fixture so post-scoped widgets render real values.
+	if ( subPath.startsWith( '/post/' ) ) {
+		return mockStatsPostData;
+	}
+
 	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
 		return mockSingleVideoData;
@@ -942,6 +982,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/summary' )
 				? mockStatsSummaryComparisonData
 				: mockStatsSummaryData;
+		case '/comments':
+			// All-time report with no comparison period; the same body serves
+			// both the primary and comparison requests.
+			return mockCommentsData;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
@@ -950,6 +994,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		case '/tags':
+			// The Stats `tags` endpoint has no comparison period, so the same
+			// primary fixture is returned for every request.
+			return mockTagsData;
 		case '/insights':
 			return mockStatsInsightsData;
 		default:
@@ -1104,6 +1152,12 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
+	for ( const [ fragment, response ] of mockResponseOverrides ) {
+		if ( requestPath.includes( fragment ) ) {
+			return response;
+		}
+	}
+
 	for ( const [ fragment, state ] of mockStateOverrides ) {
 		if ( ! requestPath.includes( fragment ) ) {
 			continue;
@@ -1158,6 +1212,14 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
+	}
+
+	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
+		return mockPlanUsageData;
+	}
+
+	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {
+		return mockPostLikesData;
 	}
 
 	if ( requestPath.startsWith( STATS_WORDADS_STATS_PATH ) ) {

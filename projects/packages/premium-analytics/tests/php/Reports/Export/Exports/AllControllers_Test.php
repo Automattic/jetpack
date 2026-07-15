@@ -1,10 +1,12 @@
 <?php
 /**
- * Fleet-wide invariants for every registered report controller.
+ * Fleet-wide invariants for every ported report controller.
  *
- * Asserts the structural contract the export pipeline relies on: unique report keys,
- * non-empty metadata, and a format_row_for_csv() whose keys line up exactly with the
- * declared column headers. Each report PR adds its controllers to the provider.
+ * Rather than restating each controller's columns (covered per-report where the
+ * mapping is non-trivial), this asserts the structural contract the export
+ * pipeline relies on: unique report keys, non-empty metadata, and a
+ * format_row_for_csv() output whose keys line up exactly with the declared
+ * column headers.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -34,7 +36,17 @@ class AllControllers_Test extends TestCase {
 			Orders_Fulfilled_Over_Time_Controller::class,
 			Orders_Over_Time_Controller::class,
 			Refunds_Over_Time_Controller::class,
+			Revenue_By_Customer_Type_Controller::class,
+			Sales_By_Campaign_Controller::class,
+			Sales_By_Channel_Controller::class,
+			Sales_By_Coupon_Controller::class,
+			Sales_By_Device_Controller::class,
+			Sales_By_Source_Controller::class,
+			Sessions_By_Device_Controller::class,
+			Sessions_By_Location_Controller::class,
 			Taxes_Over_Time_Controller::class,
+			Tax_Rate_Breakdown_Controller::class,
+			Top_Performing_Products_Controller::class,
 			Visitors_Over_Time_Controller::class,
 		);
 
@@ -93,6 +105,6 @@ class AllControllers_Test extends TestCase {
 		}
 
 		$this->assertSame( $keys, array_unique( $keys ), 'report keys must be unique across controllers' );
-		$this->assertCount( 11, $keys );
+		$this->assertCount( 21, $keys );
 	}
 }

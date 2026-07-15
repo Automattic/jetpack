@@ -7,23 +7,23 @@
 	min-block-size: 0;
 	overflow-y: auto;
 	// Reserve paint space for the widget host's outer focus outline.
-	padding-block-start: calc(var(--wpds-border-width-focus, 2px) + 2px);
+	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	// Match the horizontal padding of the tab bar and header so the widget grid
 	// lines up with them instead of sitting flush to the edge.
 	padding-block-end: 24px;
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .summary {
 	// Sits below the tab bar and above the date filters, aligned with the tabs
 	// and widget grid.
-	padding-block-end: var(--wpds-dimension-gap-lg, 16px);
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	padding-block-end: var(--wpds-dimension-gap-lg);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .dateFilters {
 	// Sits below the summary card and above the widgets. Only pad below to keep
 	// the spacing even; inline padding matches the tabs and widget grid.
-	padding-block-end: var(--wpds-dimension-gap-lg, 16px);
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	padding-block-end: var(--wpds-dimension-gap-lg);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }

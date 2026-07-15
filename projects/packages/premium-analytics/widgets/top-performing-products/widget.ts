@@ -25,9 +25,11 @@ export type TopPerformingProductsAttributes = Record< never, never >;
 export default {
 	name: 'jpa/top-performing-products',
 	title: __( 'Top performing products', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top products by net revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Your best-selling products by revenue over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

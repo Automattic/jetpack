@@ -1,8 +1,9 @@
 import { useAiFeature } from '@automattic/jetpack-ai-client';
-import { Button } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME } from '../constants';
 import { suggestGuidelines } from '../lib/api';
@@ -15,6 +16,14 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 	const { startSectionLoading, stopSectionLoading, setSuggestion, clearSuggestion } =
 		useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
+
+	// The plans store defaults hasFeature to true until its fetch resolves, so
+	// rendering before resolution would flash the button and then remove it on
+	// no-plan sites. Wait for the real answer instead.
+	const featureResolved = useSelect(
+		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
+		[]
+	);
 
 	const blockLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
@@ -74,6 +83,10 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 		clearSuggestion( blockName );
 	}, [ blockName, clearSuggestion ] );
 
+	if ( ! featureResolved ) {
+		return null;
+	}
+
 	if ( suggestion ) {
 		return (
 			<div className="jetpack-content-guidelines-ai__suggestion-actions">
@@ -91,17 +104,29 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
 	const label = saved ? improveLabel : generateLabel;
 
+	// Locked look without an AI plan, but no click action: the upgrade notice
+	// renders on the page behind this modal, so a click-to-nudge here would be
+	// invisible. The lock icon and tooltip still explain the state.
+	const button = (
+		<Button
+			variant="secondary"
+			icon={ hasFeature ? undefined : lock }
+			onClick={ handleGenerate }
+			disabled={ blockLoading || ! hasFeature }
+			accessibleWhenDisabled
+			className="jetpack-content-guidelines-ai__section-generate-button"
+		>
+			{ label }
+		</Button>
+	);
+
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion-actions">
-			<Button
-				variant="secondary"
-				onClick={ handleGenerate }
-				disabled={ blockLoading || ! hasFeature }
-				accessibleWhenDisabled
-				className="jetpack-content-guidelines-ai__section-generate-button"
-			>
-				{ label }
-			</Button>
+			{ ! hasFeature ? (
+				<Tooltip text={ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }>{ button }</Tooltip>
+			) : (
+				button
+			) }
 		</div>
 	);
 }

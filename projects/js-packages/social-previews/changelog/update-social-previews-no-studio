@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: Replace legacy `--studio-black` with `#000` in Threads and Twitter link preview card styles.

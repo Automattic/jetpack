@@ -59,6 +59,12 @@ export const DEFAULT_SITE_OVERVIEW_METRICS: SiteOverviewMetricId[] = SITE_OVERVI
 export default {
 	name: 'jpa/site-overview',
 	title: __( 'Site overview', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Views, visitors, likes, and comments for the selected period, with period-over-period change.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: globe,
 	attributes: [
 		{

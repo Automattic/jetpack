@@ -105,4 +105,26 @@ describe( 'useLibrary', () => {
 		expect( result.current.paginationInfo.totalItems ).toBe( 1 );
 		expect( result.current.paginationInfo.totalPages ).toBe( 1 );
 	} );
+
+	it( 'decodes HTML entities in the rendered title', async () => {
+		const body = JSON.stringify( [
+			{ id: 7, title: { rendered: 'Molly&#8217;s &#8220;Best&#8221; Day' } },
+		] );
+		const responseHeaders: Record< string, string > = {
+			'X-WP-Total': '1',
+			'X-WP-TotalPages': '1',
+			'Content-Type': 'application/json',
+		};
+		mockApiFetch( async () => ( {
+			headers: { get: ( name: string ) => responseHeaders[ name ] ?? null },
+			json: async () => JSON.parse( body ),
+		} ) );
+
+		const { result } = renderHook( () => useLibrary( DEFAULT_VIEW ), {
+			wrapper: createTestWrapper(),
+		} );
+
+		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
+		expect( result.current.items[ 0 ].title ).toBe( 'Molly’s “Best” Day' );
+	} );
 } );

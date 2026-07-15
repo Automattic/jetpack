@@ -17,6 +17,8 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
+export { useStatsPostLikes } from './hooks/use-stats-post-likes';
+export type { StatsPostLikesParams, StatsPostLikesResponse } from './hooks/use-stats-post-likes';
 export { useStatsQuery } from './hooks/use-stats-query';
 export { latestPostQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
@@ -214,6 +216,7 @@ export {
 	getApiErrorStatus,
 	getStatsPlanErrorReason,
 	shouldRetryApiError,
+	useSiteHomeUrl,
 } from './utils';
 export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
@@ -233,6 +236,7 @@ export type {
 	StatsProxyVersion,
 } from './api';
 export type {
+	StatsArchivesComparisonItem,
 	StatsArchivesItem,
 	StatsClicksComparisonItem,
 	StatsClicksItem,
@@ -263,6 +267,7 @@ export type {
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostDay,
 	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
@@ -272,6 +277,7 @@ export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,
 	StatsPublicizeService,
+	StatsReferrersComparisonItem,
 	StatsReferrersItem,
 	StatsSearchTermsComparisonItem,
 	StatsSearchTermsItem,
@@ -311,7 +317,9 @@ export {
 	type StatsQueryParams,
 } from './utils/stats-params';
 export {
+	mergeStatsArchivesComparisonRows,
 	mergeStatsClicksComparisonRows,
+	mergeStatsReferrersComparisonRows,
 	mergeStatsComparisonRows,
 	mergeStatsDevicesComparisonRows,
 	mergeStatsFileDownloadsComparisonRows,
