@@ -64,7 +64,14 @@
 			"type": "path",
 			"url": "../../packages/*",
 			"options": {
-				"monorepo": true
+				"monorepo": true,
+				"versions": {
+					"automattic/block-delimiter": "dev-trunk",
+					"automattic/jetpack-assets": "dev-trunk",
+					"automattic/jetpack-connection": "dev-trunk",
+					"automattic/jetpack-constants": "dev-trunk",
+					"automattic/jetpack-device-detection": "dev-trunk"
+				}
 			}
 		}
 	],

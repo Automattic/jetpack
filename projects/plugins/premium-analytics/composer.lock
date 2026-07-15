@@ -841,7 +841,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "2520bcc0d3875df8436b0fbef27888e00700b989"
+                "reference": "1b3067feb4367b82e67cde8076b9199bcbe44fb3"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
