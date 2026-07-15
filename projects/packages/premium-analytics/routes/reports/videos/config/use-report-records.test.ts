@@ -12,7 +12,9 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useStatsVideoPlays: jest.fn(),
 } ) );
 
-const mockUseStatsVideoPlays = useStatsVideoPlays as jest.MockedFunction< typeof useStatsVideoPlays >;
+const mockUseStatsVideoPlays = useStatsVideoPlays as jest.MockedFunction<
+	typeof useStatsVideoPlays
+>;
 
 const report: StatsNormalizedReport< StatsVideoPlaysItem > = {
 	summary: {},
