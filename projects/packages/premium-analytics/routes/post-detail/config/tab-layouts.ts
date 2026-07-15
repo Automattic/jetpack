@@ -18,9 +18,14 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
+			uuid: 'post-traffic-activity',
+			type: 'jpa/post-traffic-activity',
+			placement: { width: 3, height: 2, order: 2 },
+		},
+		{
 			uuid: 'post-likes',
 			type: 'jpa/post-likes',
-			placement: { width: 1, height: 2, order: 2 },
+			placement: { width: 1, height: 2, order: 3 },
 		},
 	],
 	'email-opens': [],

@@ -1,0 +1,26 @@
+/* Fill the tile so empty/error states center; the framed widget host's
+ * content area is the scroll viewport for anything taller. */
+.root {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+
+	/* A wide date range produces more week columns than a narrow card fits;
+	   scroll horizontally instead of clipping months. */
+	overflow-x: auto;
+}
+
+/* Center the grid vertically in a taller-than-content card; horizontal start
+   keeps overflow scrolling reachable. */
+.heatmap {
+	min-width: 0;
+	justify-content: center;
+}
