@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import getMediaToken from '../../../../client/lib/get-media-token';
+import { useProcessingProgress } from '../../../hooks/use-processing-progress';
 import PreviewPlayer from '../preview-player';
 import type { LibraryItem } from '../../../types/library';
 
@@ -8,6 +9,12 @@ jest.mock( '../../../../client/lib/get-media-token', () => ( {
 	default: jest.fn(),
 } ) );
 const mockedGetMediaToken = getMediaToken as unknown as jest.Mock;
+
+// Avoid the socket.io connection; tests drive the returned value directly.
+jest.mock( '../../../hooks/use-processing-progress', () => ( {
+	useProcessingProgress: jest.fn( () => null ),
+} ) );
+const mockedUseProcessingProgress = useProcessingProgress as jest.Mock;
 
 const baseVideo: LibraryItem = {
 	id: '42',
@@ -76,6 +83,14 @@ describe( 'PreviewPlayer', () => {
 
 		expect( screen.getByText( 'Processing' ) ).toBeInTheDocument();
 		expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+		expect( mockedUseProcessingProgress ).toHaveBeenCalledWith( 'abc123', false, true );
+	} );
+
+	it( 'shows the live transcoding percentage on the processing panel once known', () => {
+		mockedUseProcessingProgress.mockReturnValueOnce( 42 );
+		render( <PreviewPlayer video={ { ...baseVideo, isProcessing: true } } /> );
+
+		expect( screen.getByText( 'Processing 42%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'plays local items without a GUID through a native video element', () => {

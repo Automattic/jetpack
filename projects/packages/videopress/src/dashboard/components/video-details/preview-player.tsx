@@ -1,8 +1,10 @@
-import { __ } from '@wordpress/i18n';
+import { ProgressBar } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { useEffect, useState } from 'react';
 import getMediaToken from '../../../client/lib/get-media-token';
+import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -44,6 +46,7 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 	const { guid, isPrivate } = video;
 	// null = token fetch pending, '' = failed or not needed, string = minted token.
 	const [ playbackToken, setPlaybackToken ] = useState< string | null >( null );
+	const processingProgress = useProcessingProgress( guid, isPrivate, video.isProcessing );
 
 	/*
 	 * Private videos require a playback token on the embed URL. Mint one when
@@ -75,7 +78,19 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 	if ( video.isProcessing ) {
 		return (
 			<div className="vp-video-details__player vp-video-details__player-processing">
-				<Text>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+				<Text>
+					{ processingProgress !== null
+						? sprintf(
+								/* translators: %d: transcoding progress percentage */
+								__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
+								processingProgress
+						  )
+						: __( 'Processing', 'jetpack-videopress-pkg' ) }
+				</Text>
+				<ProgressBar
+					className="vp-video-details__player-progress-bar"
+					value={ processingProgress ?? undefined }
+				/>
 			</div>
 		);
 	}
