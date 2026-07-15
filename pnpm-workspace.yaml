@@ -24,11 +24,6 @@ strictPeerDependencies: true
 # No hoisting by default.
 hoistPattern: []
 
-# Symlink node_modules from a store-wide virtual store instead of node_modules/.pnpm, so
-# checkouts (notably git worktrees) share one copy. https://pnpm.io/git-worktrees
-# The docs' NODE_PATH/ESM caveat only affects hoisted deps, and we hoist nothing.
-enableGlobalVirtualStore: true
-
 # Silence this warning. Our `jetpack dependencies build-order` (also used by `jetpack build --all`) checks for cycles itself, plus it has a way to indicate that a dep is only for testing.
 ignoreWorkspaceCycles: true
 
