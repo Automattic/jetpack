@@ -41,7 +41,7 @@ class Tracks {
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
 
-		add_action( 'jetpack_podcast_settings_saved', array( __CLASS__, 'record_settings_saved' ) );
+		add_action( 'jetpack_podcast_settings_saved', array( __CLASS__, 'record_settings_saved' ), 10, 2 );
 	}
 
 	/**
