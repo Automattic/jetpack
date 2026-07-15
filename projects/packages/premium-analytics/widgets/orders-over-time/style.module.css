@@ -1,5 +1,6 @@
-.contentExport {
+.root {
 	display: flex;
-	justify-content: flex-end;
-	padding-block-start: var(--wpds-dimension-gap-sm, 8px);
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
 }

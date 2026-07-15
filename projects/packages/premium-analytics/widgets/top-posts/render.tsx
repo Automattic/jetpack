@@ -321,35 +321,38 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	const canExport = rows.length > 0 && ! isFetching && ! isError;
 
 	return (
-		<div className={ styles.content }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData`, so a failed range change
-				// keeps the prior period's rows visible; only surface the error when
-				// there is nothing to show.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ rows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load posts and pages. Please try again in a moment.",
-						'jetpack-premium-analytics'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
-				} }
-			>
-				<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
-			</WidgetState>
-			{ canExport && (
-				<div className={ styles.contentExport }>
+		<>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load posts and pages. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: reports,
+						description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="posts-pages" />
+				{ canExport && (
 					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
-				</div>
-			) }
-		</div>
+				) }
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -593,16 +596,15 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
-					<ArchivesReport num={ num } />
+					<>
+						<ArchivesReport num={ num } />
+						<WidgetFooter>
+							<ReportLink report="posts" section="archives" />
+						</WidgetFooter>
+					</>
 				) : (
 					<TopPostsReport num={ num } />
 				) }
-				<WidgetFooter>
-					<ReportLink
-						report="posts"
-						section={ contentView === 'archives' ? 'archives' : 'posts-pages' }
-					/>
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

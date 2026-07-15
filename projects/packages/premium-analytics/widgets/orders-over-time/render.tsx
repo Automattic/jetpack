@@ -4,6 +4,7 @@
 import {
 	DownloadCsvButton,
 	OrderMetricWidget,
+	WidgetFooter,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -41,16 +42,18 @@ export default function OrdersOverTimeRender( {
 }: OrdersOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<OrderMetricWidget
-				metricKey="orders_no"
-				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
-				errorText={ __(
-					"We couldn't load orders. Please try again in a moment.",
-					'jetpack-premium-analytics'
-				) }
-			/>
-			<div className={ styles.contentExport }>
-				<DownloadCsvButton reportType="ordersovertime" />
+			<div className={ styles.root }>
+				<OrderMetricWidget
+					metricKey="orders_no"
+					emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
+					errorText={ __(
+						"We couldn't load orders. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					) }
+				/>
+				<WidgetFooter>
+					<DownloadCsvButton reportType="ordersovertime" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

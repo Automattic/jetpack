@@ -266,7 +266,7 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exposes the CSV export in the widget content once the fetched rows are on screen', async () => {
+	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget attributes={ { num: 10 } } />
@@ -281,7 +281,11 @@ describe( 'TopPostsWidget', () => {
 		expect(
 			within( toolbar ).queryByRole( 'button', { name: /Download CSV/ } )
 		).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		const downloadButton = screen.getByRole( 'button', { name: /Download CSV/ } );
+		const reportLink = screen.getByRole( 'link', { name: 'See report' } );
+		// The shared parent is the footer layout contract under test.
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
 	} );
 
 	it( 'hides the CSV export when the server flag is disabled', async () => {
