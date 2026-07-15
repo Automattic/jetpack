@@ -151,8 +151,8 @@ function PostsReport(): JSX.Element {
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	// The chart period is part of the report query, so changing it writes the
-	// URL (and re-fetches) rather than living in component state.
+	// The chart period is written to the URL and applied to the daily report
+	// data client-side rather than living in component state.
 	const navigate = useNavigate();
 	const handleIntervalChange = useCallback(
 		( interval: IntervalType ) => {

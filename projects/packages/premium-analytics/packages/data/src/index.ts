@@ -99,7 +99,11 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
-export { sliceWordAdsStatsReport } from './processing/stats';
+export {
+	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
+	sliceWordAdsStatsReport,
+} from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -238,6 +242,7 @@ export type {
 export type {
 	StatsArchivesComparisonItem,
 	StatsArchivesItem,
+	StatsChartBucketPeriod,
 	StatsClicksComparisonItem,
 	StatsClicksItem,
 	StatsCommentFollowersItem,
