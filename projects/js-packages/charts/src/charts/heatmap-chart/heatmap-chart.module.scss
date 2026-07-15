@@ -85,6 +85,13 @@
 	background: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
 }
 
+// An empty grid slot (calendar ragged edges): keeps its track but paints and
+// captures nothing. `visibility` (not `display`) so the slot still sizes.
+.heatmap-chart__cell--hidden {
+	visibility: hidden;
+	pointer-events: none;
+}
+
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {

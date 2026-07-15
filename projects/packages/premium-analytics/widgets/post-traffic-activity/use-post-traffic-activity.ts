@@ -58,11 +58,12 @@ function toDay( value?: string ): string | undefined {
  * card exactly: a range at or under one page pads backward to
  * `range end − (pageSpanDays − 1)` with blank filler weeks, and a longer
  * range is paged — the newest page shows first and the header arrows step
- * through the range one page at a time, the oldest page padding backward the
- * same way. Every calendar day of the page gets a point so the heatmap grid
- * stays complete, but days without traffic — and filler days outside the
- * selected range — carry `null`: the design renders them as blank cells
- * rather than zero labels.
+ * through the range one page at a time. Days without traffic — and, on a
+ * short range, the backward-padding filler before the range — carry `null`:
+ * the design renders them as blank cells rather than zero labels. Days past
+ * the range end (and, when paging, before the range start) are omitted
+ * entirely, so the chart renders their week-completion slots as ragged
+ * edges instead of blanks.
  *
  * @param postId       - The scoped post ID (0 disables the request).
  * @param reportParams - The dashboard date range.
@@ -120,7 +121,17 @@ export default function usePostTrafficActivity(
 			pageEnd = clampedEnd < newestPageEnd ? clampedEnd : newestPageEnd;
 		}
 
-		const points = eachDayOfInterval( { start: pageStart, end: pageEnd } ).map( date => {
+		// Trim the emitted days to what should render as cells; the chart
+		// hides the week-completion slots outside them (ragged edges). Days
+		// past the range end always drop. Days before the range start drop
+		// only when paging — a short range keeps its backward padding, since
+		// those blanks are what fill the card.
+		const rangeStart = parseISO( from );
+		const rangeEnd = parseISO( to );
+		const visibleStart = paged && rangeStart > pageStart ? rangeStart : pageStart;
+		const visibleEnd = rangeEnd < pageEnd ? rangeEnd : pageEnd;
+
+		const points = eachDayOfInterval( { start: visibleStart, end: visibleEnd } ).map( date => {
 			const dateString = format( date, 'yyyy-MM-dd' );
 			const inRange = dateString >= from && dateString <= to;
 			const views = inRange ? viewsByDay.get( dateString ) : undefined;

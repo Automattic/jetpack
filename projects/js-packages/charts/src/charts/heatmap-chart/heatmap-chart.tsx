@@ -129,6 +129,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
+	const isCellHidden = useCallback(
+		( col: number, row: number ) => data[ col ]?.data[ row ]?.hidden === true,
+		[ data ]
+	);
+
 	const onChartKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			if (
@@ -148,26 +153,46 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			event.preventDefault();
 
 			if ( selectedIndex === undefined ) {
-				setSelectedIndex( 0 );
+				// Start at the first navigable cell (a calendar's leading edge
+				// slots may be hidden).
+				for ( let index = 0; index < columns * rows; index++ ) {
+					if ( ! isCellHidden( Math.floor( index / rows ), index % rows ) ) {
+						setSelectedIndex( index );
+						return;
+					}
+				}
 				return;
 			}
 
+			let stepCol = 0;
+			let stepRow = 0;
+			if ( event.key === 'ArrowRight' ) {
+				stepCol = 1;
+			} else if ( event.key === 'ArrowLeft' ) {
+				stepCol = -1;
+			} else if ( event.key === 'ArrowDown' ) {
+				stepRow = 1;
+			} else if ( event.key === 'ArrowUp' ) {
+				stepRow = -1;
+			}
+
+			// Step past hidden slots to the next navigable cell in the pressed
+			// direction; when only hidden slots (or the edge) remain that way,
+			// the selection stays put.
 			let col = Math.floor( selectedIndex / rows );
 			let row = selectedIndex % rows;
+			do {
+				col += stepCol;
+				row += stepRow;
+			} while ( col >= 0 && col < columns && row >= 0 && row < rows && isCellHidden( col, row ) );
 
-			if ( event.key === 'ArrowRight' ) {
-				col = Math.min( col + 1, columns - 1 );
-			} else if ( event.key === 'ArrowLeft' ) {
-				col = Math.max( col - 1, 0 );
-			} else if ( event.key === 'ArrowDown' ) {
-				row = Math.min( row + 1, rows - 1 );
-			} else if ( event.key === 'ArrowUp' ) {
-				row = Math.max( row - 1, 0 );
+			if ( col < 0 || col >= columns || row < 0 || row >= rows ) {
+				return;
 			}
 
 			setSelectedIndex( col * rows + row );
 		},
-		[ rows, columns, selectedIndex, hideTooltip ]
+		[ rows, columns, selectedIndex, hideTooltip, isCellHidden ]
 	);
 
 	const handleCellMouseMove = useCallback(
@@ -340,6 +365,24 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									</span>
 									{ data.map( ( column, columnIndex ) => {
 										const cell = column.data[ rowIndex ];
+
+										// A hidden cell keeps its grid slot (so the rest of the
+										// column doesn't shift) but paints nothing and takes no
+										// interaction — a calendar's ragged edges.
+										if ( cell?.hidden ) {
+											return (
+												<div
+													key={ `cell-${ columnIndex }-${ rowIndex }` }
+													data-testid="heatmap-cell-hidden"
+													aria-hidden="true"
+													className={ clsx(
+														styles[ 'heatmap-chart__cell' ],
+														styles[ 'heatmap-chart__cell--hidden' ]
+													) }
+												/>
+											);
+										}
+
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
 										const normalized = present ? getNormalizedValue( value, extent ) : 0;

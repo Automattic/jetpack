@@ -59,24 +59,24 @@ describe( 'usePostTrafficActivity', () => {
 
 		const { days } = result.current;
 
-		// The 4-day range pads backward to the grid span (168 days), with the
-		// page snapped to week boundaries (Monday 2026-01-19 → Sunday
-		// 2026-07-05) so it lays out exactly 24 columns.
-		expect( days ).toHaveLength( 168 );
+		// The 4-day range pads backward to the grid span, with the page
+		// snapped to week boundaries (Monday 2026-01-19 → Sunday 2026-07-05,
+		// 24 columns) — but the emitted days stop at the range end, so the
+		// trailing week-completion day (2026-07-05) renders as a ragged
+		// edge, not a blank cell.
+		expect( days ).toHaveLength( 167 );
 		expect( days[ 0 ].dateString ).toBe( '2026-01-19' );
 
-		// Values render only inside the selected range; the in-range gap and
-		// the trailing week-completion day are blank.
-		expect( days.slice( -5 ) ).toEqual( [
+		// Values render only inside the selected range; the in-range gap is blank.
+		expect( days.slice( -4 ) ).toEqual( [
 			{ dateString: '2026-07-01', value: 2 },
 			{ dateString: '2026-07-02', value: null },
 			{ dateString: '2026-07-03', value: 5 },
 			{ dateString: '2026-07-04', value: null },
-			{ dateString: '2026-07-05', value: null },
 		] );
 
 		// Filler days stay blank even where the history has views (2026-06-30).
-		expect( days.slice( 0, -5 ).every( day => day.value === null ) ).toBe( true );
+		expect( days.slice( 0, -4 ).every( day => day.value === null ) ).toBe( true );
 
 		// One page covers the range, so no pager.
 		expect( result.current.isPaged ).toBe( false );
@@ -99,23 +99,26 @@ describe( 'usePostTrafficActivity', () => {
 
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 
-		// Newest page first: ends at the end of the range's last week
-		// (Sunday 2026-07-05), no newer page.
+		// Newest page first: the page window ends at the end of the range's
+		// last week (Sunday 2026-07-05), but the emitted days stop at the
+		// range end so the extra day renders as a ragged edge.
 		expect( result.current.isPaged ).toBe( true );
 		expect( result.current.canShowNewer ).toBe( false );
 		expect( result.current.canShowOlder ).toBe( true );
-		expect( result.current.days ).toHaveLength( 168 );
-		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-07-05' );
+		expect( result.current.days ).toHaveLength( 167 );
+		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-07-04' );
 
 		act( () => result.current.showOlder() );
 
 		// The oldest page clamps to the range's first week (Monday
-		// 2025-12-29) and fills forward as a full grid (overlapping the
-		// previous page) — no months of out-of-range padding before it.
+		// 2025-12-29) and fills forward (overlapping the previous page) — and
+		// while paging, days before the range start are omitted too, so the
+		// emitted days open at the range start (2026-01-01) and the three
+		// leading week-completion days render as a ragged edge.
 		expect( result.current.canShowNewer ).toBe( true );
 		expect( result.current.canShowOlder ).toBe( false );
-		expect( result.current.days ).toHaveLength( 168 );
-		expect( result.current.days[ 0 ].dateString ).toBe( '2025-12-29' );
+		expect( result.current.days ).toHaveLength( 165 );
+		expect( result.current.days[ 0 ].dateString ).toBe( '2026-01-01' );
 		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-06-14' );
 		expect( result.current.days[ 0 ].value ).toBeNull();
 	} );
