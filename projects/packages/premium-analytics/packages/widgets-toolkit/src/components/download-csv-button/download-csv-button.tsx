@@ -2,17 +2,21 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { downloadReport, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	downloadReport,
+	hasComparisonEnabled,
+	type ReportParams,
+} from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import { Button, Icon } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useState } from 'react';
+import { useContext, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { buildCsv, saveCsv, type CsvColumn } from '../../helpers/build-csv';
-import { useWidgetRootContext } from '../widget-root';
+import { WidgetRootContext } from '../widget-root';
 import styles from './download-csv-button.module.scss';
 
 type CommonDownloadCsvButtonProps = {
@@ -70,11 +74,20 @@ export type DownloadCsvButtonProps<
 > = ServerDownloadCsvButtonProps | ClientDownloadCsvButtonProps< Row >;
 
 function areCsvExportsEnabled(): boolean {
-	return getScriptData()?.premium_analytics?.client_side_csv_exports_enabled === true;
+	return getScriptData()?.premium_analytics?.csv_exports_enabled === true;
 }
 
 function getErrorMessage( error: unknown ): string {
 	if ( error instanceof Error && error.message ) {
+		return error.message;
+	}
+	if (
+		typeof error === 'object' &&
+		error !== null &&
+		'message' in error &&
+		typeof error.message === 'string' &&
+		error.message
+	) {
 		return error.message;
 	}
 
@@ -99,36 +112,45 @@ function getErrorMessage( error: unknown ): string {
 export function DownloadCsvButton<
 	Row extends Record< string, unknown > = Record< string, unknown >,
 >( props: DownloadCsvButtonProps< Row > ) {
-	const { reportParams: contextReportParams, setError } = useWidgetRootContext();
+	const context = useContext( WidgetRootContext );
 	const [ isBusy, setIsBusy ] = useState( false );
-	const {
-		label = __( 'Download CSV', 'jetpack-premium-analytics' ),
-		className,
-		reportType,
-	} = props;
+	const { label = __( 'Download CSV', 'jetpack-premium-analytics' ), className } = props;
+	const isServerMode = props.reportType !== undefined;
 
-	const onClick = useCallback( async () => {
-		if ( reportType ) {
-			const reportParams = props.reportParams ?? contextReportParams;
+	if ( ! areCsvExportsEnabled() || ( ! isServerMode && props.rows.length === 0 ) ) {
+		return null;
+	}
+
+	const reportParams = isServerMode ? props.reportParams ?? context?.reportParams : undefined;
+	if ( isServerMode && ! reportParams ) {
+		throw new Error(
+			'DownloadCsvButton server mode requires reportParams or a surrounding WidgetRoot.'
+		);
+	}
+
+	const onClick = async () => {
+		if ( isServerMode ) {
+			const { reportType } = props;
+			const resolvedReportParams = reportParams;
 
 			setIsBusy( true );
-			setError?.( null );
+			context?.setError?.( null );
 
 			try {
 				await downloadReport( {
 					reportType,
-					from: reportParams.from,
-					to: reportParams.to,
-					interval: reportParams.interval,
-					...( reportParams.comp === '1' && reportParams.compare_from && reportParams.compare_to
+					from: resolvedReportParams.from,
+					to: resolvedReportParams.to,
+					interval: resolvedReportParams.interval,
+					...( hasComparisonEnabled( resolvedReportParams )
 						? {
-								compareFrom: reportParams.compare_from,
-								compareTo: reportParams.compare_to,
+								compareFrom: resolvedReportParams.compare_from,
+								compareTo: resolvedReportParams.compare_to,
 						  }
 						: {} ),
 				} );
 			} catch ( error ) {
-				setError?.( { message: getErrorMessage( error ) } );
+				context?.setError?.( { message: getErrorMessage( error ) } );
 			} finally {
 				setIsBusy( false );
 			}
@@ -137,11 +159,7 @@ export function DownloadCsvButton<
 		}
 
 		saveCsv( props.filename, buildCsv( props.columns, props.rows ) );
-	}, [ contextReportParams, props, reportType, setError ] );
-
-	if ( ! areCsvExportsEnabled() || ( ! reportType && props.rows.length === 0 ) ) {
-		return null;
-	}
+	};
 
 	return (
 		<Button

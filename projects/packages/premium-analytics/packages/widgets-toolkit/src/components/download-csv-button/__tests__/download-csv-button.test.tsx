@@ -3,10 +3,11 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { downloadReport } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { buildCsv, saveCsv } from '../../../helpers/build-csv';
 import { WidgetRootContext } from '../../widget-root';
 import { DownloadCsvButton } from '../download-csv-button';
 
@@ -17,15 +18,21 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	downloadReport: jest.fn(),
 } ) );
+jest.mock( '../../../helpers/build-csv', () => ( {
+	buildCsv: jest.fn( () => '"Title"\n"Hello"' ),
+	saveCsv: jest.fn(),
+} ) );
 
 const mockGetScriptData = getScriptData as jest.Mock;
 const mockDownloadReport = downloadReport as jest.MockedFunction< typeof downloadReport >;
+const mockBuildCsv = buildCsv as jest.MockedFunction< typeof buildCsv >;
+const mockSaveCsv = saveCsv as jest.MockedFunction< typeof saveCsv >;
 
 describe( 'DownloadCsvButton', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { client_side_csv_exports_enabled: true },
+			premium_analytics: { csv_exports_enabled: true },
 		} );
 		mockDownloadReport.mockResolvedValue( { filename: 'orders-over-time.csv' } );
 	} );
@@ -66,7 +73,7 @@ describe( 'DownloadCsvButton', () => {
 
 	it( 'stays hidden while the proof-of-concept flag is disabled', () => {
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { client_side_csv_exports_enabled: false },
+			premium_analytics: { csv_exports_enabled: false },
 		} );
 
 		render(
@@ -84,5 +91,106 @@ describe( 'DownloadCsvButton', () => {
 		);
 
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'exports client-side rows without a WidgetRoot context', () => {
+		const rows = [ { title: 'Hello' } ];
+		const columns = [ { key: 'title' as const, label: 'Title' } ];
+
+		render( <DownloadCsvButton columns={ columns } rows={ rows } filename="top-posts" /> );
+
+		// This package does not depend on @testing-library/user-event.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+
+		expect( mockBuildCsv ).toHaveBeenCalledWith( columns, rows );
+		expect( mockSaveCsv ).toHaveBeenCalledWith( 'top-posts', '"Title"\n"Hello"' );
+	} );
+
+	it( 'reports server download failures through WidgetRoot', async () => {
+		const setError = jest.fn();
+		mockDownloadReport.mockRejectedValueOnce( new Error( 'Upstream API unavailable.' ) );
+
+		render(
+			<WidgetRootContext.Provider
+				value={ {
+					reportParams: {
+						from: '2026-06-01T00:00:00+02:00',
+						to: '2026-06-30T23:59:59+02:00',
+						interval: 'day',
+					},
+					setError,
+				} }
+			>
+				<DownloadCsvButton reportType="ordersovertime" />
+			</WidgetRootContext.Provider>
+		);
+
+		// This package does not depend on @testing-library/user-event.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+
+		await waitFor( () =>
+			expect( setError ).toHaveBeenLastCalledWith( { message: 'Upstream API unavailable.' } )
+		);
+	} );
+
+	it( 'disables the button while a server download is in progress', async () => {
+		let resolveDownload: ( value: { filename: string } ) => void = () => {};
+		mockDownloadReport.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveDownload = resolve;
+				} )
+		);
+
+		render(
+			<WidgetRootContext.Provider
+				value={ {
+					reportParams: {
+						from: '2026-06-01T00:00:00+02:00',
+						to: '2026-06-30T23:59:59+02:00',
+						interval: 'day',
+					},
+				} }
+			>
+				<DownloadCsvButton reportType="ordersovertime" />
+			</WidgetRootContext.Provider>
+		);
+
+		const button = screen.getByRole( 'button', { name: /Download CSV/ } );
+		// This package does not depend on @testing-library/user-event.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( button );
+
+		await waitFor( () => expect( button ).toHaveAttribute( 'aria-disabled', 'true' ) );
+		await act( async () => resolveDownload( { filename: 'orders-over-time.csv' } ) );
+		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
+	} );
+
+	it( 'accepts explicit report params without a WidgetRoot context', async () => {
+		render(
+			<DownloadCsvButton
+				reportType="ordersovertime"
+				reportParams={ {
+					from: '2026-06-01T00:00:00+02:00',
+					to: '2026-06-30T23:59:59+02:00',
+					interval: 'day',
+				} }
+			/>
+		);
+
+		// This package does not depend on @testing-library/user-event.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+
+		await waitFor( () =>
+			expect( mockDownloadReport ).toHaveBeenCalledWith( {
+				reportType: 'ordersovertime',
+				from: '2026-06-01T00:00:00+02:00',
+				to: '2026-06-30T23:59:59+02:00',
+				interval: 'day',
+			} )
+		);
 	} );
 } );

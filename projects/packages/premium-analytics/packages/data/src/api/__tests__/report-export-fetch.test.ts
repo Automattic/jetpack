@@ -98,6 +98,24 @@ describe( 'report export downloads', () => {
 		expect( click ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'surfaces the error message returned by the export endpoint', async () => {
+		mockApiFetch.mockRejectedValue( {
+			status: 502,
+			json: jest.fn().mockResolvedValue( {
+				code: 'api_error',
+				message: 'The upstream report API is unavailable.',
+			} ),
+		} as unknown as Response );
+
+		await expect(
+			downloadReport( {
+				reportType: 'ordersovertime',
+				from: '2026-06-01T00:00:00+02:00',
+				to: '2026-06-30T23:59:59+02:00',
+			} )
+		).rejects.toThrow( 'The upstream report API is unavailable.' );
+	} );
+
 	it( 'reads standard and UTF-8 response filenames', () => {
 		expect(
 			getFilenameFromContentDisposition( 'attachment; filename="orders-over-time.csv"' )

@@ -3,12 +3,12 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { saveBlob } from '../../utils/save-blob';
 
 const REPORT_DOWNLOAD_PATH = '/jetpack-premium-analytics/v1/reports/csv-export';
-
-type ApiFetchOptions = Parameters< typeof apiFetch >[ 0 ] & {
-	parse?: boolean;
-};
 
 /**
  * Export request parameters
@@ -114,21 +114,25 @@ export async function exportReport( params: ExportReportParams ): Promise< Expor
 export async function downloadReport(
 	params: DownloadReportParams
 ): Promise< DownloadReportResponse > {
-	const response = ( await apiFetch( {
-		path: REPORT_DOWNLOAD_PATH,
-		method: 'POST',
-		data: buildReportExportBody( params ),
-		parse: false,
-	} as ApiFetchOptions ) ) as Response;
+	let response: Response;
+
+	try {
+		response = await apiFetch( {
+			path: REPORT_DOWNLOAD_PATH,
+			method: 'POST',
+			data: buildReportExportBody( params ),
+			parse: false,
+		} );
+	} catch ( error ) {
+		if ( isResponseError( error ) ) {
+			throw new Error( await getResponseErrorMessage( error ), { cause: error } );
+		}
+
+		throw error;
+	}
 
 	if ( ! response.ok ) {
-		throw new Error(
-			sprintf(
-				/* translators: %d: HTTP status code. */
-				__( 'Report download failed with status %d.', 'jetpack-premium-analytics' ),
-				response.status
-			)
-		);
+		throw new Error( await getResponseErrorMessage( response ) );
 	}
 
 	const blob = await response.blob();
@@ -165,34 +169,6 @@ export function getFilenameFromContentDisposition( header: string | null ): stri
 	return filenameMatch?.[ 1 ];
 }
 
-/**
- * Save a response blob as a browser download.
- *
- * @param blob     - Blob returned by the export endpoint.
- * @param filename - Requested download filename.
- * @return The sanitized CSV filename used for the download.
- */
-export function saveBlob( blob: Blob, filename: string ): string {
-	const url = window.URL.createObjectURL( blob );
-	const link = document.createElement( 'a' );
-	// Replace path separators, control characters, and Windows-reserved characters.
-	// eslint-disable-next-line no-control-regex
-	const safeName = filename.replace( /[\x00-\x1f/\\:*?"<>|]/g, '-' ).trim() || 'export';
-	const csvFilename = safeName.toLowerCase().endsWith( '.csv' ) ? safeName : `${ safeName }.csv`;
-
-	link.href = url;
-	link.download = csvFilename;
-	link.style.display = 'none';
-
-	document.body.appendChild( link );
-	link.click();
-	document.body.removeChild( link );
-
-	setTimeout( () => window.URL.revokeObjectURL( url ), 0 );
-
-	return csvFilename;
-}
-
 function buildFallbackFilename( params: DownloadReportParams ): string {
 	return `${ sanitizeFilenamePart( params.reportType ) }-${ datePart(
 		params.from
@@ -220,4 +196,32 @@ function sanitizeFilenamePart( value: string ): string {
 
 function datePart( value: string ): string {
 	return value.split( 'T' )[ 0 ] || '';
+}
+
+async function getResponseErrorMessage( response: Response ): Promise< string > {
+	try {
+		const body = ( await response.json() ) as { message?: unknown };
+		if ( typeof body.message === 'string' && body.message.trim() ) {
+			return body.message;
+		}
+	} catch {
+		// Fall through to a status-based error when the response is not JSON.
+	}
+
+	return sprintf(
+		/* translators: %d: HTTP status code. */
+		__( 'Report download failed with status %d.', 'jetpack-premium-analytics' ),
+		response.status
+	);
+}
+
+function isResponseError( error: unknown ): error is Response {
+	return (
+		typeof error === 'object' &&
+		error !== null &&
+		'status' in error &&
+		typeof error.status === 'number' &&
+		'json' in error &&
+		typeof error.json === 'function'
+	);
 }

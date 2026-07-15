@@ -1,0 +1,5 @@
+.contentExport {
+	display: flex;
+	justify-content: flex-end;
+	padding-block-start: var(--wpds-dimension-gap-sm, 8px);
+}

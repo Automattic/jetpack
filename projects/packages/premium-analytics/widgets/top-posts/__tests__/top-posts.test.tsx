@@ -104,7 +104,7 @@ describe( 'TopPostsWidget', () => {
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { client_side_csv_exports_enabled: true },
+			premium_analytics: { csv_exports_enabled: true },
 		} );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
@@ -286,7 +286,7 @@ describe( 'TopPostsWidget', () => {
 
 	it( 'hides the CSV export when the server flag is disabled', async () => {
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { client_side_csv_exports_enabled: false },
+			premium_analytics: { csv_exports_enabled: false },
 		} );
 
 		render( <TopPostsWidget attributes={ { num: 10 } } /> );

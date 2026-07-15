@@ -220,6 +220,7 @@ export {
 	getApiErrorCode,
 	getApiErrorStatus,
 	getStatsPlanErrorReason,
+	saveBlob,
 	shouldRetryApiError,
 	useSiteHomeUrl,
 } from './utils';

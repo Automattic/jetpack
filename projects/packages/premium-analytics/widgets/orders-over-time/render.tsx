@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import styles from './style.module.css';
 import type { OrdersOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -48,7 +49,9 @@ export default function OrdersOverTimeRender( {
 					'jetpack-premium-analytics'
 				) }
 			/>
-			<DownloadCsvButton reportType="ordersovertime" />
+			<div className={ styles.contentExport }>
+				<DownloadCsvButton reportType="ordersovertime" />
+			</div>
 		</WidgetRoot>
 	);
 }
