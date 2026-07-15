@@ -8,14 +8,21 @@ import {
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { BaseControl } from '@wordpress/components';
+import { useResizeObserver } from '@wordpress/compose';
 import { Stack } from '@wordpress/ui';
-import { useMemo, useCallback, useState } from 'react';
+import clsx from 'clsx';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 /**
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
+import {
+	MOBILE_CONTAINER_WIDTH_THRESHOLD,
+	WIDE_CALENDAR_CONTAINER_THRESHOLD,
+} from '../date-range-layout';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
+
 import './date-filters-panel.scss';
 
 type DateRangeFilterProps = Parameters< typeof DateRangeFilter >[ 0 ];
@@ -192,8 +199,38 @@ export function DateFiltersPanel( {
 		onComparisonChange( undefined, undefined );
 	}, [ onComparisonChange ] );
 
+	/*
+	 * Single source of truth for the responsive layout: measure the container
+	 * once here and derive both `isCompact` and `isWideScreen`. Children never
+	 * measure — the compact styling cascades from the `is-compact` root class,
+	 * and `isWideScreen` is forwarded only because the calendar needs it.
+	 */
+	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
+
+	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
+		const entry = entries[ 0 ];
+		if ( entry ) {
+			setContainerWidth( entry.contentRect.width );
+		}
+	}, [] );
+
+	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
+
+	useEffect( () => {
+		setObserverRef( containerElement ?? document.body );
+	}, [ containerElement, setObserverRef ] );
+
+	const isCompact = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
+	const isWideScreen =
+		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
+
 	return (
-		<Stack className="date-filters-panel" direction="row" gap="sm" wrap="wrap" align="center">
+		<Stack
+			className={ clsx( 'date-filters-panel', { 'is-compact': isCompact } ) }
+			direction={ isCompact ? 'column' : 'row' }
+			wrap={ isCompact ? 'nowrap' : 'wrap' }
+			gap="sm"
+		>
 			<BaseControl
 				className="date-filters-panel__primary"
 				label={ rangeControlProps.label }
@@ -210,7 +247,8 @@ export function DateFiltersPanel( {
 					onCancel={ onCancel }
 					canApply={ canApply }
 					timeZone={ timeZone }
-					containerElement={ containerElement }
+					isCompact={ isCompact }
+					isWideScreen={ isWideScreen }
 					onOpenChange={ setIsPrimaryPickerOpen }
 				/>
 			</BaseControl>
