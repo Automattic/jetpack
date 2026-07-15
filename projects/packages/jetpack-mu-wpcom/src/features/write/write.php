@@ -988,7 +988,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
 	<!-- Top bar -->
-	<header class="bw-topbar">
+	<header class="bw-topbar" data-wp-class--has-topbar-message="state.hasMessage">
 		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
