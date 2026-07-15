@@ -4,12 +4,20 @@
 
 .trigger {
 	max-inline-size: var(--wpds-dimension-surface-width-xs);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 	font-size: max(var(--wpds-typography-font-size-md), 16px); /* match SelectControl trigger; avoid mobile zoom */
 
 	@media (min-width: 600px) {
 		font-size: var(--wpds-typography-font-size-md);
 	}
+}
+
+.triggerLabel {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}
+
+.triggerCaret {
+	flex: 0 0 auto;
 }

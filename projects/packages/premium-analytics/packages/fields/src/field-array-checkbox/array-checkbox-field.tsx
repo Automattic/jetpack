@@ -3,7 +3,8 @@
  */
 import { CheckboxControl, privateApis, Spinner } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { Button, Fieldset, Stack } from '@wordpress/ui';
+import { chevronDown } from '@wordpress/icons';
+import { Button, Fieldset, Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -109,7 +110,8 @@ export default function ArrayCheckboxField< Item extends Record< string, string[
 					/>
 				}
 			>
-				{ label }
+				<span className={ styles.triggerLabel }>{ label }</span>
+				<Icon className={ styles.triggerCaret } icon={ chevronDown } size={ 18 } />
 			</Menu.TriggerButton>
 
 			<Menu.Popover className={ styles.popover }>
