@@ -283,10 +283,10 @@ class Ai_Crawlers {
 		$catalog = array();
 		foreach ( self::get_catalog() as $slug => $info ) {
 			$catalog[] = array(
-				'slug'         => $slug,
-				'label'        => $info['label'],
-				'userAgent'    => $info['user_agent'],
-				'type'         => $info['type'],
+				'slug'      => $slug,
+				'label'     => $info['label'],
+				'userAgent' => $info['user_agent'],
+				'type'      => $info['type'],
 			);
 		}
 
