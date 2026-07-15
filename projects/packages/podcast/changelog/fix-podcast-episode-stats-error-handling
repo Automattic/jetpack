@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast: handle episode-stats fetch failures inside React instead of throwing from a detached promise, and surface the premium-gated and error states in the episodes table instead of silently showing zero plays.
+Podcast: show a clear message when episode play counts can't load, instead of quietly showing zero plays.
