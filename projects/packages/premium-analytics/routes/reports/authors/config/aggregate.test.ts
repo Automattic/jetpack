@@ -1,4 +1,4 @@
-import { aggregateAuthorRows, authorsToTimeSeries, getChartBucketKey } from './aggregate';
+import { aggregateAuthorRows, authorsToTimeSeries } from './aggregate';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 const report: StatsNormalizedReport< StatsTopAuthorsItem > = {
@@ -66,9 +66,11 @@ describe( 'report authors aggregate', () => {
 		expect( series.data.map( point => point.views ) ).toEqual( [ 13, 17 ] );
 	} );
 
-	it.each( [ 'week', 'month' ] as const )( 'groups daily totals by %s for the chart', period => {
+	it.each( [
+		[ 'week', '2026-06-01' ],
+		[ 'month', '2026-06-01' ],
+	] as const )( 'groups daily totals by %s for the chart', ( period, bucketKey ) => {
 		const series = authorsToTimeSeries( report, period );
-		const bucketKey = getChartBucketKey( report.data[ 0 ].time_interval, period );
 
 		expect( series.data ).toEqual( [
 			expect.objectContaining( {

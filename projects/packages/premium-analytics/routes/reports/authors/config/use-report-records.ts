@@ -4,15 +4,13 @@
 import {
 	useStatsTopAuthors,
 	type ReportParams,
-	type StatsPeriod,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { aggregateAuthorRows, authorsToTimeSeries } from './aggregate';
-
-type AuthorChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * Fetch and derive the Authors chart and table from one bucketed report.
@@ -23,7 +21,7 @@ type AuthorChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export function useAuthorsReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: AuthorChartPeriod
+	chartPeriod: StatsChartBucketPeriod
 ) {
 	/*
 	 * `summarize: 0` keeps the interval buckets needed by the chart, while

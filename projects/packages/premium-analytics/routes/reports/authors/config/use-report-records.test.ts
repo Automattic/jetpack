@@ -6,7 +6,6 @@ import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { getChartBucketKey } from './aggregate';
 import { useAuthorsReportRecords } from './use-report-records';
 import type {
 	ReportParams,
@@ -74,7 +73,6 @@ describe( 'useAuthorsReportRecords', () => {
 		};
 		const { result: dayResult } = renderHook( () => useAuthorsReportRecords( params, 'day' ) );
 		const { result: weekResult } = renderHook( () => useAuthorsReportRecords( params, 'week' ) );
-		const weeklyBucketKey = getChartBucketKey( report.data[ 0 ].time_interval, 'week' );
 
 		expect( mockUseStatsTopAuthors ).toHaveBeenLastCalledWith( {
 			...params,
@@ -83,8 +81,17 @@ describe( 'useAuthorsReportRecords', () => {
 			period: 'day',
 		} );
 		expect( weekResult.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( { time_interval: weeklyBucketKey, views: 13 } ),
+			expect.objectContaining( {
+				time_interval: '2026-07-06',
+				date_start: '2026-07-06T00:00:00+00:00',
+				date_end: '2026-07-10T23:59:59+00:00',
+				views: 13,
+			} ),
 		] );
+		expect( weekResult.current.chart.primary.summary ).toEqual( {
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
+		} );
 		expect( weekResult.current.authors.rows ).toEqual( dayResult.current.authors.rows );
 	} );
 } );
