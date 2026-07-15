@@ -6,10 +6,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
-/**
- * Internal dependencies
- */
-import { setupWpcomSimpleApiFetch } from './wpcom-simple-api-fetch';
 
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack
@@ -45,7 +41,6 @@ function setupApiFetch(): void {
  */
 export async function init(): Promise< void > {
 	setupApiFetch();
-	setupWpcomSimpleApiFetch();
 
 	dispatch( bootStore ).updateMenuItem( 'dashboard', {
 		icon: chartBar,

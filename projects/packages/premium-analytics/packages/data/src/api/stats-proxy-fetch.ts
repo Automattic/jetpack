@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { getWpcomBlogId, isWpcomSimpleSite, statsProxyPath } from './constants';
+import { statsProxyPath } from './constants';
 
 export type StatsProxyVersion = '1.1' | '1.2' | '2';
 
@@ -25,6 +26,11 @@ export type StatsProxyFetchParams< TBody = unknown > = {
 	body?: TBody;
 };
 
+type ResolvedStatsProxyRequest = {
+	path: string;
+	global?: boolean;
+};
+
 function normalizeEndpoint( endpoint: string ) {
 	return endpoint.replace( /^\/+/, '' );
 }
@@ -41,48 +47,57 @@ function cleanQueryParams( params?: StatsProxyParams ) {
 	return Object.keys( cleaned ).length ? cleaned : undefined;
 }
 
-function isGlobalWpcomSimpleEndpoint( endpoint: string ) {
-	return normalizeEndpoint( endpoint ) === 'upgrades';
-}
-
-function getBasePath( version: StatsProxyVersion ) {
-	if ( ! isWpcomSimpleSite() ) {
-		return `${ statsProxyPath }/v${ version }`;
-	}
-
-	return version === '2' ? '/wpcom/v2' : `/rest/v${ version }`;
-}
-
-function addWpcomSimpleSiteQuery(
-	params: StatsProxyParams | undefined
-): StatsProxyParams | undefined {
-	if ( ! isWpcomSimpleSite() ) {
-		return params;
-	}
-
-	const blogId = getWpcomBlogId();
-	if ( ! blogId || params?.site ) {
-		return params;
-	}
-
-	return {
-		...params,
-		site: blogId,
-	};
-}
-
-export function getStatsProxyPath( {
+/**
+ * Resolve the request for a stats endpoint in the current environment.
+ *
+ * Connected Jetpack sites reach WPCOM through the local Premium Analytics
+ * proxy. WPCOM Simple has no local proxy: requests use public-api namespaces
+ * directly and are dispatched by WPCOM's wp-admin apiFetch bridge, which
+ * site-scopes every path unless the request is marked `global`. `upgrades`
+ * is a global public-api endpoint, so it opts out of the path scoping and
+ * carries the site as a query arg instead.
+ *
+ * @param request          - The stats request to resolve.
+ * @param request.version  - WPCOM API version (`1.1`, `1.2`, or `2`).
+ * @param request.endpoint - Endpoint path below the version base.
+ * @param request.params   - Query params of the request.
+ * @return The apiFetch path, plus `global: true` for global WPCOM endpoints.
+ */
+function resolveStatsProxyRequest( {
 	version,
 	endpoint,
 	params,
-}: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' > ) {
+}: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' > ): ResolvedStatsProxyRequest {
 	const normalizedEndpoint = normalizeEndpoint( endpoint );
-	const path = `${ getBasePath( version ) }/${ normalizedEndpoint }`;
-	const queryParams = cleanQueryParams(
-		isGlobalWpcomSimpleEndpoint( normalizedEndpoint ) ? addWpcomSimpleSiteQuery( params ) : params
-	);
 
-	return queryParams ? addQueryArgs( path, queryParams ) : path;
+	if ( ! isSimpleSite() ) {
+		const path = `${ statsProxyPath }/v${ version }/${ normalizedEndpoint }`;
+		const queryParams = cleanQueryParams( params );
+		return { path: queryParams ? addQueryArgs( path, queryParams ) : path };
+	}
+
+	const base = version === '2' ? '/wpcom/v2' : `/rest/v${ version }`;
+	const path = `${ base }/${ normalizedEndpoint }`;
+
+	if ( normalizedEndpoint !== 'upgrades' ) {
+		const queryParams = cleanQueryParams( params );
+		return { path: queryParams ? addQueryArgs( path, queryParams ) : path };
+	}
+
+	const blogId = getScriptData()?.site?.wpcom?.blog_id;
+	const queryParams = cleanQueryParams(
+		blogId && ! params?.site ? { ...params, site: blogId } : params
+	);
+	return {
+		path: queryParams ? addQueryArgs( path, queryParams ) : path,
+		global: true,
+	};
+}
+
+export function getStatsProxyPath(
+	request: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' >
+) {
+	return resolveStatsProxyRequest( request ).path;
 }
 
 export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
@@ -92,13 +107,12 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 	method = 'GET',
 	body,
 }: StatsProxyFetchParams< TBody > ): Promise< TResponse > {
-	const path = getStatsProxyPath( { version, endpoint, params } );
-	const fetchOptions = {
+	const { path, global: isGlobal } = resolveStatsProxyRequest( { version, endpoint, params } );
+
+	return apiFetch< TResponse >( {
 		path,
 		method,
 		...( method === 'POST' ? { data: body } : {} ),
-		...( isWpcomSimpleSite() && isGlobalWpcomSimpleEndpoint( endpoint ) ? { global: true } : {} ),
-	};
-
-	return apiFetch< TResponse >( fetchOptions );
+		...( isGlobal ? { global: true } : {} ),
+	} );
 }

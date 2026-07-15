@@ -73,7 +73,7 @@ class Analytics {
 	 * @param bool  $register_local_services Whether to register connected-site local services.
 	 * @return void
 	 */
-	private static function boot( $options = array(), $register_local_services = true ) {
+	private static function boot( $options, $register_local_services ) {
 		if ( self::$initialized ) {
 			return;
 		}
@@ -142,7 +142,7 @@ class Analytics {
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the
 		// manifest the widget registry reads, and the registry serves REST
-			// requests (e.g. /wpcom/v2/widget-modules) where is_admin() is false. The render
+		// requests (e.g. /wpcom/v2/widget-modules) where is_admin() is false. The render
 		// pieces here self-gate on admin_init, so loading them globally is inert
 		// off the dashboard. Only the polyfill registration below is admin-scoped.
 		$build_entry = __DIR__ . '/../build/build.php';

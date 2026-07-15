@@ -108,6 +108,14 @@ describe( 'getStatsProxyPath', () => {
 			'/rest/v1.2/upgrades?site=67890'
 		);
 	} );
+
+	it( 'does not overwrite an explicit upgrades site query on Simple', () => {
+		setSimpleScriptData( 67890 );
+
+		expect(
+			getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', params: { site: 41 } } )
+		).toBe( '/rest/v1.2/upgrades?site=41' );
+	} );
 } );
 
 describe( 'fetchStatsProxy', () => {
