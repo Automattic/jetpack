@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast telemetry: count episodes published with the Podcast Episode block so published-episode and show-launch stats are no longer undercounted.
+Podcast: count episodes published with the Podcast Episode block in publish telemetry.
