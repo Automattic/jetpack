@@ -273,6 +273,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			? `${ chartId }-cell-${ Math.floor( selectedIndex / rows ) }-${ selectedIndex % rows }`
 			: undefined;
 
+	// Capped tracks make the chart content-sized: neither the wrapper nor the
+	// grid stretches, or the leftover container height would land in the auto
+	// label row.
+	const capped = ! compact && Boolean( maxCellWidth || maxCellHeight );
+
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
 			<SingleChartContext.Provider value={ { chartId } }>
@@ -282,7 +287,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
-					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
+					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className, {
+						[ styles[ 'heatmap-chart--capped' ] ]: capped,
+					} ) }
 					// Explicit dimensions (the unresponsive export) pin the size; otherwise
 					// width/height are unset and the grid fills its container via CSS. The
 					// responsive export drops the measured pixels so reflow stays fluid.
@@ -302,10 +309,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
-							// Capped tracks make the grid content-sized; without this the
-							// leftover container height would land in the auto label row.
-							[ styles[ 'heatmap-chart__grid--capped' ] ]:
-								! compact && Boolean( maxCellWidth || maxCellHeight ),
+							[ styles[ 'heatmap-chart__grid--capped' ] ]: capped,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>

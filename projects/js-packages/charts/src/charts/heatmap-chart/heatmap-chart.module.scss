@@ -5,6 +5,12 @@
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 }
 
+// Capped grids are content-sized, so the wrapper hugs them instead of
+// stretching — the consumer decides how to place it in leftover space.
+.heatmap-chart--capped {
+	height: max-content;
+}
+
 .heatmap-chart__empty {
 	padding: var(--wpds-dimension-padding-lg, 16px);
 	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
