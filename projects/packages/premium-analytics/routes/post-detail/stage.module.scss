@@ -17,13 +17,14 @@
 .header {
 	// One row below the tab bar: summary left, date filters right. Wraps the
 	// filters onto their own line when the row gets narrow. Inline padding
-	// matches the tabs and widget grid.
+	// matches the tabs and widget grid; the 40px block spacing is the
+	// design's breathing room around the whole header row.
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-lg);
-	padding-block-end: var(--wpds-dimension-gap-lg);
+	padding-block: 40px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 

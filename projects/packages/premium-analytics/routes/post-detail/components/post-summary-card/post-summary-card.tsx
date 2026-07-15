@@ -83,7 +83,7 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 				</div>
 			) }
 			<div className={ styles.details }>
-				<Text variant="heading-xl" render={ <h1 /> }>
+				<Text variant="heading-xl" render={ <h1 /> } className={ styles.title }>
 					{ title }
 				</Text>
 				{ subtitle ? (

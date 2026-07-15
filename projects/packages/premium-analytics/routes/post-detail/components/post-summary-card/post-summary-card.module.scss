@@ -1,27 +1,37 @@
 .card {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-lg);
+	gap: 20px;
 	min-inline-size: 0;
 }
 
 .details {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs);
+	// The text block matches the thumbnail height: title against its top,
+	// subtitle against its bottom.
+	justify-content: space-between;
+	block-size: 72px;
 	min-inline-size: 0;
+}
+
+.title {
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 1.2;
 }
 
 .subtitle {
 	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: 13px;
 }
 
 .image,
 .imagePlaceholder {
 	flex: 0 0 auto;
-	inline-size: 96px;
-	block-size: 96px;
-	border-radius: var(--wpds-border-radius-md);
+	inline-size: 72px;
+	block-size: 72px;
+	border-radius: 8px;
 }
 
 .image {
