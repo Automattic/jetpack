@@ -40,3 +40,27 @@ export const videoPlaysSummaryFixture = {
 		},
 	},
 };
+
+export const videoPlaysCompleteStatsSummaryFixture = {
+	date: '2026-07-14',
+	period: 'day',
+	days: {
+		summary: {
+			data: [
+				{
+					post_id: 454,
+					title: 'Product tour',
+					views: '106',
+					impressions: '183',
+					watch_time: '0.0597',
+					retention_rate: '67.6',
+				},
+			],
+			total: {
+				impressions: '584',
+				views: '337',
+				watch_time: '0.186',
+			},
+		},
+	},
+};

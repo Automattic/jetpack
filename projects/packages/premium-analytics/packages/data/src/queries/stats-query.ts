@@ -37,6 +37,7 @@ import {
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
 	sanitizeStatsVideoPlaysResponse,
+	sanitizeStatsVideoPlaysSummaryResponse,
 	sanitizeStatsWordAdsEarningsResponse,
 	sanitizeStatsWordAdsStatsResponse,
 } from '../processing/stats';
@@ -69,6 +70,7 @@ const statsSanitizers = {
 	topAuthors: sanitizeStatsTopAuthorsResponse,
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
+	videoPlaysSummary: sanitizeStatsVideoPlaysSummaryResponse,
 	archives: sanitizeStatsArchivesResponse,
 	commentFollowers: sanitizeStatsCommentFollowersResponse,
 	followers: sanitizeStatsFollowersResponse,

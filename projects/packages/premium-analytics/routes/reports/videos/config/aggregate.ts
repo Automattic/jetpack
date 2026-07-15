@@ -7,6 +7,7 @@ import {
 	type StatsNormalizedReport,
 	type StatsTimeSeriesReport,
 	type StatsVideoPlaysItem,
+	type StatsVideoPlaysSummaryItem,
 } from '@jetpack-premium-analytics/data';
 
 /**
@@ -15,12 +16,12 @@ import {
  * @param video - The normalized video row.
  * @return The video's stable row key.
  */
-export function getVideoRowId( video: StatsVideoPlaysItem ): string {
+export function getVideoRowId( video: StatsVideoPlaysSummaryItem ): string {
 	if ( video.id != null ) {
 		return String( video.id );
 	}
 
-	return video.link || String( video.label ?? '' );
+	return video.link || video.title;
 }
 
 /**
@@ -44,33 +45,4 @@ export function videosToTimeSeries(
 
 		return { value: plays, plays };
 	} );
-}
-
-/**
- * Aggregate one bucketed report into one table row per video, summing the
- * metrics returned by the video-plays payload without mutating query data.
- *
- * @param report - The bucketed video-plays report.
- * @return The aggregated video rows.
- */
-export function aggregateVideoRows(
-	report: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
-): StatsVideoPlaysItem[] {
-	const byKey = new Map< string, StatsVideoPlaysItem >();
-
-	for ( const point of report?.data ?? [] ) {
-		for ( const item of point.items ) {
-			const key = getVideoRowId( item );
-			const existing = byKey.get( key );
-
-			if ( existing ) {
-				existing.plays += item.plays;
-				existing.impressions += item.impressions;
-			} else {
-				byKey.set( key, { ...item } );
-			}
-		}
-	}
-
-	return [ ...byKey.values() ];
 }

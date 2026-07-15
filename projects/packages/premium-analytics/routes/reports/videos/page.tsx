@@ -5,7 +5,7 @@ import {
 	normalizeReportParams,
 	type IntervalType,
 	type StatsChartBucketPeriod,
-	type StatsVideoPlaysItem,
+	type StatsVideoPlaysSummaryItem,
 } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
@@ -64,11 +64,11 @@ function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
 }
 
 const RECORDS_VIEW = {
-	sort: { field: 'plays', direction: 'desc' as const },
+	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
 			title: { width: '100%' },
-			plays: { align: 'end' as const },
+			views: { align: 'end' as const },
 			impressions: { align: 'end' as const },
 		},
 	},
@@ -150,7 +150,7 @@ function VideosReport(): JSX.Element {
 						onIntervalChange={ handleIntervalChange }
 						legendLabels={ chartLegendLabels }
 					/>
-					<ReportRecordsTable< StatsVideoPlaysItem >
+					<ReportRecordsTable< StatsVideoPlaysSummaryItem >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getVideoRowId }

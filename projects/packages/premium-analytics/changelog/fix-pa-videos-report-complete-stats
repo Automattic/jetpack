@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Videos report: fetch the records table from the complete-stats summary and the chart from the daily plays series; a single complete_stats day query returned summary-only data, leaving the report empty.
