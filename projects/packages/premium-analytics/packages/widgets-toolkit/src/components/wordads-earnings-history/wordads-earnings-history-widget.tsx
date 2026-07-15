@@ -26,6 +26,25 @@ type WordAdsEarningsHistoryWidgetProps = {
 };
 
 /**
+ * The empty-state copy per breakdown. All three widgets share one endpoint and
+ * one table, but "nothing to show" means something different in each, so each
+ * names the rows it would have listed.
+ *
+ * @param breakdown - The breakdown being rendered.
+ * @return The empty-state description.
+ */
+function getEmptyDescription( breakdown: WordAdsEarningsBreakdownKey ): string {
+	switch ( breakdown ) {
+		case 'sponsored':
+			return __( 'No sponsored content earnings to show yet.', 'jetpack-premium-analytics' );
+		case 'adjustment':
+			return __( 'No earnings adjustments to show yet.', 'jetpack-premium-analytics' );
+		default:
+			return __( 'No earnings history to show yet.', 'jetpack-premium-analytics' );
+	}
+}
+
+/**
  * WordAds earnings-history table, shared by the Earnings / Sponsored Content /
  * Adjustments history widgets. Ported from the `earningsTable()` helper on the
  * Jetpack Stats WordAds page (wp-calypso client/my-sites/stats/wordads/earnings.jsx),
@@ -63,16 +82,13 @@ export function WordAdsEarningsHistoryWidget( { breakdown }: WordAdsEarningsHist
 				),
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 			} }
-			empty={ {
-				description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics' ),
-			} }
+			empty={ { description: getEmptyDescription( breakdown ) } }
 		>
 			<WidgetDataTable< EarningsHistoryRow >
 				data={ rows }
 				fields={ fields }
 				getItemId={ item => item.id }
 				initialView={ EARNINGS_HISTORY_VIEW }
-				isLoading={ isLoading }
 			/>
 		</WidgetState>
 	);
