@@ -1371,7 +1371,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "f5a0802d45daac83c0bf9df90cf6f330527227cf"
+                "reference": "0839906c853365ec67456e3cdc6e6fa4fa50b5f5"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1727,7 +1727,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "1b3067feb4367b82e67cde8076b9199bcbe44fb3"
+                "reference": "2520bcc0d3875df8436b0fbef27888e00700b989"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
