@@ -41,8 +41,6 @@ class Tracks {
 
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
-
-		add_action( 'jetpack_podcast_settings_saved', array( __CLASS__, 'record_settings_saved' ) );
 	}
 
 	/**
@@ -255,30 +253,6 @@ class Tracks {
 				);
 				return;
 			}
-		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			// Tracks is best-effort.
-		}
-	}
-
-	/**
-	 * Emit `wpcom_podcasting_settings_saved` after a podcast settings write.
-	 *
-	 * Fired off the `jetpack_podcast_settings_saved` action that
-	 * {@see Podcast_Settings_Endpoint::update_item()} triggers, so it's agnostic
-	 * to the REST transport — the endpoint already gates on a saved option.
-	 */
-	public static function record_settings_saved(): void {
-		try {
-			// Skip user-supplied free-text fields — keep PII out of tracks.
-			$pii   = array( 'podcasting_email', 'podcasting_talent_name' );
-			$state = array();
-			foreach ( Settings::OPTION_NAMES as $name ) {
-				if ( in_array( $name, $pii, true ) ) {
-					continue;
-				}
-				$state[ $name ] = get_option( $name, '' );
-			}
-			self::record_event( 'wpcom_podcasting_settings_saved', $state );
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Tracks is best-effort.
 		}
