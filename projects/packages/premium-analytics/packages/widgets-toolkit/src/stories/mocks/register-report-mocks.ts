@@ -55,6 +55,7 @@ import {
 	mockSiteSummary,
 	mockStatsInsightsData,
 	mockStatsPostData,
+	mockPostCommentsData,
 	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
@@ -92,6 +93,9 @@ const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wo
 // matched with its own pattern rather than through routeStatsReport().
 const POST_LIKES_PATH_PATTERN =
 	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.2\/posts\/\d+\/likes(?:\?|$)/;
+// Post comments use the public `posts/{id}/replies` v1.1 endpoint.
+const POST_COMMENTS_PATH_PATTERN =
+	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/replies(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -1247,6 +1251,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {
 		return mockPostLikesData;
+	}
+
+	if ( POST_COMMENTS_PATH_PATTERN.test( requestPath ) ) {
+		return mockPostCommentsData;
 	}
 
 	if ( requestPath.startsWith( STATS_WORDADS_STATS_PATH ) ) {

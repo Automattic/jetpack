@@ -13,6 +13,11 @@ export {
 	type StatsPostResponse,
 } from './use-stats-post';
 export {
+	useStatsPostComments,
+	type StatsPostCommentsParams,
+	type StatsPostCommentsResponse,
+} from './use-stats-post-comments';
+export {
 	useStatsPostLikes,
 	type StatsPostLikesParams,
 	type StatsPostLikesResponse,
