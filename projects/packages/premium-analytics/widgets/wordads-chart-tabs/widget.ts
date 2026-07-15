@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
 import {
 	DEFAULT_WORDADS_CHART_METRICS,
 	WORDADS_CHART_METRICS,
@@ -65,6 +65,7 @@ export default {
 			id: 'granularity',
 			label: __( 'Group by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Auto', 'jetpack-premium-analytics' ),

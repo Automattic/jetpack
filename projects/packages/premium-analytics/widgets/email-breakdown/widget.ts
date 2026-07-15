@@ -6,6 +6,11 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which breakdown dimension the widget lists for the selected email.
  *
  * `countries`, `devices`, and `clients` read the opens or clicks breakdown per
@@ -68,6 +73,7 @@ export default {
 			id: 'view',
 			label: __( 'Break down by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Countries', 'jetpack-premium-analytics' ),
@@ -92,6 +98,7 @@ export default {
 			id: 'metric',
 			label: __( 'Metric', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Opens', 'jetpack-premium-analytics' ),
