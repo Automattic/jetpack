@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
+import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
-import LocalBusinessFields, { hasLocalBusinessErrors } from './local-business-fields';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
@@ -11,38 +10,34 @@ import type { FC } from 'react';
 const saveLabel = __( 'Save', 'jetpack-seo' );
 
 interface Props {
-	/** The schema-settings form controller, owned by the Schema card. */
+	/** The schema-settings form controller, owned by the Schema card group. */
 	form: SchemaSettingsForm;
 }
 
 /**
- * The shared site-level Schema form. Edits Organization and LocalBusiness
- * settings through the package's own REST route (never `/jetpack/v4/settings`).
- *
- * Presentational: the Schema card owns the {@link useSchemaSettings} controller
- * (so the header badge and this form share one state) and passes it in via `form`.
+ * The Organization settings form.
  *
  * @param props      - Component props.
- * @param props.form - The schema-settings form controller from the card.
+ * @param props.form - The shared schema-settings form controller.
  * @return The Organization settings form.
  */
-const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
+const OrganizationSection: FC< Props > = ( { form } ) => {
 	const {
 		organization,
 		defaults,
-		localBusiness,
 		isSaving,
-		isDirty,
+		isOrganizationDirty,
 		setOrganizationField,
-		setLocalBusinessField,
-		save,
+		saveOrganization,
 	} = form;
 	const { name, description, sameAs, email } = organization;
-	const hasProfileErrors = hasProfileUrlErrors( sameAs );
-	const hasErrors = hasProfileErrors || ( localBusiness.enabled && hasLocalBusinessErrors( form ) );
 
 	return (
 		<Stack direction="column" gap="lg">
+			<span className="jetpack-seo-settings__title-tokens-label">
+				{ __( 'Help search engines understand the organization behind this site.', 'jetpack-seo' ) }
+			</span>
+
 			<TextControl
 				label={ __( 'Organization name', 'jetpack-seo' ) }
 				help={ __(
@@ -93,22 +88,12 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 				__nextHasNoMarginBottom
 			/>
 
-			<ToggleControl
-				label={ __( 'This site represents a local business', 'jetpack-seo' ) }
-				help={ __(
-					"Adds your business details (address, phone, hours) to the site's schema so search engines can show local info.",
-					'jetpack-seo'
-				) }
-				checked={ localBusiness.enabled }
-				onChange={ next => setLocalBusinessField( { enabled: next } ) }
-				disabled={ isSaving }
-				__nextHasNoMarginBottom
-			/>
-
-			{ localBusiness.enabled && <LocalBusinessFields form={ form } /> }
-
 			<div className="jetpack-seo-settings__save">
-				<Button onClick={ save } disabled={ isSaving || ! isDirty || hasErrors }>
+				<Button
+					onClick={ saveOrganization }
+					disabled={ isSaving || ! isOrganizationDirty || hasProfileUrlErrors( sameAs ) }
+					aria-label={ __( 'Save organization', 'jetpack-seo' ) }
+				>
 					{ saveLabel }
 				</Button>
 			</div>
@@ -116,4 +101,4 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 	);
 };
 
-export default OrganizationBusinessSection;
+export default OrganizationSection;
