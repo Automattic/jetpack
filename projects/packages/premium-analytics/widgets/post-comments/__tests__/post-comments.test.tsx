@@ -102,7 +102,9 @@ describe( 'PostCommentsWidget', () => {
 
 		renderWidget( 779 );
 
-		await expect( screen.findByRole( 'link', { name: /Olivia Park/ } ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'link', { name: /Olivia Park/ } )
+		).resolves.toBeInTheDocument();
 
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: [ 'stats', 'post-comments' ] } );
