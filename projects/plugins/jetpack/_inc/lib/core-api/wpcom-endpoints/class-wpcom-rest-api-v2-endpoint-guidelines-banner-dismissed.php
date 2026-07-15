@@ -23,13 +23,14 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	/**
 	 * User meta key storing the dismissed flag.
 	 *
-	 * Keep in sync with the literal in _inc/content-guidelines-ai.php, which
-	 * preloads the flag without loading this class (it is not available
-	 * during admin page loads on Simple sites).
+	 * The canonical key lives on Jetpack_AI_Helper (required in the
+	 * constructor, so always loaded before use) because this class is not
+	 * loaded during admin page loads on Simple sites, while the admin-page
+	 * preload in _inc/content-guidelines-ai.php needs the key there.
 	 *
 	 * @var string
 	 */
-	const META_KEY = 'jetpack_content_guidelines_ai_banner_dismissed';
+	const META_KEY = Jetpack_AI_Helper::GUIDELINES_BANNER_DISMISSED_META_KEY;
 
 	/**
 	 * Namespace prefix.
@@ -97,13 +98,14 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	/**
 	 * Whether the current user has dismissed the banner.
 	 *
-	 * Also used to preload the initial value into the page (see
-	 * _inc/content-guidelines-ai.php) so the banner does not flash on load.
+	 * Back-compat alias: the admin-page preload reads the flag via
+	 * Jetpack_AI_Helper::is_guidelines_banner_dismissed() instead, because
+	 * this class is not loaded during admin page loads on Simple sites.
 	 *
 	 * @return bool
 	 */
 	public static function is_dismissed() {
-		return (bool) get_user_meta( get_current_user_id(), self::META_KEY, true );
+		return Jetpack_AI_Helper::is_guidelines_banner_dismissed();
 	}
 
 	/**

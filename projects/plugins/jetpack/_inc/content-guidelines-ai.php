@@ -82,17 +82,22 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		)
 	);
 
+	// Jetpack_AI_Helper backs both preloaded values below: the per-user
+	// "banner dismissed" flag and the AI feature state.
+	if ( ! class_exists( 'Jetpack_AI_Helper' ) && is_readable( JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+	}
+
 	// Preload the per-user "banner dismissed" flag so the empty-state banner
 	// doesn't flash before an async read. Persisted via the
-	// guidelines-banner-dismissed REST endpoint. Read the meta directly rather
-	// than through WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed: on
-	// Simple sites the wpcom-endpoints classes are only loaded in REST
-	// requests, so a class_exists() check here always failed and permanently
-	// suppressed the banner and upgrade notice.
-	// Keep the key in sync with WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed::META_KEY.
-	$banner_dismissed = (bool) get_user_meta( get_current_user_id(), 'jetpack_content_guidelines_ai_banner_dismissed', true );
-
-	$initial_state = array( 'bannerDismissed' => $banner_dismissed );
+	// guidelines-banner-dismissed REST endpoint, but read via Jetpack_AI_Helper
+	// rather than the endpoint class: on Simple sites the wpcom-endpoints
+	// classes are only loaded in REST requests, so a class_exists() check on
+	// the endpoint always failed here and permanently suppressed the banner
+	// and upgrade notice.
+	$initial_state = array(
+		'bannerDismissed' => class_exists( 'Jetpack_AI_Helper' ) && Jetpack_AI_Helper::is_guidelines_banner_dismissed(),
+	);
 
 	// Resolve the AI feature state server-side so the bundle can hydrate the
 	// wordpress-com/plans store at boot and render the correct locked/unlocked
@@ -101,9 +106,6 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	// transient-cached with a blocking remote refresh when cold. On failure
 	// the key is omitted and the bundle renders no AI UI for this load (fail
 	// closed) rather than guessing.
-	if ( ! class_exists( 'Jetpack_AI_Helper' ) && is_readable( JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php' ) ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-	}
 	if ( class_exists( 'Jetpack_AI_Helper' ) ) {
 		$ai_feature = Jetpack_AI_Helper::get_ai_assistance_feature();
 		if ( ! is_wp_error( $ai_feature ) ) {
