@@ -1,14 +1,34 @@
 /**
  * External dependencies
  */
-import { DataViews } from '@wordpress/dataviews';
+import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
+import { useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { DEFAULT_PER_PAGE_SIZES, GenericDataViews, useDataViewsTable } from '../data-views';
 import './style.scss';
 import styles from './style.module.scss';
-import type { Field, View } from '@wordpress/dataviews';
+import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
+import type { ReactNode } from 'react';
+
+const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
+
+/**
+ * DataViews makes `getItemId` conditionally optional when an item has a string
+ * `id`. This wrapper always requires it, so its generic contract stays stable.
+ */
+const GenericDataViews = DataViews as unknown as < Item >( props: {
+	view: View;
+	onChangeView: ( view: View ) => void;
+	fields: Field< Item >[];
+	data: Item[];
+	getItemId: ( item: Item ) => string;
+	paginationInfo: { totalItems: number; totalPages: number };
+	defaultLayouts?: SupportedLayouts;
+	search?: boolean;
+	config?: { perPageSizes: number[] };
+	children?: ReactNode;
+} ) => ReturnType< typeof DataViews >;
 
 export interface WidgetDataTableProps< Item > {
 	/** All rows; sorting and pagination happen client-side. */
@@ -30,8 +50,8 @@ export interface WidgetDataTableProps< Item > {
  * table, this component owns no card or section chrome; the widget host remains
  * responsible for the frame and title.
  *
- * Loading, error, and empty states belong to `<WidgetState>` around this table,
- * so it has no loading state of its own.
+ * Loading, error, and empty states belong to the `<WidgetState>` around this
+ * table, so it has no loading state of its own.
  *
  * @param {WidgetDataTableProps} props - The component props.
  * @return The rendered table.
@@ -44,12 +64,25 @@ export function WidgetDataTable< Item >( {
 	search = false,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 }: WidgetDataTableProps< Item > ) {
-	const { view, setView, pageItems, paginationInfo } = useDataViewsTable( {
-		data,
-		fields,
-		initialView,
-		perPageSizes,
-	} );
+	const [ view, setView ] = useState< View >(
+		() =>
+			( {
+				type: 'table',
+				page: 1,
+				perPage: perPageSizes[ 0 ] ?? 10,
+				search: '',
+				// DataViews renders only the columns listed in `view.fields` —
+				// there is no "all fields" default — so seed it with every
+				// configured field. `initialView` can still narrow it.
+				fields: fields.map( field => field.id ),
+				...initialView,
+			} ) as View
+	);
+
+	const { data: pageItems, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( data, view, fields ),
+		[ data, view, fields ]
+	);
 
 	return (
 		<div className={ styles.root }>
