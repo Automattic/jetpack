@@ -5,12 +5,11 @@ import {
 	normalizeReportParams,
 	dateToISOStringWithLocalTZ,
 	getSiteTimezone,
+	localTZDate,
 } from '@jetpack-premium-analytics/data';
 import {
 	getComparisonRangeFromPreset,
 	type ComparisonPresetId,
-	startOfDayTZ,
-	endOfDayTZ,
 } from '@jetpack-premium-analytics/datetime';
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
@@ -47,7 +46,8 @@ const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined 
  *
  * Rules:
  * - Only derive when comparison is enabled (comp === "1") AND a preset is present.
- * - Normalize main range to site-local day bounds before computing presets.
+ * - The main range is interpreted in the site timezone; day-aligned ranges get
+ *   day-aligned comparisons, sub-day rolling windows are mirrored exactly.
  * - Return ISO strings WITH site offset (same format you write to the URL).
  */
 export function deriveComparisonRange( opts: ReportParams ):
@@ -74,11 +74,15 @@ export function deriveComparisonRange( opts: ReportParams ):
 		return undefined;
 	}
 
-	// Normalize to site-local day bounds
+	/*
+	 * Interpret the instants in the site timezone so day boundaries resolve
+	 * site-locally. Day-aligned ranges keep day-aligned comparisons; rolling
+	 * windows (e.g. last-24-hours) mirror the exact window.
+	 */
 	const timezone = getSiteTimezone();
 	const reference = {
-		from: startOfDayTZ( fromInstant, timezone ),
-		to: endOfDayTZ( toInstant, timezone ),
+		from: localTZDate( fromInstant.getTime(), timezone ),
+		to: localTZDate( toInstant.getTime(), timezone ),
 	};
 
 	// Compute comparison range (Dates)
