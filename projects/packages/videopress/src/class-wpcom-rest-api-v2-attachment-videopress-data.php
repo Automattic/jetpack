@@ -48,9 +48,6 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
 
-		// Registered unconditionally: on WPCOM the filter handles the
-		// `videopress_only_videos` param (mime-based, see below); everywhere
-		// else it handles the meta-query-backed VideoPress filters.
 		add_action( 'rest_api_init', array( $this, 'add_jetpack_videopress_custom_query_filters' ) );
 
 		// do this again later to collect any CPTs that get registered later.
