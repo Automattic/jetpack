@@ -1005,7 +1005,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<a class="bw-help-link" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the Write editor guide', 'jetpack-mu-wpcom' ); ?> <span aria-hidden="true">&#8599;</span></a>
 		</div>
 		</div><!-- /.bw-help-wrap -->
-		<span class="bw-status" data-wp-text="state.displayStatus"></span>
+		<span class="bw-status" role="status" aria-live="polite" data-wp-text="state.displayStatus"></span>
 		<div class="bw-topbar-actions">
 			<button
 				class="bw-btn bw-btn-draft"
