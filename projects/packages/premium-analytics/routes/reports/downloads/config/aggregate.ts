@@ -4,8 +4,35 @@
 import type {
 	StatsFileDownloadsItem,
 	StatsNormalizedReport,
+	StatsPeriod,
 	StatsTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
+
+type DownloadChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+
+/**
+ * Map a daily bucket date to its chart bucket key.
+ *
+ * @param date   - The daily bucket date.
+ * @param period - The chart bucket period.
+ * @return The chart bucket key.
+ */
+export function getChartBucketKey( date: string, period: DownloadChartPeriod ): string {
+	if ( period === 'day' ) {
+		return date;
+	}
+
+	const bucketDate = new Date( `${ date.slice( 0, 10 ) }T00:00:00Z` );
+
+	if ( period === 'week' ) {
+		const daysSinceMonday = ( bucketDate.getUTCDay() + 6 ) % 7;
+		bucketDate.setUTCDate( bucketDate.getUTCDate() - daysSinceMonday );
+	} else {
+		bucketDate.setUTCDate( 1 );
+	}
+
+	return bucketDate.toISOString().slice( 0, 10 );
+}
 
 /**
  * Stable identity for a file-download row across report buckets.
@@ -18,27 +45,47 @@ function getFileKey( item: StatsFileDownloadsItem ): string {
 }
 
 /**
- * Convert a bucketed file-downloads report into downloads per interval.
+ * Convert a daily file-downloads report into downloads per chart interval.
  *
  * @param report - The bucketed file-downloads report.
+ * @param period - The chart bucket period.
  * @return The chart-ready time series.
  */
 export function downloadsToTimeSeries(
-	report: StatsNormalizedReport< StatsFileDownloadsItem > | undefined
+	report: StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
+	period: DownloadChartPeriod = 'day'
 ): StatsTimeSeriesReport {
-	const data = ( report?.data ?? [] ).map( point => {
-		const downloads = point.items.reduce( ( total, item ) => total + item.downloads, 0 );
+	const buckets = new Map< string, StatsTimeSeriesReport[ 'data' ][ number ] >();
+	const points = [ ...( report?.data ?? [] ) ].sort( ( a, b ) =>
+		a.time_interval.localeCompare( b.time_interval )
+	);
 
-		return {
-			time_interval: point.time_interval,
+	for ( const point of points ) {
+		const downloads = point.items.reduce( ( total, item ) => total + item.downloads, 0 );
+		const key = getChartBucketKey( point.time_interval, period );
+		const existing = buckets.get( key );
+
+		if ( existing ) {
+			existing.date_end = point.date_end;
+			existing.value = Number( existing.value ) + downloads;
+			existing.downloads = Number( existing.downloads ) + downloads;
+			continue;
+		}
+
+		buckets.set( key, {
+			time_interval: key,
 			date_start: point.date_start,
 			date_end: point.date_end,
-			label: point.time_interval,
+			label: key,
 			items: [],
 			value: downloads,
 			downloads,
-		};
-	} );
+		} );
+	}
+
+	const data = [ ...buckets.values() ].sort( ( a, b ) =>
+		a.time_interval.localeCompare( b.time_interval )
+	);
 	const first = data[ 0 ];
 	const last = data[ data.length - 1 ];
 

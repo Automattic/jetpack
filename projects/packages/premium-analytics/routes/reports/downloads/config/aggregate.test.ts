@@ -62,6 +62,32 @@ describe( 'downloads report aggregate', () => {
 		expect( series.data.map( point => point.downloads ) ).toEqual( [ 4, 9 ] );
 	} );
 
+	it( 'groups daily totals into ISO weeks for the chart', () => {
+		const series = downloadsToTimeSeries( report, 'week' );
+
+		expect( series.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-06-01',
+				date_start: '2026-06-01T00:00:00+00:00',
+				date_end: '2026-06-02T23:59:59+00:00',
+				downloads: 13,
+			} ),
+		] );
+	} );
+
+	it( 'groups daily totals into calendar months for the chart', () => {
+		const series = downloadsToTimeSeries( report, 'month' );
+
+		expect( series.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-06-01',
+				date_start: '2026-06-01T00:00:00+00:00',
+				date_end: '2026-06-02T23:59:59+00:00',
+				downloads: 13,
+			} ),
+		] );
+	} );
+
 	it( 'aggregates matching files across buckets without mutating the report', () => {
 		const rows = aggregateDownloadRows( report );
 

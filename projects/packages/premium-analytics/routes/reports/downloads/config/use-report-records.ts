@@ -14,6 +14,8 @@ import { useMemo } from '@wordpress/element';
  */
 import { aggregateDownloadRows, downloadsToTimeSeries } from './aggregate';
 
+type DownloadChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+
 /**
  * Fetch and derive chart and table data for the File downloads report.
  *
@@ -21,7 +23,10 @@ import { aggregateDownloadRows, downloadsToTimeSeries } from './aggregate';
  * @param chartPeriod  - The chart bucket period.
  * @return Chart data and aggregated file records.
  */
-export function useDownloadsReportRecords( reportParams: ReportParams, chartPeriod: StatsPeriod ) {
+export function useDownloadsReportRecords(
+	reportParams: ReportParams,
+	chartPeriod: DownloadChartPeriod
+) {
 	// One unsummarized query supplies both the interval chart and the complete
 	// client-side table. `max: 0` requests every file row.
 	const recordsParams = useMemo(
@@ -29,18 +34,21 @@ export function useDownloadsReportRecords( reportParams: ReportParams, chartPeri
 			...reportParams,
 			max: 0,
 			summarize: 0,
-			period: chartPeriod,
+			period: 'day',
 		} ),
-		[ reportParams, chartPeriod ]
+		[ reportParams ]
 	);
 	const report = useStatsFileDownloads( recordsParams );
+	const primaryData = report.primary.data;
+	const comparisonData = report.comparison.data;
 
 	const chartPrimary = useMemo(
 		() =>
 			downloadsToTimeSeries(
-				report.primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined
+				primaryData as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
+				chartPeriod
 			),
-		[ report.primary.data ]
+		[ primaryData, chartPeriod ]
 	);
 	const chartComparison = useMemo( () => {
 		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
@@ -48,15 +56,16 @@ export function useDownloadsReportRecords( reportParams: ReportParams, chartPeri
 		}
 
 		return downloadsToTimeSeries(
-			report.comparison.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined
+			comparisonData as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
+			chartPeriod
 		);
-	}, [ reportParams, report.comparison.data ] );
+	}, [ reportParams, comparisonData, chartPeriod ] );
 	const rows = useMemo(
 		() =>
 			aggregateDownloadRows(
-				report.primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined
+				primaryData as StatsNormalizedReport< StatsFileDownloadsItem > | undefined
 			),
-		[ report.primary.data ]
+		[ primaryData ]
 	);
 
 	return {
