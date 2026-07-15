@@ -63,9 +63,6 @@ function CommentFollowersReport(): JSX.Element {
 
 	// Preserve the shared report window when returning to the dashboard.
 	const dashboardLink = useDashboardLink();
-	const emptyStateTitle = records.isError
-		? __( 'Unable to load subscribers', 'jetpack-premium-analytics' )
-		: __( 'No subscribers', 'jetpack-premium-analytics' );
 
 	return (
 		<Page
@@ -81,39 +78,61 @@ function CommentFollowersReport(): JSX.Element {
 		>
 			<div className={ styles.content }>
 				<ReportPageLayout>
-					<ReportPageSection className={ styles.summary }>
-						<Text variant="heading-md" render={ <h3 /> }>
-							{ __( 'All Posts', 'jetpack-premium-analytics' ) }
-						</Text>
-						{ records.isLoading ? <Spinner /> : null }
-						{ ! records.isLoading && records.isError ? <Text aria-hidden="true">—</Text> : null }
-						{ ! records.isLoading && ! records.isError ? (
-							<MetricValue
-								value={ records.allPostsFollowers ?? 0 }
-								dataFormat={ { type: 'number' } }
-							/>
-						) : null }
-					</ReportPageSection>
-					<ReportRecordsTable< StatsCommentFollowersItem >
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getCommentFollowerRowId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
-						empty={
+					{ /*
+					 * The error state replaces the summary and table rather than sitting
+					 * beside them. `ReportRecordsTable`'s `empty` renders on row count, not
+					 * fetch status, so a failed refetch over cached rows would otherwise
+					 * leave stale data on screen with no notice and no way to retry.
+					 */ }
+					{ records.isError ? (
+						<ReportPageSection>
 							<EmptyState.Root>
-								<EmptyState.Title>{ emptyStateTitle }</EmptyState.Title>
-								{ records.isError ? (
-									<EmptyState.Actions>
-										<Button onClick={ retry }>
-											{ __( 'Retry', 'jetpack-premium-analytics' ) }
-										</Button>
-									</EmptyState.Actions>
-								) : null }
+								<EmptyState.Title>
+									{ __( 'Unable to load subscribers', 'jetpack-premium-analytics' ) }
+								</EmptyState.Title>
+								<EmptyState.Description>
+									{ __(
+										"We couldn't load this data. Please try again in a moment.",
+										'jetpack-premium-analytics'
+									) }
+								</EmptyState.Description>
+								<EmptyState.Actions>
+									<Button onClick={ retry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
+								</EmptyState.Actions>
 							</EmptyState.Root>
-						}
-					/>
+						</ReportPageSection>
+					) : (
+						<>
+							<ReportPageSection className={ styles.summary }>
+								<Text variant="heading-md" render={ <h3 /> }>
+									{ __( 'All Posts', 'jetpack-premium-analytics' ) }
+								</Text>
+								{ records.isLoading ? (
+									<Spinner />
+								) : (
+									<MetricValue
+										value={ records.allPostsFollowers ?? 0 }
+										dataFormat={ { type: 'number' } }
+									/>
+								) }
+							</ReportPageSection>
+							<ReportRecordsTable< StatsCommentFollowersItem >
+								data={ records.rows }
+								fields={ fields }
+								getItemId={ getCommentFollowerRowId }
+								isLoading={ records.isLoading }
+								initialView={ RECORDS_VIEW }
+								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+								empty={
+									<EmptyState.Root>
+										<EmptyState.Title>
+											{ __( 'No subscribers', 'jetpack-premium-analytics' ) }
+										</EmptyState.Title>
+									</EmptyState.Root>
+								}
+							/>
+						</>
+					) }
 				</ReportPageLayout>
 			</div>
 		</Page>
