@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -72,6 +72,36 @@ describe( 'WordAdsHighlightsWidget', () => {
 			screen.findByText( "We couldn't load WordAds earnings. Please try again in a moment." )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Earnings' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'recovers via Retry after a failed earnings request', async () => {
+		// Only the first request fails, so the tiles below can only come from the
+		// Retry action's refetch.
+		mockApiFetch.mockRejectedValueOnce( { status: 403, message: 'Forbidden' } );
+
+		render( <WordAdsHighlightsWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( "We couldn't load WordAds earnings. Please try again in a moment." )
+		).resolves.toBeInTheDocument();
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		await expect( screen.findByText( '$1,200.00' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'renders a zero balance as $0.00 rather than an empty state', async () => {
+		// A site that just enabled WordAds: the endpoint reports no totals, which
+		// the sanitizer resolves to real zeros. That is data — a zero balance is a
+		// valid amount, not an absence of earnings.
+		mockApiFetch.mockResolvedValue( { earnings: {} } );
+
+		render( <WordAdsHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Earnings' ) ).resolves.toBeInTheDocument();
+
+		const values = screen.getAllByText( /^\$[\d,]+\.\d{2}$/ ).map( el => el.textContent );
+		expect( values ).toEqual( [ '$0.00', '$0.00', '$0.00' ] );
 	} );
 
 	it( 'shows the loading overlay while the earnings request is pending', () => {
