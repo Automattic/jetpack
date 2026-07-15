@@ -9,7 +9,11 @@
 
 .content {
 	display: flex;
-	flex: 1 1 0;
+
+	/* Bound the row to the widget body (its parent is WidgetState's plain-block
+	 * ready container, so flex sizing can't do it): the leaderboard needs a
+	 * definite height to scroll internally, same as the map variant below. */
+	block-size: 100%;
 	min-block-size: 0;
 }
 
