@@ -7,8 +7,8 @@
  *
  * To mock report data we register an `apiFetch` middleware that intercepts the
  * proxy report paths and returns generated mock data. The data package fetches
- * every report through `apiFetch( { path } )` using the same base path
- * (`reportsPath`), so a single middleware covers all widget stories.
+ * every report through `fetchReport()`, which builds the same base path, so a
+ * single middleware covers all widget stories.
  *
  * The middleware is registered exactly once (guarded by a module-level flag) and
  * is triggered automatically when `with-widget-root.tsx` is imported.
@@ -73,8 +73,8 @@ import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
- * Base path for Woo analytics report requests. Matches `reportsPath` in the data
- * package (`@jetpack-premium-analytics/data`).
+ * Base path for Woo analytics report requests. Matches the non-Simple path
+ * built by `fetchReport()` in the data package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';

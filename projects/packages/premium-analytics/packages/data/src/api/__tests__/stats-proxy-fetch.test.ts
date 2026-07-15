@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { fetchStatsProxy, getStatsProxyPath } from '../stats-proxy-fetch';
+import { fetchReport, fetchStatsProxy, getStatsProxyPath } from '../stats-proxy-fetch';
 
 jest.mock( '@wordpress/api-fetch' );
 
@@ -162,6 +162,43 @@ describe( 'fetchStatsProxy', () => {
 			path: '/rest/v1.1/stats/location-views/country?max=10&period=day',
 			method: 'GET',
 		} );
+	} );
+
+	it( 'builds report paths through the local proxy by default', async () => {
+		await fetchReport( 'orders/by-date', {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			interval: 'day',
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders/by-date?from=2026-06-01&to=2026-06-30&interval=day',
+			method: 'GET',
+		} );
+	} );
+
+	it( 'builds Simple report paths for the WPCOM apiFetch bridge', async () => {
+		setSimpleScriptData();
+
+		await fetchReport( 'sessions/by-device', { from: '2026-06-01', to: '2026-06-30' } );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/analytics/reports/sessions/by-device?from=2026-06-01&to=2026-06-30',
+			method: 'GET',
+		} );
+	} );
+
+	it( 'serializes nested report filters into query args', async () => {
+		await fetchReport( 'coupons/by-date', {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			filters: [ { key: 'product', operator: 'is', value: '42' } ],
+		} );
+
+		const path = ( mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string } ).path;
+		expect( decodeURIComponent( path ) ).toBe(
+			'/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coupons/by-date?from=2026-06-01&to=2026-06-30&filters[0][key]=product&filters[0][operator]=is&filters[0][value]=42'
+		);
 	} );
 
 	it( 'marks WPCOM Simple upgrades requests as global', async () => {

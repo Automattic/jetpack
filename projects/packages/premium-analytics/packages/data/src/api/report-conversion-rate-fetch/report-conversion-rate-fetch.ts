@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { getReportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -45,14 +40,10 @@ export async function fetchReportConversionRate( {
 	interval,
 	filters,
 }: RequestReportConversionRateParams ): Promise< ReportsConversionRateByDateResponse > {
-	const path = addQueryArgs( `${ getReportsPath() }/sessions/by-conversion-rate`, {
+	return fetchReport< ReportsConversionRateByDateResponse >( 'sessions/by-conversion-rate', {
 		from,
 		to,
 		interval,
 		filters,
 	} );
-
-	return apiFetch( {
-		path,
-	} ) as Promise< ReportsConversionRateByDateResponse >;
 }

@@ -1,13 +1,8 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
 import { hasProductFilters } from '../../utils/product-filters';
-import { getReportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -51,18 +46,15 @@ export async function fetchReportOrders( {
 	filters,
 	date_type,
 }: RequestReportOrdersParams ): Promise< ReportsOrdersByDateResponse > {
-	const hasProductFiltersValue = hasProductFilters( filters );
-	const apiUrl = hasProductFiltersValue
-		? `${ getReportsPath() }/orders-by-product-type/by-date`
-		: `${ getReportsPath() }/orders/by-date`;
+	const endpoint = hasProductFilters( filters )
+		? 'orders-by-product-type/by-date'
+		: 'orders/by-date';
 
-	const path = addQueryArgs( apiUrl, {
+	return fetchReport< ReportsOrdersByDateResponse >( endpoint, {
 		from,
 		to,
 		interval,
 		filters,
 		date_type,
 	} );
-
-	return apiFetch( { path } ) as Promise< ReportsOrdersByDateResponse >;
 }

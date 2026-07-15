@@ -1,13 +1,8 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
 import { BaseReportParams } from '../../utils/types';
-import { getReportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 
 export type RequestReportProductsParams = Omit< BaseReportParams, 'interval' > & {
@@ -66,7 +61,5 @@ export async function fetchReportProducts(
 		queryArgs.filters = params.filters;
 	}
 
-	return apiFetch< ReportProductsResponse >( {
-		path: addQueryArgs( `${ getReportsPath() }/products`, queryArgs ),
-	} );
+	return fetchReport< ReportProductsResponse >( 'products', queryArgs );
 }

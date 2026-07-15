@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { getReportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { BaseReportParams } from '../../utils/types';
 
 type ReportsCustomersByDateSummary = {
@@ -66,12 +61,10 @@ export async function fetchReportCustomersByDate( {
 	interval,
 	date_type,
 }: RequestReportCustomersByDateParams ): Promise< ReportsCustomersByDateResponse > {
-	const path = addQueryArgs( `${ getReportsPath() }/customers/by-date`, {
+	return fetchReport< ReportsCustomersByDateResponse >( 'customers/by-date', {
 		from,
 		to,
 		interval,
 		date_type,
 	} );
-
-	return apiFetch( { path } ) as Promise< ReportsCustomersByDateResponse >;
 }

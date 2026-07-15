@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { getReportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { BaseReportParams } from '../../utils/types';
 
 export const ORDER_ATTRIBUTION_VIEWS = [
@@ -79,10 +74,8 @@ export async function fetchReportOrderAttributionSummary(
 		date_type,
 	};
 
-	const path = addQueryArgs(
-		`${ getReportsPath() }/order-attribution/${ view }/summary`,
+	return fetchReport< OrderAttributionSummaryResponse >(
+		`order-attribution/${ view }/summary`,
 		queryParams
 	);
-
-	return apiFetch< OrderAttributionSummaryResponse >( { path } );
 }

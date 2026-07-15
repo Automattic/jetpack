@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { getReportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -55,13 +50,11 @@ export async function fetchReportCouponsByDate( {
 	filters,
 	date_type,
 }: RequestReportCouponsByDateParams ): Promise< ReportsCouponsByDateResponse > {
-	const path = addQueryArgs( `${ getReportsPath() }/coupons/by-date`, {
+	return fetchReport< ReportsCouponsByDateResponse >( 'coupons/by-date', {
 		from,
 		to,
 		interval,
 		filters,
 		date_type,
 	} );
-
-	return apiFetch< ReportsCouponsByDateResponse >( { path } );
 }

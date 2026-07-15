@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { getReportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -44,15 +39,11 @@ export async function fetchReportBookings( {
 	filters,
 	date_type,
 }: RequestReportBookingsParams ): Promise< ReportsBookingsByDateResponse > {
-	const apiUrl = `${ getReportsPath() }/bookings/by-date`;
-
-	const path = addQueryArgs( apiUrl, {
+	return fetchReport< ReportsBookingsByDateResponse >( 'bookings/by-date', {
 		from,
 		to,
 		interval,
 		filters,
 		date_type,
 	} );
-
-	return apiFetch( { path } ) as Promise< ReportsBookingsByDateResponse >;
 }

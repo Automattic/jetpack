@@ -13,10 +13,7 @@ export type StatsProxyVersion = '1.1' | '1.2' | '2';
 
 export type StatsProxyMethod = 'GET' | 'POST';
 
-export type StatsProxyParams = Record<
-	string,
-	string | number | boolean | undefined | Array< string | number | boolean >
->;
+export type StatsProxyParams = Record< string, unknown >;
 
 export type StatsProxyFetchParams< TBody = unknown > = {
 	version: StatsProxyVersion;
@@ -98,6 +95,24 @@ export function getStatsProxyPath(
 	request: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' >
 ) {
 	return resolveStatsProxyRequest( request ).path;
+}
+
+/**
+ * Fetch a Woo analytics report through the stats transport.
+ *
+ * @param endpoint - Report endpoint below `analytics/reports`, e.g. `orders/by-date`.
+ * @param params   - Query params of the report request.
+ * @return The report response.
+ */
+export async function fetchReport< TResponse = unknown >(
+	endpoint: string,
+	params?: StatsProxyParams
+): Promise< TResponse > {
+	return fetchStatsProxy< TResponse >( {
+		version: '2',
+		endpoint: `analytics/reports/${ normalizeEndpoint( endpoint ) }`,
+		params,
+	} );
 }
 
 export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
