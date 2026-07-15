@@ -83,7 +83,9 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 				</div>
 			) }
 			<div className={ styles.details }>
-				<Text variant="heading-xl" render={ <h1 /> } className={ styles.title }>
+				{ /* The heading ellipsizes to one line; `title` keeps the full text
+				     reachable on hover. */ }
+				<Text variant="heading-xl" render={ <h1 title={ title } /> } className={ styles.title }>
 					{ title }
 				</Text>
 				{ subtitle ? (
