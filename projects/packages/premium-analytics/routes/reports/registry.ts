@@ -104,6 +104,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		resolveSection: resolveUtmSection,
 		load: () => import( './utm/page' ),
 	},
+	referrers: {
+		id: 'referrers',
+		getTitle: () => __( 'Referrers', 'jetpack-premium-analytics' ),
+		load: () => import( './referrers/page' ),
+	},
 };
 
 /**
