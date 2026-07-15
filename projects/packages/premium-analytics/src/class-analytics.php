@@ -58,9 +58,17 @@ class Analytics {
 
 		self::register_sync_bootstrap();
 		self::register_local_api();
-		self::register_stats_tracking();
-		self::register_store_event_tracking();
-		self::register_report_csv_export();
+
+		// Piggybacks on the Jetpack Stats module; checks Jetpack connection state.
+		Jetpack_Stats_Tracker::configure();
+
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
+		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
+		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
+		Export::configure();
+
 		self::load_widget_registry();
 		self::load_dashboard_components();
 		self::register_dashboard_support_routes();
@@ -89,8 +97,13 @@ class Analytics {
 		self::$initialized = true;
 		self::apply_options( $options );
 
-		self::register_store_event_tracking();
-		self::register_report_csv_export();
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
+		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
+		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
+		Export::configure();
+
 		self::load_widget_registry();
 		self::load_dashboard_components();
 		self::load_build();
@@ -126,18 +139,6 @@ class Analytics {
 	}
 
 	/**
-	 * Configure the Jetpack Stats front-end tracking module.
-	 *
-	 * Piggybacks on the Jetpack Stats module and checks Jetpack connection
-	 * state, so connected sites only.
-	 *
-	 * @return void
-	 */
-	private static function register_stats_tracking() {
-		Jetpack_Stats_Tracker::configure();
-	}
-
-	/**
 	 * Register the site-served REST API: the WPCOM data proxy and notices.
 	 *
 	 * Both self-gate on their own rest_api_init hooks.
@@ -147,28 +148,6 @@ class Analytics {
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
-	}
-
-	/**
-	 * Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-	 *
-	 * @return void
-	 */
-	private static function register_store_event_tracking() {
-		WooCommerce_Analytics_Tracker::configure();
-	}
-
-	/**
-	 * Register the CSV report export pipeline (WOOA7S-1581).
-	 *
-	 * Must register above the is_admin() gate so its REST route hooks
-	 * rest_api_init (is_admin() is false during REST requests). Self-gates on
-	 * WooCommerce being active + Jetpack connected.
-	 *
-	 * @return void
-	 */
-	private static function register_report_csv_export() {
-		Export::configure();
 	}
 
 	/**
