@@ -12,6 +12,8 @@ import { useMemo } from '@wordpress/element';
  */
 import { aggregateReferrerRows, referrersToTimeSeries } from './aggregate';
 
+type ReferrerChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+
 /**
  * Fetch and derive the Referrers report chart and table records.
  *
@@ -19,7 +21,10 @@ import { aggregateReferrerRows, referrersToTimeSeries } from './aggregate';
  * @param chartPeriod  - The chart's bucket period.
  * @return Chart data and table records.
  */
-export function useReferrersReportRecords( reportParams: ReportParams, chartPeriod: StatsPeriod ) {
+export function useReferrersReportRecords(
+	reportParams: ReportParams,
+	chartPeriod: ReferrerChartPeriod
+) {
 	// A single bucketed query feeds both report sections. `summarize: 0`
 	// preserves the time buckets for the chart, and `max: 0` requests every
 	// referrer so table search, sorting, and pagination remain client-side.
@@ -28,23 +33,23 @@ export function useReferrersReportRecords( reportParams: ReportParams, chartPeri
 			...reportParams,
 			max: 0,
 			summarize: 0,
-			period: chartPeriod,
+			period: 'day',
 		} ),
-		[ reportParams, chartPeriod ]
+		[ reportParams ]
 	);
 	const report = useStatsReferrers( recordsParams );
 
 	const chartPrimary = useMemo(
-		() => referrersToTimeSeries( report.primary.data ),
-		[ report.primary.data ]
+		() => referrersToTimeSeries( report.primary.data, chartPeriod ),
+		[ report.primary.data, chartPeriod ]
 	);
 	const chartComparison = useMemo( () => {
 		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
 			return undefined;
 		}
 
-		return referrersToTimeSeries( report.comparison.data );
-	}, [ reportParams, report.comparison.data ] );
+		return referrersToTimeSeries( report.comparison.data, chartPeriod );
+	}, [ reportParams, report.comparison.data, chartPeriod ] );
 	const rows = useMemo(
 		() => aggregateReferrerRows( report.primary.data ),
 		[ report.primary.data ]
