@@ -107,6 +107,31 @@ describe( 'report export downloads', () => {
 		).toBe( 'orders over time.csv' );
 	} );
 
+	it( 'falls back when a UTF-8 response filename has malformed encoding', () => {
+		expect(
+			getFilenameFromContentDisposition( "attachment; filename*=UTF-8''orders%ZZ.csv" )
+		).toBeUndefined();
+	} );
+
+	it( 'sanitizes the response filename and normalizes its CSV extension', async () => {
+		mockApiFetch.mockResolvedValue( {
+			ok: true,
+			status: 200,
+			headers: new Headers( {
+				'Content-Disposition': 'attachment; filename="../orders:report.txt"',
+			} ),
+			blob: jest.fn().mockResolvedValue( new Blob( [ 'report' ] ) ),
+		} as unknown as Response );
+
+		await expect(
+			downloadReport( {
+				reportType: 'ordersovertime',
+				from: '2026-06-01T00:00:00+02:00',
+				to: '2026-06-30T23:59:59+02:00',
+			} )
+		).resolves.toEqual( { filename: '..-orders-report.txt.csv' } );
+	} );
+
 	it( 'builds a safe fallback filename without regex backtracking', async () => {
 		mockApiFetch.mockResolvedValue( {
 			ok: true,

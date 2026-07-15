@@ -22,6 +22,7 @@ export interface ExportReportParams {
 	compareTo?: string; // ISO 8601 date string
 }
 
+/** Parameters for downloading one complete report as a CSV file. */
 export interface DownloadReportParams extends Omit< ExportReportParams, 'reportType' > {
 	reportType: string;
 }
@@ -37,6 +38,7 @@ export interface ExportReportResponse {
 	errors?: Record< string, string >; // Failed report types and their error messages
 }
 
+/** The sanitized filename used for a downloaded report. */
 export interface DownloadReportResponse {
 	filename: string;
 }
@@ -104,7 +106,7 @@ export async function exportReport( params: ExportReportParams ): Promise< Expor
 }
 
 /**
- * Request a browser download from the existing WooCommerce Analytics CSV endpoint.
+ * Request a browser download from the Premium Analytics CSV export endpoint.
  *
  * @param params - Export parameters.
  * @return The filename used for the downloaded CSV.
@@ -130,11 +132,11 @@ export async function downloadReport(
 	}
 
 	const blob = await response.blob();
-	const filename =
+	const responseFilename =
 		getFilenameFromContentDisposition( response.headers.get( 'Content-Disposition' ) ) ||
 		buildFallbackFilename( params );
 
-	saveBlob( blob, filename );
+	const filename = saveBlob( blob, responseFilename );
 
 	return { filename };
 }
@@ -152,7 +154,11 @@ export function getFilenameFromContentDisposition( header: string | null ): stri
 
 	const utf8Match = header.match( /filename\*=UTF-8''([^;]+)/i );
 	if ( utf8Match?.[ 1 ] ) {
-		return decodeURIComponent( utf8Match[ 1 ].replace( /(^"|"$)/g, '' ) );
+		try {
+			return decodeURIComponent( utf8Match[ 1 ].replace( /(^"|"$)/g, '' ) );
+		} catch {
+			return undefined;
+		}
 	}
 
 	const filenameMatch = header.match( /filename="?([^";]+)"?/i );
@@ -163,14 +169,19 @@ export function getFilenameFromContentDisposition( header: string | null ): stri
  * Save a response blob as a browser download.
  *
  * @param blob     - Blob returned by the export endpoint.
- * @param filename - Download filename.
+ * @param filename - Requested download filename.
+ * @return The sanitized CSV filename used for the download.
  */
-export function saveBlob( blob: Blob, filename: string ): void {
+export function saveBlob( blob: Blob, filename: string ): string {
 	const url = window.URL.createObjectURL( blob );
 	const link = document.createElement( 'a' );
+	// Replace path separators, control characters, and Windows-reserved characters.
+	// eslint-disable-next-line no-control-regex
+	const safeName = filename.replace( /[\x00-\x1f/\\:*?"<>|]/g, '-' ).trim() || 'export';
+	const csvFilename = safeName.toLowerCase().endsWith( '.csv' ) ? safeName : `${ safeName }.csv`;
 
 	link.href = url;
-	link.download = filename;
+	link.download = csvFilename;
 	link.style.display = 'none';
 
 	document.body.appendChild( link );
@@ -178,6 +189,8 @@ export function saveBlob( blob: Blob, filename: string ): void {
 	document.body.removeChild( link );
 
 	setTimeout( () => window.URL.revokeObjectURL( url ), 0 );
+
+	return csvFilename;
 }
 
 function buildFallbackFilename( params: DownloadReportParams ): string {
