@@ -36,6 +36,14 @@
 	min-height: 0;
 }
 
+// Cell-size caps make the tracks content-bound, so the grid must not stretch:
+// leftover container height would otherwise be absorbed by the auto label row.
+.heatmap-chart__grid--capped {
+	flex: 0 0 auto;
+	height: max-content;
+	min-height: 0;
+}
+
 .heatmap-chart__row {
 	display: contents;
 }

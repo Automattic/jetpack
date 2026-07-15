@@ -302,6 +302,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
+							// Capped tracks make the grid content-sized; without this the
+							// leftover container height would land in the auto label row.
+							[ styles[ 'heatmap-chart__grid--capped' ] ]:
+								! compact && Boolean( maxCellWidth || maxCellHeight ),
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>

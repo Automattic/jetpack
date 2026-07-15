@@ -25,13 +25,16 @@
 	height: 100%;
 	min-height: 0;
 
-	/* A wide date range produces more week columns than a narrow card fits;
-	   scroll horizontally instead of clipping months. */
+	/* The page is sized to the card, so the content-sized grid centers in the
+	   leftover tile height. */
+	justify-content: center;
+
+	/* Safety net for sub-minimum widths (the page floor is 4 week columns). */
 	overflow-x: auto;
 }
 
 .heatmap {
-	flex: 1 1 0;
+	flex: 0 0 auto;
 	min-width: 0;
 	min-height: 0;
 }
