@@ -92,14 +92,14 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 	{
 		key: 'total_sends',
 		icon: send,
-		label: () => __( 'Total emails sent', 'jetpack-premium-analytics' ),
+		label: () => __( 'Sent', 'jetpack-premium-analytics' ),
 		kind: 'count',
 		views: [ 'opens', 'clicks' ],
 	},
 	{
 		key: 'unique_opens',
 		icon: people,
-		label: () => __( 'Unique opens', 'jetpack-premium-analytics' ),
+		label: () => __( 'Total unique opens', 'jetpack-premium-analytics' ),
 		kind: 'count',
 		views: [ 'opens', 'clicks' ],
 		hideWhenZero: true,
@@ -176,13 +176,13 @@ function readCount( summary: EmailRateSummary, key: string ): number {
 }
 
 /**
- * Reads a rate field (0–100 percentage) off a rate summary and converts it to a
- * fraction for the percentage formatter. Returns `null` for a missing or zero
- * rate so the tile renders the grid's placeholder ("—") instead of "0%". Mirrors
- * the Jetpack Stats top row, which renders "-" for a missing or zero rate: in
- * wp-calypso, `client/my-sites/stats/stats-email-top-row/index.jsx` passes
- * `counts?.opens_rate ? … : null` (a truthy check, so 0 becomes null) and
- * `top-card.jsx` renders a null value as "-".
+ * Reads a rate field off a rate summary. The endpoint returns rates as 0–1
+ * fractions — wp-calypso's `stats-email-top-row/index.jsx` renders
+ * `Math.round( counts.opens_rate * 100 )}%` — which is exactly what the
+ * percentage formatter takes, so the value passes through. Returns `null` for
+ * a missing or zero rate so the tile renders the grid's placeholder ("—")
+ * instead of "0%", mirroring the Jetpack Stats top row (a truthy check there
+ * turns 0 into "-").
  *
  * @param summary - The email rate summary.
  * @param key     - The rate field to read.
@@ -191,7 +191,7 @@ function readCount( summary: EmailRateSummary, key: string ): number {
 function readRate( summary: EmailRateSummary, key: string ): number | null {
 	const value = Number( summary[ key ] );
 
-	return Number.isFinite( value ) && value !== 0 ? value / 100 : null;
+	return Number.isFinite( value ) && value !== 0 ? value : null;
 }
 
 /**

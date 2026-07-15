@@ -4,7 +4,7 @@ import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -14,6 +14,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard } from './components';
+import { EMAIL_BREAKDOWN_TYPE, EMAIL_BREAKDOWN_TYPE_VARIANTS } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
@@ -64,6 +65,27 @@ function PostDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
 
+	// The fixed email compositions reuse `jpa/email-breakdown` under page-local
+	// aliases so each card carries its design title — the host titles a card by
+	// its widget *type*. Each alias clones the resolved type (render module and
+	// all) under a variant name and title; see `config/email-widget-variants`.
+	const pageWidgetTypes = useMemo( () => {
+		const base = widgetTypes.find( widgetType => widgetType.name === EMAIL_BREAKDOWN_TYPE );
+
+		if ( ! base ) {
+			return widgetTypes;
+		}
+
+		return [
+			...widgetTypes,
+			...EMAIL_BREAKDOWN_TYPE_VARIANTS.map( variant => ( {
+				...base,
+				name: variant.name,
+				title: variant.getTitle(),
+			} ) ),
+		];
+	}, [ widgetTypes ] );
+
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
@@ -78,7 +100,7 @@ function PostDetail(): JSX.Element {
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
-				widgetTypes={ widgetTypes }
+				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }

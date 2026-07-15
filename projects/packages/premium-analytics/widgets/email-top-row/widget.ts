@@ -44,14 +44,16 @@ export type EmailTopRowAttributes = {
  * Ported from the Jetpack Stats "Email top row" module (the header row on an
  * individual email's stats detail page). Shows one email's all-time headline
  * counts as a row of metric tiles, switching between the Opens and Clicks views
- * with the `metric` attribute (`relevance: 'high'`, so the host renders the
- * control). Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate`
+ * with the `metric` attribute. The attribute stays at the default (low)
+ * relevance: the post detail page splits the views into their own tabs, so a
+ * header control would duplicate the tab switch.
+ * Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate`
  * breakdown, which is all-time and returns no comparison rows, so the widget
  * ignores the dashboard date range and never shows period-over-period deltas.
  */
 export default {
 	name: 'jpa/email-top-row',
-	title: __( 'Email top row', 'jetpack-premium-analytics' ),
+	title: __( 'Newsletter performance', 'jetpack-premium-analytics' ),
 	icon: envelope,
 	help: {
 		content: __(
@@ -74,7 +76,6 @@ export default {
 					value: 'clicks',
 				},
 			],
-			relevance: 'high',
 		},
 	] as WidgetAttributeField< EmailTopRowAttributes >[],
 	example: {

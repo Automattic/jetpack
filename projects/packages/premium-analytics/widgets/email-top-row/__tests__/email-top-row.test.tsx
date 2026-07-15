@@ -23,14 +23,14 @@ const OPENS_RATE_RESPONSE = {
 	total_sends: 1000,
 	total_opens: 400,
 	unique_opens: 380,
-	opens_rate: 38.1,
+	opens_rate: 0.381,
 };
 
 const CLICKS_RATE_RESPONSE = {
 	total_sends: 1000,
 	total_opens: 400,
 	total_clicks: 40,
-	clicks_rate: 3.81,
+	clicks_rate: 0.0381,
 };
 
 function routeRateResponse( options: unknown ) {
@@ -66,8 +66,8 @@ describe( 'EmailTopRowWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Unique opens' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Sent' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Total unique opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Total opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Open rate' ) ).toBeInTheDocument();
 		// Clicks-only tiles are not in the Opens view.
@@ -86,8 +86,8 @@ describe( 'EmailTopRowWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Unique opens' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Sent' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Total unique opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Total clicks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Click rate' ) ).toBeInTheDocument();
 		// Total opens remains specific to the Opens view.
@@ -158,14 +158,14 @@ describe( 'EmailTopRowWidget', () => {
 		mockApiFetch.mockImplementation( routeRateResponse );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
-		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Sent' ) ).resolves.toBeInTheDocument();
 	} );
 } );
 
 describe( 'toEmailTopRowMetrics', () => {
 	it( 'builds the Opens view tiles in order and converts the 0–100 rate', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 38.1 } ),
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 0.381 } ),
 			'opens'
 		);
 
@@ -185,7 +185,7 @@ describe( 'toEmailTopRowMetrics', () => {
 				total_sends: 1000,
 				unique_opens: 380,
 				total_clicks: 40,
-				clicks_rate: 3.81,
+				clicks_rate: 0.0381,
 			} ),
 			'clicks'
 		);
@@ -201,7 +201,7 @@ describe( 'toEmailTopRowMetrics', () => {
 
 	it( 'hides the Unique opens tile when there are no unique opens', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 38.1 } ),
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 0.381 } ),
 			'opens'
 		);
 
