@@ -64,6 +64,18 @@ function wpcomsh_remove_gutenberg_experimental_menu() {
 }
 
 /**
+ * Enable wp-admin JS error reporting on sites participating in the `gutenberg-react-19`
+ * experiment, so that errors caused by the React 19 upgrade are captured.
+ *
+ * @param bool $is_enabled Whether error reporting is enabled.
+ * @return bool
+ */
+function wpcomsh_enable_error_reporting_for_react_19( $is_enabled ) {
+	return $is_enabled || ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'gutenberg-react-19' ) );
+}
+add_filter( 'a8c_enable_error_reporting', 'wpcomsh_enable_error_reporting_for_react_19' );
+
+/**
  * Hotfix a Gutenberg bug that inadvertently loads wp-reset-editor-syles stylesheet in the
  * iframed site editor.
  *
