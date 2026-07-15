@@ -17,6 +17,7 @@
 		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-agents-manager": "@dev",
+		"automattic/jetpack-ai-admin": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",

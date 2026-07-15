@@ -1,0 +1,24 @@
+{
+	"name": "@automattic/jetpack-ai-admin",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "Jetpack AI admin page",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/ai-admin/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Ai Admin"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/ai-admin"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	}
+}
