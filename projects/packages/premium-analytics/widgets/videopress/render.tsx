@@ -122,7 +122,10 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 		<WidgetState
 			isLoading={ isInitialLoading }
 			isFetching={ isFetching }
-			isError={ isError }
+			// The Stats queries carry `placeholderData`, so a failed range change keeps
+			// the prior period's rows visible; only surface the error when there is
+			// nothing to show.
+			isError={ rows.length === 0 && isError }
 			isEmpty={ rows.length === 0 }
 			error={ {
 				description: __(

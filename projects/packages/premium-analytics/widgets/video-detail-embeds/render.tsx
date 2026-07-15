@@ -111,7 +111,10 @@ function VideoDetailEmbedsReport() {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the pages visible; only surface the error
+				// when there is nothing to show.
+				isError={ pages.length === 0 && isError }
 				isEmpty={ pages.length === 0 }
 				error={ {
 					description: __(

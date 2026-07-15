@@ -115,7 +115,6 @@ export {
 	useChartTheme,
 	useSegmentStyles,
 	useSeriesStyles,
-	useWidgetError,
 	useWidgetDrillDown,
 	usePostDetailHrefBuilder,
 } from './hooks';
