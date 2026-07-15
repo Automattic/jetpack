@@ -8,12 +8,14 @@ describe( 'sanitizeStatsPostLikesResponse', () => {
 				likes: [
 					{
 						ID: 101,
-						name: 'Olivia Park',
-						login: 'oliviapark',
+						name: ' Olivia Park ',
+						login: ' oliviapark ',
 						avatar_URL: 'https://gravatar.com/avatar/1',
 						date_liked: '2026-07-14 15:50:49',
 					},
 					{ ID: '102', name: 'Hiroshi Tanaka', login: 'hiroshit' },
+					{ ID: 103 },
+					{ ID: 104, name: '   ', login: '   ' },
 					{ name: 'No id' },
 					'not-a-liker',
 				],

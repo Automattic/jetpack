@@ -38,16 +38,18 @@ function normalizeStatsPostLike( value: unknown ): StatsPostLike[] {
 
 	const like = coerceStatsRecord( value );
 	const id = safeParseFloat( like.ID );
+	const name = typeof like.name === 'string' ? like.name.trim() : '';
+	const login = typeof like.login === 'string' ? like.login.trim() : '';
 
-	if ( ! id ) {
+	if ( ! id || ( ! name && ! login ) ) {
 		return [];
 	}
 
 	return [
 		{
 			ID: id,
-			name: typeof like.name === 'string' ? like.name : '',
-			login: typeof like.login === 'string' ? like.login : '',
+			name,
+			login,
 			...( typeof like.avatar_URL === 'string' ? { avatar_URL: like.avatar_URL } : {} ),
 			...( typeof like.date_liked === 'string' && like.date_liked
 				? { date_liked: normalizeStatsPostLikeDate( like.date_liked ) }

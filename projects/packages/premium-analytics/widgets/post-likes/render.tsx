@@ -41,7 +41,8 @@ const LIKES_SHOWN = 10;
  */
 function PostLikesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const postId = Number( reportParams.post_id ) || 0;
+	const parsedPostId = Number( reportParams.post_id );
+	const postId = Number.isInteger( parsedPostId ) && parsedPostId > 0 ? parsedPostId : 0;
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPostLikes( {
 		postId,
@@ -74,7 +75,7 @@ function PostLikesInner() {
 				isEmpty={ isEmpty }
 				error={ {
 					description: __(
-						"We couldn't load this post's likes. Please try again in a moment.",
+						"We couldn't load these likes. Please try again in a moment.",
 						'jetpack-premium-analytics'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
@@ -87,7 +88,7 @@ function PostLikesInner() {
 									'Open a post or page report to see its likes here.',
 									'jetpack-premium-analytics'
 							  )
-							: __( 'There are no likes on this post yet.', 'jetpack-premium-analytics' ),
+							: __( 'There are no likes yet.', 'jetpack-premium-analytics' ),
 				} }
 			>
 				<SubscriberList items={ items } moreCount={ Math.max( 0, found - items.length ) } />
