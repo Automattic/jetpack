@@ -49,7 +49,8 @@ describe( 'usePostTrafficActivity', () => {
 					reportParams( {
 						from: '2026-07-01T00:00:00.000+08:00',
 						to: '2026-07-04T23:59:59.999+08:00',
-					} )
+					} ),
+					168
 				),
 			{ wrapper }
 		);
@@ -85,7 +86,8 @@ describe( 'usePostTrafficActivity', () => {
 						// 185 days — one page (168) plus a partial older page.
 						from: '2026-01-01T00:00:00.000+08:00',
 						to: '2026-07-04T23:59:59.999+08:00',
-					} )
+					} ),
+					168
 				),
 			{ wrapper }
 		);
