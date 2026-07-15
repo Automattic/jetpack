@@ -24,20 +24,6 @@
 	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
 }
 
-// One crawler row: the allow/block toggle plus its "Learn what … does" link.
-.jetpack-seo-ai__crawler-row {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-}
-
-// Indent the doc link to align with the toggle's label/help text (not the
-// switch), matching the llms.txt link; sized to match the toggle's help text.
-.jetpack-seo-ai__crawler-doc {
-	margin-inline-start: 40px;
-	font-size: 12px;
-}
-
 // The group-level "Allow all" master toggle, divided from the per-crawler
 // rows below so it reads as a control over the whole group.
 .jetpack-seo-ai__crawler-bulk {

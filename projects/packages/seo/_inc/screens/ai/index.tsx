@@ -1,7 +1,6 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import './style.scss';
@@ -41,7 +40,7 @@ interface CrawlerToggleProps {
  * @param props.blocked  - Whether the crawler is currently blocked.
  * @param props.disabled - Whether the toggle is disabled (mid-save).
  * @param props.onToggle - Called with `(slug, blocked)` on change.
- * @return The crawler toggle row.
+ * @return The crawler toggle.
  */
 const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, onToggle } ) => {
 	const handleChange = useCallback(
@@ -55,34 +54,14 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 	const blockedLabel = __( 'Blocked', 'jetpack-seo' );
 
 	return (
-		<div className="jetpack-seo-ai__crawler-row">
-			<ToggleControl
-				label={ crawler.label }
-				help={ blocked ? blockedLabel : allowedLabel }
-				checked={ ! blocked }
-				onChange={ handleChange }
-				disabled={ disabled }
-				__nextHasNoMarginBottom
-			/>
-			{ /* Only render the doc link when the bot has one. An empty slug (e.g.
-			     Bytespider — no official docs) omits the link entirely rather than
-			     rendering an empty/placeholder link, which a screen reader would
-			     announce as a control leading nowhere. */ }
-			{ crawler.redirectSlug && (
-				<Link
-					className="jetpack-seo-ai__crawler-doc"
-					href={ getRedirectUrl( crawler.redirectSlug ) }
-					openInNewTab
-					rel="noopener noreferrer"
-				>
-					{ sprintf(
-						/* translators: %s is an AI crawler's user-agent name, e.g. "GPTBot". */
-						__( 'Learn what %s does', 'jetpack-seo' ),
-						crawler.userAgent
-					) }
-				</Link>
-			) }
-		</div>
+		<ToggleControl
+			label={ crawler.label }
+			help={ blocked ? blockedLabel : allowedLabel }
+			checked={ ! blocked }
+			onChange={ handleChange }
+			disabled={ disabled }
+			__nextHasNoMarginBottom
+		/>
 	);
 };
 

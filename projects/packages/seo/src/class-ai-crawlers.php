@@ -47,15 +47,14 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The known AI crawler catalog: slug => [ label, user_agent, type, redirect_slug ].
+	 * The known AI crawler catalog: slug => [ label, user_agent, type ].
 	 *
 	 * `slug` is the stable key persisted in the override map and sent by the AI
-	 * tab; `user_agent` is the token written to the `User-agent:` robots line (and
-	 * shown in the "Learn what X does" link text); `label` is the human name shown
-	 * in the UI; `type` is `answer` (fetches to cite in live AI answers, allowed by
-	 * default) or `training` (collects to train models, blocked by default), which
-	 * drives the AI tab's two sections and the per-type default; `redirect_slug` is
-	 * the jetpack.com/redirect slug for that bot's "Learn what it does" link.
+	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
+	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
+	 * cite in live AI answers, allowed by default) or `training` (collects to train
+	 * models, blocked by default), which drives the AI tab's two sections and the
+	 * per-type default.
 	 *
 	 * @return array<string, array<string, string>>
 	 */
@@ -128,16 +127,6 @@ class Ai_Crawlers {
 				'type'       => 'training',
 			),
 		);
-
-		// The "Learn what X does" link points at a jetpack.com/redirect slug per
-		// bot, keyed off the catalog slug (`jetpack-seo-crawler-<slug>`). Bots with
-		// no official documentation page get an empty slug; the AI tab then omits
-		// the link entirely rather than render one that points nowhere.
-		$no_docs = array( 'bytespider' ); // ByteDance publishes no official Bytespider docs.
-		foreach ( $catalog as $slug => &$info ) {
-			$info['redirect_slug'] = in_array( $slug, $no_docs, true ) ? '' : 'jetpack-seo-crawler-' . $slug;
-		}
-		unset( $info );
 
 		return $catalog;
 	}
@@ -298,7 +287,6 @@ class Ai_Crawlers {
 				'label'        => $info['label'],
 				'userAgent'    => $info['user_agent'],
 				'type'         => $info['type'],
-				'redirectSlug' => $info['redirect_slug'],
 			);
 		}
 

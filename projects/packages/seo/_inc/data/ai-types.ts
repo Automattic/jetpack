@@ -14,8 +14,6 @@ export interface AiCrawler {
 	userAgent: string;
 	/** `answer` engines are allowed by default; `training` crawlers blocked. */
 	type: 'answer' | 'training';
-	/** jetpack.com/redirect slug for the bot's "Learn what it does" link. */
-	redirectSlug: string;
 }
 
 export interface AiState {
