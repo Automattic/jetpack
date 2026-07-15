@@ -17,7 +17,10 @@ import { useMemo, useCallback, useState, useEffect } from 'react';
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
-import { WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
+import {
+	MOBILE_CONTAINER_WIDTH_THRESHOLD,
+	WIDE_CALENDAR_CONTAINER_THRESHOLD,
+} from '../date-range-layout';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 
 import './date-filters-panel.scss';
@@ -217,7 +220,7 @@ export function DateFiltersPanel( {
 		setObserverRef( containerElement ?? document.body );
 	}, [ containerElement, setObserverRef ] );
 
-	const isCompact = containerWidth !== null && containerWidth < 552;
+	const isCompact = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
 	const isWideScreen =
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
