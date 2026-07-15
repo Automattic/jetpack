@@ -1,5 +1,5 @@
 import { ToggleControl } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useSchemaSettings } from '../../data/use-schema-settings';
 import OrganizationBusinessSection from './schema-settings/organization-business-section';
@@ -99,7 +99,7 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 							{ setCount > 0
 								? sprintf(
 										/* translators: %1$d: number of configured Organization fields. %2$d: total number of fields. */
-										__( '%1$d of %2$d set', 'jetpack-seo' ),
+										_x( '%1$d of %2$d set', 'Organization fields are configured', 'jetpack-seo' ),
 										setCount,
 										fieldsSet.length
 								  )
