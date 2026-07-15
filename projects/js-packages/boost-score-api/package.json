@@ -22,22 +22,19 @@
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
 	"scripts": {
-		"build": "pnpm run clean && webpack",
+		"build": "pnpm run clean && tsgo",
 		"clean": "rm -rf build/",
-		"test": "jest --config=tests/jest.config.cjs",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit",
-		"watch": "pnpm run build && pnpm webpack watch"
+		"watch": "tsgo --watch"
 	},
 	"dependencies": {
 		"@wordpress/i18n": "6.24.0",
 		"zod": "3.25.76"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"jest": "30.4.2",
-		"webpack": "5.107.2",
-		"webpack-cli": "6.0.1"
+		"jest": "30.4.2"
 	}
 }
