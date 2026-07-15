@@ -1,6 +1,10 @@
 const path = require( 'path' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
+// Date logic falls back to the machine timezone (Intl.DateTimeFormat), so
+// date-window tests only pass in UTC. Pin it to match CI on any machine.
+process.env.TZ = 'UTC';
+
 module.exports = {
 	...baseConfig,
 	rootDir: path.join( __dirname, '..' ),
