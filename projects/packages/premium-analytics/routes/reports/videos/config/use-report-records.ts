@@ -4,15 +4,13 @@
 import {
 	useStatsVideoPlays,
 	type ReportParams,
-	type StatsPeriod,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { aggregateVideoRows, videosToTimeSeries } from './aggregate';
-
-type VideoChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * Fetch and derive the Videos report chart and table from one bucketed query.
@@ -23,7 +21,7 @@ type VideoChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export function useVideosReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: VideoChartPeriod
+	chartPeriod: StatsChartBucketPeriod
 ) {
 	const recordsParams = useMemo(
 		() => ( {

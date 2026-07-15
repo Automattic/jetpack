@@ -114,9 +114,9 @@ const report: StatsNormalizedReport< StatsVideoPlaysItem > = {
 	summary: {},
 	data: [
 		{
-			time_interval: '2026-06-01',
-			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-01T23:59:59+00:00',
+			time_interval: '2026-06-04',
+			date_start: '2026-06-04T00:00:00+00:00',
+			date_end: '2026-06-04T23:59:59+00:00',
 			items: [
 				makeVideo( { plays: 10, impressions: 30 } ),
 				makeVideo( {
@@ -129,9 +129,9 @@ const report: StatsNormalizedReport< StatsVideoPlaysItem > = {
 			],
 		},
 		{
-			time_interval: '2026-06-02',
-			date_start: '2026-06-02T00:00:00+00:00',
-			date_end: '2026-06-02T23:59:59+00:00',
+			time_interval: '2026-06-05',
+			date_start: '2026-06-05T00:00:00+00:00',
+			date_end: '2026-06-05T23:59:59+00:00',
 			items: [ makeVideo( { plays: 7, impressions: 20 } ) ],
 		},
 	],
@@ -142,8 +142,8 @@ describe( 'report videos aggregate', () => {
 		const series = videosToTimeSeries( report );
 
 		expect( series.summary ).toEqual( {
-			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-02T23:59:59+00:00',
+			date_start: '2026-06-04T00:00:00+00:00',
+			date_end: '2026-06-05T23:59:59+00:00',
 		} );
 		expect( series.data.map( point => point.plays ) ).toEqual( [ 15, 7 ] );
 	} );
@@ -155,10 +155,14 @@ describe( 'report videos aggregate', () => {
 			expect.objectContaining( {
 				time_interval: '2026-06-01',
 				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-02T23:59:59+00:00',
+				date_end: '2026-06-05T23:59:59+00:00',
 				plays: 22,
 			} ),
 		] );
+		expect( series.summary ).toEqual( {
+			date_start: '2026-06-04T00:00:00+00:00',
+			date_end: '2026-06-05T23:59:59+00:00',
+		} );
 	} );
 
 	it( 'aggregates plays and impressions without mutating the report', () => {

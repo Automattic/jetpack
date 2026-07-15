@@ -108,7 +108,11 @@ describe( 'useVideosReportRecords', () => {
 			complete_stats: 1,
 		} );
 		expect( result.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( { time_interval: '2026-07-06', plays: 13 } ),
+			expect.objectContaining( {
+				time_interval: '2026-07-06',
+				date_start: '2026-07-06T00:00:00+00:00',
+				plays: 13,
+			} ),
 		] );
 		expect( result.current.rows ).toEqual( [
 			expect.objectContaining( { id: 441, plays: 13, impressions: 22 } ),
