@@ -13,6 +13,8 @@ describe( 'StepDisconnect', () => {
 
 	afterEach( () => {
 		testProps.trackModalClick.mockClear();
+		testProps.closeModal.mockClear();
+		testProps.onDisconnect.mockClear();
 	} );
 
 	describe( 'Initially', () => {
@@ -61,6 +63,28 @@ describe( 'StepDisconnect', () => {
 			expect( testProps.trackModalClick ).toHaveBeenCalledWith(
 				'jetpack_disconnect_dialog_click_stay_connected'
 			);
+		} );
+	} );
+
+	describe( 'When the Escape key is pressed', () => {
+		it( 'calls closeModal and tracks stay_connected', async () => {
+			const user = userEvent.setup();
+			render( <StepDisconnect { ...testProps } /> );
+			await user.keyboard( '{Escape}' );
+			expect( testProps.closeModal ).toHaveBeenCalled();
+			expect( testProps.trackModalClick ).toHaveBeenCalledWith(
+				'jetpack_disconnect_dialog_click_stay_connected'
+			);
+		} );
+
+		it( 'does nothing while a disconnect is in progress', async () => {
+			const user = userEvent.setup();
+			// Start not-disconnecting, then flip to disconnecting. This proves the
+			// listener re-subscribes to the fresh closure instead of the stale one.
+			const { rerender } = render( <StepDisconnect { ...testProps } isDisconnecting={ false } /> );
+			rerender( <StepDisconnect { ...testProps } isDisconnecting={ true } /> );
+			await user.keyboard( '{Escape}' );
+			expect( testProps.closeModal ).not.toHaveBeenCalled();
 		} );
 	} );
 

@@ -77,13 +77,12 @@ const StepDisconnect = ( {
 	);
 
 	useEffect( () => {
-		document.addEventListener( 'keydown', handleEscapePress, false );
+		document.addEventListener( 'keydown', handleEscapePress );
 
 		return () => {
-			document.removeEventListener( 'keydown', handleEscapePress, false );
+			document.removeEventListener( 'keydown', handleEscapePress );
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ handleEscapePress ] );
 
 	// When showing on the plugins page, the disconnect button should deactivate the plugin as well.
 	let disconnectLabel: string = __( 'Disconnect', 'jetpack-connection-js' );
