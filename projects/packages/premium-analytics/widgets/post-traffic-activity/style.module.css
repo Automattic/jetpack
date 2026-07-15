@@ -33,6 +33,15 @@
 	overflow-x: auto;
 }
 
+/* The chart's responsive measuring container fills the tile height (its
+   sizing is structural — it is what gets measured), so center the
+   content-sized capped chart inside it rather than around it. */
+.content > * {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
 .heatmap {
 	flex: 0 0 auto;
 	min-width: 0;
