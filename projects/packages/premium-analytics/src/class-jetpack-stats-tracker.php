@@ -41,13 +41,11 @@ class Jetpack_Stats_Tracker {
 
 		if ( did_action( 'plugins_loaded' ) ) {
 			Stats_Main::init();
+			self::activate_stats_module_if_connected();
 		} else {
 			$config = new Config();
 			$config->ensure( 'stats' );
-		}
-
-		if ( ( new Connection_Manager() )->is_connected() ) {
-			self::activate_stats_module();
+			add_action( 'plugins_loaded', array( static::class, 'activate_stats_module_if_connected' ) );
 		}
 	}
 
@@ -64,11 +62,27 @@ class Jetpack_Stats_Tracker {
 	}
 
 	/**
-	 * Activate Stats without redirecting or ending the request.
+	 * Activate Stats for a connected standalone Premium Analytics site.
+	 *
+	 * @return void
+	 */
+	public static function activate_stats_module_if_connected() {
+		if ( ( new Connection_Manager() )->is_connected() ) {
+			self::activate_stats_module();
+		}
+	}
+
+	/**
+	 * Activate Stats in standalone mode without redirecting or ending the request.
 	 *
 	 * @return void
 	 */
 	public static function activate_stats_module() {
+		// When Jetpack is active, respect its Stats module setting.
+		if ( class_exists( 'Jetpack' ) ) {
+			return;
+		}
+
 		( new Modules() )->activate( 'stats', false, false );
 	}
 }

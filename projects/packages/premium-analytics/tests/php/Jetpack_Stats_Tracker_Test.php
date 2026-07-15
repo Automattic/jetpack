@@ -12,6 +12,8 @@ use Automattic\Jetpack\Stats\Main as Stats_Main;
 use Automattic\Jetpack\Stats\Tracking_Pixel;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -35,6 +37,7 @@ class Jetpack_Stats_Tracker_Test extends TestCase {
 
 		remove_filter( 'jetpack_get_available_standalone_modules', array( Jetpack_Stats_Tracker::class, 'add_stats_module' ) );
 		remove_action( 'jetpack_site_registered', array( Jetpack_Stats_Tracker::class, 'activate_stats_module' ) );
+		remove_action( 'plugins_loaded', array( Jetpack_Stats_Tracker::class, 'activate_stats_module_if_connected' ) );
 		remove_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ), 101 );
 	}
 
@@ -50,6 +53,7 @@ class Jetpack_Stats_Tracker_Test extends TestCase {
 
 		remove_filter( 'jetpack_get_available_standalone_modules', array( Jetpack_Stats_Tracker::class, 'add_stats_module' ) );
 		remove_action( 'jetpack_site_registered', array( Jetpack_Stats_Tracker::class, 'activate_stats_module' ) );
+		remove_action( 'plugins_loaded', array( Jetpack_Stats_Tracker::class, 'activate_stats_module_if_connected' ) );
 		remove_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ), 101 );
 		remove_filter( 'wp_script_attributes', array( Tracking_Pixel::class, 'add_low_fetchpriority' ) );
 		remove_filter( 'wp_resource_hints', array( Tracking_Pixel::class, 'remove_stats_dns_prefetch' ), 100 );
@@ -109,6 +113,23 @@ class Jetpack_Stats_Tracker_Test extends TestCase {
 		Jetpack_Stats_Tracker::activate_stats_module();
 
 		$this->assertContains( 'stats', Jetpack_Options::get_option( 'active_modules' ) );
+	}
+
+	/**
+	 * An active Jetpack plugin owns the module setting, including a user's choice to disable Stats.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_activate_stats_module_respects_jetpack_setting() {
+		require_once __DIR__ . '/fixtures/class-jetpack-plugin-stub.php';
+		class_alias( Jetpack_Plugin_Stub::class, 'Jetpack' );
+
+		Jetpack_Stats_Tracker::activate_stats_module();
+
+		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules' ) );
 	}
 
 	/**
