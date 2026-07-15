@@ -39,7 +39,7 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs();
+	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const summary = usePostSummary( postId );
