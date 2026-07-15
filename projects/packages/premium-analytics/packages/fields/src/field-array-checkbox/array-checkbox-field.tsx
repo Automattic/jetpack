@@ -121,6 +121,7 @@ export default function ArrayCheckboxField< Item extends Record< string, string[
 						return (
 							<Menu.CheckboxItem
 								key={ value }
+								className={ styles.menuItem }
 								name={ field.id }
 								value={ value }
 								checked={ selectedValues.includes( value ) }
