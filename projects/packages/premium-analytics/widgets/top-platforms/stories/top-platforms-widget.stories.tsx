@@ -1,15 +1,17 @@
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TopPlatformsRender from '../render';
 import widgetDefinition, { type TopPlatformsAttributes } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -38,12 +40,6 @@ interface TopPlatformsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		TopPlatformsStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 function getTopPlatformsAttributes( {
 	withComparison,
 	platformDimension,
@@ -57,6 +53,19 @@ function getTopPlatformsAttributes( {
 
 function renderTopPlatformsWidget( controls: TopPlatformsStoryControls ) {
 	return <TopPlatformsRender attributes={ getTopPlatformsAttributes( controls ) } />;
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderTopPlatformsOnPreset( preset: PresetType ) {
+	return (
+		<TopPlatformsRender
+			attributes={ {
+				max: 10,
+				platformDimension: 'browser',
+				reportParams: getDefaultQueryParams( false, preset ),
+			} }
+		/>
+	);
 }
 
 function TopPlatformsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -127,6 +136,49 @@ export const ByOS: StoryObj< TopPlatformsStoryControls > = {
 	render: renderTopPlatformsWidget,
 	args: { withComparison: false, platformDimension: 'platform' },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: StoryObj< TopPlatformsStoryControls > = {
+	render: () => renderTopPlatformsOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices', 'loading' );
+		return () => forceStatsMockState( 'stats/devices', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: StoryObj< TopPlatformsStoryControls > = {
+	render: () => renderTopPlatformsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices', 'error' );
+		return () => forceStatsMockState( 'stats/devices', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral device
+ * glyph and "No platform data in this period.").
+ */
+export const Empty: StoryObj< TopPlatformsStoryControls > = {
+	render: () => renderTopPlatformsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices', 'empty' );
+		return () => forceStatsMockState( 'stats/devices', null );
+	},
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {

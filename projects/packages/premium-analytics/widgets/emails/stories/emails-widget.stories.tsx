@@ -21,6 +21,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailsRender, { EmailsLeaderboard, type EmailRow } from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
@@ -106,16 +107,6 @@ const mockLongLabelRows: EmailRow[] = [
 ];
 
 /**
- * Close-up canvas so the widget fills a real body area outside the dashboard
- * grid — the loading overlay and empty state need a sized container to render in.
- */
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '320px' } }>
-		<Story />
-	</div>
-);
-
-/**
  * Default populated state — latest emails (newest first) with their open rate.
  */
 export const Default: Story = {
@@ -151,8 +142,7 @@ function renderEmailsWithMax( max: number ) {
  */
 export const Loading: Story = {
 	render: () => renderEmailsWithMax( 7 ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

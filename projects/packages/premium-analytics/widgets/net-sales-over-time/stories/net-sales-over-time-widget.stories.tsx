@@ -6,11 +6,15 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import NetSalesOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -34,12 +38,6 @@ type NetSalesOverTimeStoryProps = NetSalesOverTimeWidgetProps & NetSalesOverTime
 interface NetSalesOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		NetSalesOverTimeStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getNetSalesOverTimeAttributes(
 	withComparison = false,
@@ -86,6 +84,13 @@ function renderNetSalesOverTime( { withComparison, preset }: NetSalesOverTimeSto
 			attributes={ getNetSalesOverTimeAttributes( withComparison, preset ) }
 		/>
 	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderNetSalesOverTimeOnPreset( preset: SelectablePresetId ) {
+	ensureLineChartComposition();
+
+	return <NetSalesOverTimeRender attributes={ getNetSalesOverTimeAttributes( false, preset ) } />;
 }
 
 function NetSalesOverTimeDashboardStory( {
@@ -177,6 +182,49 @@ export const WithComparison: Story = {
 				) => getNetSalesOverTimeSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderNetSalesOverTimeOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'loading' );
+		return () => setReportMockState( 'orders/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderNetSalesOverTimeOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'error' );
+		return () => setReportMockState( 'orders/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no net sales data: the widget shows its empty state ("No sales
+ * in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderNetSalesOverTimeOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'empty' );
+		return () => setReportMockState( 'orders/by-date', null );
 	},
 };
 
