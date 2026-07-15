@@ -107,7 +107,7 @@ export function useShowStatsQuery(
 	// response in state until the new one resolves. Compose only once the loaded
 	// summary actually covers the selected range; otherwise a period switch would
 	// relabel stale data as the new range and report isLoading:false mid-flight.
-	const summaryMatchesSelection = summary?.range?.from === from && summary?.range?.to === to;
+	const summaryMatchesSelection = summary?.range.from === from && summary?.range.to === to;
 
 	let data: PodcastShowStats | undefined;
 	if ( summary && overview && summaryMatchesSelection ) {

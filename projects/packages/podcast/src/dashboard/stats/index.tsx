@@ -126,12 +126,13 @@ const Stats = () => {
 	// Gate the full empty state on all-time plays so a quiet period doesn't masquerade as a new show.
 	const isEmpty = ! isLoading && ! isError && stats?.all_time_plays === 0;
 
-	// The "All time" view stitches together windows the API can't report over
-	// all time: 30-day breakdowns and a 90-day top day. Label those scopes so
-	// each panel is honest about its window rather than inheriting the heading.
+	// Some panels report over a window the API fixes regardless of the selection,
+	// so label those scopes when they differ from the heading. The All time view
+	// sources its breakdowns from a 30-day snapshot; top_day is always 90 days.
 	const isAllTime = selection.period === 'all';
 	const breakdownScope = isAllTime ? __( 'Last 30 days', 'jetpack-podcast' ) : undefined;
-	const topDayScope = isAllTime ? __( 'Last 90 days', 'jetpack-podcast' ) : undefined;
+	const topDayScope =
+		selection.period !== '90d' ? __( 'Last 90 days', 'jetpack-podcast' ) : undefined;
 
 	return (
 		<div className="podcast-stats podcast-stats--stack">
@@ -186,9 +187,9 @@ const Stats = () => {
 								byApp={ stats?.by_app }
 								byCountry={ stats?.by_country }
 								topDay={ stats?.top_day }
+								breakdownScope={ breakdownScope }
 								topDayScope={ topDayScope }
 								isLoading={ isLoading }
-								layout="chart"
 							/>
 						}
 					/>
