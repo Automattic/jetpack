@@ -34,10 +34,10 @@ class Llms_Txt {
 	const OPTION = 'jetpack_seo_llms_txt_enabled';
 
 	/**
-	 * Max pages and posts listed, so a large site doesn't dump its whole tree.
+	 * Max items listed per supported content type, so a large site doesn't dump
+	 * its whole tree.
 	 */
-	const MAX_PAGES = 50;
-	const MAX_POSTS = 50;
+	const MAX_POSTS_PER_TYPE = 50;
 
 	/**
 	 * Wire the front-end request handler.
@@ -92,8 +92,8 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Build the llms.txt Markdown document from site identity, published pages,
-	 * and recent posts.
+	 * Build the llms.txt Markdown document from site identity and published
+	 * supported content types.
 	 *
 	 * @return string
 	 */
@@ -108,37 +108,74 @@ class Llms_Txt {
 			$blocks[] = '> ' . $description;
 		}
 
-		$pages = self::link_list(
-			get_posts(
-				array(
-					'post_type'      => 'page',
-					'post_status'    => 'publish',
-					'posts_per_page' => self::MAX_PAGES,
-					'orderby'        => 'menu_order title',
-					'order'          => 'ASC',
-				)
-			)
-		);
-		if ( '' !== $pages ) {
-			$blocks[] = "## Pages\n\n" . $pages;
-		}
-
-		$posts = self::link_list(
-			get_posts(
-				array(
-					'post_type'      => 'post',
-					'post_status'    => 'publish',
-					'posts_per_page' => self::MAX_POSTS,
-					'orderby'        => 'date',
-					'order'          => 'DESC',
-				)
-			)
-		);
-		if ( '' !== $posts ) {
-			$blocks[] = "## Posts\n\n" . $posts;
+		foreach ( self::get_llms_post_type_objects() as $post_type ) {
+			$list = self::link_list( self::get_posts_for_type( $post_type->name ) );
+			if ( '' !== $list ) {
+				$blocks[] = '## ' . self::section_title( $post_type ) . "\n\n" . $list;
+			}
 		}
 
 		return implode( "\n\n", $blocks ) . "\n";
+	}
+
+	/**
+	 * Return supported post types in llms.txt reading order.
+	 *
+	 * @return \WP_Post_Type[]
+	 */
+	private static function get_llms_post_type_objects() {
+		$post_types = Post_Types::get_supported_content_type_objects();
+		$ordered    = array();
+
+		foreach ( array( 'page', 'post' ) as $post_type ) {
+			if ( isset( $post_types[ $post_type ] ) ) {
+				$ordered[ $post_type ] = $post_types[ $post_type ];
+				unset( $post_types[ $post_type ] );
+			}
+		}
+
+		return array_merge( $ordered, $post_types );
+	}
+
+	/**
+	 * Fetch published content for a supported post type.
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return \WP_Post[]
+	 */
+	private static function get_posts_for_type( $post_type ) {
+		$args = array(
+			'post_type'        => $post_type,
+			'post_status'      => 'publish',
+			'posts_per_page'   => self::MAX_POSTS_PER_TYPE,
+			'suppress_filters' => false,
+		);
+
+		if ( 'page' === $post_type ) {
+			$args['orderby'] = 'menu_order title';
+			$args['order']   = 'ASC';
+		} else {
+			$args['orderby'] = 'date';
+			$args['order']   = 'DESC';
+		}
+
+		return get_posts( $args );
+	}
+
+	/**
+	 * Section title for a supported post type.
+	 *
+	 * @param \WP_Post_Type $post_type Post type object.
+	 * @return string
+	 */
+	private static function section_title( $post_type ) {
+		if ( 'page' === $post_type->name ) {
+			return __( 'Pages', 'jetpack-seo' );
+		}
+		if ( 'post' === $post_type->name ) {
+			return __( 'Posts', 'jetpack-seo' );
+		}
+		return wp_strip_all_tags( $post_type->label );
 	}
 
 	/**

@@ -8,6 +8,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 export const OVERVIEW_PATH = '/jetpack/v4/seo/overview';
 export const SETTINGS_PATH = '/jetpack/v4/seo/settings';
 export const AI_PATH = '/jetpack/v4/seo/ai';
+export const CONTENT_PATH = '/jetpack/v4/seo/content';
 
 /** A single preloaded REST response, as emitted by `rest_preload_api_request()`. */
 interface PreloadedResponse {

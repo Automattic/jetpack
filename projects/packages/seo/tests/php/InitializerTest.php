@@ -9,12 +9,32 @@ namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Posts as WorDBless_Posts;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Initializer
  */
 #[CoversClass( Initializer::class )]
 class InitializerTest extends TestCase {
+
+	use WorDBless_Query_Trait;
+
+	/**
+	 * Clean up test posts and custom post types.
+	 *
+	 * @return void
+	 */
+	public function tearDown(): void {
+		$this->clear_wordbless_posts_query();
+
+		if ( post_type_exists( 'seo_book' ) ) {
+			unregister_post_type( 'seo_book' );
+		}
+
+		WorDBless_Posts::init()->clear_all_posts();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * The Initializer class exists and exposes the expected menu slug.
@@ -38,6 +58,23 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
+	 * The Content tab receives its supported post types from the same PHP
+	 * discovery helper used by coverage and llms.txt.
+	 *
+	 * @return void
+	 */
+	public function test_rest_reads_include_content_data() {
+		$method = new \ReflectionMethod( Initializer::class, 'rest_reads' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$rest_reads = $method->invoke( null );
+
+		$this->assertArrayHasKey( 'content', $rest_reads );
+	}
+
+	/**
 	 * The factual content-coverage counts expose the expected integer shape
 	 * (state, not a score). Invoked directly to avoid get_overview_data()'s
 	 * Modules dependency, which needs host-plugin option classes absent here.
@@ -57,6 +94,77 @@ class InitializerTest extends TestCase {
 
 		// Search-visible can never exceed the total (it's total minus noindexed).
 		$this->assertLessThanOrEqual( $coverage['total'], $coverage['with_search_visible'] );
+	}
+
+	/**
+	 * Content coverage counts every supported content type, not only core posts
+	 * and pages.
+	 *
+	 * @return void
+	 */
+	public function test_content_coverage_includes_supported_custom_post_types() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+				'supports'     => array( 'custom-fields' ),
+			)
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Post with SEO',
+			)
+		);
+		update_post_meta( $post_id, Initializer::META_TITLE, 'Custom post SEO title' );
+		update_post_meta( $post_id, Initializer::META_DESCRIPTION, 'Custom post description.' );
+		update_post_meta( $post_id, Initializer::META_SCHEMA_TYPE, 'article' );
+
+		$page_id = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Visible Page',
+			)
+		);
+
+		$book_id = wp_insert_post(
+			array(
+				'post_type'   => 'seo_book',
+				'post_status' => 'publish',
+				'post_title'  => 'Book with SEO',
+			)
+		);
+		update_post_meta( $book_id, Initializer::META_TITLE, 'Book SEO title' );
+		update_post_meta( $book_id, Initializer::META_DESCRIPTION, 'Book description.' );
+		update_post_meta( $book_id, Initializer::META_SCHEMA_TYPE, 'faq' );
+		update_post_meta( $book_id, Initializer::META_NOINDEX, '1' );
+
+		// Keep the inserted page from being optimized away by WorDBless.
+		$this->assertIsInt( $page_id );
+		$this->hook_wordbless_posts_query( array( $post_id, $page_id, $book_id ) );
+		wp_cache_flush();
+
+		$method = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame(
+			array(
+				'total'               => 3,
+				'with_schema'         => 2,
+				'with_title'          => 2,
+				'with_description'    => 2,
+				'with_search_visible' => 2,
+			),
+			$method->invoke( null )
+		);
 	}
 
 	/**

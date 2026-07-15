@@ -1,7 +1,14 @@
-import { useEntityRecords } from '@wordpress/core-data';
-import { useMemo } from '@wordpress/element';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
-import type { ContentRow, SchemaType, SeoPostMeta } from './content-types';
+import { CONTENT_PATH, getPreloaded } from './get-preloaded';
+import type {
+	ContentData,
+	ContentRow,
+	PostTypeOption,
+	SchemaType,
+	SeoPostMeta,
+} from './content-types';
 
 // Only request the columns the Content tab renders, plus the SEO meta. Core
 // REST returns `meta` as an object keyed by the registered meta names.
@@ -12,8 +19,8 @@ const POST_FIELDS = [ 'id', 'title', 'link', 'type', 'status', 'meta' ].join( ',
 const STATUSES = [ 'publish' ];
 
 // Core REST caps `per_page` at 100. We request the max for each type and merge
-// posts + pages client-side. NOTE: a site with more than 100 posts (or 100
-// pages) won't show the overflow on the Content tab yet — acceptable for now;
+// supported content types client-side. NOTE: a site with more than 100 items
+// per type won't show the overflow on the Content tab yet — acceptable for now;
 // a future iteration can page/virtualize the merged set.
 const PER_PAGE = 100;
 
@@ -30,6 +37,7 @@ interface SeoPostRecord {
 export interface UseSeoPostsReturn {
 	items: ContentRow[];
 	isLoading: boolean;
+	postTypeOptions: PostTypeOption[];
 }
 
 /**
@@ -84,36 +92,45 @@ const QUERY = {
 };
 
 /**
- * Fetch the Content tab's posts *and* pages from WordPress core REST and merge
- * them into a single list. Each type is fetched once (up to {@link PER_PAGE}
- * records) and mapped to a {@link ContentRow}; filtering, sorting and
- * pagination happen client-side in the Content screen via
+ * Fetch the Content tab's PHP-selected post types from WordPress core REST and
+ * merge them into a single list. Each type is fetched once (up to
+ * {@link PER_PAGE} records) and mapped to a {@link ContentRow}; filtering,
+ * sorting and pagination happen client-side in the Content screen via
  * `filterSortAndPaginate`. The SEO meta comes back inside each record's `meta`
  * object via the registered `show_in_rest` post meta (no custom endpoint).
  *
- * @return The merged, mapped rows plus a combined loading state.
+ * @return The merged, mapped rows plus post type options and a combined loading state.
  */
 export default function useSeoPosts(): UseSeoPostsReturn {
-	const { records: postRecords, hasResolved: postsResolved } = useEntityRecords< SeoPostRecord >(
-		'postType',
-		'post',
-		QUERY
-	);
-	const { records: pageRecords, hasResolved: pagesResolved } = useEntityRecords< SeoPostRecord >(
-		'postType',
-		'page',
-		QUERY
-	);
+	const contentData = getPreloaded< ContentData >( CONTENT_PATH );
 
-	const items = useMemo(
-		() => [ ...( postRecords || [] ), ...( pageRecords || [] ) ].map( toContentRow ),
-		[ postRecords, pageRecords ]
-	);
+	return useSelect(
+		select => {
+			const postTypes = contentData?.post_types ?? [];
+			const core = select( coreStore );
+			let recordsResolved = true;
+			const records: SeoPostRecord[] = [];
 
-	return {
-		items,
-		// Show the loading state until *both* queries have resolved, so the
-		// table doesn't flash a posts-only list before pages arrive.
-		isLoading: ! postsResolved || ! pagesResolved,
-	};
+			for ( const postType of postTypes ) {
+				const postTypeRecords = core.getEntityRecords( 'postType', postType.slug, QUERY ) as
+					| SeoPostRecord[]
+					| null;
+
+				records.push( ...( postTypeRecords ?? [] ) );
+				recordsResolved =
+					recordsResolved &&
+					core.hasFinishedResolution( 'getEntityRecords', [ 'postType', postType.slug, QUERY ] );
+			}
+
+			return {
+				items: records.map( toContentRow ),
+				postTypeOptions: postTypes.map( postType => ( {
+					value: postType.slug,
+					label: postType.label,
+				} ) ),
+				isLoading: ! contentData || ! recordsResolved,
+			};
+		},
+		[ contentData ]
+	);
 }
