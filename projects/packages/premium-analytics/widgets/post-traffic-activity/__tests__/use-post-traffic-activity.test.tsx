@@ -103,12 +103,14 @@ describe( 'usePostTrafficActivity', () => {
 
 		act( () => result.current.showOlder() );
 
-		// The older (last) page: still a full grid, padded past the range
-		// start with blanks.
+		// The oldest page clamps to the range start and fills forward as a
+		// full grid (overlapping the previous page) — no out-of-range padding
+		// before the range.
 		expect( result.current.canShowNewer ).toBe( true );
 		expect( result.current.canShowOlder ).toBe( false );
 		expect( result.current.days ).toHaveLength( 168 );
-		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-01-17' );
+		expect( result.current.days[ 0 ].dateString ).toBe( '2026-01-01' );
+		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-06-17' );
 		expect( result.current.days[ 0 ].value ).toBeNull();
 	} );
 

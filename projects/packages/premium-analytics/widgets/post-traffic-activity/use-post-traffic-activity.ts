@@ -3,7 +3,7 @@
  */
 import { useStatsPost, type ReportParams } from '@jetpack-premium-analytics/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { eachDayOfInterval, format, parseISO, subDays } from 'date-fns';
+import { addDays, eachDayOfInterval, format, parseISO, subDays } from 'date-fns';
 import type { DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -90,8 +90,21 @@ export default function usePostTrafficActivity(
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
 		const rangeStart = parseISO( from );
-		const pageEnd = subDays( parseISO( to ), pageOffset * pageSpanDays );
-		const pageStart = subDays( pageEnd, pageSpanDays - 1 );
+		const rangeEnd = parseISO( to );
+		const paged = rangeStart < subDays( rangeEnd, pageSpanDays - 1 );
+
+		let pageEnd = subDays( rangeEnd, pageOffset * pageSpanDays );
+		let pageStart = subDays( pageEnd, pageSpanDays - 1 );
+
+		// The oldest page of a paged range clamps to the range start and fills
+		// forward (overlapping the previous page), instead of padding months of
+		// out-of-range blanks before it. Short ranges keep padding backward
+		// from the range end so the grid still fills the card.
+		if ( paged && pageStart < rangeStart ) {
+			pageStart = rangeStart;
+			const clampedEnd = addDays( rangeStart, pageSpanDays - 1 );
+			pageEnd = clampedEnd < rangeEnd ? clampedEnd : rangeEnd;
+		}
 
 		const points = eachDayOfInterval( { start: pageStart, end: pageEnd } ).map( date => {
 			const dateString = format( date, 'yyyy-MM-dd' );
@@ -105,7 +118,7 @@ export default function usePostTrafficActivity(
 
 		return {
 			days: points,
-			isPaged: rangeStart < subDays( parseISO( to ), pageSpanDays - 1 ),
+			isPaged: paged,
 			canShowOlder: rangeStart < pageStart,
 		};
 	}, [ data, from, to, pageOffset, pageSpanDays ] );
