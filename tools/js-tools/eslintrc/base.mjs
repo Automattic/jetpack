@@ -470,6 +470,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				// Our mirror repo publishing setup makes `files` pointless.
 				'package-json/require-files': 'off',
 
+				// Composer-style four-part x.y.z.w versions are used for package point releases.
+				'package-json/valid-version': 'off',
+
 				// Empty browserslist does something.
 				'package-json/no-empty-fields': [ 'error', { ignoreProperties: [ 'browserslist' ] } ],
 
