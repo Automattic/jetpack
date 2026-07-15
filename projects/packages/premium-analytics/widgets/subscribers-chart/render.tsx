@@ -204,7 +204,10 @@ function SubscribersChartInner( {
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ state.isLoading }
-				isFetching={ state.isFetching }
+				// `isFetching` is deliberately not passed: the chart renders its own
+				// scoped overlay below, so WidgetState's full-widget one would double
+				// up and cover the metric tabs.
+				//
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
