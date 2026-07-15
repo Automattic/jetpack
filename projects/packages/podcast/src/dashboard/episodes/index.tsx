@@ -9,7 +9,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
-import { getDashboardUpgradeUrl, getUpgradePlanName } from '../upgrade';
+import LockedPreview from '../locked-preview';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
@@ -331,24 +331,16 @@ const EpisodesTab = () => {
 	// active search/filter, let DataViews render its own "no results" UI.
 	const hasFiltersOrSearch = !! view.search || ( view.filters?.length ?? 0 ) > 0;
 
+	// A fail-open access snapshot can let a server-unentitled user reach this
+	// tab; the stats request then rejects with `premium_required`. Converge on
+	// the same locked experience the clean gate shows instead of a half-real table.
+	if ( statsPremiumRequired ) {
+		return <LockedPreview variant="episodes" />;
+	}
+
 	return (
 		<>
-			{ statsPremiumRequired && (
-				<Notice status="warning" isDismissible={ false }>
-					{ sprintf(
-						/* translators: %s: upgrade plan name, e.g. "Premium" */
-						__(
-							'Play counts and episode duration are available on the %s plan.',
-							'jetpack-podcast'
-						),
-						getUpgradePlanName()
-					) }{ ' ' }
-					<Button variant="link" href={ getDashboardUpgradeUrl() }>
-						{ __( 'Upgrade', 'jetpack-podcast' ) }
-					</Button>
-				</Notice>
-			) }
-			{ ! statsPremiumRequired && statsError && (
+			{ statsError && (
 				<Notice status="error" isDismissible={ false }>
 					{ __(
 						"Couldn't load play counts and duration. The values below may be missing or out of date.",
