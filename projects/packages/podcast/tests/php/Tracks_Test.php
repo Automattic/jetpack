@@ -292,19 +292,23 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
 	}
 
-	public function test_settings_saved_emits_snapshot_with_pii_redacted() {
-		update_option( 'podcasting_title', 'New Title' );
-		update_option( 'podcasting_email', 'host@example.com' );
-		update_option( 'podcasting_talent_name', 'Jane Host' );
+	public function test_settings_saved_reports_aggregates_not_raw_values() {
+		update_option( 'podcasting_category_id', 42 );
+		update_option( 'podcasting_title', 'My Secret Show Name' );
 
-		Tracks::record_settings_saved();
+		Tracks::record_settings_saved(
+			array( 'podcasting_category_id' => 0 ),
+			array( 'podcasting_category_id', 'podcasting_title' )
+		);
 
 		$events = $this->events_named( 'wpcom_podcasting_settings_saved' );
 		$this->assertCount( 1, $events );
-		$this->assertSame( 'New Title', $events[0]['properties']['podcasting_title'] );
-		// PII is redacted from the payload.
-		$this->assertArrayNotHasKey( 'podcasting_email', $events[0]['properties'] );
-		$this->assertArrayNotHasKey( 'podcasting_talent_name', $events[0]['properties'] );
+		$props = $events[0]['properties'];
+
+		// Derived fields are emitted; raw user-authored content is not.
+		$this->assertTrue( $props['podcasting_enabled'] );
+		$this->assertArrayNotHasKey( 'podcasting_title', $props );
+		$this->assertNotContains( 'My Secret Show Name', $props );
 	}
 
 	public function test_init_wires_settings_saved_recorder() {

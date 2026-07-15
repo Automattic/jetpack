@@ -265,22 +265,107 @@ class Tracks {
 	 * Fired off the `jetpack_podcast_settings_saved` action that
 	 * {@see Podcast_Settings_Endpoint::update_item()} triggers, so it's agnostic
 	 * to the REST transport — the endpoint already gates on a saved option.
+	 *
+	 * Reports an aggregate shape only — which keys were touched/changed plus
+	 * enabled/count derivations — never the raw option values. Title, summary,
+	 * copyright, image URL, and the directory maps are user-authored free text
+	 * that can carry PII or confidential material, so none of it is copied into
+	 * analytics. Mirrors the wpcom legacy handler's safe shape.
+	 *
+	 * @param array    $previous Pre-write settings snapshot from the action.
+	 * @param string[] $touched  Option names present in the write payload.
 	 */
-	public static function record_settings_saved(): void {
+	public static function record_settings_saved( $previous = array(), $touched = array() ): void {
 		try {
-			// Skip user-supplied free-text fields — keep PII out of tracks.
-			$pii   = array( 'podcasting_email', 'podcasting_talent_name' );
-			$state = array();
-			foreach ( Settings::OPTION_NAMES as $name ) {
-				if ( in_array( $name, $pii, true ) ) {
-					continue;
+			$previous = is_array( $previous ) ? $previous : array();
+			$touched  = is_array( $touched ) ? $touched : array();
+			$current  = Settings::get_all();
+
+			$changed = array();
+			foreach ( $touched as $name ) {
+				if ( self::normalize_setting_value( $current[ $name ] ?? null ) !== self::normalize_setting_value( $previous[ $name ] ?? null ) ) {
+					$changed[] = $name;
 				}
-				$state[ $name ] = get_option( $name, '' );
 			}
-			self::record_event( 'wpcom_podcasting_settings_saved', $state );
+
+			self::record_event(
+				'wpcom_podcasting_settings_saved',
+				array(
+					'touched_settings'                   => implode( ',', $touched ),
+					'touched_settings_count'             => count( $touched ),
+					'changed_settings'                   => implode( ',', $changed ),
+					'changed_settings_count'             => count( $changed ),
+					'podcasting_enabled'                 => (int) ( $current['podcasting_category_id'] ?? 0 ) > 0,
+					'previous_podcasting_enabled'        => (int) ( $previous['podcasting_category_id'] ?? 0 ) > 0,
+					'show_urls_count'                    => self::count_non_empty_strings( $current['podcasting_show_urls'] ?? array() ),
+					'previous_show_urls_count'           => self::count_non_empty_strings( $previous['podcasting_show_urls'] ?? array() ),
+					'show_states_active_count'           => self::count_matching( $current['podcasting_show_states'] ?? array(), 'active' ),
+					'previous_show_states_active_count'  => self::count_matching( $previous['podcasting_show_states'] ?? array(), 'active' ),
+					'show_states_pending_count'          => self::count_matching( $current['podcasting_show_states'] ?? array(), 'pending' ),
+					'previous_show_states_pending_count' => self::count_matching( $previous['podcasting_show_states'] ?? array(), 'pending' ),
+				)
+			);
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Tracks is best-effort.
 		}
+	}
+
+	/**
+	 * Normalize a setting value for change detection: array maps drop empty
+	 * entries so padding differences don't read as a change; scalars pass through.
+	 *
+	 * @param mixed $value Raw option value.
+	 * @return mixed
+	 */
+	private static function normalize_setting_value( $value ) {
+		if ( ! is_array( $value ) ) {
+			return $value;
+		}
+		return array_filter(
+			$value,
+			static function ( $item ) {
+				return is_string( $item ) && '' !== $item;
+			}
+		);
+	}
+
+	/**
+	 * Count the non-empty string entries in a directory map.
+	 *
+	 * @param mixed $values Map of directory => value.
+	 */
+	private static function count_non_empty_strings( $values ): int {
+		if ( ! is_array( $values ) ) {
+			return 0;
+		}
+		return count(
+			array_filter(
+				$values,
+				static function ( $value ) {
+					return is_string( $value ) && '' !== $value;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Count the entries in a show-states map matching a target state.
+	 *
+	 * @param mixed  $states Map of directory => state.
+	 * @param string $target State to count (`active` / `pending`).
+	 */
+	private static function count_matching( $states, string $target ): int {
+		if ( ! is_array( $states ) ) {
+			return 0;
+		}
+		return count(
+			array_filter(
+				$states,
+				static function ( $state ) use ( $target ) {
+					return $target === $state;
+				}
+			)
+		);
 	}
 
 	/**
