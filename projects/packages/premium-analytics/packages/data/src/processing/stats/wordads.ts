@@ -45,7 +45,13 @@ export type StatsWordAdsEarningsRawResponse = {
 export type StatsWordAdsEarningsPeriod = {
 	amount: number;
 	pageviews: number;
-	status: number;
+	/**
+	 * The payment status code, or `undefined` when the payload omits it. `0` is
+	 * itself a meaningful status ("Unpaid"), so a missing status must not
+	 * collapse into it — consumers would state a payment claim the API never
+	 * made.
+	 */
+	status: number | undefined;
 };
 
 export type StatsWordAdsEarningsBreakdown = Record< string, StatsWordAdsEarningsPeriod >;
@@ -122,11 +128,20 @@ export function sliceWordAdsStatsReport(
 	return { ...report, data, summary: summarizeWordAdsStats( data, report.summary ) };
 }
 
+function parseOptionalFloat( value: unknown ): number | undefined {
+	if ( value === undefined || value === null || value === '' ) {
+		return undefined;
+	}
+
+	const num = parseFloat( String( value ) );
+	return isNaN( num ) ? undefined : num;
+}
+
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
 	return {
 		amount: safeParseFloat( value.amount ),
 		pageviews: safeParseFloat( value.pageviews ),
-		status: safeParseFloat( value.status ),
+		status: parseOptionalFloat( value.status ),
 	};
 }
 

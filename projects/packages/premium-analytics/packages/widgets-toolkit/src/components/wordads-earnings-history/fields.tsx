@@ -16,7 +16,7 @@ export type EarningsHistoryRow = {
 	period: string;
 	amount: number;
 	pageviews: number;
-	status: number;
+	status: number | undefined;
 };
 
 /**
@@ -24,10 +24,16 @@ export type EarningsHistoryRow = {
  * from the Jetpack Stats WordAds `getStatus` map
  * (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
  *
- * @param status - The numeric status from the earnings payload.
+ * An unknown or absent status falls through to `?` rather than a label that
+ * would assert something about the payment we were never told.
+ *
+ * @param status - The numeric status from the earnings payload, if any.
  * @return The label and optional tooltip.
  */
-export function getEarningsStatus( status: number ): { label: string; tooltip?: string } {
+export function getEarningsStatus( status: number | undefined ): {
+	label: string;
+	tooltip?: string;
+} {
 	switch ( status ) {
 		case 0:
 			return {
@@ -66,8 +72,9 @@ export function getEarningsStatus( status: number ): { label: string; tooltip?: 
 }
 
 /**
- * Flatten a period-keyed earnings breakdown into table rows, newest period
- * first (period keys are `YYYY-MM`, so a descending string sort is chronological).
+ * Flatten a period-keyed earnings breakdown into table rows. Row order is left
+ * to the view's own sort (`EARNINGS_HISTORY_VIEW`), which the sortable column
+ * headers drive.
  *
  * @param breakdown - The normalized breakdown map, or undefined.
  * @return The rows for the table.
@@ -79,15 +86,13 @@ export function flattenEarningsBreakdown(
 		return [];
 	}
 
-	return Object.entries( breakdown )
-		.map( ( [ period, row ] ) => ( {
-			id: period,
-			period,
-			amount: row.amount,
-			pageviews: row.pageviews,
-			status: row.status,
-		} ) )
-		.sort( ( a, b ) => b.period.localeCompare( a.period ) );
+	return Object.entries( breakdown ).map( ( [ period, row ] ) => ( {
+		id: period,
+		period,
+		amount: row.amount,
+		pageviews: row.pageviews,
+		status: row.status,
+	} ) );
 }
 
 /**
@@ -111,16 +116,17 @@ function formatPeriodLabel( period: string ): string {
 export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 	return [
 		{
+			// `getValue` is omitted on the fields below: DataViews defaults to
+			// `item[ field.id ]`, and each id already matches its row property.
+			// Sorting Period on the raw `YYYY-MM` key keeps it chronological.
 			id: 'period',
 			label: __( 'Period', 'jetpack-premium-analytics' ),
 			enableHiding: false,
-			getValue: ( { item } ) => item.period,
 			render: ( { item } ) => <>{ formatPeriodLabel( item.period ) }</>,
 		},
 		{
 			id: 'amount',
 			label: __( 'Earnings', 'jetpack-premium-analytics' ),
-			getValue: ( { item } ) => item.amount,
 			render: ( { item } ) => (
 				<>{ formatMetricValue( item.amount, 'currency', { decimals: 2 } ) }</>
 			),
@@ -128,12 +134,12 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'pageviews',
 			label: __( 'Ads Served', 'jetpack-premium-analytics' ),
-			getValue: ( { item } ) => item.pageviews,
 			render: ( { item } ) => <>{ formatMetricValue( item.pageviews, 'number' ) }</>,
 		},
 		{
 			id: 'status',
 			label: __( 'Status', 'jetpack-premium-analytics' ),
+			// Sorts by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
 			render: ( { item } ) => {
 				const { label, tooltip } = getEarningsStatus( item.status );
