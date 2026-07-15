@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Podcast: release Podcast to self-hosted Jetpack sites. Removing the jetpack_podcast_for_the_world gate makes the module available and auto-activating everywhere, not just Simple and Atomic.
