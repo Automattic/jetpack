@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -83,5 +83,35 @@ describe( 'PostCommentsWidget', () => {
 		await expect(
 			screen.findByText( "We couldn't load these comments. Please try again in a moment." )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'keeps existing comments visible when a background refetch fails', async () => {
+		mockApiFetch
+			.mockResolvedValueOnce( {
+				found: 1,
+				comments: [
+					{
+						ID: 101,
+						author: { name: 'Olivia Park' },
+						URL: 'https://example.com/post/#comment-101',
+						date: new Date().toISOString(),
+					},
+				],
+			} )
+			.mockRejectedValueOnce( { status: 403 } );
+
+		renderWidget( 779 );
+
+		await expect( screen.findByRole( 'link', { name: /Olivia Park/ } ) ).resolves.toBeInTheDocument();
+
+		await act( async () => {
+			await queryClient.invalidateQueries( { queryKey: [ 'stats', 'post-comments' ] } );
+		} );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
+		expect( screen.getByRole( 'link', { name: /Olivia Park/ } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( "We couldn't load these comments. Please try again in a moment." )
+		).not.toBeInTheDocument();
 	} );
 } );
