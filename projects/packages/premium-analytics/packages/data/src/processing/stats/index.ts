@@ -5,6 +5,8 @@ export {
 	sanitizeStatsSiteResponse,
 } from './utils';
 export type { StatsComparisonRowContext } from './utils';
+export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
+export type { StatsChartBucketPeriod } from './chart-buckets';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsPostCommentsResponse } from './post-comments';

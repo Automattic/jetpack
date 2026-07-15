@@ -18,7 +18,9 @@ export type LatestPostWithMetrics = LatestPost & {
 export type UseLatestPostResult = {
 	post: LatestPostWithMetrics | null;
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
+	refetch: () => void;
 };
 
 /**
@@ -43,7 +45,20 @@ export function useLatestPost(): UseLatestPostResult {
 	const postStatsResult = useStatsPost( { postId, fields: [ 'views', 'like_count', 'post' ] } );
 
 	const isLoading = latestPostResult.isLoading || ( postId > 0 && postStatsResult.isLoading );
-	const isError = latestPostResult.isError;
+	const isFetching = latestPostResult.isFetching || postStatsResult.isFetching;
+	// The content query keeps prior data via `placeholderData`, so a transient
+	// refetch failure keeps the post visible; only surface the error when there
+	// is nothing to show.
+	const isError = latestPostResult.isError && ! latestPost;
+
+	const refetch = () => {
+		void latestPostResult.refetch();
+		// The stats query is disabled until a post ID resolves; refetching it
+		// while disabled would force a request for post 0.
+		if ( postId > 0 ) {
+			void postStatsResult.refetch();
+		}
+	};
 
 	const post = latestPost
 		? {
@@ -54,5 +69,5 @@ export function useLatestPost(): UseLatestPostResult {
 		  }
 		: null;
 
-	return { post, isLoading, isError };
+	return { post, isLoading, isFetching, isError, refetch };
 }

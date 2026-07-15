@@ -40,6 +40,7 @@ export const EMPTY_LOCAL_BUSINESS_DEFAULTS: LocalBusinessDefaults = {
 export const makeSchemaSettings = (
 	overrides: Partial< SchemaSettings > = {}
 ): SchemaSettings => ( {
+	breadcrumbList: { enabled: true },
 	organization: { name: '', description: '', sameAs: [], email: '' },
 	localBusiness: structuredClone( EMPTY_LOCAL_BUSINESS ),
 	defaults: {

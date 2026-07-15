@@ -71,7 +71,10 @@ function PostLikesInner() {
 			<WidgetState
 				isLoading={ isLoading && ! data }
 				isFetching={ isFetching }
-				isError={ isError }
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the likes visible; only surface the error
+				// when there is nothing to show.
+				isError={ ! data && isError }
 				isEmpty={ isEmpty }
 				error={ {
 					description: __(

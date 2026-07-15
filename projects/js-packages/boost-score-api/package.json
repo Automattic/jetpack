@@ -35,7 +35,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"jest": "30.4.2",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"

@@ -114,7 +114,7 @@
 		"@types/jest": "^30.0.0",
 		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@visx/glyph": "4.0.0",
 		"@wordpress/components": "36.1.0",
 		"@wordpress/element": "8.2.0",
@@ -129,7 +129,7 @@
 		"sass-embedded": "1.97.3",
 		"storybook": "10.4.6",
 		"tsdown": "0.22.2",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0 || ^19.0.0",

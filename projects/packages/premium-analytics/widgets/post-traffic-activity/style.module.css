@@ -1,0 +1,48 @@
+/* The non-compact heatmap grid fills its container (1fr tracks), so the
+ * height chain must stay bounded from the widget frame's viewport down:
+ * root → WidgetState's block-level `.ready` (block-size 100%) → content. */
+.root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+}
+
+.pager {
+	flex-shrink: 0;
+}
+
+/* Draw the focus ring inside the buttons; the default outset ring gets
+   clipped by the content area's overflow (same treatment as the metric
+   tabs). */
+.pager button {
+	outline-offset: calc(-1 * var(--wpds-border-width-focus, 1.5px));
+}
+
+/* Remaining tile height for WidgetState's block-level ready wrapper. */
+.body {
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+
+	/* The pager + content-sized grid center as one block in the leftover
+	   tile height. */
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+
+	/* Safety net for sub-minimum widths (the page floor is 4 week columns). */
+	overflow-x: auto;
+}
+
+.heatmap {
+	flex: 0 0 auto;
+	min-width: 0;
+	min-height: 0;
+}

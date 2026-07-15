@@ -6,6 +6,7 @@ import {
 	startOfDay,
 	endOfDay,
 	subDays,
+	subHours,
 	subMonths,
 	subYears,
 	startOfMonth,
@@ -78,6 +79,14 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range ).toBeDefined();
 		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 1 ) ) );
 		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
+	} );
+
+	it( 'returns rolling 24-hour range for "last-24-hours"', () => {
+		const range = computeDateRangeFromPreset( 'last-24-hours' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( subHours( NOW, 24 ) ) );
+		expect( range!.to ).toBe( toZ( NOW ) );
 	} );
 
 	it( 'returns 7-day range ending yesterday for "last-7-days"', () => {

@@ -60,7 +60,7 @@
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"babel-jest": "30.4.1",
 		"jest": "30.4.2",
 		"jetpack-js-tools": "workspace:*",

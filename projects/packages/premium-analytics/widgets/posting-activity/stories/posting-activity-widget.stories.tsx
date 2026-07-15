@@ -1,30 +1,50 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { getUnixTime, startOfDay, subDays } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostingActivityRender from '../render';
 import widgetDefinition from '../widget';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const STATS_STREAK_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/streak';
+const STATS_STREAK_PATH_FRAGMENT = 'stats/streak';
 const STREAK_DAYS = 365;
+
+/**
+ * Forces the streak request into the given state for a story's lifetime.
+ *
+ * The story-local streak middleware below would otherwise shadow
+ * `setReportMockState`, so use the shared story-side override helper that
+ * re-registers ahead of story-local middleware when a forced state is set.
+ *
+ * @param state - The forced report-mock state.
+ * @return The `beforeEach` cleanup callback.
+ */
+function forceStreakState( state: 'loading' | 'error' | 'empty' ) {
+	forceStatsMockState( STATS_STREAK_PATH_FRAGMENT, state );
+	return () => {
+		forceStatsMockState( STATS_STREAK_PATH_FRAGMENT, null );
+	};
+}
 
 /**
  * A year of deterministic posts-per-day counts keyed by unix-second timestamps,
@@ -99,12 +119,14 @@ function renderPostingActivity( { withComparison }: PostingActivityStoryControls
 	);
 }
 
-// Close-up canvas so the heatmap fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderPostingActivityOnPreset( preset: PresetType ) {
+	return (
+		<PostingActivityRender
+			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
+		/>
+	);
+}
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostingActivity',
@@ -145,6 +167,40 @@ export const WithComparison: Story = {
 	render: renderPostingActivity,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderPostingActivityOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceStreakState( 'loading' ),
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderPostingActivityOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceStreakState( 'error' ),
+};
+
+/**
+ * Resolved with no posts in the range: the widget shows its empty state (the
+ * neutral calendar glyph and the "posts will appear here" message).
+ */
+export const Empty: Story = {
+	render: () => renderPostingActivityOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceStreakState( 'empty' ),
 };
 
 interface PostingActivityDashboardStoryProps

@@ -52,8 +52,8 @@
 	"devDependencies": {
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
-		"typescript": "5.9.3",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"typescript": "6.0.3",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1",
 		"webpack-dev-server": "5.2.5"

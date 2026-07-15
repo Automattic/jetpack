@@ -33,6 +33,7 @@ describe( 'useSchemaSettings', () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 		expect( result.current.organization ).toEqual( RESPONSE.organization );
 		expect( result.current.localBusiness ).toEqual( RESPONSE.localBusiness );
 		expect( result.current.defaults ).toEqual( RESPONSE.defaults.organization );
@@ -48,6 +49,7 @@ describe( 'useSchemaSettings', () => {
 		expect( result.current.isDirty ).toBe( true );
 
 		const saved = {
+			breadcrumbList: RESPONSE.breadcrumbList,
 			organization: { ...RESPONSE.organization, sameAs: [ 'https://twitter.com/acme' ] },
 			localBusiness: RESPONSE.localBusiness,
 			defaults: RESPONSE.defaults,
@@ -63,14 +65,56 @@ describe( 'useSchemaSettings', () => {
 		);
 		const options = post![ 0 ] as {
 			path: string;
-			data: { organization: { sameAs: string[] }; localBusiness: typeof RESPONSE.localBusiness };
+			data: Pick< SchemaSettings, 'breadcrumbList' | 'organization' | 'localBusiness' >;
 		};
 		expect( options.path ).toBe( '/jetpack/v4/seo/schema-settings' );
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
+		expect( options.data.breadcrumbList ).toEqual( RESPONSE.breadcrumbList );
 		expect( options.data.localBusiness ).toEqual( RESPONSE.localBusiness );
 		expect( result.current.localBusiness ).toEqual( saved.localBusiness );
 		expect( onSave ).toHaveBeenCalledWith( saved );
 		expect( createSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it( 'auto-saves the BreadcrumbList toggle without dragging in pending edits', async () => {
+		const onSave = jest.fn();
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE, onSave ) );
+
+		// A pending Organization edit must stay local (and dirty) across the toggle save.
+		act( () => result.current.setOrganizationField( { name: 'Pending edit' } ) );
+
+		const saved: SchemaSettings = {
+			...RESPONSE,
+			breadcrumbList: { enabled: false },
+		};
+		mockApiFetch.mockResolvedValueOnce( saved );
+
+		act( () => result.current.commitBreadcrumbList( { enabled: false } ) );
+		expect( result.current.breadcrumbList ).toEqual( { enabled: false } );
+
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack/v4/seo/schema-settings',
+			method: 'POST',
+			data: { breadcrumbList: { enabled: false } },
+		} );
+		expect( result.current.breadcrumbList ).toEqual( { enabled: false } );
+		expect( result.current.organization.name ).toBe( 'Pending edit' );
+		expect( result.current.isDirty ).toBe( true );
+		expect( onSave ).toHaveBeenCalledWith( saved );
+		expect( createSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it( 'reports a failed BreadcrumbList auto-save', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+
+		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+
+		act( () => result.current.commitBreadcrumbList( { enabled: false } ) );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
 	} );
 
 	it( 'tracks dirty state and re-seeds localBusiness after saving', async () => {
@@ -167,9 +211,10 @@ describe( 'useSchemaSettings', () => {
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
 		);
 		const options = post![ 0 ] as {
-			data: { organization: { sameAs: string[] }; localBusiness: typeof RESPONSE.localBusiness };
+			data: Pick< SchemaSettings, 'breadcrumbList' | 'organization' | 'localBusiness' >;
 		};
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
+		expect( options.data.breadcrumbList ).toEqual( RESPONSE.breadcrumbList );
 		expect( options.data.localBusiness ).toEqual( RESPONSE.localBusiness );
 	} );
 } );

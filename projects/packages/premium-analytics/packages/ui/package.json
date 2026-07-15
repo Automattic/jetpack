@@ -18,13 +18,14 @@
 		"@wordpress/compose": "8.3.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/private-apis": "1.50.0",
 		"@wordpress/ui": "0.17.0",
 		"clsx": "2.1.1",
 		"react": "18.3.1"
 	},
 	"devDependencies": {
 		"@storybook/react": "10.4.6",
+		"@testing-library/react": "16.3.2",
+		"@testing-library/user-event": "14.6.1",
 		"date-fns": "4.1.0"
 	}
 }

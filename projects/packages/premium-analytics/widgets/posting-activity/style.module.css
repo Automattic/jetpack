@@ -25,12 +25,3 @@
 	min-width: 0;
 	justify-content: center;
 }
-
-.placeholder {
-	flex: 1 1 0;
-	min-block-size: 0;
-	inline-size: 100%;
-	min-height: 180px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}

@@ -331,7 +331,10 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// The Stats queries carry `placeholderData`, so a failed range change
+				// keeps the prior period's rows visible; only surface the error when
+				// there is nothing to show.
+				isError={ rows.length === 0 && isError }
 				isEmpty={ rows.length === 0 }
 				error={ {
 					description: __(
@@ -547,7 +550,9 @@ function ArchivesReport( { num }: { num: number } ) {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// As above: keep the drilled rows visible through a transient refetch
+				// failure and only surface the error when there is nothing to show.
+				isError={ rows.length === 0 && isError }
 				isEmpty={ activeRows.length === 0 }
 				error={ {
 					description: __(

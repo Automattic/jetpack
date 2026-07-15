@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { postList } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -44,7 +44,7 @@ export default {
 			'jetpack-premium-analytics'
 		),
 	},
-	icon: chartBar,
+	icon: postList,
 	attributes: [
 		{
 			id: 'num',

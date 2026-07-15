@@ -2,17 +2,17 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
+import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	HeatmapChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	buildCalendarHeatmapData,
 	useWidgetRootContext,
 	type DataPointDate,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -40,7 +40,7 @@ type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttrib
 function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isError } = useStatsStreak( reportParams );
+	const { data, isLoading, isFetching, isError, refetch } = useStatsStreak( reportParams );
 
 	const { data: heatmapData, rowLabels } = useMemo( () => {
 		const series: DataPointDate[] = Object.entries( data ?? {} ).map(
@@ -54,54 +54,43 @@ function PostingActivityInner() {
 
 	const hasData = heatmapData.length > 0;
 
-	if ( isLoading && ! hasData ) {
-		return (
-			<div className={ styles.content }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( isError ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'Could not load posting activity.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</div>
-		);
-	}
-
-	if ( ! hasData ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>
-						{ __(
-							'Posts you publish will appear here as a calendar heatmap.',
-							'jetpack-premium-analytics'
-						) }
-					</Text>
-				</Stack>
-			</div>
-		);
-	}
-
 	return (
 		<div className={ styles.content }>
-			<HeatmapChart
-				data={ heatmapData }
-				rowLabels={ rowLabels }
-				compact
-				primaryColor="var(--wp-admin-theme-color, #3858e9)"
-				withTooltips
-				className={ styles.heatmap }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps the previous response via `placeholderData`, so only
+				// surface the error when there is nothing to show.
+				isError={ isError && ! hasData }
+				isEmpty={ ! hasData }
+				error={ {
+					description: __(
+						"We couldn't load posting activity. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [
+						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+					],
+				} }
+				empty={ {
+					icon: calendar,
+					description: __( 'No posts published in this period.', 'jetpack-premium-analytics' ),
+				} }
 			>
-				<HeatmapChart.Legend
-					lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics' ) }
-					moreLabel={ __( 'More Posts', 'jetpack-premium-analytics' ) }
-				/>
-			</HeatmapChart>
+				<HeatmapChart
+					data={ heatmapData }
+					rowLabels={ rowLabels }
+					compact
+					primaryColor="var(--wp-admin-theme-color, #3858e9)"
+					withTooltips
+					className={ styles.heatmap }
+				>
+					<HeatmapChart.Legend
+						lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics' ) }
+						moreLabel={ __( 'More Posts', 'jetpack-premium-analytics' ) }
+					/>
+				</HeatmapChart>
+			</WidgetState>
 		</div>
 	);
 }

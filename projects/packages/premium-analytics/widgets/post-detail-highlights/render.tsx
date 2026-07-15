@@ -99,7 +99,10 @@ function PostDetailHighlightsInner() {
 			<WidgetState
 				isLoading={ isLoading && ! hasData }
 				isFetching={ isFetching }
-				isError={ isError }
+				// As with `isLoading` above: the highlights stay on screen through a
+				// transient refetch failure, so only surface the error when there is
+				// nothing to show.
+				isError={ ! hasData && isError }
 				isEmpty={ postId <= 0 }
 				error={ {
 					description: __(

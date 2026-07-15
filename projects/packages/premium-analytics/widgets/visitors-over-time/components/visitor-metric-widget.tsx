@@ -6,6 +6,7 @@ import {
 	ReportMetricWidget,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Visitor metric widget component.
@@ -24,6 +25,11 @@ export function VisitorMetricWidget() {
 				type: 'number',
 				options: { useMultipliers: true, decimals: 0 },
 			} }
+			emptyStateText={ __( 'No visitors in this period.', 'jetpack-premium-analytics' ) }
+			errorText={ __(
+				"We couldn't load visitors. Please try again in a moment.",
+				'jetpack-premium-analytics'
+			) }
 		/>
 	);
 }

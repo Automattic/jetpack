@@ -25,6 +25,11 @@ describe( 'post detail tab layouts', () => {
 				attributes: { utmDimension: 'utm_source,utm_medium', max: 10 },
 				placement: { width: 2, height: 2, order: 4 },
 			},
+			{
+				uuid: 'post-traffic-activity',
+				type: 'jpa/post-traffic-activity',
+				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 5 },
+			},
 		] );
 	} );
 

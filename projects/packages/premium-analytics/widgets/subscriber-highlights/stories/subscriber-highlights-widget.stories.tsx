@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -11,10 +11,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscriberHighlightsRender from '../render';
 import widgetDefinition, { DEFAULT_SUBSCRIBER_METRICS, type SubscriberMetricId } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -81,13 +85,6 @@ const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_SUBSCRIBER_METRICS,
 } as const;
 
-// Close-up canvas so the grid fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscriberHighlights',
 	component: SubscriberHighlightsRender,
@@ -130,6 +127,73 @@ export const WithComparison: Story = {
 	render: renderSubscriberHighlights,
 	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
+};
+
+// The counts endpoint takes no params, so its query key is static and every
+// story in this file shares one cache entry (a distinct date preset can't
+// separate them — the query does not key on report params). Dropping the query
+// on story enter and exit gives each forced-state story a fresh fetch, and
+// clears a never-settling `loading` fetch before the other stories reuse the key.
+function resetSubscribersCountsQuery() {
+	queryClient.removeQueries( { queryKey: [ 'stats', 'subscribers-counts' ] } );
+}
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: renderSubscriberHighlights,
+	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		resetSubscribersCountsQuery();
+		setReportMockState( 'subscribers/counts', 'loading' );
+		return () => {
+			setReportMockState( 'subscribers/counts', null );
+			resetSubscribersCountsQuery();
+		};
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: renderSubscriberHighlights,
+	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		resetSubscribersCountsQuery();
+		setReportMockState( 'subscribers/counts', 'error' );
+		return () => {
+			setReportMockState( 'subscribers/counts', null );
+			resetSubscribersCountsQuery();
+		};
+	},
+};
+
+/**
+ * Resolved without counts: the widget shows its empty state (the neutral
+ * customer glyph and "No subscriber counts available yet.").
+ */
+export const Empty: Story = {
+	render: renderSubscriberHighlights,
+	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		resetSubscribersCountsQuery();
+		setReportMockState( 'subscribers/counts', 'empty' );
+		return () => {
+			setReportMockState( 'subscribers/counts', null );
+			resetSubscribersCountsQuery();
+		};
+	},
 };
 
 interface SubscriberHighlightsDashboardStoryProps

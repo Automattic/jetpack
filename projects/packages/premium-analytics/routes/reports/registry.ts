@@ -69,12 +69,23 @@ export type ReportDefinition = {
  * needed (see this folder's README).
  */
 export const REPORTS: Record< string, ReportDefinition > = {
+	'comment-followers': {
+		id: 'comment-followers',
+		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics' ),
+		load: () => import( './comment-followers/page' ),
+	},
 	posts: {
 		id: 'posts',
 		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ),
 		getDescription: () => __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ),
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
+	},
+	videos: {
+		id: 'videos',
+		getTitle: () => __( 'Videos', 'jetpack-premium-analytics' ),
+		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics' ),
+		load: () => import( './videos/page' ),
 	},
 };
 

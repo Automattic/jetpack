@@ -2,24 +2,23 @@
  * External dependencies
  */
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import { privateApis as componentsPrivateApis } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
-import { useMemo } from 'react';
+import { SelectControl } from '@wordpress/ui';
+import clsx from 'clsx';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePresets } from '../date-range-presets';
-import { unlock } from '../lock/unlock';
 import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
-import type {
-	ComparisonPresetId,
-	DateRangePreset,
-	PrimaryPresetId,
-} from '@jetpack-premium-analytics/datetime';
+import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
 import './date-comparison-dropdown.scss';
 
-const { Menu } = unlock( componentsPrivateApis );
+const NO_COMPARISON_VALUE = 'no-comparison';
+
+type ComparisonSelectItem = {
+	value: string;
+	label: string;
+};
 
 type DateComparisonDropdownProps = {
 	/**
@@ -35,13 +34,11 @@ type DateComparisonDropdownProps = {
 	 */
 	presetId?: ComparisonPresetId;
 	/**
-	 * Whether to remove "Compare to:" prefix from button label
+	 * Visible label rendered by the select itself. When provided, the trigger
+	 * shows only the comparison range; otherwise the trigger carries the
+	 * "Compare to:" prefix and the label stays visually hidden.
 	 */
-	removeCompareToPrefix?: boolean;
-	/**
-	 * Callback when comparison is enabled
-	 */
-	onEnable: () => void;
+	label?: string;
 	/**
 	 * Callback when a comparison preset is selected
 	 */
@@ -52,117 +49,116 @@ type DateComparisonDropdownProps = {
 	onClear: () => void;
 };
 
+/**
+ * Builds the comparison trigger label from the active preset range.
+ *
+ * @param args                       - Label formatting inputs.
+ * @param args.selectedPreset        - Active comparison preset, if any.
+ * @param args.removeCompareToPrefix - Whether to omit the "Compare to:" prefix.
+ * @param args.noComparisonLabel     - Label used when comparison is disabled.
+ * @return Trigger label text.
+ */
+export function getComparisonTriggerLabel( {
+	selectedPreset,
+	removeCompareToPrefix,
+	noComparisonLabel,
+}: {
+	selectedPreset?: ComparisonDateRangePreset;
+	removeCompareToPrefix: boolean;
+	noComparisonLabel: string;
+} ): string {
+	if ( ! selectedPreset?.range?.from || ! selectedPreset.range.to ) {
+		return noComparisonLabel;
+	}
+
+	if ( removeCompareToPrefix ) {
+		return formatDateRange( selectedPreset.range );
+	}
+
+	return sprintf(
+		// translators: %s is the comparison range label
+		__( 'Compare to: %s', 'jetpack-premium-analytics' ),
+		formatDateRange( selectedPreset.range )
+	);
+}
+
 export function DateComparisonDropdown( {
 	presets,
 	enabled,
 	presetId,
-	removeCompareToPrefix = false,
-	onEnable,
+	label,
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
+	const noComparisonLabel = __( 'No comparison', 'jetpack-premium-analytics' );
+	const selectComparisonLabel = __( 'Select comparison', 'jetpack-premium-analytics' );
+
+	const items = useMemo( (): ComparisonSelectItem[] => {
+		return [
+			{
+				value: NO_COMPARISON_VALUE,
+				label: noComparisonLabel,
+			},
+			...presets.map( preset => ( {
+				value: preset.id,
+				label: preset.label,
+			} ) ),
+		];
+	}, [ noComparisonLabel, presets ] );
+
 	const selectedPreset = useMemo(
-		() => ( presetId ? presets.find( p => p.id === presetId ) : undefined ),
-		[ presets, presetId ]
+		() => ( presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
+		[ presetId, presets ]
 	);
 
-	const comparisonRange = selectedPreset?.range;
-	const hasValidPreset = !! comparisonRange;
-	const hasPresets = presets.length > 0;
+	const selectedValue = enabled && presetId ? presetId : NO_COMPARISON_VALUE;
+	const isComparisonActive = selectedValue !== NO_COMPARISON_VALUE;
 
-	if ( ! enabled ) {
-		return (
-			<Menu>
-				<Menu.TriggerButton
-					render={
-						<Button
-							className="date-filters-panel-button"
-							variant="outline"
-							tone="neutral"
-							size="compact"
-							id="date-comparison-dropdown-button"
-						>
-							{ __( 'No comparison', 'jetpack-premium-analytics' ) }
-						</Button>
-					}
-				/>
-				<Menu.Popover className="date-comparison-dropdown__popover">
-					<Menu.Group>
-						<Menu.CheckboxItem name="comparison-toggle" value="no-comparison" checked={ true }>
-							<Menu.ItemLabel>
-								{ __( 'No comparison', 'jetpack-premium-analytics' ) }
-							</Menu.ItemLabel>
-						</Menu.CheckboxItem>
+	const selectedItem = useMemo(
+		() => items.find( item => item.value === selectedValue ) ?? items[ 0 ] ?? null,
+		[ items, selectedValue ]
+	);
 
-						<Menu.CheckboxItem
-							name="comparison-toggle"
-							value="comparison-to-past"
-							checked={ false }
-							onChange={ onEnable }
-							hideOnClick
-						>
-							<Menu.ItemLabel>
-								{ __( 'Comparison to past', 'jetpack-premium-analytics' ) }
-							</Menu.ItemLabel>
-						</Menu.CheckboxItem>
-					</Menu.Group>
-				</Menu.Popover>
-			</Menu>
-		);
-	}
+	const triggerLabel = useMemo(
+		() =>
+			isComparisonActive
+				? getComparisonTriggerLabel( {
+						selectedPreset,
+						removeCompareToPrefix: !! label,
+						noComparisonLabel,
+				  } )
+				: noComparisonLabel,
+		[ isComparisonActive, label, noComparisonLabel, selectedPreset ]
+	);
 
-	let label: string = __( 'Select comparison', 'jetpack-premium-analytics' );
-	if ( hasValidPreset ) {
-		if ( removeCompareToPrefix ) {
-			label = formatDateRange( comparisonRange );
-		} else {
-			label = sprintf(
-				// translators: %s is the comparison range label
-				__( 'Compare to: %s', 'jetpack-premium-analytics' ),
-				formatDateRange( comparisonRange )
-			);
-		}
-	}
+	const handleValueChange = useCallback(
+		( item: ComparisonSelectItem | null ) => {
+			if ( ! item?.value ) {
+				return;
+			}
+
+			if ( item.value === NO_COMPARISON_VALUE ) {
+				onClear();
+				return;
+			}
+
+			onPresetChange( item.value as ComparisonPresetId );
+		},
+		[ onClear, onPresetChange ]
+	);
 
 	return (
-		<Menu>
-			<Menu.TriggerButton
-				render={
-					<Button
-						className="date-comparison-dropdown__button"
-						variant="outline"
-						tone="neutral"
-						size="compact"
-					>
-						{ label }
-					</Button>
-				}
-			/>
-			<Menu.Popover className="date-comparison-dropdown__popover">
-				{ hasPresets && (
-					<DateRangePresets
-						/*
-						 * DateRangePresets is typed for primary presets, but it only
-						 * reads `id`/`label`/`range` to render each row, so it renders
-						 * comparison presets identically. Cast to the primary-preset
-						 * prop types; the runtime shape matches.
-						 */
-						value={ ( presetId ?? null ) as PrimaryPresetId | null }
-						presets={ presets as unknown as DateRangePreset[] }
-						hideOnClick
-						onRangeChange={ ( _range, id ) => {
-							/*
-							 * Type assertion is safe here because:
-							 * 1. presets is ComparisonDateRangePreset[] (strongly typed)
-							 * 2. DateRangePresets picks id from our presets array
-							 * 3. Therefore id must be ComparisonPresetId
-							 */
-							onPresetChange( id as ComparisonPresetId );
-						} }
-						onClear={ onClear }
-					/>
-				) }
-			</Menu.Popover>
-		</Menu>
+		<SelectControl
+			className={ clsx( 'date-comparison-dropdown__select', {
+				'date-comparison-dropdown__select--active': isComparisonActive,
+			} ) }
+			items={ items }
+			value={ selectedItem }
+			onValueChange={ handleValueChange }
+			triggerContent={ () => triggerLabel }
+			label={ label ?? __( 'Compare to', 'jetpack-premium-analytics' ) }
+			hideLabelFromVision={ ! label }
+			placeholder={ selectComparisonLabel }
+		/>
 	);
 }

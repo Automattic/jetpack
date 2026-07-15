@@ -27,11 +27,3 @@
 .value {
 	margin-inline-start: auto;
 }
-
-.state {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 120px;
-	text-align: center;
-}

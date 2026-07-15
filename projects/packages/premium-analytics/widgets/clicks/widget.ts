@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { link } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -30,7 +30,7 @@ export default {
 			'jetpack-premium-analytics'
 		),
 	},
-	icon: chartBar,
+	icon: link,
 	attributes: [
 		{
 			id: 'max',

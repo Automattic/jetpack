@@ -8,7 +8,8 @@ import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Link } from '@wordpress/ui';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
+import useRestApiInit from '../../hooks/use-rest-api-init';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import './style.scss';
 
@@ -50,10 +51,7 @@ const OwnerDisconnectDialog = ( {
 	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
 
 	// Initialize the REST API
-	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
+	useRestApiInit( apiRoot, apiNonce );
 
 	const handleStayConnected = useCallback( () => {
 		onClose();

@@ -142,7 +142,7 @@
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
 		"@types/wordpress__block-editor": "15.0.6",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/api-fetch": "7.50.0",
 		"@wordpress/blob": "4.50.0",
 		"@wordpress/block-serialization-default-parser": "5.50.0",

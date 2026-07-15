@@ -15,9 +15,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoDetailEmbedsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -70,10 +71,7 @@ function renderVideoDetailEmbeds( { withComparison }: VideoDetailEmbedsStoryCont
 	);
 }
 
-// Renders the widget on a preset distinct from the other stories. The query key
-// derives from the date range, so a unique preset gives the forced-state stories
-// their own cache entry and they hit the mock fresh instead of reading another
-// story's cached success from the shared query client.
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderVideoDetailEmbedsOnPreset( preset: PresetType ) {
 	return (
 		<VideoDetailEmbedsRender
@@ -81,26 +79,6 @@ function renderVideoDetailEmbedsOnPreset( preset: PresetType ) {
 		/>
 	);
 }
-
-// Close-up frame: a white, widget-sized card so each state reads the way it does
-// as a real dashboard widget (in product the host supplies this frame).
-const withWidgetCanvas: Decorator = Story => (
-	<div
-		style={ {
-			width: '380px',
-			height: '520px',
-			margin: '0 auto',
-			padding: '16px',
-			boxSizing: 'border-box',
-			background: '#fff',
-			border: '1px solid #e0e0e0',
-			borderRadius: '8px',
-			overflow: 'hidden',
-		} }
-	>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/VideoDetailEmbeds',
@@ -161,8 +139,7 @@ export const NoVideoSelected: Story = {
  */
 export const Loading: Story = {
 	render: () => renderVideoDetailEmbedsOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

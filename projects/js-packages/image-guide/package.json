@@ -47,7 +47,7 @@
 		"@rollup/plugin-replace": "5.0.2",
 		"@rollup/plugin-terser": "1.0.0",
 		"@rollup/plugin-typescript": "12.1.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"concurrently": "10.0.3",
 		"jest": "30.4.2",
 		"postcss": "8.5.14",
@@ -56,9 +56,9 @@
 		"rollup-plugin-svelte": "7.2.2",
 		"sass": "npm:sass-embedded@^1.97.2",
 		"svelte": "5.55.7",
-		"svelte-preprocess": "6.0.2",
+		"svelte-preprocess": "6.0.5",
 		"tslib": "2.8.1",
-		"typescript": "5.9.3",
+		"typescript": "6.0.3",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
