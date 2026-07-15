@@ -16,11 +16,8 @@ interface Props {
 }
 
 /**
- * The "Organization / Business info" form inside the Schema settings card. Edits
- * the site-level Organization schema values WordPress has no native source for —
- * social profiles (`sameAs`), an optional contact email — plus optional `name` /
- * `description` overrides. Saved through the package's own REST route (never
- * `/jetpack/v4/settings`).
+ * The shared site-level Schema form. Edits Organization and LocalBusiness
+ * settings through the package's own REST route (never `/jetpack/v4/settings`).
  *
  * Presentational: the Schema card owns the {@link useSchemaSettings} controller
  * (so the header badge and this form share one state) and passes it in via `form`.
