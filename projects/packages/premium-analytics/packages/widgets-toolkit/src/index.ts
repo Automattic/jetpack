@@ -66,6 +66,8 @@ export {
 	type ReportRecordsTableProps,
 	DownloadCsvButton,
 	type DownloadCsvButtonProps,
+	WidgetDataTable,
+	type WidgetDataTableProps,
 	WordAdsEarningsHistoryWidget,
 	type WordAdsEarningsBreakdownKey,
 } from './components';

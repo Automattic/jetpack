@@ -3,13 +3,14 @@
  */
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * The widget has no user-configurable attributes; the earnings endpoint is not
  * period-scoped. Typed as `Record< never, never >` so composing it with host
  * fields like `reportParams` in `render.tsx` does not collapse those to `never`.
  */
-export type WordAdsSponsoredHistoryAttributes = Record< never, never >;
+export type WordAdsSponsoredContentHistoryAttributes = Record< never, never >;
 
 /**
  * Widget type definition.
@@ -20,14 +21,16 @@ export type WordAdsSponsoredHistoryAttributes = Record< never, never >;
  * site.
  */
 export default {
-	name: 'jpa/wordads-sponsored-history',
+	name: 'jpa/wordads-sponsored-content-history',
 	title: __( 'Sponsored Content History', 'jetpack-premium-analytics' ),
-	description: __(
-		'Your WordAds sponsored-content earnings by period, with amounts, ads served, and payment status.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
-	attributes: [],
+	attributes: [] as WidgetAttributeField< WordAdsSponsoredContentHistoryAttributes >[],
 	example: {
 		attributes: {},
 	},

@@ -1,8 +1,8 @@
 /**
  * All stories render the data-connected widget through `WidgetRoot`; the shared
  * `wordads/earnings` fixture (registered by `registerReportMocks`) resolves the
- * table. The fixture's `sponsored` breakdown is empty, so `Default` renders the
- * empty state; `Populated` overrides the response to show a populated table.
+ * table. The shared fixture includes sponsored rows, while `Empty` exercises
+ * the no-history state.
  * The earnings endpoint is not period-scoped, so `WithComparison` renders
  * identically to `Default` even though comparison report params are supplied.
  * Loading / Error / Empty force the request into each state via
@@ -17,7 +17,6 @@ import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/d
  */
 import {
 	registerReportMocks,
-	setReportMockResponse,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
@@ -26,15 +25,16 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import WordAdsSponsoredHistoryRender from '../render';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import WordAdsSponsoredContentHistoryRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
-const RENDER_MODULE = 'storybook/wordads-sponsored-history';
+const RENDER_MODULE = 'storybook/wordads-sponsored-content-history';
 
 /**
  * Puts the earnings request into a forced state for a story's lifetime, dropping
@@ -56,68 +56,33 @@ function forceEarningsState( state: 'loading' | 'error' | 'empty' ) {
 }
 
 /**
- * Overrides the earnings response with populated `sponsored` rows for the
- * lifetime of a story — the shared fixture leaves `sponsored` empty so
- * `Default` can exercise the empty state, but reviewers still need to see the
- * populated table.
- *
- * @return A `beforeEach` implementation returning its cleanup.
- */
-function forcePopulatedSponsored() {
-	return () => {
-		setReportMockResponse( 'wordads/earnings', {
-			earnings: {
-				total_earnings: '44.14',
-				total_amount_owed: '44.14',
-				wordads: {},
-				sponsored: {
-					'2026-07': { amount: '44.14', pageviews: 14332, status: 0 },
-					'2026-06': { amount: '28.23', pageviews: 8580, status: 1 },
-				},
-				adjustment: {},
-			},
-		} );
-		queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-		return () => {
-			setReportMockResponse( 'wordads/earnings', null );
-			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-		};
-	};
-}
-
-/**
  * Story controls. `withComparison` toggles the comparison report params to
  * confirm the widget renders identically — the earnings endpoint is not
  * period-scoped and has no comparison period.
  */
-interface WordAdsSponsoredHistoryStoryControls {
+interface WordAdsSponsoredContentHistoryStoryControls {
 	withComparison: boolean;
 }
 
 /**
  * Renders the data-connected widget with the given comparison state.
  *
- * @param {WordAdsSponsoredHistoryStoryControls} controls - The story controls.
+ * @param {WordAdsSponsoredContentHistoryStoryControls} controls - The story controls.
  * @return The rendered widget.
  */
-function renderWordAdsSponsoredHistory( { withComparison }: WordAdsSponsoredHistoryStoryControls ) {
+function renderWordAdsSponsoredContentHistory( {
+	withComparison,
+}: WordAdsSponsoredContentHistoryStoryControls ) {
 	return (
-		<WordAdsSponsoredHistoryRender
+		<WordAdsSponsoredContentHistoryRender
 			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
 
-// Close-up canvas so the table fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '420px' } }>
-		<Story />
-	</div>
-);
-
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/WordAdsSponsoredHistory',
-	component: WordAdsSponsoredHistoryRender,
+	title: 'Packages/Premium Analytics/Widgets/WordAdsSponsoredContentHistory',
+	component: WordAdsSponsoredContentHistoryRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: { control: 'boolean' },
@@ -131,16 +96,17 @@ const meta = {
 		},
 	},
 } satisfies Meta<
-	ComponentProps< typeof WordAdsSponsoredHistoryRender > & WordAdsSponsoredHistoryStoryControls
+	ComponentProps< typeof WordAdsSponsoredContentHistoryRender > &
+		WordAdsSponsoredContentHistoryStoryControls
 >;
 
 export default meta;
 
-type Story = StoryObj< WordAdsSponsoredHistoryStoryControls >;
+type Story = StoryObj< WordAdsSponsoredContentHistoryStoryControls >;
 
-/** Default state — the shared fixture's `sponsored` breakdown is empty. */
+/** Default state — the sponsored-content history table. */
 export const Default: Story = {
-	render: renderWordAdsSponsoredHistory,
+	render: renderWordAdsSponsoredContentHistory,
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
@@ -151,7 +117,7 @@ export const Default: Story = {
  * identically to Default.
  */
 export const WithComparison: Story = {
-	render: renderWordAdsSponsoredHistory,
+	render: renderWordAdsSponsoredContentHistory,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
 	parameters: {
@@ -166,7 +132,7 @@ export const WithComparison: Story = {
 
 /** First load — the request is in flight. */
 export const Loading: Story = {
-	render: renderWordAdsSponsoredHistory,
+	render: renderWordAdsSponsoredContentHistory,
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -175,7 +141,7 @@ export const Loading: Story = {
 
 /** The fetch failed — the error state with a Retry action. */
 export const Error: Story = {
-	render: renderWordAdsSponsoredHistory,
+	render: renderWordAdsSponsoredContentHistory,
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -184,48 +150,35 @@ export const Error: Story = {
 
 /** Resolved but empty — no sponsored-content history for this breakdown. */
 export const Empty: Story = {
-	render: renderWordAdsSponsoredHistory,
+	render: renderWordAdsSponsoredContentHistory,
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceEarningsState( 'empty' ),
 };
 
-/**
- * The shared fixture leaves `sponsored` empty so `Default` can exercise the
- * empty state; this story overrides the response with populated rows so
- * reviewers can see the table.
- */
-export const Populated: Story = {
-	render: renderWordAdsSponsoredHistory,
-	args: { withComparison: false },
-	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
-	beforeEach: forcePopulatedSponsored(),
-};
-
-interface WordAdsSponsoredHistoryDashboardStoryProps
+interface WordAdsSponsoredContentHistoryDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
-		WordAdsSponsoredHistoryStoryControls {}
+		WordAdsSponsoredContentHistoryStoryControls {}
 
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {WordAdsSponsoredHistoryDashboardStoryProps} props - The dashboard story controls.
+ * @param {WordAdsSponsoredContentHistoryDashboardStoryProps} props - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
-function WordAdsSponsoredHistoryDashboardStory( {
+function WordAdsSponsoredContentHistoryDashboardStory( {
 	withComparison,
 	...dashboardArgs
-}: WordAdsSponsoredHistoryDashboardStoryProps ) {
+}: WordAdsSponsoredContentHistoryDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ RENDER_MODULE }
 			renderComponent={
-				WordAdsSponsoredHistoryRender as ComponentType< WidgetRenderProps< unknown > >
+				WordAdsSponsoredContentHistoryRender as ComponentType< WidgetRenderProps< unknown > >
 			}
 			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
@@ -233,14 +186,15 @@ function WordAdsSponsoredHistoryDashboardStory( {
 }
 
 /** Mounted inside the real dashboard frame (framed card, sizing, edit mode). */
-export const WidgetDashboardWithWidget: StoryObj< WordAdsSponsoredHistoryDashboardStoryProps > = {
-	render: args => <WordAdsSponsoredHistoryDashboardStory { ...args } />,
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
-	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
-	},
-};
+export const WidgetDashboardWithWidget: StoryObj< WordAdsSponsoredContentHistoryDashboardStoryProps > =
+	{
+		render: args => <WordAdsSponsoredContentHistoryDashboardStory { ...args } />,
+		args: {
+			...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+			withComparison: true,
+		},
+		argTypes: {
+			...widgetDashboardWithWidgetArgTypes,
+			withComparison: { control: 'boolean' },
+		},
+	};

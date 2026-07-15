@@ -1156,9 +1156,9 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
  * The earnings module reports all-time totals (not period-scoped), so this
  * returns a fixed raw WPCOM payload: `total_earnings` and `total_amount_owed`
  * feed the widget's Earnings / Paid / Outstanding cards (paid = earnings −
- * owed). The populated WordAds breakdown drives the earnings-history widget;
- * sponsored content and adjustments stay empty so their default stories cover
- * the empty state and opt into populated overrides separately.
+ * owed). All three per-period breakdowns are populated so the three history
+ * widgets render their primary table state by default. Together the rows cover
+ * every known payment status for visual review.
  *
  * @return Raw wordads/earnings response in the WPCOM shape.
  */
@@ -1175,8 +1175,14 @@ function buildWordAdsEarningsResponse() {
 				'2026-06': { amount: '75.99', pageviews: 59367, status: 0 },
 				'2026-07': { amount: '90.31', pageviews: 65921, status: 0 },
 			},
-			sponsored: {},
-			adjustment: {},
+			sponsored: {
+				'2026-07': { amount: '44.14', pageviews: 14332, status: 3 },
+				'2026-06': { amount: '28.23', pageviews: 8580, status: 4 },
+			},
+			adjustment: {
+				'2026-04': { amount: '2.47', pageviews: 0, status: 2 },
+				'2026-02': { amount: '3.32', pageviews: 0, status: 1 },
+			},
 		},
 	};
 }

@@ -1,5 +1,5 @@
 {
-	"name": "jpa/wordads-sponsored-history",
+	"name": "jpa/wordads-sponsored-content-history",
 	"title": "Sponsored Content History",
 	"description": "Your WordAds sponsored-content earnings by period, with amounts, ads served, and payment status.",
 	"category": "stats",

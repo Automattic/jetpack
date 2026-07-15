@@ -63,6 +63,7 @@ export {
 	type ReportRecordsTableProps,
 } from './report-page';
 export { DownloadCsvButton, type DownloadCsvButtonProps } from './download-csv-button';
+export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
 	WordAdsEarningsHistoryWidget,
 	type WordAdsEarningsBreakdownKey,

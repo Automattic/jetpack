@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * The widget has no user-configurable attributes; the earnings endpoint is not
@@ -22,12 +23,14 @@ export type WordAdsAdjustmentsHistoryAttributes = Record< never, never >;
 export default {
 	name: 'jpa/wordads-adjustments-history',
 	title: __( 'Adjustments History', 'jetpack-premium-analytics' ),
-	description: __(
-		'WordAds earnings adjustments by period, with amounts and payment status.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
-	attributes: [],
+	attributes: [] as WidgetAttributeField< WordAdsAdjustmentsHistoryAttributes >[],
 	example: {
 		attributes: {},
 	},

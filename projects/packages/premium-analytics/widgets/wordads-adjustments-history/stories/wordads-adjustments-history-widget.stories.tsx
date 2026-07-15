@@ -1,8 +1,8 @@
 /**
  * All stories render the data-connected widget through `WidgetRoot`; the shared
  * `wordads/earnings` fixture (registered by `registerReportMocks`) resolves the
- * table. The fixture's `adjustment` breakdown is empty, so `Default` renders the
- * empty state; `Populated` overrides the response to show a populated table.
+ * table. The shared fixture includes adjustment rows, while `Empty` exercises
+ * the no-history state.
  * The earnings endpoint is not period-scoped, so `WithComparison` renders
  * identically to `Default` even though comparison report params are supplied.
  * Loading / Error / Empty force the request into each state via
@@ -17,7 +17,6 @@ import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/d
  */
 import {
 	registerReportMocks,
-	setReportMockResponse,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
@@ -26,9 +25,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import WordAdsAdjustmentsHistoryRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -50,37 +50,6 @@ function forceEarningsState( state: 'loading' | 'error' | 'empty' ) {
 		queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
 		return () => {
 			setReportMockState( 'wordads/earnings', null );
-			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-		};
-	};
-}
-
-/**
- * Overrides the earnings response with populated `adjustment` rows for the
- * lifetime of a story — the shared fixture leaves `adjustment` empty so
- * `Default` can exercise the empty state, but reviewers still need to see the
- * populated table. Adjustment rows have no ad impressions, so `pageviews` is
- * always `0`.
- *
- * @return A `beforeEach` implementation returning its cleanup.
- */
-function forcePopulatedAdjustments() {
-	return () => {
-		setReportMockResponse( 'wordads/earnings', {
-			earnings: {
-				total_earnings: '5.79',
-				total_amount_owed: '0.00',
-				wordads: {},
-				sponsored: {},
-				adjustment: {
-					'2026-04': { amount: '2.47', pageviews: 0, status: 1 },
-					'2026-02': { amount: '3.32', pageviews: 0, status: 1 },
-				},
-			},
-		} );
-		queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-		return () => {
-			setReportMockResponse( 'wordads/earnings', null );
 			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
 		};
 	};
@@ -111,13 +80,6 @@ function renderWordAdsAdjustmentsHistory( {
 	);
 }
 
-// Close-up canvas so the table fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '420px' } }>
-		<Story />
-	</div>
-);
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/WordAdsAdjustmentsHistory',
 	component: WordAdsAdjustmentsHistoryRender,
@@ -141,7 +103,7 @@ export default meta;
 
 type Story = StoryObj< WordAdsAdjustmentsHistoryStoryControls >;
 
-/** Default state — the shared fixture's `adjustment` breakdown is empty. */
+/** Default state — the adjustments history table. */
 export const Default: Story = {
 	render: renderWordAdsAdjustmentsHistory,
 	args: { withComparison: false },
@@ -192,20 +154,6 @@ export const Empty: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceEarningsState( 'empty' ),
-};
-
-/**
- * The shared fixture leaves `adjustment` empty so `Default` can exercise the
- * empty state; this story overrides the response with populated rows so
- * reviewers can see the table. Adjustment rows have no ad impressions
- * (`pageviews: 0`).
- */
-export const Populated: Story = {
-	render: renderWordAdsAdjustmentsHistory,
-	args: { withComparison: false },
-	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
-	beforeEach: forcePopulatedAdjustments(),
 };
 
 interface WordAdsAdjustmentsHistoryDashboardStoryProps

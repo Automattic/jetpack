@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { ReportRecordsTable } from '../report-page';
+import { WidgetDataTable } from '../widget-data-table';
 import { useWidgetRootContext } from '../widget-root';
 import { WidgetState } from '../widget-state';
 import {
@@ -67,7 +67,7 @@ export function WordAdsEarningsHistoryWidget( { breakdown }: WordAdsEarningsHist
 				description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics' ),
 			} }
 		>
-			<ReportRecordsTable< EarningsHistoryRow >
+			<WidgetDataTable< EarningsHistoryRow >
 				data={ rows }
 				fields={ fields }
 				getItemId={ item => item.id }

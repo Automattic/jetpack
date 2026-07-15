@@ -9,25 +9,26 @@ import {
 /**
  * Internal dependencies
  */
-import type { WordAdsSponsoredHistoryAttributes } from './widget';
+import type { WordAdsSponsoredContentHistoryAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // Report params are dashboard-driven and injected via `attributes`; the earnings
 // endpoint ignores them, but WidgetRoot still expects them on `attributes`.
-type RenderAttributes = WordAdsSponsoredHistoryAttributes & Partial< ReportParamsFieldAttributes >;
-type WordAdsSponsoredHistoryProps = WidgetRenderProps< RenderAttributes >;
+type RenderAttributes = WordAdsSponsoredContentHistoryAttributes &
+	Partial< ReportParamsFieldAttributes >;
+type WordAdsSponsoredContentHistoryProps = WidgetRenderProps< RenderAttributes >;
 
 /**
  * WordAds "Sponsored Content History" widget. WidgetRoot provides the query
  * client and report-param context; the shared component renders the
  * `sponsored` breakdown.
  *
- * @param {WordAdsSponsoredHistoryProps} props - The widget render props.
+ * @param {WordAdsSponsoredContentHistoryProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function WordAdsSponsoredHistory( {
+export default function WordAdsSponsoredContentHistory( {
 	attributes = {},
-}: WordAdsSponsoredHistoryProps ) {
+}: WordAdsSponsoredContentHistoryProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<WordAdsEarningsHistoryWidget breakdown="sponsored" />

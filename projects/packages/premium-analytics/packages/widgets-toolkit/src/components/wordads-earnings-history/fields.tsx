@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -136,7 +137,14 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
 			render: ( { item } ) => {
 				const { label, tooltip } = getEarningsStatus( item.status );
-				return <span title={ tooltip ?? '' }>{ label }</span>;
+
+				return tooltip ? (
+					<Tooltip text={ tooltip }>
+						<span tabIndex={ 0 }>{ label }</span>
+					</Tooltip>
+				) : (
+					<span>{ label }</span>
+				);
 			},
 		},
 	];

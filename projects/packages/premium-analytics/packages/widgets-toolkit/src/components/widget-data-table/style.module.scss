@@ -1,0 +1,19 @@
+@import "@wordpress/dataviews/build-style/style.css";
+
+/* DataViews supplies its own 24px inline cell/footer inset. Let that replace
+ * the framed host's body inset so table content aligns with other widgets. */
+.root {
+	min-width: 0;
+	margin-inline: calc(0px - var(--wpds-dimension-padding-2xl));
+	overflow: hidden;
+}
+
+/* DataViews normally fills a fixed-height page. Widget rows should determine
+ * their own height inside the resizable dashboard frame. */
+.root :global(.dataviews-wrapper) {
+	height: auto;
+}
+
+.root :global(.dataviews-layout__container) {
+	flex: 1 1 auto;
+}
