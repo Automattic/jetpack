@@ -125,7 +125,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</>
 			) : null }
 
-			{ upload.status === 'uploading' ? (
+			{ upload.status === 'uploading' || upload.status === 'promoting' ? (
 				<Stack
 					direction="column"
 					gap="sm"
@@ -138,7 +138,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</Stack>
 			) : null }
 
-			{ upload.status === 'promoting' || upload.status === 'deleting' ? (
+			{ upload.status === 'deleting' ? (
 				<Stack
 					direction="column"
 					gap="sm"
@@ -146,11 +146,7 @@ export default function ThumbnailField( { item }: Props ) {
 					justify="center"
 					className="vp-library__progress"
 				>
-					<Text>
-						{ upload.status === 'deleting'
-							? __( 'Deleting…', 'jetpack-videopress-pkg' )
-							: __( 'Uploading…', 'jetpack-videopress-pkg' ) }
-					</Text>
+					<Text>{ __( 'Deleting…', 'jetpack-videopress-pkg' ) }</Text>
 					<ProgressBar className="vp-library__progress-bar" />
 				</Stack>
 			) : null }

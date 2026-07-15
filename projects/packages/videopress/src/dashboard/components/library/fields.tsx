@@ -67,7 +67,7 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 		type === 'videopress' && upload.status === 'idle' && isProcessing
 	);
 	let pill: { intent: BadgeIntent; label: string } | null = null;
-	if ( upload.status === 'uploading' ) {
+	if ( upload.status === 'uploading' || upload.status === 'promoting' ) {
 		pill = {
 			intent: 'informational',
 			label: sprintf(
@@ -75,11 +75,6 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 				__( 'Uploading %d%%', 'jetpack-videopress-pkg' ),
 				Math.round( upload.progress )
 			),
-		};
-	} else if ( upload.status === 'promoting' ) {
-		pill = {
-			intent: 'informational',
-			label: __( 'Uploading…', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( upload.status === 'deleting' ) {
 		pill = {
