@@ -549,4 +549,21 @@ class Password_Detection_Test extends BaseTestCase {
 		// Assert that that \WP_User is returned.
 		$this->assertSame( $some_user, $return, 'User should be returned when a NULL password is provided.' );
 	}
+
+	/**
+	 * Tests that login_form_password_detection handles a missing password argument gracefully.
+	 *
+	 * Other plugins hooking into the `authenticate` filter may call the callback without
+	 * supplying the password argument. The parameter defaults to null so this must not fatal.
+	 */
+	public function test_login_form_password_detection_handles_missing_password_argument_gracefully(): void {
+		$sut       = new Password_Detection();
+		$some_user = new \WP_User();
+
+		// Intentionally omit the password argument to exercise the default value.
+		$return = $sut->login_form_password_detection( $some_user );
+
+		// Assert that the \WP_User is returned unchanged.
+		$this->assertSame( $some_user, $return, 'User should be returned when the password argument is omitted.' );
+	}
 }
