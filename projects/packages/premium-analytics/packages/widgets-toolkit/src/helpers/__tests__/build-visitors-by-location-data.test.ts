@@ -81,4 +81,52 @@ describe( 'buildVisitorsByLocationData', () => {
 			expect( row.delta ).toBeUndefined();
 		}
 	} );
+
+	it( 'reports a row comparison when at least one location overlaps', () => {
+		const { hasRowComparison } = buildVisitorsByLocationData( {
+			primaryData,
+			comparisonData,
+			region: 'world',
+		} );
+
+		// Partial overlap still counts: matching rows keep their deltas, and the
+		// unmatched ones fall back to the placeholder.
+		expect( hasRowComparison ).toBe( true );
+	} );
+
+	it( 'reports no row comparison when no location overlaps', () => {
+		const { hasRowComparison } = buildVisitorsByLocationData( {
+			primaryData,
+			comparisonData: [
+				{ id: 'SG', label: 'Singapore', value: 3 },
+				{ id: 'KR', label: 'South Korea', value: 2 },
+			],
+			region: 'world',
+		} );
+
+		// Every row would render a placeholder, so callers suppress comparison mode.
+		expect( hasRowComparison ).toBe( false );
+	} );
+
+	it( 'reports no row comparison when no comparison data is provided', () => {
+		const { hasRowComparison } = buildVisitorsByLocationData( {
+			primaryData,
+			region: 'world',
+		} );
+
+		expect( hasRowComparison ).toBe( false );
+	} );
+
+	it( 'ignores overlap that falls outside the visible rows', () => {
+		const { hasRowComparison } = buildVisitorsByLocationData( {
+			primaryData,
+			comparisonData: [ { id: 'JP', label: 'Japan', value: 2 } ],
+			region: 'world',
+			limit: 1,
+		} );
+
+		// Japan overlaps but is cut off by the limit, so no visible row has a
+		// comparison to show.
+		expect( hasRowComparison ).toBe( false );
+	} );
 } );

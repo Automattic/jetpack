@@ -15,6 +15,15 @@ export type Region = 'US' | 'world';
 export type VisitorsByLocationData = {
 	geoData: GeoData;
 	leaderboardData: LeaderboardChartData;
+
+	/**
+	 * Whether any visible leaderboard row has a matching comparison-period row.
+	 *
+	 * Callers combine this with the date-range comparison state so a period with
+	 * no overlapping rows hides comparison mode instead of rendering a column of
+	 * placeholders.
+	 */
+	hasRowComparison: boolean;
 };
 
 export type LocationDataEntry = {
@@ -38,7 +47,7 @@ type BuildVisitorsByLocationDataParams = {
  * @param params.comparisonData - Comparison period data (optional)
  * @param params.region         - The region ('US' or 'world')
  * @param params.limit          - Maximum number of items for leaderboard (default: 5)
- * @return Geo chart data and leaderboard data
+ * @return Geo chart data, leaderboard data, and whether any row has a comparison
  */
 export function buildVisitorsByLocationData( {
 	primaryData,
@@ -63,6 +72,8 @@ export function buildVisitorsByLocationData( {
 		? Math.max( ...comparisonData.map( d => d.value ), 0 )
 		: 0;
 
+	let hasRowComparison = false;
+
 	// Build leaderboard data (top N items)
 	const leaderboardData: LeaderboardChartData = primaryData.slice( 0, limit ).map( item => {
 		const comparisonItem = comparisonData?.find( c => c.id === item.id );
@@ -73,6 +84,10 @@ export function buildVisitorsByLocationData( {
 		// present with 0 visitors has a known previous value and keeps its delta.
 		const previousValue = comparisonItem?.value;
 		const hasComparisonValue = previousValue !== undefined;
+
+		if ( hasComparisonValue ) {
+			hasRowComparison = true;
+		}
 
 		return {
 			id: item.id,
@@ -87,5 +102,5 @@ export function buildVisitorsByLocationData( {
 		};
 	} );
 
-	return { geoData, leaderboardData };
+	return { geoData, leaderboardData, hasRowComparison };
 }

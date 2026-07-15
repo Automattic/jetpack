@@ -178,6 +178,14 @@ export function TopPerformingProductLeaderboardWidget( {
 		);
 	}, [ data?.data, comparisonData?.data, productImages ] );
 
+	// `hasComparison` only tracks the date range. When none of the visible
+	// products carry over from the comparison period, comparison mode would draw
+	// a column of placeholders, so suppress it rather than show an empty column.
+	const hasVisibleComparison = useMemo(
+		() => chartData.some( row => row.previousValue !== undefined ),
+		[ chartData ]
+	);
+
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	const hasError = useWidgetError( isError, error, refetch );
@@ -193,7 +201,7 @@ export function TopPerformingProductLeaderboardWidget( {
 		<>
 			<LeaderboardChart
 				data={ chartData }
-				withComparison={ hasComparison }
+				withComparison={ hasComparison && hasVisibleComparison }
 				legendLabels={ legendLabels }
 				withOverlayLabel={ true }
 				showLegend={ false }
