@@ -5,17 +5,3 @@
 	margin-inline: calc(0px - var(--wpds-dimension-padding-2xl));
 	overflow: hidden;
 }
-
-/* DataViews normally fills a fixed-height page. Widget rows should determine
- * their own height inside the resizable dashboard frame. */
-.root :global(.dataviews-wrapper) {
-	height: auto;
-}
-
-/* Core gives every table value a 15ch minimum, which makes four short metric
- * columns overflow even when they would fit. Let nowrap content determine the
- * real minimum instead; genuinely long values still scroll inside the layout
- * container, matching the upstream table below 480px. */
-.root :global(.dataviews-view-table__cell-content-wrapper:not(.dataviews-column-primary__media)) {
-	min-inline-size: 0;
-}
