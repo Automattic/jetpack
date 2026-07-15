@@ -12,6 +12,13 @@
 	flex-shrink: 0;
 }
 
+/* Draw the focus ring inside the buttons; the default outset ring gets
+   clipped by the content area's overflow (same treatment as the metric
+   tabs). */
+.pager button {
+	outline-offset: calc(-1 * var(--wpds-border-width-focus, 1.5px));
+}
+
 /* Remaining tile height for WidgetState's block-level ready wrapper. */
 .body {
 	flex: 1 1 0;
