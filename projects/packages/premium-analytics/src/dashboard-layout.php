@@ -200,7 +200,6 @@ function register_dashboard_default_layout_route() {
 		)
 	);
 }
-add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
 
 /**
  * Builds a widget instance for bundled dashboard defaults.

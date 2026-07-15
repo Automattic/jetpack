@@ -32,7 +32,6 @@ function register_widget_modules_rest_route() {
 		)
 	);
 }
-add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
 
 /**
  * Build the REST response: one record per available widget type.

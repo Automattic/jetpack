@@ -54,8 +54,9 @@ class Analytics {
 	 * Initialize the Analytics app on WordPress.com Simple.
 	 *
 	 * Simple serves the dashboard from WPCOM and uses WPCOM's wp-admin apiFetch bridge to reach
-	 * public-api.wordpress.com directly, so it does not register the local proxy, notices, or sync
-	 * bootstrap surfaces used by connected Jetpack sites.
+	 * public-api.wordpress.com directly, so it registers none of the site-served REST surfaces
+	 * used by connected Jetpack sites: the proxy, notices, sync bootstrap, and the dashboard
+	 * support routes, which WPCOM registers separately on public-api.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
@@ -124,16 +125,24 @@ class Analytics {
 		// Hydrate the registry with the availability filter in place.
 		bootstrap_widget_types();
 
-		// Expose dashboard widget modules over REST and wire them into the
-		// page import map for dynamic import() on the client.
+		// Wire dashboard widget modules into the page import map for dynamic
+		// import() on the client.
 		require_once __DIR__ . '/widget-modules.php';
 
-		// Register the dashboard's default layout: the first-load preference
-		// injection and the REST route the "reset to default" action reads.
+		// Register the dashboard's default layout first-load preference injection.
 		require_once __DIR__ . '/dashboard-layout.php';
 
-		// Register dashboard sections and expose section metadata/defaults over REST.
+		// Register dashboard sections and their default layout seeding.
 		require_once __DIR__ . '/dashboard-sections.php';
+
+		// Dashboard support routes (widget modules, default layout, sections).
+		// Simple is served by WPCOM public-api, where these endpoints are
+		// registered separately; only connected Jetpack sites serve them locally.
+		if ( $register_local_services ) {
+			add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' );
+		}
 
 		// Expose opt-in CSV export settings to the dashboard.
 		require_once __DIR__ . '/csv-exports.php';

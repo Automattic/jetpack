@@ -77,6 +77,32 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * Normal package bootstrap serves the dashboard support routes from the site.
+	 */
+	public function test_init_registers_dashboard_support_routes_by_default() {
+		$this->reset_analytics_init_state();
+
+		Analytics::init();
+
+		$this->assertNotFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' ) );
+		$this->assertNotFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) );
+		$this->assertNotFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' ) );
+	}
+
+	/**
+	 * WordPress.com Simple mode leaves the dashboard support routes to public-api.
+	 */
+	public function test_init_skips_dashboard_support_routes_in_wpcom_simple_mode() {
+		$this->reset_analytics_init_state();
+
+		Analytics::init_wpcom_simple();
+
+		$this->assertFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' ) );
+		$this->assertFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) );
+		$this->assertFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' ) );
+	}
+
+	/**
 	 * The full-page dashboard slug in admin is recognized as a dashboard request.
 	 */
 	public function test_is_dashboard_request_true_for_full_page_slug() {
