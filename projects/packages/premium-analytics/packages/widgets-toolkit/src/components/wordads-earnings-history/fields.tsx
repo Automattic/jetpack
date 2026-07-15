@@ -154,6 +154,7 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 export const EARNINGS_HISTORY_VIEW: Partial< View > = {
 	sort: { field: 'period', direction: 'desc' },
 	layout: {
+		density: 'compact',
 		styles: {
 			amount: { align: 'end' },
 			pageviews: { align: 'end' },

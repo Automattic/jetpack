@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import './style.scss';
 import styles from './style.module.scss';
 import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
 
