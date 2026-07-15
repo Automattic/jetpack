@@ -5,7 +5,7 @@
 ## 16.1-a.1 - 2026-07-13
 ### Enhancements
 - Account Protection: Add additional context to Verify your identity page to reduce user confusion. [#50338]
-- Admin-menu REST endpoint now surfaces notification counts from the central menu-badges registry. [#50190]
+- Admin menu: Surface notification counts from the central menu-badges registry in the admin-menu REST endpoint. [#50190]
 - Expose the AI Launchpad state options (enabled, dismissed, completed) in the /sites endpoint options. [#50455]
 - Newsletter: Enable the modernized wp-admin dashboard and subscriber management for all sites by default. [#50091]
 - Site endpoint: Return `hosting_provider_guess` and `environment_type` from the single-site endpoint when explicitly requested via the `fields` parameter, matching `/me/sites`. [#50226]
