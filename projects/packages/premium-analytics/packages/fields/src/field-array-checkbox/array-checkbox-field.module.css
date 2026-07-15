@@ -1,7 +1,3 @@
-.popover {
-	min-inline-size: var(--wpds-dimension-surface-width-xs);
-}
-
 /* Match SelectControl item hover (item-popup.module.css). */
 .menuItem[data-active-item]:not([data-focus-visible]):not([aria-disabled="true"]) {
 	background-color: var(--wpds-color-background-interactive-brand-weak-active);
