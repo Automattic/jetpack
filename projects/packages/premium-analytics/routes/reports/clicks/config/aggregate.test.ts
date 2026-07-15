@@ -1,6 +1,41 @@
 import { aggregateClickRows, clicksToTimeSeries } from './aggregate';
 import type { StatsClicksItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
 
+/**
+ * Build a top-level click item with the requested total.
+ *
+ * @param views - The item's click count.
+ * @return The click item.
+ */
+function makeClickItem( views: number ): StatsClicksItem {
+	return {
+		label: 'jetpack.com',
+		views,
+		link: 'https://jetpack.com/',
+		icon: null,
+		labelIcon: 'external',
+		children: null,
+	};
+}
+
+const dailyReport: StatsNormalizedReport< StatsClicksItem > = {
+	summary: {},
+	data: [
+		{
+			time_interval: '2026-07-09',
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-09T23:59:59+00:00',
+			items: [ makeClickItem( 8 ) ],
+		},
+		{
+			time_interval: '2026-07-10',
+			date_start: '2026-07-10T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
+			items: [ makeClickItem( 5 ) ],
+		},
+	],
+};
+
 describe( 'report clicks aggregate', () => {
 	it( 'builds the chart from top-level totals without double-counting children', () => {
 		const report: StatsNormalizedReport< StatsClicksItem > = {
@@ -40,6 +75,53 @@ describe( 'report clicks aggregate', () => {
 			date_start: '2026-06-01T00:00:00+00:00',
 			date_end: '2026-06-01T23:59:59+00:00',
 		} );
+	} );
+
+	it( 'groups daily totals into ISO calendar weeks for the chart', () => {
+		const series = clicksToTimeSeries( dailyReport, 'week' );
+
+		expect( series.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-07-06',
+				date_start: '2026-07-09T00:00:00+00:00',
+				date_end: '2026-07-10T23:59:59+00:00',
+				clicks: 13,
+				value: 13,
+			} ),
+		] );
+	} );
+
+	it( 'groups daily totals into calendar months for the chart', () => {
+		const reportWithNextMonth = {
+			...dailyReport,
+			data: [
+				{
+					time_interval: '2026-08-02',
+					date_start: '2026-08-02T00:00:00+00:00',
+					date_end: '2026-08-02T23:59:59+00:00',
+					items: [ makeClickItem( 3 ) ],
+				},
+				...dailyReport.data,
+			],
+		};
+		const series = clicksToTimeSeries( reportWithNextMonth, 'month' );
+
+		expect( series.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-07-01',
+				date_start: '2026-07-09T00:00:00+00:00',
+				date_end: '2026-07-10T23:59:59+00:00',
+				clicks: 13,
+				value: 13,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-08-01',
+				date_start: '2026-08-02T00:00:00+00:00',
+				date_end: '2026-08-02T23:59:59+00:00',
+				clicks: 3,
+				value: 3,
+			} ),
+		] );
 	} );
 
 	it( 'flattens grouped child URLs and aggregates them across buckets', () => {
