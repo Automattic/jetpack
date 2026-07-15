@@ -4,7 +4,9 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -266,19 +268,24 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
-		<AuthorsLeaderboard
-			rows={ rows }
-			isLoading={ isInitialLoading }
-			isFetching={ isFetching }
-			// The Stats queries carry `placeholderData: previousData => previousData`, so a
-			// failed range change keeps the prior period's rows while `isError` flips true.
-			// Only surface the error when there's nothing to show, so a transient refetch
-			// failure doesn't replace populated rows with the error state.
-			isError={ rows.length === 0 && isError }
-			refetch={ refetch }
-			withComparison={ hasComparison }
-			legendLabels={ legendLabels }
-		/>
+		<>
+			<AuthorsLeaderboard
+				rows={ rows }
+				isLoading={ isInitialLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				refetch={ refetch }
+				withComparison={ hasComparison }
+				legendLabels={ legendLabels }
+			/>
+			<WidgetFooter>
+				<ReportLink report="authors" />
+			</WidgetFooter>
+		</>
 	);
 }
 
