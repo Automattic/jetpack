@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast feed: read episode block attrs when the Podcast Episode block is nested inside Group/Columns, so item-level RSS tags aren't dropped.
