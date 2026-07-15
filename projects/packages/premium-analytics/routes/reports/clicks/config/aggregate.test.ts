@@ -80,10 +80,14 @@ describe( 'report clicks aggregate', () => {
 	it( 'groups daily totals into ISO calendar weeks for the chart', () => {
 		const series = clicksToTimeSeries( dailyReport, 'week' );
 
+		expect( series.summary ).toEqual( {
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
+		} );
 		expect( series.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-07-06',
-				date_start: '2026-07-09T00:00:00+00:00',
+				date_start: '2026-07-06T00:00:00+00:00',
 				date_end: '2026-07-10T23:59:59+00:00',
 				clicks: 13,
 				value: 13,
@@ -95,28 +99,32 @@ describe( 'report clicks aggregate', () => {
 		const reportWithNextMonth = {
 			...dailyReport,
 			data: [
+				...dailyReport.data,
 				{
 					time_interval: '2026-08-02',
 					date_start: '2026-08-02T00:00:00+00:00',
 					date_end: '2026-08-02T23:59:59+00:00',
 					items: [ makeClickItem( 3 ) ],
 				},
-				...dailyReport.data,
 			],
 		};
 		const series = clicksToTimeSeries( reportWithNextMonth, 'month' );
 
+		expect( series.summary ).toEqual( {
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-08-02T23:59:59+00:00',
+		} );
 		expect( series.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-07-01',
-				date_start: '2026-07-09T00:00:00+00:00',
+				date_start: '2026-07-01T00:00:00+00:00',
 				date_end: '2026-07-10T23:59:59+00:00',
 				clicks: 13,
 				value: 13,
 			} ),
 			expect.objectContaining( {
 				time_interval: '2026-08-01',
-				date_start: '2026-08-02T00:00:00+00:00',
+				date_start: '2026-08-01T00:00:00+00:00',
 				date_end: '2026-08-02T23:59:59+00:00',
 				clicks: 3,
 				value: 3,

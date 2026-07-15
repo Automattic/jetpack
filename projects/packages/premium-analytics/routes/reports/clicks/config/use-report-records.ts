@@ -4,15 +4,13 @@
 import {
 	useStatsClicks,
 	type ReportParams,
-	type StatsPeriod,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { aggregateClickRows, clicksToTimeSeries } from './aggregate';
-
-type ClicksChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * Fetch and derive the Clicks chart and table from one bucketed query.
@@ -23,7 +21,7 @@ type ClicksChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export function useClicksReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: ClicksChartPeriod
+	chartPeriod: StatsChartBucketPeriod
 ) {
 	const recordsParams = useMemo(
 		() => ( {

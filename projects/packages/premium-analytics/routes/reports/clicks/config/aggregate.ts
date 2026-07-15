@@ -1,36 +1,17 @@
-import type { ClickRow } from './fields';
-import type {
-	StatsClicksItem,
-	StatsNormalizedReport,
-	StatsPeriod,
-	StatsTimeSeriesReport,
-} from '@jetpack-premium-analytics/data';
-
-type ClicksChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
-
 /**
- * Map a daily bucket date onto its chart bucket key for the selected period.
- *
- * @param date   - The daily bucket date (`YYYY-MM-DD`).
- * @param period - The chart bucket period.
- * @return The bucket key the date aggregates into.
+ * External dependencies
  */
-function getChartBucketKey( date: string, period: ClicksChartPeriod ): string {
-	if ( period === 'day' ) {
-		return date;
-	}
-
-	const bucketDate = new Date( `${ date.slice( 0, 10 ) }T00:00:00Z` );
-
-	if ( period === 'week' ) {
-		const daysSinceMonday = ( bucketDate.getUTCDay() + 6 ) % 7;
-		bucketDate.setUTCDate( bucketDate.getUTCDate() - daysSinceMonday );
-	} else {
-		bucketDate.setUTCDate( 1 );
-	}
-
-	return bucketDate.toISOString().slice( 0, 10 );
-}
+import {
+	bucketStatsTimeSeries,
+	type StatsChartBucketPeriod,
+	type StatsClicksItem,
+	type StatsNormalizedReport,
+	type StatsTimeSeriesReport,
+} from '@jetpack-premium-analytics/data';
+/**
+ * Internal dependencies
+ */
+import type { ClickRow } from './fields';
 
 /**
  * Convert a daily clicks report to a clicks-per-bucket time series.
@@ -44,48 +25,13 @@ function getChartBucketKey( date: string, period: ClicksChartPeriod ): string {
  */
 export function clicksToTimeSeries(
 	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	period: ClicksChartPeriod = 'day'
+	period: StatsChartBucketPeriod = 'day'
 ): StatsTimeSeriesReport {
-	const buckets = new Map< string, StatsTimeSeriesReport[ 'data' ][ number ] >();
-	const points = [ ...( report?.data ?? [] ) ].sort( ( first, second ) =>
-		first.time_interval.localeCompare( second.time_interval )
-	);
-
-	for ( const point of points ) {
+	return bucketStatsTimeSeries( report, period, point => {
 		const clicks = point.items.reduce( ( total, item ) => total + item.views, 0 );
-		const key = getChartBucketKey( point.time_interval, period );
-		const existing = buckets.get( key );
 
-		if ( existing ) {
-			existing.date_end = point.date_end;
-			existing.value = Number( existing.value ) + clicks;
-			existing.clicks = Number( existing.clicks ) + clicks;
-			continue;
-		}
-
-		buckets.set( key, {
-			time_interval: key,
-			date_start: point.date_start,
-			date_end: point.date_end,
-			label: key,
-			items: [],
-			value: clicks,
-			clicks,
-		} );
-	}
-
-	const data = [ ...buckets.values() ];
-	const first = data[ 0 ];
-	const last = data[ data.length - 1 ];
-
-	return {
-		summary: {
-			...report?.summary,
-			...( first ? { date_start: first.date_start } : {} ),
-			...( last ? { date_end: last.date_end } : {} ),
-		},
-		data,
-	};
+		return { value: clicks, clicks };
+	} );
 }
 
 /**
