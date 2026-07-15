@@ -6,27 +6,10 @@
 	overflow: hidden;
 }
 
-/* A dashboard widget has a fixed presentation, so the full-width DataViews
- * configuration toolbar adds noise without adding useful controls. Column
- * headers remain sortable and keyboard accessible. */
-.root :global(.dataviews__view-actions) {
-	display: none;
-}
-
 /* DataViews normally fills a fixed-height page. Widget rows should determine
  * their own height inside the resizable dashboard frame. */
 .root :global(.dataviews-wrapper) {
 	height: auto;
-}
-
-.root :global(.dataviews-layout__container) {
-	flex: 1 1 auto;
-	overscroll-behavior-inline: contain;
-}
-
-/* Fill wide widgets instead of leaving a content-sized table in one corner. */
-.root :global(.dataviews-view-table) {
-	min-inline-size: 100%;
 }
 
 /* Core gives every table value a 15ch minimum, which makes four short metric

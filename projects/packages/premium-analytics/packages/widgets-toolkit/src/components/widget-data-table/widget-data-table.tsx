@@ -9,6 +9,7 @@ import { useMemo, useState } from 'react';
 import './style.scss';
 import styles from './style.module.scss';
 import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
+import type { ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 
@@ -27,6 +28,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	defaultLayouts?: SupportedLayouts;
 	search?: boolean;
 	config?: { perPageSizes: number[] };
+	children?: ReactNode;
 } ) => ReturnType< typeof DataViews >;
 
 export interface WidgetDataTableProps< Item > {
@@ -93,7 +95,14 @@ export function WidgetDataTable< Item >( {
 				defaultLayouts={ { table: {} } }
 				search={ search }
 				config={ { perPageSizes } }
-			/>
+			>
+				{ search ? undefined : (
+					<>
+						<DataViews.Layout />
+						<DataViews.Footer />
+					</>
+				) }
+			</GenericDataViews>
 		</div>
 	);
 }
