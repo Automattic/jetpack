@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the modules
 // with unstable_mockModule (must run before the dynamic import of the component below).
-const mockUnlinkUser = jest.fn();
+const mockUnlinkUser = jest.fn< () => Promise< unknown > >();
 const mockDisconnectSite = jest.fn();
 const mockSetApiRoot = jest.fn();
 const mockSetApiNonce = jest.fn();
@@ -27,7 +27,7 @@ jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
 } ) );
 
 jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
-	...jest.requireActual( '@automattic/jetpack-script-data' ),
+	...( jest.requireActual( '@automattic/jetpack-script-data' ) as object ),
 	isWoASite: mockIsWoASite,
 } ) );
 

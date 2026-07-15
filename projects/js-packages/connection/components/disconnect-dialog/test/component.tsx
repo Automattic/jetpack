@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the modules
 // with unstable_mockModule (must run before the dynamic import of the component below).
-const mockDisconnectSite = jest.fn();
+const mockDisconnectSite = jest.fn< () => Promise< unknown > >();
 const mockSetApiRoot = jest.fn();
 const mockSetApiNonce = jest.fn();
 const mockRecordEvent = jest.fn();
@@ -30,6 +30,7 @@ describe( 'DisconnectDialog', () => {
 		apiNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
 		isOpen: true, // render open for tests, nothing renders if this is false
+		onClose: jest.fn(),
 	};
 
 	beforeEach( () => {
