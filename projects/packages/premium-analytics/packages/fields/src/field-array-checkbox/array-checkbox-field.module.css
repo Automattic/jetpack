@@ -7,4 +7,9 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	font-size: max(var(--wpds-typography-font-size-md), 16px); /* match SelectControl trigger; avoid mobile zoom */
+
+	@media (min-width: 600px) {
+		font-size: var(--wpds-typography-font-size-md);
+	}
 }
