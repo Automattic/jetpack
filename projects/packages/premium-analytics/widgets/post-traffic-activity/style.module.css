@@ -1,16 +1,18 @@
-/* Fill the tile so empty/error states center; the framed widget host's
- * content area is the scroll viewport for anything taller. */
+/* The non-compact heatmap grid fills its container (1fr tracks), so the
+ * height chain must stay bounded from the widget frame's viewport down:
+ * root → WidgetState's block-level `.ready` (block-size 100%) → content. */
 .root {
 	display: flex;
 	flex-direction: column;
-	min-height: 100%;
+	height: 100%;
+	min-height: 0;
 }
 
 .content {
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	flex: 1 1 0;
+	height: 100%;
 	min-height: 0;
 
 	/* A wide date range produces more week columns than a narrow card fits;
@@ -18,9 +20,8 @@
 	overflow-x: auto;
 }
 
-/* Center the grid vertically in a taller-than-content card; horizontal start
-   keeps overflow scrolling reachable. */
 .heatmap {
+	flex: 1 1 0;
 	min-width: 0;
-	justify-content: center;
+	min-height: 0;
 }
