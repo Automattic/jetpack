@@ -11,6 +11,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
@@ -20,19 +21,13 @@ import widgetDefinition, {
 	DEFAULT_WORDADS_EARNINGS_METRICS,
 	type WordAdsEarningsMetricId,
 } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const WORDADS_HIGHLIGHTS_RENDER_MODULE = 'storybook/wordads-highlights';
-
-// Endpoint fragment the forced-state stories toggle. The earnings query takes no
-// date params, so every story shares one query key — the forced-state stories
-// clear the query cache (below) rather than isolating via distinct date presets
-// the way period-scoped widgets (e.g. Search Terms) do.
-const EARNINGS_ENDPOINT = 'wordads/earnings';
 
 // Carry the widget's metadata, including the metric-visibility attribute schema
 // so the dashboard story's settings drawer renders the real checkboxes.
@@ -90,13 +85,6 @@ const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_WORDADS_EARNINGS_METRICS,
 } as const;
 
-// Close-up canvas so the grid fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/WordAdsHighlights',
 	component: WordAdsHighlightsRender,
@@ -141,26 +129,31 @@ export const WithComparison: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
+// The earnings endpoint takes no params, so its query key is static and every
+// story in this file shares one cache entry (a distinct date preset can't
+// separate them — the query does not key on report params). Dropping the query
+// on story enter and exit gives each forced-state story a fresh fetch, and
+// clears a never-settling `loading` fetch before the other stories reuse the key.
+function resetWordAdsEarningsQuery() {
+	queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+}
+
 /**
  * First load: the fetch is in flight, so the widget shows its loading state. The
- * mock is forced to never resolve for the duration of this story. The query
- * cache is cleared on enter/exit because the earnings query key has no date
- * params to vary — without clearing it, a sibling story's cached success would
- * be shown instead of the loading state.
+ * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
 	render: renderWordAdsHighlights,
 	args: { withComparison: false, ...ALL_METRICS_ARGS },
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
-		queryClient.clear();
-		setReportMockState( EARNINGS_ENDPOINT, 'loading' );
+		resetWordAdsEarningsQuery();
+		setReportMockState( 'wordads/earnings', 'loading' );
 		return () => {
-			setReportMockState( EARNINGS_ENDPOINT, null );
-			queryClient.clear();
+			setReportMockState( 'wordads/earnings', null );
+			resetWordAdsEarningsQuery();
 		};
 	},
 };
@@ -175,11 +168,11 @@ export const Error: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
-		queryClient.clear();
-		setReportMockState( EARNINGS_ENDPOINT, 'error' );
+		resetWordAdsEarningsQuery();
+		setReportMockState( 'wordads/earnings', 'error' );
 		return () => {
-			setReportMockState( EARNINGS_ENDPOINT, null );
-			queryClient.clear();
+			setReportMockState( 'wordads/earnings', null );
+			resetWordAdsEarningsQuery();
 		};
 	},
 };
