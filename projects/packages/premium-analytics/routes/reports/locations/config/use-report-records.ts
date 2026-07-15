@@ -15,6 +15,8 @@ import { useMemo } from '@wordpress/element';
 import { aggregateLocationRows, locationsToTimeSeries } from './aggregate';
 import type { ReportLocationsTabId } from './tabs';
 
+type LocationChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+
 const GEO_MODES = {
 	countries: 'country',
 	regions: 'region',
@@ -32,16 +34,16 @@ const GEO_MODES = {
 export function useLocationsReportRecords(
 	activeTab: ReportLocationsTabId,
 	reportParams: ReportParams,
-	chartPeriod: StatsPeriod
+	chartPeriod: LocationChartPeriod
 ) {
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,
 			max: 0,
 			summarize: 0,
-			period: chartPeriod,
+			period: 'day',
 		} ),
-		[ reportParams, chartPeriod ]
+		[ reportParams ]
 	);
 
 	const countries = useStatsLocations(
@@ -66,14 +68,17 @@ export function useLocationsReportRecords(
 		| StatsNormalizedReport< StatsLocationsItem >
 		| undefined;
 
-	const chartPrimary = useMemo( () => locationsToTimeSeries( primaryReport ), [ primaryReport ] );
+	const chartPrimary = useMemo(
+		() => locationsToTimeSeries( primaryReport, chartPeriod ),
+		[ primaryReport, chartPeriod ]
+	);
 	const chartComparison = useMemo( () => {
 		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
 			return undefined;
 		}
 
-		return locationsToTimeSeries( comparisonReport );
-	}, [ comparisonReport, reportParams.compare_from, reportParams.compare_to ] );
+		return locationsToTimeSeries( comparisonReport, chartPeriod );
+	}, [ comparisonReport, chartPeriod, reportParams.compare_from, reportParams.compare_to ] );
 	const rows = useMemo( () => aggregateLocationRows( primaryReport ), [ primaryReport ] );
 
 	return {
