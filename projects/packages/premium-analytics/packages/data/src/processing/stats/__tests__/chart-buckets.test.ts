@@ -27,6 +27,15 @@ function getViews( point: StatsNormalizedReport< StatsTopPostsItem >[ 'data' ][ 
 describe( 'Stats chart buckets', () => {
 	it( 'uses daily dates as identity keys', () => {
 		expect( getStatsChartBucketKey( '2026-07-09', 'day' ) ).toBe( '2026-07-09' );
+
+		const report: StatsNormalizedReport< StatsTopPostsItem > = {
+			summary: {},
+			data: [ createPoint( '2026-07-09', 7 ) ],
+		};
+
+		expect( bucketStatsTimeSeries( report, 'day', getViews ).data[ 0 ].date_start ).toBe(
+			'2026-07-09T00:00:00+00:00'
+		);
 	} );
 
 	it( 'groups daily points by ISO week and sums their metrics', () => {
@@ -54,7 +63,7 @@ describe( 'Stats chart buckets', () => {
 			data: [
 				{
 					time_interval: '2026-07-06',
-					date_start: '2026-07-09T00:00:00+00:00',
+					date_start: '2026-07-06T00:00:00+00:00',
 					date_end: '2026-07-10T23:59:59+00:00',
 					label: '2026-07-06',
 					items: [],
@@ -82,9 +91,32 @@ describe( 'Stats chart buckets', () => {
 
 		expect( getStatsChartBucketKey( '2026-06-30', 'month' ) ).toBe( '2026-06-01' );
 		expect( getStatsChartBucketKey( '2026-07-01', 'month' ) ).toBe( '2026-07-01' );
-		expect(
-			bucketStatsTimeSeries( report, 'month', getViews ).data.map( point => point.time_interval )
-		).toEqual( [ '2026-06-01', '2026-07-01' ] );
+		expect( bucketStatsTimeSeries( report, 'month', getViews ) ).toEqual( {
+			summary: {
+				date_start: '2026-06-30T00:00:00+00:00',
+				date_end: '2026-07-01T23:59:59+00:00',
+			},
+			data: [
+				{
+					time_interval: '2026-06-01',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-30T23:59:59+00:00',
+					label: '2026-06-01',
+					items: [],
+					value: 4,
+					views: 4,
+				},
+				{
+					time_interval: '2026-07-01',
+					date_start: '2026-07-01T00:00:00+00:00',
+					date_end: '2026-07-01T23:59:59+00:00',
+					label: '2026-07-01',
+					items: [],
+					value: 8,
+					views: 8,
+				},
+			],
+		} );
 	} );
 
 	it( 'returns empty data while passing through an empty report summary', () => {

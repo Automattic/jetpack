@@ -37,6 +37,9 @@ export function getStatsChartBucketKey( date: string, period: StatsChartBucketPe
  *
  * The caller maps each data point to its chart metrics, including the required
  * headline `value`. Metrics are summed when daily points share a chart bucket.
+ * Each bucket's `date_start` combines the bucket-key date with the first daily
+ * point's time and offset. This keeps `localTZDate()` anchored to the bucket-key
+ * calendar date; a bare `YYYY-MM-DD` would instead be parsed as a UTC instant.
  *
  * @param report          - The normalized daily Stats report.
  * @param period          - The chart bucket period.
@@ -49,8 +52,9 @@ export function bucketStatsTimeSeries< TItem extends StatsNormalizedItem >(
 	getBucketValues: ( point: StatsNormalizedDataPoint< TItem > ) => StatsChartBucketValues
 ): StatsTimeSeriesReport {
 	const buckets = new Map< string, StatsTimeSeriesReport[ 'data' ][ number ] >();
+	const points = report?.data ?? [];
 
-	for ( const point of report?.data ?? [] ) {
+	for ( const point of points ) {
 		const key = getStatsChartBucketKey( point.time_interval, period );
 		const values = getBucketValues( point );
 		const existing = buckets.get( key );
@@ -67,7 +71,7 @@ export function bucketStatsTimeSeries< TItem extends StatsNormalizedItem >(
 
 		buckets.set( key, {
 			time_interval: key,
-			date_start: point.date_start,
+			date_start: `${ key }${ point.date_start.slice( 10 ) }`,
 			date_end: point.date_end,
 			label: key,
 			items: [],
@@ -76,8 +80,8 @@ export function bucketStatsTimeSeries< TItem extends StatsNormalizedItem >(
 	}
 
 	const data = [ ...buckets.values() ];
-	const first = data[ 0 ];
-	const last = data[ data.length - 1 ];
+	const first = points[ 0 ];
+	const last = points[ points.length - 1 ];
 
 	return {
 		summary: {
