@@ -79,9 +79,19 @@ describe( 'useReferrersReportRecords', () => {
 			summarize: 0,
 			period: 'day',
 		} );
-		expect( weekResult.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( { time_interval: '2026-07-06', views: 13 } ),
-		] );
+		expect( weekResult.current.chart.primary ).toEqual( {
+			summary: {
+				date_start: '2026-07-09T00:00:00+00:00',
+				date_end: '2026-07-10T23:59:59+00:00',
+			},
+			data: [
+				expect.objectContaining( {
+					time_interval: '2026-07-06',
+					date_start: '2026-07-06T00:00:00+00:00',
+					views: 13,
+				} ),
+			],
+		} );
 		expect( weekResult.current.rows ).toEqual( dayResult.current.rows );
 	} );
 } );

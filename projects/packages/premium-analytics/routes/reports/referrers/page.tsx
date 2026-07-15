@@ -4,7 +4,7 @@
 import {
 	normalizeReportParams,
 	type IntervalType,
-	type StatsPeriod,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
@@ -27,8 +27,11 @@ import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 const REPORT_PARAMS = { report: 'referrers' };
-const CHART_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly StatsPeriod[];
-type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
+const CHART_PERIODS = [
+	'day',
+	'week',
+	'month',
+] as const satisfies readonly StatsChartBucketPeriod[];
 
 /**
  * Check whether a URL value is a supported chart period.
@@ -36,8 +39,8 @@ type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
  * @param value - The URL search value.
  * @return Whether the value is a chart period.
  */
-function isChartPeriod( value: unknown ): value is ChartPeriod {
-	return CHART_PERIODS.includes( value as ChartPeriod );
+function isChartPeriod( value: unknown ): value is StatsChartBucketPeriod {
+	return CHART_PERIODS.includes( value as StatsChartBucketPeriod );
 }
 
 /**
@@ -46,7 +49,7 @@ function isChartPeriod( value: unknown ): value is ChartPeriod {
  * @param interval - The report date interval.
  * @return The default chart bucket period.
  */
-function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
+function getDefaultChartPeriod( interval?: IntervalType ): StatsChartBucketPeriod {
 	if ( interval === 'week' ) {
 		return 'week';
 	}

@@ -4,15 +4,13 @@
 import {
 	useStatsReferrers,
 	type ReportParams,
-	type StatsPeriod,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { aggregateReferrerRows, referrersToTimeSeries } from './aggregate';
-
-type ReferrerChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * Fetch and derive the Referrers report chart and table records.
@@ -23,7 +21,7 @@ type ReferrerChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export function useReferrersReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: ReferrerChartPeriod
+	chartPeriod: StatsChartBucketPeriod
 ) {
 	// A single bucketed query feeds both report sections. `summarize: 0`
 	// preserves the time buckets for the chart, and `max: 0` requests every
