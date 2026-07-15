@@ -263,6 +263,7 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsEmailBreakdownItem,
+	StatsEmailSummaryItem,
 	StatsDevicesComparisonItem,
 	StatsDevicesItem,
 	StatsFileDownloadsComparisonItem,
