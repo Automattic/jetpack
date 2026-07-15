@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { useCommentFollowersReportRecords } from './config';
 import CommentFollowersReportPage from './page';
+import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
 	...jest.requireActual( './config' ),
@@ -17,11 +18,15 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useDashboardLink: () => '/',
 } ) );
 
-// `Breadcrumbs` reaches for router context this page-level test has no need to
-// provide; the crumbs are not what these assertions cover.
+// `Breadcrumbs` and the post-title `Link` both reach for router context this
+// page-level test has no need to provide; neither is what these assertions cover.
 jest.mock( '@wordpress/admin-ui', () => ( {
 	...jest.requireActual( '@wordpress/admin-ui' ),
 	Breadcrumbs: () => null,
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	Link: ( { children }: { children: ReactNode } ) => <a href="/post">{ children }</a>,
 } ) );
 
 const useRecordsMock = jest.mocked( useCommentFollowersReportRecords );

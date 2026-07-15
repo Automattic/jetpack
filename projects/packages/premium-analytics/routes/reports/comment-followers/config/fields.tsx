@@ -5,6 +5,7 @@ import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data'
 import { type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import { Link } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -27,6 +28,17 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
+				// Posts with an ID drill into the post detail page, which carries its
+				// own link out to the live post. Rows without one (the endpoint omits
+				// the ID for some entries) keep the external link as the fallback.
+				if ( item.id ) {
+					return (
+						<Link to="/post/$postId" params={ { postId: String( item.id ) } as unknown as never }>
+							{ item.label }
+						</Link>
+					);
+				}
+
 				if ( ! item.link ) {
 					return <>{ item.label }</>;
 				}
