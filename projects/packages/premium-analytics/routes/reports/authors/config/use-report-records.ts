@@ -12,6 +12,8 @@ import { useMemo } from '@wordpress/element';
  */
 import { aggregateAuthorRows, authorsToTimeSeries } from './aggregate';
 
+type AuthorChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+
 /**
  * Fetch and derive the Authors chart and table from one bucketed report.
  *
@@ -19,7 +21,10 @@ import { aggregateAuthorRows, authorsToTimeSeries } from './aggregate';
  * @param chartPeriod  - The chart's bucket period.
  * @return Chart data and aggregate author table rows.
  */
-export function useAuthorsReportRecords( reportParams: ReportParams, chartPeriod: StatsPeriod ) {
+export function useAuthorsReportRecords(
+	reportParams: ReportParams,
+	chartPeriod: AuthorChartPeriod
+) {
 	/*
 	 * `summarize: 0` keeps the interval buckets needed by the chart, while
 	 * `max: 0` requests every author so search, sorting, and pagination can run
@@ -30,23 +35,23 @@ export function useAuthorsReportRecords( reportParams: ReportParams, chartPeriod
 			...reportParams,
 			max: 0,
 			summarize: 0,
-			period: chartPeriod,
+			period: 'day',
 		} ),
-		[ reportParams, chartPeriod ]
+		[ reportParams ]
 	);
 	const authors = useStatsTopAuthors( recordsParams );
 
 	const chartPrimary = useMemo(
-		() => authorsToTimeSeries( authors.primary.data ),
-		[ authors.primary.data ]
+		() => authorsToTimeSeries( authors.primary.data, chartPeriod ),
+		[ authors.primary.data, chartPeriod ]
 	);
 	const chartComparison = useMemo( () => {
 		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
 			return undefined;
 		}
 
-		return authorsToTimeSeries( authors.comparison.data );
-	}, [ reportParams, authors.comparison.data ] );
+		return authorsToTimeSeries( authors.comparison.data, chartPeriod );
+	}, [ reportParams, authors.comparison.data, chartPeriod ] );
 	const rows = useMemo(
 		() => aggregateAuthorRows( authors.primary.data ),
 		[ authors.primary.data ]

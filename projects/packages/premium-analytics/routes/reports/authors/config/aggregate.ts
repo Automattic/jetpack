@@ -3,9 +3,12 @@
  */
 import type {
 	StatsNormalizedReport,
+	StatsPeriod,
 	StatsTimeSeriesReport,
 	StatsTopAuthorsItem,
 } from '@jetpack-premium-analytics/data';
+
+type AuthorChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * One author row in the report table. Nested post children are intentionally
@@ -17,6 +20,32 @@ export type AuthorRow = {
 	avatarUrl: string | null;
 	views: number;
 };
+
+/**
+ * Map a daily bucket date onto its chart bucket key for the selected period —
+ * the date itself for days, the start of the ISO week for weeks, and the
+ * first-of-month date (`YYYY-MM-01`) for months.
+ *
+ * @param date   - The daily bucket date (`YYYY-MM-DD`).
+ * @param period - The chart bucket period.
+ * @return The bucket key the date aggregates into.
+ */
+export function getChartBucketKey( date: string, period: AuthorChartPeriod ): string {
+	if ( period === 'day' ) {
+		return date;
+	}
+
+	const bucketDate = new Date( `${ date.slice( 0, 10 ) }T00:00:00Z` );
+
+	if ( period === 'week' ) {
+		const daysSinceMonday = ( bucketDate.getUTCDay() + 6 ) % 7;
+		bucketDate.setUTCDate( bucketDate.getUTCDate() - daysSinceMonday );
+	} else {
+		bucketDate.setUTCDate( 1 );
+	}
+
+	return bucketDate.toISOString().slice( 0, 10 );
+}
 
 /**
  * Build a period-independent key for an author. The endpoint normally provides
@@ -35,28 +64,46 @@ function getAuthorKey( author: StatsTopAuthorsItem ): string {
 }
 
 /**
- * Convert a bucketed top-authors report into the views-per-bucket series used
- * by the performance chart.
+ * Convert a daily top-authors report into the views-per-bucket series used by
+ * the performance chart.
  *
  * @param report - The bucketed top-authors report.
+ * @param period - The chart bucket period.
  * @return The chart-ready views time series.
  */
 export function authorsToTimeSeries(
-	report: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
+	report: StatsNormalizedReport< StatsTopAuthorsItem > | undefined,
+	period: AuthorChartPeriod = 'day'
 ): StatsTimeSeriesReport {
-	const data = ( report?.data ?? [] ).map( point => {
-		const views = point.items.reduce( ( total, author ) => total + author.views, 0 );
+	const buckets = new Map< string, StatsTimeSeriesReport[ 'data' ][ number ] >();
+	const points = [ ...( report?.data ?? [] ) ].sort( ( first, second ) =>
+		first.time_interval.localeCompare( second.time_interval )
+	);
 
-		return {
-			time_interval: point.time_interval,
+	for ( const point of points ) {
+		const views = point.items.reduce( ( total, author ) => total + author.views, 0 );
+		const key = getChartBucketKey( point.time_interval, period );
+		const existing = buckets.get( key );
+
+		if ( existing ) {
+			existing.date_end = point.date_end;
+			existing.value = Number( existing.value ) + views;
+			existing.views = Number( existing.views ) + views;
+			continue;
+		}
+
+		buckets.set( key, {
+			time_interval: key,
 			date_start: point.date_start,
 			date_end: point.date_end,
-			label: point.time_interval,
+			label: key,
 			items: [],
 			value: views,
 			views,
-		};
-	} );
+		} );
+	}
+
+	const data = [ ...buckets.values() ];
 	const first = data[ 0 ];
 	const last = data[ data.length - 1 ];
 

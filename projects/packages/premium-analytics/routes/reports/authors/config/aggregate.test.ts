@@ -1,13 +1,13 @@
-import { aggregateAuthorRows, authorsToTimeSeries } from './aggregate';
+import { aggregateAuthorRows, authorsToTimeSeries, getChartBucketKey } from './aggregate';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 const report: StatsNormalizedReport< StatsTopAuthorsItem > = {
 	summary: {},
 	data: [
 		{
-			time_interval: '2026-W23',
+			time_interval: '2026-06-01',
 			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-07T23:59:59+00:00',
+			date_end: '2026-06-01T23:59:59+00:00',
 			items: [
 				{
 					id: 42,
@@ -31,9 +31,9 @@ const report: StatsNormalizedReport< StatsTopAuthorsItem > = {
 			],
 		},
 		{
-			time_interval: '2026-W24',
-			date_start: '2026-06-08T00:00:00+00:00',
-			date_end: '2026-06-14T23:59:59+00:00',
+			time_interval: '2026-06-02',
+			date_start: '2026-06-02T00:00:00+00:00',
+			date_end: '2026-06-02T23:59:59+00:00',
 			items: [
 				{
 					id: 42,
@@ -57,10 +57,27 @@ describe( 'report authors aggregate', () => {
 
 		expect( series.summary ).toEqual( {
 			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-14T23:59:59+00:00',
+			date_end: '2026-06-02T23:59:59+00:00',
 		} );
-		expect( series.data.map( point => point.time_interval ) ).toEqual( [ '2026-W23', '2026-W24' ] );
+		expect( series.data.map( point => point.time_interval ) ).toEqual( [
+			'2026-06-01',
+			'2026-06-02',
+		] );
 		expect( series.data.map( point => point.views ) ).toEqual( [ 13, 17 ] );
+	} );
+
+	it.each( [ 'week', 'month' ] as const )( 'groups daily totals by %s for the chart', period => {
+		const series = authorsToTimeSeries( report, period );
+		const bucketKey = getChartBucketKey( report.data[ 0 ].time_interval, period );
+
+		expect( series.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: bucketKey,
+				date_start: '2026-06-01T00:00:00+00:00',
+				date_end: '2026-06-02T23:59:59+00:00',
+				views: 30,
+			} ),
+		] );
 	} );
 
 	it( 'aggregates one row per author and omits nested posts', () => {
