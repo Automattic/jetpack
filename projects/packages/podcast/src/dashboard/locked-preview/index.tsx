@@ -1,8 +1,11 @@
 // Locked-preview UX for Episodes + Stats on free plans. Renders a blurred,
 // non-language skeleton of the gated content behind a centered upgrade card.
 
+import { getSiteData } from '@automattic/jetpack-script-data';
+import { Button } from '@wordpress/components';
 import { useId } from '@wordpress/element';
-import UpgradeCard from './upgrade-card';
+import { __, sprintf } from '@wordpress/i18n';
+import { buildUpgradeCheckoutUrl, getUpgradePlanName, withPurchaseReturnMarker } from '../upgrade';
 import './style.scss';
 
 export type LockedPreviewVariant = 'episodes' | 'stats';
@@ -14,7 +17,47 @@ interface LockedPreviewProps {
 const Skeleton = () => <span className="podcast-locked-preview__cell-skeleton" />;
 
 const LockedPreview = ( { variant }: LockedPreviewProps ) => {
+	const planName = getUpgradePlanName();
+	const returnUrl = window.location.href;
+	// `getProductCheckoutUrl` sets `redirect_to`; the cart's close button reads
+	// `cancel_to`. Both point back to the current dashboard view, but only the
+	// post-purchase `redirect_to` carries the marker — a cancel shouldn't bust
+	// the cache for an unchanged plan.
+	const checkoutUrl = buildUpgradeCheckoutUrl( {
+		siteSlug: getSiteData()?.suffix ?? '',
+		returnUrl: withPurchaseReturnMarker( returnUrl ),
+		params: { cancel_to: returnUrl },
+		noSiteSlugUrl: 'https://wordpress.com/pricing',
+	} );
+
 	const titleId = useId();
+	const title =
+		variant === 'episodes'
+			? sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__( 'Episode dashboard included with %s', 'jetpack-podcast' ),
+					planName
+			  )
+			: sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__( 'Episode stats included with %s', 'jetpack-podcast' ),
+					planName
+			  );
+	const description =
+		variant === 'episodes'
+			? sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__(
+						'Upgrade to %s to manage your podcast catalog from a unified dashboard.',
+						'jetpack-podcast'
+					),
+					planName
+			  )
+			: sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__( 'Upgrade to %s to see downloads by episode, app, and country.', 'jetpack-podcast' ),
+					planName
+			  );
 
 	return (
 		<div className="podcast-locked-preview" role="region" aria-labelledby={ titleId }>
@@ -90,7 +133,25 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 				) }
 			</div>
 			<div className="podcast-locked-preview__overlay">
-				<UpgradeCard variant={ variant } titleId={ titleId } />
+				<div className="podcast-locked-preview__card">
+					<h2 id={ titleId } className="podcast-locked-preview__title">
+						{ title }
+					</h2>
+					<p className="podcast-locked-preview__description">{ description }</p>
+					<Button
+						variant="primary"
+						href={ checkoutUrl }
+						className="podcast-locked-preview__cta"
+						// eslint-disable-next-line jsx-a11y/no-autofocus
+						autoFocus
+					>
+						{ sprintf(
+							/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+							__( 'Upgrade to %s', 'jetpack-podcast' ),
+							planName
+						) }
+					</Button>
+				</div>
 			</div>
 		</div>
 	);

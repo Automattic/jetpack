@@ -4,7 +4,7 @@
 // no-site-slug fallback.
 
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 
 // Self-hosted upsells Growth, WordPress.com Premium; the server injects the
 // matching slug + plan name (see Admin_Page::inject_podcast_script_data). The
@@ -75,24 +75,4 @@ export const buildUpgradeCheckoutUrl = ( {
 		}
 	}
 	return url.toString();
-};
-
-/**
- * Build the upgrade checkout URL for the current dashboard view: the view is
- * the return target, the purchase marker rides `redirect_to`, and the bare view
- * is `cancel_to` (a cancel shouldn't bust the cache for an unchanged plan).
- *
- * Shared by the locked-preview card and the episodes stats notice so the two
- * upsell entry points can't drift apart.
- *
- * @return {string} The checkout URL for the current dashboard view.
- */
-export const getDashboardUpgradeUrl = (): string => {
-	const returnUrl = window.location.href;
-	return buildUpgradeCheckoutUrl( {
-		siteSlug: getSiteData()?.suffix ?? '',
-		returnUrl: withPurchaseReturnMarker( returnUrl ),
-		params: { cancel_to: returnUrl },
-		noSiteSlugUrl: 'https://wordpress.com/pricing',
-	} );
 };
