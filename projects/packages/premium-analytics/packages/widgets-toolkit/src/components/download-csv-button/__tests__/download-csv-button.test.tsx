@@ -93,18 +93,22 @@ describe( 'DownloadCsvButton', () => {
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exports client-side rows without a WidgetRoot context', () => {
+	it( 'disables client-side exports until the browser download handoff completes', async () => {
 		const rows = [ { title: 'Hello' } ];
 		const columns = [ { key: 'title' as const, label: 'Title' } ];
 
 		render( <DownloadCsvButton columns={ columns } rows={ rows } filename="top-posts" /> );
 
+		const button = screen.getByRole( 'button', { name: /Download CSV/ } );
 		// This package does not depend on @testing-library/user-event.
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		fireEvent.click( button );
 
-		expect( mockBuildCsv ).toHaveBeenCalledWith( columns, rows );
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( mockSaveCsv ).not.toHaveBeenCalled();
+		await waitFor( () => expect( mockBuildCsv ).toHaveBeenCalledWith( columns, rows ) );
 		expect( mockSaveCsv ).toHaveBeenCalledWith( 'top-posts', '"Title"\n"Hello"' );
+		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 
 	it( 'reports server download failures through WidgetRoot', async () => {

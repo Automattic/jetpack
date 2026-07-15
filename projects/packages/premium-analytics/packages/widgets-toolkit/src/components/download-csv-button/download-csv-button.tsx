@@ -129,6 +129,10 @@ export function DownloadCsvButton<
 	}
 
 	const onClick = async () => {
+		if ( isBusy ) {
+			return;
+		}
+
 		if ( isServerMode ) {
 			const { reportType } = props;
 			const resolvedReportParams = reportParams;
@@ -158,7 +162,15 @@ export function DownloadCsvButton<
 			return;
 		}
 
-		saveCsv( props.filename, buildCsv( props.columns, props.rows ) );
+		setIsBusy( true );
+		try {
+			// Let React commit the disabled state before the synchronous CSV build
+			// and browser download handoff begin.
+			await new Promise< void >( resolve => setTimeout( resolve, 0 ) );
+			saveCsv( props.filename, buildCsv( props.columns, props.rows ) );
+		} finally {
+			setIsBusy( false );
+		}
 	};
 
 	return (
