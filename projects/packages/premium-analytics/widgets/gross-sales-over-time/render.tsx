@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -38,7 +39,14 @@ export default function GrossSalesOverTimeRender( {
 }: GrossSalesOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<OrderMetricWidget metricKey="orders_value_gross" />
+			<OrderMetricWidget
+				metricKey="orders_value_gross"
+				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics' ) }
+				errorText={ __(
+					"We couldn't load gross sales. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				) }
+			/>
 		</WidgetRoot>
 	);
 }

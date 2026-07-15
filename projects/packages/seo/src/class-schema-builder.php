@@ -4,20 +4,20 @@
  *
  * Serializes a Schema.org `@graph` document into the document `<head>`. The graph
  * is assembled from independent, condition-gated contributions: the site-level
- * Organization and WebSite nodes, emitted on the home page only (Google treats
- * them as single canonical site entities), the page node (Article or FAQPage)
- * built by {@see Post_Schema_Node} on singular requests, and Person/ProfilePage
- * nodes on author archives. An Article references its author's full Person node
- * (added to the same graph) by `@id`, and — like the WebSite node — references
- * the home-page Organization as its `publisher` by stable `@id` rather than
- * duplicating the node. Emission is gated on
- * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
+ * Organization node (optionally extended as LocalBusiness) and WebSite node,
+ * emitted on the home page only (Google treats them as single canonical site
+ * entities), the page node (Article or FAQPage) built by {@see Post_Schema_Node}
+ * on singular requests, and Person/ProfilePage nodes on author archives. An
+ * Article references its author's full Person node (added to the same graph) by
+ * `@id`, and — like the WebSite node — references the home-page Organization as
+ * its `publisher` by stable `@id` rather than duplicating the node. Emission is
+ * gated on `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
  *
  * This class owns only the gating and serialization; the individual nodes and
  * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
- * {@see Organization_Schema_Node}, {@see Website_Schema_Node},
- * {@see Author_Schema_Node}, {@see Schema_Node_Ids}) and are assembled by
- * {@see Schema_Graph}.
+ * {@see Organization_Schema_Node}, {@see Local_Business_Schema_Node},
+ * {@see Website_Schema_Node}, {@see Author_Schema_Node}, {@see Schema_Node_Ids})
+ * and are assembled by {@see Schema_Graph}.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -98,6 +98,7 @@ class Schema_Builder {
 		// it regardless so we know whether `@id` references to it (publisher, worksFor)
 		// will resolve, but only add the full node on the home page.
 		$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
+		$organization = Local_Business_Schema_Node::extend( $organization, Schema_Settings::get_local_business() );
 
 		// Site-level nodes (Organization, WebSite) describe a single canonical
 		// entity, so they belong on the home page only (Google's guidance) — never

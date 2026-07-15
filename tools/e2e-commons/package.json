@@ -35,7 +35,7 @@
 		"@slack/web-api": "7.15.1",
 		"@types/lodash-es": "4.17.12",
 		"@types/node": "^24.12.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/e2e-test-utils-playwright": "1.50.0",
 		"allure-playwright": "2.15.1",
 		"axios": "1.18.0",

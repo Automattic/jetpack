@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Food Menus: register the Nova custom post type after the theme loads during REST API requests, so the menu link appears in the Calypso sidebar on Simple sites.

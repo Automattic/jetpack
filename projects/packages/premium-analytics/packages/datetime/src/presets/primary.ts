@@ -6,6 +6,7 @@ import {
 	startOfDay,
 	endOfDay,
 	subDays,
+	subHours,
 	subMonths,
 	subYears,
 	startOfMonth,
@@ -20,6 +21,7 @@ import { toLocalTZ } from '../tz';
 import {
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
@@ -28,6 +30,7 @@ import {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
+	QUICK_SURFACE_PRESETS,
 	type SelectablePresetId,
 	type PrimaryPresetId,
 } from './types';
@@ -37,6 +40,7 @@ import type { DateRange } from '../get-comparison-range';
  * Shared date calculations used by multiple presets.
  */
 type DateContext = {
+	now: Date;
 	initOfToday: Date;
 	endOfToday: Date;
 	endOfYesterday: Date;
@@ -73,6 +77,14 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 1 ),
 			to: endOfYesterday,
+		} ),
+	},
+	{
+		id: PRESET_LAST_24_HOURS,
+		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics' ),
+		getRange: ( { now } ) => ( {
+			from: subHours( now, 24 ),
+			to: now,
 		} ),
 	},
 	{
@@ -162,6 +174,7 @@ function buildDateContext( timeZone: string ): DateContext {
 	const lastYear = subYears( initOfToday, 1 );
 
 	return {
+		now: nowWithTZ,
 		initOfToday,
 		endOfToday,
 		endOfYesterday,
@@ -176,7 +189,7 @@ function buildDateContext( timeZone: string ): DateContext {
  * Preset ranges always have both `from` and `to` defined.
  */
 export type DateRangePreset = {
-	id: PrimaryPresetId;
+	id: SelectablePresetId;
 	label: string;
 	range: Required< DateRange >;
 };
@@ -198,6 +211,22 @@ export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[
 }
 
 /**
+ * Rolling-window presets for the date-range filter surface pills.
+ *
+ * @param timeZone - IANA timezone string (e.g., 'America/New_York')
+ * @return Quick surface presets in display order.
+ */
+export function getQuickSurfacePresets( timeZone: string ): DateRangePreset[] {
+	const presetsById = new Map(
+		getDefaultDateRangePresets( timeZone ).map( preset => [ preset.id, preset ] )
+	);
+
+	return QUICK_SURFACE_PRESETS.map( id => presetsById.get( id ) ).filter(
+		( preset ): preset is DateRangePreset => preset !== undefined
+	);
+}
+
+/**
  * Compute the absolute date range (as Date objects) for a given
  * selectable preset ID in the specified timezone.
  *
@@ -209,7 +238,7 @@ export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[
 export function computePrimaryRange(
 	presetId: SelectablePresetId,
 	timeZone: string
-): DateRange | undefined {
+): Required< DateRange > | undefined {
 	const def = PRESET_DEFINITIONS.find( p => p.id === presetId );
 	if ( ! def ) {
 		return undefined;

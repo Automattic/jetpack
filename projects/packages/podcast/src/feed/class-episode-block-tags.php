@@ -20,21 +20,6 @@ use WP_Post;
 class Episode_Block_Tags {
 
 	/**
-	 * Emit item-level tags for a post if it contains a podcast-episode block.
-	 * Posts without the block contribute nothing — legacy audio items keep
-	 * their pre-block behavior intact.
-	 *
-	 * @param WP_Post $post Episode post.
-	 */
-	public static function render( WP_Post $post ): void {
-		$attrs = self::get_block_attrs( $post );
-		if ( empty( $attrs ) ) {
-			return;
-		}
-		self::render_from_attrs( $attrs );
-	}
-
-	/**
 	 * Testable seam — emit tags for a literal attrs array, skipping the block
 	 * parse. Each emit is independent and no-ops on missing/blank values.
 	 *
@@ -316,6 +301,18 @@ class Episode_Block_Tags {
 			} elseif ( ! empty( $alt['url'] ) ) {
 				$sources[] = (string) $alt['url'];
 			}
+
+			// Drop empty/malformed URIs so we never emit a blank <podcast:source>.
+			// Match the emit-side esc_url() rather than wp_http_validate_url(), which
+			// resolves DNS — we're printing a URI for clients, not fetching it.
+			$sources = array_values(
+				array_filter(
+					$sources,
+					static function ( $uri ) {
+						return '' !== esc_url_raw( (string) $uri );
+					}
+				)
+			);
 			if ( empty( $sources ) ) {
 				continue;
 			}

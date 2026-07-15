@@ -90,6 +90,42 @@ describe( 'Stats top posts normalizer', () => {
 		] );
 	} );
 
+	it( 'preserves the homepage row id and title when archives are skipped', () => {
+		const result = sanitizeStatsTopPostsResponse(
+			{
+				days: {
+					'2026-06-16': {
+						postviews: [
+							{
+								id: 0,
+								href: null,
+								date: null,
+								title: 'Homepage (Latest posts)',
+								type: 'homepage',
+								views: 12,
+							},
+						],
+					},
+				},
+			},
+			{
+				period: 'day',
+				end_date: '2026-06-16',
+				skip_archives: 1,
+			}
+		);
+
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				id: 0,
+				label: 'Homepage (Latest posts)',
+				link: null,
+				page: null,
+				type: 'homepage',
+			} )
+		);
+	} );
+
 	it( 'keeps all by-date buckets when the query has a range end date', () => {
 		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
 			period: 'day',
@@ -175,5 +211,51 @@ describe( 'Stats top posts normalizer', () => {
 				} ),
 			],
 		} );
+	} );
+	it( 'keeps URL-less rows and matches them by label', () => {
+		// With skip_archives=1 the API returns the homepage-as-latest-posts
+		// entry without a link; it must survive the merge and match across
+		// periods by its label.
+		const homepage: StatsTopPostsItem = {
+			id: 0,
+			label: 'Homepage (Latest posts)',
+			views: 12,
+			link: null,
+			children: null,
+		};
+		const post: StatsTopPostsItem = {
+			id: 1,
+			label: 'Hello',
+			views: 5,
+			link: 'https://example.com/hello/',
+			children: null,
+		};
+
+		const { rows, hasComparison } = mergeStatsTopPostsComparisonRows(
+			makeReport( [ post, homepage ] ),
+			makeReport( [ { ...homepage, views: 8 } ] )
+		);
+
+		expect( hasComparison ).toBe( true );
+		expect( rows ).toEqual( [
+			expect.objectContaining( { label: 'Homepage (Latest posts)', previousViews: 8 } ),
+			expect.objectContaining( { label: 'Hello', previousViews: undefined } ),
+		] );
+	} );
+
+	it( 'ranks rows before applying the visible max', () => {
+		// The API caps postviews at max but appends the homepage entry on top,
+		// so the visible cap must re-rank first.
+		const rows = [
+			{ id: 1, label: 'A', views: 5, link: 'https://example.com/a/', children: null },
+			{ id: 2, label: 'B', views: 3, link: 'https://example.com/b/', children: null },
+			{ id: 0, label: 'Homepage (Latest posts)', views: 9, link: null, children: null },
+		];
+
+		const { rows: visible } = mergeStatsTopPostsComparisonRows( makeReport( rows ), undefined, {
+			maxRows: 2,
+		} );
+
+		expect( visible.map( row => row.label ) ).toEqual( [ 'Homepage (Latest posts)', 'A' ] );
 	} );
 } );

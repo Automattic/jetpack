@@ -20,7 +20,8 @@ export interface WidgetStateError {
 
 export interface WidgetStateEmpty {
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
-	description: string;
+	/** Defaults to "No data in this period." when omitted. */
+	description?: string;
 }
 
 export interface WidgetStateProps {
@@ -126,10 +127,9 @@ export function WidgetState( {
 				// the error state, which always carries its own glyph. `null`
 				// suppresses `ChartEmptyState`'s own `cautionFilled` default.
 				icon={ empty?.icon ?? null }
-				text={
-					empty?.description ??
-					__( 'No data found for this date range.', 'jetpack-premium-analytics' )
-				}
+				// `ChartEmptyState` supplies the "No data in this period." default when
+				// `description` is omitted — keep that copy in one place.
+				text={ empty?.description }
 			/>
 		);
 	}

@@ -52,7 +52,21 @@ export const SCENARIOS = [
 			},
 		],
 		postToCodeVitals: true,
-		isBaseline: false,
+		// Scenario failure policy, read by measure-lcp.js (computeRunOutcome):
+		//   optional: false — a failure here fails the build (exit 1) and suppresses ALL
+		//     posting. Retry-safety: a red build has posted nothing, so re-running it cannot
+		//     append duplicate points to the append-only, dedup-off CodeVitals store.
+		//   optional: true — a failure here must neither fail the build nor block the other
+		//     scenarios from posting; this scenario's own keys simply skip that build.
+		// Default NEW scenarios to optional: true; promoting one to required is a deliberate
+		// act (see README → Safeguards → Per-scenario failure isolation).
+		// Scope: this flag isolates MEASUREMENT failures — a scenario that throws, produces
+		// no summary, or produces a PARTIAL one (a posted field dropped by the summary's
+		// majority rule; measure-lcp.js converts that into a scenario error). A
+		// successfully-measured value that fails its SANITY_RANGES check is a data-integrity
+		// event, and the poster's atomic gate still refuses the whole post on purpose (see
+		// README → Safeguards → Sanity-range assertions).
+		optional: false,
 	},
 	{
 		key: 'formsResponses',
@@ -115,7 +129,9 @@ export const SCENARIOS = [
 			},
 		],
 		postToCodeVitals: true,
-		isBaseline: false,
+		// A failure here logs loudly and skips this scenario's keys for the build, but never
+		// blocks the required Dashboard scenario from posting (see the flag's docs above).
+		optional: true,
 	},
 	{
 		key: 'myJetpack',
@@ -180,7 +196,9 @@ export const SCENARIOS = [
 			},
 		],
 		postToCodeVitals: true,
-		isBaseline: false,
+		// A failure here logs loudly and skips this scenario's keys for the build, but never
+		// blocks the required Dashboard scenario from posting (see the flag's docs above).
+		optional: true,
 	},
 ];
 

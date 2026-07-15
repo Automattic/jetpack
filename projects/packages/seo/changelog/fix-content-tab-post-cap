@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Content tab: page through posts and pages instead of silently capping the list at 100 of each

@@ -84,12 +84,6 @@
 	object-fit: cover;
 }
 
-.placeholder {
-	margin: auto;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}
-
 /* Narrow tiles (single-column grid cells): stack the image as a top banner and
  * scale the headline, metrics, and spacing down so the content fits without
  * overflowing a small tile. */

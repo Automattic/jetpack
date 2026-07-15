@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ActivationScreen from '..';
 
@@ -33,6 +33,36 @@ describe( 'ActivationScreen', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
 		expect( screen.getByText( 'an error' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps a visible error when a background refetch returns the same license key', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render(
+			<ActivationScreen
+				{ ...testProps }
+				availableLicenses={ [ { product: 'Jetpack Backup', license_key: 'abc' } ] }
+			/>
+		);
+
+		apiStub.mockResolvedValue( [ { errors: { 400: [ 'an error' ] } } ] );
+		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		expect( screen.getByText( 'an error' ) ).toBeInTheDocument();
+
+		// A refetch hands back a new array reference with the same first key; the
+		// error on the current key must survive it.
+		rerender(
+			<ActivationScreen
+				{ ...testProps }
+				availableLicenses={ [ { product: 'Jetpack Backup', license_key: 'abc' } ] }
+			/>
+		);
+		expect( screen.getByText( 'an error' ) ).toBeInTheDocument();
+
+		// @wordpress/ui's SelectControl schedules an async positioner update on mount;
+		// flush it here (inside act) so it doesn't leak an act() warning into a later test.
+		await act( async () => {
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		} );
 	} );
 
 	it( 'should render success with an activated product id from API', async () => {

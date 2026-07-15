@@ -25,9 +25,11 @@ export type TopPerformingBookingsAttributes = Record< never, never >;
 export default {
 	name: 'jpa/top-performing-bookings',
 	title: __( 'Top performing bookings', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top booking products by net revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Your best-selling bookings by revenue over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

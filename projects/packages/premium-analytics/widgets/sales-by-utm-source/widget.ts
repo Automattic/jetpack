@@ -25,9 +25,11 @@ export type SalesByUtmSourceAttributes = Record< never, never >;
 export default {
 	name: 'jpa/sales-by-utm-source',
 	title: __( 'Sales by UTM source', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top UTM sources by order revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'See which referral sources are driving sales in your store.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };
