@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
+use Automattic\Jetpack\Podcast\Feed\Episode_Block_Tags;
 use Throwable;
 use WP_Post;
 use WP_Query;
@@ -343,12 +344,19 @@ class Tracks {
 
 	/**
 	 * Filters out posts in the podcast category that aren't actually episodes.
-	 * `core/audio` block + classic-editor attached audio cover the supported
-	 * authoring paths.
+	 * Covers all three authoring paths: the `jetpack/podcast-episode` block
+	 * (the paid path — media lives in its `mediaUrl` attr, often an external or
+	 * unattached URL that the two checks below miss), the `core/audio` block,
+	 * and classic-editor attached audio.
 	 *
 	 * @param WP_Post $post Post being checked.
 	 */
 	private static function has_podcast_media( WP_Post $post ): bool {
+		$attrs = Episode_Block_Tags::get_block_attrs( $post );
+		if ( ! empty( $attrs['mediaUrl'] ) ) {
+			return true;
+		}
+
 		return has_block( 'core/audio', $post )
 			|| ! empty( get_attached_media( 'audio', $post->ID ) );
 	}
