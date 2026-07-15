@@ -16,9 +16,8 @@ interface Props {
 }
 
 /**
- * The shared site-level Schema form. Edits BreadcrumbList, Organization, and
- * LocalBusiness settings through the package's own REST route (never
- * `/jetpack/v4/settings`).
+ * The shared site-level Schema form. Edits Organization and LocalBusiness
+ * settings through the package's own REST route (never `/jetpack/v4/settings`).
  *
  * Presentational: the Schema card owns the {@link useSchemaSettings} controller
  * (so the header badge and this form share one state) and passes it in via `form`.
@@ -29,13 +28,11 @@ interface Props {
  */
 const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 	const {
-		breadcrumbList,
 		organization,
 		defaults,
 		localBusiness,
 		isSaving,
 		isDirty,
-		commitBreadcrumbList,
 		setOrganizationField,
 		setLocalBusinessField,
 		save,
@@ -46,18 +43,6 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<ToggleControl
-				label={ __( 'Enable breadcrumb schema', 'jetpack-seo' ) }
-				help={ __(
-					'Adds breadcrumb structured data to help search engines understand your site hierarchy.',
-					'jetpack-seo'
-				) }
-				checked={ breadcrumbList.enabled }
-				onChange={ next => commitBreadcrumbList( { enabled: next } ) }
-				disabled={ isSaving }
-				__nextHasNoMarginBottom
-			/>
-
 			<TextControl
 				label={ __( 'Organization name', 'jetpack-seo' ) }
 				help={ __(
