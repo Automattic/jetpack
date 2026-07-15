@@ -153,7 +153,7 @@ export function TopPerformingProductLeaderboardWidget( {
 				// the comparison list. That is an unknown previous value, not a
 				// real 0, so leave the comparison fields undefined and let the
 				// chart show an em dash instead of a fabricated +100% delta.
-				const hasComparisonValue = comparisonValue > 0;
+				const hasComparisonProduct = comparisonProduct !== undefined;
 
 				const label = product.product_name;
 				const imageUrl = productImage?.imageUrl || '';
@@ -164,11 +164,11 @@ export function TopPerformingProductLeaderboardWidget( {
 					label: <LeaderboardLabel label={ label } imageUrl={ imageUrl } imageAlt={ imageAlt } />,
 					currentValue,
 					currentShare: ( currentValue / maxCurrentValue ) * 100,
-					previousValue: hasComparisonValue ? comparisonValue : undefined,
-					previousShare: hasComparisonValue
+					previousValue: hasComparisonProduct ? comparisonValue : undefined,
+					previousShare: hasComparisonProduct
 						? ( comparisonValue / maxPreviousValue ) * 100
 						: undefined,
-					delta: hasComparisonValue ? calculateDelta( currentValue, comparisonValue ) : undefined,
+					delta: hasComparisonProduct ? calculateDelta( currentValue, comparisonValue ) : undefined,
 				};
 			} ) || []
 		);

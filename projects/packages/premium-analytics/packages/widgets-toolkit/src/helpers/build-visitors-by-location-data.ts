@@ -70,20 +70,24 @@ export function buildVisitorsByLocationData( {
 		// A location absent from the comparison period has an unknown previous
 		// value, not a real 0. Leave the comparison fields undefined so the
 		// chart shows an em dash instead of a fabricated delta.
-		const hasComparisonValue = comparisonValue > 0;
+		const hasComparisonItem = comparisonItem !== undefined;
 		const previousShare =
-			hasComparisonValue && maxComparisonValue > 0
+			hasComparisonItem && maxComparisonValue > 0
 				? ( comparisonValue / maxComparisonValue ) * 100
+				: hasComparisonItem
+				? 0
 				: undefined;
-		const delta = hasComparisonValue
-			? ( ( item.value - comparisonValue ) / comparisonValue ) * 100
+		const delta = hasComparisonItem
+			? comparisonValue > 0
+				? ( ( item.value - comparisonValue ) / comparisonValue ) * 100
+				: 0
 			: undefined;
 
 		return {
 			id: item.id,
 			label: item.label,
 			currentValue: item.value,
-			previousValue: hasComparisonValue ? comparisonValue : undefined,
+			previousValue: hasComparisonItem ? comparisonValue : undefined,
 			currentShare,
 			previousShare,
 			delta,

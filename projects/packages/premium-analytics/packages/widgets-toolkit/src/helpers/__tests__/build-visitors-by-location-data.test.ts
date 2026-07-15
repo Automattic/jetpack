@@ -52,6 +52,20 @@ describe( 'buildVisitorsByLocationData', () => {
 		expect( japan?.delta ).toBeUndefined();
 	} );
 
+	it( 'keeps comparison fields for a location with a real zero value', () => {
+		const { leaderboardData } = buildVisitorsByLocationData( {
+			primaryData,
+			comparisonData: [ ...comparisonData, { id: 'JP', label: 'Japan', value: 0 } ],
+			region: 'world',
+		} );
+
+		const japan = leaderboardData.find( row => row.id === 'JP' );
+
+		expect( japan?.previousValue ).toBe( 0 );
+		expect( japan?.previousShare ).toBe( 0 );
+		expect( japan?.delta ).toBe( 0 );
+	} );
+
 	it( 'leaves comparison fields undefined for every row when no comparison data is provided', () => {
 		const { leaderboardData } = buildVisitorsByLocationData( {
 			primaryData,
