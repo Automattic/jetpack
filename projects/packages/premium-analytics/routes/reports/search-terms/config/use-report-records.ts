@@ -4,7 +4,7 @@
 import {
 	useStatsSearchTerms,
 	type ReportParams,
-	type StatsPeriod,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -12,8 +12,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { aggregateSearchTermRows, searchTermsToTimeSeries } from './aggregate';
-
-type SearchTermsChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * Fetch and derive the chart and table records for the Search terms report.
@@ -24,7 +22,7 @@ type SearchTermsChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
  */
 export function useSearchTermsReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: SearchTermsChartPeriod
+	chartPeriod: StatsChartBucketPeriod
 ) {
 	/*
 	 * One bucketed report feeds both the chart and table. `summarize: 0` keeps

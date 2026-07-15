@@ -4,7 +4,7 @@
 import {
 	normalizeReportParams,
 	type IntervalType,
-	type StatsPeriod,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
@@ -27,7 +27,11 @@ import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 const REPORT_PARAMS = { report: 'search-terms' };
-const CHART_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly StatsPeriod[];
+const CHART_PERIODS = [
+	'day',
+	'week',
+	'month',
+] as const satisfies readonly StatsChartBucketPeriod[];
 type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
 
 /**

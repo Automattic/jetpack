@@ -66,11 +66,15 @@ describe( 'report search terms aggregate', () => {
 		expect( series.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-06-01',
-				date_start: '2026-06-03T00:00:00+00:00',
+				date_start: '2026-06-01T00:00:00+00:00',
 				date_end: '2026-06-04T23:59:59+00:00',
 				views: 20,
 			} ),
 		] );
+		expect( series.summary ).toEqual( {
+			date_start: '2026-06-03T00:00:00+00:00',
+			date_end: '2026-06-04T23:59:59+00:00',
+		} );
 	} );
 
 	it( 'groups daily totals into calendar months', () => {
@@ -79,7 +83,7 @@ describe( 'report search terms aggregate', () => {
 		expect( series.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-06-01',
-				date_start: '2026-06-03T00:00:00+00:00',
+				date_start: '2026-06-01T00:00:00+00:00',
 				date_end: '2026-06-04T23:59:59+00:00',
 				views: 20,
 			} ),

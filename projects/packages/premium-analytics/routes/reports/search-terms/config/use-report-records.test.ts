@@ -3,8 +3,8 @@ import { renderHook } from '@testing-library/react';
 import { useSearchTermsReportRecords } from './use-report-records';
 import type {
 	ReportParams,
+	StatsChartBucketPeriod,
 	StatsNormalizedReport,
-	StatsPeriod,
 	StatsSearchTermsItem,
 } from '@jetpack-premium-analytics/data';
 
@@ -16,8 +16,6 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 const mockUseStatsSearchTerms = useStatsSearchTerms as jest.MockedFunction<
 	typeof useStatsSearchTerms
 >;
-
-type SearchTermsChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 const report: StatsNormalizedReport< StatsSearchTermsItem > = {
 	summary: {},
@@ -100,7 +98,7 @@ describe( 'useSearchTermsReportRecords', () => {
 			compare_to: '2026-05-28',
 		};
 		const { result, rerender } = renderHook(
-			( { chartPeriod }: { chartPeriod: SearchTermsChartPeriod } ) =>
+			( { chartPeriod }: { chartPeriod: StatsChartBucketPeriod } ) =>
 				useSearchTermsReportRecords( params, chartPeriod ),
 			{ initialProps: { chartPeriod: 'day' } }
 		);
