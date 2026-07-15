@@ -1,40 +1,41 @@
 /**
  * Internal dependencies
  */
-import { computeCalendarHeatmapLayout, fitCalendarHeatmapColumns } from '../layout';
+import { computeCalendarHeatmapLayout, fitCompactCalendarHeatmapColumns } from '../layout';
 import type { CalendarHeatmapLayoutInput } from '../layout';
 
 const COMPACT_ASPECT = 1;
 const EXPANDED_ASPECT = 61 / 40;
 
-// A compact-mode base matching the widget's tuning; per-test overrides tweak the
-// tile size and mode.
+// Mirror the module-internal geometry constants so the total-dimension
+// assertions stay coherent with layout.ts.
+const ROW_LABEL_WIDTH = 32;
+const CELL_GAP = 4;
+const HEADER_HEIGHT = 16;
+const LEGEND_HEIGHT = 44;
+const ROWS = 7;
+
+// Only the fields the widget actually passes; rows and minColumns fall to their
+// defaults (7 and 6), matching how render.tsx calls this.
 const compactBase: CalendarHeatmapLayoutInput = {
 	availWidth: 400,
 	availHeight: 300,
 	dataColumns: 52,
-	rows: 7,
 	aspectRatio: COMPACT_ASPECT,
 	maxCellHeight: 35,
-	minColumns: 4,
-	gap: 2,
-	headerHeight: 16,
-	legendHeight: 24,
-	rowLabelWidth: 32,
 };
 
 const expandedBase: CalendarHeatmapLayoutInput = {
 	...compactBase,
 	aspectRatio: EXPANDED_ASPECT,
 	maxCellHeight: 48,
-	gap: 4,
 };
 
 describe( 'computeCalendarHeatmapLayout', () => {
-	it( 'a tall-narrow (2:1) tile hits the cell-height cap and preserves the 1:1 ratio', () => {
+	it( 'a tall-narrow tile hits the cell-height cap and preserves the 1:1 ratio', () => {
 		const layout = computeCalendarHeatmapLayout( {
 			...compactBase,
-			availWidth: 200,
+			availWidth: 280,
 			availHeight: 600,
 		} );
 
@@ -42,8 +43,8 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		expect( layout.cellHeight ).toBe( 35 );
 		// Aspect ratio preserved: square cells.
 		expect( layout.cellWidth ).toBeCloseTo( layout.cellHeight * COMPACT_ASPECT );
-		// It is narrow, so it stays compact with only a few columns.
-		expect( layout.columns ).toBe( 4 );
+		// It is narrow, so it keeps only the minimum column count.
+		expect( layout.columns ).toBe( 6 );
 	} );
 
 	it( 'a wide-short (1:4) tile is height-limited yet fits many columns', () => {
@@ -60,7 +61,7 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		expect( layout.columns ).toBe( 52 );
 	} );
 
-	it( 'a narrow-but-large tile triggers the 4-column shrink instead of scrolling', () => {
+	it( 'a narrow-but-large tile triggers the min-column shrink instead of scrolling', () => {
 		const layout = computeCalendarHeatmapLayout( {
 			...expandedBase,
 			availWidth: 250,
@@ -68,8 +69,8 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		} );
 
 		// Falls back to the minimum column count.
-		expect( layout.columns ).toBe( 4 );
-		// The whole cell scaled down below the cap to make 4 columns fit.
+		expect( layout.columns ).toBe( 6 );
+		// The whole cell scaled down below the cap to make the minimum columns fit.
 		expect( layout.cellHeight ).toBeLessThan( expandedBase.maxCellHeight );
 		// Aspect ratio is still preserved (never distorted).
 		expect( layout.cellWidth / layout.cellHeight ).toBeCloseTo( EXPANDED_ASPECT );
@@ -98,8 +99,8 @@ describe( 'computeCalendarHeatmapLayout', () => {
 			dataColumns: 52,
 		} );
 
-		// The width fits 10 aspect-preserving columns; the rest are trimmed.
-		expect( layout.columns ).toBe( 10 );
+		// The width fits 11 aspect-preserving columns; the rest are trimmed.
+		expect( layout.columns ).toBe( 11 );
 		expect( layout.columns ).toBeLessThan( 52 );
 	} );
 
@@ -113,14 +114,9 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		expect( layout.cellWidth / layout.cellHeight ).toBeCloseTo( EXPANDED_ASPECT );
 		// Totals follow the documented formulas exactly.
 		const expectedWidth =
-			expandedBase.rowLabelWidth +
-			layout.columns * layout.cellWidth +
-			( layout.columns - 1 ) * expandedBase.gap;
+			ROW_LABEL_WIDTH + layout.columns * layout.cellWidth + ( layout.columns - 1 ) * CELL_GAP;
 		const expectedHeight =
-			expandedBase.headerHeight +
-			expandedBase.legendHeight +
-			( expandedBase.rows ?? 7 ) * layout.cellHeight +
-			( ( expandedBase.rows ?? 7 ) - 1 ) * expandedBase.gap;
+			HEADER_HEIGHT + LEGEND_HEIGHT + ROWS * layout.cellHeight + ( ROWS - 1 ) * CELL_GAP;
 		expect( layout.heatmapWidth ).toBeCloseTo( expectedWidth );
 		expect( layout.heatmapHeight ).toBeCloseTo( expectedHeight );
 	} );
@@ -143,36 +139,43 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		} );
 	} );
 
-	it( 'defaults rows to 7 and minColumns to 4 when omitted', () => {
+	it( 'defaults rows to 7 when omitted', () => {
+		const layout = computeCalendarHeatmapLayout( {
+			availWidth: 400,
+			availHeight: 600,
+			dataColumns: 52,
+			aspectRatio: COMPACT_ASPECT,
+			maxCellHeight: 35,
+		} );
+
+		// 7 rows at the 35px cap plus overhead and inter-row gaps.
+		expect( layout.heatmapHeight ).toBeCloseTo(
+			HEADER_HEIGHT + LEGEND_HEIGHT + ROWS * 35 + ( ROWS - 1 ) * CELL_GAP
+		);
+	} );
+
+	it( 'defaults minColumns to 6 when omitted', () => {
+		// At 200px only 4 aspect-preserving cells fit; a default minimum of 6 forces
+		// the shrink, so the column count lands on 6 rather than 4.
 		const layout = computeCalendarHeatmapLayout( {
 			availWidth: 200,
 			availHeight: 600,
 			dataColumns: 52,
 			aspectRatio: COMPACT_ASPECT,
 			maxCellHeight: 35,
-			gap: 2,
-			headerHeight: 16,
-			legendHeight: 24,
-			rowLabelWidth: 32,
 		} );
 
-		// 7 rows at the 35px cap plus overhead and inter-row gaps.
-		expect( layout.heatmapHeight ).toBeCloseTo( 16 + 24 + 7 * 35 + 6 * 2 );
-		expect( layout.columns ).toBe( 4 );
+		expect( layout.columns ).toBe( 6 );
 	} );
 } );
 
-describe( 'fitCalendarHeatmapColumns', () => {
+describe( 'fitCompactCalendarHeatmapColumns', () => {
 	const base = {
-		cellWidth: 11,
-		gap: 2,
-		rowLabelWidth: 32,
 		dataColumns: 52,
-		minColumns: 4,
 	};
 
 	it( 'fits as many fixed cells as the width allows, never overflowing', () => {
-		const columns = fitCalendarHeatmapColumns( { ...base, availWidth: 200 } );
+		const columns = fitCompactCalendarHeatmapColumns( { ...base, availWidth: 200 } );
 
 		// floor( (200 - 32) / (11 + 2) ) = floor( 12.9 ) = 12.
 		expect( columns ).toBe( 12 );
@@ -181,17 +184,19 @@ describe( 'fitCalendarHeatmapColumns', () => {
 	} );
 
 	it( 'never returns more columns than weeks in range', () => {
-		expect( fitCalendarHeatmapColumns( { ...base, availWidth: 2000, dataColumns: 20 } ) ).toBe(
-			20
-		);
+		expect(
+			fitCompactCalendarHeatmapColumns( { ...base, availWidth: 2000, dataColumns: 20 } )
+		).toBe( 20 );
 	} );
 
 	it( 'keeps the column minimum on a narrow tile', () => {
-		expect( fitCalendarHeatmapColumns( { ...base, availWidth: 60 } ) ).toBe( 4 );
+		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 60 } ) ).toBe( 6 );
 	} );
 
 	it( 'shows all available when the range has fewer than the minimum', () => {
-		expect( fitCalendarHeatmapColumns( { ...base, availWidth: 60, dataColumns: 2 } ) ).toBe( 2 );
+		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 60, dataColumns: 2 } ) ).toBe(
+			2
+		);
 	} );
 
 	it.each( [
@@ -199,6 +204,8 @@ describe( 'fitCalendarHeatmapColumns', () => {
 		[ 'zero data columns', { availWidth: 500, dataColumns: 0 } ],
 		[ 'NaN width', { availWidth: Number.NaN } ],
 	] )( 'returns 0 for %s', ( _label, override ) => {
-		expect( fitCalendarHeatmapColumns( { ...base, availWidth: 500, ...override } ) ).toBe( 0 );
+		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 500, ...override } ) ).toBe(
+			0
+		);
 	} );
 } );

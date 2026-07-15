@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { computeCalendarHeatmapLayout, fitCalendarHeatmapColumns } from './layout';
+import { computeCalendarHeatmapLayout, fitCompactCalendarHeatmapColumns } from './layout';
 import { resolveStreakRange } from './streak-range';
 import { buildStreakSeries } from './streak-series';
 import styles from './style.module.css';
@@ -32,54 +32,12 @@ type PostingActivityRenderAttributes = PostingActivityAttributes &
 type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
 // --- Heatmap sizing tuning ---------------------------------------------------
-// All layout policy lives here so the look can be tuned without touching the
-// pure geometry in `layout.ts`.
-
-/** Weekday rows in the calendar grid (the column-label header row is separate). */
-const ROWS = 7;
-/** Minimum week columns to keep before the cell is scaled down. */
-const MIN_COLUMNS = 4;
-
-/** Expanded cell width / height ratio. Always preserved — cells never stretch. */
 const EXPANDED_ASPECT_RATIO = 61 / 40;
-
-/** Per-mode cap on cell height, in px (height drives the expanded cell size). */
 const EXPANDED_MAX_CELL_HEIGHT = 48;
-
-/**
- * Compact mode renders the chart's own fixed-size squares (it does not scale), so
- * these mirror the chart theme's `heatmapChart.compactCellSize` / `compactCellGap`
- * and are used only to trim the data to the columns that fit the width.
- */
-const COMPACT_CELL_SIZE = 11;
-const COMPACT_CELL_GAP = 2;
-
-/**
- * Gap between expanded cells, in px. Matches the chart grid's own non-compact gap
- * (`--wpds-dimension-gap-xs`), so the computed rectangle agrees with what the
- * chart renders without overriding the chart's gap variable.
- */
-const GAP = 4;
-
-// Overhead reserved around the grid, in px. These budget the chart's own chrome
-// so the computed rectangle leaves room for it: the column-label header row, and
-// the legend plus the gap the chart lays out between the grid and the legend.
-const ROW_LABEL_WIDTH = 32;
-const HEADER_HEIGHT = 16;
-const LEGEND_HEIGHT = 44;
-
-/**
- * Available height (px) at or above which the heatmap switches to expanded 61:40
- * cells. Roughly where compact cells would already hit their cap and there is
- * vertical room to spare; below it the tile stays compact.
- */
+// If the tile is at least this tall, use expanded cells ( not compact ).
 const EXPANDED_MIN_HEIGHT = 220;
 
-/**
- * Minimum span, in days, the streak fetch always covers (ending on the report's
- * end date) so the heatmap has a full year of week columns to lay out even when
- * the dashboard date picker is on a short range.
- */
+// Minimum span, in days.
 const MIN_STREAK_DAYS = 365;
 
 /**
@@ -134,53 +92,40 @@ function PostingActivityInner() {
 	// avoid a scroll.
 	const isExpanded = size.height >= EXPANDED_MIN_HEIGHT;
 
-	const { columns, expandedLayout } = useMemo( () => {
-		if ( isExpanded ) {
-			const computed = computeCalendarHeatmapLayout( {
-				availWidth: size.width,
-				availHeight: size.height,
-				dataColumns,
-				rows: ROWS,
-				aspectRatio: EXPANDED_ASPECT_RATIO,
-				maxCellHeight: EXPANDED_MAX_CELL_HEIGHT,
-				minColumns: MIN_COLUMNS,
-				gap: GAP,
-				headerHeight: HEADER_HEIGHT,
-				legendHeight: LEGEND_HEIGHT,
-				rowLabelWidth: ROW_LABEL_WIDTH,
-			} );
-			return { columns: computed.columns, expandedLayout: computed };
-		}
-
-		const fitColumns = fitCalendarHeatmapColumns( {
-			availWidth: size.width,
-			cellWidth: COMPACT_CELL_SIZE,
-			gap: COMPACT_CELL_GAP,
-			rowLabelWidth: ROW_LABEL_WIDTH,
-			dataColumns,
-			minColumns: MIN_COLUMNS,
-		} );
-		return { columns: fitColumns, expandedLayout: null };
-	}, [ isExpanded, size.width, size.height, dataColumns ] );
-
-	// Keep the most-recent weeks: drop the oldest week columns from the left when
-	// the tile can't fit them all.
-	const trimmedData = useMemo(
-		() => ( columns > 0 ? heatmapData.slice( -columns ) : heatmapData ),
-		[ heatmapData, columns ]
-	);
-
 	// Expanded is sized to the computed rectangle so its `minmax(0, 1fr)` tracks
 	// fill it with 61:40 cells; compact renders the chart's own fixed squares and
 	// sizes itself. The measured parent centers whichever one, so a grid smaller
 	// than the tile sits in centered whitespace.
-	const sizingProps = isExpanded
-		? {
-				width: expandedLayout?.heatmapWidth,
-				height: expandedLayout?.heatmapHeight,
-				showValues: true,
-		  }
-		: { compact: true };
+	const { columns, sizingProps } = useMemo( () => {
+		if ( isExpanded ) {
+			const layout = computeCalendarHeatmapLayout( {
+				availWidth: size.width,
+				availHeight: size.height,
+				dataColumns,
+				aspectRatio: EXPANDED_ASPECT_RATIO,
+				maxCellHeight: EXPANDED_MAX_CELL_HEIGHT,
+			} );
+			return {
+				columns: layout.columns,
+				sizingProps: {
+					width: layout.heatmapWidth,
+					height: layout.heatmapHeight,
+					showValues: layout.cellWidth > 30,
+				},
+			};
+		}
+
+		const fitColumns = fitCompactCalendarHeatmapColumns( {
+			availWidth: size.width,
+			dataColumns,
+		} );
+		return { columns: fitColumns, sizingProps: { compact: true } };
+	}, [ isExpanded, size.width, size.height, dataColumns ] );
+
+	// Keep the most-recent weeks: drop the oldest week columns from the left when
+	// the tile can't fit them all. `slice( -0 )` returns the whole array, so a zero
+	// column count (degenerate tile) leaves the data untouched.
+	const trimmedData = useMemo( () => heatmapData.slice( -columns ), [ heatmapData, columns ] );
 
 	return (
 		<div className={ styles.content } ref={ setRef }>

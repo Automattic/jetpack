@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import type { DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -23,8 +24,8 @@ export function buildStreakSeries(
 	from?: string,
 	to?: string
 ): DataPointDate[] {
-	const fromPart = from?.split( 'T' )[ 0 ];
-	const toPart = to?.split( 'T' )[ 0 ];
+	const fromPart = getDatePart( from );
+	const toPart = getDatePart( to );
 
 	if ( ! fromPart || ! toPart || fromPart > toPart ) {
 		return Object.entries( counts ).map( ( [ dateString, value ] ) => ( {
