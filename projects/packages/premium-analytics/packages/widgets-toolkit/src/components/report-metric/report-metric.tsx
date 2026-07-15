@@ -69,6 +69,13 @@ export type ReportMetricWidgetProps = {
 	 * Copy for the empty state.
 	 */
 	emptyStateText?: string;
+
+	/**
+	 * Copy for the error state. This component is generic over `metricKey`, and a
+	 * key does not identify a widget (`orders_no` backs both Orders over time and
+	 * Bookings over time), so the copy has to come from the caller.
+	 */
+	errorText?: string;
 };
 
 /**
@@ -84,6 +91,7 @@ export function ReportMetricWidget( {
 	dataFormat,
 	emptyStateIcon = chartBar,
 	emptyStateText,
+	errorText,
 }: ReportMetricWidgetProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -141,10 +149,9 @@ export function ReportMetricWidget( {
 			// means nothing to chart, while rows with an all-zero summary stay ready.
 			isEmpty={ ! primaryData?.data?.length }
 			error={ {
-				description: __(
-					"We couldn't load this data. Please try again in a moment.",
-					'jetpack-premium-analytics'
-				),
+				// Omitted copy falls back to WidgetState's generic line, so the
+				// default lives in one place instead of being restated here.
+				description: errorText,
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 			} }
 			empty={ {
