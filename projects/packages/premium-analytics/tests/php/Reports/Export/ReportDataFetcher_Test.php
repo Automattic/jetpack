@@ -141,6 +141,39 @@ class ReportDataFetcher_Test extends TestCase {
 		);
 	}
 
+	public function test_build_external_api_error_preserves_invalid_fields_metadata_for_retry() {
+		$response = new WP_REST_Response(
+			(object) array(
+				'code'    => 'rest_invalid_param',
+				'message' => 'Invalid parameter(s): fields',
+				'data'    => (object) array(
+					'status' => 400,
+					'params' => (object) array(
+						'fields' => 'fields is not one of the allowed values.',
+					),
+				),
+			),
+			400
+		);
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 400,
+				'message'       => 'Invalid parameter(s): fields',
+				'external_code' => 'rest_invalid_param',
+				'params'        => array(
+					'fields' => 'fields is not one of the allowed values.',
+				),
+			),
+			$result->get_error_data()
+		);
+		$this->assertTrue( $this->invoke( 'is_invalid_fields_error', array( $result ) ) );
+	}
+
 	public function test_build_external_api_error_uses_fallback_status_without_external_details() {
 		$response = new WP_REST_Response( array(), 0 );
 

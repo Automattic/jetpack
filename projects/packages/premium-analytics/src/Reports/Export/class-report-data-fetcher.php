@@ -291,11 +291,20 @@ class Report_Data_Fetcher {
 	 * @return bool True when the API rejected the fields parameter.
 	 */
 	private function is_invalid_fields_error( WP_Error $error ): bool {
-		if ( 'rest_invalid_param' !== $error->get_error_code() ) {
-			return false;
+		$error_code = $error->get_error_code();
+		$data       = $error->get_error_data();
+
+		if (
+			'external_api_error' === $error_code
+			&& is_array( $data )
+			&& isset( $data['external_code'] )
+		) {
+			$error_code = $data['external_code'];
 		}
 
-		$data = $error->get_error_data();
+		if ( 'rest_invalid_param' !== $error_code ) {
+			return false;
+		}
 
 		return is_array( $data ) && isset( $data['params']['fields'] );
 	}
@@ -503,17 +512,22 @@ class Report_Data_Fetcher {
 		$status           = $response_status >= 400 ? $response_status : 500;
 		$external_code    = null;
 		$external_message = null;
+		$external_params  = null;
 
 		if ( is_array( $data ) ) {
+			$external_data = isset( $data['data'] ) && is_array( $data['data'] )
+				? $data['data']
+				: array();
+
 			// A real HTTP error status is authoritative. Only use an embedded status when the
 			// transport succeeded but the response body represents an API failure.
 			if (
 				$response_status < 400
-				&& isset( $data['data']['status'] )
-				&& is_numeric( $data['data']['status'] )
-				&& (int) $data['data']['status'] >= 400
+				&& isset( $external_data['status'] )
+				&& is_numeric( $external_data['status'] )
+				&& (int) $external_data['status'] >= 400
 			) {
-				$status = (int) $data['data']['status'];
+				$status = (int) $external_data['status'];
 			}
 
 			if ( isset( $data['code'] ) && is_scalar( $data['code'] ) ) {
@@ -522,6 +536,10 @@ class Report_Data_Fetcher {
 
 			if ( isset( $data['message'] ) && is_scalar( $data['message'] ) ) {
 				$external_message = (string) $data['message'];
+			}
+
+			if ( isset( $external_data['params'] ) && is_array( $external_data['params'] ) ) {
+				$external_params = $external_data['params'];
 			}
 		}
 
@@ -535,6 +553,10 @@ class Report_Data_Fetcher {
 
 		if ( null !== $external_code ) {
 			$error_data['external_code'] = $external_code;
+		}
+
+		if ( null !== $external_params ) {
+			$error_data['params'] = $external_params;
 		}
 
 		return new WP_Error(
