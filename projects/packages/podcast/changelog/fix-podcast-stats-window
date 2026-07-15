@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast stats: label each panel's time window where it differs from the selected period, and stop relabeling stale stats as the newly selected period while the request is still loading.
+Podcast stats: fix time-window labels and show a loading state instead of stale numbers when switching periods.

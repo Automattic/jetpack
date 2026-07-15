@@ -11,10 +11,18 @@ import '@automattic/ui/style.css';
  * Translated heading for a selection. Preset periods use a fixed label;
  * custom ranges render as "Apr 12 to May 12, 2026".
  *
+ * The 'all' preset differs by surface: the show view has a true lifetime total
+ * ("All time"), while the episode view tops out at the API's 365-day cap
+ * ("Last 12 months").
+ *
  * @param selection - Selection.
+ * @param scope     - 'show' has an all-time total; 'episode' maxes at 365 days.
  * @return          Heading.
  */
-export function getPeriodHeading( selection: PodcastStatsSelection ): string {
+export function getPeriodHeading(
+	selection: PodcastStatsSelection,
+	scope: 'show' | 'episode' = 'show'
+): string {
 	const { period, range } = selection;
 	if ( period === '7d' ) {
 		return __( 'Last 7 days', 'jetpack-podcast' );
@@ -25,11 +33,10 @@ export function getPeriodHeading( selection: PodcastStatsSelection ): string {
 	if ( period === '90d' ) {
 		return __( 'Last 90 days', 'jetpack-podcast' );
 	}
-	// The headline total for 'all' is lifetime, so name the view "All time".
-	// The sub-panels (365-day chart, 30-day breakdowns, 90-day top day) carry
-	// their own scope labels since the API can't report those over all time.
 	if ( period === 'all' ) {
-		return __( 'All time', 'jetpack-podcast' );
+		return scope === 'episode'
+			? __( 'Last 12 months', 'jetpack-podcast' )
+			: __( 'All time', 'jetpack-podcast' );
 	}
 	return formatLabel( localDateFromYmd( range.from ), localDateFromYmd( range.to ), getLocale() );
 }
