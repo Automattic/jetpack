@@ -36,12 +36,16 @@ function toDay( value?: string ): string | undefined {
 }
 
 /**
- * Minimum days the grid spans (~16 week columns). The design fills the card
- * with blank cells even when the selected range is short, so ranges below
- * this pad backward with blank filler weeks; the values still render only
- * inside the selected range.
+ * Days the grid spans for short ranges (24 week columns). The design fills
+ * the card with blank cells even when the selected range is short, so the
+ * grid's first day is anchored at `range end − (GRID_SPAN_DAYS − 1)` and the
+ * gap back to it is padded with blank filler weeks; values still render only
+ * inside the selected range. Selections longer than the span use their own
+ * length instead (the cell-width floor turns that into horizontal scroll).
+ * At the chart's 44–88px cell-width bounds, 24 columns cover roughly
+ * 1050–2100px of card width.
  */
-const MIN_GRID_DAYS = 112;
+const GRID_SPAN_DAYS = 168;
 
 /**
  * Fetch the scoped post's daily view activity for the dashboard's report
@@ -74,11 +78,11 @@ export default function usePostTrafficActivity(
 
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
-		// Pad short ranges backward to the minimum span so the grid fills the
-		// card; the filler days stay blank regardless of history.
+		// Pad short ranges backward to the span's first day so the grid fills
+		// the card; the filler days stay blank regardless of history.
 		const end = parseISO( to );
 		const rangeStart = parseISO( from );
-		const paddedStart = subDays( end, MIN_GRID_DAYS - 1 );
+		const paddedStart = subDays( end, GRID_SPAN_DAYS - 1 );
 		const gridStart = rangeStart < paddedStart ? rangeStart : paddedStart;
 
 		return eachDayOfInterval( { start: gridStart, end } ).map( date => {

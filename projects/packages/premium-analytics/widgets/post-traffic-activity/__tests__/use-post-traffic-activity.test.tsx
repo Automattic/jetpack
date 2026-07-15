@@ -41,7 +41,7 @@ describe( 'usePostTrafficActivity', () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 	} );
 
-	it( 'pads short ranges to the minimum grid span, blanking filler and no-traffic days', async () => {
+	it( 'pads short ranges to the grid span, blanking filler and no-traffic days', async () => {
 		const { result } = renderHook(
 			() =>
 				usePostTrafficActivity(
@@ -58,8 +58,8 @@ describe( 'usePostTrafficActivity', () => {
 
 		const { days } = result.current;
 
-		// The 4-day range pads backward to the minimum grid span (112 days).
-		expect( days ).toHaveLength( 112 );
+		// The 4-day range pads backward to the grid span (168 days).
+		expect( days ).toHaveLength( 168 );
 
 		// Values render only inside the selected range; the in-range gap is blank.
 		expect( days.slice( -4 ) ).toEqual( [
