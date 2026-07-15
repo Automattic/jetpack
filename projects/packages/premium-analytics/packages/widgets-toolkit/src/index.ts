@@ -165,6 +165,7 @@ export {
 	GeoChart,
 	GlobalChartsProvider,
 	HeatmapChart,
+	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,
