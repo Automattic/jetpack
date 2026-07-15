@@ -39,9 +39,6 @@ export function useEpisodesQuery( args: EpisodesQueryArgs ): {
 			orderby: args.orderBy ?? 'date',
 			order: args.order ?? 'desc',
 			_embed: 'wp:featuredmedia',
-			// Opt into the server-side enclosure constraint so pages and totals
-			// only count valid episodes — see `Episodes_Query` in the package.
-			jetpack_podcast_has_enclosure: true,
 			...( args.search ? { search: args.search } : {} ),
 			...( args.status ? { status: args.status } : {} ),
 		} ),

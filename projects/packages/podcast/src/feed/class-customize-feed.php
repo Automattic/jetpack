@@ -363,8 +363,13 @@ class Customize_Feed {
 	 * `enclosure` meta row, so the SQL `LIMIT`/`OFFSET` paginate over valid
 	 * episodes only. Without this the enclosure filter runs on `the_posts` —
 	 * after pagination — so a nominal ten-item page could come back short or
-	 * empty while older valid episodes sit stranded on later pages. The
-	 * enclosure semi-join itself lives in {@see self::append_enclosure_exists()}.
+	 * empty while older valid episodes sit stranded on later pages.
+	 *
+	 * A correlated `EXISTS` subquery (semi-join) is used rather than a
+	 * `meta_query` clause on purpose: episodes routinely accumulate several
+	 * `enclosure` meta rows (see {@see self::rewrite_enclosure()}), and a
+	 * single-clause `meta_query` INNER JOIN would multiply those into duplicate
+	 * posts, breaking the `LIMIT` count all over again.
 	 *
 	 * @param string    $where The `WHERE` clause of the query.
 	 * @param \WP_Query $query Query about to run.
@@ -374,28 +379,16 @@ class Customize_Feed {
 		if ( ! self::is_podcast_feed_query( $query ) ) {
 			return $where;
 		}
-		return self::append_enclosure_exists( $where );
-	}
 
-	/**
-	 * Append the correlated `EXISTS` enclosure semi-join to a `WHERE` clause.
-	 * Single source of truth for "this post is a valid episode": shared by the
-	 * feed's `posts_where` constraint and the episodes-dashboard REST query
-	 * ({@see \Automattic\Jetpack\Podcast\Episodes_Query}) so both agree on what
-	 * counts, and neither re-breaks the `LIMIT` count with a `meta_query` JOIN
-	 * that multiplies posts carrying several `enclosure` rows.
-	 *
-	 * @param string $where The `WHERE` clause to extend.
-	 * @return string
-	 */
-	public static function append_enclosure_exists( string $where ): string {
 		global $wpdb;
 
 		// Table names come from `$wpdb`; `meta_key` runs through `prepare()`.
-		return $where . $wpdb->prepare(
+		$where .= $wpdb->prepare(
 			" AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = %s )",
 			'enclosure'
 		);
+
+		return $where;
 	}
 
 	/**
