@@ -55,6 +55,7 @@ import {
 	mockSiteSummary,
 	mockStatsInsightsData,
 	mockStatsPostData,
+	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
@@ -86,6 +87,10 @@ const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/v
 // own path branch rather than a `routeStatsReport()` case.
 const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
+// Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
+// matched with its own pattern rather than through routeStatsReport().
+const POST_LIKES_PATH_PATTERN =
+	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.2\/posts\/\d+\/likes(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -1211,6 +1216,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
 		return mockPlanUsageData;
+	}
+
+	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {
+		return mockPostLikesData;
 	}
 
 	if ( requestPath.startsWith( STATS_WORDADS_STATS_PATH ) ) {
