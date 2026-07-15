@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0.1] - 2026-07-15
+### Fixed
+- Update `@wordpress/theme` to 0.17.0 to fix the Forms and VideoPress admin dashboards rendering blank on WordPress 6.9. [#50515]
+
 ## [0.2.0] - 2026-07-06
 ### Changed
 - Update package dependencies. [#50097] [#50183]
@@ -99,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add @wordpress/ui to devDependencies so the boot module bundles it instead of externalizing it as an unregistered wp-ui script handle, which caused a blank page at runtime. [#47727]
 
+[0.2.0.1]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.0...v0.2.0.1
 [0.2.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.18...v0.2.0
 [0.1.18]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.16...v0.1.17

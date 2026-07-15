@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update @wordpress/theme to 0.17.0 so wp.theme exposes ThemeProvider, which @wordpress/boot renders; fixes blank wp-build admin dashboards (Forms, VideoPress) on WordPress 6.9.
