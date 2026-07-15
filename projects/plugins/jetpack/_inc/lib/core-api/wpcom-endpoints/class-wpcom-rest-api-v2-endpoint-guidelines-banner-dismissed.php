@@ -14,6 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Load before the class definition, not in the constructor: META_KEY below
+// delegates to a Jetpack_AI_Helper constant, and PHP resolves class constant
+// expressions at first instantiation, before the constructor body runs.
+if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed
  *
@@ -23,10 +30,10 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	/**
 	 * User meta key storing the dismissed flag.
 	 *
-	 * The canonical key lives on Jetpack_AI_Helper (required in the
-	 * constructor, so always loaded before use) because this class is not
-	 * loaded during admin page loads on Simple sites, while the admin-page
-	 * preload in _inc/content-guidelines-ai.php needs the key there.
+	 * The canonical key lives on Jetpack_AI_Helper (required at the top of
+	 * this file) because this class is not loaded during admin page loads on
+	 * Simple sites, while the admin-page preload in
+	 * _inc/content-guidelines-ai.php needs the key there.
 	 *
 	 * @var string
 	 */
@@ -52,10 +59,6 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	public function __construct() {
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
-
-		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-		}
 
 		// Match the suggest-guidelines endpoint: register on Simple/Atomic only.
 		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
