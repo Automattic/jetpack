@@ -2,17 +2,25 @@
  * External dependencies
  */
 import { useStatsPost, type ReportParams } from '@jetpack-premium-analytics/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { eachDayOfInterval, format, parseISO, subDays } from 'date-fns';
 import type { DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Normalized activity state: one point per calendar day in the window plus
- * the request's load/error flags. `hasData` distinguishes the first load from
- * refetches.
+ * Normalized activity state: one point per calendar day of the visible page
+ * plus paging controls and the request's load/error flags. `hasData`
+ * distinguishes the first load from refetches.
  */
 export interface PostTrafficActivityState {
 	days: DataPointDate[];
+	/** Whether the selected range exceeds one page (shows the pager). */
+	isPaged: boolean;
+	/** Whether an older page exists inside the selected range. */
+	canShowOlder: boolean;
+	/** Whether a newer page exists (the newest page is shown first). */
+	canShowNewer: boolean;
+	showOlder: () => void;
+	showNewer: () => void;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -36,27 +44,27 @@ function toDay( value?: string ): string | undefined {
 }
 
 /**
- * Days the grid spans for short ranges (24 week columns). The design fills
- * the card with blank cells even when the selected range is short, so the
- * grid's first day is anchored at `range end − (GRID_SPAN_DAYS − 1)` and the
- * gap back to it is padded with blank filler weeks; values still render only
- * inside the selected range. Selections longer than the span use their own
- * length instead (the cell-width floor turns that into horizontal scroll).
- * At the chart's 44–88px cell-width bounds, 24 columns cover roughly
- * 1050–2100px of card width.
+ * Days one heatmap page spans (24 week columns). The design fills the card
+ * with blank cells even when the selected range is short, so a range at or
+ * under one page pads backward to `range end − (PAGE_SPAN_DAYS − 1)` with
+ * blank filler weeks. A longer range is paged: the newest page shows first
+ * and the header arrows step through the range one page at a time, the
+ * oldest page padding backward the same way. Values always render only
+ * inside the selected range. At the chart's 44–64px cell-width bounds, 24
+ * columns cover roughly 1050–1550px of card width.
  */
-const GRID_SPAN_DAYS = 168;
+const PAGE_SPAN_DAYS = 168;
 
 /**
  * Fetch the scoped post's daily view activity for the dashboard's report
- * params. Every calendar day of the grid gets a point so the heatmap stays
- * complete, but days without traffic — and the backfilled padding before a
- * short range — carry `null`: the design renders them as blank cells rather
- * than zero labels.
+ * params and expose one page of it. Every calendar day of the page gets a
+ * point so the heatmap grid stays complete, but days without traffic — and
+ * filler days outside the selected range — carry `null`: the design renders
+ * them as blank cells rather than zero labels.
  *
  * @param postId       - The scoped post ID (0 disables the request).
  * @param reportParams - The dashboard date range.
- * @return The daily activity points and load/error state.
+ * @return The visible page's daily points, paging controls, and load/error state.
  */
 export default function usePostTrafficActivity(
 	postId: number,
@@ -67,25 +75,28 @@ export default function usePostTrafficActivity(
 		fields: [ 'data' ],
 	} );
 
-	const days = useMemo< DataPointDate[] >( () => {
-		const history = data?.data ?? [];
-		const from = toDay( reportParams.from );
-		const to = toDay( reportParams.to );
+	// Pages step back from the range end; a new range starts at the newest page.
+	const [ pageOffset, setPageOffset ] = useState( 0 );
+	useEffect( () => {
+		setPageOffset( 0 );
+	}, [ reportParams.from, reportParams.to ] );
 
+	const from = toDay( reportParams.from );
+	const to = toDay( reportParams.to );
+
+	const { days, isPaged, canShowOlder } = useMemo( () => {
 		if ( ! from || ! to || from > to ) {
-			return [];
+			return { days: [] as DataPointDate[], isPaged: false, canShowOlder: false };
 		}
 
+		const history = data?.data ?? [];
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
-		// Pad short ranges backward to the span's first day so the grid fills
-		// the card; the filler days stay blank regardless of history.
-		const end = parseISO( to );
 		const rangeStart = parseISO( from );
-		const paddedStart = subDays( end, GRID_SPAN_DAYS - 1 );
-		const gridStart = rangeStart < paddedStart ? rangeStart : paddedStart;
+		const pageEnd = subDays( parseISO( to ), pageOffset * PAGE_SPAN_DAYS );
+		const pageStart = subDays( pageEnd, PAGE_SPAN_DAYS - 1 );
 
-		return eachDayOfInterval( { start: gridStart, end } ).map( date => {
+		const points = eachDayOfInterval( { start: pageStart, end: pageEnd } ).map( date => {
 			const dateString = format( date, 'yyyy-MM-dd' );
 			const inRange = dateString >= from && dateString <= to;
 			const views = inRange ? viewsByDay.get( dateString ) : undefined;
@@ -94,10 +105,29 @@ export default function usePostTrafficActivity(
 			// not a `0` label.
 			return { dateString, value: views ? views : null };
 		} );
-	}, [ data, reportParams.from, reportParams.to ] );
+
+		return {
+			days: points,
+			isPaged: rangeStart < subDays( parseISO( to ), PAGE_SPAN_DAYS - 1 ),
+			canShowOlder: rangeStart < pageStart,
+		};
+	}, [ data, from, to, pageOffset ] );
+
+	const showOlder = useCallback( () => {
+		setPageOffset( offset => ( canShowOlder ? offset + 1 : offset ) );
+	}, [ canShowOlder ] );
+
+	const showNewer = useCallback( () => {
+		setPageOffset( offset => Math.max( 0, offset - 1 ) );
+	}, [] );
 
 	return {
 		days,
+		isPaged,
+		canShowOlder,
+		canShowNewer: pageOffset > 0,
+		showOlder,
+		showNewer,
 		isLoading,
 		isFetching,
 		isError,

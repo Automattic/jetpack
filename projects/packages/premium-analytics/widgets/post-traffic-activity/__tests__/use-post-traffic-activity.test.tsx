@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -71,6 +71,43 @@ describe( 'usePostTrafficActivity', () => {
 
 		// Filler days stay blank even where the history has views (2026-06-30).
 		expect( days.slice( 0, -4 ).every( day => day.value === null ) ).toBe( true );
+
+		// One page covers the range, so no pager.
+		expect( result.current.isPaged ).toBe( false );
+	} );
+
+	it( 'pages a long range from the newest page backward', async () => {
+		const { result } = renderHook(
+			() =>
+				usePostTrafficActivity(
+					779,
+					reportParams( {
+						// 185 days — one page (168) plus a partial older page.
+						from: '2026-01-01T00:00:00.000+08:00',
+						to: '2026-07-04T23:59:59.999+08:00',
+					} )
+				),
+			{ wrapper }
+		);
+
+		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
+
+		// Newest page first: ends at the range end, no newer page.
+		expect( result.current.isPaged ).toBe( true );
+		expect( result.current.canShowNewer ).toBe( false );
+		expect( result.current.canShowOlder ).toBe( true );
+		expect( result.current.days ).toHaveLength( 168 );
+		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-07-04' );
+
+		act( () => result.current.showOlder() );
+
+		// The older (last) page: still a full grid, padded past the range
+		// start with blanks.
+		expect( result.current.canShowNewer ).toBe( true );
+		expect( result.current.canShowOlder ).toBe( false );
+		expect( result.current.days ).toHaveLength( 168 );
+		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-01-17' );
+		expect( result.current.days[ 0 ].value ).toBeNull();
 	} );
 
 	it( 'returns no days when a window bound is missing or malformed', async () => {
