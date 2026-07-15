@@ -104,17 +104,15 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			boxHeight = parentHeight > 0 ? parentHeight : height ?? 0;
 		}
 
-		// Resolve containment from real layout, before paint. useParentSize measures
-		// this wrapper, whose height:100% resolves to `auto` (= our own content) when
-		// the parent has no definite height — so that measurement alone can't tell a
-		// genuine constraint from our content reflected back, and clamping against it
-		// deadlocks the chart at its current width on widen. Instead read the wrapper's
-		// live height AFTER layout: when the parent constrains us it is shorter than the
-		// height we drew (the content overflows) → contain to it; when it just reflects
-		// our content the two match → grow. Latch the constraint until the parent is
-		// tall enough for the full derived height again so a contained chart (which then
-		// no longer overflows) doesn't oscillate. parentHeight is a dependency only so a
-		// parent-height change re-runs this; the value used is the fresh clientHeight.
+		// Decide containment from the wrapper's real height, measured after layout.
+		// useParentSize's height is no good here: with height:100% and no definite
+		// parent height it just echoes our own content back, so clamping against it
+		// would freeze the chart at its current width when the container widens.
+		// Compare the post-layout clientHeight to the height we drew: shorter means the
+		// parent really constrains us → contain to it; equal means it is only our own
+		// content → let it grow. Once contained, stay contained until the parent is tall
+		// enough for the full derived height, so a now-fitting chart doesn't oscillate.
+		// (parentHeight is in the deps only to re-run this; the value used is clientHeight.)
 		useIsomorphicLayoutEffect( () => {
 			if ( ! hasAspectRatio ) {
 				if ( containedHeight !== null ) {
