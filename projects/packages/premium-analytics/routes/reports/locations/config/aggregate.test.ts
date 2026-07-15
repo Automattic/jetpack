@@ -59,11 +59,15 @@ describe( 'report locations aggregate', () => {
 		expect( series.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-07-06',
-				date_start: '2026-07-09T00:00:00+00:00',
+				date_start: '2026-07-06T00:00:00+00:00',
 				date_end: '2026-07-10T23:59:59+00:00',
 				views: 16,
 			} ),
 		] );
+		expect( series.summary ).toEqual( {
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
+		} );
 	} );
 
 	it( 'groups daily totals into calendar months for the chart', () => {
@@ -72,7 +76,7 @@ describe( 'report locations aggregate', () => {
 		expect( series.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-07-01',
-				date_start: '2026-07-09T00:00:00+00:00',
+				date_start: '2026-07-01T00:00:00+00:00',
 				date_end: '2026-07-10T23:59:59+00:00',
 				views: 16,
 			} ),

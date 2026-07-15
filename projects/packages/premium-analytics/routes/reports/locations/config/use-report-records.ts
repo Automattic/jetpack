@@ -4,9 +4,9 @@
 import {
 	useStatsLocations,
 	type ReportParams,
+	type StatsChartBucketPeriod,
 	type StatsLocationsItem,
 	type StatsNormalizedReport,
-	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
@@ -14,8 +14,6 @@ import { useMemo } from '@wordpress/element';
  */
 import { aggregateLocationRows, locationsToTimeSeries } from './aggregate';
 import type { ReportLocationsTabId } from './tabs';
-
-type LocationChartPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 const GEO_MODES = {
 	countries: 'country',
@@ -34,7 +32,7 @@ const GEO_MODES = {
 export function useLocationsReportRecords(
 	activeTab: ReportLocationsTabId,
 	reportParams: ReportParams,
-	chartPeriod: LocationChartPeriod
+	chartPeriod: StatsChartBucketPeriod
 ) {
 	const recordsParams = useMemo(
 		() => ( {
