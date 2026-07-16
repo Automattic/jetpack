@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.45.2] - 2026-07-13
+### Added
+- Sync the AI Launchpad state options (`wpcom_ai_launchpad_enabled`, `_dismissed`, `_completed`) so the wpcom `/sites` endpoint can expose them for Atomic sites. [#50455]
+
+## [4.45.1] - 2026-07-09
+### Changed
+- Update dependencies.
+
 ## [4.45.0] - 2026-07-06
 ### Added
 - Sync the `videopress_auto_subtitles_disabled` option to WordPress.com. [#50014]
@@ -1807,6 +1815,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.45.2]: https://github.com/Automattic/jetpack-sync/compare/v4.45.1...v4.45.2
+[4.45.1]: https://github.com/Automattic/jetpack-sync/compare/v4.45.0...v4.45.1
 [4.45.0]: https://github.com/Automattic/jetpack-sync/compare/v4.44.1...v4.45.0
 [4.44.1]: https://github.com/Automattic/jetpack-sync/compare/v4.44.0...v4.44.1
 [4.44.0]: https://github.com/Automattic/jetpack-sync/compare/v4.43.1...v4.44.0

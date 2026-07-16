@@ -72,7 +72,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( values ).toEqual( [ '428', '317', '186', '0' ] );
 	} );
 
-	it( 'shows the error placeholder when the counts request fails', async () => {
+	it( 'shows the WidgetState error with a Retry action when the counts request fails', async () => {
 		// Reject with a non-retryable (403) error so React Query surfaces the
 		// error state immediately instead of retrying with backoff.
 		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
@@ -80,27 +80,43 @@ describe( 'SubscriberHighlightsWidget', () => {
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
 		await expect(
-			screen.findByText( 'Unable to load subscriber highlights.' )
+			screen.findByText( "We couldn't load subscriber highlights. Please try again in a moment." )
 		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the loading overlay while the counts request is pending', () => {
+	it( 'shows the WidgetState loading overlay while the counts request is pending', () => {
 		// A promise that never settles keeps the query in its loading state.
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 
 		const { container } = render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
-		// WidgetLoadingOverlay renders a WP Spinner (role="presentation", no
-		// accessible name), so the class is the only stable handle for it.
+		// WidgetState's loading state renders a WP Spinner (role="presentation",
+		// no accessible name), so the class is the only stable handle for it.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- No accessible role/text on the spinner to query.
 		expect( container.querySelector( '.components-spinner' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Unable to load subscriber highlights.' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( "We couldn't load subscriber highlights. Please try again in a moment." )
+		).not.toBeInTheDocument();
 	} );
 
-	it( 'hides a metric tile when its visibility attribute is off', async () => {
-		render( <SubscriberHighlightsWidget attributes={ { showPaid: false, showSocial: false } } /> );
+	it( 'shows the WidgetState empty state when the response carries no counts', async () => {
+		// A resolved payload without any counts field sanitizes to all-undefined
+		// counts, which the widget treats as "nothing meaningful to show".
+		mockApiFetch.mockResolvedValue( {} );
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( 'No subscriber counts available yet.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides a metric tile when it is not in the metrics attribute', async () => {
+		render( <SubscriberHighlightsWidget attributes={ { metrics: [ 'total', 'free' ] } } /> );
 
 		await expect( screen.findByText( 'Total subscribers' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Free subscribers' ) ).toBeInTheDocument();
@@ -108,17 +124,8 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( 'Social followers' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'prompts to select a metric when every tile is disabled', async () => {
-		render(
-			<SubscriberHighlightsWidget
-				attributes={ {
-					showTotal: false,
-					showPaid: false,
-					showFree: false,
-					showSocial: false,
-				} }
-			/>
-		);
+	it( 'prompts to select a metric when the metrics attribute is empty', async () => {
+		render( <SubscriberHighlightsWidget attributes={ { metrics: [] } } /> );
 
 		await expect(
 			screen.findByText( 'Select at least one metric to display.' )

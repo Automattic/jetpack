@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-scan",
-	"version": "1.4.9",
+	"version": "1.4.10",
 	"private": false,
 	"description": "A JS client for consuming Jetpack Scan services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/scan/#readme",
@@ -49,12 +49,12 @@
 		"@testing-library/react": "16.3.2",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"jest": "30.4.2",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"storybook": "10.4.6",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",

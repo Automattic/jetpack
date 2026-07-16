@@ -5,7 +5,7 @@
 // TODO: drop the manual color override once a design-system "muted text" tone
 // lands on `Text` (see https://github.com/WordPress/gutenberg/issues/77391).
 .jetpack-newsletter__identity-email {
-	color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 // Inline avatar in the identity cell — keep it circular and prevent the
@@ -16,14 +16,14 @@
 
 // Inspector panel chrome.
 .jetpack-newsletter__panel-header {
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
-	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-lg, 16px);
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
 }
 
 .jetpack-newsletter__panel-body {
 	flex-grow: 1;
 	overflow-y: auto;
-	padding: var(--wpds-dimension-padding-2xl, 24px);
+	padding: var(--wpds-dimension-padding-2xl);
 }
 
 // Subscriber detail layout.
@@ -40,7 +40,7 @@
 // TODO: replace with `Text` "muted" tone once available
 // (see https://github.com/WordPress/gutenberg/issues/77391).
 .jetpack-newsletter__detail-email {
-	color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 // Stat row — Emails sent / Open rate / Click rate.
@@ -54,18 +54,18 @@
 // padding-lg (16px).
 .jetpack-newsletter__detail-stat,
 .jetpack-newsletter__detail-section {
-	--wp-ui-card-padding: var(--wpds-dimension-padding-lg, 16px);
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 }
 
 .jetpack-newsletter__detail-stat-value {
 	display: block;
-	margin-top: var(--wpds-dimension-gap-sm, 8px);
+	margin-top: var(--wpds-dimension-gap-sm);
 }
 
 // Grouped sections — Card already provides the outer border, so rows just sit
 // in a column with the design-system gap.
 .jetpack-newsletter__detail-row-label {
-	color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .jetpack-newsletter__detail-link {
@@ -77,5 +77,5 @@
 // checkbox — as it sits flush against the bottom edge. Reserve a little space
 // so the ring renders in full.
 .jetpack-newsletter__comp-modal-body {
-	padding-bottom: var(--wpds-dimension-padding-xs, 4px);
+	padding-bottom: var(--wpds-dimension-padding-xs);
 }

@@ -1,3 +1,4 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import type { LibraryItem, LibraryItemPrivacy } from '../../types/library';
 import type { Action } from '@wordpress/dataviews';
@@ -8,6 +9,7 @@ type Api = {
 	deleteItems: ( ids: string[] ) => void;
 	setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => void;
 	openVideoDetails: ( id: string ) => void;
+	manageCaptions: ( item: LibraryItem ) => void;
 };
 
 // Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
@@ -73,6 +75,18 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 				}
 			},
 		},
+		{
+			id: 'manage-captions',
+			label: __( 'Manage subtitles', 'jetpack-videopress-pkg' ),
+			supportsBulk: false,
+			isEligible: isVideoPressIdle,
+			callback: items => {
+				const [ item ] = items;
+				if ( item ) {
+					api.manageCaptions( item );
+				}
+			},
+		},
 		...PRIVACY_ACTIONS.map( ( { idSuffix, label, privacy } ) => ( {
 			id: `set-privacy-${ idSuffix }`,
 			label,
@@ -99,7 +113,11 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			label: __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ),
 			isPrimary: true,
 			supportsBulk: false,
+			// Not offered on WordPress.com Simple: the promote flow walks
+			// /videopress/v1/upload/{id}, and the videopress/v1 namespace never
+			// reaches the REST dispatcher there — the action could only fail.
 			isEligible: item =>
+				! isSimpleSite() &&
 				item.type === 'local' &&
 				item.upload.status !== 'uploading' &&
 				item.upload.status !== 'failed',

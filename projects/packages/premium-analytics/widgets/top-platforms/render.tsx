@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { device } from '@jetpack-premium-analytics/icons';
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -6,8 +10,9 @@ import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
+	sharePercentage,
 	WidgetRoot,
+	WidgetState,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -50,63 +55,79 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, comparisonData, hasComparison, isLoading, isError, errorReason } = usePlatformViews(
-		{
+	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
+		usePlatformViews( {
 			reportParams,
 			max,
 			deviceProperty: platformDimension,
-		}
-	);
+		} );
 
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>
-					{ errorReason === 'upgrade-required'
+	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
+	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
+	const withComparison = hasComparison;
+	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
+		const previousValue = item.previousViews;
+
+		return {
+			id: `${ index }-${ item.key }`,
+			label: (
+				<Stack align="center" className={ styles.itemLabel }>
+					<Text>{ item.label }</Text>
+				</Stack>
+			),
+			currentValue: item.views,
+			currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
+			previousValue,
+			previousShare:
+				withComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxComparisonViews )
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( item.views, previousValue )
+					: undefined,
+		};
+	} );
+
+	// A plan error can't be fixed by retrying, so the Retry action is only
+	// offered for regular fetch failures.
+	const isPlanError = errorReason === 'upgrade-required';
+
+	return (
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ data.length === 0 }
+				error={ {
+					description: isPlanError
 						? __(
 								'Platform stats are not included in your current plan.',
 								'jetpack-premium-analytics'
 						  )
-						: __( 'Could not load platform data.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
-	const maxComparisonViews = Math.max( ...comparisonData.map( d => d.views ), 0 );
-	const comparisonMap = new Map( comparisonData.map( item => [ item.key, item.views ] ) );
-	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
-		id: `${ index }-${ item.key }`,
-		label: (
-			<Stack align="center" className={ styles.itemLabel }>
-				<Text>{ item.label }</Text>
-			</Stack>
-		),
-		currentValue: item.views,
-		currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
-		previousValue: comparisonMap.get( item.key ) ?? 0,
-		previousShare:
-			maxComparisonViews > 0
-				? ( ( comparisonMap.get( item.key ) ?? 0 ) / maxComparisonViews ) * 100
-				: 0,
-		delta: calculateDelta( item.views, comparisonMap.get( item.key ) ?? 0 ),
-	} ) );
-
-	return (
-		<LeaderboardChart
-			data={ leaderboardData }
-			loading={ isLoading }
-			withComparison={ hasComparison }
-			withOverlayLabel
-			showLegend={ false }
-			emptyStateText={ __( 'No platform data in this period.', 'jetpack-premium-analytics' ) }
-			dataFormat={ DATA_FORMAT }
-		/>
+						: __(
+								"We couldn't load platform data. Please try again in a moment.",
+								'jetpack-premium-analytics'
+						  ),
+					actions: isPlanError
+						? undefined
+						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: device,
+					description: __( 'No platform data in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<LeaderboardChart
+					data={ leaderboardData }
+					withComparison={ hasComparison }
+					withOverlayLabel
+					showLegend={ false }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</WidgetState>
+		</div>
 	);
 }
 

@@ -1,3 +1,11 @@
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+}
+
 .root {
 	height: 100%;
 	overflow: hidden;
@@ -15,8 +23,3 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-.placeholder {
-	margin: auto;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}

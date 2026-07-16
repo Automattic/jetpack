@@ -3,6 +3,7 @@
  */
 export {
 	MetricDelta,
+	MetricTileGrid,
 	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
@@ -31,22 +32,40 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	ChartEmptyState,
+	type ChartEmptyStateProps,
 	WidgetState,
 	type WidgetStateProps,
 	type WidgetStateError,
 	type WidgetStateEmpty,
 	WidgetBackLink,
 	type WidgetBackLinkProps,
+	WidgetFooter,
+	type WidgetFooterProps,
+	ReportLink,
+	type ReportLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	ReportPageLayout,
+	ReportPageSection,
 	ReportPageTabPanel,
 	ReportPageTabs,
+	ReportPerformanceChart,
+	ReportRecordsTable,
+	buildReportMetricSeries,
+	type ReportChartMetric,
+	type ReportPageLayoutProps,
+	type ReportPageSectionProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
+	type ReportPerformanceChartProps,
+	type ReportRecordsTableProps,
+	DownloadCsvButton,
+	type DownloadCsvButtonProps,
 } from './components';
 
 /**
@@ -57,12 +76,7 @@ export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
 /**
  * Widget edit fields
  */
-export {
-	ReportParamsField,
-	type ReportParamsFieldAttributes,
-	MetricsField,
-	DEFAULT_METRICS,
-} from './fields';
+export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -84,6 +98,13 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	buildCsv,
+	saveCsv,
+	type CsvColumn,
+	sharePercentage,
+	getVideoKey,
+	getVideoLabel,
+	toMaxRows,
 } from './helpers';
 
 /**
@@ -92,10 +113,12 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useElementSize,
+	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
-	useWidgetError,
 	useWidgetDrillDown,
+	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**
@@ -130,7 +153,7 @@ export {
 /**
  * Types
  */
-export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
 
 /**
  * Charts passthrough
@@ -141,7 +164,9 @@ export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './
  */
 export {
 	GeoChart,
+	GlobalChartsProvider,
 	HeatmapChart,
+	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,

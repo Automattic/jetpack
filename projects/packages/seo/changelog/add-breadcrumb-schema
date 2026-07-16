@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add configurable BreadcrumbList schema across supported site pages.

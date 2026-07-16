@@ -24,9 +24,11 @@ export type StoreConversionRateBookingsAttributes = Record< never, never >;
 export default {
 	name: 'jpa/store-conversion-rate-bookings',
 	title: __( 'Store conversion rate - Bookings', 'jetpack-premium-analytics' ),
-	description: __(
-		'Store conversion rate for booking products over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Track your booking conversion funnel from sessions to completed bookings over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

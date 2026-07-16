@@ -5,6 +5,13 @@
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 }
 
+// Height-capped grids are content-sized vertically, so the wrapper hugs them
+// instead of stretching — the consumer decides how to place it in leftover
+// space. Width-only caps keep the normal full-height layout.
+.heatmap-chart--height-capped {
+	height: max-content;
+}
+
 .heatmap-chart__empty {
 	padding: var(--wpds-dimension-padding-lg, 16px);
 	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
@@ -17,8 +24,8 @@
 	gap: var(--heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
 	flex: 1 1 0;
 	width: 100%;
-	// Floor so the grid stays usable when the parent has no explicit height.
-	min-height: 200px;
+	// Override flex's auto minimum so short widgets do not scroll.
+	min-height: 0;
 
 	&:focus-visible {
 		outline:
@@ -32,6 +39,15 @@
 .heatmap-chart__grid--compact {
 	flex: 0 0 auto;
 	width: max-content;
+	height: max-content;
+	min-height: 0;
+}
+
+// A cell-height cap makes the row tracks content-bound, so the grid must not
+// stretch: leftover container height would otherwise be absorbed by the auto
+// label row. A width-only cap does not change vertical flex sizing.
+.heatmap-chart__grid--height-capped {
+	flex: 0 0 auto;
 	height: max-content;
 	min-height: 0;
 }
@@ -74,7 +90,7 @@
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {
-	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), transparent);
+	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
 }
 
 .heatmap-chart__cell--selected {
@@ -99,5 +115,5 @@
 	width: var(--wpds-dimension-size-3xs, 12px);
 	height: var(--wpds-dimension-size-3xs, 12px);
 	border-radius: var(--wpds-border-radius-sm, 2px);
-	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), transparent);
+	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
 }

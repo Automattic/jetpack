@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast feed: fixed missing episode details when the Podcast Episode block sits inside another block.

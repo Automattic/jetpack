@@ -1,0 +1,61 @@
+.date-filters-panel {
+
+	&__primary,
+	&__comparison {
+		flex: 0 1 auto;
+		width: auto;
+		margin-bottom: 0;
+	}
+
+	// Compact (mobile) layout: the whole panel is driven from this single root
+	// class. Children carry no compact modifier of their own — the joint layout
+	// adjustments for every descendant live here.
+	&.is-compact {
+
+		// The preset select and custom trigger become two separate bordered
+		// controls, so drop the group's shared frame and flush hairline dividers
+		// and space them with a gap instead.
+		.date-range-filter__group {
+			border: 0;
+			gap: var(--wpds-dimension-gap-xs);
+			width: 100%;
+
+			> * + * {
+				border-inline-start: 0;
+			}
+
+			.components-dropdown {
+				flex: 1 1 auto;
+
+				.date-filters-panel-button {
+					width: 100%;
+					justify-content: space-between;
+
+					// The Button pads its inline edges symmetrically (12px), but the
+					// sibling SelectControl trims its inline-end by 4px so the caret
+					// sits closer to the edge. Match that inset so both triggers'
+					// carets align. Start padding (12px) already matches.
+					padding-inline-end: calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xs));
+				}
+			}
+		}
+
+		// The preset select grows to fill the row alongside the custom trigger.
+		.date-range-quick-presets__select {
+			flex: 1 1 auto;
+		}
+
+		// The comparison control drops onto its own full-width row.
+		.date-filters-panel__comparison {
+			flex-grow: 1;
+		}
+	}
+
+	&:not(.is-compact) {
+
+		.date-range-quick-presets__pill,
+		.date-filters-panel-button {
+			--wp-ui-button-height: calc(var(--wpds-dimension-size-lg, 40px) - 2px);
+		}
+	}
+}

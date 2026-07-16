@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats widgets: align drill-down reset behavior — selections survive refetches and range changes while they still resolve, and stored state is trimmed deterministically once settled data drops the selected row.

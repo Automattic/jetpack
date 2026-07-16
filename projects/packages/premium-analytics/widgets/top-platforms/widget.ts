@@ -26,6 +26,12 @@ export type TopPlatformsAttributes = {
 export default {
 	name: 'jpa/top-platforms',
 	title: __( 'Top Platforms', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Top browsers and operating systems your visitors use.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 	attributes: [
 		{

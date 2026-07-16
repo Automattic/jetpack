@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress dashboard on WordPress.com Simple: drop a redundant access-check branch and de-duplicate the wp-build dashboard load and menu-callback selection. Internal refactor, no functional change.

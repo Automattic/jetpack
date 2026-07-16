@@ -18,7 +18,7 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Testing the Settings class.
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Jetpack_Social_Settings_Test extends BaseTestCase {
 	/**
 	 * Instance of the Settings class.

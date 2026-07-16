@@ -11,3 +11,4 @@ export { customer } from './customer';
 export { paymentReturn } from './payment-return';
 export { search } from './search';
 export { payment } from './payment';
+export { tag } from './tag';

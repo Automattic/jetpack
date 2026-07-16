@@ -133,20 +133,15 @@ export const TodayPreset: Story = {
  */
 function PopoverContentWithState( { isWideScreen = false } ) {
 	const [ range, setRange ] = useState< DateRange >( defaultRange );
-	const [ presetId, setPrimaryPresetId ] = useState< PrimaryPresetId >( 'last-7-days' );
 
-	const handleChange = ( nextRange?: DateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
+	const handleChange = ( nextRange?: DateRange ) => {
 		if ( nextRange ) {
 			setRange( nextRange );
-		}
-		if ( nextPrimaryPresetId ) {
-			setPrimaryPresetId( nextPrimaryPresetId );
 		}
 	};
 
 	return (
 		<DateRangePopoverContent
-			presetId={ presetId }
 			range={ range }
 			onChange={ handleChange }
 			onApply={ () => {} }

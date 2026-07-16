@@ -96,6 +96,7 @@ function wpcom_write_get_editor_strings() {
 		'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
 		// translators: %s is the error message from the upload failure.
 		'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+		'uploadingImage'       => __( 'Uploading image…', 'jetpack-mu-wpcom' ),
 		'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
 		'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
 		'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
@@ -987,7 +988,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
 	<!-- Top bar -->
-	<header class="bw-topbar">
+	<header class="bw-topbar" data-wp-class--has-topbar-message="state.hasMessage">
 		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
@@ -1004,7 +1005,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<a class="bw-help-link" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the Write editor guide', 'jetpack-mu-wpcom' ); ?> <span aria-hidden="true">&#8599;</span></a>
 		</div>
 		</div><!-- /.bw-help-wrap -->
-		<span class="bw-status" data-wp-text="state.displayStatus"></span>
+		<span class="bw-status" role="status" aria-live="polite" data-wp-text="state.displayStatus"></span>
 		<div class="bw-topbar-actions">
 			<button
 				class="bw-btn bw-btn-draft"

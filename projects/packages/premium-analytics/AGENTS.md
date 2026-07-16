@@ -75,6 +75,7 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `jetpack-stats-dashboard`                                         | `view_stats`       | whole prefix (busts read cache) |
 | `commercial-classification`                                       | `view_stats`       | exact path                      |
 | `upgrades` (not under `/sites/`)                                  | `view_stats`       | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`       | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
@@ -217,7 +218,8 @@ not be merged.
    It mounts the real `WidgetDashboard` with this single widget and exposes the standard
    dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
    actually renders in product. The `Default` / `WithComparison` close-up stories use the
-   simpler canvas decorator from the template below — but never ship _only_ a bare-div story.
+   shared `withWidgetCanvas` decorator from the template below — but never ship _only_ a
+   close-up story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
    - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
@@ -242,10 +244,10 @@ have drifted. `meta.component` is the widget's render component; widget-specific
 
 `WithComparison` tests the date range picker's comparison parameters, not only visible delta
 UI. Some Stats endpoints accept `compare_*` params but return no comparison rows. Those widgets
-must still render gracefully when `reportParams` contains comparison dates; in that case keep
-the chart's comparison UI disabled or empty rather than inventing `previousValue`/`delta`
-values, and add a short story docs note explaining that the module has no comparison data to
-display.
+must still render gracefully when `reportParams` contains comparison dates; in that case the data
+hook should report that no comparable rows are available, and the chart's comparison UI should
+stay disabled or empty rather than inventing `previousValue`/`delta` values. Add a short story
+docs note when a module has no comparison data to display.
 
 The shared imports, helpers, and `meta`:
 
@@ -257,10 +259,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -279,12 +282,9 @@ function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
 	);
 }
 
-// Close-up canvas so the chart fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
+// Close-up canvas: `withWidgetCanvas` from `widgets/stories/with-widget-canvas` frames the
+// story in a white, widget-sized card so each state reads as a real dashboard widget. Import
+// the shared decorator — do not redefine a local bare-div canvas.
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/MyWidget',
@@ -436,7 +436,7 @@ before writing any Stats widget — many mistakes here are silent at build time.
 `useStatsSearchTerms`, `useStatsLocations`, `useStatsDevices`, …). Look there first —
 do not call `fetchStatsProxy` or `apiFetch` directly from a widget.
 
-Each hook returns `{ primary, comparison, isLoading, isError, … }`. For the standard
+Each hook returns `{ primary, comparison, comparisonRows, isLoading, isError, … }`. For the standard
 leaderboard/list widgets, reach data through:
 
 ```ts
@@ -495,21 +495,26 @@ data/view hook's result to its four signals and pass generic descriptors:
 
 **Comparison data**
 
-Stats hooks built on `useStatsReport()` return `{ primary, comparison, hasComparison, ... }`.
-When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`, the data layer fetches
-the comparison period automatically.
+Stats hooks built on `useStatsReport()` return `{ primary, comparison, comparisonRows,
+hasComparison, ... }`. When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`,
+the data layer fetches the comparison period automatically.
 
-Widgets still need to map comparison rows into chart data explicitly. For leaderboard/list
-widgets, build a lookup from `comparison.data?.[ 0 ]?.items` using the same stable key used for
-the primary row (post ID/URL, country code, search term, device key, etc.), then set
-`previousValue`, `previousShare`, and `delta` from the matched comparison row. Do not assume
-primary and comparison arrays have the same order or the same rows.
+For leaderboard/list Stats widgets, row matching belongs in the data layer. Add or update the
+module-specific `mergeStats*ComparisonRows()` helper in `packages/data/src/processing/stats/`,
+then pass it to `useStatsReport()` from the corresponding `useStats*` hook. If the hook captures
+options such as `maxRows`, wrap that mapper with `useCallback()` so the `useStatsReport()`
+comparison memo stays stable across renders.
 
-If comparison params are present but the endpoint returns no comparable rows, the widget should
-fall back to a non-comparison view. Using `previousValue: 0` and `delta: 0` as placeholders is
-only acceptable when the chart comparison UI is disabled (`withComparison={ false }` or omitted)
-or when the story explicitly documents that the module has no comparison data to display. Do not
-render a visible delta/sparkline from placeholder values.
+The merge helper should compare primary and comparison rows with the module's stable row key
+(post ID/URL, country code, search term, device key, etc.), preserve missing comparison values
+as `undefined`, and treat `0` as a valid previous value. Return `hasComparison: true` only when
+at least one primary row has a matching comparison row.
+
+Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`; do not call
+`mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
+Widget-level mapping may still add presentation-only fields such as labels, icons, links,
+shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
+`undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
 
 **Drill-down leaderboards**
 

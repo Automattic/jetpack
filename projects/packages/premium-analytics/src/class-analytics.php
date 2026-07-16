@@ -98,6 +98,10 @@ class Analytics {
 		// Register dashboard sections and expose section metadata/defaults over REST.
 		require_once __DIR__ . '/dashboard-sections.php';
 
+		// Expose opt-in client-side CSV export settings to the dashboard.
+		require_once __DIR__ . '/client-side-csv-exports.php';
+		configure_client_side_csv_exports();
+
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the
 		// manifest the widget registry reads, and the registry serves REST
@@ -127,9 +131,6 @@ class Analytics {
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
-		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
-		// place. Runs after Stats registers itself (admin_menu priority 999).
-		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
@@ -187,20 +188,6 @@ class Analytics {
 			'dashicons-chart-bar',
 			2
 		);
-	}
-
-	/**
-	 * Remove the standalone Jetpack "Stats" top-level menu so Premium Analytics
-	 * replaces it, but only when Stats actually registered its menu.
-	 *
-	 * @return void
-	 */
-	public static function remove_stats_menu() {
-		if ( ! isset( $GLOBALS['admin_page_hooks']['stats'] ) ) {
-			return;
-		}
-
-		remove_menu_page( 'stats' );
 	}
 
 	/**

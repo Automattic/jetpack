@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Date range: Show quick presets on the surface, add Last 24 hours, keep the custom picker calendar-only, distinguish staged vs applied custom trigger states, remember the last committed custom range in the trigger label and calendar, and replace the comparison menu with a SelectControl that keeps the dynamic comparison range label. Rolling preset ranges stage their exact window (no end-of-day rounding), comparisons mirror sub-day windows exactly, and closing the custom popover without applying discards the draft like Cancel.

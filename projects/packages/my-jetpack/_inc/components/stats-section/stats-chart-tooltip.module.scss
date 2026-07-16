@@ -4,8 +4,8 @@
 	box-shadow: none !important;
 
 	.stats-line-chart-tooltip {
-		color: var(--color-text-inverted, #fff);
-		background: var(--color-neutral-100, #101517);
+		color: var(--wpds-color-foreground-interactive-brand-strong, #fff);
+		background: var(--wpds-color-background-interactive-neutral-strong-active, #1e1e1e);
 		border-radius: 4px;
 		font-size: var(--font-body-small, 14px);
 		padding: 28px 24px 16px;
@@ -57,7 +57,7 @@
 					// vertical-align: middle;
 					width: 24px;
 					height: 24px;
-					fill: var(--color-text-inverted, #fff);
+					fill: var(--wpds-color-foreground-interactive-brand-strong, #fff);
 				}
 
 				// &:last-child {

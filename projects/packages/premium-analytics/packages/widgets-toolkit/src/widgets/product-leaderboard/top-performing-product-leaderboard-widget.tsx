@@ -7,16 +7,16 @@ import {
 	type FilterCondition,
 } from '@jetpack-premium-analytics/data';
 import { productBlouse } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { useWidgetRootContext } from '../../components/widget-root';
+import { WidgetState } from '../../components/widget-state';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../../components/widget-root';
 import { formatLegendLabels, calculateDelta } from '../../helpers';
-import { useWidgetError } from '../../hooks';
 
 export type TopPerformingProductLeaderboardWidgetProps = {
 	/**
@@ -37,6 +37,18 @@ export type TopPerformingProductLeaderboardWidgetProps = {
 	 * Defaults to productBlouse icon.
 	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
+
+	/**
+	 * Text to display in the empty state.
+	 * Defaults to a "no product sales" message.
+	 */
+	emptyStateText?: string;
+
+	/**
+	 * Text to display in the error state.
+	 * Defaults to a "couldn't load product data" message.
+	 */
+	errorText?: string;
 };
 
 /**
@@ -61,6 +73,8 @@ export type TopPerformingProductLeaderboardWidgetProps = {
  * @param props.limit          - Maximum number of products to display (default: 5)
  * @param props.filter         - Optional product type filter
  * @param props.emptyStateIcon - Icon to display in empty state (default: productBlouse)
+ * @param props.emptyStateText - Text to display in empty state
+ * @param props.errorText      - Text to display in error state
  *
  * @example
  * // All product types
@@ -81,6 +95,8 @@ export function TopPerformingProductLeaderboardWidget( {
 	limit = 5,
 	filter,
 	emptyStateIcon = productBlouse,
+	emptyStateText,
+	errorText,
 }: TopPerformingProductLeaderboardWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -92,17 +108,8 @@ export function TopPerformingProductLeaderboardWidget( {
 		[ reportParams, filter ]
 	);
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportProducts( params, limit );
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportProducts( params, limit );
 
 	const { data } = primary;
 	const { data: comparisonData } = comparison;
@@ -117,9 +124,6 @@ export function TopPerformingProductLeaderboardWidget( {
 	const { data: productImages, isLoading: imagesLoading } = useProductImages( {
 		productIds,
 	} );
-
-	const isInitialLoading = ( isLoading || imagesLoading ) && ! hasData;
-	const isRefetching = ( isFetching || imagesLoading ) && hasData;
 
 	const chartData = useMemo( () => {
 		const comparisonItems = comparisonData?.data || [];
@@ -145,19 +149,21 @@ export function TopPerformingProductLeaderboardWidget( {
 
 				const productImage = productImages ? productImages[ product.product_id ] : undefined;
 
-				// Match by product_id instead of index
+				// Match by product_id instead of index.
 				const comparisonProduct = comparisonMap.get( product.product_id );
-				const previousValue = comparisonProduct?.product_net_revenue ?? 0;
 
-				const previousShare =
-					comparisonItems.length > 0 && previousValue > 0
-						? ( previousValue / maxPreviousValue ) * 100
-						: 0;
+				// A product ranked below the previous top-N cutoff is absent from
+				// the comparison list. That is an unknown previous value, not a
+				// real 0, so leave the comparison fields undefined and let the
+				// chart show a placeholder instead of a fabricated +100% delta. A
+				// product present with 0 revenue has a known previous value and
+				// keeps its real delta.
+				const previousValue = comparisonProduct?.product_net_revenue;
+				const hasComparisonValue = previousValue !== undefined;
 
 				const label = product.product_name;
 				const imageUrl = productImage?.imageUrl || '';
 				const imageAlt = productImage?.imageAlt || label;
-				const delta = calculateDelta( currentValue, previousValue );
 
 				return {
 					id: String( product.product_id || index ),
@@ -165,35 +171,58 @@ export function TopPerformingProductLeaderboardWidget( {
 					currentValue,
 					currentShare: ( currentValue / maxCurrentValue ) * 100,
 					previousValue,
-					previousShare,
-					delta,
+					// Net revenue can be negative once refunds outweigh sales; a
+					// negative share would render an invalid bar width.
+					previousShare: hasComparisonValue
+						? ( Math.max( previousValue, 0 ) / maxPreviousValue ) * 100
+						: undefined,
+					delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
 				};
 			} ) || []
 		);
 	}, [ data?.data, comparisonData?.data, productImages ] );
 
+	// `hasComparison` only tracks the date range. When none of the visible
+	// products carry over from the comparison period, comparison mode would draw
+	// a column of placeholders, so suppress it rather than show an empty column.
+	const hasVisibleComparison = useMemo(
+		() => chartData.some( row => row.previousValue !== undefined ),
+		[ chartData ]
+	);
+
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ ( isLoading || imagesLoading ) && ! hasData }
+			isFetching={ isFetching || imagesLoading }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ chartData.length === 0 }
+			error={ {
+				description:
+					errorText ??
+					__(
+						"We couldn't load product data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: emptyStateIcon,
+				description:
+					emptyStateText ?? __( 'No product sales in this period.', 'jetpack-premium-analytics' ),
+			} }
+		>
 			<LeaderboardChart
 				data={ chartData }
-				withComparison={ hasComparison }
+				withComparison={ hasComparison && hasVisibleComparison }
 				legendLabels={ legendLabels }
 				withOverlayLabel={ true }
 				showLegend={ false }
-				emptyStateIcon={ emptyStateIcon }
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

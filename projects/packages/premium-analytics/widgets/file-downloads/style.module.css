@@ -24,15 +24,6 @@
 	white-space: nowrap;
 }
 
-.placeholder {
-	flex: 1 1 0;
-	min-block-size: 0;
-	inline-size: 100%;
-	min-height: 200px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}
-
 .root {
 	container-type: inline-size;
 	display: flex;

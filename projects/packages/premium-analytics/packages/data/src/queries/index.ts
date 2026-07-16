@@ -23,6 +23,10 @@ export { statsTopAuthorsQuery } from './stats-top-authors-query';
 export { statsLocationsQuery } from './stats-locations-query';
 export { statsCountryViewsQuery } from './stats-country-views-query';
 export { statsVideoPlaysQuery } from './stats-video-plays-query';
+export {
+	statsVideoPlaysSummaryQuery,
+	type StatsVideoPlaysSummaryParams,
+} from './stats-video-plays-summary-query';
 export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-module-settings-query';
 export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
 export {
@@ -60,6 +64,8 @@ export {
 } from './stats-subscribers-query';
 export { statsStreakQuery } from './stats-streak-query';
 export { statsVisitsQuery } from './stats-visits-query';
+export { statsSummaryQuery } from './stats-summary-query';
+export type { StatsSummaryParams, StatsSummaryResponse } from './stats-summary-query';
 export { statsInsightsQuery } from './stats-insights-query';
 export { statsUtmQuery } from './stats-utm-query';
 export { statsHighlightsQuery } from './stats-highlights-query';

@@ -4,22 +4,24 @@
 import { useStatsUtm } from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
 	StatsUtmParam,
-	StatsUtmTopPostItem,
 } from '@jetpack-premium-analytics/data';
 
 export interface UtmInsightsChildRow {
 	label: string;
 	value: number;
-	previousValue: number;
+	previousValue?: number;
 	href?: string | null;
 }
 
 export interface UtmInsightsRow {
 	label: string;
 	value: number;
-	previousValue: number;
+	previousValue?: number;
 	children?: UtmInsightsChildRow[];
+	childrenHaveComparison?: boolean;
 }
 
 interface UseUtmInsightsArgs {
@@ -42,16 +44,31 @@ interface UtmInsightsState {
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
-	hasData: boolean;
 	isError: boolean;
+	refetch: () => void;
 }
 
 function getLabel( item: { label: unknown } ): string {
 	return typeof item.label === 'string' ? item.label : String( item.label );
 }
 
-function getChildKey( item: StatsUtmTopPostItem ): string {
-	return item.href ?? getLabel( item );
+function toChildRow( item: StatsUtmComparisonTopPostItem ): UtmInsightsChildRow {
+	return {
+		label: getLabel( item ),
+		value: item.value,
+		previousValue: item.previousValue,
+		href: item.href,
+	};
+}
+
+function toUtmRow( item: StatsUtmComparisonItem ): UtmInsightsRow {
+	return {
+		label: getLabel( item ),
+		value: item.value,
+		previousValue: item.previousValue,
+		children: item.children?.map( toChildRow ),
+		childrenHaveComparison: item.childrenHaveComparison,
+	};
 }
 
 /**
@@ -66,39 +83,22 @@ export default function useUtmInsights( {
 	max,
 }: UseUtmInsightsArgs ): UtmInsightsState {
 	const params = { ...reportParams, utmParam, max } as Parameters< typeof useStatsUtm >[ 0 ];
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsUtm( params );
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsUtm(
+		params,
+		{ maxRows: max }
+	);
+	const rows = ( comparisonRows?.rows ?? [] ).map( toUtmRow );
 
-	const rawItems = primary.data?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparison.data?.data?.[ 0 ]?.items ?? [];
-	const comparisonByLabel = new Map( comparisonItems.map( item => [ getLabel( item ), item ] ) );
-	const items = rawItems
-		.map( item => {
-			const label = getLabel( item );
-			const comparisonItem = comparisonByLabel.get( label );
-			const comparisonChildren = comparisonItem?.children ?? [];
-			const comparisonChildrenByKey = new Map(
-				comparisonChildren.map( child => [ getChildKey( child ), child.value ] )
-			);
-			const children = ( item.children ?? [] ).map( child => {
-				const childKey = getChildKey( child );
-
-				return {
-					label: getLabel( child ),
-					value: child.value,
-					previousValue: hasComparison ? comparisonChildrenByKey.get( childKey ) ?? 0 : 0,
-					href: child.href,
-				};
-			} );
-
-			return {
-				label,
-				value: item.value,
-				previousValue: hasComparison ? comparisonItem?.value ?? 0 : 0,
-				children,
-			};
-		} )
-		.slice( 0, max > 0 ? max : undefined );
-
-	return { data: items, hasComparison, isLoading, isFetching, hasData, isError };
+	return {
+		data: rows,
+		hasComparison,
+		isLoading,
+		isFetching,
+		// Stats queries keep previous data via `placeholderData`, so a failed
+		// range refetch should not replace populated rows with the error state.
+		isError: rows.length === 0 && isError,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
+	};
 }

@@ -3,8 +3,11 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { cleanOrganization } from './schema-settings-utils';
+import { cleanLocalBusiness, cleanOrganization } from './schema-settings-utils';
 import type {
+	BreadcrumbListSettings,
+	LocalBusinessDefaults,
+	LocalBusinessSettings,
 	OrganizationDefaults,
 	OrganizationSettings,
 	SchemaSettings,
@@ -14,17 +17,38 @@ const ENDPOINT = '/jetpack/v4/seo/schema-settings';
 // Single snackbar id reused across a save so "Saving…" is replaced in place by the result.
 const NOTICE_ID = 'jetpack-seo-schema-settings-save';
 
+type EditableSchemaSections = Pick<
+	SchemaSettings,
+	'breadcrumbList' | 'organization' | 'localBusiness'
+>;
+
+const cleanSections = ( sections: EditableSchemaSections ): EditableSchemaSections => ( {
+	breadcrumbList: { ...sections.breadcrumbList },
+	organization: cleanOrganization( sections.organization ),
+	localBusiness: cleanLocalBusiness( sections.localBusiness ),
+} );
+
 export interface SchemaSettingsForm {
+	/** The editable BreadcrumbList setting. */
+	breadcrumbList: BreadcrumbListSettings;
 	/** The editable Organization overrides. */
 	organization: OrganizationSettings;
 	/** Site-identity values shown as field placeholders (what an empty override falls back to). */
 	defaults: OrganizationDefaults;
+	/** The editable LocalBusiness overrides. */
+	localBusiness: LocalBusinessSettings;
+	/** LocalBusiness defaults shown as field placeholders. */
+	localBusinessDefaults: LocalBusinessDefaults;
 	isSaving: boolean;
-	/** Whether the local Organization values differ from the last-saved baseline. */
+	/** Whether the local schema values differ from the last-saved baseline. */
 	isDirty: boolean;
 	/** Patch one or more Organization fields locally (persisted by `save()`). */
 	setOrganizationField: ( patch: Partial< OrganizationSettings > ) => void;
-	/** Persist the current Organization values through the schema-settings route. */
+	/** Patch the BreadcrumbList setting and persist it immediately (toggles auto-save). */
+	commitBreadcrumbList: ( patch: Partial< BreadcrumbListSettings > ) => void;
+	/** Patch one or more LocalBusiness fields locally (persisted by `save()`). */
+	setLocalBusinessField: ( patch: Partial< LocalBusinessSettings > ) => void;
+	/** Persist the current schema values through the schema-settings route. */
 	save: () => void;
 }
 
@@ -40,24 +64,94 @@ export function useSchemaSettings(
 	initialSettings: SchemaSettings,
 	onSave?: ( settings: SchemaSettings ) => void
 ): SchemaSettingsForm {
-	const [ organization, setOrganization ] = useState< OrganizationSettings >(
-		initialSettings.organization
-	);
+	const [ sections, setSections ] = useState< EditableSchemaSections >( {
+		breadcrumbList: initialSettings.breadcrumbList,
+		organization: initialSettings.organization,
+		localBusiness: initialSettings.localBusiness,
+	} );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ isDirty, setIsDirty ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	// The last-saved baseline, kept in a ref so save() compares against the freshest
 	// value without re-creating its callback.
-	const baselineRef = useRef< OrganizationSettings >(
-		cleanOrganization( initialSettings.organization )
+	const baselineRef = useRef< EditableSchemaSections >(
+		cleanSections( {
+			breadcrumbList: initialSettings.breadcrumbList,
+			organization: initialSettings.organization,
+			localBusiness: initialSettings.localBusiness,
+		} )
+	);
+
+	const commitBreadcrumbList = useCallback(
+		( patch: Partial< BreadcrumbListSettings > ) => {
+			// Update local for immediate UI feedback, but persist only this section
+			// so pending Organization / LocalBusiness edits stay local until their
+			// own Save — matching the toggle sections of the main Settings form.
+			const next = { ...sections.breadcrumbList, ...patch };
+			setSections( current => ( { ...current, breadcrumbList: next } ) );
+			setIsSaving( true );
+			createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
+				id: NOTICE_ID,
+				type: 'snackbar',
+				isDismissible: false,
+			} );
+			apiFetch< SchemaSettings >( {
+				path: ENDPOINT,
+				method: 'POST',
+				data: { breadcrumbList: next },
+			} )
+				.then( settings => {
+					baselineRef.current = {
+						...baselineRef.current,
+						breadcrumbList: { ...settings.breadcrumbList },
+					};
+					setSections( current => {
+						const merged = { ...current, breadcrumbList: settings.breadcrumbList };
+						setIsDirty(
+							JSON.stringify( cleanSections( merged ) ) !== JSON.stringify( baselineRef.current )
+						);
+						return merged;
+					} );
+					onSave?.( settings );
+					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
+						id: NOTICE_ID,
+						type: 'snackbar',
+					} );
+				} )
+				.catch( ( error: { message?: string } ) => {
+					createErrorNotice(
+						error?.message ??
+							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
+						{ id: NOTICE_ID, type: 'snackbar' }
+					);
+				} )
+				.finally( () => setIsSaving( false ) );
+		},
+		[ sections, onSave, createInfoNotice, createSuccessNotice, createErrorNotice ]
 	);
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
-		setOrganization( current => {
-			const next = { ...current, ...patch };
+		setSections( current => {
+			const next = {
+				...current,
+				organization: { ...current.organization, ...patch },
+			};
 			setIsDirty(
-				JSON.stringify( cleanOrganization( next ) ) !== JSON.stringify( baselineRef.current )
+				JSON.stringify( cleanSections( next ) ) !== JSON.stringify( baselineRef.current )
+			);
+			return next;
+		} );
+	}, [] );
+
+	const setLocalBusinessField = useCallback( ( patch: Partial< LocalBusinessSettings > ) => {
+		setSections( current => {
+			const next = {
+				...current,
+				localBusiness: { ...current.localBusiness, ...patch },
+			};
+			setIsDirty(
+				JSON.stringify( cleanSections( next ) ) !== JSON.stringify( baselineRef.current )
 			);
 			return next;
 		} );
@@ -76,14 +170,18 @@ export function useSchemaSettings(
 		apiFetch< SchemaSettings >( {
 			path: ENDPOINT,
 			method: 'POST',
-			data: { organization: cleanOrganization( organization ) },
+			data: cleanSections( sections ),
 		} )
 			.then( settings => {
 				// Re-seed from the server's response so the form reflects any sanitization
 				// (e.g. dropped/deduped URLs); a cleared field comes back empty and shows
 				// the placeholder again rather than re-freezing.
-				baselineRef.current = cleanOrganization( settings.organization );
-				setOrganization( settings.organization );
+				baselineRef.current = cleanSections( settings );
+				setSections( {
+					breadcrumbList: settings.breadcrumbList,
+					organization: settings.organization,
+					localBusiness: settings.localBusiness,
+				} );
 				onSave?.( settings );
 				setIsDirty( false );
 				createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
@@ -99,14 +197,19 @@ export function useSchemaSettings(
 				);
 			} )
 			.finally( () => setIsSaving( false ) );
-	}, [ organization, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ] );
+	}, [ sections, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ] );
 
 	return {
-		organization,
+		breadcrumbList: sections.breadcrumbList,
+		organization: sections.organization,
 		defaults: initialSettings.defaults.organization,
+		localBusiness: sections.localBusiness,
+		localBusinessDefaults: initialSettings.defaults.localBusiness,
 		isSaving,
 		isDirty,
+		commitBreadcrumbList,
 		setOrganizationField,
+		setLocalBusinessField,
 		save,
 	};
 }

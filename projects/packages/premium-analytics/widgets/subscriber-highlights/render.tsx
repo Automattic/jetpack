@@ -5,21 +5,23 @@ import {
 	useStatsSubscribersCounts,
 	type StatsSubscribersCounts,
 } from '@jetpack-premium-analytics/data';
+import { customer } from '@jetpack-premium-analytics/icons';
 import {
-	MetricWithComparison,
-	WidgetLoadingOverlay,
+	MetricTileGrid,
 	WidgetRoot,
+	WidgetState,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { envelope, payment, people, share } from '@wordpress/icons';
-import { Icon, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import {
+	DEFAULT_SUBSCRIBER_METRICS,
 	SUBSCRIBER_METRICS,
 	type SubscriberHighlightsAttributes,
 	type SubscriberMetricId,
@@ -33,11 +35,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type SubscriberHighlightsRenderAttributes = SubscriberHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscriberHighlightsWidgetProps = WidgetRenderProps< SubscriberHighlightsRenderAttributes >;
-
-/**
- * The enabled-metric flags from widget attributes, with defaults applied.
- */
-type SubscriberHighlightsReportProps = Required< SubscriberHighlightsAttributes >;
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
@@ -53,73 +50,73 @@ const TILE_CONFIG: Record<
 	SubscriberMetricId,
 	{ icon: typeof people; count: ( data?: StatsSubscribersCounts ) => number }
 > = {
-	showTotal: { icon: people, count: data => data?.total_subscribers ?? 0 },
-	showPaid: { icon: payment, count: data => data?.paid_subscribers ?? 0 },
-	showFree: { icon: envelope, count: data => data?.email_subscribers ?? 0 },
-	showSocial: { icon: share, count: data => data?.social_followers ?? 0 },
+	total: { icon: people, count: data => data?.total_subscribers ?? 0 },
+	paid: { icon: payment, count: data => data?.paid_subscribers ?? 0 },
+	free: { icon: envelope, count: data => data?.email_subscribers ?? 0 },
+	social: { icon: share, count: data => data?.social_followers ?? 0 },
 };
 
 /**
  * Fetches the subscriber counts through the designated `useStatsSubscribersCounts`
- * Stats hook and renders the totals as a grid of metric tiles. The counts module
- * has no comparison period, so each tile shows a bare formatted count. Which
- * tiles appear is controlled by the per-metric visibility attributes.
+ * Stats hook and renders the totals as a `MetricTileGrid`, with the loading /
+ * error / empty states rendered through `<WidgetState>`. The counts module has
+ * no comparison period, so each tile shows a bare formatted count. Which tiles
+ * appear is controlled by the `metrics` attribute.
  *
- * @param {SubscriberHighlightsReportProps} props - The component props.
+ * @param {SubscriberMetricId[]} metrics - Enabled metric tile ids.
  * @return The widget content.
  */
-function SubscriberHighlightsReport( props: SubscriberHighlightsReportProps ) {
-	const { data, isLoading, isError } = useStatsSubscribersCounts();
+function SubscriberHighlightsReport( {
+	metrics = DEFAULT_SUBSCRIBER_METRICS,
+}: {
+	metrics?: SubscriberMetricId[];
+} ) {
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSubscribersCounts();
+	const enabledMetrics = new Set( metrics );
 
-	if ( isError ) {
-		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Unable to load subscriber highlights.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
-		);
-	}
+	// Every counts field is optional in the sanitized payload; a response
+	// carrying none of them has nothing meaningful to show.
+	const hasCounts = !! data && Object.values( data ).some( value => value !== undefined );
 
-	if ( isLoading && ! data ) {
-		return (
-			<div className={ styles.root }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	const tiles = SUBSCRIBER_METRICS.filter( ( { id } ) => props[ id ] ).map( ( { id, label } ) => ( {
-		key: id,
-		label,
-		icon: TILE_CONFIG[ id ].icon,
-		value: TILE_CONFIG[ id ].count( data ),
-	} ) );
+	const tiles = SUBSCRIBER_METRICS.filter( ( { id } ) => enabledMetrics.has( id ) ).map(
+		( { id, label } ) => ( {
+			key: id,
+			label,
+			icon: TILE_CONFIG[ id ].icon,
+			value: TILE_CONFIG[ id ].count( data ),
+		} )
+	);
 
 	return (
 		<div className={ styles.root }>
-			{ tiles.length === 0 ? (
-				<Text className={ styles.placeholder }>
-					{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
-				</Text>
-			) : (
-				<div className={ styles.grid }>
-					{ tiles.map( tile => (
-						<div key={ tile.key } className={ styles.tile }>
-							<div className={ styles.tileHeader }>
-								<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
-								<Text className={ styles.tileLabel }>{ tile.label }</Text>
-							</div>
-							<MetricWithComparison
-								value={ tile.value }
-								dataFormat={ COUNT_FORMAT }
-								fontSize="xl"
-								className={ styles.tileValue }
-							/>
-						</div>
-					) ) }
-				</div>
-			) }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps the prior response via `placeholderData`, so a failed
+				// refetch leaves the tiles on screen; only surface the error when there
+				// is nothing to show.
+				isError={ isError && ! hasCounts }
+				isEmpty={ ! hasCounts }
+				error={ {
+					description: __(
+						"We couldn't load subscriber highlights. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: customer,
+					description: __( 'No subscriber counts available yet.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				{ tiles.length === 0 ? (
+					<Text className={ styles.placeholder }>
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+					</Text>
+				) : (
+					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				) }
+			</WidgetState>
 		</div>
 	);
 }
@@ -139,12 +136,7 @@ export default function SubscriberHighlights( {
 }: SubscriberHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscriberHighlightsReport
-				showTotal={ attributes.showTotal ?? true }
-				showPaid={ attributes.showPaid ?? true }
-				showFree={ attributes.showFree ?? true }
-				showSocial={ attributes.showSocial ?? true }
-			/>
+			<SubscriberHighlightsReport metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

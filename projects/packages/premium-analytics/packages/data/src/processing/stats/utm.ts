@@ -1,5 +1,13 @@
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
-import { coerceStatsArray, coerceStatsRecord, createStatsListDataPoint } from './utils';
+import {
+	coerceStatsArray,
+	coerceStatsRecord,
+	createStatsListDataPoint,
+	getStatsReportItems,
+	getStatsLabel,
+	limitStatsRows,
+	mergeStatsComparisonRows,
+} from './utils';
 import type { StatsItemAction, StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -22,6 +30,24 @@ export type StatsUtmTopPostItem = StatsNormalizedItemBase & {
 export interface StatsUtmItem extends StatsNormalizedItemBase< StatsUtmTopPostItem > {
 	value: number;
 	paramValues?: string;
+}
+
+export type StatsUtmComparisonTopPostItem = StatsUtmTopPostItem & {
+	previousValue?: number;
+};
+
+export interface StatsUtmComparisonItem extends Omit< StatsUtmItem, 'children' > {
+	previousValue?: number;
+	children?: StatsUtmComparisonTopPostItem[] | null;
+	childrenHaveComparison?: boolean;
+}
+
+function getUtmItemLabel( item: { label: unknown } ): string {
+	return getStatsLabel( item.label );
+}
+
+function getUtmTopPostKey( item: StatsUtmTopPostItem ): string {
+	return item.href ?? getUtmItemLabel( item );
 }
 
 function parseUtmLabelParts( key: string ): string[] {
@@ -70,6 +96,44 @@ function normalizeUtmTopPost(
 		actions,
 		children: null,
 	};
+}
+
+export function mergeStatsUtmComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsUtmItem >,
+	comparisonReport?: StatsNormalizedReport< StatsUtmItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows< StatsUtmItem, StatsUtmItem, StatsUtmComparisonItem >( {
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		getPrimaryKey: getUtmItemLabel,
+		getComparisonKey: getUtmItemLabel,
+		getComparisonValue: item => item.value,
+		mapRow: ( item, { previousValue, comparisonItem } ) => {
+			const { rows: children, hasComparison: childrenHaveComparison } = mergeStatsComparisonRows<
+				StatsUtmTopPostItem,
+				StatsUtmTopPostItem,
+				StatsUtmComparisonTopPostItem
+			>( {
+				primaryRows: item.children ?? [],
+				comparisonRows: comparisonItem?.children ?? [],
+				getPrimaryKey: getUtmTopPostKey,
+				getComparisonKey: getUtmTopPostKey,
+				getComparisonValue: child => child.value,
+				mapRow: ( child, { previousValue: childPreviousValue } ) => ( {
+					...child,
+					previousValue: childPreviousValue,
+				} ),
+			} );
+
+			return {
+				...item,
+				previousValue,
+				children: children.length ? children : null,
+				childrenHaveComparison,
+			};
+		},
+	} );
 }
 
 export function sanitizeStatsUtmResponse(

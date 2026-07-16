@@ -25,9 +25,11 @@ export type AverageItemsPerOrderAttributes = Record< never, never >;
 export default {
 	name: 'jpa/average-items-per-order',
 	title: __( 'Average items per order', 'jetpack-premium-analytics' ),
-	description: __(
-		'Show the average number of products per order over a set period of time.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Show the average number of products per order over a set period of time.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

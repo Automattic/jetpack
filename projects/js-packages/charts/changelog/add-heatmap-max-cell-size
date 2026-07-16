@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Charts: add HeatmapChart min/max cell size bounds (sparse grids keep sensible cells, long grids overflow for scrolling) and floor an all-zero heatmap at the scale bottom instead of full intensity.

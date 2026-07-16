@@ -1,13 +1,12 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 // Grid settings are intentionally shared across analytics dashboards (see the
@@ -15,19 +14,25 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard } from './components';
-import { getPostDetailTabs, type PostDetailTabId } from './config';
-import { useActiveTab, usePostDetailTabLayout, usePostSummary } from './hooks';
+import { EMAIL_BREAKDOWN_TYPE, EMAIL_BREAKDOWN_TYPE_VARIANTS } from './config';
+import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
+// The layout is fixed, so the change callback never fires; the dashboard
+// still requires one because it owns a staging copy internally.
+const noopLayoutChange = () => {};
+
 /**
  * Premium Analytics post/page detail page stage component.
  *
- * Mirrors the dashboard — customizable, per-tab widget grids driven by a shared
- * date range and comparison — but is scoped to a single post/page and carries
- * its own header (breadcrumb + summary card) and tab set.
+ * A fixed, non-customizable page (WOOA7S-1622): each tab renders the widget
+ * composition from `POST_DETAIL_TAB_LAYOUTS`, scoped to a single post/page
+ * and driven by a shared date range and comparison, with its own header
+ * (breadcrumb + summary card) and tab set. There is no edit mode — required
+ * widgets and their sizing cannot be removed or reshaped.
  *
  * @return {JSX.Element} The post detail page.
  */
@@ -35,9 +40,7 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	const tabs = useMemo( () => getPostDetailTabs(), [] );
-	const [ activeTab, setActiveTab ] = useActiveTab();
-	const [ layout, setLayout, resetLayout ] = usePostDetailTabLayout( activeTab );
+	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const summary = usePostSummary( postId );
@@ -46,27 +49,42 @@ function PostDetail(): JSX.Element {
 		select =>
 			(
 				select( coreStore ) as unknown as {
-					getEntityRecords: ( kind: string, name: string ) => WidgetModuleRecord[] | null;
+					getEntityRecords: (
+						kind: string,
+						name: string,
+						query?: Record< string, unknown >
+					) => WidgetModuleRecord[] | null;
 				}
-			 ).getEntityRecords( 'root', 'widgetModule' ),
+			 )
+				// `per_page: -1` returns every widget type. Without it, core-data's
+				// default query (`per_page: 10`) caps the records at 10 and could
+				// silently drop the widgets this page's fixed layout requires.
+				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
 		[]
 	);
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
 
-	const [ editMode, setEditMode ] = useState( false );
+	// The fixed email compositions reuse `jpa/email-breakdown` under page-local
+	// aliases so each card carries its design title — the host titles a card by
+	// its widget *type*. Each alias clones the resolved type (render module and
+	// all) under a variant name and title; see `config/email-widget-variants`.
+	const pageWidgetTypes = useMemo( () => {
+		const base = widgetTypes.find( widgetType => widgetType.name === EMAIL_BREAKDOWN_TYPE );
 
-	// Switching tabs returns to view mode. Edit mode is page-level, and an empty
-	// tab force-enables it via the dashboard provider's empty-layout effect, so
-	// without this a non-empty tab would stay stuck in customize view after
-	// visiting an empty one.
-	const handleTabChange = useCallback(
-		( id: PostDetailTabId ) => {
-			setEditMode( false );
-			setActiveTab( id );
-		},
-		[ setActiveTab ]
-	);
+		if ( ! base ) {
+			return widgetTypes;
+		}
+
+		return [
+			...widgetTypes,
+			...EMAIL_BREAKDOWN_TYPE_VARIANTS.map( variant => ( {
+				...base,
+				name: variant.name,
+				title: variant.getTitle(),
+			} ) ),
+		];
+	}, [ widgetTypes ] );
 
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
@@ -81,24 +99,12 @@ function PostDetail(): JSX.Element {
 
 	return (
 		<GlobalErrorProvider>
-			{ /*
-			 * Key the dashboard by the active tab so its staging layout resets on
-			 * every switch. Empty tabs otherwise share one `EMPTY_LAYOUT` identity,
-			 * and the provider only resets staging when the `layout` prop identity
-			 * changes — so staged-but-unsaved widgets could render on, and be saved
-			 * under, the wrong tab. Remount cost is negligible (only the active
-			 * tab's panel renders).
-			 */ }
 			<WidgetDashboard
-				key={ activeTab }
-				widgetTypes={ widgetTypes }
+				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				layout={ layout }
-				onLayoutChange={ setLayout }
-				onLayoutReset={ resetLayout }
+				onLayoutChange={ noopLayoutChange }
 				gridSettings={ gridSettings }
-				editMode={ editMode }
-				onEditChange={ setEditMode }
 			>
 				<Page
 					breadcrumbs={
@@ -109,38 +115,32 @@ function PostDetail(): JSX.Element {
 							] }
 						/>
 					}
-					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.page }
 				>
-					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange }>
+					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						{ /*
-						 * The summary card and date filters are shared by every tab
+						 * The date filters and the summary card are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid.
+						 * tab bar and above the per-tab widget grid. The filters sit
+						 * directly under the tabs, mirroring the main dashboard's
+						 * placement, with the summary header below them.
 						 *
-						 * The date-filters wrapper is also the responsive-measurement
+						 * The filters wrapper is also the responsive-measurement
 						 * target: DateFiltersPanel reads its width to pick mobile/wide
 						 * layouts instead of relying on the viewport.
 						 */ }
-						<div className={ styles.summary }>
-							<PostSummaryCard summary={ summary } />
-						</div>
 						<div ref={ setContainerElement } className={ styles.dateFilters }>
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
+						<div className={ styles.header }>
+							<PostSummaryCard summary={ summary } performanceRange={ dateFilters.appliedRange } />
+						</div>
 						{ tabs.map( tab => (
-							<Tabs.Panel key={ tab.id } value={ tab.id } className={ styles.content }>
-								{ activeTab === tab.id ? (
-									<>
-										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets />
-									</>
-								) : null }
-							</Tabs.Panel>
+							<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
+								{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+							</SectionTabPanel>
 						) ) }
 					</PostDetailTabs>
-
-					<WidgetDashboard.Commands />
 				</Page>
 			</WidgetDashboard>
 		</GlobalErrorProvider>

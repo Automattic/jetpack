@@ -14,6 +14,27 @@ import type {
 } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
+type StatsComparisonKey = string | number;
+
+type StatsComparisonEntry< TComparison > = {
+	item: TComparison;
+	value: number;
+};
+
+export type StatsComparisonRowContext< TComparison > = {
+	previousValue?: number;
+	comparisonItem?: TComparison;
+};
+
+export type MergeStatsComparisonRowsOptions< TPrimary, TComparison, TMapped > = {
+	primaryRows: TPrimary[];
+	comparisonRows?: TComparison[];
+	getPrimaryKey: ( row: TPrimary ) => StatsComparisonKey | null | undefined;
+	getComparisonKey: ( row: TComparison ) => StatsComparisonKey | null | undefined;
+	getComparisonValue: ( row: TComparison ) => number;
+	mapRow: ( row: TPrimary, context: StatsComparisonRowContext< TComparison > ) => TMapped;
+};
+
 export function isStatsRecord( value: unknown ): value is StatsRecord {
 	return typeof value === 'object' && value !== null && ! Array.isArray( value );
 }
@@ -49,6 +70,59 @@ export function getStatsLabel( value: unknown ): string {
 	}
 
 	return '';
+}
+
+export function getStatsReportItems< TItem extends StatsNormalizedItem >(
+	report?: StatsNormalizedReport< TItem >
+): TItem[] {
+	return report?.data.flatMap( point => point.items ) ?? [];
+}
+
+export function limitStatsRows< TRow >( rows: TRow[], maxRows?: number ): TRow[] {
+	return maxRows && maxRows > 0 ? rows.slice( 0, maxRows ) : rows;
+}
+
+export function mergeStatsComparisonRows< TPrimary, TComparison = TPrimary, TMapped = TPrimary >( {
+	primaryRows,
+	comparisonRows = [],
+	getPrimaryKey,
+	getComparisonKey,
+	getComparisonValue,
+	mapRow,
+}: MergeStatsComparisonRowsOptions< TPrimary, TComparison, TMapped > ): {
+	rows: TMapped[];
+	hasComparison: boolean;
+} {
+	const comparisonByKey = new Map< StatsComparisonKey, StatsComparisonEntry< TComparison > >();
+
+	comparisonRows.forEach( item => {
+		const key = getComparisonKey( item );
+		if ( key == null || comparisonByKey.has( key ) ) {
+			return;
+		}
+
+		comparisonByKey.set( key, {
+			item,
+			value: getComparisonValue( item ),
+		} );
+	} );
+
+	let hasComparison = false;
+	const rows = primaryRows.map( item => {
+		const key = getPrimaryKey( item );
+		const comparison = key == null ? undefined : comparisonByKey.get( key );
+
+		if ( comparison ) {
+			hasComparison = true;
+		}
+
+		return mapRow( item, {
+			previousValue: comparison?.value,
+			comparisonItem: comparison?.item,
+		} );
+	} );
+
+	return { rows, hasComparison };
 }
 
 function isStatsNumericSummaryValue( value: unknown ): boolean {

@@ -1,9 +1,10 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button as WPButton, TextControl, TextareaControl } from '@wordpress/components';
+import { TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
-import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
+import LocalBusinessFields, { hasLocalBusinessErrors } from './local-business-fields';
+import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
 
@@ -15,11 +16,8 @@ interface Props {
 }
 
 /**
- * The "Organization / Business info" form inside the Schema settings card. Edits
- * the site-level Organization schema values WordPress has no native source for —
- * social profiles (`sameAs`), an optional contact email — plus optional `name` /
- * `description` overrides. Saved through the package's own REST route (never
- * `/jetpack/v4/settings`).
+ * The shared site-level Schema form. Edits Organization and LocalBusiness
+ * settings through the package's own REST route (never `/jetpack/v4/settings`).
  *
  * Presentational: the Schema card owns the {@link useSchemaSettings} controller
  * (so the header badge and this form share one state) and passes it in via `form`.
@@ -29,34 +27,19 @@ interface Props {
  * @return The Organization settings form.
  */
 const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
-	const { organization, defaults, isSaving, isDirty, setOrganizationField, save } = form;
+	const {
+		organization,
+		defaults,
+		localBusiness,
+		isSaving,
+		isDirty,
+		setOrganizationField,
+		setLocalBusinessField,
+		save,
+	} = form;
 	const { name, description, sameAs, email } = organization;
-	const normalizedProfiles = sameAs.map( normalizeProfileUrl );
-	const profileErrors = sameAs.map( ( profile, index ) => {
-		const normalizedProfile = normalizedProfiles[ index ];
-		if ( ! profile.trim() ) {
-			return '';
-		}
-		if ( ! normalizedProfile ) {
-			return __( 'Enter a valid URL that starts with http:// or https://.', 'jetpack-seo' );
-		}
-		if ( normalizedProfiles.indexOf( normalizedProfile ) !== index ) {
-			return __( 'This profile URL is already listed.', 'jetpack-seo' );
-		}
-		return '';
-	} );
-	const hasProfileErrors = profileErrors.some( Boolean );
-
-	const setSameAs = ( index: number, value: string ) => {
-		const next = sameAs.slice();
-		next[ index ] = value;
-		setOrganizationField( { sameAs: next } );
-	};
-
-	const addProfile = () => setOrganizationField( { sameAs: [ ...sameAs, '' ] } );
-
-	const removeProfile = ( index: number ) =>
-		setOrganizationField( { sameAs: sameAs.filter( ( _, i ) => i !== index ) } );
+	const hasProfileErrors = hasProfileUrlErrors( sameAs );
+	const hasErrors = hasProfileErrors || ( localBusiness.enabled && hasLocalBusinessErrors( form ) );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -88,58 +71,16 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 				__nextHasNoMarginBottom
 			/>
 
-			<Stack direction="column" gap="sm">
-				<span className="jetpack-seo-settings__schema-field-label">
-					{ __( 'Social profiles', 'jetpack-seo' ) }
-				</span>
-				<span className="jetpack-seo-settings__title-tokens-label">
-					{ __(
-						'Links to official profiles for this organization (for example Facebook, X, LinkedIn).',
-						'jetpack-seo'
-					) }
-				</span>
-				{ sameAs.map( ( profile, index ) => {
-					const profileError = profileErrors[ index ];
-					return (
-						<Stack key={ index } direction="row" gap="sm" align="flex-start" wrap="wrap">
-							<div
-								className={
-									'jetpack-seo-settings__schema-profile-input' +
-									( profileError ? ' jetpack-seo-settings__schema-profile-input--error' : '' )
-								}
-							>
-								<TextControl
-									label={ __( 'Profile URL', 'jetpack-seo' ) }
-									hideLabelFromVision
-									type="url"
-									placeholder="https://"
-									value={ profile }
-									onChange={ next => setSameAs( index, next ) }
-									disabled={ isSaving }
-									help={ profileError || undefined }
-									aria-invalid={ Boolean( profileError ) }
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-								/>
-							</div>
-							<WPButton
-								variant="tertiary"
-								isDestructive
-								onClick={ () => removeProfile( index ) }
-								disabled={ isSaving }
-								__next40pxDefaultSize
-							>
-								{ __( 'Remove profile', 'jetpack-seo' ) }
-							</WPButton>
-						</Stack>
-					);
-				} ) }
-				<div>
-					<Button variant="outline" tone="neutral" onClick={ addProfile } disabled={ isSaving }>
-						{ __( 'Add profile', 'jetpack-seo' ) }
-					</Button>
-				</div>
-			</Stack>
+			<ProfileUrlList
+				label={ __( 'Social profiles', 'jetpack-seo' ) }
+				help={ __(
+					'Links to official profiles for this organization (for example Facebook, X, LinkedIn).',
+					'jetpack-seo'
+				) }
+				urls={ sameAs }
+				onChange={ next => setOrganizationField( { sameAs: next } ) }
+				disabled={ isSaving }
+			/>
 
 			<TextControl
 				label={ __( 'Contact email', 'jetpack-seo' ) }
@@ -152,8 +93,22 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 				__nextHasNoMarginBottom
 			/>
 
+			<ToggleControl
+				label={ __( 'This site represents a local business', 'jetpack-seo' ) }
+				help={ __(
+					"Adds your business details (address, phone, hours) to the site's schema so search engines can show local info.",
+					'jetpack-seo'
+				) }
+				checked={ localBusiness.enabled }
+				onChange={ next => setLocalBusinessField( { enabled: next } ) }
+				disabled={ isSaving }
+				__nextHasNoMarginBottom
+			/>
+
+			{ localBusiness.enabled && <LocalBusinessFields form={ form } /> }
+
 			<div className="jetpack-seo-settings__save">
-				<Button onClick={ save } disabled={ isSaving || ! isDirty || hasProfileErrors }>
+				<Button onClick={ save } disabled={ isSaving || ! isDirty || hasErrors }>
 					{ saveLabel }
 				</Button>
 			</div>

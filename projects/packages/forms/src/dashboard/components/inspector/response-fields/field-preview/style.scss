@@ -8,7 +8,7 @@
 			padding-top: 24px;
 			padding-bottom: 24px;
 			// Multiple variables as fallback until style tokens are fully available.
-			border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, var(--jp-forms-border-color, #e0e0e0));
+			border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
 		}
 
 		.jp-forms__field-preview-icon {
@@ -18,14 +18,14 @@
 		.jp-forms__field-preview-content {
 			min-width: 0; // Prevents flex item from overflowing
 			overflow-wrap: break-word;
-			line-height: var(--wpds-typography-line-height-sm, 20px);
+			line-height: var(--wpds-typography-line-height-sm);
 		}
 
 		// Value needed for positioning with the icon in case label is missing.
 		.jp-forms__field-preview-label,
 		.jp-forms__field-preview-value {
 			// Align first line centrally with the 24px icon.
-			margin-top: calc((24px - var(--wpds-typography-line-height-sm, 20px)) / 2);
+			margin-top: calc((24px - var(--wpds-typography-line-height-sm)) / 2);
 		}
 	}
 
@@ -40,7 +40,7 @@
 }
 
 .jp-forms__field-preview-label {
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-weight: 300;
 }
 

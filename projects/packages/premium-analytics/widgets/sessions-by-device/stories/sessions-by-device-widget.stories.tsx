@@ -6,10 +6,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SessionsByDeviceRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -31,12 +35,6 @@ type SessionsByDeviceStoryProps = SessionsByDeviceWidgetProps & SessionsByDevice
 interface SessionsByDeviceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		SessionsByDeviceStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getSessionsByDeviceAttributes(
 	withComparison = false,
@@ -81,6 +79,11 @@ function renderSessionsByDevice( { withComparison, preset }: SessionsByDeviceSto
 			attributes={ getSessionsByDeviceAttributes( withComparison, preset ) }
 		/>
 	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderSessionsByDeviceOnPreset( preset: SelectablePresetId ) {
+	return <SessionsByDeviceRender attributes={ getSessionsByDeviceAttributes( false, preset ) } />;
 }
 
 function SessionsByDeviceDashboardStory( {
@@ -170,6 +173,51 @@ export const WithComparison: Story = {
 				) => getSessionsByDeviceSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the sessions-by-device report is in flight, so the widget shows
+ * its loading state. The mock is forced to never resolve for the duration of
+ * this story.
+ */
+export const Loading: Story = {
+	render: () => renderSessionsByDeviceOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-device', 'loading' );
+		return () => setReportMockState( 'sessions/by-device', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action
+ * (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderSessionsByDeviceOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-device', 'error' );
+		return () => setReportMockState( 'sessions/by-device', null );
+	},
+};
+
+/**
+ * Resolved with no sessions: the widget shows its empty state ("No session
+ * data in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderSessionsByDeviceOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-device', 'empty' );
+		return () => setReportMockState( 'sessions/by-device', null );
 	},
 };
 

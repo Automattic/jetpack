@@ -9,8 +9,7 @@ import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analy
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
+	StatsDevicesComparisonItem,
 	StatsDeviceProperty,
 } from '@jetpack-premium-analytics/data';
 
@@ -18,6 +17,7 @@ export interface DeviceView {
 	label: string;
 	displayLabel: string;
 	percentage: number;
+	previousPercentage?: number;
 }
 
 interface UseDeviceViewsArgs {
@@ -37,11 +37,12 @@ interface UseDeviceViewsArgs {
 
 interface DeviceViewsState {
 	data: DeviceView[];
-	comparisonData: DeviceView[];
 	hasComparison: boolean;
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
 	errorReason: 'upgrade-required' | null;
+	refetch: () => void;
 }
 
 /**
@@ -62,12 +63,13 @@ const DEVICE_LABELS: Record< string, string > = {
  * @param item - Normalized device item from the data layer.
  * @return DeviceView with a human-readable display label.
  */
-function toDeviceView( item: StatsDevicesItem ): DeviceView {
+function toDeviceView( item: StatsDevicesComparisonItem ): DeviceView {
 	const key = typeof item.label === 'string' ? item.label : String( item.label );
 	return {
 		label: key,
 		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
 		percentage: item.value,
+		previousPercentage: item.previousValue,
 	};
 }
 
@@ -87,26 +89,25 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
-		useStatsDevices( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+		useStatsDevices( statsParams, { maxRows: max } );
 	const errorReason = getStatsPlanErrorReason( error );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems.map( toDeviceView ).slice( 0, max > 0 ? max : undefined );
-
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( toDeviceView )
-		.slice( 0, max > 0 ? max : undefined );
+	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
 
 	return {
 		data: items,
-		comparisonData: comparisonItems,
 		hasComparison,
 		isLoading,
-		isError,
+		isFetching,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && isError,
 		errorReason,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

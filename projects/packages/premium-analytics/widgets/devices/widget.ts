@@ -25,6 +25,12 @@ export type DevicesAttributes = {
 export default {
 	name: 'jpa/devices',
 	title: __( 'Devices', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'The devices and browsers your visitors use to access your website.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: desktop,
 	attributes: [
 		{

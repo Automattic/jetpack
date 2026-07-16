@@ -7,23 +7,26 @@
 	min-block-size: 0;
 	overflow-y: auto;
 	// Reserve paint space for the widget host's outer focus outline.
-	padding-block-start: calc(var(--wpds-border-width-focus, 2px) + 2px);
+	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	// Match the horizontal padding of the tab bar and header so the widget grid
 	// lines up with them instead of sitting flush to the edge.
 	padding-block-end: 24px;
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
-}
-
-.summary {
-	// Sits below the tab bar and above the date filters, aligned with the tabs
-	// and widget grid.
-	padding-block-end: var(--wpds-dimension-gap-lg, 16px);
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .dateFilters {
-	// Sits below the summary card and above the widgets. Only pad below to keep
-	// the spacing even; inline padding matches the tabs and widget grid.
-	padding-block-end: var(--wpds-dimension-gap-lg, 16px);
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	// Sits directly below the tab bar, mirroring the main dashboard's
+	// placement. The tab list already adds a bottom margin, so only pad below
+	// here to keep the spacing even; inline padding matches the tabs and the
+	// widget grid so it lines up.
+	padding-block-end: var(--wpds-dimension-gap-lg);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.header {
+	// The summary header below the filters. The top gap stacks with the
+	// filters row's bottom padding (gap-lg + gap-lg = gap-2xl of space above
+	// the heading); gap-2xl below mirrors it symmetrically.
+	padding-block: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }

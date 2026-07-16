@@ -5,6 +5,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import TitleStructureField from './title-structure-field';
@@ -186,6 +187,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			   issues. Own `id` so it can be deep-linked like `#verification`. */ }
 			<div id="schema" className="jetpack-seo-settings__section">
 				<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
+			</div>
+
+			{ /* The signed-in user's Person / ProfilePage schema source — per-user,
+			   unlike the site-level Schema card above. */ }
+			<div id="author-profile" className="jetpack-seo-settings__section">
+				<AuthorProfileCard />
 			</div>
 
 			<CollapsibleCard.Root defaultOpen={ false }>

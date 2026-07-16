@@ -1,4 +1,5 @@
 export { MetricDelta } from './metric-delta';
+export { MetricTileGrid } from './metric-tile';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
 export { ComparativeLineChart, type SeriesStyle } from './chart-comparative-line';
@@ -37,15 +38,28 @@ export {
 	type WidgetStateEmpty,
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
+export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
+export { ReportLink, type ReportLinkProps } from './report-link';
 export {
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
 } from './subscriber-list';
 export {
+	ReportPageLayout,
+	ReportPageSection,
 	ReportPageTabPanel,
 	ReportPageTabs,
+	ReportPerformanceChart,
+	ReportRecordsTable,
+	buildReportMetricSeries,
+	type ReportChartMetric,
+	type ReportPageLayoutProps,
+	type ReportPageSectionProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
+	type ReportPerformanceChartProps,
+	type ReportRecordsTableProps,
 } from './report-page';
+export { DownloadCsvButton, type DownloadCsvButtonProps } from './download-csv-button';
