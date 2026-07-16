@@ -13,7 +13,8 @@ import {
 	type GeoData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useResizeObserver } from '@wordpress/compose';
+import { useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
@@ -34,6 +35,12 @@ type EmailBreakdownRenderAttributes = EmailBreakdownAttributes &
 type EmailBreakdownWidgetProps = WidgetRenderProps< EmailBreakdownRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+
+// Mirrors the 720px container query in `style.module.css`: below it the map
+// is `display: none`, so mounting `GeoChart` there would pay the Google
+// Charts load for a chart that can never be seen. CSS still owns the visual
+// fallback; this width only gates the mount.
+const MAP_MIN_WIDTH = 720;
 
 /**
  * Builds the complete country dataset consumed by `GeoChart`.
@@ -246,10 +253,23 @@ export const EmailBreakdownLeaderboard = ( {
 }: EmailBreakdownLeaderboardProps ) => {
 	const data = useMemo( () => buildLeaderboardData( rows, view ), [ rows, view ] );
 	const geoData = useMemo( () => buildEmailGeoData( mapRows, metric ), [ mapRows, metric ] );
-	const renderMap = showMap && view === 'countries' && geoData.length > 1;
+
+	// Until the first measurement lands the map stays unmounted, so a narrow
+	// container never loads Google Charts at all.
+	const [ width, setWidth ] = useState< number >();
+	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
+		const rect = entries[ 0 ]?.contentRect;
+		if ( rect ) {
+			// Round and dedupe so subpixel resize reports don't churn renders.
+			const next = Math.round( rect.width );
+			setWidth( previous => ( previous === next ? previous : next ) );
+		}
+	} );
+	const renderMap =
+		showMap && view === 'countries' && geoData.length > 1 && ( width ?? 0 ) >= MAP_MIN_WIDTH;
 
 	return (
-		<div className={ styles.root }>
+		<div ref={ measureRef } className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }

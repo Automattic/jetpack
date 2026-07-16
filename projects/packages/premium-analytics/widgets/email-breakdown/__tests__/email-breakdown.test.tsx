@@ -11,6 +11,19 @@ import EmailBreakdownWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
+// The jest globals stub ResizeObserver with a no-op, so the map's width gate
+// would never open; report a wide container as soon as the root mounts.
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useResizeObserver:
+		( callback: ( entries: { contentRect: { width: number } }[] ) => void ) =>
+		( node: Element | null ) => {
+			if ( node ) {
+				callback( [ { contentRect: { width: 1200 } } ] );
+			}
+		},
+} ) );
+
 // Google Charts loads asynchronously and is outside this widget's concern. Keep
 // the map observable while recording how many country rows it receives.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {

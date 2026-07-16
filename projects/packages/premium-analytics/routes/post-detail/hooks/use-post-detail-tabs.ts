@@ -33,8 +33,9 @@ const EMAIL_TAB_IDS: readonly PostDetailTabId[] = [ 'email-opens', 'email-clicks
  *
  * If the URL points at a hidden tab, the first visible tab renders
  * immediately and replaces the hidden value in the URL without adding a
- * browser-history entry — but only once the email gate has settled, so a
- * deep link to an email tab survives the summary's first load.
+ * browser-history entry — but an email-tab URL is only normalized once the
+ * gate query has succeeded, so a deep link survives the summary's first load
+ * and any failed request.
  *
  * @param postId - The scoped post ID (0/NaN disables the email-tab check).
  * @return Visible tabs, the active tab and layout, and the active-tab setter.
@@ -43,9 +44,6 @@ export function usePostDetailTabs( postId: number ) {
 	const opens = useStatsEmailOpensBreakdown( postId, 'rate', { enabled: postId > 0 } );
 	const summary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
 	const hasEmailStats = Number( summary?.total_sends ?? 0 ) > 0;
-	// `isLoading` is false while the query is disabled (no post scope) and once
-	// it settles (data or error), so this only holds off during the first load.
-	const gateSettled = ! opens.isLoading;
 
 	const tabs = useMemo( () => {
 		const allTabs = getPostDetailTabs();
@@ -62,16 +60,23 @@ export function usePostDetailTabs( postId: number ) {
 	const [ storedTab, setActiveTab ] = useActiveTab();
 	const activeTab = tabs.find( tab => tab.id === storedTab )?.id ?? tabs[ 0 ]?.id ?? DEFAULT_TAB_ID;
 
-	// Normalize a hidden-tab URL only once the email gate has settled: while
-	// the send summary is loading the email tabs are hidden provisionally, and
-	// rewriting the URL then would bounce a legitimate email-tab deep link
-	// before we know whether email stats exist. The visible fallback still
-	// renders immediately; only the URL write waits.
+	// Normalize an email-tab URL only after the gate query has *succeeded*:
+	// while the send summary is loading — or after it fails, when we still
+	// don't know whether the post has email stats — the email tabs are hidden
+	// provisionally, and rewriting the URL then would destroy a legitimate
+	// deep link. The visible fallback still renders immediately; the URL write
+	// waits for a definitive answer (a later successful refetch settles it).
+	// Deep links to non-email tabs don't depend on the gate and normalize
+	// right away; without a valid post scope the query never runs, so email
+	// deep links normalize immediately there too.
+	const storedIsEmailTab = EMAIL_TAB_IDS.includes( storedTab as PostDetailTabId );
+	const canNormalize = ! storedIsEmailTab || postId <= 0 || opens.isSuccess;
+
 	useEffect( () => {
-		if ( gateSettled && storedTab !== activeTab ) {
+		if ( canNormalize && storedTab !== activeTab ) {
 			setActiveTab( activeTab, { replace: true } );
 		}
-	}, [ gateSettled, storedTab, activeTab, setActiveTab ] );
+	}, [ canNormalize, storedTab, activeTab, setActiveTab ] );
 
 	return {
 		tabs,

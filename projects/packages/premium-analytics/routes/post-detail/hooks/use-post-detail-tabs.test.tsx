@@ -49,6 +49,7 @@ function mockEmailSends( totalSends?: number, isLoading = false ) {
 	mockUseOpensBreakdown.mockReturnValue( {
 		data: totalSends === undefined ? undefined : { summary: { total_sends: totalSends } },
 		isLoading,
+		isSuccess: totalSends !== undefined,
 	} as unknown as ReturnType< typeof useStatsEmailOpensBreakdown > );
 }
 
@@ -157,6 +158,22 @@ describe( 'usePostDetailTabs', () => {
 
 		// The visible fallback renders, but the URL keeps the deep link until
 		// the gate settles.
+		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'preserves an email deep link when the send summary request fails', () => {
+		// Errored: no data, not loading, not success.
+		mockEmailSends( undefined, false );
+		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		// The tabs stay hidden (fail closed), but the URL keeps the deep link:
+		// a failed request doesn't tell us whether the post has email stats,
+		// and a later successful refetch can still settle it.
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
 		expect( result.current.activeTab ).toBe( 'post-traffic' );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
