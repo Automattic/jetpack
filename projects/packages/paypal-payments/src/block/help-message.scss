@@ -17,10 +17,10 @@
 	}
 
 	&.help-message-is-error {
-		color: var(--wpds-color-foreground-content-error, #d63638);
+		color: var(--wpds-color-foreground-content-error);
 
 		svg {
-			fill: var(--wpds-color-foreground-content-error, #d63638);
+			fill: var(--wpds-color-foreground-content-error);
 		}
 	}
 }
