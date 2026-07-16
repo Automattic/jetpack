@@ -6,6 +6,7 @@ declare module '@automattic/jetpack-script-data' {
 			show_url_hosts?: Record< string, readonly string[] >;
 			show_url_max_length?: number;
 			preload?: Record< string, { body: unknown; headers?: Record< string, string > } >;
+			selected_category?: { id: number; name: string } | null;
 			upgrade?: {
 				product_slug?: string;
 				plan_name?: string;
