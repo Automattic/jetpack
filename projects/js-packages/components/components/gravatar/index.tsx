@@ -23,6 +23,39 @@ type DefaultImage =
 	| 'robohash'
 	| 'wavatar';
 
+/**
+ * Background colors for the "initials" identity avatars, drawn from the
+ * Color Studio palette's 50 shades (https://color-studio.blog/).
+ *
+ * Hex values without the leading `#`, as Gravatar's `bg_color` param expects.
+ */
+const IDENTITY_BG_COLORS = [
+	'3858e9', // Blue 50
+	'984a9c', // Purple 50
+	'c9356e', // Pink 50
+	'd63638', // Red 50
+	'b26200', // Orange 50
+	'9d6e00', // Yellow 50
+	'008a20', // Green 50
+	'008763', // Celadon 50
+];
+
+/**
+ * Picks a stable background color for an email's identity avatar, so the same
+ * address always renders on the same Color Studio color.
+ *
+ * Uses the first 8 hex chars of the normalized email's SHA-256, matching
+ * `Feedback_Author::get_avatar_url()` in the Forms package.
+ *
+ * @param email - Email address the avatar is rendered for.
+ * @return A hex color (without the leading `#`) from IDENTITY_BG_COLORS.
+ */
+export function getIdentityBackgroundColor( email: string ): string {
+	const hash = sha256( email.trim().toLowerCase() );
+	const index = parseInt( hash.slice( 0, 8 ), 16 ) % IDENTITY_BG_COLORS.length;
+	return IDENTITY_BG_COLORS[ index ];
+}
+
 export type GravatarProps = {
 	/**
 	 * Style of the placeholder image when the email has no Gravatar profile.
@@ -123,13 +156,15 @@ export default function Gravatar( {
 
 	const hashedEmail = sha256( email );
 	const hovercardName = displayName ? `&name=${ encodeURIComponent( displayName ) }` : '';
+	const backgroundColor =
+		defaultImage === 'initials' ? `&bg_color=${ getIdentityBackgroundColor( email ) }` : '';
 
 	return (
 		<img
 			ref={ profileImageRef }
 			className={ clsx( 'jetpack-components-gravatar', className ) }
 			alt={ displayName || '' }
-			src={ `https://secure.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }${ hovercardName }` }
+			src={ `https://secure.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }${ hovercardName }${ backgroundColor }` }
 			width={ size }
 			height={ size }
 			loading="lazy"
