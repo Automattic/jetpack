@@ -554,6 +554,7 @@ export const Paginated: Story = {
 	args: {
 		...Default.args,
 		data: PAGINATED_ROWS,
+		hideLevelMarkers: true,
 	},
 	parameters: {
 		docs: {
