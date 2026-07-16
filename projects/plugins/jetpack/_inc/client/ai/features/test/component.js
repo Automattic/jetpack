@@ -139,6 +139,14 @@ describe( 'visibleSections', () => {
 		] );
 	} );
 
+	test( 'keeps a row that requires an upgrade (badge case, not hidden)', () => {
+		const sections = visibleSections( [ { key: 'search', features: [ { key: 'ai_search' } ] } ], {
+			ai_search: { enabled: false, requires_upgrade: true },
+		} );
+
+		expect( sections.map( s => s.key ) ).toEqual( [ 'search' ] );
+	} );
+
 	test( 'drops a row the endpoint marks unavailable', () => {
 		const sections = visibleSections( SECTIONS, {
 			writing_assistant: { enabled: true },

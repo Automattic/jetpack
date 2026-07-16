@@ -93,3 +93,11 @@ body.jetpack_page_jetpack-ai {
 .jetpack-ai-features__action {
 	margin-inline-start: 44px;
 }
+
+// Section header: title left, optional "Requires upgrade" badge right,
+// matching the Search card in the design.
+.jetpack-ai-features__section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}

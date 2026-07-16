@@ -1,6 +1,6 @@
 /**
  * AI Features view — per-feature toggles for Jetpack AI, grouped by area
- * (Content, Media, SEO) per the AI-Settings design.
+ * (Content, Media, SEO, Search) per the AI-Settings design.
  *
  * Each feature has its own on/off switch, backed by the feature-settings
  * endpoint. A disabled feature must genuinely stop loading (its assets are
@@ -11,7 +11,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Link, Stack, Text } from '@wordpress/ui';
+import { Badge, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
@@ -103,6 +103,29 @@ const SECTIONS = [
 			},
 		],
 	},
+	{
+		key: 'search',
+		title: __( 'Search', 'jetpack' ),
+		features: [
+			{
+				key: 'ai_search',
+				label: __( 'AI Search', 'jetpack' ),
+				description: __(
+					'Answer visitor questions and make your site findable by AI agents — both powered by your indexed content via Jetpack Search.',
+					'jetpack'
+				),
+				enabledAction: {
+					label: __( 'Open Search Settings', 'jetpack' ),
+					href: 'admin.php?page=jetpack-search',
+				},
+				disabledAction: {
+					label: __( 'Learn more', 'jetpack' ),
+					href: getRedirectUrl( 'jetpack-ai-settings-search-learn-more' ),
+					external: true,
+				},
+			},
+		],
+	},
 ];
 
 /**
@@ -131,32 +154,38 @@ export function visibleSections( sections, features ) {
 /**
  * A single feature row: toggle + description + optional action link.
  *
- * @param {object}   props          - Component props.
- * @param {object}   props.feature  - Entry from SECTIONS[].features.
- * @param {boolean}  props.checked  - Whether the feature is enabled.
- * @param {boolean}  props.isSaving - Whether this toggle is being saved.
- * @param {Function} props.onChange - Called with (key, enabled) on toggle.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.feature       - Entry from SECTIONS[].features.
+ * @param {object}   props.reported      - This feature's object from the settings response.
+ * @param {boolean}  props.checked       - Whether the feature is enabled.
+ * @param {boolean}  props.isSaving      - Whether this toggle is being saved.
+ * @param {boolean}  props.masterEnabled - Whether the site-wide AI master switch is on.
+ * @param {Function} props.onChange      - Called with (key, enabled) on toggle.
  * @return {object} Component markup.
  */
-function FeatureRow( { feature, checked, isSaving, onChange } ) {
+function FeatureRow( { feature, reported, checked, isSaving, masterEnabled, onChange } ) {
 	const handleChange = useCallback(
 		enabled => onChange( feature.key, enabled ),
 		[ feature.key, onChange ]
 	);
 
 	const action = checked ? feature.enabledAction : feature.disabledAction;
+	// The toggle keeps showing the SAVED value but can't be used while the
+	// master switch is off (the saved choice returns when master does) or
+	// while the plan doesn't include the feature.
+	const isDisabled = isSaving || ! masterEnabled || !! reported?.requires_upgrade;
 
 	return (
 		<Stack direction="column" gap="xs" className="jetpack-ai-features__row">
 			<ToggleControl
 				__nextHasNoMarginBottom
 				checked={ checked }
-				disabled={ isSaving }
+				disabled={ isDisabled }
 				label={ feature.label }
 				help={ feature.description }
 				onChange={ handleChange }
 			/>
-			{ action && (
+			{ action && masterEnabled && (
 				<Link
 					className="jetpack-ai-features__action"
 					href={ action.href }
@@ -180,6 +209,10 @@ function FeatureRow( { feature, checked, isSaving, onChange } ) {
  */
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
+	// Children keep their saved values while the master switch is off — the
+	// page shows them greyed with a site-wide notice instead of misreporting
+	// the user's choices as off.
+	const masterEnabled = settings?.master_enabled !== false;
 
 	const sections = visibleSections( SECTIONS, features );
 
@@ -193,19 +226,42 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 
 	return (
 		<Stack direction="column" gap="md">
+			{ ! masterEnabled && (
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Jetpack AI is turned off for this site.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'Your feature settings are saved and will apply again when AI is turned back on.',
+							'jetpack'
+						) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack">
+							{ __( 'Manage in My Jetpack', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			{ sections.map( section => (
 				<Card.Root key={ section.key }>
 					<Card.Content>
 						<Stack direction="column" gap="md">
-							<Text as="h3" weight="600">
-								{ section.title }
-							</Text>
+							<div className="jetpack-ai-features__section-header">
+								<Text as="h3" weight="600">
+									{ section.title }
+								</Text>
+								{ section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
+									<Badge intent="none">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
+								) }
+							</div>
 							{ section.features.map( feature => (
 								<FeatureRow
 									key={ feature.key }
 									feature={ feature }
+									reported={ features[ feature.key ] }
 									checked={ !! features[ feature.key ]?.enabled }
 									isSaving={ savingKeys.has( feature.key ) }
+									masterEnabled={ masterEnabled }
 									onChange={ handleToggle }
 								/>
 							) ) }
