@@ -27,6 +27,9 @@
 					} catch {
 						return false;
 					}
+					if ( poll_url.protocol !== 'https:' ) {
+						return false;
+					}
 					if (
 						poll_url.hostname !== 'secure.polldaddy.com' &&
 						poll_url.hostname !== 'static.polldaddy.com'
@@ -34,7 +37,7 @@
 						return false;
 					}
 					const pathname = poll_url.pathname;
-					if ( ! /\/?p\/\d+\.js/.test( pathname ) ) {
+					if ( ! /^\/p\/\d+\.js$/.test( pathname ) ) {
 						return false;
 					}
 					const wp_pd_js = d.createElement( 'script' );

@@ -74,6 +74,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics' ),
 		load: () => import( './comment-followers/page' ),
 	},
+	downloads: {
+		id: 'downloads',
+		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics' ),
+		load: () => import( './downloads/page' ),
+	},
 	posts: {
 		id: 'posts',
 		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ),

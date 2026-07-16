@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Normalize the size, weight, centering, and alignment of block inserter icons across Jetpack monetize blocks (Donations, Tips, Payment Button, Paid Content, Tock, WhatsApp Button, and others) so they render consistently.

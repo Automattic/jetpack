@@ -23,14 +23,14 @@ const OPENS_RATE_RESPONSE = {
 	total_sends: 1000,
 	total_opens: 400,
 	unique_opens: 380,
-	opens_rate: 38.1,
+	opens_rate: 0.381,
 };
 
 const CLICKS_RATE_RESPONSE = {
 	total_sends: 1000,
 	total_opens: 400,
 	total_clicks: 40,
-	clicks_rate: 3.81,
+	clicks_rate: 0.0381,
 };
 
 function routeRateResponse( options: unknown ) {
@@ -154,7 +154,7 @@ describe( 'EmailTopRowWidget', () => {
 describe( 'toEmailTopRowMetrics', () => {
 	it( 'builds the Opens view tiles in order and converts the 0–100 rate', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 38.1 } ),
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 0.381 } ),
 			'opens'
 		);
 
@@ -170,7 +170,7 @@ describe( 'toEmailTopRowMetrics', () => {
 
 	it( 'builds the Clicks view tiles in order', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_opens: 400, total_clicks: 40, clicks_rate: 3.81 } ),
+			asSummary( { total_opens: 400, total_clicks: 40, clicks_rate: 0.0381 } ),
 			'clicks'
 		);
 
@@ -184,7 +184,7 @@ describe( 'toEmailTopRowMetrics', () => {
 
 	it( 'hides the Unique opens tile when there are no unique opens', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 38.1 } ),
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 0.381 } ),
 			'opens'
 		);
 

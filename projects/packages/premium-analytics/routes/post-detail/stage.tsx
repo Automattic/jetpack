@@ -97,19 +97,21 @@ function PostDetail(): JSX.Element {
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						{ /*
-						 * The summary card and date filters are shared by every tab
+						 * The date filters and the summary card are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid.
+						 * tab bar and above the per-tab widget grid. The filters sit
+						 * directly under the tabs, mirroring the main dashboard's
+						 * placement, with the summary header below them.
 						 *
-						 * The date-filters wrapper is also the responsive-measurement
+						 * The filters wrapper is also the responsive-measurement
 						 * target: DateFiltersPanel reads its width to pick mobile/wide
 						 * layouts instead of relying on the viewport.
 						 */ }
-						<div className={ styles.summary }>
-							<PostSummaryCard summary={ summary } />
-						</div>
 						<div ref={ setContainerElement } className={ styles.dateFilters }>
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+						</div>
+						<div className={ styles.header }>
+							<PostSummaryCard summary={ summary } performanceRange={ dateFilters.appliedRange } />
 						</div>
 						{ tabs.map( tab => (
 							<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>

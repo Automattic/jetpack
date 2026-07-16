@@ -1,5 +1,8 @@
 import { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from '..';
-import { videoPlaysFixture, videoPlaysSummaryFixture } from '../__fixtures__/video-plays';
+import {
+	videoPlaysCompleteStatsSummaryFixture,
+	videoPlaysFixture,
+} from '../__fixtures__/video-plays';
 import type { StatsNormalizedReport, StatsVideoPlaysItem } from '..';
 
 describe( 'Stats video plays normalizer', () => {
@@ -21,10 +24,10 @@ describe( 'Stats video plays normalizer', () => {
 	} );
 
 	it( 'normalizes summarized video plays into range data', () => {
-		const result = sanitizeStatsVideoPlaysResponse( videoPlaysSummaryFixture, {
+		const result = sanitizeStatsVideoPlaysResponse( videoPlaysCompleteStatsSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-16',
-			end_date: '2026-06-22',
+			start_date: '2026-07-09',
+			end_date: '2026-07-14',
 			summarize: true,
 			complete_stats: true,
 		} );
@@ -32,22 +35,23 @@ describe( 'Stats video plays normalizer', () => {
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
 				total: {
-					views: '11',
-					impressions: '42',
-					watch_time: '128.5',
+					impressions: '584',
+					views: '337',
+					watch_time: '0.186',
 				},
 			} )
 		);
-		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
-			expect.objectContaining( {
-				id: 12,
-				label: 'Launch video',
-				plays: 11,
-				impressions: 42,
-				watch_time: 128.5,
-				retention_rate: 61.25,
-			} )
-		);
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual( {
+			id: 454,
+			label: 'Product tour',
+			plays: 106,
+			impressions: 183,
+			watch_time: 0.0597,
+			retention_rate: 67.6,
+			link: null,
+			actions: [],
+			children: null,
+		} );
 	} );
 
 	it( 'does not add link actions when video rows have no URL', () => {

@@ -1,15 +1,11 @@
 // Packages we need to copy versions from for `@wordpress/dataviews/wp`.
 const wpPkgs = [
 	[ '@wordpress/components', 'change-case' ],
-	[ '@wordpress/components', 'colord' ],
-	[ '@wordpress/components', 'date-fns' ],
-	[ '@wordpress/components', 'deepmerge' ],
 	[ '@wordpress/components', '@emotion/cache' ],
 	[ '@wordpress/components', '@emotion/css' ],
 	[ '@wordpress/components', '@emotion/react' ],
 	[ '@wordpress/components', '@emotion/styled' ],
 	[ '@wordpress/components', '@emotion/utils' ],
-	[ '@wordpress/components', 'fast-deep-equal' ],
 	[ '@wordpress/components', '@floating-ui/react-dom' ],
 	[ '@wordpress/components', 'framer-motion' ],
 	[ '@wordpress/components', 'highlight-words-core' ],
@@ -17,7 +13,6 @@ const wpPkgs = [
 	[ '@wordpress/components', 'memize' ],
 	[ '@wordpress/components', '@use-gesture/react' ],
 	[ '@wordpress/components', 'uuid' ],
-	[ '@wordpress/components', '@wordpress/date' ],
 	[ '@wordpress/components', '@wordpress/hooks' ],
 	[ '@wordpress/components', 'react-colorful' ],
 	[ '@wordpress/components', 'react-day-picker' ],
@@ -138,29 +133,10 @@ async function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-
-		// Doesn't really need these at all with eslint 9 and our config.
-		pkg.peerDependenciesMeta ??= {};
-		pkg.peerDependenciesMeta[ '@typescript-eslint/eslint-plugin' ] = { optional: true };
-		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
-	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
-	if ( pkg.name === '@wordpress/babel-preset-default' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
-				pkg.dependencies[ dep ] = '^' + ver;
-			}
-		}
-	}
-
-	// Outdated dependency and unnecessarily explicit deps.
+	// Outdated dependency
 	if ( pkg.name === '@wordpress/build' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
-				pkg.dependencies[ dep ] = '^' + ver;
-			}
-		}
 		if ( pkg.dependencies.cssnano === '^6.0.1' ) {
 			pkg.dependencies.cssnano = '^6 || ^7';
 		}
@@ -427,7 +403,6 @@ function fixPeerDeps( pkg ) {
 	if (
 		( pkg.name === 'stylelint-config-recommended' ||
 			pkg.name === 'stylelint-config-recommended-scss' ||
-			pkg.name === '@stylistic/stylelint-plugin' ||
 			pkg.name === 'stylelint-scss' ) &&
 		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
 	) {

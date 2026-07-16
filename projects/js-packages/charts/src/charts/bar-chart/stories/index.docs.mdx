@@ -65,7 +65,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`width`**: Chart width in pixels. When omitted, fills parent container width
 - **`height`**: Chart height in pixels (defaults to 400). When omitted, fills parent container height
 - **`margin`**: Custom chart margins
-- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.5`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
@@ -383,7 +383,7 @@ By default, charts **fill their parent container's dimensions**. The parent must
 		<BarChart data={data} />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<BarChart data={data} aspectRatio={0.5} />
 	</div>

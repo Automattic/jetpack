@@ -47,7 +47,7 @@ const calibration = loadCalibration();
  * @param {string} password   - wp-admin password.
  * @param {number} iterations - Number of measurement iterations.
  * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, and `minResourceCount`.
+ *                            `expectUrlIncludes`, `loadState`, and `minResourceCount`.
  * @return {Promise<object>} { summary, results, url }.
  */
 async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
@@ -62,6 +62,16 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 	// against measuring the wrong page — e.g. a bare Forms URL redirecting to /forms instead of
 	// the responses inbox — which would populate this scenario's permanent keys from off-target.
 	const expectUrlIncludes = scenario.expectUrlIncludes || null;
+	// The Playwright load state each navigation waits for. Defaults to 'networkidle' (the settled
+	// signal every scenario used originally). A scenario whose page keeps a request perpetually
+	// pending — e.g. the Forms dashboard's canUser OPTIONS to /wp/v2/settings stalls in the
+	// headless-Chromium fixture — sets 'load' so a single un-settling request cannot blackhole the
+	// whole scenario; readiness is then carried by the visible-selector + hydration + resource-count
+	// settle below, not by network quiescence. See scenarios.js (formsResponses) and FORMS-729.
+	const navWaitUntil = scenario.loadState || 'networkidle';
+	// The one predicate the readiness plumbing branches on, bound once so the ledger creation,
+	// the warm-up settle and the measured settle can never disagree about which path they are on.
+	const useResourceSettle = navWaitUntil !== 'networkidle';
 
 	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
 
@@ -91,8 +101,51 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			}
 		}
 
+		// In-flight request ledger for the non-networkidle path: counts every request from issue
+		// until finished/failed, excluding the known-stuck settings probe, so the resource-count
+		// settle can refuse to report quiet while legitimate work is still in flight (the
+		// completed-entries count alone cannot see an in-flight request). null on the networkidle
+		// path, which needs no ledger — Playwright's networkidle already tracks in-flight requests.
+		const pendingRequests = useResourceSettle
+			? trackPendingRequests( page, isStuckSettingsProbe )
+			: null;
+
 		try {
 			console.log( `  Iteration ${ i + 1 }/${ iterations }...` );
+
+			// Step 0: Set up LCP capture and the enlarged Resource Timing buffer via addInitScript.
+			// This injects code that runs BEFORE any page script on EVERY navigation from here on
+			// (login, warm-up and the measured reload — each document gets a fresh copy, so the
+			// reload's __lcpEntries never contain earlier pages' entries). Installed before the
+			// FIRST navigation on purpose: the warm-up resource-count settle reads the timing
+			// buffer, and the browser's 250-entry default would silently cap (and false-settle)
+			// the count once the page's real load grows past it.
+			/* eslint-disable no-undef -- This runs in browser context via Playwright */
+			await context.addInitScript( () => {
+				// This runs in the browser context before page load
+
+				// Raise the Resource Timing buffer well above the default 250 entries. This metric
+				// exists to watch a GROWING count of @wordpress/* editor module files, so the
+				// measured quantity and the default cap would collide exactly as the tracked
+				// regression worsens — past 250 the tail would drop and the decoded-bytes sum would
+				// silently under-count. (~91 resources today; this is headroom, not a live fix.)
+				performance.setResourceTimingBufferSize( 10000 );
+
+				window.__lcpEntries = [];
+				window.__lcpObserver = new PerformanceObserver( list => {
+					const entries = list.getEntries();
+					for ( const entry of entries ) {
+						window.__lcpEntries.push( {
+							startTime: entry.startTime,
+							element: entry.element?.tagName || 'unknown',
+							size: entry.size,
+							url: entry.url,
+						} );
+					}
+				} );
+				window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
+			} );
+			/* eslint-enable no-undef */
 
 			// Step 1: Log in to WordPress (not measured)
 			await page.goto( `${ url }/wp-login.php`, {
@@ -118,44 +171,24 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// ready selector before measuring. The Dashboard scenario has no path and skips this.
 			if ( targetPath ) {
 				await page.goto( `${ url }${ targetPath }`, {
-					waitUntil: 'networkidle',
+					waitUntil: navWaitUntil,
 					timeout: 60000,
 				} );
 				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
+				if ( useResourceSettle ) {
+					// Warm-up parity with the networkidle scenarios: on the default path this goto
+					// waits for network quiescence, so every cacheable resource is warm before the
+					// measured reload. With `load` the goto returns while route/post-mount resources
+					// may still be in flight, and reloading then would abort them — measuring a
+					// partially cold cache. Settle on the resource count here so the reload below
+					// measures the same warmed page networkidle used to guarantee.
+					await settleOrThrow( page, pendingRequests, 'warm-up navigation' );
+				}
 			}
 
-			// Step 2: Set up LCP capture using addInitScript
-			// This injects code that runs BEFORE any page script on every navigation
-			/* eslint-disable no-undef -- This runs in browser context via Playwright */
-			await context.addInitScript( () => {
-				// This runs in the browser context before page load
-
-				// Raise the Resource Timing buffer well above the default 250 entries. This metric
-				// exists to watch a GROWING count of @wordpress/* editor module files, so the
-				// measured quantity and the default cap would collide exactly as the tracked
-				// regression worsens — past 250 the tail would drop and the decoded-bytes sum would
-				// silently under-count. (~79 resources today; this is headroom, not a live fix.)
-				performance.setResourceTimingBufferSize( 10000 );
-
-				window.__lcpEntries = [];
-				window.__lcpObserver = new PerformanceObserver( list => {
-					const entries = list.getEntries();
-					for ( const entry of entries ) {
-						window.__lcpEntries.push( {
-							startTime: entry.startTime,
-							element: entry.element?.tagName || 'unknown',
-							size: entry.size,
-							url: entry.url,
-						} );
-					}
-				} );
-				window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
-			} );
-			/* eslint-enable no-undef */
-
-			// Step 3: Reload for a clean measurement of the current page — the Dashboard, or the
+			// Step 2: Reload for a clean measurement of the current page — the Dashboard, or the
 			// page navigated to above.
-			await page.reload( { waitUntil: 'networkidle', timeout: 60000 } );
+			await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
 
 			// Wait for the measured page's content to be present after reload.
 			if ( pageReadySelector ) {
@@ -178,10 +211,23 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				await page.waitForSelector( '#dashboard-widgets, #wpbody-content', { timeout: 30000 } );
 			}
 
-			// Wait for network to settle and LCP to finalize
-			// LCP stops updating after user input or visibility change
-			// Using networkidle is more reliable than a fixed timeout on slow systems
-			await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+			// Wait for the resource payload to finish loading and LCP to finalize (LCP stops
+			// updating after user input or visibility change).
+			if ( ! useResourceSettle ) {
+				// Default path (Dashboard, My Jetpack): network quiescence is a reliable
+				// "everything loaded" signal and more robust than a fixed timeout on slow systems.
+				await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+			} else {
+				// Resilient path (scenarios with a perpetually-pending request, e.g. Forms — see
+				// navWaitUntil): `networkidle` never fires, so settle on the completed-resource count
+				// going quiet AND no legitimate request in flight (the pendingRequests ledger, which
+				// excludes only the known-stuck probe) — networkidle's own guarantee minus the one
+				// request that breaks it. A never-delivered excluded request can't stall this, while
+				// genuine late resources still hold the wait open via the ledger or the count. If
+				// either signal is still active when the cap expires, fail the iteration (fail
+				// closed) rather than capture a still-loading page's bundle size.
+				await settleOrThrow( page, pendingRequests, 'measured reload' );
+			}
 
 			// Additional short wait for any final rendering after network settles
 			await page.waitForTimeout( 500 );
@@ -303,6 +349,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				timestamp: new Date().toISOString(),
 			} );
 		} finally {
+			pendingRequests?.dispose();
 			await browser.close();
 		}
 
@@ -516,6 +563,180 @@ function summarizeResources( resources ) {
 		totalDecodedBodySizeKB: Math.round( totalDecodedBodySize / 1024 ),
 		byType,
 	};
+}
+
+/**
+ * Settle by watching the completed-resource count go quiet — a `networkidle` substitute that a
+ * perpetually-pending request cannot stall.
+ *
+ * `page.waitForLoadState('networkidle')` fires only when there are ~no in-flight requests for
+ * 500ms; a single request that never delivers a response (the Forms dashboard's canUser OPTIONS to
+ * /wp/v2/settings does exactly this in the headless-Chromium fixture) keeps it in-flight forever, so
+ * networkidle never fires and the whole measurement times out. This instead polls
+ * `performance.getEntriesByType('resource').length`, which only counts *completed* requests: a
+ * never-delivered request never appears, so it can't hold the count from settling, while genuine
+ * late resources (lazy editor modules) still bump the count and extend the wait. Resolves once the
+ * count is unchanged across `stableChecks` consecutive polls, or when `maxWaitMs` elapses (whichever
+ * first), so a page that keeps streaming resources still returns rather than hanging.
+ *
+ * On its own the completed count cannot see an IN-FLIGHT request (a Resource Timing entry appears
+ * only at responseEnd), so a slow legitimate response could look like quiet. Pass `pendingCount`
+ * (see trackPendingRequests) and the settle also requires zero relevant in-flight requests on
+ * every stable poll — together that is `networkidle`'s own guarantee (quiet + nothing in flight)
+ * minus the excluded stuck request. What remains possible in BOTH designs is a gap before the
+ * page issues its next wave (nothing in flight, count flat); that pre-existing networkidle window
+ * is why `minResourceCount` + SANITY_RANGES stay as backstops. This settle detects quiescence —
+ * it does not by itself prove completeness.
+ *
+ * The result says WHICH of the two happened: `settled: true` means genuine stability was observed;
+ * `settled: false` means the cap expired with the count still changing or a request still in
+ * flight — an incomplete capture the caller must treat as a failed iteration (see
+ * assertResourceCountSettled), never measure.
+ *
+ * @param {import('playwright').Page} page                   - The page being measured.
+ * @param {object}                    [opts]                 - Tuning knobs.
+ * @param {number}                    [opts.intervalMs=200]  - Poll interval.
+ * @param {number}                    [opts.stableChecks=5]  - Consecutive unchanged polls required (≈1s quiet).
+ * @param {number}                    [opts.maxWaitMs=20000] - Deadline on the polling loop. Checked between polls, so it bounds loop scheduling — it does not interrupt a single wedged `page.evaluate` (that failure mode throws or hangs the CDP session itself).
+ * @param {Function}                  [opts.pendingCount]    - Returns the number of relevant in-flight requests (trackPendingRequests().count). While it returns > 0, polls do not count toward stability.
+ * @return {Promise<{settled: boolean, count: number}>} Whether stability was reached before the deadline, and the last completed-resource count observed.
+ */
+async function waitForResourceCountIdle( page, opts = {} ) {
+	const { intervalMs = 200, stableChecks = 5, maxWaitMs = 20000, pendingCount = null } = opts;
+	const deadline = Date.now() + maxWaitMs;
+	let last = -1;
+	let stable = 0;
+	while ( Date.now() < deadline ) {
+		const count = await page.evaluate( () => performance.getEntriesByType( 'resource' ).length );
+		const busy = pendingCount ? pendingCount() > 0 : false;
+
+		if ( count === last && ! busy ) {
+			stable += 1;
+			if ( stable >= stableChecks ) {
+				return { settled: true, count };
+			}
+		} else {
+			stable = 0;
+			last = count;
+		}
+		await page.waitForTimeout( intervalMs );
+	}
+	return { settled: false, count: last };
+}
+
+/**
+ * The one request the in-flight ledger must ignore: the wp-build boot framework's `canUser`
+ * OPTIONS probe to /wp/v2/settings, whose response is intermittently never delivered to the
+ * browser in the local headless-Chromium fixture (the very request that forced the Forms
+ * scenario off `networkidle` — see scenarios.js). Matched by method + decoded URL because the
+ * fixture requests it via `rest_route=%2Fwp%2Fv2%2Fsettings`. Deliberately narrow: ONLY the
+ * settings OPTIONS probe is excluded, so any other stuck request holds the settle open and
+ * fails the iteration at the deadline (fail closed) instead of being silently ignored.
+ *
+ * @param {import('playwright').Request} request - A Playwright request.
+ * @return {boolean} True when this is the known-stuck settings probe.
+ */
+function isStuckSettingsProbe( request ) {
+	if ( request.method() !== 'OPTIONS' ) {
+		return false;
+	}
+	let parsed;
+	try {
+		parsed = new URL( request.url() );
+	} catch {
+		// Not an absolute URL — cannot be the probe; leave it in the ledger (fail closed).
+		return false;
+	}
+	// The REST route this request targets: the `rest_route` query value (the fixture's
+	// plain-permalink shape — searchParams decodes the %2F encoding), or the /wp-json/<route>
+	// pathname under pretty permalinks. Compared EXACTLY (modulo a trailing slash) so adjacent
+	// routes (/wp/v2/settings/child, /wp/v2/settings-extra) and unrelated URLs that merely
+	// carry the string in a query value never match — those must stay in the ledger and fail
+	// the iteration if they get stuck.
+	const route =
+		parsed.searchParams.get( 'rest_route' ) ?? parsed.pathname.replace( /^\/wp-json(?=\/)/, '' );
+	return route.replace( /\/+$/, '' ) === '/wp/v2/settings';
+}
+
+/**
+ * Ledger of in-flight page requests, for the settle's `pendingCount` option. Playwright fires
+ * `request` when a request is issued and `requestfinished`/`requestfailed` when it completes or
+ * aborts (navigations abort outstanding requests, which fires `requestfailed`), so the set size
+ * is the number of requests currently in flight. Requests matching `isExcluded` are never added
+ * — that is how the known-stuck probe is prevented from holding the settle open forever.
+ *
+ * @param {import('playwright').Page}                       page       - The page to track.
+ * @param {function(import('playwright').Request): boolean} isExcluded - Requests to ignore.
+ * @return {{count: function(): number, dispose: function(): void}} `count()` for the settle's pendingCount option; `dispose()` detaches the listeners (call in the iteration's finally).
+ */
+function trackPendingRequests( page, isExcluded ) {
+	const pending = new Set();
+	const onRequest = request => {
+		if ( ! isExcluded( request ) ) {
+			pending.add( request );
+		}
+	};
+	const onSettled = request => pending.delete( request );
+	page.on( 'request', onRequest );
+	page.on( 'requestfinished', onSettled );
+	page.on( 'requestfailed', onSettled );
+	return {
+		count: () => pending.size,
+		dispose: () => {
+			page.off( 'request', onRequest );
+			page.off( 'requestfinished', onSettled );
+			page.off( 'requestfailed', onSettled );
+		},
+	};
+}
+
+/**
+ * Fail-closed gate on the resource-count settle: a capped-out settle means the page was still
+ * loading resources when the deadline hit, so measuring it would record a truncated bundle size
+ * (and possibly a premature LCP) that passes the coarse `minResourceCount`/SANITY_RANGES guards
+ * and lands on a permanent, no-rollback CodeVitals key looking exactly like a real regression.
+ * Throwing here turns that silent undercount into a failed iteration: the per-iteration catch in
+ * measureLCP records the error and the run continues on the remaining iterations, so one slow
+ * load costs a sample, not the scenario.
+ *
+ * @param {{settled: boolean, count: number}} result - Return value of waitForResourceCountIdle.
+ * @param {string}                            phase  - Which settle this was (for the error message).
+ * @throws {Error} When the settle capped out instead of reaching stability.
+ */
+function assertResourceCountSettled( result, phase ) {
+	if ( ! result.settled ) {
+		// Neutral wording on purpose: settled:false means the completed count was still moving
+		// OR a relevant request was still in flight at the deadline — the result cannot say
+		// which, so the message must not claim "count still changing" when a stuck request may
+		// be the actual holdout.
+		throw new Error(
+			`Page never settled during ${ phase }: resources or in-flight requests were still active (completed count ${ result.count }) when the deadline expired — failing this iteration rather than measuring a still-loading page`
+		);
+	}
+}
+
+/**
+ * The settle-or-throw step both non-networkidle readiness sites share (warm-up navigation and
+ * measured reload): run the in-flight-aware settle with the iteration's pending-request ledger
+ * threaded in, and fail the iteration (fail closed) if it caps out. Extracted so the ledger
+ * threading is a single, unit-tested seam — a call site that silently dropped `pendingCount`
+ * would reopen the slow-response undercount this exists to close, and as a plain inline option
+ * object that regression survived the whole test suite.
+ *
+ * @param {import('playwright').Page}   page            - The page being measured.
+ * @param {{count: function(): number}} pendingRequests - The iteration's ledger (trackPendingRequests).
+ * @param {string}                      phase           - Which settle this is (for the error message).
+ * @param {object}                      [settleOpts]    - waitForResourceCountIdle tuning overrides (tests only; `pendingCount` cannot be overridden).
+ * @throws {Error} When the settle caps out instead of reaching stability.
+ */
+async function settleOrThrow( page, pendingRequests, phase, settleOpts = {} ) {
+	assertResourceCountSettled(
+		await waitForResourceCountIdle( page, {
+			...settleOpts,
+			pendingCount: pendingRequests.count,
+		} ),
+		phase
+	);
 }
 
 /**
@@ -834,7 +1055,12 @@ export {
 	finalizeMeasurement,
 	assertCaptureComplete,
 	assertExpectedUrl,
+	assertResourceCountSettled,
+	isStuckSettingsProbe,
+	settleOrThrow,
+	trackPendingRequests,
 	summarizeResources,
 	resolveScenarioSet,
 	computeRunOutcome,
+	waitForResourceCountIdle,
 };

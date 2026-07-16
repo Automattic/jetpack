@@ -26,7 +26,7 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
 | `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |
 | `height` | `number` | - | Fixed height in pixels. When omitted, the chart fills its parent's height. |
-| `aspectRatio` | `number` | - | Height as a ratio of width in responsive mode (e.g. `0.4`). Used when `width`/`height` are omitted. |
+| `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `chartId` | `string` | - | Custom chart identifier used in accessibility attributes. |
 | `className` | `string` | - | Additional CSS class for the outermost element. |
 | `gap` | `GapSize` | `'md'` | Gap between chart layout regions (chart area, legend, children). Uses WordPress design system tokens. |

@@ -13,7 +13,14 @@ const {
 const { compareModulesByPreOrderIndexOrIdentifier } = require( 'webpack/lib/util/comparators' );
 
 const PNPM_PATH_REGEXP =
-	/(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/]*\/node_modules\/([^|!]+)/g;
+	/(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/!|]*\/node_modules\/([^|!]+)/g;
+
+/*
+ * With `enableGlobalVirtualStore`, packages live at
+ * `<store>/v<N>/links/<@scope|@>/<name>/<version>/<hash>/node_modules/<path>`.
+ */
+const PNPM_GLOBAL_STORE_PATH_REGEXP =
+	/(?<=^|[|!])[^|!]*?\/v[0-9]+\/links\/@[^/!|]*\/[^/!|]+\/[^/!|]+\/[0-9a-f]{32,}\/node_modules\/([^|!]+)/g;
 
 /**
  * Replace pnpm store paths in an identifier.
@@ -29,7 +36,9 @@ const PNPM_PATH_REGEXP =
  * @return {string} Transformed identifier.
  */
 function fixPnpmPaths( identifier ) {
-	return identifier.replace( PNPM_PATH_REGEXP, '.pnpm/$1' );
+	return identifier
+		.replace( PNPM_PATH_REGEXP, '.pnpm/$1' )
+		.replace( PNPM_GLOBAL_STORE_PATH_REGEXP, '.pnpm/$1' );
 }
 
 /** @typedef {import("../Compiler")} Compiler */

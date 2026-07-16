@@ -18,16 +18,25 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
-			// The rest of this row is reserved for the upcoming comments and
-			// UTM cards.
+			uuid: 'post-comments',
+			type: 'jpa/post-comments',
+			placement: { width: 1, height: 2, order: 2 },
+		},
+		{
 			uuid: 'post-likes',
 			type: 'jpa/post-likes',
-			placement: { width: 1, height: 2, order: 2 },
+			placement: { width: 1, height: 2, order: 3 },
+		},
+		{
+			uuid: 'post-utm',
+			type: 'jpa/utm-insights',
+			attributes: { utmDimension: 'utm_source,utm_medium', max: 10 },
+			placement: { width: 2, height: 2, order: 4 },
 		},
 		{
 			uuid: 'post-traffic-activity',
 			type: 'jpa/post-traffic-activity',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 3 },
+			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 5 },
 		},
 	],
 	'email-opens': [],
