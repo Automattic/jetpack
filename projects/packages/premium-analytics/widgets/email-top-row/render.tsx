@@ -67,7 +67,7 @@ type EmailMetricSpec = {
 	 */
 	label: () => string;
 	/**
-	 * Counts are read with a zero default; rates convert 0–100 to a fraction and
+	 * Counts are read with a zero default; rates pass through 0–1 fractions and
 	 * collapse missing/zero to `null` for the placeholder.
 	 */
 	kind: 'count' | 'rate';
@@ -176,13 +176,13 @@ function readCount( summary: EmailRateSummary, key: string ): number {
 }
 
 /**
- * Reads a rate field (0–100 percentage) off a rate summary and converts it to a
- * fraction for the percentage formatter. Returns `null` for a missing or zero
- * rate so the tile renders the grid's placeholder ("—") instead of "0%". Mirrors
- * the Jetpack Stats top row, which renders "-" for a missing or zero rate: in
- * wp-calypso, `client/my-sites/stats/stats-email-top-row/index.jsx` passes
- * `counts?.opens_rate ? … : null` (a truthy check, so 0 becomes null) and
- * `top-card.jsx` renders a null value as "-".
+ * Reads a rate field off a rate summary. The endpoint returns rates as 0–1
+ * fractions — wp-calypso's `stats-email-top-row/index.jsx` renders
+ * `Math.round( counts.opens_rate * 100 )}%` — which is exactly what the
+ * percentage formatter takes, so the value passes through. Returns `null` for
+ * a missing or zero rate so the tile renders the grid's placeholder ("—")
+ * instead of "0%", mirroring the Jetpack Stats top row (a truthy check there
+ * turns 0 into "-").
  *
  * @param summary - The email rate summary.
  * @param key     - The rate field to read.
@@ -191,7 +191,7 @@ function readCount( summary: EmailRateSummary, key: string ): number {
 function readRate( summary: EmailRateSummary, key: string ): number | null {
 	const value = Number( summary[ key ] );
 
-	return Number.isFinite( value ) && value !== 0 ? value / 100 : null;
+	return Number.isFinite( value ) && value !== 0 ? value : null;
 }
 
 /**

@@ -2,13 +2,14 @@
 // merged client-side, so those columns are display-only (not sortable).
 
 import { getSiteData } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
+import LockedPreview from '../locked-preview';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
@@ -167,7 +168,11 @@ const EpisodesTab = () => {
 	const posts = useMemo( () => episodesPage?.episodes ?? [], [ episodesPage ] );
 
 	const postIds = useMemo( () => posts.map( p => p.id ), [ posts ] );
-	const { data: stats = [] } = useEpisodeStatsQuery( postIds );
+	const {
+		data: stats = [],
+		premiumRequired: statsPremiumRequired,
+		isError: statsError,
+	} = useEpisodeStatsQuery( postIds );
 
 	const statsByPostId = useMemo( () => {
 		const m = new Map< number, EpisodeStats >();
@@ -326,23 +331,40 @@ const EpisodesTab = () => {
 	// active search/filter, let DataViews render its own "no results" UI.
 	const hasFiltersOrSearch = !! view.search || ( view.filters?.length ?? 0 ) > 0;
 
+	// A fail-open access snapshot can let a server-unentitled user reach this
+	// tab; the stats request then rejects with `premium_required`. Converge on
+	// the same locked experience the clean gate shows instead of a half-real table.
+	if ( statsPremiumRequired ) {
+		return <LockedPreview variant="episodes" />;
+	}
+
 	return (
-		<DataViews< EpisodeRow >
-			data={ rows }
-			fields={ fields }
-			view={ view }
-			onChangeView={ setView }
-			actions={ actions }
-			paginationInfo={ {
-				totalItems: episodesPage?.total ?? 0,
-				totalPages: episodesPage?.totalPages ?? 0,
-			} }
-			getItemId={ getEpisodeRowId }
-			isLoading={ isLoading }
-			defaultLayouts={ { table: {} } }
-			empty={ hasFiltersOrSearch ? undefined : <EmptyEpisodes /> }
-			search
-		/>
+		<>
+			{ statsError && (
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						"Couldn't load play counts and duration. The values below may be missing or out of date.",
+						'jetpack-podcast'
+					) }
+				</Notice>
+			) }
+			<DataViews< EpisodeRow >
+				data={ rows }
+				fields={ fields }
+				view={ view }
+				onChangeView={ setView }
+				actions={ actions }
+				paginationInfo={ {
+					totalItems: episodesPage?.total ?? 0,
+					totalPages: episodesPage?.totalPages ?? 0,
+				} }
+				getItemId={ getEpisodeRowId }
+				isLoading={ isLoading }
+				defaultLayouts={ { table: {} } }
+				empty={ hasFiltersOrSearch ? undefined : <EmptyEpisodes /> }
+				search
+			/>
+		</>
 	);
 };
 

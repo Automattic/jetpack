@@ -32,6 +32,10 @@ export { useStatsLocations } from './use-stats-locations';
 export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
 export {
+	useStatsVideoPlaysSummary,
+	type StatsVideoPlaysSummaryParams,
+} from './use-stats-video-plays-summary';
+export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
 } from './use-stats-app-commercial-classification';

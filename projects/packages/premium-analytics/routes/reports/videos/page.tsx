@@ -67,7 +67,7 @@ const RECORDS_VIEW = {
 	sort: { field: 'plays', direction: 'desc' as const },
 	layout: {
 		styles: {
-			title: { width: '100%' },
+			label: { width: '100%' },
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
 		},

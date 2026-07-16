@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Podcast: drop the settings-saved analytics event.
