@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Point the SEO integration tests at the classes split out of the seo package's Initializer.
+
+
