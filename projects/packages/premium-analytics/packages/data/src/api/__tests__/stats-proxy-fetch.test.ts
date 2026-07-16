@@ -101,20 +101,55 @@ describe( 'getStatsProxyPath', () => {
 		).toBe( '/wpcom/v2/analytics/reports/sessions/by-date?interval=day' );
 	} );
 
-	it( 'adds the current Simple site query for global upgrades requests', () => {
+	it( 'adds the current Simple site query for global requests', () => {
 		setSimpleScriptData( 67890 );
 
-		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades' } ) ).toBe(
+		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } ) ).toBe(
 			'/rest/v1.2/upgrades?site=67890'
 		);
 	} );
 
-	it( 'does not overwrite an explicit upgrades site query on Simple', () => {
+	it( 'does not overwrite an explicit site query on Simple global requests', () => {
 		setSimpleScriptData( 67890 );
 
 		expect(
-			getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', params: { site: 41 } } )
+			getStatsProxyPath( {
+				version: '1.2',
+				endpoint: '/upgrades',
+				params: { site: 41 },
+				global: true,
+			} )
 		).toBe( '/rest/v1.2/upgrades?site=41' );
+	} );
+
+	it( 'does not scope a request as global on Simple without opting in', () => {
+		setSimpleScriptData( 67890 );
+
+		// No `global: true` — treated as an ordinary site-scoped request even
+		// though the endpoint name is `upgrades`, since the resolver no longer
+		// infers `global` from the endpoint string.
+		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades' } ) ).toBe(
+			'/rest/v1.2/upgrades'
+		);
+	} );
+
+	it( 'throws for a Simple global request with no site to scope to', () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { site: { host: 'wpcom' } },
+		} );
+
+		expect( () =>
+			getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } )
+		).toThrow( /has no site to scope to/ );
+	} );
+
+	it( 'does not require a site for a non-Simple global request', () => {
+		// Local proxy path is unaffected by `global` — the flag only changes
+		// Simple's public-api dispatch, so a missing blog id shouldn't throw here.
+		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } ) ).toBe(
+			'/jetpack-premium-analytics/v1/proxy/v1.2/upgrades'
+		);
 	} );
 } );
 
@@ -192,21 +227,22 @@ describe( 'fetchStatsProxy', () => {
 		await fetchReport( 'coupons/by-date', {
 			from: '2026-06-01',
 			to: '2026-06-30',
-			filters: [ { key: 'product', operator: 'is', value: '42' } ],
+			filters: [ { key: 'product', compare: 'IN', value: '42' } ],
 		} );
 
 		const path = ( mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string } ).path;
 		expect( decodeURIComponent( path ) ).toBe(
-			'/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coupons/by-date?from=2026-06-01&to=2026-06-30&filters[0][key]=product&filters[0][operator]=is&filters[0][value]=42'
+			'/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coupons/by-date?from=2026-06-01&to=2026-06-30&filters[0][key]=product&filters[0][compare]=IN&filters[0][value]=42'
 		);
 	} );
 
-	it( 'marks WPCOM Simple upgrades requests as global', async () => {
+	it( 'marks WPCOM Simple upgrades requests as global when opted in', async () => {
 		setSimpleScriptData( 67890 );
 
 		await fetchStatsProxy( {
 			version: '1.2',
 			endpoint: 'upgrades',
+			global: true,
 		} );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {

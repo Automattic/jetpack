@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import { getNoticesPath } from '../api/constants';
+import { getNoticesPath } from '../api/stats-proxy-fetch';
 import { statsAppQueryKeyPart } from './stats-app-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
