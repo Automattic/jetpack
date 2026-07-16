@@ -14,6 +14,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
+	buildCsvDateRangeFilename,
 	formatLegendLabels,
 	isCsvExportEnabled,
 	ReportPageLayout,
@@ -191,9 +192,10 @@ function PostsReport(): JSX.Element {
 		! activeRecords.isLoading &&
 		! activeRecords.isFetching &&
 		! activeRecords.isError;
-	const csvFilename = `${ activeTab === 'posts-pages' ? 'top-posts' : 'archives' }-${ String(
-		reportParams.from
-	).slice( 0, 10 ) }_${ String( reportParams.to ).slice( 0, 10 ) }`;
+	const csvFilename = buildCsvDateRangeFilename(
+		activeTab === 'posts-pages' ? 'top-posts' : 'archives',
+		reportParams
+	);
 
 	// The chart period is written to the URL and applied to the daily report
 	// data client-side rather than living in component state.

@@ -77,6 +77,27 @@ export function buildCsv< Row extends Record< string, unknown > >(
 }
 
 /**
+ * Build a date-stamped filename for a CSV export.
+ *
+ * The dates are coerced to strings because the router JSON-parses search
+ * parameters, so a hand-edited numeric value must not throw on `.slice()`.
+ *
+ * @param prefix     - Report-specific filename prefix.
+ * @param range      - Report date range.
+ * @param range.from - Start of the report date range.
+ * @param range.to   - End of the report date range.
+ * @return The filename without its `.csv` extension.
+ */
+export function buildCsvDateRangeFilename(
+	prefix: string,
+	range: { from: string | number; to: string | number }
+): string {
+	const from = String( range.from ).slice( 0, 10 );
+	const to = String( range.to ).slice( 0, 10 );
+	return `${ prefix }-${ from }_${ to }`;
+}
+
+/**
  * Trigger a browser download of the given CSV text.
  *
  * The blob is prefixed with a UTF-8 BOM so Excel on Windows decodes non-ASCII

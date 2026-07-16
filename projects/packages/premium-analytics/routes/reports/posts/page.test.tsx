@@ -31,6 +31,11 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	buildCsvDateRangeFilename: (
+		prefix: string,
+		range: { from: string | number; to: string | number }
+	) =>
+		`${ prefix }-${ String( range.from ).slice( 0, 10 ) }_${ String( range.to ).slice( 0, 10 ) }`,
 	formatLegendLabels: () => [],
 	isCsvExportEnabled: jest.fn(),
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,

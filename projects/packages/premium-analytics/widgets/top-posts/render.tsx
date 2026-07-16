@@ -17,6 +17,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildCsvDateRangeFilename,
 	calculateDelta,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
@@ -307,12 +308,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 		return base;
 	}, [ withComparison ] );
 
-	// Date-stamp the download so exports of different periods don't collide.
-	// `from`/`to` are coerced because the router JSON-parses search params, so a
-	// hand-edited numeric `?from=123` would otherwise throw on `.slice`.
-	const csvFilename = `top-posts-${ String( reportParams.from ).slice( 0, 10 ) }_${ String(
-		reportParams.to
-	).slice( 0, 10 ) }`;
+	const csvFilename = buildCsvDateRangeFilename( 'top-posts', reportParams );
 
 	// Only expose the export once the query has settled on data for the current
 	// params. Stats queries keep the previous period's rows as placeholder data

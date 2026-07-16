@@ -102,6 +102,7 @@ export {
 	formatLegendLabels,
 	formatDisplayLabel,
 	buildCsv,
+	buildCsvDateRangeFilename,
 	saveCsv,
 	type CsvColumn,
 	sharePercentage,
