@@ -13,7 +13,6 @@ import { __ } from '@wordpress/i18n';
 // depends on the routing helper and i18n, so it's safe to import here.
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
-import { resolveSection as resolveUtmSection } from './utm/config/tabs';
 import type { ComponentType } from 'react';
 
 /**
