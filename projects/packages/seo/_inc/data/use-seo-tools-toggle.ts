@@ -3,6 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSeoEvent } from './record-seo-event';
 
 // Pre-resolved so the production minifier can't fold an adjacent
 // `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which breaks i18n
@@ -44,6 +45,9 @@ export default function useSeoToolsToggle(): SeoToolsToggle {
 					method: 'POST',
 					data: { active },
 				} );
+				recordSeoEvent( 'jetpack_seo_tools_toggled', 'overview', { enabled: active } );
+				// Let the Tracks beacon send before the reload tears down the page.
+				await new Promise( resolve => setTimeout( resolve, 300 ) );
 				// Reload so the server re-registers (or tears down) the SEO surface.
 				window.location.reload();
 			} catch {

@@ -378,6 +378,10 @@ class Initializer {
 			'upsell_url' => $is_gated ? self::get_upsell_url() : '',
 		);
 
+		// Standard Tracks identifiers, attached to every SEO event by the client
+		// `recordSeoEvent()` wrapper (see `_inc/data/record-seo-event.ts`).
+		$data[ self::SCRIPT_DATA_KEY ]['tracks'] = self::get_tracks_context();
+
 		return $data;
 	}
 
@@ -395,6 +399,50 @@ class Initializer {
 	private static function is_gated() {
 		return ( new Host() )->is_wpcom_platform()
 			&& ! Current_Plan::supports( 'advanced-seo' );
+	}
+
+	/**
+	 * Standard Tracks context for the SEO dashboard, per the Data team's unified
+	 * properties standard. Bootstrapped onto the page so the client
+	 * `recordSeoEvent()` wrapper attaches the same identifiers to every event.
+	 *
+	 * `blog_id` is the required join key for the distinct-site launch metric; it
+	 * uses the WordPress.com-connected id where available so Simple, Atomic, and
+	 * self-hosted rows join to the same site.
+	 *
+	 * @return array{blog_id:int, site_type:string, is_a11n:bool, is_test:bool, product_version:string}
+	 */
+	public static function get_tracks_context() {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			$site_type = 'simple';
+		} elseif ( $host->is_atomic_platform() ) {
+			$site_type = 'atomic';
+		} else {
+			$site_type = 'jetpack';
+		}
+
+		$blog_id = 0;
+		if ( class_exists( 'Jetpack_Options' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- host plugin provides Jetpack_Options.
+			$blog_id = (int) \Jetpack_Options::get_option( 'id' );
+		}
+		if ( ! $blog_id ) {
+			$blog_id = get_current_blog_id();
+		}
+
+		$status = new Status();
+
+		return array(
+			'blog_id'         => $blog_id,
+			'site_type'       => $site_type,
+			// Whether the visitor is an Automattician (WordPress.com only; the
+			// function is undefined on self-hosted).
+			'is_a11n'         => function_exists( 'is_automattician' ) ? (bool) is_automattician() : false,
+			// Staging / local installs are internal traffic to exclude from metrics.
+			'is_test'         => $status->is_staging_site() || $status->is_local_site(),
+			'product_version' => self::PACKAGE_VERSION,
+		);
 	}
 
 	/**

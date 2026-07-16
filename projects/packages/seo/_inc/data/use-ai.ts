@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { aiStore } from './ai-store';
+import { recordSeoEvent } from './record-seo-event';
 import type { AiCrawler, AiState } from './ai-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
@@ -112,6 +113,7 @@ export function useAiForm(): AiForm {
 					if ( initialLlmsTxt ) {
 						persistLlmsTxt( { ...initialLlmsTxt, enabled: next } );
 					}
+					recordSeoEvent( 'jetpack_seo_llms_txt_enabled', 'geo', { enabled: next } );
 				},
 				() => setLlmsTxt( prev => ( prev ? { ...prev, enabled: ! next } : prev ) )
 			);
@@ -142,7 +144,10 @@ export function useAiForm(): AiForm {
 			setCrawlers( nextCrawlers );
 			runSave(
 				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
-				() => persistCrawlers( nextCrawlers ),
+				() => {
+					persistCrawlers( nextCrawlers );
+					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', { bot: slug, blocked } );
+				},
 				() => setCrawlers( prevCrawlers )
 			);
 		},
@@ -174,7 +179,13 @@ export function useAiForm(): AiForm {
 			setCrawlers( nextCrawlers );
 			runSave(
 				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
-				() => persistCrawlers( nextCrawlers ),
+				() => {
+					persistCrawlers( nextCrawlers );
+					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', {
+						bot: `group:${ type }`,
+						blocked,
+					} );
+				},
 				() => setCrawlers( prevCrawlers )
 			);
 		},

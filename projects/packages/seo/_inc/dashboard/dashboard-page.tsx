@@ -1,10 +1,16 @@
 import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { recordSeoEvent } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
 import type { ReactNode } from 'react';
+
+// The shell re-renders on every route switch, so a module-level guard keeps the
+// screen-view to one event per page load, tagged with the landing screen.
+let screenViewRecorded = false;
 
 interface Props {
 	/** The tab for the currently rendered route (drives the active nav state). */
@@ -38,27 +44,38 @@ interface Props {
  * @param props.children   - The route's screen content.
  * @return The SEO dashboard page chrome.
  */
-const DashboardPage = ( { active, showFooter = true, flush = false, children }: Props ) => (
-	<ThemeProvider>
-		<AdminPage
-			title="SEO"
-			subTitle={ __(
-				'Visibility tools for your site — sitemaps, search-engine settings, and more, in one place.',
-				'jetpack-seo'
-			) }
-			showFooter={ showFooter }
-		>
-			<DashboardNav active={ active }>
-				<div
-					className={ clsx( 'jetpack-seo-page-content', {
-						'jetpack-seo-page-content--flush': flush,
-					} ) }
-				>
-					{ children }
-				</div>
-			</DashboardNav>
-		</AdminPage>
-	</ThemeProvider>
-);
+const DashboardPage = ( { active, showFooter = true, flush = false, children }: Props ) => {
+	useEffect( () => {
+		if ( screenViewRecorded ) {
+			return;
+		}
+		screenViewRecorded = true;
+		// The tab is internally keyed `ai`; the GEO screen reports as `geo`.
+		recordSeoEvent( 'jetpack_seo_screen_viewed', active === 'ai' ? 'geo' : active );
+	}, [ active ] );
+
+	return (
+		<ThemeProvider>
+			<AdminPage
+				title="SEO"
+				subTitle={ __(
+					'Visibility tools for your site — sitemaps, search-engine settings, and more, in one place.',
+					'jetpack-seo'
+				) }
+				showFooter={ showFooter }
+			>
+				<DashboardNav active={ active }>
+					<div
+						className={ clsx( 'jetpack-seo-page-content', {
+							'jetpack-seo-page-content--flush': flush,
+						} ) }
+					>
+						{ children }
+					</div>
+				</DashboardNav>
+			</AdminPage>
+		</ThemeProvider>
+	);
+};
 
 export default DashboardPage;
