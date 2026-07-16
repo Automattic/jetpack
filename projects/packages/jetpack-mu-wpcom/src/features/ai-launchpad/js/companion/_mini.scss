@@ -1,0 +1,121 @@
+// Shared companion pieces used by both the admin-chrome and editor bundles:
+// the mini task list, the progress-bar primitives, and the WPDS-token button.
+// Values mirror the tailored list's own styles (see tailored-list/style.scss)
+// with WPDS tokens first and the measured product values as fallbacks.
+
+.ai-lpc-mini-task {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 7px 8px;
+	border-radius: var(--wpds-border-radius-sm, 4px);
+	font-size: 13px;
+	line-height: 1.4;
+	color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
+
+	.ai-lpc-mini-icon {
+		display: inline-flex;
+		flex-shrink: 0;
+		color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
+
+		svg {
+			fill: currentColor;
+			display: block;
+		}
+	}
+
+	&.is-done {
+		color: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
+
+		.ai-lpc-mini-icon {
+			color: var(--wpds-color-foreground-content-success, #007017);
+		}
+
+		.ai-lpc-mini-label {
+			text-decoration: line-through;
+			text-decoration-thickness: 1px;
+		}
+	}
+
+	&.is-next {
+		background: var(--wpds-color-background-interactive-brand-weak, #ecf0fa);
+		font-weight: 600;
+
+		.ai-lpc-mini-icon,
+		.ai-lpc-mini-go {
+			color: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+		}
+	}
+
+	.ai-lpc-mini-spacer {
+		flex: 1;
+	}
+
+	.ai-lpc-mini-go {
+		display: inline-flex;
+
+		svg {
+			fill: currentColor;
+			display: block;
+		}
+	}
+}
+
+// The long thin progress bar (variants 2, 3, 4).
+.ai-lpc-long-bar {
+	display: block;
+	height: 5px;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.22);
+	overflow: hidden;
+
+	.ai-lpc-long-bar-fill {
+		display: block;
+		height: 100%;
+		border-radius: 3px;
+		background: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+		transition: width 0.5s cubic-bezier(0.25, 0, 0, 1);
+	}
+}
+
+// A solid-intent button matching the launchpad's @wordpress/ui Button
+// (variant="solid").
+.ai-lpc-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 36px;
+	padding: 4px 12px;
+	border-radius: var(--wpds-border-radius-xs, 2px);
+	background: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	text-decoration: none;
+	cursor: pointer;
+
+	&:hover,
+	&:focus,
+	&:active {
+		background:
+ var(--wpds-color-background-interactive-brand-strong-active, #2f4bc7);
+		color: #fff;
+	}
+}
+
+// The completion pulse shared by the floating card (1) and the bottom
+// widget (4).
+@keyframes ai-lpc-pulse {
+
+	0% {
+		box-shadow: 0 0 0 0 rgba(56, 88, 233, 0.45);
+	}
+
+	70% {
+		box-shadow: 0 0 0 12px rgba(56, 88, 233, 0);
+	}
+
+	100% {
+		box-shadow: 0 0 0 0 rgba(56, 88, 233, 0);
+	}
+}

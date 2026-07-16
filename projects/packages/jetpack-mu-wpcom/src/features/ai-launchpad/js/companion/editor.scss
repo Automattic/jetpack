@@ -1,0 +1,178 @@
+// AI Launchpad companion, editor styles (DSGCOM-760 prototypes):
+// the floating tasklist card (variant 1). The snackbar (variant 5) is the stock
+// `.components-snackbar` and needs no styling here.
+
+@import "./mini";
+
+#ai-lpc-float {
+	position: fixed;
+	right: 24px;
+	bottom: 24px;
+	z-index: 99980;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	font-size: 13px;
+	color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
+
+	.ai-lpc-float-pill {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 8px 16px 8px 10px;
+		background: #fff;
+		border: 1px solid #e7e7e7;
+		border-radius: 999px;
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+		font-weight: 600;
+		font-size: 13px;
+		color: inherit;
+		cursor: pointer;
+		animation: ai-lpc-float-in 0.3s cubic-bezier(0.25, 0, 0, 1);
+
+		&:hover {
+			border-color: #949494;
+		}
+
+		svg {
+			fill: currentColor;
+			display: block;
+		}
+	}
+
+	.ai-lpc-float-card {
+		width: 328px;
+		background: #fff;
+		border: 1px solid #e7e7e7;
+		border-radius: var(--wpds-border-radius-md, 8px);
+		box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+		overflow: hidden;
+		transform-origin: bottom right;
+		animation: ai-lpc-float-in 0.3s cubic-bezier(0.25, 0, 0, 1);
+
+		&.is-pulsing {
+			animation:
+				ai-lpc-float-in 0.3s cubic-bezier(0.25, 0, 0, 1),
+				ai-lpc-pulse 1.6s ease-out 2;
+		}
+	}
+
+	.ai-lpc-float-header {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 16px;
+		border-bottom: 1px solid #f0f0f0;
+	}
+
+	.ai-lpc-float-titles {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.ai-lpc-float-link {
+		display: inline-block;
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		text-decoration-thickness: 1px;
+
+		&:hover,
+		&:focus {
+			color: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+		}
+	}
+
+	.ai-lpc-float-sub {
+		display: block;
+		font-size: 12px;
+		color: #757575;
+		margin-top: 2px;
+	}
+
+	.ai-lpc-float-collapse {
+		width: 28px;
+		height: 28px;
+		display: grid;
+		place-items: center;
+		border: 0;
+		border-radius: var(--wpds-border-radius-xs, 2px);
+		background: none;
+		color: #757575;
+		cursor: pointer;
+
+		&:hover {
+			background: rgba(0, 0, 0, 0.05);
+			color: #1e1e1e;
+		}
+
+		svg {
+			fill: currentColor;
+			display: block;
+		}
+	}
+
+	.ai-lpc-float-tasks {
+		display: flex;
+		flex-direction: column;
+		padding: 8px;
+	}
+
+	.ai-lpc-float-footer {
+		display: flex;
+		justify-content: flex-end;
+		padding: 12px 16px;
+		border-top: 1px solid #f0f0f0;
+	}
+
+	// The progress ring.
+	.ai-lpc-ring {
+		position: relative;
+		display: inline-block;
+		flex-shrink: 0;
+
+		svg {
+			transform: rotate(-90deg);
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
+
+		.ai-lpc-ring-track {
+			stroke: #e0e0e0;
+		}
+
+		.ai-lpc-ring-fill {
+			stroke: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+			transition: stroke-dashoffset 0.5s cubic-bezier(0.25, 0, 0, 1);
+		}
+
+		.ai-lpc-ring-count {
+			position: absolute;
+			inset: 0;
+			display: grid;
+			place-items: center;
+			font-weight: 600;
+			font-size: 11px;
+		}
+	}
+
+	.ai-lpc-float-pill .ai-lpc-ring-count {
+		font-size: 8px;
+	}
+}
+
+@keyframes ai-lpc-float-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.97);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}

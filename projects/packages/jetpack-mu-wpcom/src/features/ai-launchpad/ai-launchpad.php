@@ -24,6 +24,7 @@ require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-gallery-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
+require_once __DIR__ . '/class-ai-launchpad-companion.php';
 
 /**
  * Registers the AI Launchpad admin page and its wp-build assets.

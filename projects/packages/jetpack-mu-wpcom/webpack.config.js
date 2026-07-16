@@ -11,6 +11,14 @@ module.exports = async () => {
 		{
 			entry: {
 				'ai-assistant-banner': './src/features/ai-assistant-banner/js/ai-assistant-banner.js',
+				'ai-launchpad-companion-admin': [
+					'./src/features/ai-launchpad/js/companion/admin.ts',
+					'./src/features/ai-launchpad/js/companion/admin.scss',
+				],
+				'ai-launchpad-companion-editor': [
+					'./src/features/ai-launchpad/js/companion/editor.ts',
+					'./src/features/ai-launchpad/js/companion/editor.scss',
+				],
 				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.jsx',
 				'block-inserter-modifications': './src/features/block-inserter-modifications/index.jsx',
 				'core-customizer-css':
