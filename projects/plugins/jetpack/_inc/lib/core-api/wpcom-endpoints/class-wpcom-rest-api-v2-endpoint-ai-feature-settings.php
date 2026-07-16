@@ -55,7 +55,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	 *
 	 * @var string[]
 	 */
-	const FEATURE_KEYS = array( 'writing_assistant', 'image_editor', 'image_label', 'feature_clip', 'seo_enhancer', 'ai_search' );
+	const FEATURE_KEYS = array( 'writing_assistant', 'image_editor', 'feature_clip', 'seo_enhancer', 'ai_search' );
 
 	/**
 	 * Constructor.
@@ -192,17 +192,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			'master_enabled' => Jetpack_AI_Settings::is_master_enabled(),
 			'features'       => array(
 				'writing_assistant' => array( 'enabled' => $stored['writing_assistant'] ),
-				'image_editor'      => array(
-					'enabled' => $stored['image_editor'],
-					'sub'     => array(
-						'image_label' => array(
-							'enabled'   => $stored['image_label'],
-							// The label is a sub-setting of the image editor:
-							// without the parent there is nothing to mark.
-							'available' => $stored['image_editor'],
-						),
-					),
-				),
+				'image_editor'      => array( 'enabled' => $stored['image_editor'] ),
 				'feature_clip'      => array( 'enabled' => $stored['feature_clip'] ),
 				'seo_enhancer'      => array(
 					'enabled'   => $stored['seo_enhancer'],

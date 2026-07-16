@@ -53,7 +53,6 @@ class Jetpack_AI_Settings {
 	const FEATURE_OPTIONS = array(
 		'writing_assistant' => 'jetpack_ai_writing_assistant_enabled',
 		'image_editor'      => 'jetpack_ai_image_editor_enabled',
-		'image_label'       => 'jetpack_ai_image_label_enabled',
 		'feature_clip'      => 'jetpack_ai_feature_clip_enabled',
 		'seo_enhancer'      => 'ai_seo_enhancer_enabled',
 		'ai_search'         => 'jetpack_search_ai_answers_enabled',
@@ -68,7 +67,6 @@ class Jetpack_AI_Settings {
 	const FEATURE_DEFAULTS = array(
 		'writing_assistant' => true,
 		'image_editor'      => true,
-		'image_label'       => true,
 		'feature_clip'      => true,
 		'seo_enhancer'      => false,
 		'ai_search'         => false,
@@ -80,7 +78,7 @@ class Jetpack_AI_Settings {
 	 *
 	 * @var array
 	 */
-	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'image_label', 'feature_clip' );
+	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'feature_clip' );
 
 	/**
 	 * Whether init() has already run.
@@ -125,7 +123,6 @@ class Jetpack_AI_Settings {
 			self::MASTER_OPTION                        => __( 'Whether Jetpack AI is enabled on this site.', 'jetpack' ),
 			self::FEATURE_OPTIONS['writing_assistant'] => __( 'Whether the Jetpack AI writing assistant is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_editor']      => __( 'Whether the Jetpack AI image editor is enabled.', 'jetpack' ),
-			self::FEATURE_OPTIONS['image_label']       => __( 'Whether images generated with Jetpack AI are marked as AI-generated.', 'jetpack' ),
 			self::FEATURE_OPTIONS['feature_clip']      => __( 'Whether Jetpack AI video clip generation is enabled.', 'jetpack' ),
 		);
 
@@ -229,12 +226,6 @@ class Jetpack_AI_Settings {
 
 		$option  = self::FEATURE_OPTIONS[ $feature ];
 		$enabled = (bool) get_option( $option, self::FEATURE_DEFAULTS[ $feature ] );
-
-		// The AI-generated image label is a sub-setting of the image editor:
-		// without the parent feature there is nothing to label.
-		if ( 'image_label' === $feature ) {
-			$enabled = $enabled && self::is_feature_enabled( 'image_editor' );
-		}
 
 		if ( in_array( $feature, self::OWNED_FEATURES, true ) ) {
 			/**

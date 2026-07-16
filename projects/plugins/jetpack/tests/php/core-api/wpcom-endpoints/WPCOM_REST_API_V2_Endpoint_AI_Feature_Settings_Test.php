@@ -114,26 +114,14 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$features = $data['features'];
 		$this->assertTrue( $features['writing_assistant']['enabled'] );
 		$this->assertTrue( $features['image_editor']['enabled'] );
-		$this->assertTrue( $features['image_editor']['sub']['image_label']['enabled'] );
-		$this->assertTrue( $features['image_editor']['sub']['image_label']['available'] );
+		// The image label option is not part of the settings surface.
+		$this->assertArrayNotHasKey( 'sub', $features['image_editor'] );
+		$this->assertArrayNotHasKey( 'image_label', $features );
 		$this->assertArrayNotHasKey( 'excerpt', $features );
 		$this->assertFalse( $features['seo_enhancer']['enabled'] );
 		$this->assertFalse( $features['ai_search']['enabled'] );
 		// No Search plan in the test environment.
 		$this->assertTrue( $features['ai_search']['requires_upgrade'] );
-	}
-
-	/**
-	 * The image label sub-setting reports unavailable when its parent is off.
-	 */
-	public function test_image_label_unavailable_when_image_editor_off() {
-		wp_set_current_user( self::$admin_id );
-		update_option( 'jetpack_ai_image_editor_enabled', 0 );
-
-		$data = $this->dispatch( 'GET' )->get_data();
-
-		$this->assertFalse( $data['features']['image_editor']['enabled'] );
-		$this->assertFalse( $data['features']['image_editor']['sub']['image_label']['available'] );
 	}
 
 	/**

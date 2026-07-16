@@ -112,7 +112,6 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	public function test_feature_defaults() {
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
-		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_label' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'no_such_feature' ) );
@@ -138,16 +137,6 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The AI-generated image label is a sub-setting of the image editor.
-	 */
-	public function test_image_label_requires_image_editor() {
-		update_option( 'jetpack_ai_image_label_enabled', 1 );
-		update_option( 'jetpack_ai_image_editor_enabled', 0 );
-
-		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'image_label' ) );
-	}
-
-	/**
 	 * The master switch and the owned per-feature options sync to WordPress.com.
 	 */
 	public function test_sync_options_whitelist() {
@@ -156,7 +145,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertContains( 'jetpack_ai_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_writing_assistant_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_image_editor_enabled', $whitelist );
-		$this->assertContains( 'jetpack_ai_image_label_enabled', $whitelist );
+		$this->assertNotContains( 'jetpack_ai_image_label_enabled', $whitelist );
 	}
 
 	/**
@@ -170,6 +159,6 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'jetpack_ai_enabled', $registered );
 		$this->assertArrayHasKey( 'jetpack_ai_writing_assistant_enabled', $registered );
 		$this->assertArrayHasKey( 'jetpack_ai_image_editor_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_image_label_enabled', $registered );
+		$this->assertArrayNotHasKey( 'jetpack_ai_image_label_enabled', $registered );
 	}
 }
