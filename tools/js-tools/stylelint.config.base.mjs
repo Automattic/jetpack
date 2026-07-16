@@ -106,6 +106,7 @@ const baseConfig = {
 				'projects/js-packages/licensing/**/*.{css,scss,sass}',
 				'projects/packages/activity-log/src/**/*.{css,scss,sass}',
 				'projects/packages/forms/src/**/*.{css,scss,sass}',
+				'projects/packages/jetpack-mu-wpcom/src/**/*.{css,scss,sass}',
 				'projects/packages/my-jetpack/_inc/**/*.{css,scss,sass}',
 				'projects/packages/paypal-payments/src/**/*.{css,scss,sass}',
 				'projects/packages/newsletter/src/**/*.{css,scss,sass}',
