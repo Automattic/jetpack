@@ -19,6 +19,7 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status\Host;
 
@@ -203,13 +204,38 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					),
 				),
 				'feature_clip'      => array( 'enabled' => $stored['feature_clip'] ),
-				'seo_enhancer'      => array( 'enabled' => $stored['seo_enhancer'] ),
+				'seo_enhancer'      => array(
+					'enabled'   => $stored['seo_enhancer'],
+					'available' => $this->is_seo_enhancer_available(),
+				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
 					'requires_upgrade' => ! $supports_search,
 				),
 			),
 		);
+	}
+
+	/**
+	 * Whether the AI SEO enhancer is available on this site, so the settings
+	 * page can hide its row where the feature can't run.
+	 *
+	 * Mirrors the legacy Traffic page's gate: the feature filter, the
+	 * seo-tools module (always active on WordPress.com Simple, where
+	 * Modules::is_active() short-circuits), and the plan feature.
+	 *
+	 * @return bool
+	 */
+	private function is_seo_enhancer_available() {
+		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		$module_active = class_exists( Modules::class )
+			&& ( new Modules() )->is_active( 'seo-tools' );
+
+		$plan_supports = class_exists( Current_Plan::class )
+			&& Current_Plan::supports( 'ai-seo-enhancer' );
+
+		return $filter_on && $module_active && $plan_supports;
 	}
 
 	/**
