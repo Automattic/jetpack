@@ -4,18 +4,31 @@ import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
-// router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`
-// assertable, matching the other report field tests.
+// router to mount. Render `Link` as the anchor it becomes, keeping `to`/
+// `params`/`search` assertable, matching the other report field tests.
 jest.mock( '@wordpress/route', () => ( {
 	Link: ( {
 		to,
 		params,
+		search,
 		children,
 	}: {
 		to: string;
 		params: Record< string, string >;
+		search?: Record< string, string >;
 		children: ReactNode;
-	} ) => <a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) }>{ children }</a>,
+	} ) => {
+		const path = to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] );
+		const query = new URLSearchParams( search ?? {} ).toString();
+
+		return <a href={ query ? `${ path }?${ query }` : path }>{ children }</a>;
+	},
+	useSearch: () => ( {
+		from: '2026-06-01',
+		to: '2026-06-16',
+		// A page-owned param the detail link must not carry along.
+		chart_period: 'week',
+	} ),
 } ) );
 
 const video: StatsVideoPlaysItem = {
@@ -48,11 +61,13 @@ function renderTitleField( item: StatsVideoPlaysItem ) {
 }
 
 describe( 'videos fields', () => {
-	it( 'links a video title to its internal detail page', () => {
+	it( 'links a video title to its internal detail page, carrying the date window', () => {
 		renderTitleField( video );
 
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
-		expect( link ).toHaveAttribute( 'href', '/video/12' );
+		// Only the shared report-window params travel; page-owned params
+		// (`chart_period`) stay behind.
+		expect( link ).toHaveAttribute( 'href', '/video/12?from=2026-06-01&to=2026-06-16' );
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 

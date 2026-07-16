@@ -6,7 +6,7 @@ import { useDashboardLink } from '@jetpack-premium-analytics/routing';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -25,9 +25,13 @@ function VideoDetail(): JSX.Element {
 	const { videoId: videoIdParam } = useParams( { from: ROUTE_FROM } ) as { videoId?: string };
 	const summary = useVideoSummary( Number( videoIdParam ) );
 	const dashboardLink = useDashboardLink();
-	const title = summary.isLoading
-		? undefined
-		: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
+	// On error there is no trustworthy title: the fallback label must not be
+	// presented as real data, so the crumb and heading stay empty and the body
+	// shows the error state instead.
+	const title =
+		summary.isLoading || summary.isError
+			? undefined
+			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
 
 	return (
 		<Page
@@ -42,6 +46,19 @@ function VideoDetail(): JSX.Element {
 			className={ styles.page }
 		>
 			<div className={ styles.content }>
+				{ summary.isError ? (
+					<Stack direction="column" align="flex-start" gap="sm">
+						<Text>
+							{ __(
+								"We couldn't load this video. Please try again in a moment.",
+								'jetpack-premium-analytics'
+							) }
+						</Text>
+						<Button variant="outline" onClick={ summary.refetch }>
+							{ __( 'Retry', 'jetpack-premium-analytics' ) }
+						</Button>
+					</Stack>
+				) : null }
 				{ title ? (
 					<Text variant="heading-xl" render={ <h1 /> }>
 						{ title }
