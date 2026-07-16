@@ -9,6 +9,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -56,6 +57,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 			delete_option( $option );
 		}
 		remove_filter( 'wp_supports_ai', '__return_false' );
+
+		delete_option( Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 
 		parent::tear_down();
 	}
@@ -120,8 +123,66 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertArrayNotHasKey( 'excerpt', $features );
 		$this->assertFalse( $features['seo_enhancer']['enabled'] );
 		$this->assertFalse( $features['ai_search']['enabled'] );
-		// No Search plan in the test environment.
+		// No paid Search product in the test environment.
 		$this->assertTrue( $features['ai_search']['requires_upgrade'] );
+	}
+
+	/**
+	 * The ai_search.requires_upgrade gate clears only when the paid Search product is
+	 * provisioned: Instant Search supported and not the free tier. Mirrors the
+	 * Search dashboard's own AI Answers upsell gate.
+	 */
+	public function test_ai_search_gate_clears_with_paid_search() {
+		wp_set_current_user( self::$admin_id );
+
+		update_option(
+			Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'supports_search'         => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
+
+		$data = $this->dispatch( 'GET' )->get_data();
+
+		$this->assertFalse( $data['features']['ai_search']['requires_upgrade'] );
+		// The entitlement field keeps its own meaning.
+		$this->assertTrue( $data['plan']['supports_search'] );
+	}
+
+	/**
+	 * The free Search tier supports Instant Search but cannot run AI Answers,
+	 * so the row keeps its upgrade gate. Same for a Classic-only paid plan,
+	 * which lacks Instant Search.
+	 */
+	public function test_ai_search_gate_stays_without_paid_instant_search() {
+		wp_set_current_user( self::$admin_id );
+
+		// Free tier: Instant Search supported, free product slug.
+		update_option(
+			Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'supports_search'         => true,
+				'effective_subscription'  => array( 'product_slug' => Search_Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+			)
+		);
+		$data = $this->dispatch( 'GET' )->get_data();
+		$this->assertTrue( $data['features']['ai_search']['requires_upgrade'] );
+
+		// Classic-only: entitled to Search, but no Instant Search.
+		update_option(
+			Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => false,
+				'supports_search'         => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
+		$data = $this->dispatch( 'GET' )->get_data();
+		$this->assertTrue( $data['features']['ai_search']['requires_upgrade'] );
+		$this->assertTrue( $data['plan']['supports_search'] );
 	}
 
 	/**

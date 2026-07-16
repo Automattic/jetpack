@@ -172,7 +172,15 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	 * @return array
 	 */
 	private function build_settings_response() {
-		$supports_search = class_exists( Search_Plan::class ) && ( new Search_Plan() )->supports_search();
+		$search_plan = class_exists( Search_Plan::class ) ? new Search_Plan() : null;
+
+		// Entitlement: the plan includes some Search product (Classic or Instant).
+		$supports_search = $search_plan && $search_plan->supports_search();
+
+		// AI Answers only runs with the paid Search product provisioned. Mirror
+		// the gate the Search dashboard's AI Answers tab uses for its upsell:
+		// gated when the plan is free or lacks Instant Search.
+		$ai_search_requires_upgrade = ! ( $search_plan && $search_plan->supports_instant_search() && ! $search_plan->is_free_plan() );
 
 		$stored = array();
 		foreach ( self::FEATURE_KEYS as $key ) {
@@ -200,7 +208,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
-					'requires_upgrade' => ! $supports_search,
+					'requires_upgrade' => $ai_search_requires_upgrade,
 				),
 			),
 		);
