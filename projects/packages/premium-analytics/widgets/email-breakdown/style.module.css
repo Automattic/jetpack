@@ -20,7 +20,7 @@
 .locationContent {
 	display: grid;
 	grid-template-columns: minmax(240px, 2fr) minmax(0, 3fr);
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 	align-items: stretch;
 	block-size: 100%;
 	min-block-size: 0;
