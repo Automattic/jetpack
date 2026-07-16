@@ -55,6 +55,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 			'notes',
 			'photon-cdn',
 			'photon',
+			'podcast',
 			'post-by-email',
 			'protect',
 			'publicize',
@@ -79,6 +80,22 @@ class Get_Modules_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( asort( $expected_modules ), asort( self::$all_modules ) );
+	}
+
+	/**
+	 * Ensure Podcast follows the intended default activation rollout.
+	 */
+	public function test_podcast_default_activation_rollout() {
+		$this->assertContains(
+			'podcast',
+			Jetpack::get_default_modules(),
+			'Podcast should be enabled by default on new installations.'
+		);
+		$this->assertNotContains(
+			'podcast',
+			Jetpack::get_default_modules( '1.1', JETPACK__VERSION ),
+			'Podcast should not be enabled by a version-ranged upgrade on existing installations.'
+		);
 	}
 
 	/**
