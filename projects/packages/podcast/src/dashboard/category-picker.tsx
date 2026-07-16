@@ -46,9 +46,6 @@ const CategoryPicker = ( {
 	const { data: categories = [], isLoading } = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
 
-	// The hydrated list is a static server-injected snapshot, so terms created
-	// through the inline form below won't be in it. Track them here and merge so
-	// a freshly created category shows its name in the dropdown right away.
 	const [ createdCategories, setCreatedCategories ] = useState< CategoryTerm[] >( [] );
 	const allCategories = useMemo( () => {
 		if ( createdCategories.length === 0 ) {

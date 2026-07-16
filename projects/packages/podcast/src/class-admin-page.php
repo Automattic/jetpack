@@ -152,9 +152,6 @@ class Admin_Page {
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
-			// Settings record is preloaded via REST. The category list is injected
-			// as plain data (see get_podcast_categories) so the picker skips the
-			// client's serial taxonomy→terms fetch; stats stays a live relay.
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 			'categories'          => self::get_podcast_categories(),
 			'upgrade'             => array(

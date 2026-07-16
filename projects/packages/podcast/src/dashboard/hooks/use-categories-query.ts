@@ -6,11 +6,15 @@ export interface CategoryTerm {
 	slug: string;
 }
 
-// Hydrated once from the server-injected list
-// (`window.JetpackScriptData.podcast.categories`). Reading it lazily and
-// caching the array keeps the reference stable across renders.
 let hydrated: CategoryTerm[] | null = null;
 
+/**
+ * Read and cache the server-injected category list
+ * (`window.JetpackScriptData.podcast.categories`). Caching keeps the returned
+ * array reference stable across renders.
+ *
+ * @return The site's category terms, or an empty array when none were injected.
+ */
 function getHydratedCategories(): CategoryTerm[] {
 	if ( hydrated === null ) {
 		const injected = getScriptData()?.podcast?.categories;
