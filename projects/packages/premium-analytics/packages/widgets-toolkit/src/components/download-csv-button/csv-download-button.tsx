@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import { Button, Icon, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
@@ -26,6 +26,16 @@ export type CsvDownloadButtonProps = {
 	 * Optional class for layout tweaks.
 	 */
 	className?: string;
+
+	/**
+	 * Button treatment. Defaults to the compact, minimal widget action.
+	 */
+	variant?: ComponentProps< typeof Button >[ 'variant' ];
+
+	/**
+	 * Whether to show the download icon. Defaults to true.
+	 */
+	showIcon?: boolean;
 };
 
 function getErrorMessage( error: unknown ): string {
@@ -52,12 +62,16 @@ function getErrorMessage( error: unknown ): string {
  * @param props.onDownload - Download behavior supplied by the caller.
  * @param props.label      - Optional visible label.
  * @param props.className  - Optional additional class name.
+ * @param props.variant    - Optional button treatment.
+ * @param props.showIcon   - Whether to render the download icon.
  * @return The rendered download action.
  */
 export function CsvDownloadButton( {
 	onDownload,
 	label = __( 'Download CSV', 'jetpack-premium-analytics' ),
 	className,
+	variant = 'minimal',
+	showIcon = true,
 }: CsvDownloadButtonProps ) {
 	const [ isBusy, setIsBusy ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
@@ -91,14 +105,14 @@ export function CsvDownloadButton( {
 				</Notice.Root>
 			) }
 			<Button
-				variant="minimal"
+				variant={ variant }
 				tone="neutral"
 				size="compact"
 				onClick={ onClick }
 				loading={ isBusy }
 				className={ clsx( styles.downloadCsv, className ) }
 			>
-				<Icon icon={ download } size={ 20 } className={ styles.icon } />
+				{ showIcon ? <Icon icon={ download } size={ 20 } className={ styles.icon } /> : null }
 				<span className={ styles.label }>{ label }</span>
 			</Button>
 		</>

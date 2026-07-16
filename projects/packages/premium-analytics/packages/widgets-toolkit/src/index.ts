@@ -64,6 +64,7 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	isCsvExportEnabled,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,

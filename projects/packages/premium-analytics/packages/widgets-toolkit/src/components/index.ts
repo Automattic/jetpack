@@ -63,6 +63,7 @@ export {
 	type ReportRecordsTableProps,
 } from './report-page';
 export {
+	isCsvExportEnabled,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,

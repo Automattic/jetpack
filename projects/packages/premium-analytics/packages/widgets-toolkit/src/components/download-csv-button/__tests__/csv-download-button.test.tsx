@@ -8,6 +8,23 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { CsvDownloadButton } from '../csv-download-button';
 
 describe( 'CsvDownloadButton', () => {
+	it( 'supports a solid page action without an icon', () => {
+		render(
+			<CsvDownloadButton
+				onDownload={ jest.fn() }
+				label="Download"
+				variant="solid"
+				showIcon={ false }
+			/>
+		);
+
+		const button = screen.getByRole( 'button', { name: 'Download' } );
+		expect( button ).toHaveClass( /is-solid/ );
+		// The decorative SVG is intentionally hidden from the accessibility tree.
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( button.querySelector( 'svg' ) ).toBeNull();
+	} );
+
 	it( 'shows a loading state and prevents duplicate downloads while busy', async () => {
 		let resolveDownload: () => void = () => {};
 		const onDownload = jest.fn(
