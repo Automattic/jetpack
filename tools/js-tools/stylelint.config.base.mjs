@@ -14,8 +14,9 @@ const baseConfig = {
 	rules: {
 		'plugin-wpds/no-unknown-ds-tokens': true,
 		'plugin-wpds/no-setting-wpds-custom-properties': true,
-		// Disabled globally: only wp-build dashboards configure `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks`
-		// which adds fallbacks at build time.
+		// Disabled globally: only wp-build dashboards and webpack packages with
+		// `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks`
+		// add fallbacks at build time.
 		'plugin-wpds/no-token-fallback-values': null,
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
 		'@stylistic/max-line-length': [
@@ -88,8 +89,8 @@ const baseConfig = {
 	},
 	overrides: [
 		{
-			// Packages with `build:wp-build` in package.json.
 			files: [
+				// wp-build dashboards (`build:wp-build` in package.json; fallbacks via @wordpress/build).
 				'projects/packages/backup/routes/**/*.{css,scss,sass}',
 				'projects/packages/forms/routes/**/*.{css,scss,sass}',
 				'projects/packages/forms/src/dashboard/wp-build/**/*.{css,scss,sass}',
@@ -101,6 +102,12 @@ const baseConfig = {
 				'projects/packages/scan/routes/**/*.{css,scss,sass}',
 				'projects/packages/seo/routes/**/*.{css,scss,sass}',
 				'projects/packages/videopress/routes/**/*.{css,scss,sass}',
+				// Webpack packages with `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks`
+				'projects/packages/forms/src/**/*.{css,scss,sass}',
+				'projects/packages/publicize/_inc/**/*.{css,scss,sass}',
+				'projects/packages/search/**/*.{css,scss,sass}',
+				'projects/packages/videopress/src/**/*.{css,scss,sass}',
+				'projects/plugins/boost/app/assets/src/**/*.{css,scss,sass}',
 			],
 			rules: {
 				'plugin-wpds/no-token-fallback-values': true,
