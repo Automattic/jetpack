@@ -4,6 +4,8 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	type LeaderboardChartData,
@@ -215,6 +217,9 @@ export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<EmailsReport attributes={ attributes } />
+			<WidgetFooter>
+				<ReportLink report="emails" />
+			</WidgetFooter>
 		</WidgetRoot>
 	);
 }

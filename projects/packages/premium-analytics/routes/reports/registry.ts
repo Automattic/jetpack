@@ -79,6 +79,13 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics' ),
 		load: () => import( './downloads/page' ),
 	},
+	emails: {
+		id: 'emails',
+		getTitle: () => __( 'Emails', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__( 'Open and click performance of your latest emails.', 'jetpack-premium-analytics' ),
+		load: () => import( './emails/page' ),
+	},
 	posts: {
 		id: 'posts',
 		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ),

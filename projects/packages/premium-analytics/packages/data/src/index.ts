@@ -177,6 +177,7 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './hooks/use-stats-email-summary';
+export type { StatsEmailSummaryItem } from './processing/stats';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
