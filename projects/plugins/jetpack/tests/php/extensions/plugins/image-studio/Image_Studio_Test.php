@@ -826,10 +826,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the helper returns false when Image Studio itself is not
-	 * enabled, regardless of the underlying video-upload capability. Ensures
-	 * video clip generation is only surfaced on plans/environments that
-	 * already support Image Studio.
+	 * Test that the helper returns false when the shared Image Studio
+	 * environment is unavailable, regardless of the underlying video-upload
+	 * capability. Ensures video clip generation is only surfaced on
+	 * plans/environments that support Image Studio at all.
 	 */
 	public function test_can_generate_video_clips_false_when_image_studio_disabled() {
 		$this->disable_ai_features();
@@ -838,10 +838,29 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that clips and the image editor toggle independently: switching the
+	 * image editor off hides the image surfaces but must not change the clip
+	 * generation outcome — the two features are independent by contract,
+	 * sharing only the environment checks. Compares against a baseline rather
+	 * than asserting an absolute, so the test holds in environments where the
+	 * video-upload capability differs (e.g. the wpcomsh job).
+	 */
+	public function test_can_generate_video_clips_independent_of_image_editor_toggle() {
+		$this->enable_big_sky();
+		$baseline = ImageStudio\image_studio_can_generate_video_clips();
+
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertSame( $baseline, ImageStudio\image_studio_can_generate_video_clips() );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
+	}
+
+	/**
 	 * Test that a stray __return_true on the override filter cannot bypass the
-	 * Image Studio enablement gate. The is_image_studio_enabled() check runs
-	 * before the filter so accidental usage on unsupported environments still
-	 * reports false.
+	 * shared environment gate. The environment check runs before the filter so
+	 * accidental usage on unsupported environments still reports false.
 	 */
 	public function test_can_generate_video_clips_filter_cannot_override_disabled_image_studio() {
 		$this->disable_ai_features();
