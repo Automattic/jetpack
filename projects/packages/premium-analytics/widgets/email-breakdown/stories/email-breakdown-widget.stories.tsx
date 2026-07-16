@@ -72,15 +72,22 @@ interface EmailBreakdownStoryControls {
 	withComparison: boolean;
 	view: EmailBreakdownView;
 	metric: EmailBreakdownMetric;
+	showMap: boolean;
 }
 
-function renderEmailBreakdown( { withComparison, view, metric }: EmailBreakdownStoryControls ) {
+function renderEmailBreakdown( {
+	withComparison,
+	view,
+	metric,
+	showMap,
+}: EmailBreakdownStoryControls ) {
 	return (
 		<EmailBreakdownRender
 			attributes={ {
 				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
 				view,
 				metric,
+				showMap,
 			} }
 		/>
 	);
@@ -111,6 +118,7 @@ const meta = {
 		withComparison: { control: 'boolean' },
 		view: { control: 'select', options: VIEW_OPTIONS },
 		metric: { control: 'select', options: METRIC_OPTIONS },
+		showMap: { control: 'boolean' },
 	},
 	parameters: {
 		docs: {
@@ -132,7 +140,16 @@ type Story = StoryObj< EmailBreakdownStoryControls >;
  */
 export const Default: Story = {
 	render: renderEmailBreakdown,
-	args: { withComparison: false, view: 'countries', metric: 'opens' },
+	args: { withComparison: false, view: 'countries', metric: 'opens', showMap: false },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * The wide Location clicks card used by the fixed Email clicks composition.
+ */
+export const LocationClicksWithMap: Story = {
+	render: renderEmailBreakdown,
+	args: { withComparison: false, view: 'countries', metric: 'clicks', showMap: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -142,7 +159,7 @@ export const Default: Story = {
  */
 export const WithComparison: Story = {
 	render: renderEmailBreakdown,
-	args: { withComparison: true, view: 'countries', metric: 'opens' },
+	args: { withComparison: true, view: 'countries', metric: 'opens', showMap: false },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -210,6 +227,7 @@ function EmailBreakdownDashboardStory( {
 	withComparison,
 	view,
 	metric,
+	showMap,
 	...dashboardArgs
 }: EmailBreakdownDashboardStoryProps ) {
 	return (
@@ -222,6 +240,7 @@ function EmailBreakdownDashboardStory( {
 				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
 				view,
 				metric,
+				showMap,
 			} }
 		/>
 	);
@@ -234,11 +253,13 @@ export const WidgetDashboardWithWidget: StoryObj< EmailBreakdownDashboardStoryPr
 		withComparison: true,
 		view: 'countries',
 		metric: 'opens',
+		showMap: false,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: { control: 'boolean' },
 		view: { control: 'select', options: VIEW_OPTIONS },
 		metric: { control: 'select', options: METRIC_OPTIONS },
+		showMap: { control: 'boolean' },
 	},
 };
