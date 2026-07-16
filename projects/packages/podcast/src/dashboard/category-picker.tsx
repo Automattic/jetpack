@@ -10,7 +10,7 @@ import {
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCategoriesQuery, type CategoryTerm } from './hooks/use-categories-query';
 import { parseErrorMessage } from './parse-error-message';
@@ -43,19 +43,10 @@ const CategoryPicker = ( {
 	onSavingChange,
 	onCreateSuccess,
 }: CategoryPickerProps ) => {
-	const { data: categories = [], isLoading } = useCategoriesQuery();
+	const categories = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
 
 	const [ createdCategories, setCreatedCategories ] = useState< CategoryTerm[] >( [] );
-	const allCategories = useMemo( () => {
-		if ( createdCategories.length === 0 ) {
-			return categories;
-		}
-		const byId = new Map< number, CategoryTerm >();
-		categories.forEach( cat => byId.set( cat.id, cat ) );
-		createdCategories.forEach( cat => byId.set( cat.id, cat ) );
-		return [ ...byId.values() ];
-	}, [ categories, createdCategories ] );
 
 	// `canUser` returns `undefined` while resolving. Treat that as allowed so
 	// the option doesn't flash hidden; only hide once the OPTIONS probe says no.
@@ -131,11 +122,10 @@ const CategoryPicker = ( {
 				);
 			}
 			const newId = Number( result.id );
-			setCreatedCategories( prev =>
-				prev.some( cat => cat.id === newId )
-					? prev
-					: [ ...prev, { id: newId, name: result.name ?? trimmedName, slug: result.slug ?? '' } ]
-			);
+			setCreatedCategories( prev => [
+				...prev,
+				{ id: newId, name: result.name ?? trimmedName, slug: result.slug ?? '' },
+			] );
 			onSelect( newId );
 			if ( onCreateSuccess ) {
 				try {
@@ -170,7 +160,8 @@ const CategoryPicker = ( {
 
 	const options: Array< { label: string; value: string } > = [
 		{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
-		...allCategories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
+		...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
+		...createdCategories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 	];
 	if ( canCreateCategory !== false ) {
 		options.push( {
@@ -189,7 +180,7 @@ const CategoryPicker = ( {
 				value={ isCreating ? CREATE_NEW : String( selectedId || '' ) }
 				onChange={ handleSelectChange }
 				options={ options }
-				disabled={ disabled || isLoading || saving }
+				disabled={ disabled || saving }
 			/>
 			{ isCreating && (
 				<VStack spacing={ 2 }>
