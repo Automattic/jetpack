@@ -164,11 +164,19 @@ export function DataViewsDrilldownNative< Item >( {
 		[ levelByItem ]
 	);
 
+	// DataViews' appearance panel force-sets `showLevels: false` when you sort
+	// (native levels assume the default order). Our pipeline sorts within each
+	// level, so re-assert `showLevels: true` on every view change.
+	const handleChangeView = useCallback(
+		( nextView: View ) => setView( { ...nextView, showLevels: true } ),
+		[]
+	);
+
 	return (
 		<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
 			<GenericDataViews< Item >
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageData }
 				getItemId={ getItemId }
