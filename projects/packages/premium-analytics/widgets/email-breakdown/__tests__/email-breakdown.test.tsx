@@ -13,13 +13,14 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // The jest globals stub ResizeObserver with a no-op, so the map's width gate
 // would never open; report a wide container as soon as the root mounts.
+let mockResizeObserverWidth = 1200;
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useResizeObserver:
 		( callback: ( entries: { contentRect: { width: number } }[] ) => void ) =>
 		( node: Element | null ) => {
 			if ( node ) {
-				callback( [ { contentRect: { width: 1200 } } ] );
+				callback( [ { contentRect: { width: mockResizeObserverWidth } } ] );
 			}
 		},
 } ) );
@@ -94,6 +95,7 @@ describe( 'EmailBreakdownWidget', () => {
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockApiFetch.mockReset();
+		mockResizeObserverWidth = 1200;
 	} );
 
 	it( 'renders the opens-by-country breakdown for the selected email', async () => {
@@ -153,6 +155,26 @@ describe( 'EmailBreakdownWidget', () => {
 		expect( screen.queryByText( 'United Kingdom' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'email-breakdown-map' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-row-count', '2' );
+	} );
+
+	it( 'does not mount the country map below the map breakpoint', async () => {
+		mockResizeObserverWidth = 600;
+		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+		render(
+			<EmailBreakdownWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					view: 'countries',
+					metric: 'clicks',
+					showMap: true,
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByTestId( 'email-breakdown-map' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'geo-chart' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'merges internal link types with clicked links for the links view', async () => {
