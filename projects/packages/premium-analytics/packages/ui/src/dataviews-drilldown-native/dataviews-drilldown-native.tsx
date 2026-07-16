@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import styles from './dataviews-drilldown-native.module.scss';
-import { processHierarchyLevels } from './process-hierarchy-levels';
+import { processHierarchyLevels, withAncestors } from './process-hierarchy-levels';
 import type { Field, SupportedLayouts, View, ViewBaseProps } from '@wordpress/dataviews';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -73,14 +73,12 @@ export interface DataViewsDrilldownNativeProps< Item > {
 }
 
 /**
- * Render flat parent/child rows through DataViews' own hierarchy support and
- * nothing else: the rows are re-emitted in depth-first order, `getItemLevel`
- * reports each row's depth, and `view.showLevels` renders the level marker on
- * the view's `titleField`. There is no expand/collapse — DataViews' native
- * level rendering is a static display — and search, filters, sorting, and
- * pagination are DataViews' flat `filterSortAndPaginate` semantics, so
- * sorting by a field re-orders rows flat and visually breaks the hierarchy
- * grouping.
+ * Render flat parent/child rows through DataViews' native hierarchy support
+ * (`view.showLevels` + `getItemLevel`), keeping the hierarchy legible across
+ * interactions: search and filter keep each match under its ancestors, sort
+ * orders within each level (not a flat global sort), and rows are emitted in
+ * depth-first order before pagination. There is no expand/collapse yet; the
+ * native level rendering is a static display.
  *
  * @param {DataViewsDrilldownNativeProps< Item >} props - The component props.
  * @return The DataViews drilldown.
@@ -113,15 +111,53 @@ export function DataViewsDrilldownNative< Item >( {
 		} as View;
 	} );
 
-	const { data: orderedData, levelByItem } = useMemo(
-		() => processHierarchyLevels( data, getItemId, getItemParentId ),
-		[ data, getItemId, getItemParentId ]
-	);
+	// Keep the hierarchy legible instead of the flat `filterSortAndPaginate`
+	// semantics: match, re-attach ancestors, re-emit in hierarchy order, then
+	// paginate. Runs over the in-memory rows, so the extra passes are cheap.
+	const { pageData, levelByItem, paginationInfo } = useMemo( () => {
+		// 1. Match: apply the view's search + filters only (no sort, one page).
+		const matches = filterSortAndPaginate(
+			data,
+			{ ...view, sort: undefined, page: 1, perPage: Math.max( data.length, 1 ) },
+			fields
+		).data;
 
-	const { data: pageData, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( orderedData, view, fields ),
-		[ orderedData, view, fields ]
-	);
+		// 2. Re-attach ancestors so filtered children stay under their parents
+		//    instead of orphaned.
+		const subset = withAncestors(
+			data,
+			new Set( matches.map( getItemId ) ),
+			getItemId,
+			getItemParentId
+		);
+
+		// 3. Sort within levels: sort the subset flat, then re-emit in hierarchy
+		//    order; `processHierarchyLevels` keeps that order among siblings.
+		const sorted = filterSortAndPaginate(
+			subset,
+			{ ...view, search: '', filters: [], page: 1, perPage: Math.max( subset.length, 1 ) },
+			fields
+		).data;
+		const { data: orderedData, levelByItem: levels } = processHierarchyLevels(
+			sorted,
+			getItemId,
+			getItemParentId
+		);
+
+		// 4. Paginate the hierarchy-ordered rows ourselves.
+		const perPage = view.perPage ?? 10;
+		const page = view.page ?? 1;
+		const start = ( page - 1 ) * perPage;
+
+		return {
+			pageData: orderedData.slice( start, start + perPage ),
+			levelByItem: levels,
+			paginationInfo: {
+				totalItems: orderedData.length,
+				totalPages: Math.max( 1, Math.ceil( orderedData.length / perPage ) ),
+			},
+		};
+	}, [ data, view, fields, getItemId, getItemParentId ] );
 
 	const getItemLevel = useCallback(
 		( item: Item ) => levelByItem.get( item ) ?? 0,

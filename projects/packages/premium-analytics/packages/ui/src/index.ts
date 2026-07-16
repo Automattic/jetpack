@@ -2,6 +2,7 @@ export {
 	DataViewsDrilldownNative,
 	type DataViewsDrilldownNativeProps,
 	processHierarchyLevels,
+	withAncestors,
 } from './dataviews-drilldown-native';
 export { DateFiltersPanel } from './date-filters-panel';
 export {
