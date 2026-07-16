@@ -34,7 +34,7 @@ const COUNT_VIEW: View = {
 /**
  * Free-tier state derived from real data sources: server-side library
  * count via useLibrary, in-flight uploads via useUpload, plan-tier flags
- * via useFeatures + Initial State, and atomic via script-data.
+ * via the Initial State boot payload, and atomic via script-data.
  *
  * @return Free-tier state.
  */

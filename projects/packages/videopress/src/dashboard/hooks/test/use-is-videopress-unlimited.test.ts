@@ -1,6 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
-import { mockApiFetch } from '../../test-utils/mock-api-fetch';
-import { createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { renderHook } from '@testing-library/react';
 import { useIsVideoPressUnlimited } from '../use-is-videopress-unlimited';
 
 type InitialState = { siteData?: { isVideoPressUnlimited?: boolean } };
@@ -10,48 +8,30 @@ const setInitialState = ( state: InitialState | undefined ) => {
 	 ).JPVIDEOPRESS_INITIAL_STATE = state;
 };
 
-const featuresResponse = ( isUnlimited: boolean ) => ( {
-	isVideoPressSupported: true,
-	isVideoPress1TBSupported: false,
-	isVideoPressUnlimitedSupported: isUnlimited,
-} );
-
 describe( 'useIsVideoPressUnlimited', () => {
 	afterEach( () => setInitialState( undefined ) );
 
-	it( 'returns false when neither initial state nor the features flag indicate unlimited', async () => {
+	it( 'returns false when the boot payload does not indicate unlimited', () => {
 		setInitialState( { siteData: { isVideoPressUnlimited: false } } );
-		mockApiFetch( async () => featuresResponse( false ) );
 
-		const { result } = renderHook( () => useIsVideoPressUnlimited(), {
-			wrapper: createTestWrapper(),
-		} );
+		const { result } = renderHook( () => useIsVideoPressUnlimited() );
 
-		// Give the features query a chance to resolve, then confirm still false.
-		await waitFor( () => expect( result.current ).toBe( false ) );
 		expect( result.current ).toBe( false );
 	} );
 
-	it( 'returns true synchronously from initial state', () => {
+	it( 'returns true synchronously from the boot payload', () => {
 		setInitialState( { siteData: { isVideoPressUnlimited: true } } );
-		mockApiFetch( async () => featuresResponse( false ) );
 
-		const { result } = renderHook( () => useIsVideoPressUnlimited(), {
-			wrapper: createTestWrapper(),
-		} );
+		const { result } = renderHook( () => useIsVideoPressUnlimited() );
 
-		// No waitFor: the initial-state signal is available on first render.
 		expect( result.current ).toBe( true );
 	} );
 
-	it( 'returns true from the features REST flag when initial state is not unlimited', async () => {
-		setInitialState( { siteData: { isVideoPressUnlimited: false } } );
-		mockApiFetch( async () => featuresResponse( true ) );
+	it( 'returns false when the boot payload is absent (legacy page, tests)', () => {
+		setInitialState( undefined );
 
-		const { result } = renderHook( () => useIsVideoPressUnlimited(), {
-			wrapper: createTestWrapper(),
-		} );
+		const { result } = renderHook( () => useIsVideoPressUnlimited() );
 
-		await waitFor( () => expect( result.current ).toBe( true ) );
+		expect( result.current ).toBe( false );
 	} );
 } );
