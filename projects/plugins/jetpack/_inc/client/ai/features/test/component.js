@@ -72,7 +72,7 @@ describe( 'useFeatureSettings', () => {
 		);
 	} );
 
-	test( 'a failed save sets the error, keeps prior settings, and clears saving state', async () => {
+	test( 'a failed save keeps the view usable: no load error, prior settings, saving cleared', async () => {
 		apiFetch.mockResolvedValueOnce( SETTINGS );
 		const { result } = renderHook( () => useFeatureSettings() );
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
@@ -85,9 +85,23 @@ describe( 'useFeatureSettings', () => {
 			).rejects.toThrow( 'offline' );
 		} );
 
-		expect( result.current.error ).toBe( 'offline' );
+		// The hook-level error means "settings could not be loaded" and hides
+		// the whole Features view — a failed save must never set it. The caller
+		// receives the rejection and shows its own dismissible notice.
+		expect( result.current.error ).toBeNull();
 		expect( result.current.settings ).toEqual( SETTINGS );
 		expect( result.current.savingKeys.size ).toBe( 0 );
+
+		// The toggles are still mounted, so retrying in place must work.
+		const updated = { ...SETTINGS, features: { ...SETTINGS.features, excerpt: { enabled: true } } };
+		apiFetch.mockResolvedValueOnce( updated );
+
+		await act( async () => {
+			await result.current.updateSettings( { features: { excerpt: true } } );
+		} );
+
+		expect( result.current.settings ).toEqual( updated );
+		expect( result.current.error ).toBeNull();
 	} );
 
 	test( 'a master switch update is tracked under the __master__ key', async () => {

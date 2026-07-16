@@ -17,7 +17,7 @@ const ENDPOINT = '/wpcom/v2/jetpack-ai/feature-settings';
 /**
  * Hook that loads and exposes the Jetpack AI feature settings for the current site.
  *
- * @return {{ isLoading: boolean, savingKeys: Set, settings: Object|null, error: string|null, updateSettings: Function }} Feature settings state and updater.
+ * @return {{ isLoading: boolean, savingKeys: Set, settings: Object|null, error: string|null, updateSettings: Function }} Feature settings state and updater. `error` reports a load failure only.
  */
 export function useFeatureSettings() {
 	const [ isLoading, setIsLoading ] = useState( true );
@@ -56,7 +56,7 @@ export function useFeatureSettings() {
 	 * full settings shape, which replaces local state.
 	 *
 	 * @param {object} update - Partial payload, e.g. { features: { excerpt: false } } or { master_enabled: false }.
-	 * @return {Promise} Resolves when the update is saved.
+	 * @return {Promise} Resolves when the update is saved; rejects on failure, which the caller surfaces.
 	 */
 	const updateSettings = useCallback( update => {
 		// Track which toggles this request touches so only those are disabled.
@@ -71,26 +71,27 @@ export function useFeatureSettings() {
 			return next;
 		} );
 
-		return apiFetch( {
-			path: ENDPOINT,
-			method: 'POST',
-			data: update,
-		} )
-			.then( data => {
-				setSettings( prev => data ?? prev );
-				setError( null );
+		return (
+			apiFetch( {
+				path: ENDPOINT,
+				method: 'POST',
+				data: update,
 			} )
-			.catch( err => {
-				setError( err?.message ?? __( 'Failed to save AI settings.', 'jetpack' ) );
-				throw err;
-			} )
-			.finally( () => {
-				setSavingKeys( prev => {
-					const next = new Set( prev );
-					keys.forEach( key => next.delete( key ) );
-					return next;
-				} );
-			} );
+				.then( data => {
+					setSettings( prev => data ?? prev );
+					setError( null );
+				} )
+				// No catch: the rejection propagates to the caller, which owns the
+				// save-error notice. Setting the hook-level `error` here would read
+				// as a load failure and unmount the whole Features view.
+				.finally( () => {
+					setSavingKeys( prev => {
+						const next = new Set( prev );
+						keys.forEach( key => next.delete( key ) );
+						return next;
+					} );
+				} )
+		);
 	}, [] );
 
 	return { isLoading, savingKeys, settings, error, updateSettings };
