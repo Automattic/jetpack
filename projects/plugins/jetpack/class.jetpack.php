@@ -693,8 +693,6 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
-		add_filter( 'jetpack_get_available_modules', array( $this, 'filter_available_modules_podcast' ) );
-
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -2342,34 +2340,6 @@ class Jetpack {
 			if ( $block_option ) {
 				unset( $modules[ $block_key ] );
 			}
-		}
-
-		return $modules;
-	}
-
-	/**
-	 * Hides the Podcast module unless it has been explicitly opted in for the
-	 * whole world via the `jetpack_podcast_for_the_world` filter.
-	 *
-	 * Keeps the module out of the available list (and therefore out of the
-	 * default/auto-activate list and My Jetpack) until it is ready to ship,
-	 * so there is no trace of it when the filter is false.
-	 *
-	 * @uses jetpack_get_available_modules filter
-	 * @param array $modules Array of available Jetpack modules, keyed by slug.
-	 * @return array
-	 */
-	public function filter_available_modules_podcast( $modules ) {
-		/**
-		 * Expose the Podcast module to self-hosted sites. While false the module
-		 * is hidden from the available list, so it can't be activated.
-		 *
-		 * @since 16.0
-		 *
-		 * @param bool $enabled Whether to expose the Podcast module. Default false.
-		 */
-		if ( ! apply_filters( 'jetpack_podcast_for_the_world', false ) ) {
-			unset( $modules['podcast'] );
 		}
 
 		return $modules;
