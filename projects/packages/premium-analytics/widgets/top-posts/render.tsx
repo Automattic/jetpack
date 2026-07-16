@@ -143,11 +143,11 @@ function buildLeaderboardData(
 						</Text>
 					) }
 					{ externalLink && (
-						<a
+						<Link
 							className={ styles.externalLink }
 							href={ row.href }
-							target="_blank"
-							rel="noopener noreferrer"
+							variant="unstyled"
+							render={ <a target="_blank" rel="noopener noreferrer" /> }
 							aria-label={ sprintf(
 								/* translators: %s is a post, page, or archive page title. */
 								__( 'Open %s in a new tab', 'jetpack-premium-analytics' ),
@@ -155,7 +155,7 @@ function buildLeaderboardData(
 							) }
 						>
 							<Icon icon={ external } size={ 16 } />
-						</a>
+						</Link>
 					) }
 				</span>
 			),
