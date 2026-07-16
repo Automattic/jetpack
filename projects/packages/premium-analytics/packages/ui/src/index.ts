@@ -1,3 +1,9 @@
+export {
+	DataViewsDrilldownNative,
+	type DataViewsDrilldownNativeProps,
+	processHierarchyLevels,
+	type HierarchyRow,
+} from './dataviews-drilldown-native';
 export { DateFiltersPanel } from './date-filters-panel';
 export {
 	SectionTabPanel,

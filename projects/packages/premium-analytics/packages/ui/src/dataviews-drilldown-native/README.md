@@ -3,7 +3,7 @@
 `DataViewsDrilldownNative` renders flat parent/child records through DataViews' own hierarchy support and nothing else: `view.showLevels` plus the `getItemLevel` prop, exactly as the Gutenberg Pages screen consumes them. The component's only preprocessing is what that native API leaves to the consumer — re-emitting the rows in depth-first hierarchy order and resolving each row's depth from parent ids.
 
 ```tsx
-import { DataViewsDrilldownNative } from '@jetpack-premium-analytics/widgets-toolkit';
+import { DataViewsDrilldownNative } from '@jetpack-premium-analytics/ui';
 
 const rows = [
 	{ id: 'search', label: 'Search engines', views: 625 },

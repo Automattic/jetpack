@@ -454,7 +454,7 @@ const archiveFields: Field< ArchiveRow >[] = [
 ];
 
 const meta: Meta< typeof DataViewsDrilldownNative< ReferrerRow > > = {
-	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DataViewsDrilldownNative',
+	title: 'Packages/Premium Analytics/UI/DataViewsDrilldownNative',
 	component: DataViewsDrilldownNative< ReferrerRow >,
 	tags: [ 'autodocs' ],
 	argTypes: {

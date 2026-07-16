@@ -28,11 +28,6 @@ export {
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
 } from './chart-leaderboard';
-export {
-	DataViewsDrilldownNative,
-	type DataViewsDrilldownNativeProps,
-	processHierarchyLevels,
-} from './dataviews-drilldown-native';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';

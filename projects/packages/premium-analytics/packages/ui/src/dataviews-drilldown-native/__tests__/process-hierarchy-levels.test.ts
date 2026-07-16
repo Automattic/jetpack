@@ -1,4 +1,4 @@
-import { processHierarchyLevels } from './process-hierarchy-levels';
+import { processHierarchyLevels } from '../process-hierarchy-levels';
 
 type Row = {
 	id: string;
