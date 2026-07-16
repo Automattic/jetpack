@@ -184,8 +184,11 @@ const VideoPressEdit = CoreVideoEdit =>
 				// Reset preview failure count so we can retry a preview later if a problem occurs.
 				this.previewFailuresCount = 0;
 
-				// We set videoPressClassNames attribute to be used in ./save.js
-				setAttributes( { videoPressClassNames: sandboxClassnames } );
+				// Only update the attribute if the value actually changed,
+				// to avoid marking the block/entity as dirty on every render.
+				if ( sandboxClassnames !== attributes.videoPressClassNames ) {
+					setAttributes( { videoPressClassNames: sandboxClassnames } );
+				}
 			} else if ( ! isFetchingPreview && ! invalidationTriggered && this.props.attributes.guid ) {
 				// If we have a guid but no preview, we may want to reload the block
 				this.schedulePreviewCacheReload();
@@ -295,7 +298,14 @@ const VideoPressEdit = CoreVideoEdit =>
 						} );
 					}
 				} );
-				setAttributes( { videoPressTracks: tracks } );
+				// Only update the attribute if the tracks actually changed,
+				// to avoid marking the block/entity as dirty on every load.
+				const currentTracks = this.props.attributes.videoPressTracks;
+				if (
+					JSON.stringify( currentTracks ) !== JSON.stringify( tracks )
+				) {
+					setAttributes( { videoPressTracks: tracks } );
+				}
 			} );
 		};
 
