@@ -1,5 +1,5 @@
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import type { ReactNode } from 'react';
@@ -51,7 +51,13 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
 					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 					<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
-					<Tabs.Tab value="ai">{ __( 'GEO', 'jetpack-seo' ) }</Tabs.Tab>
+					<Tabs.Tab value="ai">
+						{ _x(
+							'GEO',
+							'Generative Engine Optimization; the SEO dashboard tab label',
+							'jetpack-seo'
+						) }
+					</Tabs.Tab>
 				</Tabs.List>
 			</div>
 			{ children }
