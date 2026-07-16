@@ -14,7 +14,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
-import { buildUpgradeCheckoutUrl, getUpgradeProductSlug, getUpgradePlanName } from '../upgrade';
+import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
 interface WelcomeProps {
@@ -50,7 +50,6 @@ const getUpgradeCheckoutUrl = (): string => {
 		returnUrl: returnTo,
 		// Calypso threads `source` through its downstream Tracks events.
 		params: { source: CHECKOUT_SOURCE },
-		noSiteSlugUrl: `https://wordpress.com/checkout/${ getUpgradeProductSlug() }`,
 	} );
 };
 

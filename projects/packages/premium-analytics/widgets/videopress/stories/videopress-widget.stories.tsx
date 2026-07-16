@@ -15,6 +15,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoPressRender from '../render';
 import widgetDefinition, { DEFAULT_MAX } from '../widget';
@@ -86,7 +87,7 @@ type Story = StoryObj< VideoPressStoryControls >;
 export const Default: Story = {
 	render: renderVideoPress,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -96,7 +97,7 @@ export const Default: Story = {
 export const WithComparison: Story = {
 	render: renderVideoPress,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -107,7 +108,7 @@ export const Loading: Story = {
 	render: () => renderVideoPressOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/video-plays', 'loading' );
 		return () => setReportMockState( 'stats/video-plays', null );
@@ -121,7 +122,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderVideoPressOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/video-plays', 'error' );
 		return () => setReportMockState( 'stats/video-plays', null );
@@ -135,7 +136,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderVideoPressOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/video-plays', 'empty' );
 		return () => setReportMockState( 'stats/video-plays', null );

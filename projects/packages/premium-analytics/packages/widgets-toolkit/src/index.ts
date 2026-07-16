@@ -113,6 +113,8 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useElementSize,
+	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetDrillDown,
@@ -164,6 +166,7 @@ export {
 	GeoChart,
 	GlobalChartsProvider,
 	HeatmapChart,
+	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,

@@ -17,7 +17,7 @@
 	align-items: center;
 	display: flex;
 	flex-direction: column;
-	padding-block: var(--wpds-dimension-padding-2xl, 24px);
+	padding-block: var(--wpds-dimension-padding-2xl);
 	text-align: center;
 }
 
@@ -29,5 +29,5 @@
 // theme density.
 .jetpack-social-settings__card-nested,
 .jetpack-social-settings__card-actions {
-	padding-inline-start: var(--wpds-dimension-gap-3xl, 40px);
+	padding-inline-start: var(--wpds-dimension-gap-3xl);
 }

@@ -149,19 +149,21 @@ export function TopPerformingProductLeaderboardWidget( {
 
 				const productImage = productImages ? productImages[ product.product_id ] : undefined;
 
-				// Match by product_id instead of index
+				// Match by product_id instead of index.
 				const comparisonProduct = comparisonMap.get( product.product_id );
-				const previousValue = comparisonProduct?.product_net_revenue ?? 0;
 
-				const previousShare =
-					comparisonItems.length > 0 && previousValue > 0
-						? ( previousValue / maxPreviousValue ) * 100
-						: 0;
+				// A product ranked below the previous top-N cutoff is absent from
+				// the comparison list. That is an unknown previous value, not a
+				// real 0, so leave the comparison fields undefined and let the
+				// chart show a placeholder instead of a fabricated +100% delta. A
+				// product present with 0 revenue has a known previous value and
+				// keeps its real delta.
+				const previousValue = comparisonProduct?.product_net_revenue;
+				const hasComparisonValue = previousValue !== undefined;
 
 				const label = product.product_name;
 				const imageUrl = productImage?.imageUrl || '';
 				const imageAlt = productImage?.imageAlt || label;
-				const delta = calculateDelta( currentValue, previousValue );
 
 				return {
 					id: String( product.product_id || index ),
@@ -169,12 +171,24 @@ export function TopPerformingProductLeaderboardWidget( {
 					currentValue,
 					currentShare: ( currentValue / maxCurrentValue ) * 100,
 					previousValue,
-					previousShare,
-					delta,
+					// Net revenue can be negative once refunds outweigh sales; a
+					// negative share would render an invalid bar width.
+					previousShare: hasComparisonValue
+						? ( Math.max( previousValue, 0 ) / maxPreviousValue ) * 100
+						: undefined,
+					delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
 				};
 			} ) || []
 		);
 	}, [ data?.data, comparisonData?.data, productImages ] );
+
+	// `hasComparison` only tracks the date range. When none of the visible
+	// products carry over from the comparison period, comparison mode would draw
+	// a column of placeholders, so suppress it rather than show an empty column.
+	const hasVisibleComparison = useMemo(
+		() => chartData.some( row => row.previousValue !== undefined ),
+		[ chartData ]
+	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
@@ -204,7 +218,7 @@ export function TopPerformingProductLeaderboardWidget( {
 		>
 			<LeaderboardChart
 				data={ chartData }
-				withComparison={ hasComparison }
+				withComparison={ hasComparison && hasVisibleComparison }
 				legendLabels={ legendLabels }
 				withOverlayLabel={ true }
 				showLegend={ false }

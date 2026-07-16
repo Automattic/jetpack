@@ -17,12 +17,16 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
+| `maxCellWidth` | `number` | - | Maximum cell width in pixels in non-compact mode. Cells stop growing at this width while narrower containers may still shrink them. |
+| `maxCellHeight` | `number` | - | Maximum cell height in pixels in non-compact mode. Applying it content-sizes the chart vertically so unused container height does not stretch the rows. |
+| `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
+| `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
 | `primaryColor` | `string` | theme / palette | Color the scale interpolates toward at the highest value. Resolution order: this prop > `heatmapChart.primaryColor` > palette `colors[0]`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
 | `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |
 | `height` | `number` | - | Fixed height in pixels. When omitted, the chart fills its parent's height. |
-| `aspectRatio` | `number` | - | Height as a ratio of width in responsive mode (e.g. `0.4`). Used when `width`/`height` are omitted. |
+| `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `chartId` | `string` | - | Custom chart identifier used in accessibility attributes. |
 | `className` | `string` | - | Additional CSS class for the outermost element. |
 | `gap` | `GapSize` | `'md'` | Gap between chart layout regions (chart area, legend, children). Uses WordPress design system tokens. |

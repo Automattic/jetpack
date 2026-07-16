@@ -17,6 +17,11 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
+export { useStatsPostComments } from './hooks/use-stats-post-comments';
+export type {
+	StatsPostCommentsParams,
+	StatsPostCommentsResponse,
+} from './hooks/use-stats-post-comments';
 export { useStatsPostLikes } from './hooks/use-stats-post-likes';
 export type { StatsPostLikesParams, StatsPostLikesResponse } from './hooks/use-stats-post-likes';
 export { useStatsQuery } from './hooks/use-stats-query';
@@ -31,6 +36,10 @@ export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
 export { useStatsLocations } from './hooks/use-stats-locations';
 export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
+export {
+	useStatsVideoPlaysSummary,
+	type StatsVideoPlaysSummaryParams,
+} from './hooks/use-stats-video-plays-summary';
 export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
@@ -66,6 +75,7 @@ export {
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export {
 	useStatsCommentFollowers,
+	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersResponse,
 } from './hooks/use-stats-comment-followers';
 export { useStatsFollowers } from './hooks/use-stats-followers';

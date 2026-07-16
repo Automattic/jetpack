@@ -35,8 +35,9 @@ module.exports = {
 	// - @gravatar-com: for the lifted Gravatar component's hovercard styles
 	// - marked: esm-only
 	// - uuid: v14 went esm-only, so it needs transforming
+	// `(?!.*/node_modules/)` handles pnpm's store with nested `node_modules` dirs.
 	transformIgnorePatterns: [
-		'/node_modules/(?!\\.pnpm|marked/|uuid/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
+		'/node_modules/(?!.*/node_modules/)(?!marked/|uuid/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
 	],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),

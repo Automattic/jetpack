@@ -46,7 +46,7 @@ class Password_Detection {
 	 *
 	 * @return \WP_User|\WP_Error|null The user object, error object, or null.
 	 */
-	public function login_form_password_detection( $user, ?string $password ) {
+	public function login_form_password_detection( $user, ?string $password = null ) {
 		// First check if the user object and password are valid. Third-party plugins might pass
 		// incompatible types to authentication hooks, so we need this extra check.
 		if ( is_wp_error( $user ) || ! ( $user instanceof \WP_User ) || $password === null ) {

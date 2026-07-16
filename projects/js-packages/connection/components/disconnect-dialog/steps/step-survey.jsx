@@ -6,8 +6,11 @@ import DisconnectSurvey from '../../disconnect-survey';
 /**
  * Show the survey step and allow the user to select a response.
  *
- * @param {object} props - The properties.
- * @return {import('react').Component} The StepSurvey Component
+ * @param {object}   props                      - The properties.
+ * @param {Function} props.onExit               - Callback function used to close the modal and leave the disconnect flow.
+ * @param {Function} props.onFeedBackProvided   - Callback function to handle submission of survey response.
+ * @param {boolean}  props.isSubmittingFeedback - If the survey feedback is currently being saved/submitted.
+ * @return {import('react').ReactNode} The StepSurvey Component
  */
 const StepSurvey = props => {
 	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;
@@ -33,7 +36,7 @@ const StepSurvey = props => {
 	);
 };
 
-StepSurvey.PropTypes = {
+StepSurvey.propTypes = {
 	/** Callback function used to close the modal and leave the disconnect flow. */
 	onExit: PropTypes.func,
 	/** Callback function to handle submission of survey response. */

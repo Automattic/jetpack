@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
+import { fileURLToPath } from 'url';
 import util from 'util';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
@@ -605,7 +606,10 @@ async function rsyncToDest( source, dest, password = null ) {
 		// When RSYNC_PROXY_SOCKET is set, use the rsh-proxy script to route SSH through the host
 		// This enables support for Secure Enclave SSH keys that can't be forwarded into Docker
 		if ( process.env.RSYNC_PROXY_SOCKET ) {
-			rsyncArgs.push( '--rsh=/workspace/tools/docker/bin/rsync-rsh-proxy.sh' );
+			const rshProxy = fileURLToPath(
+				new URL( '../../docker/bin/rsync-rsh-proxy.sh', import.meta.url )
+			);
+			rsyncArgs.push( `--rsh=${ rshProxy }` );
 		}
 
 		rsyncArgs.push( source, dest );

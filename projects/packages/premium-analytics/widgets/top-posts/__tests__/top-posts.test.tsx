@@ -123,6 +123,9 @@ describe( 'TopPostsWidget', () => {
 			name: /open hello world post in a new tab/i,
 		} );
 		expect( externalLink ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
+		expect( externalLink ).toHaveAttribute( 'target', '_blank' );
+		expect( externalLink ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		expect( screen.queryByLabelText( '(opens in a new tab)' ) ).not.toBeInTheDocument();
 
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );
