@@ -145,11 +145,11 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 
 		// The outer element fills the parent (via CSS) so its live height reflects the
 		// real available space; JS sets width/height only when they are passed
-		// explicitly. With an aspectRatio the chart is placed in an inner box whose width
-		// is set here and whose height follows from the CSS aspect-ratio, so it keeps its
-		// proportions and fits within the parent on both axes (centered by CSS). Charts
-		// that fill their container via CSS (e.g. the heatmap grid) then track that box.
-		// Without an aspectRatio the chart fills the parent directly.
+		// explicitly. Static layout (fill, flex centering) lives in the stylesheet. With
+		// an aspectRatio the chart is placed in an inner box sized to the contained
+		// dimensions (centered by CSS) so it keeps its proportions and fits within the
+		// parent on both axes. Charts that fill their container via CSS (e.g. the heatmap
+		// grid) then track that box. Without an aspectRatio the chart fills the parent.
 		return (
 			<div
 				ref={ setWrapperRef }
@@ -164,7 +164,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 					<div
 						data-testid="responsive-content"
 						className={ styles.content }
-						style={ { width: boxWidth, aspectRatio: `1 / ${ aspectRatio }` } }
+						style={ { width: boxWidth, height: boxHeight } }
 					>
 						{ wrappedComponent }
 					</div>

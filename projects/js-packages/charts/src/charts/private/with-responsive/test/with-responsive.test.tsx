@@ -143,21 +143,20 @@ describe( 'withResponsive', () => {
 			expect( screen.queryByTestId( 'responsive-content' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'renders the contained chart in an inner content box sized by width + aspect-ratio', () => {
-			// aspectRatio 0.4: 600 * 0.4 = 240 fits the 300px parent. Only the width is set
-			// inline; the height comes from the CSS aspect-ratio.
+		test( 'renders the contained chart in an inner content box sized to the aspect ratio', () => {
+			// aspectRatio 0.4: 600 * 0.4 = 240 fits the 300px parent.
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.4 } /> );
 			const content = screen.getByTestId( 'responsive-content' );
-			expect( content ).toHaveStyle( { width: '600px', aspectRatio: '1 / 0.4' } );
+			expect( content ).toHaveStyle( { width: '600px', height: '240px' } );
 		} );
 
 		test( 'content box contains to the parent height when the parent limits the available height', () => {
-			// aspectRatio 0.75 derives 450 > the 300px the parent allows, so the width
-			// shrinks to 400 (300 / 0.75) and the aspect-ratio keeps the height at 300.
+			// aspectRatio 0.75 derives 450 > the 300px the parent allows, so both axes
+			// shrink to fit: width 400 (300 / 0.75) × height 300.
 			mockClientHeight = 300;
 			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } /> );
 			const content = screen.getByTestId( 'responsive-content' );
-			expect( content ).toHaveStyle( { width: '400px', aspectRatio: '1 / 0.75' } );
+			expect( content ).toHaveStyle( { width: '400px', height: '300px' } );
 		} );
 	} );
 

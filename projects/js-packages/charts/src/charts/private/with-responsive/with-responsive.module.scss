@@ -15,8 +15,8 @@
 	align-items: flex-start;
 }
 
-// The aspect-ratio contain box: JS sets its width, the height follows from the
-// aspect-ratio. Keep it from being stretched or shrunk by the flex parent.
+// The contain box. Its width/height come from JS; keep it from being stretched
+// or shrunk by the flex parent.
 .content {
 	flex: 0 0 auto;
 	min-width: 0;
