@@ -1,4 +1,4 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { useEntityRecords } from '@wordpress/core-data';
 
 export interface CategoryTerm {
 	id: number;
@@ -6,16 +6,14 @@ export interface CategoryTerm {
 	slug: string;
 }
 
-const categories: CategoryTerm[] = getScriptData()?.podcast?.categories ?? [];
-
 /**
- * The site's category terms for the "Post category" picker.
+ * Read every category term on the site via core-data's taxonomy entity.
  *
- * Read once from server-injected script data (no client-side taxonomy→terms
- * fetch), so the dropdown renders populated on first paint.
- *
- * @return The site's category terms.
+ * @return `{ data, isLoading }` matching the prior TanStack-shaped contract.
  */
-export function useCategoriesQuery(): CategoryTerm[] {
-	return categories;
+export function useCategoriesQuery(): { data: CategoryTerm[]; isLoading: boolean } {
+	const { records, hasResolved } = useEntityRecords< CategoryTerm >( 'taxonomy', 'category', {
+		per_page: -1,
+	} );
+	return { data: records ?? [], isLoading: ! hasResolved };
 }

@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Notice,
@@ -12,7 +13,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCategoriesQuery, type CategoryTerm } from './hooks/use-categories-query';
+import { useCategoriesQuery } from './hooks/use-categories-query';
 import { parseErrorMessage } from './parse-error-message';
 
 // Sentinel for the "create new category" option in the select.
@@ -43,10 +44,8 @@ const CategoryPicker = ( {
 	onSavingChange,
 	onCreateSuccess,
 }: CategoryPickerProps ) => {
-	const categories = useCategoriesQuery();
+	const { data: categories = [], isLoading } = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
-
-	const [ createdCategories, setCreatedCategories ] = useState< CategoryTerm[] >( [] );
 
 	// `canUser` returns `undefined` while resolving. Treat that as allowed so
 	// the option doesn't flash hidden; only hide once the OPTIONS probe says no.
@@ -115,17 +114,13 @@ const CategoryPicker = ( {
 				'category',
 				{ name: trimmedName },
 				{ throwOnError: true }
-			) ) as { id?: number; name?: string; slug?: string } | undefined;
+			) ) as { id?: number } | undefined;
 			if ( ! result?.id ) {
 				throw new Error(
 					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
 				);
 			}
 			const newId = Number( result.id );
-			setCreatedCategories( prev => [
-				...prev,
-				{ id: newId, name: result.name ?? trimmedName, slug: result.slug ?? '' },
-			] );
 			onSelect( newId );
 			if ( onCreateSuccess ) {
 				try {
@@ -158,10 +153,17 @@ const CategoryPicker = ( {
 		}
 	}, [ trimmedName, saveEntityRecord, onSelect, onCreateSuccess ] );
 
+	// The full list loads lazily; seed the currently-set category from injected
+	// script data so its label shows immediately instead of a blank select.
+	const selectedCategory = getScriptData()?.podcast?.selected_category;
+	const seededCategories =
+		selectedCategory && ! categories.some( cat => cat.id === selectedCategory.id )
+			? [ selectedCategory, ...categories ]
+			: categories;
+
 	const options: Array< { label: string; value: string } > = [
 		{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
-		...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
-		...createdCategories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
+		...seededCategories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 	];
 	if ( canCreateCategory !== false ) {
 		options.push( {
@@ -180,7 +182,7 @@ const CategoryPicker = ( {
 				value={ isCreating ? CREATE_NEW : String( selectedId || '' ) }
 				onChange={ handleSelectChange }
 				options={ options }
-				disabled={ disabled || saving }
+				disabled={ disabled || isLoading || saving }
 			/>
 			{ isCreating && (
 				<VStack spacing={ 2 }>

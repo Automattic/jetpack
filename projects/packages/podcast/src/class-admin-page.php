@@ -153,7 +153,7 @@ class Admin_Page {
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
-			'categories'          => self::get_podcast_categories(),
+			'selected_category'   => self::get_selected_category(),
 			'upgrade'             => array(
 				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
 				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
@@ -164,38 +164,26 @@ class Admin_Page {
 	}
 
 	/**
-	 * Category terms for the "Post category" picker, injected into script data
-	 * so the dashboard renders the dropdown without a client-side
-	 * taxonomy→terms round trip.
+	 * The currently designated podcast category, injected so the settings
+	 * picker can label its selected option on first paint instead of waiting on
+	 * the client-side taxonomy→terms fetch. The full list still loads lazily.
 	 *
-	 * Returns every category, name-ordered, matching the `per_page=-1` request
-	 * the picker previously made.
-	 *
-	 * @return array<int, array{id:int, name:string, slug:string}>
+	 * @return array{id:int, name:string}|null Null when no category is set.
 	 */
-	public static function get_podcast_categories() {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'category',
-				'hide_empty' => false,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-			)
-		);
-
-		if ( is_wp_error( $terms ) ) {
-			return array();
+	public static function get_selected_category() {
+		$category_id = (int) get_option( 'podcasting_category_id', 0 );
+		if ( $category_id <= 0 ) {
+			return null;
 		}
 
-		return array_map(
-			static function ( $term ) {
-				return array(
-					'id'   => (int) $term->term_id,
-					'name' => $term->name,
-					'slug' => $term->slug,
-				);
-			},
-			$terms
+		$term = get_term( $category_id, 'category' );
+		if ( ! $term instanceof \WP_Term ) {
+			return null;
+		}
+
+		return array(
+			'id'   => (int) $term->term_id,
+			'name' => $term->name,
 		);
 	}
 
