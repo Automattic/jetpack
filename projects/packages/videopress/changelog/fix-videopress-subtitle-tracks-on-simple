@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix "You do not have permission to upload files" when publishing or deleting a subtitle track from the VideoPress dashboard on WordPress.com Simple sites.

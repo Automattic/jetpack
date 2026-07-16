@@ -6,9 +6,8 @@ import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Link, Text } from '@wordpress/ui';
+import { Button, Text } from '@wordpress/ui';
 import { useCallback, useState, useMemo } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 /**
@@ -17,6 +16,7 @@ import useRestApiInit from '../../hooks/use-rest-api-init';
 import ConnectionErrorNotice from '../connection-error-notice';
 import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
+import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import type { MouseEvent } from 'react';
 import './style.scss';
@@ -307,35 +307,8 @@ const HelpFooter = ( { onClose, disabled }: HelpFooterProps ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
 			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-9 md-col-span-7 sm-col-span-3">
-				<Text>
-					{ createInterpolateElement(
-						__(
-							'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>',
-							'jetpack-connection-js'
-						),
-						{
-							strong: <strong></strong>,
-							connectionInfoLink: (
-								<Link
-									openInNewTab
-									href={ getRedirectUrl(
-										'why-the-wordpress-com-connection-is-important-for-jetpack'
-									) }
-									// TODO add click track
-									className="jp-connection__manage-dialog__link"
-								/>
-							),
-							supportLink: (
-								<Link
-									openInNewTab
-									href={ getRedirectUrl( 'jetpack-support' ) }
-									// TODO add click track
-									className="jp-connection__manage-dialog__link"
-								/>
-							),
-						}
-					) }
-				</Text>
+				{ /* TODO add click tracks */ }
+				<SharedHelpFooter namespace="jp-connection__manage-dialog" />
 			</div>
 			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-3 md-col-span-1 sm-col-span-1">
 				<Button

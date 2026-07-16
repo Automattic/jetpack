@@ -77,6 +77,9 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
 - **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > palette `colors[0]`)
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 - **`gap`** (default: `'md'`): gap between chart layout regions (chart area, legend, children)
 - **`chartId`**: custom identifier for accessibility labelling
 - **`className`**: additional CSS class for the outer element
@@ -255,23 +258,25 @@ Everything else — the cell gap, corner radius, in-cell value size, the empty-c
 
 ## Responsive Behavior
 
-By default the chart fills its parent container's dimensions, reflowing fluidly as the container resizes. Give it a height in one of three ways: an explicit height on the parent, an `aspectRatio` to derive the height from the available width, or fixed `width`/`height` props. Without one of these the chart has no height to fill and collapses, so always constrain it:
+By default, the chart **fills its parent container's dimensions**, reflowing as the container resizes. The parent must have an explicit height — or the chart must receive an `aspectRatio` or fixed `width`/`height`, otherwise it has no height to fill and collapses. With an `aspectRatio` the chart keeps that ratio, contained within its parent on both axes:
+
+<Canvas of={ HeatmapStories.AspectRatio } />
 
 <Source
 	language="jsx"
-	code={ `// Fill parent container — parent needs explicit height
-<div style={{ width: '100%', height: '200px' }}>
-	<HeatmapChart data={ columns } rowLabels={ rowLabels } />
-</div>
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '200px' }}>
+		<HeatmapChart data={ columns } rowLabels={ rowLabels } />
+	</div>
 
-	// Derive height from width via aspectRatio (height = width × 0.4)
-	<HeatmapChart data={ columns } rowLabels={ rowLabels } aspectRatio={ 0.4 } />
+	// Use aspect ratio - height from width, contained if the parent is shorter
+	<div style={{ width: '100%' }}>
+		<HeatmapChart data={ columns } rowLabels={ rowLabels } aspectRatio={ 0.4 } />
+	</div>
 
 	// Fixed dimensions
 	<HeatmapChart data={ columns } rowLabels={ rowLabels } width={ 720 } height={ 200 } />` }
 />
-
-<Canvas of={ HeatmapStories.AspectRatio } />
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
