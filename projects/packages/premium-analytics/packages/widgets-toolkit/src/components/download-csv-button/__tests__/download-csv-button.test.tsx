@@ -111,8 +111,7 @@ describe( 'DownloadCsvButton', () => {
 		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 
-	it( 'reports server download failures through WidgetRoot', async () => {
-		const setError = jest.fn();
+	it( 'shows server download failures without replacing the download action', async () => {
 		mockDownloadReport.mockRejectedValueOnce( new Error( 'Upstream API unavailable.' ) );
 
 		render(
@@ -123,7 +122,6 @@ describe( 'DownloadCsvButton', () => {
 						to: '2026-06-30T23:59:59+02:00',
 						interval: 'day',
 					},
-					setError,
 				} }
 			>
 				<DownloadCsvButton reportType="ordersovertime" />
@@ -134,9 +132,23 @@ describe( 'DownloadCsvButton', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
 
-		await waitFor( () =>
-			expect( setError ).toHaveBeenLastCalledWith( { message: 'Upstream API unavailable.' } )
+		await expect(
+			screen.findByText( 'Upstream API unavailable.', { selector: 'span' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'fails gracefully when server mode has no report params', () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+
+		render( <DownloadCsvButton reportType="ordersovertime" /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( warn ).toHaveBeenCalledWith(
+			'DownloadCsvButton server mode requires reportParams or a surrounding WidgetRoot.'
 		);
+
+		warn.mockRestore();
 	} );
 
 	it( 'disables the button while a server download is in progress', async () => {

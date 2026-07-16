@@ -9,7 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Button, Icon } from '@wordpress/ui';
+import { Button, Icon, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useState } from 'react';
 /**
@@ -114,6 +114,7 @@ export function DownloadCsvButton<
 >( props: DownloadCsvButtonProps< Row > ) {
 	const context = useContext( WidgetRootContext );
 	const [ isBusy, setIsBusy ] = useState( false );
+	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
 	const { label = __( 'Download CSV', 'jetpack-premium-analytics' ), className } = props;
 	const isServerMode = props.reportType !== undefined;
 
@@ -123,9 +124,13 @@ export function DownloadCsvButton<
 
 	const reportParams = isServerMode ? props.reportParams ?? context?.reportParams : undefined;
 	if ( isServerMode && ! reportParams ) {
-		throw new Error(
-			'DownloadCsvButton server mode requires reportParams or a surrounding WidgetRoot.'
-		);
+		if ( process.env.NODE_ENV !== 'production' ) {
+			// eslint-disable-next-line no-console -- Surface a developer integration error without taking down the widget.
+			console.warn(
+				'DownloadCsvButton server mode requires reportParams or a surrounding WidgetRoot.'
+			);
+		}
+		return null;
 	}
 
 	const onClick = async () => {
@@ -133,14 +138,14 @@ export function DownloadCsvButton<
 			return;
 		}
 
-		if ( isServerMode ) {
-			const { reportType } = props;
-			const resolvedReportParams = reportParams;
+		setErrorMessage( null );
+		setIsBusy( true );
 
-			setIsBusy( true );
-			context?.setError?.( null );
+		try {
+			if ( isServerMode ) {
+				const { reportType } = props;
+				const resolvedReportParams = reportParams;
 
-			try {
 				await downloadReport( {
 					reportType,
 					from: resolvedReportParams.from,
@@ -153,37 +158,42 @@ export function DownloadCsvButton<
 						  }
 						: {} ),
 				} );
-			} catch ( error ) {
-				context?.setError?.( { message: getErrorMessage( error ) } );
-			} finally {
-				setIsBusy( false );
+				return;
 			}
 
-			return;
-		}
-
-		setIsBusy( true );
-		try {
 			// Let React commit the disabled state before the synchronous CSV build
 			// and browser download handoff begin.
 			await new Promise< void >( resolve => setTimeout( resolve, 0 ) );
 			saveCsv( props.filename, buildCsv( props.columns, props.rows ) );
+		} catch ( error ) {
+			setErrorMessage( getErrorMessage( error ) );
 		} finally {
 			setIsBusy( false );
 		}
 	};
 
 	return (
-		<Button
-			variant="minimal"
-			tone="neutral"
-			size="compact"
-			onClick={ onClick }
-			loading={ isBusy }
-			className={ clsx( styles.downloadCsv, className ) }
-		>
-			<Icon icon={ download } size={ 20 } className={ styles.icon } />
-			<span className={ styles.label }>{ label }</span>
-		</Button>
+		<>
+			{ errorMessage && (
+				<Notice.Root intent="error" spokenMessage={ errorMessage }>
+					<Notice.Description>{ errorMessage }</Notice.Description>
+					<Notice.CloseIcon
+						label={ __( 'Dismiss', 'jetpack-premium-analytics' ) }
+						onClick={ () => setErrorMessage( null ) }
+					/>
+				</Notice.Root>
+			) }
+			<Button
+				variant="minimal"
+				tone="neutral"
+				size="compact"
+				onClick={ onClick }
+				loading={ isBusy }
+				className={ clsx( styles.downloadCsv, className ) }
+			>
+				<Icon icon={ download } size={ 20 } className={ styles.icon } />
+				<span className={ styles.label }>{ label }</span>
+			</Button>
+		</>
 	);
 }
