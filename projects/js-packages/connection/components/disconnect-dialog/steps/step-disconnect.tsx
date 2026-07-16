@@ -84,12 +84,19 @@ const StepDisconnect = ( {
 	 * @return {import('react').ReactNode} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
-		const hasOtherConnectedPlugins =
-			connectedPlugins &&
-			Object.keys( connectedPlugins ).filter( key => key !== disconnectingPlugin ).length;
+		const hasOtherConnectedPlugins = ( () => {
+			if ( ! connectedPlugins ) {
+				return 0;
+			}
 
-		if ( ! hasOtherConnectedPlugins && ! disconnectStepComponent ) {
-			return (
+			const plugins = Array.isArray( connectedPlugins )
+				? connectedPlugins
+				: Object.entries( connectedPlugins ).map( ( [ slug, plugin ] ) => ( { slug, ...plugin } ) );
+
+			return plugins.filter( plugin => plugin.slug !== disconnectingPlugin ).length;
+		} )();
+
+		if ( hasOtherConnectedPlugins === 0 && ! disconnectStepComponent ) {
 				<div className="jp-connection__disconnect-dialog__step-copy">
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
