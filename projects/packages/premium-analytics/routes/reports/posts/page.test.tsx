@@ -68,10 +68,21 @@ const rowsCsvDownloadButtonMock = jest.mocked( RowsCsvDownloadButton );
 /**
  * Build the report records used by the page test.
  *
- * @param isFetching - Whether the active report is currently refetching.
+ * @param options            - Active report request state.
+ * @param options.isFetching - Whether the active report is currently refetching.
+ * @param options.isLoading  - Whether the active report is initially loading.
+ * @param options.isError    - Whether the active report request failed.
  * @return The mocked records hook result.
  */
-function buildRecords( isFetching = false ) {
+function buildRecords( {
+	isFetching = false,
+	isLoading = false,
+	isError = false,
+}: {
+	isFetching?: boolean;
+	isLoading?: boolean;
+	isError?: boolean;
+} = {} ) {
 	return {
 		chart: {
 			primary: undefined,
@@ -87,9 +98,9 @@ function buildRecords( isFetching = false ) {
 					link: 'https://example.com/hello-world',
 				},
 			],
-			isLoading: false,
+			isLoading,
 			isFetching,
-			isError: false,
+			isError,
 		},
 		archives: {
 			rows: [],
@@ -170,11 +181,29 @@ describe( 'PostsReportPage', () => {
 	} );
 
 	it( 'hides the export while the active report is fetching', () => {
-		useRecordsMock.mockReturnValue( buildRecords( true ) );
+		useRecordsMock.mockReturnValue( buildRecords( { isFetching: true } ) );
 
 		render( <PostsReportPage /> );
 
 		expect( screen.queryByTestId( 'page-actions' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the export while the active report is loading', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { isLoading: true } ) );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.queryByTestId( 'page-actions' ) ).not.toBeInTheDocument();
+		expect( rowsCsvDownloadButtonMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'hides the export when the active report failed', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.queryByTestId( 'page-actions' ) ).not.toBeInTheDocument();
+		expect( rowsCsvDownloadButtonMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not create a page actions area while CSV exports are disabled', () => {

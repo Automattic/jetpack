@@ -188,6 +188,7 @@ function PostsReport(): JSX.Element {
 	const canExport =
 		isCsvExportEnabled() &&
 		csvRows.length > 0 &&
+		! activeRecords.isLoading &&
 		! activeRecords.isFetching &&
 		! activeRecords.isError;
 	const csvFilename = `${ activeTab === 'posts-pages' ? 'top-posts' : 'archives' }-${ String(
