@@ -24,9 +24,9 @@
 }
 
 .header {
-	// The summary header below the filters. 16px on top stacks with the
-	// filters row's 16px bottom padding to 32px of space above the heading;
-	// 32px below mirrors it symmetrically.
-	padding-block: var(--wpds-dimension-gap-lg) 32px;
+	// The summary header below the filters. The top gap stacks with the
+	// filters row's bottom padding (gap-lg + gap-lg = gap-2xl of space above
+	// the heading); gap-2xl below mirrors it symmetrically.
+	padding-block: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
