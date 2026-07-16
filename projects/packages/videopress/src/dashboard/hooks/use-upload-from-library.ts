@@ -1,3 +1,4 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { LIBRARY_QUERY_KEY } from './use-library';
@@ -135,19 +136,53 @@ export type UploadFromLibraryVariables = {
 	onProgress?: ( percent: number ) => void;
 };
 
+type WpcomPromoteResponse = {
+	guid: string;
+	media_id: number;
+	// Present (true) when the attachment was already on VideoPress and the
+	// endpoint reported success idempotently instead of re-promoting.
+	already_videopress?: boolean;
+};
+
+/**
+ * Promote a local attachment in-process on WordPress.com Simple. The file
+ * already lives on WordPress.com storage, so there is no chunked upload to
+ * walk: a single POST creates the videos-table row and enqueues the
+ * transcode. Promotion is in-place — the attachment keeps its id (no
+ * sibling attachment is created), and the next library refetch shows the
+ * same row as a processing VideoPress video.
+ *
+ * @param attachmentId - The numeric or string WordPress attachment ID.
+ * @return The VideoPress GUID and (unchanged) media post ID.
+ */
+export async function promoteOnSimple(
+	attachmentId: string | number
+): Promise< UploadFromLibraryResult > {
+	const result = await apiFetch< WpcomPromoteResponse >( {
+		path: `/wpcom/v2/videopress/promote/${ attachmentId }`,
+		method: 'POST',
+	} );
+	return { guid: result.guid, mediaId: result.media_id };
+}
 /**
  * Promote an existing local WordPress media attachment to a
- * VideoPress-hosted video by walking the chunked upload endpoint.
- * On success the library query is invalidated so the new VideoPress
- * item appears (in processing state, which the library's existing
- * 2s polling then resolves once the backend finishes transcoding).
+ * VideoPress-hosted video. On WordPress.com Simple this is one in-process
+ * POST to wpcom/v2/videopress/promote (the file is already on WordPress.com
+ * storage); elsewhere it walks the chunked videopress/v1 upload endpoint.
+ * On success the library query is invalidated so the new VideoPress item
+ * appears (in processing state, which the library's existing 2s polling
+ * then resolves once the backend finishes transcoding).
  *
  * @return A react-query mutation.
  */
 export function useUploadFromLibrary() {
 	const client = useQueryClient();
 	return useMutation< UploadFromLibraryResult, Error, UploadFromLibraryVariables >( {
-		mutationFn: ( { id, onProgress } ) => uploadFromLibrary( id, { onProgress } ),
+		// On Simple the promote is a single in-process POST — there are no
+		// chunks, so onProgress never fires and the row's promoting overlay
+		// stays indeterminate until the mutation settles.
+		mutationFn: ( { id, onProgress } ) =>
+			isSimpleSite() ? promoteOnSimple( id ) : uploadFromLibrary( id, { onProgress } ),
 		onSuccess: () => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		},

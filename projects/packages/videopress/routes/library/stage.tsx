@@ -89,7 +89,7 @@ const StageInner = () => {
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
-	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
+	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
@@ -192,47 +192,49 @@ const StageInner = () => {
 	const promoteLocal = useCallback(
 		( id: string ) => {
 			setPromotingProgress( prev => new Map( prev ).set( id, 0 ) );
-			uploadFromLibrary(
-				{
-					id,
-					onProgress: ( percent: number ) => {
-						setPromotingProgress( prev => {
-							// Ignore a straggler progress report after settle.
-							if ( ! prev.has( id ) ) {
-								return prev;
-							}
-							return new Map( prev ).set( id, percent );
-						} );
-					},
+			// React via the mutateAsync promise rather than mutate-level
+			// callbacks: TanStack detaches the observer from an in-flight
+			// mutation when the same hook instance starts another one,
+			// silently dropping that call's callbacks (see useDeleteVideo) —
+			// with promises, concurrent promotes each keep their own overlay
+			// teardown and notice.
+			uploadFromLibrary( {
+				id,
+				onProgress: ( percent: number ) => {
+					setPromotingProgress( prev => {
+						// Ignore a straggler progress report after settle.
+						if ( ! prev.has( id ) ) {
+							return prev;
+						}
+						return new Map( prev ).set( id, percent );
+					} );
 				},
-				{
-					onSuccess: () => {
-						createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
-					},
-					onError: ( error: Error ) => {
-						const reason = error?.message?.trim();
-						createErrorNotice(
-							reason
-								? sprintf(
-										/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
-										__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
-										reason
-								  )
-								: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
-						);
-					},
-					onSettled: () => {
-						setPromotingProgress( prev => {
-							if ( ! prev.has( id ) ) {
-								return prev;
-							}
-							const next = new Map( prev );
-							next.delete( id );
-							return next;
-						} );
-					},
-				}
-			);
+			} )
+				.then( () => {
+					createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
+				} )
+				.catch( ( error: Error ) => {
+					const reason = error?.message?.trim();
+					createErrorNotice(
+						reason
+							? sprintf(
+									/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
+									__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
+									reason
+							  )
+							: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
+					);
+				} )
+				.finally( () => {
+					setPromotingProgress( prev => {
+						if ( ! prev.has( id ) ) {
+							return prev;
+						}
+						const next = new Map( prev );
+						next.delete( id );
+						return next;
+					} );
+				} );
 		},
 		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
 	);

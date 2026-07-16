@@ -1,5 +1,12 @@
+import { renderHook, act } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
-import { uploadFromLibrary } from '../use-upload-from-library';
+import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
+import {
+	promoteOnSimple,
+	uploadFromLibrary,
+	useUploadFromLibrary,
+} from '../use-upload-from-library';
 
 describe( 'uploadFromLibrary', () => {
 	it( 'returns guid + mediaId immediately when the first response is complete', async () => {
@@ -123,5 +130,82 @@ describe( 'uploadFromLibrary', () => {
 		} ) );
 
 		await expect( uploadFromLibrary( 1, { delayMs: 0 } ) ).rejects.toThrow( '403: Invalid Mime' );
+	} );
+} );
+
+describe( 'promoteOnSimple', () => {
+	it( 'POSTs the wpcom/v2 promote route once and maps the response', async () => {
+		const paths: ( string | undefined )[] = [];
+		mockApiFetch( async ( { path, method } ) => {
+			paths.push( path );
+			expect( method ).toBe( 'POST' );
+			return { guid: 'AbCd1234', media_id: 5 };
+		} );
+
+		await expect( promoteOnSimple( 5 ) ).resolves.toEqual( { guid: 'AbCd1234', mediaId: 5 } );
+		expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/5' ] );
+	} );
+
+	it( 'maps an idempotent already-on-VideoPress response like a fresh promote', async () => {
+		mockApiFetch( async () => ( {
+			guid: 'AbCd1234',
+			media_id: 9,
+			already_videopress: true,
+		} ) );
+
+		await expect( promoteOnSimple( 9 ) ).resolves.toEqual( { guid: 'AbCd1234', mediaId: 9 } );
+	} );
+
+	it( 'rejects with the REST error payload so callers can surface the message', async () => {
+		mockApiFetch( async () => {
+			throw { code: 'videopress_promote_not_allowed', message: 'No VideoPress here.' };
+		} );
+
+		await expect( promoteOnSimple( 5 ) ).rejects.toMatchObject( {
+			message: 'No VideoPress here.',
+		} );
+	} );
+} );
+
+describe( 'useUploadFromLibrary', () => {
+	afterEach( () => {
+		unsetSimpleSite();
+	} );
+
+	it( 'routes through the one-shot wpcom/v2 promote on Simple (no walker)', async () => {
+		setSimpleSite();
+		const paths: ( string | undefined )[] = [];
+		mockApiFetch( async ( { path } ) => {
+			paths.push( path );
+			return { guid: 'g1234567', media_id: 3 };
+		} );
+
+		const wrapper = createTestWrapper( createTestQueryClient() );
+		const { result } = renderHook( () => useUploadFromLibrary(), { wrapper } );
+
+		let outcome;
+		await act( async () => {
+			outcome = await result.current.mutateAsync( 3 );
+		} );
+
+		expect( outcome ).toEqual( { guid: 'g1234567', mediaId: 3 } );
+		expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/3' ] );
+	} );
+
+	it( 'keeps walking the videopress/v1 upload endpoint off Simple', async () => {
+		const paths: ( string | undefined )[] = [];
+		mockApiFetch( async ( { path } ) => {
+			paths.push( path );
+			return { status: 'complete', uploaded_details: { guid: 'g', media_id: 3 } };
+		} );
+
+		const wrapper = createTestWrapper( createTestQueryClient() );
+		const { result } = renderHook( () => useUploadFromLibrary(), { wrapper } );
+
+		await act( async () => {
+			await result.current.mutateAsync( 3 );
+		} );
+
+		expect( paths ).toEqual( [ '/videopress/v1/upload/3' ] );
 	} );
 } );

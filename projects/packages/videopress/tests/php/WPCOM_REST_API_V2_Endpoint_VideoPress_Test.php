@@ -28,6 +28,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	private const ROUTE_UPLOAD_JWT      = '/wpcom/v2/videopress/upload-jwt';
 	private const ROUTE_PLAYBACK_JWT    = '/wpcom/v2/videopress/playback-jwt/(?P<video_guid>[A-Za-z0-9]{8})';
 	private const ROUTE_SETTINGS        = '/wpcom/v2/videopress/settings';
+	private const ROUTE_PROMOTE         = '/wpcom/v2/videopress/promote/(?P<attachment_id>\d+)';
 
 	/**
 	 * Set up the test environment.
@@ -107,6 +108,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertArrayHasKey( self::ROUTE_UPLOAD_JWT, $routes );
 		$this->assertArrayHasKey( self::ROUTE_PLAYBACK_JWT, $routes );
 		$this->assertArrayHasKey( self::ROUTE_SETTINGS, $routes );
+		$this->assertArrayHasKey( self::ROUTE_PROMOTE, $routes );
 	}
 
 	/**
@@ -246,6 +248,80 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'success', $response->get_data()['code'] );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+	}
+
+	/**
+	 * Test that the promote route's attachment_id path param carries an
+	 * integer schema and the route regex rejects non-numeric ids outright.
+	 */
+	public function test_promote_route_has_attachment_id_schema() {
+		$routes = rest_get_server()->get_routes();
+		$args   = $routes[ self::ROUTE_PROMOTE ][0]['args'];
+
+		$this->assertArrayHasKey( 'attachment_id', $args );
+		$this->assertSame( 'integer', $args['attachment_id']['type'] );
+		$this->assertTrue( $args['attachment_id']['required'] );
+
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/promote/not-a-number' );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 404, $response->get_status() );
+	}
+
+	/**
+	 * Test that a logged-out promote POST is rejected with a 401.
+	 */
+	public function test_promote_dispatch_requires_authentication() {
+		wp_set_current_user( 0 );
+
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/promote/123' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test that a user without upload_files can't promote, even when the
+	 * connection term of the permission callback would pass.
+	 */
+	public function test_promote_dispatch_rejects_users_without_upload_files() {
+		$user_id = $this->login_as( 'subscriber' );
+		$this->mock_connection( $user_id );
+
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/promote/123' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Test that even an author-level user can't promote without a Jetpack
+	 * connection off-WPCOM (Data::can_perform_action() requires one).
+	 */
+	public function test_promote_dispatch_rejects_unconnected_uploader() {
+		$this->login_as( 'author' );
+
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/promote/123' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Test that a connected uploader clears the permission callback and the
+	 * handler then reports the endpoint unavailable off-WPCOM: promotion is
+	 * in-process on WordPress.com Simple only (self-hosted promotes walk
+	 * videopress/v1/upload/{id} instead), and IS_WPCOM can't be simulated
+	 * in this environment.
+	 */
+	public function test_promote_dispatch_reports_not_available_off_wpcom() {
+		$user_id = $this->login_as( 'author' );
+		$this->mock_connection( $user_id );
+
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/promote/123' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 404, $response->get_status() );
+		$this->assertSame( 'videopress_promote_not_available', $response->get_data()['code'] );
 	}
 
 	/**

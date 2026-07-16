@@ -55,18 +55,20 @@ describe( 'buildLibraryActions', () => {
 		expect( actions.find( a => a.id === 'manage-captions' )?.isEligible?.( idle ) ).toBe( true );
 	} );
 
-	it( 'offers Upload to VideoPress for idle local items — except on WordPress.com Simple', () => {
+	it( 'offers Upload to VideoPress for idle local items on every host', () => {
 		const local = item( { type: 'local' } );
 		const eligible = ( actions: ReturnType< typeof buildLibraryActions > ) =>
 			actions.find( a => a.id === 'upload-to-vp' )?.isEligible?.( local );
 
 		expect( eligible( buildLibraryActions( makeApi() ) ) ).toBe( true );
 
-		// The promote flow needs /videopress/v1/upload/{id}, which never reaches
-		// the REST dispatcher on Simple — the action must not be offered there.
+		// On WordPress.com Simple the promote mutation routes through the
+		// in-process wpcom/v2/videopress/promote endpoint, so the action is
+		// offered there too (it used to be hidden while only the unreachable
+		// videopress/v1 walker existed).
 		setSimpleSite();
 		try {
-			expect( eligible( buildLibraryActions( makeApi() ) ) ).toBe( false );
+			expect( eligible( buildLibraryActions( makeApi() ) ) ).toBe( true );
 		} finally {
 			unsetSimpleSite();
 		}
