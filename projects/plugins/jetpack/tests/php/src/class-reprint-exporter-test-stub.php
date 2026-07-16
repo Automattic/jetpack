@@ -85,6 +85,7 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 	 * Records termination and throws instead of exit()ing, mimicking how a
 	 * real exit() would unwind the call stack.
 	 *
+	 * @return never
 	 * @throws ExitException Always, to halt handler execution like exit().
 	 */
 	protected function terminate() {
