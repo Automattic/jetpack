@@ -98,7 +98,7 @@ export function buildTailorPrompt(
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
-Produce a single JSON object with THREE parts, in this order: an inferred-context blob, a tailored task list, and a starter blog post draft.
+Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft.
 
 Site name: ${ site_name }
 Goal: ${ goal }
@@ -141,6 +141,11 @@ Write a friendly starter blog post the user can edit and publish.
 - "subtitle": ONE line, verb-led, max 10 words, describing what publishing this post does for them. Optional.
 - "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain English, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
 
+============ STEP 4 - about_page_draft ============
+Write starter content for the site's About page, grounded in the user's own description - never generic filler.
+- "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
+- "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
+
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
@@ -153,6 +158,7 @@ Return only a JSON object matching this schema. Do not include prose, code fence
 {
   "inferred": { "goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
-  "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] }
+  "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
+  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }
 }`;
 }
