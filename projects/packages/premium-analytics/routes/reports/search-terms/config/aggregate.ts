@@ -84,7 +84,6 @@ export function aggregateSearchTermRows(
 ): SearchTermRow[] {
 	const byTerm = new Map< string, SearchTermRow >();
 	let encryptedViews = 0;
-	let hasEncryptedViews = false;
 
 	for ( const point of report?.data ?? [] ) {
 		for ( const item of point.items ) {
@@ -100,14 +99,13 @@ export function aggregateSearchTermRows(
 
 		const bucketEncryptedViews = getEncryptedSearchTerms( point );
 		if ( bucketEncryptedViews !== undefined ) {
-			hasEncryptedViews = true;
 			encryptedViews += bucketEncryptedViews;
 		}
 	}
 
 	const rows = [ ...byTerm.values() ];
 
-	if ( hasEncryptedViews ) {
+	if ( encryptedViews > 0 ) {
 		rows.push( { id: 'unknown-search-terms', term: unknownLabel, views: encryptedViews } );
 	}
 

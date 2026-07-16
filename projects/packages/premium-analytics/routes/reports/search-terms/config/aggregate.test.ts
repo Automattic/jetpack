@@ -50,6 +50,19 @@ describe( 'report search terms aggregate', () => {
 		] );
 	} );
 
+	it( 'omits the unknown row when encrypted search counts are all zero', () => {
+		const emptyReport = {
+			...report,
+			data: report.data.map( point => ( {
+				...point,
+				items: [],
+				encrypted_search_terms: 0,
+			} ) ),
+		};
+
+		expect( aggregateSearchTermRows( emptyReport, 'Unknown search terms' ) ).toEqual( [] );
+	} );
+
 	it( 'includes known and encrypted views in each chart bucket', () => {
 		const series = searchTermsToTimeSeries( report, 'day' );
 
