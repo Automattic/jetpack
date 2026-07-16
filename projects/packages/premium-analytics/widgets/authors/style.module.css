@@ -29,8 +29,8 @@
    text from the bar's rounded left edge. */
 .postLabel {
 	display: block;
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
