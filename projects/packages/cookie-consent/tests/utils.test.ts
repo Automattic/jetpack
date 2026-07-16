@@ -245,6 +245,51 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 		expect( context.showBanner ).toBe( false );
 		expect( wasDenied( 'statistics' ) ).toBe( true );
 	} );
+
+	const wasAllowed = ( category: string ) =>
+		consentCalls.some( ( [ cat, state ] ) => cat === category && state === 'allow' );
+
+	it( 'auto-grants implied consent in a non-regulated region even when the banner is disabled', () => {
+		setGpc( undefined );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'CA', '', baseConfig, context, false );
+
+		// The banner never surfaces, but consent must still be resolved: without this the
+		// visitor is left with no consent state and tracking that should run never does.
+		expect( context.showBanner ).toBe( false );
+		expect( wasAllowed( 'statistics' ) ).toBe( true );
+	} );
+
+	it( 'auto-grants CCPA opt-out consent even when the banner is disabled', () => {
+		setGpc( undefined );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'US', 'california', baseConfig, context, false );
+
+		expect( context.showBanner ).toBe( false );
+		expect( wasAllowed( 'statistics' ) ).toBe( true );
+	} );
+
+	it( 'keeps the GDPR banner hidden and records no stat when the banner is disabled', () => {
+		setGpc( undefined );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'FR', '', baseConfig, context, false );
+
+		expect( context.showBanner ).toBe( false );
+		expect( imageSources ).toHaveLength( 0 );
+	} );
+
+	it( 'still honors GPC opt-out in a GDPR region when the banner is disabled', () => {
+		setGpc( true );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'FR', '', baseConfig, context, false );
+
+		expect( context.showBanner ).toBe( false );
+		expect( wasDenied( 'statistics' ) ).toBe( true );
+	} );
 } );
 
 describe( 'registry-driven consent choices', () => {

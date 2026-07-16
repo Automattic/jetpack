@@ -23,7 +23,7 @@ assume: namespace, text domain, and the dependency versions the package resolves
    argument used in `__()` across the package (e.g. `jetpack-premium-analytics`).
 2. **Resolved versions**: check tokens and props against what the package actually
    resolves, not against trunk or memory:
-   - Tokens → `@wordpress/theme`'s `design-tokens.css` in `node_modules/.pnpm`.
+   - Tokens → `@wordpress/theme`'s `design-tokens.css` (resolve the package, see below).
    - UI props → the resolved `@wordpress/ui` `build-types`.
    - Contract types → `@wordpress/widget-primitives` `build-types`.
 
@@ -83,7 +83,12 @@ assume: namespace, text domain, and the dependency versions the package resolves
 - Props are a named `type`/`interface` with each field documented on the type,
   not echoed in `@param`. A component takes one typed tag
   (`@param {Props} props - The component props.`) — never `@param props.<field>`
-  blocks; plain functions keep positional `@param`s.
+  blocks.
+- The same one-typed-tag rule applies to ANY function taking an object argument
+  (hooks, story helpers, test builders): `@param {UseXArgs} args - Hook
+  arguments.` with fields documented on the args type — never `@param
+  args.<field>` / `@param root0.<field>` blocks. Only scalar positional
+  parameters keep plain per-param tags (`@param interval - The interval.`).
 - Descriptions track the code: referenced symbols still exist, terminology is
   consistent (`widget.json` ↔ `widget.ts` ↔ rendered strings), `@return` is accurate.
 - Verify, don't guess: `jsdoc/require-param` is satisfied by that single typed
@@ -92,7 +97,7 @@ assume: namespace, text domain, and the dependency versions the package resolves
 ## How to verify tokens
 
 ```bash
-TOK=$(find node_modules/.pnpm -path '*@wordpress+theme*/css/design-tokens.css' | head -1)
+TOK=$(find "$(node -e 'console.log(require("path").dirname(require.resolve("@wordpress/theme/package.json")))')" -name design-tokens.css | head -1)
 grep -rhoE '\-\-wpds-[a-z0-9-]+' widgets/<slug>/*.css | sort -u | while read -r t; do
   grep -qE -- "$t\b" "$TOK" || echo "MISSING from resolved theme: $t"
 done

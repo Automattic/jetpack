@@ -191,9 +191,10 @@ export type LeaderboardEntry = {
 	currentValue: number;
 
 	/**
-	 * Value of the entry in the previous period
+	 * Value of the entry in the previous period. Omit when this row has no
+	 * matching comparison-period value.
 	 */
-	previousValue: number;
+	previousValue?: number;
 
 	/**
 	 * Width of current bar, as % of the current value
@@ -201,14 +202,16 @@ export type LeaderboardEntry = {
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value
+	 * Width of previous bar, as % of the current value. Omit when this row has
+	 * no matching comparison-period value.
 	 */
-	previousShare: number;
+	previousShare?: number;
 
 	/**
-	 * Delta of the entry
+	 * Delta of the entry. Omit when this row has no matching comparison-period
+	 * value.
 	 */
-	delta: number;
+	delta?: number;
 
 	/**
 	 * Optional color for the entry's image/icon
@@ -249,8 +252,8 @@ export type GradientStop = {
 
 export type SeriesDataOptions = {
 	gradient?: {
-		from: string;
-		to: string;
+		from?: string;
+		to?: string;
 		fromOpacity?: number;
 		toOpacity?: number;
 		stops?: GradientStop[];

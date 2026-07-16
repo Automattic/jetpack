@@ -32,6 +32,7 @@ interface GlobalChartsContextValue {
 	// Theme and styling
 	theme: CompleteChartTheme;
 	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
+	resolveThemeColor: (value: string) => string;
 
 	// Series visibility management for interactive legends
 	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
@@ -44,6 +45,8 @@ interface GlobalChartsContextValue {
 ```
 
 `isColorPaletteResolved` is `false` until the provider's color cache has been resolved from the DOM and painted. Chart components can use this to defer CSS transitions or animations that would otherwise interpolate from a fallback color to the resolved theme color on initial render.
+
+`resolveThemeColor` resolves a color value — including a `--wpds-*` token or `var(...)` expression — to a hex string in the provider's own (theme-scoped) element. Use it when JS needs the *resolved* value of a themed color, such as reading `theme.backgroundColor` to compute text contrast. It resolves at call time, so the result tracks a light/dark theme switch where the token string is unchanged but its resolved value differs. Returns `''` for an empty input.
 
 ## ChartRegistration Type
 

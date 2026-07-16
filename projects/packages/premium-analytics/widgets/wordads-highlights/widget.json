@@ -1,0 +1,7 @@
+{
+	"name": "jpa/wordads-highlights",
+	"title": "WordAds highlights",
+	"description": "Your WordAds earnings at a glance — total earnings, amount paid, and outstanding balance.",
+	"category": "stats",
+	"presentation": "framed"
+}

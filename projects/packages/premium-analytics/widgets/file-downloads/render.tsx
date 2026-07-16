@@ -3,8 +3,7 @@
  */
 import {
 	useStatsFileDownloads,
-	type StatsFileDownloadsItem,
-	type StatsNormalizedReport,
+	type StatsFileDownloadsComparisonItem,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 /**
@@ -12,12 +11,15 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, Link, Stack, Text } from '@wordpress/ui';
+import { download } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -26,7 +28,7 @@ import {
  * Internal dependencies
  */
 import styles from './style.module.css';
-import widgetDefinition, { type FileDownloadsAttributes } from './widget';
+import { type FileDownloadsAttributes } from './widget';
 /**
  * Types
  */
@@ -34,21 +36,10 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 	Partial< ReportParamsFieldAttributes >;
-type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes > & {
-	showTitle?: boolean;
-};
+type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
-
-function FileDownloadsHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'File downloads', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
-}
 
 function toStatusNumber( value: unknown ): number | null {
 	if ( typeof value === 'number' ) {
@@ -166,7 +157,7 @@ function buildLeaderboardData(
 	const maxPreviousValue = Math.max( ...rows.map( r => r.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
@@ -189,40 +180,28 @@ function buildLeaderboardData(
 			currentShare: ( row.value / maxValue ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousValue ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined
+					? ( previousValue / maxPreviousValue ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
 
-function getFileDownloadItemKey( item: StatsFileDownloadsItem ) {
-	return item.link ?? String( item.label ?? item.shortLabel ?? '' );
-}
-
 /**
- * Flattens a normalized file-downloads report into `FileDownloadRow[]`.
+ * Flattens data-layer file-downloads rows into `FileDownloadRow[]`.
  *
- * @param report           - Normalized report from the data layer, or undefined while loading.
- * @param max              - Maximum rows to keep (0 = all).
- * @param comparisonReport - Optional normalized comparison report.
+ * @param items - Merged file-download rows from the data layer.
  * @return Normalized rows ready for the leaderboard.
  */
-function toFileDownloadRows(
-	report: StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-	max: number,
-	comparisonReport?: StatsNormalizedReport< StatsFileDownloadsItem >
-): FileDownloadRow[] {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-	const sliced = max > 0 ? items.slice( 0, max ) : items;
-	const comparisonItems = comparisonReport?.data.flatMap( point => point.items ) ?? [];
-	const comparisonByKey = new Map(
-		comparisonItems.map( item => [ getFileDownloadItemKey( item ), item.downloads ] )
-	);
-
-	return sliced.map( item => ( {
+function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDownloadRow[] {
+	return items.map( item => ( {
 		label: item.shortLabel ?? String( item.label ?? '' ),
 		value: item.downloads,
-		previousValue: comparisonByKey.get( getFileDownloadItemKey( item ) ),
+		previousValue: item.previousDownloads,
 		href: item.link,
 	} ) );
 }
@@ -231,111 +210,102 @@ function toFileDownloadRows(
  * Props for `FileDownloadsLeaderboard`.
  */
 export type FileDownloadsLeaderboardProps = {
+	/**
+	 * Normalized download rows to render.
+	 */
 	rows?: FileDownloadRow[];
-	isLoading?: boolean;
-	isError?: boolean;
+	/**
+	 * When true, render previous-period deltas.
+	 */
 	withComparison?: boolean;
-	errorMessage?: string;
 };
 
 /**
  * Presentational leaderboard for the "File downloads" widget.
  *
- * Accepts already-fetched rows and handles loading, error, empty, and
- * populated states. Exported so Storybook can exercise those states with
- * fixture rows without needing a live WordPress backend.
+ * Accepts already-fetched rows and renders only the populated (ready) state —
+ * loading, error, and empty are handled by `<WidgetState>` in the
+ * data-connected inner component. Exported so Storybook can render fixture
+ * rows without needing a live WordPress backend.
  *
- * @param props                - Component props.
- * @param props.rows           - Normalized download rows to render.
- * @param props.isLoading      - When true, show a loading overlay.
- * @param props.isError        - When true, show an error message.
- * @param props.withComparison - When true, render previous-period deltas.
- * @param props.errorMessage   - Custom error message to show when `isError` is true.
+ * @param {FileDownloadsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
-	errorMessage,
 }: FileDownloadsLeaderboardProps ) {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>
-					{ errorMessage ??
-						__( 'Could not load file download data.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
 }
 
+type FileDownloadsInnerProps = {
+	/**
+	 * Max rows to display.
+	 */
+	max: number;
+};
+
 /**
  * Inner component — rendered inside WidgetRoot, reads dashboard context.
  *
- * @param props           - Props.
- * @param props.max       - Max rows to display.
- * @param props.showTitle - Whether to render the widget title inside the render module.
+ * @param {FileDownloadsInnerProps} props - The component props.
  * @return The rendered leaderboard or state placeholder.
  */
-function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boolean } ) {
+function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error } =
-		useStatsFileDownloads( reportParams as StatsReportParams );
-	const showLoading = isLoading || ( isFetching && hasData );
-	const errorMessage = getFileDownloadsErrorMessage( error );
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
+	// File downloads has a known unsupported case (404 on Jetpack sites); Retry
+	// can't succeed there, so the action is dropped for that message.
+	const unavailableMessage = getFileDownloadsErrorMessage( error );
 
 	const rows = useMemo(
-		() =>
-			toFileDownloadRows(
-				primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-				max,
-				hasComparison
-					? ( comparison.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined )
-					: undefined
-			),
-		[ primary.data, max, hasComparison, comparison.data ]
+		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
-	const withComparison = hasComparison && rows.some( row => typeof row.previousValue === 'number' );
-
-	const header = showTitle ? (
-		<Stack direction="row" align="center" className={ styles.widgetHeader }>
-			<Text variant="heading-md" render={ <h3 /> }>
-				<FileDownloadsHeaderTitle />
-			</Text>
-		</Stack>
-	) : null;
+	const withComparison = hasComparison;
 
 	return (
 		<>
-			{ header }
 			<div className={ styles.content }>
-				<FileDownloadsLeaderboard
-					rows={ rows }
-					isLoading={ showLoading }
-					isError={ isError }
-					withComparison={ withComparison }
-					errorMessage={ errorMessage }
-				/>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description:
+							unavailableMessage ??
+							__(
+								"We couldn't load file downloads. Please try again in a moment.",
+								'jetpack-premium-analytics'
+							),
+						actions: unavailableMessage
+							? []
+							: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: download,
+						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
+				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="downloads" />
+			</WidgetFooter>
 		</>
 	);
 }
@@ -346,21 +316,16 @@ function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boole
  * Shows the most-downloaded files as a ranked leaderboard. Date range comes
  * from the shared dashboard date picker via WidgetRoot.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes (max).
- * @param props.showTitle  - Whether to render the widget title inside the render module.
+ * @param {FileDownloadsWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
-export default function FileDownloadsWidget( {
-	attributes = {},
-	showTitle = true,
-}: FileDownloadsWidgetProps ) {
+export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsWidgetProps ) {
 	const max = attributes?.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<FileDownloadsInner max={ max } showTitle={ showTitle } />
+				<FileDownloadsInner max={ max } />
 			</div>
 		</WidgetRoot>
 	);

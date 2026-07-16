@@ -556,12 +556,18 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	/**
 	 * Create a throwaway lazy block fixture under extensions/blocks.
 	 *
-	 * @param string $feature       Block feature name.
+	 * The feature name is suffixed with the current PID: the coverage job runs
+	 * multiple PHPUnit processes (php-normal, php-multisite) concurrently in the
+	 * same checkout, so a fixed path would let one process delete the fixture out
+	 * from under the other.
+	 *
+	 * @param string $feature       Block feature name; the PID suffix is appended.
 	 * @param string $render_output Optional render output.
 	 *
-	 * @return array Fixture paths.
+	 * @return array Fixture data: the final `feature` name and the `dir`/`file` paths.
 	 */
 	private function create_lazy_fixture_block( $feature, $render_output = '' ) {
+		$feature .= '-' . getmypid();
 		$dir      = JETPACK__PLUGIN_DIR . 'extensions/blocks/' . $feature;
 		$file     = $dir . '/' . $feature . '.php';
 		$function = 'jetpack_test_render_' . str_replace( '-', '_', $feature );
@@ -580,18 +586,19 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		);
 
 		return array(
-			'dir'  => $dir,
-			'file' => $file,
+			'feature' => $feature,
+			'dir'     => $dir,
+			'file'    => $file,
 		);
 	}
 
 	/**
 	 * Remove a throwaway lazy block fixture.
 	 *
-	 * @param string $feature Block feature name.
-	 * @param array  $fixture Fixture paths from create_lazy_fixture_block().
+	 * @param array $fixture Fixture data from create_lazy_fixture_block().
 	 */
-	private function remove_lazy_fixture_block( $feature, $fixture ) {
+	private function remove_lazy_fixture_block( $fixture ) {
+		$feature = $fixture['feature'];
 		if ( Blocks::is_registered( 'jetpack/' . $feature ) ) {
 			unregister_block_type( 'jetpack/' . $feature );
 		}
@@ -762,8 +769,8 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * not re-run the include/registration logic.
 	 */
 	public function test_lazy_register_attempts_a_deferred_block_only_once() {
-		$feature = 'zz-lazy-once-fixture';
-		$fixture = $this->create_lazy_fixture_block( $feature );
+		$fixture = $this->create_lazy_fixture_block( 'zz-lazy-once-fixture' );
+		$feature = $fixture['feature'];
 
 		try {
 			$this->set_deferred_blocks( array( $feature => true ) );
@@ -772,7 +779,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			$this->assertArrayNotHasKey( $feature, $this->get_deferred_blocks(), 'Deferred block should be removed after a single attempt.' );
 			$this->assertTrue( Blocks::is_registered( 'jetpack/' . $feature ), 'Deferred block should be registered by the lazy loader.' );
 		} finally {
-			$this->remove_lazy_fixture_block( $feature, $fixture );
+			$this->remove_lazy_fixture_block( $fixture );
 		}
 	}
 
@@ -781,8 +788,8 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * top-level subtree walk, before the inner WP_Block would be constructed.
 	 */
 	public function test_lazy_register_walks_inner_blocks() {
-		$feature = 'zz-lazy-inner-fixture';
-		$fixture = $this->create_lazy_fixture_block( $feature );
+		$fixture = $this->create_lazy_fixture_block( 'zz-lazy-inner-fixture' );
+		$feature = $fixture['feature'];
 
 		try {
 			$this->set_deferred_blocks( array( $feature => true ) );
@@ -805,7 +812,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			$this->assertArrayNotHasKey( $feature, $this->get_deferred_blocks(), 'Nested deferred block should be reached by the subtree walk.' );
 			$this->assertTrue( Blocks::is_registered( 'jetpack/' . $feature ), 'Nested deferred block should be registered by the lazy loader.' );
 		} finally {
-			$this->remove_lazy_fixture_block( $feature, $fixture );
+			$this->remove_lazy_fixture_block( $fixture );
 		}
 	}
 
@@ -814,8 +821,8 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * reusable-block reference, since core only parses that content at render time.
 	 */
 	public function test_lazy_register_resolves_synced_pattern_reference() {
-		$feature = 'zz-lazy-pattern-fixture';
-		$fixture = $this->create_lazy_fixture_block( $feature );
+		$fixture = $this->create_lazy_fixture_block( 'zz-lazy-pattern-fixture' );
+		$feature = $fixture['feature'];
 		$ref_id  = self::factory()->post->create(
 			array(
 				'post_type'    => 'wp_block',
@@ -837,7 +844,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			$this->assertTrue( Blocks::is_registered( 'jetpack/' . $feature ), 'Deferred block inside a synced pattern should be registered by the lazy loader.' );
 		} finally {
 			wp_delete_post( $ref_id, true );
-			$this->remove_lazy_fixture_block( $feature, $fixture );
+			$this->remove_lazy_fixture_block( $fixture );
 		}
 	}
 
@@ -860,34 +867,20 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * include + $wp_filter['init'] capture/run path is exercised end-to-end.
 	 */
 	public function test_load_and_register_runs_deferred_block_init_callback() {
-		$feature = 'zz-lazy-fixture';
-		$dir     = JETPACK__PLUGIN_DIR . 'extensions/blocks/' . $feature;
-		$file    = $dir . '/' . $feature . '.php';
-		wp_mkdir_p( $dir );
-		file_put_contents(
-			$file,
-			"<?php add_action( 'init', function () { register_block_type( 'jetpack/zz-lazy-fixture' ); } );\n"
-		);
+		$fixture = $this->create_lazy_fixture_block( 'zz-lazy-fixture' );
+		$feature = $fixture['feature'];
 
 		try {
-			$this->assertFalse( Blocks::is_registered( 'jetpack/zz-lazy-fixture' ), 'Fixture block should start unregistered.' );
+			$this->assertFalse( Blocks::is_registered( 'jetpack/' . $feature ), 'Fixture block should start unregistered.' );
 
 			$this->invoke_load_and_register_deferred_block( $feature );
 
 			$this->assertTrue(
-				Blocks::is_registered( 'jetpack/zz-lazy-fixture' ),
+				Blocks::is_registered( 'jetpack/' . $feature ),
 				'The deferred block file should be included and its init callback run.'
 			);
 		} finally {
-			if ( Blocks::is_registered( 'jetpack/zz-lazy-fixture' ) ) {
-				unregister_block_type( 'jetpack/zz-lazy-fixture' );
-			}
-			if ( file_exists( $file ) ) {
-				unlink( $file );
-			}
-			if ( is_dir( $dir ) ) {
-				rmdir( $dir );
-			}
+			$this->remove_lazy_fixture_block( $fixture );
 		}
 	}
 
@@ -895,9 +888,9 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * The do_blocks() function drives the real pre_render_block -> include -> init-replay path.
 	 */
 	public function test_do_blocks_lazy_registers_deferred_block_on_frontend() {
-		$feature       = 'zz-lazy-do-blocks-fixture';
 		$render_output = 'lazy fixture output';
-		$fixture       = $this->create_lazy_fixture_block( $feature, $render_output );
+		$fixture       = $this->create_lazy_fixture_block( 'zz-lazy-do-blocks-fixture', $render_output );
+		$feature       = $fixture['feature'];
 		$original_lazy = $this->get_lazy_blocks();
 		$saved_uri     = $_SERVER['REQUEST_URI'] ?? null;
 
@@ -932,7 +925,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			} else {
 				unset( $_SERVER['REQUEST_URI'] );
 			}
-			$this->remove_lazy_fixture_block( $feature, $fixture );
+			$this->remove_lazy_fixture_block( $fixture );
 		}
 	}
 

@@ -87,7 +87,7 @@ const PrimarySummaryComponent = ( {
 	);
 };
 
-const PrimarySummary = connect( ( state, ownProps ) => ( {
+const PrimarySummary = connect( ( state: object, ownProps: { slug: string } ) => ( {
 	...getSummaryPrimaryProps( state, ownProps.slug ),
 	stepRoute: stepToRoute[ ownProps.slug ],
 } ) )( PrimarySummaryComponent );

@@ -1,0 +1,27 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+	padding: var(--wpds-dimension-padding-lg);
+
+	/* The compact heatmap sizes to its content; let a wide 12-month grid scroll
+	   inside a narrow card instead of clipping months. */
+	overflow-x: auto;
+}
+
+/* Center the fixed-size grid + legend group in a taller-than-content card so it
+   doesn't hug the top; horizontal start keeps overflow scrolling reachable. */
+.heatmap {
+	min-width: 0;
+	justify-content: center;
+}

@@ -3,25 +3,14 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	min-block-size: 0;
 	overflow: hidden;
 }
 
-.header {
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-sm, 8px);
-	margin-block-end: var(--wpds-dimension-gap-sm, 8px);
-}
-
-.metricSelect {
-	flex: 0 1 220px;
-	inline-size: min(100%, 220px);
-	max-inline-size: 100%;
-	min-inline-size: 0;
-}
-
 .leaderboard {
-	min-width: 0;
-	min-height: 0;
+	flex: 1 1 0;
+	min-inline-size: 0;
+	min-block-size: 0;
 	overflow: hidden;
 }
 
@@ -36,21 +25,4 @@
 	color: inherit;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-
-.placeholder {
-	color: var(--wpds-color-fg-content-neutral-weak);
-}
-
-/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
- * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
- * on .root also resolves to auto, leaving aspect-ratio with no anchor.
- * Setting height: auto here lets aspect-ratio derive the height from the known
- * inline size and overflow: hidden clips the chart content. Targets only the
- * picker (inert="") — not the edit-mode wrapper (inert="true") where the grid
- * tile supplies a real height. */
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
 }

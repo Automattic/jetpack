@@ -12,6 +12,16 @@ export {
 	type StatsPostParams,
 	type StatsPostResponse,
 } from './use-stats-post';
+export {
+	useStatsPostComments,
+	type StatsPostCommentsParams,
+	type StatsPostCommentsResponse,
+} from './use-stats-post-comments';
+export {
+	useStatsPostLikes,
+	type StatsPostLikesParams,
+	type StatsPostLikesResponse,
+} from './use-stats-post-likes';
 export { useStatsTopPosts } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';
@@ -21,6 +31,10 @@ export { useStatsTopAuthors } from './use-stats-top-authors';
 export { useStatsLocations } from './use-stats-locations';
 export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
+export {
+	useStatsVideoPlaysSummary,
+	type StatsVideoPlaysSummaryParams,
+} from './use-stats-video-plays-summary';
 export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
@@ -56,6 +70,7 @@ export {
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
 	useStatsCommentFollowers,
+	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersParams,
 	type StatsCommentFollowersResponse,
 } from './use-stats-comment-followers';
@@ -100,12 +115,7 @@ export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-s
 export { useStatsHighlights } from './use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
-export {
-	useStatsDevices,
-	type StatsDevices,
-	type StatsDevicesDeviceParam,
-	type StatsDevicesParams,
-} from './use-stats-devices';
+export { useStatsDevices } from './use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,
@@ -156,6 +166,7 @@ export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
 	type StatsSingleVideoPage,
+	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
 } from './use-stats-single-video';
 export {

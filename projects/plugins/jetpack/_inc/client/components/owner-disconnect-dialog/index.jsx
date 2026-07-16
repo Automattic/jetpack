@@ -12,6 +12,7 @@ import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useState, useEffect } from 'react';
+import './style.scss';
 
 const ActionCard = ( {
 	title,
@@ -25,14 +26,12 @@ const ActionCard = ( {
 
 	return (
 		<div
-			className={
-				'jp-connection__manage-dialog__action-card card' + ( disabled ? ' disabled' : '' )
-			}
+			className={ 'jp-owner-disconnect-dialog__action-card card' + ( disabled ? ' disabled' : '' ) }
 		>
-			<div className="jp-connection__manage-dialog__action-card__card-content">
+			<div className="jp-owner-disconnect-dialog__action-card__card-content">
 				<a
 					href={ link }
-					className={ clsx( 'jp-connection__manage-dialog__action-card__card-headline', action ) }
+					className={ clsx( 'jp-owner-disconnect-dialog__action-card__card-headline', action ) }
 					onClick={ ! disabled ? onClick : disabledCallback }
 					target={ isExternal ? '_blank' : '_self' }
 					rel={ 'noopener noreferrer' }
@@ -40,7 +39,7 @@ const ActionCard = ( {
 					{ title }
 					<Icon
 						icon={ isExternal ? external : chevronRight }
-						className="jp-connection__manage-dialog__action-card__icon"
+						className="jp-owner-disconnect-dialog__action-card__icon"
 					/>
 				</a>
 			</div>

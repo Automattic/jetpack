@@ -1,0 +1,29 @@
+.root {
+	position: relative;
+	min-height: 120px;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+.icon {
+	flex-shrink: 0;
+	fill: var(--wpds-color-foreground-content-neutral);
+}
+
+.label {
+	flex: 1;
+}
+
+.value {
+	margin-inline-start: auto;
+}

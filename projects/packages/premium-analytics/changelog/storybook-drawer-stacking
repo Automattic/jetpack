@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the widget settings drawer above widget chrome in dashboard Storybook stories.

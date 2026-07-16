@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Related Posts: enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run.

@@ -79,10 +79,18 @@ function register_block() {
 		'post',
 		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 		array(
-			'show_in_rest'  => true,
-			'single'        => true,
-			'type'          => 'string',
-			'auth_callback' => function () {
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+			// The REST schema already rejects non-strings, but non-REST writers
+			// (importers, XML-RPC, WP-CLI, direct update_post_meta, sync) only pass
+			// through sanitize_meta(). Coerce anything that isn't a string to ''
+			// ("everybody") so a corrupt value can't be persisted and later fatal the
+			// strict string-typed access checks.
+			'sanitize_callback' => function ( $value ) {
+				return is_string( $value ) ? $value : '';
+			},
+			'auth_callback'     => function () {
 				return wp_get_current_user()->has_cap( 'edit_posts' );
 			},
 		)

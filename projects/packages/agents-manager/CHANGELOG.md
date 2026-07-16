@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2026-07-13
+### Changed
+- Update dependencies.
+
+## [0.8.0] - 2026-07-09
+### Changed
+- Site Editor: Restore the AI chat on the navigation view. [#50273]
+
+## [0.7.0] - 2026-07-06
+### Added
+- Load translation files for the UI so it can be displayed in the user's language. [#50069]
+
+### Changed
+- Show the editor Ask AI button whenever manager is enabled, instead of only in dev contexts. [#50075]
+- Update package dependencies. [#50097] [#50183]
+
+### Fixed
+- Site Editor: Skip the docked-sidebar pre-render on the navigation view, where the chat can't dock — only the editing canvas (`?canvas=edit`) docks the chat. [#50120]
+
 ## [0.6.0] - 2026-06-29
 ### Added
 - Add Ask AI and Help entry points to the block editor omnibar. [#49967]
@@ -62,6 +81,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Agents Manager: Allow overriding variant and sectionName through filters [#49283]
 - Initial version, extracted from Jetpack MU WPCOM to its own package for external consumption. [#49202]
 
+[0.8.1]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.5.3...v0.6.0
 [0.5.3]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.5.1...v0.5.2

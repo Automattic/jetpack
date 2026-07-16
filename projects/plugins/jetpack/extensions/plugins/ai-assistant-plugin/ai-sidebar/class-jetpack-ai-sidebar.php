@@ -14,6 +14,8 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -57,11 +59,10 @@ class Jetpack_AI_Sidebar {
 
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
 
-		// Ask the Agents Manager package to mount in the post editor on Jetpack
-		// AI Sidebar Preview surfaces.
-		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
+		// Ask the Agents Manager package to mount on Jetpack AI provider surfaces.
+		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_on_provider_surfaces' ) );
 
-		// Enqueue the IIFE bundle in the preview post editor — it registers
+		// Enqueue the IIFE bundle on supported editor surfaces — it registers
 		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or the
 		// Agents Manager can discover regardless of which provider system is active.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
@@ -90,7 +91,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::should_expose_sidebar() ) {
+		if ( ! self::should_expose_provider() ) {
 			return;
 		}
 
@@ -206,10 +207,10 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
-		// The provider IIFE is only enqueued in the post editor. Avoid registering
-		// the ESM wrapper on other block-editor surfaces, where AM may import it
-		// before window.__JetpackAIProvider exists.
-		if ( ! self::should_expose_sidebar() ) {
+		// The provider IIFE is enqueued on the same surfaces where the ESM
+		// wrapper is registered. Avoid registering the wrapper when AM may
+		// import it before window.__JetpackAIProvider exists.
+		if ( ! self::should_expose_provider() ) {
 			return $providers;
 		}
 
@@ -313,6 +314,87 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for Proofreader (spelling and grammar).
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the Jetpack AI Sidebar exposes the Proofreader
+	 * suggestion. It follows Image Studio's internal rollout pattern.
+	 *
+	 * @return bool
+	 */
+	private static function is_proofread_content_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * UI feature flag for the SEO Enhancer suggestions (SEO title and meta description).
+	 *
+	 * Exposed only in internal testing environments while the feature is in development,
+	 * and only where the suggestions can actually be used: the SEO Enhancer is not
+	 * killed via its filter, the site's plan includes the Jetpack SEO feature (the
+	 * suggestions write to the plan-gated SEO title and meta description fields), and
+	 * SEO tools are usable on the site. Kept independent of the Optimize Title flag:
+	 * SEO suggestions target the SEO meta fields, not the visible post title.
+	 *
+	 * The user-facing ai_seo_enhancer_enabled *option* is deliberately not consulted —
+	 * it only governs automatic generation on publish, while these suggestions are
+	 * user-initiated.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_suggestions_enabled(): bool {
+		return jetpack_is_internal_testing_environment()
+			&& (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& self::has_seo_feature()
+			&& self::is_seo_tools_usable();
+	}
+
+	/**
+	 * UI feature flag for the Generate Excerpt suggestion.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 * No plan gate: the excerpt is a core editorial field, and the ability's own
+	 * permission callback (edit_posts) gates execution server-side.
+	 *
+	 * @return bool
+	 */
+	private static function is_excerpt_suggestion_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * Whether the site's plan includes the Jetpack SEO feature.
+	 *
+	 * Same predicate the SEO editor panel uses to decide between the SEO fields and
+	 * the "Optimize SEO" upgrade nudge: extensions/plugins/seo/seo.php registers
+	 * availability via Jetpack_Gutenberg::set_availability_for_plan( 'advanced-seo' ),
+	 * which resolves through Current_Plan::supports(). On WordPress.com Simple and
+	 * Atomic this delegates to wpcom_site_has_feature( 'advanced-seo' ) — Business
+	 * and higher plans; on self-hosted sites every plan includes the feature.
+	 *
+	 * @return bool
+	 */
+	private static function has_seo_feature(): bool {
+		return Current_Plan::supports( 'advanced-seo' );
+	}
+
+	/**
+	 * Whether Jetpack SEO tools are usable on this site: SEO is not disabled via the
+	 * jetpack_disable_seo_tools filter — which the seo-tools module enables itself
+	 * when a conflicting SEO plugin (Yoast, AIOSEO, Rank Math, …) owns the site's
+	 * SEO — and the seo-tools module is active, since the module registers the SEO
+	 * meta fields the suggestions write to. On WordPress.com Simple the module always
+	 * reports active, so there this reduces to the filter check.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_tools_usable(): bool {
+		/** This filter is documented in modules/seo-tools/class-jetpack-seo-utils.php */
+		return ! apply_filters( 'jetpack_disable_seo_tools', false )
+			&& ( new Modules() )->is_active( 'seo-tools' );
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
@@ -346,13 +428,20 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether the sidebar surface should be exposed for this request: the sidebar
-	 * gate is open, we are in the post editor, and AI features are available.
+	 * Whether the Jetpack AI provider bundle should be exposed for this request.
+	 *
+	 * This is scoped to the supported editor surfaces: post editor, page editor,
+	 * and site editor. The existing post editor surface remains available when
+	 * preview and AI feature gates pass, while the new page and site editor
+	 * surfaces require an internal testing environment.
 	 *
 	 * @return bool
 	 */
-	private static function should_expose_sidebar(): bool {
-		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
+	private static function should_expose_provider(): bool {
+		return self::is_jetpack_ai_sidebar_preview_enabled()
+			&& self::is_supported_provider_surface()
+			&& self::is_provider_rollout_enabled()
+			&& self::has_ai_features();
 	}
 
 	/**
@@ -364,9 +453,12 @@ class Jetpack_AI_Sidebar {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'generateFeedback'        => self::is_generate_feedback_enabled(),
+			'proofreadContent'        => self::is_proofread_content_enabled(),
 			'blockTransformations'    => true,
 			'blockToolbarButton'      => false,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
+			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
+			'excerptSuggestion'       => self::is_excerpt_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -382,7 +474,10 @@ class Jetpack_AI_Sidebar {
 		// Re-assert the testing-environment gates so the generic features filter cannot
 		// expose in-development suggestions outside internal testing environments.
 		$features['generateFeedback']        = self::is_generate_feedback_enabled();
+		$features['proofreadContent']        = self::is_proofread_content_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
+		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
+		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && self::is_excerpt_suggestion_enabled();
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
@@ -398,7 +493,7 @@ class Jetpack_AI_Sidebar {
 	public static function is_toolbar_button_enabled(): bool {
 		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
 
-		return self::should_expose_sidebar()
+		return self::should_expose_provider()
 			&& true === ( $preview_config['features']['blockToolbarButton'] ?? false );
 	}
 
@@ -430,7 +525,8 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		if ( ! self::should_expose_sidebar() ) {
+		$fields = self::get_agents_manager_data_fields( $data );
+		if ( ! $fields ) {
 			return $data;
 		}
 
@@ -438,39 +534,44 @@ class Jetpack_AI_Sidebar {
 		// untouched so the client-side gate can drop Jetpack AI Sidebar while keeping
 		// fallbacks such as the Big Sky provider. Hosts that need intentional overrides
 		// should use the AI Editorial Review and preview filters.
-		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
+		foreach ( $fields as $key => $value ) {
 			$data[ $key ] = $value;
 		}
 		return $data;
 	}
 
 	/**
-	 * Fields Jetpack contributes to `agentsManagerData`. Single source shared by the
-	 * data filter and the external-AM inline fallback so the two cannot drift.
+	 * Fields Jetpack should add to `agentsManagerData` for the current screen.
 	 *
+	 * @param array $data Existing Agents Manager data.
 	 * @return array
 	 */
-	private static function get_sidebar_am_fields(): array {
-		$config = self::get_jetpack_ai_sidebar_preview_config();
+	private static function get_agents_manager_data_fields( array $data = array() ): array {
+		if ( ! self::should_expose_provider() ) {
+			return array();
+		}
 
-		return array(
-			'agentId'          => AI_SIDEBAR_AGENT_ID,
-			'jetpackAiSidebar' => $config,
-		);
+		$fields = array();
+		if ( empty( $data['agentId'] ) ) {
+			$fields['agentId'] = AI_SIDEBAR_AGENT_ID;
+		}
+		$fields['jetpackAiSidebar'] = self::get_jetpack_ai_sidebar_preview_config();
+
+		return $fields;
 	}
 
 	/**
-	 * Enable Agents Manager in the post editor when Jetpack AI Sidebar Preview is available.
+	 * Enable Agents Manager when the Jetpack AI provider can be exposed.
 	 *
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
 	 */
-	public static function enable_agents_manager_in_post_editor( $enabled ): bool {
+	public static function enable_agents_manager_on_provider_surfaces( $enabled ): bool {
 		if ( $enabled ) {
 			return true;
 		}
 
-		return self::should_expose_sidebar();
+		return self::should_expose_provider();
 	}
 
 	/**
@@ -494,9 +595,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::should_expose_sidebar() ) {
-			return;
-		}
+
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
 		// registered handle and serializes correctly regardless of when the
 		// enqueue lands in the dependency graph.
@@ -504,14 +603,29 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
+		// The fields getter carries the provider exposure gate.
+		$fields = self::get_agents_manager_data_fields();
+		if ( ! $fields ) {
+			return;
+		}
+
 		// Build the assignments from the same field source as the data filter so the
-		// two emit paths cannot drift. agentProviders is left untouched so client-side
-		// gating can fall back to other providers (such as Big Sky) when Jetpack AI
-		// Sidebar is unavailable.
+		// two emit paths cannot drift. agentId is guarded client-side because the
+		// externally emitted payload may already define the active agent.
 		$assignments = '';
-		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
-			$assignments .= ' agentsManagerData.' . $key . ' = '
-				. wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
+		foreach ( $fields as $key => $value ) {
+			$assignment_value = wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+
+			if ( 'agentId' === $key ) {
+				$assignments .= ' if ( ! agentsManagerData.agentId ) { agentsManagerData.agentId = ' . $assignment_value . '; }';
+				continue;
+			}
+
+			$assignments .= ' agentsManagerData.' . $key . ' = ' . $assignment_value . ';';
+		}
+
+		if ( self::get_ai_sidebar_asset_data() ) {
+			$assignments .= self::get_agent_provider_upsert_script();
 		}
 
 		wp_add_inline_script(
@@ -519,6 +633,18 @@ class Jetpack_AI_Sidebar {
 			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {' . $assignments . ' }',
 			'before'
 		);
+	}
+
+	/**
+	 * Build the inline script that upserts Jetpack AI Sidebar into agentProviders.
+	 *
+	 * @return string Inline JavaScript.
+	 */
+	private static function get_agent_provider_upsert_script(): string {
+		$provider_url = wp_json_encode( AI_SIDEBAR_PROVIDER_URL, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+
+		return ' agentsManagerData.agentProviders = Array.isArray( agentsManagerData.agentProviders ) ? agentsManagerData.agentProviders : [];'
+			. ' if ( agentsManagerData.agentProviders.indexOf( ' . $provider_url . ' ) === -1 ) { agentsManagerData.agentProviders.push( ' . $provider_url . ' ); }';
 	}
 
 	/**
@@ -536,16 +662,36 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Check if the current screen is the post block editor.
+	 * Check if the current screen can consume the Jetpack AI provider bundle.
 	 *
 	 * @return bool
 	 */
-	private static function is_post_editor(): bool {
-		if ( ! self::is_block_editor() ) {
+	private static function is_supported_provider_surface(): bool {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen instanceof \WP_Screen ) {
 			return false;
 		}
 
-		$screen = get_current_screen();
+		if ( 'site-editor' === $screen->base ) {
+			return true;
+		}
+
+		return self::is_block_editor()
+			&& 'post' === $screen->base
+			&& in_array( $screen->post_type, array( 'post', 'page' ), true );
+	}
+
+	/**
+	 * Keep the existing post editor rollout while gating newly supported surfaces.
+	 *
+	 * @return bool
+	 */
+	private static function is_provider_rollout_enabled(): bool {
+		if ( jetpack_is_internal_testing_environment() ) {
+			return true;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		return $screen instanceof \WP_Screen
 			&& 'post' === $screen->base
 			&& 'post' === $screen->post_type;
@@ -554,12 +700,16 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Check whether AI features are available.
 	 *
-	 * - wpcom simple: always available.
-	 * - Atomic/self-hosted: requires a connected owner with AI not disabled.
+	 * - wpcom simple: available when Jetpack AI is enabled.
+	 * - Atomic/self-hosted: requires Jetpack AI enabled, a connected owner, and non-offline mode.
 	 *
 	 * @return bool
 	 */
 	private static function has_ai_features(): bool {
+		if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+			return false;
+		}
+
 		$host = new Host();
 
 		if ( $host->is_wpcom_simple() ) {
@@ -567,7 +717,6 @@ class Jetpack_AI_Sidebar {
 		}
 
 		return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
-			&& ! ( new Status() )->is_offline_mode()
-			&& apply_filters( 'jetpack_ai_enabled', true );
+			&& ! ( new Status() )->is_offline_mode();
 	}
 }

@@ -11,6 +11,10 @@ const DEFAULT_STATE = {
 	loadingSections: {},
 	suggestions: {},
 	bannerDismissed: !! window.jetpackContentGuidelinesAi?.bannerDismissed,
+	// Session-only: set when a Generate click happens without an AI plan, so
+	// the upgrade notice resurfaces even after the persisted dismissal — the
+	// click is a fresh intent signal that bypasses the dismissed flag.
+	upgradeNoticeForced: false,
 };
 
 const actions = {
@@ -31,6 +35,12 @@ const actions = {
 	},
 	stopSectionLoading( slug ) {
 		return { type: 'STOP_SECTION_LOADING', slug };
+	},
+	showUpgradeNotice() {
+		return { type: 'SHOW_UPGRADE_NOTICE' };
+	},
+	hideUpgradeNotice() {
+		return { type: 'HIDE_UPGRADE_NOTICE' };
 	},
 	dismissBanner() {
 		return ( { select, dispatch } ) => {
@@ -67,7 +77,11 @@ function reducer( state = DEFAULT_STATE, action ) {
 			return { ...state, suggestions };
 		}
 		case 'DISMISS_BANNER':
-			return { ...state, bannerDismissed: true };
+			return { ...state, bannerDismissed: true, upgradeNoticeForced: false };
+		case 'SHOW_UPGRADE_NOTICE':
+			return { ...state, upgradeNoticeForced: true };
+		case 'HIDE_UPGRADE_NOTICE':
+			return { ...state, upgradeNoticeForced: false };
 		case 'START_SECTION_LOADING':
 			return {
 				...state,
@@ -98,6 +112,9 @@ const selectors = {
 	},
 	isBannerDismissed( state ) {
 		return state.bannerDismissed;
+	},
+	isUpgradeNoticeForced( state ) {
+		return state.upgradeNoticeForced;
 	},
 };
 

@@ -1,25 +1,27 @@
 /**
  * WordPress dependencies
  */
-import { SelectControl } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Icon, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
+	WidgetBackLink,
 	WidgetRoot,
+	WidgetState,
+	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useUtmInsights from './use-utm-insights';
-import widgetDefinition, { type UtmInsightsAttributes } from './widget';
+import { type UtmInsightsAttributes } from './widget';
 /**
  * Types
  */
@@ -27,79 +29,49 @@ import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
+type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-const DEFAULT_UTM_PARAM: StatsUtmParam = 'utm_source,utm_medium';
-
-const UTM_PARAM_OPTIONS: { label: string; value: StatsUtmParam }[] = [
-	{
-		label: __( 'Source / Medium', 'jetpack-premium-analytics' ),
-		value: 'utm_source,utm_medium',
-	},
-	{
-		label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics' ),
-		value: 'utm_campaign,utm_source,utm_medium',
-	},
-	{ label: __( 'Source', 'jetpack-premium-analytics' ), value: 'utm_source' },
-	{ label: __( 'Medium', 'jetpack-premium-analytics' ), value: 'utm_medium' },
-	{ label: __( 'Campaign', 'jetpack-premium-analytics' ), value: 'utm_campaign' },
-];
+const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
 
 type UtmInsightsInnerProps = {
-	utmParam: StatsUtmParam;
+	/**
+	 * Active UTM dimension.
+	 */
+	utmDimension: StatsUtmParam;
+	/**
+	 * Max rows to display.
+	 */
 	max: number;
-	setAttributes?: NonNullable<
-		WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ]
-	>;
 };
-
-function UtmInsightsHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
-}
 
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param props               - Props.
- * @param props.utmParam      - Active UTM dimension.
- * @param props.max           - Max rows to display.
- * @param props.setAttributes - Optional widget attribute setter (persists utmParam selection).
+ * @param {UtmInsightsInnerProps} props - The component props.
  * @return The rendered leaderboard or state placeholder.
  */
-function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const [ activeUtmParam, setActiveUtmParam ] = useState< StatsUtmParam >( utmParam );
-	const [ selectedUtmLabel, setSelectedUtmLabel ] = useState< string | null >( null );
+	const {
+		drillDownItem: selectedUtmLabel,
+		drillDown: selectUtmLabel,
+		resetDrillDown: clearSelectedUtm,
+	} = useWidgetDrillDown< string >();
 
+	// The "UTM parameter" control lives in the widget host header (the
+	// `relevance: 'high'` attribute); changing it resets any drill-down.
 	useEffect( () => {
-		setActiveUtmParam( utmParam );
-		setSelectedUtmLabel( null );
-	}, [ utmParam ] );
+		clearSelectedUtm();
+	}, [ clearSelectedUtm, utmDimension ] );
 
-	const handleParamChange = useCallback(
-		( value: string ) => {
-			const nextUtmParam = value as StatsUtmParam;
-			setSelectedUtmLabel( null );
-			setActiveUtmParam( nextUtmParam );
-			setAttributes?.( { utmParam: nextUtmParam } );
-		},
-		[ setAttributes ]
-	);
-
-	const clearSelectedUtm = useCallback( () => setSelectedUtmLabel( null ), [] );
-
-	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
+	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useUtmInsights( {
 		reportParams,
-		utmParam: activeUtmParam,
+		utmParam: utmDimension,
 		max,
 	} );
-	const showLoading = isLoading || ( isFetching && hasData );
+
 	const selectedUtm = useMemo(
 		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
 		[ data, selectedUtmLabel ]
@@ -109,110 +81,97 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
+	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
+
+	// The view already falls back to the top list when the selected row is
+	// missing or no longer drillable (no children); clear the stored selection
+	// too once data has settled without a drillable match, so stale state
+	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
+	// placeholder rows and errors aren't settled data, so a valid selection
+	// survives refetches and transient failures.
+	useEffect( () => {
+		if ( selectedUtmLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
+			clearSelectedUtm();
+		}
+	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
-		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ), 1 );
+		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ?? 0 ), 1 );
 
-		return activeData.map( ( item, index ) => ( {
-			id: `${ index }-${ item.label }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ item.label }</Text>
-				</Stack>
-			),
-			currentValue: item.value,
-			currentShare: ( item.value / maxValue ) * 100,
-			previousValue: item.previousValue,
-			previousShare:
-				hasComparison && item.previousValue > 0
-					? ( item.previousValue / maxPreviousValue ) * 100
-					: 0,
-			delta: hasComparison ? calculateDelta( item.value, item.previousValue ) : 0,
-			...( ! isDrillDown &&
-				'children' in item &&
-				item.children?.length && {
-					onClick: () => setSelectedUtmLabel( item.label ),
-					ariaLabel: sprintf(
-						/* translators: %s is the UTM value label. */
-						__( 'View posts for %s', 'jetpack-premium-analytics' ),
-						item.label
-					),
-				} ),
-		} ) );
-	}, [ activeData, hasComparison, isDrillDown ] );
+		return activeData.map( ( item, index ) => {
+			const previousValue = item.previousValue;
 
-	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ isDrillDown ? (
-					<>
-						<Button
-							variant="unstyled"
-							onClick={ clearSelectedUtm }
-							className={ styles.breadcrumbLink }
-						>
-							<UtmInsightsHeaderTitle />
-						</Button>
-						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
-					</>
-				) : (
-					<Text className={ styles.breadcrumbTitle }>
-						<UtmInsightsHeaderTitle />
-					</Text>
-				) }
-			</Stack>
-			<SelectControl
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
-				label={ __( 'UTM parameter', 'jetpack-premium-analytics' ) }
-				hideLabelFromVision
-				value={ activeUtmParam }
-				options={ UTM_PARAM_OPTIONS }
-				onChange={ handleParamChange }
-				className={ styles.paramSelect }
-			/>
-		</Stack>
-	);
-
-	if ( isError ) {
-		return (
-			<>
-				{ header }
-				<div className={ styles.content }>
-					<Stack align="center" justify="center" className={ styles.placeholder }>
-						<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
+			return {
+				id: `${ index }-${ item.label }`,
+				label: (
+					<Stack align="center" className={ styles.itemLabel }>
+						<Text className={ styles.itemLabelText }>{ item.label }</Text>
 					</Stack>
-				</div>
-			</>
-		);
-	}
+				),
+				currentValue: item.value,
+				currentShare: ( item.value / maxValue ) * 100,
+				previousValue,
+				previousShare:
+					withComparison && previousValue !== undefined
+						? ( previousValue / maxPreviousValue ) * 100
+						: undefined,
+				delta:
+					withComparison && previousValue !== undefined
+						? calculateDelta( item.value, previousValue )
+						: undefined,
+				...( ! isDrillDown &&
+					'children' in item &&
+					item.children?.length && {
+						onClick: () => selectUtmLabel( item.label ),
+						ariaLabel: sprintf(
+							/* translators: %s is the UTM value label. */
+							__( 'View posts for %s', 'jetpack-premium-analytics' ),
+							item.label
+						),
+					} ),
+			};
+		} );
+	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
 
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<>
-				{ header }
-				<div className={ styles.content }>
-					<WidgetLoadingOverlay />
-				</div>
-			</>
-		);
-	}
+	const backLink = isDrillDown ? (
+		<WidgetBackLink
+			label={ __( 'All UTM Insights', 'jetpack-premium-analytics' ) }
+			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics' ) }
+			onClick={ clearSelectedUtm }
+			className={ styles.backLink }
+		/>
+	) : null;
 
 	return (
 		<>
-			{ header }
+			{ backLink }
 			<div className={ styles.content }>
-				<LeaderboardChart
-					data={ leaderboardData }
-					loading={ showLoading }
-					withComparison={ hasComparison }
-					withOverlayLabel
-					showLegend={ false }
-					emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
-					dataFormat={ DATA_FORMAT }
-				/>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load UTM data. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: megaphone,
+						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ withComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+				</WidgetState>
 			</div>
 		</>
 	);
@@ -222,25 +181,20 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
  * UTM Insights widget render component.
  *
  * Shows traffic breakdown by UTM parameter as a ranked leaderboard. The active
- * dimension (source/medium, campaign, etc.) is switched via a dropdown in the
- * widget header and persisted in widget attributes.
+ * dimension (source/medium, campaign, etc.) is the `utmDimension` attribute
+ * (`relevance: 'high'`), exposed as a control by the widget host.
  *
- * @param props               - Render props.
- * @param props.attributes    - Widget attributes (utmParam, max).
- * @param props.setAttributes - Attribute setter.
+ * @param {UtmInsightsWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
-export default function UtmInsightsWidget( {
-	attributes = {},
-	setAttributes,
-}: WidgetRenderProps< UtmInsightsRenderAttributes > ) {
-	const utmParam = attributes.utmParam ?? DEFAULT_UTM_PARAM;
+export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
+	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
 	const max = attributes.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner utmParam={ utmParam } max={ max } setAttributes={ setAttributes } />
+				<UtmInsightsInner utmDimension={ utmDimension } max={ max } />
 			</div>
 		</WidgetRoot>
 	);

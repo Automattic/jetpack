@@ -1,0 +1,42 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Positioned anchor so WidgetLoadingOverlay (position: absolute; inset: 0)
+   resolves against the widget body, not the host frame. */
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+/* Round the author avatar; the shared image-size properties keep the
+   leaderboard row height stable. */
+.avatar {
+	--jpa-leaderboard-image-width: 20px;
+	--jpa-leaderboard-image-height: 20px;
+	--jpa-leaderboard-image-radius: 50%;
+}
+
+/* Drilled-in post rows have no avatar, so the post label sizes the row.
+   Mirror top-posts: pad the block to set the overlay bar height and inset the
+   text from the bar's rounded left edge. */
+.postLabel {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+a.postLabel:hover,
+a.postLabel:focus {
+	text-decoration: underline;
+}

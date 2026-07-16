@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Latest Subscribers widget. Mirrors the
@@ -25,6 +26,9 @@ export type SubscribersListAttributes = {
 export default {
 	name: 'jpa/subscribers-list',
 	title: __( 'Latest Subscribers', 'jetpack-premium-analytics' ),
+	help: {
+		content: __( 'Your most recent subscribers.', 'jetpack-premium-analytics' ),
+	},
 	icon: people,
 	attributes: [
 		{
@@ -32,7 +36,7 @@ export default {
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< SubscribersListAttributes >[],
 	example: {
 		attributes: {
 			num: 6,

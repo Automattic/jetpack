@@ -2,11 +2,7 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
-import type {
-	ReportParams,
-	StatsLocationsItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -19,24 +15,38 @@ export interface LocationView {
 	countryCode: string;
 	countryFull: string;
 	value: number;
+	previousValue?: number;
 	region: string;
 }
 
 interface UseLocationViewsArgs {
+	/**
+	 * PA ReportParams from WidgetRoot context.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * Maximum rows to display.
+	 */
 	max: number;
+	/**
+	 * 'country' (default), 'region', or 'city'.
+	 */
 	geoMode?: GeoMode;
+	/**
+	 * ISO country code to filter regions by (region mode).
+	 */
 	countryFilter?: string;
 }
 
 interface LocationViewsState {
 	data: LocationView[];
-	comparisonData: LocationView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
 	hasData: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
+	refetch: () => void;
 }
 
 /**
@@ -45,7 +55,7 @@ interface LocationViewsState {
  * @param item - Normalized location item from the data layer.
  * @return A `LocationView` for the widget, or null if the item has no country code.
  */
-function toLocationView( item: StatsLocationsItem ): LocationView | null {
+function toLocationView( item: StatsLocationsComparisonItem ): LocationView | null {
 	if ( ! item.countryCode ) {
 		return null;
 	}
@@ -58,6 +68,7 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
 		countryCode: item.countryCode,
 		countryFull,
 		value: item.views,
+		previousValue: item.previousViews,
 		region: item.region ?? '',
 	};
 }
@@ -68,11 +79,7 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
  * Delegates fetching, caching, and normalization to `useStatsLocations` from
  * `@jetpack-premium-analytics/data`.
  *
- * @param args               - Hook arguments.
- * @param args.reportParams  - PA ReportParams from WidgetRoot context.
- * @param args.max           - Maximum rows to display.
- * @param args.geoMode       - 'country' (default), 'region', or 'city'.
- * @param args.countryFilter - ISO country code to filter regions by (region mode).
+ * @param {UseLocationViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
@@ -88,31 +95,37 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsLocations( statsParams );
-
-	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
-	const comparisonReport = comparison.data as
-		| StatsNormalizedReport< StatsLocationsItem >
-		| undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const rawComparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
-		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
-	const comparisonItems = rawComparisonItems
-		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
-
-	return {
-		data: items,
-		comparisonData: comparisonItems,
+	const {
+		primary,
+		comparison,
+		comparisonRows,
 		hasComparison,
 		isLoading,
 		isFetching,
 		hasData,
 		isError,
+		refetch,
+	} = useStatsLocations( statsParams, { maxRows: max } );
+	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
+
+	const items = ( comparisonRows?.rows ?? [] )
+		.map( toLocationView )
+		.filter( ( v ): v is LocationView => v !== null );
+
+	return {
+		data: items,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && isError,
+		isPlaceholderData,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

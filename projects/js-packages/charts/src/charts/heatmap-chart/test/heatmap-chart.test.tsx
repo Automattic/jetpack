@@ -222,12 +222,19 @@ describe( 'HeatmapChart', () => {
 		} );
 	} );
 
-	test( 'leaves cell gap and radius to WPDS tokens (no inline overrides)', () => {
+	test( 'keeps a strict grid → row structure (column labels live in a row, not directly under the grid)', () => {
+		renderChart();
+		// The header row is aria-hidden, so include hidden elements when querying for it.
+		const rows = screen.getAllByRole( 'row', { hidden: true } );
+		const headerRow = rows.find( row => within( row ).queryByText( 'W1' ) );
+		expect( headerRow ).toBeDefined();
+	} );
+
+	test( 'leaves the cell gap to WPDS tokens in non-compact mode (no inline override)', () => {
 		renderChart();
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		// Non-compact sets no inline gap/radius — the SCSS falls back to the WPDS tokens.
+		// Non-compact sets no inline gap — the SCSS falls back to the WPDS token.
 		expect( grid.style.getPropertyValue( '--heatmap-cell-gap' ) ).toBe( '' );
-		expect( grid.style.getPropertyValue( '--heatmap-cell-radius' ) ).toBe( '' );
 	} );
 
 	test( 'applies the compact gap inline from the theme compactCellGap', () => {
@@ -250,6 +257,36 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--heatmap-cell-size' ) ).toBe( '20px' );
 		// Compact track template is built from the fixed cell size.
 		expect( grid.style.gridTemplateColumns ).toContain( 'var(--heatmap-cell-size)' );
+	} );
+
+	test( 'caps cell width without changing the normal vertical layout', () => {
+		renderChart( { maxCellWidth: 64 } );
+		const chart = screen.getByTestId( 'heatmap-chart' );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(0px, 64px)' );
+		expect( grid.style.gridTemplateRows ).toContain( 'minmax(0px, 1fr)' );
+		expect( chart ).not.toHaveClass( 'heatmap-chart--height-capped' );
+		expect( grid ).not.toHaveClass( 'heatmap-chart__grid--height-capped' );
+	} );
+
+	test( 'content-sizes the vertical layout when cell height is capped', () => {
+		renderChart( { maxCellHeight: 42 } );
+		const chart = screen.getByTestId( 'heatmap-chart' );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(0px, 1fr)' );
+		expect( grid.style.gridTemplateRows ).toContain( 'minmax(0px, 42px)' );
+		expect( chart ).toHaveClass( 'heatmap-chart--height-capped' );
+		expect( grid ).toHaveClass( 'heatmap-chart__grid--height-capped' );
+	} );
+
+	test( 'applies independent minimum cell width and height floors', () => {
+		renderChart( { minCellWidth: 44, minCellHeight: 32 } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(44px, 1fr)' );
+		expect( grid.style.gridTemplateRows ).toContain( 'minmax(32px, 1fr)' );
 	} );
 
 	test( 'applies the primaryColor prop as the cell-scale color', () => {

@@ -4,12 +4,15 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
-	useWidgetError,
+	WidgetState,
 	useWidgetRootContext,
+	ChartEmptyState,
 	type MetricTab,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { SelectControl } from '@wordpress/components';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { customer } from '@jetpack-premium-analytics/icons';
+import { useMemo } from '@wordpress/element';
+import { trendingUp } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -20,12 +23,24 @@ import useSubscribersChart, {
 	type SubscribersChartState,
 	type SubscribersPeriod,
 } from './use-subscribers-chart';
+import {
+	DEFAULT_SUBSCRIBERS_CHART_METRICS,
+	SUBSCRIBERS_CHART_METRICS,
+	type SubscribersChartAttributes,
+	type SubscribersChartGranularity,
+	type SubscribersChartMetricId,
+} from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type SubscribersChartRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+type SubscribersChartRenderAttributes = SubscribersChartAttributes &
+	Partial< ReportParamsFieldAttributes >;
+type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartRenderAttributes > & {
+	/**
+	 * Host callback to surface a widget error in the dashboard frame.
+	 */
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -72,100 +87,165 @@ function latest(
 }
 
 /**
- * Build the metric tabs from the fetched state: always Subscribers, plus Paid
- * subscribers when the site has any. Each tab carries its headline total + the
- * previous-window total for the delta, and the per-period points for the chart.
+ * Pulls each metric's value off a chart point. Ids and labels are shared with
+ * the settings checkboxes via `SUBSCRIBERS_CHART_METRICS` in `widget.ts`.
+ */
+const METRIC_ACCESSORS: Record<
+	SubscribersChartMetricId,
+	( point: SubscribersChartPoint ) => number
+> = {
+	subscribers: point => point.subscribers,
+	paid: point => point.paid,
+};
+
+/**
+ * Build the metric tabs from the fetched state: the selected metrics, in
+ * canonical order, with Paid subscribers only when the site has any. Each tab
+ * carries its headline total + the previous-window total for the delta, and
+ * the per-period points for the chart.
  *
- * @param state - The fetched subscribers state.
+ * @param state     - The fetched subscribers state.
+ * @param metricIds - Selected metric tab ids.
  * @return The metric tabs.
  */
-function buildMetrics( state: SubscribersChartState ): MetricTab[] {
-	const defs: Array< {
-		key: string;
-		label: string;
-		accessor: ( p: SubscribersChartPoint ) => number;
-	} > = [
-		{
-			key: 'subscribers',
-			label: __( 'Subscribers', 'jetpack-premium-analytics' ),
-			accessor: point => point.subscribers,
-		},
-	];
-	if ( state.hasPaid ) {
-		defs.push( {
-			key: 'paid',
-			label: __( 'Paid subscribers', 'jetpack-premium-analytics' ),
-			accessor: point => point.paid,
-		} );
-	}
+function buildMetrics(
+	state: SubscribersChartState,
+	metricIds: SubscribersChartMetricId[]
+): MetricTab[] {
+	const selected = new Set( metricIds );
 
-	return defs.map( def => ( {
-		key: def.key,
-		label: def.label,
-		value: latest( state.current, def.accessor ),
-		previousValue: state.previous.length ? latest( state.previous, def.accessor ) : undefined,
-		current: state.current.map( point => ( { date: point.date, value: def.accessor( point ) } ) ),
-		previous: state.previous.length
-			? state.previous.map( point => ( { date: point.date, value: def.accessor( point ) } ) )
-			: undefined,
-	} ) );
+	return SUBSCRIBERS_CHART_METRICS.filter(
+		( { id } ) => selected.has( id ) && ( id !== 'paid' || state.hasPaid )
+	).map( ( { id, label } ) => {
+		const accessor = METRIC_ACCESSORS[ id ];
+		return {
+			key: id,
+			label,
+			value: latest( state.current, accessor ),
+			previousValue: state.previous.length ? latest( state.previous, accessor ) : undefined,
+			current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
+			previous: state.previous.length
+				? state.previous.map( point => ( { date: point.date, value: accessor( point ) } ) )
+				: undefined,
+		};
+	} );
 }
+
+type SubscribersChartInnerProps = {
+	/**
+	 * Selected granularity; `auto` follows the dashboard range.
+	 */
+	granularity: SubscribersChartGranularity;
+	/**
+	 * Selected metric tab ids; defaults to every metric.
+	 */
+	metrics?: SubscribersChartMetricId[];
+};
 
 /**
  * Subscribers chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()`, owns the granularity dropdown (which only
- * chooses the bucket size within that range), and hands the metric tabs
- * (Subscribers, Paid subscribers) to the shared `MetricTabsChart`.
+ * state from `useWidgetRootContext()` and hands the selected metric tabs to the
+ * shared `MetricTabsChart`. The "Group by" control is the `granularity`
+ * attribute and the tab selection is the `metrics` attribute (both
+ * `relevance: 'high'`), rendered by the widget host.
  *
+ * @param {SubscribersChartInnerProps} props - The component props.
  * @return The widget body.
  */
-function SubscribersChartInner() {
+function SubscribersChartInner( {
+	granularity,
+	metrics: metricIds = DEFAULT_SUBSCRIBERS_CHART_METRICS,
+}: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// `null` means "follow the dashboard range"; a value is an explicit user
-	// override that then sticks across range changes. This keeps a wide range
-	// from staying stuck on `day` granularity (and blowing up the bucket count)
-	// while the user hasn't picked a granularity themselves.
-	const [ periodOverride, setPeriodOverride ] = useState< SubscribersPeriod | null >( null );
-	const period = periodOverride ?? defaultPeriodForInterval( reportParams.interval );
-	const handlePeriodChange = useCallback(
-		( value: string ) => setPeriodOverride( value as SubscribersPeriod ),
-		[]
-	);
-
-	const periodOptions = [
-		{ label: __( 'By days', 'jetpack-premium-analytics' ), value: 'day' },
-		{ label: __( 'By weeks', 'jetpack-premium-analytics' ), value: 'week' },
-		{ label: __( 'By months', 'jetpack-premium-analytics' ), value: 'month' },
-	];
+	// `auto` means "follow the dashboard range"; an explicit value sticks
+	// across range changes. This keeps a wide range from staying stuck on
+	// `day` granularity (and blowing up the bucket count) while the user
+	// hasn't picked a granularity themselves.
+	const period: SubscribersPeriod =
+		granularity === 'auto' ? defaultPeriodForInterval( reportParams.interval ) : granularity;
 
 	const state = useSubscribersChart( reportParams, period );
-	const metrics = useMemo( () => buildMetrics( state ), [ state ] );
+	const metricTabs = useMemo( () => buildMetrics( state, metricIds ), [ state, metricIds ] );
+	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics' );
 
-	const hasError = useWidgetError( state.isError, state.error, state.refetch );
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary.
+	// An empty selection is a configuration state, not a data state: it stands
+	// whatever the fetch is doing.
+	if ( ! metricIds.length ) {
+		return (
+			<ChartEmptyState
+				icon={ trendingUp }
+				text={ __(
+					'No metric selected. Please select a metric from the metrics list.',
+					'jetpack-premium-analytics'
+				) }
+			/>
+		);
+	}
+
+	// Metrics are selected but every tab was filtered out — today that means
+	// Paid subscribers is the sole selection on a site with no paid subscribers
+	// in the window. Wait out the first fetch before claiming so, and let a
+	// failed fetch fall through to `WidgetState`'s error rather than reporting
+	// the absence of paid subscribers we never managed to load.
+	if ( ! metricTabs.length && ! state.isError ) {
+		if ( state.isLoading ) {
+			return null;
+		}
+
+		return (
+			<ChartEmptyState
+				icon={ trendingUp }
+				text={ __( 'No paid subscribers in this date range.', 'jetpack-premium-analytics' ) }
+			/>
+		);
 	}
 
 	return (
 		<div className={ styles.root }>
-			<MetricTabsChart
-				metrics={ metrics }
-				dataFormat={ DATA_FORMAT }
-				loading={ state.isFetching }
-				groupLabel={ __( 'Subscriber metric', 'jetpack-premium-analytics' ) }
-				controls={
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Group by', 'jetpack-premium-analytics' ) }
-						hideLabelFromVision
-						value={ period }
-						options={ periodOptions }
-						onChange={ handlePeriodChange }
-						className={ styles.periodSelect }
+			<WidgetState
+				isLoading={ state.isLoading }
+				// `isFetching` is deliberately not passed: the chart renders its own
+				// scoped overlay below, so WidgetState's full-widget one would double
+				// up and cover the metric tabs.
+				//
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the chart visible; only surface the error
+				// when there is nothing to show.
+				isError={ state.current.length === 0 && state.isError }
+				isEmpty={ state.current.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load subscriber data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [
+						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: state.refetch },
+					],
+				} }
+				empty={ {
+					icon: customer,
+					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics' ),
+				} }
+				// First load keeps the widget's chart-shaped skeleton (the metric tabs
+				// over the chart's own loading overlay) instead of the default overlay.
+				renderLoading={
+					<MetricTabsChart
+						metrics={ metricTabs }
+						dataFormat={ DATA_FORMAT }
+						loading
+						groupLabel={ groupLabel }
 					/>
 				}
-			/>
+			>
+				{ /* Background refetches keep the overlay scoped to the chart area so
+				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
+				<MetricTabsChart
+					metrics={ metricTabs }
+					dataFormat={ DATA_FORMAT }
+					loading={ state.isFetching }
+					groupLabel={ groupLabel }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
@@ -174,18 +254,22 @@ function SubscribersChartInner() {
  * Widget render entry point.
  *
  * `WidgetRoot` provides the analytics query client and resolves the dashboard's
- * `reportParams`; the inner component reads that range/comparison state and
- * layers its own granularity control on top.
+ * `reportParams`; the inner component reads that range/comparison state. The
+ * granularity is the `granularity` attribute (`relevance: 'high'`), exposed as
+ * a control by the widget host.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes, carrying host-provided report params.
- * @param props.setError   - Host callback to surface a widget error in the dashboard frame.
+ * @param {SubscribersChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function SubscribersChart( { attributes, setError }: SubscribersChartRenderProps ) {
+export default function SubscribersChart( {
+	attributes = {},
+	setError,
+}: SubscribersChartWidgetProps ) {
+	const granularity = attributes.granularity ?? 'auto';
+
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner />
+			<SubscribersChartInner granularity={ granularity } metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

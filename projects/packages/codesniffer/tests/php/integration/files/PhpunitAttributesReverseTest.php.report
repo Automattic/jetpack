@@ -23,6 +23,7 @@
  54 | WARNING | [x] For compatibility with older PHPUnit versions, add annotation `@testdox` to match the `TestDox` attribute. (Jetpack.PHPUnit.Attributes.AttributeFoundMissingAnnotation)
  58 | WARNING | [x] For compatibility with older PHPUnit versions, add annotation `@preserveGlobalState` to match the `PreserveGlobalState` attribute. (Jetpack.PHPUnit.Attributes.AttributeFoundMissingAnnotation)
  62 | ERROR   | [ ] Attribute `TestDox` is missing parameter `$text`. (Jetpack.PHPUnit.Attributes.AttributeMissingParameter)
+ 62 | ERROR   | [x] Parentheses not allowed when instantiating an attribute class without passing parameters (Universal.Attributes.DisallowAttributeParentheses.Found)
  63 | ERROR   | [ ] Attribute `TestDox` parameter `$text` should be a constant single- or double-quoted string. (Jetpack.PHPUnit.Attributes.AttributeInvalidStringParameter)
  64 | ERROR   | [ ] Attribute `TestDox` parameter `$text` should be a constant single- or double-quoted string. (Jetpack.PHPUnit.Attributes.AttributeInvalidStringParameter)
  65 | ERROR   | [ ] Attribute `PreserveGlobalState` is missing parameter `$enabled`. (Jetpack.PHPUnit.Attributes.AttributeMissingParameter)

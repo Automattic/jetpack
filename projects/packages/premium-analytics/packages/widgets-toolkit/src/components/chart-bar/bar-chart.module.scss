@@ -1,7 +1,6 @@
 .chart {
 	// Override visx-bar default styles that break the layout
 	// Todo: address upstream in Charts package.
-	/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
 	:global(.visx-bar) {
 		// All corners rounded to handle both positive and negative bar
 		// values consistently.

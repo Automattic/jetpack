@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	Button,
-	Notice,
+	Notice as CoreNotice,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -14,12 +14,14 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, _nx, _x, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { Notice } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import ConsentToggle from '../../blocks/contact-form/components/jetpack-integrations-modal/components/consent-toggle.tsx';
 import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal/index.tsx';
-import { settings as formBlockSettings } from '../../blocks/contact-form/index.js';
+import { settings as formBlockSettings } from '../../blocks/contact-form/index.jsx';
+import { isCollectingResponses } from '../../blocks/contact-form/util/is-collecting-responses.ts';
 import { FORM_POST_TYPE, FORM_BLOCK_NAME } from '../../blocks/shared/util/constants.js';
 import { INTEGRATIONS_STORE } from '../../store/integrations/index.ts';
 import { PANEL_STATE_STORE } from '../store/panel-state.ts';
@@ -264,18 +266,31 @@ export const FormPrePublishPanel = () => {
 	if ( ! hasFields ) {
 		return (
 			<PluginPrePublishPanel className="jetpack-form-pre-publish-panel" initialOpen>
-				<Notice status="error" isDismissible={ false }>
+				<CoreNotice status="error" isDismissible={ false }>
 					{ __(
 						'This form has no fields. Add at least one field before publishing.',
 						'jetpack-forms'
 					) }
-				</Notice>
+				</CoreNotice>
 			</PluginPrePublishPanel>
 		);
 	}
 
 	return (
 		<PluginPrePublishPanel className="jetpack-form-pre-publish-panel" initialOpen>
+			{ ! isCollectingResponses( attributes ) && (
+				<Notice.Root intent="warning" className="jetpack-form-pre-publish__not-collecting-notice">
+					<Notice.Title>
+						{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'Turn on email notifications or response storage below, or submissions will be silently dropped.',
+							'jetpack-forms'
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			<div className="jetpack-form-pre-publish__form-card">
 				<span className="jetpack-form-pre-publish__form-icon">{ formBlockSettings.icon.src }</span>
 				<span className="jetpack-form-pre-publish__form-title">

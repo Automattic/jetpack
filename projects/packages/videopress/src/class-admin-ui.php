@@ -277,8 +277,7 @@ class Admin_UI {
 			return $link;
 		}
 
-		$route = sprintf( '#/video/%d/edit', $post_id );
-		$url   = self::get_admin_page_url() . $route;
+		$url = add_query_arg( 'p', sprintf( '/video/%d', $post_id ), self::get_admin_page_url() );
 
 		if ( 'display' === $context ) {
 			return esc_url( $url );

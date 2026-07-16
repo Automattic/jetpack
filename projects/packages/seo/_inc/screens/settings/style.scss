@@ -32,7 +32,7 @@
 }
 
 .jetpack-seo-settings__sitemap-hint {
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
 	font-size: 12px;
 }
 
@@ -63,7 +63,7 @@
 
 .jetpack-seo-settings__title-tokens-label {
 	font-size: 12px;
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
 }
 
 // Right-align the per-section / per-row Save buttons, matching the Newsletter
@@ -106,12 +106,71 @@
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
 
-// Placeholder copy for the Schema section while its controls (primary schema
-// type, breadcrumbs) are delivered by the per-schema issues. Muted, no margin
-// so the section reads as an intentionally empty shell.
-.jetpack-seo-settings__schema-placeholder {
+// Group label for the Organization "Social profiles" (sameAs) repeater, so it
+// matches a control label's weight (the rows below hide their own labels).
+.jetpack-seo-settings__schema-field-label {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+}
+
+// The URL input in a Social profiles row takes the remaining width so the
+// Remove button keeps to the right.
+.jetpack-seo-settings__schema-profile-input {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
+.jetpack-seo-settings__schema-profile-input--error .components-base-control__help,
+.jetpack-seo-settings__schema-field--error .components-base-control__help {
+	color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+}
+
+// Keep paired controls on one row and place their shared validation message
+// beneath both fields so helper text cannot change either control's width.
+.jetpack-seo-settings__schema-paired-fields {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-inline-size: 0;
+}
+
+.jetpack-seo-settings__schema-paired-field {
+	min-inline-size: 0;
+}
+
+.jetpack-seo-settings__schema-pair-error {
+	grid-column: 1 / -1;
 	margin: 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: 12px;
+	color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+}
+
+.jetpack-seo-settings__schema-opening-hours-row {
+	display: grid;
+	grid-template-columns: 84px minmax(0, 1fr);
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	align-items: start;
+}
+
+.jetpack-seo-settings__schema-avatar {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+
+	img {
+		inline-size: 48px;
+		block-size: 48px;
+		border-radius: 50%;
+	}
+}
+
+.jetpack-seo-settings__schema-day-label {
+	display: flex;
+	align-items: center;
+	min-inline-size: 84px;
+	min-block-size: 40px;
 }
 
 // Intro copy above the preview list.
@@ -154,7 +213,7 @@
 }
 
 .jetpack-seo-preview__desc {
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
 }
 
 // Google search result — bordered around the preview itself (it has none
@@ -204,7 +263,7 @@
 
 	.jetpack-seo-preview__image {
 		block-size: 240px;
-		background-color: var(--wpds-color-bg-surface-neutral, #f0f2f5);
+		background-color: var(--wpds-color-background-surface-neutral, #f0f2f5);
 		background-position: center;
 		background-size: cover;
 	}
@@ -216,13 +275,13 @@
 		// `bg-surface-neutral`, so reusing that token here would read as the same
 		// surface — step down to the weaker surface instead. The preview image
 		// above keeps `bg-surface-neutral`.
-		background: var(--wpds-color-bg-surface-neutral-weak, #f4f4f4);
+		background: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
 	}
 
 	.jetpack-seo-preview__card-domain {
 		font-size: 12px;
 		text-transform: uppercase;
-		color: var(--wpds-color-fg-content-neutral-weak, #757575);
+		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
 	}
 
 	.jetpack-seo-preview__card-title {

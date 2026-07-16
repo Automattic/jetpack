@@ -25,9 +25,11 @@ export type NetSalesOverTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/net-sales-over-time',
 	title: __( 'Net sales over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'Monitor your total revenue after discounts, returns, or adjustments over a set period of time.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Monitor your total revenue — after any discounts, returns, or adjustments — over a set period of time.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

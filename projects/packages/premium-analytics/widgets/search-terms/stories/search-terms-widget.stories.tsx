@@ -1,14 +1,18 @@
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SearchTermsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -22,7 +26,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface SearchTermsStoryControls {
@@ -33,7 +37,15 @@ function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
 		<SearchTermsRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
+		/>
+	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderSearchTermsOnPreset( preset: PresetType ) {
+	return (
+		<SearchTermsRender
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
 		/>
 	);
 }
@@ -41,12 +53,6 @@ function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 function SearchTermsDashboardRender( props: WidgetRenderProps< unknown > ) {
 	return <SearchTermsRender { ...( props as ComponentProps< typeof SearchTermsRender > ) } />;
 }
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SearchTerms',
@@ -63,7 +69,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< SearchTermsStoryControls >;
+} satisfies Meta< ComponentProps< typeof SearchTermsRender > & SearchTermsStoryControls >;
 
 export default meta;
 
@@ -79,6 +85,49 @@ export const WithComparison: Story = {
 	render: renderSearchTerms,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderSearchTermsOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/search-terms', 'loading' );
+		return () => setReportMockState( 'stats/search-terms', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderSearchTermsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/search-terms', 'error' );
+		return () => setReportMockState( 'stats/search-terms', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral search
+ * glyph and "No search terms in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderSearchTermsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/search-terms', 'empty' );
+		return () => setReportMockState( 'stats/search-terms', null );
+	},
 };
 
 interface SearchTermsDashboardStoryProps

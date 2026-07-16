@@ -1,0 +1,38 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.chartWrap {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.chartShell {
+	inline-size: min(100%, 320px);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xl, 24px);
+}
+
+@container (max-width: 420px) {
+
+	.chartShell {
+		inline-size: min(100%, 220px);
+		gap: var(--wpds-dimension-gap-sm, 8px);
+	}
+}

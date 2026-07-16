@@ -473,13 +473,35 @@ class Password_Detection_Test extends BaseTestCase {
 		$sut->expects( $this->once() )
 			->method( 'exit' );
 
-		$sentence = htmlentities(
-			'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.',
-			ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
-		);
-
-		$this->expectOutputRegex( '@' . $sentence . '@' );
+		ob_start();
 		$sut->render_content( $user, 'my_cool_token' );
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression(
+			'@Jetpack Account Protection</a>\s+has flagged that your password may appear in a known data breach\.@',
+			$output
+		);
+		$this->assertStringContainsString(
+			htmlentities(
+				'This security feature was automatically activated with a recent Jetpack update to help keep your account safe.',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
+		$this->assertStringContainsString(
+			htmlentities(
+				'As an extra layer of security, we\'ve sent a verification code to your WordPress profile email address (j*******@e******.com).',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
+		$this->assertStringContainsString(
+			htmlentities(
+				'Please check your inbox and enter the code below to complete your login:',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
 	}
 
 	public function test_render_content_shows_transient_error_if_set(): void {
@@ -526,5 +548,22 @@ class Password_Detection_Test extends BaseTestCase {
 
 		// Assert that that \WP_User is returned.
 		$this->assertSame( $some_user, $return, 'User should be returned when a NULL password is provided.' );
+	}
+
+	/**
+	 * Tests that login_form_password_detection handles a missing password argument gracefully.
+	 *
+	 * Other plugins hooking into the `authenticate` filter may call the callback without
+	 * supplying the password argument. The parameter defaults to null so this must not fatal.
+	 */
+	public function test_login_form_password_detection_handles_missing_password_argument_gracefully(): void {
+		$sut       = new Password_Detection();
+		$some_user = new \WP_User();
+
+		// Intentionally omit the password argument to exercise the default value.
+		$return = $sut->login_form_password_detection( $some_user );
+
+		// Assert that the \WP_User is returned unchanged.
+		$this->assertSame( $some_user, $return, 'User should be returned when the password argument is omitted.' );
 	}
 }

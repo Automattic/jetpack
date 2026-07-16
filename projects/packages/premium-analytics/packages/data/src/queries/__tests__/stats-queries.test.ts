@@ -31,6 +31,7 @@ import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
+import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
@@ -43,6 +44,7 @@ import {
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
+import { statsVideoPlaysSummaryQuery } from '../stats-video-plays-summary-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
@@ -97,6 +99,28 @@ describe( 'Stats query factories', () => {
 	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
 		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
+	} );
+
+	it( 'builds latest post comments query keys', () => {
+		const query = statsPostCommentsQuery( { postId: 41, number: 10 } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'post-comments',
+			'1.1',
+			'posts/41/replies',
+			'GET',
+			{ number: 10, type: 'comment', status: 'approved', order: 'DESC' },
+			undefined,
+			'postComments',
+		] );
+		expect( query.enabled ).toBe( true );
+	} );
+
+	it( 'disables post comments queries until a positive integer post ID is available', () => {
+		expect( statsPostCommentsQuery( { postId: 0 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: -1 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: 1.5 } ).enabled ).toBe( false );
 	} );
 
 	it( 'builds all-time email opens breakdown query keys without query params', () => {
@@ -264,6 +288,34 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	it( 'keeps the complete video summary mode out of the request params', () => {
+		const query = statsVideoPlaysSummaryQuery( {
+			from: '2026-07-09',
+			to: '2026-07-14',
+			interval: 'week',
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'video-plays-summary',
+			'1.1',
+			'stats/video-plays',
+			'GET',
+			{
+				period: 'day',
+				start_date: '2026-07-09',
+				days: 6,
+				date: '2026-07-14',
+				max: 0,
+				complete_stats: 1,
+			},
+			undefined,
+			'videoPlays',
+			{ summarize: 1 },
+		] );
+	} );
+
 	it( 'requests summarized archives data for multi-day ranges', () => {
 		const query = statsArchivesQuery( {
 			from: '2026-06-01',
@@ -326,12 +378,12 @@ describe( 'Stats query factories', () => {
 			from: '2026-06-16',
 			to: '2026-06-16',
 			interval: 'day',
-			deviceParam: 'browser',
+			deviceProperty: 'browser',
 		} );
 
 		expect( query.queryKey ).toEqual( [
 			'stats',
-			'devices',
+			'devices-browser',
 			'1.1',
 			'stats/devices/browser',
 			'GET',
@@ -349,7 +401,7 @@ describe( 'Stats query factories', () => {
 		} );
 
 		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [ 'stats/devices/screensize', 'devices' ] )
+			expect.arrayContaining( [ 'devices-screensize', 'stats/devices/screensize', 'devices' ] )
 		);
 	} );
 
@@ -374,6 +426,33 @@ describe( 'Stats query factories', () => {
 			'commentFollowers',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'period' );
+	} );
+
+	it( 'keeps list reports day-bucketed when the dashboard interval is coarser', () => {
+		const query = statsTopPostsQuery( {
+			from: '2026-01-01',
+			to: '2026-06-07',
+			interval: 'week',
+		} );
+
+		// `days` counts calendar days, so a leaked `period=week` would cover
+		// `days` weeks instead of the requested range.
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [ expect.objectContaining( { period: 'day', days: 158 } ) ] )
+		);
+	} );
+
+	it( 'lets callers force a list report period explicitly', () => {
+		const query = statsTopPostsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			period: 'week',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [ expect.objectContaining( { period: 'week' } ) ] )
+		);
 	} );
 
 	it( 'preserves explicit summarize params', () => {
@@ -486,23 +565,24 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/video/31533',
 			'GET',
-			{},
+			{ period: 'day' },
 			undefined,
 			'singleVideo',
 		] );
 	} );
 
-	it( 'passes single video params through to the request', () => {
+	it( 'converts the report date range for the single video request', () => {
 		const query = statsSingleVideoQuery( 31533, {
-			period: 'day',
-			end_date: '2026-06-14',
-			statType: 'watch_time',
+			from: '2026-06-08',
+			to: '2026-06-14',
+			interval: 'day',
 		} );
 
 		expect( query.queryKey[ 5 ] ).toEqual( {
 			period: 'day',
 			date: '2026-06-14',
-			statType: 'watch_time',
+			start_date: '2026-06-08',
+			days: 7,
 		} );
 	} );
 
@@ -739,7 +819,7 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'date' );
 	} );
 
-	it( 'builds WordAds stats query keys with Calypso endpoint params', () => {
+	it( 'builds WordAds stats query keys with the range translated to endpoint params', () => {
 		const query = statsWordAdsStatsQuery( {
 			from: '2026-05-01',
 			to: '2026-06-30',
@@ -756,7 +836,7 @@ describe( 'Stats query factories', () => {
 			{
 				unit: 'month',
 				date: '2026-06-30',
-				quantity: 30,
+				quantity: 2,
 			},
 			undefined,
 			'wordAdsStats',
@@ -767,18 +847,18 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'uses the WordAds yearly quantity default and preserves explicit quantity params', () => {
+	it( 'sets the WordAds quantity to the bucket count spanning the range', () => {
 		expect(
 			statsWordAdsStatsQuery( {
-				from: '2026-01-01',
-				to: '2026-12-31',
-				interval: 'year',
+				from: '2026-06-01',
+				to: '2026-06-07',
+				interval: 'day',
 			} ).queryKey
 		).toEqual(
 			expect.arrayContaining( [
 				expect.objectContaining( {
-					unit: 'year',
-					quantity: 10,
+					unit: 'day',
+					quantity: 7,
 				} ),
 			] )
 		);
@@ -797,6 +877,34 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'clamps the WordAds window end to yesterday, keeping it anchored to the range start', () => {
+		// WordAds stats are computed nightly, so a range ending today ends at
+		// yesterday instead. The window stays anchored to the range start: the
+		// unavailable trailing bucket is dropped (quantity 7 → 6), so the window
+		// does not shift a bucket earlier and overlap the comparison window.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09',
+					to: '2026-06-15',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-14',
+						quantity: 6,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'disables WordAds stats queries until a date is available', () => {

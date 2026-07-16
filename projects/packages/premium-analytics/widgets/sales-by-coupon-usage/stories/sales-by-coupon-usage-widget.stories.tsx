@@ -6,10 +6,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SalesByCouponUsageRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -19,29 +23,23 @@ const SALES_BY_COUPON_USAGE_RENDER_MODULE = 'storybook/sales-by-coupon-usage';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByCouponUsageRenderProps = ComponentProps< typeof SalesByCouponUsageRender >;
+type SalesByCouponUsageWidgetProps = ComponentProps< typeof SalesByCouponUsageRender >;
 
 interface SalesByCouponUsageStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type SalesByCouponUsageStoryProps = SalesByCouponUsageRenderProps & SalesByCouponUsageStoryControls;
+type SalesByCouponUsageStoryProps = SalesByCouponUsageWidgetProps & SalesByCouponUsageStoryControls;
 
 interface SalesByCouponUsageDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		SalesByCouponUsageStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 function getSalesByCouponUsageAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByCouponUsageRenderProps[ 'attributes' ] {
+): SalesByCouponUsageWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -80,6 +78,13 @@ function renderSalesByCouponUsage( { withComparison, preset }: SalesByCouponUsag
 		<SalesByCouponUsageRender
 			attributes={ getSalesByCouponUsageAttributes( withComparison, preset ) }
 		/>
+	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderSalesByCouponUsageOnPreset( preset: SelectablePresetId ) {
+	return (
+		<SalesByCouponUsageRender attributes={ getSalesByCouponUsageAttributes( false, preset ) } />
 	);
 }
 
@@ -126,7 +131,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< SalesByCouponUsageStoryControls >;
 type DashboardStory = StoryObj< SalesByCouponUsageDashboardStoryProps >;
 
 /**
@@ -170,6 +175,50 @@ export const WithComparison: Story = {
 				) => getSalesByCouponUsageSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the coupons report is in flight, so the widget shows its loading
+ * state. The mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderSalesByCouponUsageOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'loading' );
+		return () => setReportMockState( 'coupons/', null );
+	},
+};
+
+/**
+ * The coupons report failed: the widget shows its error state with a Retry
+ * action (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderSalesByCouponUsageOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'error' );
+		return () => setReportMockState( 'coupons/', null );
+	},
+};
+
+/**
+ * Resolved with no coupon rows: the widget shows its empty state (the neutral
+ * coupon glyph and "No coupon sales in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderSalesByCouponUsageOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'empty' );
+		return () => setReportMockState( 'coupons/', null );
 	},
 };
 

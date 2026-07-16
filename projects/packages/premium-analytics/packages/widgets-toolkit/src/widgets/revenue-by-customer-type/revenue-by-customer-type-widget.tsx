@@ -3,15 +3,14 @@
  */
 import { useReportCustomers, type FilterCondition } from '@jetpack-premium-analytics/data';
 import { customer } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { BarChart, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildRevenueByCustomerTypeData, BOOKINGS_FILTER } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildRevenueByCustomerTypeData, isEmptyChartData, BOOKINGS_FILTER } from '../../helpers';
 import { useBarStyles } from '../common';
 
 type CustomerTypeRevenueWidgetProps = {
@@ -43,14 +42,11 @@ type CustomerTypeRevenueWidgetProps = {
 function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, isLoading, isFetching, hasData, isError, error, refetch } =
+	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportCustomers( {
 			...reportParams,
 			filters: filter ? [ filter ] : undefined,
 		} );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
 		() => buildRevenueByCustomerTypeData( primary.data, comparison.data, reportParams ),
@@ -59,17 +55,27 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 
 	const barStyles = useBarStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading && ! hasData }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load customer revenue data. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: customer,
+				description: __( 'No customer revenue in this period.', 'jetpack-premium-analytics' ),
+			} }
+		>
 			<BarChart
 				chartData={ chartData }
 				styles={ barStyles }
@@ -77,10 +83,8 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 					type: 'currency',
 					options: { useMultipliers: true, decimals: 0 },
 				} }
-				emptyStateIcon={ customer }
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }
 

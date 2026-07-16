@@ -53,7 +53,7 @@ const BackupUpgrade: FC< BackupUpgradeProps > = ( {
 	) : null;
 };
 
-export default connect( state => {
+export default connect( ( state: object ) => {
 	// eslint-disable-next-line  @typescript-eslint/no-explicit-any
 	const stats = ( getStatsData( state ) as any )?.general?.stats;
 

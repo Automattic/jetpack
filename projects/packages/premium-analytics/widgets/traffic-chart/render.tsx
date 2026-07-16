@@ -4,24 +4,30 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
-	useWidgetError,
+	WidgetState,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { SelectControl } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { reports } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
+import type {
+	TrafficChartAttributes,
+	TrafficChartGranularity,
+	TrafficChartMetricId,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-// The widget has no own attributes; report params arrive from the host (or
-// WidgetRoot's URL fallback), so the render shape is host fields only.
-type TrafficChartRenderProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > > & {
+type TrafficChartRenderAttributes = TrafficChartAttributes & Partial< ReportParamsFieldAttributes >;
+type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes > & {
+	/**
+	 * Host callback to surface a widget error in the dashboard frame.
+	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -31,7 +37,7 @@ const DATA_FORMAT = {
 };
 
 /**
- * Default granularity for the dashboard interval: opens the dropdown at the
+ * Default granularity for the dashboard interval: opens the control at the
  * granularity the range implies (and, until the user picks one explicitly,
  * keeps following the range). The dropdown only offers day/week/month, so
  * finer/coarser dashboard intervals collapse onto those.
@@ -52,60 +58,99 @@ function defaultPeriodForInterval( interval?: string ): TrafficPeriod {
 	}
 }
 
+type TrafficChartInnerProps = {
+	/**
+	 * Selected granularity; `auto` follows the dashboard range.
+	 */
+	granularity: TrafficChartGranularity;
+	/**
+	 * Selected metric tab ids; defaults to every metric.
+	 */
+	metrics?: TrafficChartMetricId[];
+};
+
 /**
  * Traffic chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()`, owns the granularity dropdown (which only
- * chooses the bucket size within that range), and hands the per-metric tabs
- * (Views, Visitors, Likes, Comments) to the shared `MetricTabsChart`.
+ * state from `useWidgetRootContext()` and hands the selected metric tabs to the
+ * shared `MetricTabsChart`. The "Group by" control is the `granularity`
+ * attribute and the tab selection is the `metrics` attribute (both
+ * `relevance: 'high'`), rendered by the widget host.
  *
+ * @param {TrafficChartInnerProps} props - The component props.
  * @return The widget body.
  */
-function TrafficChartInner() {
+function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// `null` means "follow the dashboard range"; a value is an explicit user
-	// override that then sticks across range changes, so a wide range doesn't
-	// stay stuck on `day` granularity (and blow up the bucket count) while the
-	// user hasn't picked a granularity themselves.
-	const [ periodOverride, setPeriodOverride ] = useState< TrafficPeriod | null >( null );
-	const period = periodOverride ?? defaultPeriodForInterval( reportParams.interval );
-	const handlePeriodChange = useCallback(
-		( value: string ) => setPeriodOverride( value as TrafficPeriod ),
-		[]
-	);
+	// `auto` means "follow the dashboard range"; an explicit value sticks
+	// across range changes, so a wide range doesn't stay stuck on `day`
+	// granularity (and blow up the bucket count) while the user hasn't picked
+	// a granularity themselves.
+	const period: TrafficPeriod =
+		granularity === 'auto' ? defaultPeriodForInterval( reportParams.interval ) : granularity;
 
-	const periodOptions = [
-		{ label: __( 'Days', 'jetpack-premium-analytics' ), value: 'day' },
-		{ label: __( 'Weeks', 'jetpack-premium-analytics' ), value: 'week' },
-		{ label: __( 'Months', 'jetpack-premium-analytics' ), value: 'month' },
-	];
+	const {
+		metrics: metricTabs,
+		isLoading,
+		isFetching,
+		isError,
+		refetch,
+	} = useTrafficChart( reportParams, period, metrics );
+	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics' );
 
-	const { metrics, isFetching, isError, error, refetch } = useTrafficChart( reportParams, period );
-
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary.
+	if ( ! metricTabs.length ) {
+		return (
+			<div className={ styles.emptyState }>
+				{ __(
+					'No metric selected. Please select a metric from the metrics list.',
+					'jetpack-premium-analytics'
+				) }
+			</div>
+		);
 	}
 
 	return (
 		<div className={ styles.root }>
-			<MetricTabsChart
-				metrics={ metrics }
-				dataFormat={ DATA_FORMAT }
-				loading={ isFetching }
-				groupLabel={ __( 'Traffic metric', 'jetpack-premium-analytics' ) }
-				controls={
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Group by', 'jetpack-premium-analytics' ) }
-						hideLabelFromVision
-						value={ period }
-						options={ periodOptions }
-						onChange={ handlePeriodChange }
-						className={ styles.periodSelect }
+			<WidgetState
+				isLoading={ isLoading }
+				// `isFetching` is deliberately not passed: the chart renders its own
+				// scoped overlay below, so WidgetState's full-widget one would double
+				// up and cover the metric tabs.
+				//
+				// `useTrafficChart` already gates `isError` per query on that query
+				// having no rows, so a transient refetch failure keeps the chart.
+				isError={ isError }
+				isEmpty={ metricTabs.every( metric => metric.current.length === 0 ) }
+				error={ {
+					description: __(
+						"We couldn't load traffic data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: reports,
+					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics' ),
+				} }
+				// First load keeps the widget's chart-shaped skeleton (the metric tabs
+				// over the chart's own loading overlay) instead of the default overlay.
+				renderLoading={
+					<MetricTabsChart
+						metrics={ metricTabs }
+						dataFormat={ DATA_FORMAT }
+						loading
+						groupLabel={ groupLabel }
 					/>
 				}
-			/>
+			>
+				{ /* Background refetches keep the overlay scoped to the chart area so
+				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
+				<MetricTabsChart
+					metrics={ metricTabs }
+					dataFormat={ DATA_FORMAT }
+					loading={ isFetching }
+					groupLabel={ groupLabel }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
@@ -114,18 +159,19 @@ function TrafficChartInner() {
  * Widget render entry point.
  *
  * `WidgetRoot` provides the analytics query client and resolves the dashboard's
- * report params (date range + comparison); the inner component reads them from
- * context and fetches the traffic series.
+ * `reportParams`; the inner component reads that range/comparison state. The
+ * granularity is the `granularity` attribute (`relevance: 'high'`), exposed as
+ * a control by the widget host.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes; the date range/comparison arrive here from the host.
- * @param props.setError   - Host callback to surface a widget error in the dashboard frame.
+ * @param {TrafficChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function TrafficChart( { attributes = {}, setError }: TrafficChartRenderProps ) {
+export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
+	const granularity = attributes.granularity ?? 'auto';
+
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner />
+			<TrafficChartInner granularity={ granularity } metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

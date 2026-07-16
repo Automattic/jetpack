@@ -1,0 +1,7 @@
+{
+	"name": "jpa/comments",
+	"title": "Comments",
+	"description": "The authors and posts that receive the most comments on your site.",
+	"category": "stats",
+	"presentation": "framed"
+}

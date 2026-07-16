@@ -20,9 +20,9 @@ type PreferencesActions = {
  * Manage the customizable widget layout for the currently active dashboard section.
  *
  * The shared `useDashboardLayout` hook stores one dashboard-wide layout. This
- * route layers a section map on top of that hook so each section can commit its
- * own customized layout while still using the registered dashboard default as
- * the initial/reset layout.
+ * route layers a section map on top of that hook so each section can commit
+ * its own customized layout while reset can fetch the active section's bundled
+ * default.
  *
  * @param dashboardName   - Dashboard registration name for fetching defaults.
  * @param activeSectionId - Currently active section ID.
@@ -63,14 +63,14 @@ export function useDashboardSectionLayout(
 
 	const resetLayout = useCallback( async () => {
 		const fresh = ( await apiFetch( {
-			path: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ dashboardName }/default-layout`,
+			path: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ activeSectionId }/default-layout`,
 		} ) ) as DashboardWidget[];
 
 		void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
 			...sectionLayouts,
 			[ activeSectionId ]: fresh,
 		} );
-	}, [ activeSectionId, dashboardName, sectionLayouts, set ] );
+	}, [ activeSectionId, sectionLayouts, set ] );
 
 	return [ layout, setLayout, resetLayout ];
 }

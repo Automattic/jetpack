@@ -29,6 +29,15 @@ class Customize_Feed {
 	private static $registered = false;
 
 	/**
+	 * Enclosure URLs already emitted in the current feed render, keyed by post
+	 * ID then URL. Reset on `rss2_head` so each feed starts clean — see
+	 * {@see self::is_duplicate_enclosure()}.
+	 *
+	 * @var array<int, array<string, true>>
+	 */
+	private static $seen_enclosures = array();
+
+	/**
 	 * Wire the late-binding `wp` action that decides whether to register the
 	 * feed-modification hooks for this request. Idempotent.
 	 */
@@ -40,9 +49,14 @@ class Customize_Feed {
 
 		add_action( 'wp', array( __CLASS__, 'maybe_register_feed_hooks' ) );
 
-		// `the_posts` fires during query execution — before the `wp` action —
-		// so it has to be registered up-front and self-gated to the podcast
-		// feed query, rather than wired conditionally in `maybe_register_feed_hooks`.
+		// Both hooks fire during query execution — before the `wp` action — so
+		// they're registered up-front and self-gated to the podcast feed query,
+		// rather than wired conditionally in `maybe_register_feed_hooks`.
+		//
+		// `posts_where` constrains the SQL itself so LIMIT/OFFSET paginate over
+		// episodes that actually have an enclosure; `the_posts` is a cheap final
+		// guard for the rare row the SQL constraint can't reach.
+		add_filter( 'posts_where', array( __CLASS__, 'constrain_feed_query' ), 10, 2 );
 		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
 	}
 
@@ -70,20 +84,15 @@ class Customize_Feed {
 		add_action( 'rss2_ns', array( __CLASS__, 'output_namespaces' ) );
 		add_filter( 'wp_title_rss', array( __CLASS__, 'feed_title' ) );
 		add_filter( 'bloginfo_rss', array( __CLASS__, 'feed_description' ), 10, 2 );
+		add_action( 'rss2_head', array( __CLASS__, 'reset_enclosure_dedup' ), 0 );
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
 
-		// Prune RSS chrome that podcatchers don't read. Cuts payload size and
-		// keeps incidental post data (body content, gravatar URLs, image EXIF,
-		// comments metadata) out of a feed whose only job is to deliver
-		// podcast episode metadata + the audio enclosure.
-		//
-		// - option_rss_use_excerpt -> suppresses content:encoded (full post body, incl. EXIF in image attrs).
-		// - comments_open + get_comments_number -> together suppress per-item comments / wfw:commentRss / slash:comments.
-		// - the_category_rss -> suppresses per-item category tags (channel itunes:category is the podcatcher signal).
-		// - removing wpcom mrss.php hooks -> suppresses media:content for author gravatar + post images.
-		add_filter( 'option_rss_use_excerpt', '__return_true' );
+		add_filter( 'option_rss_use_excerpt', '__return_false' );
+		// Request-scoped to the feed: only the queried episodes render here, so
+		// this never touches block output outside the podcast feed response.
+		add_filter( 'render_block', array( __CLASS__, 'strip_block_from_feed' ), 10, 2 );
 		add_filter( 'comments_open', '__return_false' );
 		add_filter( 'get_comments_number', '__return_zero' );
 		add_filter( 'the_category_rss', '__return_empty_string' );
@@ -224,9 +233,36 @@ class Customize_Feed {
 	}
 
 	/**
+	 * Strip the episode, feed-player, and subscribe blocks from
+	 * `<content:encoded>`, leaving the surrounding show-note prose.
+	 *
+	 * @param string $block_content Rendered block HTML.
+	 * @param array  $block         Parsed block, including its `blockName`.
+	 * @return string
+	 */
+	public static function strip_block_from_feed( $block_content, $block ) {
+		static $chrome = array(
+			'jetpack/podcast-episode',
+			'jetpack/podcast-player',
+			'jetpack/subscriptions',
+		);
+		if ( isset( $block['blockName'] ) && in_array( $block['blockName'], $chrome, true ) ) {
+			return '';
+		}
+		return $block_content;
+	}
+
+	/**
 	 * Rewrite the enclosure URL through the WPCOM stats endpoint and append
 	 * `<itunes:duration>` when resolvable. Duration is looked up against the
 	 * *original* attachment URL — the stats URL is synthetic.
+	 *
+	 * A podcast item is only valid with a single `<enclosure>`, but core
+	 * `rss_enclosure()` emits one per `enclosure` post-meta row and posts
+	 * routinely accumulate several (URL drift across re-uploads / CDN hosts
+	 * that `do_enclose()`'s dedup treats as distinct). Rewriting keys on
+	 * post ID, so those rows all collapse to the same stats URL — we track
+	 * emitted URLs per item and drop repeats so the feed carries exactly one.
 	 *
 	 * @param string $enclosure Generated enclosure markup.
 	 * @return string
@@ -239,6 +275,7 @@ class Customize_Feed {
 		}
 
 		$original_url = $match[1];
+		$final_url    = $original_url;
 		$post_obj     = $post instanceof WP_Post ? $post : null;
 
 		/**
@@ -269,7 +306,7 @@ class Customize_Feed {
 
 			// Bail when we can't resolve a real blog ID — emit the original URL rather than a guaranteed-404 stats URL.
 			if ( $blog_id > 0 ) {
-				$stats_url = self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url );
+				$final_url = esc_url( self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url ) );
 				$enclosure = preg_replace_callback(
 					'/url="[^"]*"/i',
 					/**
@@ -280,15 +317,24 @@ class Customize_Feed {
 					 * @param array $matches Regex matches.
 					 * @return string
 					 */
-					static function ( array $matches ) use ( $stats_url ) {
+					static function ( array $matches ) use ( $final_url ) {
 						unset( $matches );
-						return 'url="' . esc_url( $stats_url ) . '"';
+						return 'url="' . $final_url . '"';
 					},
 					$enclosure,
 					1
 				);
 			}
 		}
+
+		// Drop repeats: rows keyed per post, by final URL, so distinct enclosures
+		// survive while the duplicate stats URLs collapse to one. Registry is
+		// cleared per render — see `reset_enclosure_dedup()`.
+		$post_id = null !== $post_obj ? (int) $post_obj->ID : 0;
+		if ( isset( self::$seen_enclosures[ $post_id ][ $final_url ] ) ) {
+			return '';
+		}
+		self::$seen_enclosures[ $post_id ][ $final_url ] = true;
 
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
@@ -303,24 +349,62 @@ class Customize_Feed {
 	}
 
 	/**
+	 * Clear the per-render enclosure dedup registry. Hooked on `rss2_head` (at
+	 * priority 0, before any item renders) so re-generating a feed within a
+	 * single long-lived process — WP-CLI, a warm worker — starts fresh instead
+	 * of dropping every enclosure as already-seen.
+	 */
+	public static function reset_enclosure_dedup() {
+		self::$seen_enclosures = array();
+	}
+
+	/**
+	 * Constrain the podcast feed's main query to episodes that carry an
+	 * `enclosure` meta row, so the SQL `LIMIT`/`OFFSET` paginate over valid
+	 * episodes only. Without this the enclosure filter runs on `the_posts` —
+	 * after pagination — so a nominal ten-item page could come back short or
+	 * empty while older valid episodes sit stranded on later pages.
+	 *
+	 * A correlated `EXISTS` subquery (semi-join) is used rather than a
+	 * `meta_query` clause on purpose: episodes routinely accumulate several
+	 * `enclosure` meta rows (see {@see self::rewrite_enclosure()}), and a
+	 * single-clause `meta_query` INNER JOIN would multiply those into duplicate
+	 * posts, breaking the `LIMIT` count all over again.
+	 *
+	 * @param string    $where The `WHERE` clause of the query.
+	 * @param \WP_Query $query Query about to run.
+	 * @return string
+	 */
+	public static function constrain_feed_query( $where, $query ) {
+		if ( ! self::is_podcast_feed_query( $query ) ) {
+			return $where;
+		}
+
+		global $wpdb;
+
+		// Table names come from `$wpdb`; `meta_key` runs through `prepare()`.
+		$where .= $wpdb->prepare(
+			" AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = %s )",
+			'enclosure'
+		);
+
+		return $where;
+	}
+
+	/**
 	 * A podcast item without an enclosure is invalid per Apple's spec and can
 	 * take down the whole submission. The `enclosure` post meta is what
 	 * `rss_enclosure()` reads, so it's the authoritative signal here too.
+	 *
+	 * The SQL constraint in {@see self::constrain_feed_query()} already excludes
+	 * these at query time; this stays as a cheap final guard.
 	 *
 	 * @param WP_Post[] $posts Posts about to be looped over.
 	 * @param \WP_Query $query Query that produced them.
 	 * @return WP_Post[]
 	 */
 	public static function filter_posts_with_enclosure( $posts, $query ) {
-		if ( ! $query->is_main_query() || ! $query->is_feed() || ! $query->is_category() ) {
-			return $posts;
-		}
-		$category_id = self::resolve_category_id();
-		if ( 0 === $category_id ) {
-			return $posts;
-		}
-		$queried = $query->get_queried_object();
-		if ( ! $queried || ! isset( $queried->term_id ) || (int) $queried->term_id !== $category_id ) {
+		if ( ! self::is_podcast_feed_query( $query ) ) {
 			return $posts;
 		}
 		return array_values(
@@ -332,6 +416,27 @@ class Customize_Feed {
 				}
 			)
 		);
+	}
+
+	/**
+	 * Whether `$query` is the main podcast category feed query — the shared gate
+	 * for the two query-time hooks ({@see self::constrain_feed_query()} and
+	 * {@see self::filter_posts_with_enclosure()}), which fire before the `wp`
+	 * action and so can't lean on `maybe_register_feed_hooks()`.
+	 *
+	 * @param \WP_Query $query Query to inspect.
+	 * @return bool
+	 */
+	private static function is_podcast_feed_query( $query ): bool {
+		if ( ! $query->is_main_query() || ! $query->is_feed() || ! $query->is_category() ) {
+			return false;
+		}
+		$category_id = self::resolve_category_id();
+		if ( 0 === $category_id ) {
+			return false;
+		}
+		$queried = $query->get_queried_object();
+		return $queried && isset( $queried->term_id ) && (int) $queried->term_id === $category_id;
 	}
 
 	/**

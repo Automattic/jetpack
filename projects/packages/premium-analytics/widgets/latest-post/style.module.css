@@ -1,0 +1,131 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	height: 100%;
+	overflow: hidden;
+
+	/* Offset the host card's body padding so the featured image can bleed to the
+	 * card edges. Tuned to the framed widget padding. */
+	--latest-post-frame-pad: var(--wpds-dimension-padding-2xl, 24px);
+}
+
+.content {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	min-width: 0;
+	min-height: 0;
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-width: 0;
+}
+
+.titleLink {
+	color: var(--wpds-color-foreground-content-neutral);
+	text-decoration: none;
+}
+
+.titleLink:hover {
+	text-decoration: underline;
+}
+
+.title {
+	display: -webkit-box;
+	margin: 0;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+}
+
+.date {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.metrics {
+	display: flex;
+	flex-flow: row wrap;
+	gap: var(--wpds-dimension-gap-2xl, 32px);
+}
+
+.metric {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-width: 0;
+}
+
+.metricLabel {
+	font-weight: var(--wpds-typography-font-weight-medium, 500);
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.metric .metricValue {
+	font-size: var(--wpds-typography-font-size-lg, 15px);
+}
+
+/* Featured image. Full-bleeds to the top and sides of the card by offsetting
+ * the host body padding; the image covers its box at any aspect ratio. */
+.media {
+	overflow: hidden;
+}
+
+.image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Narrow tiles (single-column grid cells): stack the image as a top banner and
+ * scale the headline, metrics, and spacing down so the content fits without
+ * overflowing a small tile. */
+@container widget (max-width: 599px) {
+
+	.root {
+		gap: var(--wpds-dimension-gap-md, 12px);
+	}
+
+	.content {
+		gap: var(--wpds-dimension-gap-md, 12px);
+	}
+
+	.media {
+		order: -1;
+		height: 140px;
+		margin-inline: calc(-1 * var(--latest-post-frame-pad));
+	}
+
+	.header .title {
+		font-size: var(--wpds-typography-font-size-xl, 20px);
+		line-height: var(--wpds-typography-line-height-md, 24px);
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+	}
+
+	.metrics {
+		gap: var(--wpds-dimension-gap-lg, 16px);
+	}
+}
+
+/* Wide tiles: content left, image bleeds to the right and bottom card edges. */
+@container widget (min-width: 600px) {
+
+	.root {
+		flex-direction: row;
+		align-items: stretch;
+	}
+
+	.media {
+		flex: 0 0 42%;
+		margin-block-end: calc(-1 * var(--latest-post-frame-pad));
+		margin-inline-end: calc(-1 * var(--latest-post-frame-pad));
+	}
+}

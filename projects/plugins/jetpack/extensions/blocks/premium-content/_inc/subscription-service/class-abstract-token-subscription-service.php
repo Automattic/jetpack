@@ -574,9 +574,8 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
 			$details = (array) $details;
 
-			$end = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
-			if ( $end < time() ) {
-				// subscription not active anymore
+			if ( ! self::subscription_grants_access( $details ) ) {
+				// Subscription not active anymore (its end_date day has fully passed).
 				continue;
 			}
 
@@ -766,11 +765,51 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
+	 * Return true if an abbreviated subscription currently grants access.
+	 *
+	 * Access is granted through the end of the subscription's end_date day
+	 * (23:59:59 UTC), not the exact end_date timestamp. Memberships store
+	 * end_date as the precise purchase timestamp, while billing renews via a
+	 * deferred day-0 job that can run several hours after that timestamp. Since
+	 * the wider platform already treats end-of-day as the formal expiration
+	 * time for subscriptions, expiring at EOD here keeps a same-day auto-renewal
+	 * from cutting off access before its renewal completes, and aligns Paid
+	 * Content with the rest of WordPress.com / Jetpack.
+	 *
+	 * Cancelled and otherwise inactive subscriptions never reach this check —
+	 * they are dropped by the `'active' === status` filter in
+	 * abbreviate_subscriptions() — so this only ever extends an already-active
+	 * subscription to the end of its final day.
+	 *
+	 * @param object|array $subscription Abbreviated subscription (see abbreviate_subscriptions()).
+	 *
+	 * @return bool
+	 */
+	protected static function subscription_grants_access( $subscription ) {
+		$subscription = (array) $subscription;
+		if ( empty( $subscription['end_date'] ) ) {
+			return false;
+		}
+
+		$end = is_int( $subscription['end_date'] ) ? $subscription['end_date'] : strtotime( $subscription['end_date'] );
+		if ( false === $end ) {
+			return false;
+		}
+
+		// Expire at the end of the end_date's day (UTC), matching the platform's
+		// formal expiration convention rather than the exact purchase timestamp.
+		$end_of_day = strtotime( gmdate( 'Y-m-d 23:59:59', $end ) . ' UTC' );
+
+		return $end_of_day >= time();
+	}
+
+	/**
 	 * Return true if any ID/date pairs are valid. Otherwise false.
 	 *
 	 * @param int[]    $valid_plan_ids List of valid plan IDs.
 	 * @param object[] $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
-	 *                                                            The provided end date needs to be greater than <code>now()</code>.
+	 *                                                            The provided end date needs to fall on or after today,
+	 *                                                            i.e. access lasts through the end of the end_date day (UTC).
 	 *
 	 * @return bool
 	 */
@@ -786,8 +825,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		foreach ( $token_subscriptions as $product_id => $token_subscription ) {
 			if ( in_array( intval( $product_id ), $product_ids, true ) ) {
-				$end = is_int( $token_subscription->end_date ) ? $token_subscription->end_date : strtotime( $token_subscription->end_date );
-				if ( $end > time() ) {
+				if ( static::subscription_grants_access( $token_subscription ) ) {
 					return true;
 				}
 			}

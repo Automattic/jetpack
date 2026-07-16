@@ -119,7 +119,11 @@ class Configuration {
 		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'add_order_stats_to_checksum' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 
-		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
+		$config = new Config();
+		$config->ensure( 'sync', $this->get_jetpack_sync_config() );
+
+		// Register as a connected plugin so WPCom provisions the WC Analytics tables. (WOOA7S-1643)
+		$config->ensure( 'connection', $this->get_jetpack_connection_config() );
 	}
 
 	/**
@@ -166,9 +170,28 @@ class Configuration {
 					'woocommerce_date_type', // Date used to determine the date range for analytics reports.
 				),
 				'jetpack_sync_constants_whitelist' => array(
-					'WC_ANALYTICS_VERSION',
+					// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
+					// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
+					// WC_ANALYTICS_VERSION is intentionally omitted: it is defined and whitelisted by the
+					// standalone woocommerce-analytics plugin, and on a PA-only store would only sync null.
+					'JETPACK_PREMIUM_ANALYTICS__VERSION',
 				),
 			)
+		);
+	}
+
+	/**
+	 * Jetpack Connection configuration.
+	 *
+	 * Registers Premium Analytics as a connected plugin so WPCom provisions the WC Analytics tables.
+	 * The slug must match the WPCom gate (is_premium_analytics_active). (WOOA7S-1643)
+	 *
+	 * @return array Jetpack Connection config array.
+	 */
+	private function get_jetpack_connection_config(): array {
+		return array(
+			'slug' => defined( 'JETPACK_PREMIUM_ANALYTICS_SLUG' ) ? JETPACK_PREMIUM_ANALYTICS_SLUG : 'jetpack-premium-analytics',
+			'name' => defined( 'JETPACK_PREMIUM_ANALYTICS_NAME' ) ? JETPACK_PREMIUM_ANALYTICS_NAME : 'Premium Analytics',
 		);
 	}
 

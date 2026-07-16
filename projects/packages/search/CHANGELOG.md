@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.8] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [7.2.7] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183] [#50212]
+
 ## [7.2.6] - 2026-06-29
 ### Changed
 - Internal updates.
@@ -1817,6 +1826,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[7.2.8]: https://github.com/Automattic/jetpack-search/compare/v7.2.7...v7.2.8
+[7.2.7]: https://github.com/Automattic/jetpack-search/compare/v7.2.6...v7.2.7
 [7.2.6]: https://github.com/Automattic/jetpack-search/compare/v7.2.5...v7.2.6
 [7.2.5]: https://github.com/Automattic/jetpack-search/compare/v7.2.4...v7.2.5
 [7.2.4]: https://github.com/Automattic/jetpack-search/compare/v7.2.3...v7.2.4

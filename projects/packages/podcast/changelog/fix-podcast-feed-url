@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: derive the distribution feed URL from WordPress's canonical category-feed API so it stays valid on plain-permalink and no-trailing-slash sites instead of producing a malformed URL.

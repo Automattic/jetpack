@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add TypeScript type declarations for jetpackConfigHas and jetpackConfigGet.

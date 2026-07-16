@@ -1,0 +1,40 @@
+/* No outer padding: the host frames the widget and owns the padding. */
+.root {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+/* Host box for <WidgetState>: fills the widget frame and anchors the busy
+ * overlay. The ready-state layout stays on the inner .root Stack. */
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+}
+
+.yearLabel {
+	color: var(--wpds-color-foreground-content-neutral);
+	font-variant-numeric: tabular-nums;
+}
+
+.navButton {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+/* Dim the arrow to signal the year-range boundary. The button stays focusable
+ * when disabled, so it carries data-disabled / aria-disabled rather than the
+ * native :disabled state; cover all three so the styling holds either way. */
+.navButton:disabled,
+.navButton[data-disabled],
+.navButton[aria-disabled="true"] {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.placeholder {
+	height: 100%;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}

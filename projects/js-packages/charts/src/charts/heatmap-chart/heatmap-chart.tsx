@@ -2,15 +2,7 @@ import { formatNumber, formatNumberCompact } from '@automattic/number-formatters
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -20,7 +12,7 @@ import {
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
-	lightenHexColor,
+	mixHexColors,
 	normalizeColorToHex,
 	prefersLightText,
 } from '../../utils/color-utils';
@@ -30,18 +22,17 @@ import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
-import { getValueExtent, getNormalizedValue, HeatmapLegend, isPresent } from './private';
+import {
+	getValueExtent,
+	getNormalizedValue,
+	HeatmapContext,
+	HeatmapLegend,
+	isPresent,
+} from './private';
+import type { HeatmapContextValue } from './private';
 import type { HeatmapChartProps, HeatmapTooltipData } from './types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { CSSProperties, FC } from 'react';
-
-export type HeatmapContextValue = {
-	extent: [ number, number ];
-	/** The resolved primary color (full intensity); the legend mixes toward it in CSS. */
-	primaryColorHex: string;
-};
-
-export const HeatmapContext = createContext< HeatmapContextValue | null >( null );
 
 // Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
 // the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
@@ -55,6 +46,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	className,
 	compact = false,
 	showValues,
+	maxCellWidth,
+	maxCellHeight,
+	minCellWidth,
+	minCellHeight,
 	rowLabels = [],
 	primaryColor,
 	gap = 'md',
@@ -63,7 +58,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles, resolveThemeColor, theme } = useGlobalChartsContext();
 	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
@@ -84,14 +79,22 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Pick the in-cell text color from the cell's actual blended fill luminance (not the data
-	// value), so light text is only used where it out-contrasts dark text. Falls back to dark
-	// text when the primary isn't a resolvable hex (e.g. a bare CSS token).
+	// Resolve the background in the provider's theme scope so the blended-fill text
+	// color tracks a themed (e.g. dark) background.
+	const chartBackgroundHex = resolveThemeColor( theme.backgroundColor );
+
+	// Choose text color from the blended fill, not the raw value.
+	// If either color cannot resolve to hex, keep dark text.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const cellHasLightText = ( intensity: number ): boolean =>
 		isValidHexColor( primaryHex ) &&
+		isValidHexColor( chartBackgroundHex ) &&
 		prefersLightText(
-			lightenHexColor( primaryHex, 1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity ) )
+			mixHexColors(
+				primaryHex,
+				chartBackgroundHex,
+				1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity )
+			)
 		);
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
@@ -244,11 +247,21 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		);
 	}
 
-	const trackSize = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
+	// Non-compact tracks split the container by default; a max cap makes them
+	// stop growing there instead, so sparse ranges keep sensible cell sizes,
+	// and a min floor makes the grid overflow (for a scrollable wrapper)
+	// rather than crushing cells on long ranges.
+	const columnTrack = compact
+		? 'var(--heatmap-cell-size)'
+		: `minmax(${ minCellWidth ?? 0 }px, ${ maxCellWidth ? `${ maxCellWidth }px` : '1fr' })`;
+	const rowTrack = compact
+		? 'var(--heatmap-cell-size)'
+		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	const gridStyle: Record< string, string | number > = {
 		'--heatmap-primary': primaryColorHex,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ trackSize })`,
-		gridTemplateRows: `auto repeat(${ rows }, ${ trackSize })`,
+		'--heatmap-bg': theme.backgroundColor,
+		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
+		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
 		gridStyle[ '--heatmap-cell-gap' ] = `${ compactCellGap }px`;
@@ -260,6 +273,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			? `${ chartId }-cell-${ Math.floor( selectedIndex / rows ) }-${ selectedIndex % rows }`
 			: undefined;
 
+	// A capped row track makes the chart content-sized vertically: neither the
+	// wrapper nor the grid stretches, or the leftover container height would
+	// land in the auto label row. A width-only cap must keep the normal vertical
+	// flex sizing, so it does not opt into this class.
+	const heightCapped = ! compact && Boolean( maxCellHeight );
+
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
 			<SingleChartContext.Provider value={ { chartId } }>
@@ -269,7 +288,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
-					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
+					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className, {
+						[ styles[ 'heatmap-chart--height-capped' ] ]: heightCapped,
+					} ) }
 					// Explicit dimensions (the unresponsive export) pin the size; otherwise
 					// width/height are unset and the grid fills its container via CSS. The
 					// responsive export drops the measured pixels so reflow stays fluid.
@@ -289,20 +310,22 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
+							[ styles[ 'heatmap-chart__grid--height-capped' ] ]: heightCapped,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Corner gutter + column labels; aria-hidden, since each cell's label carries the text. */ }
-						<span aria-hidden="true" />
-						{ data.map( ( column, columnIndex ) => (
-							<span
-								key={ `col-${ columnIndex }` }
-								aria-hidden="true"
-								className={ styles[ 'heatmap-chart__col-label' ] }
-							>
-								{ column.label }
-							</span>
-						) ) }
+						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
+						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
+							<span />
+							{ data.map( ( column, columnIndex ) => (
+								<span
+									key={ `col-${ columnIndex }` }
+									className={ styles[ 'heatmap-chart__col-label' ] }
+								>
+									{ column.label }
+								</span>
+							) ) }
+						</div>
 
 						{ Array.from( { length: rows } ).map( ( _row, rowIndex ) => {
 							const labelVisible = ! compact || rowIndex % 2 === 0;
@@ -360,7 +383,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											>
 												{ drawValues && present && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
-														{ /* Compact so large values fit the cell; tooltip + aria-label keep full precision. */ }
+														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }
 													</span>
 												) }

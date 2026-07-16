@@ -53,7 +53,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
 		restApi.setApiNonce( APINonce );
-		fetchSearchPlanInfo().then( response => response?.supports_search );
+		return fetchSearchPlanInfo().then( response => response?.supports_search );
 	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
