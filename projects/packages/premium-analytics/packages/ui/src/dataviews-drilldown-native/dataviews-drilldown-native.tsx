@@ -167,6 +167,8 @@ export function DataViewsDrilldownNative< Item >( {
 	// DataViews' appearance panel force-sets `showLevels: false` when you sort
 	// (native levels assume the default order). Our pipeline sorts within each
 	// level, so re-assert `showLevels: true` on every view change.
+	// TODO(upstream): DataViews shouldn't drop levels when the consumer's sort
+	// preserves the hierarchy; worth upstreaming so this workaround can go.
 	const handleChangeView = useCallback(
 		( nextView: View ) => setView( { ...nextView, showLevels: true } ),
 		[]
