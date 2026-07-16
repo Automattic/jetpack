@@ -3714,6 +3714,9 @@ importers:
       '@wordpress/block-serialization-default-parser':
         specifier: 5.51.0
         version: 5.51.0
+      '@wordpress/theme':
+        specifier: 0.17.0
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
