@@ -1,3 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Remove an obsolete Podcast availability filter while retaining the temporary Atomic activation-state migration.
+
+Podcast: Remove the obsolete availability filter while retaining the temporary Atomic activation-state migration.
