@@ -119,21 +119,29 @@ function PostDetail(): JSX.Element {
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						{ /*
-						 * The date filters and the summary card are shared by every tab
+						 * The summary card and date filters are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid. The filters sit
-						 * directly under the tabs, mirroring the main dashboard's
-						 * placement, with the summary header below them.
+						 * tab bar and above the per-tab widget grid — one header row,
+						 * summary left, filters right (wrapping onto their own line
+						 * when the row gets narrow).
 						 *
-						 * The filters wrapper is also the responsive-measurement
-						 * target: DateFiltersPanel reads its width to pick mobile/wide
-						 * layouts instead of relying on the viewport.
+						 * The header row is also the responsive-measurement target:
+						 * DateFiltersPanel reads its width to pick mobile/wide layouts
+						 * instead of relying on the viewport. Measuring the row (not
+						 * the filters' own wrapper) keeps the measurement stable: the
+						 * panel only sits beside the summary when its intrinsic width
+						 * fits, and once wrapped it really has the row's full width.
 						 */ }
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-						<div className={ styles.header }>
-							<PostSummaryCard summary={ summary } performanceRange={ dateFilters.appliedRange } />
+						<div ref={ setContainerElement } className={ styles.header }>
+							<div className={ styles.summary }>
+								<PostSummaryCard
+									summary={ summary }
+									performanceRange={ dateFilters.appliedRange }
+								/>
+							</div>
+							<div className={ styles.dateFilters }>
+								<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+							</div>
 						</div>
 						{ tabs.map( tab => (
 							<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>

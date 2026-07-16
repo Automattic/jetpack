@@ -1,3 +1,10 @@
 .tabList {
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
+
+// The page header row below owns the spacing (its own 40px block padding),
+// so drop SectionTabs' default bottom margin. Doubled class to outrank the
+// shared `.tabList` rule regardless of bundle order.
+.tabList.tabList {
+	margin-block-end: 0;
+}
