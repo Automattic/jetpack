@@ -97,6 +97,7 @@ const StepDisconnect = ( {
 		} )();
 
 		if ( hasOtherConnectedPlugins === 0 && ! disconnectStepComponent ) {
+			return (
 				<div className="jp-connection__disconnect-dialog__step-copy">
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
