@@ -13,9 +13,9 @@ export interface HelpFooterProps {
 	/** Whether to render a trailing period after the message. */
 	trailingPeriod?: boolean;
 	/** Optional click handler for the "Jetpack connection" link. */
-	onLearnClick?: () => void;
+	onLearnClick?: VoidFunction;
 	/** Optional click handler for the "contact Jetpack support" link. */
-	onSupportClick?: () => void;
+	onSupportClick?: VoidFunction;
 }
 
 /**
