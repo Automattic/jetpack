@@ -163,6 +163,19 @@ class CSVExportController_Test extends TestCase {
 		remove_filter( 'user_has_cap', $grant_admin );
 	}
 
+	public function test_registers_date_type_endpoint_argument() {
+		$this->controller->register_routes();
+
+		$routes = rest_get_server()->get_routes();
+		$route  = '/jetpack-premium-analytics/v1/reports/csv-export';
+
+		$this->assertArrayHasKey( $route, $routes );
+		$this->assertSame(
+			array( 'created', 'paid', 'completed' ),
+			$routes[ $route ][0]['args']['date_type']['enum']
+		);
+	}
+
 	public function test_create_export_rejects_unknown_report_type() {
 		$request = new WP_REST_Request();
 		$request->set_param( 'report_type', 'nope' );
