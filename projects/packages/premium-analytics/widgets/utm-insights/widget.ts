@@ -8,6 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
+import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Widget attributes shape.
@@ -44,6 +45,7 @@ export default {
 			id: 'utmDimension',
 			label: __( 'UTM parameter', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Source / Medium', 'jetpack-premium-analytics' ),

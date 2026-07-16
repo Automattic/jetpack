@@ -6,6 +6,11 @@ import { comment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which of the two Comments views is shown: comment authors or commented posts.
  */
 export type CommentsView = 'authors' | 'posts';
@@ -55,6 +60,7 @@ export default {
 			id: 'view',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{ label: __( 'Authors', 'jetpack-premium-analytics' ), value: 'authors' },
 				{ label: __( 'Posts & pages', 'jetpack-premium-analytics' ), value: 'posts' },
