@@ -65,6 +65,7 @@
 	flex: none;
 	color: var(--wpds-color-foreground-content-neutral-weak, currentColor);
 	opacity: 0;
+	transition: opacity 120ms ease-in-out;
 }
 
 .labelRow:hover .externalLink,
@@ -73,19 +74,12 @@
 }
 
 .externalLink:hover,
-.externalLink:focus {
+.externalLink:focus-visible {
 	color: inherit;
 }
 
-/* The widget draws its own external glyph (an svg); hide the Link
-   primitive's auto-appended new-tab arrow span so the icon doesn't double
-   up. */
-.externalLink span[role="img"] {
-	display: none;
-}
-
-/* No hover on touch: keep the icon visible so the affordance isn't lost. */
-@media (hover: none) {
+/* Touch-capable devices: keep the icon visible so the affordance isn't lost. */
+@media (hover: none), (any-pointer: coarse) {
 
 	.externalLink {
 		opacity: 1;
