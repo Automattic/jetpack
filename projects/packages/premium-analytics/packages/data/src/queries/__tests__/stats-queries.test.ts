@@ -1,4 +1,21 @@
 /**
+ * Mock WordPress dependencies so date.ts can load. The select mock returns
+ * site settings with timezone: 'UTC' so getSiteTimezone() returns UTC,
+ * making localTZDate's default (site-timezone) calls deterministic
+ * regardless of the machine running the test (e.g. the WordAds "yesterday"
+ * clamp in stats-wordads-query.ts).
+ */
+jest.mock( '@wordpress/core-data', () => ( {
+	store: 'core',
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	select: jest.fn( () => ( {
+		getEntityRecord: jest.fn( () => ( { timezone: 'UTC' } ) ),
+	} ) ),
+} ) );
+
+/**
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
@@ -623,6 +640,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ date: '2026-06-16' },
 			{},
+			false,
 		] );
 	} );
 
@@ -747,6 +765,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ site: 41 },
 			{},
+			true,
 		] );
 	} );
 
@@ -759,6 +778,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ type: 'transferred' },
 			{},
+			true,
 		] );
 	} );
 
@@ -1132,6 +1152,7 @@ describe( 'Stats query factories', () => {
 				'GET',
 				{ 'include-pages': true },
 				{},
+				false,
 			]
 		);
 	} );
@@ -1145,6 +1166,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{},
 			{},
+			false,
 		] );
 	} );
 
