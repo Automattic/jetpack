@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove ForkTSCheckerPlugin and the fork-ts-checker-webpack-plugin dependency. Use tsgo or tsdown to build TypeScript packages instead.
