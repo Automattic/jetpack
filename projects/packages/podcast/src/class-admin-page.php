@@ -168,7 +168,8 @@ class Admin_Page {
 	 * so the dashboard renders the dropdown without a client-side
 	 * taxonomy→terms round trip.
 	 *
-	 * Mirrors the REST default the picker used to fetch: name-ordered, up to 100.
+	 * Returns every category, name-ordered, matching the `per_page=-1` request
+	 * the picker previously made.
 	 *
 	 * @return array<int, array{id:int, name:string, slug:string}>
 	 */
@@ -179,7 +180,6 @@ class Admin_Page {
 				'hide_empty' => false,
 				'orderby'    => 'name',
 				'order'      => 'ASC',
-				'number'     => 100,
 			)
 		);
 
