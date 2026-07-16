@@ -337,11 +337,36 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{
 				date: '2026-06-07',
+				period: 'day',
 				max: 10,
 			},
 			undefined,
 			'tags',
 		] );
+	} );
+
+	it( 'passes bucketed tags report params through query keys', () => {
+		const query = statsTagsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			max: 0,
+			summarize: 0,
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				'stats/tags',
+				expect.objectContaining( {
+					date: '2026-06-07',
+					start_date: '2026-06-01',
+					days: 7,
+					period: 'day',
+					max: 0,
+					summarize: 0,
+				} ),
+			] )
+		);
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {

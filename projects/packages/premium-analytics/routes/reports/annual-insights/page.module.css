@@ -1,0 +1,9 @@
+.page {
+	max-width: none;
+}
+
+.content {
+	max-width: 1280px;
+	margin-inline: auto;
+	padding-inline: var(--wpds-dimension-padding-lg);
+}

@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 // barrel re-exports `fields.tsx` (JSX + `@wordpress/route` Link), which would
 // pull the UI into the route guard's import chain. `config/tabs.ts` only
 // depends on the routing helper and i18n, so it's safe to import here.
+import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import type { ComponentType } from 'react';
 
@@ -69,10 +70,28 @@ export type ReportDefinition = {
  * needed (see this folder's README).
  */
 export const REPORTS: Record< string, ReportDefinition > = {
+	'annual-insights': {
+		id: 'annual-insights',
+		getTitle: () => __( 'Annual insights', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics' ),
+		load: () => import( './annual-insights/page' ),
+	},
 	'comment-followers': {
 		id: 'comment-followers',
 		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics' ),
 		load: () => import( './comment-followers/page' ),
+	},
+	comments: {
+		id: 'comments',
+		getTitle: () => __( 'Comments', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__(
+				'Learn about the comments your site receives by authors, posts, and pages.',
+				'jetpack-premium-analytics'
+			),
+		resolveSection: resolveCommentsTabId,
+		load: () => import( './comments/page' ),
 	},
 	posts: {
 		id: 'posts',
@@ -80,6 +99,16 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getDescription: () => __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ),
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
+	},
+	tags: {
+		id: 'tags',
+		getTitle: () => __( 'Tags & categories', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__(
+				'Most visited tags and categories for the selected period.',
+				'jetpack-premium-analytics'
+			),
+		load: () => import( './tags/page' ),
 	},
 	videos: {
 		id: 'videos',

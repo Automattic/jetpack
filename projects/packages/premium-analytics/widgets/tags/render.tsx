@@ -3,7 +3,9 @@
  */
 import {
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	useWidgetDrillDown,
@@ -215,6 +217,9 @@ export default function Tags( { attributes = {} }: TagsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<TagsInner max={ attributes.max } />
+			<WidgetFooter>
+				<ReportLink report="tags" />
+			</WidgetFooter>
 		</WidgetRoot>
 	);
 }

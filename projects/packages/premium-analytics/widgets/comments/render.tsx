@@ -4,6 +4,8 @@
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	type LeaderboardChartData,
@@ -165,6 +167,9 @@ export default function Comments( { attributes = {} }: CommentsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<CommentsInner max={ attributes.max } view={ view } />
+			<WidgetFooter>
+				<ReportLink report="comments" section={ view } />
+			</WidgetFooter>
 		</WidgetRoot>
 	);
 }
