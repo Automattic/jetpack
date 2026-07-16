@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
+Comment: Replace legacy --color-error tokens with WPDS design tokens in PayPal block editor styles, and emit DS token fallbacks via PostCSS.
 
-Comment: Replace legacy --color-error tokens with WPDS design tokens in PayPal block editor styles.
