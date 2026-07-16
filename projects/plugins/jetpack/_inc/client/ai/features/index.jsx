@@ -251,7 +251,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 									{ section.title }
 								</Text>
 								{ section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
-									<Badge intent="none">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
+									<Badge intent="informational">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
 								) }
 							</div>
 							{ section.features.map( feature => (
