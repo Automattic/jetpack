@@ -161,6 +161,11 @@ const CategoryPicker = ( {
 			? [ selectedCategory, ...categories ]
 			: categories;
 
+	// Only grey the control out for loading when there's nothing to show yet.
+	// With a seeded selection we render it enabled so it doesn't look like a
+	// disabled placeholder until the lazy list resolves.
+	const loadingWithNothingToShow = isLoading && seededCategories.length === 0;
+
 	const options: Array< { label: string; value: string } > = [
 		{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
 		...seededCategories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
@@ -182,7 +187,7 @@ const CategoryPicker = ( {
 				value={ isCreating ? CREATE_NEW : String( selectedId || '' ) }
 				onChange={ handleSelectChange }
 				options={ options }
-				disabled={ disabled || isLoading || saving }
+				disabled={ disabled || loadingWithNothingToShow || saving }
 			/>
 			{ isCreating && (
 				<VStack spacing={ 2 }>
