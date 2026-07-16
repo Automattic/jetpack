@@ -30,7 +30,7 @@ body.jetpack_page_jetpack-newsletter {
 .newsletter-settings-connect-notice {
 	max-width: 660px;
 	margin-inline: auto;
-	margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+	margin-block-end: var(--wpds-dimension-gap-lg);
 
 	.components-notice {
 		margin: 0;
@@ -56,10 +56,10 @@ body.jetpack_page_jetpack-newsletter {
 .newsletter-settings {
 	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
 	margin-inline: auto;
-	padding-block-end: var(--wpds-dimension-padding-3xl, 32px);
+	padding-block-end: var(--wpds-dimension-padding-3xl);
 
 	.components-notice {
-		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+		margin-block-end: var(--wpds-dimension-gap-lg);
 	}
 
 	.newsletter-card-footer {
@@ -67,7 +67,7 @@ body.jetpack_page_jetpack-newsletter {
 		flex-wrap: wrap;
 		gap: 8px;
 		justify-content: flex-end;
-		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
+		margin-block-start: var(--wpds-dimension-gap-lg);
 
 		// Two-element footer (NewsletterSection's privacy + manage links)
 		// brackets each child to opposite ends instead of stacking right.

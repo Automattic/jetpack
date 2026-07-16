@@ -3476,7 +3476,7 @@ importers:
         version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
-        version: 2.5.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.5.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.51.0
         version: 7.51.0
@@ -3485,7 +3485,7 @@ importers:
         version: 11.0.0
       '@wordpress/components':
         specifier: 37.0.0
-        version: 37.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 37.0.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose':
         specifier: 8.4.0
         version: 8.4.0(@types/react@18.3.28)(react@18.3.1)
@@ -3494,7 +3494,7 @@ importers:
         version: 10.51.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 17.1.0
-        version: 17.1.0(@types/react@18.3.28)(react@18.3.1)
+        version: 17.1.0(@types/react@18.3.28)(postcss@8.5.14)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.51.0
         version: 5.51.0
@@ -3515,7 +3515,7 @@ importers:
         version: 15.1.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/notices':
         specifier: 5.51.0
-        version: 5.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/primitives':
         specifier: 4.51.0
         version: 4.51.0(@types/react@18.3.28)(react@18.3.1)
@@ -3524,10 +3524,10 @@ importers:
         version: 0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme':
         specifier: 0.17.0
-        version: 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.17.0
-        version: 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.51.0
         version: 4.51.0
@@ -3570,7 +3570,10 @@ importers:
         version: 6.51.0
       '@wordpress/build':
         specifier: 0.18.0
-        version: 0.18.0(@babel/core@7.29.7)(@wordpress/route@0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
+        version: 0.18.0(@babel/core@7.29.7)(@wordpress/route@0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.4
@@ -3580,6 +3583,12 @@ importers:
       jest:
         specifier: 30.4.2
         version: 30.4.2
+      postcss:
+        specifier: 8.5.14
+        version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(webpack@5.107.2)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -3588,7 +3597,7 @@ importers:
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.107.2)
       webpack:
         specifier: 5.107.2
-        version: 5.107.2(webpack-cli@6.0.1)
+        version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.107.2)
@@ -23497,12 +23506,12 @@ snapshots:
 
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
-      webpack: 5.107.2(webpack-cli@6.0.1)
+      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
-      webpack: 5.107.2(webpack-cli@6.0.1)
+      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.5)(webpack@5.107.2)':
@@ -23514,7 +23523,7 @@ snapshots:
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
-      webpack: 5.107.2(webpack-cli@6.0.1)
+      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
   '@wordpress/a11y@4.51.0':
@@ -38024,7 +38033,7 @@ snapshots:
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.107.2(webpack-cli@6.0.1)
+      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
 
   webpack-dev-middleware@7.4.5(webpack@5.107.2):
