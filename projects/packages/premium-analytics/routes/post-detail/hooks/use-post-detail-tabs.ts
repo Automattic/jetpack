@@ -33,7 +33,8 @@ const EMAIL_TAB_IDS: readonly PostDetailTabId[] = [ 'email-opens', 'email-clicks
  *
  * If the URL points at a hidden tab, the first visible tab renders
  * immediately and replaces the hidden value in the URL without adding a
- * browser-history entry.
+ * browser-history entry — but only once the email gate has settled, so a
+ * deep link to an email tab survives the summary's first load.
  *
  * @param postId - The scoped post ID (0/NaN disables the email-tab check).
  * @return Visible tabs, the active tab and layout, and the active-tab setter.
@@ -42,6 +43,9 @@ export function usePostDetailTabs( postId: number ) {
 	const opens = useStatsEmailOpensBreakdown( postId, 'rate', { enabled: postId > 0 } );
 	const summary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
 	const hasEmailStats = Number( summary?.total_sends ?? 0 ) > 0;
+	// `isLoading` is false while the query is disabled (no post scope) and once
+	// it settles (data or error), so this only holds off during the first load.
+	const gateSettled = ! opens.isLoading;
 
 	const tabs = useMemo( () => {
 		const allTabs = getPostDetailTabs();
@@ -58,11 +62,16 @@ export function usePostDetailTabs( postId: number ) {
 	const [ storedTab, setActiveTab ] = useActiveTab();
 	const activeTab = tabs.find( tab => tab.id === storedTab )?.id ?? tabs[ 0 ]?.id ?? DEFAULT_TAB_ID;
 
+	// Normalize a hidden-tab URL only once the email gate has settled: while
+	// the send summary is loading the email tabs are hidden provisionally, and
+	// rewriting the URL then would bounce a legitimate email-tab deep link
+	// before we know whether email stats exist. The visible fallback still
+	// renders immediately; only the URL write waits.
 	useEffect( () => {
-		if ( storedTab !== activeTab ) {
+		if ( gateSettled && storedTab !== activeTab ) {
 			setActiveTab( activeTab, { replace: true } );
 		}
-	}, [ storedTab, activeTab, setActiveTab ] );
+	}, [ gateSettled, storedTab, activeTab, setActiveTab ] );
 
 	return {
 		tabs,

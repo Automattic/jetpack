@@ -41,12 +41,14 @@ const POST_ID = 91;
 /**
  * Mock the opens rate summary that gates the email tabs.
  *
- * @param totalSends - The summary's `total_sends`; `undefined` mocks a
- *                   still-loading (or errored) query with no data.
+ * @param totalSends - The summary's `total_sends`; `undefined` mocks a query
+ *                   with no data (loading or errored, per `isLoading`).
+ * @param isLoading  - Whether the query is still on its first load.
  */
-function mockEmailSends( totalSends?: number ) {
+function mockEmailSends( totalSends?: number, isLoading = false ) {
 	mockUseOpensBreakdown.mockReturnValue( {
 		data: totalSends === undefined ? undefined : { summary: { total_sends: totalSends } },
+		isLoading,
 	} as unknown as ReturnType< typeof useStatsEmailOpensBreakdown > );
 }
 
@@ -139,12 +141,25 @@ describe( 'usePostDetailTabs', () => {
 	} );
 
 	it( 'keeps the email tabs hidden while the send summary is still loading', () => {
-		mockEmailSends( undefined );
+		mockEmailSends( undefined, true );
 		mockSearch( 'post-traffic' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
 		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
+	} );
+
+	it( 'does not rewrite an email deep link while the send summary is loading', () => {
+		mockEmailSends( undefined, true );
+		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		// The visible fallback renders, but the URL keeps the deep link until
+		// the gate settles.
+		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
 	} );
 
 	it( 'disables the send query without a valid post scope', () => {
