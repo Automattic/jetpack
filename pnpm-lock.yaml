@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-2Y8zUXTdH6TD/Y54UZRuxxbDCw42iQT/N54LKNxkP1I=
+pnpmfileChecksum: sha256-H/8Y6udhCH/0sCgVTPXKYGbGEy+ej7f13a04mLJgSRc=
 
 patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
@@ -1871,7 +1871,7 @@ importers:
         version: 1.0.2(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.90.8
-        version: 5.90.8(react@18.3.1)
+        version: 5.101.2(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.51.0
         version: 7.51.0
@@ -2957,7 +2957,7 @@ importers:
         version: 10.22.0
       '@tanstack/react-query':
         specifier: ^5.15.5
-        version: 5.90.8(react@18.3.1)
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -10055,9 +10055,6 @@ packages:
   '@tanstack/query-core@5.101.2':
     resolution: {integrity: sha512-hH5MLoJhF7KaIGd7q3xTXGXvslI+GYlM1Z/35aSHHWaCJWB7XvTSHYuV3eM7tw+aE0mT/xMro4M4Q9rCGHT0lw==}
 
-  '@tanstack/query-core@5.90.8':
-    resolution: {integrity: sha512-4E0RP/0GJCxSNiRF2kAqE/LQkTJVlL/QNU7gIJSptaseV9HP6kOuA+N11y4bZKZxa3QopK3ZuewwutHx6DqDXQ==}
-
   '@tanstack/query-devtools@5.101.2':
     resolution: {integrity: sha512-o+wHcqgN7Pp0s8v1i0UGq/ZrrEKrxdIiMQmKRdYb2w7NPtylYSJ4+wg/tIn71m9DLstwUwdEGAvROdly6HXP6w==}
 
@@ -10069,11 +10066,6 @@ packages:
 
   '@tanstack/react-query@5.101.2':
     resolution: {integrity: sha512-seDkr6kzGzX1okaaTtZPtgA688CDPlXUz1C6xSg0ESqn04Vuc8tlrYms1s3de+znBqhPVxFRfpAfUf+6XvfPWg==}
-    peerDependencies:
-      react: ^18 || ^19
-
-  '@tanstack/react-query@5.90.8':
-    resolution: {integrity: sha512-/3b9QGzkf4rE5/miL6tyhldQRlLXzMHcySOm/2Tm2OLEFE9P1ImkH0+OviDBSvyAvtAOJocar5xhd7vxdLi3aQ==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -11713,12 +11705,12 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@types/react': ^18.3.27
-      esbuild: '>=>=0.27.2'
-      postcss: '>=>=8.0.0'
+      esbuild: '>=0.27.2'
+      postcss: '>=8.0.0'
       react: ^18.0.0
       react-dom: ^18.0.0
-      stylelint: '>=>=16.8.2'
-      vite: '>=>=7.3.2'
+      stylelint: '>=16.8.2'
+      vite: '>=7.3.2'
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -22371,8 +22363,6 @@ snapshots:
 
   '@tanstack/query-core@5.101.2': {}
 
-  '@tanstack/query-core@5.90.8': {}
-
   '@tanstack/query-devtools@5.101.2': {}
 
   '@tanstack/react-query-devtools@5.101.2(@tanstack/react-query@5.101.2(react@18.3.1))(react@18.3.1)':
@@ -22384,11 +22374,6 @@ snapshots:
   '@tanstack/react-query@5.101.2(react@18.3.1)':
     dependencies:
       '@tanstack/query-core': 5.101.2
-      react: 18.3.1
-
-  '@tanstack/react-query@5.90.8(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-core': 5.90.8
       react: 18.3.1
 
   '@tanstack/react-router@1.167.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
