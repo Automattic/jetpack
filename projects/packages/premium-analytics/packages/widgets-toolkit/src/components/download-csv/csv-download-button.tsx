@@ -9,7 +9,7 @@ import { useState, type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './download-csv-button.module.scss';
+import styles from './csv-download-button.module.scss';
 
 export type CsvDownloadButtonProps = {
 	/**

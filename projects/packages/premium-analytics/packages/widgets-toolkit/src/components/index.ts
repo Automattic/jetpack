@@ -68,4 +68,4 @@ export {
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,
 	type RowsCsvDownloadButtonProps,
-} from './download-csv-button';
+} from './download-csv';
