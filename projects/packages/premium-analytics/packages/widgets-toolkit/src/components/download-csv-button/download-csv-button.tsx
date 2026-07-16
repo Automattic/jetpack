@@ -175,10 +175,11 @@ export function DownloadCsvButton<
 
 	return (
 		<Button
-			variant="unstyled"
+			variant="minimal"
+			tone="neutral"
+			size="compact"
 			onClick={ onClick }
-			disabled={ isBusy }
-			aria-busy={ isBusy }
+			loading={ isBusy }
 			className={ clsx( styles.downloadCsv, className ) }
 		>
 			<Icon icon={ download } size={ 20 } className={ styles.icon } />
