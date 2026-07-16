@@ -132,6 +132,43 @@ describe( 'PostsReportPage', () => {
 		);
 	} );
 
+	it( 'orders exported rows by views descending', () => {
+		const records = buildRecords();
+		records.posts.rows.unshift( {
+			id: 43,
+			label: 'Lower traffic',
+			views: 4,
+			link: 'https://example.com/lower-traffic',
+		} );
+		records.posts.rows.push( {
+			id: 44,
+			label: 'Most traffic',
+			views: 20,
+			link: 'https://example.com/most-traffic',
+		} );
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ].rows ).toEqual( [
+			{
+				title: 'Most traffic',
+				views: 20,
+				url: 'https://example.com/most-traffic',
+			},
+			{
+				title: 'Hello world',
+				views: 12,
+				url: 'https://example.com/hello-world',
+			},
+			{
+				title: 'Lower traffic',
+				views: 4,
+				url: 'https://example.com/lower-traffic',
+			},
+		] );
+	} );
+
 	it( 'hides the export while the active report is fetching', () => {
 		useRecordsMock.mockReturnValue( buildRecords( true ) );
 

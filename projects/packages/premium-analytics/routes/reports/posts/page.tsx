@@ -168,8 +168,8 @@ function PostsReport(): JSX.Element {
 		],
 		[]
 	);
-	const csvRows = useMemo< ReportCsvRow[] >(
-		() =>
+	const csvRows = useMemo< ReportCsvRow[] >( () => {
+		const rows =
 			activeTab === 'posts-pages'
 				? records.posts.rows.map( item => ( {
 						title: String( item.label ?? '' ),
@@ -180,9 +180,10 @@ function PostsReport(): JSX.Element {
 						title: item.label,
 						views: item.views,
 						url: item.link ?? '',
-				  } ) ),
-		[ activeTab, records.posts.rows, records.archives.rows ]
-	);
+				  } ) );
+
+		return rows.sort( ( a, b ) => b.views - a.views );
+	}, [ activeTab, records.posts.rows, records.archives.rows ] );
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
 	const canExport =
 		isCsvExportEnabled() &&
