@@ -1,9 +1,10 @@
-import { Icon, Notice, Path, SVG, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
+import { Notice } from '@wordpress/ui';
 import { getReconnectErrorMessage } from '../../helpers/get-reconnect-error-message';
 import styles from './styles.module.scss';
 import type { ConnectionErrorNoticeProps } from './types';
+import type { ReactNode } from 'react';
 
 const ConnectionErrorNotice = ( {
 	message,
@@ -13,139 +14,67 @@ const ConnectionErrorNotice = ( {
 	restoreConnectionError,
 	actions = [],
 }: ConnectionErrorNoticeProps ) => {
-	const wrapperClassName = styles.notice;
-
-	const icon = (
-		<Icon
-			icon={
-				<SVG
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<Path
-						d="M11.7815 4.93772C11.8767 4.76626 12.1233 4.76626 12.2185 4.93772L20.519 19.8786C20.6116 20.0452 20.4911 20.25 20.3005 20.25H3.69951C3.50889 20.25 3.3884 20.0452 3.48098 19.8786L11.7815 4.93772Z"
-						stroke="#D63638"
-						strokeWidth="1.5"
-					/>
-					<Path d="M13 10H11V15H13V10Z" fill="#D63638" />
-					<Path d="M13 16H11V18H13V16Z" fill="#D63638" />
-				</SVG>
-			}
-		/>
-	);
-
 	if ( ! message ) {
 		return null;
 	}
 
 	if ( isRestoringConnection ) {
+		// During reconnect, hide the intent icon so only the spinner is shown. The
+		// stable `key` makes React remount the `@wordpress/ui` Notice when switching
+		// states, preventing a hook order issue from component reuse.
 		return (
-			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
-				<div className={ styles.message }>
+			<Notice.Root key="reconnecting" intent="error" icon={ null }>
+				<Notice.Description className={ styles.message }>
 					<Spinner />
 					{ __( 'Reconnecting Jetpack', 'jetpack-connection-js' ) }
-				</div>
-			</Notice>
+				</Notice.Description>
+			</Notice.Root>
 		);
 	}
 
 	const errorRender = restoreConnectionError ? (
-		<Notice
-			status={ 'error' }
-			isDismissible={ false }
-			className={ wrapperClassName + ' ' + styles.error }
-		>
-			<div className={ styles.message }>
-				{ icon }
+		<Notice.Root key="restore-error" intent="error" className={ styles.error }>
+			<Notice.Description>
 				{ getReconnectErrorMessage( restoreConnectionError ) }
-			</div>
-		</Notice>
+			</Notice.Description>
+		</Notice.Root>
 	) : null;
 
-	// Determine which actions to show
-	let actionButtons = [];
+	// Determine which actions to show.
+	let actionButtons: ReactNode[] = [];
 
 	if ( actions.length > 0 ) {
-		// Use custom actions
-		actionButtons = actions.map( ( action, index ) => {
-			let buttonClassName = styles.button;
-			if ( action.variant === 'primary' ) {
-				buttonClassName += ' ' + styles.primary;
-			} else if ( action.variant === 'secondary' ) {
-				buttonClassName += ' ' + styles.secondary;
-			}
-
-			return (
-				<button
-					key={ index }
-					type="button"
-					onClick={ action.onClick }
-					onKeyDown={ action.onClick }
-					className={ buttonClassName }
-					disabled={ action.isLoading }
-				>
-					{ action.isLoading
-						? action.loadingText || __( 'Loading…', 'jetpack-connection-js' )
-						: action.label }
-				</button>
-			);
-		} );
-	} else if ( restoreConnectionCallback ) {
-		// Use default restore connection action for backward compatibility
-		actionButtons = [
-			<button
-				key="restore"
-				type="button"
-				onClick={ restoreConnectionCallback }
-				onKeyDown={ restoreConnectionCallback }
-				className={ styles.button }
+		// Use custom actions.
+		actionButtons = actions.map( ( action, index ) => (
+			<Notice.ActionButton
+				key={ index }
+				variant={ action.variant === 'primary' ? 'solid' : 'outline' }
+				onClick={ action.onClick }
+				loading={ action.isLoading }
+				loadingAnnouncement={ action.loadingText || __( 'Loading…', 'jetpack-connection-js' ) }
 			>
+				{ action.label }
+			</Notice.ActionButton>
+		) );
+	} else if ( restoreConnectionCallback ) {
+		// Use default restore connection action for backward compatibility.
+		actionButtons = [
+			<Notice.ActionButton key="restore" variant="solid" onClick={ restoreConnectionCallback }>
 				{ __( 'Restore Connection', 'jetpack-connection-js' ) }
-			</button>,
+			</Notice.ActionButton>,
 		];
 	}
 
 	return (
 		<>
 			{ errorRender }
-			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
-				<div className={ styles.message }>
-					{ icon }
-					<div className={ styles.body }>
-						{ context && <span className={ styles.context }>{ context }</span> }
-						{ message }
-					</div>
-				</div>
-				{ actionButtons.length > 0 && <div className={ styles.actions }>{ actionButtons }</div> }
-			</Notice>
+			<Notice.Root key="error" intent="error">
+				{ context && <Notice.Title>{ context }</Notice.Title> }
+				<Notice.Description>{ message }</Notice.Description>
+				{ actionButtons.length > 0 && <Notice.Actions>{ actionButtons }</Notice.Actions> }
+			</Notice.Root>
 		</>
 	);
-};
-
-ConnectionErrorNotice.propTypes = {
-	/** The notice message. */
-	message: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
-	/** Optional feature-supplied context line rendered above the message. */
-	context: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
-	/** "Restore Connection" button callback. */
-	restoreConnectionCallback: PropTypes.func,
-	/** Whether connection restore is in progress. */
-	isRestoringConnection: PropTypes.bool,
-	/** The connection error text if there is one. */
-	restoreConnectionError: PropTypes.string,
-	/** Array of custom action objects. */
-	actions: PropTypes.arrayOf(
-		PropTypes.shape( {
-			label: PropTypes.string.isRequired,
-			onClick: PropTypes.func.isRequired,
-			isLoading: PropTypes.bool,
-			loadingText: PropTypes.string,
-			variant: PropTypes.oneOf( [ 'primary', 'secondary' ] ),
-		} )
-	),
 };
 
 export default ConnectionErrorNotice;

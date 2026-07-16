@@ -1,20 +1,31 @@
 import { DecorativeCard } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
+import { Button } from '@wordpress/ui';
 import disconnectImage from '../images/disconnect-confirm.jpg';
+import type { MouseEvent } from 'react';
+
+interface StepDisconnectConfirmProps {
+	/** Callback used to close the modal. */
+	onExit: ( e?: MouseEvent< HTMLElement > ) => void;
+	/** Callback used to change the state if user would like to provide feedback. */
+	onProvideFeedback: ( e?: MouseEvent< HTMLElement > ) => void;
+	/** Does the app have the necessary information to collect a survey response? */
+	canProvideFeedback?: boolean;
+}
 
 /**
  * Shows the step that confirms the site has been disconnected, asks if user would like to provide feedback.
  * Will only show option to provide feedback if the canProvideFeedback prop is true.
  *
- * @param {object} props - The properties.
+ * @param {StepDisconnectConfirmProps} props - The properties.
  * @return {import('react').ReactNode} - StepDisconnectConfirm Component
  */
-const StepDisconnectConfirm = props => {
-	const { onExit, canProvideFeedback, onProvideFeedback } = props;
-
+const StepDisconnectConfirm = ( {
+	onExit,
+	canProvideFeedback,
+	onProvideFeedback,
+}: StepDisconnectConfirmProps ) => {
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
 			<DecorativeCard icon="unlink" imageUrl={ disconnectImage } />
@@ -39,7 +50,6 @@ const StepDisconnectConfirm = props => {
 						</p>
 						<p>
 							<Button
-								variant="primary"
 								onClick={ onProvideFeedback }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
@@ -60,7 +70,6 @@ const StepDisconnectConfirm = props => {
 					<>
 						<p>
 							<Button
-								variant="primary"
 								onClick={ onExit }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
@@ -72,15 +81,6 @@ const StepDisconnectConfirm = props => {
 			</div>
 		</div>
 	);
-};
-
-StepDisconnectConfirm.propTypes = {
-	/** Callback used to close the modal. */
-	onExit: PropTypes.func,
-	/** Callback used to change the state if user would like to provide feedback. */
-	onProvideFeedback: PropTypes.func,
-	/** Does the app have the necessary information to collect a survey response? */
-	canProvideFeedback: PropTypes.bool,
 };
 
 export default StepDisconnectConfirm;
