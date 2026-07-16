@@ -3,6 +3,16 @@
 }
 
 .content {
-	padding-block: var(--wpds-dimension-padding-xl);
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+	// Reserve paint space for the widget host's outer focus outline.
+	padding-block-start: var(--wpds-dimension-padding-xl);
+	padding-block-end: 24px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.dateFilters {
+	// Sits below the title and above the widgets.
+	padding-block: var(--wpds-dimension-gap-lg);
 }
