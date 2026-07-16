@@ -64,8 +64,10 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
-	DownloadCsvButton,
-	type DownloadCsvButtonProps,
+	ReportCsvDownloadButton,
+	type ReportCsvDownloadButtonProps,
+	RowsCsvDownloadButton,
+	type RowsCsvDownloadButtonProps,
 } from './components';
 
 /**

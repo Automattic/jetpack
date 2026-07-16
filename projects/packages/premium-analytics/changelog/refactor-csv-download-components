@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Split CSV download presentation, export behavior, feature gating, and parameter mapping into focused internal components without changing user-facing behavior.
