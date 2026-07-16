@@ -313,6 +313,20 @@ class Settings {
 			return;
 		}
 
+		// The legacy bundle imports `@wordpress/ui`, which reaches
+		// `@wordpress/theme` and so lists `wp-theme` in its generated asset file.
+		// Core does not register that handle, and `load_wp_build()` — the only
+		// other caller — runs on the modernized path alone. Without this,
+		// WordPress silently drops the script over the unregistered dependency
+		// and the page renders blank. Request only the handles this bundle needs,
+		// to keep the polyfill's `wp-private-apis` force-replacement off the rest.
+		if ( class_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::class ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+				'jetpack-newsletter',
+				array( 'wp-theme', 'wp-private-apis' )
+			);
+		}
+
 		Assets::register_script(
 			'jetpack-newsletter',
 			'../build/newsletter.js',

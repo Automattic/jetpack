@@ -291,6 +291,33 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The legacy bundle depends on the `wp-theme` script handle — it imports
+	 * `@wordpress/ui`, which reaches `@wordpress/theme`, and WP Core does not
+	 * register that handle. Only `WP_Build_Polyfills` does, and its full
+	 * registration runs on the modernized path alone. Without an explicit request
+	 * here, `wp_enqueue_script` silently drops `jetpack-newsletter` over the
+	 * unregistered dependency and the page renders blank.
+	 */
+	public function test_load_admin_scripts_requests_wp_theme_polyfill_on_legacy_surface() {
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+
+		( new Settings() )->load_admin_scripts();
+
+		$consumers = \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::get_consumers();
+
+		$this->assertArrayHasKey(
+			'wp-theme',
+			$consumers,
+			'The legacy surface must request the wp-theme polyfill; the legacy bundle depends on that handle and Core never registers it.'
+		);
+		$this->assertContains(
+			'jetpack-newsletter',
+			$consumers['wp-theme'],
+			'The legacy newsletter bundle must be recorded as a wp-theme polyfill consumer.'
+		);
+	}
+
+	/**
 	 * `maybe_load_wp_build` is hooked at admin_menu priority 1 on every request,
 	 * but it must short-circuit unless the visitor is on `?page=jetpack-newsletter`.
 	 * It registers a `current_screen` listener as the easy-to-observe side effect.
