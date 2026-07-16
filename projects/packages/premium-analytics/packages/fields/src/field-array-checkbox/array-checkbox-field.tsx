@@ -114,7 +114,7 @@ export default function ArrayCheckboxField< Item extends Record< string, string[
 				<Icon className={ styles.triggerCaret } icon={ chevronDown } size={ 18 } />
 			</Menu.TriggerButton>
 
-			<Menu.Popover className={ styles.popover }>
+			<Menu.Popover>
 				<Menu.Group>
 					{ elements.map( element => {
 						const value = String( element.value );
