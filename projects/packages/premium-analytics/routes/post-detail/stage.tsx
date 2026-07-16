@@ -4,7 +4,7 @@ import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -14,6 +14,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard } from './components';
+import { EMAIL_BREAKDOWN_TYPE, EMAIL_BREAKDOWN_TYPE_VARIANTS } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
@@ -39,7 +40,7 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs();
+	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const summary = usePostSummary( postId );
@@ -64,6 +65,27 @@ function PostDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
 
+	// The fixed email compositions reuse `jpa/email-breakdown` under page-local
+	// aliases so each card carries its design title — the host titles a card by
+	// its widget *type*. Each alias clones the resolved type (render module and
+	// all) under a variant name and title; see `config/email-widget-variants`.
+	const pageWidgetTypes = useMemo( () => {
+		const base = widgetTypes.find( widgetType => widgetType.name === EMAIL_BREAKDOWN_TYPE );
+
+		if ( ! base ) {
+			return widgetTypes;
+		}
+
+		return [
+			...widgetTypes,
+			...EMAIL_BREAKDOWN_TYPE_VARIANTS.map( variant => ( {
+				...base,
+				name: variant.name,
+				title: variant.getTitle(),
+			} ) ),
+		];
+	}, [ widgetTypes ] );
+
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
@@ -78,7 +100,7 @@ function PostDetail(): JSX.Element {
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
-				widgetTypes={ widgetTypes }
+				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }
@@ -97,29 +119,21 @@ function PostDetail(): JSX.Element {
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						{ /*
-						 * The summary card and date filters are shared by every tab
+						 * The date filters and the summary card are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid — one header row,
-						 * summary left, filters right (wrapping onto their own line
-						 * when the row gets narrow).
+						 * tab bar and above the per-tab widget grid. The filters sit
+						 * directly under the tabs, mirroring the main dashboard's
+						 * placement, with the summary header below them.
 						 *
-						 * The header row is also the responsive-measurement target:
-						 * DateFiltersPanel reads its width to pick mobile/wide layouts
-						 * instead of relying on the viewport. Measuring the row (not
-						 * the filters' own wrapper) keeps the measurement stable: the
-						 * panel only sits beside the summary when its intrinsic width
-						 * fits, and once wrapped it really has the row's full width.
+						 * The filters wrapper is also the responsive-measurement
+						 * target: DateFiltersPanel reads its width to pick mobile/wide
+						 * layouts instead of relying on the viewport.
 						 */ }
-						<div ref={ setContainerElement } className={ styles.header }>
-							<div className={ styles.summary }>
-								<PostSummaryCard
-									summary={ summary }
-									performanceRange={ dateFilters.appliedRange }
-								/>
-							</div>
-							<div className={ styles.dateFilters }>
-								<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-							</div>
+						<div ref={ setContainerElement } className={ styles.dateFilters }>
+							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+						</div>
+						<div className={ styles.header }>
+							<PostSummaryCard summary={ summary } performanceRange={ dateFilters.appliedRange } />
 						</div>
 						{ tabs.map( tab => (
 							<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>

@@ -408,7 +408,7 @@ class SchemaBuilderTest extends TestCase {
 	public function test_emits_graph_with_faqpage_for_faq_override() {
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
-		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
+		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
 		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';
@@ -750,7 +750,7 @@ class SchemaBuilderTest extends TestCase {
 		$this->set_site_name( 'Acme Co' );
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
-		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
+		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
 		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';

@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import ConnectionErrorNotice from '../index';
+import type { ActionItem } from '../types';
 
 describe( 'ConnectionErrorNotice', () => {
 	it( 'should not render when message is empty', () => {
@@ -29,7 +30,7 @@ describe( 'ConnectionErrorNotice', () => {
 	} );
 
 	it( 'should render custom actions when provided', () => {
-		const actions = [
+		const actions: ActionItem[] = [
 			{
 				label: 'Custom Action',
 				onClick: jest.fn(),
@@ -69,7 +70,7 @@ describe( 'ConnectionErrorNotice', () => {
 	} );
 
 	it( 'should render multiple custom actions', () => {
-		const actions = [
+		const actions: ActionItem[] = [
 			{
 				label: 'First Action',
 				onClick: jest.fn(),
@@ -104,7 +105,7 @@ describe( 'ConnectionErrorNotice', () => {
 	} );
 
 	it( 'should render primary and secondary buttons', () => {
-		const actions = [
+		const actions: ActionItem[] = [
 			{
 				label: 'Primary Action',
 				onClick: jest.fn(),

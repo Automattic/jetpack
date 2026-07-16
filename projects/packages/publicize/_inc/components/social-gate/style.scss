@@ -20,18 +20,18 @@
 
 	&__subtitle {
 		margin: 0 0 24px;
-		color: var(--wpds-color-foreground-content-neutral, #50575e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&__error {
-		color: var(--wpds-color-foreground-content-error, #d63638);
+		color: var(--wpds-color-foreground-content-error);
 		margin-bottom: 16px;
 	}
 
 	&__tos {
 		margin-top: 16px;
 		font-size: 12px;
-		color: var(--wpds-color-foreground-content-neutral, #50575e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&__price {
@@ -40,13 +40,13 @@
 
 	&__price-was {
 		text-decoration: line-through;
-		color: var(--wpds-color-foreground-content-neutral, #50575e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&__price-legend {
 		display: block;
 		font-size: 12px;
-		color: var(--wpds-color-foreground-content-neutral, #50575e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&__features {

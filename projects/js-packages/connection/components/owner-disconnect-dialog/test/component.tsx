@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the modules
 // with unstable_mockModule (must run before the dynamic import of the component below).
-const mockUnlinkUser = jest.fn();
+const mockUnlinkUser = jest.fn< () => Promise< unknown > >();
 const mockSetApiRoot = jest.fn();
 const mockSetApiNonce = jest.fn();
 const mockRecordEvent = jest.fn();
@@ -71,10 +71,10 @@ describe( 'OwnerDisconnectDialog', () => {
 			).toBeInTheDocument();
 		} );
 
-		it( 'calls onClose when "Stay Connected" is clicked', async () => {
+		it( 'calls onClose when "Stay connected" is clicked', async () => {
 			const user = userEvent.setup();
 			render( <OwnerDisconnectDialog { ...testProps } /> );
-			await user.click( screen.getByRole( 'button', { name: 'Stay Connected' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stay connected' } ) );
 			expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );

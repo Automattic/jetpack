@@ -93,6 +93,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		resolveSection: resolveCommentsTabId,
 		load: () => import( './comments/page' ),
 	},
+	downloads: {
+		id: 'downloads',
+		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics' ),
+		load: () => import( './downloads/page' ),
+	},
 	posts: {
 		id: 'posts',
 		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ),

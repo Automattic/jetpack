@@ -5,6 +5,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import {
 	registerReportMocks,
 	setReportMockState,
@@ -98,7 +99,7 @@ type Story = StoryObj< TagsStoryControls >;
 export const Default: Story = {
 	render: renderTags,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -109,7 +110,7 @@ export const Default: Story = {
 export const WithComparison: Story = {
 	render: renderTags,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	parameters: {
 		docs: {
 			description: {
@@ -129,7 +130,7 @@ export const Loading: Story = {
 	// Kept off the shared autodocs page: the mock override is keyed by path, so it
 	// would otherwise force the sibling stories on that page into the same state.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/tags', 'loading' );
 		return () => setReportMockState( 'stats/tags', null );
@@ -143,7 +144,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderTagsWithMax( 8 ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/tags', 'error' );
 		return () => setReportMockState( 'stats/tags', null );
@@ -157,7 +158,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderTagsWithMax( 7 ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/tags', 'empty' );
 		return () => setReportMockState( 'stats/tags', null );
@@ -188,4 +189,5 @@ export const WidgetDashboardWithWidget: StoryObj< TagsDashboardStoryProps > = {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: { control: 'boolean' },
 	},
+	decorators: [ withStoryRouter ],
 };

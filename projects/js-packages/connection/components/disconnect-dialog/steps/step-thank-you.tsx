@@ -1,25 +1,32 @@
 import { DecorativeCard } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
+import { Button, Stack } from '@wordpress/ui';
 import disconnectImage from '../images/disconnect-thanks.jpg';
+import type { MouseEvent } from 'react';
+
+interface StepThankYouProps {
+	/** Callback function to close the disconnect modal. */
+	onExit: ( e?: MouseEvent< HTMLElement > ) => void;
+}
 
 /**
  * Show the "thank you" step following survey submission
  *
- * @param {object}   props        - The properties.
- * @param {Function} props.onExit - Callback function to close the disconnect modal.
+ * @param {StepThankYouProps} props - The properties.
  * @return {import('react').ReactNode} - The StepThankYou Component
  */
-const StepThankYou = props => {
-	const { onExit } = props;
-
+const StepThankYou = ( { onExit }: StepThankYouProps ) => {
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
 			<DecorativeCard format="vertical" imageUrl={ disconnectImage } />
 
-			<div className="jp-connection__disconnect-dialog__copy">
+			<Stack
+				className="jp-connection__disconnect-dialog__copy"
+				direction="column"
+				align="center"
+				gap="md"
+			>
 				<h1>{ __( 'Thank you!', 'jetpack-connection-js' ) }</h1>
 				<p className="jp-connection__disconnect-dialog__large-text">
 					{ createInterpolateElement(
@@ -32,23 +39,12 @@ const StepThankYou = props => {
 						}
 					) }
 				</p>
-				<Button
-					variant="primary"
-					onClick={ onExit }
-					className="jp-connection__disconnect-dialog__btn-back-to-wp"
-				>
+				<Button onClick={ onExit } className="jp-connection__disconnect-dialog__btn-back-to-wp">
 					{ __( 'Back to my website', 'jetpack-connection-js' ) }
 				</Button>
-			</div>
+			</Stack>
 		</div>
 	);
-};
-
-StepThankYou.propTypes = {
-	/** Callback function to close the disconnect modal. */
-	onExit: PropTypes.func,
-	/** Base URL for where webpack-ed images will be stored for the consumer of this component. */
-	assetBaseUrl: PropTypes.string,
 };
 
 export default StepThankYou;

@@ -16,6 +16,8 @@ import { Link } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -272,34 +274,39 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const withComparison = hasComparison;
 
 	return (
-		<div className={ styles.content }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData`, so a failed range change
-				// keeps the prior period's rows visible; only surface the error when
-				// there is nothing to show.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ rows.length === 0 }
-				error={ {
-					description:
-						unavailableMessage ??
-						__(
-							"We couldn't load file downloads. Please try again in a moment.",
-							'jetpack-premium-analytics'
-						),
-					actions: unavailableMessage
-						? []
-						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: download,
-					description: __( 'No file downloads in this period.', 'jetpack-premium-analytics' ),
-				} }
-			>
-				<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
-			</WidgetState>
-		</div>
+		<>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description:
+							unavailableMessage ??
+							__(
+								"We couldn't load file downloads. Please try again in a moment.",
+								'jetpack-premium-analytics'
+							),
+						actions: unavailableMessage
+							? []
+							: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: download,
+						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="downloads" />
+			</WidgetFooter>
+		</>
 	);
 }
 

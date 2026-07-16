@@ -147,7 +147,7 @@ function buildLeaderboardData(
 							className={ styles.externalLink }
 							href={ row.href }
 							variant="unstyled"
-							openInNewTab
+							render={ <a target="_blank" rel="noopener noreferrer" /> }
 							aria-label={ sprintf(
 								/* translators: %s is a post, page, or archive page title. */
 								__( 'Open %s in a new tab', 'jetpack-premium-analytics' ),

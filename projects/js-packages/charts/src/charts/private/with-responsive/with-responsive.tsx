@@ -1,4 +1,6 @@
 import { useParentSize } from '@visx/responsive';
+import clsx from 'clsx';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
@@ -16,7 +18,11 @@ export type ResponsiveConfig = {
 	maxWidth?: number;
 	/**
 	 * The aspect ratio of the chart (height = width * aspectRatio).
-	 * When provided, height is calculated from width.
+	 * When provided, the chart keeps this ratio and is contained within the
+	 * parent on both axes: it fills the available width and derives its height,
+	 * but if the parent is shorter than that derived height it shrinks both axes
+	 * to fit rather than overflowing. When it is narrower than the parent (the
+	 * height-constrained case) it is centered horizontally.
 	 * When omitted, the chart fills the parent container's height.
 	 */
 	aspectRatio?: number;
@@ -26,35 +32,9 @@ export type ResponsiveConfig = {
 	resizeDebounceTime?: number;
 };
 
-const useResponsiveDimensions = ( {
-	resizeDebounceTime = 300,
-	maxWidth = 1200,
-	aspectRatio,
-}: ResponsiveConfig ) => {
-	const {
-		parentRef,
-		width: parentWidth,
-		height: parentHeight,
-	} = useParentSize( {
-		debounceTime: resizeDebounceTime,
-		enableDebounceLeadingCall: true,
-	} );
-
-	const containerWidth = parentWidth > 0 ? Math.min( parentWidth, maxWidth ) : 0;
-	const containerHeight = aspectRatio !== undefined ? containerWidth * aspectRatio : parentHeight;
-
-	return {
-		parentRef,
-		width: containerWidth,
-		height: containerHeight,
-		/**
-		 * Whether an aspectRatio was provided. Used to determine container
-		 * height styling: 'auto' when true (height derived from width),
-		 * '100%' when false (fill parent container).
-		 */
-		hasAspectRatio: aspectRatio !== undefined,
-	};
-};
+// useLayoutEffect on the client (so containment is resolved before paint, no flash),
+// useEffect on the server to avoid React's SSR warning.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /**
  * A higher-order component that provides responsive dimensions
@@ -77,51 +57,120 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 	}: Omit< T, 'width' | 'height' | 'size' > & DimensionProps & ResponsiveConfig ) {
 		const {
 			parentRef,
-			width: measuredWidth,
-			height: measuredHeight,
-			hasAspectRatio,
-		} = useResponsiveDimensions( {
-			resizeDebounceTime,
-			maxWidth,
-			aspectRatio,
+			width: parentWidth,
+			height: parentHeight,
+		} = useParentSize( {
+			debounceTime: resizeDebounceTime,
+			enableDebounceLeadingCall: true,
 		} );
 
-		// Use measured dimensions, but fall back to explicit width/height props if measurement returns 0
-		// (e.g., during initial render or in test environments without DOM measurement).
-		// Do not use size here — size controls chart element dimensions (e.g. pie diameter), not container dimensions.
-		const effectiveWidth = measuredWidth || width || 0;
-		const effectiveHeight = measuredHeight || height || 0;
+		const hasAspectRatio = aspectRatio !== undefined && aspectRatio > 0;
 
-		const defaultHeight = hasAspectRatio ? 'auto' : '100%';
-		// Express the aspect ratio in CSS so the container height tracks its width
-		// fluidly, rather than snapping to a debounced measured height. Cap the width
-		// at maxWidth so the CSS-derived height matches the maxWidth-capped content
-		// (the wrapped chart is sized from the capped `measuredWidth`).
-		const aspectRatioStyle =
-			hasAspectRatio && aspectRatio
-				? {
-						aspectRatio: `${ 1 / aspectRatio }`,
-						maxWidth: width === undefined ? maxWidth : undefined,
-				  }
-				: null;
+		// Keep our own handle on the wrapper so we can read its live height below, and
+		// still hand the node to useParentSize's ref (a callback ref in practice; guard
+		// the object-ref shape too).
+		const wrapperRef = useRef< HTMLDivElement | null >( null );
+		const setWrapperRef = useCallback(
+			( node: HTMLDivElement | null ) => {
+				wrapperRef.current = node;
+				if ( typeof parentRef === 'function' ) {
+					parentRef( node );
+				} else if ( parentRef ) {
+					( parentRef as { current: HTMLDivElement | null } ).current = node;
+				}
+			},
+			[ parentRef ]
+		);
 
+		// The parent's available height when it actually constrains the chart, else
+		// null (the chart derives its height from width and grows freely).
+		const [ containedHeight, setContainedHeight ] = useState< number | null >( null );
+
+		// Cap the available width at maxWidth unless an explicit width pins it. Before
+		// measurement resolves, fall back to the explicit width.
+		const cap = width === undefined ? maxWidth : Infinity;
+		const availableWidth = parentWidth > 0 ? Math.min( parentWidth, cap ) : width ?? 0;
+
+		let boxWidth = availableWidth;
+		let boxHeight: number;
+		if ( hasAspectRatio ) {
+			const derivedHeight = availableWidth * aspectRatio;
+			if ( containedHeight !== null && derivedHeight > containedHeight ) {
+				boxHeight = containedHeight;
+				boxWidth = boxHeight / aspectRatio;
+			} else {
+				boxHeight = derivedHeight;
+			}
+		} else {
+			boxHeight = parentHeight > 0 ? parentHeight : height ?? 0;
+		}
+
+		// Decide containment from the wrapper's real height, measured after layout.
+		// useParentSize's height is no good here: with height:100% and no definite
+		// parent height it just echoes our own content back, so clamping against it
+		// would freeze the chart at its current width when the container widens.
+		// Compare the post-layout clientHeight to the height we drew: shorter means the
+		// parent really constrains us → contain to it; equal means it is only our own
+		// content → let it grow. Once contained, stay contained until the parent is tall
+		// enough for the full derived height, so a now-fitting chart doesn't oscillate.
+		// (parentHeight is in the deps only to re-run this; the value used is clientHeight.)
+		useIsomorphicLayoutEffect( () => {
+			if ( ! hasAspectRatio ) {
+				if ( containedHeight !== null ) {
+					setContainedHeight( null );
+				}
+				return;
+			}
+			const available = wrapperRef.current?.clientHeight ?? 0;
+			const derivedHeight = availableWidth * aspectRatio;
+			if ( containedHeight === null ) {
+				if ( available > 0 && derivedHeight > available + 1 ) {
+					setContainedHeight( available );
+				}
+			} else if ( available >= derivedHeight - 1 ) {
+				setContainedHeight( null );
+			} else if ( Math.abs( available - containedHeight ) > 1 ) {
+				setContainedHeight( available );
+			}
+		}, [ hasAspectRatio, availableWidth, aspectRatio, containedHeight, parentHeight ] );
+
+		const wrappedComponent = (
+			<WrappedComponent
+				width={ boxWidth }
+				height={ boxHeight }
+				size={ size }
+				{ ...( chartProps as T ) }
+			/>
+		);
+
+		// The outer element fills the parent (via CSS) so its live height reflects the
+		// real available space; JS sets width/height only when they are passed
+		// explicitly. Static layout (fill, flex centering) lives in the stylesheet. With
+		// an aspectRatio the chart is placed in an inner box sized to the contained
+		// dimensions (centered by CSS) so it keeps its proportions and fits within the
+		// parent on both axes. Charts that fill their container via CSS (e.g. the heatmap
+		// grid) then track that box. Without an aspectRatio the chart fills the parent.
 		return (
 			<div
-				ref={ parentRef }
+				ref={ setWrapperRef }
 				data-testid="responsive-wrapper"
-				className={ styles.container }
+				className={ clsx( styles.container, hasAspectRatio && styles.isContained ) }
 				style={ {
-					width: width ?? '100%',
-					height: height ?? defaultHeight,
-					...aspectRatioStyle,
+					...( width !== undefined ? { width } : null ),
+					...( height !== undefined ? { height } : null ),
 				} }
 			>
-				<WrappedComponent
-					width={ effectiveWidth }
-					height={ effectiveHeight }
-					size={ size }
-					{ ...( chartProps as T ) }
-				/>
+				{ hasAspectRatio ? (
+					<div
+						data-testid="responsive-content"
+						className={ styles.content }
+						style={ { width: boxWidth, height: boxHeight } }
+					>
+						{ wrappedComponent }
+					</div>
+				) : (
+					wrappedComponent
+				) }
 			</div>
 		);
 	};
