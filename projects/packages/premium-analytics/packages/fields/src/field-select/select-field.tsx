@@ -38,7 +38,7 @@ export default function SelectField< Item >( {
 	const items = useMemo( () => toSelectItems( elements ), [ elements ] );
 
 	const selectedItem = useMemo(
-		() => items.find( item => item.value === value ) ?? null,
+		() => items.find( item => item.value === String( value ) ) ?? items[ 0 ] ?? null,
 		[ items, value ]
 	);
 
