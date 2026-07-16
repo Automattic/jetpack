@@ -56,16 +56,40 @@
 	text-decoration: underline;
 }
 
-/* Trailing external-link icon: opens the public page in a new tab. */
+/* Trailing external-link icon: opens the public page in a new tab. Hidden
+   until the row is hovered (or holds keyboard focus) so the resting rows read
+   as plain titles; opacity keeps the slot in the layout and the target
+   tappable, so nothing shifts on reveal. */
 .externalLink {
 	display: inline-flex;
 	flex: none;
 	color: var(--wpds-color-foreground-content-neutral-weak, currentColor);
+	opacity: 0;
+}
+
+.labelRow:hover .externalLink,
+.labelRow:focus-within .externalLink {
+	opacity: 1;
 }
 
 .externalLink:hover,
 .externalLink:focus {
 	color: inherit;
+}
+
+/* The widget draws its own external glyph (an svg); hide the Link
+   primitive's auto-appended new-tab arrow span so the icon doesn't double
+   up. */
+.externalLink span[role="img"] {
+	display: none;
+}
+
+/* No hover on touch: keep the icon visible so the affordance isn't lost. */
+@media (hover: none) {
+
+	.externalLink {
+		opacity: 1;
+	}
 }
 
 :global([inert]:not([inert="true"])) .root {
