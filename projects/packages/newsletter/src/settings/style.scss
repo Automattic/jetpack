@@ -1,9 +1,19 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "sass:meta";
 
-// Import dataviews styles for DataForm component
-@import "@wordpress/theme/design-tokens.css";
-@import "@wordpress/dataviews/build-style/style.css";
+// NB: do NOT `@import "@wordpress/…css"` here. Sass passes `.css` `@import`s
+// through as literal CSS `@import` at-rules, and — because this stylesheet is
+// JS-injected as a single `<style>` at runtime — any `@import` lands at the top
+// of the same tag that carries the `jetpack-admin-page-layout` mixin below.
+// Firefox refuses to apply ANY rule from a stylesheet with pending imports, so
+// the whole layout stays inert until the imports resolve, producing an
+// intermittent FOUC where the page paints unstyled (content under the admin
+// menu, tabs mis-inset) and then snaps into place. The two imports that used to
+// live here also resolved to 404s (bare specifiers against `/wp-admin/…`) and
+// were redundant: DataViews CSS is inlined via `routes/dashboard/route.scss`'s
+// `meta.load-css`, and the theme design tokens come from `wp-components` et al.
+// Every other wp-build dashboard (Social, Forms, VideoPress) keeps its mixin
+// SCSS import-free for exactly this reason.
 @include meta.load-css("./sections/placement-card");
 
 body.jetpack_page_jetpack-newsletter {
