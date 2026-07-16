@@ -97,7 +97,7 @@ const baseConfig = {
 				'projects/packages/jetpack-mu-wpcom/routes/**/*.{css,scss,sass}',
 				'projects/packages/newsletter/routes/**/*.{css,scss,sass}',
 				'projects/packages/podcast/routes/**/*.{css,scss,sass}',
-				'projects/packages/premium-analytics/routes/**/*.{css,scss,sass}',
+				'projects/packages/premium-analytics/**/*.{css,scss,sass}',
 				'projects/packages/publicize/routes/**/*.{css,scss,sass}',
 				'projects/packages/scan/routes/**/*.{css,scss,sass}',
 				'projects/packages/seo/routes/**/*.{css,scss,sass}',

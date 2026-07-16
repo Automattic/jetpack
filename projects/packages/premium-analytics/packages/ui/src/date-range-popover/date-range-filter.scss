@@ -22,7 +22,7 @@
 // Hovered/focused trigger: same brand-tinted highlight the select-control
 // popup gives its items.
 .date-filters-panel-button {
-	font-size: max(var(--wpds-typography-font-size-md, 13px), 16px);
+	font-size: max(var(--wpds-typography-font-size-md), 16px);
 	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
 }
 
@@ -102,6 +102,6 @@
 @media (min-width: 600px) {
 
 	.date-filters-panel-button {
-		font-size: var(--wpds-typography-font-size-md, 13px);
+		font-size: var(--wpds-typography-font-size-md);
 	}
 }

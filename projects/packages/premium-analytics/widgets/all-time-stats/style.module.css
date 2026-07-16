@@ -6,13 +6,13 @@
 .list {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 }
 
 .row {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-md);
 }
 
 .icon {

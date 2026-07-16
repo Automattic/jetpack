@@ -25,8 +25,8 @@
 .bodyHeader {
 	flex-wrap: wrap;
 	justify-content: flex-end;
-	gap: var(--wpds-dimension-gap-sm, 8px) var(--wpds-dimension-gap-lg, 16px);
-	margin-block-end: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-lg);
+	margin-block-end: var(--wpds-dimension-gap-md);
 }
 
 .stateArea {
@@ -118,5 +118,5 @@
 	--jpa-leaderboard-image-width: 28px;
 	--jpa-leaderboard-image-height: auto;
 	--jpa-leaderboard-image-fit: contain;
-	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm, 2px);
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
 }

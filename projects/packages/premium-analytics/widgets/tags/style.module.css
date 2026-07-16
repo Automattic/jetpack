@@ -19,10 +19,10 @@
 /* Icon + label row for the leaderboard. min-height keeps a stable 36px row for
    both single tag/category rows and grouped (drill-down) rows. */
 .itemLabel {
-	gap: var(--wpds-dimension-padding-sm, 8px);
+	gap: var(--wpds-dimension-padding-sm);
 	min-height: 36px;
 	min-width: 0;
-	padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	padding-inline: var(--wpds-dimension-padding-sm);
 	overflow: hidden;
 }
 
@@ -54,8 +54,8 @@ a.itemLabelText:focus {
 .childRow {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-padding-sm, 8px);
+	gap: var(--wpds-dimension-padding-sm);
 	min-height: 36px;
-	padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	padding-inline: var(--wpds-dimension-padding-sm);
 	overflow: hidden;
 }

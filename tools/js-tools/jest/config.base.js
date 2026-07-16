@@ -13,7 +13,7 @@ module.exports = {
 			__dirname,
 			'jest-extensions-asset-stub.js'
 		),
-		'\\.[jt]sx?$': [
+		'\\.m?[jt]sx?$': [
 			require.resolve( 'babel-jest' ),
 			{
 				presets: [
@@ -32,12 +32,13 @@ module.exports = {
 	// Unignore certain node_modules
 	// - uplot: for packages/components
 	// - @wordpress/admin-ui: for the unified admin page header styles
+	// - @wordpress/theme: esm-only in 1.0.0
 	// - @gravatar-com: for the lifted Gravatar component's hovercard styles
 	// - marked: esm-only
 	// - uuid: v14 went esm-only, so it needs transforming
 	// `(?!.*/node_modules/)` handles pnpm's store with nested `node_modules` dirs.
 	transformIgnorePatterns: [
-		'/node_modules/(?!.*/node_modules/)(?!marked/|uuid/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
+		'/node_modules/(?!.*/node_modules/)(?!marked/|uuid/|@wordpress/theme/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
 	],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),
