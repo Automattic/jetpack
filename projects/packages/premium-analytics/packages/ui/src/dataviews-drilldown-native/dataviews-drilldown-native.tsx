@@ -9,15 +9,16 @@ import { useCallback, useMemo, useState } from 'react';
  */
 import styles from './dataviews-drilldown-native.module.scss';
 import { processHierarchyLevels } from './process-hierarchy-levels';
-import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
-import type { ReactNode } from 'react';
+import type { Field, SupportedLayouts, View, ViewBaseProps } from '@wordpress/dataviews';
+import type { ComponentProps, ReactNode } from 'react';
+
+// Inferred props types from the `DataViews` component.
+type PaginationInfo = ComponentProps< typeof DataViews >[ 'paginationInfo' ];
+type OnChangeViewBaseProps< Item > = ViewBaseProps< Item >[ 'onChangeView' ];
+type GetItemIdBaseProps< Item > = ViewBaseProps< Item >[ 'getItemId' ];
+type GetItemLevelBaseProps< Item > = ViewBaseProps< Item >[ 'getItemLevel' ];
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
-
-type PaginationInfo = {
-	totalItems: number;
-	totalPages: number;
-};
 
 /**
  * `DataViews`' own `getItemId` prop is conditionally optional on `Item` having
@@ -27,11 +28,11 @@ type PaginationInfo = {
  */
 const GenericDataViews = DataViews as unknown as < Item >( props: {
 	view: View;
-	onChangeView: ( view: View ) => void;
+	onChangeView: OnChangeViewBaseProps< Item >;
 	fields: Field< Item >[];
 	data: Item[];
-	getItemId: ( item: Item ) => string;
-	getItemLevel?: ( item: Item ) => number;
+	getItemId: GetItemIdBaseProps< Item >;
+	getItemLevel?: GetItemLevelBaseProps< Item >;
 	isLoading?: boolean;
 	paginationInfo: PaginationInfo;
 	defaultLayouts?: SupportedLayouts;
@@ -50,7 +51,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	 */
 	fields: Field< Item >[];
 	/** Stable id per row. */
-	getItemId: ( item: Item ) => string;
+	getItemId: GetItemIdBaseProps< Item >;
 	/** Returns the parent row id for child rows, undefined for parent rows. */
 	getItemParentId: ( item: Item ) => string | number | null | undefined;
 	/** Initial view overrides (default sort, visible fields, page size, ...). */
@@ -81,17 +82,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
  * sorting by a field re-orders rows flat and visually breaks the hierarchy
  * grouping.
  *
- * @param props                  - The component props.
- * @param props.data             - Flat rows: parents and children mixed.
- * @param props.fields           - The DataViews field config.
- * @param props.getItemId        - Resolves stable row ids.
- * @param props.getItemParentId  - Resolves parent ids for child rows.
- * @param props.initialView      - Initial view overrides.
- * @param props.hideLevelMarkers - Hide the em-dash markers, keep indentation.
- * @param props.isLoading        - Show DataViews' loading state.
- * @param props.searchLabel      - Accessible label for the search input.
- * @param props.empty            - Custom empty state.
- * @param props.perPageSizes     - Page size choices.
+ * @param {DataViewsDrilldownNativeProps< Item >} props - The component props.
  * @return The DataViews drilldown.
  */
 export function DataViewsDrilldownNative< Item >( {
