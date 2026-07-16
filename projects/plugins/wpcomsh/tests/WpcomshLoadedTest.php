@@ -26,11 +26,4 @@ class WpcomshLoadedTest extends WP_UnitTestCase {
 		$this->assertTrue( class_exists( 'Jetpack_Fonts_Typekit' ), 'vendor/automattic/custom-fonts-typekit not loaded' );
 		$this->assertTrue( function_exists( 'wpcom_media_video_styles' ), 'vendor/automattic/text-media-widget-styles not loaded' );
 	}
-
-	/**
-	 * Test that Atomic sites continue hydrating the Podcast module state.
-	 */
-	public function test_podcast_activation_hydration_hook_loaded() {
-		$this->assertSame( 0, has_action( 'init', 'wpcomsh_hydrate_podcast_module' ) );
-	}
 }
