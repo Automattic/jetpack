@@ -49,6 +49,7 @@ describe( 'report export downloads', () => {
 				from: '2026-06-01T00:00:00+02:00',
 				to: '2026-06-30T23:59:59+02:00',
 				interval: 'day',
+				dateType: 'paid',
 				compareFrom: '2026-05-01T00:00:00+02:00',
 				compareTo: '2026-05-31T23:59:59+02:00',
 			} )
@@ -58,6 +59,7 @@ describe( 'report export downloads', () => {
 			to: '2026-06-30T23:59:59+02:00',
 			interval: 'day',
 			delivery_method: 'download',
+			date_type: 'paid',
 			compare_from: '2026-05-01T00:00:00+02:00',
 			compare_to: '2026-05-31T23:59:59+02:00',
 		} );

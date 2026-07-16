@@ -189,6 +189,7 @@ class CSVExportController_Test extends TestCase {
 		$request->set_param( 'delivery_method', 'email' );
 		$request->set_param( 'from', '2025-01-01T00:00:00' );
 		$request->set_param( 'to', '2025-06-01T00:00:00' );
+		$request->set_param( 'date_type', 'paid' );
 
 		$response = $this->controller->create_export( $request );
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
@@ -196,6 +197,7 @@ class CSVExportController_Test extends TestCase {
 		$this->assertSame( 123, $response->get_data()['job_id'] );
 		$this->assertCount( 1, $this->scheduler->calls );
 		$this->assertSame( 'ordersovertime', $this->scheduler->calls[0]['report_type'] );
+		$this->assertSame( 'paid', $this->scheduler->calls[0]['params']['date_type'] );
 	}
 
 	public function test_create_export_returns_scheduler_error() {

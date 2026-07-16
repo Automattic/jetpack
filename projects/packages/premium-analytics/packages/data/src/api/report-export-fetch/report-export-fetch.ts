@@ -7,6 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { saveBlob } from '../../utils/save-blob';
+import type { DateType } from '../../utils/types';
 
 const REPORT_DOWNLOAD_PATH = '/jetpack-premium-analytics/v1/reports/csv-export';
 
@@ -25,6 +26,7 @@ export interface ExportReportParams {
 /** Parameters for downloading one complete report as a CSV file. */
 export interface DownloadReportParams extends Omit< ExportReportParams, 'reportType' > {
 	reportType: string;
+	dateType?: DateType;
 }
 
 /**
@@ -49,6 +51,7 @@ type ReportExportBody = {
 	to: string;
 	interval: string;
 	delivery_method: 'download';
+	date_type?: DateType;
 	compare_from?: string;
 	compare_to?: string;
 };
@@ -66,6 +69,7 @@ export function buildReportExportBody( params: DownloadReportParams ): ReportExp
 		to: params.to,
 		interval: params.interval || 'day',
 		delivery_method: 'download',
+		...( params.dateType ? { date_type: params.dateType } : {} ),
 		...( params.compareFrom && params.compareTo
 			? {
 					compare_from: params.compareFrom,

@@ -151,6 +151,7 @@ export function DownloadCsvButton<
 					from: resolvedReportParams.from,
 					to: resolvedReportParams.to,
 					interval: resolvedReportParams.interval,
+					...( resolvedReportParams.date_type ? { dateType: resolvedReportParams.date_type } : {} ),
 					...( hasComparisonEnabled( resolvedReportParams )
 						? {
 								compareFrom: resolvedReportParams.compare_from,
