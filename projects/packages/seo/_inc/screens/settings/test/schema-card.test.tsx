@@ -108,9 +108,7 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm( { breadcrumbList: { enabled: false } } );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Breadcrumbs/ } ) ).toHaveTextContent(
-			'Disabled'
-		);
+		expect( screen.getByRole( 'button', { name: /Breadcrumbs/ } ) ).toHaveTextContent( 'Disabled' );
 		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
 		expandBreadcrumbs();
 		expect(
