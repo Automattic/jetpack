@@ -14,46 +14,19 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
-.header {
-	// One row below the tab bar: summary left, date filters right. Wraps the
-	// filters onto their own line when the row gets narrow. Inline padding
-	// matches the tabs and widget grid; the 40px block spacing is the
-	// design's breathing room around the whole header row.
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-lg);
-	container-type: inline-size;
-	padding-block: 40px;
+.dateFilters {
+	// Sits directly below the tab bar, mirroring the main dashboard's
+	// placement. The tab list already adds a bottom margin, so only pad below
+	// here to keep the spacing even; inline padding matches the tabs and the
+	// widget grid so it lines up.
+	padding-block-end: var(--wpds-dimension-gap-lg);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
-.summary {
-	flex: 1 1 360px;
-	min-inline-size: min(100%, 320px);
-}
-
-.dateFilters {
-	display: flex;
-	flex: 0 1 auto;
-	justify-content: flex-end;
-	min-inline-size: min(100%, 600px);
-}
-
-@container (max-width: 960px) {
-
-	.summary,
-	.dateFilters {
-		flex-basis: 100%;
-		min-inline-size: 0;
-	}
-
-	.dateFilters {
-		justify-content: flex-start;
-	}
-
-	.dateFilters :global(.date-filters-panel) {
-		inline-size: 100%;
-	}
+.header {
+	// The summary header below the filters. 16px on top stacks with the
+	// filters row's 16px bottom padding to 32px of space above the heading;
+	// 32px below mirrors it symmetrically.
+	padding-block: var(--wpds-dimension-gap-lg) 32px;
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
