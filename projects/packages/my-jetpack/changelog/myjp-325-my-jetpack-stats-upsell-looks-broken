@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: register a Stats pricing-table config so the Stats interstitial no longer renders an empty column
+Register a pricing-table config for Stats so the interstitial no longer renders an empty column.
