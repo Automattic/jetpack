@@ -7,7 +7,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-scan": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@tanstack/react-query": "5.90.8",
+		"@tanstack/react-query": "5.101.2",
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "2.5.0",
 		"@wordpress/api-fetch": "7.51.0",

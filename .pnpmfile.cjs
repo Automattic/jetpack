@@ -143,11 +143,13 @@ async function fixDeps( pkg ) {
 	// Turn `@wordpress/stylelint-config` deps into peer deps too.
 	if ( pkg.name === '@wordpress/stylelint-config' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
-			pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			if ( ! ver.startsWith( '>' ) ) {
+				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
 		}
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			delete pkg.dependencies[ dep ];
-			pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			pkg.peerDependencies[ dep ] = ver.startsWith( '>' ) ? ver : ver.replace( /^\^?/, '>=' );
 		}
 		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
 		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
@@ -323,7 +325,7 @@ function fixPeerDeps( pkg ) {
 	// @see https://github.com/WordPress/gutenberg/pull/80267 for example
 	if ( pkg.name === '@wordpress/theme' ) {
 		for ( const dep of [ 'esbuild', 'postcss', 'stylelint', 'vite' ] ) {
-			if ( pkg.peerDependencies[ dep ] ) {
+			if ( pkg.peerDependencies[ dep ] && ! pkg.peerDependencies[ dep ].startsWith( '>' ) ) {
 				pkg.peerDependencies[ dep ] = pkg.peerDependencies[ dep ].replace( /^\^?/, '>=' );
 			}
 		}
