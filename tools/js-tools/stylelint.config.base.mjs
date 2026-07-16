@@ -110,6 +110,7 @@ const baseConfig = {
 				'projects/packages/search/**/*.{css,scss,sass}',
 				'projects/packages/videopress/src/**/*.{css,scss,sass}',
 				'projects/plugins/boost/app/assets/src/**/*.{css,scss,sass}',
+				'projects/plugins/protect/src/**/*.{css,scss,sass}',
 			],
 			rules: {
 				'plugin-wpds/no-token-fallback-values': true,
