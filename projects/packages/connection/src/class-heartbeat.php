@@ -234,22 +234,30 @@ class Heartbeat {
 	/**
 	 * Checks whether the site can connect to WordPress.com over SSL.
 	 *
-	 * Ported from the Jetpack plugin so the `ssl` heartbeat stat can be generated from the
-	 * Connection package. Shares the `jetpack_https_test` transient with the plugin's copy
-	 * to avoid duplicate network checks.
+	 * This is the canonical SSL connectivity check. It caches both the boolean result (in the
+	 * `jetpack_https_test` transient) and a structured failure reason (via
+	 * {@see self::get_ssl_test_error()}) so a single check serves both the `ssl` heartbeat stat
+	 * and consumers such as the Jetpack plugin's admin notice, which renders a localized message
+	 * from the reason code. This avoids duplicate network checks and keeps translated strings out
+	 * of the package.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param bool $force_recheck Force the SSL recheck instead of using the cached result.
-	 * @return bool
+	 * @return bool Whether the site can connect to WordPress.com over SSL.
 	 */
-	private static function permit_ssl( $force_recheck = false ) {
+	public static function permit_ssl( $force_recheck = false ) {
 		$ssl = false;
 		if ( ! $force_recheck ) {
 			$ssl = get_transient( 'jetpack_https_test' );
 		}
 
 		if ( $force_recheck || false === $ssl ) {
+			$error = array(
+				'code'   => '',
+				'detail' => '',
+			);
+
 			$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
 			if ( ! $api_base ) {
 				$api_base = Utils::DEFAULT_JETPACK__API_BASE;
@@ -261,18 +269,53 @@ class Heartbeat {
 				$ssl = 1;
 
 				if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
-					$ssl = 0;
+					$ssl           = 0;
+					$error['code'] = 'no_ssl_support';
 				} else {
 					$response = wp_remote_get( $api_base . 'test/1/' );
-					if ( is_wp_error( $response ) || 'OK' !== wp_remote_retrieve_body( $response ) ) {
-						$ssl = 0;
+					if ( is_wp_error( $response ) ) {
+						$ssl           = 0;
+						$error['code'] = 'no_ssl_support';
+					} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
+						$ssl             = 0;
+						$error['code']   = 'bad_response';
+						$error['detail'] = wp_remote_retrieve_body( $response );
 					}
 				}
 			}
 			set_transient( 'jetpack_https_test', $ssl, DAY_IN_SECONDS );
+			set_transient( 'jetpack_https_test_error', $error, DAY_IN_SECONDS );
 		}
 
 		return (bool) $ssl;
+	}
+
+	/**
+	 * Returns the structured reason for the last SSL connectivity failure.
+	 *
+	 * Consumers can map the returned reason code to a localized message. The `detail` value
+	 * carries any additional context (e.g. the unexpected response body for `bad_response`).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array {
+	 *     The last SSL test error.
+	 *
+	 *     @type string $code   Reason code: '' (no error), 'no_ssl_support', or 'bad_response'.
+	 *     @type string $detail Additional context for the failure, if any.
+	 * }
+	 */
+	public static function get_ssl_test_error() {
+		$error = get_transient( 'jetpack_https_test_error' );
+
+		if ( ! is_array( $error ) ) {
+			$error = array();
+		}
+
+		return array(
+			'code'   => isset( $error['code'] ) ? (string) $error['code'] : '',
+			'detail' => isset( $error['detail'] ) ? (string) $error['detail'] : '',
+		);
 	}
 
 	/**
@@ -280,13 +323,14 @@ class Heartbeat {
 	 * activated or network activated.
 	 *
 	 * Ported from the Jetpack plugin so the `plugins` heartbeat stat can be generated from
-	 * the Connection package.
+	 * the Connection package. This is the canonical implementation; the Jetpack plugin's
+	 * `Jetpack::get_active_plugins()` delegates to it.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return array
 	 */
-	private static function get_active_plugins() {
+	public static function get_active_plugins() {
 		$active_plugins = (array) get_option( 'active_plugins', array() );
 
 		if ( is_multisite() ) {

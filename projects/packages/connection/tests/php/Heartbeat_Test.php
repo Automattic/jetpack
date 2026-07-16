@@ -30,6 +30,7 @@ class Heartbeat_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( 'jetpack_https_test' );
+		delete_transient( 'jetpack_https_test_error' );
 	}
 
 	/**
@@ -90,5 +91,51 @@ class Heartbeat_Test extends BaseTestCase {
 
 		$this->assertSame( 'singlesite', $stats['is-multisite'] );
 		$this->assertSame( 'single-site', $stats['is-multi-network'] );
+	}
+
+	/**
+	 * `permit_ssl()` returns the cached boolean result without making a network request.
+	 */
+	public function test_permit_ssl_uses_cached_result() {
+		set_transient( 'jetpack_https_test', 1 );
+		$this->assertTrue( Heartbeat::permit_ssl() );
+
+		set_transient( 'jetpack_https_test', 0 );
+		$this->assertFalse( Heartbeat::permit_ssl() );
+	}
+
+	/**
+	 * `get_ssl_test_error()` returns an empty structured reason when nothing is stored.
+	 */
+	public function test_get_ssl_test_error_defaults_to_empty() {
+		delete_transient( 'jetpack_https_test_error' );
+
+		$error = Heartbeat::get_ssl_test_error();
+
+		$this->assertSame(
+			array(
+				'code'   => '',
+				'detail' => '',
+			),
+			$error
+		);
+	}
+
+	/**
+	 * `get_ssl_test_error()` normalizes the stored reason code and detail.
+	 */
+	public function test_get_ssl_test_error_returns_stored_reason() {
+		set_transient(
+			'jetpack_https_test_error',
+			array(
+				'code'   => 'bad_response',
+				'detail' => 'unexpected body',
+			)
+		);
+
+		$error = Heartbeat::get_ssl_test_error();
+
+		$this->assertSame( 'bad_response', $error['code'] );
+		$this->assertSame( 'unexpected body', $error['detail'] );
 	}
 }
