@@ -10,9 +10,9 @@ import {
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCategoriesQuery } from './hooks/use-categories-query';
+import { useCategoriesQuery, type CategoryTerm } from './hooks/use-categories-query';
 import { parseErrorMessage } from './parse-error-message';
 
 // Sentinel for the "create new category" option in the select.
@@ -45,6 +45,20 @@ const CategoryPicker = ( {
 }: CategoryPickerProps ) => {
 	const { data: categories = [], isLoading } = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
+
+	// The hydrated list is a static server-injected snapshot, so terms created
+	// through the inline form below won't be in it. Track them here and merge so
+	// a freshly created category shows its name in the dropdown right away.
+	const [ createdCategories, setCreatedCategories ] = useState< CategoryTerm[] >( [] );
+	const allCategories = useMemo( () => {
+		if ( createdCategories.length === 0 ) {
+			return categories;
+		}
+		const byId = new Map< number, CategoryTerm >();
+		categories.forEach( cat => byId.set( cat.id, cat ) );
+		createdCategories.forEach( cat => byId.set( cat.id, cat ) );
+		return [ ...byId.values() ];
+	}, [ categories, createdCategories ] );
 
 	// `canUser` returns `undefined` while resolving. Treat that as allowed so
 	// the option doesn't flash hidden; only hide once the OPTIONS probe says no.
@@ -113,13 +127,18 @@ const CategoryPicker = ( {
 				'category',
 				{ name: trimmedName },
 				{ throwOnError: true }
-			) ) as { id?: number } | undefined;
+			) ) as { id?: number; name?: string; slug?: string } | undefined;
 			if ( ! result?.id ) {
 				throw new Error(
 					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
 				);
 			}
 			const newId = Number( result.id );
+			setCreatedCategories( prev =>
+				prev.some( cat => cat.id === newId )
+					? prev
+					: [ ...prev, { id: newId, name: result.name ?? trimmedName, slug: result.slug ?? '' } ]
+			);
 			onSelect( newId );
 			if ( onCreateSuccess ) {
 				try {
@@ -154,7 +173,7 @@ const CategoryPicker = ( {
 
 	const options: Array< { label: string; value: string } > = [
 		{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
-		...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
+		...allCategories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 	];
 	if ( canCreateCategory !== false ) {
 		options.push( {

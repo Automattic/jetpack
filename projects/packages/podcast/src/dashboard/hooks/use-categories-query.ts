@@ -1,4 +1,4 @@
-import { useEntityRecords } from '@wordpress/core-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 
 export interface CategoryTerm {
 	id: number;
@@ -6,14 +6,35 @@ export interface CategoryTerm {
 	slug: string;
 }
 
+// Hydrated once from the server-injected list
+// (`window.JetpackScriptData.podcast.categories`). Reading it lazily and
+// caching the array keeps the reference stable across renders.
+let hydrated: CategoryTerm[] | null = null;
+
+function getHydratedCategories(): CategoryTerm[] {
+	if ( hydrated === null ) {
+		const injected = getScriptData()?.podcast?.categories;
+		hydrated = Array.isArray( injected )
+			? injected.map( ( { id, name, slug } ) => ( {
+					id: Number( id ),
+					name: String( name ),
+					slug: String( slug ),
+			  } ) )
+			: [];
+	}
+	return hydrated;
+}
+
 /**
- * Read every category term on the site via core-data's taxonomy entity.
+ * The site's category terms for the "Post category" picker.
  *
- * @return `{ data, isLoading }` matching the prior TanStack-shaped contract.
+ * Served synchronously from server-injected script data, so the dropdown
+ * renders populated on first paint instead of waiting on core-data's serial
+ * `/wp/v2/taxonomies` → `/wp/v2/categories` fetch (a cross-origin waterfall on
+ * Simple sites). Keeps the prior `{ data, isLoading }` shape for call sites.
+ *
+ * @return `{ data, isLoading }`.
  */
 export function useCategoriesQuery(): { data: CategoryTerm[]; isLoading: boolean } {
-	const { records, hasResolved } = useEntityRecords< CategoryTerm >( 'taxonomy', 'category', {
-		per_page: -1,
-	} );
-	return { data: records ?? [], isLoading: ! hasResolved };
+	return { data: getHydratedCategories(), isLoading: false };
 }

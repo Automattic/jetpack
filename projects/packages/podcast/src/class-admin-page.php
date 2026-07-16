@@ -152,8 +152,11 @@ class Admin_Page {
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
-			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.
+			// Settings record is preloaded via REST. The category list is injected
+			// as plain data (see get_podcast_categories) so the picker skips the
+			// client's serial taxonomy→terms fetch; stats stays a live relay.
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
+			'categories'          => self::get_podcast_categories(),
 			'upgrade'             => array(
 				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
 				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
@@ -161,6 +164,42 @@ class Admin_Page {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Category terms for the "Post category" picker, injected into script data
+	 * so the dashboard renders the dropdown without a client-side
+	 * taxonomy→terms round trip.
+	 *
+	 * Mirrors the REST default the picker used to fetch: name-ordered, up to 100.
+	 *
+	 * @return array<int, array{id:int, name:string, slug:string}>
+	 */
+	public static function get_podcast_categories() {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'category',
+				'hide_empty' => false,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+				'number'     => 100,
+			)
+		);
+
+		if ( is_wp_error( $terms ) ) {
+			return array();
+		}
+
+		return array_map(
+			static function ( $term ) {
+				return array(
+					'id'   => (int) $term->term_id,
+					'name' => $term->name,
+					'slug' => $term->slug,
+				);
+			},
+			$terms
+		);
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: hydrate the settings category picker from server-injected data so the dropdown renders instantly instead of waiting on a client-side taxonomy fetch.
