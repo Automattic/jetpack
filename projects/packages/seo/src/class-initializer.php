@@ -911,8 +911,9 @@ class Initializer {
 				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 			),
 			'llmsTxt'  => array(
-				'enabled' => Llms_Txt::is_enabled(),
-				'url'     => home_url( '/llms.txt' ),
+				'enabled'  => Llms_Txt::is_enabled(),
+				'url'      => home_url( '/llms.txt' ),
+				'canServe' => Llms_Txt::can_serve(),
 			),
 		);
 	}

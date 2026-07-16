@@ -43,6 +43,16 @@ const AiScreen: FC< Props > = ( { form } ) => {
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
+							{ ! llmsTxt.canServe && (
+								<Notice.Root intent="warning">
+									<Notice.Description>
+										{ __(
+											"Jetpack can't publish llms.txt on this site: a file at /llms.txt or your hosting setup is already handling that address, so this setting won't take effect. Remove that file (or check with your host) to let Jetpack manage it.",
+											'jetpack-seo'
+										) }
+									</Notice.Description>
+								</Notice.Root>
+							) }
 							<ToggleControl
 								label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
 								help={ __(
@@ -54,7 +64,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 								disabled={ isSaving }
 								__nextHasNoMarginBottom
 							/>
-							{ llmsTxt.enabled && (
+							{ llmsTxt.enabled && llmsTxt.canServe && (
 								<Link
 									className="jetpack-seo-ai__llms-link"
 									href={ llmsTxt.url }

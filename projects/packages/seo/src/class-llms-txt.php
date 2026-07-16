@@ -58,6 +58,37 @@ class Llms_Txt {
 	}
 
 	/**
+	 * Whether WordPress can actually serve the dynamic `/llms.txt` on this site.
+	 *
+	 * Two ways it can't, and the toggle then silently does nothing:
+	 *  - A physical `llms.txt` sits at the site root, so the web server delivers
+	 *    that file directly and WordPress never runs for the request. Detected
+	 *    here.
+	 *  - The host fronts WordPress for root-level paths (some managed hosts /
+	 *    static-file setups). PHP can't see that, so hosts can signal it via the
+	 *    `jetpack_seo_llms_txt_can_serve` filter.
+	 *
+	 * When this returns false the GEO tab shows an honest "can't take effect"
+	 * notice instead of letting the admin believe the file is live.
+	 *
+	 * @return bool
+	 */
+	public static function can_serve() {
+		$has_static_file = defined( 'ABSPATH' ) && file_exists( ABSPATH . 'llms.txt' );
+
+		/**
+		 * Filters whether WordPress can serve the dynamic `/llms.txt`. Hosts that
+		 * intercept root-level paths before WordPress runs can return false to
+		 * surface the honest "can't take effect" state in the SEO dashboard.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $can_serve Whether WordPress can serve `/llms.txt`.
+		 */
+		return (bool) apply_filters( 'jetpack_seo_llms_txt_can_serve', ! $has_static_file );
+	}
+
+	/**
 	 * The site-root-relative request path, normalized without surrounding
 	 * slashes (e.g. `llms.txt`).
 	 *

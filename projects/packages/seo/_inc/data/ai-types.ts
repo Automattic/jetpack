@@ -16,5 +16,11 @@ export interface AiState {
 		enabled: boolean;
 		/** The site's llms.txt URL, for the "view" link. */
 		url: string;
+		/**
+		 * Whether WordPress can actually serve the dynamic /llms.txt here. False
+		 * when a static llms.txt or the host's setup fronts the request, so the
+		 * toggle would silently do nothing — the tab then shows an honest notice.
+		 */
+		canServe: boolean;
 	};
 }

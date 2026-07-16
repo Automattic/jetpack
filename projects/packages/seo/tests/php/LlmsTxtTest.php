@@ -75,4 +75,28 @@ class LlmsTxtTest extends TestCase {
 		$this->assertStringNotContainsString( '## Pages', $output );
 		$this->assertStringNotContainsString( '## Posts', $output );
 	}
+
+	/**
+	 * With no static file shadowing the route and no host override, WordPress can
+	 * serve /llms.txt.
+	 *
+	 * @return void
+	 */
+	public function test_can_serve_true_by_default() {
+		$this->assertTrue( Llms_Txt::can_serve() );
+	}
+
+	/**
+	 * A host (or the static-file auto-detection) can force the honest
+	 * "can't take effect" state via the filter.
+	 *
+	 * @return void
+	 */
+	public function test_can_serve_respects_filter() {
+		add_filter( 'jetpack_seo_llms_txt_can_serve', '__return_false' );
+		$this->assertFalse( Llms_Txt::can_serve() );
+		remove_filter( 'jetpack_seo_llms_txt_can_serve', '__return_false' );
+
+		$this->assertTrue( Llms_Txt::can_serve() );
+	}
 }

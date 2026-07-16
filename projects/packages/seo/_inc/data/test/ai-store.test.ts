@@ -29,7 +29,7 @@ describe( 'ai-store', () => {
 
 	it( 'replaces the llms.txt state on setLlmsTxt without touching other slices', () => {
 		const registry = makeRegistry();
-		const next = { enabled: true, url: SEEDED_AI.llmsTxt.url };
+		const next = { enabled: true, url: SEEDED_AI.llmsTxt.url, canServe: true };
 		registry.dispatch( aiStore ).setLlmsTxt( next );
 		expect( registry.select( aiStore ).getLlmsTxt() ).toEqual( next );
 		expect( registry.select( aiStore ).getEnhancer() ).toEqual( SEEDED_AI.enhancer );
