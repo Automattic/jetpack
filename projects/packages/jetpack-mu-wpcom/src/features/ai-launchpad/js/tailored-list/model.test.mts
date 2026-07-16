@@ -16,6 +16,8 @@ import {
 } from './model.ts';
 import type { EnrichedTask } from './model.ts';
 import type { TailoredOutput } from '../lib/types.ts';
+// Runtime import of the type-only module so V8 coverage sees it as covered.
+import '../lib/types.ts';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
 const CONTRACTS = resolve( __dirname, '../../contracts' );
