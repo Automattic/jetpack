@@ -1,15 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import { getVideosFields } from './fields';
-import type { StatsVideoPlaysSummaryItem } from '@jetpack-premium-analytics/data';
+import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 
-const video: StatsVideoPlaysSummaryItem = {
+const video: StatsVideoPlaysItem = {
 	id: 12,
-	title: 'Launch video',
-	views: 11,
+	label: 'Launch video',
+	plays: 11,
 	impressions: 42,
 	watch_time: 128.5,
 	retention_rate: 61.25,
 	link: 'https://example.com/video/',
+	children: null,
 };
 
 /**
@@ -18,8 +19,8 @@ const video: StatsVideoPlaysSummaryItem = {
  * @param item - The video row to render.
  * @return The RTL render result.
  */
-function renderTitleField( item: StatsVideoPlaysSummaryItem ) {
-	const field = getVideosFields().find( candidate => candidate.id === 'title' );
+function renderTitleField( item: StatsVideoPlaysItem ) {
+	const field = getVideosFields().find( candidate => candidate.id === 'label' );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const TitleField = field?.render;
 
@@ -50,9 +51,9 @@ describe( 'videos fields', () => {
 	it( 'exposes searchable title and sortable metric fields', () => {
 		const fields = getVideosFields();
 
-		expect( fields.map( field => field.id ) ).toEqual( [ 'title', 'views', 'impressions' ] );
-		expect( fields.find( field => field.id === 'title' )?.enableGlobalSearch ).toBe( true );
-		expect( fields.find( field => field.id === 'views' )?.getValue?.( { item: video } ) ).toBe(
+		expect( fields.map( field => field.id ) ).toEqual( [ 'label', 'plays', 'impressions' ] );
+		expect( fields.find( field => field.id === 'label' )?.enableGlobalSearch ).toBe( true );
+		expect( fields.find( field => field.id === 'plays' )?.getValue?.( { item: video } ) ).toBe(
 			11
 		);
 		expect(

@@ -5,8 +5,6 @@ import type {
 	ReportParams,
 	StatsNormalizedReport,
 	StatsVideoPlaysItem,
-	StatsVideoPlaysSummary,
-	StatsVideoPlaysSummaryItem,
 } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -37,7 +35,7 @@ const report: StatsNormalizedReport< StatsVideoPlaysItem > = {
 					impressions: 0,
 					watch_time: 0,
 					retention_rate: 0,
-					link: null,
+					link: 'https://example.com/video/441',
 					children: null,
 				},
 			],
@@ -62,17 +60,42 @@ const report: StatsNormalizedReport< StatsVideoPlaysItem > = {
 	],
 };
 
-const summaryRows: StatsVideoPlaysSummaryItem[] = [
+const summaryRows: StatsVideoPlaysItem[] = [
 	{
 		id: 441,
-		title: 'Demo',
-		views: 13,
+		label: 'Demo',
+		plays: 13,
 		impressions: 22,
 		watch_time: 0.04,
 		retention_rate: 64.5,
 		link: null,
+		children: null,
+	},
+	{
+		id: 999,
+		label: 'Unmatched video',
+		plays: 3,
+		impressions: 5,
+		watch_time: 0.01,
+		retention_rate: 50,
+		link: null,
+		children: null,
 	},
 ];
+
+const summaryReport: StatsNormalizedReport< StatsVideoPlaysItem > = {
+	summary: {
+		total: { views: 16, impressions: 27, watch_time: 0.05 },
+	},
+	data: [
+		{
+			time_interval: '2026-07-09',
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
+			items: summaryRows,
+		},
+	],
+};
 
 const params: ReportParams = {
 	from: '2026-07-09',
@@ -94,10 +117,7 @@ function mockQueries( chartIsLoading = false, summaryIsLoading = false ) {
 		isLoading: chartIsLoading,
 	} as ReturnType< typeof useStatsVideoPlays > );
 	mockUseStatsVideoPlaysSummary.mockReturnValue( {
-		data: {
-			data: summaryRows,
-			total: { views: 13, impressions: 22, watch_time: 0.04 },
-		} satisfies StatsVideoPlaysSummary,
+		data: summaryReport,
 		isLoading: summaryIsLoading,
 	} as ReturnType< typeof useStatsVideoPlaysSummary > );
 }
@@ -119,8 +139,25 @@ describe( 'useVideosReportRecords', () => {
 			period: 'day',
 		} );
 		expect( mockUseStatsVideoPlaysSummary ).toHaveBeenCalledWith( params );
-		expect( result.current.rows ).toBe( summaryRows );
+		expect( result.current.rows.map( row => row.plays ) ).toEqual( [ 13, 3 ] );
 		expect( result.current.chart.primary.data.map( point => point.plays ) ).toEqual( [ 7, 6 ] );
+	} );
+
+	it( 'restores summary links from matching daily rows and leaves unmatched rows unlinked', () => {
+		mockQueries();
+
+		const { result } = renderHook( () => useVideosReportRecords( params, 'day' ) );
+
+		expect( result.current.rows ).toEqual( [
+			expect.objectContaining( {
+				id: 441,
+				link: 'https://example.com/video/441',
+			} ),
+			expect.objectContaining( {
+				id: 999,
+				link: null,
+			} ),
+		] );
 	} );
 
 	it( 'keeps the request day-bucketed while grouping only the chart by week', () => {
@@ -141,7 +178,7 @@ describe( 'useVideosReportRecords', () => {
 				plays: 13,
 			} ),
 		] );
-		expect( result.current.rows ).toBe( summaryRows );
+		expect( result.current.rows.map( row => row.id ) ).toEqual( [ 441, 999 ] );
 	} );
 
 	it( 'reports chart and table loading states from their respective queries', () => {

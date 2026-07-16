@@ -1,9 +1,5 @@
 import { getVideoRowId, videosToTimeSeries } from './aggregate';
-import type {
-	StatsNormalizedReport,
-	StatsVideoPlaysItem,
-	StatsVideoPlaysSummaryItem,
-} from '@jetpack-premium-analytics/data';
+import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 
 /**
  * Build a normalized daily video-play item for chart tests.
@@ -21,27 +17,6 @@ function makeVideo( overrides: Partial< StatsVideoPlaysItem > = {} ): StatsVideo
 		retention_rate: 0,
 		link: 'https://example.com/video/',
 		children: null,
-		...overrides,
-	};
-}
-
-/**
- * Build a complete-stats summary row for table identity tests.
- *
- * @param overrides - Fields to override on the default row.
- * @return The summary row.
- */
-function makeSummaryVideo(
-	overrides: Partial< StatsVideoPlaysSummaryItem > = {}
-): StatsVideoPlaysSummaryItem {
-	return {
-		id: 1,
-		title: 'Launch video',
-		views: 17,
-		impressions: 50,
-		watch_time: 0.02,
-		retention_rate: 67.1,
-		link: 'https://example.com/video/',
 		...overrides,
 	};
 }
@@ -91,12 +66,16 @@ describe( 'report videos aggregate', () => {
 		] );
 	} );
 
-	it( 'falls back from summary id to URL and then title for row identity', () => {
-		expect( getVideoRowId( makeSummaryVideo( { id: undefined } ) ) ).toBe(
-			'https://example.com/video/'
+	it( 'falls back from video id to URL and then a labeled identity', () => {
+		expect( getVideoRowId( makeVideo( { id: undefined } ) ) ).toBe( 'https://example.com/video/' );
+		expect( getVideoRowId( makeVideo( { id: undefined, link: null } ) ) ).toBe(
+			'video:Launch video'
 		);
-		expect( getVideoRowId( makeSummaryVideo( { id: undefined, link: null } ) ) ).toBe(
-			'Launch video'
+	} );
+
+	it( 'returns a stable non-empty identity when all identifying fields are empty', () => {
+		expect( getVideoRowId( makeVideo( { id: '', link: null, label: '' } ) ) ).toBe(
+			'video:unknown'
 		);
 	} );
 } );

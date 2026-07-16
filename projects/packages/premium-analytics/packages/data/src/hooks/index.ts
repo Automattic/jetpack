@@ -28,10 +28,7 @@ export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
 export {
 	useStatsVideoPlaysSummary,
-	type StatsVideoPlaysSummary,
-	type StatsVideoPlaysSummaryItem,
 	type StatsVideoPlaysSummaryParams,
-	type StatsVideoPlaysSummaryTotal,
 } from './use-stats-video-plays-summary';
 export {
 	useStatsAppCommercialClassificationMutation,

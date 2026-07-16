@@ -33,10 +33,7 @@ export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
 export {
 	useStatsVideoPlaysSummary,
-	type StatsVideoPlaysSummary,
-	type StatsVideoPlaysSummaryItem,
 	type StatsVideoPlaysSummaryParams,
-	type StatsVideoPlaysSummaryTotal,
 } from './hooks/use-stats-video-plays-summary';
 export {
 	useStatsAppCommercialClassificationMutation,

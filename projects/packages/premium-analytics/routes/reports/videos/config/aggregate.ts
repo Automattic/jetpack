@@ -7,7 +7,6 @@ import {
 	type StatsNormalizedReport,
 	type StatsTimeSeriesReport,
 	type StatsVideoPlaysItem,
-	type StatsVideoPlaysSummaryItem,
 } from '@jetpack-premium-analytics/data';
 
 /**
@@ -16,12 +15,20 @@ import {
  * @param video - The normalized video row.
  * @return The video's stable row key.
  */
-export function getVideoRowId( video: StatsVideoPlaysSummaryItem ): string {
-	if ( video.id != null ) {
-		return String( video.id );
+export function getVideoRowId( video: StatsVideoPlaysItem ): string {
+	const id = video.id != null ? String( video.id ) : '';
+
+	if ( id ) {
+		return id;
 	}
 
-	return video.link || video.title;
+	if ( video.link ) {
+		return video.link;
+	}
+
+	const label = typeof video.label === 'string' ? video.label.trim() : '';
+
+	return label ? `video:${ label }` : 'video:unknown';
 }
 
 /**

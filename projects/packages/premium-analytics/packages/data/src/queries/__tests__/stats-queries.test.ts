@@ -265,7 +265,7 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'requests complete video stats without the summarize mode switch', () => {
+	it( 'keeps the complete video summary mode out of the request params', () => {
 		const query = statsVideoPlaysSummaryQuery( {
 			from: '2026-07-09',
 			to: '2026-07-14',
@@ -288,7 +288,8 @@ describe( 'Stats query factories', () => {
 				complete_stats: 1,
 			},
 			undefined,
-			'videoPlaysSummary',
+			'videoPlays',
+			{ summarize: 1 },
 		] );
 	} );
 

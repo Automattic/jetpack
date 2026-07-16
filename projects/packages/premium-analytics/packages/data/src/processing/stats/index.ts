@@ -24,7 +24,6 @@ export { mergeStatsTopAuthorsComparisonRows, sanitizeStatsTopAuthorsResponse } f
 export { sanitizeStatsHighlightsResponse } from './highlights';
 export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
-export { sanitizeStatsVideoPlaysSummaryResponse } from './video-plays-summary';
 export {
 	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
@@ -86,11 +85,6 @@ export type {
 } from './highlights';
 export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
 export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
-export type {
-	StatsVideoPlaysSummary,
-	StatsVideoPlaysSummaryItem,
-	StatsVideoPlaysSummaryTotal,
-} from './video-plays-summary';
 export type {
 	StatsInsightsHourlyViews,
 	StatsInsightsResponse,

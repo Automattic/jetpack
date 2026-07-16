@@ -8,14 +8,12 @@ import {
 	type StatsReportQueryOptions,
 } from './stats-query';
 
-export type { StatsVideoPlaysSummary } from '../processing/stats';
-
 export type StatsVideoPlaysSummaryParams = StatsReportParams;
 
 export const statsVideoPlaysSummaryQuery = (
 	params: StatsVideoPlaysSummaryParams
-): StatsReportQueryOptions< 'videoPlaysSummary' > => {
-	const rangeParams = { ...reportParamsToStatsQueryParams( params ) };
+): StatsReportQueryOptions< 'videoPlays' > => {
+	const rangeParams = reportParamsToStatsQueryParams( params );
 
 	// `complete_stats` plus `start_date` selects the endpoint's range-summary mode.
 	// `summarize` is a separate mode switch and must not be sent with this request.
@@ -31,7 +29,8 @@ export const statsVideoPlaysSummaryQuery = (
 			max: 0,
 			complete_stats: 1,
 		},
-		sanitizer: 'videoPlaysSummary',
+		sanitizer: 'videoPlays',
+		sanitizerParams: { summarize: 1 },
 		enabled: !! ( rangeParams.end_date || rangeParams.date || rangeParams.start_date ),
 	} );
 };

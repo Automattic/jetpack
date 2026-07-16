@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { StatsVideoPlaysSummaryItem } from '@jetpack-premium-analytics/data';
+import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@wordpress/dataviews';
 
 /**
@@ -11,8 +11,10 @@ import type { Field } from '@wordpress/dataviews';
  * @param video - The complete-stats summary row.
  * @return The video's display title.
  */
-function getVideoTitle( video: StatsVideoPlaysSummaryItem ) {
-	return video.title || __( 'Untitled video', 'jetpack-premium-analytics' );
+function getVideoTitle( video: StatsVideoPlaysItem ) {
+	return typeof video.label === 'string' && video.label
+		? video.label
+		: __( 'Untitled video', 'jetpack-premium-analytics' );
 }
 
 /**
@@ -20,10 +22,10 @@ function getVideoTitle( video: StatsVideoPlaysSummaryItem ) {
  *
  * @return The field config.
  */
-export function getVideosFields(): Field< StatsVideoPlaysSummaryItem >[] {
+export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 	return [
 		{
-			id: 'title',
+			id: 'label',
 			label: __( 'Video', 'jetpack-premium-analytics' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
@@ -43,10 +45,10 @@ export function getVideosFields(): Field< StatsVideoPlaysSummaryItem >[] {
 			},
 		},
 		{
-			id: 'views',
+			id: 'plays',
 			label: __( 'Plays', 'jetpack-premium-analytics' ),
-			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			getValue: ( { item } ) => item.plays,
+			render: ( { item } ) => <>{ item.plays.toLocaleString() }</>,
 		},
 		{
 			id: 'impressions',

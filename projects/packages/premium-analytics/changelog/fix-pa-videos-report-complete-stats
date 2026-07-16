@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Videos report: fetch the records table from the complete-stats summary and the chart from the daily plays series; a single complete_stats day query returned summary-only data, leaving the report empty.
+Videos report: fix the report showing no data; the table now lists each video's views, impressions, watch time, and retention for the selected date range.
