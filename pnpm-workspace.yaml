@@ -35,6 +35,7 @@ minimumReleaseAgeExclude:
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
+  - 'i18n-calypso'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
