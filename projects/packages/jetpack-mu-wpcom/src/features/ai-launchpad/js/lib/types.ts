@@ -28,6 +28,11 @@ export interface FirstPostDraft {
 	paragraphs: string[];
 }
 
+export interface AboutPageDraft {
+	title: string;
+	paragraphs: string[];
+}
+
 /**
  * Mirrors contracts/agent-output-schema.json. Length and content constraints are
  * enforced by validation, not by the type system.
@@ -36,6 +41,8 @@ export interface TailoredOutput {
 	tasks: TailoredTask[];
 	inferred: TailoredInferred;
 	first_post_draft: FirstPostDraft;
+	// Schema-required for new outputs; optional here because older persisted outputs lack it.
+	about_page_draft?: AboutPageDraft;
 }
 
 export type TailorSource = 'ai' | 'fallback';
