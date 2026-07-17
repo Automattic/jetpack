@@ -105,6 +105,19 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 - Use BEM-like naming conventions
 - Use CSS logical properties instead of physical direction/dimension mappings to make styles RTL-aware by default (reference: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties)
 
+### Design System (WPDS / `@wordpress/ui`)
+
+Jetpack is migrating away from ad hoc custom CSS and legacy Jetpack-specific components (custom `Button`/`Card`/`Text`, Calypso color schemes) toward the shared WordPress Design System: `@wordpress/ui` components styled with `@wordpress/theme` design tokens (`--wpds-*` CSS custom properties). Prefer that system over local reinventions:
+
+- **Reach for a `@wordpress/ui` component before writing CSS that reimplements one.** Custom flex/gap/margin CSS for spacing is usually a `<Stack gap="...">`. Custom font-size/color/line-height CSS is usually a `<Text>`. Also check for `Card`, `Badge`, `Notice`, `Icon`/`Tooltip`, `VisuallyHidden`, `Popover`/`Modal`, and `Tabs` before hand-rolling equivalents — if a chunk of custom CSS looks like it's recreating one of these, replace it with the component.
+- **Prefer `--wpds-*` design tokens over hardcoded hex colors, pixel sizes, border-radii, or motion durations.** When there's no exact match, pick the token closest in *semantic role* (e.g. a `stroke-surface-*` token for a border), not just the nearest hex value, and link the token docs (https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/docs/tokens.md). Double-check a suggested token name actually exists in the installed `@wordpress/theme` version before using it — it's easy to hallucinate a plausible-looking token that isn't real.
+- **Don't layer custom style overrides on top of a design-system component just to preserve old visual behavior.** If an override only exists because "that's how it looked before," prefer using the component as-is, or flag it as needing an explicit design decision — overrides on shared components are unwieldy to maintain long-term.
+- **If a design-system component isn't behaving as expected (e.g. `Stack` not applying its flex styles), suspect a CSS specificity/reset bug before patching around it with manual CSS.** Patched-around bugs tend to resurface elsewhere; look for global resets (e.g. host-site CSS resets) overriding element defaults first.
+- **Don't use a WP core/Gutenberg component's internal class name as a styling hook.** It isn't a stable public API and can change or disappear. Use the actual component for its look, or write scoped (ideally still token-based) styles for anything else.
+- **Favor shared dashboard scaffolding over one-off local dashboard layouts.** Use `<Page>` from `@wordpress/admin-ui` and other shared layout components instead of custom per-package admin-layout CSS, so dashboards stay visually consistent. If shared scaffolding seems to be missing something, that's a signal to raise it with design-system owners rather than diverging locally.
+- **Reuse existing Jetpack brand-color tokens instead of new hardcoded hex values**, e.g. social network brand colors already live in `--jetpack-social-logo-color-*` custom properties.
+- Component/button label copy should use sentence case ("Edit form", not "Edit Form"), matching WPDS/Gutenberg conventions.
+
 ## Testing
 
 ```bash

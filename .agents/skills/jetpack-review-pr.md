@@ -132,6 +132,7 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 | Error handling | no | yes | yes |
 | Feature gating | no | yes | yes |
 | HTML / a11y / RTL | no | if has_html/has_css | yes |
+| Design system / WPDS usage | no | if has_css or has_js | yes |
 | Translations | no | if has_strings | yes |
 | Copy consistency (grep codebase) | no | no | yes |
 | Code simplicity / WP reuse | no | yes | yes |
@@ -234,6 +235,21 @@ gh pr diff <PR> | grep -nE '^\+.*@phan-(suppress|file-suppress)'
 - Physical direction CSS properties → use logical properties
 - Inline styles with physical directions
 - Hardcoded directional icons, physical-direction class names
+
+---
+
+#### Design system / WPDS usage (standard if has_css or has_js, thorough always)
+
+Jetpack is migrating from custom CSS and legacy Jetpack-specific components toward the shared `@wordpress/ui` component library styled with `@wordpress/theme` design tokens (`--wpds-*`). See `AGENTS.md` § Design System for the full rationale.
+
+- **Reimplemented components**: custom CSS that reproduces a `@wordpress/ui` primitive — flex/gap/margin layout instead of `<Stack gap="...">`, custom font-size/color/line-height instead of `<Text>`, or hand-rolled `Card`, `Badge`, `Notice`, `Icon`/`Tooltip`, `VisuallyHidden`, `Popover`/`Modal`, `Tabs`. `[suggestion]`: point at the matching component.
+- **Hardcoded values with a token equivalent**: hex colors, px font-sizes, border-radii, or motion durations where a `--wpds-*` token exists. `[suggestion]`: suggest the token closest in semantic role (not just nearest hex), and link https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/docs/tokens.md. Verify the token name actually exists in the installed `@wordpress/theme` version before citing it — don't invent a plausible-sounding one.
+- **Unjustified overrides on design-system components**: extra CSS layered on a `@wordpress/ui` component purely to preserve old visual behavior. `[suggestion]`: ask if the override is still needed, or flag for an explicit design decision.
+- **Custom CSS compensating for a design-system component misbehaving** (e.g. `Stack` not applying expected flex styles): this is often a symptom of a CSS specificity/reset bug, not something to patch around locally. `[suggestion]`: look for a global reset overriding element defaults before accepting the workaround.
+- **Styling hooks on WP core/Gutenberg internal class names**: not a stable public API. `[suggestion]`: use the actual component, or write scoped token-based styles instead.
+- **New one-off dashboard layout CSS** duplicating shared scaffolding (e.g. `<Page>` from `@wordpress/admin-ui`). `[suggestion]`: use the shared component for consistency across Jetpack dashboards.
+- **New hardcoded brand colors** duplicating an existing Jetpack brand token (e.g. `--jetpack-social-logo-color-*`). `[suggestion]`: reuse the existing token.
+- **Button/label copy in Title Case** where sentence case is the WPDS/Gutenberg convention ("Edit form", not "Edit Form"). `[suggestion]`.
 
 ---
 
@@ -405,6 +421,7 @@ Review depth: **<depth>** (<lines> lines, <N> projects)
 ### HTML Structure Changes
 ### Accessibility
 ### RTL Issues
+### Design System / WPDS Usage
 ### Translation Issues
 ### Copy Review
 ### Code Simplicity / WordPress Reuse
