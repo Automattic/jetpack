@@ -4,6 +4,8 @@
 import {
 	calculateDelta,
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	sharePercentage,
@@ -101,6 +103,9 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					/>
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="search-terms" />
+			</WidgetFooter>
 		</Stack>
 	);
 }

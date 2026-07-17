@@ -92,6 +92,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
 	},
+	'search-terms': {
+		id: 'search-terms',
+		getTitle: () => __( 'Search terms', 'jetpack-premium-analytics' ),
+		load: () => import( './search-terms/page' ),
+	},
 	videos: {
 		id: 'videos',
 		getTitle: () => __( 'Videos', 'jetpack-premium-analytics' ),
