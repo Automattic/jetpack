@@ -3,6 +3,7 @@
  */
 import { GlobalChartsProvider } from '@automattic/charts';
 import { Button } from '@wordpress/components';
+import { Icon, external } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { useState } from 'react';
 /**
@@ -73,12 +74,20 @@ const COMPARISON_REPORT = buildVisitsReport( 30, 0.8 );
 type PostRow = {
 	id: string;
 	title: string;
+	link?: string;
+	isExternal?: boolean;
 	views: number;
 };
 
 const POSTS: PostRow[] = [
-	{ id: '1', title: 'Hello world!', views: 172 },
-	{ id: '2', title: 'The Ultimate Guide to SEO in 2025', views: 127 },
+	{ id: '1', title: 'Hello world!', link: '#/post/1', views: 172 },
+	{
+		id: '2',
+		title: 'The Ultimate Guide to SEO in 2025',
+		link: 'https://example.com/seo-guide',
+		isExternal: true,
+		views: 127,
+	},
 	{ id: '3', title: '10 Tips for Better Product Photography', views: 97 },
 	{ id: '4', title: 'Why Remote Work Is Here to Stay', views: 74 },
 	{ id: '5', title: "A Beginner's Guide to Email Marketing", views: 55 },
@@ -98,6 +107,22 @@ const POST_FIELDS: Field< PostRow >[] = [
 		enableGlobalSearch: true,
 		enableHiding: false,
 		getValue: ( { item } ) => item.title,
+		render: ( { item } ) => {
+			if ( ! item.link ) {
+				return <>{ item.title }</>;
+			}
+
+			if ( item.isExternal ) {
+				return (
+					<a href={ item.link } target="_blank" rel="noopener noreferrer">
+						{ item.title }
+						<Icon icon={ external } size={ 16 } />
+					</a>
+				);
+			}
+
+			return <a href={ item.link }>{ item.title }</a>;
+		},
 	},
 	{
 		id: 'views',
