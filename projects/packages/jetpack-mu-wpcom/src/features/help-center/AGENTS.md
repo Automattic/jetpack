@@ -47,6 +47,7 @@ All routes are registered under the `help-center` namespace (`/wp-json/help-cent
 | `/fetch-post`                                         | GET    | `Fetch_Post`            | `GET /help/article/{blog_id}/{post_id}`       | Fetch a single support article       |
 | `/articles`                                           | GET    | `Fetch_Post`            | `GET /help/articles?blog_id=...&post_ids=...` | Fetch multiple support articles      |
 | `/forum/new`                                          | POST   | `Forum`                 | `POST /help/forum/new`                        | Create a forum topic                 |
+| `/jetpack-connection-health`                          | GET    | `Jetpack_Connection_Health` | `GET /sites/{site}/jetpack-connection-health` | Site connection health (reachability) |
 | `/jetpack-search/ai/search`                           | GET    | `Jetpack_Search_AI`     | `GET /sites/{site}/jetpack-search/ai/search`  | AI-powered article search            |
 | `/odie/chat/{bot_id}`                                 | POST   | `Odie`                  | `POST /odie/chat/{bot_id}/`                   | Start a new Odie chat                |
 | `/odie/chat/{bot_id}/{chat_id}`                       | GET    | `Odie`                  | `GET /odie/chat/{bot_id}/{chat_id}`           | Get an Odie chat conversation        |
