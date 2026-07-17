@@ -78,26 +78,6 @@ function normalizeCommentAvatar( avatar?: string | null ) {
 	return avatar ? `${ avatar.split( '?' )[ 0 ] }?d=mm` : null;
 }
 
-/**
- * Build the author row's link from the raw payload's `link`, which is not a
- * URL but a `?s=<email>` search fragment (legacy Calypso used it to open the
- * comment management screen filtered to that author). The dashboard runs
- * inside wp-admin, so a relative `edit-comments.php` href resolves to the
- * same screen.
- *
- * @param link - The raw author `link` fragment.
- * @return The comments-admin search URL, or null when there is no email.
- */
-function normalizeCommentAuthorLink( link: unknown ): string | null {
-	if ( typeof link !== 'string' || ! link.startsWith( '?s=' ) ) {
-		return null;
-	}
-
-	const email = link.slice( '?s='.length );
-
-	return email ? `edit-comments.php?s=${ encodeURIComponent( email ) }` : null;
-}
-
 export function sanitizeStatsCommentsResponse(
 	response: unknown,
 	query?: StatsQueryParams
@@ -110,7 +90,7 @@ export function sanitizeStatsCommentsResponse(
 		value: safeParseFloat( author.comments ),
 		iconClassName: 'avatar-user',
 		icon: normalizeCommentAvatar( author.gravatar ),
-		link: normalizeCommentAuthorLink( author.link ),
+		link: null,
 		className: 'module-content-list-item-large',
 		actions: [
 			{
