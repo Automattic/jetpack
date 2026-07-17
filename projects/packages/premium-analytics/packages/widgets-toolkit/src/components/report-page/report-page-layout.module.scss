@@ -39,6 +39,10 @@
 	gap: var(--wpds-dimension-gap-sm);
 }
 
+.filters > * {
+	inline-size: 100%;
+}
+
 .sections {
 	display: flex;
 	flex-direction: column;
