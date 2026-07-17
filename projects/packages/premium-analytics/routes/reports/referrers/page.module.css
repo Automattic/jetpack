@@ -13,7 +13,7 @@
 	 * tab strip is designed to sit flush under the header.
 	 */
 	padding-block-start: var(--wpds-dimension-padding-lg);
-	padding-block-end: 24px;
+	padding-block-end: var(--wpds-dimension-padding-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 

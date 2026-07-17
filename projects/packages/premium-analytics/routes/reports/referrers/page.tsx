@@ -110,6 +110,12 @@ function ReferrersReport(): JSX.Element {
 			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
 			navigate( {
 				to: ROUTE_FROM,
+				/*
+				 * The router is built dynamically, so `/reports/$report` has no
+				 * statically-typed params/search schema (tanstack widens them to
+				 * `never`). Cast the same way the routing package does when it
+				 * writes the URL.
+				 */
 				params: REPORT_PARAMS as unknown as never,
 				replace: true,
 				search: ( ( current: Record< string, unknown > ) => ( {
