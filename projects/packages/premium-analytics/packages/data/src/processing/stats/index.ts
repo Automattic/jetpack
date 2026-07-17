@@ -1,6 +1,7 @@
 export {
 	combineStatsNormalizedReports,
 	flattenStatsLeaves,
+	getStatsReportItems,
 	mergeStatsComparisonRows,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
