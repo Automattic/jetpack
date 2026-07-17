@@ -64,6 +64,7 @@ describe( 'useSchemaSettings', () => {
 		act( () => result.current.saveOrganization() );
 
 		await waitFor( () => expect( result.current.isOrganizationDirty ).toBe( false ) );
+		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving organization…', expect.anything() );
 
 		const post = mockApiFetch.mock.calls.find(
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
@@ -97,6 +98,7 @@ describe( 'useSchemaSettings', () => {
 
 		act( () => result.current.commitBreadcrumbList( { enabled: false } ) );
 		expect( result.current.breadcrumbList ).toEqual( { enabled: false } );
+		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving breadcrumbs…', expect.anything() );
 
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 
@@ -149,6 +151,7 @@ describe( 'useSchemaSettings', () => {
 
 		act( () => result.current.saveLocalBusiness() );
 		await waitFor( () => expect( result.current.isLocalBusinessDirty ).toBe( false ) );
+		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving local business…', expect.anything() );
 
 		const post = mockApiFetch.mock.calls.find(
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'

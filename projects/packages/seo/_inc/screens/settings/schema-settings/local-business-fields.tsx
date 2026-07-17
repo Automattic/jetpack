@@ -3,6 +3,7 @@
 import { TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
+import clsx from 'clsx';
 import type {
 	LocalBusinessAddress,
 	LocalBusinessSettings,
@@ -187,16 +188,18 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 			{ ADDRESS_FIELD_ROWS.map( fields => (
 				<div
 					key={ fields[ 0 ].field }
-					className={ fields.length > 1 ? 'jetpack-seo-settings__schema-paired-fields' : undefined }
+					className={ clsx( {
+						'jetpack-seo-settings__schema-paired-fields': fields.length > 1,
+					} ) }
 				>
 					{ fields.map( ( { field, label, help } ) => {
 						const fieldError = field === 'addressCountry' && ! isCountryCode( address[ field ] );
 						return (
 							<div
 								key={ field }
-								className={ `jetpack-seo-settings__schema-paired-field${
-									fieldError ? ' jetpack-seo-settings__schema-field--error' : ''
-								}` }
+								className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
+									'jetpack-seo-settings__schema-field--error': fieldError,
+								} ) }
 							>
 								<TextControl
 									label={ label }
@@ -219,11 +222,9 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 
 			<div className="jetpack-seo-settings__schema-paired-fields">
 				<div
-					className={ `jetpack-seo-settings__schema-paired-field${
-						! isPhoneNumber( localBusiness.telephone )
-							? ' jetpack-seo-settings__schema-field--error'
-							: ''
-					}` }
+					className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
+						'jetpack-seo-settings__schema-field--error': ! isPhoneNumber( localBusiness.telephone ),
+					} ) }
 				>
 					<TextControl
 						label={ __( 'Phone', 'jetpack-seo' ) }
@@ -243,11 +244,9 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 				</div>
 
 				<div
-					className={ `jetpack-seo-settings__schema-paired-field${
-						! isPriceRange( localBusiness.priceRange )
-							? ' jetpack-seo-settings__schema-field--error'
-							: ''
-					}` }
+					className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
+						'jetpack-seo-settings__schema-field--error': ! isPriceRange( localBusiness.priceRange ),
+					} ) }
 				>
 					<TextControl
 						label={ __( 'Price range', 'jetpack-seo' ) }

@@ -92,7 +92,7 @@ export function useSchemaSettings(
 			const next = { ...sections.breadcrumbList, ...patch };
 			setSections( current => ( { ...current, breadcrumbList: next } ) );
 			setIsSaving( true );
-			createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
+			createInfoNotice( __( 'Saving breadcrumbs…', 'jetpack-seo' ), {
 				id: NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
@@ -146,11 +146,16 @@ export function useSchemaSettings(
 				return;
 			}
 			setIsSaving( true );
-			createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
-				id: NOTICE_ID,
-				type: 'snackbar',
-				isDismissible: false,
-			} );
+			createInfoNotice(
+				section === 'organization'
+					? __( 'Saving organization…', 'jetpack-seo' )
+					: __( 'Saving local business…', 'jetpack-seo' ),
+				{
+					id: NOTICE_ID,
+					type: 'snackbar',
+					isDismissible: false,
+				}
+			);
 			apiFetch< SchemaSettings >( {
 				path: ENDPOINT,
 				method: 'POST',
