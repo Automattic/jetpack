@@ -1057,8 +1057,8 @@ function playsFactorForWindow( endDate: string | undefined ): number {
  * Builds a mock Stats "video-plays" response so the Videos widget renders a
  * populated leaderboard in Storybook. The shape matches what
  * `sanitizeStatsVideoPlaysResponse` reads (`days.<date>.plays[]`), and play
- * counts scale by how recent the requested window is so the comparison period
- * reads lower than the primary one.
+ * metrics scale by how recent the requested window is so the comparison period
+ * reads lower than the primary one, including complete-stats highlight rows.
  *
  * @param requestPath - The request path, used to read the window's end date.
  * @return Raw video-plays response.
@@ -1068,13 +1068,13 @@ function buildVideoPlaysResponse( requestPath: string ) {
 	const date = endDate ?? new Date().toISOString().slice( 0, 10 );
 	const factor = playsFactorForWindow( endDate );
 	const videos = [
-		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820 },
-		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640 },
-		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980 },
-		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410 },
-		{ post_id: 105, title: 'Behind the Scenes', plays: 980 },
-		{ post_id: 106, title: 'Weekly Recap', plays: 540 },
-		{ post_id: 107, title: '', plays: 320 },
+		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820, hours: 72.4 },
+		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640, hours: 51.8 },
+		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980, hours: 38.2 },
+		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410, hours: 27.6 },
+		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9 },
+		{ post_id: 106, title: 'Weekly Recap', plays: 540, hours: 10.7 },
+		{ post_id: 107, title: '', plays: 320, hours: 6.1 },
 	];
 	const rows = videos.map( video => ( {
 		post_id: video.post_id,
@@ -1082,9 +1082,22 @@ function buildVideoPlaysResponse( requestPath: string ) {
 		url: `https://example.com/video/${ video.post_id }/`,
 		plays: Math.round( video.plays * factor ),
 		impressions: Math.round( video.plays * factor * 1.8 ),
-		watch_time: Math.round( video.plays * factor * 12 ),
-		retention_rate: 60,
+		watch_time: Number( ( video.hours * factor ).toFixed( 1 ) ),
+		retention_rate: Number( ( 67.6 * factor ).toFixed( 1 ) ),
 	} ) );
+	const completeStats = getQueryParam( requestPath, 'complete_stats' ) === '1';
+
+	if ( completeStats ) {
+		return {
+			date,
+			period: 'day',
+			days: {
+				summary: {
+					data: rows.map( ( { plays, ...row } ) => ( { ...row, views: plays } ) ),
+				},
+			},
+		};
+	}
 
 	// `summary.plays` feeds the summarized path (multi-day ranges set
 	// `summarize=1`); `days.<date>.plays` covers the single-day path.
