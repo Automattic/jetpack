@@ -57,7 +57,6 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 		}
 		$this->created_dirs = array();
 
-		$this->forget_discovered_plugins();
 		$this->set_auth_state( null, null );
 		remove_action( 'rest_api_init', array( $this, 'register_route' ) );
 
@@ -125,15 +124,6 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 			$path,
 			$header ? "<?php\n/*\n * Plugin Name: $name\n * Version: 1.0\n */\n" : "<?php\n// Not a plugin.\n"
 		);
-
-		$this->forget_discovered_plugins();
-	}
-
-	/**
-	 * Drop the per-directory scan get_plugins() memoises, so changes on disk are seen.
-	 */
-	private function forget_discovered_plugins() {
-		wp_cache_delete( 'plugins', 'plugins' );
 	}
 
 	/**
@@ -268,6 +258,10 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Anything but a blog token is refused.
 	 *
+	 * The exact status is core's to decide: rest_authorization_required_code() answers 401 or
+	 * 403 depending on whether the request resolved to a logged-in user, which a user token
+	 * does and an unsigned request does not. Only the refusal is ours to promise.
+	 *
 	 * @param bool|null   $status The authentication status.
 	 * @param string|null $type   The token type.
 	 * @dataProvider denied_auth_provider
@@ -279,7 +273,7 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 
 		$response = $this->request( 'give' );
 
-		$this->assertSame( 401, $response->get_status() );
+		$this->assertTrue( $response->is_error(), 'The request must be refused.' );
 		$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
 	}
 
