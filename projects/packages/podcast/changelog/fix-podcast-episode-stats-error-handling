@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast: show a clear message when episode play counts can't load, instead of quietly showing zero plays.
