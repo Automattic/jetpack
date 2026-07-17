@@ -46,7 +46,10 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		// Reset the Options cache so the next test starts fresh.
 		$reflection = new \ReflectionClass( Options::class );
 		$property   = $reflection->getProperty( 'options' );
-		$property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( null, array() );
 	}
 
