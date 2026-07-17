@@ -13,7 +13,7 @@ export type Props = {
 	// The redirect admin UR
 	redirectUri: string;
 	// Additional page elements to show before the call to action
-	children: ReactNode;
+	children?: ReactNode;
 	// The Title
 	title?: string;
 	// The Connect Button label

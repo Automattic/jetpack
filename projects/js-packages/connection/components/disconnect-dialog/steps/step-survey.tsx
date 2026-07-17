@@ -1,20 +1,24 @@
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
+import type { MouseEvent } from 'react';
+
+interface StepSurveyProps {
+	/** Callback function used to close the modal and leave the disconnect flow. */
+	onExit?: ( e?: MouseEvent< HTMLElement > ) => void;
+	/** Callback function to handle submission of survey response. */
+	onFeedBackProvided?: ( answerId: string | undefined, answerText: string ) => void;
+	/** If the survey feedback is currently being saved/submitted. */
+	isSubmittingFeedback?: boolean;
+}
 
 /**
  * Show the survey step and allow the user to select a response.
  *
- * @param {object}   props                      - The properties.
- * @param {Function} props.onExit               - Callback function used to close the modal and leave the disconnect flow.
- * @param {Function} props.onFeedBackProvided   - Callback function to handle submission of survey response.
- * @param {boolean}  props.isSubmittingFeedback - If the survey feedback is currently being saved/submitted.
+ * @param {StepSurveyProps} props - The properties.
  * @return {import('react').ReactNode} The StepSurvey Component
  */
-const StepSurvey = props => {
-	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;
-
+const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepSurveyProps ) => {
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
 			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }</h1>
@@ -34,15 +38,6 @@ const StepSurvey = props => {
 			</a>
 		</div>
 	);
-};
-
-StepSurvey.propTypes = {
-	/** Callback function used to close the modal and leave the disconnect flow. */
-	onExit: PropTypes.func,
-	/** Callback function to handle submission of survey response. */
-	onFeedBackProvided: PropTypes.func,
-	/** If the survey feedback is currently being saved/ submitted */
-	isSubmittingFeedback: PropTypes.bool,
 };
 
 export default StepSurvey;
