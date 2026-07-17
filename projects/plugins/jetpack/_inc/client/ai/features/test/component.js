@@ -13,7 +13,7 @@ const SETTINGS = {
 	master_enabled: true,
 	features: {
 		writing_assistant: { enabled: true },
-		excerpt: { enabled: false },
+		image_editor: { enabled: false },
 	},
 };
 
@@ -51,13 +51,16 @@ describe( 'useFeatureSettings', () => {
 		let resolvePost;
 		apiFetch.mockReturnValueOnce( new Promise( resolve => ( resolvePost = resolve ) ) );
 
-		const updated = { ...SETTINGS, features: { ...SETTINGS.features, excerpt: { enabled: true } } };
+		const updated = {
+			...SETTINGS,
+			features: { ...SETTINGS.features, image_editor: { enabled: true } },
+		};
 		let request;
 		act( () => {
-			request = result.current.updateSettings( { features: { excerpt: true } } );
+			request = result.current.updateSettings( { features: { image_editor: true } } );
 		} );
 
-		expect( result.current.savingKeys.has( 'excerpt' ) ).toBe( true );
+		expect( result.current.savingKeys.has( 'image_editor' ) ).toBe( true );
 		expect( result.current.savingKeys.has( 'writing_assistant' ) ).toBe( false );
 
 		await act( async () => {
@@ -68,7 +71,7 @@ describe( 'useFeatureSettings', () => {
 		expect( result.current.savingKeys.size ).toBe( 0 );
 		expect( result.current.settings ).toEqual( updated );
 		expect( apiFetch ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { method: 'POST', data: { features: { excerpt: true } } } )
+			expect.objectContaining( { method: 'POST', data: { features: { image_editor: true } } } )
 		);
 	} );
 
@@ -81,7 +84,7 @@ describe( 'useFeatureSettings', () => {
 
 		await act( async () => {
 			await expect(
-				result.current.updateSettings( { features: { excerpt: true } } )
+				result.current.updateSettings( { features: { image_editor: true } } )
 			).rejects.toThrow( 'offline' );
 		} );
 
@@ -93,11 +96,14 @@ describe( 'useFeatureSettings', () => {
 		expect( result.current.savingKeys.size ).toBe( 0 );
 
 		// The toggles are still mounted, so retrying in place must work.
-		const updated = { ...SETTINGS, features: { ...SETTINGS.features, excerpt: { enabled: true } } };
+		const updated = {
+			...SETTINGS,
+			features: { ...SETTINGS.features, image_editor: { enabled: true } },
+		};
 		apiFetch.mockResolvedValueOnce( updated );
 
 		await act( async () => {
-			await result.current.updateSettings( { features: { excerpt: true } } );
+			await result.current.updateSettings( { features: { image_editor: true } } );
 		} );
 
 		expect( result.current.settings ).toEqual( updated );
@@ -133,7 +139,7 @@ describe( 'visibleSections', () => {
 	const SECTIONS = [
 		{
 			key: 'content',
-			features: [ { key: 'writing_assistant' }, { key: 'excerpt' } ],
+			features: [ { key: 'writing_assistant' }, { key: 'image_editor' } ],
 		},
 		{
 			key: 'media',
@@ -164,7 +170,7 @@ describe( 'visibleSections', () => {
 	test( 'drops a row the endpoint marks unavailable', () => {
 		const sections = visibleSections( SECTIONS, {
 			writing_assistant: { enabled: true },
-			excerpt: { enabled: false, available: false },
+			image_editor: { enabled: false, available: false },
 			feature_clip: { enabled: true, available: true },
 		} );
 

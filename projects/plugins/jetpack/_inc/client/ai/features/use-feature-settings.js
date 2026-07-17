@@ -55,7 +55,7 @@ export function useFeatureSettings() {
 	 * Only the submitted keys change server-side; the response is the fresh
 	 * full settings shape, which replaces local state.
 	 *
-	 * @param {object} update - Partial payload, e.g. { features: { excerpt: false } } or { master_enabled: false }.
+	 * @param {object} update - Partial payload, e.g. { features: { image_editor: false } } or { master_enabled: false }.
 	 * @return {Promise} Resolves when the update is saved; rejects on failure, which the caller surfaces.
 	 */
 	const updateSettings = useCallback( update => {
