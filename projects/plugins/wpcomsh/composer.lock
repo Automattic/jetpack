@@ -1027,7 +1027,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "452b5f580baa9c5efc133ec57eee4fc8a113c62a"
+                "reference": "104841325e090f4137640ab5b09373de64d6ead9"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1079,16 +1079,6 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "NODE_ENV=production pnpm run build"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
                 ]
             },
             "license": [
@@ -1709,7 +1699,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "732b4c245ccd501c5f4bf1ce18fef9c9b1624e5a"
+                "reference": "cdeaa612312a11508d74183eae8f6374d87123ac"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1735,7 +1725,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.3.x-dev"
+                    "dev-trunk": "1.4.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {

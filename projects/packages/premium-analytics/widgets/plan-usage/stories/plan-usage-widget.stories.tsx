@@ -2,10 +2,7 @@
  * All stories render the data-connected widget through `WidgetRoot`, so they
  * need report data to resolve against. `registerReportMocks` covers the shared
  * paths, including the `jetpack-stats/usage` fixture wired into the
- * report-mocks middleware. The usage endpoint is a point-in-time reading with no
- * comparison period, so `WithComparison` renders identically to `Default` even
- * though comparison report params are supplied. The Loading / Error /
- * Unavailable stories force the request into each state via
+ * report-mocks middleware. The Loading / Error / Unavailable stories force the request into each state via
  * `setReportMockState`.
  */
 /**
@@ -102,33 +99,18 @@ function forcePlanUsageOverLimit( { vip }: { vip: boolean } ) {
 }
 
 /**
- * Story controls. `withComparison` toggles the comparison report params to
- * confirm the widget renders identically — the usage endpoint has no comparison
- * period.
- */
-interface PlanUsageStoryControls {
-	withComparison: boolean;
-}
-
-/**
- * Renders the data-connected widget with the given comparison state.
+ * Renders the data-connected widget.
  *
- * @param {PlanUsageStoryControls} controls - The story controls.
  * @return The rendered widget.
  */
-function renderPlanUsage( { withComparison }: PlanUsageStoryControls ) {
-	return (
-		<PlanUsageRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
-	);
+function renderPlanUsage() {
+	return <PlanUsageRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PlanUsage',
 	component: PlanUsageRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
@@ -137,37 +119,18 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof PlanUsageRender > & PlanUsageStoryControls >;
+} satisfies Meta< typeof PlanUsageRender >;
 
 export default meta;
 
-type Story = StoryObj< PlanUsageStoryControls >;
+type Story = StoryObj< Partial< ComponentProps< typeof PlanUsageRender > > >;
 
 /**
  * Default state — the current-cycle usage gauge.
  */
 export const Default: Story = {
 	render: renderPlanUsage,
-	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Comparison state — comparison report params are supplied, but the usage
- * endpoint has no comparison data, so this renders identically to Default.
- */
-export const WithComparison: Story = {
-	render: renderPlanUsage,
-	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'The usage endpoint has no comparison period, so this renders identically to Default even when comparison report params are supplied.',
-			},
-		},
-	},
 };
 
 /**
@@ -176,7 +139,6 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: renderPlanUsage,
-	args: { withComparison: false },
 	// Kept off the shared autodocs page: the mock override is keyed by path, so it
 	// would otherwise force the sibling stories on that page into the same state.
 	tags: [ '!autodocs' ],
@@ -190,7 +152,6 @@ export const Loading: Story = {
  */
 export const Error: Story = {
 	render: renderPlanUsage,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forcePlanUsageState( 'error' ),
@@ -204,7 +165,6 @@ export const Error: Story = {
  */
 export const Unavailable: Story = {
 	render: renderPlanUsage,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forcePlanUsageState( 'empty' ),
@@ -216,7 +176,6 @@ export const Unavailable: Story = {
  */
 export const OverLimit: Story = {
 	render: renderPlanUsage,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forcePlanUsageOverLimit( { vip: false } ),
@@ -229,46 +188,36 @@ export const OverLimit: Story = {
  */
 export const OverLimitVip: Story = {
 	render: renderPlanUsage,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forcePlanUsageOverLimit( { vip: true } ),
 };
 
-interface PlanUsageDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PlanUsageStoryControls {}
-
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {PlanUsageDashboardStoryProps} props - The dashboard story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
-function PlanUsageDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: PlanUsageDashboardStoryProps ) {
+function PlanUsageDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ PLAN_USAGE_RENDER_MODULE }
 			renderComponent={ PlanUsageRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< PlanUsageDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <PlanUsageDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };

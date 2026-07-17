@@ -179,6 +179,7 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './hooks/use-stats-email-summary';
+export type { StatsEmailSummaryItem } from './processing/stats';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
@@ -231,6 +232,7 @@ export {
 	getApiErrorCode,
 	getApiErrorStatus,
 	getStatsPlanErrorReason,
+	saveBlob,
 	shouldRetryApiError,
 	useSiteHomeUrl,
 } from './utils';
@@ -242,8 +244,10 @@ export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
+	DownloadReportParams,
+	DownloadReportResponse,
 	ExportReportParams,
 	ExportReportResponse,
 	StatsProxyFetchParams,

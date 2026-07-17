@@ -29,14 +29,8 @@ const storyWidgetType = {
 	presentation: 'framed' as const,
 };
 
-interface TagsStoryControls {
-	withComparison: boolean;
-}
-
-function renderTags( { withComparison }: TagsStoryControls ) {
-	return (
-		<TagsRender attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } } />
-	);
+function renderTags() {
+	return <TagsRender attributes={ { max: 10, reportParams: getDefaultQueryParams() } } />;
 }
 
 // Renders the widget with a distinct `max` so each forced-state story gets its
@@ -59,9 +53,6 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/Tags',
 	component: TagsRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
@@ -70,35 +61,15 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof TagsRender > & TagsStoryControls >;
+} satisfies Meta< typeof TagsRender >;
 
 export default meta;
 
-type Story = StoryObj< TagsStoryControls >;
+type Story = StoryObj< Partial< ComponentProps< typeof TagsRender > > >;
 
 export const Default: Story = {
 	render: renderTags,
-	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * The date range picker's comparison parameters are passed through, but the Stats
- * `tags` endpoint has no comparison period, so the widget renders single-period
- * values only — no period-over-period deltas are shown.
- */
-export const WithComparison: Story = {
-	render: renderTags,
-	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'The `tags` endpoint returns no comparison rows, so no deltas are shown even when the date range picker enables a comparison period.',
-			},
-		},
-	},
 };
 
 /**
@@ -145,28 +116,24 @@ export const Empty: Story = {
 	},
 };
 
-interface TagsDashboardStoryProps extends WidgetDashboardWithWidgetControls, TagsStoryControls {}
-
-function TagsDashboardStory( { withComparison, ...dashboardArgs }: TagsDashboardStoryProps ) {
+function TagsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ storyWidgetType }
 			renderModule={ TAGS_RENDER_MODULE }
 			renderComponent={ TagsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< TagsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <TagsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };
