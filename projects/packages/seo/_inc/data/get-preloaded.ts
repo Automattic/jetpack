@@ -2,8 +2,8 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 
 /**
  * REST paths the dashboard hydrates its initial state from. Must match the
- * routes registered in `Initializer::register_rest_reads()` (and the paths
- * preloaded onto the page by `Initializer::inject_script_data()`).
+ * routes registered in `Dashboard_Data::register_rest_reads()` (and the paths
+ * preloaded onto the page by `Admin_Page::inject_script_data()`).
  */
 export const OVERVIEW_PATH = '/jetpack/v4/seo/overview';
 export const SETTINGS_PATH = '/jetpack/v4/seo/settings';

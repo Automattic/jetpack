@@ -174,7 +174,7 @@ export const SEO = withModuleSettingsFormHelpers(
 
 		// Shown only when the SEO package reports the opt-in is available for this install
 		// (feature flag on, self-hosted, not yet opted in), surfaced on
-		// `window.JetpackScriptData.seo.optin_available` by Initializer::inject_optin_availability().
+		// `window.JetpackScriptData.seo.optin_available` by Surface_Visibility::inject_optin_availability().
 		seoOptInBanner = () => {
 			if ( ! getScriptData()?.seo?.optin_available ) {
 				return null;

@@ -1,7 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 
 // Shape of the site identity the server bootstraps onto
-// `window.JetpackScriptData.seo.site` (see `Initializer::get_site_data()`).
+// `window.JetpackScriptData.seo.site` (see `Dashboard_Data::get_site_data()`).
 // Used to render the homepage search/social previews on the Settings tab.
 export interface SiteData {
 	title: string;

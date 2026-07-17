@@ -1,5 +1,5 @@
 // Shape of the AI tab's initial state, bootstrapped onto
-// `window.JetpackScriptData.seo.ai` (see `Initializer::get_ai_data()`).
+// `window.JetpackScriptData.seo.ai` (see `Dashboard_Data::get_ai_data()`).
 // The AI SEO Enhancer toggle writes through the existing `/jetpack/v4/settings`
 // endpoint (`ai_seo_enhancer_enabled`).
 

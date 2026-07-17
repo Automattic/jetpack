@@ -4,7 +4,7 @@ import type { OverviewResponse } from './overview-types';
 /**
  * Read the aggregated Overview state from the page's preload.
  *
- * The server preloads it onto the page (see `Initializer::inject_script_data()`),
+ * The server preloads it onto the page (see `Admin_Page::inject_script_data()`),
  * so on a normal load it's present at first paint and the Overview reads it
  * synchronously — no request, no loading state. Returns `null` when the preload
  * is missing; the Overview stage then fetches it via the REST route rather than
