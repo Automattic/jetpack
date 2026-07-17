@@ -4,7 +4,7 @@
 .jetpack-seo-settings {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 	max-inline-size: 660px;
 	margin-inline: auto;
 }
@@ -20,7 +20,7 @@
 .jetpack-seo-settings__sitemap-field {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 }
 
 // Align the link/hint with the toggle's label text (and its help text) rather
@@ -32,7 +32,7 @@
 }
 
 .jetpack-seo-settings__sitemap-hint {
-	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: 12px;
 }
 
@@ -42,15 +42,15 @@
 .jetpack-seo-settings__title-row {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-md);
 }
 
 // Hairline divider between rows (not a box). The parent Stack's `lg` gap sits
 // above the rule; the matching padding sits below it, so the divider is evenly
 // spaced between adjacent rows.
 .jetpack-seo-settings__title-row + .jetpack-seo-settings__title-row {
-	padding-block-start: var(--wpds-dimension-gap-lg, 16px);
-	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+	padding-block-start: var(--wpds-dimension-gap-lg);
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 }
 
 // The insert-placeholder buttons and their caption, grouped tight under the
@@ -58,12 +58,12 @@
 .jetpack-seo-settings__title-tokens {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 }
 
 .jetpack-seo-settings__title-tokens-label {
 	font-size: 12px;
-	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 // Right-align the per-section / per-row Save buttons, matching the Newsletter
@@ -79,7 +79,7 @@
 .jetpack-seo-settings__title-footer {
 	display: flex;
 	align-items: flex-start;
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 }
 
 .jetpack-seo-settings__title-footer .jetpack-seo-settings__preview {
@@ -103,7 +103,7 @@
 .jetpack-seo-settings__verification-grid {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-md);
 }
 
 // Group label for the Organization "Social profiles" (sameAs) repeater, so it
@@ -112,7 +112,7 @@
 	font-size: 11px;
 	font-weight: 500;
 	text-transform: uppercase;
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral);
 }
 
 // The URL input in a Social profiles row takes the remaining width so the
@@ -124,7 +124,7 @@
 
 .jetpack-seo-settings__schema-profile-input--error .components-base-control__help,
 .jetpack-seo-settings__schema-field--error .components-base-control__help {
-	color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+	color: var(--wpds-color-foreground-content-error-weak);
 }
 
 // Keep paired controls on one row and place their shared validation message
@@ -132,7 +132,7 @@
 .jetpack-seo-settings__schema-paired-fields {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	gap: var(--wpds-dimension-gap-sm);
 	min-inline-size: 0;
 }
 
@@ -144,20 +144,20 @@
 	grid-column: 1 / -1;
 	margin: 0;
 	font-size: 12px;
-	color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+	color: var(--wpds-color-foreground-content-error-weak);
 }
 
 .jetpack-seo-settings__schema-opening-hours-row {
 	display: grid;
 	grid-template-columns: 84px minmax(0, 1fr);
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	gap: var(--wpds-dimension-gap-sm);
 	align-items: start;
 }
 
 .jetpack-seo-settings__schema-avatar {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	gap: var(--wpds-dimension-gap-sm);
 
 	img {
 		inline-size: 48px;
@@ -175,7 +175,7 @@
 
 // Intro copy above the preview list.
 .jetpack-seo-settings__preview-intro {
-	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
+	margin: 0 0 var(--wpds-dimension-gap-xl);
 }
 
 // The previews stack with generous separation between them. Each preview is
@@ -184,7 +184,7 @@
 .jetpack-seo-settings__preview-list {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-2xl, 32px);
+	gap: var(--wpds-dimension-gap-2xl);
 }
 
 // Platform label above each preview: brand icon + name, prominent enough to
@@ -193,7 +193,7 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	margin: 0 0 var(--wpds-dimension-gap-md, 12px);
+	margin: 0 0 var(--wpds-dimension-gap-md);
 	font-size: 15px;
 	font-weight: 600;
 }
@@ -213,15 +213,15 @@
 }
 
 .jetpack-seo-preview__desc {
-	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 // Google search result — bordered around the preview itself (it has none
 // otherwise), set off as a result beneath its heading.
 .jetpack-seo-preview--google {
-	padding: var(--wpds-dimension-padding-md, 12px);
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
-	border-radius: var(--wpds-border-radius-md, 4px);
+	padding: var(--wpds-dimension-padding-md);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
 
 	.jetpack-seo-preview__google-site {
 		display: flex;
@@ -233,7 +233,7 @@
 		inline-size: 26px;
 		block-size: 26px;
 		border-radius: 50%;
-		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		object-fit: cover;
 	}
 
@@ -258,30 +258,30 @@
 // its heading.
 .jetpack-seo-preview--card {
 	overflow: hidden;
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
-	border-radius: var(--wpds-border-radius-md, 4px);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
 
 	.jetpack-seo-preview__image {
 		block-size: 240px;
-		background-color: var(--wpds-color-background-surface-neutral, #f0f2f5);
+		background-color: var(--wpds-color-background-surface-neutral);
 		background-position: center;
 		background-size: cover;
 	}
 
 	.jetpack-seo-preview__card-body {
-		padding: var(--wpds-dimension-padding-md, 12px);
+		padding: var(--wpds-dimension-padding-md);
 		// Recessed surface so the link-preview body stands apart from both the
 		// white card and the page canvas. The canvas already uses
 		// `bg-surface-neutral`, so reusing that token here would read as the same
 		// surface — step down to the weaker surface instead. The preview image
 		// above keeps `bg-surface-neutral`.
-		background: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
+		background: var(--wpds-color-background-surface-neutral-weak);
 	}
 
 	.jetpack-seo-preview__card-domain {
 		font-size: 12px;
 		text-transform: uppercase;
-		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	.jetpack-seo-preview__card-title {

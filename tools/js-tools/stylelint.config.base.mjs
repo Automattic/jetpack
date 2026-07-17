@@ -92,15 +92,19 @@ const baseConfig = {
 			files: [
 				// wp-build dashboards (`build:wp-build` in package.json; fallbacks via @wordpress/build).
 				'projects/packages/backup/routes/**/*.{css,scss,sass}',
+				'projects/packages/backup/src/dashboard/**/*.{css,scss,sass}',
 				'projects/packages/forms/routes/**/*.{css,scss,sass}',
 				'projects/packages/forms/src/dashboard/wp-build/**/*.{css,scss,sass}',
 				'projects/packages/jetpack-mu-wpcom/routes/**/*.{css,scss,sass}',
 				'projects/packages/newsletter/routes/**/*.{css,scss,sass}',
+				'projects/packages/newsletter/_inc/**/*.{css,scss,sass}',
 				'projects/packages/podcast/routes/**/*.{css,scss,sass}',
 				'projects/packages/premium-analytics/**/*.{css,scss,sass}',
 				'projects/packages/publicize/routes/**/*.{css,scss,sass}',
 				'projects/packages/scan/routes/**/*.{css,scss,sass}',
+				'projects/packages/scan/_inc/**/*.{css,scss,sass}',
 				'projects/packages/seo/routes/**/*.{css,scss,sass}',
+				'projects/packages/seo/_inc/**/*.{css,scss,sass}',
 				'projects/packages/videopress/routes/**/*.{css,scss,sass}',
 				// Webpack packages with `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks`
 				'projects/js-packages/licensing/**/*.{css,scss,sass}',

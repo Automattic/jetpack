@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+
+Comment: Drop hardcoded WPDS token fallbacks from dashboard layout styles (injected by wp-build).
+
