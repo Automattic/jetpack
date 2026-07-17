@@ -1007,7 +1007,14 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<a class="bw-help-link" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the Write editor guide', 'jetpack-mu-wpcom' ); ?> <span aria-hidden="true">&#8599;</span></a>
 		</div>
 		</div><!-- /.bw-help-wrap -->
-		<span class="bw-status" role="status" aria-live="polite" data-wp-text="state.displayStatus"></span>
+		<span class="bw-status" data-wp-text="state.displayStatus"></span>
+		<?php
+		// Screen-reader announcement for transient status (saving/publishing,
+		// "Please write something" validation, save/publish errors). Bound to
+		// state.message only — not state.displayStatus — so the title mirror the
+		// visible .bw-status also carries isn't re-announced on every keystroke.
+		?>
+		<span class="bw-visually-hidden" role="status" aria-live="polite" data-wp-text="state.message"></span>
 		<div class="bw-topbar-actions">
 			<button
 				class="bw-btn bw-btn-draft"
