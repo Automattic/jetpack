@@ -505,6 +505,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$attachment_id = $this->make_attachment();
 		$lock          = 'videopress-promote-' . get_current_blog_id() . '-' . $attachment_id;
 
+		$result = null;
 		wp_cache_add( $lock, 1, 'video-info', 30 );
 		try {
 			$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
@@ -568,9 +569,15 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
 
 		$load_primitives = new \ReflectionMethod( $endpoint, 'promote_load_primitives' );
-		$this->assertFalse( $load_primitives->invoke( $endpoint ), 'Transcode primitives must not be loadable off-WPCOM.' );
+		$plan_gate       = new \ReflectionMethod( $endpoint, 'promote_site_has_videopress' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			// Required to invoke protected methods before PHP 8.1; a
+			// deprecated no-op from PHP 8.5 on, so gate the call.
+			$load_primitives->setAccessible( true );
+			$plan_gate->setAccessible( true );
+		}
 
-		$plan_gate = new \ReflectionMethod( $endpoint, 'promote_site_has_videopress' );
+		$this->assertFalse( $load_primitives->invoke( $endpoint ), 'Transcode primitives must not be loadable off-WPCOM.' );
 		$this->assertFalse( $plan_gate->invoke( $endpoint, get_current_blog_id() ), 'The plan gate must fail closed off-WPCOM.' );
 	}
 
