@@ -167,12 +167,6 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 			className={ styles.backLink }
 		/>
 	) : null;
-	const footer = (
-		<WidgetFooter>
-			<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
-		</WidgetFooter>
-	);
-
 	return (
 		<>
 			{ backLink }
@@ -203,7 +197,9 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					/>
 				</WidgetState>
 			</div>
-			{ footer }
+			<WidgetFooter>
+				<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+			</WidgetFooter>
 		</>
 	);
 }
