@@ -13,13 +13,16 @@ use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-types.php';
 require_once __DIR__ . '/../../src/widget-modules.php';
+require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 
 /**
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\register_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\translate_widget_metadata
  * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_widget_help
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_widget_metadata_i18n_schema
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_widget_modules_response
  */
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\translate_widget_metadata' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_widget_help' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_metadata_i18n_schema' )]
@@ -76,6 +79,65 @@ class Widget_Metadata_Test extends BaseTestCase {
 		remove_filter( 'gettext_with_context', $callback );
 
 		$this->assertContains( array( 'Hello world', 'widget title', 'my-widget-pack' ), $calls, 'The declared textdomain is used for translation.' );
+	}
+
+	/**
+	 * register_widget_types() hydrates the registry from the manifest with
+	 * metadata translated, the help note sanitized, and every field mapped.
+	 */
+	public function test_register_widget_types_hydrates_metadata_from_manifest() {
+		$GLOBALS['jpa_test_widget_manifest'] = array(
+			array(
+				'name'          => 'test/hydration-sentinel',
+				'render_module' => 'test/hydration/render',
+				'widget_module' => 'test/hydration/widget',
+				'presentation'  => 'framed',
+				'category'      => 'stats',
+				'title'         => 'Hydration sentinel',
+				'description'   => 'Carries metadata through hydration.',
+				'help'          => array(
+					'content' => 'Read <em>this</em> <script>carefully</script>.',
+					'links'   => array(
+						array(
+							'label' => 'Docs',
+							'href'  => 'https://example.com/docs',
+						),
+					),
+				),
+				'keywords'      => array( 'sentinel' ),
+			),
+		);
+
+		try {
+			register_widget_types();
+
+			$registered = get_registered_widget_types();
+			$this->assertArrayHasKey( 'test/hydration-sentinel', $registered, 'The manifest candidate is registered.' );
+
+			$widget_type = $registered['test/hydration-sentinel'];
+			$this->assertSame( 'test/hydration/render', $widget_type->render_module, 'The render module is mapped.' );
+			$this->assertSame( 'framed', $widget_type->presentation, 'The presentation is mapped.' );
+			$this->assertSame( 'stats', $widget_type->category, 'The category is mapped.' );
+			$this->assertSame( 'Hydration sentinel', $widget_type->title, 'The title is mapped.' );
+			$this->assertSame( 'Carries metadata through hydration.', $widget_type->description, 'The description is mapped.' );
+			$this->assertSame( array( 'sentinel' ), $widget_type->keywords, 'The keywords are mapped.' );
+			$this->assertSame(
+				array(
+					'content' => 'Read <em>this</em> carefully.',
+					'links'   => array(
+						array(
+							'label' => 'Docs',
+							'href'  => 'https://example.com/docs',
+						),
+					),
+				),
+				$widget_type->help,
+				'The help note is sanitized during hydration.'
+			);
+		} finally {
+			Widget_Type_Registry::get_instance()->unregister( 'test/hydration-sentinel' );
+			unset( $GLOBALS['jpa_test_widget_manifest'] );
+		}
 	}
 
 	/**
