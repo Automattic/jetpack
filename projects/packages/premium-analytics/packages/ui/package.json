@@ -16,6 +16,7 @@
 		"@jetpack-premium-analytics/formatters": "workspace:*",
 		"@wordpress/components": "37.0.0",
 		"@wordpress/compose": "8.4.0",
+		"@wordpress/dataviews": "17.1.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
 		"@wordpress/ui": "0.17.0",
