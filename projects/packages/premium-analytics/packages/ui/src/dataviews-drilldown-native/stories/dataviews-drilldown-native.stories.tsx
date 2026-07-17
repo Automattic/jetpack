@@ -1,9 +1,3 @@
-/**
- * The DataViews base stylesheet. The component's scss imports it for product
- * builds, but Storybook's Vite/sass pipeline passes css-extension imports
- * through verbatim, so the story loads it as a side effect instead.
- */
-import '@wordpress/dataviews/build-style/style.css';
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { DataViewRenderFieldProps, Field } from '@wordpress/dataviews';
