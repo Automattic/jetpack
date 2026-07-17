@@ -21,7 +21,7 @@ use WP_REST_Server;
  * answers the same question by refreshing update transients and formatting every installed
  * plugin; this reads one directory.
  */
-class Plugin_State_REST_Controller extends WP_REST_Controller {
+class WP_REST_Plugin_State_Controller extends WP_REST_Controller {
 
 	/**
 	 * Constructor.

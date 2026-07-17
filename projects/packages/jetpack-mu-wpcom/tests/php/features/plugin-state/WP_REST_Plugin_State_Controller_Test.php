@@ -7,21 +7,21 @@
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Plugin_State\Plugin_State_REST_Controller;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Plugin_State\WP_REST_Plugin_State_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Requests;
 
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-state/class-plugin-state-rest-controller.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-state/class-wp-rest-plugin-state-controller.php';
 
 /**
  * Tests for the Atomic plugin-state REST route.
  *
- * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Plugin_State\Plugin_State_REST_Controller
+ * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Plugin_State\WP_REST_Plugin_State_Controller
  */
-#[CoversClass( Plugin_State_REST_Controller::class )]
-class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
+#[CoversClass( WP_REST_Plugin_State_Controller::class )]
+class WP_REST_Plugin_State_Controller_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Plugin directories created by a test.
@@ -73,7 +73,7 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 	 * Register the route under test.
 	 */
 	public function register_route() {
-		( new Plugin_State_REST_Controller() )->register_routes();
+		( new WP_REST_Plugin_State_Controller() )->register_routes();
 	}
 
 	/**
