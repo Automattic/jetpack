@@ -136,6 +136,40 @@ class Widget_Metadata_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Each link href goes through esc_url_raw(): a disallowed protocol drops
+	 * the whole link, and safe URLs pass through unchanged.
+	 */
+	public function test_sanitize_widget_help_rejects_unsafe_link_protocols() {
+		$this->assertSame(
+			array(
+				'content' => 'Read the docs.',
+				'links'   => array(
+					array(
+						'label' => 'Docs',
+						'href'  => 'https://example.com/docs',
+					),
+				),
+			),
+			sanitize_widget_help(
+				array(
+					'content' => 'Read the docs.',
+					'links'   => array(
+						array(
+							'label' => 'Bad',
+							'href'  => 'javascript:alert(1)',
+						),
+						array(
+							'label' => 'Docs',
+							'href'  => 'https://example.com/docs',
+						),
+					),
+				)
+			),
+			'A link whose href does not survive esc_url_raw() is dropped; safe links pass unchanged.'
+		);
+	}
+
+	/**
 	 * When no link survives, the `links` key is omitted entirely.
 	 */
 	public function test_sanitize_widget_help_omits_links_when_none_survive() {
