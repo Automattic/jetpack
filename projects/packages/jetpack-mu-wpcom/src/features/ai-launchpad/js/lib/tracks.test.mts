@@ -131,6 +131,12 @@ describe( 'ai-launchpad tracks', () => {
 		] );
 	} );
 
+	it( 'latches wizard_completed to once per page load', () => {
+		trackWizardCompleted();
+		trackWizardCompleted();
+		assert.equal( ( win.window._tkq as unknown[] ).length, 1 );
+	} );
+
 	it( 'records the task events with their task_id', () => {
 		trackTaskClicked( { task_id: 'add_about_page', task_status: 'skipped' } );
 		assert.deepEqual( lastEvent(), [

@@ -42,6 +42,11 @@ const EMPTY_CONTEXT: TracksContext = {
 
 let context: TracksContext = { ...EMPTY_CONTEXT };
 
+// wizard_completed means "landed on the tasklist for the FIRST time", so it can
+// only ever fire once per page load — latched here so a re-render/remount of the
+// firing component can never double-count the funnel's terminal step.
+let wizardCompletedRecorded = false;
+
 /**
  * Merges values into the shared event context. Call as data becomes available
  * (initial read, goal confirmation, tailored output, rendered list).
@@ -52,9 +57,10 @@ export function setTracksContext( partial: Partial< TracksContext > ): void {
 	context = { ...context, ...partial };
 }
 
-/** Resets the shared context to all-null. For tests. */
+/** Resets the shared context and the wizard-completed latch. For tests. */
 export function resetTracksContext(): void {
 	context = { ...EMPTY_CONTEXT };
+	wizardCompletedRecorded = false;
 }
 
 /**
@@ -165,8 +171,16 @@ export function trackWizardSiteDetailsChanged( props: { field: 'title' | 'descri
 	record( 'jetpack_ai_launchpad_wizard_site_details_changed', props );
 }
 
-/** Records the wizard-completed event: the user finishes the wizard and lands on the tasklist. */
+/**
+ * Records the wizard-completed event: the user finishes the wizard and lands on
+ * the tasklist for the first time. Latched — repeat calls in the same page load
+ * record nothing.
+ */
 export function trackWizardCompleted(): void {
+	if ( wizardCompletedRecorded ) {
+		return;
+	}
+	wizardCompletedRecorded = true;
 	record( 'jetpack_ai_launchpad_wizard_completed' );
 }
 

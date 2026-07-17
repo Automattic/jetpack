@@ -67,11 +67,13 @@ export function Wizard( {
 	const [ skipping, setSkipping ] = useState( false );
 
 	const state: WizardState = { goal, siteName, intent, locale };
+	// The analytics name of the current step, shared by every event that reports one.
+	const stepName = 0 === step ? 'goal' : 'site_details';
 
 	// One viewed event per screen shown, re-firing when Back re-shows the goal step.
 	useEffect( () => {
-		trackViewed( { step: 0 === step ? 'goal' : 'site_details' } );
-	}, [ step ] );
+		trackViewed( { step: stepName } );
+	}, [ stepName ] );
 
 	// Background-tailor on Step-2 typing pauses; Finish reuses the prewarmed
 	// promise via getPrewarmedTailor.
@@ -79,7 +81,7 @@ export function Wizard( {
 
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
-			trackWizardStepCompleted( { step: 0 === step ? 'goal' : 'site_details' } );
+			trackWizardStepCompleted( { step: stepName } );
 			// The goal is confirmed from here on; earlier funnel events carry null.
 			if ( goal ) {
 				setTracksContext( { goal } );
@@ -110,7 +112,7 @@ export function Wizard( {
 			.catch( () => {} );
 
 		const tailoring = getPrewarmedTailor( payload );
-		trackWizardStepCompleted( { step: 'site_details' } );
+		trackWizardStepCompleted( { step: stepName } );
 		// One event per field the user actually modified, vs the pre-filled values.
 		if ( siteName.trim() !== initialSiteName.trim() ) {
 			trackWizardSiteDetailsChanged( { field: 'title' } );
@@ -135,7 +137,7 @@ export function Wizard( {
 	// sites by their front-end host, so prefer the site URL over the wp-admin request host.
 	const handleSkip = async () => {
 		setSkipping( true );
-		trackWizardStepSkipped( { step: 0 === step ? 'goal' : 'site_details' } );
+		trackWizardStepSkipped( { step: stepName } );
 		try {
 			await apiFetch( { path: '/wpcom/v2/ai-launchpad', method: 'DELETE' } );
 		} catch {

@@ -145,32 +145,27 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				setSiteEditUrl( data.site.edit_url ?? null );
 			}
 
+			let nextOutput: TailoredOutput | null = null;
+			let nextTasks: EnrichedTask[] = [];
 			if ( data && data.tasks.length > 0 ) {
-				setTasks( data.tasks );
-				setOutput( data.ai_output?.payload ?? null );
+				nextOutput = data.ai_output?.payload ?? null;
+				nextTasks = data.tasks;
 			} else if ( result?.output ) {
 				// Read returned nothing: render the in-memory result instead.
-				setOutput( result.output );
-				setTasks( tasksFromFixture( result.output ) );
-			} else {
-				setTasks( [] );
+				nextOutput = result.output;
+				nextTasks = tasksFromFixture( result.output );
 			}
+			setOutput( nextOutput );
+			setTasks( nextTasks );
 
 			// The wizard→list handoff: the user has completed the wizard and landed on
-			// their tasklist. Seed the context synchronously first, so the event
-			// carries the freshly inferred props instead of waiting a render cycle.
-			if ( pendingTailor ) {
-				const landedOutput = data?.ai_output?.payload ?? result?.output ?? null;
-				setTracksContext( contextFromInferred( landedOutput?.inferred ) );
-				let landedTasks: EnrichedTask[] = [];
-				if ( data && data.tasks.length > 0 ) {
-					landedTasks = data.tasks;
-				} else if ( result?.output ) {
-					landedTasks = tasksFromFixture( result.output );
-				}
-				if ( landedTasks.length > 0 ) {
-					setTracksContext( contextFromTaskIds( landedTasks.map( task => task.id ) ) );
-				}
+			// their tasklist. Seed the context synchronously (from exactly what will
+			// render) so the event carries the freshly inferred props instead of
+			// waiting a render cycle. An empty landing (tailor and read both failed)
+			// is an error state, not a tasklist — no completion is recorded for it.
+			if ( pendingTailor && nextTasks.length > 0 ) {
+				setTracksContext( contextFromInferred( nextOutput?.inferred ) );
+				setTracksContext( contextFromTaskIds( nextTasks.map( task => task.id ) ) );
 				trackWizardCompleted();
 			}
 		} )();
