@@ -39,7 +39,7 @@ const MOCK_VIDEO_ID = 105;
  * Builds the host-composed report params for the selected video, deriving the
  * requested date range.
  *
- * @param {PresetType} preset         - Optional date preset override.
+ * @param {PresetType} preset - Optional date preset override.
  * @return The report params with the single-video `post_id` scope.
  */
 function reportParamsForVideo( preset?: PresetType ) {
