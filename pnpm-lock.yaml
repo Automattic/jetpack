@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-ZikcwXv2IUXUsJCxa0O8rTvJbiGdLkkyG2R9cf9QXWs=
+pnpmfileChecksum: sha256-H/8Y6udhCH/0sCgVTPXKYGbGEy+ej7f13a04mLJgSRc=
 
 patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
@@ -1286,8 +1286,8 @@ importers:
         specifier: workspace:*
         version: link:../webpack-config
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
@@ -1871,13 +1871,13 @@ importers:
         version: 1.0.2(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.90.8
-        version: 5.90.8(react@18.3.1)
+        version: 5.101.2(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.51.0
         version: 7.51.0
       '@wordpress/components':
         specifier: 37.0.0
-        version: 37.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 37.0.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose':
         specifier: 8.4.0
         version: 8.4.0(@types/react@18.3.28)(react@18.3.1)
@@ -1886,7 +1886,7 @@ importers:
         version: 10.51.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 17.1.0
-        version: 17.1.0(@types/react@18.3.28)(react@18.3.1)
+        version: 17.1.0(@types/react@18.3.28)(postcss@8.5.14)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.51.0
         version: 5.51.0
@@ -1901,7 +1901,7 @@ importers:
         version: 15.1.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.17.0
-        version: 0.17.0(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.17.0(@types/react@18.3.28)(date-fns@4.1.0)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.51.0
         version: 4.51.0
@@ -1942,9 +1942,21 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.51.0
         version: 6.51.0
+      '@wordpress/theme':
+        specifier: 0.17.0
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
+      postcss:
+        specifier: 8.5.14
+        version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(webpack@5.107.2)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -1953,7 +1965,7 @@ importers:
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.107.2)
       webpack:
         specifier: 5.107.2
-        version: 5.107.2(webpack-cli@6.0.1)
+        version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.107.2)
@@ -2088,8 +2100,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2957,7 +2969,7 @@ importers:
         version: 10.22.0
       '@tanstack/react-query':
         specifier: ^5.15.5
-        version: 5.90.8(react@18.3.1)
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3297,14 +3309,14 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.51.0
         version: 7.51.0
       '@wordpress/components':
         specifier: 37.0.0
-        version: 37.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 37.0.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose':
         specifier: 8.4.0
         version: 8.4.0(@types/react@18.3.28)(react@18.3.1)
@@ -3313,7 +3325,7 @@ importers:
         version: 10.51.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 17.1.0
-        version: 17.1.0(@types/react@18.3.28)(react@18.3.1)
+        version: 17.1.0(@types/react@18.3.28)(postcss@8.5.14)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.51.0
         version: 5.51.0
@@ -3328,10 +3340,10 @@ importers:
         version: 15.1.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/theme':
         specifier: 0.17.0
-        version: 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.17.0
-        version: 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.51.0
         version: 4.51.0
@@ -3387,12 +3399,21 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2(@types/node@24.13.3)
+      postcss:
+        specifier: 8.5.14
+        version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(typescript@6.0.3)(webpack@5.107.2)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3416,7 +3437,7 @@ importers:
         version: 6.0.3
       webpack:
         specifier: 5.107.2
-        version: 5.107.2(webpack-cli@6.0.1)
+        version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
@@ -3451,8 +3472,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3693,6 +3714,9 @@ importers:
       '@wordpress/block-serialization-default-parser':
         specifier: 5.51.0
         version: 5.51.0
+      '@wordpress/theme':
+        specifier: 0.17.0
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
@@ -3976,8 +4000,8 @@ importers:
         specifier: link:packages/widgets-toolkit
         version: link:packages/widgets-toolkit
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4070,8 +4094,8 @@ importers:
         specifier: 10.4.6
         version: 10.4.6(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(typescript@6.0.3)
       '@tanstack/react-query-devtools':
-        specifier: 5.90.2
-        version: 5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(@tanstack/react-query@5.101.2(react@18.3.1))(react@18.3.1)
       '@tanstack/react-router':
         specifier: 1.167.1
         version: 1.167.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4152,8 +4176,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4469,8 +4493,8 @@ importers:
         specifier: workspace:*
         version: link:../wp-build-polyfills
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4920,8 +4944,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/script-data
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6200,14 +6224,14 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/scan
       '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
+        specifier: 5.101.2
+        version: 5.101.2(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.51.0
         version: 7.51.0
       '@wordpress/components':
         specifier: 37.0.0
-        version: 37.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 37.0.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose':
         specifier: 8.4.0
         version: 8.4.0(@types/react@18.3.28)(react@18.3.1)
@@ -6228,7 +6252,7 @@ importers:
         version: 15.1.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.17.0
-        version: 0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.51.0
         version: 4.51.0
@@ -6272,9 +6296,21 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.51.0
         version: 6.51.0
+      '@wordpress/theme':
+        specifier: 0.17.0
+        version: 0.17.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
+      postcss:
+        specifier: 8.5.14
+        version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(webpack@5.107.2)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -6283,7 +6319,7 @@ importers:
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.107.2)
       webpack:
         specifier: 5.107.2
-        version: 5.107.2(webpack-cli@6.0.1)
+        version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.107.2)
@@ -6741,9 +6777,12 @@ importers:
       '@octokit/rest':
         specifier: 22.0.1
         version: 22.0.1
+      '@stylistic/stylelint-plugin':
+        specifier: 5.2.1
+        version: 5.2.1(stylelint@17.14.0(typescript@6.0.3))
       '@tanstack/eslint-plugin-query':
-        specifier: 5.100.14
-        version: 5.100.14(eslint@10.6.0)(typescript@6.0.3)
+        specifier: 5.101.2
+        version: 5.101.2(eslint@10.6.0)(typescript@6.0.3)
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -6755,16 +6794,16 @@ importers:
         version: 7.0.0-dev.20260707.2
       '@wordpress/eslint-plugin':
         specifier: 25.7.0
-        version: 25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)
+        version: 25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)
       '@wordpress/jest-console':
         specifier: 8.51.0
         version: 8.51.0(jest@30.4.2)
       '@wordpress/stylelint-config':
         specifier: 24.0.0
-        version: 24.0.0(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3)))(postcss@8.5.14)(stylelint-scss@7.0.0(stylelint@17.7.0(typescript@6.0.3)))(stylelint@17.7.0(typescript@6.0.3))
+        version: 24.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.0(typescript@6.0.3)))(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint@17.14.0(typescript@6.0.3))
       '@wordpress/theme':
         specifier: 0.17.0
-        version: 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3))
+        version: 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))
       babel-jest:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.7)
@@ -6883,11 +6922,17 @@ importers:
         specifier: 10.4.6
         version: 10.4.6(@testing-library/dom@10.4.1)(react@18.3.1)(wp-prettier@3.0.3)
       stylelint:
-        specifier: 17.7.0
-        version: 17.7.0(typescript@6.0.3)
+        specifier: 17.14.0
+        version: 17.14.0(typescript@6.0.3)
+      stylelint-config-recommended:
+        specifier: 18.0.0
+        version: 18.0.0(stylelint@17.14.0(typescript@6.0.3))
+      stylelint-config-recommended-scss:
+        specifier: 17.0.1
+        version: 17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3))
       stylelint-scss:
-        specifier: 7.0.0
-        version: 7.0.0(stylelint@17.7.0(typescript@6.0.3))
+        specifier: 7.2.0
+        version: 7.2.0(stylelint@17.14.0(typescript@6.0.3))
       svelte:
         specifier: 5.55.7
         version: 5.55.7
@@ -10026,8 +10071,8 @@ packages:
   '@tannin/sprintf@1.3.3':
     resolution: {integrity: sha512-RwARl+hFwhzy0tg9atWcchLFvoQiOh4rrP7uG2N5E4W80BPCUX0ElcUR9St43fxB9EfjsW2df9Qp+UsTbvQDjA==}
 
-  '@tanstack/eslint-plugin-query@5.100.14':
-    resolution: {integrity: sha512-NbpiBCmeHTRuVHeV5+U+1bzmxyTW5Dzp2sCeE6Hx+ZJTJWFK9dsm8VZmRc7LQP9/ZORsF620PvgUk67AwiBo4A==}
+  '@tanstack/eslint-plugin-query@5.101.2':
+    resolution: {integrity: sha512-cPE99s3XZwlObfn8lCezT4j4JLj2CVzpIEywx0H4hzfPsX/o9QhdwaOwcDXxrQAqx2ds7TbvTinxhB8B/ywb6w==}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
       typescript: ^5.4.0 || ^6.0.0
@@ -10043,20 +10088,20 @@ packages:
     resolution: {integrity: sha512-79pf/RkhteYZTRgcR4F9kbk84P2N8rugQJswxfIqovlbRiT3yI7eBE+5QorIrZaOKktsgzRlXh1l/du/xpl4iA==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/query-core@5.90.8':
-    resolution: {integrity: sha512-4E0RP/0GJCxSNiRF2kAqE/LQkTJVlL/QNU7gIJSptaseV9HP6kOuA+N11y4bZKZxa3QopK3ZuewwutHx6DqDXQ==}
+  '@tanstack/query-core@5.101.2':
+    resolution: {integrity: sha512-hH5MLoJhF7KaIGd7q3xTXGXvslI+GYlM1Z/35aSHHWaCJWB7XvTSHYuV3eM7tw+aE0mT/xMro4M4Q9rCGHT0lw==}
 
-  '@tanstack/query-devtools@5.90.1':
-    resolution: {integrity: sha512-GtINOPjPUH0OegJExZ70UahT9ykmAhmtNVcmtdnOZbxLwT7R5OmRztR5Ahe3/Cu7LArEmR6/588tAycuaWb1xQ==}
+  '@tanstack/query-devtools@5.101.2':
+    resolution: {integrity: sha512-o+wHcqgN7Pp0s8v1i0UGq/ZrrEKrxdIiMQmKRdYb2w7NPtylYSJ4+wg/tIn71m9DLstwUwdEGAvROdly6HXP6w==}
 
-  '@tanstack/react-query-devtools@5.90.2':
-    resolution: {integrity: sha512-vAXJzZuBXtCQtrY3F/yUNJCV4obT/A/n81kb3+YqLbro5Z2+phdAbceO+deU3ywPw8B42oyJlp4FhO0SoivDFQ==}
+  '@tanstack/react-query-devtools@5.101.2':
+    resolution: {integrity: sha512-eU7HctdA9gDjqoERoEdzLbw9DiqnBDfh5+Hu0u26gjqoHJezOpQAuiesDL2VvkU+2cPV76zgv0tMZsOrI4LjnQ==}
     peerDependencies:
-      '@tanstack/react-query': ^5.90.2
+      '@tanstack/react-query': ^5.101.2
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.90.8':
-    resolution: {integrity: sha512-/3b9QGzkf4rE5/miL6tyhldQRlLXzMHcySOm/2Tm2OLEFE9P1ImkH0+OviDBSvyAvtAOJocar5xhd7vxdLi3aQ==}
+  '@tanstack/react-query@5.101.2':
+    resolution: {integrity: sha512-seDkr6kzGzX1okaaTtZPtgA688CDPlXUz1C6xSg0ESqn04Vuc8tlrYms1s3de+znBqhPVxFRfpAfUf+6XvfPWg==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -11680,9 +11725,12 @@ packages:
     resolution: {integrity: sha512-KmDPgStzIeQFsu1ja8WpZ1ahXg/P5ZKavsapG5ls5bEONIsHx0O5Bz9o2iE/M/112nnRkyI3iKv082SGtYr7TQ==}
     engines: {node: ^20.19.0 || >=22.13.0, npm: '>=8.19.2'}
     peerDependencies:
+      '@stylistic/stylelint-plugin': '>=3.1.3'
       '@wordpress/theme': '*'
-      stylelint: ^17
-      stylelint-scss: ^7
+      stylelint: '>=16.8.2'
+      stylelint-config-recommended: '>=14.0.1'
+      stylelint-config-recommended-scss: '>=14.1.0'
+      stylelint-scss: '>=6.4.0'
 
   '@wordpress/sync@1.51.0':
     resolution: {integrity: sha512-qlswS+yj8BkqH6fiCTA4yOG1oblP73CJPl4uA83PJEe+cijn0yTR/UOoQDitlKsomOqTa8qNjYAbAMIIYSjntw==}
@@ -11693,12 +11741,12 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@types/react': ^18.3.27
-      esbuild: ^0.27.2
-      postcss: ^8.0.0
+      esbuild: '>=0.27.2'
+      postcss: '>=8.0.0'
       react: ^18.0.0
       react-dom: ^18.0.0
       stylelint: '>=16.8.2'
-      vite: '*'
+      vite: '>=7.3.2'
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -11716,12 +11764,12 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@types/react': ^18.3.27
-      esbuild: ^0.27.2
-      postcss: ^8.0.0
+      esbuild: '>=0.27.2'
+      postcss: '>=8.0.0'
       react: ^18.0.0
       react-dom: ^18.0.0
       stylelint: '>=16.8.2'
-      vite: '*'
+      vite: '>=7.3.2'
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -11739,12 +11787,12 @@ packages:
     engines: {node: ^20.19.0 || >=22.13.0, npm: '>=10.2.3'}
     peerDependencies:
       '@types/react': ^18 || ^19
-      esbuild: ^0.27.2
-      postcss: ^8.0.0
+      esbuild: '>=0.27.2'
+      postcss: '>=8.0.0'
       react: ^18 || ^19
       react-dom: ^18 || ^19
       stylelint: '>=16.8.2'
-      vite: '*'
+      vite: '>=7.3.2'
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -15292,9 +15340,6 @@ packages:
   mdn-data@2.27.1:
     resolution: {integrity: sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ==}
 
-  mdn-data@2.28.1:
-    resolution: {integrity: sha512-U9w+PzSZ00Z5m9rZ5ARVFL5xOfuCHdKYi/1RRwDCJsboFgJDNT3zT6PIPD7mZQYaQLhsZM3GfDRgSMRHhSmVng==}
-
   mdurl@2.0.0:
     resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
 
@@ -17464,36 +17509,30 @@ packages:
     peerDependencies:
       postcss: ^8.5.13
 
-  stylelint-config-recommended-scss@16.0.2:
-    resolution: {integrity: sha512-aUTHhPPWCvFyWaxtckJlCPaXTDFsp4pKO8evXNCsW9OwsaUWyMd6jvcUhSmfGWPrTddvzNqK4rS/UuSLcbVGdQ==}
+  stylelint-config-recommended-scss@17.0.1:
+    resolution: {integrity: sha512-x5DVehzJudcwF0od3sGpgkln2PLLranFE7twwbp7dqDINCyZvwzFkMc6TLhNOvazRiVBJYATQLouJY0xPGB8WA==}
     engines: {node: '>=20'}
     peerDependencies:
       postcss: ^8.3.3
-      stylelint: ^17
+      stylelint: ^17.0.0
     peerDependenciesMeta:
       postcss:
         optional: true
 
-  stylelint-config-recommended@17.0.0:
-    resolution: {integrity: sha512-WaMSdEiPfZTSFVoYmJbxorJfA610O0tlYuU2aEwY33UQhSPgFbClrVJYWvy3jGJx+XW37O+LyNLiZOEXhKhJmA==}
-    engines: {node: '>=18.12.0'}
-    peerDependencies:
-      stylelint: ^17
-
-  stylelint-scss@6.14.0:
-    resolution: {integrity: sha512-ZKmHMZolxeuYsnB+PCYrTpFce0/QWX9i9gh0hPXzp73WjuIMqUpzdQaBCrKoLWh6XtCFSaNDErkMPqdjy1/8aA==}
-    engines: {node: '>=18.12.0'}
-    peerDependencies:
-      stylelint: ^17
-
-  stylelint-scss@7.0.0:
-    resolution: {integrity: sha512-H88kCC+6Vtzj76NsC8rv6x/LW8slBzIbyeSjsKVlS+4qaEJoDrcJR4L+8JdrR2ORdTscrBzYWiiT2jq6leYR1Q==}
+  stylelint-config-recommended@18.0.0:
+    resolution: {integrity: sha512-mxgT2XY6YZ3HWWe3Di8umG6aBmWmHTblTgu/f10rqFXnyWxjKWwNdjSWkgkwCtxIKnqjSJzvFmPT5yabVIRxZg==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
-      stylelint: ^17
+      stylelint: ^17.0.0
 
-  stylelint@17.7.0:
-    resolution: {integrity: sha512-n/+4RheCRl+cecGnF+S/Adz59iCRaK9BVznJYB+a7GOksfwNzjiOPnYv17pTO0HgRse9IiqbMtekGNhOb2tVYQ==}
+  stylelint-scss@7.2.0:
+    resolution: {integrity: sha512-6E79Bachv0Iz0gqRUZgdqdXCsiq26DWBWIBNHYtjTmAp3wJu6cp/I37VfW7BPntmh2puF3bY09XWl4HZGrLhzw==}
+    engines: {node: '>=20.19.0'}
+    peerDependencies:
+      stylelint: ^16.8.2 || ^17.0.0
+
+  stylelint@17.14.0:
+    resolution: {integrity: sha512-8xkHPpdqYryeIsOgfsYTmr6cIeC4nLYWk5S8BPxpodq8mIuepggkMljsHewWfuAjj/+qpRKou2QerhjMH3iasg==}
     engines: {node: '>=20.19.0'}
     hasBin: true
 
@@ -18840,7 +18879,7 @@ snapshots:
       '@automattic/number-formatters': 1.2.5
       '@automattic/oauth-token': 1.0.1
       '@automattic/shopping-cart': 2.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/react-query': 5.90.8(react@18.3.1)
+      '@tanstack/react-query': 5.101.2(react@18.3.1)
       '@wordpress/api-fetch': 7.51.0
       '@wordpress/data': 10.51.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/data-controls': 4.51.0(@types/react@18.3.28)(react@18.3.1)
@@ -18930,7 +18969,7 @@ snapshots:
       '@automattic/i18n-utils': 1.2.3(@types/react@18.3.28)
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.1(react@18.3.1)
-      '@tanstack/react-query': 5.90.8(react@18.3.1)
+      '@tanstack/react-query': 5.101.2(react@18.3.1)
       '@wordpress/base-styles': 11.0.0
       '@wordpress/components': 37.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.51.0(@types/react@18.3.28)(react@18.3.1)
@@ -22313,7 +22352,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stylistic/stylelint-plugin@5.2.1(stylelint@17.7.0(typescript@6.0.3))':
+  '@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.0(typescript@6.0.3))':
     dependencies:
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
@@ -22322,7 +22361,7 @@ snapshots:
       postcss-selector-parser: 7.1.4
       postcss-value-parser: 4.2.0
       style-search: 0.1.0
-      stylelint: 17.7.0(typescript@6.0.3)
+      stylelint: 17.14.0(typescript@6.0.3)
 
   '@sveltejs/acorn-typescript@1.0.11(acorn@8.17.0)':
     dependencies:
@@ -22345,7 +22384,7 @@ snapshots:
 
   '@tannin/sprintf@1.3.3': {}
 
-  '@tanstack/eslint-plugin-query@5.100.14(eslint@10.6.0)(typescript@6.0.3)':
+  '@tanstack/eslint-plugin-query@5.101.2(eslint@10.6.0)(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/utils': 8.63.0(eslint@10.6.0)(typescript@6.0.3)
       eslint: 10.6.0
@@ -22358,19 +22397,19 @@ snapshots:
 
   '@tanstack/history@1.162.0': {}
 
-  '@tanstack/query-core@5.90.8': {}
+  '@tanstack/query-core@5.101.2': {}
 
-  '@tanstack/query-devtools@5.90.1': {}
+  '@tanstack/query-devtools@5.101.2': {}
 
-  '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.101.2(@tanstack/react-query@5.101.2(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.90.1
-      '@tanstack/react-query': 5.90.8(react@18.3.1)
+      '@tanstack/query-devtools': 5.101.2
+      '@tanstack/react-query': 5.101.2(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.90.8(react@18.3.1)':
+  '@tanstack/react-query@5.101.2(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.90.8
+      '@tanstack/query-core': 5.101.2
       react: 18.3.1
 
   '@tanstack/react-router@1.167.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -26940,7 +26979,7 @@ snapshots:
 
   '@wordpress/escape-html@3.51.0': {}
 
-  '@wordpress/eslint-plugin@25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)':
+  '@wordpress/eslint-plugin@25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/eslint-parser': 7.29.7(@babel/core@7.29.7)(eslint@10.6.0)
@@ -26948,7 +26987,7 @@ snapshots:
       '@eslint/compat': 2.1.0(eslint@10.6.0)
       '@wordpress/babel-preset-default': 8.51.0
       '@wordpress/prettier-config': 4.51.0(wp-prettier@3.0.3)
-      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3))
+      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))
       cosmiconfig: 7.1.0
       eslint: 10.6.0
       eslint-config-prettier: 10.1.8(eslint@10.6.0)
@@ -29554,16 +29593,14 @@ snapshots:
 
   '@wordpress/style-runtime@0.7.0': {}
 
-  '@wordpress/stylelint-config@24.0.0(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3)))(postcss@8.5.14)(stylelint-scss@7.0.0(stylelint@17.7.0(typescript@6.0.3)))(stylelint@17.7.0(typescript@6.0.3))':
+  '@wordpress/stylelint-config@24.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.0(typescript@6.0.3)))(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint@17.14.0(typescript@6.0.3))':
     dependencies:
-      '@stylistic/stylelint-plugin': 5.2.1(stylelint@17.7.0(typescript@6.0.3))
-      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3))
-      stylelint: 17.7.0(typescript@6.0.3)
-      stylelint-config-recommended: 17.0.0(stylelint@17.7.0(typescript@6.0.3))
-      stylelint-config-recommended-scss: 16.0.2(postcss@8.5.14)(stylelint@17.7.0(typescript@6.0.3))
-      stylelint-scss: 7.0.0(stylelint@17.7.0(typescript@6.0.3))
-    transitivePeerDependencies:
-      - postcss
+      '@stylistic/stylelint-plugin': 5.2.1(stylelint@17.14.0(typescript@6.0.3))
+      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))
+      stylelint: 17.14.0(typescript@6.0.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.14.0(typescript@6.0.3))
+      stylelint-config-recommended-scss: 17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3))
+      stylelint-scss: 7.2.0(stylelint@17.14.0(typescript@6.0.3))
 
   '@wordpress/sync@1.51.0':
     dependencies:
@@ -29621,7 +29658,7 @@ snapshots:
       '@types/react': 18.3.28
       vite: 8.0.16(sass-embedded@1.97.3)
 
-  '@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@6.0.3))':
+  '@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))':
     dependencies:
       '@wordpress/compose': 8.4.0(react@18.3.1)
       '@wordpress/deprecated': 4.51.0
@@ -29634,7 +29671,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     optionalDependencies:
       postcss: 8.5.14
-      stylelint: 17.7.0(typescript@6.0.3)
+      stylelint: 17.14.0(typescript@6.0.3)
 
   '@wordpress/theme@0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -34673,8 +34710,6 @@ snapshots:
 
   mdn-data@2.27.1: {}
 
-  mdn-data@2.28.1: {}
-
   mdurl@2.0.0: {}
 
   media-typer@0.3.0: {}
@@ -35686,6 +35721,10 @@ snapshots:
     dependencies:
       postcss: 8.5.14
 
+  postcss-safe-parser@7.0.1(postcss@8.5.16):
+    dependencies:
+      postcss: 8.5.16
+
   postcss-scss@4.0.9(postcss@8.5.14):
     dependencies:
       postcss: 8.5.14
@@ -36531,7 +36570,7 @@ snapshots:
       neo-async: 2.6.2
     optionalDependencies:
       sass-embedded: 1.97.3
-      webpack: 5.107.2(webpack-cli@6.0.1)
+      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
 
   sax@1.6.0: {}
 
@@ -37118,44 +37157,35 @@ snapshots:
       postcss: 8.5.14
       postcss-selector-parser: 7.1.4
 
-  stylelint-config-recommended-scss@16.0.2(postcss@8.5.14)(stylelint@17.7.0(typescript@6.0.3)):
+  stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3)):
     dependencies:
       postcss-scss: 4.0.9(postcss@8.5.14)
-      stylelint: 17.7.0(typescript@6.0.3)
-      stylelint-config-recommended: 17.0.0(stylelint@17.7.0(typescript@6.0.3))
-      stylelint-scss: 6.14.0(stylelint@17.7.0(typescript@6.0.3))
+      stylelint: 17.14.0(typescript@6.0.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.14.0(typescript@6.0.3))
+      stylelint-scss: 7.2.0(stylelint@17.14.0(typescript@6.0.3))
     optionalDependencies:
       postcss: 8.5.14
 
-  stylelint-config-recommended@17.0.0(stylelint@17.7.0(typescript@6.0.3)):
+  stylelint-config-recommended@18.0.0(stylelint@17.14.0(typescript@6.0.3)):
     dependencies:
-      stylelint: 17.7.0(typescript@6.0.3)
+      stylelint: 17.14.0(typescript@6.0.3)
 
-  stylelint-scss@6.14.0(stylelint@17.7.0(typescript@6.0.3)):
+  stylelint-scss@7.2.0(stylelint@17.14.0(typescript@6.0.3)):
     dependencies:
+      '@csstools/css-calc': 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
+      '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
+      '@csstools/css-syntax-patches-for-csstree': 1.1.6(css-tree@3.2.1)
+      '@csstools/css-tokenizer': 4.0.0
       css-tree: 3.2.1
       is-plain-object: 5.0.0
       known-css-properties: 0.37.0
-      mdn-data: 2.28.1
       postcss-media-query-parser: 0.2.3
       postcss-resolve-nested-selector: 0.1.6
       postcss-selector-parser: 7.1.4
       postcss-value-parser: 4.2.0
-      stylelint: 17.7.0(typescript@6.0.3)
+      stylelint: 17.14.0(typescript@6.0.3)
 
-  stylelint-scss@7.0.0(stylelint@17.7.0(typescript@6.0.3)):
-    dependencies:
-      css-tree: 3.2.1
-      is-plain-object: 5.0.0
-      known-css-properties: 0.37.0
-      mdn-data: 2.28.1
-      postcss-media-query-parser: 0.2.3
-      postcss-resolve-nested-selector: 0.1.6
-      postcss-selector-parser: 7.1.4
-      postcss-value-parser: 4.2.0
-      stylelint: 17.7.0(typescript@6.0.3)
-
-  stylelint@17.7.0(typescript@6.0.3):
+  stylelint@17.14.0(typescript@6.0.3):
     dependencies:
       '@csstools/css-calc': 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -37178,14 +37208,13 @@ snapshots:
       html-tags: 5.1.0
       ignore: 7.0.5
       import-meta-resolve: 4.2.0
-      is-plain-object: 5.0.0
       mathml-tag-names: 4.0.0
       meow: 14.1.0
       micromatch: 4.0.8
       normalize-path: 3.0.0
       picocolors: 1.1.1
-      postcss: 8.5.14
-      postcss-safe-parser: 7.0.1(postcss@8.5.14)
+      postcss: 8.5.16
+      postcss-safe-parser: 7.0.1(postcss@8.5.16)
       postcss-selector-parser: 7.1.4
       postcss-value-parser: 4.2.0
       string-width: 8.2.2
@@ -38040,7 +38069,7 @@ snapshots:
       webpack-dev-middleware: 7.4.5(webpack@5.107.2)
       ws: 8.21.0
     optionalDependencies:
-      webpack: 5.107.2(webpack-cli@6.0.1)
+      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
     transitivePeerDependencies:
       - bufferutil

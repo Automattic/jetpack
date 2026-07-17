@@ -4,7 +4,7 @@
 	"title": "AI Launchpad Selector Agent Output",
 	"description": "Cross-stream contract for the AI Launchpad. Three consumers: (1) Stream F's `js/lib/tailor.ts` parses the `jetpack-ai-query` response and validates against this schema (Ajv); (2) Stream B's `PUT /tailored` validates incoming request bodies against this schema server-side; (3) the Node eval runner (`bin/eval-ai-launchpad.mjs`) validates fixture outputs against this schema during prompt iteration. Change this schema and three test paths fail in lockstep — that's the point.",
 	"type": "object",
-	"required": [ "tasks", "inferred", "first_post_draft" ],
+	"required": [ "tasks", "inferred", "first_post_draft", "about_page_draft" ],
 	"additionalProperties": false,
 	"properties": {
 		"tasks": {
@@ -93,6 +93,31 @@
 					"minItems": 2,
 					"maxItems": 2,
 					"description": "Two paragraphs; warm tone; no 'Welcome to my blog' clichés per the system prompt.",
+					"items": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 1200
+					}
+				}
+			}
+		},
+		"about_page_draft": {
+			"type": "object",
+			"required": [ "title", "paragraphs" ],
+			"additionalProperties": false,
+			"description": "Starter About-page content, grounded in the user's own description. Persisted via POST /wp/v2/pages as status=draft when the user clicks the add_about_page task CTA. Outputs persisted before this field existed lack it; the client then creates an empty page shell.",
+			"properties": {
+				"title": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 80,
+					"description": "The page title, ≤4 words per the system prompt (usually \"About\" or \"About {brand}\")."
+				},
+				"paragraphs": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 3,
+					"description": "Two or three short paragraphs: who is behind the site, what visitors will find, an invitation.",
 					"items": {
 						"type": "string",
 						"minLength": 1,

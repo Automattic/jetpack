@@ -12,7 +12,9 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
@@ -358,6 +360,9 @@ export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ClicksInner max={ max } />
+				<WidgetFooter>
+					<ReportLink report="clicks" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

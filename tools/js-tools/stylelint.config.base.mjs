@@ -103,11 +103,15 @@ const baseConfig = {
 				'projects/packages/seo/routes/**/*.{css,scss,sass}',
 				'projects/packages/videopress/routes/**/*.{css,scss,sass}',
 				// Webpack packages with `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks`
+				'projects/packages/activity-log/src/**/*.{css,scss,sass}',
 				'projects/packages/forms/src/**/*.{css,scss,sass}',
+				'projects/packages/my-jetpack/_inc/**/*.{css,scss,sass}',
+				'projects/packages/paypal-payments/src/**/*.{css,scss,sass}',
 				'projects/packages/publicize/_inc/**/*.{css,scss,sass}',
 				'projects/packages/search/**/*.{css,scss,sass}',
 				'projects/packages/videopress/src/**/*.{css,scss,sass}',
 				'projects/plugins/boost/app/assets/src/**/*.{css,scss,sass}',
+				'projects/plugins/protect/src/**/*.{css,scss,sass}',
 			],
 			rules: {
 				'plugin-wpds/no-token-fallback-values': true,

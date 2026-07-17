@@ -1,5 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
+import { logContentTailored } from './content-log.ts';
 import type { TailoredInferred } from './types.ts';
+
+/**
+ * Gallery-page creation from the PTK pattern library. Only the gallery task uses patterns —
+ * its content is images; the About page writes AI-drafted content instead (about-page.ts).
+ */
 
 const PTK_ENDPOINT = 'https://public-api.wordpress.com/rest/v1/ptk/patterns/en';
 
@@ -22,32 +28,29 @@ interface CreatedPage {
 	id: number;
 }
 
-export type PatternVariant = 'about' | 'gallery';
-
-const VARIANT_CONFIG: Record< PatternVariant, { category: string | null; markerMeta: string } > = {
-	about: { category: null, markerMeta: '_wpcom_ai_launchpad_about_page' },
-	gallery: { category: 'gallery', markerMeta: '_wpcom_ai_launchpad_gallery_page' },
-};
-
 // An empty core/gallery block, used when the pattern library yields no gallery pattern. The class list mirrors
 // what the gallery block serializes (including the default flex layout) so the editor doesn't flag invalid markup.
 const GALLERY_FALLBACK_HTML =
 	'<!-- wp:gallery {"linkTo":"none"} --><figure class="wp-block-gallery has-nested-images columns-default is-cropped is-layout-flex wp-block-gallery-is-layout-flex"></figure><!-- /wp:gallery -->';
 
+// Connective words that survive the length filter and would otherwise dominate scoring.
+const STOP_WORDS = new Set( [ 'and', 'the', 'for', 'with', 'from', 'your', 'our' ] );
+
 /**
- * Tokenize the inferred niche/vibe/audience into lowercase match words. Goal is
- * excluded: it describes intent, not topic, so it adds noise.
+ * Tokenize the inferred niche/vibe/audience into deduplicated lowercase match words.
+ * Goal is excluded: it describes intent, not topic.
  *
  * @param inferred - The AI-inferred site details.
  * @return The match words.
  */
 function nicheWords( inferred: TailoredInferred ): string[] {
-	return [ inferred.niche, inferred.vibe, inferred.audience ]
+	const words = [ inferred.niche, inferred.vibe, inferred.audience ]
 		.filter( ( value ): value is string => typeof value === 'string' && value.length > 0 )
 		.join( ' ' )
 		.toLowerCase()
 		.split( /[^a-z0-9]+/ )
-		.filter( word => word.length > 2 );
+		.filter( word => word.length > 2 && ! STOP_WORDS.has( word ) );
+	return [ ...new Set( words ) ];
 }
 
 /**
@@ -64,41 +67,39 @@ function termTitles( taxonomy: PtkTaxonomy | undefined ): string[] {
 }
 
 /**
- * Count how many match words appear in a pattern's title, category titles, or
- * tag titles.
+ * Count how many match words appear as whole tokens in a pattern's title, category titles,
+ * or tag titles (whole tokens, so "art" cannot match "Smart").
  *
  * @param pattern - The candidate pattern.
  * @param words   - The niche match words.
  * @return The match score.
  */
 function score( pattern: PtkPattern, words: string[] ): number {
-	const haystack = [
-		pattern.title ?? '',
-		...termTitles( pattern.categories ),
-		...termTitles( pattern.tags ),
-	]
-		.join( ' ' )
-		.toLowerCase();
-	return words.reduce( ( total, word ) => ( haystack.includes( word ) ? total + 1 : total ), 0 );
+	const haystack = new Set(
+		[ pattern.title ?? '', ...termTitles( pattern.categories ), ...termTitles( pattern.tags ) ]
+			.join( ' ' )
+			.toLowerCase()
+			.split( /[^a-z0-9]+/ )
+	);
+	return words.reduce( ( total, word ) => ( haystack.has( word ) ? total + 1 : total ), 0 );
 }
 
 /**
- * Pick the pattern best matching the inferred niche, falling back to the first
+ * Pick the pattern best matching the given niche words, falling back to the first
  * pattern with usable HTML when nothing scores.
  *
  * @param patterns - The fetched patterns.
- * @param inferred - The AI-inferred site details.
- * @return The chosen pattern, or null when none have HTML.
+ * @param words    - The niche match words.
+ * @return The chosen pattern (null when none have HTML) and its match score.
  */
 export function pickPattern(
 	patterns: PtkPattern[],
-	inferred: TailoredInferred
-): PtkPattern | null {
+	words: string[]
+): { pattern: PtkPattern | null; score: number } {
 	const usable = patterns.filter( pattern => typeof pattern.html === 'string' && pattern.html );
 	if ( usable.length === 0 ) {
-		return null;
+		return { pattern: null, score: 0 };
 	}
-	const words = nicheWords( inferred );
 	let best = usable[ 0 ];
 	let bestScore = score( best, words );
 	for ( const pattern of usable.slice( 1 ) ) {
@@ -108,7 +109,7 @@ export function pickPattern(
 			bestScore = current;
 		}
 	}
-	return best;
+	return { pattern: best, score: bestScore };
 }
 
 /**
@@ -131,43 +132,58 @@ function stripHeadingMatching( html: string, title: string ): string {
 }
 
 /**
- * Choose the page title, block content, and marker meta for a pattern-page variant.
- *
- * The gallery variant filters the library to the `gallery` category before niche scoring and falls back to a bare
- * gallery block so the page always contains a gallery. The about variant is unfiltered (current behaviour).
+ * How the pattern selection went, for the `content_tailored` event. `fallback`: `none` = a
+ * pattern matched the niche words, `first_usable` = nothing scored so the pick is arbitrary,
+ * `empty` = no usable pattern, so the bare gallery block was used.
+ */
+export interface GallerySelectionLog {
+	pool_size: number;
+	match_words: string[];
+	picked_title: string | null;
+	picked_score: number;
+	fallback: 'none' | 'first_usable' | 'empty';
+}
+
+/**
+ * Choose the gallery page's title and block content: the library is filtered to the `gallery`
+ * category before niche scoring, with a bare gallery block as the fallback.
  *
  * @param patterns - The fetched patterns.
  * @param inferred - The AI-inferred site details.
- * @param variant  - The pattern-page variant.
- * @return The title, content HTML, and marker meta key.
+ * @return The title, content HTML, and the selection log fields.
  */
-export function selectPatternPage(
+export function selectGalleryPage(
 	patterns: PtkPattern[],
-	inferred: TailoredInferred,
-	variant: PatternVariant
-): { title: string; content: string; markerMeta: string } {
-	const config = VARIANT_CONFIG[ variant ];
-	const pool =
-		config.category === null
-			? patterns
-			: patterns.filter( pattern =>
-					termTitles( pattern.categories ).some( title =>
-						title.toLowerCase().includes( config.category as string )
-					)
-			  );
-	const pattern = pickPattern( pool, inferred );
-	const fallback = variant === 'gallery' ? GALLERY_FALLBACK_HTML : '';
-	// The gallery page gets a fixed title; the pattern's own name ("Gallery: Two columns…") is not a useful title.
-	// Left untranslated on purpose: it's a placeholder on the created draft that the user renames before
-	// publishing (like WordPress core's English "Auto Draft"), not a piece of shipped UI copy.
-	const title =
-		variant === 'gallery' ? 'Gallery' : pattern?.title ?? inferred.brand_name ?? 'New page';
-	const rawContent = pattern?.html ?? fallback;
+	inferred: TailoredInferred
+): { title: string; content: string; log: GallerySelectionLog } {
+	const pool = patterns.filter( pattern =>
+		termTitles( pattern.categories ).some( title => title.toLowerCase().includes( 'gallery' ) )
+	);
+	const words = nicheWords( inferred );
+	const { pattern, score: pickedScore } = pickPattern( pool, words );
+
+	let fallback: GallerySelectionLog[ 'fallback' ] = 'none';
+	if ( pattern === null ) {
+		fallback = 'empty';
+	} else if ( pickedScore === 0 ) {
+		fallback = 'first_usable';
+	}
+
+	// Fixed, untranslated placeholder title (like core's "Auto Draft"); the pattern's own name
+	// ("Gallery: Two columns…") is not a useful title.
+	const title = 'Gallery';
+	const rawContent = pattern?.html ?? GALLERY_FALLBACK_HTML;
+
 	return {
 		title,
-		// Drop any in-pattern heading that just repeats the title, so the gallery page doesn't show "Gallery" twice.
-		content: variant === 'gallery' ? stripHeadingMatching( rawContent, title ) : rawContent,
-		markerMeta: config.markerMeta,
+		content: stripHeadingMatching( rawContent, title ),
+		log: {
+			pool_size: pool.length,
+			match_words: words,
+			picked_title: pattern?.title ?? null,
+			picked_score: pickedScore,
+			fallback,
+		},
 	};
 }
 
@@ -175,16 +191,14 @@ export function selectPatternPage(
 let cachedPatterns: PtkPattern[] | null = null;
 
 /**
- * Fetch the English pattern library, pick a pattern matching the inferred niche,
- * and create a draft page from it.
+ * Fetch the English pattern library, pick a gallery pattern matching the inferred
+ * niche, and create a draft page from it.
  *
  * @param inferred - The AI-inferred site details.
- * @param variant  - The pattern-page variant.
  * @return The created page id and its editor URL.
  */
-export async function createPatternPage(
-	inferred: TailoredInferred,
-	variant: PatternVariant = 'about'
+export async function createGalleryPage(
+	inferred: TailoredInferred
 ): Promise< { page_id: number; edit_url: string } > {
 	if ( cachedPatterns === null ) {
 		try {
@@ -196,15 +210,11 @@ export async function createPatternPage(
 				}
 			}
 		} catch {
-			// Network/parse failure: leave the cache unset so a later click retries; the page is still created below.
+			// Leave the cache unset so a later click retries; the page is still created below.
 		}
 	}
 
-	const { title, content, markerMeta } = selectPatternPage(
-		cachedPatterns ?? [],
-		inferred,
-		variant
-	);
+	const { title, content, log } = selectGalleryPage( cachedPatterns ?? [], inferred );
 
 	const page = ( await apiFetch( {
 		path: '/wp/v2/pages',
@@ -214,9 +224,16 @@ export async function createPatternPage(
 			content,
 			status: 'draft',
 			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.
-			meta: { [ markerMeta ]: true },
+			meta: { _wpcom_ai_launchpad_gallery_page: true },
 		},
 	} ) ) as CreatedPage;
+
+	logContentTailored( () => ( {
+		page_id: page.id,
+		// null = the library was unavailable.
+		library_size: cachedPatterns?.length ?? null,
+		...log,
+	} ) );
 
 	return {
 		page_id: page.id,

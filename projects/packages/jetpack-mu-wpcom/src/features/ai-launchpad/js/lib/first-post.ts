@@ -1,31 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
+import { paragraphsToBlocks } from './paragraph-blocks.ts';
 import type { FirstPostDraft } from './types.ts';
 
 interface CreatedPost {
 	id: number;
-}
-
-/**
- * Escape HTML-significant characters in plain text to keep AI-drafted output
- * from injecting markup (stored XSS) or breaking block delimiters.
- *
- * @param text - The plain text to escape.
- * @return The escaped text, safe to embed in HTML.
- */
-function escapeHtml( text: string ): string {
-	return text.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
-}
-
-/**
- * Wrap each paragraph in a Gutenberg paragraph block.
- *
- * @param paragraphs - The paragraph strings.
- * @return The serialized block markup.
- */
-function toBlocks( paragraphs: string[] ): string {
-	return paragraphs
-		.map( text => '<!-- wp:paragraph --><p>' + escapeHtml( text ) + '</p><!-- /wp:paragraph -->' )
-		.join( '\n\n' );
 }
 
 /**
@@ -43,7 +21,7 @@ export async function createFirstPostDraft(
 		method: 'POST',
 		data: {
 			title: draft.title,
-			content: toBlocks( draft.paragraphs ),
+			content: paragraphsToBlocks( draft.paragraphs ),
 			status: 'draft',
 			// Tag as the AI Launchpad first post so the server can recognise this exact draft and show the
 			// in-progress "Continue" treatment, reopening it instead of drafting a second one.

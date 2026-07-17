@@ -132,6 +132,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'title'      => 'First steps on the trail',
 				'paragraphs' => array( 'First paragraph.', 'Second paragraph.' ),
 			),
+			'about_page_draft' => array(
+				'title'      => 'About',
+				'paragraphs' => array( 'Who writes this journal.', 'What readers will find here.' ),
+			),
 		);
 	}
 

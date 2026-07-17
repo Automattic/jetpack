@@ -61,6 +61,7 @@
 		"@types/react": "18.3.28",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.51.0",
 		"@wordpress/block-serialization-default-parser": "5.51.0",
+		"@wordpress/theme": "0.17.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.4.1",
 		"jest": "30.4.2",

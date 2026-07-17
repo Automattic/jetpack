@@ -42,7 +42,7 @@
 		"@automattic/jetpack-scan": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@tanstack/react-query": "5.90.8",
+		"@tanstack/react-query": "5.101.2",
 		"@wordpress/admin-ui": "2.5.0",
 		"@wordpress/api-fetch": "7.51.0",
 		"@wordpress/base-styles": "11.0.0",
