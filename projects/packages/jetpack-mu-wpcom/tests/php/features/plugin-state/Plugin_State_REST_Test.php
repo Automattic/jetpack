@@ -89,22 +89,28 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Create a plugin directory holding one file.
+	 * Create a file inside a plugin directory.
 	 *
 	 * @param string $dir_name The directory under WP_PLUGIN_DIR.
-	 * @param string $file     The file to create in it.
-	 * @param bool   $header   Whether that file carries a plugin header.
+	 * @param string $file     The file to create, relative to that directory.
+	 * @param bool   $header   Whether the file carries a plugin header.
+	 * @param string $name     The plugin display name, which is what get_plugins() sorts on.
 	 */
-	private function make_plugin( $dir_name, $file, $header = true ) {
+	private function make_plugin( $dir_name, $file, $header = true, $name = 'Test Plugin' ) {
 		$dir = WP_PLUGIN_DIR . '/' . $dir_name;
 		if ( ! is_dir( $dir ) ) {
 			mkdir( $dir, 0777, true );
 		}
 		$this->created_dirs[] = $dir;
 
+		$path = $dir . '/' . $file;
+		if ( ! is_dir( dirname( $path ) ) ) {
+			mkdir( dirname( $path ), 0777, true );
+		}
+
 		file_put_contents(
-			$dir . '/' . $file,
-			$header ? "<?php\n/*\n * Plugin Name: Test Plugin\n * Version: 1.0\n */\n" : "<?php\n// Not a plugin.\n"
+			$path,
+			$header ? "<?php\n/*\n * Plugin Name: $name\n * Version: 1.0\n */\n" : "<?php\n// Not a plugin.\n"
 		);
 
 		$this->forget_discovered_plugins();
@@ -218,6 +224,32 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 					'installed' => false,
 				),
 			),
+		);
+	}
+
+	/**
+	 * Only a bootstrap file in the directory itself is the plugin.
+	 *
+	 * Scoping get_plugins() to one directory moves its one-level-deep scan down a level, so a
+	 * nested file carrying a plugin header is reported alongside the bootstrap file, keyed
+	 * `modules/helper.php`. Sorted by display name it can even come first -- as it does for
+	 * this repo's own debug-helper, where "Autoloader Debugger" precedes "Jetpack Debug
+	 * Tools". Picking it would report the wrong id, and active: false for an active plugin.
+	 */
+	public function test_nested_plugin_header_is_not_mistaken_for_the_plugin() {
+		$this->set_auth_state( true, 'blog' );
+		$this->make_plugin( 'give', 'give.php', true, 'Give' );
+		$this->make_plugin( 'give', 'modules/helper.php', true, 'Aardvark Helper' );
+		update_option( 'active_plugins', array( 'give/give.php' ) );
+
+		$this->assertSame(
+			array(
+				'slug'      => 'give',
+				'installed' => true,
+				'id'        => 'give/give',
+				'active'    => true,
+			),
+			$this->request( 'give' )->get_data()
 		);
 	}
 

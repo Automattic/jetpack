@@ -118,6 +118,16 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 		// inventory. A missing directory, or one with no plugin header, comes back empty.
 		$plugin_files = array_keys( get_plugins( '/' . $slug ) );
 
+		// Scoping also moves that scan down a level, surfacing nested plugin headers (keyed
+		// `modules/helper.php`) the unscoped inventory would never call plugins -- and by display
+		// name one can sort first. Only a bootstrap file in the directory itself is the plugin.
+		$plugin_files = array_filter(
+			$plugin_files,
+			function ( $plugin_file ) {
+				return ! str_contains( $plugin_file, '/' );
+			}
+		);
+
 		if ( ! $plugin_files ) {
 			return rest_ensure_response(
 				array(
