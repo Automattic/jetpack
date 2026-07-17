@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Post detail: Align post view comparisons and avoid redundant email timeline requests.
+Post detail: align post view comparisons and draw the email timeline comparison overlay.

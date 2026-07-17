@@ -3,6 +3,7 @@
  */
 import {
 	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
 	useStatsEmailClicksTimeSeries,
 	useStatsEmailOpensTimeSeries,
 	type StatsEmailTimeSeriesReport,
@@ -77,9 +78,12 @@ type EmailTimeSeriesReportProps = {
 
 /**
  * Fetches the selected email's opens or clicks timeline over the dashboard
- * date range and draws it as a line chart. The endpoint reports daily
- * buckets; the weekly granularity aggregates them client-side. Only the
- * active metric's query runs.
+ * date range and draws it as a line chart; with the date picker's comparison
+ * on, the compare window is fetched as a second request and drawn as a dashed
+ * overlay (legend switches to date-range labels). The endpoint reports daily
+ * buckets; weekly/monthly granularities aggregate them client-side, with the
+ * comparison bucketed relative to the primary layout. Only the active
+ * metric's queries run.
  *
  * @param {EmailTimeSeriesReportProps} props - The component props.
  * @return The widget content.
@@ -88,18 +92,49 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
+	// Comparison dates only survive the report-param normalizer when the
+	// comparison toggle is on, so their presence is the comparison signal.
+	const hasComparison = !! ( reportParams.compare_from && reportParams.compare_to );
 
-	// Both hooks are called every render (hooks rule); only the active
-	// metric's query is enabled, so a single request runs.
+	// The endpoint has no comparison mode of its own, but it accepts any
+	// window (`date` is the window start), so the comparison period is just a
+	// second request scoped to the compare range.
+	const comparisonParams = useMemo(
+		() => ( {
+			...reportParams,
+			from: reportParams.compare_from ?? '',
+			to: reportParams.compare_to ?? '',
+			preset: undefined,
+			comp: undefined,
+			compare_from: undefined,
+			compare_to: undefined,
+			compare_preset: undefined,
+		} ),
+		[ reportParams ]
+	);
+
+	// All hooks are called every render (hooks rule); only the active
+	// metric's queries are enabled, and the comparison window only fetches
+	// while the date picker's comparison is on.
 	const opens = useStatsEmailOpensTimeSeries( postId, reportParams, {
 		enabled: hasSelection && metric === 'opens',
 	} );
 	const clicks = useStatsEmailClicksTimeSeries( postId, reportParams, {
 		enabled: hasSelection && metric === 'clicks',
 	} );
+	const opensComparison = useStatsEmailOpensTimeSeries( postId, comparisonParams, {
+		enabled: hasSelection && hasComparison && metric === 'opens',
+	} );
+	const clicksComparison = useStatsEmailClicksTimeSeries( postId, comparisonParams, {
+		enabled: hasSelection && hasComparison && metric === 'clicks',
+	} );
 	const active = metric === 'clicks' ? clicks : opens;
+	const activeComparison = metric === 'clicks' ? clicksComparison : opensComparison;
 
 	const report = active.data as StatsEmailTimeSeriesReport | undefined;
+	const comparisonReport = hasComparison
+		? ( activeComparison.data as StatsEmailTimeSeriesReport | undefined )
+		: undefined;
 	const field = METRIC_FIELDS[ metric ];
 
 	const chartReport = useMemo( () => {
@@ -119,15 +154,62 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 		} );
 	}, [ report, granularity, field ] );
 
+	// The comparison window is the same length as the primary but can sit
+	// differently against calendar boundaries, so calendar-bucketing it
+	// directly could yield a different bucket count and misalign the overlay.
+	// Instead each comparison day joins the bucket of its same-index primary
+	// day, which always mirrors the primary series' bucket layout.
+	const comparisonChartReport = useMemo( () => {
+		if ( ! report || ! comparisonReport ) {
+			return undefined;
+		}
+
+		if ( granularity === 'day' ) {
+			return comparisonReport;
+		}
+
+		const totals = new Map<
+			string,
+			{ start: ( typeof comparisonReport.data )[ 0 ]; value: number }
+		>();
+		const order: string[] = [];
+		report.data.forEach( ( primaryPoint, index ) => {
+			const comparisonPoint = comparisonReport.data[ index ];
+			if ( ! comparisonPoint ) {
+				return;
+			}
+
+			const key = getStatsChartBucketKey( primaryPoint.time_interval, granularity );
+			const value = Number( comparisonPoint[ field ] ?? 0 );
+			const bucket = totals.get( key );
+			if ( bucket ) {
+				bucket.value += value;
+			} else {
+				totals.set( key, { start: comparisonPoint, value } );
+				order.push( key );
+			}
+		} );
+
+		return {
+			...comparisonReport,
+			data: order.map( key => {
+				const bucket = totals.get( key )!;
+
+				return { ...bucket.start, value: bucket.value, [ field ]: bucket.value };
+			} ),
+		};
+	}, [ report, comparisonReport, granularity, field ] );
+
 	const series = useMemo(
 		() =>
 			chartReport
 				? buildReportMetricSeries( {
 						primary: chartReport,
+						comparison: comparisonChartReport,
 						metrics: [ { key: field, label: metricLabel( metric ) } ],
 				  } )
 				: [],
-		[ chartReport, field, metric ]
+		[ chartReport, comparisonChartReport, field, metric ]
 	);
 	const seriesStyles = useSeriesStyles( series );
 	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
@@ -136,7 +218,7 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ active.isLoading }
-				isFetching={ active.isFetching }
+				isFetching={ active.isFetching || ( hasComparison && activeComparison.isFetching ) }
 				isError={ active.isError }
 				isEmpty={ ! hasSelection || ! hasPoints }
 				error={ {

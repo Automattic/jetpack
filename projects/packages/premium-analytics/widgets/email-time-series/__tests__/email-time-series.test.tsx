@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -22,8 +22,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	} ) => (
 		<div
 			data-testid="comparative-line-chart"
+			data-series-count={ series.length }
 			data-series-label={ series[ 0 ]?.label }
 			data-values={ series[ 0 ]?.data.map( point => point.value ).join( ',' ) }
+			data-previous-values={ series[ 1 ]?.data.map( point => point.value ).join( ',' ) }
 		/>
 	),
 } ) );
@@ -105,23 +107,110 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234' );
 	} );
 
-	it( 'only requests the primary timeline when dashboard comparison params are present', async () => {
-		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+	it( 'fetches the compare window and draws it as a second series when comparison is on', async () => {
+		// Route by the window start: the primary window gets the real buckets,
+		// the compare window gets a distinct set.
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-07-01' )
+					? OPENS_TIMELINE_RESPONSE
+					: {
+							timeline: {
+								unit: 'day',
+								fields: [ 'date', 'opens_count' ],
+								data: [
+									[ '2026-06-24', 2 ],
+									[ '2026-06-25', 3 ],
+									[ '2026-06-26', 4 ],
+								],
+							},
+					  }
+			)
+		);
 
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( true ), post_id: 1234 },
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-01T00:00:00.000+08:00',
+						to: '2026-07-07T23:59:59.999+08:00',
+						comp: '1',
+						compare_from: '2026-06-24T00:00:00.000+08:00',
+						compare_to: '2026-06-30T23:59:59.999+08:00',
+						post_id: 1234,
+					},
 					metric: 'opens',
 				} }
 			/>
 		);
 
-		await expect( screen.findByTestId( 'comparative-line-chart' ) ).resolves.toBeInTheDocument();
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		await waitFor( () => expect( chart ).toHaveAttribute( 'data-series-count', '2' ) );
+		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
+		expect( chart ).toHaveAttribute( 'data-previous-values', '2,3,4' );
 
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/opens/emails/1234' );
+		// One request per window, scoped by each window's start date.
+		const requestedDates = mockApiFetch.mock.calls.map( call =>
+			new URLSearchParams( String( call[ 0 ].path ).split( '?' )[ 1 ] ).get( 'date' )
+		);
+		expect( requestedDates ).toHaveLength( 2 );
+		expect( requestedDates ).toEqual( expect.arrayContaining( [ '2026-07-01', '2026-06-24' ] ) );
+	} );
+
+	it( 'buckets the compare window relative to the primary layout across month boundaries', async () => {
+		// Primary March window (one month bucket) vs a compare window crossing
+		// January into February: the overlay must still be a single bucket.
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-03-01' )
+					? {
+							timeline: {
+								unit: 'day',
+								fields: [ 'date', 'opens_count' ],
+								data: [
+									[ '2026-03-01', 4 ],
+									[ '2026-03-31', 5 ],
+								],
+							},
+					  }
+					: {
+							timeline: {
+								unit: 'day',
+								fields: [ 'date', 'opens_count' ],
+								data: [
+									[ '2026-01-29', 1 ],
+									[ '2026-02-28', 2 ],
+								],
+							},
+					  }
+			)
+		);
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-03-01T00:00:00.000+08:00',
+						to: '2026-03-31T23:59:59.999+08:00',
+						comp: '1',
+						compare_from: '2026-01-29T00:00:00.000+08:00',
+						compare_to: '2026-02-28T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+					granularity: 'month',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		await waitFor( () => expect( chart ).toHaveAttribute( 'data-series-count', '2' ) );
+		expect( chart ).toHaveAttribute( 'data-values', '9' );
+		expect( chart ).toHaveAttribute( 'data-previous-values', '3' );
 	} );
 
 	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {

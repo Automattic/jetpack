@@ -56,10 +56,14 @@ export function buildEmailTimelineResponse(
 
 	const data: EmailTimelineRow[] = [];
 
+	// Nudge the curve by the window start so a comparison window draws a
+	// visibly different (but still deterministic) line than the primary.
+	const windowNudge = ( startDate.getUTCDate() % 7 ) * 2;
+
 	for ( let index = 0; index < quantity; index++ ) {
 		// Preserve the existing send-decay shape while emitting buckets from
 		// the requested start date forward.
-		const count = emailTimelineCount( metric, quantity - 1 - index );
+		const count = emailTimelineCount( metric, quantity - 1 - index ) + windowNudge;
 
 		if ( period === 'hour' ) {
 			const bucket = addHours( startDate, index );
