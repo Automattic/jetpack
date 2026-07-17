@@ -177,13 +177,54 @@ class Tracking_Pixel {
 	private static function build_stats_details( $data ) {
 		$data_stats_array = self::stats_array_to_string( $data );
 
-		return sprintf(
-			'_stq = window._stq || [];
-_stq.push([ "view", %1$s ]);
+		$pushes = sprintf(
+			'_stq.push([ "view", %1$s ]);
 _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			$data_stats_array,
 			$data['blog'],
 			$data['post']
+		);
+
+		// OFF (default): byte-for-byte identical to the historical output.
+		if ( ! Options::get_option( 'honor_cookie_consent' ) ) {
+			return "_stq = window._stq || [];\n" . $pushes;
+		}
+
+		// ON: defer the view/click pixel until the visitor grants the WP Consent API
+		// "statistics" category. This runs client-side by necessity — the markup is
+		// emitted into full-page-cached HTML, so a server-side wp_has_consent() check
+		// would bake one visitor's choice into every cached response.
+		//
+		// The initial check is deferred to DOMContentLoaded so any consent-management
+		// plugin has established its consent type by then; checking synchronously at
+		// footer-parse time can read a permissive default before that type is set. We
+		// use only the standard WP Consent API surface (wp_has_consent +
+		// wp_listen_for_consent_change) and never inspect wp_consent_type internals, so
+		// this stays decoupled from any specific consent plugin. When the Consent API is
+		// absent entirely, fire unchanged so sites without a consent plugin keep tracking.
+		// A later "deny" sets a suppress flag so a mid-page withdrawal can't re-fire.
+		return sprintf(
+			'_stq = window._stq || [];
+function _jpStatsFire() {
+	if ( _jpStatsFire.done || _jpStatsFire.denied ) { return; }
+	_jpStatsFire.done = true;
+	%s
+}
+function _jpStatsCheck() {
+	if ( typeof window.wp_has_consent !== "function" ) { _jpStatsFire(); return; }
+	if ( window.wp_has_consent( "statistics" ) ) { _jpStatsFire(); }
+}
+document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
+	if ( ! event || ! event.detail ) { return; }
+	if ( event.detail.statistics === "allow" ) { _jpStatsFire.denied = false; _jpStatsFire(); }
+	else if ( event.detail.statistics === "deny" ) { _jpStatsFire.denied = true; }
+} );
+if ( document.readyState === "loading" ) {
+	document.addEventListener( "DOMContentLoaded", _jpStatsCheck, { once: true } );
+} else {
+	_jpStatsCheck();
+}',
+			$pushes
 		);
 	}
 

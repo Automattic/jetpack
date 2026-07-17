@@ -42,6 +42,12 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		// is a no-op when the filter isn't registered, so this is always safe.
 		remove_filter( 'wp_script_attributes', array( Tracking_Pixel::class, 'add_low_fetchpriority' ) );
 		remove_filter( 'wp_resource_hints', array( Tracking_Pixel::class, 'remove_stats_dns_prefetch' ), 100 );
+
+		// Reset the Options cache so the next test starts fresh.
+		$reflection = new \ReflectionClass( Options::class );
+		$property   = $reflection->getProperty( 'options' );
+		$property->setAccessible( true );
+		$property->setValue( null, array() );
 	}
 
 	/**
@@ -474,5 +480,62 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
 		$this->assertSame( $expected_pixel_details, $pixel_details );
+	}
+
+	/**
+	 * When honor_cookie_consent is on, the pixel push is wrapped in a WP Consent API gate.
+	 */
+	public function test_build_stats_details_gates_on_consent_when_enabled() {
+		Options::set_option( 'honor_cookie_consent', true );
+
+		$data = array(
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
+
+		$this->assertStringContainsString( 'window.wp_has_consent', $pixel_details );
+		$this->assertStringContainsString( '"statistics"', $pixel_details );
+		$this->assertStringContainsString( 'wp_listen_for_consent_change', $pixel_details );
+		$this->assertStringContainsString( '_stq.push([ "view",', $pixel_details );
+		// Backward-compat guard: absent Consent API still fires.
+		$this->assertStringContainsString( 'typeof window.wp_has_consent !== "function"', $pixel_details );
+		// Readiness-aware: the initial check is deferred to DOMContentLoaded rather than
+		// run synchronously at footer-parse time (avoids reading a permissive default).
+		$this->assertStringContainsString( 'DOMContentLoaded', $pixel_details );
+		$this->assertStringContainsString( 'document.readyState', $pixel_details );
+		// Withdrawal (Fix #4): a "deny" sets the suppress flag so a mid-page revoke can't re-fire.
+		$this->assertStringContainsString( '=== "deny"', $pixel_details );
+		$this->assertStringContainsString( '_jpStatsFire.denied = true', $pixel_details );
+	}
+
+	/**
+	 * When honor_cookie_consent is off (default), the emitted pixel markup is unchanged.
+	 */
+	public function test_build_stats_details_unchanged_when_disabled() {
+		$data = array(
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
+
+		$this->assertStringStartsWith( '_stq = window._stq || [];', $pixel_details );
+		$this->assertStringNotContainsString( 'wp_has_consent', $pixel_details );
 	}
 }
