@@ -34,7 +34,7 @@ jest.mock( '@wordpress/ui', () => ( {
 		href,
 		children,
 		openInNewTab,
-		variant: _variant,
+		variant,
 		...props
 	}: {
 		href: string;
@@ -44,6 +44,7 @@ jest.mock( '@wordpress/ui', () => ( {
 	} ) => (
 		<a
 			href={ href }
+			data-variant={ variant }
 			target={ openInNewTab ? '_blank' : undefined }
 			rel={ openInNewTab ? 'noopener noreferrer' : undefined }
 			{ ...props }
