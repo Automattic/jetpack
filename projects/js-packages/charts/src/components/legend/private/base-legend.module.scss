@@ -3,14 +3,14 @@
 }
 
 .legend-item {
-	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-size: var(--wpds-typography-font-size-md);
 
 	&--interactive {
 		cursor: pointer;
 		user-select: none;
 		transition:
-			opacity var(--wpds-motion-duration-md, 200ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+			opacity var(--wpds-motion-duration-md)
+			var(--wpds-motion-easing-subtle);
 
 		&:hover {
 			opacity: 0.8;
@@ -19,7 +19,7 @@
 		&:focus {
 			outline: 2px solid currentColor;
 			outline-offset: 2px;
-			border-radius: var(--wpds-border-radius-md, 4px);
+			border-radius: var(--wpds-border-radius-md);
 		}
 
 		&:focus:not(:focus-visible) {
@@ -54,6 +54,6 @@
 }
 
 .legend-item-value {
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	font-weight: var(--wpds-typography-font-weight-medium);
 	flex-shrink: 0; // Prevent value from shrinking when text is ellipsized
 }

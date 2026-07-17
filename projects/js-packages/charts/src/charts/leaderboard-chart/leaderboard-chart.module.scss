@@ -1,7 +1,7 @@
 .leaderboardChart {
 	transition:
-		opacity var(--wpds-motion-duration-lg, 300ms)
-		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+		opacity var(--wpds-motion-duration-lg)
+		var(--wpds-motion-easing-subtle);
 
 	&--responsive {
 		height: 100%;
@@ -40,7 +40,7 @@
 		}
 
 		.label {
-			padding-left: var(--wpds-dimension-padding-sm, 8px);
+			padding-left: var(--wpds-dimension-padding-sm);
 		}
 	}
 
@@ -49,7 +49,7 @@
 		min-height: 6px;
 		// Keeps a sliver of bar visible for tiny shares, and stops the interactive
 		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
-		min-width: var(--wpds-dimension-size-5xs, 4px);
+		min-width: var(--wpds-dimension-size-5xs);
 
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
 		z-index: -1; /* places it behind the label */
@@ -59,8 +59,8 @@
 			transform-box: fill-box;
 			transform: scaleX(0);
 			animation:
-				stretch var(--wpds-motion-duration-xl, 400ms)
-				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+				stretch var(--wpds-motion-duration-xl)
+				var(--wpds-motion-easing-expressive) forwards;
 		}
 
 		@keyframes stretch {
@@ -93,15 +93,15 @@
 }
 
 .emptyState {
-	padding: var(--wpds-dimension-padding-3xl, 32px) var(--wpds-dimension-padding-lg, 16px);
+	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-lg);
 	text-align: center;
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	font-size: var(--wpds-typography-font-size-md, 13px);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-md);
 	font-style: italic;
 }
 
 .interactiveRow {
-	--focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+	--focus-ring-width: var(--wpds-border-width-focus);
 
 	display: grid;
 	grid-column: 1 / -1;
@@ -135,16 +135,16 @@
 	// value slide is given an RTL override below. No row background.
 	.bar {
 		transition:
-			opacity var(--wpds-motion-duration-sm, 100ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
-			width var(--wpds-motion-duration-sm, 100ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+			opacity var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle),
+			width var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle);
 	}
 
 	.valueContainer {
 		transition:
-			transform var(--wpds-motion-duration-sm, 100ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+			transform var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle);
 	}
 
 	&:hover,
@@ -152,7 +152,7 @@
 
 		// Fixed reserve for the chevron — the value slides by it in full, and the
 		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
-		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl, 32px);
+		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl);
 
 		.bar {
 			opacity: 0.5;
@@ -174,10 +174,10 @@
 	}
 
 	&:focus-visible {
-		border-radius: var(--wpds-border-radius-sm, 2px);
+		border-radius: var(--wpds-border-radius-sm);
 		outline:
 			var(--focus-ring-width) solid
-			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
+			var(--wpds-color-stroke-focus);
 		// Inset by its own width so the outer edge hugs the row boundary: the
 		// outline then sits in the row's padding (also a ring width), clear of the
 		// bar, and stays inside the overflow:auto container that would clip an
@@ -188,15 +188,15 @@
 
 .chevron {
 	position: absolute;
-	inset-inline-end: var(--wpds-dimension-padding-xs, 4px);
+	inset-inline-end: var(--wpds-dimension-padding-xs);
 	top: 0;
 	bottom: 0;
 	margin-block: auto;
 	opacity: 0;
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	transition:
-		opacity var(--wpds-motion-duration-sm, 100ms)
-		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+		opacity var(--wpds-motion-duration-sm)
+		var(--wpds-motion-easing-subtle);
 	pointer-events: none;
 
 	// The glyph points toward the inline end, so flip it to point left in RTL.

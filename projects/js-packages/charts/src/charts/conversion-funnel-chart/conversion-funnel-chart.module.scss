@@ -12,22 +12,22 @@
 
 .main-rate {
 	overflow: hidden;
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral);
 	text-overflow: ellipsis;
-	font-size: var(--wpds-typography-font-size-xl, 18px);
+	font-size: var(--wpds-typography-font-size-xl);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
-	line-height: var(--wpds-typography-line-height-sm, 20px);
+	font-weight: var(--wpds-typography-font-weight-medium);
+	line-height: var(--wpds-typography-line-height-sm);
 	margin: 0;
 }
 
 .change-indicator {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-size: var(--wpds-typography-font-size-md);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
-	line-height: var(--wpds-typography-line-height-sm, 20px);
+	font-weight: var(--wpds-typography-font-weight-medium);
+	line-height: var(--wpds-typography-line-height-sm);
 	margin: 0;
 }
 
@@ -44,8 +44,8 @@
 
 	&--animated {
 		transition:
-			opacity var(--wpds-motion-duration-lg, 300ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+			opacity var(--wpds-motion-duration-lg)
+			var(--wpds-motion-easing-subtle);
 	}
 
 	&--blurred {
@@ -54,25 +54,25 @@
 }
 
 .step-label {
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	font-size: var(--wpds-typography-font-size-sm, 12px);
-	font-weight: var(--wpds-typography-font-weight-regular, 400);
-	line-height: var(--wpds-typography-line-height-xs, 16px);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: var(--wpds-typography-font-weight-regular);
+	line-height: var(--wpds-typography-line-height-xs);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
 .step-rate {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-	font-size: var(--wpds-typography-font-size-md, 13px);
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
-	line-height: var(--wpds-typography-line-height-xs, 16px);
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-md);
+	font-weight: var(--wpds-typography-font-weight-medium);
+	line-height: var(--wpds-typography-line-height-xs);
 }
 
 .bar-container {
 	flex: 1;
-	border-radius: var(--wpds-border-radius-md, 4px);
+	border-radius: var(--wpds-border-radius-md);
 	position: relative;
 	cursor: pointer;
 }
@@ -80,15 +80,15 @@
 .funnel-bar {
 	width: 100%;
 	min-height: 4px;
-	border-radius: var(--wpds-border-radius-md, 4px) var(--wpds-border-radius-md, 4px) 0 0;
+	border-radius: var(--wpds-border-radius-md) var(--wpds-border-radius-md) 0 0;
 
 	&--animated {
 		transform-origin: bottom;
 		transform-box: fill-box;
 		transform: scaleY(0);
 		animation:
-			stretch var(--wpds-motion-duration-xl, 400ms)
-			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+			stretch var(--wpds-motion-duration-xl)
+			var(--wpds-motion-easing-expressive) forwards;
 	}
 
 	@keyframes stretch {
@@ -100,33 +100,33 @@
 }
 
 .tooltip-wrapper {
-	background: var(--wpds-color-background-surface-neutral-strong, #fff);
+	background: var(--wpds-color-background-surface-neutral-strong);
 
 	// Override .visx-tooltip inline styles.
-	border-radius: var(--wpds-border-radius-md, 4px) !important;
-	padding: var(--wpds-dimension-padding-md, 12px) !important;
-	box-shadow: var(--wpds-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005) !important;
+	border-radius: var(--wpds-border-radius-md) !important;
+	padding: var(--wpds-dimension-padding-md) !important;
+	box-shadow: var(--wpds-elevation-sm) !important;
 
 }
 
 .tooltip-title {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-	font-size: var(--wpds-typography-font-size-sm, 12px);
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-sm);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-regular, 400);
-	line-height: var(--wpds-typography-line-height-xs, 16px);
+	font-weight: var(--wpds-typography-font-weight-regular);
+	line-height: var(--wpds-typography-line-height-xs);
 }
 
 .tooltip-content {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-	font-size: var(--wpds-typography-font-size-md, 13px);
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-md);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
-	line-height: var(--wpds-typography-line-height-sm, 20px);
+	font-weight: var(--wpds-typography-font-weight-medium);
+	line-height: var(--wpds-typography-line-height-sm);
 }
 
 .empty-state {
 	text-align: center;
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	font-size: var(--wpds-typography-font-size-lg, 16px);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-lg);
 }

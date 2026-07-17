@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
+import viteDsTokenFallbacks from '@wordpress/theme/vite-plugins/vite-ds-token-fallbacks';
 import { defineConfig } from 'tsdown';
+import { postcssCssBundle } from './tools/postcss-css-bundle.ts';
 import { removeDataTestId } from './tools/remove-data-testid.ts';
 
 const pkg = JSON.parse( readFileSync( new URL( './package.json', import.meta.url ), 'utf8' ) ) as {
@@ -51,7 +53,10 @@ export default defineConfig( {
 			generateScopedName: 'a8ccharts-[hash]-[local]',
 		},
 	},
-	plugins: [ removeDataTestId() ],
+	// PostCSS injects official `--wpds-*` fallbacks into the CSS bundle;
+	// the Vite plugin does the same for JS/TS theme strings (e.g. `themes.ts`).
+	// See tools/postcss-css-bundle.ts for why we don't use css.transformer: 'postcss'.
+	plugins: [ removeDataTestId(), viteDsTokenFallbacks(), postcssCssBundle() ],
 	// Fail loudly once @tsdown/css stops emitting these, so the suppression can be dropped.
 	onSuccess() {
 		if ( ! suppressedCssSourcemapWarning ) {

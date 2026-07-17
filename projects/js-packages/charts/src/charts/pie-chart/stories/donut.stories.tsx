@@ -263,7 +263,7 @@ const CustomPieLegend = ( {
 		style={ {
 			display: 'inline-grid',
 			gridTemplateColumns: '1fr auto auto',
-			gap: 'var(--wpds-dimension-gap-xs, 4px) var(--wpds-dimension-gap-sm, 8px)',
+			gap: 'var(--wpds-dimension-gap-xs) var(--wpds-dimension-gap-sm)',
 		} }
 	>
 		{ items.map( ( item, index ) => {

@@ -9,8 +9,8 @@
 		transform-box: fill-box;
 		transform: scaleY(0);
 		animation:
-			rise var(--wpds-motion-duration-xl, 400ms)
-			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+			rise var(--wpds-motion-duration-xl)
+			var(--wpds-motion-easing-expressive) forwards;
 	}
 
 	@keyframes rise {
@@ -25,8 +25,8 @@
 		transform-box: fill-box;
 		transform: scaleX(0);
 		animation:
-			stretch var(--wpds-motion-duration-xl, 400ms)
-			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+			stretch var(--wpds-motion-duration-xl)
+			var(--wpds-motion-easing-expressive) forwards;
 	}
 
 	@keyframes stretch {
