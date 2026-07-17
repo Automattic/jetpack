@@ -1,29 +1,29 @@
 import {
-	ChartStoryArgs,
+	extractLegendConfig,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
 } from '../../../stories';
 import LineChart from '../line-chart';
-import { lineChartMetaArgs, lineChartStoryArgs } from './config';
+import { lineChartMetaArgs, lineChartStoryArgs, type StoryArgs as BaseStoryArgs } from './config';
+import type { ChartLegendConfig, SeriesData } from '../../../types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 /**
  * Story-specific args that provide convenient Storybook controls.
  * These don't map directly to component props but control how data/state is manipulated in stories.
  */
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+type StoryArgs = BaseStoryArgs & {
 	/** Controls how many data series to display: 'single' (1 series), 'multiple' (4 series), or 'many' (all series) */
 	seriesCount?: 'single' | 'multiple' | 'many';
 	/** Chart sizing mode: 'responsive' (uses maxWidth/aspectRatio) or 'fixed' (uses width/height) */
 	dimensionMode?: 'responsive' | 'fixed';
-	/** Crosshair visibility on tooltip hover: 'none', 'vertical', 'horizontal', or 'both' */
-	crosshairMode?: 'none' | 'vertical' | 'horizontal' | 'both';
 };
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart',
+	component: lineChartMetaArgs.component, // Make eslint happy.
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
 		seriesCount: {
@@ -59,9 +59,10 @@ const meta: Meta< StoryArgs > = {
 
 export default meta;
 
-const Template: StoryFn< typeof LineChart > = args => {
+const Template: StoryFn< StoryArgs > = args => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
+	const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
 
 	// Determine data based on seriesCount control
 	let data = chartProps.data || lineChartStoryArgs.data;
@@ -94,135 +95,97 @@ const Template: StoryFn< typeof LineChart > = args => {
 			{ ...chartProps }
 			{ ...dimensions }
 			data={ data }
+			legend={ legend }
 			withTooltipCrosshairs={ crosshairConfig }
 		/>
 	);
 };
 
 // Default story with multiple series
-export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
+export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...lineChartStoryArgs,
+	zoomable: true,
+};
+
+export const FixedDimensions: StoryObj< StoryArgs > = Template.bind( {} );
+FixedDimensions.args = {
+	...lineChartStoryArgs,
+	width: 600,
+	height: 300,
+};
+
+export const AspectRatio: StoryObj< StoryArgs > = Template.bind( {} );
+AspectRatio.args = {
+	...lineChartStoryArgs,
+	aspectRatio: 0.3,
 };
 
 // Story with single data series
-export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
+export const SingleSeries: StoryObj< StoryArgs > = Template.bind( {} );
 SingleSeries.args = {
+	...lineChartStoryArgs,
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
-export const ManySeries: StoryObj< typeof LineChart > = Template.bind( {} );
+export const ManySeries: StoryObj< StoryArgs > = Template.bind( {} );
 ManySeries.args = {
 	...lineChartStoryArgs,
 	data: sampleData,
 	showLegend: true,
 };
 
-export const Animation: StoryObj< typeof LineChart > = Template.bind( {} );
+export const Animation: StoryObj< StoryArgs > = Template.bind( {} );
 Animation.args = {
 	...lineChartStoryArgs,
 	animation: true,
 };
 
-export const WithInteractiveLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithInteractiveLegend.args = {
+export const WithLegend: StoryObj< StoryArgs > = Template.bind( {} );
+WithLegend.args = {
 	...lineChartStoryArgs,
-	chartId: 'interactive-legend-demo',
 	showLegend: true,
-	legendInteractive: true,
 };
 
-WithInteractiveLegend.parameters = {
+WithLegend.parameters = {
 	docs: {
 		description: {
 			story:
-				'Line chart with interactive legend. Click or tap legend items to toggle series visibility. Use Tab to focus legend items, then Enter or Space to toggle. Series colors remain stable when toggling visibility.',
-		},
-	},
-};
-
-export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomLegendPositioning.args = {
-	...lineChartStoryArgs,
-	showLegend: true,
-	height: 400,
-	legendAlignment: 'start',
-	legendPosition: 'top',
-	legendOrientation: 'horizontal',
-	withLegendGlyph: true,
-};
-
-CustomLegendPositioning.parameters = {
-	docs: {
-		description: {
-			story:
-				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+				'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 		},
 	},
 };
 
 // Story showing use with LineChart using composition API
-export const WithCompositionLegend: StoryObj< typeof LineChart > = {
-	render: args => (
-		<div style={ { width: '600px', height: '400px' } }>
+export const WithCompositionLegend: StoryObj< StoryArgs > = {
+	render: args => {
+		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
+		return (
 			<LineChart
-				data={ args.data || webTrafficData }
-				width={ 600 }
-				height={ 300 }
-				withGradientFill={ false }
-				withLegendGlyph={ false }
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-line-chart"
 			>
-				<LineChart.Legend
-					orientation={ args.legendOrientation || 'horizontal' }
-					alignment={ args.legendAlignment || 'center' }
-					position={ args.legendPosition || 'bottom' }
-					maxWidth={ args.legendMaxWidth }
-					textOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
+				<LineChart.Legend { ...legend } />
 			</LineChart>
-		</div>
-	),
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
+		);
+	},
+	args: {
+		...Default.args,
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
+				story:
+					'Composition API using `<LineChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
 };
 
-// Story with custom dimensions
-export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomDimensions.args = {
-	...lineChartStoryArgs,
-	width: 800,
-	height: 400,
-};
-
-// Add after existing stories
-export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
-FixedDimensions.args = {
-	...lineChartStoryArgs,
-	width: 800,
-	height: 400,
-	withTooltips: true,
-};
-
-FixedDimensions.parameters = {
-	docs: {
-		description: {
-			story: 'Line chart with fixed dimensions that override the responsive behavior.',
-		},
-	},
-};
-
 // Story with gradient filled line chart
-export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
+export const GradientFilled: StoryObj< StoryArgs > = Template.bind( {} );
 GradientFilled.args = {
 	...lineChartStoryArgs,
 	margin: undefined,
@@ -234,7 +197,7 @@ GradientFilled.args = {
 };
 
 // Story with custom gradient colors per series
-export const GradientCustomColors: StoryObj< typeof LineChart > = Template.bind( {} );
+export const GradientCustomColors: StoryObj< StoryArgs > = Template.bind( {} );
 GradientCustomColors.args = {
 	width: 600,
 	height: 300,
@@ -280,7 +243,7 @@ GradientCustomColors.args = {
 };
 
 // Story with transparent gradient sections
-export const GradientTransparent: StoryObj< typeof LineChart > = Template.bind( {} );
+export const GradientTransparent: StoryObj< StoryArgs > = Template.bind( {} );
 GradientTransparent.args = {
 	width: 600,
 	height: 300,
@@ -309,7 +272,7 @@ GradientTransparent.args = {
 	withGradientFill: true,
 };
 
-export const ErrorStates: StoryObj< typeof LineChart > = {
+export const ErrorStates: StoryObj< StoryArgs > = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
@@ -387,20 +350,20 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 	},
 };
 
-export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} );
+export const WithoutSmoothing: StoryObj< StoryArgs > = Template.bind( {} );
 WithoutSmoothing.args = {
 	...lineChartStoryArgs,
 	smoothing: false,
 };
 
-export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
+export const WithPointerEvents: StoryObj< StoryArgs > = Template.bind( {} );
 WithPointerEvents.args = {
 	...lineChartStoryArgs,
 	// eslint-disable-next-line no-alert
 	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
 };
 
-export const CurveTypes: StoryObj< typeof LineChart > = {
+export const CurveTypes: StoryObj< StoryArgs > = {
 	render: () => {
 		// Create sample data that highlights the difference between curve types
 		// Monotone X will prevent overshooting on steep changes followed by gradual changes
@@ -469,8 +432,9 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 };
 
 // Story demonstrating Smart Formatting (formatYTick) with large values
-export const SmartFormatting: StoryObj< typeof LineChart > = Template.bind( {} );
+export const SmartFormatting: StoryObj< StoryArgs > = Template.bind( {} );
 SmartFormatting.args = {
+	...lineChartStoryArgs,
 	data: largeValuesData,
 	withGradientFill: false,
 	smoothing: true,
@@ -498,7 +462,7 @@ SmartFormatting.parameters = {
 // Offset for dashed line to prevent overlapping with solid line
 const DASHED_LINE_OFFSET = 100;
 
-export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
+export const BrokenLine: StoryObj< StoryArgs > = Template.bind( {} );
 BrokenLine.args = {
 	...lineChartStoryArgs,
 	data: [
@@ -527,46 +491,43 @@ BrokenLine.parameters = {
 	},
 };
 
-export const DateStringFormats: StoryObj< typeof LineChart > = {
-	render: () => {
-		return (
-			<LineChart
-				data={ [
-					{
-						label: 'String Dates',
-						data: [
-							{ dateString: '2024-01-01', value: 10 },
-							{ dateString: '2024-01-02', value: 20 },
-							{ dateString: '2024-01-03 00:00:00', value: 15 },
-							{ dateString: '2024-01-04', value: 25 },
-							{ dateString: '2024-01-05 00:00', value: 30 },
-						],
-						options: {},
-					},
-				] }
-				withGradientFill={ false }
-				withLegendGlyph={ false }
-			/>
-		);
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
-					'- Simple date strings (YYYY-MM-DD)\n' +
-					'- Date with time (YYYY-MM-DD 00:00:00)\n' +
-					'- Date with time (YYYY-MM-DD 00:00)\n' +
-					'- ISO format (YYYY-MM-DDT00:00:00)\n' +
-					'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
-					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
-			},
+export const DateStringFormats: StoryObj< StoryArgs > = Template.bind( {} );
+DateStringFormats.args = {
+	...lineChartStoryArgs,
+	withGradientFill: false,
+	withLegendGlyph: false,
+	data: [
+		{
+			label: 'String Dates',
+			data: [
+				{ dateString: '2024-01-01', value: 10 },
+				{ dateString: '2024-01-02', value: 20 },
+				{ dateString: '2024-01-03 00:00:00', value: 15 },
+				{ dateString: '2024-01-04', value: 25 },
+				{ dateString: '2024-01-05 00:00', value: 30 },
+			],
+			options: {},
+		},
+	],
+};
+DateStringFormats.parameters = {
+	docs: {
+		description: {
+			story:
+				"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
+				'- Simple date strings (YYYY-MM-DD)\n' +
+				'- Date with time (YYYY-MM-DD 00:00:00)\n' +
+				'- Date with time (YYYY-MM-DD 00:00)\n' +
+				'- ISO format (YYYY-MM-DDT00:00:00)\n' +
+				'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
+				'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
 		},
 	},
 };
 
-export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
+export const Comparison: StoryObj< StoryArgs > = Template.bind( {} );
 Comparison.args = {
+	...lineChartStoryArgs,
 	showLegend: true,
 	smoothing: false,
 	data: [

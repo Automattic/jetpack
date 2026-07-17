@@ -5,6 +5,156 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.29] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+
+### Fixed
+- Keep the AI guideline message's "Learn more" link on a single line on narrow/mobile widths. [#50423]
+
+## [0.34.28] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [0.34.27] - 2026-06-29
+### Changed
+- Update dependencies. [#50004]
+
+## [0.34.26] - 2026-06-26
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.25] - 2026-06-25
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.24] - 2026-06-24
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.23] - 2026-06-23
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.22] - 2026-06-22
+### Changed
+- Update dependencies. [#49641]
+- Update package dependencies. [#49639] [#49691]
+
+## [0.34.21] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.34.20] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [0.34.19] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+## [0.34.18] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405] [#49012]
+
+## [0.34.17] - 2026-05-19
+### Changed
+- Update package dependencies. [#48696]
+
+## [0.34.16] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+## [0.34.15] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.34.14] - 2026-04-27
+### Changed
+- Internal updates.
+
+## [0.34.13] - 2026-04-20
+### Changed
+- Update dependencies. [#48138]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+## [0.34.12] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+## [0.34.11] - 2026-04-13
+### Changed
+- Update package dependencies. [#47890]
+
+## [0.34.10] - 2026-04-06
+### Changed
+- Update package dependencies. [#47870]
+
+## [0.34.9] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [0.34.8] - 2026-03-23
+### Security
+- Fix markdown-to-HTML paragraph renderer. [#47637]
+
+### Changed
+- Update package dependencies. [#47684] [#47719]
+
+### Fixed
+- AI Assistant: Prevent modal shaking from when content streams in by correcting header margins and making the header sticky. [#47616]
+
+## [0.34.7] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.34.6] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+## [0.34.5] - 2026-03-02
+### Changed
+- Update dependencies. [#46758]
+
+## [0.34.4] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+## [0.34.3] - 2026-02-23
+### Changed
+- Update dependencies. [#46758]
+
+## [0.34.2] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+- Update package dependencies. [#47131]
+
+## [0.34.1] - 2026-02-16
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.34.0] - 2026-02-10
+### Added
+- AI Client: Add explicit window interface with missing types. [#46938]
+
+### Changed
+- Update package dependencies. [#46905]
+
+### Removed
+- Remove Chrome AI built-in API integration code. [#46896]
+
+## [0.33.32] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.33.31] - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## [0.33.30] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
 ## [0.33.29] - 2026-01-14
 ### Changed
 - Internal updates.
@@ -778,6 +928,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.34.29]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.28...v0.34.29
+[0.34.28]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.27...v0.34.28
+[0.34.27]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.26...v0.34.27
+[0.34.26]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.25...v0.34.26
+[0.34.25]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.24...v0.34.25
+[0.34.24]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.23...v0.34.24
+[0.34.23]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.22...v0.34.23
+[0.34.22]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.21...v0.34.22
+[0.34.21]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.20...v0.34.21
+[0.34.20]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.19...v0.34.20
+[0.34.19]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.18...v0.34.19
+[0.34.18]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.17...v0.34.18
+[0.34.17]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.16...v0.34.17
+[0.34.16]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.15...v0.34.16
+[0.34.15]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.14...v0.34.15
+[0.34.14]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.13...v0.34.14
+[0.34.13]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.12...v0.34.13
+[0.34.12]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.11...v0.34.12
+[0.34.11]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.10...v0.34.11
+[0.34.10]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.9...v0.34.10
+[0.34.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.8...v0.34.9
+[0.34.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.7...v0.34.8
+[0.34.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.6...v0.34.7
+[0.34.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.5...v0.34.6
+[0.34.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.4...v0.34.5
+[0.34.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.3...v0.34.4
+[0.34.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.2...v0.34.3
+[0.34.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.1...v0.34.2
+[0.34.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.32...v0.34.0
+[0.33.32]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.31...v0.33.32
+[0.33.31]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.30...v0.33.31
+[0.33.30]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.29...v0.33.30
 [0.33.29]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.28...v0.33.29
 [0.33.28]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.27...v0.33.28
 [0.33.27]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.26...v0.33.27

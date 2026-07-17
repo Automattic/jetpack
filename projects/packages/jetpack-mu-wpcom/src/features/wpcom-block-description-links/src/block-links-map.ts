@@ -91,10 +91,6 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/latest-comments-block/',
 		postId: 149811,
 	},
-	'core/heading': {
-		link: 'https://wordpress.com/support/wordpress-editor/blocks/heading-block/',
-		postId: 148403,
-	},
 	'core/file': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/file-block/',
 		postId: 148586,
@@ -277,6 +273,10 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/opentable-block/',
 		postId: 162208,
 	},
+	'jetpack/markdown': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/markdown-block/',
+		postId: 149871,
+	},
 	'jetpack/map': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/map-block/',
 		postId: 149684,
@@ -406,9 +406,15 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 	},
 };
 
+export type BlockLink = { link: string; postId: number };
+
 export const blockInfoWithVariations: {
-	[ key: string ]: { [ key: string ]: { link: string; postId: number } };
+	[ key: string ]: BlockLink | { [ key: string ]: BlockLink };
 } = {
+	'core/heading': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/heading-block/',
+		postId: 148403,
+	},
 	'core/embed': {
 		soundcloud: {
 			link: 'https://wordpress.com/support/soundcloud-audio-player/',

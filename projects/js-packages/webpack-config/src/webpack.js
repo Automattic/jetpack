@@ -5,13 +5,16 @@ const I18nSafeMangleExportsWebpackPlugin = require( '@automattic/i18n-check-webp
 const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
 const WebpackRTLWebpackPlugin = require( '@automattic/webpack-rtl-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package-checker-webpack-plugin' );
+const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const CssMinimizerWebpackPlugin = require( 'css-minimizer-webpack-plugin' );
-const ForkTSCheckerWebpackPlugin = require( 'fork-ts-checker-webpack-plugin' );
 const MiniCssExtractWebpackPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
+const BundledWpPkgsTranspileRules = require( './webpack/bundled-wp-pkgs-transpile-rules' );
 const CssRule = require( './webpack/css-rule' );
+const DevServer = require( './webpack/dev-server' );
 const FileRule = require( './webpack/file-rule' );
+const loadTextDomainFromComposerJson = require( './webpack/load-textdomain-from-composer-json.js' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
 const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-ids.js' );
 const TerserPlugin = require( './webpack/terser' );
@@ -20,36 +23,6 @@ const TranspileRule = require( './webpack/transpile-rule' );
 const CssMinimizerPlugin = options => new CssMinimizerWebpackPlugin( options );
 
 /****** Functions ******/
-
-let loadTextDomainFromComposerJson = () => {
-	let dir = process.cwd(),
-		olddir,
-		ret;
-	do {
-		const file = path.join( dir, 'composer.json' );
-		if ( fs.existsSync( file ) ) {
-			const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
-			if ( cfg.extra ) {
-				if ( cfg.extra.textdomain ) {
-					ret = cfg.extra.textdomain;
-				} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
-					ret = cfg.extra[ 'wp-plugin-slug' ];
-				} else if ( cfg.extra[ 'beta-plugin-slug' ] ) {
-					ret = cfg.extra[ 'beta-plugin-slug' ];
-				}
-			}
-			break;
-		}
-
-		olddir = dir;
-		dir = path.dirname( dir );
-	} while ( dir !== olddir );
-
-	// thunk it
-	loadTextDomainFromComposerJson = () => ret;
-
-	return ret;
-};
 
 const i18nFilterFunction = file => {
 	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
@@ -111,15 +84,36 @@ const optimization = {
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
-	conditionNames: [
-		...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
-			? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-			: [] ),
-		'...',
-	],
+	conditionNames: [ 'jetpack:src', '...' ],
 };
 const watchOptions = {
 	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
+};
+
+/**
+ * Generate filesystem cache configuration.
+ *
+ * @param {string} configFile - Config file being processed, for proper invalidation.
+ *                            Generally, you'll pass `__filename` or `import.meta.filename`.
+ * @return {object|undefined} Cache configuration. Returns undefined in CI.
+ */
+const cache = configFile => {
+	if ( process.env.CI ) {
+		return undefined;
+	}
+	return {
+		type: 'filesystem',
+		cacheDirectory: path.resolve(
+			process.cwd(),
+			'.cache/webpack',
+			// Split cache on config filename to avoid collisions with parallel builds (e.g. plugins/jetpack).
+			path.basename( configFile, path.extname( configFile ) )
+		),
+		store: 'pack',
+		buildDependencies: {
+			config: [ configFile ],
+		},
+	};
 };
 
 /****** Plugins ******/
@@ -140,6 +134,13 @@ const defaultRequestMap = {
 	'@automattic/jetpack-connection': {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
+	},
+	// The shared data stores are externalized into a single bundle so they
+	// register exactly once. The package exposes only its barrel entry, so a
+	// single mapping covers every consumer.
+	'@automattic/jetpack-shared-stores': {
+		external: 'JetpackSharedStores',
+		handle: 'jetpack-shared-stores',
 	},
 };
 
@@ -165,21 +166,6 @@ const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
 
 const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),
-];
-
-const ForkTSCheckerPlugin = options => [
-	new ForkTSCheckerWebpackPlugin( {
-		typescript: {
-			mode: 'write-dts',
-			diagnosticOptions: {
-				semantic: true,
-				syntactic: true,
-				...options?.typescript?.diagnosticOptions,
-			},
-			...options?.typescript,
-		},
-		...options,
-	} ),
 ];
 
 const I18nCheckPlugin = options => {
@@ -244,9 +230,6 @@ const PnpmDeterministicModuleIdsPlugin = options => [
 const WebpackRtlPlugin = options => [ new WebpackRTLWebpackPlugin( options ) ];
 
 const StandardPlugins = ( options = {} ) => {
-	if ( typeof options.ForkTSCheckerPlugin === 'undefined' ) {
-		options.ForkTSCheckerPlugin = false;
-	}
 	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
 		options.I18nCheckPlugin = false;
 	}
@@ -265,9 +248,6 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.DuplicatePackageCheckerPlugin === false
 			? []
 			: DuplicatePackageCheckerPlugin( options.DuplicatePackageCheckerPlugin ) ),
-		...( options.ForkTSCheckerPlugin === false
-			? []
-			: ForkTSCheckerPlugin( options.ForkTSCheckerPlugin ) ),
 		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
 		...( options.I18nSafeMangleExportsPlugin === false
@@ -286,6 +266,11 @@ const StandardPlugins = ( options = {} ) => {
 			? []
 			: PnpmDeterministicModuleIdsPlugin( options.PnpmDeterministicModuleIdsPlugin ) ),
 		...( options.WebpackRtlPlugin === false ? [] : WebpackRtlPlugin( options.WebpackRtlPlugin ) ),
+		...( options.ReactRefreshWebpackPlugin === false ||
+		process.env.WEBPACK_SERVE !== 'true' ||
+		isProduction
+			? []
+			: [ new ReactRefreshWebpackPlugin( options.ReactRefreshWebpackPlugin ) ] ),
 	];
 };
 
@@ -307,12 +292,13 @@ module.exports = {
 	CssMinimizerPlugin,
 	resolve,
 	watchOptions,
+	cache,
+	DevServer,
 	// Plugins.
 	StandardPlugins,
 	DefinePlugin,
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
-	ForkTSCheckerPlugin,
 	I18nCheckPlugin,
 	I18nLoaderPlugin,
 	I18nSafeMangleExportsPlugin,
@@ -321,8 +307,10 @@ module.exports = {
 	MomentLocaleIgnorePlugin,
 	PnpmDeterministicModuleIdsPlugin,
 	WebpackRtlPlugin,
+	ReactRefreshWebpackPlugin,
 	// Module rules and loaders.
 	TranspileRule,
+	BundledWpPkgsTranspileRules,
 	CssRule,
 	FileRule,
 };

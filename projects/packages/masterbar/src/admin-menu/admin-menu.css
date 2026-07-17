@@ -126,6 +126,7 @@
 	height: 24px;
 	width: 24px;
 	margin-left: 10px;
+	fill: currentColor;
 }
 
 @media screen and (min-width: 782px) {
@@ -356,8 +357,6 @@ a.screen-switcher__button:hover > strong {
 
 /** Add new site button **/
 
-/* stylelint-disable-next-line no-duplicate-selectors
--- This is part of a larger section of changes. */
 #adminmenu {
 	display: flex;
 	flex-direction: column;

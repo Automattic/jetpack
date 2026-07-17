@@ -1,0 +1,24 @@
+// The body is the scrollable middle slot: it spans the full width of
+// the Page content area so the scrollbar lines up with the right edge
+// of the page (matching VideoPress / Forms). The inner wrapper holds
+// the centering + padding so screen content keeps to the dashboard's
+// 1344px ribbon without dragging the scrollbar inward.
+.jpb-dashboard-body {
+	box-sizing: border-box;
+	width: 100%;
+
+	&__inner {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 1344px;
+		margin-inline: auto;
+		padding: 24px;
+	}
+}
+
+// De-emphasized caption text. `@wordpress/ui`'s `Text` has no muted/color
+// prop, so the dimmed treatment lives here and is applied via className
+// alongside `variant="body-sm"`.
+.jpb-text-muted {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}

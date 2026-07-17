@@ -2,11 +2,18 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 
 /**
+ * @typedef {object} Block
+ * @property {string}                                    clientId    - The unique identifier for the block.
+ * @property {Array}                                     innerBlocks - An array of child blocks nested within this block.
+ * @property {{lock:{ move: boolean, remove: boolean }}} attributes  - An object containing the block's attributes.
+ */
+
+/**
  * Custom hook to find a block recursively within the inner blocks of a given root block ID.
  *
  * @param {string}   searchRootClientId - The client ID of the block whose descendants will be searched.
  * @param {Function} predicateFn        - A function that takes a block and returns true if it's the desired block.
- * @return  {Object|null} The first block found that satisfies the predicate, or null if not found or if searchRootClientId is invalid.
+ * @return  {Block|null} The first block found that satisfies the predicate, or null if not found or if searchRootClientId is invalid.
  */
 export const useFindBlockRecursively = ( searchRootClientId, predicateFn ) => {
 	const blocksToSearch = useSelect(

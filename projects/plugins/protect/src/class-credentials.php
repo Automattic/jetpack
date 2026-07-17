@@ -50,6 +50,6 @@ class Credentials {
 			return false;
 		}
 
-		return isset( $parsed_response->credentials ) ? $parsed_response->credentials : array();
+		return $parsed_response->credentials ?? array();
 	}
 }

@@ -1,0 +1,141 @@
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
+	widgetDashboardWithWidgetArgTypes,
+	type WidgetDashboardWithWidgetControls,
+} from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import TagsRender from '../render';
+import widgetDefinition from '../widget';
+import type { Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps, ComponentType } from 'react';
+
+registerReportMocks();
+
+const TAGS_RENDER_MODULE = 'storybook/tags';
+
+// Pick only the fields that StoryWidgetMetadata accepts; the attribute schema
+// and example arrays are typed differently in WidgetType and cause a type error.
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	icon: widgetDefinition.icon,
+	presentation: 'framed' as const,
+};
+
+function renderTags() {
+	return <TagsRender attributes={ { max: 10, reportParams: getDefaultQueryParams() } } />;
+}
+
+// Renders the widget with a distinct `max` so each forced-state story gets its
+// own cache entry. The `stats/tags` query key collapses the date range to just
+// `{ date, max }` (the range's end date), so every "last N days" preset ending
+// today resolves to the SAME key — a distinct preset would NOT isolate these
+// stories (unlike date-range-keyed widgets). `max` IS in the key, and it doesn't
+// change what a loading/error/empty state renders, so it is the reliable
+// isolator: without it the Loading story's never-resolving query would poison
+// Default (and Empty/Error would leave cached rows) on same-tab story switches.
+function renderTagsWithMax( max: number ) {
+	return <TagsRender attributes={ { max, reportParams: getDefaultQueryParams( false ) } } />;
+}
+
+function TagsDashboardRender( props: WidgetRenderProps< unknown > ) {
+	return <TagsRender { ...( props as ComponentProps< typeof TagsRender > ) } />;
+}
+
+const meta = {
+	title: 'Packages/Premium Analytics/Widgets/Tags',
+	component: TagsRender,
+	tags: [ 'autodocs' ],
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'The "Tags & categories" widget. Displays the site\'s most visited tags and categories for the selected period, ranked by views. Single tags/categories link to their archive; grouped rows (several tags/categories sharing posts) drill down to their members. Ported from the Jetpack Stats Tags & categories module.',
+			},
+		},
+	},
+} satisfies Meta< typeof TagsRender >;
+
+export default meta;
+
+type Story = StoryObj< Partial< ComponentProps< typeof TagsRender > > >;
+
+export const Default: Story = {
+	render: renderTags,
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderTagsWithMax( 9 ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/tags', 'loading' );
+		return () => setReportMockState( 'stats/tags', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderTagsWithMax( 8 ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/tags', 'error' );
+		return () => setReportMockState( 'stats/tags', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral tag glyph
+ * and "Learn about your most visited tags & categories to track engaging topics.").
+ */
+export const Empty: Story = {
+	render: () => renderTagsWithMax( 7 ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/tags', 'empty' );
+		return () => setReportMockState( 'stats/tags', null );
+	},
+};
+
+function TagsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ storyWidgetType }
+			renderModule={ TAGS_RENDER_MODULE }
+			renderComponent={ TagsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( true ) } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <TagsDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+	decorators: [ withStoryRouter ],
+};

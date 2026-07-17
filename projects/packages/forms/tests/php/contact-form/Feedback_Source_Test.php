@@ -299,6 +299,55 @@ class Feedback_Source_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A fresh Feedback_Source is not a test submission by default.
+	 */
+	public function test_is_test_defaults_to_false() {
+		$entry = new Feedback_Source( 0, 'Test Title' );
+
+		$this->assertFalse( $entry->is_test() );
+	}
+
+	/**
+	 * The set_is_test setter flips the flag both ways.
+	 */
+	public function test_set_is_test_flips_the_flag() {
+		$entry = new Feedback_Source( 0, 'Test Title' );
+		$entry->set_is_test( true );
+
+		$this->assertTrue( $entry->is_test() );
+
+		$entry->set_is_test( false );
+		$this->assertFalse( $entry->is_test() );
+	}
+
+	/**
+	 * When flagged as test, serialize includes is_test and round-trips through from_serialized.
+	 */
+	public function test_is_test_round_trips_through_serialize() {
+		$entry = new Feedback_Source( 0, 'Preview Title', 1 );
+		$entry->set_is_test( true );
+
+		$serialized = $entry->serialize();
+
+		$this->assertArrayHasKey( 'is_test', $serialized );
+		$this->assertTrue( $serialized['is_test'] );
+
+		$restored = Feedback_Source::from_serialized( $serialized );
+		$this->assertTrue( $restored->is_test() );
+	}
+
+	/**
+	 * Serialize omits the is_test key entirely when the flag is not set,
+	 * so existing serialized payloads are not affected.
+	 */
+	public function test_serialize_omits_is_test_when_false() {
+		$entry      = new Feedback_Source( 0, 'Normal Title' );
+		$serialized = $entry->serialize();
+
+		$this->assertArrayNotHasKey( 'is_test', $serialized );
+	}
+
+	/**
 	 * Test constructor overwrites ID when post is not public
 	 */
 	public function test_constructor_overwrites_id_for_non_public_post() {

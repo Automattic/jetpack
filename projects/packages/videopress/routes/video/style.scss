@@ -1,0 +1,171 @@
+// Browsers clip margin-bottom on the last child of a scroll container,
+// so a `margin: 24px auto` here loses the bottom 24px gap when the page
+// scrolls all the way down (Rating card ends up flush against the
+// JetpackFooter). Using vertical padding instead keeps that 24px inside
+// `.vp-video-details`'s clientHeight, which the scroll container honors.
+.vp-video-details {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 660px;
+	margin-inline: auto;
+	padding-block: 24px;
+	padding-inline: 24px;
+}
+
+// `width: 100%` is required because the wrapper is a flex child of the
+// dashboard tabpanel (column-flex); without an explicit cross-axis size
+// a `display: flex` flex item is sized to its content, leaving
+// `max-width` unable to extend it. The `> *` rule has the same role for
+// inner @wordpress/ui Card.Root children (display: flex). Both gated to
+// non-mobile so the mobile breakpoint keeps cards content-sized with
+// natural breathing room instead of stretching edge-to-edge of the
+// viewport.
+@media ( min-width: 600px ) {
+
+	.vp-video-details {
+		width: 100%;
+	}
+
+	.vp-video-details > * {
+		width: 100%;
+	}
+}
+
+// Scoping hook only — display: contents removes the wrapper's box from
+// layout, so the breadcrumb list flows in the header exactly as before.
+// The current-item crumb is targeted structurally (li:last-child h1)
+// because @wordpress/admin-ui's Breadcrumbs uses hashed CSS-module class
+// names. Long video titles are clamped so they can't crowd the header's
+// Save button; the full title remains visible in the Title field below.
+// Upstream defect this works around: Breadcrumbs ships its own
+// `li:last-child { flex-shrink: 1; min-width: 0 }` intending exactly this
+// truncation, but it never engages — the nav and the header's inner Stack
+// are flex items left at `min-width: auto`, so no width constraint ever
+// reaches the list. If that's fixed upstream, this block can shrink to
+// just the max-width cap (or go away entirely).
+.vp-video-details__breadcrumbs {
+	display: contents;
+
+	li:last-child h1 {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: min(60ch, 45vw);
+	}
+}
+
+.vp-video-details__not-found {
+	padding: 48px 24px;
+	text-align: center;
+}
+
+// Empty placeholder shown while the /wp/v2/media/{id} fetch is in flight.
+// Sized to roughly match the editor body height so the layout doesn't
+// jump when the real content arrives.
+.vp-video-details__loading {
+	min-height: 320px;
+}
+
+// Playable preview at the top of the details screen. The frame is pinned
+// to 16:9 — the canonical player shape — and the embed letterboxes any
+// other aspect ratio inside it against the black background, so the page
+// doesn't reflow based on the video's own dimensions (which the media
+// record doesn't expose anyway).
+.vp-video-details__player {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	background: #000;
+	border-radius: 4px;
+	overflow: hidden;
+
+	iframe,
+	video {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
+	}
+}
+
+// "Processing" panel shown in place of the player while the VideoPress
+// backend is still transcoding the upload; keeps the player's 16:9 slot so
+// the page doesn't jump when playback becomes available.
+.vp-video-details__player-processing {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f0f0f0;
+	color: #1e1e1e;
+}
+
+// The action buttons row should size to its content, not stretch across
+// the column flex parent.
+.vp-video-details__actions {
+	align-self: flex-start;
+	flex-wrap: wrap;
+}
+
+// The "Update thumbnail" trigger is a @wordpress/components Button (36px
+// tall) sitting next to a @wordpress/ui Button, which sizes off the WPDS
+// size-lg token (40px). Pin the trigger to the same token so the two
+// actions read as one row. (No fallback — the build injects token
+// fallbacks automatically.)
+.vp-thumbnail-update__trigger .components-button {
+	height: var(--wpds-dimension-size-lg);
+}
+
+// "FILE NAME" / "UPLOADED ON" caption labels (Figma uses uppercase
+// with subdued color so they read as field labels, not body text).
+.vp-video-details__meta-label {
+	color: var(--jp-gray-50, #646970);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-size: 11px;
+}
+
+// Chapters helper hint reads as supporting copy, not body text.
+.vp-video-details__chapters-hint {
+	color: var(--jp-gray-50, #646970);
+	margin: 0;
+}
+
+// The minimal small button's hover background hugs its text; give it
+// breathing room without growing the row height.
+.vp-video-details__manage-subtitles {
+	padding-inline: 8px;
+}
+
+.vp-frame-scrubber {
+	position: relative;
+	width: 100%;
+}
+
+.vp-frame-scrubber__video {
+	display: block;
+	max-width: 100%;
+	// Cap the height so portrait/vertical videos stay within the dialog
+	// instead of overflowing it. Landscape videos still fill the width.
+	max-height: 60vh;
+	margin-inline: auto;
+	background: #000;
+}
+
+.vp-frame-scrubber__spinner {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.vp-frame-scrubber__error {
+	padding: 32px;
+	text-align: center;
+	color: var(--jp-gray-50, #646970);
+}
+
+.vp-frame-scrubber__range {
+	margin-top: 12px;
+}

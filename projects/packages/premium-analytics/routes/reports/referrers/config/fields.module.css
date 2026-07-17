@@ -1,0 +1,5 @@
+.referrerIcon {
+	--jpa-leaderboard-image-width: 16px;
+	--jpa-leaderboard-image-height: 16px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
+}

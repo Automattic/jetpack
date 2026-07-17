@@ -10,7 +10,7 @@ new Jetpack_JSON_API_Plugins_List_Endpoint(
 		'method'                  => 'GET',
 		'path'                    => '/sites/%s/plugins',
 		'rest_route'              => '/plugins',
-		'rest_min_jp_version'     => '14.4',
+		'rest_min_jp_version'     => '15.9',
 		'stat'                    => 'plugins',
 		'min_version'             => '1',
 		'max_version'             => '1.1',

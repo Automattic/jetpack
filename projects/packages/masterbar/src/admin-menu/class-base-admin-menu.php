@@ -151,7 +151,6 @@ abstract class Base_Admin_Menu {
 			$menu_item[6] = $icon;
 		}
 
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		unset( $menu[ $menu_position ] );
 		if ( $position ) {
 			$menu_position = $position;
@@ -265,7 +264,6 @@ abstract class Base_Admin_Menu {
 			'jetpack-admin-menu',
 			'jetpackAdminMenu',
 			array(
-				'upsellNudgeJitm'  => wp_create_nonce( 'upsell_nudge_jitm' ),
 				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
 			)
 		);

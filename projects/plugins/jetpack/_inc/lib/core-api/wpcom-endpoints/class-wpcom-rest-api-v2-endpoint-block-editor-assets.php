@@ -25,11 +25,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	private $handle_suffix_regex = '/-(js|css|extra|before|after)$/';
 
 	/**
-	 * Cached base URL for the plugins directory.
+	 * Cached base path for the plugins directory.
 	 *
 	 * @var string|null
 	 */
-	private $plugins_base_url = null;
+	private $plugins_base_path = null;
 
 	/**
 	 * List of allowed plugin handle prefixes whose assets should be preserved.
@@ -184,7 +184,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_items( $request ) {
 		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 		global $wp_styles, $wp_scripts;
 
@@ -528,7 +528,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 					try {
 						$reflection = new ReflectionClass( $callback[0] );
 						$file_path  = $reflection->getFileName();
-					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					} catch ( ReflectionException $e ) {
 						// Skip if reflection fails
 						continue;
 					}
@@ -539,7 +539,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 					try {
 						$reflection = new ReflectionFunction( $callback );
 						$file_path  = $reflection->getFileName();
-					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					} catch ( ReflectionException $e ) {
 						// Skip if reflection fails
 						continue;
 					}
@@ -627,17 +627,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
-	 * Get the base URL for the plugins directory.
+	 * Get the base path for the plugins directory.
 	 *
-	 * Caches the result to avoid repeated function calls.
+	 * Extracts only the path component from the plugins URL, making it
+	 * CDN-safe by ignoring the domain. Caches the result to avoid repeated
+	 * function calls.
 	 *
-	 * @return string The base URL for the plugins directory with trailing slash.
+	 * @return string The base path for the plugins directory with trailing slash.
 	 */
-	private function get_plugins_base_url() {
-		if ( null === $this->plugins_base_url ) {
-			$this->plugins_base_url = trailingslashit( plugins_url() );
+	private function get_plugins_base_path() {
+		if ( null === $this->plugins_base_path ) {
+			$this->plugins_base_path = trailingslashit( wp_parse_url( plugins_url(), PHP_URL_PATH ) );
 		}
-		return $this->plugins_base_url;
+		return $this->plugins_base_path;
 	}
 
 	/**
@@ -651,10 +653,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return false;
 		}
 
-		$plugins_url = $this->get_plugins_base_url();
+		$plugins_path = $this->get_plugins_base_path();
 
-		return str_contains( $src, $plugins_url . 'gutenberg/' ) ||
-			str_contains( $src, $plugins_url . 'gutenberg-core/' ); // WPCOM-specific path
+		return str_contains( $src, $plugins_path . 'gutenberg/' ) ||
+			str_contains( $src, $plugins_path . 'gutenberg-core/' ); // WPCOM-specific path
 	}
 
 	/**

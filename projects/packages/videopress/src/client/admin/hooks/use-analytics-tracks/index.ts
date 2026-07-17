@@ -72,7 +72,7 @@ const useAnalyticsTracks = ( {
 		}
 
 		if ( blogId ) {
-			pageViewEventProperties.blog_id = blogId;
+			pageViewEventProperties.blog_id = blogId as string | number | boolean;
 		}
 
 		recordEvent( pageViewEventName, pageViewEventProperties );

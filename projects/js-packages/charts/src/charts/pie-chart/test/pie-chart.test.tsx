@@ -7,8 +7,8 @@ describe( 'PieChart', () => {
 	const defaultProps = {
 		size: 500,
 		data: [
-			{ label: 'A', percentage: 50, value: 50 },
-			{ label: 'B', percentage: 50, value: 50 },
+			{ label: 'A', value: 50 },
+			{ label: 'B', value: 50 },
 		],
 	};
 
@@ -21,21 +21,21 @@ describe( 'PieChart', () => {
 	};
 
 	describe( 'Data Validation', () => {
-		test( 'validates total percentage equals 100', () => {
+		test( 'validates total value is greater than 0', () => {
 			renderWithTheme( {
 				data: [
-					{ label: 'A', percentage: 60, value: 60 },
-					{ label: 'B', percentage: 50, value: 50 },
+					{ label: 'A', value: 0 },
+					{ label: 'B', value: 0 },
 				],
 			} );
-			expect( screen.getByText( /invalid percentage total/i ) ).toBeInTheDocument();
+			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles negative values', () => {
 			renderWithTheme( {
 				data: [
-					{ label: 'A', percentage: -30, value: -30 },
-					{ label: 'B', percentage: 130, value: 130 },
+					{ label: 'A', value: -30 },
+					{ label: 'B', value: 130 },
 				],
 			} );
 			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe( 'PieChart', () => {
 
 		test( 'handles single data point', () => {
 			renderWithTheme( {
-				data: [ { label: 'A', percentage: 100, value: 100 } ],
+				data: [ { label: 'A', value: 100 } ],
 			} );
 			// Use getAllByText since 'A' appears in both chart and legend
 			const labels = screen.getAllByText( 'A' );
@@ -60,7 +60,7 @@ describe( 'PieChart', () => {
 		test( 'renders legend when showLegend is true', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'top',
+				legend: { position: 'top' },
 			} );
 
 			// Check that legend container is rendered using accessible queries
@@ -72,7 +72,7 @@ describe( 'PieChart', () => {
 		test( 'renders correct number of legend items', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'top',
+				legend: { position: 'top' },
 			} );
 
 			// Use getAllByTestId to find legend items
@@ -83,7 +83,7 @@ describe( 'PieChart', () => {
 		test( 'chart renders with legend at top position', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'top',
+				legend: { position: 'top' },
 			} );
 
 			// Verify the chart renders without errors when legend is at top
@@ -98,7 +98,7 @@ describe( 'PieChart', () => {
 		test( 'chart renders with legend at bottom position', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'bottom',
+				legend: { position: 'bottom' },
 			} );
 
 			// Verify the chart renders without errors when legend is at bottom
@@ -157,10 +157,11 @@ describe( 'PieChart', () => {
 	} );
 
 	describe( 'Legend Value Display', () => {
+		// Values that give clean percentages: 60/100=60%, 23/100=23%, 17/100=17%
 		const testData = [
-			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 60 },
-			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 23 },
-			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 17 },
+			{ label: 'Windows', value: 60, valueDisplay: '60' },
+			{ label: 'MacOS', value: 23, valueDisplay: '23' },
+			{ label: 'Linux', value: 17, valueDisplay: '17' },
 		];
 
 		test( 'shows percentage values by default when showLegend and showValues are enabled', () => {
@@ -170,7 +171,7 @@ describe( 'PieChart', () => {
 				// legendValueDisplay defaults to 'percentage'
 			} );
 
-			// Should display percentage values (using formatPercentage which shows "60%", "23%", "17%")
+			// Should display calculated percentages from values
 			expect( screen.getByText( '60%' ) ).toBeInTheDocument();
 			expect( screen.getByText( '23%' ) ).toBeInTheDocument();
 			expect( screen.getByText( '17%' ) ).toBeInTheDocument();
@@ -184,9 +185,9 @@ describe( 'PieChart', () => {
 			} );
 
 			// Should display localized numeric values
-			expect( screen.getByText( '80,000' ) ).toBeInTheDocument();
-			expect( screen.getByText( '30,000' ) ).toBeInTheDocument();
-			expect( screen.getByText( '22,000' ) ).toBeInTheDocument();
+			expect( screen.getByText( '60' ) ).toBeInTheDocument();
+			expect( screen.getByText( '23' ) ).toBeInTheDocument();
+			expect( screen.getByText( '17' ) ).toBeInTheDocument();
 		} );
 
 		test( 'shows formatted values when legendValueDisplay is set to "valueDisplay"', () => {
@@ -197,9 +198,9 @@ describe( 'PieChart', () => {
 			} );
 
 			// Should display formatted values (valueDisplay field)
-			expect( screen.getByText( '80K' ) ).toBeInTheDocument();
-			expect( screen.getByText( '30K' ) ).toBeInTheDocument();
-			expect( screen.getByText( '22K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '60' ) ).toBeInTheDocument();
+			expect( screen.getByText( '23' ) ).toBeInTheDocument();
+			expect( screen.getByText( '17' ) ).toBeInTheDocument();
 		} );
 
 		test( 'shows no values when legendValueDisplay is set to "none"', () => {
@@ -222,9 +223,12 @@ describe( 'PieChart', () => {
 	} );
 
 	describe( 'Tooltip Functionality', () => {
+		// Values: 80000 + 30000 = 110000
+		// Windows: 80000/110000 = 72.727...%
+		// MacOS: 30000/110000 = 27.272...%
 		const testData = [
-			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 70 },
-			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 30 },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K' },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
 		];
 
 		test( 'does not show tooltip when withTooltips is false', async () => {
@@ -314,7 +318,7 @@ describe( 'PieChart', () => {
 
 		test( 'tooltip shows valueDisplay when available, falls back to value', async () => {
 			const user = userEvent.setup();
-			const dataWithoutValueDisplay = [ { label: 'Test', value: 42, percentage: 100 } ];
+			const dataWithoutValueDisplay = [ { label: 'Test', value: 42 } ];
 
 			renderWithTheme( {
 				data: dataWithoutValueDisplay,
@@ -329,20 +333,60 @@ describe( 'PieChart', () => {
 			} );
 			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Test: 42' );
 		} );
+
+		test( 'renders custom tooltip when renderTooltip prop is provided', async () => {
+			const user = userEvent.setup();
+			const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
+				<div role="tooltip" data-testid="custom-tooltip">
+					Custom: { tooltipData.label } - { tooltipData.value }
+				</div>
+			) );
+
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+				renderTooltip: customTooltipRenderer,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			await waitFor( () => {
+				expect( screen.getByTestId( 'custom-tooltip' ) ).toBeInTheDocument();
+			} );
+
+			const customTooltip = screen.getByTestId( 'custom-tooltip' );
+			expect( customTooltip ).toHaveTextContent( 'Custom: Windows - 80000' );
+			expect( customTooltipRenderer ).toHaveBeenCalled();
+
+			// Verify the renderer received correct parameters
+			// Percentage is calculated from values: 80000 / (80000 + 30000) = 72.727...%
+			expect( customTooltipRenderer ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					tooltipData: expect.objectContaining( {
+						label: 'Windows',
+						value: 80000,
+					} ),
+				} )
+			);
+			// Verify percentage is calculated (approximately 72.73%)
+			const callArgs = customTooltipRenderer.mock.calls[ 0 ][ 0 ];
+			expect( callArgs.tooltipData.percentage ).toBeCloseTo( 72.73, 1 );
+		} );
 	} );
 
 	describe( 'Interactive Legend', () => {
 		test( 'filters segments when interactive legend is enabled and segment is toggled', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-interactive-pie-chart',
 			} );
 
@@ -367,14 +411,14 @@ describe( 'PieChart', () => {
 		test( 'shows empty state when all segments are hidden', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-all-hidden-pie-chart',
 			} );
 
@@ -406,14 +450,14 @@ describe( 'PieChart', () => {
 
 		test( 'does not filter segments when legendInteractive is false', () => {
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: false,
+				legend: { interactive: false },
 				chartId: 'test-non-interactive-pie-chart',
 			} );
 
@@ -429,15 +473,15 @@ describe( 'PieChart', () => {
 		test( 'maintains consistent colors when segments are hidden', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 30, percentage: 30 },
-				{ label: 'Segment B', value: 40, percentage: 40 },
-				{ label: 'Segment C', value: 30, percentage: 30 },
+				{ label: 'Segment A', value: 30 },
+				{ label: 'Segment B', value: 40 },
+				{ label: 'Segment C', value: 30 },
 			];
 
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-color-consistency-pie-chart',
 			} );
 
@@ -461,15 +505,15 @@ describe( 'PieChart', () => {
 		test( 'recalculates legend percentages when segments are hidden', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 25, percentage: 25 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
-				{ label: 'Segment C', value: 25, percentage: 25 },
+				{ label: 'Segment A', value: 25 },
+				{ label: 'Segment B', value: 50 },
+				{ label: 'Segment C', value: 25 },
 			];
 
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				legendValueDisplay: 'percentage',
 				chartId: 'test-percentage-recalc-pie-chart',
 			} );

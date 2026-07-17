@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-env node */
-
 import fs from 'fs';
 import chalk from 'chalk';
 import { glob } from 'glob';

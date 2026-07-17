@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/i18n-check-webpack-plugin",
-	"version": "1.1.31",
+	"version": "1.1.43",
 	"description": "A Webpack plugin to check that WordPress i18n hasn't been mangled by Webpack optimizations.",
 	"keywords": [
 		"webpack",
@@ -16,8 +16,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/i18n-check-webpack-plugin"
+		"url": "git+https://github.com/Automattic/i18n-check-webpack-plugin.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -37,13 +36,13 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.28.4",
-		"jest": "30.2.0",
-		"webpack": "5.101.3",
+		"@babel/core": "7.29.7",
+		"jest": "30.4.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
-		"webpack": "^5.94.0"
+		"webpack": "^5.104.1"
 	}
 }

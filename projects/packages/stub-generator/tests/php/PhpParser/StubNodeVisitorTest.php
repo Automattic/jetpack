@@ -41,6 +41,16 @@ class StubNodeVisitorTest extends TestCase {
 	 */
 	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration( string $input, $defs, string $expect, int $verbosity = BufferedOutput::VERBOSITY_NORMAL, string $expectOutput = '' ) {
+		// Munge variables for compatibility based on PHP version.
+		foreach ( array( &$input, &$expect, &$expectOutput ) as &$s ) {
+			if ( PHP_VERSION_ID >= 80100 ) {
+				$s = preg_replace( '!\n[ \t]*<</?PHP81>>(\n|$)!s', '$1', $s );
+			} else {
+				$s = preg_replace( '!\n[ \t]*<<PHP81>>\n.*?\n[ \t]*<</PHP81>>(\n|$)!s', '$1', $s );
+			}
+		}
+		unset( $s );
+
 		$output    = new BufferedOutput( $verbosity );
 		$parser    = ( new ParserFactory() )->createForHostVersion();
 		$traverser = new NodeTraverser();
@@ -74,467 +84,484 @@ class StubNodeVisitorTest extends TestCase {
 	 * Data provider for testIntegration.
 	 */
 	public static function provideIntegration() {
-		return array(
-			'Extract some functions, defs = *'            => array(
-				<<<'PHP'
+		yield 'Extract some functions, defs = *' => array(
+			<<<'PHP'
+			function foo() {
+				return true;
+			}
+
+			function bar( string $p ): bool {
+				return $p === "yes";
+			}
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace {
+				/**
+				 * @phan-return mixed Dummy doc for stub.
+				 */
+				function foo()
+				{
+				}
+				function bar(string $p): bool
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract some functions, function = *' => array(
+			<<<'PHP'
+			function foo() {
+				return true;
+			}
+
+			function bar( string $p ): bool {
+				return $p === "yes";
+			}
+			PHP,
+			array( 'function' => '*' ),
+			<<<'PHP'
+			namespace {
+				/**
+				 * @phan-return mixed Dummy doc for stub.
+				 */
+				function foo()
+				{
+				}
+				function bar(string $p): bool
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected function by name' => array(
+			<<<'PHP'
+			function barf() {
+				return true;
+			}
+
+			function foobar() {
+				return true;
+			}
+
+			function foo( $bar ) {
+				return true;
+			}
+
+			function bar( string $p ): bool {
+				return $p === "yes";
+			}
+			PHP,
+			array( 'function' => array( 'bar' ) ),
+			<<<'PHP'
+			namespace {
+				function bar(string $p): bool
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract no functions' => array(
+			<<<'PHP'
+			function foo() {
+				return true;
+			}
+
+			function bar( string $p ): bool {
+				return $p === "yes";
+			}
+			PHP,
+			array( 'class' => array( 'bar' ) ),
+			<<<'PHP'
+			PHP,
+		);
+
+		yield 'Extract namespaced functions' => array(
+			<<<'PHP'
+			namespace {
+				/** Non-namespaced */
 				function foo() {
 					return true;
 				}
 
+				/** Non-namespaced */
 				function bar( string $p ): bool {
 					return $p === "yes";
 				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace {
-					/**
-					 * @phan-return mixed Dummy doc for stub.
-					 */
-					function foo()
-					{
-					}
-					function bar(string $p): bool
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract some functions, function = *'        => array(
-				<<<'PHP'
+			}
+
+			namespace Some\NS {
+				/** Namespaced */
 				function foo() {
 					return true;
 				}
 
+				/** Namespaced */
 				function bar( string $p ): bool {
 					return $p === "yes";
 				}
-				PHP,
-				array( 'function' => '*' ),
-				<<<'PHP'
-				namespace {
-					/**
-					 * @phan-return mixed Dummy doc for stub.
-					 */
-					function foo()
-					{
-					}
-					function bar(string $p): bool
-					{
-					}
+			}
+			PHP,
+			array( 'function' => array( 'foo', 'Some\NS\bar' ) ),
+			<<<'PHP'
+			namespace {
+				/** Non-namespaced
+				 * @phan-return mixed Dummy doc for stub.
+				 */
+				function foo()
+				{
 				}
-				PHP,
-			),
-			'Extract a selected function by name'         => array(
-				<<<'PHP'
-				function barf() {
-					return true;
+			}
+			namespace Some\NS {
+				/** Namespaced */
+				function bar(string $p): bool
+				{
 				}
+			}
+			PHP,
+			BufferedOutput::VERBOSITY_DEBUG,
+			<<<'OUTPUT'
+			 Processing namespace ''
+			  Keeping function foo
+			  Skipping function bar
+			 Processing namespace 'Some\NS'
+			  Skipping function Some\NS\foo
+			  Keeping function Some\NS\bar
+			OUTPUT . "\n",
+		);
 
-				function foobar() {
-					return true;
-				}
-
-				function foo( $bar ) {
-					return true;
-				}
-
-				function bar( string $p ): bool {
-					return $p === "yes";
-				}
-				PHP,
-				array( 'function' => array( 'bar' ) ),
-				<<<'PHP'
-				namespace {
-					function bar(string $p): bool
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract no functions'                        => array(
-				<<<'PHP'
-				function foo() {
-					return true;
-				}
-
-				function bar( string $p ): bool {
-					return $p === "yes";
-				}
-				PHP,
-				array( 'class' => array( 'bar' ) ),
-				<<<'PHP'
-				PHP,
-			),
-			'Extract namespaced functions'                => array(
-				<<<'PHP'
-				namespace {
-					/** Non-namespaced */
-					function foo() {
-						return true;
-					}
-
-					/** Non-namespaced */
-					function bar( string $p ): bool {
-						return $p === "yes";
-					}
-				}
-
-				namespace Some\NS {
-					/** Namespaced */
-					function foo() {
-						return true;
-					}
-
-					/** Namespaced */
-					function bar( string $p ): bool {
-						return $p === "yes";
-					}
-				}
-				PHP,
-				array( 'function' => array( 'foo', 'Some\NS\bar' ) ),
-				<<<'PHP'
-				namespace {
-					/** Non-namespaced
-					 * @phan-return mixed Dummy doc for stub.
-					 */
-					function foo()
-					{
-					}
-				}
-				namespace Some\NS {
-					/** Namespaced */
-					function bar(string $p): bool
-					{
-					}
-				}
-				PHP,
-				BufferedOutput::VERBOSITY_DEBUG,
-				<<<'OUTPUT'
-				 Processing namespace ''
-				  Keeping function foo
-				  Skipping function bar
-				 Processing namespace 'Some\NS'
-				  Skipping function Some\NS\foo
-				  Keeping function Some\NS\bar
-				OUTPUT . "\n",
-			),
-
-			'Extract some constants, defs = *'            => array(
-				<<<'PHP'
+		yield 'Extract some constants, defs = *' => array(
+			<<<'PHP'
+			const FOO = 'foo', BAR = 'bar';
+			const BAZ = 'baz';
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace {
 				const FOO = 'foo', BAR = 'bar';
 				const BAZ = 'baz';
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'baz';
-				}
-				PHP,
-			),
-			'Extract some constants, contant = *'         => array(
-				<<<'PHP'
+			}
+			PHP,
+		);
+
+		yield 'Extract some constants, contant = *' => array(
+			<<<'PHP'
+			const FOO = 'foo', BAR = 'bar';
+			const BAZ = 'baz';
+			PHP,
+			array( 'constant' => '*' ),
+			<<<'PHP'
+			namespace {
 				const FOO = 'foo', BAR = 'bar';
 				const BAZ = 'baz';
-				PHP,
-				array( 'constant' => '*' ),
-				<<<'PHP'
-				namespace {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'baz';
-				}
-				PHP,
-			),
-			'Extract a selected constant by name'         => array(
-				<<<'PHP'
-				const FOO = 'foo', BAR = 'bar';
-				const BAZ = 'BAR';
-				PHP,
-				array( 'constant' => array( 'BAR' ) ),
-				<<<'PHP'
-				namespace {
-					const BAR = 'bar';
-				}
-				PHP,
-			),
-			'Extract no constants'                        => array(
-				<<<'PHP'
-				const FOO = 'foo', BAR = 'bar';
-				const BAZ = 'BAR';
-				PHP,
-				array( 'function' => '*' ),
-				<<<'PHP'
-				PHP,
-			),
-			'Extract namespaced constants'                => array(
-				<<<'PHP'
-				namespace {
-					const FOO = 'nn', BAR = 'nn';
-					const BAZ = 'nn';
-				}
-				namespace Some\NS {
-					const FOO = 'ns', BAR = 'ns';
-					const BAZ = 'ns';
-				}
-				PHP,
-				array( 'constant' => array( 'BAR', 'Some\NS\BAZ' ) ),
-				<<<'PHP'
-				namespace {
-					const BAR = 'nn';
-				}
-				namespace Some\NS {
-					const BAZ = 'ns';
-				}
-				PHP,
-				BufferedOutput::VERBOSITY_DEBUG,
-				<<<'OUTPUT'
-				 Processing namespace ''
-				  Skipping constant FOO
-				  Keeping constant BAR
-				  Skipping constant BAZ
-				 Processing namespace 'Some\NS'
-				  Skipping constant Some\NS\FOO
-				  Skipping constant Some\NS\BAR
-				  Keeping constant Some\NS\BAZ
-				OUTPUT . "\n",
-			),
+			}
+			PHP,
+		);
 
-			'Extract defined constants, defs = *'         => array(
-				<<<'PHP'
-				define( 'FOO', 'foo' );
-				define( 'BAR', 'bar' );
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace {
-					\define('FOO', 'foo');
-					\define('BAR', 'bar');
-				}
-				PHP,
-			),
-			'Extract some defined constants, contant = *' => array(
-				<<<'PHP'
-				define( 'FOO', 'foo' );
-				define( 'BAR', 'bar' );
-				PHP,
-				array( 'constant' => '*' ),
-				<<<'PHP'
-				namespace {
-					\define('FOO', 'foo');
-					\define('BAR', 'bar');
-				}
-				PHP,
-			),
-			'Extract a selected defined constant by name' => array(
-				<<<'PHP'
-				define( 'FOO', 'BAR' );
-				define( 'BAR', 'bar' );
-				PHP,
-				array( 'constant' => array( 'BAR' ) ),
-				<<<'PHP'
-				namespace {
-					\define('BAR', 'bar');
-				}
-				PHP,
-			),
-			'Extract no defined constants'                => array(
-				<<<'PHP'
-				define( 'FOO', 'foo' );
-				define( 'BAR', 'bar' );
-				PHP,
-				array( 'function' => '*' ),
-				<<<'PHP'
-				PHP,
-			),
-			'Extract namespaced defined constants'        => array(
-				<<<'PHP'
-				namespace {
-					define( 'Some\NS\FOO', 'nn' );
-					define( 'Some\NS\BAR', 'nn' );
-				}
-				namespace Some\NS {
-					define( 'FOO', 'ns' );
-					define( 'BAR', 'ns' );
-				}
-				PHP,
-				array( 'constant' => array( 'BAR', 'Some\NS\FOO' ) ),
-				// Yes, this is correct. `define()` doesn't respect `namespace`.
-				<<<'PHP'
-				namespace {
-					\define('Some\NS\FOO', 'nn');
-				}
-				namespace Some\NS {
-					define('BAR', 'ns');
-				}
-				PHP,
-			),
-			'Extract namespaced defined constants using __NAMESPACE__' => array(
-				<<<'PHP'
-				namespace {
-					define( __NAMESPACE__ . '\\FOO', 'nn' );
-					define( __NAMESPACE__ . '\\BAR', 'nn' );
-				}
-				namespace Some\NS {
-					define( __NAMESPACE__ . '\\FOO', 'ns' );
-					define( __NAMESPACE__ . '\\BAR', 'ns' );
-				}
-				namespace XXX {
-					define( __NAMESPACE__ . '\\' . 'BAZ', 'ns' );
-				}
-				PHP,
-				array( 'constant' => array( '\BAR', 'Some\NS\FOO', 'XXX\BAZ' ) ),
-				<<<'PHP'
-				namespace {
-					\define(__NAMESPACE__ . '\BAR', 'nn');
-				}
-				namespace Some\NS {
-					define(__NAMESPACE__ . '\FOO', 'ns');
-				}
-				PHP,
-				BufferedOutput::VERBOSITY_DEBUG,
-				<<<'OUTPUT'
-				 Processing namespace ''
-				  Skipping define \FOO
-				  Keeping define \BAR
-				 Processing namespace 'Some\NS'
-				  Keeping define Some\NS\FOO
-				  Skipping define Some\NS\BAR
-				 Processing namespace 'XXX'
-				  Skipping define `__NAMESPACE__ . '\\' . 'BAZ'` because I can't stringify it
-				OUTPUT . "\n",
-			),
+		yield 'Extract a selected constant by name' => array(
+			<<<'PHP'
+			const FOO = 'foo', BAR = 'bar';
+			const BAZ = 'BAR';
+			PHP,
+			array( 'constant' => array( 'BAR' ) ),
+			<<<'PHP'
+			namespace {
+				const BAR = 'bar';
+			}
+			PHP,
+		);
 
-			'Extract some classes, defs = *'              => array(
-				<<<'PHP'
+		yield 'Extract no constants' => array(
+			<<<'PHP'
+			const FOO = 'foo', BAR = 'bar';
+			const BAZ = 'BAR';
+			PHP,
+			array( 'function' => '*' ),
+			<<<'PHP'
+			PHP,
+		);
+
+		yield 'Extract namespaced constants' => array(
+			<<<'PHP'
+			namespace {
+				const FOO = 'nn', BAR = 'nn';
+				const BAZ = 'nn';
+			}
+			namespace Some\NS {
+				const FOO = 'ns', BAR = 'ns';
+				const BAZ = 'ns';
+			}
+			PHP,
+			array( 'constant' => array( 'BAR', 'Some\NS\BAZ' ) ),
+			<<<'PHP'
+			namespace {
+				const BAR = 'nn';
+			}
+			namespace Some\NS {
+				const BAZ = 'ns';
+			}
+			PHP,
+			BufferedOutput::VERBOSITY_DEBUG,
+			<<<'OUTPUT'
+			 Processing namespace ''
+			  Skipping constant FOO
+			  Keeping constant BAR
+			  Skipping constant BAZ
+			 Processing namespace 'Some\NS'
+			  Skipping constant Some\NS\FOO
+			  Skipping constant Some\NS\BAR
+			  Keeping constant Some\NS\BAZ
+			OUTPUT . "\n",
+		);
+
+		yield 'Extract defined constants, defs = *' => array(
+			<<<'PHP'
+			define( 'FOO', 'foo' );
+			define( 'BAR', 'bar' );
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace {
+				\define('FOO', 'foo');
+				\define('BAR', 'bar');
+			}
+			PHP,
+		);
+
+		yield 'Extract some defined constants, contant = *' => array(
+			<<<'PHP'
+			define( 'FOO', 'foo' );
+			define( 'BAR', 'bar' );
+			PHP,
+			array( 'constant' => '*' ),
+			<<<'PHP'
+			namespace {
+				\define('FOO', 'foo');
+				\define('BAR', 'bar');
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected defined constant by name' => array(
+			<<<'PHP'
+			define( 'FOO', 'BAR' );
+			define( 'BAR', 'bar' );
+			PHP,
+			array( 'constant' => array( 'BAR' ) ),
+			<<<'PHP'
+			namespace {
+				\define('BAR', 'bar');
+			}
+			PHP,
+		);
+
+		yield 'Extract no defined constants' => array(
+			<<<'PHP'
+			define( 'FOO', 'foo' );
+			define( 'BAR', 'bar' );
+			PHP,
+			array( 'function' => '*' ),
+			<<<'PHP'
+			PHP,
+		);
+
+		yield 'Extract namespaced defined constants' => array(
+			<<<'PHP'
+			namespace {
+				define( 'Some\NS\FOO', 'nn' );
+				define( 'Some\NS\BAR', 'nn' );
+			}
+			namespace Some\NS {
+				define( 'FOO', 'ns' );
+				define( 'BAR', 'ns' );
+			}
+			PHP,
+			array( 'constant' => array( 'BAR', 'Some\NS\FOO' ) ),
+			// Yes, this is correct. `define()` doesn't respect `namespace`.
+			<<<'PHP'
+			namespace {
+				\define('Some\NS\FOO', 'nn');
+			}
+			namespace Some\NS {
+				define('BAR', 'ns');
+			}
+			PHP,
+		);
+
+		yield 'Extract namespaced defined constants using __NAMESPACE__' => array(
+			<<<'PHP'
+			namespace {
+				define( __NAMESPACE__ . '\\FOO', 'nn' );
+				define( __NAMESPACE__ . '\\BAR', 'nn' );
+			}
+			namespace Some\NS {
+				define( __NAMESPACE__ . '\\FOO', 'ns' );
+				define( __NAMESPACE__ . '\\BAR', 'ns' );
+			}
+			namespace XXX {
+				define( __NAMESPACE__ . '\\' . 'BAZ', 'ns' );
+			}
+			PHP,
+			array( 'constant' => array( '\BAR', 'Some\NS\FOO', 'XXX\BAZ' ) ),
+			<<<'PHP'
+			namespace {
+				\define(__NAMESPACE__ . '\BAR', 'nn');
+			}
+			namespace Some\NS {
+				define(__NAMESPACE__ . '\FOO', 'ns');
+			}
+			PHP,
+			BufferedOutput::VERBOSITY_DEBUG,
+			<<<'OUTPUT'
+			 Processing namespace ''
+			  Skipping define \FOO
+			  Keeping define \BAR
+			 Processing namespace 'Some\NS'
+			  Keeping define Some\NS\FOO
+			  Skipping define Some\NS\BAR
+			 Processing namespace 'XXX'
+			  Skipping define `__NAMESPACE__ . '\\' . 'BAZ'` because I can't stringify it
+			OUTPUT . "\n",
+		);
+
+		yield 'Extract some classes, defs = *' => array(
+			<<<'PHP'
+			class Foo {
+			}
+
+			class Bar {
+			}
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+				}
+				class Bar
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract some classes, class = *' => array(
+			<<<'PHP'
+			class Foo {
+			}
+
+			class Bar {
+			}
+			PHP,
+			array( 'class' => '*' ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+				}
+				class Bar
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected class by name' => array(
+			<<<'PHP'
+			class Barf {
+			}
+
+			class FooBar {
+			}
+
+			class Foo {
+				function Bar(){}
+			}
+
+			class Bar {
+			}
+			PHP,
+			array( 'class' => array( 'Bar' => array() ) ),
+			<<<'PHP'
+			namespace {
+				class Bar
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract no classes' => array(
+			<<<'PHP'
+			class Foo {
+			}
+
+			class Bar {
+			}
+			PHP,
+			array( 'trait' => array( 'Bar' ) ),
+			<<<'PHP'
+			PHP,
+		);
+
+		yield 'Extract namespaced classes' => array(
+			<<<'PHP'
+			namespace {
+				/** Non-namespaced */
 				class Foo {
 				}
 
+				/** Non-namespaced */
 				class Bar {
 				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-					class Bar
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract some classes, class = *'             => array(
-				<<<'PHP'
+			}
+
+			namespace Some\NS {
+				/** Namespaced */
 				class Foo {
 				}
 
+				/** Namespaced */
 				class Bar {
 				}
-				PHP,
-				array( 'class' => '*' ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-					class Bar
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract a selected class by name'            => array(
-				<<<'PHP'
-				class Barf {
-				}
-
-				class FooBar {
-				}
-
-				class Foo {
-					function Bar(){}
-				}
-
-				class Bar {
-				}
-				PHP,
-				array( 'class' => array( 'Bar' => array() ) ),
-				<<<'PHP'
-				namespace {
-					class Bar
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract no classes'                          => array(
-				<<<'PHP'
-				class Foo {
-				}
-
-				class Bar {
-				}
-				PHP,
-				array( 'trait' => array( 'Bar' ) ),
-				<<<'PHP'
-				PHP,
-			),
-			'Extract namespaced classes'                  => array(
-				<<<'PHP'
-				namespace {
-					/** Non-namespaced */
-					class Foo {
-					}
-
-					/** Non-namespaced */
-					class Bar {
-					}
-				}
-
-				namespace Some\NS {
-					/** Namespaced */
-					class Foo {
-					}
-
-					/** Namespaced */
-					class Bar {
-					}
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo'         => array(),
-						'Some\NS\Bar' => array(),
-					),
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo'         => array(),
+					'Some\NS\Bar' => array(),
 				),
-				<<<'PHP'
-				namespace {
-					/** Non-namespaced */
-					class Foo
-					{
-					}
-				}
-				namespace Some\NS {
-					/** Namespaced */
-					class Bar
-					{
-					}
-				}
-				PHP,
-				BufferedOutput::VERBOSITY_DEBUG,
-				<<<'OUTPUT'
-				 Processing namespace ''
-				  Processing class Foo
-				  Skipping class Bar
-				 Processing namespace 'Some\NS'
-				  Skipping class Some\NS\Foo
-				  Processing class Some\NS\Bar
-				OUTPUT . "\n",
 			),
+			<<<'PHP'
+			namespace {
+				/** Non-namespaced */
+				class Foo
+				{
+				}
+			}
+			namespace Some\NS {
+				/** Namespaced */
+				class Bar
+				{
+				}
+			}
+			PHP,
+			BufferedOutput::VERBOSITY_DEBUG,
+			<<<'OUTPUT'
+			 Processing namespace ''
+			  Processing class Foo
+			  Skipping class Bar
+			 Processing namespace 'Some\NS'
+			  Skipping class Some\NS\Foo
+			  Processing class Some\NS\Bar
+			OUTPUT . "\n",
+		);
 
-			'Extract trait vs interface vs class'         => array(
+		if ( PHP_VERSION_ID < 80100 ) {
+			yield 'Extract trait vs interface vs class' => array(
 				<<<'PHP'
 				class Foo {
 				}
@@ -556,11 +583,19 @@ class StubNodeVisitorTest extends TestCase {
 				}
 				interface Baz {
 				}
+
+				class Quux {
+				}
+				trait Quux {
+				}
+				interface Quux {
+				}
 				PHP,
 				array(
 					'class'     => array( 'Foo' => array() ),
 					'trait'     => array( 'Bar' => array() ),
 					'interface' => array( 'Baz' => array() ),
+					'enum'      => array( 'Quux' => array() ),
 				),
 				<<<'PHP'
 				namespace {
@@ -575,1050 +610,1247 @@ class StubNodeVisitorTest extends TestCase {
 					}
 				}
 				PHP,
-			),
+			);
+		} else {
+			yield 'Extract trait vs interface vs class vs enum' => array(
+				<<<'PHP'
+				class Foo {
+				}
+				trait Foo {
+				}
+				interface Foo {
+				}
+				enum Foo {
+				}
 
-			'Extract class constants, defs=*'             => array(
-				<<<'PHP'
-				class Foo {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-					final public const FPUB = 'fpub';
+				class Bar {
 				}
-				final class Bar {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-					final public const FPUB = 'fpub';
+				trait Bar {
 				}
-				trait TFoo {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-					final public const FPUB = 'fpub';
+				interface Bar {
 				}
-				interface IFoo {
-					public const PUB = 'pub';
-					final public const FPUB = 'fpub';
+				enum Bar {
 				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public const PUB = 'pub';
-						protected const PROT = 'prot';
-						final public const FPUB = 'fpub';
-					}
-					final class Bar
-					{
-						public const PUB = 'pub';
-						final public const FPUB = 'fpub';
-					}
-					trait TFoo
-					{
-						public const PUB = 'pub';
-						protected const PROT = 'prot';
-						private const PRIV = 'priv';
-						final public const FPUB = 'fpub';
-					}
-					interface IFoo
-					{
-						public const PUB = 'pub';
-						final public const FPUB = 'fpub';
-					}
-				}
-				PHP,
-				BufferedOutput::VERBOSITY_DEBUG,
-				<<<'OUTPUT'
-				 Processing class Foo
-				  Keeping const PUB
-				  Keeping const PROT
-				  Skipping private const PRIV
-				  Keeping const FPUB
-				 Processing class Bar
-				  Keeping const PUB
-				  Skipping final-class protected const PROT
-				  Skipping private const PRIV
-				  Keeping const FPUB
-				 Processing trait TFoo
-				  Keeping const PUB
-				  Keeping const PROT
-				  Keeping const PRIV
-				  Keeping const FPUB
-				 Processing interface IFoo
-				  Keeping const PUB
-				  Keeping const FPUB
-				OUTPUT . "\n",
-			),
-			'Extract class constants, class=*'            => array(
-				<<<'PHP'
-				class Foo {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-				}
-				final class Bar {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-				}
-				PHP,
-				array( 'class' => '*' ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public const PUB = 'pub';
-						protected const PROT = 'prot';
-					}
-					final class Bar
-					{
-						public const PUB = 'pub';
-					}
-				}
-				PHP,
-			),
-			'Extract class constants, class[...]=*'       => array(
-				<<<'PHP'
-				class Foo {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-				}
-				final class Bar {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo' => '*',
-						'Bar' => '*',
-					),
-				),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public const PUB = 'pub';
-						protected const PROT = 'prot';
-					}
-					final class Bar
-					{
-						public const PUB = 'pub';
-					}
-				}
-				PHP,
-			),
-			'Extract class constants, class[...].constant=*' => array(
-				<<<'PHP'
-				class Foo {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-				}
-				final class Bar {
-					public const PUB = 'pub';
-					protected const PROT = 'prot';
-					private const PRIV = 'priv';
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo' => array( 'constant' => '*' ),
-						'Bar' => array( 'constant' => '*' ),
-					),
-				),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public const PUB = 'pub';
-						protected const PROT = 'prot';
-					}
-					final class Bar
-					{
-						public const PUB = 'pub';
-					}
-				}
-				PHP,
-			),
-			'Extract a selected class constant by name'   => array(
-				<<<'PHP'
-				class Foo {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'BAR';
-				}
-				trait TFoo {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'BAR';
-				}
-				interface IFoo {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'BAR';
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array( 'constant' => array( 'BAR' ) ) ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						const BAR = 'bar';
-					}
-				}
-				PHP,
-			),
-			'Extract no class constants'                  => array(
-				<<<'PHP'
-				class Foo {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'BAR';
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array( 'method' => array( 'BAR' ) ) ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract no class constants because we only want the class' => array(
-				<<<'PHP'
-				class Foo {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'BAR';
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array() ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract a selected class constant by name from a namespaced class' => array(
-				<<<'PHP'
-				namespace Some\NS;
-				class Foo {
-					const FOO = 'foo', BAR = 'bar';
-					const BAZ = 'BAR';
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo'         => '*',
-						'Some\NS\Foo' => array( 'constant' => array( 'BAR', 'Some\NS\BAZ' ) ),
-					),
-				),
-				<<<'PHP'
-				namespace Some\NS;
 
+				class Baz {
+				}
+				trait Baz {
+				}
+				interface Baz {
+				}
+				enum Baz {
+				}
+
+				class Quux {
+				}
+				trait Quux {
+				}
+				interface Quux {
+				}
+				enum Quux {
+				}
+				PHP,
+				array(
+					'class'     => array( 'Foo' => array() ),
+					'trait'     => array( 'Bar' => array() ),
+					'interface' => array( 'Baz' => array() ),
+					'enum'      => array( 'Quux' => array() ),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+					trait Bar
+					{
+					}
+					interface Baz
+					{
+					}
+					enum Quux
+					{
+					}
+				}
+				PHP,
+			);
+		}
+
+		yield 'Extract class constants, defs=*' => array(
+			<<<'PHP'
+			class Foo {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+				final public const FPUB = 'fpub';
+			}
+			final class Bar {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+				final public const FPUB = 'fpub';
+			}
+			trait TFoo {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+				final public const FPUB = 'fpub';
+			}
+			interface IFoo {
+				public const PUB = 'pub';
+				final public const FPUB = 'fpub';
+			}
+			<<PHP81>>
+			enum EFoo {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+				final public const FPUB = 'fpub';
+			}
+			<</PHP81>>
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					final public const FPUB = 'fpub';
+				}
+				final class Bar
+				{
+					public const PUB = 'pub';
+					final public const FPUB = 'fpub';
+				}
+				trait TFoo
+				{
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+					final public const FPUB = 'fpub';
+				}
+				interface IFoo
+				{
+					public const PUB = 'pub';
+					final public const FPUB = 'fpub';
+				}
+				<<PHP81>>
+				enum EFoo
+				{
+					public const PUB = 'pub';
+					final public const FPUB = 'fpub';
+				}
+				<</PHP81>>
+			}
+			PHP,
+			BufferedOutput::VERBOSITY_DEBUG,
+			<<<'OUTPUT'
+			 Processing class Foo
+			  Keeping const PUB
+			  Keeping const PROT
+			  Skipping private const PRIV
+			  Keeping const FPUB
+			 Processing class Bar
+			  Keeping const PUB
+			  Skipping final-class protected const PROT
+			  Skipping private const PRIV
+			  Keeping const FPUB
+			 Processing trait TFoo
+			  Keeping const PUB
+			  Keeping const PROT
+			  Keeping const PRIV
+			  Keeping const FPUB
+			 Processing interface IFoo
+			  Keeping const PUB
+			  Keeping const FPUB
+			<<PHP81>>
+			 Processing enum EFoo
+			  Keeping const PUB
+			  Skipping enum private/protected const PROT
+			  Skipping enum private/protected const PRIV
+			  Keeping const FPUB
+			<</PHP81>>
+			OUTPUT . "\n",
+		);
+
+		yield 'Extract class constants, class=*' => array(
+			<<<'PHP'
+			class Foo {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+			}
+			final class Bar {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+			}
+			PHP,
+			array( 'class' => '*' ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+				}
+				final class Bar
+				{
+					public const PUB = 'pub';
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract class constants, class[...]=*' => array(
+			<<<'PHP'
+			class Foo {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+			}
+			final class Bar {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo' => '*',
+					'Bar' => '*',
+				),
+			),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+				}
+				final class Bar
+				{
+					public const PUB = 'pub';
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract class constants, class[...].constant=*' => array(
+			<<<'PHP'
+			class Foo {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+			}
+			final class Bar {
+				public const PUB = 'pub';
+				protected const PROT = 'prot';
+				private const PRIV = 'priv';
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo' => array( 'constant' => '*' ),
+					'Bar' => array( 'constant' => '*' ),
+				),
+			),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+				}
+				final class Bar
+				{
+					public const PUB = 'pub';
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected class constant by name' => array(
+			<<<'PHP'
+			class Foo {
+				const FOO = 'foo', BAR = 'bar';
+				const BAZ = 'BAR';
+			}
+			trait TFoo {
+				const FOO = 'foo', BAR = 'bar';
+				const BAZ = 'BAR';
+			}
+			interface IFoo {
+				const FOO = 'foo', BAR = 'bar';
+				const BAZ = 'BAR';
+			}
+			<<PHP81>>
+			enum EFoo {
+				const FOO = 'foo', BAR = 'bar';
+				const BAZ = 'BAR';
+			}
+			<</PHP81>>
+			PHP,
+			array( 'class' => array( 'Foo' => array( 'constant' => array( 'BAR' ) ) ) ),
+			<<<'PHP'
+			namespace {
 				class Foo
 				{
 					const BAR = 'bar';
 				}
-				PHP,
-			),
+			}
+			PHP,
+		);
 
-			'Extract class properties, defs=*'            => array(
-				<<<'PHP'
-				class Foo {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-					public static $spub = 'spub';
-					protected static $sprot = 'sprot';
-					private static $spriv = 'spriv';
+		yield 'Extract no class constants' => array(
+			<<<'PHP'
+			class Foo {
+				const FOO = 'foo', BAR = 'bar';
+				const BAZ = 'BAR';
+			}
+			PHP,
+			array( 'class' => array( 'Foo' => array( 'method' => array( 'BAR' ) ) ) ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
 				}
-				final class Bar {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-					public static $spub = 'spub';
-					protected static $sprot = 'sprot';
-					private static $spriv = 'spriv';
-				}
-				trait TFoo {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-					public static $spub = 'spub';
-					protected static $sprot = 'sprot';
-					private static $spriv = 'spriv';
-				}
-				interface IFoo {
-					public $pub = 'pub';
-					public static $spub = 'spub';
-				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public $pub = 'pub';
-						protected $prot = 'prot';
-						public static $spub = 'spub';
-						protected static $sprot = 'sprot';
-					}
-					final class Bar
-					{
-						public $pub = 'pub';
-						public static $spub = 'spub';
-					}
-					trait TFoo
-					{
-						public $pub = 'pub';
-						protected $prot = 'prot';
-						private $priv = 'priv';
-						public static $spub = 'spub';
-						protected static $sprot = 'sprot';
-						private static $spriv = 'spriv';
-					}
-					interface IFoo
-					{
-						public $pub = 'pub';
-						public static $spub = 'spub';
-					}
-				}
-				PHP,
-				BufferedOutput::VERBOSITY_DEBUG,
-				<<<'OUTPUT'
-				 Processing class Foo
-				  Keeping property $pub
-				  Keeping property $prot
-				  Skipping private property $priv
-				  Keeping property $spub
-				  Keeping property $sprot
-				  Skipping private property $spriv
-				 Processing class Bar
-				  Keeping property $pub
-				  Skipping final-class protected property $prot
-				  Skipping private property $priv
-				  Keeping property $spub
-				  Skipping final-class protected property $sprot
-				  Skipping private property $spriv
-				 Processing trait TFoo
-				  Keeping property $pub
-				  Keeping property $prot
-				  Keeping property $priv
-				  Keeping property $spub
-				  Keeping property $sprot
-				  Keeping property $spriv
-				 Processing interface IFoo
-				  Keeping property $pub
-				  Keeping property $spub
-				OUTPUT . "\n",
-			),
-			'Extract class properties, class=*'           => array(
-				<<<'PHP'
-				class Foo {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-				}
-				final class Bar {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-				}
-				PHP,
-				array( 'class' => '*' ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public $pub = 'pub';
-						protected $prot = 'prot';
-					}
-					final class Bar
-					{
-						public $pub = 'pub';
-					}
-				}
-				PHP,
-			),
-			'Extract class properties, class[...]=*'      => array(
-				<<<'PHP'
-				class Foo {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-				}
-				final class Bar {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo' => '*',
-						'Bar' => '*',
-					),
-				),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public $pub = 'pub';
-						protected $prot = 'prot';
-					}
-					final class Bar
-					{
-						public $pub = 'pub';
-					}
-				}
-				PHP,
-			),
-			'Extract class properties, class[...].property=*' => array(
-				<<<'PHP'
-				class Foo {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-				}
-				final class Bar {
-					public $pub = 'pub';
-					protected $prot = 'prot';
-					private $priv = 'priv';
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo' => array( 'property' => '*' ),
-						'Bar' => array( 'property' => '*' ),
-					),
-				),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public $pub = 'pub';
-						protected $prot = 'prot';
-					}
-					final class Bar
-					{
-						public $pub = 'pub';
-					}
-				}
-				PHP,
-			),
-			'Extract a selected class property by name'   => array(
-				<<<'PHP'
-				class Foo {
-					public $foo = 'FOO', $bar = 'BAR';
-					public $baz = 'bar';
-				}
-				trait TFoo {
-					public $foo = 'FOO', $bar = 'BAR';
-					public $baz = 'bar';
-				}
-				interface IFoo {
-					public $foo = 'FOO', $bar = 'BAR';
-					public $baz = 'bar';
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array( 'property' => array( 'bar' ) ) ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public $bar = 'BAR';
-					}
-				}
-				PHP,
-			),
-			'Extract no class properties'                 => array(
-				<<<'PHP'
-				class Foo {
-					public $foo = 'FOO', $bar = 'BAR';
-					public $baz = 'bar';
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array( 'method' => array( 'bar' ) ) ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract no class properties because we only want the class' => array(
-				<<<'PHP'
-				class Foo {
-					public $foo = 'FOO', $bar = 'BAR';
-					public $baz = 'bar';
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array() ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract a selected class property by name from a namespaced class' => array(
-				<<<'PHP'
-				namespace Some\NS;
-				class Foo {
-					public $foo = 'FOO', $bar = 'BAR';
-					public $baz = 'bar';
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo'         => '*',
-						'Some\NS\Foo' => array( 'property' => array( 'bar', 'Some\NS\baz' ) ),
-					),
-				),
-				<<<'PHP'
-				namespace Some\NS;
+			}
+			PHP,
+		);
 
+		yield 'Extract no class constants because we only want the class' => array(
+			<<<'PHP'
+			class Foo {
+				const FOO = 'foo', BAR = 'bar';
+				const BAZ = 'BAR';
+			}
+			PHP,
+			array( 'class' => array( 'Foo' => array() ) ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected class constant by name from a namespaced class' => array(
+			<<<'PHP'
+			namespace Some\NS;
+			class Foo {
+				const FOO = 'foo', BAR = 'bar';
+				const BAZ = 'BAR';
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo'         => '*',
+					'Some\NS\Foo' => array( 'constant' => array( 'BAR', 'Some\NS\BAZ' ) ),
+				),
+			),
+			<<<'PHP'
+			namespace Some\NS;
+
+			class Foo
+			{
+				const BAR = 'bar';
+			}
+			PHP,
+		);
+
+		yield 'Extract class properties, defs=*' => array(
+			<<<'PHP'
+			class Foo {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+				public static $spub = 'spub';
+				protected static $sprot = 'sprot';
+				private static $spriv = 'spriv';
+			}
+			final class Bar {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+				public static $spub = 'spub';
+				protected static $sprot = 'sprot';
+				private static $spriv = 'spriv';
+			}
+			trait TFoo {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+				public static $spub = 'spub';
+				protected static $sprot = 'sprot';
+				private static $spriv = 'spriv';
+			}
+			interface IFoo {
+				public $pub = 'pub';
+				public static $spub = 'spub';
+			}
+			<<PHP81>>
+			enum EFoo {
+				// Enums can't have properties.
+			}
+			<</PHP81>>
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					public static $spub = 'spub';
+					protected static $sprot = 'sprot';
+				}
+				final class Bar
+				{
+					public $pub = 'pub';
+					public static $spub = 'spub';
+				}
+				trait TFoo
+				{
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+					public static $spub = 'spub';
+					protected static $sprot = 'sprot';
+					private static $spriv = 'spriv';
+				}
+				interface IFoo
+				{
+					public $pub = 'pub';
+					public static $spub = 'spub';
+				}
+				<<PHP81>>
+				enum EFoo
+				{
+					// Enums can't have properties.
+				}
+				<</PHP81>>
+			}
+			PHP,
+			BufferedOutput::VERBOSITY_DEBUG,
+			<<<'OUTPUT'
+			 Processing class Foo
+			  Keeping property $pub
+			  Keeping property $prot
+			  Skipping private property $priv
+			  Keeping property $spub
+			  Keeping property $sprot
+			  Skipping private property $spriv
+			 Processing class Bar
+			  Keeping property $pub
+			  Skipping final-class protected property $prot
+			  Skipping private property $priv
+			  Keeping property $spub
+			  Skipping final-class protected property $sprot
+			  Skipping private property $spriv
+			 Processing trait TFoo
+			  Keeping property $pub
+			  Keeping property $prot
+			  Keeping property $priv
+			  Keeping property $spub
+			  Keeping property $sprot
+			  Keeping property $spriv
+			 Processing interface IFoo
+			  Keeping property $pub
+			  Keeping property $spub
+			<<PHP81>>
+			 Processing enum EFoo
+			<</PHP81>>
+			OUTPUT . "\n",
+		);
+
+		yield 'Extract class properties, class=*' => array(
+			<<<'PHP'
+			class Foo {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+			}
+			final class Bar {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+			}
+			PHP,
+			array( 'class' => '*' ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public $pub = 'pub';
+					protected $prot = 'prot';
+				}
+				final class Bar
+				{
+					public $pub = 'pub';
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract class properties, class[...]=*' => array(
+			<<<'PHP'
+			class Foo {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+			}
+			final class Bar {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo' => '*',
+					'Bar' => '*',
+				),
+			),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public $pub = 'pub';
+					protected $prot = 'prot';
+				}
+				final class Bar
+				{
+					public $pub = 'pub';
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract class properties, class[...].property=*' => array(
+			<<<'PHP'
+			class Foo {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+			}
+			final class Bar {
+				public $pub = 'pub';
+				protected $prot = 'prot';
+				private $priv = 'priv';
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo' => array( 'property' => '*' ),
+					'Bar' => array( 'property' => '*' ),
+				),
+			),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public $pub = 'pub';
+					protected $prot = 'prot';
+				}
+				final class Bar
+				{
+					public $pub = 'pub';
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected class property by name' => array(
+			<<<'PHP'
+			class Foo {
+				public $foo = 'FOO', $bar = 'BAR';
+				public $baz = 'bar';
+			}
+			trait TFoo {
+				public $foo = 'FOO', $bar = 'BAR';
+				public $baz = 'bar';
+			}
+			interface IFoo {
+				public $foo = 'FOO', $bar = 'BAR';
+				public $baz = 'bar';
+			}
+			PHP,
+			array( 'class' => array( 'Foo' => array( 'property' => array( 'bar' ) ) ) ),
+			<<<'PHP'
+			namespace {
 				class Foo
 				{
 					public $bar = 'BAR';
 				}
-				PHP,
-			),
+			}
+			PHP,
+		);
 
-			'Extract class methods, defs=*'               => array(
-				<<<'PHP'
-				class Foo {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-					public static function spub() { return 'spub'; }
-					protected static function sprot() { return 'sprot'; }
-					private static function spriv() { return 'spriv'; }
+		yield 'Extract no class properties' => array(
+			<<<'PHP'
+			class Foo {
+				public $foo = 'FOO', $bar = 'BAR';
+				public $baz = 'bar';
+			}
+			PHP,
+			array( 'class' => array( 'Foo' => array( 'method' => array( 'bar' ) ) ) ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
 				}
-				final class Bar {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-					public static function spub() { return 'spub'; }
-					protected static function sprot() { return 'sprot'; }
-					private static function spriv() { return 'spriv'; }
-				}
-				trait TFoo {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-					public static function spub() { return 'spub'; }
-					protected static function sprot() { return 'sprot'; }
-					private static function spriv() { return 'spriv'; }
-				}
-				interface IFoo {
-					public function pub() { return 'pub'; }
-					public static function spub() { return 'spub'; }
-				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public function pub()
-						{
-						}
-						protected function prot()
-						{
-						}
-						public static function spub()
-						{
-						}
-						protected static function sprot()
-						{
-						}
-					}
-					final class Bar
-					{
-						public function pub()
-						{
-						}
-						public static function spub()
-						{
-						}
-					}
-					trait TFoo
-					{
-						public function pub()
-						{
-						}
-						protected function prot()
-						{
-						}
-						private function priv()
-						{
-						}
-						public static function spub()
-						{
-						}
-						protected static function sprot()
-						{
-						}
-						private static function spriv()
-						{
-						}
-					}
-					interface IFoo
-					{
-						public function pub()
-						{
-						}
-						public static function spub()
-						{
-						}
-					}
-				}
-				PHP,
-				BufferedOutput::VERBOSITY_DEBUG,
-				<<<'OUTPUT'
-				 Processing class Foo
-				  Keeping method pub
-				  Keeping method prot
-				  Skipping private method priv
-				  Keeping method spub
-				  Keeping method sprot
-				  Skipping private method spriv
-				 Processing class Bar
-				  Keeping method pub
-				  Skipping final-class protected method prot
-				  Skipping private method priv
-				  Keeping method spub
-				  Skipping final-class protected method sprot
-				  Skipping private method spriv
-				 Processing trait TFoo
-				  Keeping method pub
-				  Keeping method prot
-				  Keeping method priv
-				  Keeping method spub
-				  Keeping method sprot
-				  Keeping method spriv
-				 Processing interface IFoo
-				  Keeping method pub
-				  Keeping method spub
-				OUTPUT . "\n",
-			),
-			'Extract class methods, class=*'              => array(
-				<<<'PHP'
-				class Foo {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-				}
-				final class Bar {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-				}
-				PHP,
-				array( 'class' => '*' ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public function pub()
-						{
-						}
-						protected function prot()
-						{
-						}
-					}
-					final class Bar
-					{
-						public function pub()
-						{
-						}
-					}
-				}
-				PHP,
-			),
-			'Extract class methods, class[...]=*'         => array(
-				<<<'PHP'
-				class Foo {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-				}
-				final class Bar {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo' => '*',
-						'Bar' => '*',
-					),
-				),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public function pub()
-						{
-						}
-						protected function prot()
-						{
-						}
-					}
-					final class Bar
-					{
-						public function pub()
-						{
-						}
-					}
-				}
-				PHP,
-			),
-			'Extract class methods, class[...].method=*'  => array(
-				<<<'PHP'
-				class Foo {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-				}
-				final class Bar {
-					public function pub() { return 'pub'; }
-					protected function prot() { return 'prot'; }
-					private function priv() { return 'priv'; }
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo' => array( 'method' => '*' ),
-						'Bar' => array( 'method' => '*' ),
-					),
-				),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public function pub()
-						{
-						}
-						protected function prot()
-						{
-						}
-					}
-					final class Bar
-					{
-						public function pub()
-						{
-						}
-					}
-				}
-				PHP,
-			),
-			'Extract a selected class method by name'     => array(
-				<<<'PHP'
-				class Foo {
-					public function foo() { return 'FOO'; }
-					public function bar() { return 'BAR'; }
-					public function baz() { return 'bar'; }
-				}
-				trait TFoo {
-					public function foo() { return 'FOO'; }
-					public function bar() { return 'BAR'; }
-					public function baz() { return 'bar'; }
-				}
-				interface IFoo {
-					public function foo() { return 'FOO'; }
-					public function bar() { return 'BAR'; }
-					public function baz() { return 'bar'; }
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array( 'method' => array( 'bar' ) ) ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-						public function bar()
-						{
-						}
-					}
-				}
-				PHP,
-			),
-			'Extract no class methods'                    => array(
-				<<<'PHP'
-				class Foo {
-					public function foo() { return 'FOO'; }
-					public function bar() { return 'BAR'; }
-					public function baz() { return 'bar'; }
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array( 'constant' => array( 'bar' ) ) ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract no class methods because we only want the class' => array(
-				<<<'PHP'
-				class Foo {
-					public function foo() { return 'FOO'; }
-					public function bar() { return 'BAR'; }
-					public function baz() { return 'bar'; }
-				}
-				PHP,
-				array( 'class' => array( 'Foo' => array() ) ),
-				<<<'PHP'
-				namespace {
-					class Foo
-					{
-					}
-				}
-				PHP,
-			),
-			'Extract a selected class method by name from a namespaced class' => array(
-				<<<'PHP'
-				namespace Some\NS;
-				class Foo {
-					public function foo() { return 'FOO'; }
-					public function bar() { return 'BAR'; }
-					public function baz() { return 'bar'; }
-				}
-				PHP,
-				array(
-					'class' => array(
-						'Foo'         => '*',
-						'Some\NS\Foo' => array( 'method' => array( 'bar', 'Some\NS\baz' ) ),
-					),
-				),
-				<<<'PHP'
-				namespace Some\NS;
+			}
+			PHP,
+		);
 
+		yield 'Extract no class properties because we only want the class' => array(
+			<<<'PHP'
+			class Foo {
+				public $foo = 'FOO', $bar = 'BAR';
+				public $baz = 'bar';
+			}
+			PHP,
+			array( 'class' => array( 'Foo' => array() ) ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected class property by name from a namespaced class' => array(
+			<<<'PHP'
+			namespace Some\NS;
+			class Foo {
+				public $foo = 'FOO', $bar = 'BAR';
+				public $baz = 'bar';
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo'         => '*',
+					'Some\NS\Foo' => array( 'property' => array( 'bar', 'Some\NS\baz' ) ),
+				),
+			),
+			<<<'PHP'
+			namespace Some\NS;
+
+			class Foo
+			{
+				public $bar = 'BAR';
+			}
+			PHP,
+		);
+
+		yield 'Extract class methods, defs=*' => array(
+			<<<'PHP'
+			class Foo {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+				public static function spub() { return 'spub'; }
+				protected static function sprot() { return 'sprot'; }
+				private static function spriv() { return 'spriv'; }
+			}
+			final class Bar {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+				public static function spub() { return 'spub'; }
+				protected static function sprot() { return 'sprot'; }
+				private static function spriv() { return 'spriv'; }
+			}
+			trait TFoo {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+				public static function spub() { return 'spub'; }
+				protected static function sprot() { return 'sprot'; }
+				private static function spriv() { return 'spriv'; }
+			}
+			interface IFoo {
+				public function pub() { return 'pub'; }
+				public static function spub() { return 'spub'; }
+			}
+			<<PHP81>>
+			enum EFoo {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+				public static function spub() { return 'spub'; }
+				protected static function sprot() { return 'sprot'; }
+				private static function spriv() { return 'spriv'; }
+			}
+			<</PHP81>>
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public function pub()
+					{
+					}
+					protected function prot()
+					{
+					}
+					public static function spub()
+					{
+					}
+					protected static function sprot()
+					{
+					}
+				}
+				final class Bar
+				{
+					public function pub()
+					{
+					}
+					public static function spub()
+					{
+					}
+				}
+				trait TFoo
+				{
+					public function pub()
+					{
+					}
+					protected function prot()
+					{
+					}
+					private function priv()
+					{
+					}
+					public static function spub()
+					{
+					}
+					protected static function sprot()
+					{
+					}
+					private static function spriv()
+					{
+					}
+				}
+				interface IFoo
+				{
+					public function pub()
+					{
+					}
+					public static function spub()
+					{
+					}
+				}
+				<<PHP81>>
+				enum EFoo
+				{
+					public function pub()
+					{
+					}
+					public static function spub()
+					{
+					}
+				}
+				<</PHP81>>
+			}
+			PHP,
+			BufferedOutput::VERBOSITY_DEBUG,
+			<<<'OUTPUT'
+			 Processing class Foo
+			  Keeping method pub
+			  Keeping method prot
+			  Skipping private method priv
+			  Keeping method spub
+			  Keeping method sprot
+			  Skipping private method spriv
+			 Processing class Bar
+			  Keeping method pub
+			  Skipping final-class protected method prot
+			  Skipping private method priv
+			  Keeping method spub
+			  Skipping final-class protected method sprot
+			  Skipping private method spriv
+			 Processing trait TFoo
+			  Keeping method pub
+			  Keeping method prot
+			  Keeping method priv
+			  Keeping method spub
+			  Keeping method sprot
+			  Keeping method spriv
+			 Processing interface IFoo
+			  Keeping method pub
+			  Keeping method spub
+			<<PHP81>>
+			 Processing enum EFoo
+			  Keeping method pub
+			  Skipping enum private/protected method prot
+			  Skipping enum private/protected method priv
+			  Keeping method spub
+			  Skipping enum private/protected method sprot
+			  Skipping enum private/protected method spriv
+			<</PHP81>>
+			OUTPUT . "\n",
+		);
+
+		yield 'Extract class methods, class=*' => array(
+			<<<'PHP'
+			class Foo {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+			}
+			final class Bar {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+			}
+			PHP,
+			array( 'class' => '*' ),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public function pub()
+					{
+					}
+					protected function prot()
+					{
+					}
+				}
+				final class Bar
+				{
+					public function pub()
+					{
+					}
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract class methods, class[...]=*' => array(
+			<<<'PHP'
+			class Foo {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+			}
+			final class Bar {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo' => '*',
+					'Bar' => '*',
+				),
+			),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public function pub()
+					{
+					}
+					protected function prot()
+					{
+					}
+				}
+				final class Bar
+				{
+					public function pub()
+					{
+					}
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract class methods, class[...].method=*' => array(
+			<<<'PHP'
+			class Foo {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+			}
+			final class Bar {
+				public function pub() { return 'pub'; }
+				protected function prot() { return 'prot'; }
+				private function priv() { return 'priv'; }
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo' => array( 'method' => '*' ),
+					'Bar' => array( 'method' => '*' ),
+				),
+			),
+			<<<'PHP'
+			namespace {
+				class Foo
+				{
+					public function pub()
+					{
+					}
+					protected function prot()
+					{
+					}
+				}
+				final class Bar
+				{
+					public function pub()
+					{
+					}
+				}
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected class method by name' => array(
+			<<<'PHP'
+			class Foo {
+				public function foo() { return 'FOO'; }
+				public function bar() { return 'BAR'; }
+				public function baz() { return 'bar'; }
+			}
+			trait TFoo {
+				public function foo() { return 'FOO'; }
+				public function bar() { return 'BAR'; }
+				public function baz() { return 'bar'; }
+			}
+			interface IFoo {
+				public function foo() { return 'FOO'; }
+				public function bar() { return 'BAR'; }
+				public function baz() { return 'bar'; }
+			}
+			<<PHP81>>
+			enum EFoo {
+				public function foo() { return 'FOO'; }
+				public function bar() { return 'BAR'; }
+				public function baz() { return 'bar'; }
+			}
+			<</PHP81>>
+			PHP,
+			array( 'class' => array( 'Foo' => array( 'method' => array( 'bar' ) ) ) ),
+			<<<'PHP'
+			namespace {
 				class Foo
 				{
 					public function bar()
 					{
 					}
 				}
-				PHP,
-			),
+			}
+			PHP,
+		);
 
-			'Handling of use directives'                  => array(
-				<<<'PHP'
-				namespace Some\NS;
-
-				use Other\NS\Foo;
-				use Aliased as Baz;
-
-				class Bar {
-					public function mungeFoo( ?Foo $foo, $map ): Foo {}
-					public function getBaz(): Baz {}
-				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace Some\NS;
-
-				class Bar
-				{
-					public function mungeFoo(?\Other\NS\Foo $foo, $map): \Other\NS\Foo
-					{
-					}
-					public function getBaz(): \Aliased
-					{
-					}
-				}
-				PHP,
-			),
-
-			'Handling of func_get_args()'                 => array(
-				<<<'PHP'
-				namespace Some\NS;
-
-				function no_params() {
-					func_get_args();
-				}
-
-				function no_varargs( $x, $y ) {
-					func_get_args();
-				}
-
-				function has_varargs( $x, ...$args ) {
-					func_get_args();
-				}
-
-				class Foo {
-					public function no_params() {
-						func_get_args();
-					}
-
-					public function no_varargs( $x, $y ) {
-						func_get_args();
-					}
-
-					public function has_varargs( $x, ...$args ) {
-						func_get_args();
-					}
-				}
-
-				function uses_func_get_arg() {
-					func_get_arg();
-				}
-
-				function uses_func_num_args() {
-					func_num_args();
-				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace Some\NS;
-
-				function no_params(...$func_get_args)
-				{
-				}
-				function no_varargs($x, $y, ...$func_get_args)
-				{
-				}
-				function has_varargs($x, ...$args)
-				{
-				}
+		yield 'Extract no class methods' => array(
+			<<<'PHP'
+			class Foo {
+				public function foo() { return 'FOO'; }
+				public function bar() { return 'BAR'; }
+				public function baz() { return 'bar'; }
+			}
+			PHP,
+			array( 'class' => array( 'Foo' => array( 'constant' => array( 'bar' ) ) ) ),
+			<<<'PHP'
+			namespace {
 				class Foo
 				{
-					public function no_params(...$func_get_args)
-					{
-					}
-					public function no_varargs($x, $y, ...$func_get_args)
-					{
-					}
-					public function has_varargs($x, ...$args)
-					{
-					}
 				}
-				function uses_func_get_arg(...$func_get_args)
+			}
+			PHP,
+		);
+
+		yield 'Extract no class methods because we only want the class' => array(
+			<<<'PHP'
+			class Foo {
+				public function foo() { return 'FOO'; }
+				public function bar() { return 'BAR'; }
+				public function baz() { return 'bar'; }
+			}
+			PHP,
+			array( 'class' => array( 'Foo' => array() ) ),
+			<<<'PHP'
+			namespace {
+				class Foo
 				{
 				}
-				function uses_func_num_args(...$func_get_args)
-				{
-				}
-				PHP,
+			}
+			PHP,
+		);
+
+		yield 'Extract a selected class method by name from a namespaced class' => array(
+			<<<'PHP'
+			namespace Some\NS;
+			class Foo {
+				public function foo() { return 'FOO'; }
+				public function bar() { return 'BAR'; }
+				public function baz() { return 'bar'; }
+			}
+			PHP,
+			array(
+				'class' => array(
+					'Foo'         => '*',
+					'Some\NS\Foo' => array( 'method' => array( 'bar', 'Some\NS\baz' ) ),
+				),
 			),
+			<<<'PHP'
+			namespace Some\NS;
 
-			'Function return type inference'              => array(
-				<<<'PHP'
-				namespace X;
+			class Foo
+			{
+				public function bar()
+				{
+				}
+			}
+			PHP,
+		);
 
-				function no_return() {
+		yield 'Handling of use directives' => array(
+			<<<'PHP'
+			namespace Some\NS;
+
+			use Other\NS\Foo;
+			use Aliased as Baz;
+
+			class Bar {
+				public function mungeFoo( ?Foo $foo, $map ): Foo {}
+				public function getBaz(): Baz {}
+			}
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace Some\NS;
+
+			class Bar
+			{
+				public function mungeFoo(?\Other\NS\Foo $foo, $map): \Other\NS\Foo
+				{
+				}
+				public function getBaz(): \Aliased
+				{
+				}
+			}
+			PHP,
+		);
+
+		yield 'Handling of func_get_args()' => array(
+			<<<'PHP'
+			namespace Some\NS;
+
+			function no_params() {
+				func_get_args();
+			}
+
+			function no_varargs( $x, $y ) {
+				func_get_args();
+			}
+
+			function has_varargs( $x, ...$args ) {
+				func_get_args();
+			}
+
+			class Foo {
+				public function no_params() {
+					func_get_args();
 				}
 
-				function empty_return() {
+				public function no_varargs( $x, $y ) {
+					func_get_args();
+				}
+
+				public function has_varargs( $x, ...$args ) {
+					func_get_args();
+				}
+			}
+
+			function uses_func_get_arg() {
+				func_get_arg();
+			}
+
+			function uses_func_num_args() {
+				func_num_args();
+			}
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace Some\NS;
+
+			function no_params(...$func_get_args)
+			{
+			}
+			function no_varargs($x, $y, ...$func_get_args)
+			{
+			}
+			function has_varargs($x, ...$args)
+			{
+			}
+			class Foo
+			{
+				public function no_params(...$func_get_args)
+				{
+				}
+				public function no_varargs($x, $y, ...$func_get_args)
+				{
+				}
+				public function has_varargs($x, ...$args)
+				{
+				}
+			}
+			function uses_func_get_arg(...$func_get_args)
+			{
+			}
+			function uses_func_num_args(...$func_get_args)
+			{
+			}
+			PHP,
+		);
+
+		yield 'Function return type inference' => array(
+			<<<'PHP'
+			namespace X;
+
+			function no_return() {
+			}
+
+			function empty_return() {
+				return;
+			}
+
+			function has_return() {
+				if ( foo() ) {
 					return;
+				} else {
+					return 42;
 				}
+			}
 
-				function has_return() {
-					if ( foo() ) {
-						return;
-					} else {
+			function return_only_in_subfunctions() {
+				function xxx() {
+					return 42;
+				}
+				class Huh {
+					public function xxx() {
 						return 42;
 					}
 				}
-
-				function return_only_in_subfunctions() {
+				$x = function () {
+					return 42;
+				};
+				$x = new class() {
 					function xxx() {
 						return 42;
 					}
-					class Huh {
-						public function xxx() {
-							return 42;
-						}
-					}
-					$x = function () {
-						return 42;
-					};
-					$x = new class() {
-						function xxx() {
-							return 42;
-						}
-					};
-				}
+				};
+			}
 
-				function has_return_and_decl(): array {
-					return array();
-				}
+			function has_return_and_decl(): array {
+				return array();
+			}
 
-				/** @return array */
-				function has_return_and_phpdoc() {
-					return array();
-				}
+			/** @return array */
+			function has_return_and_phpdoc() {
+				return array();
+			}
 
-				/** @phan-return array */
-				function has_return_and_phan_phpdoc() {
-					return array();
-				}
+			/** @phan-return array */
+			function has_return_and_phan_phpdoc() {
+				return array();
+			}
 
-				/** @phan-real-return array */
-				function has_return_and_phan_phpdoc_real() {
-					return array();
-				}
+			/** @phan-real-return array */
+			function has_return_and_phan_phpdoc_real() {
+				return array();
+			}
 
-				class Foo {
-					function has_return() {
-						return 42;
-					}
+			class Foo {
+				function has_return() {
+					return 42;
 				}
-				PHP,
-				'*',
-				<<<'PHP'
-				namespace X;
+			}
+			PHP,
+			'*',
+			<<<'PHP'
+			namespace X;
 
-				function no_return()
-				{
-				}
-				function empty_return()
-				{
-				}
-				/**
-				 * @phan-return mixed Dummy doc for stub.
-				 */
+			function no_return()
+			{
+			}
+			function empty_return()
+			{
+			}
+			/**
+			 * @phan-return mixed Dummy doc for stub.
+			 */
+			function has_return()
+			{
+			}
+			function return_only_in_subfunctions()
+			{
+			}
+			function has_return_and_decl(): array
+			{
+			}
+			/** @return array */
+			function has_return_and_phpdoc()
+			{
+			}
+			/** @phan-return array */
+			function has_return_and_phan_phpdoc()
+			{
+			}
+			/** @phan-real-return array */
+			function has_return_and_phan_phpdoc_real()
+			{
+			}
+			class Foo
+			{
 				function has_return()
 				{
 				}
-				function return_only_in_subfunctions()
-				{
-				}
-				function has_return_and_decl(): array
-				{
-				}
-				/** @return array */
-				function has_return_and_phpdoc()
-				{
-				}
-				/** @phan-return array */
-				function has_return_and_phan_phpdoc()
-				{
-				}
-				/** @phan-real-return array */
-				function has_return_and_phan_phpdoc_real()
-				{
-				}
-				class Foo
-				{
-					function has_return()
-					{
-					}
+			}
+			PHP,
+		);
+
+		if ( PHP_VERSION_ID >= 80100 ) {
+			yield 'Enum cases are always extracted' => array(
+				<<<'PHP'
+				namespace X;
+
+				enum Foo {
+					case A;
+					case B;
+					case C = 'C';
+
+					const X = 'X';
+					public function x() {}
 				}
 				PHP,
-			),
-		);
+				array( 'enum' => array( 'X\\Foo' => array() ) ),
+				<<<'PHP'
+				namespace X;
+
+				enum Foo
+				{
+					case A;
+					case B;
+					case C = 'C';
+				}
+				PHP,
+				BufferedOutput::VERBOSITY_DEBUG,
+				<<<'OUTPUT'
+				 Processing namespace 'X'
+				  Processing enum X\Foo
+				   Skipping const X
+				   Skipping method x
+				OUTPUT . "\n",
+			);
+		}
 	}
 
 	/**

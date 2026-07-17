@@ -4,12 +4,12 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			'jetpack-external-media-editor': './src/features/editor/index.js',
+			'jetpack-external-media-editor': './src/features/editor/index.jsx',
 			'jetpack-external-media-import-button': [
 				'./src/features/admin/external-media-import-button.js',
 				'./src/features/admin/external-media-import-button.scss',
 			],
-			'jetpack-external-media-import-page': './src/features/admin/external-media-import.js',
+			'jetpack-external-media-import-page': './src/features/admin/external-media-import.jsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -33,13 +33,6 @@ module.exports = [
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-				// https://github.com/WordPress/gutenberg/issues/73362
-				{
-					test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-					resolve: { fullySpecified: false },
-				},
-
 				// Transpile JavaScript.
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,

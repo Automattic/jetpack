@@ -5,6 +5,135 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.10.1] - 2026-04-10
+### Changed
+- RTC: Bump WebSocket gradual rollout to 100% on simple sites. [#48043]
+
+### Fixed
+- Post Notification Emails: handle Like-button clicks on Atomic/WoW sites by proxying to the new wpcom/v2/email-like endpoint, restoring parity with Simple sites. [#48021]
+
+## [6.10.0] - 2026-04-09
+### Added
+- Add AI assistant banner to the WordPress.com dashboard for Business/Commerce sites. [#47623]
+- Add Central Forms Management feature flags for percentage-based rollout on both Simple and Atomic sites. [#47757]
+- Add disable-central-forms-management blog sticker to opt out individual sites from CFM. [#47822]
+- Add the Help Center files to `/forums`. [#47028]
+- Add wpcom-dashboard feature with holdout experiment support. [#47548]
+- Agents Manager: Add agents_manager_agent_id filter to allow host applications to specify a custom workflow agent. [#47860]
+- Agents Manager: Add dedicated CIAB variant. CIAB environments always load Agents Manager regardless of the unified experience setting, using the new 'ciab' variant for connected sites and 'ciab-disconnected' for disconnected sites. [#47314]
+- Agents Manager: Add rel="noopener noreferrer" to admin bar links that open in a new tab. [#47780]
+- Agents Manager: Add user, site, and section data to agentsManagerData for standalone operation without Help Center. [#46763]
+- Agents Manager: Enqueue standalone agents manager app. [#46419]
+- Dashboard: Restrict layout to two responsive columns for holdout treatment group. [#47563]
+- Enable newsletter settings package for sites with the newsletter-package-202603 sticker. [#47509]
+- Gutenberg RTC: Add PingHub provider for real-time collaboration WebSocket connections. [#47421]
+- Gutenberg RTC: Add support for HTTP polling provider as an allowed real-time collaboration provider. [#47485]
+- Gutenberg RTC: Connect to PingHub WebSocket directly using a server-generated JWT token, replacing the iframe-based proxy and fixing real-time collaboration on custom-domain sites with third-party cookie restrictions. [#47556]
+- Gutenberg RTC: Enable Real-Time Collaboration feature for sites with the REAL_TIME_COLLABORATION feature. [#47512]
+- Help Center: Enqueue the Help Center for logged out users on support sites with the Odie answers feature enabled. [#46615]
+- Launch Site: Standardize launchpad widget launch task entry point with ExPlat experiment variations. [#47832]
+- Load the Help Center for logged-out users on `/support`. [#46953]
+- Reader: Require Jetpack Newsletter package. [#46783]
+- RTC: Add branded editor notices and room-limit enforcement for real-time collaboration. [#47681]
+- RTC: HTTP-polling ramp up for WoW sites. [#47718]
+- Support linking back to my.wordpress.com domain. [#46559]
+- Survicate: Add survey integration for wp-admin, block editor, and site editor. [#47107]
+- Unregister the Gutenberg RTC setting on the Writing page if there are no RTC providers. [#47403]
+- Verbum Editor: Allow logged-in users to get embed info. [#46824]
+
+### Changed
+- Abort load and log if required asset files are missing. [#46665]
+- Add AGENTS.md and CLAUDE.md for Agents Manager feature. [#47762]
+- Add dev mode to Agents Manager. [#46617]
+- Add Help Center backend documentation and testing steps. [#47562]
+- Add tracking for GS on Personal edge cases. [#46703]
+- Admin Bar: use Urls::maybe_add_origin_site_id from the Connection package, deprecate local maybe_add_origin_site_id_to_url function. [#46783]
+- Admin Menu: simplify Hosting menu to a single link, and centralize Upgrades menu registration for all admin interfaces. [#47146]
+- Agents Manager: Add lightweight help icon linking to the Help Center for disconnected Jetpack views when unified experience is enabled. [#47088]
+- Agents Manager: Make is_enabled() a public static method so consumers can check enablement without duplicating filter logic. [#47302]
+- Agents Manager: Make should_display_menu_panel() respect the agents_manager_use_unified_experience filter. [#47041]
+- Agents Manager: Replace unified-big-sky query string flag with a new agents_manager_enabled_in_block_editor filter, hooked by Big Sky, to enable Agents Manager in the block editor. [#47277]
+- Calypso Origins: Add my.woo.ai and my.woo.localhost to known origins. [#47181]
+- CelebrateLaunchModal: Update domain upsell CTA copy to "Get your domain" for free plan + free domain sites. [#47841]
+- Change the experiment name. [#47155]
+- Code Block: Disable contrast checker warning for enhanced Code block. [#46614]
+- Dotcom Dashboard: Redesign the celebrate launch modal with Core styles. [#47585]
+- Enable the enhanced code block by default.
+- Enable wp-admin newsletter settings for all wpcom sites instead of gating behind the newsletter-package-202603 sticker. [#47750]
+- Increase Central Forms Management rollout to 100% of WordPress.com sites. [#47811]
+- Increase Central Forms Management rollout to 50% of WordPress.com sites. [#47793]
+- Launch Site Masterbar Button: Reload page if launching from WP Admin. [#47986]
+- Launch Site Standardization: Update experiment name and variants. [#48018]
+- Launch Site: Implement direct site launch from the WP Admin masterbar button via an ExPlat experiment, with a shared mutation hook and celebration modal for use across launch entry points. [#47963]
+- Launchpad: Reorder build checklist tasks. [#46546]
+- LessCSS: Reduce time complexity. [#46743]
+- Move RTC notices feature to the jetpack-rtc package. [#47964]
+- Reading settings: Add standardized site launch options. [#47839]
+- Removed the RTC enabled check before loading the notices endpoint. [#47774]
+- RTC notices: Remove duplicated site editor and option checks, rely on RTC::is_enabled() instead. [#47867]
+- RTC: Bump WebSocket gradual rollout to 20% on Simple sites. [#47934]
+- RTC: Bump WebSocket gradual rollout to 50% on simple sites. [#47972]
+- RTC: Change visibility of welcome modal. [#47733]
+- RTC: Enable when WordPress 7.0+ is detected without the Gutenberg plugin. [#47926]
+- RTC: Gradual rollout – 100% of WoW sites and 5% of Simple sites. [#47831]
+- RTC: Increase HTTP polling rollout to 25% of WoW sites. [#47768]
+- RTC: Increase HTTP polling rollout to 5% of WoW sites. [#47747]
+- RTC: Increase HTTP polling rollout to 50% of WoW sites. [#47814]
+- RTC: Load feature for local users. [#47738]
+- RTC: Start gradual rollout via WS on 1% of Simple sites. [#47751]
+- Site Launch Button: Add wp-admin ref parameter for redirecting back from Calypso. [#47638]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Tracking now knows when we're on forums vs support. [#47480]
+- Update dependencies. [#47472]
+- Update Help Center menu panel experiment name. [#46561]
+- Update package dependencies. [#46552] [#46647] [#46716] [#46854] [#47002] [#47099] [#47173] [#47247] [#47285] [#47300] [#47371] [#47496] [#47684] [#47686] [#47890] [#47899] [#47998]
+- Update the experiment that loads the Help Center for logged-out users on. [#47445]
+- Updated newsletter settings links in Launchpad and admin menu to use centralized URL utility from newsletter package. [#47347]
+- Use new Agents Manager state endpoint in Agents Manager. [#46937]
+- Use the Global Styles on Personal feature flag before checking experiment variation. [#46547]
+
+### Deprecated
+- Show a warning on the customizer for WPCom if the user is using a colourlovers background image. [#41538]
+
+### Removed
+- Remove obsolete hotfixes for WordPress 6.7. [#46843]
+- Remove the dotcom command palette. [#46579]
+- RTC: Move implementation to generic package. [#47713]
+
+### Fixed
+- Add cache breaking mechanism to fix React cache error. [#47766]
+- Agents Manager: Allow plugins to enable the agents manager unified experience via filter. [#47315]
+- Agents Manager: Fix JavaScript conflicts with WooCommerce checkout and other plugins by preventing unnecessary script loading on irrelevant screens. [#46721]
+- Agents Manager: Prevent loading in previews. [#46742]
+- AI Assistant Banner: Hide banner when the AI assistant is already enabled via big_sky_enable option. [#47915]
+- Block Description Links: Fix missing Help Center link for blocks with variations like core/heading. [#47077]
+- CIAB Editor: Ensure Help Center Gutenberg CSS can be loaded. [#47110]
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Disable Real-Time Collaboration on the WordPress.com desktop app to prevent editing issues caused by an incompatibility. [#47797]
+- Enhance code block only when content attribute is registered. [#46544]
+- Exclude e2e test sites from Central Forms Management rollout. [#47801]
+- Fix AI assistant banner dismiss button not persisting or firing tracks event, and hide banner for AI Tips unsubscribers. [#47710]
+- Fix e2e test site exclusion from Central Forms Management on Atomic sites. [#47815]
+- Fix helpCenterFeatureFlags and helpCenterData redeclaration error in CIAB admin. [#47541]
+- Fix Newsletter menu on Simple sites to open in-admin settings when enabled instead of external URL. [#46787]
+- Fix TypeScript type errors in verbum-comments for tsgo compatibility. [#47408]
+- Global Styles: Load the feature on the customizer to fix access checks for additional CSS. [#46675]
+- Help Center now loads in the editor of /support. [#47661]
+- Image Studio: Revert PR to disable big-sky-plugin in Forno-229. [#47529]
+- Improve Code block loading performance. [#46589]
+- Launch button: Load celebration modal bundle CSS and wp-components on the front end so styling matches wp-admin. [#48012]
+- Remove CSS nesting to prevent warnings in some CSS processors. [#46658]
+- RTC Notices: Fix image URLs on Simple sites by importing public-path to set webpack publicPath correctly. [#47769]
+- RTC Notices: Restore Gutenberg's native "Too many editors connected" modal on sites where branded limit notices are disabled. Fix room limit enforcement for PingHub provider by using awareness join timestamps instead of unpopulated collaboratorInfo. [#47813]
+- RTC: Enforce peer limit per post instead of globally across all posts. [#47919]
+- Sidebar Notice: Fix passing JSON string instead of array to JITM get_messages(). [#46906]
+- Temporarily disable client-side media processing to prevent cross-origin isolation headers from breaking authenticated API requests. [#47416]
+- Translate the title of the Name profile section. [#47666]
+- Update misleading WordPress.com importer banner copy on WP-Admin Tools > Import page. [#47278]
+- Verbum Comments: fix backslashes being stripped from comments. [#47059]
+- Verbum comments: Fix incorrect hovercard i18n key for 'Gravatar not found' error; add translation string for private profile error state. [#47594]
+- Verbum Editor: Fix editor focus on edit comment screen. [#47184]
+
 ## [6.9.0] - 2026-01-09
 ### Security
 - Implemented a guard against non user objects when assigning an experiment variation [#45929]
@@ -783,7 +912,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - jetpack-mu-wpcom - Help Center: Consume translations directly from widgets.wp.com. [#38300]
 - Updates the WordPress.com admin bar as follows:
-
+  
   1. Repurposes the WordPress logo as a link to /sites.
   2. Adds Reader menu.
   3. Hides the updates icon.
@@ -1755,6 +1884,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.10.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.10.0...v6.10.1
+[6.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.9.0...v6.10.0
 [6.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.1...v6.9.0
 [6.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.0...v6.8.1
 [6.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.7.0...v6.8.0

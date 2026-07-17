@@ -9,7 +9,7 @@ import {
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
-import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
+import { TextareaControl, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	store as editorStore,
@@ -18,6 +18,7 @@ import {
 } from '@wordpress/editor';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { count } from '@wordpress/wordcount';
 /**
  * Internal dependencies
@@ -73,14 +74,12 @@ function AiPostExcerpt() {
 	const { request, stopSuggestion, suggestion, requestingState, error, reset, model } =
 		useAiSuggestions( {
 			onDone: useCallback(
-				( _content, skipRequestCount, modelUsed ) => {
+				( _content, modelUsed ) => {
 					/*
 					 * Increase the AI Suggestion counter.
 					 * @todo: move this at store level.
 					 */
-					if ( ! skipRequestCount ) {
-						increaseAiAssistantRequestsCount();
-					}
+					increaseAiAssistantRequestsCount();
 					tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
 						feature: 'jetpack-ai-content-lens',
 						model: modelUsed,
@@ -109,14 +108,9 @@ function AiPostExcerpt() {
 				},
 				[ increaseAiAssistantRequestsCount ]
 			),
-			onAllErrors: useCallback(
-				( _suggestionError, skipRequestCount ) => {
-					if ( ! skipRequestCount ) {
-						increaseAiAssistantRequestsCount();
-					}
-				},
-				[ increaseAiAssistantRequestsCount ]
-			),
+			onAllErrors: useCallback( () => {
+				increaseAiAssistantRequestsCount();
+			}, [ increaseAiAssistantRequestsCount ] ),
 		} );
 
 	// Cancel and reset AI suggestion when the component is unmounted
@@ -235,7 +229,6 @@ ${ postContent }
 				value={ currentExcerpt }
 				disabled={ isTextAreaDisabled }
 			/>
-
 			{ isWpcomPlatformSite() ? (
 				<WpcomSupportLink
 					supportLink={ __( 'https://wordpress.com/support/excerpts/', 'jetpack' ) }
@@ -244,16 +237,16 @@ ${ postContent }
 					{ __( 'Learn more about manual excerpts', 'jetpack' ) }
 				</WpcomSupportLink>
 			) : (
-				<ExternalLink
+				<Link
+					openInNewTab
 					href={ __(
 						'https://jetpack.com/support/create-better-post-excerpts-with-ai/',
 						'jetpack'
 					) }
 				>
 					{ __( 'Learn more about manual excerpts', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			) }
-
 			<div className="jetpack-generated-excerpt__ai-container">
 				{ error?.code && error.code !== 'error_quota_exceeded' && (
 					<Notice

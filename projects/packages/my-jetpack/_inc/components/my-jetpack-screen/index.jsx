@@ -8,10 +8,9 @@ import {
 	Container,
 	GlobalNotices,
 	Notice,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import { __, _x } from '@wordpress/i18n';
+import { useViewportMatch } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
@@ -34,8 +33,10 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
+import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
+import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -49,7 +50,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
-	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
+	const isBiggerThanMedium = useViewportMatch( 'large' );
 
 	const actionButtons = options.actions?.map( action => {
 		return (
@@ -77,16 +78,19 @@ const GlobalNotice = ( { message, title, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useNotificationWatcher();
+	// Replay a success notice persisted before a product toggle reloaded the page.
+	useReplayPendingNotice();
 	const {
 		// no prettier please
 		adminUrl,
 		sandboxedDomain,
 		isDevVersion,
 		userIsAdmin,
+		isJetpackPluginActive,
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { apiRoot, apiNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -162,17 +166,16 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
-	const resetOptionsMenuItem = {
-		label: _x(
-			'Reset Options (dev only)',
-			'Button for option to reset Jetpack Options',
-			'jetpack-my-jetpack'
-		),
-		title: __( 'Reset Options', 'jetpack-my-jetpack' ),
-		role: 'button',
-		onClick: () => resetJetpackOptions(),
-		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
-	};
+	const optionalMenuItems = buildOptionalMenuItems( {
+		adminUrl,
+		isDevVersion,
+		userIsAdmin,
+		isSiteConnected,
+		isJetpackPluginActive,
+		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
+		onResetClick: () => resetJetpackOptions(),
+		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	} );
 
 	return (
 		<AdminPage
@@ -180,37 +183,43 @@ export default function MyJetpackScreen() {
 			sandboxedDomain={ sandboxedDomain }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
-			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
-			useInternalLinks={ shouldUseInternalLinks() }
+			title="Jetpack"
+			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
+			showBottomBorder={ false }
 		>
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 
 			<IDCModal />
-			<GlobalNotices />
-			{ ! isNewUser && (
-				<Container horizontalSpacing={ 0 }>
-					<Col>
-						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-					</Col>
-				</Container>
-			) }
-			{ noticeMessage && (
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col>
-						<GlobalNotice
-							message={ noticeMessage }
-							title={ noticeTitle }
-							options={ noticeOptions }
-						/>
-					</Col>
-				</Container>
-			) }
 			{ isSectionVisible && userIsAdmin && <EvaluationRecommendations /> }
 
 			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 
-			<MyJetpackTabPanel />
+			<MyJetpackTabPanel
+				beforeContent={
+					<>
+						<GlobalNotices />
+						{ ! isNewUser && (
+							<Container horizontalSpacing={ 0 }>
+								<Col>
+									<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+								</Col>
+							</Container>
+						) }
+						{ noticeMessage && (
+							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+								<Col>
+									<GlobalNotice
+										message={ noticeMessage }
+										title={ noticeTitle }
+										options={ noticeOptions }
+									/>
+								</Col>
+							</Container>
+						) }
+					</>
+				}
+			/>
 		</AdminPage>
 	);
 }

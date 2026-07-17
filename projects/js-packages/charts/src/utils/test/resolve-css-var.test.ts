@@ -197,30 +197,6 @@ describe( 'resolveCssVariable', () => {
 		} );
 	} );
 
-	describe( 'SSR compatibility', () => {
-		it( 'returns null when window is undefined', () => {
-			const originalWindow = globalThis.window;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			delete ( globalThis as any ).window;
-
-			const result = resolveCssVariable( '--test-color' );
-			expect( result ).toBeNull();
-
-			globalThis.window = originalWindow;
-		} );
-
-		it( 'returns null when document is undefined', () => {
-			const originalDocument = globalThis.document;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			delete ( globalThis as any ).document;
-
-			const result = resolveCssVariable( '--test-color' );
-			expect( result ).toBeNull();
-
-			globalThis.document = originalDocument;
-		} );
-	} );
-
 	describe( 'Real-world value types', () => {
 		it( 'handles hex color values', () => {
 			window.getComputedStyle = jest.fn( () => ( {
@@ -438,8 +414,8 @@ describe( 'resolveCssVariable', () => {
 				if ( element === themedElement ) {
 					return {
 						getPropertyValue: ( prop: string ) => {
-							if ( prop === '--wpds-color-bg-interactive-brand' ) {
-								return '#c029dc'; // User's custom accent color
+							if ( prop === '--custom-accent-color' ) {
+								return '#c029dc';
 							}
 							return '';
 						},
@@ -451,7 +427,7 @@ describe( 'resolveCssVariable', () => {
 			} );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( '--wpds-color-bg-interactive-brand', themedElement );
+			const result = resolveCssVariable( '--custom-accent-color', themedElement );
 			expect( result ).toBe( '#c029dc' );
 		} );
 	} );

@@ -1,9 +1,10 @@
-import { Badge } from '@automattic/ui';
 import { Flex } from '@wordpress/components';
 import { DataViews, Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import { useId, useMemo } from 'react';
 import { MyJetpackModule } from '../../types';
+import { getSharingBlockNotice } from '../../utils/sharing-block';
 import { ModuleStatus } from '../module-status';
 import { ModuleToggle } from '../module-toggle';
 import styles from './styles.module.scss';
@@ -45,7 +46,7 @@ export function ModulesList( { modules }: ModulesListProps ) {
 								id={ `${ baseId }-description-${ item.module }` }
 								className={ styles[ 'module-description' ] }
 							>
-								{ item.description }
+								{ getSharingBlockNotice( item ) ?? item.description }
 							</span>
 						</div>
 					);
@@ -58,7 +59,7 @@ export function ModulesList( { modules }: ModulesListProps ) {
 					const { isAvailable, reason } = getModuleStatus( item );
 
 					return ! isAvailable ? (
-						<Badge intent="warning">{ reason }</Badge>
+						<Badge intent="medium">{ reason }</Badge>
 					) : (
 						<Flex gap={ 4 } className={ styles[ 'toggle-wrap' ] }>
 							<ModuleStatus module={ item } />

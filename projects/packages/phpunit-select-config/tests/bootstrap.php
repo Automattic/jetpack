@@ -2,7 +2,7 @@
 /**
  * Bootstrap file for the changelogger test suite.
  *
- * @package automattic/jetpack-changelogger
+ * @package automattic/phpunit-select-config
  */
 
 // Include the Composer autoloader.

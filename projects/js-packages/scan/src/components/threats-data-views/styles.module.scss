@@ -1,4 +1,28 @@
+@import "@wordpress/theme/design-tokens.css";
 @import "@wordpress/dataviews/build-style/style.css";
+
+// Wrapper carries the flex chain forward to `<DataViews>` (whose root
+// `.dataviews-wrapper` is `height: 100%`) and scopes the empty-state
+// override below — `:global(.dataviews-no-results)` only matches inside
+// this wrapper because the outer class is module-hashed.
+.threats-data-views {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-block-size: 0;
+
+	// DataViews ships `.dataviews-no-results` with `flex-grow: 1`, so it
+	// fills its parent — but only if that parent has a defined height.
+	// Anchor the empty body to the viewport (minus admin bar + page
+	// header + tab row + footer + a small breathing margin) so the empty
+	// state always reads as full-height and the surrounding page chain
+	// gets pushed to the bottom of the viewport even when DataViews is
+	// the only thing in the panel. Min-height (not height) so a populated
+	// table still scrolls naturally.
+	:global(.dataviews-no-results) {
+		min-block-size: calc(100vh - 320px);
+	}
+}
 
 .threat__title {
 	color: var(--jp-gray-80);

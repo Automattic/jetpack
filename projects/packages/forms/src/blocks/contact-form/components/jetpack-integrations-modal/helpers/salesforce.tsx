@@ -1,9 +1,7 @@
-import { Badge } from '@automattic/ui';
-import '@automattic/ui/style.css';
-import { BaseControl, ExternalLink, TextControl } from '@wordpress/components';
+import { BaseControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Badge, Link, Notice } from '@wordpress/ui';
 import SalesforceIcon from '../../../../../icons/salesforce.tsx';
-import HelpMessage from '../../help-message/index.jsx';
 import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 
@@ -47,11 +45,11 @@ export function buildSalesforceCard( {
 			} ),
 			setupBadge:
 				context === 'dashboard' ? (
-					<Badge intent="success" className="integration-card__setup-badge">
+					<Badge intent="stable" className="integration-card__setup-badge">
 						{ __( 'Configured per form', 'jetpack-forms' ) }
 					</Badge>
 				) : (
-					<Badge intent="default" className="integration-card__setup-badge">
+					<Badge intent="draft" className="integration-card__setup-badge">
 						{ __( 'Enter organization ID', 'jetpack-forms' ) }
 					</Badge>
 				),
@@ -75,17 +73,19 @@ export function buildSalesforceCard( {
 						style={ { maxWidth: '300px' } }
 					/>
 					{ organizationId && ! isValidSalesforceOrgId( organizationId ) && (
-						<HelpMessage isError style={ { marginTop: '8px' } }>
-							{ __(
-								'Invalid Organization ID. Should be a 15–18 characters long alphanumeric string.',
-								'jetpack-forms'
-							) }
-						</HelpMessage>
+						<Notice.Root intent="error" style={ { marginTop: '8px' } }>
+							<Notice.Description>
+								{ __(
+									'Invalid Organization ID. Should be a 15–18 characters long alphanumeric string.',
+									'jetpack-forms'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					) }
 					<p>
-						<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
+						<Link openInNewTab href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
 							{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
-						</ExternalLink>
+						</Link>
 					</p>
 					<div style={ { marginTop: '20px', marginBottom: '20px' } }>
 						{ __(

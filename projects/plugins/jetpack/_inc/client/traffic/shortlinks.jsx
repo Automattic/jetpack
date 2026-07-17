@@ -29,9 +29,8 @@ class Shortlinks extends Component {
 				>
 					<ModuleToggle
 						slug="shortlinks"
-						disabled={ ! isSiteConnected }
+						disabled={ ! isSiteConnected || this.props.isSavingAnyOption( 'shortlinks' ) }
 						activated={ this.props.shortlinksActive }
-						toggling={ this.props.isSavingAnyOption( 'shortlinks' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-image-guide",
-	"version": "1.0.11",
+	"version": "1.0.18",
 	"description": "Go through the dom to analyze image size on screen vs actual file size.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/image-guide/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/image-guide"
+		"url": "git+https://github.com/Automattic/jetpack-image-guide.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -21,48 +20,46 @@
 		}
 	},
 	"main": "./src/index.ts",
-	"browser": {
-		"@automattic/jetpack-image-guide": false
-	},
 	"scripts": {
-		"build": "rollup -c && tsc --emitDeclarationOnly",
+		"build": "rollup -c && tsgo --emitDeclarationOnly",
 		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:validate-ts' 'rollup -c'",
 		"build-development": "pnpm run build-concurrently",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
 		"clear-dist": "rm -rf app/assets/dist/*",
 		"dev": "concurrently 'pnpm:dev-validate-ts' 'pnpm:dev-compile'",
 		"dev-compile": "pnpm run clear-dist && rollup -c -w",
-		"dev-validate-ts": "tsc --watch --pretty --strict false # Note: Disable Strict mode to avoid noisy development, while keeping strict errors visible in IDEs.",
+		"dev-validate-ts": "tsgo --watch --pretty --strict false # Note: Disable Strict mode to avoid noisy development, while keeping strict errors visible in IDEs.",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit",
-		"validate-ts": "tsc --pretty --strict false",
+		"typecheck": "tsgo --noEmit",
+		"validate-ts": "tsgo --pretty --strict false",
 		"watch": "pnpm run dev"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.0.0",
-		"@babel/preset-env": "7.28.3",
-		"@babel/preset-react": "7.27.1",
-		"@babel/preset-typescript": "7.27.1",
+		"@babel/preset-env": "7.29.7",
+		"@babel/preset-react": "7.29.7",
+		"@babel/preset-typescript": "7.29.7",
 		"@rollup/plugin-babel": "6.0.4",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-json": "6.1.0",
 		"@rollup/plugin-node-resolve": "15.3.0",
 		"@rollup/plugin-replace": "5.0.2",
-		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-terser": "1.0.0",
 		"@rollup/plugin-typescript": "12.1.0",
-		"concurrently": "9.2.1",
-		"jest": "30.2.0",
-		"postcss": "8.5.6",
-		"rollup": "3.29.5",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"concurrently": "10.0.3",
+		"jest": "30.4.2",
+		"postcss": "8.5.14",
+		"rollup": "3.30.0",
 		"rollup-plugin-postcss": "4.0.2",
 		"rollup-plugin-svelte": "7.2.2",
 		"sass": "npm:sass-embedded@^1.97.2",
-		"svelte": "4.2.19",
-		"svelte-preprocess": "6.0.2",
+		"svelte": "5.55.7",
+		"svelte-preprocess": "6.0.5",
 		"tslib": "2.8.1",
-		"typescript": "5.9.3",
-		"webpack": "5.101.3",
+		"typescript": "6.0.3",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

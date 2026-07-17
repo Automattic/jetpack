@@ -21,6 +21,7 @@ infrastructureFileSets.base = new Set( [
 	'.github/versions.sh',
 	// If pnpm stuff changed, we should build/test everything since we can't know what the change will affect.
 	'pnpm-lock.yaml',
+	'pnpm-workspace.yaml',
 ] );
 infrastructureFileSets.test = new Set( [
 	...infrastructureFileSets.base,
@@ -106,6 +107,7 @@ export function builder( yargs ) {
 			describe: 'Ignore the monorepo root.',
 			type: 'boolean',
 		} )
+		.option( 'dev', { type: 'boolean', hidden: true } )
 		.option( 'no-dev', {
 			describe: 'Do not consider dev dependencies.',
 			type: 'boolean',

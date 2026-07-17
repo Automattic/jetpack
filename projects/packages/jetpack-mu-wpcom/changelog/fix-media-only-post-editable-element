@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Run block-structure audit on post load so media-only posts have editable elements immediately, and avoid inserting duplicate empty paragraphs below non-editable blocks.

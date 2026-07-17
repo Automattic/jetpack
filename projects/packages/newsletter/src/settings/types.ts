@@ -3,7 +3,7 @@
  */
 
 /**
- * Type definitions for newsletter settings data
+ * Type definitions for newsletter settings data from the API
  */
 export interface NewsletterSettings {
 	subscriptions: boolean;
@@ -16,44 +16,47 @@ export interface NewsletterSettings {
 	jetpack_subscriptions_login_navigation_enabled: boolean;
 	jetpack_subscriptions_subscribe_navigation_enabled: boolean;
 	wpcom_featured_image_in_email: boolean;
-	wpcom_subscription_emails_use_excerpt: boolean;
+	wpcom_subscription_emails_use_excerpt: string;
 	jetpack_gravatar_in_email: boolean;
 	jetpack_author_in_email: boolean;
 	jetpack_post_date_in_email: boolean;
 	jetpack_subscriptions_reply_to: 'comment' | 'author' | 'no-reply';
 	jetpack_subscriptions_from_name: string;
+	wpcom_newsletter_send_default: boolean;
 	wpcom_newsletter_categories_enabled: boolean;
 	wpcom_newsletter_categories: string[];
 	subscription_options?: {
 		invitation: string;
 		welcome: string;
 		comment_follow: string;
+		subscribe_modal_heading: string;
 	};
+	newsletter_has_active_plan: boolean;
 	[ key: string ]: unknown;
 }
 
 /**
- * Type definitions for Jetpack Newsletter settings passed from PHP
+ * Newsletter-specific data added to JetpackScriptData via the jetpack_admin_js_script_data filter.
+ * Common data like admin_url, rest_nonce, title, is_wpcom_platform, and
+ * user.current_user.display_name are provided by Script_Data defaults.
  */
-export interface JetpackNewsletterSettings {
+export interface NewsletterScriptData {
 	isBlockTheme: boolean;
-	siteAdminUrl: string;
 	themeStylesheet: string;
-	blogID: number;
-	siteRawUrl: string;
 	email: string;
 	gravatar: string;
-	displayName: string;
 	dateExample: string;
-	wpAdminSubscriberManagementEnabled: boolean;
+	subscriberManagementUrl: string;
+	subscriberManagementEnabled: boolean;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;
-	isWpcomPlatform: boolean;
-	isWpcomSimple: boolean;
-	isSubscriptionsActive: boolean;
-	restApiRoot: string;
-	restApiNonce: string;
+	tracksUserData?:
+		| {
+				userid: number;
+				username: string;
+		  }
+		| false;
 }
 
 /**

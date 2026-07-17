@@ -65,7 +65,7 @@ class AJAX {
 			return false;
 		}
 
-		preg_match( '/^[a-z0-9]+$/i', $guid, $matches );
+		preg_match( '/^[a-z0-9]{8}$/i', $guid, $matches );
 
 		if ( empty( $matches ) ) {
 			return false;
@@ -173,6 +173,12 @@ class AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_upload_jwt() {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to upload files.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
+			return;
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
 		$args          = array(
 			'method' => 'POST',
@@ -206,7 +212,43 @@ class AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_upload_token() {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to upload files.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
+			return;
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
+
+		// On WordPress.com the classic `sites/{id}/media/token` (rest/v1.1) endpoint
+		// isn't reachable in-process (WPCOM_API_Direct only dispatches WP-REST routes),
+		// so mint the token via VideoPressToken, which has its own IS_WPCOM branch that
+		// mints locally. `get_videopress_blog_id()` is the current blog on Simple, matching
+		// the minted token. The self-hosted remote path below is left unchanged.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			try {
+				$upload_token = VideoPressToken::videopress_onetime_upload_token();
+			} catch ( Upload_Exception $e ) {
+				// Explicit 200: identical to the null default (admin-ajax errors
+				// ride the success:false envelope), but typed as the phpdoc wants.
+				wp_send_json_error( array( 'message' => $e->getMessage() ), 200, JSON_UNESCAPED_SLASHES );
+				return;
+			}
+
+			// `upload_action_url` (from `videopress_make_media_upload_path()`) is omitted:
+			// that helper isn't loaded in the Simple admin-ajax context, and only the
+			// legacy upload-form flow reads it — the track/poster consumers use the token
+			// and blog id, not the URL.
+			wp_send_json_success(
+				array(
+					'upload_token'   => $upload_token,
+					'upload_blog_id' => $video_blog_id,
+				),
+				200,
+				JSON_UNESCAPED_SLASHES
+			);
+			return;
+		}
 
 		$args = array(
 			'method' => 'POST',

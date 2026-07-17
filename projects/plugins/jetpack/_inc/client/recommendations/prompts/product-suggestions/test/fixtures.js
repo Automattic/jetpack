@@ -92,12 +92,12 @@ export function buildInitialState() {
 export const sitePurchases = () => {
 	return [
 		{
-			active: '1',
+			subscription_status: 'active',
 			product_id: '2100',
 			product_slug: 'jetpack_backup_daily',
 		},
 		{
-			active: '1',
+			subscription_status: 'active',
 			product_id: '2106',
 			product_slug: 'jetpack_scan',
 		},

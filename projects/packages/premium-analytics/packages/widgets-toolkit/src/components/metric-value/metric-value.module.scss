@@ -1,0 +1,18 @@
+.metricValue {
+	font-weight: 500;
+	font-size: var(--wp-ui-metric-font-size);
+	line-height: var(--wpds-typography-line-height-sm);
+
+	// Color variants
+	&.color--neutral {
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&.color--positive {
+		color: var(--wpds-color-stroke-surface-success-strong);
+	}
+
+	&.color--negative {
+		color: var(--wpds-color-stroke-surface-error-strong);
+	}
+}

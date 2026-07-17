@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-base-styles",
-	"version": "1.0.13",
+	"version": "1.2.9",
 	"description": "Jetpack components base styles",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/base-styles/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack",
-		"directory": "projects/js-packages/base-styles"
+		"url": "git+https://github.com/Automattic/jetpack-base-styles.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -19,7 +18,14 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'"
 	},
+	"exports": {
+		"./admin-page-layout": "./admin-page-layout.scss",
+		"./gutenberg-base-styles": "./gutenberg-base-styles.scss",
+		"./package.json": "./package.json",
+		"./root-variables": "./root-variables.scss",
+		"./style": "./style.scss"
+	},
 	"devDependencies": {
-		"@wordpress/base-styles": "6.13.0"
+		"@wordpress/base-styles": "11.0.0"
 	}
 }

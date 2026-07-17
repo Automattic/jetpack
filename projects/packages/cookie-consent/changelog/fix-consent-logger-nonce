@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Consent log: send a REST nonce for logged-in visitors so the consent row records the real user ID instead of 0.

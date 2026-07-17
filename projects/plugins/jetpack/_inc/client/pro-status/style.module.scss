@@ -1,0 +1,56 @@
+.status {
+	align-items: center;
+	display: inline-flex;
+	font-weight: 600;
+	line-height: 1.666;
+	white-space: nowrap;
+
+	&.is-active {
+		color: var(--wpds-color-foreground-content-success-weak, #008030);
+
+		.indicator {
+			background-color: var(--wpds-color-foreground-content-success-weak, #008030);
+		}
+	}
+
+	&.is-inactive {
+		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+
+		.indicator {
+			background-color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+		}
+	}
+
+	&.is-error {
+		color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+
+		.indicator {
+			background-color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+		}
+	}
+
+	&.is-action {
+		color: var(--wpds-color-foreground-content-warning-weak, #926300);
+
+		.indicator {
+			background-color: var(--wpds-color-foreground-content-warning-weak, #926300);
+		}
+	}
+
+	&.is-initializing {
+		color: var(--wpds-color-foreground-content-info-weak, #006bd7);
+
+		.indicator {
+			background-color: var(--wpds-color-foreground-content-info-weak, #006bd7);
+		}
+	}
+}
+
+.indicator {
+	background-color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	border-radius: 50%;
+	flex-shrink: 0;
+	height: 0.666em;
+	margin-right: 4px;
+	width: 0.666em;
+}

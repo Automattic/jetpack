@@ -1,0 +1,58 @@
+// Pre-hydration skeleton placeholder primitives. Each block scopes the
+// mixins under its own wrapper so the unscoped class name
+// `.jetpack-search-skeleton` can't leak to non-search content. See
+// `Search_Blocks::is_initial_loading()` for the PHP-side gate that
+// decides whether to emit skeleton DOM at all.
+
+@mixin shimmer {
+
+	@keyframes jetpack-search-skeleton-shimmer {
+
+		from {
+			background-position: -200% 0;
+		}
+
+		to {
+			background-position: 200% 0;
+		}
+	}
+
+	.jetpack-search-skeleton {
+		display: block;
+		border-radius: 4px;
+		background: color-mix(in sRGB, currentColor 8%, transparent) linear-gradient(90deg, transparent 0%, color-mix(in sRGB, currentColor 6%, transparent) 50%, transparent 100%) repeat;
+		background-size: 200% 100%;
+		animation: jetpack-search-skeleton-shimmer 1.5s linear infinite;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		.jetpack-search-skeleton {
+			animation: none;
+		}
+	}
+}
+
+// Filter-specific skeleton shapes. Pulled in by both filter-checkbox and
+// filter-date so the placeholder rows render at the same dimensions.
+@mixin filter-rows {
+
+	.jetpack-search-skeleton--filter-row {
+		height: 1rem;
+		width: 80%;
+	}
+
+	.jetpack-search-filter__list--skeleton {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-filter__item--skeleton {
+		padding: 0.25rem 0;
+	}
+}

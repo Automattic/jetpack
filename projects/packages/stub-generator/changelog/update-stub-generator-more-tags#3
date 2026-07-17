@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove trailing whitespace when stripping tag descriptions.

@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Route, Routes, Navigate } from 'react-router';
 import QueryIntroOffers from 'components/data/query-intro-offers';
@@ -12,7 +13,6 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getNewRecommendations } from 'state/initial-state';
 import {
 	getStep,
@@ -39,12 +39,20 @@ const useInitOnboarding = ( {
 	updateOnboardingData,
 	updateStep,
 } ) => {
-	const [ isInitialized, setIsInitialized ] = useState( false );
+	/*
+	 * A ref, not state, guards this one-time init. `onboardingData` is a fresh
+	 * object on every store change, so this effect re-runs on each one, and the
+	 * init body itself dispatches. Under react-redux 9 (useSyncExternalStore) that
+	 * dispatch forces a synchronous re-render, in which a useState guard never
+	 * latches before the effect re-runs — dispatching in an infinite loop. A ref
+	 * updates synchronously and is not a dependency, so the body runs exactly once.
+	 */
+	const isInitialized = useRef( false );
 	useEffect( () => {
-		if ( ! isInitialized && onboardingData && ! isLoading ) {
+		if ( ! isInitialized.current && onboardingData && ! isLoading ) {
 			const { active, hasStarted, viewed } = onboardingData;
 
-			setIsInitialized( true );
+			isInitialized.current = true;
 
 			if ( active && ! hasStarted ) {
 				updateStep( step );
@@ -54,7 +62,7 @@ const useInitOnboarding = ( {
 				updateOnboardingData( { viewed } );
 			}
 		}
-	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep, isInitialized ] );
+	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep ] );
 };
 
 const RecommendationsComponent = props => {
@@ -208,7 +216,7 @@ const RecommendationsComponent = props => {
 			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
-					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
+					<Spinner />
 				</div>
 			) : (
 				<Routes>

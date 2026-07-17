@@ -270,12 +270,10 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
 export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 	const current = scores.current;
 	const noBoost = scores.noBoost;
-	let currentScore = 0;
-	let noBoostScore = 0;
 
 	if ( current !== null && noBoost !== null ) {
-		currentScore = scores.current.mobile + scores.current.desktop;
-		noBoostScore = scores.noBoost.mobile + scores.noBoost.desktop;
+		const currentScore = scores.current.mobile + scores.current.desktop;
+		const noBoostScore = scores.noBoost.mobile + scores.noBoost.desktop;
 		const change = currentScore / noBoostScore - 1;
 		return Math.round( change * 100 );
 	}

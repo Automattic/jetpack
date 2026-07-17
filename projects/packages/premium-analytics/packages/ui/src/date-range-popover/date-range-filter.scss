@@ -1,0 +1,107 @@
+@use "@wordpress/base-styles/variables" as vars;
+@use "@wordpress/base-styles/colors" as colors;
+
+.date-range-popover-content {
+	--wca-popover-padding: var(--wpds-dimension-padding-lg);
+	--wca-popover-border-color: #{colors.$gray-300};
+	--wca-popover-border-width: #{vars.$border-width};
+
+	.date-range-calendar {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+}
+
+.date-range-popover-content--calendar-only {
+	display: flex;
+	flex-direction: column;
+	background-color: #fff;
+}
+
+// Hovered/focused trigger: same brand-tinted highlight the select-control
+// popup gives its items.
+.date-filters-panel-button {
+	font-size: max(var(--wpds-typography-font-size-md), 16px);
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
+}
+
+// Staged and applied custom ranges share the soft filled look of a selected
+// preset pill. Override the button custom-prop API (instead of the painted
+// properties) so hover, focus, and the bg-colored border follow the fill.
+.date-filters-panel-button[data-state="staged"],
+.date-filters-panel-button[data-state="applied"] {
+	--wp-ui-button-background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
+	--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
+	--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
+}
+
+// A staged draft is provisional: mark it with a dashed stroke, the same
+// language the calendar uses for in-range days, until it is applied.
+.date-filters-panel-button[data-state="staged"] {
+	--wp-ui-button-border-color: var(--wpds-color-stroke-interactive-neutral);
+	--wp-ui-button-border-color-active: var(--wpds-color-stroke-interactive-neutral);
+	--wp-ui-button-background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
+
+	border-style: dashed;
+}
+
+// Same non-shrinking caret the select-control trigger uses.
+.date-filters-panel-button__caret {
+	flex: 0 0 auto;
+}
+
+.date-range-calendar-wrapper {
+	--wca-calendar-button-width: 32px;
+	--wca-calendar-button-height: 32px;
+	--wca-calendar-button-gap: 1rem; // consistent with automattic/ui style
+	--wca-calendar-padding: var(--wca-popover-padding);
+	--wca-calendar-width: calc(var(--wca-calendar-button-width) * 7 + var(--wca-calendar-padding) * 2);
+	--wca-calendar-width-wide: calc(var(--wca-calendar-button-width) * 14 + var(--wca-calendar-padding) * 2 + var(--wca-calendar-button-gap));
+
+	padding: var(--wca-calendar-padding);
+	width: var(--wca-calendar-width);
+	background-color: #fff;
+
+	.date-range-calendar {
+		--a8c-calendar-button-width: var(--wca-calendar-button-width);
+		--a8c-calendar-button-height: var(--wca-calendar-button-height);
+	}
+
+	&__wide {
+		width: var(--wca-calendar-width-wide);
+	}
+}
+
+.date-range-popover-actions {
+	padding: calc(var(--wca-popover-padding) / 2) var(--wca-popover-padding);
+	background-color: #fff;
+}
+
+/* disable animation for the date range popover */
+@media not ( prefers-reduced-motion: reduce ) {
+
+	.date-filters-panel__popover {
+		view-transition-name: jp-premium-analytics--date-range-popover;
+	}
+}
+
+/* ensure it's above the canvas/stage during the transition */
+::view-transition-group(jp-premium-analytics--date-range-popover) {
+	z-index: 3000;
+}
+
+/* no animation for the snapshot (avoid "flashing") */
+::view-transition-new(jp-premium-analytics--date-range-popover),
+::view-transition-old(jp-premium-analytics--date-range-popover) {
+	animation: none;
+}
+
+@media (min-width: 600px) {
+
+	.date-filters-panel-button {
+		font-size: var(--wpds-typography-font-size-md);
+	}
+}

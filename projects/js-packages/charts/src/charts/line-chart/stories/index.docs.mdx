@@ -17,6 +17,7 @@ The Line Chart component provides a flexible, accessible, and highly customizabl
 <Source
 	language="jsx"
 	code={ `import { LineChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
 	<LineChart data={ data }>
 		{/* Optional child components for advanced features */}
@@ -70,6 +71,9 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`margin`**: Custom chart margins
 - **`className`**: Additional CSS class name for the chart container
 - **`chartId`**: Unique identifier for the chart (auto-generated if not provided)
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.5`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
 **Visual Styling:**
 - **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)
@@ -91,12 +95,8 @@ The simplest line chart requires only a `data` prop with time-series data:
 
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
-- **`legendOrientation`**: Legend layout orientation (`'horizontal'` by default)
-- **`legendAlignment`**: Legend alignment within its position (`'center'` by default)
-- **`legendPosition`**: Legend position where the legend appears (`'bottom'` by default)
-- **`legendShape`**: Shape used in legend markers (`'line'` by default)
+- **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
-- **`legendInteractive`**: Enable interactive legend items that can toggle series visibility (`false` by default, requires `chartId` and `GlobalChartsProvider`)
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
@@ -400,6 +400,70 @@ For minimal chart displays like sparklines or inline visualizations, you can hid
 />` }
 />
 
+## Data Formats
+
+### Date Handling
+
+The chart supports multiple date formats and automatically converts to local timezone:
+
+<Canvas of={ LineChartStories.DateStringFormats } />
+
+<Source
+	language="jsx"
+	code={ `// Date objects
+	{ date: new Date('2024-01-01'), value: 10 }
+
+	// Date strings (automatically parsed)
+	{ dateString: '2024-01-01', value: 10 }
+	{ dateString: '2024-01-01 14:30:00', value: 15 }
+	{ dateString: '2024-01-01T14:30:00Z', value: 20 }` }
+/>
+
+### Large Values
+
+Automatic formatting handles large numbers with smart abbreviations:
+
+<Canvas of={ LineChartStories.SmartFormatting } />
+
+Values are automatically formatted as:
+- **1B and above**: "1.23B"
+- **1M and above**: "1.2M"
+- **1K and above**: "1k"
+- **Below 1K**: "1,234"
+
+## Error Handling
+
+The chart gracefully handles various error states and edge cases:
+
+<Canvas of={ LineChartStories.ErrorStates } />
+
+**Supported scenarios:**
+- Empty data arrays
+- Invalid date values
+- Null or NaN numeric values
+- Single data points
+- Missing data properties
+
+## Annotations
+
+Add contextual information to highlight specific data points or events. For comprehensive annotation documentation, see the [Line Chart Annotations](?path=/docs/js-packages-charts-library-charts-line-chart-annotations--docs) guide. For detailed annotation API reference, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-library-charts-line-chart-api-reference--docs):
+
+<Source
+	language="jsx"
+	code={ `<LineChart data={data}>
+		<LineChart.AnnotationsOverlay>
+			<LineChart.Annotation
+				datum={{ date: new Date('2024-01-15'), value: 100 }}
+				title="Product Launch"
+				subtitle="Version 2.0 released"
+				subjectType="line-vertical"
+			/>
+		</LineChart.AnnotationsOverlay>
+	</LineChart>` }
+/>
+
+**Note**: Annotation popovers use the native Popover API. Due to Safari's `foreignObject` positioning limitations, interactive popovers are positioned in the viewport center rather than next to the annotation.
+
 ## Interactive Features
 
 ### Tooltips and Crosshairs
@@ -445,70 +509,83 @@ Charts are fully keyboard accessible with Tab navigation and arrow key data poin
 
 ## Legends
 
-### Basic Legend
+Use the composition API to add a legend by placing `<LineChart.Legend />` as a child:
 
-Display series information with automatic color matching:
-
-<Canvas of={ LineChartStories.CustomLegendPositioning } />
+<Canvas of={ LineChartStories.WithCompositionLegend } />
 
 <Source
 	language="jsx"
-	code={ `<LineChart
-		data={data}
-		showLegend={true}
-		legendOrientation="horizontal"
-		legendAlignment="center"
-		legendPosition="bottom"
-	/>` }
+	code={ `<LineChart data={data}>
+		<LineChart.Legend />
+	</LineChart>` }
 />
 
-### Custom Legend Shapes
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
-Use different shapes and custom glyphs in legends:
+## Theming Integration
 
-<Source
-	language="jsx"
-	code={ `<LineChart
-		data={data}
-		showLegend={true}
-		legendAlignment="end"
-		legendPosition="top"
-		legendShape="circle"
-		withLegendGlyph={true}
-	/>` }
-/>
-
-### Interactive Legends
-
-Enable interactive legends that allow users to toggle series visibility by clicking or using keyboard navigation. This feature requires wrapping your chart in `GlobalChartsProvider` and providing a unique `chartId`:
+Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
 
 <Source
-	language="jsx"
-	code={ `import { GlobalChartsProvider, LineChart } from '@automattic/charts';
+	language="tsx"
+	code={ `import { GlobalChartsProvider, LineChart, type ChartTheme } from '@automattic/charts';
 
-	<GlobalChartsProvider>
-		<LineChart
-			data={data}
-			chartId="sales-chart"
-			showLegend={true}
-			legendInteractive={true}
-		/>
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		gridColor: '#E0E0E0',
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<LineChart data={data} />
 	</GlobalChartsProvider>` }
 />
 
-**Interactive Legend Features:**
-- **Click or Tap**: Toggle series visibility by clicking on legend items
-- **Keyboard Navigation**: Use Tab to focus legend items, then Enter or Space to toggle
-- **Accessibility**: Full ARIA support with screen reader announcements
-- **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
-- **Color Stability**: Series colors remain consistent when toggling visibility
+## Responsive Behavior
 
-**Requirements:**
-- Must be wrapped in `GlobalChartsProvider`
-- Must provide a unique `chartId` prop
-- Set `legendInteractive={true}` and `showLegend={true}`
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
 
-**Note:** Interactive legends are currently supported for both LineChart and BarChart. Support for additional chart types will be added in future releases.
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<LineChart data={data} />
+	</div>
+
+	// Use aspect ratio - height from width, contained if the parent is shorter
+	<div style={{ width: '100%' }}>
+		<LineChart data={data} aspectRatio={0.5} />
+	</div>
+
+	// Fixed dimensions
+	<LineChart data={data} width={800} height={400} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
+## Animation
+
+The Line Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ LineChartStories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<LineChart
+		data={ data }
+		width={ 800 }
+		height={ 400 }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a rising effect where lines scale up from the bottom, revealing the data progressively
+- **Duration**: 1000ms (1 second) with ease-out timing
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.
 
 ## Advanced Customization
 
@@ -544,25 +621,6 @@ Customize axes with formatting, orientation, and tick options:
 	/>` }
 />
 
-### Responsive Behavior
-
-Charts automatically resize based on container size:
-
-<Canvas of={ LineChartStories.FixedDimensions } />
-
-<Source
-	language="jsx"
-	code={ `// Responsive (default)
-	<LineChart data={data} />
-
-	// Fixed dimensions
-	<LineChart
-		data={data}
-		width={800}
-		height={400}
-	/>` }
-/>
-
 ### Custom Margins
 
 Control chart layout with precise margin settings:
@@ -579,68 +637,6 @@ Control chart layout with precise margin settings:
 		}}
 	/>` }
 />
-
-## Annotations
-
-Add contextual information to highlight specific data points or events. For comprehensive annotation documentation, see the [Line Chart Annotations](?path=/docs/js-packages-charts-library-charts-line-chart-annotations--docs) guide. For detailed annotation API reference, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-library-charts-line-chart-api-reference--docs):
-
-<Source
-	language="jsx"
-	code={ `<LineChart data={data}>
-		<LineChart.AnnotationsOverlay>
-			<LineChart.Annotation
-				datum={{ date: new Date('2024-01-15'), value: 100 }}
-				title="Product Launch"
-				subtitle="Version 2.0 released"
-				subjectType="line-vertical"
-			/>
-		</LineChart.AnnotationsOverlay>
-	</LineChart>` }
-/>
-
-## Data Formats
-
-### Date Handling
-
-The chart supports multiple date formats and automatically converts to local timezone:
-
-<Canvas of={ LineChartStories.DateStringFormats } />
-
-<Source
-	language="jsx"
-	code={ `// Date objects
-	{ date: new Date('2024-01-01'), value: 10 }
-
-	// Date strings (automatically parsed)
-	{ dateString: '2024-01-01', value: 10 }
-	{ dateString: '2024-01-01 14:30:00', value: 15 }
-	{ dateString: '2024-01-01T14:30:00Z', value: 20 }` }
-/>
-
-### Large Values
-
-Automatic formatting handles large numbers with smart abbreviations:
-
-<Canvas of={ LineChartStories.SmartFormatting } />
-
-Values are automatically formatted as:
-- **1B and above**: "1.23B"
-- **1M and above**: "1.2M"
-- **1K and above**: "1k"
-- **Below 1K**: "1,234"
-
-## Error Handling
-
-The chart gracefully handles various error states and edge cases:
-
-<Canvas of={ LineChartStories.ErrorStates } />
-
-**Supported scenarios:**
-- Empty data arrays
-- Invalid date values
-- Null or NaN numeric values
-- Single data points
-- Missing data properties
 
 ## Accessibility
 
@@ -664,80 +660,3 @@ The chart gracefully handles various error states and edge cases:
 - Clear visual focus indicators
 - Logical tab order through interactive elements
 - Focus restoration after modal interactions
-
-## Browser Compatibility
-
-### Modern Browser Support
-
-Full functionality in all modern browsers supporting:
-- SVG rendering
-- CSS Grid and Flexbox
-- ES6+ JavaScript features
-
-### Safari Considerations
-
-- Annotation popover positioning uses viewport center due to Safari's `foreignObject` positioning limitations
-- Native Popover API support varies; fallbacks are provided
-
-### Responsive Features
-
-- Built-in ResizeObserver support for automatic chart resizing
-- Graceful degradation for older browsers
-- Touch-friendly interactions on mobile devices
-
-## Performance Considerations
-
-### Built-in Optimizations
-
-- **No animations**: Animations have been removed from chart components to improve performance and reduce overhead
-- **Efficient rendering**: Built on `@visx/xychart` for optimized SVG rendering and chart performance
-- **Responsive behavior**: Uses `ResizeObserver` for efficient chart resizing without polling
-
-### Implementation Notes
-
-- Chart components are optimized for typical dashboard and analytics use cases
-- The underlying `@visx` libraries provide efficient data-to-visual mappings
-- Consider your specific data volume and update frequency when implementing real-time charts
-
-## Theming Integration
-
-Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
-
-<Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LineChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-		gridColor: '#E0E0E0',
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<LineChart data={data} />
-	</GlobalChartsProvider>` }
-/>
-
-## Animation
-
-The Line Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
-
-<Canvas of={ LineChartStories.Animation } />
-
-<Source
-	language="tsx"
-	code={ `<LineChart
-		data={ data }
-		width={ 800 }
-		height={ 400 }
-		animation={ true }
-	/>` }
-/>
-
-### Animation Behavior
-
-- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
-- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
-- **Effect**: Creates a rising effect where lines scale up from the bottom, revealing the data progressively
-- **Duration**: 1000ms (1 second) with ease-out timing
-
-**Note**: The animation plays once when the chart initially renders and does not repeat.

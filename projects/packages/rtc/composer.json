@@ -1,0 +1,62 @@
+{
+	"name": "automattic/jetpack-rtc",
+	"description": "Real-time collaboration websocket transport support using WordPress.com infrastructure",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.2",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-connection": "@dev"
+	},
+	"require-dev": {
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev",
+		"yoast/phpunit-polyfills": "^4.0.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production BABEL_ENV=production pnpm run build"
+		],
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-rtc/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-rtc",
+		"textdomain": "jetpack-rtc",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-rtc.php"
+		}
+	}
+}

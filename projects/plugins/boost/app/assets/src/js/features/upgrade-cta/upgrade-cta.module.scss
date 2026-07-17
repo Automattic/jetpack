@@ -7,7 +7,7 @@
 	align-items: center;
 	padding: 16px 24px;
 	margin: 32px 0;
-	border: 2px solid variables.$jetpack-green;
+	border: 2px solid var(--wp-admin-theme-color);
 	border-radius: variables.$border-radius;
 	background-color: #fff;
 	text-align: left;
@@ -22,6 +22,6 @@
 	}
 
 	.icon svg {
-		fill: variables.$jetpack-green;
+		fill: var(--wp-admin-theme-color);
 	}
 }

@@ -77,7 +77,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		invalidateResolution: jest.fn(),
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
 		setSelectedResponses: jest.fn(),
@@ -103,7 +102,9 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 				return mockDispatch;
 			}
 			if ( store === 'core' ) {
-				return { invalidateResolution: mockDispatch.invalidateResolution };
+				return {
+					invalidateResolutionForStoreSelector: jest.fn(),
+				};
 			}
 			if ( store === 'dashboard' ) {
 				return {
@@ -150,10 +151,19 @@ const EmptyTrashButtonModule = await import(
 );
 const EmptyTrashButton = EmptyTrashButtonModule.default;
 
+const DashboardSearchParamsModule = await import(
+	'../../../../../src/dashboard/router/dashboard-search-params-context'
+);
+const { DashboardSearchParamsProvider } = DashboardSearchParamsModule;
+
 describe( 'EmptyTrashButton', () => {
+	const mockSetSearchParams = jest.fn();
+	const mockSearchParams = new URLSearchParams( 'status=trash' );
+
 	beforeEach( async () => {
 		// Reset all mocks before each test
 		jest.clearAllMocks();
+		mockSetSearchParams.mockClear();
 		const coreDataModule = await import( '@wordpress/core-data' );
 		coreDataModule.useEntityRecords.mockReturnValue( {
 			totalItems: 1,
@@ -161,8 +171,16 @@ describe( 'EmptyTrashButton', () => {
 		} );
 	} );
 
+	const renderWithProvider = component => {
+		return render(
+			<DashboardSearchParamsProvider value={ [ mockSearchParams, mockSetSearchParams ] }>
+				{ component }
+			</DashboardSearchParamsProvider>
+		);
+	};
+
 	it( 'renders correctly', () => {
-		render( <EmptyTrashButton totalItemsTrash={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } /> );
 
 		const button = screen.getByText( 'Empty trash' );
 		expect( button ).toBeInTheDocument();
@@ -171,7 +189,7 @@ describe( 'EmptyTrashButton', () => {
 	} );
 
 	it( 'shows disabled state when trash is empty', () => {
-		render( <EmptyTrashButton totalItemsTrash={ 0 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 0 } /> );
 
 		const button = screen.getByText( 'Empty trash' );
 		expect( button ).toBeDisabled();
@@ -179,7 +197,7 @@ describe( 'EmptyTrashButton', () => {
 	} );
 
 	it( 'shows confirmation dialog when clicked', async () => {
-		render( <EmptyTrashButton totalItemsTrash={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } /> );
 
 		const button = screen.getByText( 'Empty trash' );
 		await userEvent.click( button );
@@ -194,7 +212,7 @@ describe( 'EmptyTrashButton', () => {
 		const { useDispatch } = await import( '@wordpress/data' );
 		const mockDispatch = useDispatch( 'notices' );
 
-		render( <EmptyTrashButton totalItemsTrash={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } /> );
 
 		// Click empty trash button
 		const button = screen.getByText( 'Empty trash' );

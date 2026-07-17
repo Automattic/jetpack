@@ -16,22 +16,21 @@ Main chart component with responsive behavior by default.
 | `chartId` | `string` | auto-generated | Optional unique identifier for the chart |
 | `width` | `number` | responsive | Chart width in pixels |
 | `height` | `number` | `400` | Chart height in pixels |
+| `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Vertical bars rise from the bottom; horizontal bars stretch from the left. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
-| `legendShape` | `LegendShape` | `'rect'` | Shape used in legend markers |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
 | `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
 | `className` | `string` | - | Additional CSS class name |
 | `children` | `ReactNode` | - | Child components (e.g., `<BarChart.Legend />`) |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
 
 ## BarChart.Legend
 
@@ -43,7 +42,7 @@ Composition API component for displaying chart legends. Must be used as a child 
 | ---- | ---- | ------- | ----------- |
 | `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
 | `alignment` | `'start' \| 'center' \| 'end'` | `'center'` | Horizontal legend alignment |
-| `position` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
+| `position` | `'top' \| 'bottom'` | `'bottom'` | Legend position relative to chart content |
 | `shape` | `LegendShape` | `'rect'` | Shape used in legend markers |
 | `className` | `string` | - | Additional CSS class name |
 | `chartId` | `string` | auto-detected | Chart ID (automatically detected from parent context) |
@@ -54,10 +53,33 @@ Composition API component for displaying chart legends. Must be used as a child 
 type SeriesData = {
 	label: string;
 	data: DataPointDate[];
+	/** Groups a primary series with its comparison series (see Comparison Mode). */
+	group?: string;
 	options?: {
 		stroke?: string;
+		/** Render this series as a translucent "shadow" behind the primary bar in the same `group`. */
+		type?: 'comparison';
 	};
 };
+```
+
+## Comparison Styling (theme)
+
+Comparison shadow bars are styled via the chart theme at `barChart.barStyles.comparison`:
+
+| Key | Type | Default | Description |
+| --- | ---- | ------- | ----------- |
+| `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison shadow is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
+| `opacity` | `number` | `0.5` | Opacity of the comparison shadow bar. |
+
+```typescript
+<GlobalChartsProvider
+	theme={ {
+		barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
+	} }
+>
+	<BarChart data={ data } />
+</GlobalChartsProvider>
 ```
 
 ## DataPointDate Type
@@ -99,5 +121,21 @@ type ChartOptions = {
 			tickFormat?: (value: number) => string;
 		};
 	};
+};
+```
+
+## ChartLegendConfig Type
+
+```typescript
+type ChartLegendConfig = {
+	orientation?: 'horizontal' | 'vertical';
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+	shape?: LegendShape;
+	interactive?: boolean;
+	itemClassName?: string;
+	itemStyles?: LegendItemStyles;
+	labelStyles?: LegendLabelStyles;
+	shapeStyles?: LegendShapeStyles;
 };
 ```

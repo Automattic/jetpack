@@ -12,10 +12,6 @@
 	margin-inline-start: 15px;
 }
 
-.enhanced-features-nudge {
-	margin-block-end: 1rem;
-}
-
 .enabled-connections-notice {
 	color: var(--jp-gray-50);
 	margin-bottom: 0.25rem;
@@ -43,7 +39,7 @@
 	.broken-connection {
 		font-weight: 700;
 		font-style: italic;
-		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 }
 
@@ -91,4 +87,13 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+}
+
+.share-post-form-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.per-network-customization-notice {
+	color: gb.$gray-700;
 }

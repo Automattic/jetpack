@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -120,7 +120,8 @@ class Privacy extends Component {
 										),
 										{
 											cookiePolicyLink: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													href={ getRedirectUrl( 'a8c-cookies' ) }
 													onClick={ trackCookiePolicyView }
 													rel="noopener noreferrer"
@@ -138,7 +139,8 @@ class Privacy extends Component {
 									),
 									{
 										pp: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'a8c-privacy' ) }
 												onClick={ trackPrivacyPolicyView }
 												rel="noopener noreferrer"
@@ -155,7 +157,8 @@ class Privacy extends Component {
 									),
 									{
 										cookiePolicyLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'a8c-cookies' ) }
 												onClick={ trackCookiePolicyView }
 												rel="noopener noreferrer"
@@ -172,7 +175,8 @@ class Privacy extends Component {
 									),
 									{
 										privacyCenterLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'jetpack-support-privacy' ) }
 												onClick={ trackPrivacyCenterView }
 												rel="noopener noreferrer"

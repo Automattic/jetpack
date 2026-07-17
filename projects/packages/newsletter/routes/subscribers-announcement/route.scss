@@ -1,0 +1,52 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+/**
+ * Transitional Subscribers announcement page.
+ *
+ * The header and footer come from AdminPage. Applying the shared wp-build
+ * layout to the page's body class pins the JetpackFooter to the bottom of
+ * the viewport (matching the Newsletter dashboard) instead of letting it
+ * float directly beneath the short announcement body.
+ *
+ * Two body classes are covered: `jetpack_page_…` when the Subscribers menu
+ * item is visible, and `admin_page_…` when the user removed it and reaches
+ * the page directly.
+ */
+body.jetpack_page_jetpack-subscribers,
+body.admin_page_jetpack-subscribers {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+// The layout above flexes AdminPage's content child (`.jetpack-subscribers-
+// announcement`) to fill the viewport AND gives each of its direct children
+// `flex: 1` — that distributes the fill across them, which is what the
+// DataViews dashboard wants but would stretch a short announcement apart.
+// So a single `&__inner` is the lone fill-child; the real content lives
+// inside it at natural size, top-aligned. The inset matches the AdminPage
+// header/footer gutter so the heading lines up with the header logo.
+.jetpack-subscribers-announcement {
+
+	&__inner {
+		align-items: flex-start;
+		padding: 48px var(--wpds-dimension-padding-2xl) 64px;
+	}
+
+	&__subtitle {
+		margin-block: 12px 0;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__cta {
+		margin-block-start: 32px;
+	}
+
+	&__remove {
+		margin-block-start: 56px;
+		max-width: 640px;
+	}
+
+	&__remove-feedback {
+		margin-block-start: 16px;
+	}
+}

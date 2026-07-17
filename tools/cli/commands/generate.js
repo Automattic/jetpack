@@ -222,7 +222,7 @@ export function getQuestions( type ) {
 				},
 				{
 					message:
-						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
+						'This TypeScript package will contain pre-built code, built using tsgo (no bundling or minification).',
 					value: 'ts-tsc',
 				},
 			],
@@ -594,18 +594,9 @@ function generateJsPackage( answers, pkgDir ) {
 						jetpackWebpackConfig.FileRule(),
 					],
 				},
-				plugins: [${
-					ts
-						? `
-					...jetpackWebpackConfig.StandardPlugins( {
-						// Generate \`.d.ts\` files per tsconfig settings.
-						ForkTSCheckerPlugin: {},
-					} ),
-				`
-						: `
+				plugins: [
 					...jetpackWebpackConfig.StandardPlugins(),
-				`
-				}],
+				],
 			};
 			`.replace( /^\t\t\t/gm, '' )
 		);
@@ -696,7 +687,10 @@ function createPackageJson( packageJson, answers ) {
 			packageJson.devDependencies[ 'webpack-cli' ] = findVersionFromPnpmLock( 'webpack-cli' );
 			packageJson.scripts = {
 				...packageJson.scripts,
-				build: 'pnpm run clean && pnpm exec webpack',
+				// For TS, generate `.d.ts` files with tsgo per tsconfig settings.
+				build: ts
+					? 'pnpm run clean && pnpm exec webpack && pnpm exec tsgo --pretty'
+					: 'pnpm run clean && pnpm exec webpack',
 				clean: 'rm -rf build/',
 			};
 			packageJson.exports = {
@@ -709,10 +703,15 @@ function createPackageJson( packageJson, answers ) {
 		}
 		if ( ts ) {
 			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
+			if ( ! answers.typescript.endsWith( '-src' ) ) {
+				packageJson.devDependencies[ '@typescript/native-preview' ] = findVersionFromPnpmLock(
+					'@typescript/native-preview'
+				);
+			}
 			if ( answers.typescript === 'ts-tsc' ) {
 				packageJson.scripts = {
 					...packageJson.scripts,
-					build: 'pnpm run clean && pnpm exec tsc --pretty',
+					build: 'pnpm run clean && pnpm exec tsgo --pretty',
 					clean: 'rm -rf build/',
 				};
 				packageJson.exports = {
@@ -801,7 +800,7 @@ async function createComposerJson( composerJson, answers ) {
 			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm run test-coverage' ],
+				'test-js-coverage': [ 'pnpm run test-coverage' ],
 			};
 			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				composerJson.scripts = {
@@ -999,9 +998,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.7\n' +
+		'Requires at least: 6.9\n' +
 		'Requires PHP: 7.2\n' +
-		'Tested up to: 6.9\n' +
+		'Tested up to: 7.0\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

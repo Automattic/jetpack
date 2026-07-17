@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Post_Media\Images;
+
 /**
  * Class with methods to extract metadata from a post/page about videos, images, links, mentions embedded
  * in or attached to the post/page.
@@ -82,7 +84,7 @@ class Jetpack_Media_Meta_Extractor {
 			$extracted = self::get_image_fields( $post, array(), $extract_alt_text );
 
 			// Turn off images so we can safely call extract_from_content() below.
-			$what_to_extract = $what_to_extract - self::IMAGES;
+			$what_to_extract -= self::IMAGES;
 		}
 
 		if ( function_exists( 'restore_current_blog' ) ) {
@@ -347,7 +349,11 @@ class Jetpack_Media_Meta_Extractor {
 
 					// Check whether this "link" is really an embed.
 					foreach ( $oembed->providers as $matchmask => $data ) {
-						list( $providerurl, $regex ) = $data; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+						// Guard against malformed oEmbed providers.
+						if ( ! isset( $data[0] ) ) {
+							continue;
+						}
+						$regex = $data[1] ?? false;
 
 						// Turn the asterisk-type provider URLs into regex.
 						if ( ! $regex ) {
@@ -383,7 +389,7 @@ class Jetpack_Media_Meta_Extractor {
 	/**
 	 * Get image fields for matching images.
 	 *
-	 * @uses Jetpack_PostImages
+	 * @uses Images
 	 *
 	 * @param WP_Post $post A post object.
 	 * @param array   $args Optional args, see defaults list for details.
@@ -408,7 +414,7 @@ class Jetpack_Media_Meta_Extractor {
 		$image_booleans            = array();
 		$image_booleans['gallery'] = 0;
 
-		$from_featured_image = Jetpack_PostImages::from_thumbnail( $post->ID, $args['width'], $args['height'] );
+		$from_featured_image = Images::from_thumbnail( $post->ID, $args['width'], $args['height'] );
 		if ( ! empty( $from_featured_image ) ) {
 			if ( $extract_alt_text ) {
 				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_featured_image ) );
@@ -418,7 +424,7 @@ class Jetpack_Media_Meta_Extractor {
 			}
 		}
 
-		$from_slideshow = Jetpack_PostImages::from_slideshow( $post->ID, $args['width'], $args['height'] );
+		$from_slideshow = Images::from_slideshow( $post->ID, $args['width'], $args['height'] );
 		if ( ! empty( $from_slideshow ) ) {
 			if ( $extract_alt_text ) {
 				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_slideshow ) );
@@ -428,7 +434,7 @@ class Jetpack_Media_Meta_Extractor {
 			}
 		}
 
-		$from_gallery = Jetpack_PostImages::from_gallery( $post->ID );
+		$from_gallery = Images::from_gallery( $post->ID );
 		if ( ! empty( $from_gallery ) ) {
 			if ( $extract_alt_text ) {
 				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_gallery ) );
@@ -528,7 +534,7 @@ class Jetpack_Media_Meta_Extractor {
 	 */
 	public static function get_images_from_html( $html, $images_already_extracted, $extract_alt_text = false ) {
 		$image_list = $images_already_extracted;
-		$from_html  = Jetpack_PostImages::from_html( $html );
+		$from_html  = Images::from_html( $html );
 		// early return if no image in html.
 		if ( empty( $from_html ) ) {
 			return $image_list;

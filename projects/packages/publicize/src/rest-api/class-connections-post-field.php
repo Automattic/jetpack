@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Publicize_Base;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -34,6 +36,22 @@ class Connections_Post_Field {
 	 * @var array
 	 */
 	public $memoized_updates = array();
+
+	/**
+	 * Requested connections for a new post being created, kept until the post
+	 * ID is known so the skip meta can be persisted before Publicize runs.
+	 *
+	 * @var array
+	 */
+	private $new_post_connections = array();
+
+	/**
+	 * The request that is creating a new post, kept alongside
+	 * $new_post_connections so per-connection overrides can be saved.
+	 *
+	 * @var WP_REST_Request|null
+	 */
+	private $new_post_request = null;
 
 	/**
 	 * Constructor.
@@ -123,10 +141,38 @@ class Connections_Post_Field {
 				$deprecated_fields,
 				$connection_fields,
 				array(
-					'enabled' => array(
+					'enabled'        => array(
 						'description' => __( 'Whether to share to this connection.', 'jetpack-publicize-pkg' ),
 						'type'        => 'boolean',
 						'context'     => array( 'edit' ),
+					),
+					'message'        => array(
+						'description' => __( 'Custom message to use for this connection instead of the global message.', 'jetpack-publicize-pkg' ),
+						'type'        => 'string',
+						'context'     => array( 'edit' ),
+					),
+					'attached_media' => array(
+						'description' => __( 'Custom media to attach for this connection instead of the global media.', 'jetpack-publicize-pkg' ),
+						'type'        => 'array',
+						'context'     => array( 'edit' ),
+						'items'       => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'   => array( 'type' => 'number' ),
+								'url'  => array( 'type' => 'string' ),
+								'type' => array( 'type' => 'string' ),
+							),
+						),
+					),
+					'media_source'   => array(
+						'type' => 'string',
+						'enum' => array(
+							'featured-image',
+							'sig',
+							'media-library',
+							'upload-video',
+							'none',
+						),
 					),
 				)
 			),
@@ -174,7 +220,7 @@ class Connections_Post_Field {
 	 *
 	 * @return mixed
 	 */
-	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable, Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		global $publicize;
 
 		$post_id          = $post_array['id'] ?? 0;
@@ -188,12 +234,48 @@ class Connections_Post_Field {
 		$properties  = array_keys( $schema['properties'] );
 		$connections = $publicize->get_filtered_connection_data( $post_id );
 
+		if ( $publicize && $publicize->has_paid_features() ) {
+			// Check if per-network customization is enabled.
+			$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+			// Get per-connection overrides from post meta.
+			$connection_overrides = get_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+
+			if ( ! is_array( $connection_overrides ) ) {
+				$connection_overrides = array();
+			}
+		} else {
+			$customize_per_network = false;
+			$connection_overrides  = array();
+		}
+
+		$message_templates_enabled = Current_Plan::supports( 'social-message-templates' );
+
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
 			$output_connection = array();
 			foreach ( $properties as $property ) {
 				if ( isset( $connection[ $property ] ) ) {
 					$output_connection[ $property ] = $connection[ $property ];
+				}
+			}
+
+			// Default `message` to the connection's own template when set
+			if ( $message_templates_enabled && ! empty( $output_connection['template'] ) ) {
+				$output_connection['message'] = $output_connection['template'];
+			}
+
+			// Merge per-connection overrides if global flag is enabled.
+			$connection_id = $connection['connection_id'] ?? '';
+			if ( $customize_per_network && ! empty( $connection_id ) && isset( $connection_overrides[ $connection_id ] ) ) {
+				$override = $connection_overrides[ $connection_id ];
+				if ( isset( $override['message'] ) ) {
+					$output_connection['message'] = $override['message'];
+				}
+				if ( isset( $override['attached_media'] ) ) {
+					$output_connection['attached_media'] = $override['attached_media'];
+				}
+				if ( isset( $override['media_source'] ) ) {
+					$output_connection['media_source'] = $override['media_source'];
 				}
 			}
 
@@ -227,15 +309,54 @@ class Connections_Post_Field {
 			return empty( $request_connections ) ? $post : $permission_check;
 		}
 		// memoize.
-		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );
+		$this->get_meta_to_update( $request_connections, $post->ID ?? 0 );
 
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.
 			// If this is not the case post end up on social media when they are marked as skipped.
-			$this->update( $request_connections, $post );
+			$this->update( $request_connections, $post, $request );
+		} else {
+			/*
+			 * A brand new post has no ID yet, so we can't persist the skip meta here.
+			 * Persist it as soon as the post is inserted, before Publicize processes
+			 * the publish transition (priority 10). Otherwise a new published post is
+			 * shared to every connection regardless of the requested `enabled` state.
+			 */
+			$this->new_post_connections = $request_connections;
+			$this->new_post_request     = $request;
+			add_action( 'transition_post_status', array( $this, 'set_meta_for_new_post' ), 1, 3 );
 		}
 
 		return $post;
+	}
+
+	/**
+	 * Persist the Publicize skip meta for a newly created post.
+	 *
+	 * Runs on `transition_post_status` before Publicize flags the post for
+	 * sharing, using the memoized data calculated in rest_pre_insert(). This is
+	 * the create-time counterpart to the in-place update() done for existing posts.
+	 *
+	 * @param string  $new_status New post status.
+	 * @param string  $old_status Old post status.
+	 * @param WP_Post $post       Post object.
+	 */
+	public function set_meta_for_new_post( $new_status, $old_status, $post ) {
+		if ( ! isset( $this->memoized_updates[0] ) || wp_is_post_revision( $post->ID ) ) {
+			return;
+		}
+
+		// One-shot: the first non-revision transition is the post we created.
+		remove_action( 'transition_post_status', array( $this, 'set_meta_for_new_post' ), 1 );
+
+		// Move the memoized data to the real post ID now that we know it.
+		$this->memoized_updates[ $post->ID ] = $this->memoized_updates[0];
+		unset( $this->memoized_updates[0] );
+
+		$this->update( $this->new_post_connections, $post, $this->new_post_request );
+
+		$this->new_post_connections = array();
+		$this->new_post_request     = null;
 	}
 
 	/**
@@ -276,13 +397,15 @@ class Connections_Post_Field {
 			return array();
 		}
 
+		// Return memoized data first: a new post is already 'publish' by the time
+		// we persist its skip meta, so the publish check below must not discard it.
+		if ( isset( $this->memoized_updates[ $post_id ] ) ) {
+			return $this->memoized_updates[ $post_id ];
+		}
+
 		$post = get_post( $post_id );
 		if ( isset( $post->post_status ) && 'publish' === $post->post_status ) {
 			return array();
-		}
-
-		if ( isset( $this->memoized_updates[ $post_id ] ) ) {
-			return $this->memoized_updates[ $post_id ];
 		}
 
 		$available_connections = $publicize->get_filtered_connection_data( $post_id );
@@ -363,22 +486,142 @@ class Connections_Post_Field {
 	/**
 	 * Update the connections slated to be shared to.
 	 *
-	 * @param array   $requested_connections Publicize connections to update.
+	 * @param array           $requested_connections Publicize connections to update.
 	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`.
-	 * @param WP_Post $post    Post data.
+	 * @param WP_Post         $post    Post data.
+	 * @param WP_REST_Request $request API request.
 	 */
-	public function update( $requested_connections, $post ) {
+	public function update( $requested_connections, $post, $request = null ) {
+		global $publicize;
+
 		if ( isset( $this->meta_saved[ $post->ID ] ) ) { // Make sure we only save it once - per request.
 			return;
 		}
 		foreach ( $this->get_meta_to_update( $requested_connections, $post->ID ) as $meta_key => $meta_value ) {
-			if ( $meta_value === null ) {
+			if ( null === $meta_value ) {
 				delete_post_meta( $post->ID, $meta_key );
 			} else {
 				update_post_meta( $post->ID, $meta_key, $meta_value );
 			}
 		}
+
+		// Save per-connection overrides.
+		if ( $publicize && $publicize->has_paid_features() ) {
+			$this->save_connection_overrides( $requested_connections, $post->ID, $request );
+		}
+
 		$this->meta_saved[ $post->ID ] = true;
+	}
+
+	/**
+	 * Save per-connection customization overrides.
+	 *
+	 * Extracts message and attached_media from each connection and persists
+	 * them to post meta when per-network customization is enabled.
+	 *
+	 * @param array           $requested_connections Array of connection data from the request.
+	 * @param int             $post_id               Post ID.
+	 * @param WP_REST_Request $request               API request.
+	 */
+	private function save_connection_overrides( $requested_connections, $post_id, $request = null ) {
+		// Check if per-network customization is enabled - prefer request value over database.
+		$customize_per_network = null;
+		if ( $request && isset( $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] ) ) {
+			$customize_per_network = $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ];
+		}
+		if ( null === $customize_per_network ) {
+			$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+		}
+
+		// If customization is disabled, remove any existing overrides.
+		if ( ! $customize_per_network ) {
+			delete_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES );
+			return;
+		}
+
+		// If the request does not have connections, skip.
+		if ( ! isset( $request[ self::FIELD_NAME ] ) ) {
+			return;
+		}
+
+		$overrides = array();
+
+		foreach ( $requested_connections as $connection ) {
+			// Only process if connection has a connection_id.
+			if ( empty( $connection['connection_id'] ) ) {
+				continue;
+			}
+
+			// Only save if connection has custom message or attached_media.
+			if ( ! isset( $connection['message'] ) && ! isset( $connection['attached_media'] ) && ! isset( $connection['media_source'] ) ) {
+				continue;
+			}
+
+			$connection_id               = $connection['connection_id'];
+			$overrides[ $connection_id ] = array();
+
+			// Save message (can be empty to use empty message).
+			if ( isset( $connection['message'] ) ) {
+				$overrides[ $connection_id ]['message'] = sanitize_textarea_field( $connection['message'] );
+			}
+
+			// Save attached_media (can be empty array to clear media).
+			if ( isset( $connection['attached_media'] ) ) {
+				$overrides[ $connection_id ]['attached_media'] = $this->sanitize_attached_media( $connection['attached_media'] );
+			}
+
+			// Save media_source (can be empty to use default).
+			if ( isset( $connection['media_source'] ) ) {
+				$overrides[ $connection_id ]['media_source'] = sanitize_text_field( $connection['media_source'] );
+			}
+		}
+
+		// Only save if there are overrides, otherwise delete the meta.
+		if ( ! empty( $overrides ) ) {
+			update_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES, $overrides );
+		} else {
+			delete_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES );
+		}
+	}
+
+	/**
+	 * Sanitize attached media array.
+	 *
+	 * @param array $attached_media Array of media items.
+	 * @return array Sanitized array of media items.
+	 */
+	private function sanitize_attached_media( $attached_media ) {
+		if ( empty( $attached_media ) ) {
+			return array();
+		}
+
+		$sanitized = array();
+
+		foreach ( $attached_media as $media_item ) {
+			if ( ! is_array( $media_item ) ) {
+				continue;
+			}
+
+			$sanitized_item = array();
+
+			if ( isset( $media_item['id'] ) ) {
+				$sanitized_item['id'] = absint( $media_item['id'] );
+			}
+
+			if ( isset( $media_item['url'] ) ) {
+				$sanitized_item['url'] = esc_url_raw( $media_item['url'] );
+			}
+
+			if ( isset( $media_item['type'] ) ) {
+				$sanitized_item['type'] = sanitize_text_field( $media_item['type'] );
+			}
+
+			if ( ! empty( $sanitized_item ) ) {
+				$sanitized[] = $sanitized_item;
+			}
+		}
+
+		return $sanitized;
 	}
 
 	/**
@@ -417,7 +660,9 @@ class Connections_Post_Field {
 			return new WP_Error( '__wrong-context__' );
 		}
 
-		switch ( $schema['type'] ) {
+		$schema_type = $schema['type'] ?? null;
+
+		switch ( $schema_type ) {
 			case 'array':
 				if ( ! isset( $schema['items'] ) ) {
 					return $value;

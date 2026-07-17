@@ -84,6 +84,40 @@ describe( 'ConversionFunnelChart', () => {
 		} );
 	} );
 
+	describe( 'Height prop', () => {
+		it( 'defaults to 100% height when no height prop or style.height is provided', () => {
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+			expect( screen.getByTestId( 'conversion-funnel-chart' ) ).toHaveStyle( {
+				height: '100%',
+			} );
+		} );
+
+		it( 'applies explicit height prop', () => {
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } height="300px" /> );
+			expect( screen.getByTestId( 'conversion-funnel-chart' ) ).toHaveStyle( {
+				height: '300px',
+			} );
+		} );
+
+		it( 'respects style.height when height prop is not provided', () => {
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } style={ { height: '400px' } } />
+			);
+			expect( screen.getByTestId( 'conversion-funnel-chart' ) ).toHaveStyle( {
+				height: '400px',
+			} );
+		} );
+
+		it( 'height prop takes priority over style.height', () => {
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } height="250px" style={ { height: '400px' } } />
+			);
+			expect( screen.getByTestId( 'conversion-funnel-chart' ) ).toHaveStyle( {
+				height: '250px',
+			} );
+		} );
+	} );
+
 	describe( 'Empty State', () => {
 		it( 'shows empty state when no steps provided', () => {
 			renderWithoutTheme( <ConversionFunnelChart mainRate={ 0 } steps={ [] } /> );
@@ -338,7 +372,7 @@ describe( 'ConversionFunnelChart', () => {
 			expect( customRenderMainMetric ).toHaveBeenCalledWith( {
 				mainRate: 10.3,
 				changeIndicator: undefined,
-				className: undefined,
+				className: 'main-metric',
 				changeColor: expect.any( String ),
 			} );
 		} );
@@ -393,7 +427,7 @@ describe( 'ConversionFunnelChart', () => {
 				index: 1,
 				top: expect.any( Number ),
 				left: expect.any( Number ),
-				className: undefined,
+				className: 'tooltip-wrapper',
 			} );
 		} );
 
@@ -425,6 +459,17 @@ describe( 'ConversionFunnelChart', () => {
 			// Should only appear in the Purchase step, not in main metric
 			expect( mainRateElements ).toHaveLength( 1 );
 			expect( customRenderMainMetric ).toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'Color palette readiness', () => {
+		it( 'enables transitions once color palette is resolved', () => {
+			render( <ConversionFunnelChart { ...defaultProps } /> );
+
+			// After render, effects have run (via useEffect in GlobalChartsProvider),
+			// so the palette is resolved and the animated class is applied to funnel steps
+			const funnelStep = screen.getAllByTestId( 'funnel-step' )[ 0 ];
+			expect( funnelStep ).toHaveClass( 'funnel-step--animated' );
 		} );
 	} );
 } );

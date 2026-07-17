@@ -1,15 +1,11 @@
 # Files not needed to be distributed.
-.babelrc         export-ignore
-.gitattributes   export-ignore
-.github/         export-ignore
-.gitignore       export-ignore
 
 # Files not needed in the production build.
-.phpcs.dir.xml   production-exclude
-/changelog/**    production-exclude
-/tests/**        production-exclude
-types.d.ts       production-exclude
-/src/js/**       production-exclude
+# (see also entries in the monorepo root .gitattributes)
+types.d.ts         production-exclude
+/src/dashboard/**  production-exclude
+/src/js/**         production-exclude
+routes/**          production-exclude
 
 # Files needed in the production build.
 build/**         production-include

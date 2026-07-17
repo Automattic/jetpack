@@ -1,5 +1,33 @@
 # Changelog
 
+## 4.3.0 - 2026-07-15
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Refresh the Beta Tester admin UI to match the modernized Jetpack admin design: a Jetpack logo header with title/breadcrumb, an Automattic Airline footer, and flat WordPress-design-system cards, toggles, buttons, badges, and search. [#49766]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Update package dependencies. [#48064]
+- When only a -dev version is installed (but not active), it will no longer be hidden in the plugins list. This allows for deleting the files via the plugin page, and for Core's plugin-dependency feature to not give confusing results. [#48490]
+- When the non-dev version of a plugin is deleted via the plugin page, the -dev version will be deleted as well. [#48490]
+
+## 4.2.0 - 2026-04-13
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Replace 'Jetpack' text with logo icon in the admin bar to reduce horizontal space. [#46602]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47021] [#47505]
+
+### Fixed
+- Include missing `v` in documentation link to `docs/mu-plugin-info.md` on GitHub. [#46956]
+- Move menu position to bottom. [#47977]
+
+## 4.1.7 - 2026-02-04
+### Changed
+- Check `error_get_last()` if the `WP_Filesystem` doesn't report any error on mu-plugin install failure. [#46115]
+- Update package dependencies. [#46785]
+
+### Fixed
+- Fix branch search not working for uppercase branch names. [#46338]
+
 ## 4.1.6 - 2025-11-12
 ### Changed
 - Update package dependencies. [#45478]

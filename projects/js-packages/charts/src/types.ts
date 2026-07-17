@@ -1,18 +1,110 @@
-import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
-import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
-import type { LabelProps } from '@visx/annotation/lib/components/Label';
-import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
+import type {
+	CircleSubjectProps,
+	ConnectorProps,
+	LabelProps,
+	LineSubjectProps,
+} from '@visx/annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
-import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
-import type { TextProps } from '@visx/text/lib/Text';
+import type { TextProps } from '@visx/text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
-import type { CSSProperties, PointerEvent, ReactNode } from 'react';
-import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
+import type {
+	ComponentClass,
+	CSSProperties,
+	FC,
+	MouseEvent,
+	PointerEvent,
+	ReactElement,
+	ReactNode,
+} from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
+
+/**
+ * Mirrors the WordPress Design System gap token scale used by the WordPress UI Stack.
+ */
+export type GapSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+
+export type LegendShapeLabel< Data, Output, ExtraAttributes = object > = {
+	datum: Data;
+	index: number;
+	text: string;
+	value?: Output;
+} & ExtraAttributes;
+
+export type LegendShapeRenderProps< Data, Output > = {
+	width?: string | number;
+	height?: string | number;
+	label: LegendShapeLabel< Data, Output >;
+	item: Data;
+	itemIndex: number;
+	fill?: string;
+	size?: string | number;
+	style?: CSSProperties;
+};
+
+export type LegendShape< Data, Output > =
+	| 'rect'
+	| 'circle'
+	| 'line'
+	| FC< LegendShapeRenderProps< Data, Output > >
+	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
+
+export type GoogleDataTableColumnType =
+	| 'string'
+	| 'number'
+	| 'boolean'
+	| 'date'
+	| 'datetime'
+	| 'timeofday';
+
+export enum GoogleDataTableColumnRoleType {
+	annotation = 'annotation',
+	annotationText = 'annotationText',
+	certainty = 'certainty',
+	emphasis = 'emphasis',
+	interval = 'interval',
+	scope = 'scope',
+	style = 'style',
+	tooltip = 'tooltip',
+	domain = 'domain',
+}
+
+export type GoogleDataTableColumn =
+	| {
+			type: GoogleDataTableColumnType;
+			label?: string;
+			role?: GoogleDataTableColumnRoleType;
+			pattern?: string;
+			p?: Record< string, unknown >;
+			id?: string;
+	  }
+	| string;
+
+export type GoogleDataTableCell =
+	| {
+			v?: unknown;
+			f?: string;
+			p?: Record< string, unknown >;
+	  }
+	| string
+	| number
+	| boolean
+	| Date
+	| null;
+
+export type GoogleDataTableRow = GoogleDataTableCell[];
+
+export type ChartType =
+	| 'area'
+	| 'bar'
+	| 'conversion-funnel'
+	| 'leaderboard'
+	| 'line'
+	| 'pie'
+	| 'pie-semi-circle';
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
@@ -91,7 +183,7 @@ export type LeaderboardEntry = {
 	/**
 	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
 	 */
-	label: string | JSX.Element;
+	label: string | ReactElement;
 
 	/**
 	 * Value of the entry
@@ -99,9 +191,10 @@ export type LeaderboardEntry = {
 	currentValue: number;
 
 	/**
-	 * Value of the entry in the previous period
+	 * Value of the entry in the previous period. Omit when this row has no
+	 * matching comparison-period value.
 	 */
-	previousValue: number;
+	previousValue?: number;
 
 	/**
 	 * Width of current bar, as % of the current value
@@ -109,19 +202,46 @@ export type LeaderboardEntry = {
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value
+	 * Width of previous bar, as % of the current value. Omit when this row has
+	 * no matching comparison-period value.
 	 */
-	previousShare: number;
+	previousShare?: number;
 
 	/**
-	 * Delta of the entry
+	 * Delta of the entry. Omit when this row has no matching comparison-period
+	 * value.
 	 */
-	delta: number;
+	delta?: number;
 
 	/**
 	 * Optional color for the entry's image/icon
 	 */
 	imageColor?: string;
+
+	/**
+	 * Optional click handler. When provided, the entire row becomes an
+	 * interactive `<button>`: clickable and keyboard-focusable (Enter/Space),
+	 * with a chevron affordance revealed on hover/focus. The consumer
+	 * decides what the action does (e.g. drill-down). Rows without onClick are
+	 * inert and render unchanged.
+	 *
+	 * For links or other interactive affordances (external-link icons, info
+	 * tooltips), put them in the `label` render prop instead of using onClick —
+	 * a row is either a button (onClick) or carries interactive label content,
+	 * never both, since interactive elements cannot be nested in HTML.
+	 */
+	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Optional accessible name for the interactive row's `<button>`. Only applies
+	 * when `onClick` is set — without it the row renders as a Fragment with no
+	 * element to receive `aria-label`. By default the button derives its name from
+	 * its rendered content (label text plus the formatted value), which is the
+	 * right outcome for plain-text labels. Set this when the `label` is JSX whose
+	 * text content does not yield a clean name on its own — e.g. an image-only
+	 * label — to give assistive tech a deterministic, human-readable name.
+	 */
+	ariaLabel?: string;
 };
 
 export type GradientStop = {
@@ -132,8 +252,8 @@ export type GradientStop = {
 
 export type SeriesDataOptions = {
 	gradient?: {
-		from: string;
-		to: string;
+		from?: string;
+		to?: string;
 		fromOpacity?: number;
 		toOpacity?: number;
 		stops?: GradientStop[];
@@ -151,28 +271,39 @@ export type SeriesData = {
 	options?: SeriesDataOptions;
 };
 
+/**
+ * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
+ * `opacity` sets the shadow translucency.
+ */
+export type BarStyles = {
+	widthFactor?: number;
+	opacity?: number;
+};
+
 export type MultipleDataPointsDate = {
 	label: string;
 	data: DataPointDate[];
 };
 
+/**
+ * Input data point for percentage-based charts (pie, donut, semi-circle).
+ * Provide values; percentages will be calculated automatically.
+ */
 export type DataPointPercentage = {
 	/**
 	 * Label for the data point
 	 */
 	label: string;
 	/**
-	 * Numerical value
+	 * Numerical value used for slice sizing.
+	 * Percentages are calculated automatically from values.
 	 */
 	value: number;
 	/**
-	 * Formatted value for display
+	 * Formatted value for display (e.g., "30K" instead of 30000)
 	 */
 	valueDisplay?: string;
-	/**
-	 * Percentage value
-	 */
-	percentage: number;
 	/**
 	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
 	 */
@@ -181,6 +312,17 @@ export type DataPointPercentage = {
 	 * Group for the data point, used to match color with groups on other charts
 	 */
 	group?: string;
+};
+
+/**
+ * Internal type with calculated percentage.
+ * Used internally after percentage calculation from values.
+ */
+export type DataPointPercentageCalculated = DataPointPercentage & {
+	/**
+	 * Calculated percentage (0-100) based on value relative to total
+	 */
+	percentage: number;
 };
 
 /**
@@ -209,16 +351,21 @@ export type ChartTheme = {
 	xAxisLineStyles?: LineStyles;
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
-	/** Styles for legend shapes */
-	legendShapeStyles?: Record< string, unknown >[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
-	/** Styles for legend labels */
-	legendLabelStyles?: CSSProperties;
-	/** Styles for legend container */
-	legendContainerStyles?: CSSProperties;
+	/** Legend specific settings */
+	legend?: {
+		/** Styles for legend shapes */
+		shapeStyles?: Record< string, unknown >[];
+		/** Styles for legend labels */
+		labelStyles?: CSSProperties;
+		/** Styles for legend container */
+		containerStyles?: CSSProperties;
+	};
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
+	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	svgLabelBig?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** GeoChart specific settings */
 	geoChart?: {
@@ -232,7 +379,7 @@ export type ChartTheme = {
 		/** Gap between columns in the leaderboard grid */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
-		labelSpacing?: number;
+		labelSpacing?: GapSize;
 		/** Primary color for current period bars */
 		primaryColor?: string;
 		/** Secondary color for comparison period bars */
@@ -254,6 +401,9 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	barChart?: {
+		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
+	};
 	/** Sparkline specific settings */
 	sparkline?: {
 		/** Margin around the sparkline chart */
@@ -265,6 +415,21 @@ export type ChartTheme = {
 		};
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
+	};
+	/**
+	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
+	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 */
+	heatmapChart?: {
+		/**
+		 * Color the cell scale interpolates toward at the highest value (prop > this >
+		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 */
+		primaryColor?: string;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
 	};
 };
 
@@ -286,14 +451,25 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	barChart: {
+		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
+	};
+	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
+		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
 
-declare type AxisOptions = {
+export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
+	/**
+	 * Explicit tick values for the axis. When set, takes precedence over `numTicks`
+	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
+	 */
+	tickValues?: ScaleInput< AxisScale >[];
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
@@ -307,12 +483,29 @@ declare type AxisOptions = {
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
 	children?: ( renderProps: AxisRendererProps< AxisScale > ) => ReactNode;
+	/**
+	 * Controls tick label overflow (bar charts only):
+	 *
+	 * - 'ellipsis': Truncate with ellipsis and fit to available space. Labels show full text
+	 * on hover via native tooltip. Note: A minimum width (20px) is enforced for readability.
+	 * On very dense charts (bandwidth < 20px), adjacent labels may overlap. To mitigate, use `numTicks`
+	 * to reduce labels or `tickFormat` to abbreviate text.
+	 * - undefined: No truncation; labels may overlap.
+	 *
+	 * Default: No truncation; labels may overlap.
+	 */
+	labelOverflow?: 'ellipsis';
 };
 
 export type ScaleOptions = {
 	type?: ScaleType;
 	zero?: boolean;
-	domain?: [ number, number ];
+	/**
+	 * Extends the scale's domain to nice round values. Pass `false` together with
+	 * an explicit `domain` to keep the tick values you set exactly.
+	 */
+	nice?: boolean;
+	domain?: [ number, number ] | [ Date, Date ];
 	range?: [ number, number ];
 	/**
 	 * For band scale, shortcut for setting `paddingInner` and `paddingOuter` to the same value.
@@ -335,6 +528,86 @@ export type ScaleOptions = {
 	paddingOuter?: number;
 };
 
+export type LegendItemStyles = {
+	/** Margin around each legend item. */
+	margin?: CSSProperties[ 'margin' ];
+	/** Flex direction for items within each legend entry. */
+	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
+};
+
+export type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
+	/**
+	 * Maximum width for legend label text as a CSS value (e.g. '200px', '50%', '10rem').
+	 * When set, text overflow behavior is controlled by textOverflow.
+	 */
+	maxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds maxWidth.
+	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
+	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
+	 */
+	textOverflow?: 'ellipsis' | 'wrap';
+};
+
+export type LegendShapeStyles = {
+	/** Width of the legend shape in pixels. */
+	width?: number;
+	/** Height of the legend shape in pixels. */
+	height?: number;
+	/** Margin around the legend shape. */
+	margin?: CSSProperties[ 'margin' ];
+};
+
+/** Position of the legend relative to chart content. */
+export type LegendPosition = 'top' | 'bottom';
+
+/**
+ * Configuration object for chart legend appearance and behavior.
+ * Consolidates all legend styling and layout props into a single structured object.
+ */
+export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry > = {
+	/**
+	 * Layout direction of legend items.
+	 */
+	orientation?: 'horizontal' | 'vertical';
+	/**
+	 * Position of the legend relative to the chart.
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
+	 */
+	position?: LegendPosition;
+	/**
+	 * Alignment of the legend within its position.
+	 */
+	alignment?: 'start' | 'center' | 'end';
+	/**
+	 * Shape of the legend marker icon.
+	 */
+	shape?: LegendShape< T, number >;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Supported for all chart types that render series.
+	 * Requires chartId and GlobalChartsProvider.
+	 * For pie charts, percentages are recalculated so visible segments total 100%.
+	 */
+	interactive?: boolean;
+	/**
+	 * Additional CSS class name for individual legend items.
+	 */
+	itemClassName?: string;
+	/**
+	 * CSS styles for each legend item (margin, flexDirection).
+	 */
+	itemStyles?: LegendItemStyles;
+	/**
+	 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
+	 */
+	labelStyles?: LegendLabelStyles;
+	/**
+	 * Styles for legend shapes (width, height, margin).
+	 */
+	shapeStyles?: LegendShapeStyles;
+};
+
 /**
  * Base properties shared across all chart components
  */
@@ -352,15 +625,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	className?: string;
 	/**
-	 * Width of the chart in pixels
+	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */
 	width?: number;
 	/**
-	 * Height of the chart in pixels
+	 * Height of the chart container in pixels. When omitted, the chart fills its parent's height.
 	 */
 	height?: number;
 	/**
-	 * Size of the chart in pixels for pie and donut charts
+	 * Maximum diameter of the pie in pixels (pie and donut charts only).
+	 * The pie will shrink if the container is smaller than this value.
+	 * When omitted, the pie fills the available space.
 	 */
 	size?: number;
 	/**
@@ -397,45 +672,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	showLegend?: boolean;
 	/**
-	 * Legend orientation
+	 * Legend configuration object for controlling legend appearance and behavior.
+	 * Includes orientation, position, alignment, shape, styling, and interactivity options.
 	 */
-	legendOrientation?: 'horizontal' | 'vertical';
-	/**
-	 * Legend shape
-	 */
-	legendShape?: LegendShape< T, number >;
-	/**
-	 * Legend position (where the legend appears)
-	 * TODO: Add 'left' | 'right' positioning support in future implementation
-	 */
-	legendPosition?: 'top' | 'bottom';
-	/**
-	 * Legend alignment within its position
-	 */
-	legendAlignment?: 'start' | 'center' | 'end';
-	/**
-	 * Maximum width for legend items. When set, text overflow behavior is controlled by legendTextOverflow.
-	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
-	 */
-	legendMaxWidth?: string;
-	/**
-	 * Controls how text behaves when it exceeds legendMaxWidth.
-	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
-	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
-	 */
-	legendTextOverflow?: 'ellipsis' | 'wrap';
-	/**
-	 * Additional CSS class name for legend items.
-	 * This allows consumers to customize individual legend item styling.
-	 */
-	legendItemClassName?: string;
-	/**
-	 * Enable interactive legend items that can toggle series visibility.
-	 * Supported for LineChart, PieChart, and PieSemiCircleChart.
-	 * Requires chartId and GlobalChartsProvider.
-	 * For pie charts, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
+	legend?: ChartLegendConfig< T >;
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
@@ -444,6 +684,13 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Whether to show chart animation on initial render or not
 	 */
 	animation?: boolean;
+
+	/**
+	 * Gap between chart elements (SVG, legend, children).
+	 * Uses WordPress design system tokens.
+	 * @default 'md'
+	 */
+	gap?: GapSize;
 
 	/**
 	 * More options for the chart.

@@ -72,3 +72,96 @@ export function shouldLockBlock( block: Block ): boolean {
 export function getBlocksToMove( blocks: Block[], formBlockClientId: string ): Block[] {
 	return blocks.filter( block => block.clientId !== formBlockClientId );
 }
+
+/**
+ * Finds the step container block inside a form block, searching recursively
+ * through nested inner blocks.
+ *
+ * @param formBlock - The form block to search
+ * @return The step container block or null if not found
+ */
+export function findStepContainer( formBlock: Block ): Block | null {
+	for ( const block of formBlock.innerBlocks ) {
+		if ( block.name === 'jetpack/form-step-container' ) {
+			return block;
+		}
+		const found = findStepContainer( block );
+		if ( found ) {
+			return found;
+		}
+	}
+	return null;
+}
+
+/**
+ * Finds the active step block inside a step container.
+ *
+ * Looks for the step matching activeStepId within the container's inner blocks.
+ * Falls back to the first step if no matching step is found.
+ *
+ * @param stepContainer - The step container block
+ * @param activeStepId  - The client ID of the active step (from the store)
+ * @return The active step block, the first step as fallback, or null if no steps exist
+ */
+export function findActiveStepInContainer(
+	stepContainer: Block,
+	activeStepId: string | null
+): Block | null {
+	if ( stepContainer.innerBlocks.length === 0 ) {
+		return null;
+	}
+
+	if ( activeStepId ) {
+		const activeStep = stepContainer.innerBlocks.find( b => b.clientId === activeStepId );
+		if ( activeStep ) {
+			return activeStep;
+		}
+	}
+
+	// Fall back to the first step
+	return stepContainer.innerBlocks[ 0 ];
+}
+
+/**
+ * Checks if a block is an empty paragraph.
+ *
+ * Handles various content types: undefined, null, empty string, empty object {},
+ * and RichText value objects with a toString() method.
+ *
+ * @param block                    - The block to check
+ * @param block.name               - The block name
+ * @param block.attributes         - The block attributes
+ * @param block.attributes.content - The paragraph content
+ * @return True if the block is an empty paragraph
+ */
+export function isEmptyParagraph( block: {
+	name: string;
+	attributes?: { content?: unknown };
+} ): boolean {
+	if ( block.name !== 'core/paragraph' ) {
+		return false;
+	}
+	const content = block.attributes?.content;
+	// Handle: undefined, null
+	if ( content === undefined || content === null ) {
+		return true;
+	}
+	// Handle string content
+	if ( typeof content === 'string' ) {
+		return content === '';
+	}
+	// Handle object content (RichText or empty object)
+	if ( typeof content === 'object' ) {
+		// Check for empty plain object {} first
+		if ( Object.keys( content ).length === 0 ) {
+			return true;
+		}
+		// RichText objects have a custom toString() method that returns the text content
+		// Check if toString returns something other than the default "[object Object]"
+		const textContent = String( content );
+		if ( textContent !== '[object Object]' ) {
+			return textContent === '';
+		}
+	}
+	return false;
+}

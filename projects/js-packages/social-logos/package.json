@@ -1,15 +1,15 @@
 {
 	"name": "social-logos",
-	"version": "3.3.5",
+	"version": "3.3.17",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
+	"author": "Automattic",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Social Logos"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/social-logos"
+		"url": "git+https://github.com/Automattic/social-logos.git"
 	},
 	"license": "GPL-2.0+",
 	"exports": {
@@ -17,6 +17,7 @@
 			"jetpack:src": "./src/react/index.ts",
 			"default": "./build/react/index.js"
 		},
+		"./colors.css": "./src/social-logo-colors.css",
 		"./font/*": {
 			"default": "./build/font/*"
 		},
@@ -28,22 +29,22 @@
 	"types": "build/react/index.d.ts",
 	"scripts": {
 		"build": "./tools/build",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"prop-types": "^15.8.1"
 	},
 	"devDependencies": {
-		"@types/react": "18.3.26",
+		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
-		"glob": "11.1.0",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"glob": "13.0.6",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"svg2ttf": "^6.0.3",
-		"svgicons2svgfont": "^15.0.0",
+		"svgicons2svgfont": "^16.0.0",
 		"svgo": "^4.0.0",
 		"svgstore": "^3.0.1",
-		"typescript": "5.9.3",
 		"wawoff2": "^2.0.1",
 		"xml2js": "^0.6.2"
 	},

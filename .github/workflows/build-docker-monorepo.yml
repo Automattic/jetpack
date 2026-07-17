@@ -13,6 +13,7 @@ on:
       - 'tools/docker/bin/monorepo'
       - '.github/versions.sh'
       - '.github/workflows/build-docker-monorepo.yml'
+  workflow_dispatch:
 concurrency:
   group: build-docker-monorepo-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -34,7 +35,7 @@ jobs:
       images: ${{ steps.buildargs.outputs.images }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Fetch build args
         id: buildargs
@@ -60,6 +61,14 @@ jobs:
           elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
             gh_set_output tags "type=ref,event=pr"
             gh_set_output images "ghcr.io/automattic/jetpack-monorepo"
+          elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "$GITHUB_REF" == "refs/heads/trunk" ]]; then
+              gh_set_output tags "type=raw,latest"
+              gh_set_output images $'automattic/jetpack-monorepo\nghcr.io/automattic/jetpack-monorepo'
+            else
+              echo "Workflow dispatch for non-trunk ref $GITHUB_REF is not supported"
+              exit 1
+            fi
           else
             echo "Unknown GITHUB_EVENT_NAME $GITHUB_EVENT_NAME"
             exit 1
@@ -82,19 +91,19 @@ jobs:
             platform: arm64
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: matticbot
           password: ${{ secrets.DOCKER_HUB_MATTICBOT_TOKEN }}
 
       - name: Log in to GitHub Packages
-        uses: docker/login-action@v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -102,7 +111,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           flavor: latest=false
           images: ${{ needs.prepare.outputs.images }}
@@ -110,7 +119,7 @@ jobs:
 
       - name: Build and push by digest
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: tools/docker
           file: tools/docker/Dockerfile.monorepo
@@ -134,7 +143,7 @@ jobs:
           touch "$TEMP/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: digests-linux-${{ matrix.platform }}
           path: ${{ runner.temp }}/digests/*
@@ -152,23 +161,23 @@ jobs:
 
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: matticbot
           password: ${{ secrets.DOCKER_HUB_MATTICBOT_TOKEN }}
 
       - name: Log in to GitHub Packages
-        uses: docker/login-action@v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -176,7 +185,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           flavor: latest=false
           tags: ${{ needs.prepare.outputs.tags }}

@@ -1,9 +1,9 @@
-export type PostData = {
-	title: string;
-	description: string;
-	url: string;
+import { LinkPreviewData } from '../use-link-preview-post-data/types';
+import type { Hyperlink } from '@automattic/social-previews';
+
+export type PostPreviewData = LinkPreviewData & {
 	excerpt: string;
-	image: string;
+	hyperlinks?: Array< Hyperlink >;
 	media: Array< {
 		type: string;
 		url: string;

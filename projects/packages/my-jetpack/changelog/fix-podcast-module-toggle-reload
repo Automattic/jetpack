@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reload the page after toggling a menu-registering module (Podcast, Newsletter, Reader) in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior.

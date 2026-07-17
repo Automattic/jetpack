@@ -472,24 +472,14 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Write a welcome message', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'admin.php?page=jetpack#/newsletter' );
-				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'enable_subscribers_modal'        => array(
 			'get_title'            => function () {
 				return __( 'Enable subscribers modal', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'admin.php?page=jetpack#/newsletter' );
-				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'add_10_email_subscribers'        => array(
 			'get_title'                 => function () {
@@ -641,9 +631,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'mobile_app_installed'            => array(
 			'get_title'            => function () {
@@ -777,7 +765,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
-				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
+				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Flaunch-your-store' );
 			},
 		),
 		'migrating_site'                  => array(
@@ -1720,6 +1708,21 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
 }
 
 /**
+ * Resolve the Newsletter Settings page URL, falling back to the canonical wp-admin path
+ * if the Newsletter package isn't autoloaded (e.g. if the host plugin has been unloaded).
+ *
+ * @return string
+ */
+function wpcom_launchpad_get_newsletter_settings_url() {
+	if ( class_exists( '\Automattic\Jetpack\Newsletter\Urls' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+		return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
+	}
+
+	return admin_url( 'admin.php?page=jetpack-newsletter' );
+}
+
+/**
  * Returns the option value for a task and false if no option exists.
  *
  * @param Task $task The task data.
@@ -1830,9 +1833,9 @@ function wpcom_track_site_launch_task() {
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'videopress_launched' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'blog_launched' );
 
-	// Remove site intent for blog onboarding flows and disable launchpad.
+	// Remove site intent for the blog onboarding flow and disable launchpad.
 	$site_intent = get_option( 'site_intent' );
-	if ( in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+	if ( 'design-first' === $site_intent ) {
 		update_option( 'site_intent', '' );
 		update_option( 'launchpad_screen', 'off' );
 	}
@@ -1989,15 +1992,6 @@ function wpcom_launchpad_is_blog_launched_task_disabled() {
 		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
 			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
 			&& wpcom_is_checklist_task_complete( 'setup_blog' ) ) {
-			return false;
-		}
-		return true;
-	}
-	if ( 'start-writing' === get_option( 'site_intent' ) ) {
-		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
-			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
-			&& wpcom_is_checklist_task_complete( 'setup_blog' )
-			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
 			return false;
 		}
 		return true;
@@ -2816,7 +2810,7 @@ function wpcom_trigger_email_campaign() {
 		return;
 	}
 
-	if ( ! in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+	if ( 'design-first' !== $site_intent ) {
 		return;
 	}
 

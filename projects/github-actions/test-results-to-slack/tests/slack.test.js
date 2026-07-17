@@ -1,7 +1,7 @@
-const path = require( 'path' );
-const { WebClient } = require( '@slack/web-api' );
+import path from 'path';
+import { jest } from '@jest/globals';
 
-jest.mock( '@slack/web-api', () => {
+jest.unstable_mockModule( '@slack/web-api', () => {
 	const slack = {
 		chat: {
 			postMessage: jest.fn(),
@@ -14,6 +14,7 @@ jest.mock( '@slack/web-api', () => {
 	};
 	return { WebClient: jest.fn( () => slack ) };
 } );
+const { WebClient } = await import( '@slack/web-api' );
 
 const slackClient = new WebClient();
 
@@ -30,7 +31,7 @@ describe( 'Find existing messages', () => {
 	`( '$description', async ( { expected, response } ) => {
 		slackClient.conversations.history.mockResolvedValue( response );
 
-		const { getMessage } = require( '../src/slack' );
+		const { getMessage } = await import( '../src/slack.js' );
 		const message = await getMessage( slackClient, '123abc', messageIdentifier );
 		await expect( JSON.stringify( message ) ).toBe( JSON.stringify( expected ) );
 	} );
@@ -46,7 +47,7 @@ describe( 'Blocks chunks', () => {
 	`(
 		'Blocks are chunked by delimiter: $description',
 		async ( { blocks, maxSize, type, expected } ) => {
-			const { getBlocksChunks } = require( '../src/slack' );
+			const { getBlocksChunks } = await import( '../src/slack.js' );
 			const chunks = getBlocksChunks( blocks, maxSize, type );
 			expect( chunks ).toEqual( expected );
 		}
@@ -59,7 +60,7 @@ describe( 'Post message', () => {
 		${ false } | ${ 'postMessage' }
 		${ true }  | ${ 'update' }
 	`( 'Message is sent: $expectedMethod', async ( { isUpdate, expectedMethod } ) => {
-		const { postOrUpdateMessage } = require( '../src/slack' );
+		const { postOrUpdateMessage } = await import( '../src/slack.js' );
 		const text = 'Notification text';
 		const blocks = [ { type: 'context' } ];
 		const channel = '123abc';
@@ -91,7 +92,7 @@ describe( 'Post message', () => {
 	} );
 
 	test( 'File is uploaded', async () => {
-		const { postOrUpdateMessage } = require( '../src/slack' );
+		const { postOrUpdateMessage } = await import( '../src/slack.js' );
 		const filePath = path.resolve(
 			'tests/resources/playwright/suite-1/results/spec-1/test-failed-1.png'
 		);

@@ -1,9 +1,9 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-Requires at least: 6.7
-Tested up to: 6.9
-Stable tag: 2.7
+Requires at least: 6.9
+Tested up to: 7.0
+Stable tag: 3.2
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,16 +83,23 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.7 - 2025-11-21
+### 3.2 - 2026-07-09
 #### Added
-- Tested up to WordPress 6.9.
+- Add a site-level setting to turn off auto-generated subtitles.
+- Add presentation to the player iframe allow list to enable casting from embeds.
+- Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes.
 
 #### Changed
-- Update dependencies.
+- Dashboard: Release modernized VideoPress dashboard.
+- Remove unneeded development and documentation files from the published plugin.
+- Update composer.lock files.
+- Update minimum WordPress version to 6.9.
 - Update package dependencies.
 
 #### Fixed
-- Jetpack: Remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products.
-- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin.
+- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
+- Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location.
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404.
+- Load VideoPress Overview stats even when the Jetpack Stats module is inactive.
 

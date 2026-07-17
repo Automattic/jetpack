@@ -10,8 +10,9 @@ module.exports = async () => {
 		moduleConfig,
 		{
 			entry: {
-				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
-				'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
+				'ai-assistant-banner': './src/features/ai-assistant-banner/js/ai-assistant-banner.js',
+				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.jsx',
+				'block-inserter-modifications': './src/features/block-inserter-modifications/index.jsx',
 				'core-customizer-css':
 					'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 				'core-customizer-css-preview':
@@ -37,7 +38,7 @@ module.exports = async () => {
 					'./src/features/override-preview-button-url/override-preview-button-url.js',
 				'paragraph-block-placeholder':
 					'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
-				'tags-education': './src/features/tags-education/tags-education.js',
+				'tags-education': './src/features/tags-education/tags-education.jsx',
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
 				'wpcom-blocks-code-block-definition':
 					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
@@ -56,13 +57,13 @@ module.exports = async () => {
 				],
 				'wpcom-hotfixes-colors-modern': './src/features/wpcom-hotfixes/colors/modern/colors.css',
 				'wpcom-dashboard-widgets':
-					'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
-				'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
+					'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.jsx',
+				'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.jsx',
 				'wpcom-global-styles-frontend':
 					'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 				'wpcom-documentation-links':
 					'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
-				'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.js',
+				'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.jsx',
 				'wpcom-options-general': [
 					'./src/features/wpcom-options-general/options-general.ts',
 					'./src/features/wpcom-options-general/options-general.scss',
@@ -75,7 +76,7 @@ module.exports = async () => {
 				'wpcom-replace-site-visibility':
 					'./src/features/replace-site-visibility/replace-site-visibility.tsx',
 				'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
-				'adminbar-launch-button': './src/features/launch-button/index.js',
+				'adminbar-launch-button': './src/features/launch-button/index.jsx',
 			},
 			mode: jetpackWebpackConfig.mode,
 			devtool: jetpackWebpackConfig.devtool,
@@ -114,13 +115,6 @@ module.exports = async () => {
 			module: {
 				strictExportPresence: true,
 				rules: [
-					// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-					// https://github.com/WordPress/gutenberg/issues/73362
-					{
-						test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-						resolve: { fullySpecified: false },
-					},
-
 					// Transpile JavaScript.
 					jetpackWebpackConfig.TranspileRule( {
 						exclude: /node_modules\//,
@@ -130,6 +124,9 @@ module.exports = async () => {
 					jetpackWebpackConfig.TranspileRule( {
 						includeNodeModules: [ '@automattic/' ],
 					} ),
+
+					// Workarounds for non-extracted `@wordpress/*` packages.
+					...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 					// Handle CSS.
 					jetpackWebpackConfig.CssRule( {
@@ -146,6 +143,12 @@ module.exports = async () => {
 				jetpackConfig: JSON.stringify( {
 					consumer_slug: 'jetpack-mu-wpcom',
 				} ),
+				// Resolve @wordpress/sync to the global `wp.sync` provided by WordPress.
+				'@wordpress/sync': 'wp.sync',
+				// Resolve Yjs to the global `wp.sync.Y` to avoid two separate Yjs
+				// instances, which breaks shared document types. See:
+				// https://github.com/yjs/yjs/issues/438
+				yjs: 'wp.sync.Y',
 			},
 		},
 	];

@@ -1,0 +1,37 @@
+/* min/max inline-size let the label shrink inside widget flex wrappers
+   (e.g. a link with a trailing external-arrow icon) so the text can
+   truncate instead of pushing the wrapper wider. */
+.container {
+	padding: var(--wpds-dimension-padding-sm);
+	min-inline-size: 0;
+	max-inline-size: 100%;
+}
+
+/* Leaderboard rows are a fixed 36px, so labels truncate rather than wrap. */
+.label {
+	min-inline-size: 0;
+	overflow: hidden;
+	font-size: var(--wpds-typography-font-size-sm);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+/* Widgets customize the image through the custom properties (including
+   radius) rather than styling the <img> directly, so their rules never
+   compete with this one at equal specificity. */
+.labelImage {
+	width: var(--jpa-leaderboard-image-width, 28px);
+	height: var(--jpa-leaderboard-image-height, 28px);
+	vertical-align: middle;
+	border-radius: var(--jpa-leaderboard-image-radius, var(--wpds-border-radius-md));
+	object-fit: var(--jpa-leaderboard-image-fit, cover);
+}
+
+/* The DataViews picker grid stretches media-cell images to 100%. Widget
+ * previews render inert, so restore the label image size there; custom
+ * properties preserve each widget's override. */
+:global([inert]) .container .labelImage {
+	width: var(--jpa-leaderboard-image-width, 28px);
+	height: var(--jpa-leaderboard-image-height, 28px);
+	object-fit: var(--jpa-leaderboard-image-fit, cover);
+}

@@ -1,4 +1,4 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
@@ -83,11 +83,13 @@ const FirewallAdminSectionHero = () => {
 		return <FirewallSubheading />;
 	}, [ status ] );
 
+	const indicatorStatus = 'on' === status ? 'active' : 'inactive';
+
 	return (
 		<AdminSectionHero
 			main={
 				<>
-					<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
+					<AdminSectionHero.StatusIndicator status={ indicatorStatus } label={ statusLabel } />
 					<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
 				</>

@@ -105,7 +105,6 @@ class Sharing_Service {
 			'twitter'          => 'Share_Twitter',
 			'tumblr'           => 'Share_Tumblr',
 			'pinterest'        => 'Share_Pinterest',
-			'pocket'           => 'Share_Pocket',
 			'telegram'         => 'Share_Telegram',
 			'threads'          => 'Share_Threads',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
@@ -407,7 +406,7 @@ class Sharing_Service {
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
 			'show'          => ! isset( $options['global'] ) ? array( 'post', 'page' ) : array(),
-			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array(),
+			'custom'        => $options['global']['custom'] ?? array(),
 		);
 
 		/**

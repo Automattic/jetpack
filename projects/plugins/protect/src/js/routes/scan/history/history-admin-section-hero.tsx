@@ -1,4 +1,4 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
@@ -49,7 +49,10 @@ const HistoryAdminSectionHero: FC = () => {
 		<AdminSectionHero
 			main={
 				<>
-					<Status status="active" label={ __( 'Active', 'jetpack-protect' ) } />
+					<AdminSectionHero.StatusIndicator
+						status="active"
+						label={ __( 'Active', 'jetpack-protect' ) }
+					/>
 					<AdminSectionHero.Heading showIcon>
 						{ numAllThreats > 0
 							? sprintf(

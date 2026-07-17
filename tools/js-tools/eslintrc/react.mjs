@@ -1,9 +1,6 @@
 // React eslint config.
 
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { fixupConfigRules } from '@eslint/compat';
-import { FlatCompat } from '@eslint/eslintrc';
+import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import { defineConfig, javascriptFiles } from './base.mjs';
 
@@ -13,18 +10,12 @@ import { defineConfig, javascriptFiles } from './base.mjs';
  * @param {string} configurl - File URL for the eslint.config.mjs. Pass `import.meta.url`.
  * @return {object[]} Eslint config.
  */
+// eslint-disable-next-line no-unused-vars -- Better to keep it, even if unused right now.
 export default function makeReactConfig( configurl ) {
-	const basedir = path.dirname( fileURLToPath( configurl ) );
-
-	const compat = new FlatCompat( {
-		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
-	} );
-
 	return defineConfig(
 		{
 			files: javascriptFiles,
-			extends: [ fixupConfigRules( compat.extends( 'plugin:@wordpress/react' ) ) ],
+			extends: [ wordpressEslintPlugin.configs.react ],
 		},
 		{
 			name: 'Prettier react rule disables',
@@ -44,6 +35,7 @@ export default function makeReactConfig( configurl ) {
 				},
 			},
 			rules: {
+				'react/jsx-filename-extension': [ 'error', { extensions: [ '.jsx', '.tsx' ] } ],
 				'react/jsx-no-bind': [ 'error', { ignoreRefs: true } ],
 				'react/no-danger': 'error',
 				'react/no-did-mount-set-state': 'error',

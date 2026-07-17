@@ -247,7 +247,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand deactivate-user-plugins
 		 */
-		public function deactivate_user_installed_plugins( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 			$active_plugins = wpcomsh_cli_get_plugins_with_status( 'active' );
 			if ( false === $active_plugins ) {
 				WP_CLI::log( 'Failed to list active plugins.' );
@@ -312,7 +312,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand reactivate-user-plugins
 		 */
-		public function reactivate_user_installed_plugins( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 			// Clean up before getting the deactivation list so there are only current entries.
 			wpcomsh_cli_remove_expired_from_deactivation_record();
 
@@ -394,7 +394,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand domain-name-changed
 		 */
-		public function domain_name_changed( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function domain_name_changed( $args, $assoc_args = array() ) {
 			$old_domain = WP_CLI\Utils\get_flag_value( $assoc_args, 'old_url', false );
 			if ( false === $old_domain ) {
 				WP_CLI::error( 'Missing required --old_url=url value.' );
@@ -553,7 +553,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand purchases
 		 */
-		public function purchases( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function purchases( $args, $assoc_args ) {
 			WP_CLI::runcommand( 'wpcomsh persistent-data WPCOM_PURCHASES --format=' . $assoc_args['format'], array( 'launch' => false ) );
 		}
 
@@ -922,6 +922,706 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
+		 * Patch definitions for the php83-plugin-patch subcommand.
+		 *
+		 * PHP 8.3 turned a repeated `static` declaration of the same variable in one
+		 * function scope into a "Duplicate declaration of static variable" fatal
+		 * error, which old plugin versions trip over. Each entry describes a minimal,
+		 * behavior-preserving rename of the duplicate declaration (DOTCOM-17392).
+		 *
+		 * Shared keys:
+		 * - folders:        plugin directory names to look for (vendors ship the same
+		 *                   product under different folder slugs).
+		 * - file:           the file to patch, relative to the plugin directory.
+		 * - patched_marker: string that only exists after patching; makes re-runs a
+		 *                   safe no-op.
+		 * - strategy:       'split_rename' renames every occurrence of `search` after
+		 *                   `split_marker`; 'replace_once' applies exact search/replace
+		 *                   pairs that must each match exactly once.
+		 *
+		 * @return array<string,array> Patch definitions keyed by plugin slug.
+		 */
+		private static function php83_plugin_patches() {
+			return array(
+
+				/*
+				 * The `mm_options_generator()` function declares `static $theme_option_file`
+				 * in both the `file` and `background_image` cases of the same switch. This
+				 * renames the copy in the `background_image` case so only a single
+				 * declaration of `$theme_option_file` remains. Both cases merely enqueue
+				 * the media uploader scripts, and `wp_enqueue_*` is idempotent, so behavior
+				 * is unchanged. The same product ships as both `mega_main_menu` and
+				 * `mega-main-menu`.
+				 */
+				'mega_main_menu'          => array(
+					'folders'        => array( 'mega_main_menu', 'mega-main-menu' ),
+					'file'           => 'framework/options_generator.php',
+					'patched_marker' => '$theme_option_file_background',
+					'strategy'       => 'split_rename',
+					'split_marker'   => "case 'background_image':",
+					'search'         => '$theme_option_file',
+					'replace'        => '$theme_option_file_background',
+				),
+
+				/*
+				 * `custom_columns()` in includes/Admin/CPT/Submission.php declares
+				 * `static $fields` in both the fieldset-repeater branch and the
+				 * numeric-column branch of the same function (unchanged 3.6.14–3.6.28).
+				 * Both are per-column memo caches keyed by `$column`; renaming the
+				 * numeric-branch copy just splits the cache in two, so behavior is
+				 * unchanged.
+				 */
+				'ninja-forms'             => array(
+					'folders'        => array( 'ninja-forms' ),
+					'file'           => 'includes/Admin/CPT/Submission.php',
+					'patched_marker' => '$fields_by_column',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"            static \$fields;\n"
+							. "            if( ! isset( \$fields[ \$column ] ) ) {\n"
+							. "                \$fields[\$column] = Ninja_Forms()->form( \$form_id )->get_field( \$column );\n"
+							. "            }\n"
+							. '            $field = $fields[$column];',
+							"            // Renamed by wpcomsh to avoid a PHP 8.3+ \"Duplicate declaration of\n"
+							. "            // static variable\" fatal: the repeater branch above also declares\n"
+							. "            // `static \$fields`.\n"
+							. "            static \$fields_by_column;\n"
+							. "            if( ! isset( \$fields_by_column[ \$column ] ) ) {\n"
+							. "                \$fields_by_column[\$column] = Ninja_Forms()->form( \$form_id )->get_field( \$column );\n"
+							. "            }\n"
+							. '            $field = $fields_by_column[$column];',
+						),
+					),
+				),
+
+				/*
+				 * `theme_list()` in modules/theme_purchase.php declares
+				 * `static $header_tags` twice — two identical, constant `wp_kses()`
+				 * allowlists in different loops of the same function (unchanged
+				 * 4.2.7–4.3.5). The second declaration is nested one level deeper, so
+				 * its 5-tab indentation uniquely identifies it. Renaming a constant
+				 * allowlist is behavior-neutral.
+				 */
+				'wiziapp-create-your-own-native-iphone-app' => array(
+					'folders'        => array( 'wiziapp-create-your-own-native-iphone-app' ),
+					'file'           => 'modules/theme_purchase.php',
+					'patched_marker' => '$header_tags_title',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"\t\t\t\t\tstatic \$header_tags = array(",
+							"\t\t\t\t\t// Renamed by wpcomsh to avoid a PHP 8.3+ \"Duplicate declaration\n"
+							. "\t\t\t\t\t// of static variable\" fatal: theme_list() declares this allowlist twice.\n"
+							. "\t\t\t\t\tstatic \$header_tags_title = array(",
+						),
+						array(
+							"\t\t\t\t\t\$theme['title'] = wp_kses(\$theme['title'], \$header_tags);",
+							"\t\t\t\t\t\$theme['title'] = wp_kses(\$theme['title'], \$header_tags_title);",
+						),
+					),
+				),
+
+				/*
+				 * `initData()` in inc/classes/thegem-blocks.php declares
+				 * `static $globalColors;` twice in the same declaration list, two lines
+				 * apart — a plain copy/paste bug (verified on 1.0.2 and 1.1.x installs).
+				 * Deleting the second declaration is behavior-neutral. The plugin ships
+				 * as both `thegem-blocks-elementor` and `-thegem-blocks-elementor`.
+				 */
+				'thegem-blocks-elementor' => array(
+					'folders'        => array( 'thegem-blocks-elementor', '-thegem-blocks-elementor' ),
+					'file'           => 'inc/classes/thegem-blocks.php',
+					'patched_marker' => 'removed a duplicate `static $globalColors;`',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"        static \$dummyListByUrl;\n        static \$globalColors;",
+							'        static $dummyListByUrl; // wpcomsh: removed a duplicate `static $globalColors;` here (PHP 8.3+ fatal); it is declared two lines above.',
+						),
+					),
+				),
+
+				/*
+				 * `deep_magazine_ele_ajax()` declares three static variables — the
+				 * shared counters `$magazin_uniqid`, `$title_uniqid`, and `$uniqid` —
+				 * once per magazine-type branch (three branches each). PHP stops
+				 * compiling at the first duplicate, so the fatals surfaced one
+				 * variable at a time; a full audit of the file shows all of them.
+				 *
+				 * `$magazin_uniqid` and `$title_uniqid` are hoisted to the top of the
+				 * function (one shared slot, initial 0 — identical to the pre-8.3
+				 * compile-time semantics) and the branch declarations become plain
+				 * increments. `$uniqid` cannot be hoisted under its own name: the
+				 * function assigns `$uniqid` from request input as a plain local
+				 * before any branch declaration binds the static slot, so a hoisted
+				 * binding would let that assignment clobber the counter. Instead a
+				 * `$deep_loop_uniqid` slot is hoisted and each branch declaration
+				 * becomes a reference binding (`$uniqid = &$deep_loop_uniqid;`),
+				 * which reproduces the original bind-at-this-point behavior exactly.
+				 *
+				 * The vendor shipped the same 2.1.2 code with two line endings, so
+				 * the patch carries a CRLF set (also handling files already carrying
+				 * the first-round magazin-only hoist) and an LF set for pristine
+				 * files.
+				 */
+				'deepcore'                => array(
+					'folders'          => array( 'deepcore' ),
+					'file'             => 'src/components/functions/functions-general.php',
+					'patched_marker'   => '$deep_loop_uniqid',
+					'strategy'         => 'replace_once',
+					'replacement_sets' => array(
+						// CRLF file that already has the first-round magazin hoist.
+						array(
+							array(
+								"\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\r\n\tstatic \$magazin_uniqid = 0;\r\n",
+								"\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\r\n\tstatic \$magazin_uniqid = 0;\r\n\tstatic \$title_uniqid = 0;\r\n\tstatic \$deep_loop_uniqid = 0;\r\n",
+							),
+							array(
+								"\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\r\n",
+								"\t\t<?php \$title_uniqid++; ?>\r\n",
+							),
+							array(
+								"\t\tstatic \$title_uniqid = 0;\r\n\t\t\$title_uniqid++;",
+								"\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\r",
+							),
+						),
+						// Pristine LF file (same 2.1.2 code, normalized line endings).
+						array(
+							array(
+								"function deep_magazine_ele_ajax() {\n",
+								"function deep_magazine_ele_ajax() {\n\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\n\tstatic \$magazin_uniqid = 0;\n\tstatic \$title_uniqid = 0;\n\tstatic \$deep_loop_uniqid = 0;\n",
+							),
+							array(
+								"\t\tstatic \$magazin_uniqid = 0;\n\t\t\$magazin_uniqid++;",
+								"\t\t\$magazin_uniqid++;",
+								3,
+							),
+							array(
+								"\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\n",
+								"\t\t<?php \$title_uniqid++; ?>\n",
+							),
+							array(
+								"\t\tstatic \$title_uniqid = 0;\n\t\t\$title_uniqid++;",
+								"\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_loop_uniqid;\n",
+							),
+						),
+					),
+				),
+
+				/*
+				 * deepcore duplicates the same magazine markup — with the same three
+				 * per-branch static counters — a second time in the Elementor widget's
+				 * render() (src/components/elementor/widgets/magazine.php). It only
+				 * compiles on pages that use the magazine widget, so it surfaces
+				 * separately from the functions-general.php copy. Same treatment:
+				 * hoist `$magazin_uniqid`/`$title_uniqid`, reference-bind `$uniqid`
+				 * to a hoisted `$deep_widget_uniqid` slot. Registered under its own
+				 * key (same `deepcore` folder) so targeted runs can patch this file
+				 * explicitly: `wp wpcomsh php83-plugin-patch deepcore-widget`.
+				 */
+				'deepcore-widget'         => array(
+					'folders'          => array( 'deepcore' ),
+					'file'             => 'src/components/elementor/widgets/magazine.php',
+					'patched_marker'   => '$deep_widget_uniqid',
+					'strategy'         => 'replace_once',
+					'replacement_sets' => array(
+						// CRLF variant.
+						array(
+							array(
+								"\tprotected function render() {\r\n",
+								"\tprotected function render() {\r\n\t\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\r\n\t\tstatic \$magazin_uniqid = 0;\r\n\t\tstatic \$title_uniqid = 0;\r\n\t\tstatic \$deep_widget_uniqid = 0;\r\n",
+							),
+							array(
+								"\t\t\tstatic \$magazin_uniqid = 0;\r\n\t\t\t\$magazin_uniqid++;",
+								"\t\t\t\$magazin_uniqid++;",
+								3,
+							),
+							array(
+								"\t\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\r\n",
+								"\t\t\t<?php \$title_uniqid++; ?>\r\n",
+							),
+							array(
+								"\t\t\tstatic \$title_uniqid = 0;\r\n\t\t\t\$title_uniqid++;",
+								"\t\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\r",
+							),
+						),
+						// LF variant (same code, normalized line endings).
+						array(
+							array(
+								"\tprotected function render() {\n",
+								"\tprotected function render() {\n\t\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\n\t\tstatic \$magazin_uniqid = 0;\n\t\tstatic \$title_uniqid = 0;\n\t\tstatic \$deep_widget_uniqid = 0;\n",
+							),
+							array(
+								"\t\t\tstatic \$magazin_uniqid = 0;\n\t\t\t\$magazin_uniqid++;",
+								"\t\t\t\$magazin_uniqid++;",
+								3,
+							),
+							array(
+								"\t\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\n",
+								"\t\t\t<?php \$title_uniqid++; ?>\n",
+							),
+							array(
+								"\t\t\tstatic \$title_uniqid = 0;\n\t\t\t\$title_uniqid++;",
+								"\t\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\n",
+							),
+						),
+					),
+				),
+
+				/*
+				 * `MalinaGridPosts()` in inc/shortcodes.php declares `static $i = 0;` in
+				 * both the style_3 and style_7 branches (shared layout counter). Hoisted
+				 * to the top of the function, branch declarations deleted. The file uses
+				 * CRLF line endings; the searches are newline-anchored so the 5-tab
+				 * declaration cannot match inside the 6-tab one.
+				 */
+				'malina-elements'         => array(
+					'folders'        => array( 'malina-elements' ),
+					'file'           => 'inc/shortcodes.php',
+					'patched_marker' => 'wpcomsh: hoisted',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"\tfunction MalinaGridPosts(\$atts, \$content = null){\r\n",
+							"\tfunction MalinaGridPosts(\$atts, \$content = null){\r\n\t\t// wpcomsh: hoisted out of the style branches below (PHP 8.3+ duplicate-static fatal).\r\n\t\tstatic \$i = 0;\r\n",
+						),
+						array(
+							"\n\t\t\t\t\t\tstatic \$i = 0;\r",
+							'',
+						),
+						array(
+							"\n\t\t\t\t\tstatic \$i = 0;\r",
+							'',
+						),
+					),
+				),
+
+				/*
+				 * `admin_notice()` in includes/ld-autoupdate.php (LearnDash 3.2.x) was
+				 * hand-edited on the site: a `static $notice_shown = true; # code by Tj`
+				 * line sits directly below the stock `static $notice_shown = false;`
+				 * declaration to suppress the license notice. Pre-8.3 the last
+				 * initializer won (true); keeping the site's customized line and
+				 * removing the stock one preserves that behavior exactly.
+				 */
+				'sfwd-lms'                => array(
+					'folders'        => array( 'sfwd-lms' ),
+					'file'           => 'includes/ld-autoupdate.php',
+					'patched_marker' => 'wpcomsh: removed the duplicate',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"\t\t\tstatic \$notice_shown = false;\n\t\t\tstatic \$notice_shown = true; # code by Tj",
+							"\t\t\t// wpcomsh: removed the duplicate stock declaration (PHP 8.3+ fatal); the site-customized line below is the effective initializer.\n\t\t\tstatic \$notice_shown = true; # code by Tj",
+						),
+					),
+				),
+
+				/*
+				 * `ecoist_gallery_layouts_shortcode()` declares
+				 * `static $image_counter_classic = 1;` in two gallery-layout branches
+				 * (shared element counter). Hoisted to the top of the function, branch
+				 * declarations deleted.
+				 */
+				'cp-addons-for-vc'        => array(
+					'folders'        => array( 'cp-addons-for-vc' ),
+					'file'           => 'modules/ecoist_gallery_layouts.php',
+					'patched_marker' => 'wpcomsh: hoisted',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"\t\tfunction ecoist_gallery_layouts_shortcode( \$atts, \$content = null ) {",
+							"\t\tfunction ecoist_gallery_layouts_shortcode( \$atts, \$content = null ) {\n\t\t\t// wpcomsh: hoisted out of the layout branches below (PHP 8.3+ duplicate-static fatal).\n\t\t\tstatic \$image_counter_classic = 1;",
+						),
+						array(
+							"\n\t\t\t\t\t\t\t\t\t\t\t\t\tstatic \$image_counter_classic = 1;",
+							'',
+							2,
+						),
+					),
+				),
+
+				/*
+				 * The Elementor widget's `render()` in
+				 * elementor-widgets/widgets_classes/gallery_layouts.php declares
+				 * `static $counter = 1;` in three gallery-layout branches (shared
+				 * element counter; same vendored code family as cp-addons-for-vc).
+				 * Hoisted to the top of render(), branch declarations deleted.
+				 */
+				'ingeniofy'               => array(
+					'folders'        => array( 'ingeniofy' ),
+					'file'           => 'elementor-widgets/widgets_classes/gallery_layouts.php',
+					'patched_marker' => 'wpcomsh: hoisted',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							'  protected function render(){',
+							"  protected function render(){\n    // wpcomsh: hoisted out of the layout branches below (PHP 8.3+ duplicate-static fatal).\n    static \$counter = 1;",
+						),
+						array(
+							"\n\t\t\t\t\t\t\t\tstatic \$counter = 1;",
+							'',
+							3,
+						),
+					),
+				),
+			);
+		}
+
+		/**
+		 * Patch a plugin to work with PHP 8.3+.
+		 *
+		 * Applies a minimal, behavior-preserving rename of a duplicate `static`
+		 * variable declaration that fatals on PHP 8.3+ ("Duplicate declaration of
+		 * static variable"). See php83_plugin_patches() for the per-plugin rationale.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <plugin>
+		 * : The plugin to patch. Any of the plugin's known folder slugs is accepted.
+		 *
+		 * [--force]
+		 * : Patch even when an update for the plugin is pending. Only for cases
+		 *   where the update exists but cannot be installed (dead license,
+		 *   broken vendor download).
+		 *
+		 * @subcommand php83-plugin-patch
+		 */
+		public function php_83_plugin_patch( $args, $assoc_args ) {
+			$patches = self::php83_plugin_patches();
+			$slug    = $args[0];
+
+			// Accept any of a patch's folder slugs as the argument: the error logs
+			// that drive the patch jobs report whichever folder the vendor shipped.
+			if ( ! isset( $patches[ $slug ] ) ) {
+				foreach ( $patches as $key => $candidate ) {
+					if ( in_array( $slug, $candidate['folders'], true ) ) {
+						$slug = $key;
+						break;
+					}
+				}
+			}
+
+			if ( ! isset( $patches[ $slug ] ) ) {
+				WP_CLI::error( sprintf( 'No PHP 8.3 patch for %s. Available: %s.', $slug, implode( ', ', array_keys( $patches ) ) ) );
+			}
+
+			$patch = $patches[ $slug ];
+
+			// Resolve which of the plugin's known folder slugs is installed.
+			$plugin_file = null;
+			foreach ( array_keys( get_plugins() ) as $file ) {
+				$file = (string) $file;
+				if ( in_array( dirname( $file ), $patch['folders'], true ) ) {
+					$plugin_file = $file;
+					break;
+				}
+			}
+
+			if ( null === $plugin_file ) {
+				WP_CLI::error( "$slug plugin is not installed." );
+			}
+
+			// Don't patch if an update is pending: the new version may already fix this,
+			// and an update would overwrite the patched file anyway. Refresh the
+			// transient first so the decision is based on current data.
+			if ( ! \WP_CLI\Utils\get_flag_value( $assoc_args, 'force', false ) ) {
+				wp_update_plugins();
+				$update_plugins = get_site_transient( 'update_plugins' );
+
+				if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
+					$new_version = $update_plugins->response[ $plugin_file ]->new_version ?? 'unknown';
+					WP_CLI::error( "An update to $slug $new_version is available; update the plugin instead of patching, or re-run with --force if the update cannot be installed." );
+				}
+			}
+
+			$file = WP_PLUGIN_DIR . '/' . dirname( (string) $plugin_file ) . '/' . $patch['file'];
+
+			$this->apply_php83_patch( $file, $patch );
+		}
+
+		/**
+		 * Patch definitions for the php83-theme-patch subcommand.
+		 *
+		 * Same duplicate-static-variable fatal as php83_plugin_patches(), for themes.
+		 * Two vendor families cover every affected theme:
+		 *
+		 * - SecondLine podcast themes share inc/audio-functions.php, where
+		 *   `secondline_powerpress_options()` declares `static $secondline_player_called;`
+		 *   at the top and then `static $secondline_player_called = true;` inside a
+		 *   branch. Pre-8.3, the branch initializer set the slot's compile-time initial
+		 *   value (true); dropping the duplicate `static` keyword and keeping a plain
+		 *   `= true` assignment in that branch reproduces the same values on every path.
+		 *   These theme files use CRLF line endings.
+		 *
+		 * - Select-Themes themes share lib/functions/meta.php, where the theme-prefixed
+		 *   `*_print_meta_box()` declares `static $muindex = 1;` in both the
+		 *   `mediaupload` and `mediaupload_standard` switch cases. The counter feeds
+		 *   unique uploader DOM ids shared across both cases, so it is hoisted to the
+		 *   top of the function (one shared slot, initial 1 — identical to the pre-8.3
+		 *   compile-time semantics) and the case declarations are deleted. `hazel1` is
+		 *   a site-local copy of hazel and shares its function prefix.
+		 *
+		 * @return array<string,array> Patch definitions keyed by theme slug.
+		 */
+		private static function php83_theme_patches() {
+			$patches = array();
+
+			// Older SecondLine builds ship CRLF line endings, newer (licensed)
+			// builds ship LF; the target line is byte-identical otherwise.
+			$secondline_replacement_sets = array(
+				array(
+					array(
+						"\t\t\tstatic \$secondline_player_called = true;\r\n",
+						"\t\t\t\$secondline_player_called = true; // wpcomsh: dropped a duplicate `static` keyword (PHP 8.3+ fatal); the variable is declared static at the top of this function.\r\n",
+					),
+				),
+				array(
+					array(
+						"\t\t\tstatic \$secondline_player_called = true;\n",
+						"\t\t\t\$secondline_player_called = true; // wpcomsh: dropped a duplicate `static` keyword (PHP 8.3+ fatal); the variable is declared static at the top of this function.\n",
+					),
+				),
+			);
+
+			foreach ( array( 'tusant-secondline', 'gumbo-secondline', 'dixie-secondline', 'satchmo-secondline', 'bolden-secondline' ) as $slug ) {
+				$patches[ $slug ] = array(
+					'file'             => 'inc/audio-functions.php',
+					'patched_marker'   => 'wpcomsh: dropped a duplicate',
+					'strategy'         => 'replace_once',
+					'replacement_sets' => $secondline_replacement_sets,
+				);
+			}
+
+			$select_themes = array(
+				'hazel'    => 'hazel',
+				'hazel1'   => 'hazel',
+				'alma'     => 'alma',
+				'maple'    => 'maple',
+				'rhythm'   => 'rhythm',
+				'architek' => 'architek',
+				'skudo'    => 'skudo',
+				'larch-1'  => 'larch',
+			);
+
+			foreach ( $select_themes as $slug => $function_prefix ) {
+				$patches[ $slug ] = array(
+					'file'           => 'lib/functions/meta.php',
+					'patched_marker' => 'wpcomsh: hoisted',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"function {$function_prefix}_print_meta_box(\$meta_box, \$post){",
+							"function {$function_prefix}_print_meta_box(\$meta_box, \$post){\n\t// wpcomsh: hoisted out of the mediaupload cases below (PHP 8.3+ duplicate-static fatal).\n\tstatic \$muindex = 1;",
+						),
+						array(
+							"\n\t\t\tstatic \$muindex = 1;",
+							'',
+							2,
+						),
+					),
+				);
+			}
+
+			return $patches;
+		}
+
+		/**
+		 * Patch a theme to work with PHP 8.3+.
+		 *
+		 * Applies a minimal, behavior-preserving fix for a duplicate `static`
+		 * variable declaration that fatals on PHP 8.3+ ("Duplicate declaration of
+		 * static variable"). See php83_theme_patches() for the per-theme rationale.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <theme>
+		 * : The theme to patch.
+		 *
+		 * [--force]
+		 * : Patch even when an update for the theme is pending. Only for cases
+		 *   where the update exists but cannot be installed (dead license,
+		 *   broken vendor download).
+		 *
+		 * @subcommand php83-theme-patch
+		 */
+		public function php_83_theme_patch( $args, $assoc_args ) {
+			$patches = self::php83_theme_patches();
+			$slug    = $args[0];
+
+			if ( ! isset( $patches[ $slug ] ) ) {
+				WP_CLI::error( sprintf( 'No PHP 8.3 patch for %s. Available: %s.', $slug, implode( ', ', array_keys( $patches ) ) ) );
+			}
+
+			$patch = $patches[ $slug ];
+			$theme = wp_get_theme( $slug );
+
+			if ( ! $theme->exists() ) {
+				WP_CLI::error( "$slug theme is not installed." );
+			}
+
+			// Don't patch if an update is pending: the new version may already fix this,
+			// and an update would overwrite the patched file anyway. Refresh the
+			// transient first so the decision is based on current data.
+			if ( ! \WP_CLI\Utils\get_flag_value( $assoc_args, 'force', false ) ) {
+				wp_update_themes();
+				$update_themes = get_site_transient( 'update_themes' );
+
+				if ( isset( $update_themes->response[ $slug ] ) ) {
+					$new_version = $update_themes->response[ $slug ]['new_version'] ?? 'unknown';
+					WP_CLI::error( "An update to $slug $new_version is available; update the theme instead of patching, or re-run with --force if the update cannot be installed." );
+				}
+			}
+
+			$file = $theme->get_stylesheet_directory() . '/' . $patch['file'];
+
+			$this->apply_php83_patch( $file, $patch );
+		}
+
+		/**
+		 * Apply one php83 patch definition to a file on disk.
+		 *
+		 * Exits via WP_CLI::error() when the file or any patch target does not look
+		 * exactly as expected — an unknown vendor version is a reason to stop, not
+		 * to guess.
+		 *
+		 * @param string $file  Absolute path of the file to patch.
+		 * @param array  $patch Patch definition (see php83_plugin_patches()).
+		 */
+		private function apply_php83_patch( $file, array $patch ) {
+			if ( ! file_exists( $file ) ) {
+				WP_CLI::error( 'File not found: ' . $file );
+			}
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$file_content = file_get_contents( $file );
+
+			if ( false === $file_content ) {
+				WP_CLI::error( 'File not readable: ' . $file );
+			}
+
+			// Already patched: re-running is a safe no-op.
+			if ( false !== strpos( $file_content, $patch['patched_marker'] ) ) {
+				WP_CLI::success( 'Already patched.' );
+				return;
+			}
+
+			if ( 'split_rename' === $patch['strategy'] ) {
+				// Rename every occurrence of `search` after `split_marker`, leaving the
+				// original declaration before the marker untouched.
+				$marker_pos = strpos( $file_content, $patch['split_marker'] );
+
+				if ( false === $marker_pos ) {
+					WP_CLI::error( 'Patch target not found in ' . $file );
+				}
+
+				$before = substr( $file_content, 0, $marker_pos );
+				$after  = substr( $file_content, $marker_pos );
+
+				$count = 0;
+				$after = str_replace( $patch['search'], $patch['replace'], $after, $count );
+
+				if ( ! $count ) {
+					WP_CLI::error( 'String not found on ' . $file );
+				}
+
+				$file_content = $before . $after;
+			} else {
+				// replace_once: every pair must match exactly as many times as expected
+				// (default 1), or the installed version differs from the one the patch
+				// was written against. A patch may carry several 'replacement_sets'
+				// (e.g. CRLF and LF variants of the same vendor file); the first set
+				// whose first pair matches is applied in full.
+				$sets = $patch['replacement_sets'] ?? array( $patch['replacements'] );
+				$set  = null;
+
+				foreach ( $sets as $candidate ) {
+					if ( substr_count( $file_content, $candidate[0][0] ) === ( $candidate[0][2] ?? 1 ) ) {
+						$set = $candidate;
+						break;
+					}
+				}
+
+				if ( null === $set ) {
+					WP_CLI::error( sprintf( 'No replacement set matches %s — unknown vendor version?', $file ) );
+				}
+
+				foreach ( $set as $replacement ) {
+					$search      = $replacement[0];
+					$replace     = $replacement[1];
+					$expected    = $replacement[2] ?? 1;
+					$occurrences = substr_count( $file_content, $search );
+
+					if ( $expected !== $occurrences ) {
+						WP_CLI::error( sprintf( 'Expected exactly %d match(es) in %s, found %d — unknown vendor version?', $expected, $file, $occurrences ) );
+					}
+
+					$file_content = str_replace( $search, $replace, $file_content );
+				}
+			}
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			if ( ! file_put_contents( $file, $file_content ) ) {
+				WP_CLI::error( 'Failed to write to ' . $file );
+			}
+
+			WP_CLI::success( 'Success' );
+		}
+
+		/**
 		 * Enable or disable fatal error emails.
 		 *
 		 * ## OPTIONS
@@ -945,7 +1645,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand disable-fatal-error-emails
 		 */
-		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		public function fatal_error_emails_disable( $args, $assoc_args ) {
 			$command = $args[0];
 			$value   = (bool) $assoc_args['value'];
 

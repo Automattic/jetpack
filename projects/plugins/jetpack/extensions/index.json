@@ -26,6 +26,7 @@
 		"opentable",
 		"payments",
 		"pinterest",
+		"podcast-episode",
 		"podcast-player",
 		"premium-content",
 		"rating-star",
@@ -73,15 +74,18 @@
 		"ai-title-optimization-keywords-support",
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
+		"ai-sidebar-toolbar-button",
 		"ai-seo-enhancer",
-		"paypal-payment-buttons"
+		"ai-correct-spelling",
+		"paypal-payment-buttons",
+		"image-studio",
+		"block-notes"
 	],
 	"beta": [
 		"google-docs-embed",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"latex",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform"
 	],

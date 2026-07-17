@@ -96,7 +96,7 @@ class Simple_Payments {
 		 *
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
-		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Ignored here instead of on the $ver param line since wpcom isn't in sync with ruleset changes in: https://github.com/Automattic/jetpack/pull/28199
+		wp_register_script(
 			'paypal-checkout-js',
 			'https://www.paypalobjects.com/api/checkout.js',
 			array(),
@@ -129,6 +129,7 @@ class Simple_Payments {
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
+		add_filter( 'rest_prepare_' . self::$post_type_product, array( $this, 'redact_spay_email_for_unauthorized' ), 10, 2 );
 	}
 
 	/**
@@ -520,6 +521,35 @@ class Simple_Payments {
 	}
 
 	/**
+	 * Strip the seller's PayPal email (`spay_email`) from REST responses when the
+	 * requester cannot edit the product. The meta stays `show_in_rest => true` so
+	 * the block editor's read/write round-trip keeps working — but unauthenticated
+	 * or read-only callers no longer see the address in collection or single-item
+	 * responses for the `jp_pay_product` post type.
+	 *
+	 * @param mixed $response The response object (expected: \WP_REST_Response).
+	 * @param mixed $post     The product post (expected: \WP_Post).
+	 * @return mixed
+	 */
+	public function redact_spay_email_for_unauthorized( $response, $post ) {
+		if ( ! $response instanceof \WP_REST_Response || ! $post instanceof WP_Post ) {
+			return $response;
+		}
+
+		if ( current_user_can( 'edit_post', $post->ID ) ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+		if ( isset( $data['meta']['spay_email'] ) ) {
+			unset( $data['meta']['spay_email'] );
+			$response->set_data( $data );
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Sanitize three-character ISO-4217 Simple payments currency
 	 *
 	 * List has to be in sync with list at the block's client side and widget's backend side:
@@ -611,22 +641,23 @@ class Simple_Payments {
 			'read_private_posts' => 'read_private_posts',
 		);
 		$order_args         = array(
-			'label'               => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack-paypal-payments' ),
-			'description'         => esc_html__( 'Simple Payments orders', 'jetpack-paypal-payments' ),
-			'supports'            => array( 'custom-fields', 'excerpt' ),
-			'hierarchical'        => false,
-			'public'              => false,
-			'show_ui'             => false,
-			'show_in_menu'        => false,
-			'show_in_admin_bar'   => false,
-			'show_in_nav_menus'   => false,
-			'can_export'          => true,
-			'has_archive'         => false,
-			'exclude_from_search' => true,
-			'publicly_queryable'  => false,
-			'rewrite'             => false,
-			'capabilities'        => $order_capabilities,
-			'show_in_rest'        => true,
+			'label'                 => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack-paypal-payments' ),
+			'description'           => esc_html__( 'Simple Payments orders', 'jetpack-paypal-payments' ),
+			'supports'              => array( 'custom-fields', 'excerpt' ),
+			'hierarchical'          => false,
+			'public'                => false,
+			'show_ui'               => false,
+			'show_in_menu'          => false,
+			'show_in_admin_bar'     => false,
+			'show_in_nav_menus'     => false,
+			'can_export'            => true,
+			'has_archive'           => false,
+			'exclude_from_search'   => true,
+			'publicly_queryable'    => false,
+			'rewrite'               => false,
+			'capabilities'          => $order_capabilities,
+			'show_in_rest'          => true,
+			'rest_controller_class' => Order_REST_Controller::class,
 		);
 		register_post_type( self::$post_type_order, $order_args );
 

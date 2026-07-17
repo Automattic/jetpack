@@ -1,5 +1,6 @@
 import { setLocale } from '@automattic/number-formatters';
-import { useEffect } from 'react';
+import { ThemeProvider } from '@wordpress/theme';
+import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
 import type { Decorator } from '@storybook/react';
@@ -13,6 +14,7 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	accentColor?: string;
 	containerWidth?: string;
 	containerHeight?: string;
+	showOffsetTestButtons?: boolean;
 	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
 	withPadding?: boolean;
 };
@@ -29,23 +31,75 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 export const chartDecorator: Decorator = ( Story, context ) => {
 	const args = context.args as ChartStoryArgs;
 	const withPadding = args.withPadding !== false;
+	const showOffsetTestButtons = args.showOffsetTestButtons === true;
 
-	const StoryWithContainer = () => (
-		<div
-			style={ {
-				resize: args.resize || 'both',
-				overflow: 'auto',
-				padding: withPadding ? '1rem' : undefined,
-				width: args.containerWidth || '800px',
-				height: args.containerHeight,
-				maxWidth: '1200px',
-				border: '1px dashed #ccc',
-				display: 'inline-block',
-			} }
-		>
-			<Story />
-		</div>
-	);
+	const StoryWithContainer = () => {
+		const containerRef = useRef< HTMLDivElement >( null );
+		const offsetRef = useRef( { x: 0, y: 0 } );
+
+		// Direct DOM manipulation to move container without React re-render
+		const moveContainer = useCallback( ( dx: number, dy: number ) => {
+			if ( containerRef.current ) {
+				offsetRef.current.x += dx;
+				offsetRef.current.y += dy;
+				containerRef.current.style.transform = `translate(${ offsetRef.current.x }px, ${ offsetRef.current.y }px)`;
+			}
+		}, [] );
+
+		const resetPosition = useCallback( () => {
+			if ( containerRef.current ) {
+				offsetRef.current = { x: 0, y: 0 };
+				containerRef.current.style.transform = '';
+			}
+		}, [] );
+
+		const moveLeft = useCallback( () => moveContainer( -50, 0 ), [ moveContainer ] );
+		const moveRight = useCallback( () => moveContainer( 50, 0 ), [ moveContainer ] );
+		const moveUp = useCallback( () => moveContainer( 0, -50 ), [ moveContainer ] );
+		const moveDown = useCallback( () => moveContainer( 0, 50 ), [ moveContainer ] );
+
+		return (
+			<>
+				{ showOffsetTestButtons && (
+					<div style={ { marginBottom: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' } }>
+						<span style={ { fontSize: '12px', color: '#666', alignSelf: 'center' } }>
+							Move container (no re-render):
+						</span>
+						<button type="button" onClick={ moveLeft }>
+							← Left
+						</button>
+						<button type="button" onClick={ moveRight }>
+							Right →
+						</button>
+						<button type="button" onClick={ moveUp }>
+							↑ Up
+						</button>
+						<button type="button" onClick={ moveDown }>
+							Down ↓
+						</button>
+						<button type="button" onClick={ resetPosition }>
+							Reset
+						</button>
+					</div>
+				) }
+				<div
+					ref={ containerRef }
+					style={ {
+						resize: args.resize || 'both',
+						overflow: 'auto',
+						padding: withPadding ? '1rem' : undefined,
+						width: args.containerWidth || '800px',
+						height: args.containerHeight || '400px',
+						maxWidth: '1200px',
+						border: '1px dashed #ccc',
+						display: 'inline-block',
+					} }
+				>
+					<Story />
+				</div>
+			</>
+		);
+	};
 
 	return simpleChartDecorator( StoryWithContainer, context );
 };
@@ -62,11 +116,13 @@ const isValidHexColor = ( color: string ): boolean => {
 
 /**
  * Provider wrapper for Storybook chart stories
- * Handles theme setup, CSS variables for custom theme, locale initialization, and GlobalChartsProvider
+ * Handles theme setup, WPDS ThemeProvider, locale initialization, and GlobalChartsProvider.
+ * Always wraps in ThemeProvider to mirror the real WordPress environment where
+ * design-system tokens are expected to be available.
  * @param root0             - Props object
  * @param root0.children    - Child components to render
  * @param root0.themeName   - Theme name to apply
- * @param root0.accentColor - Accent color for custom theme (injected as CSS variable)
+ * @param root0.accentColor - Accent color fed to WPDS ThemeProvider as primary seed
  * @return JSX element with chart environment setup and GlobalChartsProvider
  */
 const StoryChartProvider = ( {
@@ -89,29 +145,32 @@ const StoryChartProvider = ( {
 
 	const theme = CHART_THEME_MAP[ themeName ];
 
-	// Sanitize accent color to prevent XSS via CSS injection
-	// Falls back to default if invalid hex color is provided
+	// Only seed a custom primary color when the custom theme is active.
+	// Other themes use ThemeProvider's built-in default.
 	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
+	const themeProviderColor = themeName === 'custom' ? { primary: sanitizedAccentColor } : undefined;
 
 	// Force GlobalChartsProvider to remount when accent color changes for custom theme
 	// This ensures CSS variables are re-resolved after the DOM updates
 	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
 
 	return (
-		<>
-			{ themeName === 'custom' && (
-				<style>
-					{ `
-						:root {
-							--wpds-color-bg-interactive-brand: ${ sanitizedAccentColor };
-						}
-					` }
-				</style>
-			) }
-			<GlobalChartsProvider key={ providerKey } theme={ theme }>
-				{ children }
-			</GlobalChartsProvider>
-		</>
+		<ThemeProvider color={ themeProviderColor }>
+			{ /*
+				Storybook acts as a WPDS-themed host application so charts
+				inherit the design system body font through normal CSS
+				cascade.
+			*/ }
+			<div
+				style={ {
+					fontFamily: 'var(--wpds-typography-font-family-body, sans-serif)',
+				} }
+			>
+				<GlobalChartsProvider key={ providerKey } theme={ theme }>
+					{ children }
+				</GlobalChartsProvider>
+			</div>
+		</ThemeProvider>
 	);
 };
 
@@ -174,6 +233,12 @@ export const sharedChartArgTypes = {
 	containerHeight: {
 		control: { type: 'text' },
 		description: 'CSS height value for the chart container (e.g., "400px", "100%")',
+	},
+	showOffsetTestButtons: {
+		control: 'boolean',
+		description:
+			'Show buttons to move the container via DOM manipulation (no re-render) for testing tooltip positioning',
+		table: { category: 'Testing' },
 	},
 	resize: {
 		control: { type: 'select' },

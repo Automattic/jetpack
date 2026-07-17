@@ -133,22 +133,71 @@ describe( 'Social store actions: connectionData', () => {
 		} );
 	} );
 
-	describe( 'refreshConnectionTestResults', () => {
-		const refreshConnections = '/wpcom/v2/publicize/connection-test-results';
-		beforeAll( () => {
-			global.JetpackScriptData = {
-				social: {
-					api_paths: {
-						refreshConnections,
-					},
-				},
-			};
+	describe( 'updateConnectionById', () => {
+		const connectionId = connections[ 0 ].connection_id;
+
+		it( 'should track the connection as updating by default', async () => {
+			let resolveFetch;
+
+			apiFetch.setFetchHandler(
+				() =>
+					new Promise( resolve => {
+						resolveFetch = resolve;
+					} )
+			);
+
+			const registry = createRegistryWithStores();
+
+			const updatePromise = registry.dispatch( socialStore ).updateConnectionById( connectionId, {
+				shared: true,
+			} );
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [ connectionId ] );
+
+			resolveFetch();
+			await updatePromise;
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
 		} );
+
+		it( 'should skip updating tracking when silent is true', async () => {
+			let resolveFetch;
+
+			apiFetch.setFetchHandler(
+				() =>
+					new Promise( resolve => {
+						resolveFetch = resolve;
+					} )
+			);
+
+			const registry = createRegistryWithStores();
+
+			const updatePromise = registry.dispatch( socialStore ).updateConnectionById(
+				connectionId,
+				{
+					template: 'Custom template',
+				},
+				{
+					silent: true,
+				}
+			);
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
+
+			resolveFetch();
+			await updatePromise;
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
+		} );
+	} );
+
+	describe( 'refreshConnectionTestResults', () => {
+		const connectionsPath = '/wpcom/v2/publicize/connections';
 
 		it( 'should refresh connection test results', async () => {
 			// Mock apiFetch response.
 			apiFetch.setFetchHandler( async ( { path } ) => {
-				if ( path.startsWith( refreshConnections ) ) {
+				if ( path.startsWith( connectionsPath ) ) {
 					return connections.map( connection => ( {
 						...connection,
 						status: 'broken',

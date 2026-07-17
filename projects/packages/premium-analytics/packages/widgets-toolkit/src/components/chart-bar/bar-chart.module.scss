@@ -1,0 +1,48 @@
+.chart {
+	// Override visx-bar default styles that break the layout
+	// Todo: address upstream in Charts package.
+	:global(.visx-bar) {
+		// All corners rounded to handle both positive and negative bar
+		// values consistently.
+		clip-path: inset(0 round 4px);
+	}
+
+	.legend {
+		width: 100%;
+		height: auto;
+		min-height: var(--wpds-typography-line-height-lg);
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		row-gap: var(--wpds-dimension-gap-xs) !important;
+
+		// Vertically center the legend shape.
+		// The Charts package applies a non-zero transform to legend circles,
+		// which offsets them from the label baseline in this layout. Reset
+		// the transform here so the circle is aligned with the accompanying
+		// text. TODO: address this default upstream in the Charts package.
+		circle {
+			transform: translate(0, 0) !important;
+		}
+	}
+
+	.legendItem {
+		min-width: 0;
+		max-width: 100%;
+		flex: 0 1 auto;
+		gap: var(--wpds-dimension-gap-sm);
+		justify-content: flex-start;
+		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm); // 4px 6px->8px
+	}
+
+	.legendLabel {
+		min-width: 0;
+		flex: 0 1 auto !important; // Allow the label to shrink so items wrap cleanly
+	}
+
+	.emptyState {
+		flex: 1;
+		min-height: 200px;
+	}
+}

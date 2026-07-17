@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: clear alt text input when re-opening the image inserter modal.

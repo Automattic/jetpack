@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add config option `strip-docs-keep-tags`, which works like `strip-docs` but preserves unrecognized tags.

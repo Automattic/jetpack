@@ -1,39 +1,39 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import {
-	__experimentalText as WPText,
-	__experimentalHStack as HStack,
-} from '@wordpress/components';
+import { Stack, Text } from '@wordpress/ui';
 import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
-import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
+	extractLegendConfig,
 	legendArgTypes,
 	themeArgTypes,
+	type LegendStoryControls,
 } from '../../../stories';
 import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
-import { Text } from '../../../visx/text';
+import { Text as SvgText } from '../../../visx/text';
 import { PieChart, PieChartUnresponsive } from '../../pie-chart';
+import type { ChartLegendConfig, DataPointPercentage } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > &
+	LegendStoryControls & {
+		/** Story-only toggle to show comparison data in the custom legend. */
+		withComparison?: boolean;
+	};
 
 const data = [
 	{
 		label: 'Active Users',
 		value: 65000,
 		valueDisplay: '65K',
-		percentage: 65,
 	},
 	{
 		label: 'Inactive Users',
 		value: 35000,
 		valueDisplay: '35K',
-		percentage: 35,
 	},
 ];
 
@@ -48,6 +48,13 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		legendValueDisplay: {
+			control: { type: 'select' as const },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
+		},
 		size: {
 			control: {
 				type: 'range',
@@ -82,6 +89,10 @@ const meta: Meta< StoryArgs > = {
 			},
 		},
 	},
+	render: args => {
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( args );
+		return <PieChart { ...args } legend={ legend } />;
+	},
 } satisfies Meta< StoryArgs >;
 
 export default meta;
@@ -90,10 +101,8 @@ type Story = StoryObj< StoryArgs >;
 export const Default: Story = {
 	args: {
 		...sharedThemeArgs,
-		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
-		resize: 'none',
 		thickness: 0.5,
 		gapScale: 0.03,
 		cornerScale: 0.03,
@@ -101,12 +110,31 @@ export const Default: Story = {
 		data,
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
 					User Activity
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
 					Total: 100K Users
-				</Text>
+				</SvgText>
+			</Group>
+		),
+	},
+};
+
+export const WithSize: Story = {
+	args: {
+		...Default.args,
+		size: 200,
+		thickness: 0.3,
+		showLabels: false,
+		children: (
+			<Group>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -16 }>
+					User Activity
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 16 }>
+					Total: 100K Users
+				</SvgText>
 			</Group>
 		),
 	},
@@ -124,15 +152,11 @@ export const ErrorStates: Story = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<PieChart size={ 300 } thickness={ 0.6 } data={ [] } />
+				<PieChart height={ 300 } thickness={ 0.6 } data={ [] } />
 			</div>
 			<div>
 				<h3>Single Value</h3>
-				<PieChart
-					size={ 300 }
-					thickness={ 0.6 }
-					data={ [ { label: 'Single', value: 100, percentage: 100 } ] }
-				/>
+				<PieChart height={ 300 } thickness={ 0.6 } data={ [ { label: 'Single', value: 100 } ] } />
 			</div>
 		</div>
 	),
@@ -143,63 +167,17 @@ export const Thin: Story = {
 		...Default.args,
 		thickness: 0.2,
 		gapScale: 0.01,
-		size: 700,
-		containerWidth: '732px',
-		containerHeight: '732px',
+		showLabels: false,
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
 					Thin Donut
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
 					Thickness: 20%
-				</Text>
+				</SvgText>
 			</Group>
 		),
-	},
-};
-
-export const Doughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		gapScale: 0.03,
-		cornerScale: 0.03,
-		size: 600,
-		containerWidth: '632px',
-		containerHeight: '632px',
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-					🍩 Doughnut
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fill="#008A20" fontSize={ 18 } y={ 16 }>
-					Three donuts for the price of one!
-				</Text>
-			</Group>
-		),
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Doughnut chart variant with the thickness set to 0.5 (50%).',
-			},
-		},
-	},
-};
-
-export const WithTooltipsDoughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		withTooltips: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Doughnut chart with interactive tooltips that appear on hover.',
-			},
-		},
 	},
 };
 
@@ -210,183 +188,63 @@ export const Animation: Story = {
 	},
 };
 
+export const WithTooltips: Story = {
+	args: {
+		...Default.args,
+		showLabels: false,
+		withTooltips: true,
+		children: (
+			<Group>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ -10 }>
+					Hover over segments
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 10 }>
+					to see tooltips
+				</SvgText>
+			</Group>
+		),
+	},
+};
+
 export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
 		containerHeight: '500px',
 	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
+			},
+		},
+	},
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				alignItems: 'center',
-			} }
-		>
-			<div>
-				<h3>Traditional Props-based</h3>
-				<PieChart
-					size={ 300 }
-					data={ args.data }
-					thickness={ 0.5 }
-					showLegend={ true }
-					legendPosition={ args.legendPosition || 'bottom' }
-					legendOrientation={ args.legendOrientation || 'horizontal' }
-					legendAlignment={ args.legendAlignment || 'center' }
-					legendMaxWidth={ args.legendMaxWidth }
-					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-				</PieChart>
-			</div>
-			<div>
-				<h3>Composition API</h3>
-				<PieChart
-					size={ 300 }
-					data={ args.data }
-					thickness={ 0.5 }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-					<PieChart.Legend
-						position={ args.legendPosition || 'bottom' }
-						orientation={ args.legendOrientation || 'horizontal' }
-						alignment={ args.legendAlignment || 'center' }
-						maxWidth={ args.legendMaxWidth }
-						textOverflow={ args.legendTextOverflow || 'wrap' }
-					/>
-				</PieChart>
-			</div>
-		</div>
-	),
-	args: {
-		data,
-		thickness: 0.5,
-		containerHeight: '500px',
+	render: args => {
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( args );
+		return (
+			<PieChart
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-donut-chart"
+			>
+				{ args.children }
+				<PieChart.Legend { ...legend } />
+			</PieChart>
+		);
 	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
-			},
-		},
-	},
-};
-
-export const InteractiveLegend: Story = {
-	render: args => (
-		<GlobalChartsProvider>
-			<div style={ { padding: '20px' } }>
-				<h3>Interactive Donut Chart</h3>
-				<p style={ { marginBottom: '20px', color: '#666' } }>
-					Click legend items to show/hide segments. The total value updates dynamically.
-				</p>
-				<PieChartUnresponsive
-					chartId="interactive-donut-chart"
-					size={ args.size || 400 }
-					data={ args.data }
-					thickness={ 0.5 }
-					showLegend={ true }
-					legendInteractive={ true }
-					legendPosition={ args.legendPosition || 'bottom' }
-					legendOrientation={ args.legendOrientation || 'horizontal' }
-					legendAlignment={ args.legendAlignment || 'center' }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-				</PieChartUnresponsive>
-			</div>
-		</GlobalChartsProvider>
-	),
-	args: {
-		data,
-		size: 400,
-		thickness: 0.5,
-		containerHeight: '600px',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Interactive donut chart with clickable legend. Segments can be hidden/shown, and percentages recalculate automatically. Requires chartId and GlobalChartsProvider.',
-			},
-		},
-	},
-};
-
-export const CustomLegendPositioning: Story = {
 	args: {
 		...Default.args,
-		thickness: 0.4,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
-		data: [
-			{
-				label: 'Desktop',
-				value: 45000,
-				valueDisplay: '45K',
-				percentage: 45,
-			},
-			{
-				label: 'Mobile',
-				value: 35000,
-				valueDisplay: '35K',
-				percentage: 35,
-			},
-			{
-				label: 'Tablet',
-				value: 20000,
-				valueDisplay: '20K',
-				percentage: 20,
-			},
-		],
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
-					Distribution
-				</Text>
-			</Group>
-		),
+		containerHeight: '500px',
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: 'Donut chart with vertical legend positioned at the top left.',
+				story:
+					'Composition API using `<PieChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
@@ -405,7 +263,7 @@ const CustomPieLegend = ( {
 		style={ {
 			display: 'inline-grid',
 			gridTemplateColumns: '1fr auto auto',
-			gap: 'var(--wpds-spacing-05, 5px) var(--wpds-spacing-10, 10px)',
+			gap: 'var(--wpds-dimension-gap-xs, 4px) var(--wpds-dimension-gap-sm, 8px)',
 		} }
 	>
 		{ items.map( ( item, index ) => {
@@ -413,7 +271,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" gap={ 2 }>
+					<Stack direction="row" justify="flex-start" align="center" gap="sm">
 						<div
 							style={ {
 								width: '8px',
@@ -423,14 +281,14 @@ const CustomPieLegend = ( {
 								backgroundColor: color,
 							} }
 						/>
-						<WPText size="small">{ item.label }</WPText>
-					</HStack>
-					<WPText size="small" weight={ 600 } style={ { textAlign: 'right' } }>
+						<Text variant="body-sm">{ item.label }</Text>
+					</Stack>
+					<Text variant="body-sm" style={ { fontWeight: 600, textAlign: 'right' } }>
 						{ item.formattedValue }
-					</WPText>
-					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
+					</Text>
+					<Text variant="body-sm" style={ { textAlign: 'right', color: '#008a20' } }>
 						{ withComparison && item.comparison }
-					</WPText>
+					</Text>
 				</Fragment>
 			);
 		} ) }
@@ -454,7 +312,8 @@ export const CustomLegend: Story = {
 	),
 	args: {
 		...Default.args,
-		data: customerRevenueData.map( segment => ( { ...segment, label: '' } ) ),
+		data: customerRevenueData,
+		showLabels: false,
 		thickness: 0.3,
 		cornerScale: 0.03,
 		gapScale: 0.01,

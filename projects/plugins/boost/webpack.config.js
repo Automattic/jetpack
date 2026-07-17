@@ -9,6 +9,10 @@ const imageGuideCopyPatterns = [
 			path.dirname( require.resolve( '@automattic/jetpack-image-guide' ) ),
 			'guide.css'
 		),
+		// Emit as `.min.css` so the concatenation serving path treats it as already
+		// minified and skips re-minification (consistent with guide.min.js). The file is
+		// already minified at build time, so re-minifying it is redundant.
+		to: 'guide.min.css',
 	},
 ];
 
@@ -29,6 +33,19 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
+			minimizer: [
+				/**
+				 * mck89/peast (used by wp i18n make-pot) can't correctly parse a ParenthesizedExpression generated from react-router.
+				 * Somehow, setting this causes that code from react-router to be tree-shaken out.
+				 */
+				jetpackWebpackConfig.TerserPlugin( {
+					terserOptions: {
+						enclose: true,
+					},
+				} ),
+				jetpackWebpackConfig.CssMinimizerPlugin(),
+			],
+
 			splitChunks: {
 				minChunks: 2,
 			},
@@ -65,6 +82,15 @@ module.exports = [
 				MiniCssExtractPlugin: {
 					filename: 'jetpack-boost.css',
 				},
+				DependencyExtractionPlugin: {
+					requestMap: {
+						// Bundle @wordpress/theme and @wordpress/private-apis inline —
+						// they're transitive deps of @wordpress/ui but aren't registered
+						// as script handles in WP core, so externalizing them breaks enqueue.
+						'@wordpress/theme': { external: false },
+						'@wordpress/private-apis': { external: false },
+					},
+				},
 			} ),
 			new webpack.ProvidePlugin( {
 				process: require.resolve( 'process/browser' ),
@@ -73,13 +99,6 @@ module.exports = [
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-				// https://github.com/WordPress/gutenberg/issues/73362
-				{
-					test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-					resolve: { fullySpecified: false },
-				},
-
 				// Transpile JavaScript
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,
@@ -90,10 +109,23 @@ module.exports = [
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
+				// Workarounds for non-extracted `@wordpress/*` packages.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+					extraLoaders: [
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: {
+									config: path.join( __dirname, 'postcss.config.js' ),
+								},
+							},
+						},
+						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+					],
 				} ),
 
 				// Handle images.
@@ -119,7 +151,11 @@ module.exports = [
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			path: path.resolve( './app/modules/image-guide/dist' ),
-			filename: 'guide.js',
+			// Ship as `.min.js` so Boost's own concatenation serving path treats it as
+			// already-minified and skips re-minification. The MatthiasMullie PHP minifier
+			// is ES5-era and silently corrupts the Svelte/ES6 template literals in this
+			// bundle; webpack/Terser has already minified it at build time.
+			filename: 'guide.min.js',
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,

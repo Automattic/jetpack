@@ -1,0 +1,63 @@
+/**
+ * Search product filter — stock status.
+ *
+ * Mirrors filter-checkbox / filter-date so all checkbox-shaped filters
+ * render with the same title typography, row spacing, and count-pill look.
+ * The shared `.jetpack-search-filter__*` classes aren't actually shared at
+ * CSS-load time — each filter block scopes its own copy under its
+ * `.wp-block-jetpack-search-filter-*` wrapper — so duplicate the rules
+ * here rather than depending on the (filter-checkbox-scoped) original.
+ */
+@use "../skeleton" as skeleton;
+
+.wp-block-jetpack-search-filter-wc-stock-status {
+
+	&[hidden] {
+		display: none;
+	}
+
+	@include skeleton.shimmer;
+	@include skeleton.filter-rows;
+
+	.jetpack-search-filter__title {
+		font-size: 0.85rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin: 0 0 0.5rem;
+		color: inherit;
+	}
+
+	.jetpack-search-filter__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.jetpack-search-filter__item {
+		padding: 0.25rem 0;
+
+		label {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			cursor: pointer;
+		}
+	}
+
+	.jetpack-search-filter__label {
+		flex: 1;
+	}
+
+	.jetpack-search-filter__count {
+		font-size: 0.8rem;
+		color: inherit;
+		background: color-mix(in sRGB, currentColor 12%, transparent);
+		border-radius: 10px;
+		padding: 0 0.4rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+}

@@ -5,6 +5,10 @@
  * @package automattic/jetpack-error
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
 /**
  * Load Composer autoloader.
  */

@@ -1,0 +1,100 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+@keyframes preview-loading-pulse {
+
+	0% {
+		opacity: 0.56;
+	}
+
+	50% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0.56;
+	}
+}
+
+.preview-section {
+	background: gb.$gray-100;
+	padding: 1rem;
+
+	.inactive-preview {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		color: gb.$gray-700;
+
+		svg {
+			fill: gb.$gray-700;
+		}
+	}
+
+	.preview-wrapper {
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.preview-skeleton {
+		inline-size: min(100%, 420px);
+		padding: 1rem;
+		border: 1px solid gb.$gray-200;
+		border-radius: 8px;
+		background: gb.$white;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.preview-skeleton-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.preview-skeleton-avatar,
+	.preview-skeleton-line,
+	.preview-skeleton-media {
+		background: gb.$gray-200;
+		animation: preview-loading-pulse 1.5s ease-in-out infinite;
+	}
+
+	.preview-skeleton-avatar {
+		inline-size: 40px;
+		block-size: 40px;
+		border-radius: 50%;
+		flex: 0 0 auto;
+	}
+
+	.preview-skeleton-lines,
+	.preview-skeleton-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		inline-size: 100%;
+	}
+
+	.preview-skeleton-line {
+		inline-size: 100%;
+		block-size: 12px;
+		border-radius: 999px;
+	}
+
+	.preview-skeleton-line-medium {
+		inline-size: 72%;
+	}
+
+	.preview-skeleton-line-short {
+		inline-size: 44%;
+	}
+
+	.preview-skeleton-media {
+		aspect-ratio: 16 / 9;
+		border-radius: 4px;
+	}
+}

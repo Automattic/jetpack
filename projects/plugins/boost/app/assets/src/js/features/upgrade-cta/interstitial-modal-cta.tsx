@@ -1,6 +1,6 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal';
-import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.png';
+import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal/index';
+import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp';
 import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import type { ReactNode } from 'react';

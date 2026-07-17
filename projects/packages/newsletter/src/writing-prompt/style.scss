@@ -1,0 +1,47 @@
+@import "@wordpress/theme/design-tokens.css";
+
+.wpcom-daily-writing-prompt--prompt-text {
+	flex: 1;
+	margin: 0;
+	text-wrap: pretty;
+}
+
+.wpcom-daily-writing-prompt--prompt-nav {
+	flex-shrink: 0;
+}
+
+.wpcom-daily-writing-prompt--branding {
+	padding-block-start: var(--wpds-dimension-padding-md);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+}
+
+.wpcom-daily-writing-prompt--answered-users {
+
+	img {
+		vertical-align: middle;
+		border-radius: 50%;
+		border: var(--wpds-border-width-sm) solid var(--wpds-color-background-surface-neutral);
+		margin-inline-start: calc(-1 * (var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm)));
+	}
+
+	img:first-child {
+		margin-inline-start: 0;
+	}
+}
+
+.wpcom-daily-writing-prompt--answered-users-more {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: middle;
+	width: 24px;
+	height: 24px;
+	font-size: 0.5625rem;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+	border-radius: 50%;
+	border: var(--wpds-border-width-sm) solid var(--wpds-color-background-surface-neutral);
+	margin-inline-start: calc(-1 * (var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm)));
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

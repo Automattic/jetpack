@@ -1,7 +1,8 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import AkismetIcon from '../../../../../icons/akismet.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 
@@ -38,7 +39,7 @@ export function buildAkismetCard( {
 					"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
+				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'Akismet is installed. Just activate the plugin to start blocking spam.',
@@ -55,13 +56,21 @@ export function buildAkismetCard( {
 							'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 							'jetpack-forms'
 						),
-						{ a: <ExternalLink href={ settingsUrl } /> }
+						{
+							a: (
+								<Link
+									openInNewTab={ context === 'block-editor' }
+									href={ settingsUrl }
+									children={ null }
+								/>
+							),
+						}
 					) }
 				</p>
 				<Button
 					variant="secondary"
 					href={ settingsUrl }
-					target="_blank"
+					target={ context === 'block-editor' ? '_blank' : '_self' }
 					rel="noopener noreferrer"
 					__next40pxDefaultSize={ true }
 				>
@@ -75,22 +84,24 @@ export function buildAkismetCard( {
 				</p>
 				<HStack spacing="2" justify="start" className="integration-card__links">
 					{ context === 'dashboard' && handlers?.goToSpam ? (
-						<Button variant="link" onClick={ handlers.goToSpam }>
-							{ __( 'View spam', 'jetpack-forms' ) }
-						</Button>
+						<Link onClick={ handlers.goToSpam }>{ __( 'View spam', 'jetpack-forms' ) }</Link>
 					) : (
-						<Button variant="link" href={ spamUrl } target="_blank" rel="noopener noreferrer">
+						<Link openInNewTab={ context === 'block-editor' } href={ spamUrl }>
 							{ __( 'View spam', 'jetpack-forms' ) }
-						</Button>
+						</Link>
 					) }
 					<span>|</span>
-					<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
-						{ __( 'View stats and settings', 'jetpack-forms' ) }
-					</Button>
-					<span>|</span>
-					<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
+					{ settingsUrl && (
+						<>
+							<Link openInNewTab={ context === 'block-editor' } href={ settingsUrl }>
+								{ __( 'View stats and settings', 'jetpack-forms' ) }
+							</Link>
+							<span>|</span>
+						</>
+					) }
+					<Link openInNewTab href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 						{ __( 'Learn about Akismet', 'jetpack-forms' ) }
-					</ExternalLink>
+					</Link>
 				</HStack>
 			</div>
 		),

@@ -1,6 +1,6 @@
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../constants';
 import usePlan from './use-plan';
@@ -79,8 +79,10 @@ export default function useNotices() {
 							),
 							{
 								supportLink: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+										children={ null }
 									/>
 								),
 							}

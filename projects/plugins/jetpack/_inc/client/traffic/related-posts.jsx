@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
@@ -125,9 +126,8 @@ class RelatedPostsComponent extends Component {
 					</p>
 					<ModuleToggle
 						slug="related-posts"
-						disabled={ unavailableInOfflineMode }
+						disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'related-posts' ) }
 						activated={ isRelatedPostsActive }
-						toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
@@ -136,13 +136,13 @@ class RelatedPostsComponent extends Component {
 					</ModuleToggle>
 					<FormFieldset>
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							checked={ this.props.getOptionValue( 'show_headline', 'related-posts' ) }
 							disabled={
 								! isRelatedPostsActive ||
 								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'show_headline' ] ) }
 							onChange={ this.handleShowHeadlineToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">
@@ -151,13 +151,13 @@ class RelatedPostsComponent extends Component {
 							}
 						/>
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							checked={ this.props.getOptionValue( 'show_thumbnails', 'related-posts' ) }
 							disabled={
 								! isRelatedPostsActive ||
 								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'show_thumbnails' ] ) }
 							onChange={ this.handleShowThumbnailsToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">

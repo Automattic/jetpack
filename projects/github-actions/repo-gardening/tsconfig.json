@@ -1,0 +1,10 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"strict": true,
+		"target": "es2022"
+	},
+	"files": [],
+	"include": [ "src", "tsdown.config.ts" ],
+	"exclude": [ "node_modules", "dist" ]
+}

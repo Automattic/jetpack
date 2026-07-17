@@ -181,7 +181,7 @@ class Meta extends Module {
 	private function get_prepared_meta_object( $object_type, $meta_entry ) {
 		$object_id_column = $object_type . '_id';
 
-		if ( 'post' === $object_type && strlen( $meta_entry['meta_value'] ) >= Posts::MAX_META_LENGTH ) {
+		if ( 'post' === $object_type && isset( $meta_entry['meta_value'] ) && is_string( $meta_entry['meta_value'] ) && strlen( $meta_entry['meta_value'] ) >= Posts::MAX_META_LENGTH ) {
 			$meta_entry['meta_value'] = '';
 		}
 

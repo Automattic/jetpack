@@ -15,17 +15,14 @@ Main chart component with responsive behavior by default.
 | `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
 | `width` | `number?` | responsive | Chart width in pixels |
 | `height` | `number?` | responsive | Chart height in pixels |
+| `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `curveType` | `'smooth' \| 'linear' \| 'monotone'?` | `'smooth'` | Line curve interpolation type |
 | `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
 | `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
 | `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where lines scale up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
-| `legendShape` | `LegendShape` | `'line'` | Shape used in legend markers |
-| `legendInteractive` | `boolean` | `false` | Enable interactive legend items that toggle series visibility. Requires `GlobalChartsProvider` and `chartId` to be set. |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
 | `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
 | `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
 | `renderGlyph` | `(props: GlyphProps) => ReactNode?` | - | Custom glyph render function |
@@ -38,6 +35,7 @@ Main chart component with responsive behavior by default.
 | `onPointerMove` | `(event: EventHandlerParams) => void?` | - | Pointer move event handler |
 | `onPointerOut` | `(event: PointerEvent) => void?` | - | Pointer out event handler |
 | `children` | `ReactNode?` | - | Child components (e.g., annotations) |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
 
 ## LineChart.AnnotationsOverlay
 
@@ -177,5 +175,21 @@ type ChartOptions = {
 			tickFormat?: (value: number) => string;
 		};
 	};
+};
+```
+
+## ChartLegendConfig Type
+
+```typescript
+type ChartLegendConfig = {
+	orientation?: 'horizontal' | 'vertical';
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+	shape?: LegendShape;
+	interactive?: boolean;
+	itemClassName?: string;
+	itemStyles?: LegendItemStyles;
+	labelStyles?: LegendLabelStyles;
+	shapeStyles?: LegendShapeStyles;
 };
 ```

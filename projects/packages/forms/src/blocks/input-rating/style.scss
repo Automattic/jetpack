@@ -33,9 +33,9 @@
 
 		// Filled states: current (checked/hover)
 		:is(
-		input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
-		.jetpack-field-rating__label:hover
-	) {
+			input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
+			.jetpack-field-rating__label:hover
+		) {
 
 			.jetpack-field-rating__icon path {
 				fill: var(--jetpack--contact-form--rating-star-color, currentColor);
@@ -44,7 +44,7 @@
 
 		// Filled states: current (checked/hover)
 		:is(
-		input[type="radio"].jetpack-field-rating__input:focus-visible + .jetpack-field-rating__label) {
+			input[type="radio"].jetpack-field-rating__input:focus-visible + .jetpack-field-rating__label) {
 
 			.jetpack-field-rating__icon {
 				scale: 1.3;
@@ -56,11 +56,11 @@
 		.jetpack-field-rating__option {
 
 			&:has(
-			~ .jetpack-field-rating__option :is(
-				input[type="radio"].jetpack-field-rating__input:checked,
-				.jetpack-field-rating__label:hover
-			)
-		) {
+				~ .jetpack-field-rating__option :is(
+					input[type="radio"].jetpack-field-rating__input:checked,
+					.jetpack-field-rating__label:hover
+				)
+			) {
 
 				.jetpack-field-rating__label .jetpack-field-rating__icon path {
 					fill: var(--jetpack--contact-form--rating-star-color, currentColor);

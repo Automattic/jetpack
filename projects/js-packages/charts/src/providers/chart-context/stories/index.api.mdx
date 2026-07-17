@@ -1,0 +1,73 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Global Context/API Reference" />
+
+# Global Charts Context API Reference
+
+This document provides comprehensive API documentation for the Global Charts Context system.
+
+## GlobalChartsProvider
+
+The main provider component that enables chart context functionality.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `theme` | `Partial<ChartTheme>` | `defaultTheme` | Custom theme object that gets merged with the default theme |
+| `children` | `ReactNode` | - | **Required.** Chart components and other React elements |
+
+## GlobalChartsContextValue
+
+The context value shape provided by `useGlobalChartsContext`:
+
+```typescript
+interface GlobalChartsContextValue {
+	// Chart registry
+	charts: Map<string, ChartRegistration>;
+	registerChart: (id: string, data: ChartRegistration) => void;
+	unregisterChart: (id: string) => void;
+	getChartData: (id: string) => ChartRegistration | undefined;
+
+	// Theme and styling
+	theme: CompleteChartTheme;
+	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
+	resolveThemeColor: (value: string) => string;
+
+	// Series visibility management for interactive legends
+	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
+	isSeriesVisible: (chartId: string, seriesLabel: string) => boolean;
+	getHiddenSeries: (chartId: string) => Set<string>;
+
+	// Color palette resolution state
+	isColorPaletteResolved: boolean;
+}
+```
+
+`isColorPaletteResolved` is `false` until the provider's color cache has been resolved from the DOM and painted. Chart components can use this to defer CSS transitions or animations that would otherwise interpolate from a fallback color to the resolved theme color on initial render.
+
+`resolveThemeColor` resolves a color value — including a `--wpds-*` token or `var(...)` expression — to a hex string in the provider's own (theme-scoped) element. Use it when JS needs the *resolved* value of a themed color, such as reading `theme.backgroundColor` to compute text contrast. It resolves at call time, so the result tracks a light/dark theme switch where the token string is unchanged but its resolved value differs. Returns `''` for an empty input.
+
+## ChartRegistration Type
+
+```typescript
+interface ChartRegistration {
+	legendItems: BaseLegendItem[];
+	chartType: ChartType;
+	metadata?: Record<string, unknown>;
+}
+```
+
+## ElementStyles Type
+
+```typescript
+type ElementStyles = {
+	color: string;
+	lineStyles: LineStyles;
+	barStyles: BarStyles;
+	glyph: <Datum extends object>(props: GlyphProps<Datum>) => ReactNode;
+	shapeStyles: CSSProperties & LineStyles;
+};
+```
+
+`barStyles` carries bar-specific styling resolved from the theme by semantic series type (e.g. `barChart.barStyles.comparison`) — `{ widthFactor?, opacity? }`. It is `{}` for series with no matching bar style and for non-`SeriesData` inputs.

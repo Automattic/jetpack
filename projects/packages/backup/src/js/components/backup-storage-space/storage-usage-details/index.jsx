@@ -1,9 +1,9 @@
 import './style.scss';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { STORE_ID } from '../../../store';
 import StorageHelpPopover from '../storage-help-popover';
 import { StorageUsageLevels } from '../storage-usage-levels';
@@ -55,7 +55,8 @@ const StorageUsageDetails = ( {
 						daysOfBackupsSaved === 1 ? singularDaysOfBackupLabel : pluralDaysOfBackupLabel,
 						{
 							a: (
-								<ExternalLink
+								<Link
+									openInNewTab
 									href={ getRedirectUrl( 'backup-plugin-storage-backups-saved', { site: domain } ) }
 								/>
 							),

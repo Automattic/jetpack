@@ -127,7 +127,7 @@ function videopress_media_list_table_query( $query ) {
 /**
  * Make sure that any Video that has a VideoPress GUID passes that data back.
  *
- * @param WP_Post $post Attachment object.
+ * @param array $post Attachment data array.
  * @deprecated 11.4
  */
 function videopress_prepare_attachment_for_js( $post ) {

@@ -9,14 +9,21 @@ import resizeMapContainer from '../utils/resize-map-container';
 class MapkitBlock {
 	constructor( root ) {
 		this.root = root;
+
+		// Read payload from JS global (set by PHP inline script), fall back to data attributes.
+		const mapId = this.root.getAttribute( 'data-map-id' );
+		const data = window.JetpackMapBlockData && mapId ? window.JetpackMapBlockData[ mapId ] : null;
+
 		this.blog_id = this.root.getAttribute( 'data-blog-id' );
-		this.center = JSON.parse( this.root.getAttribute( 'data-map-center' ) || '{}' );
-		this.points = JSON.parse( this.root.getAttribute( 'data-points' ) || '[]' );
-		this.color = this.root.getAttribute( 'data-marker-color' ) || 'red';
-		this.zoom = parseFloat( this.root.getAttribute( 'data-zoom' ) ) || 10;
-		this.scrollToZoom = this.root.getAttribute( 'data-scroll-to-zoom' ) === 'true';
-		this.mapStyle = this.root.getAttribute( 'data-map-style' ) || 'default';
-		this.mapHeight = this.root.getAttribute( 'data-map-height' ) || null;
+		this.center =
+			data?.mapCenter || JSON.parse( this.root.getAttribute( 'data-map-center' ) || '{}' );
+		this.points = data?.points || JSON.parse( this.root.getAttribute( 'data-points' ) || '[]' );
+		this.color = data?.markerColor || this.root.getAttribute( 'data-marker-color' ) || 'red';
+		this.zoom = parseFloat( data?.zoom ?? this.root.getAttribute( 'data-zoom' ) ) || 10;
+		this.scrollToZoom =
+			data?.scrollToZoom ?? this.root.getAttribute( 'data-scroll-to-zoom' ) === 'true';
+		this.mapStyle = data?.mapStyle || this.root.getAttribute( 'data-map-style' ) || 'default';
+		this.mapHeight = data?.mapHeight || this.root.getAttribute( 'data-map-height' ) || null;
 		this.onError = () => {};
 	}
 

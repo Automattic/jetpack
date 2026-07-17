@@ -1,10 +1,10 @@
 === Jetpack Protect ===
 Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline, dkmyta
 Tags: jetpack, protect, security, malware, scan
-Requires at least: 6.7
+Requires at least: 6.9
 Requires PHP: 7.2
-Tested up to: 6.9
-Stable tag: 4.4.1
+Tested up to: 7.0
+Stable tag: 5.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -178,17 +178,33 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 4.4.1 - 2025-11-21
+### 5.0.0 - 2026-04-11
+#### Security
+- WAF: Fix issue that potentially allowed bypassing WAF rules.
+
 #### Added
-- Tested up to WordPress 6.9.
+- Add `jetpack_account_protection_send_auth_email` filter to allow custom handling of the verification email.
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
+- IDC: Add revalidation for IDCs.
 
 #### Changed
-- Replace icons removed from @wordpress/icons with alternatives.
+- Dependencies: Update lock file to keep root requirements in sync.
+- Migrate admin page header to use unified header pattern.
+- My Jetpack: Check red bubble notification async when cache is not available.
+- Remove translated product names from admin page headers and footers.
+- Replace license activation link with a "Use license key" button in the header actions area.
+- Switch to Native TypeScript compiler based on Go.
+- Update composer.lock.
 - Update dependencies.
+- Update design of the sidebar upsell.
 - Update package dependencies.
 
+#### Removed
+- General: Update minimum WordPress version to 6.8.
+
 #### Fixed
-- Jetpack: remove getIconColor functions for block icons
-- My Jetpack: Fix expiring renewal prompt to show all products
-- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
+- Admin Page: Restore border on header component.
+- Constrain license activation link width on mobile to prevent header overflow.
+- Ensure proper flags are used with `json_encode()`.
+- Fix TypeScript errors detected by tsgo.
 

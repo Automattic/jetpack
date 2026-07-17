@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useDeepMemo } from '../../../hooks';
 import { useGlobalChartsContext } from './use-global-charts-context';
 import type { BaseLegendItem } from '../../../components/legend';
+import type { ChartType } from '../../../types';
 
 export const useChartRegistration = ( {
 	chartId,
@@ -12,7 +13,7 @@ export const useChartRegistration = ( {
 }: {
 	chartId: string;
 	legendItems: BaseLegendItem[];
-	chartType: string;
+	chartType: ChartType;
 	isDataValid: boolean;
 	metadata?: Record< string, unknown >;
 } ): void => {

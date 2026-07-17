@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_message_template',
 		'jetpack_social_notes_config',
 		'jetpack_social_settings',
 		'jetpack_social_utm_settings',
@@ -166,6 +167,7 @@ class Defaults {
 		'uploads_use_yearmonth_folders',
 		'users_can_register',
 		'verification_services_codes',
+		'videopress_auto_subtitles_disabled',
 		'videopress_private_enabled_for_site',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',
@@ -183,8 +185,12 @@ class Defaults {
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
+		'wpcom_ai_launchpad_completed',
+		'wpcom_ai_launchpad_dismissed',
+		'wpcom_ai_launchpad_enabled',
 		'wpcom_ai_site_prompt',
 		'wpcom_classic_early_release',
+		'wpcom_newsletter_send_default',
 		'wpcom_featured_image_in_email',
 		'jetpack_gravatar_in_email',
 		'jetpack_author_in_email',
@@ -775,8 +781,11 @@ class Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_feature_enabled',
+		'_wpas_connection_overrides',
+		'_wpas_customize_per_network',
 		'_wpas_mess',
 		'_wpas_options',
+		'_jetpack_social_image_focal_point', // Publicize_Base::ATTACHMENT_IMAGE_FOCAL_POINT.
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',
@@ -822,6 +831,7 @@ class Defaults {
 		'hc_foreign_user_id',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
+		'protocol',
 	);
 
 	/**
@@ -841,6 +851,32 @@ class Defaults {
 		 * @param array The default list of comment meta data keys.
 		 */
 		return apply_filters( 'jetpack_sync_comment_meta_whitelist', self::$comment_meta_whitelist );
+	}
+
+	/**
+	 * Comment types whitelist.
+	 *
+	 * @var array Comment types that are synced.
+	 */
+	public static $comment_types_whitelist = array( '', 'comment', 'trackback', 'pingback', 'review', 'note' );
+
+	/**
+	 * Get the comment types whitelist.
+	 *
+	 * @return array
+	 */
+	public static function get_comment_types_whitelist() {
+		/**
+		 * Comment types present in this list will be synced to WordPress.com.
+		 *
+		 * @module sync
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 7.6.0
+		 *
+		 * @param array A list of comment types.
+		 */
+		return apply_filters( 'jetpack_sync_whitelisted_comment_types', self::$comment_types_whitelist );
 	}
 
 	/**
@@ -1383,4 +1419,13 @@ class Defaults {
 	 * @var int Bool-ish. Default 1.
 	 */
 	public static $default_wpcom_rest_api_enabled = 1;
+
+	/**
+	 * A list of 'jetpack_options' specific keys we want to ignore.
+	 *
+	 * @var array
+	 */
+	public static $jetpack_options_blacklist = array(
+		'last_heartbeat',
+	);
 }

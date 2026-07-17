@@ -1,10 +1,8 @@
-import { SET_IS_SHARING_CURRENT_POST, TOGGLE_SHARE_POST_MODAL } from '../actions/constants';
-import { setIsSharingCurrentPost, toggleSharePostModal } from '../actions/share-post';
+import { SET_IS_SHARING_CURRENT_POST } from '../actions/constants';
+import { setIsSharingCurrentPost } from '../actions/share-post';
 import { SocialStoreState } from '../types';
 
-type Action =
-	| ReturnType< typeof toggleSharePostModal | typeof setIsSharingCurrentPost >
-	| { type: 'default' };
+type Action = ReturnType< typeof setIsSharingCurrentPost > | { type: 'default' };
 
 /**
  * Share post data reducer
@@ -19,12 +17,6 @@ export function sharePost(
 	action: Action
 ): SocialStoreState[ 'sharePost' ] {
 	switch ( action.type ) {
-		case TOGGLE_SHARE_POST_MODAL:
-			return {
-				...state,
-				isModalOpen: action.isOpen,
-			};
-
 		case SET_IS_SHARING_CURRENT_POST:
 			return {
 				...state,

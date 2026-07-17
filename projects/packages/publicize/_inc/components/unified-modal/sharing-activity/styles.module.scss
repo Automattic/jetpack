@@ -1,0 +1,51 @@
+@use "sass:meta";
+@import "@wordpress/theme/design-tokens.css";
+
+.tab-panel-wrapper {
+
+	:global(.components-tab-panel__tabs) {
+		height: 48px;
+		border-bottom: 1px solid var(--jp-gray-10);
+	}
+}
+
+.dataview-wrapper {
+
+	/**
+	 * Import DataViews styles scoped to this component
+	 * @see https://github.com/Automattic/jetpack/issues/39981
+	 */
+	:global {
+
+		@include meta.load-css( "@wordpress/dataviews/build-style/style" );
+	}
+
+	// Hide the default DataViews view actions (we use custom header)
+	:global(.dataviews__view-actions) {
+		display: none;
+	}
+
+	table {
+		overflow: hidden;
+	}
+
+	// Make table header buttons unclickable
+	:global(.dataviews-view-table-header-button) {
+		pointer-events: none;
+	}
+}
+
+.dropdown {
+
+	&:global(.components-dropdown) {
+		display: flex;
+	}
+}
+
+.dropdown-content {
+
+	:global(.components-popover__content) {
+		min-width: 18rem;
+		padding: 1rem;
+	}
+}

@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
+import { ConnectionService } from '../../types';
 import { useService } from './use-service';
 
 interface GetServiceLabel {
 	/**
-	 * @param {string} service_name - The name of the service.
+	 * @param service_name - The name of the service.
 	 */
-	( service_name: string ): string;
+	( service_name: ConnectionService[ 'id' ] ): string;
 }
 
 /**

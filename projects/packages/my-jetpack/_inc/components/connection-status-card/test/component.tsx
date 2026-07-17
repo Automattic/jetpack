@@ -93,7 +93,11 @@ const setConnectionStore = ( {
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
-		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner, userConnectionData } );
+		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner } );
+	jest
+		.spyOn( storeSelect, 'getUserConnectionData' )
+		.mockReset()
+		.mockReturnValue( userConnectionData );
 };
 beforeAll( () => {
 	global.JetpackScriptData = {
@@ -390,6 +394,97 @@ describe( 'ConnectionStatusCard', () => {
 					'A site admin will need to connect their account before you can connect yours.'
 				)
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When an admin is not connected but site is registered', () => {
+		const setup = () => {
+			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: false,
+				userConnectionData: adminUserConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		afterEach( () => {
+			global.JetpackScriptData.user.current_user.capabilities = {};
+		} );
+
+		it( 'enables the manage connection button so admins can disconnect the site', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeEnabled();
+		} );
+
+		it( 'still shows the connect account prompt', () => {
+			setup();
+			expect(
+				screen.getByText( 'Connect your account to unlock all the features.' )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When a non-admin is not connected and site is registered', () => {
+		const setup = () => {
+			global.JetpackScriptData.user.current_user.capabilities = {};
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: true,
+				userConnectionData: nonAdminUserConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		it( 'disables the manage connection button for non-admins', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeDisabled();
+		} );
+	} );
+
+	describe( 'When on WoA site and admin is not connected', () => {
+		const setup = () => {
+			global.JetpackScriptData.site.host = 'woa';
+			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: false,
+				userConnectionData: adminUserConnectionData,
+			} );
+
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		afterEach( () => {
+			global.JetpackScriptData.site.host = 'standard';
+			global.JetpackScriptData.user.current_user.capabilities = {};
+		} );
+
+		it( 'disables the manage connection button since WoA sites cannot be disconnected', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeDisabled();
 		} );
 	} );
 } );

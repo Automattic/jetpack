@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Write editor: add diagnostic Tracks events for save/publish failures and stalled requests to aid root-cause analysis.

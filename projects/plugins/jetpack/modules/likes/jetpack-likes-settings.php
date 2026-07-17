@@ -141,7 +141,7 @@ class Jetpack_Likes_Settings {
 			return $post_id;
 		}
 
-		if ( empty( $_POST['wpl_like_status_hidden'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we're not changing anything on the site.
+		if ( empty( $_POST['wpl_like_status_hidden'] ) ) {
 			return $post_id;
 		}
 

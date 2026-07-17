@@ -50,7 +50,8 @@ function usage {
 
 handle_exit() {
 	local exit_code=$?
-	local PAYLOAD="$(
+	local PAYLOAD
+	PAYLOAD="$(
 		jq -n \
 			--arg exit_code "$exit_code" \
 			--arg step "$CUR_STEP" \

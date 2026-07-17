@@ -7,10 +7,19 @@ import type { MouseEvent } from 'react';
 /**
  * Custom React hook to handle back link click with analytics.
  *
- * @param {{ slug: string }} options - Options.
+ * @param options          - Options.
+ * @param options.slug     - Product slug, recorded with the analytics event.
+ * @param options.fallback - Fallback route to navigate to when no allowed referrer
+ *                         is in history. Defaults to the My Jetpack home (`/`).
  * @return Object with back link click handler with analytics.
  */
-export function useGoBack( { slug }: { slug: string } ) {
+export function useGoBack( {
+	slug,
+	fallback = MyJetpackRoutes.Home,
+}: {
+	slug: string;
+	fallback?: string;
+} ) {
 	const { recordEvent } = useAnalytics();
 	const navigate = useNavigate();
 
@@ -40,10 +49,10 @@ export function useGoBack( { slug }: { slug: string } ) {
 			if ( isFromAllowedSite && window.history.length > 1 ) {
 				navigate( -1 );
 			} else {
-				navigate( MyJetpackRoutes.Home );
+				navigate( fallback );
 			}
 		},
-		[ slug, recordEvent, navigate ]
+		[ slug, recordEvent, navigate, fallback ]
 	);
 
 	return { onClickGoBack };

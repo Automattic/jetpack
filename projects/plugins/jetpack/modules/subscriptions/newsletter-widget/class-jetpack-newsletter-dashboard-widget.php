@@ -53,6 +53,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			'showHeader'             => false,
 			'showChart'              => false,
 			'isWidgetVisible'        => false,
+			'newsletterSettingsUrl'  => \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url(),
 		);
 
 		if ( Jetpack::is_connection_ready() ) {
@@ -127,13 +128,10 @@ class Jetpack_Newsletter_Dashboard_Widget {
 				)
 			);
 
-			$widget_title = sprintf(
-				__( 'Newsletter', 'jetpack' )
-			);
-
 			wp_add_dashboard_widget(
 				self::$widget_id,
-				$widget_title,
+				/** "Newsletter" is a product name, do not translate. */
+				'Jetpack Newsletter',
 				array( static::class, 'render' ),
 				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 				null,
@@ -174,8 +172,11 @@ class Jetpack_Newsletter_Dashboard_Widget {
 		);
 		$options         = wp_parse_args( $options, $default_options );
 
-		// Get the asset file path
-		$asset_path = JETPACK__PLUGIN_DIR . '_inc/build/' . $asset_name . '.min.asset.php';
+		/*
+		 * Get the asset file path. The widget is built unminified (see tools/webpack.config.js),
+		 * so read the matching non-minified asset metadata.
+		 */
+		$asset_path = JETPACK__PLUGIN_DIR . '_inc/build/' . $asset_name . '.asset.php';
 
 		// Get dependencies and version from asset file
 		$dependencies = array();

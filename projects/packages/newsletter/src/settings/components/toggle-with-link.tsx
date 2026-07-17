@@ -1,36 +1,37 @@
 /**
  * External dependencies
  */
-import { ExternalLink, ToggleControl } from '@wordpress/components';
-import { type Field } from '@wordpress/dataviews/wp';
+import analytics from '@automattic/jetpack-analytics';
+import { getAdminUrl, type SiteType } from '@automattic/jetpack-script-data';
+import { ToggleControl } from '@wordpress/components';
+import { type NormalizedField, type DeepPartial } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
-import './toggle-with-link.scss';
+import type { NewsletterSettings } from '../types';
 
 interface ToggleWithLinkProps {
-	data: Record< string, unknown >;
-	field: Field< Record< string, unknown > >;
-	onChange: ( updates: Record< string, unknown > ) => void;
+	data: NewsletterSettings;
+	field: NormalizedField< NewsletterSettings >;
+	onChange: ( value: DeepPartial< NewsletterSettings > ) => void;
 	url: string;
 	linkText: string;
 	isExternal?: boolean;
+	onLinkClick?: () => void;
 }
 
 /**
  * Generic toggle control with a link in the label
  *
- * @param {object}   props            - Component props
- * @param {object}   props.data       - The data object
- * @param {object}   props.field      - The field definition
- * @param {Function} props.onChange   - Change handler
- * @param {string}   props.url        - URL for the link
- * @param {string}   props.linkText   - Text for the link
- * @param {boolean}  props.isExternal - Whether the link is external (default: true)
+ * @param {object}   props             - Component props
+ * @param {object}   props.data        - The data object
+ * @param {object}   props.field       - The field definition
+ * @param {Function} props.onChange    - Change handler
+ * @param {string}   props.url         - URL for the link
+ * @param {string}   props.linkText    - Text for the link
+ * @param {boolean}  props.isExternal  - Whether the link is external (default: true)
+ * @param {Function} props.onLinkClick - Optional callback when link is clicked
  * @return {JSX.Element} The toggle control with link
  */
 export function ToggleWithLink( {
@@ -40,23 +41,30 @@ export function ToggleWithLink( {
 	url,
 	linkText,
 	isExternal = true,
+	onLinkClick,
 }: ToggleWithLinkProps ): JSX.Element {
 	const handleChange = useCallback( () => {
-		onChange( { [ field.id ]: ! data[ field.id ] } );
+		onChange( {
+			[ field.id ]: ! ( data as Record< string, unknown > )[ field.id ],
+		} as DeepPartial< NewsletterSettings > );
 	}, [ data, field.id, onChange ] );
 
 	return (
 		<ToggleControl
 			__nextHasNoMarginBottom
-			checked={ !! data[ field.id ] }
+			checked={ !! ( data as Record< string, unknown > )[ field.id ] }
 			onChange={ handleChange }
 			label={
-				<span className="toggle-with-link__label">
-					{ field.label }
+				<span>
+					{ field.label }{ ' ' }
 					{ isExternal ? (
-						<ExternalLink href={ url }>{ linkText }</ExternalLink>
+						<Link openInNewTab href={ url } onClick={ onLinkClick }>
+							{ linkText }
+						</Link>
 					) : (
-						<a href={ url }>{ linkText }</a>
+						<a href={ url } onClick={ onLinkClick }>
+							{ linkText }
+						</a>
 					) }
 				</span>
 			}
@@ -66,13 +74,13 @@ export function ToggleWithLink( {
 }
 
 interface ToggleWithEditorLinkProps {
-	data: Record< string, unknown >;
-	field: Field< Record< string, unknown > >;
-	onChange: ( updates: Record< string, unknown > ) => void;
-	siteAdminUrl: string;
+	data: NewsletterSettings;
+	field: NormalizedField< NewsletterSettings >;
+	onChange: ( value: DeepPartial< NewsletterSettings > ) => void;
 	themeStylesheet: string;
 	postType: 'wp_template' | 'wp_template_part';
 	templateId: string;
+	siteType?: SiteType;
 }
 
 /**
@@ -82,26 +90,35 @@ interface ToggleWithEditorLinkProps {
  * @param {object}   props.data            - The data object
  * @param {object}   props.field           - The field definition
  * @param {Function} props.onChange        - Change handler
- * @param {string}   props.siteAdminUrl    - Site admin URL
  * @param {string}   props.themeStylesheet - Theme stylesheet name
  * @param {string}   props.postType        - Post type (wp_template or wp_template_part)
  * @param {string}   props.templateId      - Template ID
+ * @param {SiteType} props.siteType        - Site type for analytics tracking
  * @return {JSX.Element} The toggle control with editor link
  */
 export function ToggleWithEditorLink( {
 	data,
 	field,
 	onChange,
-	siteAdminUrl,
 	themeStylesheet,
 	postType,
 	templateId,
+	siteType,
 }: ToggleWithEditorLinkProps ): JSX.Element {
-	const url = addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+	const url = addQueryArgs( getAdminUrl( 'site-editor.php' ), {
 		postType,
 		postId: `${ themeStylesheet }//${ templateId }`,
 		canvas: 'edit',
 	} );
+
+	const handleLinkClick = useCallback( () => {
+		if ( siteType ) {
+			analytics.tracks.recordEvent( 'jetpack_newsletter_edit_link_click', {
+				site_type: siteType,
+				template: templateId,
+			} );
+		}
+	}, [ siteType, templateId ] );
 
 	return (
 		<ToggleWithLink
@@ -111,6 +128,7 @@ export function ToggleWithEditorLink( {
 			url={ url }
 			linkText={ __( 'Preview and edit', 'jetpack-newsletter' ) }
 			isExternal={ false }
+			onLinkClick={ handleLinkClick }
 		/>
 	);
 }

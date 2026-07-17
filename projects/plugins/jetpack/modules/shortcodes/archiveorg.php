@@ -60,6 +60,7 @@ function jetpack_archiveorg_shortcode( $atts ) {
 			'height'   => 480,
 			'autoplay' => 0,
 			'poster'   => '',
+			'playlist' => 0,
 		),
 		$atts
 	);
@@ -69,6 +70,23 @@ function jetpack_archiveorg_shortcode( $atts ) {
 	}
 
 	$id = $atts['id'];
+
+	// Allow extra query parameters to be baked into the identifier, e.g. "myitem&playlist=1" or "myitem?playlist=1".
+	// In some environments a the_content filter encodes "&" to "&amp;" before do_shortcode runs, so the
+	// parser receives "myitem&amp;playlist=1" — normalize that back before splitting. The sibling function
+	// jetpack_archiveorg_embed_to_shortcode() splits on "&amp;" for the same reason.
+	$id            = str_replace( '&amp;', '&', $id );
+	$id_extra_args = array();
+	if ( preg_match( '/^([^?&]*)[?&](.*)$/', $id, $id_match ) ) {
+		$id = $id_match[1];
+		wp_parse_str( $id_match[2], $id_extra_args );
+	}
+
+	// Re-check after the split — an identifier that's only a query string (e.g. "?playlist=1") leaves $id empty
+	// and would otherwise produce an item-less embed URL.
+	if ( '' === $id ) {
+		return '<!-- error: missing archive.org ID -->';
+	}
 
 	if ( ! $atts['width'] ) {
 		$width = absint( $content_width );
@@ -82,22 +100,29 @@ function jetpack_archiveorg_shortcode( $atts ) {
 		$height = (int) $atts['height'];
 	}
 
+	$query_args = array();
 	if ( $atts['autoplay'] ) {
-		$autoplay = '&autoplay=1';
-	} else {
-		$autoplay = '';
+		$query_args['autoplay'] = 1;
+	}
+	if ( $atts['poster'] ) {
+		$query_args['poster'] = $atts['poster'];
+	}
+	if ( $atts['playlist'] ) {
+		$query_args['playlist'] = 1;
 	}
 
-	if ( $atts['poster'] ) {
-		$poster = '&poster=' . $atts['poster'];
-	} else {
-		$poster = '';
+	// Explicit shortcode attributes take precedence over query parameters baked into the identifier.
+	$query_args = array_merge( $id_extra_args, $query_args );
+
+	$url = 'https://archive.org/embed/' . $id;
+	if ( ! empty( $query_args ) ) {
+		$url = add_query_arg( $query_args, $url );
 	}
 
 	return sprintf(
 		'<div class="embed-archiveorg" style="text-align:center;"><iframe title="%s" src="%s" width="%s" height="%s" style="border:0;" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe></div>',
 		esc_attr__( 'Archive.org', 'jetpack' ),
-		esc_url( "https://archive.org/embed/{$id}{$autoplay}{$poster}" ),
+		esc_url( $url ),
 		esc_attr( $width ),
 		esc_attr( $height )
 	);

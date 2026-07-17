@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-require_once __DIR__ . '/class-utility.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once __DIR__ . '/class-utility.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -431,6 +431,29 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		$this->assertInstanceOf( Feedback::class, $response );
 		$this->assertSame( '[WR8DAR] "Contact" us!', $response->get_subject() );
 		$this->assertSame( 'Nov 25, 2pm "Save Our Stories" with Sandy Simmelink', $response->get_field_value_by_label( 'key label' ) );
+	}
+
+	/**
+	 * Feedback whose post_content is JSON but has no version marker (empty
+	 * post_mime_type) should be parsed as JSON, not run through the legacy
+	 * plain-text parser.
+	 */
+	public function test_versionless_json_content_is_parsed_as_json() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => Feedback::POST_TYPE,
+				'post_title'   => 'Versionless JSON Feedback',
+				'post_content' => '{"subject":"Contact us!","entry_title":"Contact us!","entry_page":1,"fields":[{"key":"1_name","label":"Name","value":"Jane Doe","type":"name","meta":[],"form_field_id":"g1-name"},{"key":"2_email","label":"Email","value":"jane@example.com","type":"email","meta":[],"form_field_id":"g1-email"}]}',
+				'post_status'  => 'publish',
+				// Intentionally NO post_mime_type -> versionless.
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+		$this->assertSame( 'Contact us!', $response->get_subject() );
+		$this->assertSame( 'Jane Doe', $response->get_field_value_by_label( 'Name' ) );
+		$this->assertSame( 'jane@example.com', $response->get_field_value_by_label( 'Email' ) );
 	}
 
 	/**

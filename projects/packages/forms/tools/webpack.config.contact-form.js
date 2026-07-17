@@ -3,14 +3,11 @@
  */
 
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 import RemoveAssetWebpackPlugin from '@automattic/remove-asset-webpack-plugin';
-import autoprefixer from 'autoprefixer';
 import { glob } from 'glob';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 const scriptSrcDir = path.join( __dirname, '../src/contact-form/js' );
 const styleSrcDir = path.join( __dirname, '../src/contact-form/css' );
@@ -55,7 +52,9 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: [ autoprefixer ] },
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
 						},
 					},
 					{
@@ -115,9 +114,7 @@ const RenamerPlugin = {
 				},
 				assets => {
 					for ( const [ name, asset ] of Object.entries( assets ) ) {
-						const m = name.match(
-							/^(css\/(?:grunion|grunion-admin|editor-ui))((?:\.min)?)\.rtl\.css$/
-						);
+						const m = name.match( /^(css\/(?:grunion|editor-ui))((?:\.min)?)\.rtl\.css$/ );
 						if ( m ) {
 							delete assets[ name ];
 							assets[ `${ m[ 1 ] }-rtl${ m[ 2 ] }.css` ] = asset;

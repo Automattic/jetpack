@@ -170,7 +170,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 		'<iframe width="%1$s" height="%2$d" scrolling="no" frameborder="no" src="%3$s"></iframe>',
 		esc_attr( $width ),
 		esc_attr( $height ),
-		$url
+		esc_url( $url )
 	);
 }
 add_shortcode( 'soundcloud', 'soundcloud_shortcode' );

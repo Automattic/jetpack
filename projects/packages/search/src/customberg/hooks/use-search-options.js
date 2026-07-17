@@ -49,6 +49,16 @@ export default function useSearchOptions() {
 		'site',
 		'jetpack_search_show_product_price'
 	);
+	const [ aiAnswersEnabled, setAiAnswersEnabled ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_ai_answers_enabled'
+	);
+	const [ searchSuggestionsEnabled, setSearchSuggestionsEnabled ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_suggestions_enabled'
+	);
 	const [ excludedPostTypesCsv, setExcludedPostTypesCsv ] = useEntityProp(
 		'root',
 		'site',
@@ -100,5 +110,9 @@ export default function useSearchOptions() {
 		setPostDate,
 		productPrice,
 		setProductPrice,
+		aiAnswersEnabled,
+		setAiAnswersEnabled,
+		searchSuggestionsEnabled,
+		setSearchSuggestionsEnabled,
 	};
 }

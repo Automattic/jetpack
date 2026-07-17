@@ -1,0 +1,25 @@
+.downloadCsv {
+	align-self: flex-end;
+}
+
+// Widget roots clip overflow, so the focus ring is drawn inset and the ring
+// plus its gap must live inside the button's own box (mirrors
+// widget-back-link).
+.downloadCsv:focus-visible {
+	border-radius: var(--wpds-border-radius-sm);
+	outline:
+		var(--wpds-border-width-focus) solid
+		var(--wpds-color-stroke-focus);
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}
+
+.icon {
+	flex: 0 0 auto;
+}
+
+.label {
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

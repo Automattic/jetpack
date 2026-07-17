@@ -12,6 +12,8 @@ function a_function($p1, $p2)
 /**
  * Another function.
  *
+ * @since since 1.2.0
+ * @deprecated since 1.2.3
  * @return never
  * @throws Exception Always.
  */

@@ -4,21 +4,24 @@
 .jp-form-settings-card {
 	margin-bottom: rem.convert(24px);
 	font-size: rem.convert(14px);
-	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-	border-radius: rem.convert(4px);
 
-	+ .jp-at-a-glance__stats-card {
-		margin-bottom: rem.convert(24px);
+	.jp-form-settings-card__header {
+		font-size: rem.convert(20px);
+		font-weight: 500;
+		min-height: unset;
 	}
 
-	> :first-child {
-		border-top-left-radius: rem.convert(4px);
-		border-top-right-radius: rem.convert(4px);
+	.jp-form-settings-card__header-label {
+		flex-grow: 1;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	> :last-child {
-		border-bottom-left-radius: rem.convert(4px);
-		border-bottom-right-radius: rem.convert(4px);
+	.jp-form-settings-card__header-actions {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
 	}
 
 	.jp-settings-card__configure-link {
@@ -32,7 +35,9 @@
 
 	.dops-card {
 		box-shadow: none;
+		margin: 0;
 		padding: rem.convert(16px) rem.convert(24px);
+		background: transparent;
 
 		&::after {
 			display: none;

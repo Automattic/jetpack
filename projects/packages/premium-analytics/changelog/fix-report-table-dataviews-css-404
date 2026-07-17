@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report table: fix a 404 request for the DataViews stylesheet by inlining it through :global instead of a passthrough @import.

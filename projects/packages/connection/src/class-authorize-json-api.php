@@ -230,7 +230,7 @@ class Authorize_Json_Api {
 	 *
 	 * @return string
 	 */
-	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
 		return add_query_arg(
 			urlencode_deep(
 				array(

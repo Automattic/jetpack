@@ -19,6 +19,29 @@ function getDraftFile() {
 }
 
 /**
+ * Returns the git hooks directory, respecting core.hooksPath if set.
+ *
+ * @return {string} - the hooks directory path
+ */
+export function getHooksDir() {
+	const result = child_process.spawnSync( 'git', [ 'config', 'core.hooksPath' ], {
+		encoding: 'utf8',
+	} );
+	const hooksPath = result.stdout?.trim();
+	if ( hooksPath ) {
+		return path.resolve( process.cwd(), hooksPath );
+	}
+	const revParse = child_process.spawnSync( 'git', [ 'rev-parse', '--git-path', 'hooks' ], {
+		encoding: 'utf8',
+	} );
+	const gitHooksPath = revParse.stdout?.trim();
+	if ( gitHooksPath ) {
+		return path.resolve( process.cwd(), gitHooksPath );
+	}
+	return path.join( process.cwd(), '.git', 'hooks' );
+}
+
+/**
  * Enable draft mode.
  *
  * @param {object} argv - The argv for the command line.
@@ -77,11 +100,9 @@ export async function draftDisable( argv ) {
 		] );
 
 		if ( preCommitAnswers.runPreCommit ) {
-			const data = child_process.spawnSync(
-				path.join( process.cwd(), '.git/hooks/pre-commit' ),
-				[],
-				{ stdio: 'inherit' }
-			);
+			const data = child_process.spawnSync( path.join( getHooksDir(), 'pre-commit' ), [], {
+				stdio: 'inherit',
+			} );
 
 			// Node.js exit code status 0 === success
 			if ( data.status !== 0 ) {
@@ -103,7 +124,7 @@ export async function draftDisable( argv ) {
 
 		// if ( prePushAnswers.runPrePush ) {
 		// 	const data = child_process.spawnSync(
-		// 		path.join( process.cwd(), '.git/hooks/pre-push' ),
+		// 		path.join( getHooksDir(), 'pre-push' ),
 		// 		[],
 		// 		{ stdio: "inherit" }
 		// 	);

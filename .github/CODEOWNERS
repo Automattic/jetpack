@@ -3,16 +3,76 @@
 #  or disavow any section of the codebase. #
 ############################################
 
+# Stuff that affects the whole monorepo
+
+/.github @Automattic/jetpack-monorepo
+/.gitattributes @Automattic/jetpack-monorepo
+/.gitignore @Automattic/jetpack-monorepo
+/.phan @Automattic/jetpack-monorepo
+/.phpcs.config.xml @Automattic/jetpack-monorepo
+/.phpcs.xml.dist @Automattic/jetpack-monorepo
+/.phpcsignore @Automattic/jetpack-monorepo
+/.pnpmfile.cjs @Automattic/jetpack-monorepo
+/.pnpm-patches @Automattic/jetpack-monorepo
+/.prettierrc.js @Automattic/jetpack-monorepo
+/.stylelintignore @Automattic/jetpack-monorepo
+/composer.json @Automattic/jetpack-monorepo
+/eslint.config.mjs @Automattic/jetpack-monorepo
+/package.json @Automattic/jetpack-monorepo
+/pnpm-workspace.yaml @Automattic/jetpack-monorepo
+/projects/github-actions/pr-is-up-to-date @Automattic/jetpack-monorepo
+/projects/github-actions/push-to-mirrors @Automattic/jetpack-monorepo
+/projects/github-actions/required-review @Automattic/jetpack-monorepo
+/projects/js-packages/babel-plugin-replace-textdomain @Automattic/jetpack-monorepo
+/projects/js-packages/eslint-changed @Automattic/jetpack-monorepo
+/projects/js-packages/eslint-config-target-es @Automattic/jetpack-monorepo
+/projects/js-packages/i18n-check-webpack-plugin @Automattic/jetpack-monorepo
+/projects/js-packages/i18n-loader-webpack-plugin @Automattic/jetpack-monorepo
+/projects/js-packages/remove-asset-webpack-plugin @Automattic/jetpack-monorepo
+/projects/js-packages/webpack-config @Automattic/jetpack-monorepo
+/projects/packages/changelogger @Automattic/jetpack-monorepo
+/projects/packages/codesniffer @Automattic/jetpack-monorepo
+/projects/packages/composer-plugin @Automattic/jetpack-monorepo
+/projects/packages/ignorefile @Automattic/jetpack-monorepo
+/projects/packages/patchwork-redefine-exit @Automattic/jetpack-monorepo
+/projects/packages/phan-plugins @Automattic/jetpack-monorepo
+/projects/packages/phpcs-filter @Automattic/jetpack-monorepo
+/projects/packages/phpunit-select-config @Automattic/jetpack-monorepo
+/projects/packages/stub-generator @Automattic/jetpack-monorepo
+/projects/plugins/beta @Automattic/jetpack-monorepo
+/projects/plugins/beta/composer.lock # No owner - too noisy
+/projects/plugins/beta/changelog # No owner - to go with the above
+/projects/plugins/starter-plugin @Automattic/jetpack-monorepo
+/projects/plugins/starter-plugin/composer.lock # No owner - too noisy
+/projects/plugins/starter-plugin/changelog # No owner - to go with the above
+/stylelint.config.mjs @Automattic/jetpack-monorepo
+/tools @Automattic/jetpack-monorepo
+/tools/e2e-commons # No owner assigned
+
+# Tools owned by specific teams
+
+/tools/performance @Automattic/Zap
+
 # Actions
 
 /projects/github-actions/repo-gardening/ @jeherve
 
 # Packages
+/projects/packages/premium-analytics @Automattic/red @Automattic/ventures
 /projects/packages/search/src/wpes @Automattic/prometheus
+/projects/packages/connection/src @Automattic/jetpack-vulcan
+/projects/packages/connection/legacy @Automattic/jetpack-vulcan
+/projects/packages/sync/src @Automattic/jetpack-vulcan
+/projects/packages/connection/src/class-package-version.php # No owner - too noisy
+/projects/packages/sync/src/class-package-version.php # No owner - too noisy
+/projects/packages/videopress/src @Automattic/VideoPress
+/projects/packages/videopress/src/class-package-version.php # No owner - too noisy
 
 # Plugins
 
+/projects/plugins/premium-analytics @Automattic/red @Automattic/ventures
+
 # Functionality that is important to our partners
-/projects/plugins/jetpack/class.jetpack-cli.php @automattic/jetpack-infinity
-/tools/partner-provision.sh @automattic/jetpack-infinity
-/tools/partner-cancel.sh @automattic/jetpack-infinity
+/projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity
+/tools/partner-provision.sh @Automattic/jetpack-infinity
+/tools/partner-cancel.sh @Automattic/jetpack-infinity

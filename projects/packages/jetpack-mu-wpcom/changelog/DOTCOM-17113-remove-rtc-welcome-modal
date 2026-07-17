@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+RTC: Remove welcome modal hook.

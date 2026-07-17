@@ -30,6 +30,8 @@ Plugin options are:
 
   The default function list handles the `__`, `_x`, `_n`, and `_nx` functions provided by [@wordpress/i18n]. This list may be accessed as `require( '@automattic/babel-plugin-replace-textdomain' ).defaultFunctions`.
 
+- `i18nModule`: Specify the module name used for resolving import aliases. When a function is imported from this module and called under an alias, the plugin will still recognize it. Defaults to `@wordpress/i18n`.
+
 To report instances of the specified i18n functions called without a domain or with an improper value for the domain, set the `DEBUG` environment variable to include `@automattic/babel-plugin-replace-textdomain`.
 
 ## Security

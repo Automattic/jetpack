@@ -1,21 +1,14 @@
-import {
-	Button,
-	Col,
-	Container,
-	Text,
-	ToggleControl,
-	ContextualUpgradeTrigger,
-	useBreakpointMatch,
-	Notice as JetpackNotice,
-} from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
+import { Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { Popover, ToggleControl } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
+import { Notice } from '@wordpress/ui';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import AdminPage from '../../components/admin-page';
 import Textarea from '../../components/textarea';
+import UpgradeNotice from '../../components/upgrade-notice';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -29,7 +22,7 @@ import styles from './styles.module.scss';
 const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
 
 const FirewallPage = () => {
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const {
 		config: {
 			jetpackWafAutomaticRules,
@@ -46,6 +39,7 @@ const FirewallPage = () => {
 		displayUpgradeBadge,
 		wafSupported,
 		isUpdating,
+		isToggling,
 		stats,
 		toggleAutomaticRules,
 		toggleIpAllowList,
@@ -221,23 +215,19 @@ const FirewallPage = () => {
 	 * Module Disabled Notice
 	 */
 	const moduleDisabledNotice = (
-		<JetpackNotice
-			level="error"
-			title="Jetpack Firewall is currently disabled."
-			children={ <Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text> }
-			actions={ [
-				<Button
-					key="enable"
-					variant="link"
-					onClick={ toggleWaf }
-					isLoading={ isUpdating }
-					disabled={ isUpdating }
-				>
+		<Notice.Root intent="error">
+			<Notice.Title>
+				{ __( 'Jetpack Firewall is currently disabled.', 'jetpack-protect' ) }
+			</Notice.Title>
+			<Notice.Description>
+				<Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text>
+			</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionButton onClick={ toggleWaf } loading={ isToggling } disabled={ isToggling }>
 					{ __( 'Enable Firewall', 'jetpack-protect' ) }
-				</Button>,
-			] }
-			hideCloseButton={ true }
-		/>
+				</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 
 	/**
@@ -255,6 +245,7 @@ const FirewallPage = () => {
 						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
 						onChange={ handleAutomaticRulesChange }
 						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ hasPlan && upgradeIsSeen === false && (
 						<Popover noArrow={ false } offset={ 8 } position={ 'top right' } inline={ true }>
@@ -354,7 +345,7 @@ const FirewallPage = () => {
 			</div>
 			{ ! hasPlan && (
 				<div className={ styles[ 'upgrade-trigger-section' ] }>
-					<ContextualUpgradeTrigger
+					<UpgradeNotice
 						className={ styles[ 'upgrade-trigger' ] }
 						description={
 							! canToggleAutomaticRules
@@ -388,6 +379,8 @@ const FirewallPage = () => {
 					checked={ isBruteForceModuleEnabled }
 					onChange={ toggleBruteForceProtection }
 					disabled={ isUpdating }
+					aria-label={ __( 'Brute force protection', 'jetpack-protect' ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -415,6 +408,8 @@ const FirewallPage = () => {
 					checked={ ipBlockListEnabled }
 					onChange={ toggleIpBlockList }
 					disabled={ ! canEditFirewallSettings }
+					aria-label={ __( 'Block IP addresses', 'jetpack-protect' ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -470,6 +465,8 @@ const FirewallPage = () => {
 						checked={ jetpackWafIpAllowListEnabled }
 						onChange={ toggleIpAllowList }
 						disabled={ isUpdating }
+						aria-label={ __( 'Trusted IP addresses', 'jetpack-protect' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
@@ -544,7 +541,7 @@ const FirewallPage = () => {
 	 * Render
 	 */
 	return (
-		<AdminPage>
+		<>
 			<FirewallAdminSectionHero />
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isWafModuleEnabled && <Col>{ moduleDisabledNotice } </Col> }
@@ -563,7 +560,7 @@ const FirewallPage = () => {
 				</Col>
 			</Container>
 			{ wafSupported ? <FirewallFooter /> : <ScanFooter /> }
-		</AdminPage>
+		</>
 	);
 };
 

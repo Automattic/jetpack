@@ -267,8 +267,8 @@ export const countries = [
 	},
 	{
 		code: 'KY',
-		label: '🇰🇾 +345',
-		value: '+345',
+		label: '🇰🇾 +1345',
+		value: '+1345',
 		country: 'Cayman Islands',
 		flag: '🇰🇾',
 	},

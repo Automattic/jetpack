@@ -1,5 +1,4 @@
 import Module from '$features/module/module';
-import Pill from '$features/ui/pill/pill';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import RefreshIcon from '$svg/refresh';
 import { Button } from '@automattic/jetpack-components';
@@ -40,12 +39,7 @@ const Lcp = () => {
 	return (
 		<Module
 			slug="lcp"
-			title={
-				<>
-					{ __( 'Optimize LCP Images', 'jetpack-boost' ) }
-					<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
-				</>
-			}
+			title={ __( 'Optimize LCP Images', 'jetpack-boost' ) }
 			worksOffline={ false }
 			description={
 				<p>

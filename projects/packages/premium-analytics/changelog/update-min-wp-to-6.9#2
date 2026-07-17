@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Exclude wp-build "build" dir from Phan. It's confusing when running CI (where it doesn't exist) versus locally (where it might).
+
+

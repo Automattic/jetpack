@@ -71,7 +71,7 @@ if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
-		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
+		$url = str_replace( array( 'youtu.be/', '/v/', '/shorts/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
 		// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/dQw4w9WgXcQ?fs=1&hl=en_US" being passed in.
 		$query_string_start = strpos( $url, '?' );

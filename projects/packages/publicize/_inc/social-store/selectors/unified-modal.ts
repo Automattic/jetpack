@@ -32,3 +32,14 @@ export function getUnifiedModalInitialPath( state: SocialStoreState ) {
 export function isUnifiedModalScreenLocked( state: SocialStoreState ) {
 	return state.unifiedModal?.isScreenLocked ?? false;
 }
+
+/**
+ * Gets the data for the unified modal.
+ *
+ * @param {SocialStoreState} state - State object.
+ *
+ * @return The modal data.
+ */
+export function getUnifiedModalData( state: SocialStoreState ) {
+	return state.unifiedModal?.data;
+}

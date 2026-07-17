@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Connection\SSO;
 
+use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 use WorDBless\BaseTestCase;
@@ -354,6 +355,77 @@ class Helpers_Test extends BaseTestCase {
 			),
 			$environment
 		);
+	}
+
+	/**
+	 * Test "show_sso_login_returns_true_when_login_form_hidden".
+	 */
+	public function test_show_sso_login_returns_true_when_login_form_hidden() {
+		add_filter( 'jetpack_remove_login_form', '__return_true' );
+		$this->assertTrue( Helpers::show_sso_login() );
+		remove_filter( 'jetpack_remove_login_form', '__return_true' );
+	}
+
+	/**
+	 * Test "show_sso_login_returns_true_by_default".
+	 */
+	public function test_show_sso_login_returns_true_by_default() {
+		$this->assertTrue( Helpers::show_sso_login() );
+	}
+
+	/**
+	 * Test "show_sso_login_returns_false_with_filter".
+	 */
+	public function test_show_sso_login_returns_false_with_filter() {
+		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+		$this->assertFalse( Helpers::show_sso_login() );
+		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+	}
+
+	/**
+	 * Test "allowed_redirect_hosts_includes_broker_hosts_when_set".
+	 */
+	public function test_allowed_redirect_hosts_includes_broker_hosts_when_set() {
+		$nonce                         = 'test_nonce_123';
+		$_COOKIE[ SSO::BROKER_COOKIE ] = $nonce;
+		$_COOKIE['jetpack_sso_nonce']  = $nonce;
+
+		Constants::set_constant( 'JETPACK_SSO_BROKER_URL', 'https://broker.example.com/sso' );
+		Constants::set_constant( 'JETPACK_SSO_BROKER_AUTH_URL', 'https://broker-auth.example.com/auth' );
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+
+		$hosts = Helpers::allowed_redirect_hosts( array() );
+		$this->assertContains( 'broker.example.com', $hosts );
+		$this->assertContains( 'broker-auth.example.com', $hosts );
+
+		unset( $_COOKIE[ SSO::BROKER_COOKIE ], $_COOKIE['jetpack_sso_nonce'] );
+	}
+
+	/**
+	 * Test "allowed_redirect_hosts_does_not_include_broker_when_not_authorized".
+	 */
+	public function test_allowed_redirect_hosts_does_not_include_broker_when_not_authorized() {
+		Constants::set_constant( 'JETPACK_SSO_BROKER_URL', 'https://broker.example.com/sso' );
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+
+		$hosts = Helpers::allowed_redirect_hosts( array() );
+		$this->assertNotContains( 'broker.example.com', $hosts );
+	}
+
+	/**
+	 * Test "match_by_email_defaults_to_true_from_option".
+	 */
+	public function test_match_by_email_defaults_to_true_from_option() {
+		$this->assertTrue( Helpers::match_by_email() );
+	}
+
+	/**
+	 * Test "match_by_email_option_zero_returns_false".
+	 */
+	public function test_match_by_email_option_zero_returns_false() {
+		update_option( 'jetpack_sso_match_by_email', 0 );
+		$this->assertFalse( Helpers::match_by_email() );
+		delete_option( 'jetpack_sso_match_by_email' );
 	}
 
 	/**

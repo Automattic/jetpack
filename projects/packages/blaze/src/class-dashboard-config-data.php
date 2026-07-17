@@ -19,7 +19,7 @@ use Jetpack_Options;
 class Dashboard_Config_Data {
 
 	/**
-	 * Blaze dashboard admin page. Default is tools.php.
+	 * Blaze dashboard admin page. Default is admin.php.
 	 *
 	 * @var string
 	 */
@@ -35,10 +35,10 @@ class Dashboard_Config_Data {
 	/**
 	 * Dashboard config constructor.
 	 *
-	 * @param string $admin_page Dashboard admin page. Default is tools.php.
+	 * @param string $admin_page Dashboard admin page. Default is admin.php.
 	 * @param string $menu_slug Dashboard menu slug. Default is 'advertising'.
 	 */
-	public function __construct( $admin_page = 'tools.php', $menu_slug = 'advertising' ) {
+	public function __construct( $admin_page = 'admin.php', $menu_slug = 'advertising' ) {
 		$this->admin_page = $admin_page;
 		$this->menu_slug  = $menu_slug;
 	}
@@ -163,7 +163,6 @@ class Dashboard_Config_Data {
 	 * Page base for the Calypso admin page.
 	 */
 	protected function get_admin_path() {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
 			$admin_path = $this->admin_page . '?page=' . $this->menu_slug;
 			$parsed     = wp_parse_url( admin_url( $admin_path ) );

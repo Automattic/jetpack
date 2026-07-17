@@ -1,11 +1,8 @@
-import {
-	ActionButton,
-	getRedirectUrl,
-	PricingCard,
-	TermsOfService,
-} from '@automattic/jetpack-components';
+import { getRedirectUrl, PricingCard, TermsOfService } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
@@ -45,11 +42,15 @@ const ConnectScreenRequiredPlanVisual = props => {
 		__( 'Already have a subscription? <connectButton/>', 'jetpack-connection-js' ),
 		{
 			connectButton: (
-				<ActionButton
-					label={ __( 'Log in to get started', 'jetpack-connection-js' ) }
+				<Button
+					variant="unstyled"
+					className="jp-connection__connect-screen__inline-action"
 					onClick={ handleButtonClick }
-					isLoading={ buttonIsLoading }
-				/>
+					disabled={ buttonIsLoading }
+					aria-busy={ buttonIsLoading }
+				>
+					{ buttonIsLoading ? <Spinner /> : __( 'Log in to get started', 'jetpack-connection-js' ) }
+				</Button>
 			),
 		}
 	);
@@ -92,14 +93,20 @@ const ConnectScreenRequiredPlanVisual = props => {
 						priceAfter={ priceAfter }
 					>
 						<TermsOfService agreeButtonLabel={ buttonLabel } />
-						<ActionButton
-							label={ buttonLabel }
+						<Button
+							className="jp-connection__connect-screen__action-button"
 							onClick={ handleButtonClick }
-							displayError={ displayButtonError || isOfflineMode }
-							errorMessage={ errorMessage }
-							isLoading={ buttonIsLoading }
-							isDisabled={ isOfflineMode }
-						/>
+							loading={ buttonIsLoading }
+							disabled={ isOfflineMode }
+						>
+							{ buttonLabel }
+						</Button>
+						{ ( displayButtonError || isOfflineMode ) && (
+							<p className="jp-connection__connect-screen__error">
+								{ errorMessage ||
+									__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+							</p>
+						) }
 					</PricingCard>
 				</div>
 

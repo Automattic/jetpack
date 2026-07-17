@@ -1,5 +1,8 @@
 .text {
 	grid-column: span 2;
+	max-width: 80ch;
+	text-wrap: balance;
+	text-wrap: pretty;
 
 	a {
 		color: inherit;
@@ -41,3 +44,4 @@
 .learn {
 	text-wrap: nowrap;
 }
+

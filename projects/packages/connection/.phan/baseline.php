@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 45+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
     // PhanTypeMismatchReturn : 15+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
@@ -23,8 +22,6 @@ return [
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
-    // PhanPluginDuplicateAdjacentStatement : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -33,27 +30,25 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'legacy/class-jetpack-options.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
-        'legacy/class-jetpack-signature.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
-        'legacy/class-jetpack-xmlrpc-server.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
+        'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
+        'legacy/class-jetpack-xmlrpc-server.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
-        'src/class-manager.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-partner-coupon.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
+        'src/class-manager.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-partner.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'src/class-rest-authentication.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'src/class-rest-connector.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-secrets.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
-        'src/class-server-sandbox.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
+        'src/class-server-sandbox.php' => ['PhanTypeMismatchArgument'],
         'src/class-tokens.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-tracking.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/class-tracking.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset'],
         'src/sso/class-sso.php' => ['PhanTypeMismatchArgument'],
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
         'src/webhooks/class-authorize-redirect.php' => ['PhanUndeclaredClassMethod'],
         'tests/php/Error_Handler_Test.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/Jetpack_XMLRPC_Server_Test.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
+        'tests/php/Jetpack_XMLRPC_Server_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/ManagerTest.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNullable', 'PhanTypeObjectUnsetDeclaredProperty'],
-        'tests/php/Nonce_Handler_Test.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument'],
+        'tests/php/Nonce_Handler_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/REST_Authentication_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/REST_Endpoints_Test.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/Server_Sandbox_Test.php' => ['PhanTypeArraySuspiciousNullable'],

@@ -1,0 +1,7 @@
+{
+	"name": "jpa/post-detail-highlights",
+	"title": "Post highlights",
+	"description": "Views, comments, and likes for the post or page being viewed.",
+	"category": "stats",
+	"presentation": "framed"
+}

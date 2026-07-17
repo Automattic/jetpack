@@ -10,6 +10,7 @@ import {
 } from 'react';
 import {
 	getItemShapeStyles,
+	getSeriesBarStyles,
 	getSeriesLineStyles,
 	mergeThemes,
 	resolveCssVariable,
@@ -53,11 +54,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		maxHue: 0,
 	} ) );
 
+	// Track if the color palette has been resolved from the DOM
+	// Useful for animations that should only run after the color palette is resolved
+	const [ isColorPaletteResolved, setIsColorPaletteResolved ] = useState( false );
+
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
 	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
 	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
 	useLayoutEffect( () => {
+		setIsColorPaletteResolved( false );
 		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
 		const hues: number[] = [];
@@ -69,25 +75,19 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		if ( Array.isArray( colors ) ) {
 			for ( const color of colors ) {
 				if ( color && typeof color === 'string' ) {
-					let colorValue = color;
+					// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
+					// This uses normalizeColorToHex which resolves CSS variables and converts
+					// rgb(), rgba(), hsl() formats to hex
+					const normalizedColor = normalizeColorToHex(
+						color,
+						wrapperRef.current,
+						resolveCssVariable
+					);
 
-					// Handle CSS custom properties - resolve them to actual values
-					// Supports both '--var-name' and 'var(--var-name)' formats
-					// Use wrapper element to resolve scoped CSS variables
-					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
-						const resolved = resolveCssVariable( color, wrapperRef.current );
-
-						if ( resolved === null || resolved === '' ) {
-							continue;
-						}
-
-						colorValue = resolved;
-					}
-
-					// Process hex colors
-					if ( colorValue.startsWith( '#' ) ) {
-						resolvedColors.push( colorValue );
-						const hslColor = d3Hsl( colorValue );
+					// Only process valid hex colors
+					if ( normalizedColor.startsWith( '#' ) ) {
+						resolvedColors.push( normalizedColor );
+						const hslColor = d3Hsl( normalizedColor );
 						// d3Hsl returns NaN values for invalid colors
 						if ( ! isNaN( hslColor.h ) ) {
 							const hslTuple: [ number, number, number ] = [
@@ -113,6 +113,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			maxHue,
 		} );
 	}, [ providerTheme ] );
+
+	useEffect( () => {
+		if ( colorCache.colors.length > 0 ) {
+			setIsColorPaletteResolved( true );
+		}
+	}, [ colorCache ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
 		() => new Map()
@@ -180,10 +186,21 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ colorCache, groupToColorMap ]
 	);
 
+	const resolveThemeColor = useCallback< GlobalChartsContextValue[ 'resolveThemeColor' ] >(
+		value => ( value ? normalizeColorToHex( value, wrapperRef.current, resolveCssVariable ) : '' ),
+		[]
+	);
+
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
 		( { data, index, overrideColor, legendShape } ) => {
 			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
-			const isPointPercentageData = data && typeof data === 'object' && 'percentage' in data;
+			// DataPointPercentage has a numeric 'value' directly, unlike SeriesData which has 'data' array
+			const isPointPercentageData =
+				data &&
+				typeof data === 'object' &&
+				'value' in data &&
+				typeof data.value === 'number' &&
+				! ( 'data' in data );
 
 			return {
 				color: resolveColor( {
@@ -195,6 +212,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 						( isPointPercentageData && data?.color ),
 				} ),
 				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
+				barStyles: isSeriesData ? getSeriesBarStyles( data, index, providerTheme ) : {},
 				glyph: providerTheme.glyphs?.[ index ],
 				shapeStyles: isSeriesData
 					? getItemShapeStyles( data, index, providerTheme, legendShape )
@@ -251,9 +269,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			theme: providerTheme,
 			getElementStyles,
+			resolveThemeColor,
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		} ),
 		[
 			charts,
@@ -262,9 +282,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			providerTheme,
 			getElementStyles,
+			resolveThemeColor,
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		]
 	);
 

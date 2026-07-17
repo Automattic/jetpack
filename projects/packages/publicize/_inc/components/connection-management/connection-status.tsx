@@ -1,11 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { SupportedService } from '../services/use-supported-services';
+import { SupportedService } from '../services/types';
 import { Disconnect } from './disconnect';
 import { Reconnect } from './reconnect';
 
@@ -59,7 +59,11 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 							),
 							{
 								link: (
-									<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) } />
+									<Link
+										openInNewTab
+										href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
+										children={ null }
+									/>
 								),
 							}
 						);
@@ -78,11 +82,11 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 						  );
 				} )( isUnsupported, connection.status ) }
 			</span>
-			&nbsp;
+			{ '\u00A0' }
 			{ ! isUnsupported && service ? (
 				<Reconnect connection={ connection } service={ service } />
 			) : (
-				<Disconnect connection={ connection } variant="link" isDestructive={ false } />
+				<Disconnect connection={ connection } variant="link" />
 			) }
 		</div>
 	);

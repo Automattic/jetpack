@@ -80,11 +80,7 @@
 	}
 
 	&__cta-button {
-		background: #000;
-		border: 1px solid #000;
-		border-radius: 4px;
 		box-sizing: border-box;
-		color: #fff;
 		cursor: pointer;
 		display: inline-block;
 		font-size: 0.875rem;
@@ -97,18 +93,6 @@
 		text-overflow: ellipsis;
 		transition: all 0.15s ease-in-out;
 		vertical-align: top;
-
-		&:hover {
-			color: #fff;
-			background-color: variables.$gray_80;
-		}
-
-		&:focus {
-			color: #fff;
-			box-shadow: none;
-			outline: solid 1px variables.$primary-black;
-			outline-offset: 1px;
-		}
 	}
 
 	.notice-dismiss {

@@ -10,10 +10,12 @@ import {
 } from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
+	currentThemeStylesheet,
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	userCanManageModules,
 	isSharingBlockAvailable,
+	isLikeBlockAvailable,
 	getSiteId,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
@@ -39,7 +41,9 @@ class Sharing extends Component {
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
 			hasSharingBlock: this.props.hasSharingBlock,
+			hasLikeBlock: this.props.hasLikeBlock,
 			isBlockTheme: this.props.isBlockTheme,
+			themeStylesheet: this.props.themeStylesheet,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -89,6 +93,8 @@ export default connect( state => {
 		activeFeatures: getActiveFeatures( state ),
 		userCanManageModules: userCanManageModules( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
+		hasLikeBlock: isLikeBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
+		themeStylesheet: currentThemeStylesheet( state ),
 	};
 } )( Sharing );

@@ -1,37 +1,7 @@
 @use "scss/variables";
 @use "scss/rna-styles";
 
-* {
-	box-sizing: border-box;
-}
-
-body {
-	min-height: 100%;
-	margin: 0;
-	padding: 0;
-	font-family:
-		-apple-system,
-		BlinkMacSystemFont,
-		"Segoe UI",
-		Roboto,
-		Oxygen-Sans,
-		Ubuntu,
-		Cantarell,
-		"Helvetica Neue",
-		sans-serif;
-}
-
-#wpcontent {
-	padding-left: 0 !important;
-}
-
-#screen-meta,
-#screen-meta-links {
-	display: none;
-}
-
 #jp-search-dashboard {
-	background-color: variables.$white;
 	color: variables.$black;
 	font-size: 16px;
 	// 32px = wpadminbar height
@@ -43,6 +13,7 @@ body {
 	}
 
 	.jp-search-dashboard-page {
+		background-color: variables.$white;
 		width: 100%;
 	}
 
@@ -52,8 +23,13 @@ body {
 
 	.jp-search-dashboard-top {
 		background-color: #f9f9f6;
-
-		overflow: hidden;
+		// Clip only the bottom edge so the mocked-search box-shadow doesn't
+		// bleed into the next section, while leaving the shadow visible on
+		// the other sides. Avoids `overflow: hidden` here because the mixin
+		// in @automattic/jetpack-base-styles/admin-page-layout makes this a
+		// flex item; `overflow != visible` would resolve `min-height: auto`
+		// to 0 and let the section get crushed.
+		clip-path: inset(-100px -100px 0 -100px);
 	}
 
 	.jp-search-dashboard-top__title {
@@ -77,19 +53,7 @@ body {
 
 	.jp-search-dashboard-bottom {
 		background-color: variables.$white;
-	}
-
-	.jp-search-dashboard-header,
-	.jp-search-dashboard-footer {
-		padding: 2.5em 0;
-
-		background-color: variables.$white;
-	}
-
-	.jp-search-dashboard-header__logo-container {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		padding-bottom: 2.5em;
 	}
 }
 
@@ -126,5 +90,44 @@ body {
 	.jitm-card {
 		margin-right: 0;
 		margin-bottom: 0;
+	}
+}
+
+.jp-search-additional-settings__heading {
+	margin: var(--wpds-dimension-padding-3xl) 0 0;
+	font-size: var(--wpds-typography-font-size-xl);
+	line-height: var(--wpds-typography-line-height-md);
+}
+
+.jp-search-settings-card,
+.jp-search-ai-agent-access-card {
+	box-sizing: border-box;
+	width: 100%;
+	margin-block-start: var(--wpds-dimension-padding-3xl);
+	padding: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+
+	// These controls are shared with the legacy ModuleControl, which gives
+	// them a 4em top margin to separate them from the toggles above. Reset
+	// that legacy spacing inside cards so the cards own the layout gap.
+	.jp-form-search-settings-group__toggle.is-reader-chat {
+		margin-top: 0;
+	}
+
+	&.jp-form-search-settings-group__toggle.is-ai-agent-access {
+		margin-block-start: var(--wpds-dimension-padding-3xl);
+	}
+
+	// `.jp-search-dashboard-row` carries responsive horizontal margins
+	// (16/18/24px) plus a `calc(100% - …)` width that together inset its
+	// content from the dashboard edges. Inside the card we already have
+	// the card's own padding, so neutralise the row's inset to let the
+	// toggle and description sit flush with the card's content box.
+	.jp-search-dashboard-row {
+		width: 100%;
+		max-width: none;
+		margin-inline: 0;
 	}
 }

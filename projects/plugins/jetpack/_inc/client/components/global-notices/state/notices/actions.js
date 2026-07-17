@@ -1,6 +1,12 @@
 import { uniqueId } from 'lodash';
 import { NEW_NOTICE, REMOVE_NOTICE } from '../action-types';
 
+/**
+ * Creates a remove notice action.
+ *
+ * @param {string} noticeId - Notice ID.
+ * @return {object} Action object.
+ */
 export function removeNotice( noticeId ) {
 	return {
 		noticeId: noticeId,
@@ -8,6 +14,14 @@ export function removeNotice( noticeId ) {
 	};
 }
 
+/**
+ * Creates a new notice action.
+ *
+ * @param {string} status  - Notice status.
+ * @param {string} text    - Notice text.
+ * @param {object} options - Notice options.
+ * @return {object} Action object.
+ */
 export function createNotice( status, text, options = {} ) {
 	const notice = {
 		noticeId: options.id || uniqueId(),

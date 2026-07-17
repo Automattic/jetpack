@@ -9,6 +9,7 @@ namespace {
     {
     }
     /**
+     * @deprecated
      * @return never
      * @throws Exception
      */

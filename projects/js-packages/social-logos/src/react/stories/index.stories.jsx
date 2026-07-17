@@ -4,6 +4,7 @@
 import SocialLogoExamples from '../example';
 import SocialLogo from '../index';
 // the default export is metadata about the component
+// eslint-disable-next-line storybook/csf-component -- Not a component-based story?
 export default {
 	title: 'JS Packages/Social Logos/Icons',
 };

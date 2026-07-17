@@ -1,12 +1,12 @@
-const core = require( '@actions/core' );
-const github = require( '@actions/github' );
+import * as core from '@actions/core';
+import * as github from '@actions/github';
 
 /**
  * Request review from the given team
  *
  * @param {string[]} teams - GitHub team slug, or @ followed by a GitHub user name.
  */
-async function requestReviewer( teams ) {
+export async function requestReview( teams ) {
 	const octokit = github.getOctokit( core.getInput( 'token', { required: true } ) );
 	const owner = github.context.payload.repository.owner.login;
 	const repo = github.context.payload.repository.name;
@@ -40,8 +40,6 @@ async function requestReviewer( teams ) {
 		} );
 		core.info( `Requested review(s) from ${ teams }` );
 	} catch ( err ) {
-		throw new Error( `Unable to request review.\n  Error: ${ err }` );
+		throw new Error( `Unable to request review.\n  Error: ${ err }`, { cause: err } );
 	}
 }
-
-module.exports = requestReviewer;

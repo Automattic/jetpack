@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import icon from '../_inc/icon.js';
+import icon from '../_inc/icon.jsx';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';

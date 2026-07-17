@@ -625,6 +625,41 @@ EOT
 	}
 
 	/**
+	 * Test maybe_add_colon_to_label adds colon to regular labels.
+	 */
+	public function test_maybe_add_colon_to_label_adds_colon() {
+		$this->assertSame( 'Name:', Util::maybe_add_colon_to_label( 'Name' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label does not double-add colon.
+	 */
+	public function test_maybe_add_colon_to_label_no_double_colon() {
+		$this->assertSame( 'Name:', Util::maybe_add_colon_to_label( 'Name:' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label preserves question mark.
+	 */
+	public function test_maybe_add_colon_to_label_preserves_question_mark() {
+		$this->assertSame( 'How are you?', Util::maybe_add_colon_to_label( 'How are you?' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label strips trailing period.
+	 */
+	public function test_maybe_add_colon_to_label_strips_period() {
+		$this->assertSame( 'I agree:', Util::maybe_add_colon_to_label( 'I agree.' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label handles empty string.
+	 */
+	public function test_maybe_add_colon_to_label_empty_string() {
+		$this->assertSame( ':', Util::maybe_add_colon_to_label( '' ) );
+	}
+
+	/**
 	 * Test that Util::init() sets up the expected hooks and filters.
 	 *
 	 * This test verifies that the Util::init() method properly registers
@@ -653,6 +688,16 @@ EOT
 		);
 
 		$this->assertNotFalse(
+			has_filter( 'pre_render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_suspend_block_template_id_in_post_content' ),
+			'pre_render_block filter should suspend the block_template global'
+		);
+
+		$this->assertNotFalse(
+			has_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_restore_block_template_id_after_post_content' ),
+			'render_block filter should restore the block_template global'
+		);
+
+		$this->assertNotFalse(
 			has_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init' ),
 			'Contact_Form_Plugin::init should be registered on init action'
 		);
@@ -666,6 +711,97 @@ EOT
 			has_action( 'grunion_pre_message_sent', '\Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent' ),
 			'grunion_pre_message_sent action should be registered'
 		);
+	}
+
+	/**
+	 * Test that the post-content bracket suspends the block_template global for a
+	 * core/post-content block and leaves it untouched for other blocks.
+	 */
+	public function test_suspend_block_template_id_only_for_post_content() {
+		$GLOBALS['grunion_block_template_id'] = 'mytheme//single';
+
+		// A non-post-content block must not touch the global.
+		$ret = Util::grunion_contact_form_suspend_block_template_id_in_post_content( null, array( 'blockName' => 'core/paragraph' ) );
+		$this->assertNull( $ret, 'pre_render value is returned unchanged' );
+		$this->assertSame( 'mytheme//single', $GLOBALS['grunion_block_template_id'], 'Non post-content block leaves the global in place' );
+
+		// core/post-content suspends it.
+		$ret = Util::grunion_contact_form_suspend_block_template_id_in_post_content( null, array( 'blockName' => 'core/post-content' ) );
+		$this->assertNull( $ret, 'pre_render value is returned unchanged' );
+		$this->assertArrayNotHasKey( 'grunion_block_template_id', $GLOBALS, 'Global is suspended while post-content renders' );
+
+		unset( $GLOBALS['grunion_block_template_id'] );
+	}
+
+	/**
+	 * Test that suspending then restoring around a core/post-content block returns the global
+	 * to its previous value, and that a non-post-content block does not restore.
+	 */
+	public function test_restore_block_template_id_after_post_content() {
+		$GLOBALS['grunion_block_template_id'] = 'mytheme//single';
+		$pc                                   = array( 'blockName' => 'core/post-content' );
+
+		Util::grunion_contact_form_suspend_block_template_id_in_post_content( null, $pc );
+
+		// A non-post-content block must not restore anything.
+		Util::grunion_contact_form_restore_block_template_id_after_post_content( '', array( 'blockName' => 'core/paragraph' ) );
+		$this->assertArrayNotHasKey( 'grunion_block_template_id', $GLOBALS, 'Non post-content block does not restore the global' );
+
+		$ret = Util::grunion_contact_form_restore_block_template_id_after_post_content( 'BODY', $pc );
+		$this->assertSame( 'BODY', $ret, 'Block content is returned unchanged' );
+		$this->assertSame( 'mytheme//single', $GLOBALS['grunion_block_template_id'], 'Global is restored after post-content' );
+
+		unset( $GLOBALS['grunion_block_template_id'] );
+	}
+
+	/**
+	 * Test that nested core/post-content renders (e.g. a query loop) restore the OUTER value,
+	 * which is the reason the suspended values are stacked rather than stored in a scalar.
+	 */
+	public function test_nested_post_content_restores_outer_block_template_id() {
+		$GLOBALS['grunion_block_template_id'] = 'theme//tmpl';
+		$pc                                   = array( 'blockName' => 'core/post-content' );
+
+		Util::grunion_contact_form_suspend_block_template_id_in_post_content( null, $pc ); // outer
+		$this->assertArrayNotHasKey( 'grunion_block_template_id', $GLOBALS, 'Outer post-content suspends the global' );
+
+		Util::grunion_contact_form_suspend_block_template_id_in_post_content( null, $pc ); // inner (already absent)
+		Util::grunion_contact_form_restore_block_template_id_after_post_content( '', $pc ); // inner: was absent, stays absent
+		$this->assertArrayNotHasKey( 'grunion_block_template_id', $GLOBALS, 'Inner restore (value was absent) leaves the global absent' );
+
+		Util::grunion_contact_form_restore_block_template_id_after_post_content( '', $pc ); // outer
+		$this->assertSame( 'theme//tmpl', $GLOBALS['grunion_block_template_id'], 'Outer value is restored after nested post-content' );
+
+		unset( $GLOBALS['grunion_block_template_id'] );
+	}
+
+	/**
+	 * Test that the canvas injector marks the block_template global when (and only when) a block
+	 * template is being rendered (template-canvas.php).
+	 */
+	public function test_set_block_template_attribute_marks_block_template_global() {
+		global $_wp_current_template_content, $_wp_current_template_id;
+		// The `global` declaration above defines both (null if unset), so no null-guard is needed.
+		$prev_content = $_wp_current_template_content;
+		$prev_id      = $_wp_current_template_id;
+
+		$_wp_current_template_content = '<!-- wp:paragraph --><p>hi</p><!-- /wp:paragraph -->';
+		$_wp_current_template_id      = 'twentytwentyfour//single';
+		unset( $GLOBALS['grunion_block_template_id'] );
+
+		$ret = Util::grunion_contact_form_set_block_template_attribute( '/themes/x/template-canvas.php' );
+		$this->assertSame( '/themes/x/template-canvas.php', $ret, 'Template path is returned unchanged' );
+		$this->assertSame( 'twentytwentyfour//single', $GLOBALS['grunion_block_template_id'], 'Block template global is set while the canvas renders' );
+
+		// A non-canvas template must not set the global.
+		unset( $GLOBALS['grunion_block_template_id'] );
+		Util::grunion_contact_form_set_block_template_attribute( '/themes/x/single.php' );
+		$this->assertArrayNotHasKey( 'grunion_block_template_id', $GLOBALS, 'Non-canvas template does not set the global' );
+
+		// Restore globals.
+		unset( $GLOBALS['grunion_block_template_id'] );
+		$_wp_current_template_content = $prev_content;
+		$_wp_current_template_id      = $prev_id;
 	}
 
 	/**

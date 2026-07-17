@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+
+Comment: Drop hardcoded WPDS token fallbacks from shared _inc styles (injected by wp-build).
+

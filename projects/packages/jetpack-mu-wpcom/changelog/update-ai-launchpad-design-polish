@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: polish the tailored list to match the design prototype — centered layout with a heading, progress, and site preview; action-specific task CTAs; and a "Tailoring your checklist…" loading state.

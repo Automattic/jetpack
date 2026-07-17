@@ -1,11 +1,16 @@
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 import defaultSettings from '../shared/settings/index.js';
-import edit from './edit.js';
+import edit from './edit.jsx';
 import save from './save.js';
 
-const name = 'field-hidden';
-const settings = {
+export const name = 'field-hidden';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Hidden field', 'jetpack-forms' ),
 	description: __(
@@ -33,4 +38,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

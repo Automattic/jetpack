@@ -13,6 +13,13 @@ import type { MediaTokenProps } from '../../lib/get-media-token/types';
 
 const debug = debugFactory( 'videopress:resumable-file-uploader' );
 
+/**
+ * HTTP status codes that are safe to retry.
+ *
+ * @see https://github.com/tfredrich/RestApiTutorial.com/blob/master/content/advanced/responses/retries.md
+ */
+const RETRIABLE_STATUS_CODES = [ 408, 429, 500, 502, 503, 504 ];
+
 const jwtsForKeys = {};
 
 declare module 'tus-js-client' {
@@ -69,14 +76,14 @@ const resumableFileUploader = ( {
 		retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
 		onShouldRetry: function ( err: tus.DetailedError ) {
 			const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
-			// Do not retry if the status is a 400.
-			if ( status === 400 ) {
-				debug( 'cleanup retry due to 400 error' );
+
+			// Only retry on transient errors (timeouts, rate limits, server errors).
+			if ( status && ! RETRIABLE_STATUS_CODES.includes( status ) ) {
+				debug( 'not retrying due to %d error', status );
 				localStorage.removeItem( upload._urlStorageKey );
 				return false;
 			}
 
-			// For any other status code, we retry.
 			return true;
 		},
 		onBeforeRequest: async function ( req: VPUploadHttpRequest ) {

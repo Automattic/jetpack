@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-config",
-	"version": "1.0.6",
+	"version": "1.0.13",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack",
-		"directory": "projects/js-packages/config"
+		"url": "git+https://github.com/Automattic/jetpack-config-js.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -17,11 +16,12 @@
 		".": "./src/index.js"
 	},
 	"main": "./src/index.js",
+	"types": "./src/index.d.ts",
 	"scripts": {
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
-		"jest": "30.2.0"
+		"jest": "30.4.2"
 	}
 }

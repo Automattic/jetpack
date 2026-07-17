@@ -1,9 +1,13 @@
 import { __ } from '@wordpress/i18n';
 import { next } from '@wordpress/icons';
-import edit from './edit.js';
-import save from './save.js';
+import edit from './edit.jsx';
+import save from './save.jsx';
 
 export const name = 'form-step-navigation';
+
+export const form_editor = {
+	category: 'multistep',
+};
 
 export const settings = {
 	apiVersion: 3,
@@ -38,4 +42,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

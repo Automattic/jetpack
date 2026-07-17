@@ -122,6 +122,23 @@ class Jetpack_Site_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Test that garden fields are present in non-member (public) API responses.
+	 */
+	public function test_get_site_garden_fields_for_non_member() {
+		global $blog_id;
+
+		// Ensure no user is logged in to trigger the $no_member_fields path.
+		wp_set_current_user( 0 );
+
+		$endpoint = $this->create_get_site_endpoint();
+
+		$response = $endpoint->callback( '', $blog_id );
+
+		$this->assertArrayHasKey( 'is_garden', (array) $response );
+		$this->assertArrayHasKey( 'garden_name', (array) $response );
+	}
+
 	public function create_get_site_endpoint() {
 		return new WPCOM_JSON_API_GET_Site_Endpoint(
 			array(

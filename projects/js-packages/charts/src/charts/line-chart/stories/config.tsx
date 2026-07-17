@@ -13,9 +13,13 @@ import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { lineChartTooltipArgTypes } from '../../../stories/tooltip-config';
 import { DefaultGlyph } from '../../private/default-glyph';
 import LineChart from '../line-chart';
+import type { LegendStoryControls } from '../../../stories/legend-config';
+import type { TooltipStoryControls } from '../../../stories/tooltip-config';
 import type { Meta } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
+export type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > &
+	LegendStoryControls &
+	TooltipStoryControls;
 
 /**
  * Custom storybook theme with glyphs
@@ -59,6 +63,11 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 		...themeArgTypes,
 		...sharedChartArgTypes,
 		...lineChartTooltipArgTypes,
+		data: {
+			control: { type: 'object' },
+			description: 'Array of series data to display in the chart',
+			table: { category: 'Data' },
+		},
 	},
 };
 
@@ -69,7 +78,6 @@ export const lineChartStoryArgs = {
 	withLegendGlyph: false,
 	smoothing: true,
 	maxWidth: 1200,
-	aspectRatio: 0.5,
 	resizeDebounceTime: 300,
 	options: {
 		axis: {

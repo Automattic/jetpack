@@ -1,0 +1,16 @@
+@use "social-logos/font/social-logos.css";
+
+.social-logo {
+	font-family: social-logos;
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 1;
+	font-weight: 400;
+	font-style: normal;
+	speak: none;
+	text-decoration: inherit;
+	text-transform: none;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

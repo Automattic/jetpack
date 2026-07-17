@@ -68,7 +68,7 @@ input.jetpack-instant-search__box-input.search-field {
 	line-height: 1;
 	margin: 0 0.25em 0 0;
 	width: 60px;
-	word-wrap: normal;
+	overflow-wrap: normal;
 
 	&:hover,
 	&:focus {

@@ -1,5 +1,4 @@
-import type { ChartTheme, SeriesData } from '../types';
-import type { LegendShape } from '@visx/legend/lib/types';
+import type { BarStyles, ChartTheme, LegendShape, SeriesData } from '../types';
 import type { LineStyles } from '@visx/xychart';
 
 /**
@@ -27,6 +26,25 @@ export function getSeriesLineStyles(
 	return (
 		seriesData.options?.seriesLineStyle ?? themeSemanticLineStyle ?? themeSeriesLineStyle ?? {}
 	);
+}
+
+/**
+ * Utility to get consolidated bar styles for a series by semantic type.
+ * Mirrors getSeriesLineStyles: a series with `options.type` (e.g. 'comparison')
+ * resolves to `theme.barChart.barStyles[ type ]`.
+ *
+ * @param {SeriesData} seriesData    - The series data containing styling options
+ * @param {number}     index         - The index of the series in the data array
+ * @param {ChartTheme} providerTheme - The chart theme configuration
+ * @return {BarStyles} The consolidated bar styles for the series
+ */
+export function getSeriesBarStyles(
+	seriesData: SeriesData,
+	index: number,
+	providerTheme: ChartTheme
+): BarStyles {
+	const type = seriesData.options?.type;
+	return ( type && providerTheme?.barChart?.barStyles?.[ type ] ) ?? {};
 }
 
 /**
@@ -62,22 +80,26 @@ export function getItemShapeStyles(
 ): Record< string, unknown > {
 	const seriesShapeStyles = series.options?.legendShapeStyle ?? {};
 	const lineStyles = legendShape === 'line' ? getSeriesLineStyles( series, index, theme ) : {};
-	const themeShapeStyles = theme.legendShapeStyles?.[ index ];
+	// For non-line legends (e.g. bar 'rect'), reflect the comparison bar's opacity on the
+	// swatch so the legend marker matches the translucent comparison bar. Line-type legends
+	// convey comparison via the dashed stroke (lineStyles) instead.
+	const barOpacity =
+		legendShape !== 'line' ? getSeriesBarStyles( series, index, theme ).opacity : undefined;
+	const barShapeStyles = barOpacity !== undefined ? { opacity: barOpacity } : {};
+	const themeShapeStyles = theme.legend?.shapeStyles?.[ index ];
 
-	const itemShapeStyles = {
+	// Series-level styles (custom shape style + line styles) take precedence; otherwise fall
+	// back to the per-index theme shape styles.
+	const explicitStyles = {
 		...seriesShapeStyles,
 		...lineStyles,
 	};
+	const hasExplicitStyles = Object.values( explicitStyles ).some(
+		value => value !== undefined && value !== null && value !== ''
+	);
+	const baseShapeStyles = hasExplicitStyles ? explicitStyles : themeShapeStyles ?? {};
 
-	// Return item shape styles if they are not empty
-	if (
-		Object.values( itemShapeStyles ).some(
-			value => value !== undefined && value !== null && value !== ''
-		)
-	) {
-		return itemShapeStyles;
-	}
-
-	// Fallback to theme shape styles if defined
-	return themeShapeStyles ?? {};
+	// Layer the comparison bar opacity on top so the swatch matches the translucent bar
+	// without discarding the base (custom or theme) shape styles.
+	return { ...baseShapeStyles, ...barShapeStyles };
 }

@@ -1,5 +1,6 @@
 import { Text, IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { help } from '@wordpress/icons';
 import { useMemo } from 'react';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
@@ -75,7 +76,7 @@ const FirewallSubheading = () => {
 			return (
 				<IconTooltip
 					className={ styles[ 'icon-tooltip' ] }
-					iconCode={ 'help-outline' }
+					iconCode={ help }
 					iconSize={ 20 }
 					iconClassName={ styles[ 'icon-tooltip__icon' ] }
 					placement={ 'top' }

@@ -28,3 +28,40 @@
 		}
 	}
 }
+
+.jetpack-instant-search__sidebar-citations {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.jetpack-instant-search__sidebar-citation-card {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 10px 12px;
+	border: 1px solid helper.$color-layout-borders;
+	border-radius: 6px;
+	text-decoration: none;
+	color: inherit;
+	transition: background-color 0.1s ease;
+
+	&:hover {
+		background-color: helper.$color-mark-background-default;
+	}
+}
+
+.jetpack-instant-search__sidebar-citation-title {
+	font-size: 13px;
+	font-weight: 600;
+	color: helper.$color-text;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jetpack-instant-search__sidebar-citation-url {
+	font-size: 11px;
+	color: helper.$color-text-lighter;
+}

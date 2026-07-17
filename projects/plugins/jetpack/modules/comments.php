@@ -24,9 +24,7 @@ Assets::add_resource_hint(
 		'//jetpack.wordpress.com',
 		'//s0.wp.com',
 		'//public-api.wordpress.com',
-		'//0.gravatar.com',
-		'//1.gravatar.com',
-		'//2.gravatar.com',
+		'//secure.gravatar.com',
 	),
 	'dns-prefetch'
 );

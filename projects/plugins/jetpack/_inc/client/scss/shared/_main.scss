@@ -42,26 +42,6 @@
 	}
 }
 
-// Hello Dolly positioning overwrite
-.jetpack-pagestyles #dolly {
-	float: none;
-	position: relative;
-	right: 0;
-	left: 0;
-	top: 0;
-	padding: rem.convert(10px);
-	text-align: right;
-	background: colors.$white;
-	font-size: rem.convert(12px);
-	font-style: italic;
-	color: colors.$gray;
-	border-bottom: 1px color.adjust(colors.$gray, $lightness: 30%) solid;
-
-	@include breakpoints.breakpoint( "<660px" ) {
-		display: none;
-	}
-}
-
 .dops-notice__text a {
 	text-decoration: underline;
 }
@@ -74,14 +54,10 @@
 .jp-top {
 	background: #fff;
 	width: 100%;
+	border-bottom: 1px solid #f0f0f0;
 
 	.jp-top-inside {
-		max-width: rem.convert(1040px);
-		margin: 0 auto;
-
-		@media (max-width: 1360px) {
-			max-width: 95%;
-		}
+		padding-inline: 24px;
 
 		.jitm-banner.jitm-card {
 			margin: 0 0 24px;

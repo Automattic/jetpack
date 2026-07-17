@@ -2,12 +2,12 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { Link } from '@wordpress/ui';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
@@ -37,12 +37,9 @@ function DashJetpackAi( props ) {
 		link: getRedirectUrl( 'org-ai' ),
 	};
 
-	const learnMoreLink = createInterpolateElement(
-		__( '<ExternalLink>Learn more</ExternalLink>', 'jetpack' ),
-		{
-			ExternalLink: <ExternalLink href={ getRedirectUrl( 'org-ai' ) } />,
-		}
-	);
+	const learnMoreLink = createInterpolateElement( __( '<Link>Learn more</Link>', 'jetpack' ), {
+		Link: <Link openInNewTab href={ getRedirectUrl( 'org-ai' ) } />,
+	} );
 
 	// TODO: useExperiment to switch upgradeUrl between add-jetpack-ai (default from getProductDescriptionUrl) and jetpack-ai
 

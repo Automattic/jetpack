@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the post detail Latest likes widget: the scoped post's likers as an avatar roster, with a pattern-constrained posts/{id}/likes proxy prefix.

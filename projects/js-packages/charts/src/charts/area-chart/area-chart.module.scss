@@ -1,0 +1,25 @@
+.area-chart {
+	position: relative;
+
+	&--animated {
+
+		path {
+			transform-origin: 0 95%;
+			transform: scaleY(0);
+			animation:
+				rise var(--wpds-motion-duration-xl, 400ms)
+				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+		}
+	}
+
+	svg {
+		overflow: visible;
+	}
+}
+
+@keyframes rise {
+
+	to {
+		transform: scaleY(1);
+	}
+}

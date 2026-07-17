@@ -106,6 +106,9 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	public function test_trash_post_trashes_data() {
 		$this->assertSame( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
+		// Ensure there is whitelisted meta on the post.
+		Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
+		add_post_meta( $this->post->ID, 'foobar', 'value' );
 		wp_delete_post( $this->post->ID );
 
 		$this->sender->do_sync();
@@ -125,6 +128,14 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
 
+		// Ensure we are not sending deleted_post_meta actions as well.
+		$deleted_post_meta = $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' );
+		$this->assertFalse( $deleted_post_meta );
+		// And no meta should exist.
+		$this->assertSame(
+			'',
+			$this->server_replica_storage->get_metadata( 'post', $this->post->ID, 'foobar', true )
+		);
 		// Since the post status is not changing here we don't expect the post to be trashed again.
 		$delete_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 		$save_event   = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
@@ -649,36 +660,34 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		);
 		register_post_type( 'unregister_post_type', $args );
 
+		// Unregister the post type before the sync listener enqueues the event.
 		add_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 		$post_id = self::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
 		remove_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 
 		$this->sender->do_sync();
+
+		// Event should have been dropped at enqueue — post should not exist on the server.
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
+		$this->assertNull( $synced_post );
 
-		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
-		$this->assertSame( '', $synced_post->post_content_filtered );
-		$this->assertSame( '', $synced_post->post_excerpt_filtered );
-
-		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
-
-		// Also works for post type that was never registed
+		// Also works for a post type that was never registered.
 		$post_id = self::factory()->post->create( array( 'post_type' => 'does_not_exist' ) );
 		$this->sender->do_sync();
-		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
-		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
-		$this->assertSame( '', $synced_post->post_content_filtered );
-		$this->assertSame( '', $synced_post->post_excerpt_filtered );
-		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+		$this->assertNull( $synced_post );
 	}
 
 	/**
-	 * The purpose of this test is to ensure that when a post type is registered during
-	 * enqueueing Sync actions but not present when sending, we will still sync
-	 * the corresponding post with the correct post type.
-	 * This covers cases, where Dedicated Sync is enabled combined with custom post types
-	 * that are registered on `init`, after the corresponding `add_dedicated_sync_sender_init` hook.
+	 * Ensures that when a post type is registered at enqueue time but unregistered before
+	 * sending, the post is still synced with its original status and post type.
+	 *
+	 * This is the only path where a post of an unregistered type reaches the server —
+	 * if the post type is already unregistered at enqueue time, the event is dropped entirely.
+	 *
+	 * This covers cases where Dedicated Sync is enabled combined with custom post types
+	 * registered on `init`, after the corresponding `add_dedicated_sync_sender_init` hook.
 	 */
 	public function test_will_sync_non_existant_post_types_during_sending() {
 		$args = array(
@@ -1368,7 +1377,7 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		self::factory()->post->create( array( 'post_type' => 'post' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
@@ -1389,12 +1398,27 @@ That was a cool video.';
 			}
 		);
 
-		// Reindex
 		$filtered = array_values( $filtered );
 
-		$this->assertEquals( $filtered[0]->args[0], $filtered[1]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $filtered[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $filtered[1]->action );
+		// Find save_post and published_post for the post we created (interjecting plugin may add another post with unregistered type).
+		$save_event    = null;
+		$publish_event = null;
+		foreach ( $filtered as $event ) {
+			if ( (int) $event->args[0] !== (int) $post_id ) {
+				continue;
+			}
+			if ( $event->action === 'jetpack_sync_save_post' && $save_event === null ) {
+				$save_event = $event;
+			}
+			if ( $event->action === 'jetpack_published_post' && $publish_event === null ) {
+				$publish_event = $event;
+			}
+		}
+
+		$this->assertNotNull( $save_event, 'Expected jetpack_sync_save_post for our post.' );
+		$this->assertNotNull( $publish_event, 'Expected jetpack_published_post for our post.' );
+		$this->assertEquals( $post_id, $save_event->args[0] );
+		$this->assertEquals( $post_id, $publish_event->args[0] );
 	}
 
 	/**
@@ -1410,7 +1434,7 @@ That was a cool video.';
 		return array(
 			array( null, $post ),
 			array( 'alpha', $post ),
-			array( isset( $post->ID ) ? $post->ID : null, null ),
+			array( $post->ID ?? null, null ),
 			array( -1111, $post ),
 		);
 	}

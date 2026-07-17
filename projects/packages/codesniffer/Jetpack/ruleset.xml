@@ -56,6 +56,10 @@
 				<element key="proc_open" value="proc_open" />
 				<element key="shell_exec" value="shell_exec" />
 				<element key="is_resource" value="is_resource" />
+
+				<!-- PHPCompatibility is already flagging these, no need for this to do it too. -->
+				<element key="curl_close" value="curl_close" />
+				<element key="finfo_close" value="finfo_close" />
 			</property>
 		</properties>
 	</rule>

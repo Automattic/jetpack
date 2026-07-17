@@ -79,6 +79,10 @@ const meta = {
 			},
 		},
 	},
+	tags: [
+		// Headless chromium has no microphone, so the test breaks.
+		'no-vitest',
+	],
 } satisfies Meta< typeof RecorderComponent >;
 
 const Template = args => <RecorderComponent { ...args } />;

@@ -29,6 +29,7 @@ test_make_pr 3 PR3
 test_make_pr 4 PR4
 test_make_tag tagA A
 
+# shellcheck disable=SC2034
 TAGS=( tagA )
 
 test_begin "No paths set"
@@ -103,6 +104,7 @@ if ! should_process_pr 4; then
 	testfail 'Expected `should_process_pr 4` to pass'
 fi
 
+# shellcheck disable=SC2034
 PATHS=( xxx bar.txt a/b/c/foo.txt xyz )
 test_begin "Paths set but not including the touched path, main-merged PR"
 init_repo

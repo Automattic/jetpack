@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Exclude lockfile generation PRs from description check.

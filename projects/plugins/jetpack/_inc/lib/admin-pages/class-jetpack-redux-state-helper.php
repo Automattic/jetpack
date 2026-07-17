@@ -186,6 +186,7 @@ class Jetpack_Redux_State_Helper {
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showScan'                   => Jetpack::show_scan_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
@@ -194,6 +195,8 @@ class Jetpack_Redux_State_Helper {
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
+				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
+					&& $block_availability['like']['available'],
 			),
 			'themeData'                            => array(
 				'name'         => $current_theme->get( 'Name' ),
@@ -243,8 +246,15 @@ class Jetpack_Redux_State_Helper {
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
-			/* This filter is already documented in jetpack/modules/subscriptions.php */
-			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
+
+			/*
+			 * This filter is already documented in jetpack/modules/subscriptions.php.
+			 * Defaults on for every site; hosts can opt out with the filter.
+			 */
+			'isWpAdminSubscriberManagementEnabled' => apply_filters(
+				'jetpack_wp_admin_subscriber_management_enabled',
+				true
+			),
 		);
 	}
 
@@ -297,10 +307,10 @@ class Jetpack_Redux_State_Helper {
 		$content = wp_kses_post( $post['content'] );
 		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10 );
 
-		$post_title = isset( $post['title'] ) ? $post['title'] : null;
+		$post_title = $post['title'] ?? null;
 		$title      = wp_kses( $post_title, array() );
 
-		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
+		$post_thumbnail = $post['post_thumbnail'] ?? null;
 		if ( ! empty( $post_thumbnail ) ) {
 			$photon_image = new Image_CDN_Image(
 				array(
@@ -389,9 +399,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		// phpcs:disable
 		foreach ( Keyring_Helper::SERVICES as $service_name => $service_info ) {
-			// phpcs:enable
 			$connect_urls[ $service_name ] = Keyring_Helper::connect_url( $service_name, $service_info['for'] );
 		}
 		return $connect_urls;

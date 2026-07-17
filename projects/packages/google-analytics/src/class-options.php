@@ -20,8 +20,7 @@ class Options {
 	 */
 	public static function get_option( $option_name, $default = false ) {
 		$o = get_option( 'jetpack_wga' );
-		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
-		return isset( $o[ $option_name ] ) ? $o[ $option_name ] : $default;
+		return $o[ $option_name ] ?? $default;
 	}
 
 	/**

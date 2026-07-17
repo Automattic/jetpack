@@ -21,9 +21,8 @@ class Archive_Provider extends Provider {
 	 */
 	protected static $name = 'archive';
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_critical_source_urls( $context_posts = array() ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_critical_source_urls( $context_posts = array() ) {
 		$links              = array();
 		$context_post_types = wp_list_pluck( $context_posts, 'post_type' );
 
@@ -42,7 +41,6 @@ class Archive_Provider extends Provider {
 		return $links;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( ! is_archive() ) {
@@ -53,21 +51,18 @@ class Archive_Provider extends Provider {
 		return array( self::$name . '_' . get_post_type() );
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_keys() { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_keys() {
 		return self::get_post_types();
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_edit_url( $_provider_key ) {
 		return null;
 	}
 
-	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function describe_key( $provider_key ) {
 		$post_type = substr( $provider_key, strlen( static::$name ) + 1 );
 
 		switch ( $post_type ) {
@@ -126,9 +121,8 @@ class Archive_Provider extends Provider {
 		);
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_success_ratio() { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_success_ratio() {
 		return 1;
 	}
 }

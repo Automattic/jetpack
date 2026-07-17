@@ -2,8 +2,7 @@
 import { extensionToLang } from '@@codemirrorLanguageData@@';
 // @ts-expect-error No types.
 import * as wpBlockEditor from '@wordpress/block-editor';
-// @ts-expect-error No types.
-import * as wpBlocks from '@wordpress/blocks';
+import { registerBlockStyle } from '@wordpress/blocks';
 import {
 	Button,
 	Dropdown,
@@ -35,8 +34,6 @@ const {
 	useBlockProps,
 	withColors,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
-
-const { registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
@@ -154,6 +151,16 @@ function filterBlockRegistration( settings: any ) {
 		settings.transforms.to = [ ...transforms.to, ...settings.transforms.to ];
 	}
 
+	// Disable the contrast checker warning for the enhanced Code block.
+	// The block uses custom syntax highlighting colors that may trigger false positive warnings.
+	if ( ! settings.supports ) {
+		settings.supports = {};
+	}
+	if ( ! settings.supports.color ) {
+		settings.supports.color = {};
+	}
+	settings.supports.color.enableContrastChecker = false;
+
 	return settings;
 }
 
@@ -198,7 +205,7 @@ const blockEdit = withColors(
 							</Button>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
-							<NavigableMenu role="menu" stopNavigationEvents>
+							<NavigableMenu role="menu">
 								<MenuGroup>
 									<MenuItem
 										key={ emptyLanguageOption.value }
@@ -271,7 +278,7 @@ const blockEdit = withColors(
 					</SelectControl>
 					<TextControl
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
-						defaultValue={ attributes.filename }
+						value={ attributes.filename }
 						onChange={ ( nextValue: string ) => {
 							setAttributes( { filename: nextValue.trim() } );
 						} }

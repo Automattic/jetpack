@@ -199,7 +199,7 @@ class Jetpack_SEO {
 			$meta['description'] = sprintf(
 				/* translators: first property is an user's display name, the second is the site's title. */
 				_x( 'Read all of the posts by %1$s on %2$s', 'Read all of the posts by Author Name on Blog Title', 'jetpack' ),
-				isset( $obj->display_name ) ? $obj->display_name : __( 'the author', 'jetpack' ),
+				$obj->display_name ?? __( 'the author', 'jetpack' ),
 				get_bloginfo( 'title' )
 			);
 		} elseif ( is_tag() || is_category() || is_tax() ) {
@@ -280,6 +280,10 @@ class Jetpack_SEO {
 		 * @param array Array that consists of meta name and meta content pairs.
 		 */
 		$meta = apply_filters( 'jetpack_seo_meta_tags', $meta );
+
+		if ( ! is_array( $meta ) ) {
+			return;
+		}
 
 		// Output them.
 		foreach ( $meta as $name => $content ) {

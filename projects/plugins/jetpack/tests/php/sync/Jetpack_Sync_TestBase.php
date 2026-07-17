@@ -147,6 +147,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		unset( $_SERVER['HTTP_USER_AGENT'] );
+		unset( $_SERVER['HTTP_X_WPCOM_MCP'] );
 		unset( $GLOBALS['publicize'] );
 		unset( $GLOBALS['publicize_ui'] );
 
@@ -221,7 +222,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public static function pre_http_request_wordpress_org_updates( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function pre_http_request_wordpress_org_updates( $preempt, $args, $url ) {
 		if ( strpos( $url, 'api.wordpress.org/core/version-check' ) > 0 ) {
 			return array(
 				'response'    => array(
@@ -296,6 +297,20 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 			);
 		}
 
+		// Serve theme zip downloads from local test fixtures when available.
+		// download_url() uses stream=true, so write the zip content to the target file.
+		if ( strpos( $url, 'downloads.wordpress.org/theme/' ) > 0 ) {
+			$slug     = preg_replace( '#.*/theme/([^.]+)\..*#', '$1', $url );
+			$zip_path = __DIR__ . '/../files/' . $slug . '.zip';
+			if ( file_exists( $zip_path ) && ! empty( $args['filename'] ) ) {
+				copy( $zip_path, $args['filename'] );
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '',
+				);
+			}
+		}
+
 		return $preempt;
 	}
 
@@ -309,7 +324,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public static function pre_http_request_bruteprotect_api( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function pre_http_request_bruteprotect_api( $preempt, $args, $url ) {
 		if ( strpos( $url, 'api.bruteprotect.com' ) > 0 ) {
 			return array(
 				'response'    => array(

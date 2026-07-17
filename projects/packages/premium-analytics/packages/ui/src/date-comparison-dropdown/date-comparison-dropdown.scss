@@ -1,0 +1,7 @@
+.date-comparison-dropdown__select {
+	min-width: 12rem;
+
+	button[data-can-disable-input-layout] {
+		padding-inline: var(--wpds-dimension-padding-sm);
+	}
+}

@@ -5,6 +5,107 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.36] - 2026-07-13
+### Changed
+- Update dependencies. [#50360]
+
+## [0.1.35] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.1.34] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.1.33] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.1.32] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [0.1.31] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.1.30] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [0.1.29] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405]
+
+## [0.1.28] - 2026-05-19
+### Changed
+- Exclude development files from production builds. [#47365]
+- Update dependencies. [#48778]
+
+## [0.1.27] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## [0.1.26] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.1.25] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [0.1.24] - 2026-04-13
+### Changed
+- Update package dependencies. [#47890]
+
+## [0.1.23] - 2026-04-06
+### Changed
+- Update dependencies. [#46383]
+
+## [0.1.22] - 2026-03-30
+### Changed
+- Update dependencies. [#46383]
+
+## [0.1.21] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [0.1.20] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.1.19] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [0.1.18] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [0.1.17] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.1.16] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [0.1.15] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [0.1.14] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.1.13] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [0.1.12] - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
 ## [0.1.11] - 2026-01-12
 ### Changed
 - Update package dependencies. [#46456]
@@ -53,6 +154,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#44858]
 
+[0.1.36]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.35...v0.1.36
+[0.1.35]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.34...v0.1.35
+[0.1.34]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.33...v0.1.34
+[0.1.33]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.32...v0.1.33
+[0.1.32]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.31...v0.1.32
+[0.1.31]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.30...v0.1.31
+[0.1.30]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.29...v0.1.30
+[0.1.29]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.28...v0.1.29
+[0.1.28]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.27...v0.1.28
+[0.1.27]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.26...v0.1.27
+[0.1.26]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.25...v0.1.26
+[0.1.25]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.24...v0.1.25
+[0.1.24]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.23...v0.1.24
+[0.1.23]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.22...v0.1.23
+[0.1.22]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.21...v0.1.22
+[0.1.21]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.20...v0.1.21
+[0.1.20]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.19...v0.1.20
+[0.1.19]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.18...v0.1.19
+[0.1.18]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.17...v0.1.18
+[0.1.17]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.16...v0.1.17
+[0.1.16]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.15...v0.1.16
+[0.1.15]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.14...v0.1.15
+[0.1.14]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.13...v0.1.14
+[0.1.13]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.8...v0.1.9

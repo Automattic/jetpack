@@ -13,7 +13,7 @@ import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
-import { addFilter } from '@wordpress/hooks';
+import { addFilter, doAction } from '@wordpress/hooks';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 /*
@@ -22,6 +22,7 @@ import debugFactory from 'debug';
 import useAutoScroll from '../../hooks/use-auto-scroll';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { mapInternalPromptTypeToBackendPromptType } from '../../lib/prompt/backend-prompt';
+import { isAiSidebarToolbarButtonEnabled } from '../lib/can-ai-assistant-be-enabled';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
 import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
@@ -223,12 +224,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
-			( suggestion: string, skipRequestCount?: boolean, modelUsed?: AiModelTypeProp ) => {
+			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
 				disableAutoScroll();
 				onBlockDone( suggestion );
-				if ( ! skipRequestCount ) {
-					increaseRequestsCount();
-				}
+				increaseRequestsCount();
 				setAction( '' );
 
 				tracks.recordEvent( 'jetpack_ai_assistant_toolbar_extension_generate', {
@@ -275,6 +274,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					}
 					focusInput();
 				}, 100 );
+
+				/**
+				 * Fires when AI generation completes for a block.
+				 * This allows cross-package communication - for example, the forms package
+				 * uses this to automatically create a synced form after AI generates form fields.
+				 *
+				 * @since 15.6.0
+				 *
+				 * @param {string} clientId  - The block client ID that received AI-generated content.
+				 * @param {string} blockName - The block type name (e.g., 'jetpack/contact-form').
+				 */
+				doAction( 'jetpack_ai_assistant_generation_complete', clientId, blockName );
 			},
 			[
 				disableAutoScroll,
@@ -286,6 +297,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
+				clientId,
+				blockName,
 			]
 		);
 
@@ -549,14 +562,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					/>
 				) }
 
-				<BlockControls { ...blockControlsProps }>
-					<AiAssistantExtensionToolbarDropdown
-						blockType={ blockName }
-						onAskAiAssistant={ handleAskAiAssistant }
-						onRequestSuggestion={ handleRequestSuggestion }
-						behavior={ behavior }
-					/>
-				</BlockControls>
+				{ ! isAiSidebarToolbarButtonEnabled && (
+					<BlockControls { ...blockControlsProps }>
+						<AiAssistantExtensionToolbarDropdown
+							blockType={ blockName }
+							onAskAiAssistant={ handleAskAiAssistant }
+							onRequestSuggestion={ handleRequestSuggestion }
+							behavior={ behavior }
+						/>
+					</BlockControls>
+				) }
 			</>
 		);
 
@@ -565,7 +580,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}
 
 		const ProviderProps = {
-			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+			value: {
+				[ blockName ]: { handleAskAiAssistant, handleRequestSuggestion },
+			},
 		};
 
 		return (

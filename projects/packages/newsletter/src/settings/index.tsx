@@ -1,79 +1,72 @@
 /**
  * External dependencies
  */
-import restApi from '@automattic/jetpack-api';
-import { Notice } from '@wordpress/components';
-import { createRoot, useEffect, useState } from '@wordpress/element';
+import { AdminPage, Col, Container, GlobalNotices } from '@automattic/jetpack-components';
+import { useConnection, getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { createRoot, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Header } from './components/header';
-import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
+import { NewsletterSettingsBody } from './newsletter-settings';
 import './style.scss';
 
 /**
- * Newsletter Settings App
+ * Newsletter Settings App — legacy `wp-admin/admin.php?page=jetpack-newsletter`
+ * surface. The shared body lives in `./newsletter-settings`; this file owns
+ * the standalone chrome (Jetpack-styled `AdminPage`, container grid, global
+ * snackbar surface) and the WP.com connection check.
  *
- * @return {JSX.Element | null} The newsletter settings component or null.
+ * The modernized dashboard mounts `NewsletterSettingsBody` directly inside
+ * its tabbed shell, so the chrome and connection imports here only get
+ * evaluated on the legacy webpack bundle.
+ *
+ * @return The newsletter settings page, wrapped in legacy chrome.
  */
-function NewsletterSettingsApp(): JSX.Element | null {
-	const [ data, setData ] = useState< NewsletterSettings | null >( null );
-	const [ isLoading, setIsLoading ] = useState( true );
-	const [ error, setError ] = useState< string | null >( null );
+export function NewsletterSettingsApp(): JSX.Element {
+	// On Simple sites, users are always connected — skip the check.
+	const { hasConnectedOwner: rawHasConnectedOwner } = useConnection();
+	const hasConnectedOwner = isSimpleSite() || rawHasConnectedOwner;
+	const connectUrl = useMemo(
+		() =>
+			getUserConnectionUrl( {
+				from: 'jetpack-newsletter',
+			} ),
+		[]
+	);
 
-	// Get settings from PHP
-	const jetpackSettings = (
-		window as Window & { jetpackNewsletterSettings?: JetpackNewsletterSettings }
-	 ).jetpackNewsletterSettings;
-
-	// Load settings on mount
-	useEffect( () => {
-		// Initialize the REST API with settings from PHP
-		if ( jetpackSettings?.restApiRoot && jetpackSettings?.restApiNonce ) {
-			restApi.setApiRoot( jetpackSettings.restApiRoot );
-			restApi.setApiNonce( jetpackSettings.restApiNonce );
-		}
-
-		restApi
-			.fetchSettings()
-			.then( ( settings: Record< string, unknown > ) => {
-				setData( settings as NewsletterSettings );
-				setIsLoading( false );
-			} )
-			.catch( ( err: Error ) => {
-				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
-				setIsLoading( false );
-			} );
-	}, [ jetpackSettings?.restApiRoot, jetpackSettings?.restApiNonce ] );
-
-	if ( isLoading ) {
-		return (
-			<div className="newsletter-settings">
-				<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
-			</div>
-		);
-	}
-
-	if ( error ) {
-		return (
-			<div className="newsletter-settings newsletter-settings--error">
-				<Notice status="error" isDismissible={ false }>
-					{ error }
-				</Notice>
-			</div>
-		);
-	}
-
-	if ( ! data ) {
-		return null;
-	}
+	// `AdminPage` writes these into the shared `restApi` client on mount,
+	// defaulting to '' when omitted — which clobbers the root the settings
+	// API set up itself and breaks saves with a 404. Feed it the real values
+	// from script data so it stays consistent with `./api.ts`.
+	const siteData = getSiteData();
 
 	return (
-		<div className="newsletter-settings">
-			<Header />
-			{ /* Settings sections will be added in subsequent PRs */ }
-		</div>
+		<AdminPage
+			title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
+			subTitle={ __(
+				'Transform your blog posts into newsletters to easily reach your subscribers.',
+				'jetpack-newsletter'
+			) }
+			apiRoot={ siteData?.rest_root }
+			apiNonce={ siteData?.rest_nonce }
+		>
+			<GlobalNotices />
+			<Container horizontalSpacing={ 0 }>
+				<Col>
+					<div id="jp-admin-notices" className="newsletter-jitm-card" />
+				</Col>
+			</Container>
+			<Container horizontalSpacing={ 3 }>
+				<Col>
+					<NewsletterSettingsBody
+						hasConnectedOwner={ hasConnectedOwner }
+						connectUrl={ connectUrl }
+					/>
+				</Col>
+			</Container>
+		</AdminPage>
 	);
 }
 

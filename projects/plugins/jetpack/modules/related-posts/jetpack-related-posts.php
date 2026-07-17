@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Post_Media\Images;
 use Automattic\Jetpack\Status\Request;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -257,8 +258,8 @@ class Jetpack_RelatedPosts {
 			'showHeadline'      => $rp_settings['show_headline'],
 			'displayDate'       => isset( $rp_settings['show_date'] ) ? (bool) $rp_settings['show_date'] : true,
 			'displayContext'    => isset( $rp_settings['show_context'] ) && $rp_settings['show_context'],
-			'postLayout'        => isset( $rp_settings['layout'] ) ? $rp_settings['layout'] : 'grid',
-			'postsToShow'       => isset( $rp_settings['size'] ) ? $rp_settings['size'] : 3,
+			'postLayout'        => $rp_settings['layout'] ?? 'grid',
+			'postsToShow'       => $rp_settings['size'] ?? 3,
 			/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
 			'headline'          => apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() ),
 			'isServerRendered'  => true,
@@ -462,7 +463,7 @@ EOT;
 		$wrapper_attributes = array();
 		$post_id            = get_the_ID();
 		$block_attributes   = array(
-			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
+			'headline'        => $attributes['headline'] ?? null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
 			'show_author'     => isset( $attributes['displayAuthor'] ) ? (bool) $attributes['displayAuthor'] : false,
 			'show_headline'   => isset( $attributes['displayHeadline'] ) ? (bool) $attributes['displayHeadline'] : false,
@@ -486,6 +487,19 @@ EOT;
 			return '';
 		}
 
+		/*
+		 * The block renders through its own block callback, independently of the
+		 * module's front-end asset gate (enabled_for_request()). That gate only
+		 * enqueues our assets on single posts in classic themes, so a block placed
+		 * on a page (or any view the gate skips) would render as unstyled HTML.
+		 * Enqueue the stylesheet here, whenever the block actually outputs markup,
+		 * to keep it styled everywhere it can be used. We intentionally do not widen
+		 * enabled_for_request() itself: that governs the automatic the_content
+		 * insertion and was deliberately scoped in #39784 to avoid showing related
+		 * posts on classic-theme pages.
+		 */
+		$this->enqueue_assets( false, true );
+
 		$list_markup = $this->render_post_list( $related_posts, $block_attributes );
 
 		if ( empty( $attributes['isServerRendered'] ) ) {
@@ -505,7 +519,7 @@ EOT;
 			}
 		}
 
-		if ( empty( $headline_markup ) && $block_attributes['show_headline'] === true ) {
+		if ( empty( $headline_markup ) && $block_attributes['show_headline'] ) {
 			$headline = $block_attributes['headline'];
 			if ( strlen( trim( $headline ) ) !== 0 ) {
 				$headline_markup = sprintf(
@@ -671,7 +685,7 @@ EOT;
 			$current['show_date']       = ( isset( $input['show_date'] ) && '1' == $input['show_date'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			$current['show_context']    = ( isset( $input['show_context'] ) && '1' == $input['show_context'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			$current['layout']          = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
-			$current['headline']        = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
+			$current['headline']        = $input['headline'] ?? esc_html__( 'Related', 'jetpack' );
 		} else {
 			$current['enabled'] = false;
 		}
@@ -1442,10 +1456,10 @@ EOT;
 
 	/**
 	 * Generates the thumbnail image to be used for the post. Uses the
-	 * image as returned by Jetpack_PostImages::get_image()
+	 * image as returned by Images::get_image()
 	 *
 	 * @param int $post_id - the post ID.
-	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::fit_image_url
+	 * @uses self::get_options, apply_filters, Images::get_image, Images::fit_image_url
 	 * @return string
 	 */
 	protected function generate_related_post_image_params( $post_id ) {
@@ -1480,58 +1494,56 @@ EOT;
 		}
 
 		// Try to get post image.
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			$img_url    = '';
-			$post_image = Jetpack_PostImages::get_image(
-				$post_id,
-				$thumbnail_size
-			);
+		$img_url    = '';
+		$post_image = Images::get_image(
+			$post_id,
+			$thumbnail_size
+		);
 
-			if ( is_array( $post_image ) ) {
-				$img_url = $post_image['src'];
-			} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
-				$media = Jetpack_Media_Summary::get( $post_id );
+		if ( is_array( $post_image ) ) {
+			$img_url = $post_image['src'];
+		} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
+			$media = Jetpack_Media_Summary::get( $post_id );
 
-				if ( is_array( $media ) && ! empty( $media['image'] ) ) {
-					$img_url = $media['image'];
-				}
+			if ( is_array( $media ) && ! empty( $media['image'] ) ) {
+				$img_url = $media['image'];
+			}
+		}
+
+		if ( ! empty( $img_url ) ) {
+			if ( ! empty( $post_image['alt_text'] ) ) {
+				$image_params['alt_text'] = $post_image['alt_text'];
+			} else {
+				$image_params['alt_text'] = '';
 			}
 
-			if ( ! empty( $img_url ) ) {
-				if ( ! empty( $post_image['alt_text'] ) ) {
-					$image_params['alt_text'] = $post_image['alt_text'];
-				} else {
-					$image_params['alt_text'] = '';
-				}
+			$thumbnail_width  = 0;
+			$thumbnail_height = 0;
 
-				$thumbnail_width  = 0;
-				$thumbnail_height = 0;
+			if ( ! empty( $thumbnail_size['width'] ) ) {
+				$thumbnail_width       = $thumbnail_size['width'];
+				$image_params['width'] = $thumbnail_width;
+			}
 
-				if ( ! empty( $thumbnail_size['width'] ) ) {
-					$thumbnail_width       = $thumbnail_size['width'];
-					$image_params['width'] = $thumbnail_width;
-				}
+			if ( ! empty( $thumbnail_size['height'] ) ) {
+				$thumbnail_height       = $thumbnail_size['height'];
+				$image_params['height'] = $thumbnail_height;
+			}
 
-				if ( ! empty( $thumbnail_size['height'] ) ) {
-					$thumbnail_height       = $thumbnail_size['height'];
-					$image_params['height'] = $thumbnail_height;
-				}
+			$image_params['src'] = Images::fit_image_url(
+				$img_url,
+				$thumbnail_width,
+				$thumbnail_height
+			);
 
-				$image_params['src'] = Jetpack_PostImages::fit_image_url(
-					$img_url,
-					$thumbnail_width,
-					$thumbnail_height
-				);
-
-				// Add a srcset to handle zoomed views and high-density screens.
-				$srcset = Jetpack_PostImages::generate_cropped_srcset(
-					$post_image,
-					$thumbnail_width,
-					$thumbnail_height
-				);
-				if ( ! empty( $srcset ) ) {
-					$image_params['srcset'] = $srcset;
-				}
+			// Add a srcset to handle zoomed views and high-density screens.
+			$srcset = Images::generate_cropped_srcset(
+				$post_image,
+				$thumbnail_width,
+				$thumbnail_height
+			);
+			if ( ! empty( $srcset ) ) {
+				$image_params['srcset'] = $srcset;
 			}
 		}
 

@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -73,7 +70,13 @@ export default function BlockMessage( props: BlockMessageProps ): ReactElement {
 					'jetpack'
 				),
 				{
-					link: <ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines" />,
+					link: (
+						<Link
+							openInNewTab
+							href="https://jetpack.com/redirect/?source=ai-guidelines"
+							children={ null }
+						/>
+					),
 				}
 			);
 			break;

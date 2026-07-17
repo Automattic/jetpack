@@ -243,7 +243,7 @@
 		}
 
 		function save_services() {
-			$( '#enabled-services h3 img' ).show();
+			$( '#enabled-services h3 .spinner' ).addClass( 'is-active' );
 
 			// Toggle various dividers/help texts
 			if ( $( '#enabled-services ul.services-enabled li.service' ).length > 0 ) {
@@ -292,7 +292,7 @@
 
 			// Save it
 			$( '#save-enabled-shares' ).ajaxSubmit( function () {
-				$( '#enabled-services h3 img' ).hide();
+				$( '#enabled-services h3 .spinner' ).removeClass( 'is-active' );
 			} );
 		}
 
@@ -460,11 +460,11 @@
 		$( '#new-service form' ).ajaxForm( {
 			beforeSubmit: function () {
 				$( '#new-service-form .error' ).hide();
-				$( '#new-service-form img' ).show();
+				$( '#new-service-form .spinner' ).addClass( 'is-active' );
 				$( '#new-service-form input[type="submit"]' ).prop( 'disabled', true );
 			},
 			success: function ( response ) {
-				$( '#new-service-form img' ).hide();
+				$( '#new-service-form .spinner' ).removeClass( 'is-active' );
 
 				if ( '' + response === '1' ) {
 					$( '#new-service-form .inerror' ).removeClass( 'inerror' ).addClass( 'error' );

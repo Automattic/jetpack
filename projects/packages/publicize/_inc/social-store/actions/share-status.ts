@@ -1,10 +1,11 @@
 import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { PostShareStatus, SocialStoreState } from '../types';
 import {
 	FETCH_POST_SHARE_STATUS,
 	POLLING_FOR_POST_SHARE_STATUS,
 	RECEIVE_POST_SHARE_STATUS,
-	TOGGLE_SHARE_STATUS_MODAL,
 } from './constants';
 
 /**
@@ -40,37 +41,6 @@ export function receivePostShareStaus(
 		shareStatus,
 		postId,
 	};
-}
-
-/**
- * Toggles the share status modal.
- *
- * @param {boolean} isOpen - Whether the modal is open.
- *
- * @return {object} - An action object.
- */
-export function toggleShareStatusModal( isOpen: boolean ) {
-	return {
-		type: TOGGLE_SHARE_STATUS_MODAL,
-		isOpen,
-	};
-}
-
-/**
- * Opens the share status modal.
- *
- * @return {object} - An action object.
- */
-export function openShareStatusModal() {
-	return toggleShareStatusModal( true );
-}
-
-/**
- * Closes the share status modal.
- * @return {object} - An action object.
- */
-export function closeShareStatusModal() {
-	return toggleShareStatusModal( false );
 }
 
 type IsRequestComplete = ( options: {
@@ -123,6 +93,8 @@ export function pollingForPostShareStatus( postId: number, polling = true ) {
 	};
 }
 
+const SHARING_IN_PROGRESS_NOTICE_ID = 'publicize_sharing_in_progress_notice';
+
 /**
  * Poll for share status.
  *
@@ -140,14 +112,19 @@ export function pollForPostShareStatus( {
 		const startedAt = Date.now();
 
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
+		const { createInfoNotice, removeNotice } = registry.dispatch( noticesStore );
 
 		const lastTimestamp = select.getPostShareStatus( postId ).shares[ 0 ]?.timestamp || 0;
 
-		let isTheRequestComplete = false;
-		let hasTimeoutPassed = false;
-
 		dispatch( pollingForPostShareStatus( postId ) );
 
+		createInfoNotice( __( 'Sharing to your social media…', 'jetpack-publicize-pkg' ), {
+			type: 'snackbar',
+			id: SHARING_IN_PROGRESS_NOTICE_ID,
+			explicitDismiss: true,
+		} );
+
+		let isTheRequestComplete, hasTimeoutPassed;
 		do {
 			// Do not invalidate the resolution if the request is still loading.
 			if ( ! select.getPostShareStatus( postId ).loading ) {
@@ -165,6 +142,8 @@ export function pollForPostShareStatus( {
 
 			hasTimeoutPassed = Date.now() - startedAt > timeout;
 		} while ( ! isTheRequestComplete && ! hasTimeoutPassed );
+
+		removeNotice( SHARING_IN_PROGRESS_NOTICE_ID );
 
 		dispatch( pollingForPostShareStatus( postId, false ) );
 	};

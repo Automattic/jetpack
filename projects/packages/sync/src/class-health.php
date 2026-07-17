@@ -175,6 +175,24 @@ class Health {
 	}
 
 	/**
+	 * Check if the sync queue is healthy based on size and lag.
+	 *
+	 * The queue is considered healthy if either size OR lag is within its limit.
+	 * This matches the logic in Listener::can_add_to_queue(): data loss only occurs
+	 * when both limits are exceeded simultaneously.
+	 *
+	 * @param int   $queue_size     Current queue size.
+	 * @param float $queue_lag      Current queue lag in seconds.
+	 * @param int   $max_queue_size Maximum allowed queue size.
+	 * @param float $max_queue_lag  Maximum allowed queue lag in seconds.
+	 * @return bool Whether the queue is healthy.
+	 */
+	public static function is_queue_healthy( $queue_size, $queue_lag, $max_queue_size, $max_queue_lag ) {
+		return ( $queue_size < $max_queue_size )
+			|| ( $queue_lag < $max_queue_lag );
+	}
+
+	/**
 	 * Update Sync Status if Full Sync ended of Posts
 	 *
 	 * @param string $checksum The checksum that's currently being processed.

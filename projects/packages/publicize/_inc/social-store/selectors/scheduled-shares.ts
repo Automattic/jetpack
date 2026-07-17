@@ -22,15 +22,6 @@ export const getScheduledSharesForPost = createRegistrySelector( select => {
 	};
 } );
 
-export const isSavingScheduledShare = createRegistrySelector( select => {
-	return () =>
-		select( coreStore ).isSavingEntityRecord(
-			'wpcom/v2',
-			'publicize/scheduled-actions',
-			undefined
-		);
-} );
-
 /**
  * Whether the current post is being scheduled for sharing.
  *
@@ -47,7 +38,6 @@ export function isSchedulingShares( state: SocialStoreState ) {
  */
 export const isFetchingScheduledSharesForPost = createRegistrySelector( select => {
 	return ( state: unknown, post_id: number ): boolean => {
-		// @ts-expect-error TS2339 -- isResolving is there but not declared; AFAICT, it's a base method from @wordpress/data and @wordpress/core-data only declares its custom methods.
 		const { isResolving } = select( coreStore );
 
 		return isResolving( 'getEntityRecords', [

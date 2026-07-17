@@ -23,7 +23,7 @@ class CoreDefinitions {
 	 */
 	public static function callback( Event $event ) {
 		$arguments = $event->getArguments();
-		$scan_path = isset( $arguments[0] ) ? $arguments[0] : null;
+		$scan_path = $arguments[0] ?? null;
 		$io        = $event->getIO();
 
 		if ( is_null( $scan_path ) ) {

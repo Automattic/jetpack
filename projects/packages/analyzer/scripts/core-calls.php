@@ -24,8 +24,8 @@ class CoreCalls {
 	 */
 	public static function callback( Event $event ) {
 		$arguments = $event->getArguments();
-		$scan_path = isset( $arguments[0] ) ? $arguments[0] : null;
-		$core_path = isset( $arguments[1] ) ? $arguments[1] : null;
+		$scan_path = $arguments[0] ?? null;
+		$core_path = $arguments[1] ?? null;
 		$io        = $event->getIO();
 
 		if (

@@ -3,27 +3,34 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import PieSemiCircleChart from '../pie-semi-circle-chart';
 
+// Mock useParentSize so the responsive wrapper returns predictable dimensions in tests
+jest.mock( '@visx/responsive', () => ( {
+	useParentSize: jest.fn( () => ( {
+		parentRef: { current: null },
+		width: 400,
+		height: 200,
+	} ) ),
+} ) );
+
 // Mock data for testing
 const mockData = [
 	{
 		label: 'Category A',
 		value: 30,
 		valueDisplay: '30%',
-		percentage: 30,
 	},
 	{
 		label: 'Category B',
 		value: 70,
 		valueDisplay: '70%',
-		percentage: 70,
 	},
 ];
 
 // Helper function to render component with providers
-const renderPieChart = props =>
+const renderPieChart = ( props, children = undefined ) =>
 	render(
 		<GlobalChartsProvider>
-			<PieSemiCircleChart { ...props } />
+			<PieSemiCircleChart { ...props }>{ children }</PieSemiCircleChart>
 		</GlobalChartsProvider>
 	);
 
@@ -55,9 +62,9 @@ describe( 'PieSemiCircleChart', () => {
 	it( 'shows tooltip on segment hover when withTooltips is true', async () => {
 		const user = userEvent.setup();
 		const testData = [
-			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 5 },
-			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 1 },
-			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K' },
 		];
 
 		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
@@ -77,9 +84,9 @@ describe( 'PieSemiCircleChart', () => {
 	it( 'hides tooltip on mouse leave', async () => {
 		const user = userEvent.setup();
 		const testData = [
-			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 5 },
-			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 1 },
-			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K' },
 		];
 
 		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
@@ -99,6 +106,52 @@ describe( 'PieSemiCircleChart', () => {
 		await waitFor( () => {
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
+	} );
+
+	it( 'renders custom tooltip when renderTooltip prop is provided', async () => {
+		const user = userEvent.setup();
+		const testData = [
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K' },
+		];
+
+		const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
+			<div role="tooltip" data-testid="custom-tooltip">
+				Custom: { tooltipData.label } - { tooltipData.value }
+			</div>
+		) );
+
+		renderPieChart( {
+			data: testData,
+			withTooltips: true,
+			width: 400,
+			renderTooltip: customTooltipRenderer,
+		} );
+
+		const segments = screen.getAllByTestId( 'pie-segment' );
+		await user.hover( segments[ 0 ] );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'custom-tooltip' ) ).toBeInTheDocument();
+		} );
+
+		const customTooltip = screen.getByTestId( 'custom-tooltip' );
+		expect( customTooltip ).toHaveTextContent( 'Custom: MacOS - 30000' );
+		expect( customTooltipRenderer ).toHaveBeenCalled();
+
+		// Verify the renderer received correct parameters
+		expect( customTooltipRenderer ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				tooltipData: expect.objectContaining( {
+					label: 'MacOS',
+					value: 30000,
+				} ),
+			} )
+		);
+		// Verify percentage is calculated (approximately 22.73%)
+		const callArgs = customTooltipRenderer.mock.calls[ 0 ][ 0 ];
+		expect( callArgs.tooltipData.percentage ).toBeCloseTo( 22.73, 1 );
 	} );
 
 	it( 'applies custom className', () => {
@@ -123,15 +176,15 @@ describe( 'PieSemiCircleChart', () => {
 		expect( thinPathD ).not.toBe( thickPathD );
 	} );
 
-	it( 'renders with correct dimensions', () => {
-		const width = 400;
-		render( <PieSemiCircleChart data={ mockData } width={ width } /> );
+	it( 'renders with correct dimensions from measured container', () => {
+		// Mock returns width:400, height:200 — chart should render at 400×200 (2:1 ratio)
+		render( <PieSemiCircleChart data={ mockData } /> );
 
 		const svg = screen.getByTestId( 'pie-chart-svg' );
 
-		expect( svg ).toHaveAttribute( 'width', width.toString() );
-		expect( svg ).toHaveAttribute( 'height', ( width / 2 ).toString() );
-		expect( svg ).toHaveAttribute( 'viewBox', `0 0 ${ width } ${ width / 2 }` );
+		expect( svg ).toHaveAttribute( 'width', '400' );
+		expect( svg ).toHaveAttribute( 'height', '200' );
+		expect( svg ).toHaveAttribute( 'viewBox', '0 0 400 200' );
 	} );
 
 	describe( 'Data Validation', () => {
@@ -140,21 +193,21 @@ describe( 'PieSemiCircleChart', () => {
 			expect( screen.getByText( 'No data available' ) ).toBeInTheDocument();
 		} );
 
-		test( 'handles zero total percentage', () => {
+		test( 'handles zero total value', () => {
 			renderPieChart( {
 				data: [
-					{ label: 'A', value: 0, percentage: 0 },
-					{ label: 'B', value: 0, percentage: 0 },
+					{ label: 'A', value: 0 },
+					{ label: 'B', value: 0 },
 				],
 			} );
 			expect(
-				screen.getByText( 'Invalid percentage total: Must be greater than 0' )
+				screen.getByText( 'Invalid data: Total value must be greater than 0' )
 			).toBeInTheDocument();
 		} );
 
 		test( 'handles single data point', () => {
 			renderPieChart( {
-				data: [ { label: 'Single', value: 100, percentage: 50 } ],
+				data: [ { label: 'Single', value: 100 } ],
 			} );
 			expect( screen.getByTestId( 'pie-segment' ) ).toBeInTheDocument();
 		} );
@@ -162,8 +215,8 @@ describe( 'PieSemiCircleChart', () => {
 		test( 'handles negative values', () => {
 			renderPieChart( {
 				data: [
-					{ label: 'A', value: -30, percentage: -30 },
-					{ label: 'B', value: 130, percentage: 130 },
+					{ label: 'A', value: -30 },
+					{ label: 'B', value: 130 },
 				],
 			} );
 			expect(
@@ -172,18 +225,71 @@ describe( 'PieSemiCircleChart', () => {
 		} );
 	} );
 
+	describe( 'Responsive wrapper', () => {
+		it( 'constrains chart to 2:1 ratio from measured dimensions', () => {
+			// Mock returns width:400, height:200, so chart renders at 400×200 (2:1 ratio)
+			render( <PieSemiCircleChart data={ mockData } /> );
+			const svg = screen.getByTestId( 'pie-chart-svg' );
+			expect( svg ).toHaveAttribute( 'width', '400' );
+			expect( svg ).toHaveAttribute( 'height', '200' );
+		} );
+
+		it( 'constrains chart width when container height is shorter than 2:1 ratio', () => {
+			// If parent height is 100px, chart should be at most 200×100 (not 400×200)
+			const { useParentSize } = jest.requireMock( '@visx/responsive' );
+			useParentSize.mockReturnValueOnce( {
+				parentRef: { current: null },
+				width: 400,
+				height: 100,
+			} );
+			render( <PieSemiCircleChart data={ mockData } /> );
+			const svg = screen.getByTestId( 'pie-chart-svg' );
+			// chartWidth = min(400, 100*2) = 200, chartHeight = 100
+			expect( svg ).toHaveAttribute( 'width', '200' );
+			expect( svg ).toHaveAttribute( 'height', '100' );
+		} );
+	} );
+
+	describe( 'Composition Legend', () => {
+		test( 'renders composition legend as child component', () => {
+			renderPieChart( { data: mockData }, <PieSemiCircleChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Category A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Category B' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend regardless of showLegend value', () => {
+			renderPieChart( { data: mockData, showLegend: false }, <PieSemiCircleChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+		} );
+
+		test( 'renders composition legend in top position', () => {
+			renderPieChart( { data: mockData }, <PieSemiCircleChart.Legend position="top" /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+
+			// Legend should appear before the chart SVG in DOM order
+			const html = document.body.innerHTML;
+			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
+				html.indexOf( 'data-testid="pie-chart-svg"' )
+			);
+		} );
+	} );
+
 	describe( 'Interactive Legend', () => {
 		test( 'filters segments when interactive legend is enabled and segment is toggled', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-interactive-semi-circle-chart',
 			} );
 
@@ -208,14 +314,14 @@ describe( 'PieSemiCircleChart', () => {
 		test( 'shows empty state when all segments are hidden', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-all-hidden-semi-circle-chart',
 			} );
 
@@ -235,14 +341,14 @@ describe( 'PieSemiCircleChart', () => {
 
 		test( 'does not filter segments when legendInteractive is false', () => {
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: false,
+				legend: { interactive: false },
 				chartId: 'test-non-interactive-semi-circle-chart',
 			} );
 

@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.18] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.0.17] - 2026-06-24
+### Changed
+- Update package dependencies. [#49757]
+- Update package dependencies. [#49831]
+
+## [1.0.16] - 2026-06-10
+### Changed
+- Update package dependencies. [#49492]
+
+## [1.0.15] - 2026-06-08
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#48302]
+- Update package dependencies. [#48695]
+- Update package dependencies. [#48844]
+- Update package dependencies. [#49012]
+
+## [1.0.14] - 2026-04-13
+### Changed
+- Update package dependencies. [#47610]
+- Update package dependencies. [#47799]
+- Update package dependencies. [#47998]
+
+## [1.0.13] - 2026-03-09
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47002] [#47099] [#47173] [#47229] [#47337] [#47498]
+
+## [1.0.12] - 2026-01-26
+### Changed
+- Update package dependencies. [#46552]
+
 ## [1.0.11] - 2025-11-25
 ### Changed
 - Update package dependencies. [#45958]
@@ -222,6 +259,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[1.0.18]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.17...v1.0.18
+[1.0.17]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.16...v1.0.17
+[1.0.16]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.15...v1.0.16
+[1.0.15]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.12...v1.0.13
+[1.0.12]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.8...v1.0.9

@@ -1,6 +1,6 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Related posts
+ * Module Name: Related Posts
  * Module Description: Automatically display related articles to keep visitors reading longer.
  * First Introduced: 2.9
  * Sort Order: 29
@@ -76,3 +76,6 @@ class Jetpack_RelatedPosts_Module {
 
 // Do it.
 Jetpack_RelatedPosts_Module::instance();
+
+require_once __DIR__ . '/related-posts/abilities/class-related-posts-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Related_Posts_Abilities::init();

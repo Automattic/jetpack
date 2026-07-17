@@ -1,6 +1,18 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import LeaderboardChart from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
+
+const mockDefaultParentSize = () => ( {
+	parentRef: { current: null },
+	width: 400,
+	height: 300,
+} );
+
+// Mock useParentSize so the responsive wrapper returns predictable dimensions in tests
+jest.mock( '@visx/responsive', () => ( {
+	useParentSize: jest.fn( () => mockDefaultParentSize() ),
+} ) );
 
 const mockData: LeaderboardEntry[] = [
 	{
@@ -40,6 +52,11 @@ const testValueFormatter = ( value: number ) => `${ value }$`;
 const testDeltaFormatter = ( value: number ) => `${ value }delta`;
 
 describe( 'LeaderboardChart', () => {
+	afterEach( () => {
+		const { useParentSize } = jest.requireMock( '@visx/responsive' );
+		useParentSize.mockImplementation( () => mockDefaultParentSize() );
+	} );
+
 	it( 'renders leaderboard entries', () => {
 		render( <LeaderboardChart data={ mockData } /> );
 
@@ -59,6 +76,30 @@ describe( 'LeaderboardChart', () => {
 
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows a placeholder when a row has no previous value', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					...mockData,
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						currentShare: 1,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows custom label when provided', () => {
@@ -153,9 +194,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendShape="rect"
-					legendShapeWidth={ 10 }
-					legendShapeHeight={ 6 }
+					legend={ { shape: 'rect', shapeStyles: { width: 10, height: 6 } } }
 				/>
 			);
 
@@ -204,7 +243,7 @@ describe( 'LeaderboardChart', () => {
 		it( 'renders LeaderboardChart.Legend as child component', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true }>
-					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+					<LeaderboardChart.Legend />
 				</LeaderboardChart>
 			);
 
@@ -212,8 +251,8 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Social Media' ) ).toBeInTheDocument();
 
-			// Composition legend should render - each legend item gets its own element
-			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			// Composition legend should render
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
 		} );
@@ -221,15 +260,12 @@ describe( 'LeaderboardChart', () => {
 		it( 'renders composition legend regardless of showLegend value', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true } showLegend={ false }>
-					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+					<LeaderboardChart.Legend />
 				</LeaderboardChart>
 			);
 
-			// No built-in legend should be rendered when showLegend is false
-			expect( screen.queryByTestId( 'legend-item' ) ).not.toBeInTheDocument();
-
-			// Composition legend should still render regardless of showLegend value
-			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			// Composition legend should render regardless of showLegend value
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
 		} );
@@ -237,41 +273,36 @@ describe( 'LeaderboardChart', () => {
 		it( 'supports both built-in and composition legends simultaneously', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true } showLegend={ true }>
-					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+					<LeaderboardChart.Legend />
 				</LeaderboardChart>
 			);
 
-			// Built-in legend should render (with legend-item test IDs)
-			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
-
-			// Composition legend should also render
-			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			// Both built-in and composition legends should render (2 items each = 4 total)
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 4 );
 
 			// Should have legend items from both legends
 			const currentPeriodItems = screen.getAllByText( 'Current period' );
 			const previousPeriodItems = screen.getAllByText( 'Previous period' );
-			expect( currentPeriodItems ).toHaveLength( 2 ); // One from each legend
-			expect( previousPeriodItems ).toHaveLength( 2 ); // One from each legend
+			expect( currentPeriodItems ).toHaveLength( 2 );
+			expect( previousPeriodItems ).toHaveLength( 2 );
 		} );
 
 		it( 'passes props correctly to composition legend', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true }>
-					<LeaderboardChart.Legend
-						data-testid="composition-legend-item"
-						shape="circle"
-						shapeWidth={ 12 }
-						shapeHeight={ 12 }
-						style={ { marginTop: '20px' } }
-					/>
+					<LeaderboardChart.Legend shape="circle" shapeStyles={ { margin: '4px 8px' } } />
 				</LeaderboardChart>
 			);
 
-			const legendItems = screen.getAllByTestId( 'composition-legend-item' );
+			const legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
-			// Check that each legend item has the custom style applied
+
+			// Verify custom shape styles are applied within each legend item.
+			// Direct DOM access is needed because visx legend shapes lack accessible attributes and we cannot pass a test id to them.
 			legendItems.forEach( item => {
-				expect( item ).toHaveStyle( { marginTop: '20px' } );
+				// eslint-disable-next-line testing-library/no-node-access
+				const shape = item.querySelector( '.visx-legend-shape' );
+				expect( shape ).toHaveStyle( { margin: '4px 8px' } );
 			} );
 		} );
 
@@ -299,7 +330,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendInteractive={ true }
+					legend={ { interactive: true } }
 				/>
 			);
 
@@ -313,7 +344,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendInteractive={ false }
+					legend={ { interactive: false } }
 				/>
 			);
 
@@ -328,7 +359,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendInteractive={ true }
+					legend={ { interactive: true } }
 				/>
 			);
 
@@ -337,6 +368,124 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByText( '8.8K' ) ).toBeInTheDocument();
 			expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 			expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Responsive wrapper', () => {
+		it( 'applies explicit width and height to chart container', () => {
+			const { useParentSize } = jest.requireMock( '@visx/responsive' );
+			useParentSize.mockReturnValue( {
+				parentRef: { current: null },
+				width: 0,
+				height: 0,
+			} );
+
+			render( <LeaderboardChart data={ mockData } width={ 500 } height={ 240 } /> );
+			const chartContainer = screen.getByTestId( 'leaderboard-chart-container' );
+
+			expect( chartContainer ).toHaveStyle( { width: '500px', height: '240px' } );
+		} );
+	} );
+
+	describe( 'Interactive items', () => {
+		it( 'renders a button for an entry with onClick', () => {
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
+			expect( screen.getByRole( 'button' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button' ).tagName ).toBe( 'BUTTON' );
+		} );
+
+		it( 'calls onClick when the row is clicked', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick } ] } /> );
+			await user.click( screen.getByRole( 'button' ) );
+			expect( onClick ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'activates onClick via the keyboard (Enter and Space)', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick } ] } /> );
+
+			await user.tab();
+			expect( screen.getByRole( 'button' ) ).toHaveFocus();
+
+			await user.keyboard( '[Enter]' );
+			await user.keyboard( '[Space]' );
+			expect( onClick ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it( 'gives the interactive row an accessible name from the label and value', () => {
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
+			// mockData[0] label is 'Direct', currentValue 12500 → '12.5K'
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /Direct.*12\.5K/ );
+		} );
+
+		it( 'does not include the missing comparison dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'new',
+							label: 'New Source',
+							currentValue: 100,
+							currentShare: 1,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/New Source.*100.*No comparison data/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /-/ );
+		} );
+
+		it( 'derives the accessible name from an image label via its alt text', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <img src="https://example.com/flag.svg" alt="United States" />,
+							onClick: jest.fn(),
+						},
+					] }
+				/>
+			);
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /United States.*12\.5K/ );
+		} );
+
+		it( 'uses ariaLabel as the accessible name when provided', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <img src="https://example.com/flag.svg" alt="" />,
+							ariaLabel: 'United States: 12.5K visitors',
+							onClick: jest.fn(),
+						},
+					] }
+				/>
+			);
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				'United States: 12.5K visitors'
+			);
+		} );
+
+		it( 'does not render a button for entries without onClick', () => {
+			render( <LeaderboardChart data={ [ mockData[ 0 ] ] } /> );
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders a button only for interactive entries in mixed data', () => {
+			render(
+				<LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() }, mockData[ 1 ] ] } />
+			);
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
 	} );
 } );

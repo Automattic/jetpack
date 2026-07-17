@@ -231,6 +231,13 @@ export type MetadataVideo = {
 	uploadProgress?: number;
 };
 
+/**
+ * A VideoPress video as rendered in the admin dashboard: the video data merged
+ * with its per-item upload/UI metadata. This is the shape the videos store
+ * exposes through `useVideos`/`useDashboardVideos` and the libraries consume.
+ */
+export type AdminVideo = VideoPressVideo & MetadataVideo;
+
 export type SiteType = 'atomic' | 'jetpack' | 'simple';
 
 export type VideoPressSettings = {
@@ -240,7 +247,7 @@ export type VideoPressSettings = {
 };
 
 export type VideopressSelectors = {
-	isFetchingPurchases: () => boolean;
+	isFetchingFeatures: () => boolean;
 	getVideo: ( id: number | string, addAtEnd: boolean ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
@@ -249,7 +256,13 @@ export type VideopressSelectors = {
 	getFirstVideoProcessed: () => boolean;
 	getDismissedFirstVideoPopover: () => boolean;
 	getIsFetching: () => boolean;
-	getPurchases: () => Array< object >;
+	getFeatures: () =>
+		| {
+				isVideoPressSupported: boolean;
+				isVideoPress1TBSupported: boolean;
+				isVideoPressUnlimitedSupported: boolean;
+		  }
+		| undefined;
 
 	getPlaybackToken: ( guid: string ) => { guid: string; token: string };
 	isFetchingPlaybackToken: () => boolean;

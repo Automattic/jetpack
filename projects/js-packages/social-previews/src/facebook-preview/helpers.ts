@@ -2,7 +2,7 @@ import { firstValid, hardTruncation, shortEnough, stripHtmlTags, Formatter } fro
 
 const TITLE_LENGTH = 110;
 const DESCRIPTION_LENGTH = 200;
-export const CUSTOM_TEXT_LENGTH = 440;
+export const CUSTOM_TEXT_LENGTH = 63206;
 
 export const facebookTitle: Formatter = text =>
 	firstValid(

@@ -1,0 +1,72 @@
+import restApi from '@automattic/jetpack-api';
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { useDispatch } from '@wordpress/data';
+import { useEffect, useState } from 'react';
+import { getUserConnectionUrl } from '../../helpers/get-user-connection-url';
+import { STORE_ID } from '../../state/store';
+
+const { apiRoot, apiNonce } =
+	window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
+
+interface ConnectionStoreDispatch {
+	disconnectUserSuccess: () => void;
+	setConnectionErrors: ( errors: Record< string, unknown > ) => void;
+}
+
+/**
+ * Restore connection hook.
+ * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
+ *
+ * @return {object} - The hook data.
+ */
+export default function useRestoreConnection() {
+	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
+	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
+
+	const { disconnectUserSuccess, setConnectionErrors } = useDispatch(
+		STORE_ID
+	) as ConnectionStoreDispatch;
+
+	const USER_CONNECTION_URL = getUserConnectionUrl();
+
+	/**
+	 * Initiate connection restore.
+	 *
+	 * @param {boolean} autoReconnectUser - If user connection needs to be reestablished, automatically initiate the flow.
+	 * @return {Promise<object>} - The API request promise.
+	 */
+	const restoreConnection = ( autoReconnectUser = true ) => {
+		setIsRestoringConnection( true );
+		setRestoreConnectionError( null );
+
+		return restApi
+			.reconnect()
+			.then( ( connectionStatusData: { status: string } ) => {
+				// status 'in_progress' means the user needs to re-connect their WP.com account.
+				if ( 'in_progress' === connectionStatusData.status ) {
+					disconnectUserSuccess();
+					setConnectionErrors( {} );
+					if ( autoReconnectUser ) {
+						window.location.href = USER_CONNECTION_URL;
+					}
+				} else {
+					window.location.reload();
+				}
+
+				return connectionStatusData;
+			} )
+			.catch( ( error: string ) => {
+				setRestoreConnectionError( error );
+				setIsRestoringConnection( false );
+
+				throw error;
+			} );
+	};
+
+	useEffect( () => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+	}, [] );
+
+	return { restoreConnection, isRestoringConnection, restoreConnectionError };
+}

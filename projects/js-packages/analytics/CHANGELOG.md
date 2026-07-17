@@ -2,6 +2,38 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## [1.0.15] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.0.14] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.0.13] - 2026-05-21
+### Changed
+- Update package dependencies. [#49012]
+
+## [1.0.12] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.0.11] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.0.10] - 2026-04-27
+### Fixed
+- Include `blog_id` automatically in all Tracks events via the `jpTracksContext` global. [#48096]
+
+## [1.0.9] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.0.8] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
 ## [1.0.7] - 2026-01-14
 ### Changed
 - Internal updates.
@@ -180,6 +212,14 @@
 ### Added
 - Initial release of jetpack-api package.
 
+[1.0.15]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.12...v1.0.13
+[1.0.12]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.11...v1.0.12
+[1.0.11]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.10...v1.0.11
+[1.0.10]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.9...v1.0.10
+[1.0.9]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.4...v1.0.5

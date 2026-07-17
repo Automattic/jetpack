@@ -3,7 +3,7 @@
  *
  * @param {string} message - The message to print.
  */
-function debug( message ) {
+export function debug( message ) {
 	if ( process.env.NODE_ENV !== 'test' ) {
 		process.stdout.write( message + '\n' );
 	}
@@ -14,8 +14,6 @@ function debug( message ) {
  *
  * @param {string} message - The message to print.
  */
-function error( message ) {
+export function error( message ) {
 	process.stdout.write( message + '\n' );
 }
-
-module.exports = { debug, error };

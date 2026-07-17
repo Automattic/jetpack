@@ -2,27 +2,23 @@ import { describe, expect, jest, test } from '@jest/globals';
 import { createElement } from '@wordpress/element';
 
 // Mock WordPress dependencies that use JSX
-await jest.unstable_mockModule( '@wordpress/components', () => ( {
+await jest.unstable_mockModule( '@wordpress/primitives', () => ( {
 	Circle: 'circle-mock',
 	Rect: 'rect-mock',
+	SVG: 'svg-mock',
+	Path: 'path-mock',
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	__: jest.fn( text => text ),
 } ) );
 
-// Mock internal dependencies
-await jest.unstable_mockModule(
-	'../../../src/blocks/shared/components/render-material-icon.js',
-	() => ( { default: jest.fn( () => 'icon-mock' ) } )
-);
-
-await jest.unstable_mockModule( '../../../src/blocks/form-progress-indicator/edit.js', () => ( {
+await jest.unstable_mockModule( '../../../src/blocks/form-progress-indicator/edit.jsx', () => ( {
 	default: jest.fn( () => null ),
 } ) );
 
 // Dynamically import settings after mocks are set up
-const settingsModule = await import( '../../../src/blocks/form-progress-indicator/index.js' );
+const settingsModule = await import( '../../../src/blocks/form-progress-indicator/index.jsx' );
 const { settings } = settingsModule;
 
 describe( 'Form Progress Indicator Block Migration', () => {

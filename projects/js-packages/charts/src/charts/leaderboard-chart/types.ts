@@ -7,15 +7,12 @@ export interface LeaderboardChartProps
 		| 'className'
 		| 'data'
 		| 'showLegend'
-		| 'legendOrientation'
-		| 'legendPosition'
-		| 'legendAlignment'
-		| 'legendShape'
+		| 'legend'
 		| 'chartId'
 		| 'width'
 		| 'height'
 		| 'size'
-		| 'legendInteractive'
+		| 'gap'
 		| 'animation'
 	> {
 	/**
@@ -59,16 +56,6 @@ export interface LeaderboardChartProps
 	style?: React.CSSProperties & {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
-
-	/**
-	 * Width of legend shapes in pixels
-	 */
-	legendShapeWidth?: number;
-
-	/**
-	 * Height of legend shapes in pixels
-	 */
-	legendShapeHeight?: number;
 
 	/**
 	 * Custom labels for legend items

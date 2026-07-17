@@ -1,0 +1,7 @@
+{
+	"name": "jpa/bookings-by-status",
+	"title": "Bookings by status",
+	"description": "Number of bookings by status over the selected time period.",
+	"category": "bookings",
+	"presentation": "framed"
+}

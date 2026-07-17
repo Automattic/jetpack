@@ -1,14 +1,14 @@
-const Requirement = require( '../src/requirement.js' );
+import { jest } from '@jest/globals';
 
 // Reroute `core.info` through `console.info` so `@wordpress/jest-console` can be used.
 // Nothing else here is currently used.
-jest.mock( '@actions/core', () => ( {
+jest.unstable_mockModule( '@actions/core', () => ( {
 	info: console.info, // eslint-disable-line no-console
 } ) );
 
 // Set context to indicate a PR author.
 // Nothing else here is currently used.
-jest.mock( '@actions/github', () => ( {
+jest.unstable_mockModule( '@actions/github', () => ( {
 	context: {
 		payload: {
 			pull_request: {
@@ -21,22 +21,26 @@ jest.mock( '@actions/github', () => ( {
 } ) );
 
 // Mock the team lookup so we don't have to worry about it trying to query GitHub.
-jest.mock( '../src/team-members.js', () => async team => {
-	const teams = {
-		'some-team': [ 'Author', 'Alice', 'Bob', 'Frank' ],
-		women: [ 'Alice', 'Carol' ],
-	};
+jest.unstable_mockModule( '../src/team-members.js', () => ( {
+	fetchTeamMembers: async team => {
+		const teams = {
+			'some-team': [ 'Author', 'Alice', 'Bob', 'Frank' ],
+			women: [ 'Alice', 'Carol' ],
+		};
 
-	if ( team.startsWith( '@' ) ) {
-		return [ team.slice( 1 ) ];
-	}
+		if ( team.startsWith( '@' ) ) {
+			return [ team.slice( 1 ) ];
+		}
 
-	if ( teams[ team ] ) {
-		return teams[ team ];
-	}
+		if ( teams[ team ] ) {
+			return teams[ team ];
+		}
 
-	throw new Error( `Mock team ${ team } not found` );
-} );
+		throw new Error( `Mock team ${ team } not found` );
+	},
+} ) );
+
+const { Requirement } = await import( '../src/requirement.js' );
 
 describe( 'Requirement', () => {
 	describe( 'appliesToPaths', () => {

@@ -7,9 +7,13 @@
  * - run-performance-tests.js (WordPress instance checks)
  *
  * To add a new scenario:
- * 1. Add an entry to SCENARIOS array below
- * 2. Add corresponding Docker service in docker/docker-compose.yml
- * 3. Add setup in docker/setup-wordpress.sh
+ * 1. Add an entry to the SCENARIOS array below.
+ * 2. To measure another PAGE on an existing WordPress instance, reuse that instance's
+ * dockerService/wpPath/envVar/defaultUrl and set `path` + `waitForSelector` (see formsResponses),
+ * plus the optional `expectUrlIncludes`, `minResourceCount` and `loadState` guards;
+ * no new Docker service or setup is needed.
+ * 3. Only when introducing a NEW WordPress instance, add the Docker service in
+ * docker/docker-compose.yml and its setup in docker/setup-wordpress.sh.
  */
 
 export const SCENARIOS = [
@@ -22,12 +26,237 @@ export const SCENARIOS = [
 		envVar: 'WP_JETPACK_CONNECTED_URL',
 		defaultUrl: 'http://localhost:8083',
 		header: 'Jetpack Connected (Simulated + 200ms Latency)',
-		metricPrefix: 'wp_admin_lcp_jetpack_connected',
-		metricKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+		// Metrics posted for this scenario, all in a single CodeVitals call. Each entry is:
+		//   field         — the summary field to read the value from (summary.<field>.median)
+		//   codevitalsKey — the exact CodeVitals metric key to post to
+		//   type          — the SANITY_RANGES key; REQUIRED, drives the range check in
+		//                   post-to-codevitals.js. A keyed metric with no type is refused.
+		// When introducing a NEW metric, post it to a `-staging` key first (e.g.
+		// `…-timeToFirstByte-staging`) for 2-3 builds, inspect it in the CodeVitals UI, then
+		// rename to the production key. See the "Safeguards" section of README.md for the
+		// full convention. (LCP/TTFB/FCP below post straight to production keys by decision.)
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-timeToFirstByte',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-firstContentfulPaint',
+				type: 'fcp',
+			},
+		],
 		postToCodeVitals: true,
-		isBaseline: false,
+		// Scenario failure policy, read by measure-lcp.js (computeRunOutcome):
+		//   optional: false — a failure here fails the build (exit 1) and suppresses ALL
+		//     posting. Retry-safety: a red build has posted nothing, so re-running it cannot
+		//     append duplicate points to the append-only, dedup-off CodeVitals store.
+		//   optional: true — a failure here must neither fail the build nor block the other
+		//     scenarios from posting; this scenario's own keys simply skip that build.
+		// Default NEW scenarios to optional: true; promoting one to required is a deliberate
+		// act (see README → Safeguards → Per-scenario failure isolation).
+		// Scope: this flag isolates MEASUREMENT failures — a scenario that throws, produces
+		// no summary, or produces a PARTIAL one (a posted field dropped by the summary's
+		// majority rule; measure-lcp.js converts that into a scenario error). A
+		// successfully-measured value that fails its SANITY_RANGES check is a data-integrity
+		// event, and the poster's atomic gate still refuses the whole post on purpose (see
+		// README → Safeguards → Sanity-range assertions).
+		optional: false,
+	},
+	{
+		key: 'formsResponses',
+		name: 'Forms responses (wp-build, connected sim)',
+		cliName: 'forms-responses',
+		// Same WordPress instance as the Dashboard scenario — just a different page — so no new
+		// Docker service is needed; only `path`/`waitForSelector` below differ.
+		dockerService: 'wordpress-jetpack-connected',
+		wpPath: '/var/www/html/jetpack-connected',
+		envVar: 'WP_JETPACK_CONNECTED_URL',
+		defaultUrl: 'http://localhost:8083',
+		header: 'Forms Responses (wp-build dashboard, Simulated + 200ms Latency)',
+		// The wp-build Forms responses dashboard. Its shared `boot` shell pulls core
+		// @wordpress/editor into a page that never opens an editor, so its runtime payload
+		// (decodedBytesKB) is the surface the bundle-size metric watches. measure-lcp.js
+		// navigates here after login and waits for the React root to hydrate.
+		//
+		// The `p` route is pinned to the responses inbox on purpose. Without it, class-dashboard.php
+		// server-redirects a bare page URL to the DEFAULT tab, which with Central Form Management
+		// (the live default) is `/forms` — the forms LIST, not the responses inbox. Measuring that
+		// would populate the `forms-responses-*` keys from the wrong page. `expectUrlIncludes` makes
+		// measure-lcp.js fail the run if a future redirect change moves us off the inbox.
+		path: '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox',
+		// Wait for the app's rendered layout, NOT the mount point. The wp-build `boot` shell
+		// (rebuilt in Automattic/jetpack#49272) renders the whole dashboard inside a
+		// `position: absolute` `.boot-layout` element nested under `display: contents` wrappers,
+		// so the outer `#jetpack-forms-responses-wp-admin-app.boot-layout-container` mount point
+		// now computes to height 0. measure-lcp.js waits for the selector to be *visible*, and a
+		// 0-height element is never visible, so waiting on the container timed out every iteration
+		// even though the dashboard rendered fine ("locator resolved to hidden"). `.boot-layout` is
+		// the positioned surface that actually fills the viewport (a stable, non-hashed BEM class
+		// from the wp-build boot framework), so it reflects the rendered page. Scoped by the app id
+		// so it can only match this dashboard's layout. See FORMS-729.
+		waitForSelector: '#jetpack-forms-responses-wp-admin-app .boot-layout',
+		expectUrlIncludes: '/responses/inbox',
+		// Don't gate the measurement on `networkidle`. The wp-build dashboard framework fires a
+		// `canUser` OPTIONS probe to `/wp/v2/settings` during boot; in the headless-Chromium Docker
+		// fixture that request's response is intermittently not delivered to the browser (the server
+		// answers in ~0.02s and the request completes for curl/isolated fetches — it is a local
+		// boot-burst delivery stall, confirmed local-only), so `networkidle` never settles and every
+		// navigation timed out at 60s. `load` + the visible-selector + hydration waits below are a
+		// deterministic readiness signal that a single perpetually-pending request cannot blackhole;
+		// completeness for decodedBytesKB is then guarded by an in-flight-aware resource settle in
+		// measure-lcp.js (networkidle's quiet + nothing-in-flight guarantee minus only that one
+		// stuck probe, failing the iteration at its deadline) plus the `minResourceCount` floor
+		// below. Other scenarios keep the default 'networkidle'. See FORMS-729.
+		loadState: 'load',
+		// A healthy load of this page fetches ~91 resources (stable across iterations locally);
+		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
+		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the
+		// observed count — the same ratio as myJetpack. Honest scope: the floor only catches a
+		// capture BELOW 64; a settle during a gap where nothing is in flight and the next wave is
+		// not yet issued can pass it at 64–90 — the same residual window `networkidle` itself has
+		// always had (its 500ms quiet can fall in such a gap too). In that window the working
+		// defense is the settle's ~1s-quiet requirement (double networkidle's 500ms) — the
+		// decodedBytesKB SANITY range is far too wide to catch an undercount and is NOT a
+		// backstop for this. Still count-based, not editor-asset-based:
+		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
+		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
+		minResourceCount: 64,
+		// These four post straight to PRODUCTION keys — the `-staging` window in the README
+		// Safeguards is deliberately waived here (owner decision). The substitute for that window is
+		// the SANITY_RANGES + all-or-nothing gate plus manual sign-off before the first live post;
+		// the dry-run's stdDev-0 shows repeatability, not correctness, so it is not the safeguard.
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'forms-responses-connection-sim-largestContentfulPaint',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'forms-responses-connection-sim-timeToFirstByte',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'forms-responses-connection-sim-firstContentfulPaint',
+				type: 'fcp',
+			},
+			{
+				// The bundle-size metric: summed per-resource decodedBodySize in KB (see
+				// measure-lcp.js). A trend line that falls when the editor modules are
+				// lazy-loaded and flags the next silent jump. The key suffix matches the field
+				// (decodedBytesKB) — a whole-page KB SUM — not the raw per-resource
+				// `decodedBodySize` property, which is a distinct nav-document value in measure-lcp.js.
+				field: 'decodedBytesKB',
+				codevitalsKey: 'forms-responses-connection-sim-decodedBytesKB',
+				type: 'decodedBytesKB',
+			},
+		],
+		postToCodeVitals: true,
+		// A failure here logs loudly and skips this scenario's keys for the build, but never
+		// blocks the required Dashboard scenario from posting (see the flag's docs above).
+		optional: true,
+	},
+	{
+		key: 'myJetpack',
+		name: 'My Jetpack (connection sim)',
+		cliName: 'my-jetpack',
+		// Same WordPress instance as the Dashboard and Forms scenarios — just a different page —
+		// so no new Docker service is needed; only `path`/`waitForSelector` below differ.
+		dockerService: 'wordpress-jetpack-connected',
+		wpPath: '/var/www/html/jetpack-connected',
+		envVar: 'WP_JETPACK_CONNECTED_URL',
+		defaultUrl: 'http://localhost:8083',
+		header: 'My Jetpack (simulated WP.com connection)',
+		// The My Jetpack admin page - the heaviest Jetpack admin bundle. PHP emits an empty
+		// `<div id="my-jetpack-container">` and React (createRoot) renders MyJetpackScreen into
+		// it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
+		// class from @automattic/jetpack-components) to appear so a run measures the rendered app,
+		// not the empty shell. Capture completeness then rests on the networkidle wait plus the
+		// stable resource count, not the frame selector (`.jp-admin-page` renders with its children
+		// in one commit, so its presence is not a load-finished proxy) and not networkidle alone
+		// (the async product cards can settle after a quiet gap). The minResourceCount floor below
+		// is the backstop against gross truncation.
+		//
+		// Requires offline mode OFF (Status::is_offline_mode() gates
+		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
+		// offline by default): the simulate-wpcom-connection mu-plugin flips it. See the README
+		// offline-mode attribution note.
+		path: '/wp-admin/admin.php?page=my-jetpack',
+		waitForSelector: '#my-jetpack-container .jp-admin-page',
+		expectUrlIncludes: 'page=my-jetpack',
+		// A healthy load of this page fetches ~92 resources (stable across iterations locally);
+		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
+		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
+		// count (count-based, not asset-based) so it only catches gross capture truncation.
+		minResourceCount: 64,
+		// These four post straight to PRODUCTION keys — the `-staging` window in the README
+		// Safeguards is deliberately waived here (owner decision, Liam 2026-07-08), same rationale
+		// and substitute guardrails (SANITY_RANGES + all-or-nothing gate + manual sign-off) as the
+		// wp-admin-dashboard and forms-responses keys.
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'my-jetpack-connection-sim-largestContentfulPaint',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'my-jetpack-connection-sim-timeToFirstByte',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'my-jetpack-connection-sim-firstContentfulPaint',
+				type: 'fcp',
+			},
+			{
+				// The bundle-size metric: summed per-resource decodedBodySize in KB (see
+				// measure-lcp.js). My Jetpack is the heaviest Jetpack admin bundle, so this is
+				// the surface a bundle regression is most damaging on.
+				field: 'decodedBytesKB',
+				codevitalsKey: 'my-jetpack-connection-sim-decodedBytesKB',
+				type: 'decodedBytesKB',
+			},
+		],
+		postToCodeVitals: true,
+		// A failure here logs loudly and skips this scenario's keys for the build, but never
+		// blocks the required Dashboard scenario from posting (see the flag's docs above).
+		optional: true,
 	},
 ];
+
+/**
+ * Sanity ranges for posted metrics, keyed by metric type.
+ *
+ * post-to-codevitals.js checks every typed metric against these bounds before
+ * posting. A value outside its range is logged and skipped (never posted),
+ * because CodeVitals is append-only and bad points cannot be rolled back.
+ * Add a row when a new metric type starts being posted.
+ *
+ * @type {Object<string, {min: number, max: number}>}
+ */
+export const SANITY_RANGES = {
+	lcp: { min: 100, max: 60000 }, // <100ms is suspicious; >60s means the page never loaded.
+	ttfb: { min: 10, max: 10000 }, // <10ms is unrealistic; >10s means server failure.
+	fcp: { min: 50, max: 30000 },
+	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
+	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
+	// Summed per-resource decodedBodySize, in KB. This row now guards two scenarios: the Forms
+	// responses wp-build dashboard (~8200 KB) and My Jetpack (~5860 KB), so do not tighten it to
+	// either page's profile. These are guardrails against a broken measurement, NOT a trend clip:
+	// min 1000 catches a page that failed to load its wp-build shell (a real dashboard is always
+	// well over 1MB decoded); max 51200 (50MB) catches a bytes-vs-KB scale error while staying
+	// clear of any legitimate regression, which the trend should record rather than reject.
+	decodedBytesKB: { min: 1000, max: 51200 },
+};
 
 /**
  * Get the URL for a scenario from environment or default

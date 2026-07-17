@@ -5,7 +5,6 @@
 	import { fly } from 'svelte/transition';
 	/* eslint-enable import/no-duplicates */
 	import JetpackLogo from './JetpackLogo.svelte';
-	import Portal from './Portal.svelte';
 	import External from './assets/External.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
@@ -51,17 +50,19 @@
 	let scrollY = 0;
 	let initialScrollY = 0;
 	let initialTop = 0;
+	let displayTop = position.top;
 
 	function repositionOnScroll( scrollPosY ) {
 		if ( scrollPosY === 0 || initialScrollY === scrollPosY ) {
 			return;
 		}
-		position.top = initialTop + ( initialScrollY - scrollPosY );
+		displayTop = initialTop + ( initialScrollY - scrollPosY );
 	}
 
 	onMount( () => {
 		initialScrollY = scrollY;
 		initialTop = position.top;
+		displayTop = position.top;
 	} );
 	$: repositionOnScroll( scrollY );
 
@@ -69,121 +70,120 @@
 </script>
 
 <svelte:window bind:scrollY />
-<Portal>
-	<!-- Clear up complaints about needing an ARIA role: -->
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<!-- eslint-disable-next-line svelte/valid-compile -->
-	<div
-		class="jetpack-boost-guide-popup keep-guide-open"
-		in:fly={{ duration: 150, y: 4, easing: backOut }}
-		style:top="{position.top}px"
-		style:left="{position.left}px"
-		on:mouseleave
-	>
-		<div class="logo">
-			<JetpackLogo size={250} />
-		</div>
+<!-- Clear up complaints about needing an ARIA role: -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- eslint-disable-next-line svelte/valid-compile -->
+<div
+	class="jetpack-boost-guide-popup keep-guide-open"
+	in:fly={{ duration: 150, y: 4, easing: backOut }}
+	style:top="{displayTop}px"
+	style:left="{position.left}px"
+	on:mouseleave
+>
+	<div class="logo">
+		<JetpackLogo size={250} />
+	</div>
 
-		<div class="preview">
-			<div class="description">
-				<div class="title">
-					<a href={$imageURL} target="_blank noreferrer">{imageName}</a>
-				</div>
-				{#if ratio >= 1.3}
-					<div class="explanation">
-						The image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
-						{#if $fileSize.weight > 450}
-							Try using a smaller image or reduce the file size by compressing it.
-						{/if}
-					</div>
-				{:else if ratio === 1}
-					<div class="explanation">The image is exactly the correct size for this screen.</div>
-				{:else if ratio >= 0.99 && ratio < 1.3}
-					<div class="explanation">
-						The image size is very close to the size it appears in the browser.
-						{#if ratio > 1}
-							Because there are various screen sizes, it's okay for the image to be
-							<strong>{ratio}x</strong> than it appears on the page.
-						{/if}
-					</div>
-				{:else}
-					{@const ( stretchedBy = maybeDecimals( 1 / $oversizedRatio ) )}
-					<div class="explanation">
-						The image file is {stretchedBy}x smaller than expected on this screen. This might be
-						fine, but you may want to check if the image appears blurry.
-					</div>
-				{/if}
+	<div class="preview">
+		<div class="description">
+			<div class="title">
+				<a href={$imageURL} target="_blank noreferrer">{imageName}</a>
 			</div>
-			{#if $imageURL}
-				<img
-					src={$imageURL}
-					alt={imageName}
-					style="width: {previewWidth}px; height: {previewHeight}px;"
-					width={previewWidth}
-					height={previewHeight}
-				/>
+			{#if ratio >= 1.3}
+				<div class="explanation">
+					The image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
+					{#if $fileSize.weight > 450}
+						Try using a smaller image or reduce the file size by compressing it.
+					{/if}
+				</div>
+			{:else if ratio === 1}
+				<div class="explanation">The image is exactly the correct size for this screen.</div>
+			{:else if ratio >= 0.99 && ratio < 1.3}
+				<div class="explanation">
+					The image size is very close to the size it appears in the browser.
+					{#if ratio > 1}
+						Because there are various screen sizes, it's okay for the image to be
+						<strong>{ratio}x</strong> than it appears on the page.
+					{/if}
+				</div>
+			{:else}
+				<!-- prettier-ignore -->
+				{@const stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
+				<div class="explanation">
+					The image file is {stretchedBy}x smaller than expected on this screen. This might be fine,
+					but you may want to check if the image appears blurry.
+				</div>
 			{/if}
 		</div>
+		{#if $imageURL}
+			<img
+				src={$imageURL}
+				alt={imageName}
+				style="width: {previewWidth}px; height: {previewHeight}px;"
+				width={previewWidth}
+				height={previewHeight}
+			/>
+		{/if}
+	</div>
 
-		<div class="meta">
-			<div class="row">
-				<div class="label">Image File Dimensions</div>
-				{#if $fileSize.width > 0 && $fileSize.height > 0}
-					<div class="value">{$fileSize.width} x {$fileSize.height}</div>
-				{:else}
-					<div class="value">
-						{#if $isLoading}
-							Loading...
-						{:else}
-							<em>Unknown</em>
-						{/if}
-					</div>
-				{/if}
-			</div>
-
-			<div class="row">
-				<div class="label">Expected Dimensions</div>
-				<div class="value">{$expectedSize.width} x {$expectedSize.height}</div>
-			</div>
-
-			<div class="row">
-				<div class="label">Size on screen</div>
-				<div class="value">{$sizeOnPage.width} x {$sizeOnPage.height}</div>
-			</div>
-
-			<div class="row">
-				<div class="label">Image Size</div>
+	<div class="meta">
+		<div class="row">
+			<div class="label">Image File Dimensions</div>
+			{#if $fileSize.width > 0 && $fileSize.height > 0}
+				<div class="value">{$fileSize.width} x {$fileSize.height}</div>
+			{:else}
 				<div class="value">
-					{#if $fileWeight.weight > 0}
-						{Math.round( $fileWeight.weight )} KB
-					{:else if $isLoading}
+					{#if $isLoading}
 						Loading...
 					{:else}
 						<em>Unknown</em>
 					{/if}
 				</div>
-			</div>
+			{/if}
+		</div>
 
-			<div class="row">
-				<div class="label">Potential savings</div>
-				<div class="value">
-					{#if $potentialSavings > 0}
-						<strong>{$potentialSavings} KB</strong>
-					{:else if $isLoading}
-						Loading...
-					{:else}
-						<em>N/A</em>
-					{/if}
-				</div>
-			</div>
-			<div class="info">
-				<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
-					>Learn how to improve site speed by optimizing images <External /></a
-				>
+		<div class="row">
+			<div class="label">Expected Dimensions</div>
+			<div class="value">{$expectedSize.width} x {$expectedSize.height}</div>
+		</div>
+
+		<div class="row">
+			<div class="label">Size on screen</div>
+			<div class="value">{$sizeOnPage.width} x {$sizeOnPage.height}</div>
+		</div>
+
+		<div class="row">
+			<div class="label">Image Size</div>
+			<div class="value">
+				{#if $fileWeight.weight > 0}
+					{Math.round( $fileWeight.weight )} KB
+				{:else if $isLoading}
+					Loading...
+				{:else}
+					<em>Unknown</em>
+				{/if}
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="label">Potential savings</div>
+			<div class="value">
+				{#if $potentialSavings > 0}
+					<strong>{$potentialSavings} KB</strong>
+				{:else if $isLoading}
+					Loading...
+				{:else}
+					<em>N/A</em>
+				{/if}
+			</div>
+		</div>
+		<div class="info">
+			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
+				>Learn how to improve site speed by optimizing images <External /></a
+			>
+		</div>
 	</div>
-</Portal>
+</div>
 
 <style lang="scss">
 	a {

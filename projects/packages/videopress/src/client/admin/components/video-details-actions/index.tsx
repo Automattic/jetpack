@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, ThemeProvider } from '@automattic/jetpack-components';
-import { Dropdown } from '@wordpress/components';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { Button, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, media, trash, download } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
@@ -48,6 +48,7 @@ const VideoDetailsActions = ( {
 				placement="bottom center"
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
+						size="compact"
 						variant="tertiary"
 						disabled={ disabled }
 						icon={ moreVertical }
@@ -59,8 +60,6 @@ const VideoDetailsActions = ( {
 					<ThemeProvider>
 						<div className={ styles.dropdown }>
 							<Button
-								weight="regular"
-								fullWidth
 								variant="tertiary"
 								icon={ media }
 								href={ newPostURL }
@@ -71,8 +70,6 @@ const VideoDetailsActions = ( {
 								{ __( 'Add to new post', 'jetpack-videopress-pkg' ) }
 							</Button>
 							<Button
-								weight="regular"
-								fullWidth
 								variant="tertiary"
 								icon={ download }
 								href={ url }
@@ -84,8 +81,6 @@ const VideoDetailsActions = ( {
 							</Button>
 							<hr className={ styles.separator } />
 							<Button
-								weight="regular"
-								fullWidth
 								variant="tertiary"
 								icon={ trash }
 								className={ styles.delete }

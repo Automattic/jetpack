@@ -1,6 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import { INVALIDATE_FILTERS, INVALIDATE_COUNTS } from './action-types.js';
+import {
+	INVALIDATE_FILTERS,
+	INVALIDATE_COUNTS,
+	INVALIDATE_FORM_STATUS_COUNTS,
+} from './action-types.js';
 
 export const getFilters =
 	() =>
@@ -29,6 +33,9 @@ export const getCounts =
 		if ( queryParams?.parent ) {
 			params.parent = queryParams.parent;
 		}
+		if ( queryParams?.source ) {
+			params.source = queryParams.source;
+		}
 		if ( queryParams?.before ) {
 			params.before = queryParams.before;
 		}
@@ -45,3 +52,17 @@ export const getCounts =
 	};
 
 getCounts.shouldInvalidate = action => action.type === INVALIDATE_COUNTS;
+
+/**
+ * Resolver for fetching form (jetpack_form) per-status counts.
+ *
+ * @return {void}
+ */
+export const getFormStatusCounts =
+	() =>
+	async ( { dispatch } ) => {
+		const response = await apiFetch( { path: '/wp/v2/jetpack-forms/status-counts' } );
+		dispatch.setFormStatusCounts( response );
+	};
+
+getFormStatusCounts.shouldInvalidate = action => action.type === INVALIDATE_FORM_STATUS_COUNTS;

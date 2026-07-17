@@ -12,6 +12,8 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -20,7 +22,7 @@ use WP_Error;
 /**
  * Connection Manager functionality testing.
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class ManagerTest extends TestCase {
 
 	/**
@@ -129,6 +131,148 @@ class ManagerTest extends TestCase {
 			->willReturn( false );
 
 		$this->assertFalse( $this->manager->is_active() );
+	}
+
+	/**
+	 * `Manager::configure()` registers the package version tracker on `shutdown` when the site is connected.
+	 *
+	 * This intentionally invokes the full `configure()` because it builds its own
+	 * `new self()` internally, so the connection state must be driven through the
+	 * real `is_connected()` path rather than the test's mock. `configure()` registers
+	 * many hooks and schedules cron events as side effects, so the test runs in a
+	 * separate process to avoid polluting global state for sibling tests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_registers_package_version_shutdown_callback_when_connected() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		remove_all_filters( 'shutdown' );
+
+		Manager::configure();
+
+		$this->assertSame(
+			10,
+			has_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) ),
+			'configure() should register the package version tracker on shutdown when connected.'
+		);
+
+		remove_all_filters( 'shutdown' );
+		( new Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * `Manager::configure()` does not register the package version tracker on `shutdown` when disconnected.
+	 *
+	 * Runs in a separate process for the same reason as the connected case: `configure()`
+	 * registers many hooks and schedules cron events as side effects.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_does_not_register_package_version_shutdown_callback_when_disconnected() {
+		Jetpack_Options::delete_option( 'blog_token' );
+		( new Manager() )->reset_connection_status();
+		$this->assertFalse( ( new Manager() )->is_connected(), 'Test setup failed: site should be disconnected.' );
+
+		remove_all_filters( 'shutdown' );
+
+		Manager::configure();
+
+		$this->assertFalse(
+			has_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) ),
+			'configure() should not register the package version tracker on shutdown when disconnected.'
+		);
+
+		remove_all_filters( 'shutdown' );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` reports the missing connection owner stat when connected.
+	 */
+	public function test_add_stats_to_heartbeat_reports_missing_owner() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected', 'is_missing_connection_owner' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( true );
+		$manager->method( 'is_missing_connection_owner' )->willReturn( true );
+
+		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
+		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
+
+		$stats = $manager->add_stats_to_heartbeat( array() );
+
+		$this->assertArrayHasKey( 'missing-owner', $stats );
+		$this->assertTrue( $stats['missing-owner'] );
+		// Site environment stats are merged in from the Connection Heartbeat.
+		$this->assertArrayHasKey( 'wp-version', $stats );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` does not add any stats when the site is not connected.
+	 */
+	public function test_add_stats_to_heartbeat_skips_when_not_connected() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( false );
+
+		$this->assertSame( array(), $manager->add_stats_to_heartbeat( array() ) );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` reports the stored XML-RPC errors and clears the option afterwards.
+	 */
+	public function test_add_stats_to_heartbeat_reports_and_clears_xmlrpc_errors() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected', 'is_missing_connection_owner' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( true );
+		$manager->method( 'is_missing_connection_owner' )->willReturn( false );
+
+		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
+		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
+
+		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
+
+		$stats = $manager->add_stats_to_heartbeat( array() );
+
+		$this->assertSame( 'malformed_token', $stats['xmlrpc-errors'] );
+		$this->assertFalse( Jetpack_Options::get_option( 'xmlrpc_errors' ), 'The xmlrpc_errors option should be cleared after reporting.' );
+	}
+
+	/**
+	 * `track_xmlrpc_error()` stores the error code in the `xmlrpc_errors` option.
+	 */
+	public function test_track_xmlrpc_error_records_error_code() {
+		Jetpack_Options::delete_option( 'xmlrpc_errors' );
+
+		$this->manager->track_xmlrpc_error( new WP_Error( 'malformed_token', 'Malformed token.' ) );
+
+		$this->assertSame( array( 'malformed_token' => true ), Jetpack_Options::get_option( 'xmlrpc_errors' ) );
+	}
+
+	/**
+	 * `track_xmlrpc_error()` does not duplicate an already-recorded error code.
+	 */
+	public function test_track_xmlrpc_error_does_not_duplicate_existing_code() {
+		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
+
+		$this->manager->track_xmlrpc_error( new WP_Error( 'malformed_token', 'Malformed token.' ) );
+
+		$this->assertSame( array( 'malformed_token' => true ), Jetpack_Options::get_option( 'xmlrpc_errors' ) );
 	}
 
 	/**
@@ -938,8 +1082,7 @@ class ManagerTest extends TestCase {
 		$tokens->update_user_token( $secondary_admin_id, sprintf( '%s.%s.%d', 'key', 'private', $secondary_admin_id ), false );
 
 		// Mock get_connection_owner_id to return the owner
-		$this->manager->expects( $this->any() )
-			->method( 'get_connection_owner_id' )
+		$this->manager->method( 'get_connection_owner_id' )
 			->willReturn( $owner_id );
 
 		// Mock unlink_user_from_wpcom to succeed for non-owner users
@@ -958,8 +1101,7 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		);
 
-		$this->tokens->expects( $this->any() )
-			->method( 'get_access_token' )
+		$this->tokens->method( 'get_access_token' )
 			->willReturnCallback(
 				function ( $user_id ) use ( $owner_id, $owner_token ) {
 					return $user_id === $owner_id ? $owner_token : false;
@@ -1073,5 +1215,147 @@ class ManagerTest extends TestCase {
 
 		// Clean up
 		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * `Manager::get_authorization_url()` should append a comma-separated
+	 * `plugins` query arg listing every plugin currently using the Jetpack
+	 * connection (sourced from `Plugin_Storage`). With no plugins seeded the
+	 * arg should be omitted entirely.
+	 *
+	 * The flow runs end-to-end: `Plugin::add()` -> `Plugin_Storage::upsert()` ->
+	 * `get_authorization_url()` -> `Plugin_Storage::get_all()`.
+	 */
+	public function test_get_authorization_url_includes_plugins_from_storage() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'authorize_url_test_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'authorize-url@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Sign role / secrets need a blog token + site id; fake both.
+		Jetpack_Options::update_option( 'id', 1 );
+		Jetpack_Options::update_option( 'blog_token', 'fake.blogtoken' );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get_access_token', 'sign_role' ) )
+			->getMock();
+		$tokens->method( 'get_access_token' )->willReturn( (object) array( 'secret' => 'fake.secret' ) );
+		$tokens->method( 'sign_role' )->willReturn( 'administrator:signed' );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'has_connected_owner', 'get_assumed_site_creation_date' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'has_connected_owner' )->willReturn( true );
+		$manager->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
+
+		// No plugins seeded -> no `plugins` arg.
+		$this->reset_plugin_storage();
+
+		$url = $manager->get_authorization_url();
+		$this->assertStringNotContainsString( 'plugins=', $url );
+
+		// Seed two plugins -> URL should carry them as a single-encoded
+		// comma-separated list.
+		( new Plugin( 'jetpack' ) )->add( 'Jetpack' );
+		( new Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
+
+		$url = $manager->get_authorization_url();
+		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $url );
+
+		// Cleanup.
+		$this->reset_plugin_storage();
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * `Manager::get_authorization_url()` should include `has_connected_owner=1`
+	 * in the URL when the site already has a connection owner, and omit the
+	 * parameter entirely when it does not. Calypso uses this signal in the
+	 * `from=jetpack-connector` flow to render secondary-connection content
+	 * instead of blocking the user.
+	 */
+	public function test_get_authorization_url_includes_has_connected_owner_when_owner_connected() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_conn_test_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'secondary-conn@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		Jetpack_Options::update_option( 'id', 1 );
+		Jetpack_Options::update_option( 'blog_token', 'fake.blogtoken' );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get_access_token', 'sign_role' ) )
+			->getMock();
+		$tokens->method( 'get_access_token' )->willReturn( (object) array( 'secret' => 'fake.secret' ) );
+		$tokens->method( 'sign_role' )->willReturn( 'administrator:signed' );
+
+		$this->reset_plugin_storage();
+
+		// Owner connected -> has_connected_owner=1 should be present.
+		$manager_with_owner = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'has_connected_owner', 'get_assumed_site_creation_date' ) )
+			->getMock();
+		$manager_with_owner->method( 'get_tokens' )->willReturn( $tokens );
+		$manager_with_owner->method( 'has_connected_owner' )->willReturn( true );
+		$manager_with_owner->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
+
+		$url = $manager_with_owner->get_authorization_url();
+		$this->assertStringContainsString( 'has_connected_owner=1', $url );
+
+		// No owner connected -> parameter should be omitted entirely.
+		$manager_without_owner = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'has_connected_owner', 'get_assumed_site_creation_date' ) )
+			->getMock();
+		$manager_without_owner->method( 'get_tokens' )->willReturn( $tokens );
+		$manager_without_owner->method( 'has_connected_owner' )->willReturn( false );
+		$manager_without_owner->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
+
+		$url = $manager_without_owner->get_authorization_url();
+		$this->assertStringNotContainsString( 'has_connected_owner=', $url );
+
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Reset `Plugin_Storage` to a clean, "post-`plugins_loaded`" state for
+	 * tests: `configured = true`, no cached plugins. Setting `configured`
+	 * to `false` here would make `Plugin_Storage::get_all()` hand back a
+	 * `WP_Error` object, which on PHP 8.5 trips the deprecated
+	 * `ArrayIterator::__construct()` object-backing notice once that error
+	 * object is iterated by the WP HTTP Requests library downstream.
+	 *
+	 * Compatible with PHP <8.1 where `setStaticPropertyValue()` cannot reach
+	 * private static properties without `setAccessible(true)`.
+	 */
+	private function reset_plugin_storage() {
+		$reflection = new \ReflectionClass( Plugin_Storage::class );
+		try {
+			$reflection->setStaticPropertyValue( 'configured', true );
+			$reflection->setStaticPropertyValue( 'plugins', array() );
+		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
+			$values = array(
+				'configured' => true,
+				'plugins'    => array(),
+			);
+			foreach ( $values as $name => $value ) {
+				$prop = $reflection->getProperty( $name );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
+				$prop->setValue( null, $value );
+			}
+		}
 	}
 }

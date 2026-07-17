@@ -117,6 +117,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'requiredindicator'            => true,
 				'options'                      => array(),
 				'optionsdata'                  => array(),
+				'allowother'                   => null,
+				'isother'                      => null,
+				'otherplaceholder'             => null,
 				'id'                           => null,
 				'style'                        => null,
 				'fieldbackgroundcolor'         => null,
@@ -220,7 +223,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( $form ) {
 			// make a unique field ID based on the label, with an incrementing number if needed to avoid clashes
 			$form_id = $form->get_attribute( 'id' );
-			$id      = isset( $attributes['id'] ) ? $attributes['id'] : false;
+			$id      = $attributes['id'] ?? false;
 
 			$unescaped_label = $this->unesc_attr( $attributes['label'] );
 			$unescaped_label = str_replace( '%', '-', $unescaped_label ); // jQuery doesn't like % in IDs?
@@ -237,6 +240,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( $i > $max_tries ) {
 						break;
 					}
+				}
+			} elseif ( isset( $form->fields[ $id ] ) ) {
+				// A manually-set field ID (including the Name field's default IDs
+				// such as "name"/"first-name") is carried verbatim when a field is
+				// duplicated or copy/pasted, so two fields can end up sharing an ID.
+				// Duplicate IDs render the same input name: browsers mirror typing
+				// across the fields and only one value survives submission, dropping
+				// the rest from stored responses and emails. Suffix the later
+				// duplicates ("name" -> "name-2" -> "name-3", …) to keep every field
+				// ID unique, matching generateUniqueFormFieldId() on the editor side.
+				// See FORMS-724.
+				$base = $id;
+				$i    = 2;
+				$id   = $base . '-' . $i;
+				while ( isset( $form->fields[ $id ] ) ) {
+					++$i;
+					$id = $base . '-' . $i;
 				}
 			}
 
@@ -385,6 +405,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					// Check that the selected options are valid
 					$options      = (array) $this->get_attribute( 'options' );
 					$options_data = (array) $this->get_attribute( 'optionsdata' );
+					$allow_other  = $this->get_attribute( 'allowother' );
 
 					if ( ! empty( $options_data ) ) {
 						$options = array_map(
@@ -403,7 +424,37 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						}
 					);
 
-					if ( ! in_array( $field_value, $non_empty_options, true ) ) {
+					// Validate Other option values, which may include custom user text.
+					$is_valid_other = false;
+					if ( $allow_other ) {
+						$other_label = null;
+						foreach ( $options_data as $option ) {
+							if ( ! empty( $option['isOther'] ) ) {
+								$other_label = Contact_Form_Plugin::strip_tags( $option['label'] );
+								break;
+							}
+						}
+
+						if ( ! empty( $other_label ) ) {
+							$other_prefix = $other_label . ': ';
+
+							if ( $field_value === $other_label ) {
+								$is_valid_other = true;
+							} elseif ( strpos( $field_value, $other_prefix ) === 0 ) {
+								$custom_text = trim( substr( $field_value, strlen( $other_prefix ) ) );
+
+								if ( $this->get_attribute( 'required' ) && empty( $custom_text ) ) {
+									/* translators: %1$s is the name of a form field, %2$s is the option label */
+									$this->add_error( sprintf( __( '%1$s requires a response when "%2$s" is selected.', 'jetpack-forms' ), $field_label, $other_label ) );
+									break;
+								}
+
+								$is_valid_other = true;
+							}
+						}
+					}
+
+					if ( ! in_array( $field_value, $non_empty_options, true ) && ! $is_valid_other ) {
 						/* translators: %s is the name of a form field */
 						$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 						break;
@@ -827,6 +878,111 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Whether the field's label is hidden by block visibility in any mode.
+	 *
+	 * Two modes hide a label: "hide everywhere" (labelhiddenbyblockvisibility,
+	 * the label is not rendered at all) and per-viewport (the label is rendered
+	 * but carries a wp-block-hidden-{viewport} class that display:none's it on
+	 * that viewport). Either way the label is absent from the accessibility tree
+	 * where hidden, so the field needs an aria-label fallback to keep a name.
+	 *
+	 * The visibility control now only survives on the label block (see
+	 * FORMS-694), so this is the single place that decides "is the label hidden?"
+	 *
+	 * @return bool
+	 */
+	private function is_label_hidden_by_block_visibility() {
+		if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) {
+			return true;
+		}
+
+		return strpos( (string) $this->get_attribute( 'labelclasses' ), 'wp-block-hidden-' ) !== false;
+	}
+
+	/**
+	 * The accessible name to fall back to when the label is hidden by block
+	 * visibility. Prefers the label text (it matches what sighted users see on
+	 * viewports where the label is visible, for the per-viewport case) and only
+	 * falls back to a secondary name when there is no label. See FORMS-694.
+	 *
+	 * @param string|null $fallback Secondary name to use when there is no label.
+	 *                              Must be a raw string, not a built attribute
+	 *                              fragment. Defaults to the raw placeholder.
+	 * @return string
+	 */
+	private function get_block_visibility_aria_label( $fallback = null ) {
+		$label = Contact_Form_Plugin::strip_tags( (string) $this->get_attribute( 'label' ) );
+		if ( '' !== $label ) {
+			return $label;
+		}
+
+		if ( null === $fallback ) {
+			$fallback = $this->get_attribute( 'placeholder' );
+		}
+
+		return Contact_Form_Plugin::strip_tags( (string) $fallback );
+	}
+
+	/**
+	 * Return an ` aria-label='…'` attribute string when the field's label is
+	 * hidden by block visibility (full or per-viewport), or '' otherwise.
+	 *
+	 * A hidden label (removed on full-hide, display:none per-viewport) is absent
+	 * from the a11y tree, so every field that renders its own label — single
+	 * inputs and the grouped <fieldset> legend alike — needs this fallback to
+	 * keep an accessible name. Shared by all paths so none get missed. The
+	 * attribute is skipped when there is no name to give. See FORMS-694.
+	 *
+	 * @param string|null $fallback Secondary name when there is no label (raw
+	 *                              string, not a built attribute fragment).
+	 * @return string
+	 */
+	private function get_hidden_label_aria_label_attr( $fallback = null ) {
+		if ( ! $this->is_label_hidden_by_block_visibility() ) {
+			return '';
+		}
+
+		$name = $this->get_block_visibility_aria_label( $fallback );
+		if ( '' === $name ) {
+			return '';
+		}
+
+		return " aria-label='" . esc_attr( $name ) . "'";
+	}
+
+	/**
+	 * Accessible name for the file field's dropzone <div role="button">.
+	 *
+	 * The dropzone is the field's interactive control, but its name is otherwise
+	 * the generic "Select a file to upload.", so two hidden-label upload fields
+	 * would be announced identically. When the label is hidden (full or
+	 * per-viewport), prefix the field name — the same fallback the other single
+	 * inputs use. Falls back to the plain instruction when the label is visible
+	 * or there is no name to give. See FORMS-694.
+	 *
+	 * @return string
+	 */
+	private function get_file_dropzone_aria_label() {
+		$select_file_text = __( 'Select a file to upload.', 'jetpack-forms' );
+
+		if ( ! $this->is_label_hidden_by_block_visibility() ) {
+			return $select_file_text;
+		}
+
+		$hidden_name = $this->get_block_visibility_aria_label();
+		if ( '' === $hidden_name ) {
+			return $select_file_text;
+		}
+
+		return sprintf(
+			/* translators: 1: the form field's label, 2: the "Select a file to upload." instruction. */
+			_x( '%1$s: %2$s', 'file upload field accessible name', 'jetpack-forms' ),
+			$hidden_name,
+			$select_file_text
+		);
+	}
+
+	/**
 	 * Return the HTML for a legend that shares the same style as a label.
 	 *
 	 * @param string $type - the field type.
@@ -840,6 +996,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_legend_as_label( $type, $id, $legend, $required, $required_field_text, $extra_attrs = array(), $required_indicator = true ) {
+		// Full-hide via blockVisibility, mirroring render_label(). Grouped fields
+		// (radio, checkbox-multiple, image-select, rating) render their label as a
+		// legend, so they need the same guard. Per-viewport hiding still works via
+		// the label_classes applied below.
+		if ( $this->attributes['labelhiddenbyblockvisibility'] ) {
+			return '';
+		}
 		if ( ! empty( $this->label_styles ) ) {
 			$extra_attrs['style'] = $this->label_styles;
 		}
@@ -901,10 +1064,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
 		}
 
-		if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) {
-			$aria_label          = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
-			$extra_attrs_string .= " aria-label='" . esc_attr( $aria_label ) . "' ";
-		}
+		$extra_attrs_string .= $this->get_hidden_label_aria_label_attr();
 
 		return "<input
 					type='" . esc_attr( $type ) . "'
@@ -912,9 +1072,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
 
-					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
-					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
@@ -941,15 +1101,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		return '
 			<div id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.fieldHasErrors">
-				<span class="contact-form__warning-icon">
+				<span class="contact-form__warning-icon" aria-hidden="true">
 					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
 						<path d="M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z" />
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
 					</svg>
-					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
 				</span>
-				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message" role="alert" aria-live="assertive"></span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
 			</div>';
 	}
 
@@ -1029,6 +1188,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// $class is ill-formed, so we need to fix it
 		// Strip 'class=' and quotes to get just the class names
 		$class_names = preg_replace( "/^class=['\"]([^'\"]*)['\"].*$/", '$1', $class );
+		// somehow we are getting the class jetpack-field__input-element on the wrong wrapper
+		// .jetpack-field__input-element is meant to be applied just to the input element, not its wrapper.
+		// Remove the jetpack-field__input-element class token regardless of its position and normalize whitespace.
+		$class_names = preg_replace( '/\s*\bjetpack-field__input-element\b\s*/', ' ', $class_names );
+		$class_names = trim( preg_replace( '/\s+/', ' ', $class_names ) );
 
 		$link_label_id = $id . '-number';
 
@@ -1140,18 +1304,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id="<?php echo esc_attr( $link_label_id ); ?>"
 					name="<?php echo esc_attr( $link_label_id ); ?>"
 					data-wp-bind--disabled='state.isSubmitting'
-					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
-					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
+					aria-describedby="<?php echo esc_attr( $id ); ?>-telephone-error-message"
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
 					data-wp-class--has-value='context.phoneNumber'
 					data-wp-init="callbacks.registerPhoneInput"
 					data-wp-init--phone-field-custom-combobox="callbacks.initializePhoneFieldCustomComboBox"
-					<?php if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) { ?>
-						aria-label="<?php echo esc_attr( $this->get_attribute( 'label' ) ); ?>"
-					<?php } ?>
+					<?php echo $this->get_hidden_label_aria_label_attr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute value is escaped in the helper. ?>
 					/>
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
@@ -1206,9 +1368,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$value = '';
 		}
 
-		$field      = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-		$aria_label = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
-		$field     .= "<textarea
+		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		$field .= "<textarea
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
@@ -1217,12 +1378,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
-						data-wp-bind--aria-invalid='state.fieldHasErrors'
-						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
+						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
+						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
-						. ( $this->get_attribute( 'labelhiddenbyblockvisibility' )
-							? "aria-label='" . esc_attr( $aria_label ) . "'"
-							: '' )
+						. $this->get_hidden_label_aria_label_attr()
 						. $class
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
@@ -1250,7 +1409,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
 		$is_outlined_style = 'outlined' === $form_style;
-		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
@@ -1280,9 +1439,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
@@ -1312,13 +1471,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
+					$is_other_option  = ! empty( $option['isOther'] );
+					$change_action    = $is_other_option ? 'actions.onOtherRadioChange' : 'actions.onFieldChange';
+					$other_label_attr = $is_other_option ? " data-other-label='" . esc_attr( $option_label ) . "'" : '';
+
 					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
 									name='" . esc_attr( $id ) . "'
 									value='" . esc_attr( $radio_value ) . "'
-									data-wp-on--change='actions.onFieldChange' "
+									data-wp-on--change='" . $change_action . "'"
+									. $other_label_attr . ' '
 									. $class
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
@@ -1327,6 +1491,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
 					$field .= '</span>';
 					$field .= '</label>';
+
+					if ( $is_other_option ) {
+						$placeholder = ! empty( $option['otherPlaceholder'] ) ? $option['otherPlaceholder'] : '';
+						$field      .= $this->render_other_input_field( $radio_id, $required, $id, $this->field_styles, $placeholder );
+					}
 				}
 			}
 		} else {
@@ -1368,6 +1537,44 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field .= '</div>';
 		}
 		$field .= $this->get_error_div( $id, 'radio' ) . '</fieldset>';
+		return $field;
+	}
+
+	/**
+	 * Render the "Other" text input field for radio and checkbox fields.
+	 *
+	 * @param string $option_id The ID of the "Other" option.
+	 * @param bool   $required Whether the main field is required.
+	 * @param string $id The base ID of the main field.
+	 * @param string $field_styles The styles to apply to the text input field.
+	 * @param string $placeholder Placeholder text for the input field.
+	 *
+	 * @return string The HTML for the "Other" text input field.
+	 */
+	private function render_other_input_field( $option_id, $required, $id, $field_styles, $placeholder ) {
+		$other_text_id      = esc_attr( $option_id ) . '-other-text';
+		$other_label_id     = esc_attr( $option_id ) . '-other-label';
+		$other_label_text   = ! empty( $placeholder ) ? $placeholder : __( 'Please specify…', 'jetpack-forms' );
+		$aria_required_attr = $required ? "aria-required='true'" : '';
+		$other_input_styles = ! empty( $field_styles ) ? " style='" . esc_attr( $field_styles ) . "' " : '';
+
+		$field  = "<div class='jetpack-other-text-input-wrapper' data-wp-class--is-visible='state.isOtherSelected' role='region'>";
+		$field .= "<label id='" . $other_label_id . "' for='" . $other_text_id . "' class='screen-reader-text'>" . esc_html( $other_label_text ) . '</label>';
+		$field .= "<input
+					id='" . $other_text_id . "'
+					name='" . esc_attr( $id ) . "-other-text'
+					type='text'
+					class='grunion-field'
+					" . $other_input_styles . "
+					placeholder='" . esc_attr( $placeholder ) . "'
+					value=''
+					aria-labelledby='" . $other_label_id . "'
+					" . $aria_required_attr . "
+					data-wp-on--input='actions.onOtherTextInput'
+					data-wp-bind--disabled='!state.isOtherSelected'
+					data-wp-class--has-value='state.hasFieldValue' />";
+		$field .= '</div>';
+
 		return $field;
 	}
 
@@ -1546,6 +1753,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
+		$dropzone_aria_label = $this->get_file_dropzone_aria_label();
+
 		ob_start();
 		?>
 		<div
@@ -1563,7 +1772,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
-				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'Select a file to upload.', 'jetpack-forms' ); ?>"></div>
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
 				<input
@@ -1691,7 +1900,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * any of the radio buttons in the group is selected, adding a required attribute directly to
 		 * a checkbox means that this specific checkbox must be checked.
 		 */
-		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
@@ -1723,15 +1932,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . '>';
+			$field .= "<div class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . '>';
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
@@ -1831,10 +2040,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
 			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
 			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
-		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors' " . ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ? "aria-label='" . esc_attr( $aria_label ) . "'" : '' ) . ">\n";
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
+		} elseif ( ! $this->get_attribute( 'default' ) ) {
+			// For select fields without an explicit togglelabel or default value (e.g., shortcode-based forms),
+			// add a placeholder option to ensure users must make an explicit selection.
+			$field .= "\t\t<option value=''>" . esc_html__( 'Select an option', 'jetpack-forms' ) . "</option>\n";
 		}
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
@@ -2022,9 +2235,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = "<div class='jetpack-field jetpack-field-image-select'>";
 
-		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
-		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
@@ -2068,9 +2281,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		foreach ( $working_options as $option_index => $option ) {
 			$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
 			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
-			$image_block   = $option['image'];
+			$image_block   = $option['image'] ?? null;
+			$image_id      = ( is_array( $image_block ) && isset( $image_block['attrs'] ) && is_array( $image_block['attrs'] ) ) ? ( $image_block['attrs']['id'] ?? null ) : null;
 
-			$rendered_image_block = render_block( $image_block );
+			$rendered_image_block = is_array( $image_block ) ? render_block( $image_block ) : '';
 			// Remove any links from the rendered block
 			$rendered_image_block = preg_replace( '/<a[^>]*>(.*?)<\/a>/s', '$1', $rendered_image_block );
 
@@ -2096,7 +2310,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'label'      => $option_label,
 					'showLabels' => $show_labels,
 					'image'      => array(
-						'id'  => $image_block['attrs']['id'] ?? null,
+						'id'  => $image_id,
 						'src' => $image_src ?? null,
 					),
 				),
@@ -2114,7 +2328,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
 			// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
-			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
+			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( $option['classcolor'] ?? '' );
 
 			if ( $is_supersized ) {
 				$option_outer_classes .= ' is-supersized';
@@ -2162,7 +2376,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			$default_classes = 'jetpack-field jetpack-input-image-option';
 			$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
-			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] ) ) . "'";
 
 			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick' data-wp-init='callbacks.setImageOptionOutlineColor'>";
 
@@ -2463,7 +2677,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		return '
 			<label
 				for="' . esc_attr( $id ) . '"
-				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . ( $this->label_classes ? ' ' . esc_attr( $this->label_classes ) : '' ) . '"
 			>'
 			. esc_html( $label )
 			. ( $required && $required_indicator ? '<span>' . $required_field_text . '</span>' : '' ) .
@@ -2868,15 +3082,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
 		return sprintf(
-			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s>
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s%6$s>
 				%5$s
 				<div class="jetpack-field-rating__options %3$s">%2$s</div>
 			</fieldset>',
 			$style_attr,
 			$options,
-			$this->field_classes,
+			esc_attr( $this->field_classes ),
 			esc_attr( $id ),
-			$label_html
+			$label_html,
+			$this->get_hidden_label_aria_label_attr()
 		) . $this->get_error_div( $id, 'rating' );
 	}
 
@@ -2908,13 +3123,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// translators: %d is the maximum value.
 			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
 		}
-		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
-		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
-		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
-		$step           = isset( $extra_attrs['step'] ) ? $extra_attrs['step'] : 1;
+		$min            = $extra_attrs['min'] ?? 0;
+		$max            = $extra_attrs['max'] ?? 100;
+		$starting_value = $extra_attrs['default'] ?? 0;
+		$step           = $extra_attrs['step'] ?? 1;
 		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
-		$min_text_label = isset( $extra_attrs['minLabel'] ) ? $extra_attrs['minLabel'] : '';
-		$max_text_label = isset( $extra_attrs['maxLabel'] ) ? $extra_attrs['maxLabel'] : '';
+		$min_text_label = $extra_attrs['minLabel'] ?? '';
+		$max_text_label = $extra_attrs['maxLabel'] ?? '';
 
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 
@@ -2954,7 +3169,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					required<?php endif; ?>
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
-					data-wp-bind--aria-invalid="state.fieldHasErrors"
+					data-wp-bind--aria-invalid="state.fieldAriaInvalid"
+					<?php echo $this->get_hidden_label_aria_label_attr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute value is escaped in the helper. ?>
 				/>
 				<div
 					class="jetpack-field-slider__value-indicator"
@@ -3284,7 +3500,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		\wp_enqueue_script_module(
 			'jetpack-form-phone-field',
 			plugins_url( '../../dist/modules/field-phone/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
+			array( '@wordpress/interactivity', 'jp-forms-view' ),
 			$version
 		);
 	}

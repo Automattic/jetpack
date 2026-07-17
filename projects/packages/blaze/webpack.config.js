@@ -5,7 +5,7 @@ module.exports = [
 	{
 		devtool: jetpackWebpackConfig.devtool,
 		entry: {
-			editor: './src/js/editor.js',
+			editor: './src/js/editor.jsx',
 		},
 		externals: {
 			...jetpackWebpackConfig.externals,
@@ -18,13 +18,6 @@ module.exports = [
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-				// https://github.com/WordPress/gutenberg/issues/73362
-				{
-					test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-					resolve: { fullySpecified: false },
-				},
-
 				// Transpile JavaScript.
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,

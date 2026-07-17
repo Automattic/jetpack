@@ -1,0 +1,286 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+.vp-library {
+
+	// `aria-disabled` rather than `disabled` so the button stays in the
+	// focus tree and the `@wordpress/components` Tooltip can fire on
+	// hover and focus. The onClick guard in stage.tsx short-circuits the
+	// file picker when at the free-tier limit.
+	&__upload-button[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	&__viewport {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-height: 0;
+
+		// Positioning context for the `@wordpress/components` DropZone, which
+		// overlays its nearest positioned ancestor while a file is dragged
+		// over the library so a video can be dropped anywhere on the listing.
+		position: relative;
+
+		// Flex-grow the single DataViews child inside this viewport so its
+		// pagination footer lands at the bottom. Targets `> *` rather than
+		// `.dataviews-wrapper` to avoid coupling to DataViews' internal class
+		// names — this viewport only ever wraps one DataViews instance.
+		> * {
+			flex: 1;
+			min-height: 0;
+		}
+	}
+
+	// Override wp-build's `.boot-layout-container .boot-layout img { height:
+	// auto }` reset (specificity 0,2,1) without referencing wp-build's class
+	// names. Our own class chain has specificity (0,3,0), which beats the
+	// reset and lets the img fill its parent in both grid (large) and table
+	// (32x32) cells.
+	&__viewport &__thumbnail &__thumbnail-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	&__thumbnail {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #1e1e1e;
+		container-type: inline-size;
+
+		&-duration-badge {
+			position: absolute;
+			right: 8px;
+			bottom: 8px;
+			padding: 2px 6px;
+			border-radius: 2px;
+			background: rgba(0, 0, 0, 0.75);
+			color: #fff;
+			font-size: 11px;
+			font-variant-numeric: tabular-nums;
+			line-height: 1.4;
+
+			@container (max-width: 120px) {
+				display: none;
+			}
+		}
+	}
+
+	// Overlays — flex/centering live on the wp/ui Stack wrappers in JSX. The SCSS
+	// only owns position, background, and color so the visual treatment stays
+	// thumbnail-shaped (full overlay) while layout uses design-system primitives.
+	&__placeholder {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+		color: #1e1e1e;
+	}
+
+	// "Processing" overlay shown while the VideoPress backend is still
+	// transcoding a freshly uploaded video. Sits above the (absent) image
+	// and below the duration badge. Hidden in narrow table-mode cells —
+	// the "Processing" pill in the title cell carries the state there.
+	&__processing {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+		color: #1e1e1e;
+
+		@container (max-width: 120px) {
+			display: none;
+		}
+	}
+
+	&__hover-action {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 120ms ease-out;
+		background: rgba(240, 240, 240, 0.92);
+
+		.vp-library__thumbnail:hover &,
+		.vp-library__thumbnail:focus-within & {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
+
+	// Full-cover, transparent button that turns the whole idle-VideoPress
+	// thumbnail into a single keyboard-reachable target that opens Details
+	// (mirroring Core, where clicking the media opens it). It carries the
+	// shared `&__hover-action` overlay as a non-interactive child, so the
+	// "Edit details" label reveals on hover/focus without adding a second
+	// tab stop.
+	&__open-details {
+		position: absolute;
+		inset: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		appearance: none;
+
+		// The hover-action child is purely a visual label here; let clicks
+		// fall through to this button so the entire thumbnail is clickable.
+		.vp-library__hover-action {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			pointer-events: none;
+		}
+
+		&-label {
+			padding: 4px 12px;
+			border-radius: 2px;
+			background: #fff;
+			color: #1e1e1e;
+			font-size: 13px;
+			font-weight: 500;
+			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+		}
+
+		// Keep the keyboard focus ring visible above the overlay.
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: -2px;
+		}
+	}
+
+	&__progress {
+		position: absolute;
+		inset: 0;
+		background: rgba(255, 255, 255, 0.92);
+		color: #1e1e1e;
+
+		&-percent {
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+		}
+
+		&-bar {
+			width: 70%;
+		}
+	}
+
+	&__failed {
+		position: absolute;
+		inset: 0;
+		background: rgba(204, 24, 24, 0.85);
+		color: #fff;
+	}
+
+	&__filename {
+		display: block;
+		color: #757575;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// Link-styled button used by the title cell for idle VideoPress videos so
+	// the title opens Details (mirroring Core). Rendered as a <button> rather
+	// than an <a> because navigation is handled by the in-app router, not an
+	// href; styled to read as a link and inherit the cell's typography.
+	&__title-link {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: inherit;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			color: var(--wp-admin-theme-color, #3858e9);
+			text-decoration: underline;
+		}
+	}
+
+	// Truncate long titles with an ellipsis instead of letting them spill
+	// across neighbouring cards (grid) or into the next column (table).
+	// DataViews' own .dataviews-title-field truncation only targets its
+	// internal anchor/button markup, so custom renderers bring their own.
+	// `width: fit-content` keeps the button's hit area at text size while
+	// `max-width` provides the bound that makes text-overflow engage;
+	// `min-width: 0` lets the element shrink when it shares a flex row
+	// with a status pill. The full text stays reachable via the elements'
+	// `title` attribute (set in fields.tsx).
+	&__title-link,
+	&__title-text {
+		display: block;
+		width: fit-content;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// Title + status pill row: cap the row at the cell width so the title
+	// (min-width: 0 above) shrinks and ellipsizes, and keep the pill from
+	// being crushed by a long title.
+	&__title-cell {
+		min-width: 0;
+		max-width: 100%;
+
+		> :last-child {
+			flex-shrink: 0;
+		}
+	}
+
+	// Table view: DataViews gives a 32x32 cell slot but doesn't force the img,
+	// and its cell wrapper uses `align-items: center` — so an img with a non-
+	// square intrinsic ratio collapses the wrapper to its content height (e.g.
+	// 32x18 for 16:9), leaving white space above/below. Lock the wrapper to the
+	// 32x32 slot. Suppress overlays; status info moves into the title cell as a
+	// pill (see `&__status-pill` below). Keyed off our own `&__viewport--table`
+	// modifier (set from `view.type` in stage.tsx) instead of DataViews'
+	// internal `.dataviews-view-table`, so we don't depend on
+	// @wordpress/dataviews' private class names.
+	&__viewport--table & {
+
+		&__thumbnail {
+			width: 32px;
+			height: 32px;
+		}
+
+		&__thumbnail-duration-badge,
+		&__placeholder,
+		&__hover-action,
+		&__progress,
+		&__failed {
+			display: none;
+		}
+
+		// Cap the two free-text columns so a pathological title + filename
+		// can't bloat their columns (DataViews caps cells at 80ch, which
+		// lets long text shove every other column out of the viewport).
+		// 36ch keeps the default column set within a ~1440px admin screen;
+		// narrower viewports fall back to the table's horizontal scroll.
+		&__title-link,
+		&__title-text {
+			max-width: 36ch;
+		}
+
+		&__filename {
+			max-width: 30ch;
+		}
+	}
+
+	// Status info (Local / Uploading 47% / Upload failed) renders as a Badge
+	// alongside the title. Hide it in grid view — the per-card overlays already
+	// convey the same information more visibly. Targets the second child of the
+	// title-cell Stack so the title stays visible.
+	&__viewport--grid &__title-cell > :not(:first-child) {
+		display: none;
+	}
+}

@@ -20,10 +20,12 @@ function sprintf( s: string, param: string ): string {
 }
 
 interface LoggedInProps {
-	siteId: number;
+	siteId?: number;
 	toggleTray: () => void;
 	logout: () => void;
 }
+
+type ServiceName = keyof typeof serviceData;
 
 export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 	const { isTrayOpen, subscriptionSettings, userInfo } = useContext( VerbumSignals );
@@ -45,14 +47,14 @@ export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 
 	const getUsername = () => {
 		if ( VerbumComments.isJetpackCommentsLoggedIn ) {
-			return `${ sprintf( translate( 'Logged in as %s' ), userInfo.value?.name ) }`;
+			return `${ sprintf( translate( 'Logged in as %s' ), userInfo.value?.name ?? '' ) }`;
 		}
 		return (
 			<>
 				{ userInfo.value.name }
 				{ ` - ${ sprintf(
 					translate( 'Logged in via %s' ),
-					serviceData[ userInfo.value.service ]?.name
+					serviceData[ userInfo.value.service as ServiceName ]?.name
 				) } - ` }
 			</>
 		);
@@ -70,7 +72,7 @@ export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 	// Atomic logging out
 	if ( window.location.host === 'jetpack.wordpress.com' ) {
 		logoutProps.href =
-			baseLogoutUrl + '&redirect_to=' + window.location.hash.match( /#parent=(.*)/ )[ 1 ];
+			baseLogoutUrl + '&redirect_to=' + window.location.hash.match( /#parent=(.*)/ )?.[ 1 ];
 		logoutProps.target = '_parent';
 	} else {
 		logoutProps.href = baseLogoutUrl + '&redirect_to=' + encodeURIComponent( window.location.href );
@@ -114,15 +116,15 @@ export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 									{ userInfo.value.service === 'wordpress' && (
 										<NewPostsNotifications
 											handleOnChange={ setNotificationSubscription }
-											isChecked={ notification?.send_posts }
+											isChecked={ notification?.send_posts ?? false }
 											disabled={ ! isTrayOpen.value }
 										/>
 									) }
 									<NewPostsEmail
 										disabled={ ! isTrayOpen.value }
 										handleOnChange={ setEmailPostsSubscription }
-										isChecked={ email?.send_posts }
-										selectedOption={ email?.post_delivery_frequency }
+										isChecked={ email?.send_posts ?? false }
+										selectedOption={ email?.post_delivery_frequency ?? 'instantly' }
 									/>
 								</>
 							) }
@@ -130,7 +132,7 @@ export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 								<NewCommentEmail
 									disabled={ ! isTrayOpen.value }
 									handleOnChange={ setCommentSubscription }
-									isChecked={ email?.send_comments }
+									isChecked={ email?.send_comments ?? false }
 								/>
 							) }
 						</div>

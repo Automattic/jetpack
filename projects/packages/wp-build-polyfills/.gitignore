@@ -1,0 +1,5 @@
+/node_modules
+/build
+/build-prod-test
+/.cache
+/tests/fixtures/wp-build-source/**/build

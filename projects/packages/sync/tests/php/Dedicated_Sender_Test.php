@@ -14,7 +14,7 @@ use WorDBless\Options as WorDBless_Options;
  *
  * @package automattic/jetpack-sync
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 #[CoversClass( Dedicated_Sender::class )]
 class Dedicated_Sender_Test extends BaseTestCase {
 	/**
@@ -352,7 +352,7 @@ class Dedicated_Sender_Test extends BaseTestCase {
 
 		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
 
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -391,7 +391,7 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function pre_http_request_success( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function pre_http_request_success( $preempt, $args, $url ) {
 		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(
@@ -413,7 +413,7 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function pre_http_request_failure( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function pre_http_request_failure( $preempt, $args, $url ) {
 		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(

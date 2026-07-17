@@ -1,0 +1,7 @@
+{
+	"name": "jpa/payment-status",
+	"title": "Payment status",
+	"description": "Shows the breakdown of paid vs unpaid order revenue over the selected time period.",
+	"category": "store",
+	"presentation": "framed"
+}

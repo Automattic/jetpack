@@ -1,9 +1,10 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "src" ],
+	"include": [ "src", "declarations.d.ts" ],
 	"compilerOptions": {
 		"sourceMap": false,
 		"outDir": "./build/",
+		"rootDir": "./src",
 		"target": "esnext"
 	}
 }

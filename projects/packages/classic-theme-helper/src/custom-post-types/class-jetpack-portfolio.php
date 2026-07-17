@@ -725,7 +725,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 					|| $wp_query->is_tax( self::CUSTOM_TAXONOMY_TYPE )
 					|| $wp_query->is_tax( self::CUSTOM_TAXONOMY_TAG ) )
 			) {
-				$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] ); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] );
 			}
 
 			return $settings;

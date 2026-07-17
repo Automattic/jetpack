@@ -13,7 +13,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -33,7 +32,6 @@
 			"phpunit-select-config tests/php/integration/phpunit.#.xml.dist --colors=always",
 			"phpunit-select-config tests/php/unit/phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "tests/action-test-coverage.sh",
 		"test-coverage-html": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config tests/php/integration/phpunit.#.xml.dist --coverage-html ./coverage",
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config tests/php/unit/phpunit.#.xml.dist --coverage-html ./coverage"
@@ -42,12 +40,9 @@
 			"@test-php-integration",
 			"@test-php-unit"
 		],
-		"test-php-unit": [
-			"phpunit-select-config tests/php/unit/phpunit.#.xml.dist --colors=always"
-		],
-		"test-php-integration": [
-			"phpunit-select-config tests/php/integration/phpunit.#.xml.dist --colors=always"
-		]
+		"test-php-coverage": "tests/action-test-coverage.sh",
+		"test-php-integration": "phpunit-select-config tests/php/integration/phpunit.#.xml.dist --colors=always",
+		"test-php-unit": "phpunit-select-config tests/php/unit/phpunit.#.xml.dist --colors=always"
 	},
 	"repositories": [
 		{
@@ -68,7 +63,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.27.x-dev"
+			"dev-trunk": "0.28.x-dev"
 		}
 	},
 	"config": {

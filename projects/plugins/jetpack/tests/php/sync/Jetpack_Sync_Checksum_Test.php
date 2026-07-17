@@ -20,6 +20,14 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * Set up before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+		Table_Checksum::reset_range_edges_cache();
+	}
+
+	/**
 	 * Allowed Tables for current test.
 	 *
 	 * @var array Table Configurations
@@ -610,6 +618,300 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$checksum_half_2 = $tc->calculate_checksum( $max_range_expected - 4, $max_range_expected );
 
 		$this->assertSame( (int) $checksum_full, (int) ( $checksum_half_1 + $checksum_half_2 ) );
+	}
+
+	/**
+	 * Test that get_range_edges for postmeta uses parent table count optimization.
+	 */
+	public function test_get_range_edges_postmeta_uses_parent_count() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 5 posts, each with meta.
+		for ( $i = 0; $i < 5; $i++ ) {
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges();
+
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+
+		// Ensure the optimized path is used: the query should not use COUNT(DISTINCT ...).
+		$this->assertStringNotContainsString( 'COUNT(DISTINCT', $wpdb->last_query );
+	}
+
+	/**
+	 * Test that get_range_edges for postmeta with limit uses original DISTINCT behavior.
+	 */
+	public function test_get_range_edges_postmeta_with_limit() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 10 posts with meta.
+		for ( $i = 0; $i < 10; $i++ ) {
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges( null, null, 5 );
+
+		// With limit=5, the DISTINCT subquery path should return at most 5 items.
+		$this->assertLessThanOrEqual( 5, (int) $range['item_count'] );
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+
+		// The limit path should use DISTINCT in the subquery, not the parent count.
+		$this->assertStringContainsString( 'DISTINCT', $wpdb->last_query );
+	}
+
+	/**
+	 * Test that get_range_edges for commentmeta uses parent table count optimization.
+	 */
+	public function test_get_range_edges_commentmeta_uses_parent_count() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+
+		// Create 3 comments, each with meta. Non-whitelisted keys work because
+		// get_range_edges() strips filter_values for meta tables (postmeta,
+		// commentmeta, termmeta, woocommerce_order_itemmeta). Note: termmeta
+		// also strips filters, even though it skips the parent-count optimization.
+		for ( $i = 0; $i < 3; $i++ ) {
+			$comment_id = self::factory()->comment->create(
+				array(
+					'comment_post_ID' => $post_id,
+					'user_id'         => $user_id,
+				)
+			);
+			add_comment_meta( $comment_id, 'test_meta_key', 'test_meta_value' );
+		}
+
+		$tc    = new Table_Checksum( 'commentmeta' );
+		$range = $tc->get_range_edges();
+
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+
+		// Ensure the optimized path is used: the query should not use COUNT(DISTINCT ...).
+		$this->assertStringNotContainsString( 'COUNT(DISTINCT', $wpdb->last_query );
+	}
+
+	/**
+	 * Test that get_range_edges strips filter_values for meta tables, but
+	 * checksum calculation still respects them.
+	 *
+	 * Creates commentmeta with only non-whitelisted keys. Range edges should
+	 * return valid results (filters stripped), but the checksum should be null
+	 * because no rows match the filter during checksum calculation.
+	 */
+	public function test_get_range_edges_meta_tables_strip_filters() {
+		$user_id = self::factory()->user->create();
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+
+		// Create comments with only non-whitelisted meta keys.
+		for ( $i = 0; $i < 3; $i++ ) {
+			$comment_id = self::factory()->comment->create(
+				array(
+					'comment_post_ID' => $post_id,
+					'user_id'         => $user_id,
+				)
+			);
+			add_comment_meta( $comment_id, 'non_whitelisted_key', 'value' );
+		}
+
+		$tc    = new Table_Checksum( 'commentmeta' );
+		$range = $tc->get_range_edges();
+
+		// Even though the meta key is not whitelisted, range edges should still
+		// return valid results because filter_values are stripped for meta tables.
+		$this->assertNotNull( $range['min_range'] );
+		$this->assertNotNull( $range['max_range'] );
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+
+		// But the checksum should be null — no rows match the filter_values
+		// whitelist during checksum calculation, proving filters are restored.
+		$checksum = $tc->calculate_checksum();
+		$this->assertNull( $checksum );
+	}
+
+	/**
+	 * Test that termmeta uses COUNT(DISTINCT) instead of parent count from term_taxonomy.
+	 *
+	 * The term_taxonomy's row count is not a reliable proxy for the distinct term_id count
+	 * in termmeta, so get_parent_table_count() should return false for term-related tables.
+	 */
+	public function test_get_range_edges_termmeta_skips_parent_count() {
+		global $wpdb;
+
+		// Create 2 terms with meta.
+		for ( $i = 0; $i < 2; $i++ ) {
+			$term = self::factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
+			add_term_meta( $term->term_id, 'test_key', 'value' );
+		}
+
+		$tc    = new Table_Checksum( 'termmeta' );
+		$range = $tc->get_range_edges();
+
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+
+		// Termmeta should use COUNT(DISTINCT), not the parent count from term_taxonomy.
+		$this->assertStringContainsString( 'COUNT( DISTINCT', $wpdb->last_query );
+	}
+
+	/**
+	 * Test that parent count of zero falls back to COUNT(DISTINCT) instead of
+	 * returning item_count=0, which would cause checksum_histogram() to
+	 * early-return an empty histogram.
+	 */
+	public function test_get_range_edges_falls_back_when_parent_count_is_zero() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create posts with meta, then delete all posts to leave orphaned postmeta.
+		$post_ids = array();
+		for ( $i = 0; $i < 3; $i++ ) {
+			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_ids[] = $post_id;
+			add_post_meta( $post_id, 'orphan_key', 'value' );
+		}
+
+		// Delete all posts via SQL to leave orphaned postmeta rows.
+		$wpdb->query( "DELETE FROM {$wpdb->posts}" );
+
+		Table_Checksum::reset_range_edges_cache();
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges();
+
+		// With 0 posts, parent count is 0 so the optimization should be skipped.
+		// The fallback COUNT(DISTINCT) should return the actual orphaned meta count.
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+		$this->assertNotNull( $range['min_range'] );
+		$this->assertNotNull( $range['max_range'] );
+
+		// Verify the fallback path uses COUNT(DISTINCT), not the parent count.
+		$this->assertStringContainsString( 'COUNT( DISTINCT', $wpdb->last_query );
+	}
+
+	/**
+	 * Test that sub-range calls to get_range_edges() use COUNT(DISTINCT), not the
+	 * parent table's total count.
+	 *
+	 * Using the total parent count for a sub-range would produce an oversized bucket,
+	 * causing checksum_histogram() to compute checksums over the wrong range.
+	 */
+	public function test_get_range_edges_subrange_skips_parent_count() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 10 posts, each with meta.
+		$post_ids = array();
+		for ( $i = 0; $i < 10; $i++ ) {
+			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_ids[] = $post_id;
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		sort( $post_ids );
+
+		// Pick a sub-range covering roughly the first half of posts.
+		$range_from = $post_ids[0];
+		$range_to   = $post_ids[4];
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges( $range_from, $range_to );
+
+		// Capture before the verification query overwrites it.
+		$range_edges_query = $wpdb->last_query;
+
+		// item_count must reflect the actual distinct post_ids in this sub-range,
+		// not the total posts count. The sub-range has at most 5 distinct post_ids.
+		$actual_distinct = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE post_id >= %d AND post_id <= %d",
+				$range_from,
+				$range_to
+			)
+		);
+
+		$this->assertEquals( $actual_distinct, (int) $range['item_count'] );
+
+		// Verify the sub-range path uses COUNT(DISTINCT), not the parent count.
+		$this->assertStringContainsString( 'COUNT( DISTINCT', $range_edges_query );
+	}
+
+	/**
+	 * Test that sub-range calls do not pollute the static cache used by
+	 * get_parent_table_count(). A sub-range call on the parent table should
+	 * not overwrite the full-table count in the cache.
+	 */
+	public function test_get_range_edges_subrange_does_not_pollute_cache() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 10 posts, each with meta.
+		$post_ids = array();
+		for ( $i = 0; $i < 10; $i++ ) {
+			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_ids[] = $post_id;
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		sort( $post_ids );
+
+		// Call get_range_edges on posts with a sub-range — this should NOT cache.
+		$posts_tc = new Table_Checksum( 'posts' );
+		$posts_tc->get_range_edges( $post_ids[0], $post_ids[4] );
+
+		// Now call get_range_edges on postmeta (full range). If the sub-range
+		// result was cached, postmeta would reuse the scoped posts count instead
+		// of querying the full posts count.
+		$meta_tc    = new Table_Checksum( 'postmeta' );
+		$meta_range = $meta_tc->get_range_edges();
+
+		$full_posts_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts}" );
+
+		// item_count should equal the full posts count, not the sub-range count.
+		$this->assertEquals( $full_posts_count, (int) $meta_range['item_count'] );
+	}
+
+	/**
+	 * Test that get_parent_table_count() reuses the cached result from a prior
+	 * full-range get_range_edges() call on the parent table, rather than
+	 * re-querying the parent.
+	 */
+	public function test_get_range_edges_parent_count_reuses_cache() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 5 posts, each with meta.
+		for ( $i = 0; $i < 5; $i++ ) {
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		// Prime the cache by querying posts first (simulates checksum_all order).
+		$posts_tc    = new Table_Checksum( 'posts' );
+		$posts_range = $posts_tc->get_range_edges();
+
+		// Now query postmeta — should reuse cached posts count.
+		$meta_tc    = new Table_Checksum( 'postmeta' );
+		$meta_range = $meta_tc->get_range_edges();
+
+		// The postmeta query should be a MIN/MAX on postmeta only, not a posts query.
+		$this->assertStringContainsString( $wpdb->postmeta, $wpdb->last_query );
+		$this->assertStringNotContainsString( $wpdb->posts, $wpdb->last_query );
+
+		// And item_count should match the posts count from the cached result.
+		$this->assertEquals( (int) $posts_range['item_count'], (int) $meta_range['item_count'] );
 	}
 
 	/**

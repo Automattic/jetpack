@@ -1,7 +1,7 @@
 import { getRedirectUrl, Button } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router';
 import CardPage from '$layout/card-page/card-page';
@@ -86,7 +86,7 @@ const PurchaseSuccess: FC = () => {
 									'jetpack-boost'
 								),
 								{
-									link: <ExternalLink href={ wpcomPricingUrl } />,
+									link: <Link openInNewTab href={ wpcomPricingUrl } />,
 									strong: <strong />,
 								}
 						  )
@@ -94,9 +94,9 @@ const PurchaseSuccess: FC = () => {
 				</li>
 			</ul>
 			<p className={ styles[ 'last-paragraph' ] }>
-				<ExternalLink href={ boostSupport }>
+				<Link openInNewTab href={ boostSupport }>
 					{ __( 'Learn more about Boost features and upgrades', 'jetpack-boost' ) }
-				</ExternalLink>
+				</Link>
 			</p>
 			<Button
 				label={ __( 'Continue', 'jetpack-boost' ) }

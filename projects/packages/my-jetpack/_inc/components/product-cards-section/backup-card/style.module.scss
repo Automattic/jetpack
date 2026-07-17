@@ -43,6 +43,12 @@
 		font-size: var(--font-body-small);
 		margin: 0;
 	}
+
+	.mcpBadge {
+		display: block;
+		font-size: var(--font-body-extra-small);
+		color: var(--jp-gray-50);
+	}
 }
 
 .description {

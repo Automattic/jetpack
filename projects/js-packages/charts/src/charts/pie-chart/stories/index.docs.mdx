@@ -17,6 +17,7 @@ The Pie Chart component provides a flexible, accessible, and highly customizable
 <Source
 	language="jsx"
 	code={ `import { PieChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
     <PieChart
     	data={ data }
@@ -41,7 +42,6 @@ The simplest pie chart requires only a `data` prop with percentage-based data:
 <Source
 	language="jsx"
 	code={ `<PieChart
-		size={ 400 }
 		data={[
 			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 23 },
 			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 17 },
@@ -53,16 +53,18 @@ The simplest pie chart requires only a `data` prop with percentage-based data:
 ### Required Props
 
 - **`data`**: Array of `DataPointPercentage` objects containing label, value, and percentage
-- **`size`**: Diameter of the chart in pixels (when not using responsive mode)
 
 ### Optional Props
 
+- **`size`**: Maximum diameter of the pie in pixels. The pie shrinks if the container is smaller. When omitted, the pie fills available space.
+- **`width`** / **`height`**: Explicit container dimensions in pixels. When omitted, the chart fills its parent.
 - **`padding`** (default: `20`): Padding around the chart in pixels
 - **`withTooltips`** (default: `false`): Enables interactive tooltips on hover
 - **`showLegend`** (default: `false`): Shows a legend for the chart data
 - **`thickness`** (default: `1`): Thickness of the pie chart segments (0-1). Values less than 1 create donut charts
 - **`gapScale`** (default: `0`): Scale of gaps between segments (0-1)
 - **`cornerScale`** (default: `0`): Scale of corner rounding for segments (0-1)
+- **`gap`** (default: `'md'`): Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens.
 - **`children`**: Optional React node to render inside the chart center (useful for donut charts)
 
 For detailed prop information, compound components, and type definitions, see the [Pie Chart API Reference](./?path=/docs/js-packages-charts-library-charts-pie-chart-api-reference--docs).
@@ -80,24 +82,24 @@ The composition API allows you to add custom SVG and HTML elements to your chart
 <Source
 	language="jsx"
 	code={ `<PieChart data={ data } size={ 400 }>
-	{/* HTML elements rendered outside the SVG */}
-	<PieChart.HTML>
-		<h3>Chart Title</h3>
-	</PieChart.HTML>
+		{/* HTML elements rendered outside the SVG */}
+		<PieChart.HTML>
+			<h3>Chart Title</h3>
+		</PieChart.HTML>
 
-	{/* SVG elements rendered inside the chart */}
-	<PieChart.SVG>
-		<text x={ 0 } y={ 0 } textAnchor="middle">
-			Center Text
-		</text>
-	</PieChart.SVG>
+		{/* SVG elements rendered inside the chart */}
+		<PieChart.SVG>
+			<text x={ 0 } y={ 0 } textAnchor="middle">
+				Center Text
+			</text>
+		</PieChart.SVG>
 
-	{/* More HTML elements */}
-	<PieChart.HTML>
-		<PieChart.Legend position="bottom" />
-		<p>Additional information</p>
-	</PieChart.HTML>
-</PieChart>` }
+		{/* More HTML elements */}
+		<PieChart.HTML>
+			<PieChart.Legend position="bottom" />
+			<p>Additional information</p>
+		</PieChart.HTML>
+	</PieChart>` }
 />
 
 ### Benefits of Composition API
@@ -126,29 +128,6 @@ Enable interactive tooltips that display data information on hover:
 	/>` }
 />
 
-### Responsive Behavior
-
-The Pie Chart component supports responsive sizing by omitting the `size` prop:
-
-<Canvas of={ PieChartStories.Responsiveness } />
-
-<Source
-	language="jsx"
-	code={ `// Responsive - fills parent container
-	<PieChart
-		data={ data }
-		maxWidth={ 600 }
-		aspectRatio={ 1 }
-	/>
-
-    // Fixed size
-    <PieChart
-    	size={ 400 }
-    	data={ data }
-    />` }
-
-/>
-
 ### Data Validation and Error Handling
 
 The component includes built-in data validation with helpful error states:
@@ -162,38 +141,20 @@ The chart validates:
 - **Negative values**: Prevents invalid negative values
 - **Single data points**: Handles edge cases gracefully
 
-### Legend Positioning
+## Legends
 
-Control legend alignment and positioning:
+Use the composition API to add a legend by placing `<PieChart.Legend />` as a child:
 
-<Canvas of={ PieChartStories.CustomLegendPositioning } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		size={ 400 }
-		data={ data }
-		showLegend={ true }
-		legendAlignment="end"
-		legendPosition="top"
-	/>` }
-/>
-
-### Vertical Legend
-
-Use vertical orientation for space-efficient legend placement:
+<Canvas of={ PieChartStories.WithCompositionLegend } />
 
 <Source
 	language="jsx"
-	code={ `<PieChart
-		size={ 400 }
-		data={ data }
-		showLegend={ true }
-		legendOrientation="vertical"
-		legendAlignment="end"
-		legendPosition="top"
-	/>` }
+	code={ `<PieChart size={ 400 } data={ data }>
+		<PieChart.Legend />
+	</PieChart>` }
 />
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Styling and Customization
 
@@ -296,6 +257,33 @@ Pie Charts integrate seamlessly with the chart theming system. The default theme
 		<PieChart data={data} />
 	</GlobalChartsProvider>` }
 />
+
+## Responsive Behavior
+
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<PieChart data={data} />
+	</div>
+
+	// Fixed dimensions
+	<PieChart data={data} width={400} height={400} />` }
+/>
+
+Use the `size` prop to constrain the maximum pie diameter. The pie will shrink if the container is smaller, but won't grow beyond this value:
+
+<Canvas of={ PieChartStories.WithSize } />
+
+<Source
+	language="jsx"
+	code={ `// Constrained pie diameter (container still fills parent)
+<PieChart data={data} size={200} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 

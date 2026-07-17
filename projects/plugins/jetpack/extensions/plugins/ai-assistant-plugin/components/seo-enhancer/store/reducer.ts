@@ -11,7 +11,7 @@ function saveFeatureState( features: Record< ( typeof FEATURES )[ number ], bool
 }
 
 export function reducer( state: SeoEnhancerState, action: SeoEnhancerAction ) {
-	let newState = state;
+	let newState;
 
 	switch ( action.type ) {
 		case 'SET_BUSY':

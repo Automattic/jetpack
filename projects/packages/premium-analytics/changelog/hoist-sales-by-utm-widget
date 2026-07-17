@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hoist the shared SalesByUtmWidget component into widgets-toolkit so the UTM channel and campaign widgets render from a single source (upstream pattern).

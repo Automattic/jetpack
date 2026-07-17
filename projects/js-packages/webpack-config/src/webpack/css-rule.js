@@ -27,6 +27,9 @@ const CssRule = ( options = {} ) => {
 			'\\.(?:' + exts.map( ext => ext.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) ).join( '|' ) + ')$',
 			'i'
 		),
+		// CSS imports are always side effects (they inject styles into the DOM),
+		// so override any package.json "sideEffects: false" declarations.
+		sideEffects: true,
 		use: [
 			MiniCssExtractLoader( options.MiniCssExtractLoader ),
 			CssLoader( {

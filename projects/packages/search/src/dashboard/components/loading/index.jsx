@@ -1,4 +1,4 @@
-import { Spinner } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 
 import './style.scss';
 
@@ -8,5 +8,5 @@ import './style.scss';
  * @return {import('react').Component} Loading component.
  */
 export default function Loading() {
-	return <Spinner className="jp-search-dashboard-page-loading-spinner" color="#000" size={ 32 } />;
+	return <Spinner className="jp-search-dashboard-page-loading-spinner" />;
 }

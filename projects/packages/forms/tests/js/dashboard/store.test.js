@@ -87,4 +87,67 @@ describe( 'actions', () => {
 		expect( registry.select( store ).getSpamCount( queryParams ) ).toBe( 0 );
 		expect( registry.select( store ).getTrashCount( queryParams ) ).toBe( 0 );
 	} );
+
+	it( 'setFormStatusCounts stores form status counts', () => {
+		const counts = {
+			all: 10,
+			publish: 5,
+			draft: 3,
+			pending: 1,
+			future: 0,
+			private: 1,
+			trash: 2,
+		};
+
+		expect( registry.select( store ).getFormStatusCounts() ).toBeNull();
+
+		registry.dispatch( store ).setFormStatusCounts( counts );
+
+		expect( registry.select( store ).getFormStatusCounts() ).toEqual( counts );
+	} );
+
+	it( 'setFormStatusCounts replaces previous counts', () => {
+		const initial = { all: 5, publish: 3, draft: 2, pending: 0, future: 0, private: 0, trash: 1 };
+		const updated = { all: 8, publish: 6, draft: 2, pending: 0, future: 0, private: 0, trash: 0 };
+
+		registry.dispatch( store ).setFormStatusCounts( initial );
+		registry.dispatch( store ).setFormStatusCounts( updated );
+
+		expect( registry.select( store ).getFormStatusCounts() ).toEqual( updated );
+	} );
+} );
+
+describe( 'resolvers – shouldInvalidate', () => {
+	// Import resolvers directly so we can test shouldInvalidate.
+	let resolvers;
+
+	beforeAll( async () => {
+		resolvers = await import( '../../../src/dashboard/store/resolvers.js' );
+	} );
+
+	it( 'getFormStatusCounts invalidates on INVALIDATE_FORM_STATUS_COUNTS', () => {
+		expect(
+			resolvers.getFormStatusCounts.shouldInvalidate( {
+				type: 'INVALIDATE_FORM_STATUS_COUNTS',
+			} )
+		).toBe( true );
+	} );
+
+	it( 'getFormStatusCounts does not invalidate on unrelated actions', () => {
+		expect(
+			resolvers.getFormStatusCounts.shouldInvalidate( {
+				type: 'SET_FORM_STATUS_COUNTS',
+			} )
+		).toBe( false );
+	} );
+
+	it( 'getCounts invalidates on INVALIDATE_COUNTS', () => {
+		expect( resolvers.getCounts.shouldInvalidate( { type: 'INVALIDATE_COUNTS' } ) ).toBe( true );
+	} );
+
+	it( 'getCounts does not invalidate on INVALIDATE_FORM_STATUS_COUNTS', () => {
+		expect(
+			resolvers.getCounts.shouldInvalidate( { type: 'INVALIDATE_FORM_STATUS_COUNTS' } )
+		).toBe( false );
+	} );
 } );

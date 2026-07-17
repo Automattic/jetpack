@@ -117,15 +117,10 @@ jQuery( function ( $ ) {
 			.html( '' );
 
 		let brokenConnections = 0;
-		let unsupportedConnections = 0;
 
 		for ( const connection of freshConnections ) {
 			let isInvalid = false;
-			if ( 'twitter' === connection.service_name ) {
-				unsupportedConnections++;
-
-				isInvalid = true;
-			} else if ( [ 'broken', 'must_reauth' ].includes( connection.status ) ) {
+			if ( [ 'broken', 'must_reauth' ].includes( connection.status ) ) {
 				brokenConnections++;
 
 				isInvalid = 'broken' === connection.status;
@@ -152,25 +147,6 @@ jQuery( function ( $ ) {
 				.addClass( 'error' )
 				.addClass( 'publicize-token-refresh-message' )
 				.append( msg.replace( '%s', connectionsUrl ) );
-		}
-
-		if ( unsupportedConnections ) {
-			/* translators: %s is the link to the connections page */
-			const msg = __(
-				'Twitter is not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
-				'jetpack-publicize-pkg'
-			);
-
-			if ( brokenConnections ) {
-				testsSelector.append( '<hr />' );
-			} else {
-				testsSelector
-					.addClass( 'below-h2' )
-					.addClass( 'error' )
-					.addClass( 'publicize-token-refresh-message' );
-			}
-
-			testsSelector.append( msg.replace( '%s', connectionsUrl ) );
 		}
 	};
 

@@ -9,6 +9,7 @@ import MinifyJs from '$features/minify-js/minify-js';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
+import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
@@ -16,9 +17,9 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import styles from './index.module.scss';
 import LcpModule from '$features/lcp/lcp';
-import { ExternalLink } from '@wordpress/components';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -55,7 +56,9 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
+									link: (
+										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
 								}
 							) }
 						</p>
@@ -105,7 +108,9 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
+									link: (
+										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
 								}
 							) }
 						</p>
@@ -139,7 +144,8 @@ const Index = () => {
 							),
 							{
 								link: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
 										href={ deferJsLink }
 									/>
@@ -148,7 +154,9 @@ const Index = () => {
 						) }
 					</p>
 				}
-			></Module>
+			>
+				<RenderBlockingJsMeta />
+			</Module>
 			<MinifyJs />
 			<MinifyCss />
 			<Module
@@ -181,7 +189,6 @@ const Index = () => {
 				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
 				<QualitySettings isPremium={ imageCdnQualityState?.available ?? false } />
 			</Module>
-
 			<div className={ styles.settings }>
 				<ImageGuide />
 			</div>

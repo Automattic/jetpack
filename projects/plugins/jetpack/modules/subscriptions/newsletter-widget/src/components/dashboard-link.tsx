@@ -1,6 +1,6 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink } from '@wordpress/components';
 import { createElement, useEffect } from '@wordpress/element';
+import { Link } from '@wordpress/ui';
 import { TRACKS_EVENT_NAME_PREFIX } from '../constants';
 import { createTracksEventHandler } from '../helpers';
 import type { ReactElement } from 'react';
@@ -26,14 +26,15 @@ export const DashboardLink = (
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
 
-	let elementType = ExternalLink;
-	if ( internal ) {
-		elementType = 'a';
+	const isExternal = ! internal;
+	const elementType = isExternal ? Link : 'a';
+	const props: Record< string, unknown > = {
+		href,
+		onClick: createTracksEventHandler( tracks, eventName ),
+	};
+	if ( isExternal ) {
+		props.openInNewTab = true;
 	}
 
-	return createElement(
-		elementType,
-		{ href, onClick: createTracksEventHandler( tracks, eventName ) },
-		text ? text : undefined
-	);
+	return createElement( elementType, props, text ? text : undefined );
 };

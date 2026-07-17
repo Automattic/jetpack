@@ -1,10 +1,9 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"baseUrl": ".",
 		"paths": {
 			// fallback to resolving imports relative to _inc/client
-			"*": [ "*", "./_inc/client/*" ]
+			"*": [ "./*", "./_inc/client/*" ]
 		}
 	},
 	"include": [ "./_inc", "./extensions", "./global.d.ts" ],

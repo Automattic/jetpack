@@ -5,8 +5,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useMutationNotice } from '$features/ui';
 import { useShowCacheEngineErrorNotice } from './lib/stores';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
-import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './page-cache.module.scss';
 import { isWpCloudClient, isWoaHosting } from '$lib/utils/hosting';
@@ -21,9 +21,14 @@ const DismissableNotice = ( { title, children }: { title: string; children: Reac
 
 	return (
 		<div className={ styles.notice }>
-			<Notice level="info" title={ title } onClose={ () => setDismissed( true ) }>
-				{ children }
-			</Notice>
+			<Notice.Root intent="info">
+				<Notice.Title>{ title }</Notice.Title>
+				<Notice.Description>{ children }</Notice.Description>
+				<Notice.CloseIcon
+					onClick={ () => setDismissed( true ) }
+					label={ __( 'Dismiss', 'jetpack-boost' ) }
+				/>
+			</Notice.Root>
 		</div>
 	);
 };
@@ -101,28 +106,29 @@ const PageCache = () => {
 					</p>
 					{ showCacheFromHostingNotice &&
 						( isWoaHosting() ? (
-							<Notice
-								level="success"
-								title={ __( 'Page Cache is running', 'jetpack-boost' ) }
-								hideCloseButton={ true }
-							>
-								<p>
-									{ __(
-										'Your website already has a page cache running on it powered by WordPress.com.',
-										'jetpack-boost'
-									) }
-								</p>
-							</Notice>
+							<Notice.Root intent="success">
+								<Notice.Title>{ __( 'Page Cache is running', 'jetpack-boost' ) }</Notice.Title>
+								<Notice.Description>
+									<p>
+										{ __(
+											'Your website already has a page cache running on it powered by WordPress.com.',
+											'jetpack-boost'
+										) }
+									</p>
+								</Notice.Description>
+							</Notice.Root>
 						) : (
-							<Notice
-								level="info"
-								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
-								hideCloseButton={ true }
-							>
-								<p>
-									{ __( 'Your hosting provider already provides page caching.', 'jetpack-boost' ) }
-								</p>
-							</Notice>
+							<Notice.Root intent="info">
+								<Notice.Title>{ __( 'Page Cache is unavailable', 'jetpack-boost' ) }</Notice.Title>
+								<Notice.Description>
+									<p>
+										{ __(
+											'Your hosting provider already provides page caching.',
+											'jetpack-boost'
+										) }
+									</p>
+								</Notice.Description>
+							</Notice.Root>
 						) ) }
 					<Health
 						error={ pageCacheError.data }
@@ -133,18 +139,17 @@ const PageCache = () => {
 			}
 		>
 			{ showCacheEngineErrorNotice && (
-				<Notice
-					level="warning"
-					title={ __( 'Page Cache is not working', 'jetpack-boost' ) }
-					hideCloseButton={ true }
-				>
-					<p>
-						{ __(
-							'It appears that the cache engine is not loading. Please try re-installing Jetpack Boost. If the issue persists, please contact support.',
-							'jetpack-boost'
-						) }
-					</p>
-				</Notice>
+				<Notice.Root intent="warning">
+					<Notice.Title>{ __( 'Page Cache is not working', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>
+						<p>
+							{ __(
+								'It appears that the cache engine is not loading. Please try re-installing Jetpack Boost. If the issue persists, please contact support.',
+								'jetpack-boost'
+							) }
+						</p>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 			{ ! showCacheEngineErrorNotice && ! pageCacheError.data && ! pageCacheSetup.isError && (
 				<>

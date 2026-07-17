@@ -12,6 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
@@ -41,8 +42,39 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
+				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
+				'supports'              => array(
+					'layout'               => array(
+						'default'                => array(
+							'type'              => 'flex',
+							'flexWrap'          => 'wrap',
+							'orientation'       => 'horizontal',
+							'justifyContent'    => 'left',
+							'verticalAlignment' => 'top',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => true,
+						'allowVerticalAlignment' => true,
+						'allowJustification'     => true,
+						'allowWrap'              => false,
+					),
+					'__experimentalBorder' => array(
+						'color'                         => true,
+						'radius'                        => true,
+						'style'                         => true,
+						'width'                         => true,
+						'__experimentalDefaultControls' => array(
+							'color'  => true,
+							'radius' => true,
+							'style'  => true,
+							'width'  => true,
+						),
+					),
+					'listView'             => true,
+				),
+				'style_handles'         => array( 'jetpack-forms-layout' ),
 			)
 		);
 
@@ -52,7 +84,86 @@ class Contact_Form_Block {
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 
 		add_filter( 'block_editor_rest_api_preload_paths', array( __CLASS__, 'preload_endpoints' ) );
+
+		// Load scripts for the editing interface
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
+
+		// Load AI integration after Jetpack_Gutenberg registers extensions (priority 10)
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'maybe_load_ai_integration' ), 11 );
 	}
+
+	/**
+	 * Disable the block "visibility" support on form field and input blocks.
+	 *
+	 * FORMS-694 (interim). The per-viewport "Hide on…" option is not honored in
+	 * the forms render pipeline — fields flatten to a shortcode and bypass core's
+	 * render_block class injection — and on a required field it cannot be made
+	 * safe (server- and client-side validation are both viewport-blind). "Hide
+	 * everywhere" does work for fields, but the control bundles both modes under
+	 * one boolean, so we disable it wholesale on fields, inputs, and choice/option
+	 * blocks as an interim. This mirrors the JS registration. The label is the
+	 * only block that keeps visibility support — it honors hiding (full-hide via
+	 * labelhiddenbyblockvisibility, per-viewport via wp-block-hidden-* classes)
+	 * and never affects validation or submission. Full field visibility is a
+	 * separate decision.
+	 *
+	 * @param array  $args       Block type registration args.
+	 * @param string $block_name Block name being registered.
+	 * @return array
+	 */
+	public static function disable_field_visibility_support( $args, $block_name ) {
+		// TODO: refactor into an array_merge'd shared supports array mirroring the JS defaultSettings, instead of this filter.
+		// Fields, incl. the deprecated field-option-* choice blocks.
+		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0;
+		// All input variants: jetpack/input, input-range, input-rating,
+		// input-image-option, plus the differently-named phone-input and dropzone.
+		$is_input = strpos( $block_name, 'jetpack/input' ) === 0 || in_array( $block_name, array( 'jetpack/phone-input', 'jetpack/dropzone' ), true );
+		// Choice/option containers.
+		$is_option = in_array( $block_name, array( 'jetpack/option', 'jetpack/options', 'jetpack/fieldset-image-options' ), true );
+
+		if ( $is_input || $is_field || $is_option ) {
+			if ( ! isset( $args['supports'] ) || ! is_array( $args['supports'] ) ) {
+				$args['supports'] = array();
+			}
+			$args['supports']['visibility'] = false;
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Drop a field that has been hidden everywhere via block visibility.
+	 *
+	 * FORMS-694. "Hide everywhere" (metadata.blockVisibility === false) must keep
+	 * working on fields even though we disable the visibility *support* on them
+	 * (see disable_field_visibility_support). We can't rely on core's render_block
+	 * visibility filter for this: on released WP it gates the full-hide branch
+	 * behind the support check, so once support is false the field would reappear
+	 * (the fix that reorders those — WordPress/gutenberg#78780 — is unreleased).
+	 *
+	 * Dropping the field's rendered output ('') before Contact_Form::parse() sees
+	 * it removes the [contact-field] shortcode entirely, so the field is never
+	 * parsed, rendered, or validated — which is what makes this required-safe (a
+	 * required hidden-everywhere field simply isn't in the form). This is a full
+	 * removal, not a CSS hide; the per-viewport "Hide on…" mode (which leaves the
+	 * field in place and only display:none's it) is intentionally not honored on
+	 * fields for exactly that reason.
+	 *
+	 * @param string $block_content Rendered block content.
+	 * @param array  $block         Parsed block.
+	 * @return string
+	 */
+	public static function drop_field_hidden_everywhere( $block_content, $block ) {
+		$block_name       = $block['blockName'] ?? '';
+		$block_visibility = $block['attrs']['metadata']['blockVisibility'] ?? null;
+
+		if ( false === $block_visibility && strpos( $block_name, 'jetpack/field-' ) === 0 ) {
+			return '';
+		}
+
+		return $block_content;
+	}
+
 	/**
 	 * Register the contact form block feature flag.
 	 *
@@ -64,6 +175,27 @@ class Contact_Form_Block {
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
+
+		return self::register_central_form_management_default( $features );
+	}
+
+	/**
+	 * Lightweight bootstrap default for the `central-form-management` feature flag.
+	 *
+	 * Registered from Util::init() so that early callers of
+	 * Contact_Form_Plugin::has_editor_feature_flag() — such as the Forms dashboard
+	 * default-tab redirect, which runs before the WP `init` hook fires — see the
+	 * correct flag value. Kept separate from register_feature() so the early-boot
+	 * code path avoids the Current_Plan::supports() calls used by the paid-plan flags.
+	 *
+	 * @param array $features - the features array.
+	 *
+	 * @return array
+	 */
+	public static function register_central_form_management_default( $features ) {
+		if ( ! isset( $features['central-form-management'] ) ) {
+			$features['central-form-management'] = true;
+		}
 
 		return $features;
 	}
@@ -113,6 +245,15 @@ class Contact_Form_Block {
 			return;
 		}
 
+		// Keep the PHP-registered "visibility" support in sync with the JS
+		// registration (src/blocks/shared/settings/index.js and
+		// src/blocks/input/index.js), which disables it on fields and inputs.
+		add_filter( 'register_block_type_args', array( __CLASS__, 'disable_field_visibility_support' ), 10, 2 );
+
+		// Honor "hide everywhere" on fields ourselves, independent of core's
+		// version-dependent visibility filter. See drop_field_hidden_everywhere().
+		add_filter( 'render_block', array( __CLASS__, 'drop_field_hidden_everywhere' ), 10, 2 );
+
 		// Field inner block types.
 		Blocks::jetpack_register_block(
 			'jetpack/input',
@@ -151,12 +292,12 @@ class Contact_Form_Block {
 			'jetpack/label',
 			array(
 				'supports'     => array(
-					'color'           => array(
+					'color'      => array(
 						'text'       => true,
 						'background' => false,
 						'gradients'  => false,
 					),
-					'typography'      => array(
+					'typography' => array(
 						'fontSize'                     => true,
 						'lineHeight'                   => true,
 						'__experimentalFontFamily'     => true,
@@ -166,7 +307,10 @@ class Contact_Form_Block {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
-					'blockVisibility' => true,
+					// The real support key is `visibility`, not `blockVisibility`
+					// (that's the per-instance saved attribute). The label is the
+					// only forms block that keeps the control — see FORMS-694.
+					'visibility' => true,
 				),
 				'uses_context' => array(
 					'jetpack/field-required',
@@ -670,6 +814,15 @@ class Contact_Form_Block {
 		// Count and store form steps
 		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
 
+		// For ref (synced) forms, render here via pre_render_block to short-circuit
+		// render_block(). This prevents wp_render_layout_support_flag from adding
+		// layout classes to the outer ref block's container div. The synced form's
+		// inner jetpack/contact-form block renders through the normal pipeline and
+		// gets layout classes on the correct element (wp-block-jetpack-contact-form).
+		if ( isset( $parsed_block['attrs']['ref'] ) ) {
+			return self::gutenblock_render_form( $parsed_block['attrs'], '' );
+		}
+
 		return $pre_render; // Don't actually pre-render, let normal rendering continue
 	}
 
@@ -755,21 +908,23 @@ class Contact_Form_Block {
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
-		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
+		// Exception: allow rendering in preview mode so form previews work.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// Exception: allow rendering in preview mode.
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) && ! Form_Preview::is_preview_mode() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return self::render_fallback( $atts );
 		}
 
 		self::load_view_scripts();
 
-		// Handle ref attribute - load form from jetpack-form post
+		// Handle ref attribute - load form from jetpack_form post
 		if ( isset( $atts['ref'] ) ) {
 			$ref_id = absint( $atts['ref'] );
 			if ( $ref_id > 0 ) {
-				return self::render_synced_form( $ref_id );
+				return Contact_Form::render_synced_form( $ref_id );
 			} else {
 				return ''; // Invalid ref ID.
 			}
@@ -779,69 +934,12 @@ class Contact_Form_Block {
 	}
 
 	/**
-	 * Render a synced form by reference ID.
-	 *
-	 * @param int $ref_id The jetpack_form post ID.
-	 * @return string Rendered form HTML.
-	 */
-	private static function render_synced_form( $ref_id ) {
-		// Circular reference prevention.
-		static $seen_refs = array();
-
-		if ( isset( $seen_refs[ $ref_id ] ) ) {
-			// Return empty string to match other error cases and unit test expectations.
-			return '';
-		}
-
-		// Load the jetpack-form post.
-		$synced_form = get_post( $ref_id );
-
-		// Validate post.
-		if ( ! $synced_form || 'jetpack_form' !== $synced_form->post_type ) {
-			return '';
-		}
-
-		// Only render published forms statuses.
-		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
-			return '';
-		}
-
-		// Mark as seen for circular reference prevention.
-		$seen_refs[ $ref_id ] = true;
-		Contact_Form::set_ref_id( $ref_id );
-		$output = '';
-		try {
-			// Parse and render blocks from post_content.
-			$blocks = parse_blocks( $synced_form->post_content );
-			foreach ( $blocks as $block ) {
-				$output .= render_block( $block );
-			}
-		} finally {
-			// Clean up.
-			unset( $seen_refs[ $ref_id ] );
-			Contact_Form::clear_ref_id();
-		}
-		return $output;
-	}
-
-	/**
 	 * Load editor styles for the block.
-	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 *
+	 * @deprecated 7.5.0 This function is deprecated and will be removed in a future version.
 	 */
 	public static function load_editor_styles() {
-
-		$handle = 'jp-forms-blocks';
-
-		Assets::register_script(
-			$handle,
-			'../../../dist/blocks/editor.js',
-			__FILE__,
-			array(
-				'css_path'   => '../../../dist/blocks/editor.css',
-				'textdomain' => 'jetpack-forms',
-			)
-		);
-		wp_enqueue_style( 'jp-forms-blocks' );
+		_deprecated_function( __FUNCTION__, 'jetpack-7.5.0' );
 	}
 
 	/**
@@ -856,6 +954,11 @@ class Contact_Form_Block {
 
 		$handle = 'jp-forms-blocks';
 
+		// Ensure the jetpack-blocks-editor dependency exists. When the Blocks module
+		// is inactive, nothing registers it, but the Forms editor JS needs the
+		// Jetpack_Editor_Initial_State global (with availability data) it provides.
+		self::maybe_register_blocks_editor_script();
+
 		Assets::register_script(
 			$handle,
 			'../../../dist/blocks/editor.js',
@@ -865,8 +968,7 @@ class Contact_Form_Block {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				// Editor styles are loaded separately, see load_editor_styles().
-				'css_path'     => null,
+				'css_path'     => '../../../dist/blocks/editor.css',
 			)
 		);
 
@@ -888,6 +990,55 @@ class Contact_Form_Block {
 		);
 
 		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
+	}
+
+	/**
+	 * Conditionally loads the AI form generation integration script.
+	 *
+	 * This script is only loaded when:
+	 * 1. The AI Assistant extension is available (ai-assistant-form-support)
+	 * 2. The central-form-management feature flag is enabled
+	 *
+	 * By checking these conditions in PHP, we ensure no JavaScript is loaded
+	 * when either the AI extension is disabled or central form management is off.
+	 *
+	 * This is hooked at priority 11 on enqueue_block_editor_assets to ensure
+	 * it runs after Jetpack_Gutenberg registers extensions at priority 10.
+	 */
+	public static function maybe_load_ai_integration() {
+		// Bail if the user cannot manage the block — jp-forms-blocks won't be registered.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
+		// Check if central form management is enabled.
+		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			return;
+		}
+
+		// Check if AI Assistant form support is available.
+		// This extension is set as available when the AI Assistant block is registered.
+		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
+			return;
+		}
+
+		// Ensure extensions are registered by calling get_cached_availability().
+		\Jetpack_Gutenberg::get_cached_availability();
+		if ( ! \Jetpack_Gutenberg::is_available( 'ai-assistant-form-support' ) ) {
+			return;
+		}
+
+		Assets::register_script(
+			'jp-forms-ai-plugin',
+			'../../../dist/blocks/ai-form-plugin.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jp-forms-blocks' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+			)
+		);
 	}
 
 	/**
@@ -920,6 +1071,48 @@ class Contact_Form_Block {
 				'strategy'   => 'defer',
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
+			)
+		);
+	}
+
+	/**
+	 * Register a minimal jetpack-blocks-editor script when the Blocks module is inactive.
+	 *
+	 * The Forms editor JS depends on jetpack-blocks-editor for the
+	 * Jetpack_Editor_Initial_State global, which includes block availability data.
+	 * Normally the Blocks module registers this, but Forms needs to work independently.
+	 */
+	private static function maybe_register_blocks_editor_script() {
+		if ( wp_script_is( 'jetpack-blocks-editor', 'registered' ) ) {
+			return;
+		}
+
+		// When the Blocks module is active it will register the real script, so bail.
+		if ( class_exists( 'Jetpack' ) && ( new Modules() )->is_active( 'blocks' ) ) {
+			return;
+		}
+
+		// Register a minimal script to satisfy the dependency.
+		wp_register_script( 'jetpack-blocks-editor', '', array(), JETPACK__VERSION, true );
+		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
+
+		// Provide the initial state the Forms editor JS expects:
+		// - available_blocks: the JS block registration checks this before calling registerBlockType.
+		// - modules: the useModuleStatus hook reads this to decide whether to show the block
+		// or an "Activate Forms" placeholder.
+		// - feature_flags: hasFeatureFlag() reads this for central-form-management,
+		// form-webhooks, and multistep-form.
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'Jetpack_Editor_Initial_State',
+			array(
+				'available_blocks' => array(
+					'contact-form' => array( 'available' => true ),
+				),
+				'modules'          => array(
+					'contact-form' => array( 'activated' => true ),
+				),
+				'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
 			)
 		);
 	}

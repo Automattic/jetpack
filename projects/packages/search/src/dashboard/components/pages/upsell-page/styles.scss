@@ -1,28 +1,29 @@
 @use "scss/variables";
 
-.jp-search-dashboard-upsell-page {
-	line-height: 1.5;
-	width: 100%;
+// Restore plain block layout between `<AdminPage>` and `<AdminSectionHero>`.
+// The shared `jetpack-admin-page-layout` mixin makes the wrapping `<Col>`
+// inside `<AdminPage>` a flex column so DataViews-style consumers can fill
+// the bounded slot. With `<AdminSectionHero>` (which has `overflow: hidden`
+// to break margin-collapse) sitting directly under that flex column, the
+// CSS spec resolves the section's implied `min-height: auto` to `0` —
+// flex shrinks it to the bounded height, its `overflow: hidden` clips the
+// taller pricing rows, and the middle's `overflow: auto` never sees any
+// overflow to scroll. Wrapping in a `display: block` div gives `<Col>` a
+// single flow item with the default `min-height: auto` (overflow visible),
+// so the inner content stacks at its natural height and overflow falls
+// back to the middle's scroll surface. Mirrors the `.content` class in
+// `projects/packages/publicize/_inc/components/admin-page/styles.module.scss`.
+.jp-search-upsell-page-content {
+	display: block;
+}
 
-	h1 {
-		line-height: 1.2;
-	}
-
-	// Targets AdminPage component, which uses obfuscated CSS names.
-	> div {
-		margin-left: 0;
-	}
-
-	&__header {
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: calc(var(--horizontal-spacing) * 3);
-	}
-
-	&__logo {
-		flex-shrink: 0;
-	}
+// Container ships with width:100% + padding without border-box, so it
+// overflows its parent. Force border-box and let descendants shrink past
+// their intrinsic width.
+.jp-search-upsell-container,
+.jp-search-upsell-container * {
+	box-sizing: border-box;
+	min-width: 0;
 }
 
 .price-tip {

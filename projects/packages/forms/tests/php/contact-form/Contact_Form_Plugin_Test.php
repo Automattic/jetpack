@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -260,6 +262,38 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel;font-size:24px" labelhiddenbyblockvisibility="" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot;font-size:33rem;border-color:toot;border-width:1px" stylevariationattributes="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" stylevariationclasses=" has-border-color" stylevariationstyles="border-color:toot;border-width:1px" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
 
 		$this->assertEquals( $expected, $shortcode );
+	}
+
+	/**
+	 * Tests that gutenblock_render_field_file does not wrap its output in an extra element.
+	 *
+	 * The file field must render like every other gutenblock_render_field_* method - the
+	 * bare shortcode, with no extra wrapper. An extra wrapper demotes the field's own
+	 * `.grunion-field-wrap` shell from being the contact form's direct flex child, which
+	 * makes the field collapse to its content width on the front end instead of filling
+	 * the form.
+	 */
+	public function test_gutenblock_render_field_file_has_no_extra_wrapper() {
+		$block = array(
+			'blockName'   => 'jetpack/field-file',
+			'attrs'       => array(),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array( 'label' => 'Upload a file' ),
+				),
+				array(
+					'blockName' => 'jetpack/dropzone',
+					'attrs'     => array(),
+				),
+			),
+		);
+
+		$output = Contact_Form_Plugin::gutenblock_render_field_file( array(), '', new WP_Block( $block ) );
+
+		$this->assertStringNotContainsString( '<div class="jetpack-form-file-field">', $output );
+		$this->assertStringStartsWith( '[contact-field', trim( $output ) );
+		$this->assertStringContainsString( 'type="file"', $output );
 	}
 
 	/**
@@ -916,6 +950,95 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Utility::destroy_post_context( $current_post );
 	}
 
+	/**
+	 * Helper: insert a v3-format feedback post, optionally flagged as a test submission.
+	 *
+	 * @param bool $is_test Whether to mark the feedback as a test submission.
+	 * @return int The new feedback post ID.
+	 */
+	private function insert_v3_feedback_post( $is_test = false ) {
+		$content = array(
+			'subject'     => 'Test Subject',
+			'ip'          => '127.0.0.1',
+			'entry_title' => 'Source Post',
+			'entry_page'  => 1,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
+			'fields'      => array(
+				array(
+					'id'    => '1_Name',
+					'label' => 'Name',
+					'type'  => 'text',
+					'value' => $is_test ? 'Preview Tester' : 'Real User',
+				),
+			),
+		);
+
+		if ( $is_test ) {
+			$content['is_test'] = true;
+		}
+
+		// Clear the Feedback static cache so repeat calls in one test see fresh data.
+		Feedback::clear_cache();
+
+		return wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Preview ' . ( $is_test ? 'test' : 'real' ) . ' ' . microtime(),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v3',
+			)
+		);
+	}
+
+	/**
+	 * By default, the export excludes feedback flagged as test submissions.
+	 */
+	public function test_export_excludes_test_feedback_by_default() {
+		$plugin  = Contact_Form_Plugin::init();
+		$real_id = $this->insert_v3_feedback_post( false );
+		$test_id = $this->insert_v3_feedback_post( true );
+
+		$result = $plugin->get_export_feedback_data( array( $real_id, $test_id ) );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( ' ID', $result );
+		$this->assertEquals(
+			array( $real_id ),
+			$result[' ID'],
+			'The default export should only return the non-test feedback row.'
+		);
+
+		wp_delete_post( $real_id, true );
+		wp_delete_post( $test_id, true );
+	}
+
+	/**
+	 * Callers that pass an explicit selection (e.g. the dashboard's selected
+	 * row IDs) include the test responses in that selection — the user
+	 * deliberately picked them.
+	 */
+	public function test_export_includes_test_feedback_when_explicitly_requested() {
+		$plugin  = Contact_Form_Plugin::init();
+		$real_id = $this->insert_v3_feedback_post( false );
+		$test_id = $this->insert_v3_feedback_post( true );
+
+		$result = $plugin->get_export_feedback_data( array( $real_id, $test_id ), true );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( ' ID', $result );
+		$this->assertEqualsCanonicalizing(
+			array( $real_id, $test_id ),
+			$result[' ID'],
+			'When include_test_responses is true, both rows should be present in the export.'
+		);
+
+		wp_delete_post( $real_id, true );
+		wp_delete_post( $test_id, true );
+	}
+
 	public function test_interpersonal_data_exporter() {
 
 		$post_id = Utility::create_legacy_feedback(
@@ -1036,6 +1159,93 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
 		Contact_Form_Plugin::recalculate_unread_count();
 		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	/**
+	 * Reset the menu-badges registry before each unread_count test so entries
+	 * left by other test classes in the same PHPUnit process don't leak in.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		Notification_Counts::reset();
+	}
+
+	/**
+	 * Clean up the menu-badges registry and options after each unread_count test.
+	 */
+	public function tearDown(): void {
+		Notification_Counts::reset();
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+		delete_option( 'jetpack_feedback_unread_count' );
+		wp_set_current_user( 0 );
+		parent::tearDown();
+	}
+
+	/**
+	 * Helper: create an admin user (with edit_pages capability) and set as current user.
+	 *
+	 * @return int The user ID.
+	 */
+	private function create_admin_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'forms_test_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'editor', // editors have edit_pages capability.
+			)
+		);
+		wp_set_current_user( $user_id );
+		return $user_id;
+	}
+
+	/**
+	 * Unread_count() should register the unread count with the central
+	 * menu-badges registry, under the Forms wp-build dashboard slug (the
+	 * default, since jetpack_forms_alpha defaults to true).
+	 */
+	public function test_unread_count_registers_with_menu_badges() {
+		$this->create_admin_user();
+		update_option( 'jetpack_feedback_unread_count', 3 );
+
+		Contact_Form_Plugin::init()->unread_count();
+
+		$this->assertSame( 3, Notification_Counts::get_for_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG ) );
+	}
+
+	/**
+	 * Unread_count() should register against the legacy ADMIN_SLUG instead when
+	 * the jetpack_forms_alpha filter is disabled.
+	 */
+	public function test_unread_count_registers_legacy_slug_when_alpha_disabled() {
+		$this->create_admin_user();
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+		update_option( 'jetpack_feedback_unread_count', 4 );
+
+		Contact_Form_Plugin::init()->unread_count();
+
+		$this->assertSame( 4, Notification_Counts::get_for_menu( Dashboard::ADMIN_SLUG ) );
+		$this->assertSame( 0, Notification_Counts::get_for_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG ) );
+	}
+
+	/**
+	 * When the current user lacks edit_pages capability, unread_count() should
+	 * not register anything with the menu-badges registry.
+	 */
+	public function test_unread_count_skips_for_user_without_edit_pages() {
+		// Create a subscriber (no edit_pages capability).
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'forms_test_subscriber_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+		update_option( 'jetpack_feedback_unread_count', 5 );
+
+		Contact_Form_Plugin::init()->unread_count();
+
+		$this->assertSame( 0, Notification_Counts::get_for_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG ) );
 	}
 
 	/**
@@ -1341,5 +1551,535 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $regular_post_id );
 
 		$this->assertTrue( $comments_open, 'Comment filter should not affect non-feedback posts' );
+	}
+
+	/**
+	 * Test track_feedback_status_change sets spam meta when transitioning to spam
+	 */
+	public function test_track_feedback_status_change_sets_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertNotEmpty( $spam_meta, 'Spam meta should be set when transitioning to spam' );
+	}
+
+	/**
+	 * Test track_feedback_status_change removes spam meta when transitioning from spam
+	 */
+	public function test_track_feedback_status_change_removes_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'spam',
+			)
+		);
+
+		// Set spam meta
+		update_post_meta( $feedback_id, '_spam_status_changed_gmt', current_time( 'mysql', true ) );
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from spam to publish
+		$plugin->track_feedback_status_change( 'publish', 'spam', $post );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should be removed when transitioning from spam' );
+	}
+	/**
+	 * Helper that calls shutdown actions to simulate end of request.
+	 */
+	private function mock_shutdown_recalculate() {
+		if ( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ) ) {
+			Contact_Form_Plugin::recalculate_unread_count();
+		}
+		remove_all_actions( 'shutdown' );
+		remove_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes to publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_publish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes from publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_unpublish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to draft
+		$plugin->track_feedback_status_change( 'draft', 'publish', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change does not recalculate when comment_status is read
+	 */
+	public function test_track_feedback_status_change_skips_recount_when_read() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_READ,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should NOT be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		$this->assertEquals( 999, $count, 'Unread count should not be recalculated when comment_status is read' );
+	}
+
+	/**
+	 * Test track_feedback_status_change ignores non-feedback posts
+	 */
+	public function test_track_feedback_status_change_ignores_non_feedback() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should NOT be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Spam meta should NOT be set for non-feedback posts
+		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should not be set for non-feedback posts' );
+	}
+
+	/**
+	 * Data provider for edge cache purge tests.
+	 */
+	public static function edge_cache_purge_cases() {
+		return array(
+			'published'               => array( 'publish', 'draft', Contact_Form::POST_TYPE, true ),
+			'updated while published' => array( 'publish', 'publish', Contact_Form::POST_TYPE, true ),
+			'unpublished'             => array( 'draft', 'publish', Contact_Form::POST_TYPE, true ),
+			'non-publish transition'  => array( 'pending', 'draft', Contact_Form::POST_TYPE, false ),
+			'other post type'         => array( 'publish', 'draft', 'post', false ),
+		);
+	}
+
+	/**
+	 * Test edge cache purge behavior on form status changes.
+	 *
+	 * @dataProvider edge_cache_purge_cases
+	 */
+	#[DataProvider( 'edge_cache_purge_cases' )]
+	public function test_edge_cache_purge_on_form_status_change( $new_status, $old_status, $post_type, $expected ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => $old_status,
+			)
+		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( $new_status, $old_status, $post );
+
+		$this->assertSame( $expected, $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
+
+	/**
+	 * Test edge cache purge handles null post gracefully.
+	 */
+	public function test_no_edge_cache_purge_for_null_post() {
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( 'publish', 'draft', null );
+
+		$this->assertFalse( $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog_lang.
+	 */
+	public function test_prepare_for_akismet_includes_blog_lang() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$this->assertArrayHasKey( 'blog_lang', $result, 'prepare_for_akismet should include blog_lang' );
+		$this->assertEquals( get_bloginfo( 'language' ), $result['blog_lang'], 'blog_lang should match site language' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog and other standard fields.
+	 */
+	public function test_prepare_for_akismet_includes_standard_fields() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$expected_keys = array(
+			'comment_type',
+			'user_ip',
+			'user_agent',
+			'referrer',
+			'blog',
+			'blog_lang',
+			'comment_date_gmt',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $result, "prepare_for_akismet should include '$key'" );
+		}
+
+		$this->assertEquals( 'contact_form', $result['comment_type'] );
+		$this->assertEquals( get_option( 'home' ), $result['blog'] );
+	}
+
+	/**
+	 * Test that the block editor is disabled for the feedback post type.
+	 */
+	public function test_use_block_editor_for_post_type_feedback() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( true, 'feedback' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for the jetpack_form post type.
+	 */
+	public function test_use_block_editor_for_post_type_jetpack_form() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( false, Contact_Form::POST_TYPE ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for other post types.
+	 */
+	public function test_use_block_editor_for_post_type_other() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( true, 'post' ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( false, 'page' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for individual jetpack_form posts.
+	 */
+	public function test_use_block_editor_for_post_jetpack_form() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => Contact_Form::POST_TYPE,
+				'post_title'  => 'Test Form',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( false, $post ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for non-form posts.
+	 */
+	public function test_use_block_editor_for_post_other() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Regular Post',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( true, $post ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post( false, $post ) );
+	}
+
+	/**
+	 * Creates a user and grants the `export` cap via the `user_has_cap`
+	 * filter so tests don't depend on role/option state (which WorDBless
+	 * can clear between tests).
+	 *
+	 * Returns a cleanup closure that removes the cap filter.
+	 *
+	 * @param string $login The user login.
+	 * @return array{0:int,1:callable} [ user_id, cleanup callback ]
+	 */
+	private static function create_export_capable_user( $login ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$grant   = function ( $allcaps ) {
+			$allcaps['export'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+		$cleanup = function () use ( $grant ) {
+			remove_filter( 'user_has_cap', $grant );
+		};
+		return array( $user_id, $cleanup );
+	}
+
+	/**
+	 * Regression test: the response export must apply the Source filter so the
+	 * downloaded CSV matches the filtered inbox view — the export handler must
+	 * read $_POST[source] and apply the same JOIN/WHERE the list view uses.
+	 */
+	public function test_export_applies_source_filter_when_source_post_param_is_set() {
+		list( $admin_id, $cleanup_cap ) = self::create_export_capable_user( 'export_source_admin' );
+		wp_set_current_user( $admin_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$nonce                                 = wp_create_nonce( 'feedback_export' );
+		$_POST['feedback_export_nonce_csv']    = $nonce;
+		$_REQUEST['feedback_export_nonce_csv'] = $nonce;
+		$_POST['source']                       = '42';
+
+		try {
+			$plugin->get_feedback_entries_from_post();
+
+			$this->assertNotNull( $captured_query, 'Export query should include the source filter SQL when $_POST[source] is set' );
+			$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Export query should reference the source meta key' );
+			$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Export query should filter by source meta value' );
+			$this->assertStringContainsString( 'post_parent', $captured_query, 'Export query should include the post_parent fallback' );
+		} finally {
+			remove_all_filters( 'wordbless_wpdb_query_results' );
+			$cleanup_cap();
+			unset(
+				$_POST['feedback_export_nonce_csv'],
+				$_REQUEST['feedback_export_nonce_csv'],
+				$_POST['source']
+			);
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Regression test: without `$_POST['source']`, the export must not inject
+	 * source-filter SQL (so unfiltered exports stay unfiltered).
+	 */
+	public function test_export_without_source_post_param_does_not_include_source_sql() {
+		list( $admin_id, $cleanup_cap ) = self::create_export_capable_user( 'export_no_source_admin' );
+		wp_set_current_user( $admin_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$found_source_sql = false;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$nonce                                 = wp_create_nonce( 'feedback_export' );
+		$_POST['feedback_export_nonce_csv']    = $nonce;
+		$_REQUEST['feedback_export_nonce_csv'] = $nonce;
+
+		try {
+			$plugin->get_feedback_entries_from_post();
+
+			$this->assertFalse( $found_source_sql, 'Export query should not include source filter SQL when $_POST[source] is absent' );
+		} finally {
+			remove_all_filters( 'wordbless_wpdb_query_results' );
+			$cleanup_cap();
+			unset(
+				$_POST['feedback_export_nonce_csv'],
+				$_REQUEST['feedback_export_nonce_csv']
+			);
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test that ::block_attributes_to_shortcode_attributes honors the label's
+	 * blockVisibility support: full-hide (blockVisibility === false) sets
+	 * labelhiddenbyblockvisibility, and per-viewport hide adds the matching
+	 * wp-block-hidden-{mobile,tablet,desktop} classes to the label. See FORMS-694.
+	 *
+	 * @dataProvider data_provider_label_block_visibility
+	 *
+	 * @param mixed $block_visibility   The label's metadata.blockVisibility value (null to omit).
+	 * @param bool  $expected_full_hide Whether labelhiddenbyblockvisibility should be truthy.
+	 * @param array $expected_hidden    The viewports expected to add a wp-block-hidden-* class.
+	 */
+	#[DataProvider( 'data_provider_label_block_visibility' )]
+	public function test_block_attributes_to_shortcode_attributes_label_block_visibility( $block_visibility, $expected_full_hide, $expected_hidden ) {
+		$label_attrs = array( 'label' => 'Name' );
+		if ( null !== $block_visibility ) {
+			$label_attrs['metadata'] = array( 'blockVisibility' => $block_visibility );
+		}
+		$block = array(
+			'blockName'   => 'jetpack/field-name',
+			'attrs'       => array( 'required' => false ),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => $label_attrs,
+				),
+			),
+		);
+		$atts  = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), 'text', new WP_Block( $block ) );
+
+		$this->assertSame( $expected_full_hide, (bool) $atts['labelhiddenbyblockvisibility'] );
+
+		foreach ( array( 'mobile', 'tablet', 'desktop' ) as $viewport ) {
+			$class = 'wp-block-hidden-' . $viewport;
+			if ( in_array( $viewport, $expected_hidden, true ) ) {
+				$this->assertStringContainsString( $class, $atts['labelclasses'] );
+			} else {
+				$this->assertStringNotContainsString( $class, $atts['labelclasses'] );
+			}
+		}
+	}
+
+	/**
+	 * Data provider for test_block_attributes_to_shortcode_attributes_label_block_visibility.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_label_block_visibility() {
+		return array(
+			'no visibility set'       => array( null, false, array() ),
+			'full hide (false)'       => array( false, true, array() ),
+			'hide on mobile'          => array( array( 'viewport' => array( 'mobile' => false ) ), false, array( 'mobile' ) ),
+			'hide on mobile + tablet' => array(
+				array(
+					'viewport' => array(
+						'mobile' => false,
+						'tablet' => false,
+					),
+				),
+				false,
+				array( 'mobile', 'tablet' ),
+			),
+			'viewport all visible'    => array(
+				array(
+					'viewport' => array(
+						'mobile' => true,
+						'tablet' => true,
+					),
+				),
+				false,
+				array(),
+			),
+		);
 	}
 }

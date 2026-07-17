@@ -1,17 +1,17 @@
 /**
- * Measure Largest Contentful Paint (LCP) for WordPress wp-admin dashboard.
- * Logs in, refreshes dashboard, and captures LCP via PerformanceObserver.
+ * Measure page performance for a WordPress wp-admin scenario: LCP (via PerformanceObserver),
+ * TTFB, FCP, and the summed runtime bundle size (decodedBytesKB). Logs in, then reloads either
+ * the wp-admin Dashboard (default) or a scenario's targeted admin page, and captures the metrics.
  */
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
+import { isDirectInvocation, pairedCommitTimestampMs } from './post-to-codevitals.js';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 import { median as calcMedian, mean as calcMean, stdDev as calcStdDev } from './stats.js';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 // Calibration file path
 const CALIBRATION_FILE = path.join( __dirname, '..', 'calibration.json' );
@@ -34,11 +34,46 @@ function loadCalibration() {
 // Load calibration at module init
 const calibration = loadCalibration();
 
-/** Measure LCP for the wp-admin dashboard. */
-async function measureLCP( url, username, password, iterations = 5 ) {
+/**
+ * Measure LCP (and the other summary fields) for a scenario's page.
+ *
+ * Defaults to the wp-admin Dashboard flow (log in, reload, measure). When the scenario
+ * targets a specific admin page, `scenario.path` + `scenario.waitForSelector` steer it to
+ * that page after login and wait for the page's own ready signal (SPA hydration included)
+ * before measuring. Absent path/selector, the Dashboard flow is unchanged.
+ *
+ * @param {string} url        - Base site URL (no trailing path).
+ * @param {string} username   - wp-admin username.
+ * @param {string} password   - wp-admin password.
+ * @param {number} iterations - Number of measurement iterations.
+ * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
+ *                            `expectUrlIncludes`, `loadState`, and `minResourceCount`.
+ * @return {Promise<object>} { summary, results, url }.
+ */
+async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
 	const results = [];
 
-	console.log( `Measuring LCP for ${ url } (${ iterations } iterations)...` );
+	// Optional page navigation: when a scenario targets a specific admin page (not the wp-admin
+	// Dashboard default), go there after login and wait for its own ready selector before
+	// measuring. Absent path/selector, targetPath stays null and the Dashboard flow is unchanged.
+	const targetPath = scenario.path || null;
+	const pageReadySelector = scenario.waitForSelector || null;
+	// A substring the final URL MUST contain (after any server redirect / client route). Guards
+	// against measuring the wrong page — e.g. a bare Forms URL redirecting to /forms instead of
+	// the responses inbox — which would populate this scenario's permanent keys from off-target.
+	const expectUrlIncludes = scenario.expectUrlIncludes || null;
+	// The Playwright load state each navigation waits for. Defaults to 'networkidle' (the settled
+	// signal every scenario used originally). A scenario whose page keeps a request perpetually
+	// pending — e.g. the Forms dashboard's canUser OPTIONS to /wp/v2/settings stalls in the
+	// headless-Chromium fixture — sets 'load' so a single un-settling request cannot blackhole the
+	// whole scenario; readiness is then carried by the visible-selector + hydration + resource-count
+	// settle below, not by network quiescence. See scenarios.js (formsResponses) and FORMS-729.
+	const navWaitUntil = scenario.loadState || 'networkidle';
+	// The one predicate the readiness plumbing branches on, bound once so the ledger creation,
+	// the warm-up settle and the measured settle can never disagree about which path they are on.
+	const useResourceSettle = navWaitUntil !== 'networkidle';
+
+	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
 
 	for ( let i = 0; i < iterations; i++ ) {
 		const browser = await chromium.launch( {
@@ -55,9 +90,8 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 		const page = await context.newPage();
 
 		// Create CDP session for CPU throttling
-		let cdpSession = null;
 		if ( calibration?.cpuRate ) {
-			cdpSession = await context.newCDPSession( page );
+			const cdpSession = await context.newCDPSession( page );
 			await cdpSession.send( 'Emulation.setCPUThrottlingRate', {
 				rate: calibration.cpuRate,
 			} );
@@ -67,8 +101,51 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 			}
 		}
 
+		// In-flight request ledger for the non-networkidle path: counts every request from issue
+		// until finished/failed, excluding the known-stuck settings probe, so the resource-count
+		// settle can refuse to report quiet while legitimate work is still in flight (the
+		// completed-entries count alone cannot see an in-flight request). null on the networkidle
+		// path, which needs no ledger — Playwright's networkidle already tracks in-flight requests.
+		const pendingRequests = useResourceSettle
+			? trackPendingRequests( page, isStuckSettingsProbe )
+			: null;
+
 		try {
 			console.log( `  Iteration ${ i + 1 }/${ iterations }...` );
+
+			// Step 0: Set up LCP capture and the enlarged Resource Timing buffer via addInitScript.
+			// This injects code that runs BEFORE any page script on EVERY navigation from here on
+			// (login, warm-up and the measured reload — each document gets a fresh copy, so the
+			// reload's __lcpEntries never contain earlier pages' entries). Installed before the
+			// FIRST navigation on purpose: the warm-up resource-count settle reads the timing
+			// buffer, and the browser's 250-entry default would silently cap (and false-settle)
+			// the count once the page's real load grows past it.
+			/* eslint-disable no-undef -- This runs in browser context via Playwright */
+			await context.addInitScript( () => {
+				// This runs in the browser context before page load
+
+				// Raise the Resource Timing buffer well above the default 250 entries. This metric
+				// exists to watch a GROWING count of @wordpress/* editor module files, so the
+				// measured quantity and the default cap would collide exactly as the tracked
+				// regression worsens — past 250 the tail would drop and the decoded-bytes sum would
+				// silently under-count. (~91 resources today; this is headroom, not a live fix.)
+				performance.setResourceTimingBufferSize( 10000 );
+
+				window.__lcpEntries = [];
+				window.__lcpObserver = new PerformanceObserver( list => {
+					const entries = list.getEntries();
+					for ( const entry of entries ) {
+						window.__lcpEntries.push( {
+							startTime: entry.startTime,
+							element: entry.element?.tagName || 'unknown',
+							size: entry.size,
+							url: entry.url,
+						} );
+					}
+				} );
+				window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
+			} );
+			/* eslint-enable no-undef */
 
 			// Step 1: Log in to WordPress (not measured)
 			await page.goto( `${ url }/wp-login.php`, {
@@ -87,43 +164,78 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 				page.click( '#wp-submit', { timeout: 60000 } ),
 			] );
 
-			// Verify we're on the dashboard
+			// Confirm login landed in wp-admin (the Dashboard is the post-login screen).
 			await page.waitForSelector( '#dashboard-widgets, #wpbody', { timeout: 30000 } );
 
-			// Step 2: Set up LCP capture using addInitScript
-			// This injects code that runs BEFORE any page script on every navigation
-			/* eslint-disable no-undef -- This runs in browser context via Playwright */
-			await context.addInitScript( () => {
-				// This runs in the browser context before page load
-				window.__lcpEntries = [];
-				window.__lcpObserver = new PerformanceObserver( list => {
-					const entries = list.getEntries();
-					for ( const entry of entries ) {
-						window.__lcpEntries.push( {
-							startTime: entry.startTime,
-							element: entry.element?.tagName || 'unknown',
-							size: entry.size,
-							url: entry.url,
-						} );
-					}
+			// Step 1b: For a page-targeted scenario, navigate to that page and wait for its own
+			// ready selector before measuring. The Dashboard scenario has no path and skips this.
+			if ( targetPath ) {
+				await page.goto( `${ url }${ targetPath }`, {
+					waitUntil: navWaitUntil,
+					timeout: 60000,
 				} );
-				window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
-			} );
-			/* eslint-enable no-undef */
+				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
+				if ( useResourceSettle ) {
+					// Warm-up parity with the networkidle scenarios: on the default path this goto
+					// waits for network quiescence, so every cacheable resource is warm before the
+					// measured reload. With `load` the goto returns while route/post-mount resources
+					// may still be in flight, and reloading then would abort them — measuring a
+					// partially cold cache. Settle on the resource count here so the reload below
+					// measures the same warmed page networkidle used to guarantee.
+					await settleOrThrow( page, pendingRequests, 'warm-up navigation' );
+				}
+			}
 
-			// Step 3: Refresh the dashboard for a clean LCP measurement
-			await page.reload( { waitUntil: 'networkidle', timeout: 60000 } );
+			// Step 2: Reload for a clean measurement of the current page — the Dashboard, or the
+			// page navigated to above.
+			await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
 
-			// Wait for dashboard content to be visible
-			await page.waitForSelector( '#dashboard-widgets, #wpbody-content', { timeout: 30000 } );
+			// Wait for the measured page's content to be present after reload.
+			if ( pageReadySelector ) {
+				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
+				// A wp-build SPA mounts its root element before React fills it, so "exists" isn't
+				// "rendered". Wait for the root to actually hydrate (gain children) so LCP and the
+				// resource payload reflect the rendered page, not an empty shell.
+				/* eslint-disable no-undef -- This runs in browser context via Playwright */
+				await page.waitForFunction(
+					sel => {
+						const el = document.querySelector( sel );
+						return el && el.childElementCount > 0;
+					},
+					pageReadySelector,
+					{ timeout: 30000 }
+				);
+				/* eslint-enable no-undef */
+			} else {
+				// Dashboard: wait for content to be visible (unchanged).
+				await page.waitForSelector( '#dashboard-widgets, #wpbody-content', { timeout: 30000 } );
+			}
 
-			// Wait for network to settle and LCP to finalize
-			// LCP stops updating after user input or visibility change
-			// Using networkidle is more reliable than a fixed timeout on slow systems
-			await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+			// Wait for the resource payload to finish loading and LCP to finalize (LCP stops
+			// updating after user input or visibility change).
+			if ( ! useResourceSettle ) {
+				// Default path (Dashboard, My Jetpack): network quiescence is a reliable
+				// "everything loaded" signal and more robust than a fixed timeout on slow systems.
+				await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+			} else {
+				// Resilient path (scenarios with a perpetually-pending request, e.g. Forms — see
+				// navWaitUntil): `networkidle` never fires, so settle on the completed-resource count
+				// going quiet AND no legitimate request in flight (the pendingRequests ledger, which
+				// excludes only the known-stuck probe) — networkidle's own guarantee minus the one
+				// request that breaks it. A never-delivered excluded request can't stall this, while
+				// genuine late resources still hold the wait open via the ledger or the count. If
+				// either signal is still active when the cap expires, fail the iteration (fail
+				// closed) rather than capture a still-loading page's bundle size.
+				await settleOrThrow( page, pendingRequests, 'measured reload' );
+			}
 
 			// Additional short wait for any final rendering after network settles
 			await page.waitForTimeout( 500 );
+
+			// Refuse to measure the wrong page. Asserted here (after every redirect and the client
+			// route settle) so a mis-targeted or redirected page fails the iteration instead of
+			// posting off-target bytes to this scenario's permanent, no-rollback CodeVitals keys.
+			assertExpectedUrl( page.url(), expectUrlIncludes );
 
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */
@@ -180,32 +292,28 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 					domInteractive: navigation ? navigation.domInteractive : null,
 					ttfb: navigation ? navigation.responseStart : null,
 
-					// Size metrics
+					// Size metrics for the NAVIGATION DOCUMENT ONLY (the HTML response). This
+					// decodedBodySize is NOT the bundle-size metric — that one (decodedBytesKB) is
+					// the sum across every resource, computed in the resourceStats block below.
 					transferSize: navigation ? navigation.transferSize : null,
 					encodedBodySize: navigation ? navigation.encodedBodySize : null,
 					decodedBodySize: navigation ? navigation.decodedBodySize : null,
 				};
 			} );
 
-			// Get resource stats
-			const resourceStats = await page.evaluate( () => {
-				const resources = performance.getEntriesByType( 'resource' );
-				const byType = {};
-				let totalTransferSize = 0;
-
-				resources.forEach( r => {
-					const type = r.initiatorType || 'other';
-					byType[ type ] = ( byType[ type ] || 0 ) + 1;
-					totalTransferSize += r.transferSize || 0;
-				} );
-
-				return {
-					totalRequests: resources.length,
-					totalTransferSizeKB: Math.round( totalTransferSize / 1024 ),
-					byType,
-				};
-			} );
+			// Gather the raw per-resource timing entries in the browser, then sum them in Node via
+			// summarizeResources() so the bundle-size arithmetic (the load-bearing decodedBodySize
+			// fold) is a pure, unit-tested function instead of untested inline browser code. Only the
+			// three fields the summary reads cross the CDP boundary.
+			const rawResources = await page.evaluate( () =>
+				performance.getEntriesByType( 'resource' ).map( r => ( {
+					initiatorType: r.initiatorType,
+					transferSize: r.transferSize,
+					decodedBodySize: r.decodedBodySize,
+				} ) )
+			);
 			/* eslint-enable no-undef */
+			const resourceStats = summarizeResources( rawResources );
 
 			// Validate we got an LCP value
 			if ( metrics.lcp === null || metrics.lcp === undefined ) {
@@ -214,10 +322,16 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 				);
 			}
 
+			// Refuse a partial capture before its bundle size can reach a permanent key.
+			assertCaptureComplete( resourceStats, scenario );
+
 			results.push( {
 				iteration: i + 1,
 				lcp: metrics.lcp,
-				metrics,
+				// Fold the summed decoded payload into the per-iteration metrics block (as KB) so
+				// readIterationField/buildSummary aggregate it alongside lcp/ttfb/fcp. It lives on
+				// resourceStats too (the `resources` block below) for the saved results file.
+				metrics: { ...metrics, decodedBytesKB: resourceStats.totalDecodedBodySizeKB },
 				resources: resourceStats,
 				timestamp: new Date().toISOString(),
 			} );
@@ -235,6 +349,7 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 				timestamp: new Date().toISOString(),
 			} );
 		} finally {
+			pendingRequests?.dispose();
 			await browser.close();
 		}
 
@@ -244,7 +359,155 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 		}
 	}
 
-	// Calculate statistics
+	return finalizeMeasurement( scenario, results, iterations, url );
+}
+
+/**
+ * Metric fields aggregated into the summary. LCP stays first: it is the load-bearing
+ * value (unchanged), and it also populates the flat top-level summary for backward-compat.
+ * TTFB and FCP are already captured per iteration (see the page.evaluate block above);
+ * this is where they finally get aggregated into the summary.
+ *
+ * `decodedBytesKB` is the summed per-resource decodedBodySize (folded into the per-iteration
+ * metrics block above): the page's runtime payload in KB. Unlike the timing fields it is
+ * deterministic — throttle- and noise-independent — so the median across iterations is exact.
+ * It is aggregated for every scenario but posted only by those that list it in `metrics[]`;
+ * scenarios that don't (the dashboard) keep it as diagnostic data in `results.json` and never
+ * send it to CodeVitals.
+ */
+const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp', 'decodedBytesKB' ];
+
+/**
+ * Read one metric field from a single iteration's result.
+ *
+ * LCP lives at the top level (r.lcp) exactly as before, so its value source is byte-for-byte
+ * unchanged; the other Core Web Vitals come from the captured per-iteration `metrics` block.
+ *
+ * @param {object} result - One entry from the measureLCP results array.
+ * @param {string} field  - Metric field name (e.g. 'lcp', 'ttfb', 'fcp').
+ * @return {number|null|undefined} The raw value, or null/undefined when the browser had none.
+ */
+function readIterationField( result, field ) {
+	if ( field === 'lcp' ) {
+		return result.lcp;
+	}
+	return result.metrics ? result.metrics[ field ] : null;
+}
+
+/**
+ * Summary stats for one field across the valid iterations, rounded to whole ms to match
+ * the original LCP-only summary. Non-finite samples (a browser that reported null for a
+ * field on some iteration) are dropped before aggregating. A field whose finite samples do
+ * not cover a MAJORITY of the valid iterations returns null so the caller omits it and the
+ * poster fails closed on the missing field rather than posting a fabricated 0 — or, worse, a
+ * thin value (e.g. a field captured on 1 of 5 runs) as a full "median" with stdDev 0, a
+ * low-confidence point indistinguishable from a real full-sample median in the append-only store.
+ *
+ * @param {Array<number|null|undefined>} values - Raw per-iteration values for the field.
+ * @return {{median:number,mean:number,min:number,max:number,stdDev:number}|null} Rounded stats, or null.
+ */
+function summarizeField( values ) {
+	const finite = values.filter( v => typeof v === 'number' && Number.isFinite( v ) );
+	// Require a STRICT majority of the valid iterations to have produced a finite sample:
+	// finite*2 > n. This keeps single-iteration runs working (1 of 1) while rejecting a thin
+	// field that would otherwise post a lone/minority sample as a trend point — including the
+	// even-count edge (1 of 2, 2 of 4) that a ceil(n/2) floor would let slip through. n=0 also
+	// falls through to null (0 > 0 is false). LCP is unaffected in practice: it is finite on
+	// every valid iteration by construction (validResults already filtered out null LCP).
+	if ( finite.length * 2 <= values.length ) {
+		return null;
+	}
+	return {
+		median: Math.round( calcMedian( finite ) ),
+		mean: Math.round( calcMean( finite ) ),
+		min: Math.round( Math.min( ...finite ) ),
+		max: Math.round( Math.max( ...finite ) ),
+		stdDev: Math.round( calcStdDev( finite ) ),
+	};
+}
+
+/**
+ * Build the measurement summary from the per-iteration results.
+ *
+ * Produces a nested `summary.<field>` block ({ median, mean, min, max, stdDev }) for every
+ * field with finite samples, AND mirrors the LCP block's stats flat on the summary root for
+ * backward-compat: the poster's legacy `metricKey` path and older dashboards read
+ * `summary.median` directly, and it must keep returning the same LCP number as before.
+ *
+ * @param {Array}    validResults - Iteration results already filtered to successful runs.
+ * @param {number}   iterations   - Total iterations attempted (for the summary counters).
+ * @param {string[]} [fields]     - Metric fields to aggregate (defaults to SUMMARY_FIELDS).
+ * @return {object} The summary object.
+ */
+function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
+	const perField = {};
+	for ( const field of fields ) {
+		const stats = summarizeField( validResults.map( r => readIterationField( r, field ) ) );
+		if ( stats ) {
+			perField[ field ] = stats;
+		}
+	}
+	return {
+		// Flat top-level LCP stats, mirrored for backward-compat (legacy metricKey path +
+		// older readers of summary.median). Nothing above enforces a FINITE LCP (the
+		// validResults filter only drops null/undefined), so in the degenerate case where
+		// every LCP sample is non-finite, perField.lcp is absent: the flat mirror is
+		// simply omitted and findIncompleteSummaryFields() classifies the scenario as a
+		// measurement failure (the poster's undefined-median rejection is the backstop
+		// for stale artifacts).
+		...( perField.lcp ?? {} ),
+		successfulIterations: validResults.length,
+		totalIterations: iterations,
+		// Per-field nested blocks for the multi-metric poster path (reads summary.<field>.median).
+		...perField,
+	};
+}
+
+/**
+ * Names of the posted fields a scenario's summary failed to aggregate.
+ *
+ * A summary can be truthy yet incomplete: summarizeField() returns null for a field whose
+ * finite samples miss a strict majority of the valid iterations (the flaky-page case the
+ * `optional` flag exists for), so buildSummary() omits that field's block entirely. The
+ * poster reads summary.<field>.median for every scenario.metrics[] entry; an omitted block
+ * reaches it as undefined, fails the sanity-range check, and — because the sanity gate is
+ * deliberately atomic — blanks the ENTIRE post, required survivors included. An incomplete
+ * summary is a MEASUREMENT failure, not a data-integrity event, so finalizeMeasurement()
+ * below throws on it and main()'s catch records a scenario error, where the `optional`
+ * flag can isolate it and the skipped-scenario warnings name the culprit. Scenarios
+ * without a metrics[] array (legacy
+ * metricKey/metricPrefix shapes) post from the flat LCP mirror, covered by the 'lcp'
+ * fallback.
+ *
+ * @param {object} scenario - Scenario definition; its metrics[] names the posted fields.
+ * @param {object} summary  - Summary produced by buildSummary().
+ * @return {string[]} Posted fields with no finite median (empty when the summary is complete).
+ */
+function findIncompleteSummaryFields( scenario, summary ) {
+	const fields = Array.isArray( scenario.metrics )
+		? scenario.metrics.map( metric => metric.field )
+		: [ 'lcp' ];
+	return fields.filter( field => ! Number.isFinite( summary?.[ field ]?.median ) );
+}
+
+/**
+ * Turn the raw per-iteration results into the scenario's final measurement, or throw.
+ *
+ * The tail of measureLCP(), extracted pure so its two refusal paths are unit-testable
+ * without a browser: (1) no valid iterations at all; (2) an INCOMPLETE summary — a posted
+ * field dropped by summarizeField's majority rule. Both must throw INSIDE the measure
+ * step, so main()'s catch records a scenario error the optional/required policy can
+ * classify. An incomplete summary let through would green this step with no warning
+ * naming the scenario, then trip the poster's atomic sanity gate on the undefined
+ * median — one flaky optional field blanking the whole post, required survivors included.
+ *
+ * @param {object} scenario   - Scenario definition; its metrics[] names the posted fields.
+ * @param {Array}  results    - Raw per-iteration results (successes and error records).
+ * @param {number} iterations - Total iterations attempted (for the summary counters).
+ * @param {string} url        - The measured URL, echoed into the saved measurement.
+ * @return {object} The measurement: `{ summary, results, url }`.
+ */
+function finalizeMeasurement( scenario, results, iterations, url ) {
 	const validResults = results.filter( r => ! r.error && r.lcp != null );
 
 	if ( validResults.length === 0 ) {
@@ -253,28 +516,351 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 		);
 	}
 
-	const lcpValues = validResults.map( r => r.lcp );
+	const summary = buildSummary( validResults, iterations );
+	const incompleteFields = findIncompleteSummaryFields( scenario, summary );
+	if ( incompleteFields.length > 0 ) {
+		throw new Error(
+			`summary is missing posted field(s): ${ incompleteFields.join( ', ' ) } — ` +
+				`too few finite samples across the ${ validResults.length } valid iteration(s)`
+		);
+	}
 
-	// Calculate statistics using shared utilities
-	const median = calcMedian( lcpValues );
-	const mean = calcMean( lcpValues );
-	const stdDev = calcStdDev( lcpValues );
-	const min = Math.min( ...lcpValues );
-	const max = Math.max( ...lcpValues );
+	return { summary, results, url };
+}
+
+/**
+ * Sum a page's resource-timing entries into the bundle-size stats.
+ *
+ * This is the load-bearing arithmetic behind the decodedBytesKB metric, lifted out of the browser
+ * capture so it is unit-testable in Node. It sums the DECODED (uncompressed) size of every resource,
+ * NOT transferSize: the measured load is a warm-cache page.reload(), where cached resources report
+ * transferSize:0, and the Docker WordPress serves uncompressed, so transferSize would neither survive
+ * caching nor match real gzipped bytes. decodedBodySize is cache- and compression-independent, so it
+ * stays stable however assets are served — the right denominator for the runtime-payload
+ * (downloaded-but-unexecuted `@wordpress/editor`) regression this metric tracks. A missing/undefined
+ * size counts as 0 and a missing initiatorType buckets as 'other', matching the browser's behavior.
+ *
+ * @param {Array<object>} resources - Raw resource-timing entries; each may carry `initiatorType`,
+ *                                  `transferSize`, and `decodedBodySize` (all optional — the only three fields the summary reads).
+ * @return {object} Aggregated stats: `totalRequests`, `totalTransferSizeKB`, `totalDecodedBodySizeKB`,
+ * and `byType` (request count per initiatorType). decodedBytesKB is folded from totalDecodedBodySizeKB.
+ */
+function summarizeResources( resources ) {
+	const byType = {};
+	let totalTransferSize = 0;
+	let totalDecodedBodySize = 0;
+
+	resources.forEach( r => {
+		const type = r.initiatorType || 'other';
+		byType[ type ] = ( byType[ type ] || 0 ) + 1;
+		totalTransferSize += r.transferSize || 0;
+		totalDecodedBodySize += r.decodedBodySize || 0;
+	} );
 
 	return {
-		summary: {
-			median: Math.round( median ),
-			mean: Math.round( mean ),
-			min: Math.round( min ),
-			max: Math.round( max ),
-			stdDev: Math.round( stdDev ),
-			successfulIterations: validResults.length,
-			totalIterations: iterations,
-		},
-		results,
-		url,
+		totalRequests: resources.length,
+		totalTransferSizeKB: Math.round( totalTransferSize / 1024 ),
+		totalDecodedBodySizeKB: Math.round( totalDecodedBodySize / 1024 ),
+		byType,
 	};
+}
+
+/**
+ * Settle by watching the completed-resource count go quiet — a `networkidle` substitute that a
+ * perpetually-pending request cannot stall.
+ *
+ * `page.waitForLoadState('networkidle')` fires only when there are ~no in-flight requests for
+ * 500ms; a single request that never delivers a response (the Forms dashboard's canUser OPTIONS to
+ * /wp/v2/settings does exactly this in the headless-Chromium fixture) keeps it in-flight forever, so
+ * networkidle never fires and the whole measurement times out. This instead polls
+ * `performance.getEntriesByType('resource').length`, which only counts *completed* requests: a
+ * never-delivered request never appears, so it can't hold the count from settling, while genuine
+ * late resources (lazy editor modules) still bump the count and extend the wait. Resolves once the
+ * count is unchanged across `stableChecks` consecutive polls, or when `maxWaitMs` elapses (whichever
+ * first), so a page that keeps streaming resources still returns rather than hanging.
+ *
+ * On its own the completed count cannot see an IN-FLIGHT request (a Resource Timing entry appears
+ * only at responseEnd), so a slow legitimate response could look like quiet. Pass `pendingCount`
+ * (see trackPendingRequests) and the settle also requires zero relevant in-flight requests on
+ * every stable poll — together that is `networkidle`'s own guarantee (quiet + nothing in flight)
+ * minus the excluded stuck request. What remains possible in BOTH designs is a gap before the
+ * page issues its next wave (nothing in flight, count flat); that pre-existing networkidle window
+ * is why `minResourceCount` + SANITY_RANGES stay as backstops. This settle detects quiescence —
+ * it does not by itself prove completeness.
+ *
+ * The result says WHICH of the two happened: `settled: true` means genuine stability was observed;
+ * `settled: false` means the cap expired with the count still changing or a request still in
+ * flight — an incomplete capture the caller must treat as a failed iteration (see
+ * assertResourceCountSettled), never measure.
+ *
+ * @param {import('playwright').Page} page                   - The page being measured.
+ * @param {object}                    [opts]                 - Tuning knobs.
+ * @param {number}                    [opts.intervalMs=200]  - Poll interval.
+ * @param {number}                    [opts.stableChecks=5]  - Consecutive unchanged polls required (≈1s quiet).
+ * @param {number}                    [opts.maxWaitMs=20000] - Deadline on the polling loop. Checked between polls, so it bounds loop scheduling — it does not interrupt a single wedged `page.evaluate` (that failure mode throws or hangs the CDP session itself).
+ * @param {Function}                  [opts.pendingCount]    - Returns the number of relevant in-flight requests (trackPendingRequests().count). While it returns > 0, polls do not count toward stability.
+ * @return {Promise<{settled: boolean, count: number}>} Whether stability was reached before the deadline, and the last completed-resource count observed.
+ */
+async function waitForResourceCountIdle( page, opts = {} ) {
+	const { intervalMs = 200, stableChecks = 5, maxWaitMs = 20000, pendingCount = null } = opts;
+	const deadline = Date.now() + maxWaitMs;
+	let last = -1;
+	let stable = 0;
+	while ( Date.now() < deadline ) {
+		const count = await page.evaluate( () => performance.getEntriesByType( 'resource' ).length );
+		const busy = pendingCount ? pendingCount() > 0 : false;
+
+		if ( count === last && ! busy ) {
+			stable += 1;
+			if ( stable >= stableChecks ) {
+				return { settled: true, count };
+			}
+		} else {
+			stable = 0;
+			last = count;
+		}
+		await page.waitForTimeout( intervalMs );
+	}
+	return { settled: false, count: last };
+}
+
+/**
+ * The one request the in-flight ledger must ignore: the wp-build boot framework's `canUser`
+ * OPTIONS probe to /wp/v2/settings, whose response is intermittently never delivered to the
+ * browser in the local headless-Chromium fixture (the very request that forced the Forms
+ * scenario off `networkidle` — see scenarios.js). Matched by method + decoded URL because the
+ * fixture requests it via `rest_route=%2Fwp%2Fv2%2Fsettings`. Deliberately narrow: ONLY the
+ * settings OPTIONS probe is excluded, so any other stuck request holds the settle open and
+ * fails the iteration at the deadline (fail closed) instead of being silently ignored.
+ *
+ * @param {import('playwright').Request} request - A Playwright request.
+ * @return {boolean} True when this is the known-stuck settings probe.
+ */
+function isStuckSettingsProbe( request ) {
+	if ( request.method() !== 'OPTIONS' ) {
+		return false;
+	}
+	let parsed;
+	try {
+		parsed = new URL( request.url() );
+	} catch {
+		// Not an absolute URL — cannot be the probe; leave it in the ledger (fail closed).
+		return false;
+	}
+	// The REST route this request targets: the `rest_route` query value (the fixture's
+	// plain-permalink shape — searchParams decodes the %2F encoding), or the /wp-json/<route>
+	// pathname under pretty permalinks. Compared EXACTLY (modulo a trailing slash) so adjacent
+	// routes (/wp/v2/settings/child, /wp/v2/settings-extra) and unrelated URLs that merely
+	// carry the string in a query value never match — those must stay in the ledger and fail
+	// the iteration if they get stuck.
+	const route =
+		parsed.searchParams.get( 'rest_route' ) ?? parsed.pathname.replace( /^\/wp-json(?=\/)/, '' );
+	return route.replace( /\/+$/, '' ) === '/wp/v2/settings';
+}
+
+/**
+ * Ledger of in-flight page requests, for the settle's `pendingCount` option. Playwright fires
+ * `request` when a request is issued and `requestfinished`/`requestfailed` when it completes or
+ * aborts (navigations abort outstanding requests, which fires `requestfailed`), so the set size
+ * is the number of requests currently in flight. Requests matching `isExcluded` are never added
+ * — that is how the known-stuck probe is prevented from holding the settle open forever.
+ *
+ * @param {import('playwright').Page}                       page       - The page to track.
+ * @param {function(import('playwright').Request): boolean} isExcluded - Requests to ignore.
+ * @return {{count: function(): number, dispose: function(): void}} `count()` for the settle's pendingCount option; `dispose()` detaches the listeners (call in the iteration's finally).
+ */
+function trackPendingRequests( page, isExcluded ) {
+	const pending = new Set();
+	const onRequest = request => {
+		if ( ! isExcluded( request ) ) {
+			pending.add( request );
+		}
+	};
+	const onSettled = request => pending.delete( request );
+	page.on( 'request', onRequest );
+	page.on( 'requestfinished', onSettled );
+	page.on( 'requestfailed', onSettled );
+	return {
+		count: () => pending.size,
+		dispose: () => {
+			page.off( 'request', onRequest );
+			page.off( 'requestfinished', onSettled );
+			page.off( 'requestfailed', onSettled );
+		},
+	};
+}
+
+/**
+ * Fail-closed gate on the resource-count settle: a capped-out settle means the page was still
+ * loading resources when the deadline hit, so measuring it would record a truncated bundle size
+ * (and possibly a premature LCP) that passes the coarse `minResourceCount`/SANITY_RANGES guards
+ * and lands on a permanent, no-rollback CodeVitals key looking exactly like a real regression.
+ * Throwing here turns that silent undercount into a failed iteration: the per-iteration catch in
+ * measureLCP records the error and the run continues on the remaining iterations, so one slow
+ * load costs a sample, not the scenario.
+ *
+ * @param {{settled: boolean, count: number}} result - Return value of waitForResourceCountIdle.
+ * @param {string}                            phase  - Which settle this was (for the error message).
+ * @throws {Error} When the settle capped out instead of reaching stability.
+ */
+function assertResourceCountSettled( result, phase ) {
+	if ( ! result.settled ) {
+		// Neutral wording on purpose: settled:false means the completed count was still moving
+		// OR a relevant request was still in flight at the deadline — the result cannot say
+		// which, so the message must not claim "count still changing" when a stuck request may
+		// be the actual holdout.
+		throw new Error(
+			`Page never settled during ${ phase }: resources or in-flight requests were still active (completed count ${ result.count }) when the deadline expired — failing this iteration rather than measuring a still-loading page`
+		);
+	}
+}
+
+/**
+ * The settle-or-throw step both non-networkidle readiness sites share (warm-up navigation and
+ * measured reload): run the in-flight-aware settle with the iteration's pending-request ledger
+ * threaded in, and fail the iteration (fail closed) if it caps out. Extracted so the ledger
+ * threading is a single, unit-tested seam — a call site that silently dropped `pendingCount`
+ * would reopen the slow-response undercount this exists to close, and as a plain inline option
+ * object that regression survived the whole test suite.
+ *
+ * @param {import('playwright').Page}   page            - The page being measured.
+ * @param {{count: function(): number}} pendingRequests - The iteration's ledger (trackPendingRequests).
+ * @param {string}                      phase           - Which settle this is (for the error message).
+ * @param {object}                      [settleOpts]    - waitForResourceCountIdle tuning overrides (tests only; `pendingCount` cannot be overridden).
+ * @throws {Error} When the settle caps out instead of reaching stability.
+ */
+async function settleOrThrow( page, pendingRequests, phase, settleOpts = {} ) {
+	assertResourceCountSettled(
+		await waitForResourceCountIdle( page, {
+			...settleOpts,
+			pendingCount: pendingRequests.count,
+		} ),
+		phase
+	);
+}
+
+/**
+ * Content-completeness guard for the bundle-size metric. When a scenario declares the minimum
+ * resource count a healthy load produces (`minResourceCount`), throw if the capture returned
+ * fewer — a hydrated-but-partial page, or a `networkidle` window that settled in a gap before
+ * async resources finished, would otherwise post an in-range-but-undercounted `decodedBytesKB`
+ * to a permanent, no-rollback key.
+ *
+ * A COUNT floor is deliberate, NOT an "editor asset is present" assertion: the metric is meant
+ * to fall when the editor payload is lazy-loaded, and that removes a few large files rather than
+ * the bulk of the count, so this catches a broken capture without clipping the very improvement
+ * it exists to record. A scenario with no `minResourceCount` (e.g. the Dashboard) is unaffected.
+ *
+ * @param {{totalRequests:number}}     resourceStats - The per-iteration resource stats.
+ * @param {{minResourceCount?:number}} scenario      - The scenario config.
+ * @throws {Error} When the captured resource count is below the scenario's floor.
+ */
+function assertCaptureComplete( resourceStats, scenario ) {
+	if ( scenario.minResourceCount && resourceStats.totalRequests < scenario.minResourceCount ) {
+		throw new Error(
+			`Incomplete capture: ${ resourceStats.totalRequests } resources < expected minimum ${ scenario.minResourceCount } — refusing to post a partial page's bundle size`
+		);
+	}
+}
+
+/**
+ * Refuse to measure the wrong page.
+ *
+ * Scope, on purpose: this catches a page whose FINAL URL no longer contains the expected route —
+ * the concrete threat here is class-dashboard.php server-redirecting a bare page URL to the forms
+ * LIST, which strips the pinned `p=/responses/inbox` from the URL, so this fires. It does NOT prove
+ * the SPA client-rendered the inbox: a client-side route divergence that keeps the URL would pass.
+ * That is a deliberate trade — a stricter DOM-selector assertion would throw on every iteration if
+ * the guessed selector is wrong or the markup shifts, which blackholes the scenario's whole series
+ * on the append-only store. The URL check defends the real redirect without that failure mode.
+ *
+ * decodeURIComponent can throw on a malformed URL; we catch and re-throw as a mis-target so the
+ * iteration fails closed (no post) with a clear message rather than an opaque URIError.
+ *
+ * @param {string}      currentUrl        - The page's final URL (page.url()).
+ * @param {string|null} expectUrlIncludes - Substring the final URL must contain, or null to skip.
+ * @throws {Error} When the final URL does not contain the expected route (or cannot be decoded).
+ */
+function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
+	if ( ! expectUrlIncludes ) {
+		return;
+	}
+	let finalUrl;
+	try {
+		finalUrl = decodeURIComponent( currentUrl );
+	} catch ( e ) {
+		throw new Error(
+			`Wrong page: could not decode final URL "${ currentUrl }" to check for "${ expectUrlIncludes }" (${ e.message })`,
+			{ cause: e }
+		);
+	}
+	if ( ! finalUrl.includes( expectUrlIncludes ) ) {
+		throw new Error(
+			`Wrong page: expected URL to include "${ expectUrlIncludes }" but landed on "${ finalUrl }"`
+		);
+	}
+}
+
+/**
+ * Resolve the SCENARIO filter to the set of scenarios to run.
+ *
+ * Fails fast on a filter that matches nothing (e.g. the typo `SCENARIO=my-jetpak`).
+ * Before this guard, an unknown value silently matched zero scenarios: the run wrote an
+ * empty measurements object and exited 0 — a green build that measured and posted nothing.
+ *
+ * @param {string}        scenarioFilter - The SCENARIO env value ('all' or a scenario cliName).
+ * @param {Array<object>} scenarios      - Scenario definitions (SCENARIOS, or a test double).
+ * @return {Array<object>} The scenarios to run. Non-empty when filtered by cliName; the
+ * 'all' passthrough returns the caller's array verbatim.
+ * @throws {Error} When the filter matches no scenario; the message lists the valid values.
+ */
+function resolveScenarioSet( scenarioFilter, scenarios ) {
+	if ( scenarioFilter === 'all' ) {
+		return scenarios;
+	}
+	const matched = scenarios.filter( s => s.cliName === scenarioFilter );
+	if ( matched.length === 0 ) {
+		const valid = [ 'all', ...scenarios.map( s => s.cliName ) ].join( ', ' );
+		throw new Error( `Unknown SCENARIO "${ scenarioFilter }". Valid values: ${ valid }` );
+	}
+	return matched;
+}
+
+/**
+ * Decide the process exit code from the per-scenario measurement outcomes.
+ *
+ * The posting policy lives here, once: exit 0 means "every required scenario measured —
+ * safe to post". The runner treats a non-zero exit as fatal and never reaches the posting
+ * step, which is the retry-safety invariant: a red build has posted nothing, so re-running
+ * it cannot append duplicate points to the append-only, dedup-off CodeVitals store. A
+ * failed `optional` scenario therefore must NOT fail the build — it warns, its keys skip
+ * the build, and the poster skips its errored measurement. Two deliberate hard edges:
+ * every scenario in the run set failed → exit 1 even when all of them are optional, so a
+ * targeted single-scenario run (SCENARIO=forms-responses) still fails loudly; and empty
+ * measurements → exit 1 (backstop; resolveScenarioSet already rejects a filter that
+ * matches nothing).
+ *
+ * @param {Object<string, {error?: string}>} measurements - Per-scenario results, keyed by scenario key.
+ * @param {Array<object>}                    scenarios    - Scenario definitions (only those present in measurements count).
+ * @return {{exitCode: number, requiredFailures: string[], optionalFailures: string[]}} The outcome; failure arrays carry scenario names.
+ */
+function computeRunOutcome( measurements, scenarios ) {
+	const requiredFailures = [];
+	const optionalFailures = [];
+	let successes = 0;
+	for ( const scenario of scenarios ) {
+		const measurement = measurements[ scenario.key ];
+		if ( ! measurement ) {
+			continue; // Not part of this run (SCENARIO filter).
+		}
+		if ( measurement.error ) {
+			( scenario.optional ? optionalFailures : requiredFailures ).push( scenario.name );
+		} else {
+			successes++;
+		}
+	}
+	const exitCode = requiredFailures.length > 0 || successes === 0 ? 1 : 0;
+	return { exitCode, requiredFailures, optionalFailures };
 }
 
 async function main() {
@@ -282,6 +868,16 @@ async function main() {
 	const password = process.env.WP_ADMIN_PASS || 'password';
 	const iterations = parseInt( process.env.ITERATIONS || '5', 10 );
 	const scenarioFilter = process.env.SCENARIO || 'all';
+
+	// Validate the filter before any browser work: a typo must fail the build, not
+	// green-exit with zero measurements.
+	let scenariosToRun;
+	try {
+		scenariosToRun = resolveScenarioSet( scenarioFilter, SCENARIOS );
+	} catch ( error ) {
+		console.error( `✗ ${ error.message }` );
+		process.exit( 1 );
+	}
 
 	console.log( 'WordPress Performance Testing - LCP Measurement' );
 	console.log( '================================================' );
@@ -307,8 +903,10 @@ async function main() {
 
 	console.log( 'Methodology:' );
 	console.log( '  1. Log in to WordPress' );
-	console.log( '  2. Refresh dashboard (clean page load)' );
-	console.log( '  3. Measure LCP of the fresh dashboard' );
+	console.log(
+		'  2. Reload the scenario page (Dashboard, or a targeted admin page) for a clean load'
+	);
+	console.log( '  3. Measure LCP, TTFB, FCP, and the summed bundle size' );
 	console.log( '' );
 	console.log( 'Configuration:' );
 	for ( const scenario of SCENARIOS ) {
@@ -321,26 +919,32 @@ async function main() {
 
 	const measurements = {};
 
-	// Run each scenario
-	for ( const scenario of SCENARIOS ) {
-		// Skip if filtering to a specific scenario
-		if ( scenarioFilter !== 'all' && scenarioFilter !== scenario.cliName ) {
-			continue;
-		}
-
+	// Run each scenario in the resolved set
+	for ( const scenario of scenariosToRun ) {
 		const url = getScenarioUrl( scenario );
 
 		console.log( scenario.header );
 		console.log( '-'.repeat( scenario.header.length ) );
 
 		try {
-			measurements[ scenario.key ] = await measureLCP( url, username, password, iterations );
+			measurements[ scenario.key ] = await measureLCP(
+				url,
+				username,
+				password,
+				iterations,
+				scenario
+			);
 			console.log(
 				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms\n`
 			);
 		} catch ( error ) {
 			console.error( `✗ ${ scenario.name } measurement failed:`, error.message, '\n' );
-			measurements[ scenario.key ] = { error: error.message };
+			// Guarantee a truthy error record: computeRunOutcome classifies failure by the
+			// truthiness of `.error`, so a thrown Error('') (falsy .message) must not let a
+			// failed required scenario slip into the success branch and green the build.
+			measurements[ scenario.key ] = {
+				error: error?.message || String( error ) || 'measurement failed',
+			};
 		}
 	}
 
@@ -354,8 +958,18 @@ async function main() {
 		}
 		if ( measurement && ! measurement.error ) {
 			console.log( `  ${ scenario.name }: ${ measurement.summary.median }ms` );
+		} else if ( scenario.optional ) {
+			console.log(
+				`  ${ scenario.name }: FAILED (optional — build continues, its keys skip this build) - ${
+					measurement?.error || 'unknown error'
+				}`
+			);
 		} else {
-			console.log( `  ${ scenario.name }: FAILED - ${ measurement?.error || 'unknown error' }` );
+			console.log(
+				`  ${ scenario.name }: FAILED (required — build fails, nothing posts) - ${
+					measurement?.error || 'unknown error'
+				}`
+			);
 		}
 	}
 	console.log( '' );
@@ -385,22 +999,68 @@ async function main() {
 				: { enabled: false },
 		},
 		measurements,
-		git: {
-			hash: process.env.GIT_COMMIT || 'unknown',
-			branch: process.env.GIT_BRANCH || 'unknown',
-		},
+		git: resolveResultsGit( process.env ),
 	};
 
 	fs.writeFileSync( outputPath, JSON.stringify( output, null, 2 ) );
 	console.log( `Results saved to: ${ outputPath }` );
 
-	const hasFailures = Object.values( measurements ).some( m => m.error );
-	process.exit( hasFailures ? 1 : 0 );
+	const outcome = computeRunOutcome( measurements, SCENARIOS );
+	if ( outcome.exitCode === 0 && outcome.optionalFailures.length > 0 ) {
+		console.warn(
+			`Warning: optional scenario(s) failed — their CodeVitals keys skip this build: ${ outcome.optionalFailures.join(
+				', '
+			) }`
+		);
+	}
+	process.exit( outcome.exitCode );
 }
 
-main().catch( error => {
-	console.error( 'Fatal error:', error );
-	process.exit( 1 );
-} );
+/**
+ * Build the `git` block written into the results file from the environment.
+ *
+ * The commit time is stamped ONLY when paired with a GIT_COMMIT hash, via the shared
+ * pairedCommitTimestampMs rule (mirrors the runner's resolveCommitTimestampEnv and the
+ * poster's config gate). This is the DOMINANT timestamp channel: the poster PREFERS this
+ * results.git.timestamp over its own env fallback, so a lone/stale inherited
+ * GIT_COMMIT_TIMESTAMP_MS written here would backdate the append-only trend regardless of
+ * the poster-side guard. A lone value is dropped to undefined (JSON.stringify omits it);
+ * the poster then warns and falls back to build time.
+ *
+ * @param {object} env - Environment object (process.env or a test double).
+ * @return {{hash: string, branch: string, timestamp: (number|undefined)}} The results git block.
+ */
+function resolveResultsGit( env ) {
+	return {
+		hash: env.GIT_COMMIT || 'unknown',
+		branch: env.GIT_BRANCH || 'unknown',
+		timestamp: Number( pairedCommitTimestampMs( env ) ) || undefined,
+	};
+}
 
-export { measureLCP };
+// Run only when executed directly (node measure-lcp.js / pnpm measure), not when imported
+// by the unit tests, so importing resolveResultsGit never launches a browser via main().
+if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
+	main().catch( error => {
+		console.error( 'Fatal error:', error );
+		process.exit( 1 );
+	} );
+}
+
+export {
+	measureLCP,
+	resolveResultsGit,
+	buildSummary,
+	findIncompleteSummaryFields,
+	finalizeMeasurement,
+	assertCaptureComplete,
+	assertExpectedUrl,
+	assertResourceCountSettled,
+	isStuckSettingsProbe,
+	settleOrThrow,
+	trackPendingRequests,
+	summarizeResources,
+	resolveScenarioSet,
+	computeRunOutcome,
+	waitForResourceCountIdle,
+};

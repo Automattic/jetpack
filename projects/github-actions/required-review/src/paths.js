@@ -1,13 +1,13 @@
-const core = require( '@actions/core' );
-const github = require( '@actions/github' );
-const { WError } = require( 'error' );
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { WError } from 'error';
 
 /**
  * Fetch the paths in the current PR.
  *
  * @return {string[]} Paths.
  */
-async function fetchPaths() {
+export async function fetchPaths() {
 	const octokit = github.getOctokit( core.getInput( 'token', { required: true } ) );
 	const owner = github.context.payload.repository.owner.login;
 	const repo = github.context.payload.repository.name;
@@ -38,5 +38,3 @@ async function fetchPaths() {
 
 	return Object.keys( paths ).sort();
 }
-
-module.exports = fetchPaths;

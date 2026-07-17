@@ -48,11 +48,13 @@
 			// The main functions
 			ct.colorPicker();
 			ct.addChangeListener();
-			ct.initPalettes();
 
-			if ( ! api.isNux ) {
-				ct.initPatterns();
-			}
+			// Since overrideCoreBg() may require wp.customize.state,
+			// ensure execution order using `ready` bind.
+			api.bind( 'ready', function () {
+				ct.overrideCoreBg();
+			} );
+
 			ct.iris = ct.irisPicker();
 
 			// set up the color grid.
@@ -129,11 +131,10 @@
 		},
 
 		resetHeaderTextColor: function () {
-			let color;
 			const picker = $( '#customize-control-header_textcolor' ).find( 'input.wp-color-picker' );
 
 			if ( picker.wpColorPicker ) {
-				picker.wpColorPicker( 'defaultColor' );
+				const color = picker.wpColorPicker( 'defaultColor' );
 
 				if ( api( 'header_textcolor' ).get() !== 'blank' ) {
 					picker.wpColorPicker( 'color', color );
@@ -184,262 +185,6 @@
 			ct.bgPrompt
 				.find( '.choose-color' )
 				.css( 'background-color', ct.getColor( ct.grid.find( '.bg' ) ) );
-		},
-
-		initPatterns: function () {
-			const ct = this;
-			if (
-				! ct.opts.themeSupport.customBackground ||
-				ct.grid.find( '.bg' ).hasClass( 'unavailable' )
-			) {
-				return $( '#the-pattern-picker' ).hide();
-			}
-
-			ct.colorPatterns();
-
-			// Apply patterns to background element
-			// Binds to click event on each pattern anchor
-			ct.patternPicker
-				.on( 'click', '.pattern a', function ( e ) {
-					e.preventDefault();
-
-					ct.coreBgImage( $( this ).data( 'customizeImageValue' ) );
-
-					if ( ct.backgroundChangeView.optionsView ) {
-						ct.backgroundChangeView.optionsView.render();
-					}
-
-					// Stat: 'patterns'
-					new Image().src =
-						document.location.protocol +
-						'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_customizer-colors-actions=patterns&baba=' +
-						Math.random();
-				} )
-				.on( 'click', '#less-patterns', function ( e ) {
-					e.preventDefault();
-
-					ct.showPatterns( ct.patternIndex - ct.patternPageSize * 2 );
-				} )
-				.on( 'click', '#more-patterns', function ( e ) {
-					e.preventDefault();
-
-					ct.handleMorePatternsClick();
-				} );
-
-			// Since the `overrideCoreBg()` may require wp.customize.state,
-			// Ensure the execution order using `ready` bind.
-			api.bind( 'ready', function () {
-				ct.overrideCoreBg();
-			} );
-		},
-
-		handleMorePatternsClick: function () {
-			const ct = this;
-
-			// Stat: 'more-patterns'
-			new Image().src =
-				document.location.protocol +
-				'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_customizer-colors-actions=more-patterns&baba=' +
-				Math.random();
-
-			if ( ct.patternIndex < ct.patterns.length ) {
-				ct.showPatterns( ct.patternIndex );
-			}
-
-			if (
-				( ! ct.fetchingPatterns && 0 === ct.patterns.length ) ||
-				ct.patternIndex === ct.patterns.length - 5
-			) {
-				ct.fetchingPatterns = true;
-
-				const query_arguments = {
-					action: 'pattern_recommendations',
-					limit: '30',
-					offset: ct.patterns.length,
-				};
-
-				ct.color.each( function () {
-					query_arguments[ 'colors[' + $( this ).data( 'role' ) + ']' ] = ct.getColor( this );
-				} );
-
-				$.get(
-					wp.ajax.settings.url,
-					query_arguments,
-					function ( data ) {
-						if ( ! data.patterns.length ) {
-							$( '#more-patterns' ).hide();
-						}
-
-						$.merge( ct.patterns, data.patterns );
-
-						ct.fetchingPatterns = false;
-
-						if ( 0 === ct.patternIndex ) {
-							ct.showPatterns();
-						}
-					},
-					'json'
-				);
-			}
-		},
-
-		hideSectionAndKeepHidden: function ( id ) {
-			const section = api.section( id );
-			if ( ! section ) {
-				return;
-			}
-			section.active( false );
-			api.section.bind( 'change', function ( changed ) {
-				if ( changed.id === id && changed.active() === true ) {
-					section.active( false );
-				}
-			} );
-		},
-
-		initPalettes: function () {
-			const ct = this;
-
-			ct.colorPalettes();
-
-			// hide core Colors & Background
-			this.hideSectionAndKeepHidden( 'colors' );
-			this.hideSectionAndKeepHidden( 'background_image' );
-
-			const morePaletteClickHandler = function () {
-				// Load palettes into a client-side cache 40 at a time
-				// and refresh that cache one page before it's necessary.
-				const lastIndex = Math.max( ct.palettes.length, ct.palettes.length - ct.palettesAtATime );
-				if ( lastIndex > ct.paletteIndex ) {
-					ct.showPalettes( ct.paletteIndex );
-				}
-
-				// Stat: 'more-palettes'
-				new Image().src =
-					document.location.protocol +
-					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_customizer-colors-actions=more-palettes&baba=' +
-					Math.random();
-
-				if (
-					! ct.fetchingPalettes &&
-					ct.paletteIndex >= ct.palettes.length - ct.palettesAtATime * 2
-				) {
-					ct.fetchingPalettes = true;
-					$.get(
-						wp.ajax.settings.url,
-						{
-							action: 'color_palettes',
-							limit: '40',
-							offset: ct.palettes.length,
-						},
-						function ( data ) {
-							if ( ! data.palettes.length ) {
-								return $( '#more-palettes' ).hide();
-							}
-
-							$.merge( ct.palettes, data.palettes );
-							if (
-								0 === ct.paletteIndex ||
-								ct.paletteIndex >= ct.palettes.length - data.palettes.length - ct.palettesAtATime
-							) {
-								morePaletteClickHandler();
-							}
-							ct.fetchingPalettes = false;
-						},
-						'json'
-					);
-				}
-			};
-
-			$( '#more-palettes' ).on( 'click', morePaletteClickHandler );
-			morePaletteClickHandler();
-
-			$( '#less-palettes' ).click( function () {
-				ct.showPalettes( ct.paletteIndex - 2 * ct.palettesAtATime );
-			} );
-
-			// Calls generate palette code
-			ct.generatePaletteFromHeader();
-		},
-
-		/**
-		 * Generate a palette based on the current header image
-		 * Uses the tonesque library for color sampling.
-		 *
-		 * @return {object} $generatePalette - the palette generator JQuery object.
-		 */
-		generatePaletteFromHeader: function () {
-			let colors, cat;
-			const ct = this,
-				generatePalette = $( '#generate-palette' ),
-				checkValidImage = function ( value ) {
-					const badValues = [ 'remove-header', 'random-uploaded-image', 'random-default-image' ];
-					if ( value && ! badValues.includes( value ) ) {
-						ct.opts.headerImage = value;
-						generatePalette.show();
-						return true;
-					}
-					generatePalette.hide();
-					return false;
-				};
-
-			// Initialize from API
-			if ( ! api.settings.settings.header_image ) {
-				return generatePalette.hide();
-			}
-			ct.opts.headerImage = api.settings.settings.header_image.value;
-
-			// Actions for the "Match header image" button
-			api.bind( 'change', function ( control ) {
-				if ( 'header_image' === control.id ) {
-					checkValidImage( control._value );
-				}
-			} );
-
-			// Check that we have a header image
-			// otherwise hide the button
-			checkValidImage( ct.opts.headerImage );
-
-			// Store button text
-			const text = generatePalette.text();
-
-			return generatePalette.on( 'click', function () {
-				// Show processing message
-				$( this ).text( ct.opts.genPalette );
-
-				$.get(
-					'/wp-admin/admin-ajax.php',
-					{
-						action: 'generate_palette',
-						image: ct.opts.headerImage,
-					},
-					function ( data ) {
-						colors = data.colors;
-
-						if ( colors ) {
-							ct.color.each( function () {
-								let hex;
-								cat = $( this ).data( 'role' );
-
-								if ( cat in colors ) {
-									hex = ct.sanitizeHex( colors[ cat ] );
-									ct.setColor( this, hex );
-								}
-							} );
-						}
-
-						ct.grid.trigger( 'color-change' );
-
-						// Restore button text
-						generatePalette.text( text );
-					},
-					'json'
-				);
-				// Stat: 'generate-palette'
-				new Image().src =
-					document.location.protocol +
-					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_customizer-colors-actions=generate-palette&baba=' +
-					Math.random();
-			} );
 		},
 
 		/**
@@ -547,7 +292,6 @@
 						$( this ).hasClass( 'bg-change-disable' ) === false
 					) {
 						ct.backgroundChangeView.open();
-						$( '#colourlovers-palettes-container' ).hide();
 					}
 				}
 			} );
@@ -635,84 +379,6 @@
 			);
 		},
 
-		showBackgroundColorChangeOptions: function () {
-			if ( this.opts.themeSupport.customBackground ) {
-				if ( 0 === this.patterns.length ) {
-					// Populates the patterns for the matching palette
-					this.handleMorePatternsClick();
-				}
-			} else {
-				// todo: clean up bgPrompt
-				this.bgPrompt.find( '.choose-color' ).click();
-			}
-		},
-
-		showBackgroundPatternOptions: function () {
-			// this.bgPrompt.hide();
-			this.patternPicker.show();
-			this.showPatterns();
-		},
-
-		/**
-		 * Color Patterns
-		 */
-		colorPatterns: function () {
-			this.showBackgroundPatternOptions();
-		},
-
-		/**
-		 * Color Palettes
-		 */
-		colorPalettes: function () {
-			let palettes = {},
-				color,
-				role;
-			const ct = this;
-
-			$( '#colourlovers-palettes' ).on( 'click', '.colour-lovers', function () {
-				// Populate an array with color values
-				// taken from clicked palette
-				$( this )
-					.find( 'li' )
-					.each( function () {
-						color = ct.getColor( this );
-						role = $( this ).attr( 'data-role' );
-						palettes[ role ] = color;
-					} );
-
-				// Apply colors to our main grid
-				ct.color.each( function () {
-					ct.setColor( this, palettes[ $( this ).attr( 'data-role' ) ] );
-				} );
-
-				// Hide the hex reference on update
-				$( '#hex-reference' ).hide();
-
-				ct.grid.trigger( 'color-change' );
-				// Clear the object free to be used again
-				palettes = {};
-
-				// Hide the picker if it's visible
-				ct.grid.find( '.selected' ).removeClass( 'selected' );
-				ct.picker.hide();
-
-				// Track featured palettes separately
-				if ( $( this ).hasClass( 'featured' ) ) {
-					// Stat: 'featured-palettes'
-					new Image().src =
-						document.location.protocol +
-						'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_customizer-colors-actions=featured-palettes&baba=' +
-						Math.random();
-				} else {
-					// Stat: 'palettes'
-					new Image().src =
-						document.location.protocol +
-						'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_customizer-colors-actions=palettes&baba=' +
-						Math.random();
-				}
-			} );
-		},
-
 		addChangeListener: function () {
 			const ct = this;
 
@@ -744,11 +410,10 @@
 						.css( 'background-color', ct.getColor( ct.grid.find( '.bg' ) ) );
 				}
 
-				// Reset the suggested patterns.
-				ct.patterns = [];
-				ct.patternIndex = 0;
-				// Generates the matching patterns for the color changes
-				ct.showBackgroundColorChangeOptions();
+				if ( ! ct.opts.themeSupport.customBackground ) {
+					// todo: clean up bgPrompt
+					ct.bgPrompt.find( '.choose-color' ).click();
+				}
 			} );
 		},
 		currentPalette: function () {
@@ -760,141 +425,6 @@
 			} );
 
 			return colors;
-		},
-		showPalettes: function ( paletteIndex ) {
-			const ct = this,
-				palette_container = $( '#colourlovers-palettes' ).html( '' );
-
-			// Construct the color palettes
-			for ( let i = paletteIndex, _len = paletteIndex + 6; i < _len; i++ ) {
-				if ( undefined === ct.palettes[ i ] ) {
-					continue;
-				}
-				const new_palette = $( '<ul/>' ).addClass( 'color-grid colour-lovers' );
-
-				for ( const color_key in ct.palettes[ i ].colors ) {
-					const new_color = $( '<li />' )
-						.addClass( color_key )
-						.attr( 'data-role', color_key )
-						.text( '#' + ct.palettes[ i ].colors[ color_key ] );
-
-					ct.setColor( new_color, ct.sanitizeHex( ct.palettes[ i ].colors[ color_key ] ) );
-
-					new_palette.append( new_color );
-				}
-
-				// Check if the palette is theme generated or not
-				// Only show the registered colors if it's less than five
-				if ( ! $.isNumeric( ct.palettes[ i ].id ) ) {
-					const availableColors = new Array();
-
-					new_palette.addClass( 'featured' );
-
-					for ( const colors in ct.palettes[ i ].colors ) {
-						if ( ct.palettes[ i ].colors[ colors ] ) {
-							availableColors.push( ct.palettes[ i ].colors[ colors ] );
-						}
-					}
-
-					const length = availableColors.length;
-
-					// Remove the empty li(s)
-					if ( length < 5 ) {
-						const colorsList = new_palette.find( 'li' );
-
-						// Controls the display of the palettes
-						new_palette.addClass( 'items-' + length );
-
-						colorsList.each( function () {
-							if ( $( this ).text() === '#' ) {
-								$( this ).remove();
-							}
-						} );
-					}
-				}
-
-				palette_container.append( new_palette );
-			}
-
-			// Display pagination when applicable
-			if ( paletteIndex < this.palettes.length ) {
-				$( '#more-palettes' ).show();
-			} else {
-				$( '#more-palettes' ).hide();
-			}
-
-			if ( paletteIndex > 0 ) {
-				$( '#less-palettes' ).show();
-			} else {
-				$( '#less-palettes' ).hide();
-			}
-
-			this.paletteIndex = paletteIndex + 6;
-		},
-		showPatterns: function ( patternIndex ) {
-			if ( ! patternIndex ) {
-				patternIndex = 0;
-			}
-
-			const pageSize = this.patternPageSize,
-				pattern_container = this.patternPicker.find( 'ul' ).html( '' );
-
-			if ( patternIndex >= this.patterns.length ) {
-				// No patterns to show.
-				if ( this.fetchingPatterns ) {
-					pattern_container.spin();
-				}
-				// Use the most popular patterns
-				else {
-					this.patterns = this.topPatterns;
-				}
-			} else {
-				pattern_container.show();
-				this.patternPicker.find( '.noresults' ).hide();
-
-				// Merge with top patterns
-				// and keep previous session patterns
-				// instead of forcing top patterns
-				this.topPatterns = this.opts.topPatterns;
-				$.extend( this.topPatterns, this.patterns );
-				this.patterns = this.topPatterns;
-			}
-
-			for (
-				let i = patternIndex, _len = Math.min( patternIndex + pageSize, this.patterns.length );
-				i < _len;
-				i++
-			) {
-				const pattern = $( '<li/> ' ).addClass( 'pattern' );
-				const pattern_link = $( '<a/>' ).addClass( 'thumbnail' );
-				const pattern_image = $( '<img/>' )
-					.attr( 'src', this.patterns[ i ].preview_image_url )
-					.addClass( 'pattern' );
-				pattern_link.data( 'customizeImageValue', pattern_image.attr( 'src' ) );
-				pattern_link.append( pattern_image );
-				pattern.append( pattern_link );
-				pattern_container.append( pattern );
-			}
-
-			// If we have enough patterns show pagination
-			if ( patternIndex < this.patterns.length - pageSize ) {
-				$( '#more-patterns' ).show();
-			} else {
-				$( '#more-patterns' ).hide();
-			}
-
-			// Show back button when we navigate patterns
-			if ( patternIndex > 0 ) {
-				$( '#less-patterns' ).show();
-			} else {
-				$( '#less-patterns' ).hide();
-			}
-
-			if ( this.patterns.length === 0 ) {
-				patternIndex = 0;
-			} else {
-				this.patternIndex = patternIndex + pageSize;
-			}
 		},
 	} );
 
@@ -1004,7 +534,6 @@
 			this.controller.reference.show();
 			this.controller.picker.hide();
 			this.controller.color.removeClass( 'selected' );
-			$( '#colourlovers-palettes-container' ).show();
 			this.showPickerBorder();
 		},
 		toggleOptions: function () {

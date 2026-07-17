@@ -1,0 +1,256 @@
+.vp-overview {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1344px;
+	margin-inline: auto;
+	padding-block: 24px;
+
+	// Apply a constant inline gutter so the page never reads flush to
+	// `#wpbody-content`'s edges. The admin-page-layout mixin neutralizes
+	// `#wpcontent`'s padding, so without this rule the content touches
+	// the chrome at any viewport narrower than the max-width.
+	padding-inline: 24px;
+
+	&__kpi-row {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 24px;
+
+		// Cards in this row are tabs (role="tab") that select which
+		// metric the trends chart plots. The active one gets a 3px
+		// bottom indicator matching the @wordpress/ui Tabs default.
+		> [role="tab"] {
+			cursor: pointer;
+			position: relative;
+
+			&::after {
+				content: "";
+				position: absolute;
+				inset-inline: 0;
+				bottom: 0;
+				height: 3px;
+				background: var(--wpds-color-stroke-interactive-neutral-strong);
+				border-end-start-radius: inherit;
+				border-end-end-radius: inherit;
+				opacity: 0;
+				transition: opacity 0.15s ease;
+			}
+
+			&[aria-selected="true"]::after {
+				opacity: 1;
+			}
+
+			// Subtle preview of the indicator on hover so the affordance
+			// is discoverable.
+			&:not([aria-selected="true"]):hover::after {
+				opacity: 0.3;
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--wpds-color-stroke-focus);
+				outline-offset: -2px;
+			}
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__kpi-label {
+		color: #646970;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 11px;
+	}
+
+	// Figma shows the metric value as a hero number, larger than the
+	// `heading-2xl` typography token. Override the @wordpress/ui Text
+	// inline so the value dominates the card.
+	&__kpi-value {
+		font-size: 36px;
+		font-weight: 500;
+		line-height: 1.1;
+		font-variant-numeric: tabular-nums;
+	}
+
+	// Up / down delta indicator. @wordpress/ui Badge's `intent` vocabulary
+	// (low/medium/high/...) doesn't include success/error semantics, so
+	// the green/red palette lives here. The icon fill defaults to black
+	// (the @wordpress/primitives SVG doesn't set fill="currentColor"), so
+	// force inheritance.
+	&__kpi-delta {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		padding: 2px 6px;
+		border-radius: 2px;
+		font-size: 12px;
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+		width: fit-content;
+
+		svg {
+			fill: currentColor;
+		}
+
+		&--up {
+			color: #006100;
+			background: #e6f4ea;
+		}
+
+		&--down {
+			color: #b32d2e;
+			background: #fce8e6;
+		}
+	}
+
+	&__row--bottom {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 24px;
+
+		@media (max-width: 782px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__chart-frame {
+		width: 100%;
+	}
+
+	// Ranking list shared by Most viewed and Top videos by watch time.
+	// Div-based so each row can host a percentage-width background bar
+	// (gradient stops at `--vp-row-bar`, defaulting to 100%) with
+	// rounded corners — neither <tr> backgrounds nor td radii give us both.
+	&__ranking {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	&__ranking-head {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		padding: 0 12px 4px;
+		color: #646970;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 11px;
+		font-weight: 600;
+	}
+
+	&__ranking-row {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		gap: 12px;
+		min-height: 32px;
+		line-height: 20px;
+		padding: 6px 12px;
+		border-radius: 4px;
+		background: linear-gradient(to right, #f0f4ff 0, #f0f4ff var(--vp-row-bar, 100%), transparent var(--vp-row-bar, 100%), transparent 100%);
+
+		&:hover {
+			background: linear-gradient(to right, #e0e7ff 0, #e0e7ff var(--vp-row-bar, 100%), transparent var(--vp-row-bar, 100%), transparent 100%);
+		}
+	}
+
+	&__ranking-values {
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__ranking-footer {
+		margin-top: 8px;
+	}
+
+	&__ranking-empty {
+		display: block;
+		padding: 24px 12px;
+		text-align: center;
+		color: #646970;
+	}
+
+	// Loading-state placeholder block. No animation — quiet until data arrives.
+	&__skeleton-block {
+		display: inline-block;
+		background: #f0f0f0;
+		width: 60%;
+		height: 1em;
+		border-radius: 2px;
+
+		&--narrow {
+			width: 40%;
+		}
+
+		// Sized to fill the KPI hero-number slot (matches the 36px font-size
+		// + line-height: 1.1 of `.vp-overview__kpi-value`).
+		&--kpi-value {
+			width: 96px;
+			height: 40px;
+			border-radius: 4px;
+		}
+	}
+
+	// Centers the chart's loading Spinner inside the reserved 240px canvas.
+	&__chart-spinner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+	}
+
+	// Custom tooltip body. Mirrors the WordPress DS dark tooltip palette
+	// (see `@automattic/charts`' BaseTooltip module SCSS) so the chart
+	// surface reads as part of the design-system tooltip family rather
+	// than the LineChart's default light card. The chart's visx-tooltip
+	// system handles positioning; we only style the inner content.
+	&__chart-tooltip {
+		padding: var(--wpds-dimension-padding-sm);
+		background-color: rgba(0, 0, 0, 0.85);
+		color: #fff;
+		border-radius: var(--wpds-border-radius-md);
+		font-size: var(--wpds-typography-font-size-md);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	}
+
+	&__chart-tooltip-date {
+		font-weight: var(--wpds-typography-font-weight-medium);
+		padding-bottom: var(--wpds-dimension-padding-md);
+	}
+
+	&__chart-tooltip-row {
+		padding: var(--wpds-dimension-padding-xs) 0;
+	}
+
+	&__chart-tooltip-label {
+		font-weight: var(--wpds-typography-font-weight-medium);
+		padding-right: var(--wpds-dimension-padding-lg);
+	}
+
+	&__storage-meter {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		// `@wordpress/components` `ProgressBar` ships with a fixed default
+		// width and renders narrow inside flex containers. Match the
+		// legacy `VideoStorageMeter` approach of forcing the inner bar
+		// element to fill the strip. The label is a `<span>`, so the
+		// last direct-child `div` is unambiguously the `ProgressBar`
+		// wrapper — avoids coupling to its internal
+		// `__experimentalProgressBar` class name.
+		> div:last-child {
+			width: 100%;
+		}
+	}
+
+	&__storage-meter-label {
+		font-size: 13px;
+		color: #50575e;
+	}
+}

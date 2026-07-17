@@ -1,0 +1,10 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.connection-toggle {
+
+	label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}

@@ -33,7 +33,7 @@
 
 .jp-search-dashboard-row {
 	display: grid;
-	grid-gap: 24px;
+	gap: 24px;
 	grid-template-columns: repeat(4, 1fr);
 	width: calc(100% - 32px);
 	margin: 0 16px;
@@ -46,7 +46,7 @@
 
 	@include variables.for-tablet-up {
 		grid-template-columns: repeat(12, 1fr);
-		max-width: 1128px;
+		max-width: 1040px;
 		width: calc(100% - 48px);
 		margin: 0 24px;
 	}
@@ -99,4 +99,8 @@
 			display: block;
 		}
 	}
+}
+
+.jp-search-dashboard-toggle {
+	justify-content: start !important;
 }

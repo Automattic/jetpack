@@ -98,7 +98,12 @@ class Cornerstone_Utils {
 	public static function prepare_provider_data( $url ) {
 		return array(
 			'key' => self::get_provider_key( $url ),
-			'url' => self::sanitize_url( $url ),
+			// Send the URL verbatim (do not sanitize/untrailingslashit it). The cloud analyzer
+			// fetches this exact URL, so it must keep the site's canonical trailing-slash form to
+			// avoid edge/WAF 301s or 403s that break analysis. The `key` is intentionally still
+			// stripped so storage/retrieval stays slash-agnostic. Do not "simplify" url back to
+			// self::sanitize_url( $url ).
+			'url' => $url,
 		);
 	}
 

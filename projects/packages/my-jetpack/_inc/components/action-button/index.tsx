@@ -1,4 +1,3 @@
-import { Button } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
@@ -13,10 +12,10 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
+import SecondaryButton, { type SecondaryButtonProps } from './secondary-button';
 import styles from './style.module.scss';
-import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
-import type { FC, ComponentProps, MouseEvent, SetStateAction } from 'react';
+import type { FC, MouseEvent, SetStateAction } from 'react';
 
 const getActionButtonId = ( productSlug: string ) => `action-button-label-${ productSlug }`;
 
@@ -24,7 +23,7 @@ type ActionButtonProps = {
 	slug: JetpackModule;
 	additionalActions?: AdditionalAction[];
 	primaryActionOverride?: Record< string, AdditionalAction >;
-	fixSiteConnectionHandler?: ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void;
+	fixSiteConnectionHandler?: ( e: MouseEvent< HTMLButtonElement > ) => void;
 	setIsActionLoading?: ( value: SetStateAction< boolean > ) => void;
 	className?: string;
 	tracksIdentifier?: `${ string }_${ string }`;
@@ -46,7 +45,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	} = useProductsByOwnership();
 
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
-	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
+	const [ currentAction, setCurrentAction ] = useState< SecondaryButtonProps >( {} );
 	const { detail, isLoading: isProductDataLoading, isRefetching } = useProduct( slug );
 
 	const {
@@ -80,10 +79,10 @@ const ActionButton: FC< ActionButtonProps > = ( {
 
 	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
 		return {
-			variant: ! isBusy ? 'primary' : undefined,
-			disabled: isBusy,
-			size: 'small',
-			weight: 'regular',
+			variant: 'primary',
+			size: 'compact',
+			isLoading: isBusy,
+			loadingAnnouncement: __( 'Loading…', 'jetpack-my-jetpack' ),
 			className,
 		};
 	}, [ isBusy, className ] );
@@ -211,7 +210,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 
 				return {
 					...buttonState,
-					disabled: isManageDisabled || buttonState?.disabled,
+					disabled: isManageDisabled,
 					href: manageUrl,
 					variant: 'secondary',
 					label: buttonText,
@@ -424,9 +423,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
 			>
-				<Button { ...buttonState } { ...currentAction } id={ getActionButtonId( slug ) }>
-					{ currentAction.label }
-				</Button>
+				<SecondaryButton { ...buttonState } { ...currentAction } id={ getActionButtonId( slug ) } />
 				{ hasAdditionalActions && (
 					<button
 						className={ clsx(

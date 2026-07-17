@@ -41,6 +41,9 @@ return [
 	// Set true to strip descriptions and unrecognized tags from the phpdoc.
 	'strip-docs' => false,
 
+	// Set true to strip descriptions, but keep unrecognized tags (which may include descriptions).
+	'strip-docs-keep-tags' => false,
+
 	// Path which `files` are relative to. Defaults to the directory containing the definition file,
 	// and if it's relative it's relative to that.
 	'basedir' => '.',
@@ -64,6 +67,7 @@ return [
 			],
 			'interface' => [ /* constants, properties, and methods, just like classes */ ],
 			'trait' => [ /* constants, properties, and methods, just like classes */ ],
+			'enum' => [ /* constants and methods, just like classes */ ],
 		],
 
 		// A `'*'` can be used to avoid having to list everything, if you want everything in a file.
@@ -72,13 +76,13 @@ return [
 			'function' => '*',
 
 			'class' => [
-				// It also works for extracting parts of classes, interfaces, and traits.
+				// It also works for extracting parts of classes, interfaces, traits, and enums.
 				'ClassName' => [
 					'property' => '*',
 					'method' => '*',
 				],
 
-				// And for whole classes, interfaces, and traits for that matter.
+				// And for whole classes, interfaces, traits, and enums for that matter.
 				'ClassName2' => '*',
 			],
 		],

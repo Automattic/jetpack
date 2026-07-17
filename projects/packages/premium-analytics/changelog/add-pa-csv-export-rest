@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the CSV report export REST endpoint with download and email (Action Scheduler) delivery, plus the Orders Over Time report.

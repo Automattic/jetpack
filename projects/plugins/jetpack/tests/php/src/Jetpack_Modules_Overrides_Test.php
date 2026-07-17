@@ -116,11 +116,6 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 			'photon-cdn' => 'active',
 		);
 
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-
-			// Atomic does not override either.
-			$expected = array();
-		}
 		$this->assertSame( $expected, $this->instance->get_overrides() );
 
 		add_filter( $filter_name, array( $this, 'force_inactive_module' ) );

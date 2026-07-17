@@ -56,6 +56,13 @@ const meta: Meta< StoryArgs > = {
 				type: { summary: 'string' },
 			},
 		},
+		height: {
+			control: 'text',
+			description: 'Height of the chart container (e.g., "100%", "400px")',
+			table: {
+				type: { summary: 'string | number' },
+			},
+		},
 		style: {
 			control: 'object',
 			description: 'Custom styling for the chart container',
@@ -132,6 +139,17 @@ export const EmptyData: Story = {
 	},
 };
 
+export const FixedDimensions: Story = {
+	args: {
+		...sharedThemeArgs,
+		mainRate: 10.3,
+		changeIndicator: '+2%',
+		steps: ecommerceFunnelData,
+		loading: false,
+		height: '200px',
+	},
+};
+
 export const CustomRenderProps: Story = {
 	args: {
 		mainRate: 10.3,
@@ -147,6 +165,7 @@ export const CustomRenderProps: Story = {
 					marginBottom: '32px',
 					color: 'white',
 					textAlign: 'center',
+					height: 'fit-content',
 				} }
 			>
 				<h3

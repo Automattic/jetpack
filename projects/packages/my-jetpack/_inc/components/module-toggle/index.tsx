@@ -1,18 +1,27 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { store as modulesStore } from '@automattic/jetpack-shared-extension-utils';
+import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../../types';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
+import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
+import SecondaryButton from '../action-button/secondary-button';
+import { setPendingSuccessNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
+import { reloadPage } from '../my-jetpack-tab-panel/products/reload-page';
 import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
 	describedby?: string;
 };
+
+// Modules that register a server-rendered wp-admin sidebar item. Toggling them
+// needs a full page reload for the sidebar to reflect the change; the success
+// notice is persisted so it survives the reload.
+const MODULES_REQUIRING_RELOAD = [ 'podcast', 'subscriptions', 'wpcom-reader' ];
 
 /**
  * Renders a toggle for a Jetpack module.
@@ -25,6 +34,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
+	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
 
 	const isUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -69,10 +79,8 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		[ $module.module, $module.name, createErrorNotice, createSuccessNotice ]
 	);
 
-	const onChange = useCallback(
-		async ( event: ChangeEvent< HTMLInputElement > ) => {
-			const active = event.target.checked;
-
+	const setModuleActive = useCallback(
+		async ( active: boolean ) => {
 			// Track module activation/deactivation if we're in the Products tab context
 			if ( trackProductAction ) {
 				trackProductAction( {
@@ -89,6 +97,20 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 				active,
 			} );
 
+			if ( success && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
+				setPendingSuccessNotice(
+					active
+						? getModuleActivationMessage( $module.module, $module.name )
+						: sprintf(
+								/* translators: %s is the module name */
+								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
+								$module.name
+						  )
+				);
+				reloadPage();
+				return;
+			}
+
 			await showToggleNotice( {
 				noticeType: success ? 'success' : 'error',
 				action: active ? 'activation' : 'deactivation',
@@ -97,9 +119,35 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		[ toggleModule, $module, showToggleNotice, trackProductAction ]
 	);
 
+	const onChange = useCallback(
+		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),
+		[ setModuleActive ]
+	);
+	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
+
+	if ( sharingBlockEditorUrl ) {
+		if ( $module.activated ) {
+			return (
+				<SecondaryButton
+					label={ __( 'Switch to Sharing Buttons block', 'jetpack-my-jetpack' ) }
+					onClick={ deactivateModule }
+					isLoading={ isUpdating }
+					loadingAnnouncement={ __( 'Deactivating legacy sharing…', 'jetpack-my-jetpack' ) }
+				/>
+			);
+		}
+
+		return (
+			<SecondaryButton
+				href={ sharingBlockEditorUrl }
+				label={ __( 'Open Site Editor', 'jetpack-my-jetpack' ) }
+			/>
+		);
+	}
+
 	return (
 		<FormToggle
-			disabled={ isUpdating }
+			disabled={ isUpdating || !! $module.override }
 			checked={ $module.activated }
 			onChange={ onChange }
 			aria-label={ sprintf(

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcasting: only load the legacy at-pressable-podcasting plugin when the new jetpack-podcast package is not taking over the feature.

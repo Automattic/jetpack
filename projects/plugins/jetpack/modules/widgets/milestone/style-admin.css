@@ -24,8 +24,7 @@
 .jp-ms-data-time .assistive-text,
 .jp-ms-data-unit .assistive-text {
 	position: absolute !important;
-	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
 }
 
 @media screen and (max-width: 782px) {

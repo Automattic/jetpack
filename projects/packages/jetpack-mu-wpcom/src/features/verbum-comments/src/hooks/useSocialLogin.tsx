@@ -1,8 +1,10 @@
 import { useState, useEffect, useContext } from 'preact/hooks';
 import wpcomRequest from 'wpcom-proxy-request';
 import { VerbumSignals } from '../state';
-import { UserInfo } from '../types';
 import { serviceData, setUserInfoCookie } from '../utils';
+import type { UserInfo } from '../types';
+
+export type SocialServiceName = Exclude< keyof typeof serviceData, 'mail' >;
 
 export const addIframe = ( src: string ) => {
 	const iframe = document.createElement( 'iframe' );
@@ -63,14 +65,14 @@ export default function useSocialLogin() {
 	}
 
 	const logout = () => {
-		const serviceName = userInfo.value?.service;
+		const serviceName = userInfo.value?.service as SocialServiceName;
 		const cookieName = serviceData[ serviceName ].cookieName;
 
 		// Firefox: Logout from Verbum UI and clear cookies
 		document.cookie = `${ cookieName }=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None; Secure=True;${ addWordPressDomain }`;
 	};
 
-	const login = async ( service: string ) => {
+	const login = async ( service: SocialServiceName ) => {
 		const { connectURL } = VerbumComments;
 		const broadcastChannel = new BroadcastChannel( 'verbum_post_message' );
 
@@ -80,7 +82,7 @@ export default function useSocialLogin() {
 			`status=0,toolbar=0,location=1,menubar=0,directories=0,resizable=1,scrollbars=0${ serviceData[ service ].popup }`
 		);
 
-		const waitForLogin = event => {
+		const waitForLogin = ( event: MessageEvent ) => {
 			if (
 				event.origin !== document.location.origin &&
 				! event.origin.endsWith( '.wordpress.com' )
@@ -103,7 +105,7 @@ export default function useSocialLogin() {
 
 				// Ensure that the login window is closed after success
 				if ( ! loginWindow?.closed ) {
-					loginWindow.close();
+					loginWindow?.close();
 				}
 			}
 		};
@@ -123,7 +125,7 @@ export default function useSocialLogin() {
 			}
 		}, 100 );
 
-		setLoginWindowRef( loginWindow );
+		setLoginWindowRef( loginWindow ?? undefined );
 	};
 
 	return { login, loginWindowRef, logout };

@@ -10,6 +10,7 @@ import { select, dispatch } from '@wordpress/data';
 import type { BlockEditorDispatch, BlockEditorSelect } from './types';
 import type { BlockBehavior } from '../types';
 import type { Block, RenderHTMLRules } from '@automattic/jetpack-ai-client';
+import type { Block as WPBlock } from '@wordpress/blocks';
 
 export function getMarkdown( html: string ) {
 	return renderMarkdownFromHTML( { content: html } );
@@ -45,7 +46,7 @@ export class BlockHandler {
 	public getContent() {
 		const block = this.getBlock();
 
-		return getMarkdown( getBlockContent( block ) );
+		return getMarkdown( getBlockContent( block as WPBlock ) );
 	}
 
 	public renderContent( markdown: string ) {

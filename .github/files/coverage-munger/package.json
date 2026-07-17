@@ -1,6 +1,6 @@
 {
 	"private": true,
 	"devDependencies": {
-		"nyc": "^17.1.0"
+		"nyc": "^18.0.0"
 	}
 }

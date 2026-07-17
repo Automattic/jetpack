@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 
-import { spawnSync } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import fs, { readFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import net from 'net';
+import os from 'os';
+import { dirname, join, resolve } from 'path';
 import process from 'process';
-import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
 
 // Get package.json path relative to this file
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const packageJson = JSON.parse( readFileSync( resolve( __dirname, '../package.json' ), 'utf8' ) );
+const packageJson = JSON.parse(
+	readFileSync( resolve( import.meta.dirname, '../package.json' ), 'utf8' )
+);
 
 // Check for updates
 const notifier = updateNotifier( {
@@ -48,7 +50,7 @@ const isMonorepoRoot = dir => {
  * @return {boolean} True if running from source
  */
 const isRunningFromSource = () => {
-	let dir = __dirname;
+	let dir = import.meta.dirname;
 	let prevDir;
 	while ( dir !== prevDir ) {
 		if ( isMonorepoRoot( dir ) ) {
@@ -150,10 +152,22 @@ const huskyHookExists = ( monorepoRoot, hookName ) => {
  * @throws {Error} If hook installation fails
  */
 const initHooks = monorepoRoot => {
-	const hooksDir = resolve( monorepoRoot, '.git/hooks' );
+	// Use git rev-parse --git-common-dir to find the hooks directory.
+	// In a regular repo this returns ".git"; in a worktree it returns the
+	// main repo's .git path. Hooks are shared across all worktrees.
+	const gitCommonDirResult = spawnSync( 'git', [ 'rev-parse', '--git-common-dir' ], {
+		cwd: monorepoRoot,
+		encoding: 'utf8',
+	} );
+
+	if ( gitCommonDirResult.status !== 0 || ! gitCommonDirResult.stdout.trim() ) {
+		throw new Error( 'Could not determine git directory. Is this a git repository?' );
+	}
+
+	const hooksDir = resolve( monorepoRoot, gitCommonDirResult.stdout.trim(), 'hooks' );
 
 	if ( ! fs.existsSync( hooksDir ) ) {
-		throw new Error( 'Git hooks directory not found. Is this a git repository?' );
+		fs.mkdirSync( hooksDir, { recursive: true } );
 	}
 
 	console.log( chalk.blue( 'Setting up jp git hooks...' ) );
@@ -167,7 +181,7 @@ const initHooks = monorepoRoot => {
 	if ( hooksPathResult.stdout && hooksPathResult.stdout.trim() ) {
 		const currentHooksPath = hooksPathResult.stdout.trim();
 		console.log( chalk.yellow( `  Detected custom git hooks path: ${ currentHooksPath }` ) );
-		console.log( chalk.yellow( '  Resetting to use .git/hooks/ for jp hooks' ) );
+		console.log( chalk.yellow( `  Resetting to use ${ hooksDir } for jp hooks` ) );
 
 		const unsetResult = spawnSync( 'git', [ 'config', '--unset', 'core.hooksPath' ], {
 			cwd: monorepoRoot,
@@ -287,7 +301,226 @@ const initJetpack = async () => {
 
 		console.log( '3. jp docker install' );
 	} catch ( error ) {
-		throw new Error( `Failed to initialize Jetpack: ${ error.message }` );
+		throw new Error( `Failed to initialize Jetpack: ${ error.message }`, { cause: error } );
+	}
+};
+
+/**
+ * Run rsync command with SSH proxy via Unix domain socket.
+ * This allows rsync to run inside Docker while SSH connections are handled by the host,
+ * enabling support for Secure Enclave SSH keys (like AutoProxxy) that can't be forwarded into Docker.
+ *
+ * Architecture:
+ * 1. Host creates a Unix domain socket in a temp directory
+ * 2. Run rsync in Docker with the socket mounted into the container
+ * 3. When rsync needs SSH, the rsh-proxy script connects to the socket
+ * 4. rsh-proxy sends the SSH command as the first line, then proxies data
+ * 5. Host reads the command, spawns SSH, and proxies data bidirectionally
+ * 6. Data flows: rsync <-> Unix socket <-> host SSH <-> remote
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {Array}  args         - Command arguments (starting with 'rsync')
+ * @throws {Error} If rsync fails
+ */
+const runRsyncWithProxy = async ( monorepoRoot, args ) => {
+	let proxyServer = null;
+	let dockerProcess = null;
+	let cleanedUp = false;
+	const socketPath = join(
+		os.tmpdir(),
+		'jp-rsync-' + Math.floor( Math.random() * 2821109907456 ).toString( 36 )
+	);
+	const secret = crypto.randomUUID();
+
+	/**
+	 * Clean up the proxy server and socket file.
+	 */
+	const cleanup = () => {
+		if ( cleanedUp ) {
+			return;
+		}
+		cleanedUp = true;
+
+		if ( proxyServer ) {
+			proxyServer.close();
+			proxyServer = null;
+		}
+		try {
+			fs.unlinkSync( socketPath );
+		} catch {
+			// Socket file may already be cleaned up
+		}
+	};
+
+	/**
+	 * Handle an incoming connection from the rsh-proxy script.
+	 * Protocol: first line is the SSH command, then bidirectional data proxy.
+	 *
+	 * @param {net.Socket} socket - The incoming connection
+	 */
+	const handleConnection = socket => {
+		const chunks = [];
+
+		const onReadable = () => {
+			let chunk;
+			while ( ( chunk = socket.read() ) !== null ) {
+				chunks.push( chunk );
+				const combined = Buffer.concat( chunks );
+				const newlineIndex = combined.indexOf( 0x0a ); // '\n'
+
+				if ( newlineIndex === -1 ) {
+					continue;
+				}
+
+				const commandLine = combined.subarray( 0, newlineIndex ).toString();
+				const remaining = combined.subarray( newlineIndex + 1 );
+
+				socket.off( 'readable', onReadable );
+
+				// Parse the JSON array of args from rsync-rsh-proxy.sh
+				let parsedArgs;
+				try {
+					parsedArgs = JSON.parse( commandLine );
+					if ( ! Array.isArray( parsedArgs ) || parsedArgs.length === 0 ) {
+						throw new Error( 'parsedArgs is not a non-empty array' );
+					}
+				} catch {
+					console.error( chalk.red( 'Invalid JSON received from proxy' ) );
+					socket.destroy();
+					return;
+				}
+
+				// Validate the shared secret (security check)
+				if ( parsedArgs[ 0 ] !== secret ) {
+					if ( parsedArgs[ 0 ] === 'ssh' ) {
+						console.error(
+							chalk.red(
+								'The container did not send the shared secret. Update your git checkout with the latest trunk.'
+							)
+						);
+					} else {
+						console.error(
+							chalk.red(
+								'Incorrect shared secret received. Possible unauthorized access or misconfiguration.'
+							)
+						);
+					}
+					socket.destroy();
+					return;
+				}
+
+				// Validate that this is an SSH command (security check)
+				if ( parsedArgs.length < 2 || parsedArgs[ 1 ] !== 'ssh' ) {
+					console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
+					socket.destroy();
+					return;
+				}
+
+				// Spawn SSH with parsed arguments
+				const sshProcess = spawn( 'ssh', parsedArgs.slice( 2 ), {
+					stdio: [ 'pipe', 'pipe', 'inherit' ],
+				} );
+
+				// Put back any data that arrived after the newline
+				if ( remaining.length > 0 ) {
+					socket.unshift( remaining );
+				}
+
+				// Bidirectional pipe handles backpressure and end propagation
+				sshProcess.stdout.pipe( socket );
+				socket.pipe( sshProcess.stdin );
+
+				sshProcess.on( 'error', err => {
+					console.error( chalk.yellow( `SSH process error: ${ err.message }` ) );
+					socket.destroy();
+				} );
+
+				socket.on( 'error', err => {
+					// Connection errors are expected when rsync closes the connection
+					if ( err.code !== 'ECONNRESET' ) {
+						console.error( chalk.yellow( `Socket error: ${ err.message }` ) );
+					}
+					sshProcess.kill();
+				} );
+
+				return;
+			}
+		};
+
+		socket.on( 'readable', onReadable );
+	};
+
+	// Set up cleanup handlers
+	const onSignal = signal => {
+		cleanup();
+		if ( dockerProcess ) {
+			dockerProcess.kill( signal );
+		}
+	};
+
+	process.on( 'SIGINT', () => {
+		onSignal( 'SIGINT' );
+		process.exit( 130 );
+	} );
+
+	process.on( 'SIGTERM', () => {
+		onSignal( 'SIGTERM' );
+		process.exit( 143 );
+	} );
+
+	process.on( 'exit', cleanup );
+
+	try {
+		// Create Unix domain socket server and wait for it to start listening
+		await new Promise( ( resolveListening, rejectListening ) => {
+			proxyServer = net.createServer( handleConnection );
+
+			const oldumask = process.umask( 0o077 );
+
+			proxyServer.on( 'error', err => {
+				process.umask( oldumask );
+				rejectListening( err );
+			} );
+
+			proxyServer.listen( { path: socketPath }, () => {
+				process.umask( oldumask );
+				resolveListening();
+			} );
+		} );
+
+		// Run the monorepo script with RSYNC_PROXY_SOCKET set
+		const result = await new Promise( ( resolvePromise, rejectPromise ) => {
+			dockerProcess = spawn(
+				resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
+				[ 'pnpm', 'jetpack', ...args ],
+				{
+					stdio: 'inherit',
+					cwd: monorepoRoot,
+					env: {
+						...process.env,
+						RSYNC_PROXY_SOCKET: socketPath,
+						RSYNC_PROXY_SECRET: secret,
+					},
+				}
+			);
+
+			dockerProcess.on( 'close', code => {
+				resolvePromise( { status: code } );
+			} );
+
+			dockerProcess.on( 'error', err => {
+				rejectPromise( err );
+			} );
+		} );
+
+		cleanup();
+
+		if ( result.status !== 0 ) {
+			throw new Error( `Command failed with status ${ result.status }` );
+		}
+	} catch ( err ) {
+		cleanup();
+		throw err;
 	}
 };
 
@@ -345,6 +578,18 @@ const main = async () => {
 			return;
 		}
 
+		// Handle rsync command with SSH proxy for Secure Enclave keys
+		// This allows rsync to run inside Docker while using host SSH authentication
+		if (
+			args[ 0 ] === 'rsync' &&
+			! args.includes( '--config' ) &&
+			! args.includes( '--help' ) &&
+			! args.includes( '-h' )
+		) {
+			await runRsyncWithProxy( monorepoRoot, args );
+			return;
+		}
+
 		// Handle docker commands that must run on the host machine
 		if ( args[ 0 ] === 'docker' ) {
 			const hostCommands = [ 'up', 'down', 'stop', 'clean' ];
@@ -368,7 +613,6 @@ const main = async () => {
 						[ 'pnpm', 'jetpack', 'docker', 'config' ],
 						{
 							stdio: 'inherit',
-							shell: true,
 							cwd: monorepoRoot,
 						}
 					);
@@ -485,7 +729,6 @@ const main = async () => {
 
 				const result = spawnSync( 'docker', composeArgs, {
 					stdio: 'inherit',
-					shell: true,
 					cwd: resolve( monorepoRoot, 'tools/docker' ),
 					env: envVars,
 				} );

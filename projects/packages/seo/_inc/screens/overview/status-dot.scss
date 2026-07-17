@@ -1,0 +1,23 @@
+.jetpack-seo-status-dot {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	margin-inline-end: var(--wpds-dimension-gap-sm);
+	vertical-align: middle;
+
+	// The `-weak` tokens are the vivid indicator colors; the plain
+	// `fg-content-*` tokens are the darkest text shades (near-black) and read
+	// as black on a status dot.
+	&.is-ok {
+		background: var(--wpds-color-foreground-content-success-weak);
+	}
+
+	&.is-warn {
+		background: var(--wpds-color-foreground-content-warning-weak);
+	}
+
+	&.is-err {
+		background: var(--wpds-color-foreground-content-error-weak);
+	}
+}

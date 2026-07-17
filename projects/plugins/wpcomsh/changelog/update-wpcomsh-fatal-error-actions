@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Redesign the fatal error screen: identify the likely-cause plugin, offer admins a one-click signed deactivation URL, surface recovery mode when available, and link to WordPress.com support.

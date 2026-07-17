@@ -78,10 +78,6 @@
 
 		.jetpack-field__input-phone-wrapper {
 
-			&:not(.no-label) {
-				padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
-			}
-
 			&:has(.jetpack-field__input-element:focus) {
 				outline: unset;
 			}

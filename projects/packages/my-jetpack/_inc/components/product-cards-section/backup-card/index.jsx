@@ -1,7 +1,7 @@
-import { Text, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Link, Text } from '@wordpress/ui';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { PRODUCT_STATUSES } from '../../../constants';
@@ -115,14 +115,14 @@ const BackupCard = props => {
 			{ isDeactivated && ! isBackupFailedReasonLoading && (
 				<div className={ styles.backupErrorContainer }>
 					<div className={ styles.contentContainer }>
-						<Text variant="body-small">
+						<Text variant="body-sm">
 							{ createInterpolateElement(
 								__(
 									'Backup was manually turned off. Please <a>contact support</a> to reactivate it.',
 									'jetpack-my-jetpack'
 								),
 								{
-									a: <ExternalLink href={ supportUrl } />,
+									a: <Link openInNewTab href={ supportUrl } />,
 								}
 							) }
 						</Text>
@@ -135,7 +135,7 @@ const BackupCard = props => {
 						<Gridicon icon="notice" size={ 16 } className={ styles.iconError } />
 					</div>
 					<div className={ styles.contentContainer }>
-						<Text variant="body-small" className="value-section__heading">
+						<Text variant="body-sm" className="value-section__heading">
 							{ __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
 							<InfoTooltip
 								tracksEventName={ 'backup_card_tooltip_open' }
@@ -159,7 +159,7 @@ const BackupCard = props => {
 								</>
 							</InfoTooltip>
 						</Text>
-						<Text variant="body-small" className={ styles.error_description }>
+						<Text variant="body-sm" className={ styles.error_description }>
 							{ __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' ) }
 						</Text>
 					</div>
@@ -203,7 +203,7 @@ const WithBackupsValueSection = props => {
 	};
 
 	const WithBackupsDescription = () => (
-		<Text variant="body-small" className={ styles.description }>
+		<Text variant="body-sm" className={ styles.description }>
 			<span>{ __( 'Activity Detected', 'jetpack-my-jetpack' ) }</span>
 			<span className={ styles.time }>
 				{ getTimeSinceLastRenewableEvent( lastRewindableEventTime ) }
@@ -222,7 +222,23 @@ const WithBackupsValueSection = props => {
 			{ lastRewindableEvent ? (
 				<div className={ styles.activity }>
 					<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
-					<p className={ styles.summary }>{ lastRewindableEvent.summary }</p>
+					<p className={ styles.summary }>
+						{ lastRewindableEvent.summary }
+						{ lastRewindableEvent.actor?.is_mcp_agent && (
+							<>
+								{ ' ' }
+								<span className={ styles.mcpBadge }>
+									{ sprintf(
+										/* translators: %s: The name of the MCP client application. */
+										__( 'via %s (MCP)', 'jetpack-my-jetpack' ),
+										lastRewindableEvent.actor?.mcp_client ||
+											lastRewindableEvent.actor?.mcp_client_name ||
+											__( 'MCP client', 'jetpack-my-jetpack' )
+									) }
+								</span>
+							</>
+						) }
+					</p>
 				</div>
 			) : null }
 		</ProductCard>

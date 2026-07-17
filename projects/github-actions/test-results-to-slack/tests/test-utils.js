@@ -1,14 +1,17 @@
-const github = require( '@actions/github' );
+import { jest } from '@jest/globals';
 
 /**
  * Mocks the GitHub context exposed by `@actions/github`
  *
  * @param {object} value - context object
  */
-function mockGitHubContext( value ) {
-	Object.defineProperty( github, 'context', {
-		value,
-	} );
+export async function mockGitHubContext( value ) {
+	jest.unstable_unmockModule( '@actions/github' );
+	const actualGithub = await import( '@actions/github' );
+	jest.unstable_mockModule( '@actions/github', () => ( {
+		...actualGithub,
+		context: value,
+	} ) );
 }
 
 /**
@@ -16,7 +19,7 @@ function mockGitHubContext( value ) {
  *
  * @param {object} options - options object
  */
-function setInputData( options ) {
+export function setInputData( options ) {
 	const {
 		ghToken,
 		slackToken,
@@ -88,7 +91,7 @@ function setInputData( options ) {
  *
  * @param {object} options - options object
  */
-function mockContextExtras( options ) {
+export function mockContextExtras( options ) {
 	const {
 		runAttempt = '1',
 		refType = 'branch',
@@ -103,9 +106,3 @@ function mockContextExtras( options ) {
 	process.env.GITHUB_REPOSITORY = repository;
 	process.env.GITHUB_TRIGGERING_ACTOR = triggeringActor;
 }
-
-module.exports = {
-	mockGitHubContext,
-	setInputData,
-	mockContextExtras,
-};

@@ -14,7 +14,9 @@
 		"automattic/block-delimiter": "@dev",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-account-protection": "@dev",
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-agents-manager": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
@@ -39,27 +41,31 @@
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-paypal-payments": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-podcast": "@dev",
 		"automattic/jetpack-post-list": "@dev",
+		"automattic/jetpack-post-media": "@dev",
 		"automattic/jetpack-publicize": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
+		"automattic/jetpack-scan-page": "@dev",
 		"automattic/jetpack-search": "@dev",
+		"automattic/jetpack-seo": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-subscribers-dashboard": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
-		"automattic/woocommerce-analytics": "@dev"
+		"automattic/jetpack-wp-abilities": "@dev",
+		"automattic/woocommerce-analytics": "^0.16"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0"
@@ -74,16 +80,15 @@
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
-		"test-coverage": [
-			"@php tools/build-module-headings-translations.php",
-			"tests/action-test-coverage.sh"
-		],
-		"test-js": [
-			"pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
-		],
+		"test-js": "pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'",
+		"test-js-coverage": "tests/action-test-js-coverage.sh",
 		"test-php": [
 			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-php.sh"
+		],
+		"test-php-coverage": [
+			"@php tools/build-module-headings-translations.php",
+			"tests/action-test-php-coverage.sh"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
@@ -111,7 +116,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_5_a_1",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_1_a_1",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

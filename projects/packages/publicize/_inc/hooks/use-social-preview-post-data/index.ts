@@ -1,22 +1,22 @@
+import { parseHyperlinks } from '@automattic/social-previews';
 import { Attachment, store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { decodeEntities } from '@wordpress/html-entities';
 import { useMemo } from 'react';
 import { usePostMeta } from '../../hooks/use-post-meta';
-import { getSigImageUrl } from '../../hooks/use-sig-preview/utils';
-import { PostData } from './types';
-import { getMediaSourceUrl, getPostImageUrl } from './utils';
+import { useLinkPreviewPostData } from '../use-link-preview-post-data';
+import { getMediaSourceUrl } from '../use-link-preview-post-data/utils';
+import { PostPreviewData } from './types';
 
 /**
  * Returns the post data needed for social preview.
  *
  * @return The post data.
  */
-export function useSocialPreviewPostData(): PostData {
-	const { attachedMedia, imageGeneratorSettings } = usePostMeta();
-
-	const { getEditedPostAttribute } = useSelect( editorStore, [] );
+export function useSocialPreviewPostData(): PostPreviewData {
+	const { attachedMedia } = usePostMeta();
+	const linkPreviewData = useLinkPreviewPostData();
 
 	// Prepare a comma-separated list of media IDs to fetch.
 	const mediaIdsStr = attachedMedia
@@ -44,7 +44,7 @@ export function useSocialPreviewPostData(): PostData {
 	const media = useMemo(
 		// This is here to avoid mangled diff.
 		() => {
-			const items: PostData[ 'media' ] = [];
+			const items: PostPreviewData[ 'media' ] = [];
 
 			for ( const item of attachedMedia ) {
 				// It can be a SIG (Social Image Generator) image allowed to be attached without an ID.
@@ -73,61 +73,32 @@ export function useSocialPreviewPostData(): PostData {
 		[ attachedMedia, mediaItems ]
 	);
 
-	const image = useSelect(
-		select => {
-			const { getEntityRecord } = select( coreStore );
+	const excerpt = useSelect( select => {
+		const { getEditedPostAttribute } = select( editorStore );
 
-			const featuredImageId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
+		return decodeEntities(
+			(
+				getEditedPostAttribute( 'excerpt' ) ||
+				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+				''
+			).trim()
+		);
+	}, [] );
 
-			// Use the featured image by default, if it's available.
-			let _image = featuredImageId
-				? getMediaSourceUrl( getEntityRecord( 'postType', 'attachment', featuredImageId ) )
-				: '';
+	const content = useSelect( select => select( editorStore ).getEditedPostContent(), [] );
 
-			const sigImageUrl = imageGeneratorSettings.enabled
-				? getSigImageUrl( imageGeneratorSettings.token )
-				: '';
-			// If we have a SIG token, use it to generate the image URL.
-			if ( sigImageUrl ) {
-				_image = sigImageUrl;
-			}
-
-			// If we still don't have an image, try to get it from the post content.
-			if ( ! _image ) {
-				const postImageUrl = getPostImageUrl( select( editorStore ).getEditedPostContent() );
-
-				if ( postImageUrl ) {
-					_image = postImageUrl;
-				}
-			}
-
-			return _image;
-		},
-		[ imageGeneratorSettings.enabled, imageGeneratorSettings.token ]
-	);
+	// Editor hyperlinks are read from the full serialized content (which keeps
+	// the `<a>` tags) rather than the excerpt/content attribute, which is already
+	// HTML-stripped. The DOM parser decodes entities, so the anchor text matches
+	// the decoded body text the previews render.
+	const hyperlinks = useMemo( () => parseHyperlinks( content ), [ content ] );
 
 	return useMemo( () => {
 		return {
-			title: (
-				getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title ||
-				getEditedPostAttribute( 'title' ) ||
-				''
-			).trim(),
-			description: (
-				getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
-				getEditedPostAttribute( 'excerpt' ) ||
-				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
-				__( 'Visit the post for more.', 'jetpack-publicize-pkg' ) ||
-				''
-			).trim(),
-			url: getEditedPostAttribute( 'link' ),
-			excerpt: (
-				getEditedPostAttribute( 'excerpt' ) ||
-				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
-				''
-			).trim(),
-			image,
+			...linkPreviewData,
+			excerpt,
+			hyperlinks,
 			media,
 		};
-	}, [ getEditedPostAttribute, media, image ] );
+	}, [ hyperlinks, excerpt, linkPreviewData, media ] );
 }

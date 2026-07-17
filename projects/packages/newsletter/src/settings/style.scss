@@ -1,83 +1,91 @@
-.newsletter-settings {
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 0;
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "sass:meta";
 
-	// Card-based sections
-	&__section {
-		background: #fff;
-		border: 1px solid #c3c4c7;
-		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-		margin-bottom: 20px;
-		padding: 1.5em;
+// This stylesheet feeds two bundles: the wp-build dashboard
+// (`routes/dashboard/stage.tsx`) and the legacy settings page
+// (`src/settings/index.tsx`, the `newsletter` webpack entry, still served when
+// a site opts out via `rsm_jetpack_ui_modernization_newsletter`). Load shared
+// CSS with `meta.load-css`, never a literal `@import "….css"`:
+// - Sass passes `.css` `@import`s through as literal CSS at-rules. On the
+//   wp-build path they survive to runtime, where the bare specifiers resolve
+//   against `/wp-admin/…` and 404. Firefox applies NO rule from a stylesheet
+//   with pending imports, so the `jetpack-admin-page-layout` mixin below stays
+//   inert until they settle — an intermittent FOUC where the page paints
+//   unstyled (content under the admin menu, tabs mis-inset), then snaps in.
+// - `meta.load-css` inlines at Sass compile time, so both bundles get the rules
+//   and no runtime `@import` ever reaches the browser.
+// The DataViews CSS is required, not decorative: the sections below render
+// `DataForm`, which needs it for layout and spacing on both pages.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+@include meta.load-css("./sections/placement-card");
+
+body.jetpack_page_jetpack-newsletter {
+
+	// `-wp-build` variant: the modernized dashboard mounts `@wordpress/admin-ui`
+	// 2.x components, so we layer that variant's defensive resets on top of the
+	// shared layout. Reduces to the base layout on the legacy settings page,
+	// which renders no breadcrumbs.
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+#newsletter-settings-root * {
+	box-sizing: border-box;
+}
+
+.newsletter-jitm-card {
+
+	.jitm-card {
+		margin-inline-end: 0;
+		margin-block: 1.5rem;
 	}
+}
 
-	&__section-title {
-		margin: 0;
-		padding: 0;
-	}
+.newsletter-settings-connect-notice {
+	max-width: 660px;
+	margin-inline: auto;
+	margin-block-end: var(--wpds-dimension-gap-lg);
 
-	&__section-description {
-		margin: 0;
-		padding: 0;
-		text-wrap: pretty;
-	}
-
-	&__section-content {
-		padding-top: 1em;
-
-		// Disabled state styling
-		&:disabled {
-			opacity: 0.5;
-			pointer-events: none;
-			position: relative;
-
-			&::after {
-				content: "";
-				position: absolute;
-				top: 0;
-				inset-inline-start: 0;
-				inset-inline-end: 0;
-				bottom: 0;
-				background: rgba(255, 255, 255, 0.6);
-				pointer-events: none;
-			}
-		}
-	}
-
-	&__section-actions {
-		margin-top: 2em;
-		display: flex;
-		justify-content: flex-start;
-	}
-
-	// Links styling
-	&__link {
-		margin-top: 2em;
-	}
-
-	// Help text with links
-	&__help-text {
-		margin-top: 12px;
-		font-size: 13px;
-	}
-
-	&--error {
-		padding: 20px;
-
-		h2 {
-			color: #d63638;
-			font-size: 18px;
-			margin-bottom: 12px;
-		}
-
-		p {
-			color: #646970;
-		}
-	}
-
-	// Notice component styling
 	.components-notice {
-		margin: 0 0 20px;
+		margin: 0;
+	}
+}
+
+.newsletter-settings-disabled {
+	position: relative;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: -2px;
+		left: 0;
+		z-index: 1;
+		background: rgba(255, 255, 255, 0.6);
+		width: 100%;
+		height: calc(100% + 2px);
+		pointer-events: all;
+	}
+}
+
+.newsletter-settings {
+	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
+	margin-inline: auto;
+	padding-block-end: var(--wpds-dimension-padding-3xl);
+
+	.components-notice {
+		margin-block-end: var(--wpds-dimension-gap-lg);
+	}
+
+	.newsletter-card-footer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		justify-content: flex-end;
+		margin-block-start: var(--wpds-dimension-gap-lg);
+
+		// Two-element footer (NewsletterSection's privacy + manage links)
+		// brackets each child to opposite ends instead of stacking right.
+		&:has(> :nth-child(2)) {
+			justify-content: space-between;
+		}
 	}
 }

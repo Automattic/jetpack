@@ -10,6 +10,10 @@
 	margin-bottom: 1.5rem;
 	max-width: 50%;
 
+	> div {
+		height: 12px;
+	}
+
 	span {
 		margin-top: rem.convert(10px);
 		display: block;

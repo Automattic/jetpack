@@ -4,6 +4,7 @@ export const SUPPORTED_SERVICES_MOCK = [
 		label: 'Facebook',
 		description: 'Share to your pages',
 		url: 'https://test_url.com',
+		status: 'ok',
 		supports: {
 			additional_users: true,
 			additional_users_only: true,
@@ -14,6 +15,7 @@ export const SUPPORTED_SERVICES_MOCK = [
 		label: 'LinkedIn',
 		description: 'Share to your account and company pages',
 		url: 'https://test_url.com',
+		status: 'ok',
 		supports: {
 			additional_users: true,
 			additional_users_only: false,
@@ -24,6 +26,7 @@ export const SUPPORTED_SERVICES_MOCK = [
 		label: 'Instagram Business',
 		description: 'Share to your Instagram Business account.',
 		url: 'https://test_url.com',
+		status: 'ok',
 		supports: {
 			additional_users: true,
 			additional_users_only: true,
