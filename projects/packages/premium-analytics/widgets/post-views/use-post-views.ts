@@ -249,10 +249,18 @@ export default function usePostViews(
 		const compareWindow = toDayWindow( reportParams.compare_from, reportParams.compare_to );
 		const buckets = window ? calendarBucketWindows( window, period ) : [];
 		const currentPoints = bucketDays( days, buckets );
-		const previousPoints =
-			window && compareWindow
-				? bucketDays( days, relativeBucketWindows( window, compareWindow, buckets ) )
-				: undefined;
+		let comparisonBuckets: BucketWindow[] | undefined;
+		if ( window && compareWindow ) {
+			// Day grouping must remain one point per actual calendar day. Relative
+			// bucketing is only needed for coarser periods, where matching the
+			// primary layout prevents partial week/month boundaries from scrunching
+			// the comparison overlay.
+			comparisonBuckets =
+				period === 'day'
+					? calendarBucketWindows( compareWindow, period )
+					: relativeBucketWindows( window, compareWindow, buckets );
+		}
+		const previousPoints = comparisonBuckets ? bucketDays( days, comparisonBuckets ) : undefined;
 
 		return {
 			current: currentPoints,
