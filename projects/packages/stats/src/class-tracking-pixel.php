@@ -190,19 +190,9 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			return "_stq = window._stq || [];\n" . $pushes;
 		}
 
-		// ON: defer the view/click pixel until the visitor grants the WP Consent API
-		// "statistics" category. This runs client-side by necessity — the markup is
-		// emitted into full-page-cached HTML, so a server-side wp_has_consent() check
-		// would bake one visitor's choice into every cached response.
-		//
-		// The initial check is deferred to DOMContentLoaded so any consent-management
-		// plugin has established its consent type by then; checking synchronously at
-		// footer-parse time can read a permissive default before that type is set. We
-		// use only the standard WP Consent API surface (wp_has_consent +
-		// wp_listen_for_consent_change) and never inspect wp_consent_type internals, so
-		// this stays decoupled from any specific consent plugin. When the Consent API is
-		// absent entirely, fire unchanged so sites without a consent plugin keep tracking.
-		// A later "deny" sets a suppress flag so a mid-page withdrawal can't re-fire.
+		// Check consent in the browser because cached HTML is shared across visitors.
+		// Wait until DOMContentLoaded so consent plugins can initialize. If the WP Consent
+		// API is unavailable, preserve the existing tracking behavior.
 		return sprintf(
 			'_stq = window._stq || [];
 function _jpStatsFire() {
