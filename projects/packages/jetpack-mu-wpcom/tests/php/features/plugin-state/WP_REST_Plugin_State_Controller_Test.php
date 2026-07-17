@@ -31,6 +31,13 @@ class WP_REST_Plugin_State_Controller_Test extends \WorDBless\BaseTestCase {
 	private $created_dirs = array();
 
 	/**
+	 * Single-file plugins created by a test.
+	 *
+	 * @var string[]
+	 */
+	private $created_files = array();
+
+	/**
 	 * The callback watching `pre_http_request`, if a test registered one.
 	 *
 	 * @var callable|null
@@ -56,6 +63,13 @@ class WP_REST_Plugin_State_Controller_Test extends \WorDBless\BaseTestCase {
 			$this->rrmdir( $dir );
 		}
 		$this->created_dirs = array();
+
+		foreach ( $this->created_files as $file ) {
+			if ( is_file( $file ) ) {
+				unlink( $file );
+			}
+		}
+		$this->created_files = array();
 
 		$this->set_auth_state( null, null );
 		remove_action( 'rest_api_init', array( $this, 'register_route' ) );
@@ -123,6 +137,22 @@ class WP_REST_Plugin_State_Controller_Test extends \WorDBless\BaseTestCase {
 		file_put_contents(
 			$path,
 			$header ? "<?php\n/*\n * Plugin Name: $name\n * Version: 1.0\n */\n" : "<?php\n// Not a plugin.\n"
+		);
+	}
+
+	/**
+	 * Create a single-file plugin sitting directly in WP_PLUGIN_DIR, e.g. `foo.php`.
+	 *
+	 * @param string $file The file name under WP_PLUGIN_DIR.
+	 * @param string $name The plugin display name.
+	 */
+	private function make_single_file_plugin( $file, $name = 'Single File Plugin' ) {
+		$path                  = WP_PLUGIN_DIR . '/' . $file;
+		$this->created_files[] = $path;
+
+		file_put_contents(
+			$path,
+			"<?php\n/*\n * Plugin Name: $name\n * Version: 1.0\n */\n"
 		);
 	}
 
@@ -252,6 +282,44 @@ class WP_REST_Plugin_State_Controller_Test extends \WorDBless\BaseTestCase {
 				'active'    => true,
 			),
 			$this->request( 'give' )->get_data()
+		);
+	}
+
+	/**
+	 * A single-file plugin -- `<slug>.php` sitting directly in WP_PLUGIN_DIR, with no directory
+	 * of its own -- is a layout Atomic's marketplace supports and core recognizes. Its id is
+	 * the bare slug.
+	 *
+	 * @param string[] $active   Contents of `active_plugins`.
+	 * @param bool     $expected The expected `active` value.
+	 * @dataProvider single_file_provider
+	 */
+	#[DataProvider( 'single_file_provider' )]
+	public function test_single_file_plugin( $active, $expected ) {
+		$this->set_auth_state( true, 'blog' );
+		$this->make_single_file_plugin( 'give.php', 'Give' );
+		update_option( 'active_plugins', $active );
+
+		$this->assertSame(
+			array(
+				'slug'      => 'give',
+				'installed' => true,
+				'id'        => 'give',
+				'active'    => $expected,
+			),
+			$this->request( 'give' )->get_data()
+		);
+	}
+
+	/**
+	 * Data for test_single_file_plugin.
+	 *
+	 * @return array
+	 */
+	public static function single_file_provider() {
+		return array(
+			'active'   => array( array( 'give.php' ), true ),
+			'inactive' => array( array(), false ),
 		);
 	}
 

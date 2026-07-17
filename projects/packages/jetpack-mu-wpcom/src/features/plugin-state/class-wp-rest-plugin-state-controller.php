@@ -139,22 +139,28 @@ class WP_REST_Plugin_State_Controller extends WP_REST_Controller {
 	/**
 	 * Find the plugin's bootstrap file, relative to WP_PLUGIN_DIR.
 	 *
-	 * Only a file directly inside the plugin's directory can be its bootstrap, which is why
-	 * get_plugins() is not used here: pointed at a single directory it also descends a level and
+	 * A plugin is either a directory holding one or more files with a plugin header
+	 * (`<slug>/<slug>.php`) or a single file at the root (`<slug>.php`) -- both are layouts
+	 * core recognizes and Atomic's marketplace installs. Only files at those two positions
+	 * qualify; a header nested deeper is some bundled library, not the plugin.
+	 *
+	 * get_plugins() is not used because, pointed at one directory, it also descends a level and
 	 * parses the header of every nested PHP file only to have them discarded -- hundreds of reads
-	 * for a large plugin. Its cache group is non-persistent, so a polling caller pays that on
-	 * every request.
+	 * for a large plugin. Its cache group is non-persistent, so a polling caller pays that every
+	 * request.
 	 *
-	 * @param string $slug The plugin's directory slug.
+	 * @param string $slug The plugin's WordPress.org directory slug.
 	 *
-	 * @return string|null The plugin file, or null when the directory holds no plugin.
+	 * @return string|null The plugin file, or null when no plugin is found.
 	 */
 	private function find_bootstrap_file( $slug ) {
-		// The slug is validated, so it carries no glob wildcard.
+		// The slug is validated, so neither path carries a glob wildcard.
 		$candidates = glob( WP_PLUGIN_DIR . '/' . $slug . '/*.php' );
+		$candidates = is_array( $candidates ) ? $candidates : array();
 
-		if ( ! $candidates ) {
-			return null;
+		$single_file = WP_PLUGIN_DIR . '/' . $slug . '.php';
+		if ( is_file( $single_file ) ) {
+			$candidates[] = $single_file;
 		}
 
 		$names = array();
@@ -167,7 +173,8 @@ class WP_REST_Plugin_State_Controller extends WP_REST_Controller {
 			$data = get_plugin_data( $path, false, false );
 
 			if ( ! empty( $data['Name'] ) ) {
-				$names[ basename( $path ) ] = $data['Name'];
+				$relative           = substr( $path, strlen( WP_PLUGIN_DIR ) + 1 );
+				$names[ $relative ] = $data['Name'];
 			}
 		}
 
@@ -178,6 +185,6 @@ class WP_REST_Plugin_State_Controller extends WP_REST_Controller {
 		// get_plugins() orders by display name and the plugin list takes the first; match that.
 		uasort( $names, 'strnatcasecmp' );
 
-		return $slug . '/' . array_key_first( $names );
+		return array_key_first( $names );
 	}
 }
