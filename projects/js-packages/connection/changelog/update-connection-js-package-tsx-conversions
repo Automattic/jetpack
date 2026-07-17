@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection UI: Convert remaining component files to TS / TSX.
