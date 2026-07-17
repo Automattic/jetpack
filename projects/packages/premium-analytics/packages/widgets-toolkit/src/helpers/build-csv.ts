@@ -12,6 +12,7 @@
  * External dependencies
  */
 import { saveBlob } from '@jetpack-premium-analytics/data';
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
 
 /**
  * A single CSV column: which row key to read and the header label to print.
@@ -92,8 +93,8 @@ export function buildCsvDateRangeFilename(
 	prefix: string,
 	range: { from: string | number; to: string | number }
 ): string {
-	const from = String( range.from ).slice( 0, 10 );
-	const to = String( range.to ).slice( 0, 10 );
+	const from = getDatePart( range.from ) ?? String( range.from );
+	const to = getDatePart( range.to ) ?? String( range.to );
 	return `${ prefix }-${ from }_${ to }`;
 }
 
