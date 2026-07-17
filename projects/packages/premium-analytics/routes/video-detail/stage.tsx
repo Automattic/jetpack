@@ -24,6 +24,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // hook's own note), so the video-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
+import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
@@ -82,6 +83,7 @@ function VideoDetail(): JSX.Element {
 		summary.isLoading || summary.isError || summary.isNotFound
 			? undefined
 			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
+	const resolvedSummary = { ...summary, title };
 
 	return (
 		<WidgetDashboard
@@ -102,42 +104,45 @@ function VideoDetail(): JSX.Element {
 				}
 				className={ styles.page }
 			>
-				<div className={ styles.content }>
-					{ summary.isError && (
-						<Stack direction="column" align="flex-start" gap="sm">
-							<Text>
-								{ __(
-									"We couldn't load this video. Please try again in a moment.",
-									'jetpack-premium-analytics'
-								) }
-							</Text>
-							<Button variant="outline" onClick={ summary.refetch }>
-								{ __( 'Retry', 'jetpack-premium-analytics' ) }
-							</Button>
-						</Stack>
-					) }
-					{ summary.isNotFound && (
-						<Stack direction="column" align="flex-start" gap="sm">
-							<Text>
-								{ __( "We couldn't find this video.", 'jetpack-premium-analytics' ) }
-							</Text>
-							<Link
-								to="/reports/$report"
-								params={ { report: 'videos' } as unknown as never }
-								search={ reportSearch as unknown as never }
-							>
-								{ __( 'Back to Videos', 'jetpack-premium-analytics' ) }
-							</Link>
-						</Stack>
-					) }
-					{ title ? (
-						<Text variant="heading-xl" render={ <h1 /> }>
-							{ title }
-						</Text>
-					) : null }
-					<div ref={ setContainerElement } className={ styles.dateFilters }>
+				<div ref={ setContainerElement } className={ styles.header }>
+					<div className={ styles.summary }>
+						{ summary.isError ? (
+							<Stack direction="column" align="flex-start" gap="sm">
+								<Text>
+									{ __(
+										"We couldn't load this video. Please try again in a moment.",
+										'jetpack-premium-analytics'
+									) }
+								</Text>
+								<Button variant="outline" onClick={ summary.refetch }>
+									{ __( 'Retry', 'jetpack-premium-analytics' ) }
+								</Button>
+							</Stack>
+						) : summary.isNotFound ? (
+							<Stack direction="column" align="flex-start" gap="sm">
+								<Text>
+									{ __( "We couldn't find this video.", 'jetpack-premium-analytics' ) }
+								</Text>
+								<Link
+									to="/reports/$report"
+									params={ { report: 'videos' } as unknown as never }
+									search={ reportSearch as unknown as never }
+								>
+									{ __( 'Back to Videos', 'jetpack-premium-analytics' ) }
+								</Link>
+							</Stack>
+						) : (
+							<VideoSummaryCard
+								summary={ resolvedSummary }
+								performanceRange={ dateFilters.appliedRange }
+							/>
+						) }
+					</div>
+					<div className={ styles.dateFilters }>
 						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 					</div>
+				</div>
+				<div className={ styles.content }>
 					<WidgetDashboard.Widgets />
 				</div>
 			</Page>
