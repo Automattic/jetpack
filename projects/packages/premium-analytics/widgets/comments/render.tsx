@@ -148,6 +148,9 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 					/>
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="comments" section={ view } />
+			</WidgetFooter>
 		</Stack>
 	);
 }
@@ -167,9 +170,6 @@ export default function Comments( { attributes = {} }: CommentsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<CommentsInner max={ attributes.max } view={ view } />
-			<WidgetFooter>
-				<ReportLink report="comments" section={ view } />
-			</WidgetFooter>
 		</WidgetRoot>
 	);
 }

@@ -195,6 +195,9 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					</Stack>
 				) }
 			</WidgetState>
+			<WidgetFooter>
+				<ReportLink report="annual-insights" />
+			</WidgetFooter>
 		</div>
 	);
 }
@@ -213,9 +216,6 @@ export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsW
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<AnnualHighlightsReport metrics={ attributes.metrics } />
-			<WidgetFooter>
-				<ReportLink report="annual-insights" />
-			</WidgetFooter>
 		</WidgetRoot>
 	);
 }

@@ -200,6 +200,9 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					) }
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="tags" />
+			</WidgetFooter>
 		</Stack>
 	);
 }
@@ -217,9 +220,6 @@ export default function Tags( { attributes = {} }: TagsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<TagsInner max={ attributes.max } />
-			<WidgetFooter>
-				<ReportLink report="tags" />
-			</WidgetFooter>
 		</WidgetRoot>
 	);
 }
