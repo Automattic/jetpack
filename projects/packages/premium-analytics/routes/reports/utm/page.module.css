@@ -6,7 +6,7 @@
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
-	padding-block-end: 24px;
+	padding-block-end: var(--wpds-dimension-padding-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
