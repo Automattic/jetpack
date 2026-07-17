@@ -2,72 +2,18 @@
  * WordPress dependencies
  */
 import { CheckboxControl, privateApis, Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { Button, Fieldset, Stack } from '@wordpress/ui';
+import { useCallback } from '@wordpress/element';
+import { chevronDown } from '@wordpress/icons';
+import { Button, Fieldset, Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import useElements from '../helpers/use-elements';
 import { unlock } from '../lock/unlock';
 import styles from './array-checkbox-field.module.css';
-import type { DataFormControlProps, Option } from '@wordpress/dataviews';
+import type { DataFormControlProps } from '@wordpress/dataviews';
 
 const { Menu } = unlock( privateApis );
-
-type UseElementsParams = {
-	elements?: Option[];
-	getElements?: () => Promise< Option[] >;
-};
-
-function useElements( { elements, getElements }: UseElementsParams ) {
-	const staticElements = useMemo(
-		() => ( Array.isArray( elements ) && elements.length > 0 ? elements : [] ),
-		[ elements ]
-	);
-
-	const [ records, setRecords ] = useState< Option[] >( staticElements );
-	const [ isLoading, setIsLoading ] = useState( false );
-
-	useEffect( () => {
-		if ( ! getElements ) {
-			setRecords( staticElements );
-			return;
-		}
-
-		let cancelled = false;
-		setIsLoading( true );
-		getElements()
-			.then( fetchedElements => {
-				if ( cancelled ) {
-					return;
-				}
-
-				setRecords(
-					Array.isArray( fetchedElements ) && fetchedElements.length > 0
-						? fetchedElements
-						: staticElements
-				);
-			} )
-			.catch( () => {
-				if ( ! cancelled ) {
-					setRecords( staticElements );
-				}
-			} )
-			.finally( () => {
-				if ( ! cancelled ) {
-					setIsLoading( false );
-				}
-			} );
-
-		return () => {
-			cancelled = true;
-		};
-	}, [ getElements, staticElements ] );
-
-	return {
-		elements: records,
-		isLoading,
-	};
-}
 
 function normalizeSelectedValues( value: unknown ): string[] {
 	return Array.isArray( value ) ? value.filter( ( v ): v is string => typeof v === 'string' ) : [];
@@ -164,16 +110,18 @@ export default function ArrayCheckboxField< Item extends Record< string, string[
 					/>
 				}
 			>
-				{ label }
+				<span className={ styles.triggerLabel }>{ label }</span>
+				<Icon className={ styles.triggerCaret } icon={ chevronDown } size={ 18 } />
 			</Menu.TriggerButton>
 
-			<Menu.Popover className={ styles.popover }>
+			<Menu.Popover>
 				<Menu.Group>
 					{ elements.map( element => {
 						const value = String( element.value );
 						return (
 							<Menu.CheckboxItem
 								key={ value }
+								className={ styles.menuItem }
 								name={ field.id }
 								value={ value }
 								checked={ selectedValues.includes( value ) }

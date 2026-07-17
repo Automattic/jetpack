@@ -2,7 +2,7 @@
 .root {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 	height: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;

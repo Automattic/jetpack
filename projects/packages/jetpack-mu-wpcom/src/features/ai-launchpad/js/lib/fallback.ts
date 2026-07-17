@@ -128,5 +128,14 @@ export function selectFallback( input: WizardInput ): TailoredOutput {
 				'Thanks for being here at the very beginning. Stay tuned for what comes next.',
 			],
 		},
+		about_page_draft: {
+			title: 'About',
+			paragraphs: [
+				'This is where the story of ' +
+					siteName +
+					' begins. Use this page to share who is behind the site and what it is all about.',
+				'Tell visitors how it started, what they can expect to find here, and where it is headed next.',
+			],
+		},
 	};
 }

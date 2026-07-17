@@ -1,8 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { createAboutPage } from '../lib/about-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
-import { createPatternPage } from '../lib/pattern-page.ts';
+import { createGalleryPage } from '../lib/pattern-page.ts';
 import { trackTaskClicked, trackTaskSkipped } from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
 import {
@@ -195,7 +196,8 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				{
 					trackTaskClicked,
 					createFirstPostDraft,
-					createPatternPage,
+					createAboutPage,
+					createGalleryPage,
 				},
 				siteUrl
 			);

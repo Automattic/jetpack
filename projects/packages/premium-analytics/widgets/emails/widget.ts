@@ -6,6 +6,11 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which rate the leaderboard displays. Rows stay in newest-first order
  * regardless; this only changes the value shown and the overlay bar width.
  */
@@ -53,6 +58,7 @@ export default {
 			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Open rate', 'jetpack-premium-analytics' ),

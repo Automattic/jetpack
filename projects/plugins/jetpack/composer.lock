@@ -196,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "78c58dc683e5907f6e355f0d394c833412351d26"
+                "reference": "3e2c129b691220b22eca31e6f1299d5b653c2420"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -205,6 +205,7 @@
                 "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {

@@ -19,7 +19,7 @@
 	display: flex;
 	margin-block-start: auto;
 	justify-content: flex-end;
-	padding-block-start: var(--wpds-dimension-gap-sm, 8px);
+	padding-block-start: var(--wpds-dimension-gap-sm);
 }
 
 /* Vertical padding sets the overlay bar height — the bar fills the row,
@@ -30,10 +30,10 @@
 .labelRow {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 	min-width: 0;
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
 }
 
 /* `min-width: 0` lets the flex item shrink below its content width so the
@@ -63,7 +63,7 @@
 .externalLink {
 	display: inline-flex;
 	flex: none;
-	color: var(--wpds-color-foreground-content-neutral-weak, currentColor);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	opacity: 0;
 	transition: opacity 120ms ease-in-out;
 }

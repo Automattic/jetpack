@@ -68,7 +68,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 	switch ( ctaKind( taskId ) ) {
 		case 'first_post':
 			return __( 'Write post', 'jetpack-mu-wpcom' );
-		case 'pattern_page':
+		case 'about_page':
 			return __( 'Add page', 'jetpack-mu-wpcom' );
 		case 'launch':
 			return __( 'Launch site', 'jetpack-mu-wpcom' );

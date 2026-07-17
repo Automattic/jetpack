@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Register a pricing-table config for Stats so the interstitial no longer renders an empty column.
