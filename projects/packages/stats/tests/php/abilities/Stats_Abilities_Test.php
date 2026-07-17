@@ -1015,7 +1015,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertSame(
-			array( 'admin_bar', 'roles', 'count_roles', 'do_not_track' ),
+			array( 'admin_bar', 'roles', 'count_roles', 'do_not_track', 'honor_cookie_consent' ),
 			array_keys( $result )
 		);
 		// Internal keys must NOT leak.
@@ -1066,6 +1066,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['changed'] );
 		$this->assertFalse( $result['settings']['admin_bar'] );
+	}
+
+	public function test_update_settings_writes_honor_cookie_consent(): void {
+		$before = Stats_Abilities::get_settings();
+		$this->assertFalse( $before['honor_cookie_consent'], 'Defaults OFF.' );
+
+		$result = Stats_Abilities::update_settings( array( 'honor_cookie_consent' => true ) );
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['changed'] );
+		$this->assertTrue( $result['settings']['honor_cookie_consent'] );
+		$this->assertTrue( Options::get_option( 'honor_cookie_consent' ) );
 	}
 
 	public function test_update_settings_is_idempotent_for_current_state(): void {
