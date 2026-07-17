@@ -41,7 +41,13 @@ type PostDetailTabsProps = {
  */
 export function PostDetailTabs( { tabs, value, onChange, children }: PostDetailTabsProps ) {
 	return (
-		<SectionTabs tabs={ tabs } value={ value } onChange={ onChange } className={ styles.tabList }>
+		<SectionTabs
+			tabs={ tabs }
+			value={ value }
+			onChange={ onChange }
+			rootClassName={ styles.root }
+			className={ styles.tabList }
+		>
 			{ children }
 		</SectionTabs>
 	);

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Heartbeat: Report the site environment stats (WordPress/PHP versions, site configuration, etc.) for all connected sites.

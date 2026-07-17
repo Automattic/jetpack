@@ -45,6 +45,10 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 					type: 'string',
 					enum: [ 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ],
 				},
+				inferred_goal: {
+					type: 'string',
+					enum: [ 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ],
+				},
 				brand_name: { type: 'string', maxLength: 80 },
 				niche: { type: 'string', maxLength: 120 },
 				theme_keyword: { type: 'string', maxLength: 40 },

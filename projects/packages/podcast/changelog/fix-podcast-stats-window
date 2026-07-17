@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast stats: fix time-window labels and show a loading state instead of stale numbers when switching periods.

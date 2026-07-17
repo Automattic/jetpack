@@ -36,6 +36,8 @@ jsconfig.json          production-exclude
 phpunit.*.xml.dist     production-exclude
 phpunit.xml.dist       production-exclude
 tsconfig.json          production-exclude
+postcss.config.js      production-exclude
+postcss.config.[cm]js  production-exclude
 webpack.config.js      production-exclude
 webpack.config.[cm]js  production-exclude
 **/changelog/**        production-exclude

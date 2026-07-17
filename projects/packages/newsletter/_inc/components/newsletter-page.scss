@@ -8,7 +8,7 @@
 // padding, and the flex chain that lets the Subscribers DataViews surface fill
 // the viewport so its pagination footer pins to the bottom.
 
-$jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
+$jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl);
 
 body.jetpack_page_jetpack-newsletter {
 

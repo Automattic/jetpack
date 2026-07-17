@@ -29,6 +29,9 @@
 		"watch": "concurrently 'pnpm:build-client --watch' 'pnpm:watch:wp-build'",
 		"watch:wp-build": "wp-build --watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",

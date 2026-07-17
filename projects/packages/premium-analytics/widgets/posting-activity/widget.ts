@@ -23,7 +23,7 @@ export default {
 	title: __( 'Posting activity', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'How often you publish — a calendar heatmap of posts per day.',
+			'Your posting activity, shown as a heatmap to help you spot your most and least active days.',
 			'jetpack-premium-analytics'
 		),
 	},

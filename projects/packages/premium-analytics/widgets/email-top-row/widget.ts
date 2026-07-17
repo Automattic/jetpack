@@ -58,7 +58,7 @@ export type EmailTopRowAttributes = {
  */
 export default {
 	name: 'jpa/email-top-row',
-	title: __( 'Newsletter performance', 'jetpack-premium-analytics' ),
+	title: __( 'Email highlights', 'jetpack-premium-analytics' ),
 	icon: envelope,
 	help: {
 		content: __(

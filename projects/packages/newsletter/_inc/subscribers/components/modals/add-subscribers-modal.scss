@@ -22,7 +22,7 @@
 	width: 100%;
 	min-height: 140px;
 	padding: var(--wpds-dimension-padding-2xl);
-	border: var(--wpds-border-width-xs, 1px) dashed var(--wpds-color-stroke-surface-neutral);
+	border: var(--wpds-border-width-xs) dashed var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-md);
 	background: transparent;
 	color: var(--wpds-color-foreground-content-neutral-weak);
@@ -39,7 +39,7 @@
 	}
 
 	&:focus-visible {
-		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus);
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: 2px;
 	}
 

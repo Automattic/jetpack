@@ -1,0 +1,21 @@
+.tagLabel {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-padding-sm);
+	min-width: 0;
+}
+
+.tagIcon {
+	flex-shrink: 0;
+}
+
+.tagText {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+a.tagText:hover,
+a.tagText:focus {
+	text-decoration: underline;
+}

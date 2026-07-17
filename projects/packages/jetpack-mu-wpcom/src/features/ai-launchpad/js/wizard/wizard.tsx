@@ -3,7 +3,15 @@ import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
-import { trackViewed, trackWizardCompleted, trackWizardSkipped } from '../lib/tracks.ts';
+import {
+	setTracksContext,
+	trackViewed,
+	trackWizardBackClicked,
+	trackWizardGoalClicked,
+	trackWizardSiteDetailsChanged,
+	trackWizardStepCompleted,
+	trackWizardStepSkipped,
+} from '../lib/tracks.ts';
 import DetailsStep from './details-step.tsx';
 import GoalsStep from './goals-step.tsx';
 import {
@@ -59,10 +67,13 @@ export function Wizard( {
 	const [ skipping, setSkipping ] = useState( false );
 
 	const state: WizardState = { goal, siteName, intent, locale };
+	// The analytics name of the current step, shared by every event that reports one.
+	const stepName = 0 === step ? 'goal' : 'site_details';
 
+	// One viewed event per screen shown, re-firing when Back re-shows the goal step.
 	useEffect( () => {
-		trackViewed();
-	}, [] );
+		trackViewed( { step: stepName } );
+	}, [ stepName ] );
 
 	// Background-tailor on Step-2 typing pauses; Finish reuses the prewarmed
 	// promise via getPrewarmedTailor.
@@ -70,6 +81,11 @@ export function Wizard( {
 
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
+			trackWizardStepCompleted( { step: stepName } );
+			// The goal is confirmed from here on; earlier funnel events carry null.
+			if ( goal ) {
+				setTracksContext( { goal } );
+			}
 			setStep( ( step + 1 ) as WizardStep );
 			return;
 		}
@@ -96,12 +112,22 @@ export function Wizard( {
 			.catch( () => {} );
 
 		const tailoring = getPrewarmedTailor( payload );
-		trackWizardCompleted();
+		trackWizardStepCompleted( { step: stepName } );
+		// One event per field the user actually modified, vs the pre-filled values.
+		if ( siteName.trim() !== initialSiteName.trim() ) {
+			trackWizardSiteDetailsChanged( { field: 'title' } );
+		}
+		if ( intent.trim() !== initialIntent.trim() ) {
+			trackWizardSiteDetailsChanged( { field: 'description' } );
+		}
+		// wizard_completed fires when the tailored list first lands (with the
+		// inferred context populated), not here — see TailoredList.
 		onComplete?.( payload, tailoring );
 	};
 
 	const handleBack = () => {
 		if ( step > 0 ) {
+			trackWizardBackClicked( { step: 'site_details' } );
 			setStep( ( step - 1 ) as WizardStep );
 		}
 	};
@@ -111,7 +137,7 @@ export function Wizard( {
 	// sites by their front-end host, so prefer the site URL over the wp-admin request host.
 	const handleSkip = async () => {
 		setSkipping( true );
-		trackWizardSkipped();
+		trackWizardStepSkipped( { step: stepName } );
 		try {
 			await apiFetch( { path: '/wpcom/v2/ai-launchpad', method: 'DELETE' } );
 		} catch {
@@ -142,7 +168,15 @@ export function Wizard( {
 				/>
 			</div>
 
-			{ step === 0 && <GoalsStep value={ goal } onChange={ setGoal } /> }
+			{ step === 0 && (
+				<GoalsStep
+					value={ goal }
+					onChange={ nextGoal => {
+						trackWizardGoalClicked( { goal_clicked: nextGoal } );
+						setGoal( nextGoal );
+					} }
+				/>
+			) }
 			{ step === 1 && (
 				<DetailsStep
 					goal={ goal }

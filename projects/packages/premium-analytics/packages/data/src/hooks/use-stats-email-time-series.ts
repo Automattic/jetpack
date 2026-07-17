@@ -10,19 +10,15 @@ import {
 	type StatsEmailTimeSeriesDataPoint,
 	type StatsEmailTimeSeriesSummary,
 } from '../queries/stats-email-time-series-query';
-import { useStatsReport, type UseStatsOptions } from './use-stats-report';
+import { useStatsQuery } from './use-stats-query';
+import type { UseStatsOptions } from './use-stats-report';
 
 export function useStatsEmailOpensTimeSeries(
 	postId: number,
 	params: StatsEmailTimeSeriesParams,
 	options?: UseStatsOptions
 ) {
-	return useStatsReport< StatsEmailTimeSeriesParams, StatsEmailTimeSeriesReport >(
-		p => statsEmailOpensTimeSeriesQuery( postId, p ),
-		params,
-		[ 'stats', 'email-opens-time-series', '__comparison__', 'disabled' ],
-		options
-	);
+	return useStatsQuery( statsEmailOpensTimeSeriesQuery( postId, params ), options );
 }
 
 export function useStatsEmailClicksTimeSeries(
@@ -30,12 +26,7 @@ export function useStatsEmailClicksTimeSeries(
 	params: StatsEmailTimeSeriesParams,
 	options?: UseStatsOptions
 ) {
-	return useStatsReport< StatsEmailTimeSeriesParams, StatsEmailTimeSeriesReport >(
-		p => statsEmailClicksTimeSeriesQuery( postId, p ),
-		params,
-		[ 'stats', 'email-clicks-time-series', '__comparison__', 'disabled' ],
-		options
-	);
+	return useStatsQuery( statsEmailClicksTimeSeriesQuery( postId, params ), options );
 }
 
 export type {

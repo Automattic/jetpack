@@ -50,6 +50,8 @@ export interface LaunchpadData {
 		payload: TailoredOutput;
 	} | null;
 	site?: SiteData;
+	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
+	wizard?: { goal?: string } | null;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
@@ -144,7 +146,7 @@ export function launchSiteUrl( siteUrl: string ): string | null {
  * be unit-tested without pulling `@wordpress/*` into the test runner.
  */
 export interface CtaHandlers {
-	trackTaskClicked: ( props: { task_id: string } ) => void;
+	trackTaskCtaClicked: ( props: { task_id: string } ) => void;
 	createFirstPostDraft: (
 		draft: FirstPostDraft
 	) => Promise< { post_id: number; edit_url: string } >;
@@ -194,7 +196,7 @@ export async function resolveCtaUrl(
 	handlers: CtaHandlers,
 	siteUrl: string | null = null
 ): Promise< string | null > {
-	handlers.trackTaskClicked( { task_id: task.id } );
+	handlers.trackTaskCtaClicked( { task_id: task.id } );
 
 	const kind = ctaKind( task.id );
 	let url: string | null;
