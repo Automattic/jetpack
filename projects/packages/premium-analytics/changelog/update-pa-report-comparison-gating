@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reports: Show comparison chart series for Posts, Videos, and Downloads without requiring matching rows between periods.

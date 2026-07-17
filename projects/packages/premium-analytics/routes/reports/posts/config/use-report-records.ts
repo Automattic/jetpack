@@ -89,7 +89,7 @@ export function usePostsReportRecords(
 	return {
 		chart: {
 			primary: chartPrimary,
-			comparison: activeReport.hasComparison ? chartComparison : undefined,
+			comparison: activeReport.comparison.data ? chartComparison : undefined,
 			isLoading: activeReport.isLoading,
 		},
 		posts: {

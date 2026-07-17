@@ -54,6 +54,44 @@ const report: StatsNormalizedReport< StatsFileDownloadsItem > = {
 	],
 };
 
+const comparisonReport: StatsNormalizedReport< StatsFileDownloadsItem > = {
+	summary: {},
+	data: [
+		{
+			time_interval: '2026-07-07',
+			date_start: '2026-07-07T00:00:00+00:00',
+			date_end: '2026-07-07T23:59:59+00:00',
+			items: [
+				{
+					label: '/files/guide.pdf',
+					shortLabel: 'guide.pdf',
+					link: 'https://example.com/files/guide.pdf',
+					downloads: 4,
+					linkTitle: '/files/guide.pdf',
+					labelIcon: 'external',
+					children: null,
+				},
+			],
+		},
+		{
+			time_interval: '2026-07-08',
+			date_start: '2026-07-08T00:00:00+00:00',
+			date_end: '2026-07-08T23:59:59+00:00',
+			items: [
+				{
+					label: '/files/guide.pdf',
+					shortLabel: 'guide.pdf',
+					link: 'https://example.com/files/guide.pdf',
+					downloads: 5,
+					linkTitle: '/files/guide.pdf',
+					labelIcon: 'external',
+					children: null,
+				},
+			],
+		},
+	],
+};
+
 const params: ReportParams = {
 	from: '2026-07-09',
 	to: '2026-07-10',
@@ -108,5 +146,39 @@ describe( 'useDownloadsReportRecords', () => {
 			} ),
 		] );
 		expect( weekResult.current.rows ).toEqual( dayResult.current.rows );
+	} );
+
+	it( 'includes comparison chart buckets when downloads do not overlap the primary period', () => {
+		mockUseStatsFileDownloads.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: comparisonReport },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsFileDownloads > );
+		const comparisonParams: ReportParams = {
+			...params,
+			compare_from: '2026-07-07',
+			compare_to: '2026-07-08',
+		};
+
+		const { result } = renderHook( () => useDownloadsReportRecords( comparisonParams, 'day' ) );
+
+		expect( result.current.chart.comparison ).toBeDefined();
+		expect( result.current.chart.comparison?.data.map( point => point.downloads ) ).toEqual( [
+			4, 5,
+		] );
+	} );
+
+	it( 'omits the comparison chart when comparison params are absent', () => {
+		mockUseStatsFileDownloads.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: comparisonReport },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsFileDownloads > );
+
+		const { result } = renderHook( () => useDownloadsReportRecords( params, 'day' ) );
+
+		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
 } );

@@ -50,6 +50,40 @@ const report: StatsNormalizedReport< StatsTopPostsItem > = {
 	],
 };
 
+const comparisonReport: StatsNormalizedReport< StatsTopPostsItem > = {
+	summary: {},
+	data: [
+		{
+			time_interval: '2026-07-07',
+			date_start: '2026-07-07T00:00:00+00:00',
+			date_end: '2026-07-07T23:59:59+00:00',
+			items: [
+				{
+					id: 99,
+					label: 'Post B',
+					views: 4,
+					link: 'https://example.com/post-b/',
+					type: 'post',
+				},
+			],
+		},
+		{
+			time_interval: '2026-07-08',
+			date_start: '2026-07-08T00:00:00+00:00',
+			date_end: '2026-07-08T23:59:59+00:00',
+			items: [
+				{
+					id: 99,
+					label: 'Post B',
+					views: 5,
+					link: 'https://example.com/post-b/',
+					type: 'post',
+				},
+			],
+		},
+	],
+};
+
 const params: ReportParams = {
 	from: '2026-07-09',
 	to: '2026-07-10',
@@ -99,5 +133,39 @@ describe( 'usePostsReportRecords', () => {
 			} ),
 		] );
 		expect( weekResult.current.posts.rows ).toEqual( dayResult.current.posts.rows );
+	} );
+
+	it( 'includes comparison chart buckets when posts do not overlap the primary period', () => {
+		mockUseStatsTopPosts.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: comparisonReport },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsTopPosts > );
+		const comparisonParams: ReportParams = {
+			...params,
+			compare_from: '2026-07-07',
+			compare_to: '2026-07-08',
+		};
+
+		const { result } = renderHook( () =>
+			usePostsReportRecords( 'posts-pages', comparisonParams, 'day' )
+		);
+
+		expect( result.current.chart.comparison ).toBeDefined();
+		expect( result.current.chart.comparison?.data.map( point => point.views ) ).toEqual( [ 4, 5 ] );
+	} );
+
+	it( 'omits the comparison chart when comparison params are absent', () => {
+		mockUseStatsTopPosts.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: comparisonReport },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsTopPosts > );
+
+		const { result } = renderHook( () => usePostsReportRecords( 'posts-pages', params, 'day' ) );
+
+		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
 } );
