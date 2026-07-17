@@ -59,6 +59,9 @@ export function useCommentsReportRecords( activeTab: CommentsReportTabId ) {
 						label,
 						value: author.value,
 						avatarUrl: author.icon ?? undefined,
+						// The author's profile URL from the API, when they have one —
+						// the label renders as an external link exactly like post rows.
+						link: author.link ?? undefined,
 					};
 				}
 
