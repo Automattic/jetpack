@@ -6,6 +6,7 @@ import {
 	getStatsChartBucketKey,
 	useStatsEmailClicksTimeSeries,
 	useStatsEmailOpensTimeSeries,
+	type StatsEmailTimeSeriesDataPoint,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
@@ -18,7 +19,7 @@ import {
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -131,6 +132,17 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 	const active = metric === 'clicks' ? clicks : opens;
 	const activeComparison = metric === 'clicks' ? clicksComparison : opensComparison;
 
+	// A comparison failure must not silently drop the overlay while the solid
+	// line stays: surface the error and retry both windows together.
+	const isComparisonError =
+		hasComparison && activeComparison.isError && activeComparison.data === undefined;
+	const retry = useCallback( () => {
+		active.refetch();
+		if ( hasComparison ) {
+			activeComparison.refetch();
+		}
+	}, [ active, activeComparison, hasComparison ] );
+
 	const report = active.data as StatsEmailTimeSeriesReport | undefined;
 	const comparisonReport = hasComparison
 		? ( activeComparison.data as StatsEmailTimeSeriesReport | undefined )
@@ -154,11 +166,15 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 		} );
 	}, [ report, granularity, field ] );
 
-	// The comparison window is the same length as the primary but can sit
-	// differently against calendar boundaries, so calendar-bucketing it
-	// directly could yield a different bucket count and misalign the overlay.
-	// Instead each comparison day joins the bucket of its same-index primary
-	// day, which always mirrors the primary series' bucket layout.
+	// The comparison window is the same length as the primary for most presets,
+	// but previous-month/-year can differ (a 31-day month compared with a
+	// 28-day one), and either window can sit differently against calendar
+	// boundaries. So instead of calendar-bucketing the comparison directly —
+	// which could yield a different bucket count and misalign the overlay —
+	// each comparison day joins the bucket of the primary day at the same
+	// index. Comparison days past the primary window (a longer previous period)
+	// fold into the last bucket, so no comparison data is dropped and the
+	// overlay always mirrors the primary series' bucket layout.
 	const comparisonChartReport = useMemo( () => {
 		if ( ! report || ! comparisonReport ) {
 			return undefined;
@@ -168,18 +184,17 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 			return comparisonReport;
 		}
 
-		const totals = new Map<
-			string,
-			{ start: ( typeof comparisonReport.data )[ 0 ]; value: number }
-		>();
-		const order: string[] = [];
-		report.data.forEach( ( primaryPoint, index ) => {
-			const comparisonPoint = comparisonReport.data[ index ];
-			if ( ! comparisonPoint ) {
-				return;
-			}
+		const primaryBucketKeys = report.data.map( primaryPoint =>
+			getStatsChartBucketKey( primaryPoint.time_interval, granularity )
+		);
+		if ( ! primaryBucketKeys.length ) {
+			return undefined;
+		}
 
-			const key = getStatsChartBucketKey( primaryPoint.time_interval, granularity );
+		const totals = new Map< string, { start: StatsEmailTimeSeriesDataPoint; value: number } >();
+		const order: string[] = [];
+		comparisonReport.data.forEach( ( comparisonPoint: StatsEmailTimeSeriesDataPoint, index ) => {
+			const key = primaryBucketKeys[ Math.min( index, primaryBucketKeys.length - 1 ) ];
 			const value = Number( comparisonPoint[ field ] ?? 0 );
 			const bucket = totals.get( key );
 			if ( bucket ) {
@@ -219,16 +234,14 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 			<WidgetState
 				isLoading={ active.isLoading }
 				isFetching={ active.isFetching || ( hasComparison && activeComparison.isFetching ) }
-				isError={ active.isError }
+				isError={ active.isError || isComparisonError }
 				isEmpty={ ! hasSelection || ! hasPoints }
 				error={ {
 					description: __(
 						"We couldn't load this email's timeline. Please try again in a moment.",
 						'jetpack-premium-analytics'
 					),
-					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: active.refetch },
-					],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: retry } ],
 				} }
 				empty={ {
 					icon: reports,

@@ -3,6 +3,7 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -211,6 +212,125 @@ describe( 'EmailTimeSeriesWidget', () => {
 		await waitFor( () => expect( chart ).toHaveAttribute( 'data-series-count', '2' ) );
 		expect( chart ).toHaveAttribute( 'data-values', '9' );
 		expect( chart ).toHaveAttribute( 'data-previous-values', '3' );
+	} );
+
+	it( 'folds a longer compare window into the last bucket instead of dropping days', async () => {
+		// previous-month can hand back more days than the primary (a 5-day
+		// compare window onto a 2-day primary). The overlay must keep the same
+		// two buckets as primary while summing all five compare days, not just
+		// the two that pair by index.
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-02-28' )
+					? {
+							timeline: {
+								unit: 'day',
+								fields: [ 'date', 'opens_count' ],
+								data: [
+									[ '2026-02-28', 10 ],
+									[ '2026-03-01', 20 ],
+								],
+							},
+					  }
+					: {
+							timeline: {
+								unit: 'day',
+								fields: [ 'date', 'opens_count' ],
+								data: [
+									[ '2026-01-28', 1 ],
+									[ '2026-01-29', 2 ],
+									[ '2026-01-30', 3 ],
+									[ '2026-01-31', 4 ],
+									[ '2026-02-01', 5 ],
+								],
+							},
+					  }
+			)
+		);
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-02-28T00:00:00.000+08:00',
+						to: '2026-03-01T23:59:59.999+08:00',
+						comp: '1',
+						compare_from: '2026-01-28T00:00:00.000+08:00',
+						compare_to: '2026-02-01T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+					granularity: 'month',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		await waitFor( () => expect( chart ).toHaveAttribute( 'data-series-count', '2' ) );
+		// Primary: Feb=10, Mar=20. Compare: Feb bucket = Jan 28 (1); Mar bucket =
+		// the four remaining days (2+3+4+5 = 14) folded in, so nothing is lost.
+		expect( chart ).toHaveAttribute( 'data-values', '10,20' );
+		expect( chart ).toHaveAttribute( 'data-previous-values', '1,14' );
+	} );
+
+	it( 'surfaces the error state and retries both windows when the compare request fails', async () => {
+		// Primary succeeds, comparison fails: the widget must not quietly show a
+		// lone solid line, so the error state appears and Retry re-runs both.
+		const compareStart = 'date=2026-06-24';
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( compareStart )
+				? Promise.reject( { status: 403, message: 'Forbidden' } )
+				: Promise.resolve( OPENS_TIMELINE_RESPONSE )
+		);
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-01T00:00:00.000+08:00',
+						to: '2026-07-07T23:59:59.999+08:00',
+						comp: '1',
+						compare_from: '2026-06-24T00:00:00.000+08:00',
+						compare_to: '2026-06-30T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( /couldn't load this email's timeline/ )
+		).resolves.toBeInTheDocument();
+
+		// Retry re-runs both windows; once the compare window resolves, the
+		// dashed overlay renders.
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( compareStart )
+					? {
+							timeline: {
+								unit: 'day',
+								fields: [ 'date', 'opens_count' ],
+								data: [
+									[ '2026-06-24', 2 ],
+									[ '2026-06-25', 3 ],
+									[ '2026-06-26', 4 ],
+								],
+							},
+					  }
+					: OPENS_TIMELINE_RESPONSE
+			)
+		);
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		await waitFor( () => expect( chart ).toHaveAttribute( 'data-series-count', '2' ) );
+		expect( chart ).toHaveAttribute( 'data-previous-values', '2,3,4' );
 	} );
 
 	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {

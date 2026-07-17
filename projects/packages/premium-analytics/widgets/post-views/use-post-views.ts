@@ -147,6 +147,16 @@ function calendarBucketWindows( window: DayWindow, period: PostViewsGranularity 
  * 29–February 28 comparison range must also have one bucket, even though it
  * crosses two calendar months.
  *
+ * Each comparison bucket starts at the same day offset from the comparison
+ * range's start as its primary bucket does from the primary start, so the
+ * bucket count always matches. The buckets fully partition the comparison
+ * range: every bucket's end is the next bucket's start minus a day, and the
+ * last bucket extends to `comparisonWindow.to`. That keeps the comparison a
+ * complete, non-overlapping cover of the selected range — a longer previous
+ * period (previous-month onto a shorter month) folds its tail into the last
+ * bucket instead of being truncated, and every bound is clamped to
+ * `comparisonWindow.to` so a shorter one never reaches past the selection.
+ *
  * @param primaryWindow    - The selected primary range.
  * @param comparisonWindow - The previous-period range.
  * @param buckets          - Calendar buckets clipped to the primary range.
@@ -160,15 +170,24 @@ function relativeBucketWindows(
 	const primaryStart = parseISO( primaryWindow.from );
 	const comparisonStart = parseISO( comparisonWindow.from );
 
-	return buckets.map( bucket => {
-		const from = format(
+	const froms = buckets.map( bucket =>
+		format(
 			addDays( comparisonStart, differenceInCalendarDays( parseISO( bucket.from ), primaryStart ) ),
 			'yyyy-MM-dd'
-		);
-		const to = format(
-			addDays( comparisonStart, differenceInCalendarDays( parseISO( bucket.to ), primaryStart ) ),
-			'yyyy-MM-dd'
-		);
+		)
+	);
+
+	return froms.map( ( from, index ) => {
+		// Each bucket runs up to the next bucket's start; the last one absorbs
+		// any remaining comparison days. Clamp the end to the selected window so
+		// a longer primary offset can't pull in out-of-range days. `from` is left
+		// unclamped so a shorter comparison keeps distinct (empty) trailing
+		// buckets rather than collapsing several onto the same key.
+		const rawTo =
+			index < froms.length - 1
+				? format( addDays( parseISO( froms[ index + 1 ] ), -1 ), 'yyyy-MM-dd' )
+				: comparisonWindow.to;
+		const to = rawTo > comparisonWindow.to ? comparisonWindow.to : rawTo;
 
 		return { date: from, from, to };
 	} );
