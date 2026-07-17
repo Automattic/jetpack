@@ -91,7 +91,6 @@ const baseConfig = {
 				'projects/js-packages/base-styles/**/*.{css,scss,sass}',
 				'projects/js-packages/charts/**/*.{css,scss,sass}',
 				'projects/js-packages/components/**/*.{css,scss,sass}',
-				'projects/js-packages/social-previews/**/*.{css,scss,sass}',
 				'projects/plugins/jetpack/**/*.{css,scss,sass}',
 			],
 			rules: {
