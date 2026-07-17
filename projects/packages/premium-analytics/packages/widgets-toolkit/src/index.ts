@@ -187,3 +187,12 @@ export {
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 } from '@automattic/charts';
+
+/**
+ * UI passthrough
+ *
+ * Widgets must import these from here, never from
+ * `@jetpack-premium-analytics/ui` directly: the toolkit is a shared script
+ * module, so the ui package is bundled once instead of once per widget.
+ */
+export { safeHttpUrl } from '@jetpack-premium-analytics/ui';

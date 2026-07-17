@@ -8,6 +8,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	flagUrl,
+	safeHttpUrl,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type GeoData,
@@ -61,27 +62,6 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
 			.filter( row => Boolean( row.countryCode ) )
 			.map( row => [ row.countryCode as string, row.value ] as [ string, number ] ),
 	];
-}
-
-/**
- * Returns the URL only when it parses as an http(s) link, so remote link data
- * cannot smuggle a clickable `javascript:`/`data:` protocol into an anchor.
- *
- * @param url - The candidate URL from remote breakdown data.
- * @return The safe http(s) URL, or null when it is missing, unparseable, or a
- *         non-http(s) protocol.
- */
-function safeHttpUrl( url: string | undefined ): string | null {
-	if ( ! url ) {
-		return null;
-	}
-
-	try {
-		const { protocol } = new URL( url );
-		return protocol === 'http:' || protocol === 'https:' ? url : null;
-	} catch {
-		return null;
-	}
 }
 
 /**
