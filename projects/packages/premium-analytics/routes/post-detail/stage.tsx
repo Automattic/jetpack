@@ -121,20 +121,19 @@ function PostDetail(): JSX.Element {
 						{ /*
 						 * The date filters and the summary card are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid. Everything below
-						 * the tab bar scrolls in one container: the summary header
-						 * scrolls away to give the widgets room, while the filters pin
-						 * to the top of the scroll area (position: sticky) so the date
-						 * range stays reachable — the tab bar itself never moves.
+						 * tab bar and above the per-tab widget grid. The tab bar and the
+						 * filters stay fixed outside the scroll container, exactly like
+						 * the dashboard's section tabs; the summary header scrolls away
+						 * inside it with the widgets, giving them the vertical room.
 						 *
 						 * The filters wrapper is also the responsive-measurement
 						 * target: DateFiltersPanel reads its width to pick mobile/wide
 						 * layouts instead of relying on the viewport.
 						 */ }
+						<div ref={ setContainerElement } className={ styles.dateFilters }>
+							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+						</div>
 						<div className={ styles.scrollArea }>
-							<div ref={ setContainerElement } className={ styles.dateFilters }>
-								<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-							</div>
 							<div className={ styles.header }>
 								<PostSummaryCard
 									summary={ summary }
