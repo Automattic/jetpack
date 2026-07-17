@@ -10,8 +10,7 @@ import {
 	getStatsReportItems,
 	getStatsTopLevelDataDate,
 	getStatsTopLevelPeriod,
-	limitStatsRows,
-	mergeStatsComparisonRows,
+	mergeStatsTreeComparisonRows,
 } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
@@ -155,53 +154,29 @@ function sortStatsArchivesComparisonItems(
 	return [ ...items ].sort( ( a, b ) => b.value - a.value );
 }
 
-function mergeStatsArchivesComparisonItems(
-	items: StatsArchivesItem[],
-	comparisonItems: StatsArchivesItem[]
-): { rows: StatsArchivesComparisonItem[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsComparisonRows<
-		StatsArchivesItem,
-		StatsArchivesItem,
-		StatsArchivesComparisonItem
-	>( {
-		primaryRows: items,
-		comparisonRows: comparisonItems,
-		getPrimaryKey: getStatsArchiveKey,
-		getComparisonKey: getStatsArchiveKey,
-		getComparisonValue: item => item.value,
-		mapRow: ( item, { previousValue, comparisonItem } ) => {
-			const { rows: children } = mergeStatsArchivesComparisonItems(
-				item.children ?? [],
-				comparisonItem?.children ?? []
-			);
-
-			return {
-				...item,
-				previousValue,
-				children: children.length ? children : null,
-			};
-		},
-	} );
-
-	return { rows: sortStatsArchivesComparisonItems( rows ), hasComparison };
-}
-
 export function mergeStatsArchivesComparisonRows(
 	primaryReport: StatsNormalizedReport< StatsArchivesItem > | undefined,
 	comparisonReport: StatsNormalizedReport< StatsArchivesItem > | undefined,
 	maxRows?: number
 ): { rows: StatsArchivesComparisonItem[]; hasComparison: boolean } {
-	const { rows } = mergeStatsArchivesComparisonItems(
-		getStatsReportItems( primaryReport ),
-		getStatsReportItems( comparisonReport )
-	);
-
-	// The overlap gate is computed on the visible rows so an off-screen match
-	// cannot switch the comparison UI on (see AGENTS.md).
-	const visibleRows = limitStatsRows( rows, maxRows );
-
-	return {
-		rows: visibleRows,
-		hasComparison: visibleRows.some( row => row.previousValue !== undefined ),
-	};
+	return mergeStatsTreeComparisonRows<
+		StatsArchivesItem,
+		StatsArchivesItem,
+		StatsArchivesComparisonItem
+	>( {
+		primaryRows: getStatsReportItems( primaryReport ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		maxRows,
+		getPrimaryKey: getStatsArchiveKey,
+		getComparisonKey: getStatsArchiveKey,
+		getComparisonValue: item => item.value,
+		getPrimaryChildren: item => item.children,
+		getComparisonChildren: item => item.children,
+		mapRow: ( item, { previousValue } ) => ( { ...item, previousValue, children: null } ),
+		setChildren: ( item, children ) => ( {
+			...item,
+			children: children.length ? children : null,
+		} ),
+		sortRows: sortStatsArchivesComparisonItems,
+	} );
 }

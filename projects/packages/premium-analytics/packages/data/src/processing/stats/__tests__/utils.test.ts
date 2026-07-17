@@ -5,6 +5,7 @@ import {
 	getStatsLabel,
 	getStatsSummaryIntervalFields,
 	mergeStatsComparisonRows,
+	mergeStatsTreeComparisonRows,
 	normalizeStatsSummary,
 } from '../utils';
 
@@ -148,5 +149,79 @@ describe( 'Stats report utilities', () => {
 				{ label: 'solo', path: [], indexPath: [ 0 ] },
 			] );
 		} );
+	} );
+
+	it( 'merges, sorts, and limits comparison trees with parent context', () => {
+		type TreeRow = {
+			key: string;
+			value: number;
+			children?: TreeRow[];
+		};
+		type MergedTreeRow = Omit< TreeRow, 'children' > & {
+			path: string;
+			previousValue?: number;
+			children: MergedTreeRow[] | null;
+			childrenHaveComparison: boolean;
+		};
+		const merge = ( maxRows?: number ) =>
+			mergeStatsTreeComparisonRows< TreeRow, TreeRow, MergedTreeRow, string >( {
+				primaryRows: [
+					{
+						key: 'matched',
+						value: 1,
+						children: [ { key: 'child', value: 2 } ],
+					},
+					{ key: 'visible', value: 3 },
+				],
+				comparisonRows: [
+					{
+						key: 'matched',
+						value: 0,
+						children: [ { key: 'child', value: 4 } ],
+					},
+				],
+				maxRows,
+				parentContext: 'root',
+				getPrimaryKey: row => row.key,
+				getComparisonKey: row => row.key,
+				getComparisonValue: row => row.value,
+				getPrimaryChildren: row => row.children,
+				getComparisonChildren: row => row.children,
+				mapRow: ( row, { previousValue }, parentPath ) => ( {
+					key: row.key,
+					value: row.value,
+					path: `${ parentPath }/${ row.key }`,
+					previousValue,
+					children: null,
+					childrenHaveComparison: false,
+				} ),
+				setChildren: ( row, children, childrenHaveComparison ) => ( {
+					...row,
+					children: children.length ? children : null,
+					childrenHaveComparison,
+				} ),
+				getChildContext: row => row.path,
+				sortRows: rows => [ ...rows ].sort( ( a, b ) => b.value - a.value ),
+			} );
+
+		const full = merge();
+		expect( full.hasComparison ).toBe( true );
+		expect( full.rows[ 1 ] ).toEqual(
+			expect.objectContaining( {
+				key: 'matched',
+				previousValue: 0,
+				childrenHaveComparison: true,
+			} )
+		);
+		expect( full.rows[ 1 ].children?.[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				path: 'root/matched/child',
+				previousValue: 4,
+			} )
+		);
+
+		const capped = merge( 1 );
+		expect( capped.rows.map( row => row.key ) ).toEqual( [ 'visible' ] );
+		expect( capped.hasComparison ).toBe( false );
 	} );
 } );

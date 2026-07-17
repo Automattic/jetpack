@@ -1,13 +1,9 @@
 /**
- * External dependencies
- */
-import { useCallback } from 'react';
-/**
  * Internal dependencies
  */
 import { mergeStatsSearchTermsComparisonRows } from '../processing/stats';
 import { statsSearchTermsQuery } from '../queries/stats-search-terms-query';
-import { useStatsReport } from './use-stats-report';
+import { createStatsListReportHook } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsNormalizedReport,
@@ -20,25 +16,13 @@ type StatsSearchTermsOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
-export function useStatsSearchTerms(
-	params: StatsReportParams,
-	options?: StatsSearchTermsOptions
-) {
-	const { maxRows, ...queryOptions } = options ?? {};
-	const mergeComparisonRows = useCallback(
-		(
-			primary?: StatsNormalizedReport< StatsSearchTermsItem >,
-			comparison?: StatsNormalizedReport< StatsSearchTermsItem >
-		) => mergeStatsSearchTermsComparisonRows( primary, comparison, maxRows ),
-		[ maxRows ]
-	);
-
-	return useStatsReport<
-		StatsReportParams,
-		StatsNormalizedReport< StatsSearchTermsItem >,
-		StatsSearchTermsComparisonItem
-	>( statsSearchTermsQuery, params, 'search-terms', {
-		...queryOptions,
-		mergeComparisonRows,
-	} );
-}
+export const useStatsSearchTerms = createStatsListReportHook<
+	StatsReportParams,
+	StatsNormalizedReport< StatsSearchTermsItem >,
+	StatsSearchTermsComparisonItem,
+	StatsSearchTermsOptions
+>( {
+	queryFactory: statsSearchTermsQuery,
+	reportSlug: 'search-terms',
+	mergeComparisonRows: mergeStatsSearchTermsComparisonRows,
+} );

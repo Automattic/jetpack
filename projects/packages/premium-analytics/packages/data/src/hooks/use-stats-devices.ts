@@ -1,13 +1,9 @@
 /**
- * External dependencies
- */
-import { useCallback } from 'react';
-/**
  * Internal dependencies
  */
 import { mergeStatsDevicesComparisonRows } from '../processing/stats';
 import { statsDevicesQuery, type StatsDeviceProperty } from '../queries/stats-devices-query';
-import { useStatsReport } from './use-stats-report';
+import { createStatsListReportHook } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsDevicesComparisonItem,
@@ -23,27 +19,20 @@ type StatsDevicesOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
-export function useStatsDevices( params: StatsDevicesParams, options?: StatsDevicesOptions ) {
-	const { maxRows, ...queryOptions } = options ?? {};
-	const mergeComparisonRows = useCallback(
-		(
-			primary?: StatsNormalizedReport< StatsDevicesItem >,
-			comparison?: StatsNormalizedReport< StatsDevicesItem >
-		) => mergeStatsDevicesComparisonRows( primary, comparison, maxRows ),
-		[ maxRows ]
-	);
+const useStatsDevicesReport = createStatsListReportHook<
+	StatsReportParams & { deviceProperty?: StatsDeviceProperty },
+	StatsNormalizedReport< StatsDevicesItem >,
+	StatsDevicesComparisonItem,
+	StatsDevicesOptions
+>( {
+	queryFactory: statsDevicesQuery,
+	reportSlug: 'devices',
+	mergeComparisonRows: mergeStatsDevicesComparisonRows,
+} );
 
-	return useStatsReport<
-		StatsReportParams & { deviceProperty?: StatsDeviceProperty },
-		StatsNormalizedReport< StatsDevicesItem >,
-		StatsDevicesComparisonItem
-	>(
-		statsDevicesQuery,
+export function useStatsDevices( params: StatsDevicesParams, options?: StatsDevicesOptions ) {
+	return useStatsDevicesReport(
 		params as StatsReportParams & { deviceProperty?: StatsDeviceProperty },
-		'devices',
-		{
-			...queryOptions,
-			mergeComparisonRows,
-		}
+		options
 	);
 }

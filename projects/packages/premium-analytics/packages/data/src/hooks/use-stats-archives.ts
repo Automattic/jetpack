@@ -1,13 +1,9 @@
 /**
- * External dependencies
- */
-import { useCallback } from 'react';
-/**
  * Internal dependencies
  */
 import { mergeStatsArchivesComparisonRows } from '../processing/stats';
 import { statsArchivesQuery } from '../queries/stats-archives-query';
-import { useStatsReport } from './use-stats-report';
+import { createStatsListReportHook } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsArchivesComparisonItem,
@@ -22,22 +18,13 @@ type StatsArchivesOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
-export function useStatsArchives( params: StatsReportParams, options?: StatsArchivesOptions ) {
-	const { maxRows, ...queryOptions } = options ?? {};
-	const mergeComparisonRows = useCallback(
-		(
-			primary?: StatsNormalizedReport< StatsArchivesItem >,
-			comparison?: StatsNormalizedReport< StatsArchivesItem >
-		) => mergeStatsArchivesComparisonRows( primary, comparison, maxRows ),
-		[ maxRows ]
-	);
-
-	return useStatsReport<
-		StatsReportParams,
-		StatsNormalizedReport< StatsArchivesItem >,
-		StatsArchivesComparisonItem
-	>( statsArchivesQuery, params, 'archives', {
-		...queryOptions,
-		mergeComparisonRows,
-	} );
-}
+export const useStatsArchives = createStatsListReportHook<
+	StatsReportParams,
+	StatsNormalizedReport< StatsArchivesItem >,
+	StatsArchivesComparisonItem,
+	StatsArchivesOptions
+>( {
+	queryFactory: statsArchivesQuery,
+	reportSlug: 'archives',
+	mergeComparisonRows: mergeStatsArchivesComparisonRows,
+} );
