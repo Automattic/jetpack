@@ -144,28 +144,11 @@ function minWpVersion() {
 	return match[ 1 ];
 }
 
-// ############################################################################
-// TEMPORARY — TESTOPS-235. REVERT BEFORE MERGE.
-// Forces this PR's checks to run the jetpack-core suites against MIN_WP_VERSION, so the new
-// WordPress-version dimension is exercised in CI before we rely on the nightly run. Revert the
-// commit that added this to restore normal (latest WP, changed-projects-only) pull request runs.
-const FORCE_MIN_WP_ON_PR = true;
-// ############################################################################
-
 const matrix = [];
 
 switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'pull_request':
 	case 'push': {
-		// TEMPORARY — TESTOPS-235. REVERT BEFORE MERGE. See FORCE_MIN_WP_ON_PR above.
-		if ( FORCE_MIN_WP_ON_PR && process.env.GITHUB_EVENT_NAME === 'pull_request' ) {
-			const wpVersion = minWpVersion();
-			for ( const project of projects.filter( p => p.buildGroup === 'jetpack-core' ) ) {
-				matrix.push( { ...project, wpVersion, suite: `wp-${ wpVersion }` } );
-			}
-			break;
-		}
-
 		const changedProjects = JSON.parse(
 			execSync( '.github/files/list-changed-projects.sh', {
 				env: { ...process.env, EXTRA: 'e2e' },
