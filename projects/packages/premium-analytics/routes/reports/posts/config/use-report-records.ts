@@ -95,10 +95,14 @@ export function usePostsReportRecords(
 		posts: {
 			rows: postRows,
 			isLoading: posts.isLoading,
+			isFetching: posts.isFetching,
+			isError: posts.isError,
 		},
 		archives: {
 			rows: archiveRows,
 			isLoading: archives.isLoading,
+			isFetching: archives.isFetching,
+			isError: archives.isError,
 		},
 	};
 }
