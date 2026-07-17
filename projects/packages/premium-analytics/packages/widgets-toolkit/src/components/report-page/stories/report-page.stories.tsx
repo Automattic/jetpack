@@ -13,6 +13,7 @@ import { useChartTheme } from '../../../hooks';
 import { ReportPageLayout } from '../report-page-layout';
 import { ReportPerformanceChart } from '../report-performance-chart';
 import { ReportRecordsTable } from '../report-records-table';
+import styles from './report-page.stories.module.scss';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { Field } from '@wordpress/dataviews';
@@ -112,16 +113,27 @@ const POST_FIELDS: Field< PostRow >[] = [
 				return <>{ item.title }</>;
 			}
 
+			const title = <span className={ styles.linkText }>{ item.title }</span>;
+
 			if ( item.isExternal ) {
 				return (
-					<a href={ item.link } target="_blank" rel="noopener noreferrer">
-						{ item.title }
-						<Icon icon={ external } size={ 16 } />
+					<a
+						className={ styles.externalLink }
+						href={ item.link }
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{ title }
+						<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
 					</a>
 				);
 			}
 
-			return <a href={ item.link }>{ item.title }</a>;
+			return (
+				<a className={ styles.titleLink } href={ item.link }>
+					{ title }
+				</a>
+			);
 		},
 	},
 	{
