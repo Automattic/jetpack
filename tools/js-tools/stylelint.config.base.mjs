@@ -92,7 +92,6 @@ const baseConfig = {
 			files: [
 				// wp-build dashboards (`build:wp-build` in package.json; fallbacks via @wordpress/build).
 				'projects/packages/backup/routes/**/*.{css,scss,sass}',
-				'projects/packages/backup/src/dashboard/**/*.{css,scss,sass}',
 				'projects/packages/forms/routes/**/*.{css,scss,sass}',
 				'projects/packages/forms/src/dashboard/wp-build/**/*.{css,scss,sass}',
 				'projects/packages/jetpack-mu-wpcom/routes/**/*.{css,scss,sass}',
