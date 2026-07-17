@@ -60,7 +60,7 @@ export function useSearchTermsReportRecords(
 	return {
 		chart: {
 			primary: chartPrimary,
-			comparison: report.hasComparison ? chartComparison : undefined,
+			comparison: report.comparison.data ? chartComparison : undefined,
 			isLoading: report.isLoading,
 		},
 		table: {
