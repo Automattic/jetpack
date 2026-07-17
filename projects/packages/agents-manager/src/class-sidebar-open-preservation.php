@@ -18,13 +18,10 @@ namespace Automattic\Jetpack\Agents_Manager;
  * never left orphaned.
  *
  * The server can know the persisted "open && docked" preference, but not the
- * live viewport — and the docked layout only fits above a width breakpoint and
- * when the admin menu fits vertically. Width is handled in CSS (a static media
- * query). Height cannot be: the threshold is the *measured* #adminmenu height,
- * which varies per page. So a tiny synchronous viewport-height gate is printed on
- * `in_admin_header` (which fires after #adminmenu is in the DOM, before the
- * content paints) to re-evaluate the real dock gate and strip the pre-rendered
- * classes when the chat will actually float — pre-paint, so there is no flash.
+ * live viewport — the docked layout only fits above a width breakpoint. So a
+ * tiny synchronous gate is printed on `in_admin_header` (before the content
+ * paints) to re-evaluate the real dock gate and strip the pre-rendered classes
+ * when the chat will actually float — pre-paint, so there is no flash.
  */
 class Sidebar_Open_Preservation {
 	/**
@@ -69,8 +66,7 @@ class Sidebar_Open_Preservation {
 		add_filter( 'admin_body_class', array( $this, 'add_preopen_body_classes' ), PHP_INT_MAX );
 
 		// Reconcile the pre-rendered shell against the live viewport before the
-		// page content paints. `in_admin_header` fires after #adminmenu is in the
-		// DOM, so the script can measure it the same way the React app does.
+		// page content paints.
 		add_action( 'in_admin_header', array( $this, 'print_sidebar_docking_gate_script' ) );
 	}
 

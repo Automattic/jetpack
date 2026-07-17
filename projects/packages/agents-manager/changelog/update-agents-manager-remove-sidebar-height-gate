@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sidebar docking gate: stop undocking when the viewport is shorter than the admin menu; the docked layout now keeps the admin menu scrollable at any height.
