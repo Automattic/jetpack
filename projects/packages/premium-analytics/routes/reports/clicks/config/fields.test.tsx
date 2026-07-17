@@ -21,7 +21,7 @@ describe( 'clicks fields', () => {
 		render( <UrlField item={ row } field={ field as never } /> );
 
 		const link = screen.getByRole( 'link', {
-			name: `${ row.clickedUrl }(opens in a new tab)`,
+			name: ( accessibleName: string ) => accessibleName.startsWith( row.clickedUrl ),
 		} );
 		expect( link ).toHaveAttribute( 'href', row.href );
 		expect( link ).toHaveAttribute( 'target', '_blank' );

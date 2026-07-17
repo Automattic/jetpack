@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Clicks report: nest clicked URLs under their click group via DataViewsDrilldownNative, replacing the Group column. Adds shared drilldown building blocks (ReportDrilldownTable, DrilldownLeafCell, aggregateStatsDrilldownRows) and fixes the component to resolve row levels by item id.
+Clicks report: Show clicked URLs nested under their click group instead of in a separate Group column, and announce the group to screen readers on nested rows.
