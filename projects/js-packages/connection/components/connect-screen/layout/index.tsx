@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import ImageSlider from './image-slider';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
-import type { FC } from 'react';
 import './style.scss';
 
 type SharedProps = Pick<
@@ -19,10 +18,13 @@ type OwnProps = {
 
 export type Props = WithRequired< SharedProps, 'title' > & OwnProps;
 
-/*
+/**
  * The Connection Screen Layout component.
+ *
+ * @param {Props} props - The properties.
+ * @return {import('react').ReactNode} The Connection Screen Layout component.
  */
-const ConnectScreenLayout: FC< Props > = ( {
+function ConnectScreenLayout( {
 	title,
 	children,
 	className,
@@ -30,7 +32,7 @@ const ConnectScreenLayout: FC< Props > = ( {
 	images,
 	logo,
 	rna = false,
-} ) => {
+}: Props ) {
 	const showImageSlider = images?.length;
 
 	return (
@@ -64,6 +66,6 @@ const ConnectScreenLayout: FC< Props > = ( {
 			) : null }
 		</div>
 	);
-};
+}
 
 export default ConnectScreenLayout;

@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import debugFactory from 'debug';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenRequiredPlanProps } from './types';
-import type { FC, MouseEvent, ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import './style.scss';
 
 const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual' );
@@ -46,7 +46,7 @@ export type Props = SharedProps & OwnProps;
  * @param {Props} props - The properties.
  * @return {import('react').ReactNode} The `ConnectScreenRequiredPlanVisual` component.
  */
-const ConnectScreenRequiredPlanVisual: FC< Props > = props => {
+function ConnectScreenRequiredPlanVisual( props: Props ) {
 	const {
 		title,
 		buttonLabel,
@@ -147,6 +147,6 @@ const ConnectScreenRequiredPlanVisual: FC< Props > = props => {
 			</div>
 		</ConnectScreenLayout>
 	);
-};
+}
 
 export default ConnectScreenRequiredPlanVisual;

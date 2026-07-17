@@ -1,13 +1,15 @@
 import { Fragment } from 'react';
 import type { Props as ConnectScreenProps } from '../basic';
-import type { FC } from 'react';
 
 export type Props = Pick< ConnectScreenProps, 'images' | 'assetBaseUrl' >;
 
-/*
+/**
  * The ImageSlider component.
+ *
+ * @param {Props} props - The properties.
+ * @return {import('react').ReactNode} The ImageSlider component.
  */
-const ImageSlider: FC< Props > = ( { images, assetBaseUrl = '' } ) => {
+function ImageSlider( { images, assetBaseUrl = '' }: Props ) {
 	if ( ! images?.length ) {
 		return null;
 	}
@@ -19,6 +21,6 @@ const ImageSlider: FC< Props > = ( { images, assetBaseUrl = '' } ) => {
 	) );
 
 	return <div className="jp-connection__connect-screen__image-slider">{ imagesHTML }</div>;
-};
+}
 
 export default ImageSlider;

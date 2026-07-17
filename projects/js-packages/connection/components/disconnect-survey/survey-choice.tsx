@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { SurveyChoiceProps } from './types';
-import type { FC, KeyboardEvent } from 'react';
+import type { KeyboardEvent } from 'react';
 import './_jp-connect_disconnect-survey-card.scss';
 
 /**
@@ -9,13 +9,7 @@ import './_jp-connect_disconnect-survey-card.scss';
  * @param {SurveyChoiceProps} props - The properties.
  * @return {import('react').ReactNode} The SurveyChoice component.
  */
-const SurveyChoice: FC< SurveyChoiceProps > = ( {
-	id,
-	onClick,
-	onKeyDown,
-	children,
-	className,
-} ) => {
+function SurveyChoice( { id, onClick, onKeyDown, children, className }: SurveyChoiceProps ) {
 	const handleClick = useCallback( () => {
 		onClick( id );
 	}, [ id, onClick ] );
@@ -38,6 +32,6 @@ const SurveyChoice: FC< SurveyChoiceProps > = ( {
 			{ children }
 		</div>
 	);
-};
+}
 
 export default SurveyChoice;

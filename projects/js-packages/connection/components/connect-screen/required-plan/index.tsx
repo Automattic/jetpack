@@ -3,7 +3,6 @@ import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-work
 import useConnection from '../../use-connection';
 import ConnectScreenRequiredPlanVisual from './visual';
 import type { Props } from './types';
-import type { FC } from 'react';
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -11,7 +10,7 @@ import type { FC } from 'react';
  * @param {Props} props - The properties.
  * @return {import('react').ReactNode} The `ConnectScreenForRequiredPlan` component.
  */
-const ConnectScreenRequiredPlan: FC< Props > = ( {
+function ConnectScreenRequiredPlan( {
 	title = __(
 		'Over 5 million WordPress sites are faster and more secure',
 		'jetpack-connection-js'
@@ -33,7 +32,7 @@ const ConnectScreenRequiredPlan: FC< Props > = ( {
 	siteProductAvailabilityHandler,
 	logo,
 	rna = false,
-} ) => {
+}: Props ) {
 	const {
 		handleRegisterSite,
 		siteIsRegistering,
@@ -81,6 +80,6 @@ const ConnectScreenRequiredPlan: FC< Props > = ( {
 			{ children }
 		</ConnectScreenRequiredPlanVisual>
 	);
-};
+}
 
 export default ConnectScreenRequiredPlan;

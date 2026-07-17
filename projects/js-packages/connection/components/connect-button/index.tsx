@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import useConnection from '../use-connection';
-import type { FC } from 'react';
 
 export interface Props {
 	/** The "Connect" button label. */
@@ -26,7 +25,7 @@ export interface Props {
  * @param {Props} props - The properties.
  * @return {import('react').ReactNode} The RNA connection component.
  */
-const ConnectButton: FC< Props > = ( {
+function ConnectButton( {
 	apiRoot,
 	apiNonce,
 	connectLabel = __( 'Connect', 'jetpack-connection-js' ),
@@ -34,7 +33,7 @@ const ConnectButton: FC< Props > = ( {
 	redirectUri,
 	from,
 	autoTrigger = false,
-} ) => {
+}: Props ) {
 	const {
 		handleRegisterSite,
 		isRegistered,
@@ -67,6 +66,6 @@ const ConnectButton: FC< Props > = ( {
 			) }
 		</>
 	);
-};
+}
 
 export default ConnectButton;
