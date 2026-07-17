@@ -84,7 +84,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj;
+type Story = StoryObj< Partial< ComponentProps< typeof TagsRender > > >;
 
 export const Default: Story = {
 	render: renderTags,

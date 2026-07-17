@@ -237,12 +237,14 @@ not be merged.
 ### Story template
 
 Every widget ships a **Default** close-up and a **WidgetDashboardWithWidget** story that mounts
-the real dashboard. Add a **WithComparison** close-up only when the widget's data hook returns
-`hasComparison` or `comparisonRows` and the render path consumes that value. This is the explicit
-criterion: accepting comparison query parameters or rendering unchanged when they are present
-does not by itself require the story. This template is self-contained — copy it as the base
-rather than an existing widget's story file, which may have drifted. `meta.component` is the
-widget's render component; widget-specific args (comparison toggles, view selectors, …) are wired
+the real dashboard. Add a **WithComparison** close-up only when the widget's data hook populates
+`comparisonRows` — in practice, when it passes `mergeComparisonRows` to `useStatsReport` (see
+`packages/data/src/hooks/use-stats-clicks.ts`). `rg -l mergeComparisonRows packages/data/src/hooks`
+lists the comparison-capable hooks; a widget whose hook is not in that list omits the story.
+`hasComparison` alone does not qualify — `useReport` returns it for any params carrying `compare_*`,
+whether or not the module has comparison data to show. This template is self-contained — copy it as
+the base rather than an existing widget's story file, which may have drifted. `meta.component` is
+the widget's render component; widget-specific args (view selectors, metric toggles, …) are wired
 as Storybook controls.
 
 `WithComparison` tests the date range picker's comparison parameters and the visible comparison
@@ -272,15 +274,8 @@ registerReportMocks();
 
 const MY_WIDGET_RENDER_MODULE = 'storybook/<widget-name>';
 
-// Widget-specific controls — add view selectors, metric toggles, etc. here.
-interface MyWidgetStoryControls {
-	withComparison: boolean;
-}
-
-function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
-	return (
-		<MyWidgetRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
-	);
+function renderMyWidget() {
+	return <MyWidgetRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 // Close-up canvas: `withWidgetCanvas` from `widgets/stories/with-widget-canvas` frames the
@@ -291,9 +286,6 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/MyWidget',
 	component: MyWidgetRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
@@ -301,14 +293,13 @@ const meta = {
 			},
 		},
 	},
-	// The story args are the widget-specific controls, but `component` is the render
-	// component (host `WidgetRenderProps`). Intersect the two so `component` type-checks
-	// against the meta while the controls still drive `argTypes`/`args`.
-} satisfies Meta< ComponentProps< typeof MyWidgetRender > & MyWidgetStoryControls >;
+} satisfies Meta< typeof MyWidgetRender >;
 
 export default meta;
 
-type Story = StoryObj< MyWidgetStoryControls >;
+// Always parameterize the alias: bare `StoryObj` defaults to `Args = { [name: string]: any }`,
+// which silently accepts any `args` key and degrades `render`'s parameter to `{}`.
+type Story = StoryObj< typeof meta >;
 ```
 
 **1. `Default`** — the widget on its own, current period only:
@@ -316,16 +307,72 @@ type Story = StoryObj< MyWidgetStoryControls >;
 ```tsx
 export const Default: Story = {
 	render: renderMyWidget,
-	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 ```
 
-**2. `WithComparison` (when the widget maps comparison rows)** — same close-up with comparison
-`reportParams` from the date range picker. It should show the period-over-period values consumed
-by the render path:
+**2. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
+exactly as it does in product, inheriting the size / edit-mode / host-environment controls. It
+passes comparison params unconditionally, so the widget stays covered against crashing or
+inventing deltas when the host supplies comparison dates:
 
 ```tsx
+function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ widgetDefinition }
+			renderModule={ MY_WIDGET_RENDER_MODULE }
+			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <MyWidgetDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+```
+
+**3. `WithComparison` — only when the widget's hook populates `comparisonRows`** (see the
+criterion above). Add a `withComparison` control, thread it through the render helper, and add
+the second close-up. It should show the period-over-period values the render path consumes:
+
+```tsx
+interface MyWidgetStoryControls {
+	withComparison: boolean;
+}
+
+function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
+	return (
+		<MyWidgetRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
+	);
+}
+
+// The story args are the widget-specific controls, but `component` is the render component
+// (host `WidgetRenderProps`). Intersect the two so `component` type-checks against the meta
+// while the controls still drive `argTypes`/`args`.
+const meta = {
+	// …as above, plus:
+	argTypes: {
+		withComparison: { control: 'boolean' },
+	},
+} satisfies Meta< ComponentProps< typeof MyWidgetRender > & MyWidgetStoryControls >;
+
+type Story = StoryObj< MyWidgetStoryControls >;
+
+export const Default: Story = {
+	render: renderMyWidget,
+	args: { withComparison: false },
+	decorators: [ withWidgetCanvas ],
+};
+
 export const WithComparison: Story = {
 	render: renderMyWidget,
 	args: { withComparison: true },
@@ -333,53 +380,19 @@ export const WithComparison: Story = {
 };
 ```
 
-**3. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
-exactly as it does in product, inheriting the size / edit-mode / host-environment controls:
-
-```tsx
-interface MyWidgetDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		MyWidgetStoryControls {}
-
-function MyWidgetDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: MyWidgetDashboardStoryProps ) {
-	return (
-		<WidgetDashboardWithWidgetStory
-			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
-			renderModule={ MY_WIDGET_RENDER_MODULE }
-			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
-}
-
-export const WidgetDashboardWithWidget: StoryObj< MyWidgetDashboardStoryProps > = {
-	render: args => <MyWidgetDashboardStory { ...args } />,
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
-	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
-	},
-};
-```
-
-For a widget without mapped comparison rows, remove `withComparison` from the controls and omit
-the `WithComparison` export. Pass fixed comparison params in its dashboard story instead:
-
-```tsx
-attributes={ { reportParams: getDefaultQueryParams( true ) } }
-```
-
 Expose additional widget-specific props (e.g. a `view: 'source' | 'channel' | 'campaign'`
-selector) as extra fields on the controls interface plus matching `args` and `argTypes`. The
-shared dashboard helper already provides container width / edit-mode / host-environment
-controls, so there's no need to add custom size decorators per widget.
+selector) as fields on a `MyWidgetStoryControls` interface plus matching `args` and `argTypes`,
+switching the alias to `StoryObj< MyWidgetStoryControls >` and the `meta` to the intersection
+form shown above. Where the dashboard story also needs those controls, have its props interface
+extend both: `interface MyWidgetDashboardStoryProps extends WidgetDashboardWithWidgetControls,
+MyWidgetStoryControls {}`. The shared dashboard helper already provides container width /
+edit-mode / host-environment controls, so there's no need to add custom size decorators per
+widget.
+
+Helpers that compose a story's `reportParams` (e.g. to add a `post_id` scope) should keep
+comparison as a parameter — `getMyWidgetAttributes( controls, withComparison = false )` — so the
+dashboard story can call them with `true` instead of rebuilding the params and duplicating the
+scoping rule.
 
 If a story exposes `withComparison`, both the close-up story and the dashboard story must pass
 `reportParams: getDefaultQueryParams( withComparison )` into the render component, and the render
@@ -390,9 +403,8 @@ Report mocks should exercise the shapes reviewers need to validate, not only the
 populated primary data for every widget; comparison data when the widget maps comparison rows;
 parent rows plus child rows for drill-down widgets; leaf rows with external links when a
 leaderboard can render non-drill-down links; and known unsupported/error responses when the
-module has a special failure mode. Prefer adding those shapes to the existing Default,
-WithComparison, or WidgetDashboardWithWidget stories over creating one-off state stories unless
-the state needs direct review.
+module has a special failure mode. Prefer adding those shapes to the widget's existing stories
+over creating one-off state stories unless the state needs direct review.
 
 To review a widget's loading / error / empty state directly, force it with
 `setReportMockState( '<endpoint>', 'loading' | 'error' | 'empty' )` in the story's `beforeEach`,

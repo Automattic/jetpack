@@ -26,7 +26,7 @@ import MostPopularDayRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -83,7 +83,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj;
+type Story = StoryObj< Partial< ComponentProps< typeof MostPopularDayRender > > >;
 
 /**
  * Default state — the best day for views and its share of all views.

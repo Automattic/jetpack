@@ -31,7 +31,7 @@ import widgetDefinition from '../widget';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -162,7 +162,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj;
+type Story = StoryObj< Partial< ComponentProps< typeof LatestPostRender > > >;
 
 /**
  * Default — the latest post with its lifetime views, likes, and comments.

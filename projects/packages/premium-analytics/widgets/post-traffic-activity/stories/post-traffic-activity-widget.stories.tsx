@@ -48,18 +48,17 @@ interface PostTrafficActivityStoryControls {
  * Builds the widget attributes: report params with the post scope the detail
  * page seeds from its URL when `hasPostScope` is on.
  *
- * @param {PostTrafficActivityStoryControls} controls - The story controls.
+ * @param {PostTrafficActivityStoryControls} controls       - The story controls.
+ * @param {boolean}                          withComparison - Include comparison report params.
  * @return The widget attributes.
  */
-function getPostTrafficActivityAttributes( {
-	hasPostScope,
-	preset,
-}: PostTrafficActivityStoryControls ): ComponentProps<
-	typeof PostTrafficActivityRender
->[ 'attributes' ] {
+function getPostTrafficActivityAttributes(
+	{ hasPostScope, preset }: PostTrafficActivityStoryControls,
+	withComparison = false
+): ComponentProps< typeof PostTrafficActivityRender >[ 'attributes' ] {
 	return {
 		reportParams: {
-			...getDefaultQueryParams( false, preset ),
+			...getDefaultQueryParams( withComparison, preset ),
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
 		},
 	};
@@ -165,13 +164,7 @@ function PostTrafficActivityDashboardStory( {
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ POST_TRAFFIC_ACTIVITY_RENDER_MODULE }
 			renderComponent={ PostTrafficActivityRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				...getPostTrafficActivityAttributes( { hasPostScope, preset } ),
-				reportParams: {
-					...getDefaultQueryParams( true, preset ),
-					...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
-				},
-			} }
+			attributes={ getPostTrafficActivityAttributes( { hasPostScope, preset }, true ) }
 		/>
 	);
 }

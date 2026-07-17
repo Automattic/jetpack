@@ -86,7 +86,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj;
+type Story = StoryObj< Partial< ComponentProps< typeof SharesRender > > >;
 
 /**
  * The widget on its own, populated from the mocked site summary.

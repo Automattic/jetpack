@@ -20,7 +20,7 @@ import VideoDetailEmbedsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -39,11 +39,12 @@ const MOCK_VIDEO_ID = 105;
  * Builds the host-composed report params for the selected video, deriving the
  * requested date range.
  *
- * @param {PresetType} preset - Optional date preset override.
+ * @param {PresetType} preset         - Optional date preset override.
+ * @param {boolean}    withComparison - Include comparison report params.
  * @return The report params with the single-video `post_id` scope.
  */
-function reportParamsForVideo( preset?: PresetType ) {
-	return { ...getDefaultQueryParams( false, preset ), post_id: MOCK_VIDEO_ID };
+function reportParamsForVideo( preset?: PresetType, withComparison = false ) {
+	return { ...getDefaultQueryParams( withComparison, preset ), post_id: MOCK_VIDEO_ID };
 }
 
 /**
@@ -79,7 +80,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj;
+type Story = StoryObj< Partial< ComponentProps< typeof VideoDetailEmbedsRender > > >;
 
 /**
  * The widget on its own, current period only.
@@ -158,9 +159,7 @@ function VideoDetailEmbedsDashboardStory( dashboardArgs: WidgetDashboardWithWidg
 			widgetType={ widgetDefinition }
 			renderModule={ VIDEO_DETAIL_EMBEDS_RENDER_MODULE }
 			renderComponent={ VideoDetailEmbedsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				reportParams: { ...getDefaultQueryParams( true ), post_id: MOCK_VIDEO_ID },
-			} }
+			attributes={ { reportParams: reportParamsForVideo( undefined, true ) } }
 		/>
 	);
 }
