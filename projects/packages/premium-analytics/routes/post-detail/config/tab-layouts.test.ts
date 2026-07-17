@@ -33,25 +33,25 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email opens as a Newsletter performance row, a two-column trend chart, then the breakdown cards', () => {
+	it( 'composes Email opens as a highlights row over a three-column trend chart with Locations beside it', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-opens' ] ).toMatchObject( [
 			{
 				uuid: 'email-opens-highlights',
 				type: 'jpa/email-top-row',
 				attributes: { metric: 'opens' },
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: 3, height: 1, order: 1 },
 			},
 			{
 				uuid: 'email-opens-trend',
 				type: 'jpa/email-time-series--total-opens',
 				attributes: { metric: 'opens' },
-				placement: { width: 2, height: 2, order: 2 },
+				placement: { width: 3, height: 2, order: 2 },
 			},
 			{
 				uuid: 'email-opens-countries',
 				type: 'jpa/email-breakdown--location-opens',
 				attributes: { view: 'countries', metric: 'opens', max: 8 },
-				placement: { width: 2, height: 2, order: 3 },
+				placement: { width: 1, height: 2, order: 3 },
 			},
 			{
 				uuid: 'email-opens-devices',
@@ -68,13 +68,13 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email clicks as a two-column trend chart over the breakdown grid with a mapped location card', () => {
+	it( 'composes Email clicks as a trend chart beside Platforms and Clients, over the mapped Locations and links rows', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] ).toMatchObject( [
 			{
 				uuid: 'email-clicks-highlights',
 				type: 'jpa/email-top-row',
 				attributes: { metric: 'clicks' },
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: 3, height: 1, order: 1 },
 			},
 			{
 				uuid: 'email-clicks-trend',
@@ -83,22 +83,22 @@ describe( 'post detail tab layouts', () => {
 				placement: { width: 2, height: 2, order: 2 },
 			},
 			{
-				uuid: 'email-clicks-countries',
-				type: 'jpa/email-breakdown--location-clicks',
-				attributes: { view: 'countries', metric: 'clicks', max: 7, showMap: true },
-				placement: { width: 3, height: 2, order: 3 },
-			},
-			{
 				uuid: 'email-clicks-devices',
 				type: 'jpa/email-breakdown--platforms-clicks',
 				attributes: { view: 'devices', metric: 'clicks', max: 8 },
-				placement: { width: 1, height: 2, order: 4 },
+				placement: { width: 1, height: 2, order: 3 },
 			},
 			{
 				uuid: 'email-clicks-clients',
 				type: 'jpa/email-breakdown--clients-clicks',
 				attributes: { view: 'clients', metric: 'clicks', max: 8 },
-				placement: { width: 2, height: 2, order: 5 },
+				placement: { width: 1, height: 2, order: 4 },
+			},
+			{
+				uuid: 'email-clicks-countries',
+				type: 'jpa/email-breakdown--location-clicks',
+				attributes: { view: 'countries', metric: 'clicks', max: 7, showMap: true },
+				placement: { width: 3, height: 2, order: 5 },
 			},
 			{
 				uuid: 'email-clicks-links',
