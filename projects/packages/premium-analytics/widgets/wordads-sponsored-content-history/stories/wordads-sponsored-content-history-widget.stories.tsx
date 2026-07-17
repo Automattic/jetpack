@@ -5,6 +5,10 @@
  * the no-history state.
  * Loading / Error / Empty force the request into each state via
  * `forceWordAdsEarningsState`.
+ *
+ * The earnings module is not period-scoped and the table has no comparison
+ * surface, so no `withComparison` control is exposed; the default report params
+ * only satisfy the WidgetRoot boundary.
  */
 /**
  * External dependencies
@@ -28,44 +32,19 @@ import WordAdsSponsoredContentHistoryRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 registerReportMocks();
 
 const RENDER_MODULE = 'storybook/wordads-sponsored-content-history';
 
-/**
- * Story controls. `withComparison` toggles the comparison report params to
- * confirm the widget renders identically — the earnings endpoint is not
- * period-scoped and has no comparison period.
- */
-interface WordAdsSponsoredContentHistoryStoryControls {
-	withComparison: boolean;
-}
-
-/**
- * Renders the data-connected widget with the given comparison state.
- *
- * @param {WordAdsSponsoredContentHistoryStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
-function renderWordAdsSponsoredContentHistory( {
-	withComparison,
-}: WordAdsSponsoredContentHistoryStoryControls ) {
-	return (
-		<WordAdsSponsoredContentHistoryRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
-}
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/WordAdsSponsoredContentHistory',
 	component: WordAdsSponsoredContentHistoryRender,
+	// The earnings endpoint ignores report params, but WidgetRoot still expects
+	// them; the default (non-comparison) params satisfy that boundary.
+	args: { attributes: { reportParams: getDefaultQueryParams() } },
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
@@ -74,26 +53,19 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta<
-	ComponentProps< typeof WordAdsSponsoredContentHistoryRender > &
-		WordAdsSponsoredContentHistoryStoryControls
->;
+} satisfies Meta< typeof WordAdsSponsoredContentHistoryRender >;
 
 export default meta;
 
-type Story = StoryObj< WordAdsSponsoredContentHistoryStoryControls >;
+type Story = StoryObj< typeof meta >;
 
 /** Default state — the sponsored-content history table. */
 export const Default: Story = {
-	render: renderWordAdsSponsoredContentHistory,
-	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
 /** First load — the request is in flight. */
 export const Loading: Story = {
-	render: renderWordAdsSponsoredContentHistory,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceWordAdsEarningsState( 'loading' ),
@@ -101,8 +73,6 @@ export const Loading: Story = {
 
 /** The fetch failed — the error state with a Retry action. */
 export const Error: Story = {
-	render: renderWordAdsSponsoredContentHistory,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceWordAdsEarningsState( 'error' ),
@@ -110,28 +80,21 @@ export const Error: Story = {
 
 /** Resolved but empty — no sponsored-content history for this breakdown. */
 export const Empty: Story = {
-	render: renderWordAdsSponsoredContentHistory,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceWordAdsEarningsState( 'empty' ),
 };
 
-interface WordAdsSponsoredContentHistoryDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		WordAdsSponsoredContentHistoryStoryControls {}
-
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {WordAdsSponsoredContentHistoryDashboardStoryProps} props - The dashboard story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
-function WordAdsSponsoredContentHistoryDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: WordAdsSponsoredContentHistoryDashboardStoryProps ) {
+function WordAdsSponsoredContentHistoryDashboardStory(
+	dashboardArgs: WidgetDashboardWithWidgetControls
+) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -140,21 +103,18 @@ function WordAdsSponsoredContentHistoryDashboardStory( {
 			renderComponent={
 				WordAdsSponsoredContentHistoryRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams() } }
 		/>
 	);
 }
 
 /** Mounted inside the real dashboard frame (framed card, sizing, edit mode). */
-export const WidgetDashboardWithWidget: StoryObj< WordAdsSponsoredContentHistoryDashboardStoryProps > =
-	{
-		render: args => <WordAdsSponsoredContentHistoryDashboardStory { ...args } />,
-		args: {
-			...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-			withComparison: true,
-		},
-		argTypes: {
-			...widgetDashboardWithWidgetArgTypes,
-			withComparison: { control: 'boolean' },
-		},
-	};
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <WordAdsSponsoredContentHistoryDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};

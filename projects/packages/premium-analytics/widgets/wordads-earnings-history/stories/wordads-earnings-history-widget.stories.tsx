@@ -3,6 +3,10 @@
  * `wordads/earnings` fixture (registered by `registerReportMocks`) resolves the
  * table. Loading / Error / Empty force the request into each state via
  * `forceWordAdsEarningsState`.
+ *
+ * The earnings module is not period-scoped and the table has no comparison
+ * surface, so no `withComparison` control is exposed; the default report params
+ * only satisfy the WidgetRoot boundary.
  */
 /**
  * External dependencies
@@ -26,42 +30,19 @@ import WordAdsEarningsHistoryRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 registerReportMocks();
 
 const RENDER_MODULE = 'storybook/wordads-earnings-history';
 
-/**
- * Story controls. `withComparison` toggles the comparison report params to
- * confirm the widget renders identically — the earnings endpoint is not
- * period-scoped and has no comparison period.
- */
-interface WordAdsEarningsHistoryStoryControls {
-	withComparison: boolean;
-}
-
-/**
- * Renders the data-connected widget with the given comparison state.
- *
- * @param {WordAdsEarningsHistoryStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
-function renderWordAdsEarningsHistory( { withComparison }: WordAdsEarningsHistoryStoryControls ) {
-	return (
-		<WordAdsEarningsHistoryRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
-}
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/WordAdsEarningsHistory',
 	component: WordAdsEarningsHistoryRender,
+	// The earnings endpoint ignores report params, but WidgetRoot still expects
+	// them; the default (non-comparison) params satisfy that boundary.
+	args: { attributes: { reportParams: getDefaultQueryParams() } },
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
@@ -70,25 +51,19 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta<
-	ComponentProps< typeof WordAdsEarningsHistoryRender > & WordAdsEarningsHistoryStoryControls
->;
+} satisfies Meta< typeof WordAdsEarningsHistoryRender >;
 
 export default meta;
 
-type Story = StoryObj< WordAdsEarningsHistoryStoryControls >;
+type Story = StoryObj< typeof meta >;
 
 /** Default state — the earnings history table. */
 export const Default: Story = {
-	render: renderWordAdsEarningsHistory,
-	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
 /** First load — the request is in flight. */
 export const Loading: Story = {
-	render: renderWordAdsEarningsHistory,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceWordAdsEarningsState( 'loading' ),
@@ -96,8 +71,6 @@ export const Loading: Story = {
 
 /** The fetch failed — the error state with a Retry action. */
 export const Error: Story = {
-	render: renderWordAdsEarningsHistory,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceWordAdsEarningsState( 'error' ),
@@ -105,28 +78,19 @@ export const Error: Story = {
 
 /** Resolved but empty — no earnings history for this breakdown. */
 export const Empty: Story = {
-	render: renderWordAdsEarningsHistory,
-	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: forceWordAdsEarningsState( 'empty' ),
 };
 
-interface WordAdsEarningsHistoryDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		WordAdsEarningsHistoryStoryControls {}
-
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {WordAdsEarningsHistoryDashboardStoryProps} props - The dashboard story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
-function WordAdsEarningsHistoryDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: WordAdsEarningsHistoryDashboardStoryProps ) {
+function WordAdsEarningsHistoryDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -135,20 +99,18 @@ function WordAdsEarningsHistoryDashboardStory( {
 			renderComponent={
 				WordAdsEarningsHistoryRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams() } }
 		/>
 	);
 }
 
 /** Mounted inside the real dashboard frame (framed card, sizing, edit mode). */
-export const WidgetDashboardWithWidget: StoryObj< WordAdsEarningsHistoryDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <WordAdsEarningsHistoryDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };
