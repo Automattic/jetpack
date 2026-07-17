@@ -45,7 +45,7 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-opens-trend',
 				type: 'jpa/email-time-series--total-opens',
 				attributes: { metric: 'opens' },
-				placement: { width: 3, height: 2, order: 2 },
+				placement: { width: 3, height: 1, order: 2 },
 			},
 			{
 				uuid: 'email-opens-countries',
@@ -80,7 +80,7 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-clicks-trend',
 				type: 'jpa/email-time-series--total-clicks',
 				attributes: { metric: 'clicks' },
-				placement: { width: 2, height: 2, order: 2 },
+				placement: { width: 2, height: 1, order: 2 },
 			},
 			{
 				uuid: 'email-clicks-devices',
