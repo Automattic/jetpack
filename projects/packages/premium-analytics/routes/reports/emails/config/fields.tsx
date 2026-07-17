@@ -26,11 +26,23 @@ function formatNumber( value: number ): string {
  * Emails module renders `formatNumber( item.opens_rate )%` — so the value only
  * needs a `%` suffix.
  *
- * @param value - The 0–100 rate.
- * @return The formatted percentage.
+ * Rates count *unique* recipients against sends. When events exist but none
+ * could be attributed to a recipient (e.g. link-scanner or view-in-browser
+ * clicks: `total > 0` with `unique === 0`), a literal `0%` would misread as
+ * "the clicks were ignored" — render an em dash instead, mirroring the legacy
+ * Emails module's not-attributable fallback.
+ *
+ * @param rate   - The 0–100 rate.
+ * @param total  - Total event count.
+ * @param unique - Unique (attributed) event count.
+ * @return The formatted percentage, or an em dash when not attributable.
  */
-function formatRate( value: number ): string {
-	return `${ value.toLocaleString( undefined, { maximumFractionDigits: 2 } ) }%`;
+function formatRate( rate: number, total: number, unique: number ): string {
+	if ( total > 0 && unique === 0 ) {
+		return '—';
+	}
+
+	return `${ rate.toLocaleString( undefined, { maximumFractionDigits: 2 } ) }%`;
 }
 
 /**
@@ -127,7 +139,7 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 			id: 'opens_rate',
 			label: __( 'Open rate', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.opens_rate,
-			render: ( { item } ) => <>{ formatRate( item.opens_rate ) }</>,
+			render: ( { item } ) => <>{ formatRate( item.opens_rate, item.opens, item.unique_opens ) }</>,
 		},
 		{
 			id: 'clicks',
@@ -139,7 +151,9 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 			id: 'clicks_rate',
 			label: __( 'Click rate', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.clicks_rate,
-			render: ( { item } ) => <>{ formatRate( item.clicks_rate ) }</>,
+			render: ( { item } ) => (
+				<>{ formatRate( item.clicks_rate, item.clicks, item.unique_clicks ) }</>
+			),
 		},
 	];
 }

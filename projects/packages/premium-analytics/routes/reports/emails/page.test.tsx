@@ -86,6 +86,22 @@ describe( 'EmailsReportPage', () => {
 		expect( screen.getByText( '3.81%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'dashes a rate whose events could not be attributed to recipients', () => {
+		// One click happened, but no recipient was attributed (unique = 0):
+		// a literal 0% would misread as the click being ignored.
+		useRecordsMock.mockReturnValue(
+			buildRecords( {
+				rows: [ buildRow( { clicks: 1, unique_clicks: 0, clicks_rate: 0 } ) ],
+			} )
+		);
+
+		render( <EmailsReportPage /> );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		// Zero events still reads 0%, not a dash — only attribution gaps dash.
+		expect( screen.queryByText( '0%' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'surfaces the error and retry instead of the table', async () => {
 		const refetch = jest.fn();
 		useRecordsMock.mockReturnValue(
