@@ -111,7 +111,7 @@ class AutoloadGenerator {
 		$psr4     = $this->parseAutoloadsType( $packageMap, 'psr-4', $mainPackage );
 		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage );
 		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage );
-		$exclude  = $this->parseAutoloadsType( array( $rootPackageMap ), 'exclude-from-classmap', $mainPackage );
+		$exclude  = $this->parseAutoloadsType( $sortedPackageMap, 'exclude-from-classmap', $mainPackage );
 
 		krsort( $psr0 );
 		krsort( $psr4 );
@@ -280,13 +280,19 @@ class AutoloadGenerator {
 			if ( 'exclude-from-classmap' === $type && isset( $autoload['exclude-from-classmap'] ) && is_array( $autoload['exclude-from-classmap'] ) ) {
 				foreach ( $autoload['exclude-from-classmap'] as $path ) {
 					// First escape user input, normalize slashes, and trim.
-					$path = preg_replace( '{/+}', '/', preg_quote( trim( strtr( $path, '\\', '/' ), '/' ) ) );
+					$path = preg_replace( '{/+}', '/', preg_quote( trim( strtr( $path, '\\', '/' ), '/' ), '{' ) );
 
 					// Add support for wildcards * and **.
-					$path = strtr( $path, array( '\\*\\*' => '.+?', '\\*' => '[^/]+?' ) );
+					$path = strtr(
+						$path,
+						array(
+							'\\*\\*' => '.+?',
+							'\\*'    => '[^/]+?',
+						)
+					);
 
 					// Handle up-level relative paths (e.g., ../).
-					$updir = null;
+					$updir = '';
 					$path  = preg_replace_callback(
 						'{^((?:(?:\\\\\\.){1,2}+/)+)}',
 						function ( $matches ) use ( &$updir ) {
@@ -309,7 +315,7 @@ class AutoloadGenerator {
 						continue;
 					}
 
-					$autoloads[] = preg_quote( strtr( $resolvedPath, '\\', '/' ) ) . '/' . $path . '($|/)';
+					$autoloads[] = preg_quote( strtr( $resolvedPath, '\\', '/' ), '{' ) . '/' . $path . '($|/)';
 				}
 			}
 		}
