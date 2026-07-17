@@ -116,6 +116,7 @@ export {
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	toPostId,
 } from './helpers';
 
 /**

@@ -6,6 +6,7 @@ import {
 	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
+	toPostId,
 	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
@@ -49,7 +50,7 @@ const ALL_TIME_NOTE = () =>
  */
 function PostDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const postId = Number( reportParams.post_id ) || 0;
+	const postId = toPostId( reportParams.post_id );
 
 	const {
 		views,

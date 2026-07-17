@@ -50,3 +50,4 @@ export { buildCsv, buildCsvDateRangeFilename, saveCsv, type CsvColumn } from './
 export { sharePercentage } from './share-percentage';
 export { getVideoKey, getVideoLabel } from './video-plays';
 export { toMaxRows } from './to-max-rows';
+export { toPostId } from './to-post-id';

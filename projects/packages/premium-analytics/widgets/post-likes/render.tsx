@@ -8,6 +8,7 @@ import {
 	SubscriberList,
 	WidgetRoot,
 	WidgetState,
+	toPostId,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 	type SubscriberListItem,
@@ -41,8 +42,7 @@ const LIKES_SHOWN = 10;
  */
 function PostLikesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const parsedPostId = Number( reportParams.post_id );
-	const postId = Number.isInteger( parsedPostId ) && parsedPostId > 0 ? parsedPostId : 0;
+	const postId = toPostId( reportParams.post_id );
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPostLikes( {
 		postId,

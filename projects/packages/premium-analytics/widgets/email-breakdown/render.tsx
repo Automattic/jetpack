@@ -8,6 +8,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	flagUrl,
+	toPostId,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type GeoData,
@@ -317,21 +318,6 @@ type EmailBreakdownReportProps = {
 	max: number;
 	showMap: boolean;
 };
-
-/**
- * Resolves the email's post ID from the host-composed report params. `post_id`
- * is typed `string | number` (a string when it comes straight from the URL), so
- * it is coerced to a positive integer; anything else yields `0`, which the
- * widget treats as "no email selected".
- *
- * @param postId - The `post_id` report param.
- * @return The email's post ID, or `0` when none is set.
- */
-function toPostId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : 0;
-}
 
 /**
  * Fetches the email breakdown rows for the selected email, view, and metric,
