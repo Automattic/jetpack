@@ -1,9 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import analytics from 'lib/analytics';
 import AiFeatures from '../index';
 
 // The component module imports the webpack-aliased 'lib/analytics', which
-// doesn't resolve under jest — provide it virtually.
+// doesn't resolve under jest — provide it virtually. (jest.mock is hoisted
+// above the imports, so the import above receives the mock.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 describe( 'AiFeatures rendering', () => {
@@ -62,7 +64,8 @@ describe( 'AiFeatures rendering', () => {
 	} );
 
 	test( 'toggling a row sends a partial update for just that key', async () => {
-		const onUpdate = jest.fn().mockResolvedValue();
+		analytics.tracks.recordEvent.mockClear();
+		const onUpdate = jest.fn().mockResolvedValue( true );
 		render(
 			<AiFeatures
 				settings={ {
@@ -77,5 +80,46 @@ describe( 'AiFeatures rendering', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
 
 		expect( onUpdate ).toHaveBeenCalledWith( { features: { writing_assistant: false } } );
+	} );
+
+	test( 'records the Tracks event only after a successful save', async () => {
+		analytics.tracks.recordEvent.mockClear();
+		const onUpdate = jest.fn().mockResolvedValue( true );
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					features: { writing_assistant: { enabled: true } },
+				} }
+				savingKeys={ new Set() }
+				onUpdate={ onUpdate }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
+
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_ai_feature_toggled', {
+			feature: 'writing_assistant',
+			enabled: false,
+		} );
+	} );
+
+	test( 'does not record the Tracks event when the save fails', async () => {
+		analytics.tracks.recordEvent.mockClear();
+		const onUpdate = jest.fn().mockResolvedValue( false );
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					features: { writing_assistant: { enabled: true } },
+				} }
+				savingKeys={ new Set() }
+				onUpdate={ onUpdate }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
+
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 	} );
 } );

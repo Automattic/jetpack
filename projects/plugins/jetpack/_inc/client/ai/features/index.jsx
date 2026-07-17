@@ -204,7 +204,7 @@ function FeatureRow( { feature, reported, checked, isSaving, masterEnabled, onCh
  * @param {object}   props            - Component props.
  * @param {object}   props.settings   - Full settings shape from the feature-settings endpoint.
  * @param {Set}      props.savingKeys - Keys currently being saved.
- * @param {Function} props.onUpdate   - Called with a partial settings update payload.
+ * @param {Function} props.onUpdate   - Called with a partial settings update payload; resolves true when the save succeeded.
  * @return {object} Component markup.
  */
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
@@ -218,8 +218,15 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 
 	const handleToggle = useCallback(
 		( key, enabled ) => {
-			analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', { feature: key, enabled } );
-			onUpdate( { features: { [ key ]: enabled } } );
+			onUpdate( { features: { [ key ]: enabled } } ).then( saved => {
+				// Track outcomes, not attempts: a failed save changed nothing.
+				if ( saved ) {
+					analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', {
+						feature: key,
+						enabled,
+					} );
+				}
+			} );
 		},
 		[ onUpdate ]
 	);

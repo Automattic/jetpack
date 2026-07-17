@@ -132,9 +132,15 @@ export default function App() {
 	const handleAiSettingsUpdate = useCallback(
 		update => {
 			setSaveError( null );
-			return updateAiSettings( update ).catch( () => {
-				setSaveError( __( 'Failed to save AI settings. Please try again.', 'jetpack' ) );
-			} );
+			// Resolve a boolean rather than letting the rejection escape: the
+			// Features view records analytics only for saves that landed.
+			return updateAiSettings( update ).then(
+				() => true,
+				() => {
+					setSaveError( __( 'Failed to save AI settings. Please try again.', 'jetpack' ) );
+					return false;
+				}
+			);
 		},
 		[ updateAiSettings ]
 	);
