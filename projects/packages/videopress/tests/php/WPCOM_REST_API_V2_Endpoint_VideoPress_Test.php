@@ -566,6 +566,12 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	 * don't exist here) and the plan gate reports no VideoPress.
 	 */
 	public function test_promote_real_seams_fail_closed_off_wpcom() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// The wpcom test harness (wpcut) runs this suite inside the real
+			// platform, where the primitives load and the plan gate is live.
+			$this->markTestSkipped( 'On WordPress.com the real seams are open by design.' );
+		}
+
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
 
 		$load_primitives = new \ReflectionMethod( $endpoint, 'promote_load_primitives' );
