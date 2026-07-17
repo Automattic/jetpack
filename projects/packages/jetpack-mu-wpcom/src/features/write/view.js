@@ -6205,8 +6205,12 @@ function describeSaveError( err ) {
 		const raw = err === undefined ? '' : String( err );
 		return { code: 'unknown', status: null, message: raw.slice( 0, MAX_ERROR_MESSAGE_LENGTH ) };
 	}
-	// Prefer the specific REST `code`; fall back to `name` ('AbortError', 'TypeError', …).
-	const code = err.code || err.name || 'unknown';
+	// Prefer the specific REST `code` (always a string, e.g. 'rest_cannot_edit');
+	// fall back to `name` ('AbortError', 'TypeError', …). Guard on a string code
+	// because a DOMException carries a numeric `.code` (AbortError is 20), which
+	// would otherwise shadow the 'AbortError' name and break the timeout message
+	// and telemetry error_code.
+	const code = ( typeof err.code === 'string' && err.code ) || err.name || 'unknown';
 	const status = err.data && typeof err.data.status === 'number' ? err.data.status : null;
 	const message = String( err.message || '' ).slice( 0, MAX_ERROR_MESSAGE_LENGTH );
 	return { code: String( code ), status, message };
