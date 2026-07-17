@@ -105,6 +105,25 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234' );
 	} );
 
+	it( 'only requests the primary timeline when dashboard comparison params are present', async () => {
+		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( true ), post_id: 1234 },
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'comparative-line-chart' ) ).resolves.toBeInTheDocument();
+
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'stats/opens/emails/1234' );
+	} );
+
 	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
