@@ -48,6 +48,21 @@ const SUB_VIEW_DESCRIPTIONS = {
 };
 
 /**
+ * Error notice for a failed settings load.
+ *
+ * @param {object} props         - Component props.
+ * @param {string} props.message - The error message to show.
+ * @return {object} Component markup.
+ */
+function LoadErrorNotice( { message } ) {
+	return (
+		<Notice.Root intent="error">
+			<Notice.Description>{ message }</Notice.Description>
+		</Notice.Root>
+	);
+}
+
+/**
  * Breadcrumb nav shown on MCP sub-views: "AI / Read", "AI / Write", etc.
  * Replaces both the page title and the ← Back button.
  *
@@ -203,11 +218,7 @@ export default function App() {
 							</div>
 						) }
 
-						{ ! isLoading && error && (
-							<Notice.Root intent="error">
-								<Notice.Description>{ error }</Notice.Description>
-							</Notice.Root>
-						) }
+						{ ! isLoading && error && <LoadErrorNotice message={ error } /> }
 
 						{ ! isLoading && ! error && ! blogId && (
 							<Notice.Root intent="warning">
@@ -265,9 +276,7 @@ export default function App() {
 						) }
 
 						{ ! isAiSettingsLoading && aiSettingsError && (
-							<Notice.Root intent="error">
-								<Notice.Description>{ aiSettingsError }</Notice.Description>
-							</Notice.Root>
+							<LoadErrorNotice message={ aiSettingsError } />
 						) }
 
 						{ ! isAiSettingsLoading &&
