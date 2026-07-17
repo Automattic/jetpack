@@ -2,10 +2,6 @@
  * The stories drive the data-connected All-time stats widget through the shared
  * report-mock harness, which serves the Stats site-summary endpoint
  * (`/proxy/v1.1/stats`) via `routeStatsReport()`.
- *
- * This module has no comparison period, so `Default` and `WithComparison`
- * render identically; the toggle only exercises the date-range picker's
- * comparison params flowing through `reportParams` without breaking the widget.
  */
 /**
  * External dependencies
@@ -57,10 +53,6 @@ const storyWidgetType = {
 
 interface AllTimeStatsStoryControls {
 	/**
-	 * Whether to include comparison report params.
-	 */
-	withComparison: boolean;
-	/**
 	 * Lifetime totals to show in the widget body.
 	 */
 	metrics: AllTimeStatsMetricId[];
@@ -84,12 +76,8 @@ const ALL_METRICS_ARGS = {
  * @param {AllTimeStatsStoryControls} props - The story controls.
  * @return The rendered widget.
  */
-function renderAllTimeStats( { withComparison, metrics }: AllTimeStatsStoryControls ) {
-	return (
-		<AllTimeStatsRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
-		/>
-	);
+function renderAllTimeStats( { metrics }: AllTimeStatsStoryControls ) {
+	return <AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams(), metrics } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
@@ -127,14 +115,13 @@ const meta = {
 	component: AllTimeStatsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and comments — as a responsive grid of metric tiles, sourced from the Jetpack Stats site-summary endpoint. Which tiles appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. This module has no comparison period, so the values render as bare numbers and the `WithComparison` story looks identical to `Default`.',
+					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and comments — as a responsive grid of metric tiles, sourced from the Jetpack Stats site-summary endpoint. Which tiles appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. This module has no comparison period, so the values render as bare numbers.',
 			},
 		},
 	},
@@ -149,18 +136,7 @@ type Story = StoryObj< AllTimeStatsStoryControls >;
  */
 export const Default: Story = {
 	render: renderAllTimeStats,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Comparison params flow through `reportParams`, but the site summary has no
- * comparison data, so the widget renders identically to `Default` — no fake
- * deltas.
- */
-export const WithComparison: Story = {
-	render: renderAllTimeStats,
-	args: { withComparison: true, ...ALL_METRICS_ARGS },
+	args: { ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -210,7 +186,6 @@ interface AllTimeStatsDashboardStoryProps
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
 function AllTimeStatsDashboardStory( {
-	withComparison,
 	metrics,
 	...dashboardArgs
 }: AllTimeStatsDashboardStoryProps ) {
@@ -220,7 +195,7 @@ function AllTimeStatsDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ ALL_TIME_STATS_RENDER_MODULE }
 			renderComponent={ AllTimeStatsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ { reportParams: getDefaultQueryParams( true ), metrics } }
 		/>
 	);
 }
@@ -229,12 +204,10 @@ export const WidgetDashboardWithWidget: StoryObj< AllTimeStatsDashboardStoryProp
 	render: args => <AllTimeStatsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
 };
