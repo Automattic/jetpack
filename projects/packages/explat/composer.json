@@ -27,17 +27,7 @@
 			"pnpm run test --watch"
 		],
 		"test-php": "@composer phpunit",
-		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"NODE_ENV=production pnpm run build"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		]
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{

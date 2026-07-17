@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import api from '../src/api';
 import {
 	requestSpeedScores,
