@@ -20,16 +20,6 @@ import type { TailoredInferred } from './types.ts';
 // tracks.ts touches window only inside record(), so a bare object is enough.
 const win = globalThis as unknown as { window: { _tkq?: unknown[] } };
 
-const NULL_CONTEXT = {
-	goal: null,
-	niche: null,
-	theme_keyword: null,
-	vibe: null,
-	audience: null,
-	rendered_list: null,
-	inferred_goal: null,
-};
-
 const lastEvent = () => {
 	const queue = win.window._tkq as unknown[];
 	return queue[ queue.length - 1 ];
@@ -41,12 +31,12 @@ describe( 'ai-launchpad tracks', () => {
 		resetTracksContext();
 	} );
 
-	it( 'records events with an all-null context by default and no launchpad_variant', () => {
+	it( 'omits null context keys by default (no launchpad_variant, no "null" strings)', () => {
 		trackViewed( { step: 'goal' } );
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_viewed',
-			{ ...NULL_CONTEXT, step: 'goal' },
+			{ step: 'goal' },
 		] );
 	} );
 
@@ -56,7 +46,7 @@ describe( 'ai-launchpad tracks', () => {
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_task_cta_clicked',
-			{ ...NULL_CONTEXT, goal: 'write', niche: 'hiking', task_id: 'site_theme_selected' },
+			{ goal: 'write', niche: 'hiking', task_id: 'site_theme_selected' },
 		] );
 	} );
 
@@ -108,28 +98,28 @@ describe( 'ai-launchpad tracks', () => {
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_wizard_goal_clicked',
-			{ ...NULL_CONTEXT, goal_clicked: 'sell' },
+			{ goal_clicked: 'sell' },
 		] );
 
 		trackWizardStepCompleted( { step: 'goal' } );
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_wizard_step_completed',
-			{ ...NULL_CONTEXT, step: 'goal' },
+			{ step: 'goal' },
 		] );
 
 		trackWizardStepSkipped( { step: 'site_details' } );
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_wizard_step_skipped',
-			{ ...NULL_CONTEXT, step: 'site_details' },
+			{ step: 'site_details' },
 		] );
 
-		trackWizardBackClicked();
+		trackWizardBackClicked( { step: 'site_details' } );
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_wizard_back_clicked',
-			NULL_CONTEXT,
+			{ step: 'site_details' },
 		] );
 	} );
 
@@ -138,14 +128,14 @@ describe( 'ai-launchpad tracks', () => {
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_task_clicked',
-			{ ...NULL_CONTEXT, task_id: 'add_about_page', task_status: 'skipped' },
+			{ task_id: 'add_about_page', task_status: 'skipped' },
 		] );
 
 		trackTaskSkipped( { task_id: 'add_about_page' } );
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
 			'jetpack_ai_launchpad_task_skipped',
-			{ ...NULL_CONTEXT, task_id: 'add_about_page' },
+			{ task_id: 'add_about_page' },
 		] );
 	} );
 

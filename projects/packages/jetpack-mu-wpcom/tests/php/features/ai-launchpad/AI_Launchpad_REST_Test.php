@@ -651,7 +651,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The shared context rides along, populated from the persisted options.
 		$this->assertSame( 'write', $props['goal'] );
 		$this->assertSame( 'hiking', $props['niche'] );
-		$this->assertNull( $props['inferred_goal'] );
+		// Null context values are omitted from the recorded event, never "null" strings.
+		$this->assertArrayNotHasKey( 'inferred_goal', $props );
 		$this->assertJson( $props['rendered_list'] );
 		$this->assertContains( 'first_post_published', json_decode( $props['rendered_list'], true ) );
 

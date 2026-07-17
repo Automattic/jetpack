@@ -117,7 +117,7 @@ export function Wizard( {
 
 	const handleBack = () => {
 		if ( step > 0 ) {
-			trackWizardBackClicked();
+			trackWizardBackClicked( { step: 'site_details' } );
 			setStep( ( step - 1 ) as WizardStep );
 		}
 	};

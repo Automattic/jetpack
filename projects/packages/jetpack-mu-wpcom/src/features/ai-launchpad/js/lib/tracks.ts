@@ -89,14 +89,18 @@ export function contextFromTaskIds( ids: string[] ): Partial< TracksContext > {
 
 /**
  * Records a Tracks event with the shared context merged in, so call sites can't
- * forget it.
+ * forget it. Null-valued props are omitted: the Tracks pipeline would otherwise
+ * record them as literal "null" strings.
  *
  * @param eventName - The Tracks event name, already feature-prefixed.
  * @param props     - Event properties. No PII: task IDs are fine, free text is not.
  */
 function record( eventName: string, props: TrackEventProps = {} ): void {
+	const merged = Object.fromEntries(
+		Object.entries( { ...context, ...props } ).filter( ( [ , value ] ) => value !== null )
+	);
 	window._tkq = window._tkq || [];
-	window._tkq.push( [ 'recordEvent', eventName, { ...context, ...props } ] );
+	window._tkq.push( [ 'recordEvent', eventName, merged ] );
 }
 
 /**
@@ -140,9 +144,14 @@ export function trackWizardStepSkipped( props: { step: WizardStepName } ): void 
 	record( 'jetpack_ai_launchpad_wizard_step_skipped', props );
 }
 
-/** Records the Back click on the site-details step. */
-export function trackWizardBackClicked(): void {
-	record( 'jetpack_ai_launchpad_wizard_back_clicked' );
+/**
+ * Records a Back click in the wizard.
+ *
+ * @param props      - The event properties.
+ * @param props.step - The step the user clicked Back from.
+ */
+export function trackWizardBackClicked( props: { step: WizardStepName } ): void {
+	record( 'jetpack_ai_launchpad_wizard_back_clicked', props );
 }
 
 /** Records the wizard-completed event: the user finishes the wizard and lands on the tasklist. */

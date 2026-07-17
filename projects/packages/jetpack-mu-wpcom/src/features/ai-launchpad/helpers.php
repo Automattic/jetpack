@@ -83,6 +83,13 @@ if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
 	 */
 	function wpcom_ai_launchpad_record_tracks_event( $event_name, $props = array(), $rendered_task_ids = null ) {
 		$props = array_merge( wpcom_ai_launchpad_tracks_context( $rendered_task_ids ), $props );
+		// Null-valued props are omitted, mirroring the client recorder.
+		$props = array_filter(
+			$props,
+			static function ( $value ) {
+				return null !== $value;
+			}
+		);
 
 		/**
 		 * Fires for every server-side AI Launchpad analytics event, before it is sent to
