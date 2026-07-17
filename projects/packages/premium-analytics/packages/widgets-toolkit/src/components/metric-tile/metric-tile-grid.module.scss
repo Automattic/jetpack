@@ -3,8 +3,7 @@ $metric-tile-grid-wide-min-inline-size: 640px;
 // single row of tiles. Tunable — below this, wide cells stay one row.
 $metric-tile-grid-grid-min-block-size: 360px;
 $metric-tile-grid-row-value-font-size-max: 40px;
-// The design spec pins highlight-tile values at 32px.
-$metric-tile-grid-tile-value-font-size: 32px;
+$metric-tile-grid-tile-value-font-size-max: 40px;
 $metric-tile-grid-prominent-value-font-size-max: 44px;
 $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-height-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-gap-lg));
 
@@ -36,7 +35,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	min-block-size: 0;
 	padding-block: var(--wpds-dimension-padding-sm);
 	padding-inline: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-lg);
 }
 
@@ -68,7 +67,6 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
 	font-size: clamp(var(--wpds-typography-font-size-xl), 10cqh, $metric-tile-grid-row-value-font-size-max);
-	font-weight: var(--wpds-typography-font-weight-regular);
 	line-height: 1.2;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -137,7 +135,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 	.tile .value,
 	.tile .placeholder {
-		font-size: $metric-tile-grid-tile-value-font-size;
+		font-size: clamp(var(--wpds-typography-font-size-xl), 11cqh, $metric-tile-grid-tile-value-font-size-max);
 	}
 }
 
