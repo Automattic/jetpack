@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write editor: recover the UI when a save/publish request hangs or fails so Publish and Save no longer stay greyed out. A hung request is now aborted after a timeout, and prep-stage failures reset the saving flag and surface a retryable error.

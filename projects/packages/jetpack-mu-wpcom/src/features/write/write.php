@@ -115,6 +115,8 @@ function wpcom_write_get_editor_strings() {
 		'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 		// translators: %s is the error message.
 		'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
+		'couldNotSave'         => __( 'Could not save. Please try again.', 'jetpack-mu-wpcom' ),
+		'saveTimedOut'         => __( 'Saving timed out. Please check your connection and try again.', 'jetpack-mu-wpcom' ),
 		'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 		'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 		'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
