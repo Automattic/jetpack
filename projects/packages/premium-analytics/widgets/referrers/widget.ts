@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Referrers widget.
@@ -40,9 +41,9 @@ export default {
 		{
 			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer' as const,
+			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< ReferrersAttributes >[],
 	example: {
 		attributes: {
 			max: 10,

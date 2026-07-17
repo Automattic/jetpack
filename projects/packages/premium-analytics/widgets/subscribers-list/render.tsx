@@ -94,14 +94,12 @@ type SubscribersReportProps = {
  * @return The widget content.
  */
 function SubscribersReport( { attributes }: SubscribersReportProps ) {
-	// Show six rows by default (matching the card design). A missing or
-	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
-	// since an explicit `0` from the number field is not nullish.
-	const num = attributes?.num && attributes.num > 0 ? attributes.num : 6;
+	// Show six rows by default. 0 means all rows.
+	const max = attributes?.max ?? 6;
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
-		max: num,
+		max,
 	} );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;

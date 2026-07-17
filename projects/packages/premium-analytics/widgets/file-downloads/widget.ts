@@ -41,8 +41,8 @@ export default {
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			type: 'integer',
 		},
 	] as WidgetAttributeField< FileDownloadsAttributes >[],
 	example: {
