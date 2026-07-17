@@ -8,6 +8,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
 	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -62,11 +63,13 @@ function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 		);
 	}
 
-	if ( row.link ) {
+	const href = safeHttpUrl( row.link );
+
+	if ( href ) {
 		return (
 			<Link
 				className={ styles.postLabel }
-				href={ row.link }
+				href={ href }
 				variant="unstyled"
 				openInNewTab
 				title={ row.label }

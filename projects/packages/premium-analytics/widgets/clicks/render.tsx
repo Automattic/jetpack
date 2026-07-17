@@ -18,6 +18,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -83,11 +84,13 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 }
 
 function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+	const href = safeHttpUrl( item.link );
+
 	return {
 		label: getItemLabel( item ),
 		value: item.views,
 		previousValue: item.previousValue,
-		...( item.link ? { href: item.link } : {} ),
+		...( href ? { href } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),

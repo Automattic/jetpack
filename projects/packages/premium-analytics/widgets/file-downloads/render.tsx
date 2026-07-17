@@ -15,6 +15,7 @@ import { download } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import {
 	calculateDelta,
+	safeHttpUrl,
 	LeaderboardChart,
 	ReportLink,
 	sharePercentage,
@@ -203,7 +204,7 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 		label: item.shortLabel ?? String( item.label ?? '' ),
 		value: item.downloads,
 		previousValue: item.previousDownloads,
-		href: item.link,
+		href: safeHttpUrl( item.link ) ?? undefined,
 	} ) );
 }
 

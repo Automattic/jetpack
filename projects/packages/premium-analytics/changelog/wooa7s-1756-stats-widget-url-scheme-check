@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Stats widgets: Validate the URL scheme of report data before rendering it as a link, so a non-http(s) URL can no longer reach an anchor's href.

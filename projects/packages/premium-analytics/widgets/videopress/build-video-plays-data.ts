@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { getVideoKey, getVideoLabel } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	getVideoKey,
+	getVideoLabel,
+	safeHttpUrl,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 /**
@@ -46,7 +50,7 @@ export function toVideoPlaysRows( videos: StatsVideoPlaysComparisonItem[] = [] )
 	return videos.map( video => ( {
 		key: getVideoKey( video ),
 		label: getVideoLabel( video ),
-		link: video.link,
+		link: safeHttpUrl( video.link ),
 		plays: video.plays,
 		previousPlays: video.previousPlays,
 	} ) );

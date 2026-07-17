@@ -493,6 +493,8 @@ stories so it hits the mock fresh instead of reading their cached success. See
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Passing a URL from report data straight to `href` — it must go through `safeHttpUrl` first.
+  See "Remote URLs in links" below; nothing upstream validates the scheme.
 - Importing `@automattic/charts` directly from a widget — chart components must come through
   `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
   bundles the entire charting stack into that widget's render bundle; add a re-export to the
@@ -591,6 +593,39 @@ Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
 shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
 `undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
+
+**Remote URLs in links**
+
+Any URL that arrives in a report response (`link`, `url`, `href`, the video-embed `pages`
+strings, …) must pass through `safeHttpUrl` from `widgets-toolkit` before it reaches an
+`href`. It returns the URL for http(s) and root-relative values and `null` for everything
+else, so the usual shape is a fallback to a plain-text label:
+
+```tsx
+const href = safeHttpUrl( item.link );
+// …
+{
+	href ? <Link href={ href }>{ label }</Link> : <span>{ label }</span>;
+}
+```
+
+This is not defence-in-depth — it is the only check in the chain, so do not skip it on the
+assumption that something upstream sanitizes:
+
+- **The API does not.** No Stats endpoint documents the scheme of its URL fields as part of
+  its contract, and the data layer only type-checks them, so http(s) is not guaranteed.
+  Verified against the WPCOM source rather than assumed — see STATS-349 for the audit.
+- **`Link` does not.** `@wordpress/ui`'s `Link` spreads `href` onto the anchor unchanged.
+- **React does not.** React 18 only warns about `javascript:` hrefs in development; the
+  production build has no such check and renders them as given.
+
+Referrer and video-embed rows are the sharp edge: their values derive from inbound request
+data rather than anything the site owner authored. Guard at the sink (where the `href` is
+built or rendered), not in `packages/data/` — several modules use `link` as the row-matching
+key, so nulling it during normalization would change comparison and sort behaviour.
+
+Locally-built URLs (`usePostDetailHrefBuilder`, an `admin_url` from script data, a hardcoded
+`https://…` constant) do not need the guard: no remote value can reach the scheme position.
 
 **Drill-down leaderboards**
 

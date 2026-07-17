@@ -9,6 +9,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	formatLegendLabels,
+	safeHttpUrl,
 	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -126,14 +127,15 @@ export function AuthorsLeaderboard( {
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => {
+				const postHref = safeHttpUrl( post.link );
 				// A custom label element bypasses the chart's default overlay
 				// `.label` inset, so mirror top-posts: pad the block (sets the bar
 				// height, since there is no avatar to size the row) and inset the
 				// text from the bar's rounded left edge.
-				const label = post.link ? (
+				const label = postHref ? (
 					<Link
 						className={ styles.postLabel }
-						href={ post.link }
+						href={ postHref }
 						variant="unstyled"
 						openInNewTab
 						title={ post.title }

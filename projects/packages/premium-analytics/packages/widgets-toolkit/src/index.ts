@@ -105,6 +105,7 @@ export {
 	type TimeSeriesData,
 	calculateDelta,
 	flagUrl,
+	safeHttpUrl,
 	BOOKINGS_FILTER,
 	PHYSICAL_PRODUCTS_FILTER,
 	FULFILLED_ORDERS_FILTER,
