@@ -110,25 +110,13 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 	public function get_plugin_state( $request ) {
 		$slug = (string) $request['plugin_slug'];
 
-		if ( ! function_exists( 'get_plugins' ) || ! function_exists( 'is_plugin_active' ) ) {
+		if ( ! function_exists( 'get_plugin_data' ) || ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// Scoped to one directory, so the work tracks that plugin's files rather than the whole
-		// inventory. A missing directory, or one with no plugin header, comes back empty.
-		$plugin_files = array_keys( get_plugins( '/' . $slug ) );
+		$plugin_file = $this->find_bootstrap_file( $slug );
 
-		// Scoping also moves that scan down a level, surfacing nested plugin headers (keyed
-		// `modules/helper.php`) the unscoped inventory would never call plugins -- and by display
-		// name one can sort first. Only a bootstrap file in the directory itself is the plugin.
-		$plugin_files = array_filter(
-			$plugin_files,
-			function ( $plugin_file ) {
-				return ! str_contains( $plugin_file, '/' );
-			}
-		);
-
-		if ( ! $plugin_files ) {
+		if ( null === $plugin_file ) {
 			return rest_ensure_response(
 				array(
 					'slug'      => $slug,
@@ -136,10 +124,6 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 				)
 			);
 		}
-
-		// get_plugins() returns paths relative to the directory given: `give.php` is `give/give.php`.
-		// Taking the first entry matches the plugin-list endpoint.
-		$plugin_file = $slug . '/' . reset( $plugin_files );
 
 		return rest_ensure_response(
 			array(
@@ -150,5 +134,50 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 				'active'    => is_plugin_active( $plugin_file ),
 			)
 		);
+	}
+
+	/**
+	 * Find the plugin's bootstrap file, relative to WP_PLUGIN_DIR.
+	 *
+	 * Only a file directly inside the plugin's directory can be its bootstrap, which is why
+	 * get_plugins() is not used here: pointed at a single directory it also descends a level and
+	 * parses the header of every nested PHP file only to have them discarded -- hundreds of reads
+	 * for a large plugin. Its cache group is non-persistent, so a polling caller pays that on
+	 * every request.
+	 *
+	 * @param string $slug The plugin's directory slug.
+	 *
+	 * @return string|null The plugin file, or null when the directory holds no plugin.
+	 */
+	private function find_bootstrap_file( $slug ) {
+		// The slug is validated, so it carries no glob wildcard.
+		$candidates = glob( WP_PLUGIN_DIR . '/' . $slug . '/*.php' );
+
+		if ( ! $candidates ) {
+			return null;
+		}
+
+		$names = array();
+		foreach ( $candidates as $path ) {
+			if ( ! is_readable( $path ) ) {
+				continue;
+			}
+
+			// Skip markup and translation, as get_plugins() does.
+			$data = get_plugin_data( $path, false, false );
+
+			if ( ! empty( $data['Name'] ) ) {
+				$names[ basename( $path ) ] = $data['Name'];
+			}
+		}
+
+		if ( ! $names ) {
+			return null;
+		}
+
+		// get_plugins() orders by display name and the plugin list takes the first; match that.
+		uasort( $names, 'strnatcasecmp' );
+
+		return $slug . '/' . array_key_first( $names );
 	}
 }

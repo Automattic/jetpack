@@ -31,6 +31,13 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 	private $created_dirs = array();
 
 	/**
+	 * The callback watching `pre_http_request`, if a test registered one.
+	 *
+	 * @var callable|null
+	 */
+	private $http_spy = null;
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -53,6 +60,12 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 		$this->forget_discovered_plugins();
 		$this->set_auth_state( null, null );
 		remove_action( 'rest_api_init', array( $this, 'register_route' ) );
+
+		// Removed here rather than at the end of the test, so a failed assertion cannot leak it.
+		if ( null !== $this->http_spy ) {
+			remove_filter( 'pre_http_request', $this->http_spy );
+			$this->http_spy = null;
+		}
 
 		parent::tear_down();
 	}
@@ -228,13 +241,12 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Only a bootstrap file in the directory itself is the plugin.
+	 * Only a file in the directory itself is the plugin.
 	 *
-	 * Scoping get_plugins() to one directory moves its one-level-deep scan down a level, so a
-	 * nested file carrying a plugin header is reported alongside the bootstrap file, keyed
-	 * `modules/helper.php`. Sorted by display name it can even come first -- as it does for
-	 * this repo's own debug-helper, where "Autoloader Debugger" precedes "Jetpack Debug
-	 * Tools". Picking it would report the wrong id, and active: false for an active plugin.
+	 * A nested file can carry a plugin header and sort ahead of the real bootstrap by display
+	 * name -- this repo's own debug-helper is such a layout, where "Autoloader Debugger" in
+	 * modules/ precedes "Jetpack Debug Tools" at the root. Letting one win would report the
+	 * wrong id, and active: false for a plugin that is active.
 	 */
 	public function test_nested_plugin_header_is_not_mistaken_for_the_plugin() {
 		$this->set_auth_state( true, 'blog' );
@@ -323,19 +335,15 @@ class Plugin_State_REST_Test extends \WorDBless\BaseTestCase {
 		);
 		set_site_transient( 'update_plugins', $transient );
 
-		$requests = 0;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$requests ) {
-				++$requests;
-				return new WP_Error( 'no_http', 'Unexpected HTTP request.' );
-			}
-		);
+		$requests       = 0;
+		$this->http_spy = function () use ( &$requests ) {
+			++$requests;
+			return new WP_Error( 'no_http', 'Unexpected HTTP request.' );
+		};
+		add_filter( 'pre_http_request', $this->http_spy );
 
 		$this->assertSame( 200, $this->request( 'give' )->get_status() );
 		$this->assertSame( 0, $requests, 'Must not make an HTTP request.' );
 		$this->assertEquals( $transient, get_site_transient( 'update_plugins' ), 'Must not refresh update_plugins.' );
-
-		remove_all_filters( 'pre_http_request' );
 	}
 }
