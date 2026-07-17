@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add browserslist config for autoprefixer PostCSS targets.
+
