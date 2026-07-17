@@ -1,6 +1,6 @@
 {
 	"name": "jpa/post-performance",
-	"title": "Performance",
+	"title": "Post views",
 	"description": "Views, comments, and likes for the post or page being viewed, with the view trend over the selected period.",
 	"category": "stats",
 	"presentation": "framed"

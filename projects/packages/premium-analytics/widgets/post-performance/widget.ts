@@ -40,7 +40,7 @@ export type PostPerformanceAttributes = {
  */
 export default {
 	name: 'jpa/post-performance',
-	title: __( 'Performance', 'jetpack-premium-analytics' ),
+	title: __( 'Post views', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
 			'Views, comments, and likes for the post or page being viewed, with the view trend over the selected period.',
