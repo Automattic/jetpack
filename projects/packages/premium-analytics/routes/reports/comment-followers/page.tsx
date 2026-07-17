@@ -5,6 +5,7 @@ import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data'
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
 import {
 	MetricValue,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -14,7 +15,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, EmptyState, Text } from '@wordpress/ui';
+import { EmptyState, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -77,29 +78,11 @@ function CommentFollowersReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout>
-				{ /*
-				 * The error state replaces the summary and table rather than sitting
-				 * beside them. `ReportRecordsTable`'s `empty` renders on row count, not
-				 * fetch status, so a failed refetch over cached rows would otherwise
-				 * leave stale data on screen with no notice and no way to retry.
-				 */ }
 				{ records.isError ? (
-					<ReportPageSection>
-						<EmptyState.Root>
-							<EmptyState.Title>
-								{ __( 'Unable to load subscribers', 'jetpack-premium-analytics' ) }
-							</EmptyState.Title>
-							<EmptyState.Description>
-								{ __(
-									"We couldn't load this data. Please try again in a moment.",
-									'jetpack-premium-analytics'
-								) }
-							</EmptyState.Description>
-							<EmptyState.Actions>
-								<Button onClick={ retry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
-							</EmptyState.Actions>
-						</EmptyState.Root>
-					</ReportPageSection>
+					<ReportErrorState
+						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
 				) : (
 					<>
 						<ReportPageSection className={ styles.summary }>

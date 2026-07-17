@@ -9,13 +9,14 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -66,6 +67,10 @@ function UtmReport(): JSX.Element {
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -91,15 +96,22 @@ function UtmReport(): JSX.Element {
 					</div>
 				}
 			>
-				<ReportRecordsTable< UtmReportRow >
-					key={ activeTab }
-					data={ records.rows }
-					fields={ fields }
-					getItemId={ getUtmRowId }
-					isLoading={ records.isLoading }
-					initialView={ RECORDS_VIEW }
-					searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
-				/>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<ReportRecordsTable< UtmReportRow >
+						key={ activeTab }
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getUtmRowId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
+					/>
+				) }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

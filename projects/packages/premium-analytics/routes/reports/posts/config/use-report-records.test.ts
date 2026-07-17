@@ -168,4 +168,21 @@ describe( 'usePostsReportRecords', () => {
 
 		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
+
+	it( 'surfaces error and refetch from the active report', () => {
+		const refetch = jest.fn();
+		mockUseStatsArchives.mockReturnValue( {
+			primary: { data: undefined },
+			comparison: { data: undefined },
+			hasComparison: false,
+			isLoading: false,
+			isError: true,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsArchives > );
+
+		const { result } = renderHook( () => usePostsReportRecords( 'archives', params, 'day' ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.refetch ).toBe( refetch );
+	} );
 } );

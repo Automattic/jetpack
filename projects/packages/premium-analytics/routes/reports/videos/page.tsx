@@ -11,6 +11,7 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPerformanceChart,
@@ -89,6 +90,10 @@ function VideosReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useVideosReportRecords( reportParams, chartPeriod );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 	const fields = useMemo( () => getVideosFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics' ) } ],
@@ -139,23 +144,32 @@ function VideosReport(): JSX.Element {
 					</div>
 				}
 			>
-				<ReportPerformanceChart
-					primary={ records.chart.primary }
-					comparison={ records.chart.comparison }
-					isLoading={ records.chart.isLoading }
-					metrics={ chartMetrics }
-					interval={ chartPeriod }
-					onIntervalChange={ handleIntervalChange }
-					legendLabels={ chartLegendLabels }
-				/>
-				<ReportRecordsTable< StatsVideoPlaysItem >
-					data={ records.rows }
-					fields={ fields }
-					getItemId={ getVideoRowId }
-					isLoading={ records.isLoading }
-					initialView={ RECORDS_VIEW }
-					searchLabel={ __( 'Search videos', 'jetpack-premium-analytics' ) }
-				/>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load videos', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
+						/>
+						<ReportRecordsTable< StatsVideoPlaysItem >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getVideoRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search videos', 'jetpack-premium-analytics' ) }
+						/>
+					</>
+				) }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

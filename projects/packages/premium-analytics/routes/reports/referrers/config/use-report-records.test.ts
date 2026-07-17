@@ -169,4 +169,26 @@ describe( 'useReferrersReportRecords', () => {
 
 		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
+
+	it( 'surfaces error and refetch from the report', () => {
+		const refetch = jest.fn();
+		mockUseStatsReferrers.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: undefined },
+			hasComparison: false,
+			isLoading: false,
+			isError: true,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsReferrers > );
+		const params: ReportParams = {
+			from: '2026-07-09',
+			to: '2026-07-10',
+			interval: 'day',
+		};
+
+		const { result } = renderHook( () => useReferrersReportRecords( params, 'day' ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.refetch ).toBe( refetch );
+	} );
 } );

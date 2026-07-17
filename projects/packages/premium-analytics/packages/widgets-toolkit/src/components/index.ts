@@ -51,6 +51,7 @@ export {
 } from './subscriber-list';
 export {
 	ReportDrilldownTable,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -61,6 +62,7 @@ export {
 	buildReportMetricSeries,
 	type ReportChartMetric,
 	type ReportDrilldownTableProps,
+	type ReportErrorStateProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 	type ReportPageShellProps,

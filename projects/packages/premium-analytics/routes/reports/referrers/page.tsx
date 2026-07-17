@@ -10,6 +10,7 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPerformanceChart,
@@ -97,6 +98,10 @@ function ReferrersReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useReferrersReportRecords( reportParams, chartPeriod );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 	const fields = useMemo( () => getReferrerFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
@@ -152,23 +157,32 @@ function ReferrersReport(): JSX.Element {
 					</div>
 				}
 			>
-				<ReportPerformanceChart
-					primary={ records.chart.primary }
-					comparison={ records.chart.comparison }
-					isLoading={ records.chart.isLoading }
-					metrics={ chartMetrics }
-					interval={ chartPeriod }
-					onIntervalChange={ handleIntervalChange }
-					legendLabels={ chartLegendLabels }
-				/>
-				<ReportRecordsTable
-					data={ records.rows }
-					fields={ fields }
-					getItemId={ getReferrerRowId }
-					isLoading={ records.isLoading }
-					initialView={ RECORDS_VIEW }
-					searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics' ) }
-				/>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
+						/>
+						<ReportRecordsTable
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getReferrerRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics' ) }
+						/>
+					</>
+				) }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

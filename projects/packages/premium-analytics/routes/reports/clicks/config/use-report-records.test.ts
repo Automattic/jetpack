@@ -325,4 +325,21 @@ describe( 'useClicksReportRecords', () => {
 
 		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
+
+	it( 'surfaces error and refetch from the report', () => {
+		const refetch = jest.fn();
+		mockUseStatsClicks.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: undefined },
+			hasComparison: false,
+			isLoading: false,
+			isError: true,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsClicks > );
+
+		const { result } = renderHook( () => useClicksReportRecords( params, 'day' ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.refetch ).toBe( refetch );
+	} );
 } );

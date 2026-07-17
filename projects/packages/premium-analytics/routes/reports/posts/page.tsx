@@ -17,6 +17,7 @@ import {
 	buildCsvDateRangeFilename,
 	formatLegendLabels,
 	isCsvExportEnabled,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
@@ -151,6 +152,10 @@ function PostsReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = usePostsReportRecords( activeTab, reportParams, chartPeriod );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
 	const postsFields = useMemo( () => getPostsFields(), [] );
 	const archivesFields = useMemo( () => getArchivesFields(), [] );
@@ -266,39 +271,48 @@ function PostsReport(): JSX.Element {
 					</div>
 				}
 			>
-				<ReportPerformanceChart
-					primary={ records.chart.primary }
-					comparison={ records.chart.comparison }
-					isLoading={ records.chart.isLoading }
-					metrics={ chartMetrics }
-					interval={ chartPeriod }
-					onIntervalChange={ handleIntervalChange }
-					legendLabels={ chartLegendLabels }
-				/>
-				{ /*
-				 * Keyed by tab so the table's internal view state (sort,
-				 * search, page) resets when the records set changes.
-				 */ }
-				{ activeTab === 'posts-pages' ? (
-					<ReportRecordsTable< StatsTopPostsItem >
-						key="posts-pages"
-						data={ records.posts.rows }
-						fields={ postsFields }
-						getItemId={ getPostRowId }
-						isLoading={ records.posts.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load posts', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
 					/>
 				) : (
-					<ReportRecordsTable
-						key="archives"
-						data={ records.archives.rows }
-						fields={ archivesFields }
-						getItemId={ getArchiveRowId }
-						isLoading={ records.archives.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
-					/>
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
+						/>
+						{ /*
+						 * Keyed by tab so the table's internal view state (sort,
+						 * search, page) resets when the records set changes.
+						 */ }
+						{ activeTab === 'posts-pages' ? (
+							<ReportRecordsTable< StatsTopPostsItem >
+								key="posts-pages"
+								data={ records.posts.rows }
+								fields={ postsFields }
+								getItemId={ getPostRowId }
+								isLoading={ records.posts.isLoading }
+								initialView={ RECORDS_VIEW }
+								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+							/>
+						) : (
+							<ReportRecordsTable
+								key="archives"
+								data={ records.archives.rows }
+								fields={ archivesFields }
+								getItemId={ getArchiveRowId }
+								isLoading={ records.archives.isLoading }
+								initialView={ RECORDS_VIEW }
+								searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
+							/>
+						) }
+					</>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>
