@@ -5,11 +5,7 @@
 }
 
 .content {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 0;
-	min-height: 0;
+	composes: content from '../widget-layout.module.css';
 }
 
 /* Fill the WidgetState ready area so the highlight stays centered. */
@@ -18,5 +14,5 @@
 }
 
 .caption {
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	color: var( --wpds-color-foreground-content-neutral-weak );
 }

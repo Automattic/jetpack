@@ -1,28 +1,20 @@
 .root {
-	container-type: inline-size;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	overflow: hidden;
+	composes: root from '../widget-layout.module.css';
 }
 
 /* Positioned anchor so the WidgetState busy overlay (position: absolute;
    inset: 0) resolves against the widget body, not the host frame. */
 .content {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 0;
-	min-height: 0;
+	composes: content from '../widget-layout.module.css';
 }
 
 /* Icon + label row for the leaderboard. min-height keeps a stable 36px row for
    both single tag/category rows and grouped (drill-down) rows. */
 .itemLabel {
-	gap: var(--wpds-dimension-padding-sm);
+	gap: var( --wpds-dimension-padding-sm );
 	min-height: 36px;
 	min-width: 0;
-	padding-inline: var(--wpds-dimension-padding-sm);
+	padding-inline: var( --wpds-dimension-padding-sm );
 	overflow: hidden;
 }
 
@@ -54,8 +46,8 @@ a.itemLabelText:focus {
 .childRow {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-padding-sm);
+	gap: var( --wpds-dimension-padding-sm );
 	min-height: 36px;
-	padding-inline: var(--wpds-dimension-padding-sm);
+	padding-inline: var( --wpds-dimension-padding-sm );
 	overflow: hidden;
 }

@@ -1,19 +1,11 @@
 .root {
-	container-type: inline-size;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	overflow: hidden;
+	composes: root from '../widget-layout.module.css';
 }
 
 .content {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 0;
-	min-height: 0;
+	composes: content from '../widget-layout.module.css';
 }
 
 .itemLabel {
-	padding: var(--wpds-dimension-padding-sm);
+	padding: var( --wpds-dimension-padding-sm );
 }

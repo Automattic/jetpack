@@ -1,18 +1,10 @@
 .root {
-	container-type: inline-size;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
+	composes: root from '../widget-layout.module.css';
 	min-height: 0;
-	overflow: hidden;
 }
 
 .content {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 0;
-	min-height: 0;
+	composes: content from '../widget-layout.module.css';
 }
 
 /* Vertical padding sets the overlay bar height — the bar fills the row,
@@ -23,10 +15,10 @@
 .labelRow {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
+	gap: var( --wpds-dimension-gap-xs );
 	min-width: 0;
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline-start: var(--wpds-dimension-padding-sm);
+	padding-block: var( --wpds-dimension-padding-md );
+	padding-inline-start: var( --wpds-dimension-padding-sm );
 }
 
 /* `min-width: 0` lets the flex item shrink below its content width so the
@@ -56,7 +48,7 @@
 .externalLink {
 	display: inline-flex;
 	flex: none;
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	color: var( --wpds-color-foreground-content-neutral-weak );
 	opacity: 0;
 	transition: opacity 120ms ease-in-out;
 }
@@ -72,8 +64,7 @@
 }
 
 /* Touch-capable devices: keep the icon visible so the affordance isn't lost. */
-@media (hover: none), (any-pointer: coarse) {
-
+@media ( hover: none ), ( any-pointer: coarse ) {
 	.externalLink {
 		opacity: 1;
 	}
