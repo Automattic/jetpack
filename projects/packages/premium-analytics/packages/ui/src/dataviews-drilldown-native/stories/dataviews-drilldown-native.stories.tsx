@@ -482,7 +482,7 @@ export const Default: Story = {
 		docs: {
 			description: {
 				story:
-					"DataViews' native hierarchy rendering: `view.showLevels` plus `getItemLevel`, with levels drawn as em-dash markers on the title field. The hidden Medium field is filterable so the default DataViews filter control appears next to search.",
+					"DataViews' native hierarchy rendering: `view.showLevels` plus `getItemLevel`, with levels drawn as em-dash markers on the title field. Search and filter keep matches under their ancestors, and sort orders within each level. The hidden Medium field is filterable so the default DataViews filter control appears next to search.",
 			},
 		},
 	},
@@ -510,6 +510,21 @@ export const MultipleColumns: Story = {
 	},
 };
 
+export const Search: Story = {
+	args: {
+		...Default.args,
+		initialView: { ...initialView, search: 'Google' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Search keeps matches under their ancestors instead of orphaning them: searching "Google" surfaces Google, Google Search, and Google Images, still nested under Search Engines. Clear the search to see the full tree.',
+			},
+		},
+	},
+};
+
 export const Sorted: Story = {
 	args: {
 		...Default.args,
@@ -519,7 +534,7 @@ export const Sorted: Story = {
 		docs: {
 			description: {
 				story:
-					'Sorting keeps the flat `filterSortAndPaginate` semantics: rows re-order by the sorted field regardless of hierarchy, so level markers stay per-row but the visual grouping breaks. This is native DataViews behaviour, not a bug in the component.',
+					'Sorting orders within each level, not globally: top-level rows sort against each other and children sort within their parent, so the tree stays intact. Sorted by Views (desc) here.',
 			},
 		},
 	},
@@ -560,7 +575,7 @@ export const Paginated: Story = {
 		docs: {
 			description: {
 				story:
-					'Pagination is the flat DataViews semantics: every row counts as an item, and with no expand/collapse a deep subtree simply spans pages.',
+					'Pagination counts every row and slices the hierarchy-ordered list. Until the parent-on-page-boundary refinement lands, a deep subtree can still span pages (its child rows appear on the next page without their parent).',
 			},
 		},
 	},
