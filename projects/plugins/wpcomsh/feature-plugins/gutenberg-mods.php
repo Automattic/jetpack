@@ -67,11 +67,22 @@ function wpcomsh_remove_gutenberg_experimental_menu() {
  * Enable wp-admin JS error reporting on sites participating in the `gutenberg-react-19`
  * experiment, so that errors caused by the React 19 upgrade are captured.
  *
+ * Reporting is enabled only for WP.com-connected users, who have accepted the WP.com
+ * terms of service and privacy policy. Local users have made no such agreement.
+ *
  * @param bool $is_enabled Whether error reporting is enabled.
  * @return bool
  */
 function wpcomsh_enable_error_reporting_for_react_19( $is_enabled ) {
-	return $is_enabled || ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'gutenberg-react-19' ) );
+	if ( $is_enabled ) {
+		return true;
+	}
+
+	if ( ! function_exists( 'is_user_connected' ) || ! is_user_connected( get_current_user_id() ) ) {
+		return false;
+	}
+
+	return function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'gutenberg-react-19' );
 }
 add_filter( 'a8c_enable_error_reporting', 'wpcomsh_enable_error_reporting_for_react_19' );
 
