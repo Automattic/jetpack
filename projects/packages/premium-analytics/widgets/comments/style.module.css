@@ -27,13 +27,11 @@
 
 /* Post rows have no avatar, so the post label sizes the row: pad the block to
    set the overlay bar height and inset the text from the bar's rounded left
-   edge. `padding-sm` + a 20px line box lands on the same 36px row the Authors
-   view gets from LeaderboardLabel, so toggling views keeps the row rhythm. */
+   edge. */
 .postLabel {
 	display: block;
-	padding-block: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-md, 12px);
 	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
-	line-height: 20px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
