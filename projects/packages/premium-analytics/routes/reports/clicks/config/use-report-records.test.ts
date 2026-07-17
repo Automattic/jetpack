@@ -50,6 +50,92 @@ const report: StatsNormalizedReport< StatsClicksItem > = {
 	],
 };
 
+const nestedReport: StatsNormalizedReport< StatsClicksItem > = {
+	summary: {},
+	data: [
+		{
+			time_interval: '2026-07-09',
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-09T23:59:59+00:00',
+			items: [
+				{
+					label: 'github.com',
+					views: 5,
+					link: null,
+					icon: null,
+					labelIcon: null,
+					children: [
+						{
+							label: 'github.com/Automattic/jetpack',
+							views: 3,
+							link: 'https://github.com/Automattic/jetpack',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+						{
+							label: 'github.com/Automattic/themes',
+							views: 2,
+							link: 'https://github.com/Automattic/themes',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+					],
+				},
+				{
+					label: 'jetpack.com',
+					views: 7,
+					link: 'https://jetpack.com/',
+					icon: null,
+					labelIcon: 'external',
+					children: null,
+				},
+			],
+		},
+		{
+			time_interval: '2026-07-10',
+			date_start: '2026-07-10T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
+			items: [
+				{
+					label: 'github.com',
+					views: 4,
+					link: null,
+					icon: null,
+					labelIcon: null,
+					children: [
+						{
+							label: 'github.com/Automattic/jetpack',
+							views: 3,
+							link: 'https://github.com/Automattic/jetpack',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+						{
+							label: 'github.com/Automattic/themes',
+							views: 1,
+							link: 'https://github.com/Automattic/themes',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+					],
+				},
+				{
+					label: 'jetpack.com',
+					views: 6,
+					link: 'https://jetpack.com/',
+					icon: null,
+					labelIcon: 'external',
+					children: null,
+				},
+			],
+		},
+	],
+};
+
 const comparisonReport: StatsNormalizedReport< StatsClicksItem > = {
 	summary: {},
 	data: [
@@ -122,6 +208,43 @@ describe( 'useClicksReportRecords', () => {
 		expect( result.current.chart.primary.data.map( point => point.clicks ) ).toEqual( [ 7, 6 ] );
 		expect( result.current.rows ).toEqual( [
 			expect.objectContaining( { clickedUrl: 'https://jetpack.com/', clicks: 13 } ),
+		] );
+	} );
+
+	it( 'nests clicked URLs under their click group, ordered by clicks', () => {
+		mockUseStatsClicks.mockReturnValue( {
+			primary: { data: nestedReport },
+			comparison: { data: undefined },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsClicks > );
+
+		const { result } = renderHook( () => useClicksReportRecords( params, 'day' ) );
+
+		expect( result.current.rows ).toEqual( [
+			// Single-URL groups stay flat top-level rows.
+			{
+				id: 'jetpack.com|https://jetpack.com/',
+				clickedUrl: 'https://jetpack.com/',
+				href: 'https://jetpack.com/',
+				clicks: 13,
+			},
+			// Multi-URL groups become a parent row with nested URL rows.
+			{ id: 'github.com', clickedUrl: 'github.com', isGroup: true, clicks: 9 },
+			{
+				id: 'github.com|https://github.com/Automattic/jetpack',
+				parentId: 'github.com',
+				clickedUrl: 'https://github.com/Automattic/jetpack',
+				href: 'https://github.com/Automattic/jetpack',
+				clicks: 6,
+			},
+			{
+				id: 'github.com|https://github.com/Automattic/themes',
+				parentId: 'github.com',
+				clickedUrl: 'https://github.com/Automattic/themes',
+				href: 'https://github.com/Automattic/themes',
+				clicks: 3,
+			},
 		] );
 	} );
 

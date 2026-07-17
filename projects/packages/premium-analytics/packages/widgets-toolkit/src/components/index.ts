@@ -50,6 +50,7 @@ export {
 	type SubscriberListProps,
 } from './subscriber-list';
 export {
+	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageTabPanel,
@@ -58,6 +59,7 @@ export {
 	ReportRecordsTable,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportDrilldownTableProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 	type ReportPageTab,

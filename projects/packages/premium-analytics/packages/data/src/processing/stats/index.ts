@@ -12,6 +12,12 @@ export type {
 } from './utils';
 export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
+export { aggregateStatsDrilldownRows } from './drilldown-rows';
+export type {
+	StatsDrilldownRow,
+	StatsDrilldownSourceItem,
+	StatsDrilldownSourceReport,
+} from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsPostCommentsResponse } from './post-comments';

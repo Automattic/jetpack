@@ -10,9 +10,9 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
+	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportPerformanceChart,
-	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -71,8 +71,21 @@ function getClickRowId( item: ClickRow ): string {
 	return item.id;
 }
 
+/**
+ * Resolve the click-group parent row id for nested URL rows.
+ *
+ * @param item - The clicked URL row.
+ * @return The parent row id, if any.
+ */
+function getClickRowParentId( item: ClickRow ): string | undefined {
+	return item.parentId;
+}
+
+/*
+ * No default sort: DataViews' native hierarchy has no tree-aware sorting, so
+ * the group/URL order is baked into the aggregated rows instead.
+ */
 const RECORDS_VIEW = {
-	sort: { field: 'clicks', direction: 'desc' as const },
 	layout: {
 		styles: {
 			clickedUrl: { width: '100%' },
@@ -163,13 +176,15 @@ function ClicksReport(): JSX.Element {
 						onIntervalChange={ handleIntervalChange }
 						legendLabels={ chartLegendLabels }
 					/>
-					<ReportRecordsTable< ClickRow >
+					<ReportDrilldownTable< ClickRow >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getClickRowId }
+						getItemParentId={ getClickRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics' ) }
+						hideLevelMarkers
 					/>
 				</ReportPageLayout>
 			</div>

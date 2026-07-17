@@ -8,6 +8,7 @@ export {
 	ReportPerformanceChart,
 	type ReportPerformanceChartProps,
 } from './report-performance-chart';
+export { ReportDrilldownTable, type ReportDrilldownTableProps } from './report-drilldown-table';
 export { ReportRecordsTable, type ReportRecordsTableProps } from './report-records-table';
 export {
 	ReportPageTabPanel,

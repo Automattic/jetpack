@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Clicks report: nest clicked URLs under their click group via DataViewsDrilldownNative, replacing the Group column. Adds shared drilldown building blocks (ReportDrilldownTable, DrilldownLeafCell, aggregateStatsDrilldownRows) and fixes the component to resolve row levels by item id.
