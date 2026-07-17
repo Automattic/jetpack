@@ -146,7 +146,7 @@ export function launchSiteUrl( siteUrl: string ): string | null {
  * be unit-tested without pulling `@wordpress/*` into the test runner.
  */
 export interface CtaHandlers {
-	trackTaskClicked: ( props: { task_id: string } ) => void;
+	trackTaskCtaClicked: ( props: { task_id: string } ) => void;
 	createFirstPostDraft: (
 		draft: FirstPostDraft
 	) => Promise< { post_id: number; edit_url: string } >;
@@ -196,7 +196,7 @@ export async function resolveCtaUrl(
 	handlers: CtaHandlers,
 	siteUrl: string | null = null
 ): Promise< string | null > {
-	handlers.trackTaskClicked( { task_id: task.id } );
+	handlers.trackTaskCtaClicked( { task_id: task.id } );
 
 	const kind = ctaKind( task.id );
 	let url: string | null;

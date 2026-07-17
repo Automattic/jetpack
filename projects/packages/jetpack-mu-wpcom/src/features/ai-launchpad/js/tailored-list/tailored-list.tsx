@@ -9,8 +9,9 @@ import {
 	contextFromTaskIds,
 	setTracksContext,
 	trackTaskClicked,
-	trackTaskExpanded,
+	trackTaskCtaClicked,
 	trackTaskSkipped,
+	type TaskStatus,
 } from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
 import {
@@ -180,6 +181,15 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 		[ tasks, skippedIds ]
 	);
 
+	// The task's state for the task_clicked event. Skipped wins over the coerced
+	// completed flag so reopen-attempts on skipped tasks are distinguishable.
+	const taskStatus = ( task: EnrichedTask ): TaskStatus => {
+		if ( task.skipped || skippedIds.has( task.id ) ) {
+			return 'skipped';
+		}
+		return task.completed ? 'completed' : 'to_do';
+	};
+
 	// Prefer the goal from the loaded AI output; fall back to the wizard's.
 	const effectiveGoal = output?.inferred?.goal ?? goal ?? null;
 
@@ -212,7 +222,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				task,
 				output,
 				{
-					trackTaskClicked,
+					trackTaskCtaClicked,
 					createFirstPostDraft,
 					createAboutPage,
 					createGalleryPage,
@@ -247,7 +257,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	const handleMarkComplete = async ( task: EnrichedTask ) => {
 		setBusyId( task.id );
 		try {
-			trackTaskClicked( { task_id: task.id } );
+			trackTaskCtaClicked( { task_id: task.id } );
 			await apiFetch( {
 				path: '/wpcom/v2/ai-launchpad/complete-task',
 				method: 'POST',
@@ -310,12 +320,16 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 						}
 						isOpen={ openId === task.id }
 						onOpenChange={ open => {
-							// User-initiated only: auto-expansion goes through setOpenId directly.
+							// Only a collapsed task records a click (auto-expansion goes
+							// through setOpenId directly and records nothing).
 							if ( open ) {
-								trackTaskExpanded( { task_id: task.id } );
+								trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } );
 							}
 							setOpenId( open ? task.id : null );
 						} }
+						onCollapsedClick={ () =>
+							trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } )
+						}
 						onGetStarted={ () => handleGetStarted( task ) }
 						onMarkComplete={ () => handleMarkComplete( task ) }
 						onSkip={ () => handleSkip( task ) }

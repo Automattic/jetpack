@@ -6,7 +6,7 @@ import {
 	resetTracksContext,
 	setTracksContext,
 	trackTaskClicked,
-	trackTaskExpanded,
+	trackTaskCtaClicked,
 	trackTaskSkipped,
 	trackViewed,
 	trackWizardBackClicked,
@@ -52,10 +52,10 @@ describe( 'ai-launchpad tracks', () => {
 
 	it( 'merges the shared context into every event', () => {
 		setTracksContext( { goal: 'write', niche: 'hiking' } );
-		trackTaskClicked( { task_id: 'site_theme_selected' } );
+		trackTaskCtaClicked( { task_id: 'site_theme_selected' } );
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
-			'jetpack_ai_launchpad_task_clicked',
+			'jetpack_ai_launchpad_task_cta_clicked',
 			{ ...NULL_CONTEXT, goal: 'write', niche: 'hiking', task_id: 'site_theme_selected' },
 		] );
 	} );
@@ -134,11 +134,11 @@ describe( 'ai-launchpad tracks', () => {
 	} );
 
 	it( 'records the task events with their task_id', () => {
-		trackTaskExpanded( { task_id: 'add_about_page' } );
+		trackTaskClicked( { task_id: 'add_about_page', task_status: 'skipped' } );
 		assert.deepEqual( lastEvent(), [
 			'recordEvent',
-			'jetpack_ai_launchpad_task_expanded',
-			{ ...NULL_CONTEXT, task_id: 'add_about_page' },
+			'jetpack_ai_launchpad_task_clicked',
+			{ ...NULL_CONTEXT, task_id: 'add_about_page', task_status: 'skipped' },
 		] );
 
 		trackTaskSkipped( { task_id: 'add_about_page' } );

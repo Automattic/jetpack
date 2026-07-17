@@ -150,24 +150,31 @@ export function trackWizardCompleted(): void {
 	record( 'jetpack_ai_launchpad_wizard_completed' );
 }
 
+/** A task's state at click time: skipped wins over the coerced completed flag. */
+export type TaskStatus = 'completed' | 'skipped' | 'to_do';
+
 /**
- * Records a user-initiated task-card expansion (auto-expansion never fires this).
+ * Records a user click on a collapsed task (a to-do card expanding, or a
+ * completed/skipped card, which cannot expand — surfacing users who try to
+ * reopen them). Collapsing the open card records nothing; auto-expansion never
+ * fires this.
  *
- * @param props         - The event properties.
- * @param props.task_id - The id of the expanded task.
+ * @param props             - The event properties.
+ * @param props.task_id     - The id of the clicked task.
+ * @param props.task_status - The task's state at click time.
  */
-export function trackTaskExpanded( props: { task_id: string } ): void {
-	record( 'jetpack_ai_launchpad_task_expanded', props );
+export function trackTaskClicked( props: { task_id: string; task_status: TaskStatus } ): void {
+	record( 'jetpack_ai_launchpad_task_clicked', props );
 }
 
 /**
- * Records the task-clicked event.
+ * Records a click on a task's primary CTA (incl. "Mark as complete").
  *
  * @param props         - The event properties.
- * @param props.task_id - The id of the clicked task.
+ * @param props.task_id - The id of the task whose CTA was clicked.
  */
-export function trackTaskClicked( props: { task_id: string } ): void {
-	record( 'jetpack_ai_launchpad_task_clicked', props );
+export function trackTaskCtaClicked( props: { task_id: string } ): void {
+	record( 'jetpack_ai_launchpad_task_cta_clicked', props );
 }
 
 /**
