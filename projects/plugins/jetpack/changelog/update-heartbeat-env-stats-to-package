@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Heartbeat: Site environment stats are now provided by the Connection package.
