@@ -20,3 +20,19 @@
 .root :global(.dataviews-layout__container) {
 	flex: 1 1 auto;
 }
+
+/* Per the report-table design, row links rest as neutral text and only take
+ * the interactive color and underline on hover/keyboard focus. Scoped to the
+ * records table so it styles every report's links (internal and external)
+ * in one place, overriding both wp-admin's default blue anchors and the
+ * unstyled-Link hover-underline recipes individual cells may carry. */
+.root :global(a) {
+	color: var(--wpds-color-foreground-content-neutral);
+	text-decoration: none;
+}
+
+.root :global(a:hover),
+.root :global(a:focus-visible) {
+	color: var(--wpds-color-foreground-interactive-brand);
+	text-decoration: underline;
+}
