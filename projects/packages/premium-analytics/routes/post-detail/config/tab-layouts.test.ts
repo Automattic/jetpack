@@ -2,7 +2,7 @@ import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
 import { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
 describe( 'post detail tab layouts', () => {
-	it( 'keeps the post traffic interaction cards in a single fixed row', () => {
+	it( 'keeps the post traffic highlights, Performance chart, and interaction cards in fixed rows', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] ).toEqual( [
 			{
 				uuid: 'post-detail-highlights',
@@ -10,25 +10,30 @@ describe( 'post detail tab layouts', () => {
 				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
+				uuid: 'post-performance',
+				type: 'jpa/post-performance',
+				placement: { width: 3, height: 2, order: 2 },
+			},
+			{
 				uuid: 'post-comments',
 				type: 'jpa/post-comments',
-				placement: { width: 1, height: 2, order: 2 },
+				placement: { width: 1, height: 2, order: 3 },
 			},
 			{
 				uuid: 'post-likes',
 				type: 'jpa/post-likes',
-				placement: { width: 1, height: 2, order: 3 },
+				placement: { width: 1, height: 2, order: 4 },
 			},
 			{
 				uuid: 'post-utm',
 				type: 'jpa/utm-insights',
 				attributes: { utmDimension: 'utm_source,utm_medium', max: 10 },
-				placement: { width: 2, height: 2, order: 4 },
+				placement: { width: 2, height: 2, order: 5 },
 			},
 			{
 				uuid: 'post-traffic-activity',
 				type: 'jpa/post-traffic-activity',
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 5 },
+				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 6 },
 			},
 		] );
 	} );
