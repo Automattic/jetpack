@@ -434,7 +434,7 @@ function get_dashboard_default_section_layouts() {
 				'default-tags-widget-instance',
 				'jpa/tags',
 				6,
-				1,
+				2,
 				2,
 				array(
 					'max' => 10,
@@ -444,7 +444,7 @@ function get_dashboard_default_section_layouts() {
 				'default-comments-widget-instance',
 				'jpa/comments',
 				7,
-				1,
+				2,
 				2,
 				array(
 					'max' => 10,
