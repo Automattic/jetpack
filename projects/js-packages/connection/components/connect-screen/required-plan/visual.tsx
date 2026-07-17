@@ -5,19 +5,48 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import debugFactory from 'debug';
-import PropTypes from 'prop-types';
 import ConnectScreenLayout from '../layout';
+import type { Props as ConnectScreenRequiredPlanProps } from './types';
+import type { FC, MouseEvent, ReactNode } from 'react';
 import './style.scss';
 
 const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual' );
 
+type SharedProps = Pick<
+	ConnectScreenRequiredPlanProps,
+	| 'title'
+	| 'buttonLabel'
+	| 'children'
+	| 'priceBefore'
+	| 'priceAfter'
+	| 'pricingIcon'
+	| 'pricingTitle'
+	| 'pricingCurrencyCode'
+	| 'logo'
+	| 'rna'
+>;
+type OwnProps = {
+	// Whether the connection status is still loading
+	isLoading?: boolean;
+	// Callback that is applied into click for all buttons
+	handleButtonClick?: ( e?: MouseEvent< HTMLElement > ) => void;
+	// Whether the button error is active or not
+	displayButtonError?: boolean;
+	// Whether the button loading state is active or not
+	buttonIsLoading?: boolean;
+	// Whether the site is in offline mode
+	isOfflineMode?: boolean;
+};
+
+export type Props = SharedProps & OwnProps;
+
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
  *
- * @param {object} props -- The properties.
- * @return {import('react').Component} The `ConnectScreenRequiredPlanVisual` component.
+ * @param {Props} props - The properties.
+ * @return {import('react').ReactNode} The `ConnectScreenRequiredPlanVisual` component.
  */
-const ConnectScreenRequiredPlanVisual = props => {
+const ConnectScreenRequiredPlanVisual: FC< Props > = props => {
 	const {
 		title,
 		buttonLabel,
@@ -55,7 +84,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 		}
 	);
 
-	const errorMessage = isOfflineMode
+	const errorMessage: ReactNode = isOfflineMode
 		? createInterpolateElement(
 				__( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ),
 				{
@@ -118,35 +147,6 @@ const ConnectScreenRequiredPlanVisual = props => {
 			</div>
 		</ConnectScreenLayout>
 	);
-};
-
-ConnectScreenRequiredPlanVisual.propTypes = {
-	/** The Pricing Card Title. */
-	pricingTitle: PropTypes.string.isRequired,
-	/** Price before discount. */
-	priceBefore: PropTypes.number.isRequired,
-	/** Price after discount. */
-	priceAfter: PropTypes.number.isRequired,
-	/** The Currency code, eg 'USD'. */
-	pricingCurrencyCode: PropTypes.string,
-	/** The Title. */
-	title: PropTypes.string,
-	/** The Connect Button label. */
-	buttonLabel: PropTypes.string,
-	/** The Pricing Card Icon. */
-	pricingIcon: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
-	/** Whether the connection status is still loading. */
-	isLoading: PropTypes.bool,
-	/** Callback that is applied into click for all buttons. */
-	handleButtonClick: PropTypes.func,
-	/** Whether the button error is active or not. */
-	displayButtonError: PropTypes.bool,
-	/** Whether the button loading state is active or not. */
-	buttonIsLoading: PropTypes.bool,
-	/** The logo to display at the top of the component. */
-	logo: PropTypes.element,
-	/** Whether the site is in offline mode. */
-	isOfflineMode: PropTypes.bool,
 };
 
 export default ConnectScreenRequiredPlanVisual;
