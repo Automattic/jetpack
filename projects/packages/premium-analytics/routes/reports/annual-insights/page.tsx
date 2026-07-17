@@ -23,10 +23,13 @@ const RECORDS_VIEW = {
 	layout: {
 		styles: {
 			year: { width: '100%' },
-			posts: { align: 'end' as const },
-			words: { align: 'end' as const },
-			likes: { align: 'end' as const },
-			comments: { align: 'end' as const },
+			total_posts: { align: 'end' as const },
+			total_comments: { align: 'end' as const },
+			avg_comments: { align: 'end' as const },
+			total_likes: { align: 'end' as const },
+			avg_likes: { align: 'end' as const },
+			total_words: { align: 'end' as const },
+			avg_words: { align: 'end' as const },
 		},
 	},
 };
