@@ -7,9 +7,19 @@ on:
       - '**/changelog/**'
   repository_dispatch:
     types: [ 'e2e tests**' ]
+  schedule:
+    # Nightly run against the minimum supported WordPress version (MIN_WP_VERSION in .github/versions.sh).
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      wp_version:
+        description: 'WordPress version to run against. Defaults to MIN_WP_VERSION from .github/versions.sh.'
+        required: false
+        type: string
 
 concurrency:
-  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
+  # wp_version keeps concurrent dispatches for different WordPress versions from cancelling each other.
+  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}-${{ inputs.wp_version }}
   cancel-in-progress: true
 
 permissions:
@@ -26,10 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-20: The pnpm install may take a few minutes on cache miss.
     # Only run tests in the main repository
-    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     outputs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
       build-matrix: ${{ steps.evaluate.outputs.build-matrix }}
+      wp-version: ${{ steps.evaluate.outputs.wp-version }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
@@ -54,10 +65,13 @@ jobs:
           DISPATCH_REPO: ${{ github.event.client_payload.repository }}
           REF_NAME: ${{ github.event.client_payload.ref_name }}
           REF_TYPE: ${{ github.event.client_payload.ref_type }}
+          WP_VERSION: ${{ inputs.wp_version }}
         run: |
           MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "matrix: $MATRIX"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          # Only set for the WordPress-version runs; empty for pull requests and mirror dispatches.
+          echo "wp-version=$( jq -r 'first( .[].wpVersion // empty ) // empty' <<<"$MATRIX" )" >> "$GITHUB_OUTPUT"
           if [[ "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
             echo "No build needed for $GITHUB_EVENT_NAME"
             BUILD_MATRIX="[]"
@@ -146,7 +160,7 @@ jobs:
           archive: false
 
   e2e-tests:
-    name: "${{ matrix.project }} e2e tests"
+    name: "${{ matrix.project }} e2e tests${{ matrix.wpVersion && format( ' (WP {0})', matrix.wpVersion ) || '' }}"
     runs-on: ubuntu-latest
     needs: [ create-test-matrix, build-projects ]
     # The "always() && ! cancelled() && ! failure()" bit is needed to still run if the build was skipped.
@@ -232,6 +246,8 @@ jobs:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
           PROJECT_NAME: ${{ matrix.project }}
           HOST_CWD: ${{ github.workspace }}
+          # Empty on PRs, which leaves the environment on the latest WordPress release.
+          WP_VERSION: ${{ matrix.wpVersion }}
         run: |
           echo "::group::Decrypt config"
           pnpm run config:decrypt
@@ -294,7 +310,7 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name ) }}
     needs: [e2e-tests]
 
     steps:
@@ -329,6 +345,7 @@ jobs:
           client-payload: ${{ steps.report-context.outputs.client_payload }}
 
       - name: Display link to test report in Action Summary
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v9
         with:
           script: |
@@ -352,7 +369,7 @@ jobs:
       contents: read
     # Skip on pull_request: PR feedback is already in the GitHub Checks UI. Mirror-repo dispatches still notify.
     if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event_name != 'pull_request' }}
-    needs: [e2e-tests]
+    needs: [e2e-tests, create-test-matrix]
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -372,6 +389,8 @@ jobs:
       - name: Download test artifacts
         uses: actions/download-artifact@v8
         with:
+          # Without this we'd also pull the build-cache tarballs, which this job has no use for.
+          pattern: test-output-*
           path: test-output
 
       - name: Decrypt config
@@ -384,6 +403,13 @@ jobs:
         env:
           VERSION: ${{ github.event.client_payload.ref_name }}
         run: echo "NOTIFICATION_SUITE=rc-${VERSION}" >> $GITHUB_ENV
+
+      # Mirrors the `suite` set by e2e-matrix.js, so the notification names the WordPress version tested.
+      - name: Tag WordPress version runs
+        if: needs.create-test-matrix.outputs.wp-version != ''
+        env:
+          WP_VERSION: ${{ needs.create-test-matrix.outputs.wp-version }}
+        run: echo "NOTIFICATION_SUITE=wp-${WP_VERSION}" >> "$GITHUB_ENV"
 
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack

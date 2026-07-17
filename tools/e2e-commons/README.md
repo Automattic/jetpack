@@ -75,7 +75,16 @@ Now you can run the test in two different ways: against a local site, in a Docke
 
 Build your plugin as well as all it's dependencies. Also, make sure to build `plugins/jetpack` since some of the functionality of the tests depends on Jetpack being active.
 
-##### 1.3. Start the local environment
+The `build` script in your `tests/e2e/package.json` already lists them, and is what CI builds too:
+
+```shell
+cd projects/plugins/YOUR-PLUGIN/tests/e2e
+pnpm run build
+```
+
+Without this the plugin still activates, but its WP-CLI commands aren't registered and `env:up` fails on `wp jetpack ...`.
+
+##### 1.2. Start the local environment
 
 Sensitive information like credentials and other secrets is stored in an encrypted config file. This file needs to be decrypted before starting the environment.
 If you're an a11n you can find the key in the secret store and set it in the `CONFIG_KEY` env var, as shown below.
@@ -98,7 +107,15 @@ pnpm tunnel:up
 
 The tunnel url will be stored in a file in the config folder of your tests, so that it can be read by the tests and then reused by the tunnel script. See config files for details.
 
-##### 1.4. Run the tests
+By default the environment runs the latest WordPress release. Set `WP_VERSION` to run against a specific one instead, e.g. the oldest version we support (`MIN_WP_VERSION` in `.github/versions.sh`):
+
+```shell
+WP_VERSION=6.9 pnpm env:up
+```
+
+In CI, the E2E suites run against the latest release on pull requests, and against `MIN_WP_VERSION` in a nightly scheduled run. The `E2E Tests` workflow can also be dispatched manually with a `wp_version` input to test any other version.
+
+##### 1.3. Run the tests
 
 ```shell
 pnpm test:run

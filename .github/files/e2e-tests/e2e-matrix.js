@@ -130,6 +130,20 @@ const projects = [
 	},
 ];
 
+/**
+ * Read the minimum supported WordPress version from .github/versions.sh.
+ *
+ * @return {string} The version, e.g. '6.9'.
+ */
+function minWpVersion() {
+	const versions = fs.readFileSync( '.github/versions.sh', 'utf8' );
+	const match = versions.match( /^MIN_WP_VERSION=(\S+)$/m );
+	if ( ! match ) {
+		throw new Error( 'Could not find MIN_WP_VERSION in .github/versions.sh' );
+	}
+	return match[ 1 ];
+}
+
 const matrix = [];
 
 switch ( process.env.GITHUB_EVENT_NAME ) {
@@ -157,6 +171,25 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
 				matrix.push( project );
 			}
+		}
+		break;
+	}
+	case 'schedule':
+	case 'workflow_dispatch': {
+		// There's no diff to narrow things down to, so run everything. WP_VERSION comes from the
+		// workflow_dispatch input, and defaults to the oldest version we claim to support.
+		const wpVersion = process.env.WP_VERSION || minWpVersion();
+
+		// Reject it here, rather than let every job discover it after standing up docker. This also
+		// keeps the value safe to echo into $GITHUB_OUTPUT.
+		if ( ! /^(?:latest|\d+\.\d+(?:\.\d+)?)$/.test( wpVersion ) ) {
+			throw new Error(
+				`Invalid WordPress version '${ wpVersion }'. Expected something like '6.9' or 'latest'.`
+			);
+		}
+
+		for ( const project of projects ) {
+			matrix.push( { ...project, wpVersion, suite: `wp-${ wpVersion }` } );
 		}
 		break;
 	}

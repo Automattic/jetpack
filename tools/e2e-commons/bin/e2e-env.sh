@@ -14,6 +14,9 @@ usage() {
 	echo "  clean                                             Completely resets the environment (remove docker volumes, MySql and WordPress data and logs)"
 	echo "  new [--activate-plugins plugin1 plugin2 ...]      Completely resets the running environment and starts a new fresh one"
 	echo "  -h | usage                                        Output this message"
+	echo
+	echo "environment:"
+	echo "  WP_VERSION    WordPress core version to run against, e.g. 6.9. Defaults to the latest release."
 	exit 1
 }
 
@@ -23,7 +26,15 @@ start_env() {
 	export_e2e_config
 	$BASE_CMD up -d
 	$BASE_CMD install || true
+	select_wp_version
 	configure_wp_env "$@"
+}
+
+# The container downloads whatever WordPress is current at start-up. If $WP_VERSION is set,
+# switch core to it instead, so the suite can run against e.g. the minimum supported version.
+select_wp_version() {
+	[[ -n "$WP_VERSION" ]] || return 0
+	$BASE_CMD update-core "$WP_VERSION"
 }
 
 stop_env() {
