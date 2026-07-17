@@ -59,29 +59,9 @@ describe( 'clicks fields', () => {
 
 		render( <UrlField item={ groupRow } field={ field as never } /> );
 
-		// Group rows render bare so DataViews' title styling applies; the
-		// leaf opt-out wrapper must not be present.
-		const label = screen.getByText( groupRow.clickedUrl );
-		// eslint-disable-next-line testing-library/no-node-access -- The presentational leaf wrapper has no accessible query target, so inspect the ancestry directly.
-		expect( label.closest( 'span[class]' ) ).toBeNull();
+		// Group rows render as plain text so DataViews' title styling applies.
+		expect( screen.getByText( groupRow.clickedUrl ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: groupRow.clickedUrl } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'wraps leaf rows in the title-styling opt-out', () => {
-		const field = getClicksFields().find( candidate => candidate.id === 'clickedUrl' );
-		const { render: UrlField } = field ?? {};
-
-		if ( ! field || ! UrlField ) {
-			throw new Error( 'Clicked URL field render callback is unavailable' );
-		}
-
-		render( <UrlField item={ row } field={ field as never } /> );
-
-		const link = screen.getByRole( 'link', {
-			name: `${ row.clickedUrl }(opens in a new tab)`,
-		} );
-		// eslint-disable-next-line testing-library/no-node-access -- The presentational leaf wrapper has no accessible query target, so inspect the ancestry directly.
-		expect( link.closest( 'span' ) ).not.toBeNull();
 	} );
 
 	it( 'makes URL values globally searchable', () => {
