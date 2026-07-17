@@ -33,7 +33,7 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email opens as a Newsletter performance row, a full-width trend chart, then a 2/1/1 breakdown row', () => {
+	it( 'composes Email opens as a Newsletter performance row, a two-column trend chart, then the breakdown cards', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-opens' ] ).toMatchObject( [
 			{
 				uuid: 'email-opens-highlights',
@@ -45,7 +45,7 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-opens-trend',
 				type: 'jpa/email-time-series--total-opens',
 				attributes: { metric: 'opens' },
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: 2, height: 2, order: 2 },
 			},
 			{
 				uuid: 'email-opens-countries',
@@ -68,7 +68,7 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email clicks as a full-width trend chart over a 3/1 + 2/2 grid with a mapped location card', () => {
+	it( 'composes Email clicks as a two-column trend chart over the breakdown grid with a mapped location card', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] ).toMatchObject( [
 			{
 				uuid: 'email-clicks-highlights',
@@ -80,7 +80,7 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-clicks-trend',
 				type: 'jpa/email-time-series--total-clicks',
 				attributes: { metric: 'clicks' },
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: 2, height: 2, order: 2 },
 			},
 			{
 				uuid: 'email-clicks-countries',

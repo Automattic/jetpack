@@ -49,7 +49,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-opens-trend',
 			type: 'jpa/email-time-series--total-opens',
 			attributes: { metric: 'opens' },
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 2 },
+			placement: { width: 2, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-opens-countries',
@@ -81,7 +81,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-trend',
 			type: 'jpa/email-time-series--total-clicks',
 			attributes: { metric: 'clicks' },
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 2 },
+			placement: { width: 2, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-clicks-countries',
