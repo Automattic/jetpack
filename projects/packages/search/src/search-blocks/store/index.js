@@ -487,6 +487,7 @@ function* fetchResults( pageHandle ) {
 		// Page-level scope from the `search-results` block (seeded at render).
 		// Singular per page; no per-instance overrides.
 		staticPostTypes: state.staticPostTypes ?? null,
+		size: state.resultsPerPage,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -594,6 +595,11 @@ const { state, actions } = store( NAMESPACE, {
 		// Drives the TrainTracks `ui_algo`; default keeps a valid value on pages
 		// where the seed hasn't landed.
 		resultsLayout: 'expanded',
+
+		// Resolved page size, seeded per-page by search-results/render.php
+		// (author override or the site's `posts_per_page`). Default keeps a
+		// valid value on pages where the seed hasn't landed.
+		resultsPerPage: 10,
 
 		// Suppresses TrainTracks `_tkq` pushes. PHP-seeded from
 		// `?disable_tracking=1` + the `jetpack_instant_search_disable_tracking`

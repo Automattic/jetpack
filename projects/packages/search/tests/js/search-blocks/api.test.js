@@ -918,6 +918,28 @@ describe( 'product-shaped filter helpers', () => {
 		} );
 	} );
 
+	describe( 'buildSearchUrl: size', () => {
+		const baseOpts = {
+			siteId: 1,
+			searchQuery: '',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: '',
+		};
+
+		it( 'defaults to 10 when omitted', () => {
+			const url = buildSearchUrl( baseOpts );
+			expect( decodeURIComponent( url ) ).toContain( 'size=10' );
+		} );
+
+		it( 'uses the resolved per-page value from search-results when provided', () => {
+			const url = buildSearchUrl( { ...baseOpts, size: 30 } );
+			expect( decodeURIComponent( url ) ).toContain( 'size=30' );
+		} );
+	} );
+
 	describe( 'buildStaticPostTypeClauses', () => {
 		it( 'returns an empty array for null / empty input', () => {
 			expect( buildStaticPostTypeClauses( null ) ).toEqual( [] );

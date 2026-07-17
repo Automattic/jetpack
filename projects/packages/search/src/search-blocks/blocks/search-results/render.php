@@ -42,6 +42,18 @@ if ( function_exists( 'wp_interactivity_state' ) && ( ! empty( $scope['include']
 	wp_interactivity_state( 'jetpack-search', array( 'staticPostTypes' => $scope ) );
 }
 
+// Results-per-page: author override via `resultsPerPage`, falling back live
+// to the site's Reading setting so a later change to `posts_per_page` still
+// takes effect on pages that leave this unset. Clamped either way to the
+// package's existing ES page-size ceiling.
+$results_per_page = ! empty( $attributes['resultsPerPage'] )
+	? (int) $attributes['resultsPerPage']
+	: (int) get_option( 'posts_per_page' );
+$results_per_page = min( max( 1, $results_per_page ), Helper::get_max_posts_per_page() );
+if ( function_exists( 'wp_interactivity_state' ) ) {
+	wp_interactivity_state( 'jetpack-search', array( 'resultsPerPage' => $results_per_page ) );
+}
+
 // Load the WordPress.com Tracks consumer (drains `window._tkq`) so the
 // TrainTracks render/interact events the store pushes actually get sent.
 // Enqueuing here loads it exactly on pages where the Search blocks render,
