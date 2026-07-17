@@ -171,9 +171,7 @@ Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into t
 `buildCalendarHeatmapData` accepts an optional `options` object:
 
 - **`weekStartsOn`** (`0 | 1`, default `1`): `0` = Sunday, `1` = Monday
-- **`hideOutOfRangeDays`** (`boolean`, default `false`): render the week-completion days outside the series' date span as empty grid slots instead of blank cells, giving the calendar ragged edges. Days inside the span stay blank cells even when the series has no entry for them. Hidden slots keep their grid position but paint nothing, and hover and keyboard navigation skip them.
-
-<Canvas of={ HeatmapStories.CalendarRaggedEdges } />
+- **`hideOutOfRangeDays`** (`boolean`, default `true`): render the week-completion days outside the series' date span as empty grid slots instead of blank cells, giving the calendar ragged edges. Days inside the span stay blank cells even when the series has no entry for them. Hidden slots keep their grid position but paint nothing, and hover and keyboard navigation skip them. Pass `false` to keep out-of-range days as blank cells.
 
 ## Fixed Dimensions
 

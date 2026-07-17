@@ -37,7 +37,7 @@ export const buildCalendarHeatmapData = (
 	} = {}
 ): CalendarHeatmapResult => {
 	const weekStartsOn = options.weekStartsOn ?? 1;
-	const hideOutOfRangeDays = options.hideOutOfRangeDays ?? false;
+	const hideOutOfRangeDays = options.hideOutOfRangeDays ?? true;
 
 	const entries = series
 		.map( point => ( { date: toDate( point ), value: point.value } ) )

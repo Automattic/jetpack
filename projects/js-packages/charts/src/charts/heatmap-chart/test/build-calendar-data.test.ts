@@ -33,14 +33,13 @@ describe( 'buildCalendarHeatmapData', () => {
 		expect( data[ 0 ].data[ 1 ].value ).toBeNull(); // Tue Jan 2 has no datum
 	} );
 
-	test( 'hideOutOfRangeDays hides the week-completion days outside the span', () => {
+	test( 'hides the week-completion days outside the span by default', () => {
 		const midWeek: DataPointDate[] = [
 			{ dateString: '2024-01-03', value: 5 }, // Wed
 			{ dateString: '2024-01-09', value: 2 }, // Tue (2nd week)
 		];
 		const { data } = buildCalendarHeatmapData( midWeek, {
 			weekStartsOn: 1,
-			hideOutOfRangeDays: true,
 		} );
 
 		// Mon Jan 1 and Tue Jan 2 precede the span — hidden; Wed Jan 3 opens it.
@@ -58,9 +57,12 @@ describe( 'buildCalendarHeatmapData', () => {
 		expect( data[ 1 ].data[ 6 ].hidden ).toBe( true );
 	} );
 
-	test( 'out-of-span days stay blank cells without hideOutOfRangeDays', () => {
+	test( 'out-of-span days stay blank cells when hideOutOfRangeDays is false', () => {
 		const midWeek: DataPointDate[] = [ { dateString: '2024-01-03', value: 5 } ]; // Wed
-		const { data } = buildCalendarHeatmapData( midWeek, { weekStartsOn: 1 } );
+		const { data } = buildCalendarHeatmapData( midWeek, {
+			weekStartsOn: 1,
+			hideOutOfRangeDays: false,
+		} );
 		expect( data[ 0 ].data[ 0 ].hidden ).toBeUndefined();
 		expect( data[ 0 ].data[ 0 ].value ).toBeNull();
 	} );

@@ -122,7 +122,7 @@ function buildCalendarHeatmapData(
 | --------- | ---- | ------- | ----------- |
 | `series` | `DataPointDate[]` | - | **Required.** Array of data points with a `date` (or `dateString`) and a numeric `value`. |
 | `options.weekStartsOn` | `0 \| 1` | `1` | Day the week starts on: `0` = Sunday, `1` = Monday. |
-| `options.hideOutOfRangeDays` | `boolean` | `false` | Mark the week-completion days outside the series' date span as hidden cells (empty grid slots) instead of blank cells, giving the calendar ragged edges. |
+| `options.hideOutOfRangeDays` | `boolean` | `true` | Mark the week-completion days outside the series' date span as hidden cells (empty grid slots) instead of blank cells, giving the calendar ragged edges. Pass `false` to keep them as blank cells. |
 
 **Returns:** `CalendarHeatmapResult`
 
