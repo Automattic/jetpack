@@ -608,7 +608,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		}
 
-		$ai_output['tracked_completed'] = array_values( array_merge( $reported ?? array(), $newly ) );
+		$ai_output['tracked_completed'] = array_merge( $reported ?? array(), $newly );
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 	}
 
@@ -788,7 +788,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$inferred = $ai_output['payload']['inferred'];
 		unset( $inferred['brand_name'], $inferred['tagline'] );
 
-		$rendered = null !== $rendered_ids ? $rendered_ids : array_column( $this->get_current_tasks(), 'id' );
+		$rendered = $rendered_ids ?? array_column( $this->get_current_tasks(), 'id' );
 		$remapped = array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $raw_task_ids ) );
 
 		$extra = array(

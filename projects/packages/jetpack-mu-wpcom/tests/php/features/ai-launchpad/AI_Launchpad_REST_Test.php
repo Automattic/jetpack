@@ -618,6 +618,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_tailored_site( array( 'niche' => 'hiking' ) );
 
+		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -662,6 +663,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_tailored_site();
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
 
+		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -693,6 +695,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_tailored_site();
 
+		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -714,6 +717,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_tailored_site();
 
+		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -760,6 +764,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The bookkeeping key is persisted only — responses stay clean of it, like GET.
 		$this->assertArrayNotHasKey( 'tracked_completed', $result->get_data()['ai_output'] );
 
+		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
