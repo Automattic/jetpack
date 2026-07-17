@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widgets: fix the Most viewed and Referrers widgets changing size when a dropdown opens elsewhere on the dashboard.
