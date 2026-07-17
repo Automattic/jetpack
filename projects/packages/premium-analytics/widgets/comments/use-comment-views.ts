@@ -32,7 +32,8 @@ export interface CommentRow {
 	 */
 	avatarUrl?: string;
 	/**
-	 * External link to the published post. Set in the posts view only.
+	 * External link: the published post (posts view) or the author's profile
+	 * URL (authors view), when the API reports one.
 	 */
 	link?: string;
 }
@@ -101,6 +102,7 @@ export default function useCommentViews( { view, max }: UseCommentViewsArgs ): C
 						label,
 						value: author.value,
 						avatarUrl: author.icon ?? undefined,
+						link: author.link ?? undefined,
 					};
 				}
 
