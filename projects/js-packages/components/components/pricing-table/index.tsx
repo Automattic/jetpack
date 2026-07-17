@@ -59,8 +59,8 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	tooltipTitle,
 	tooltipClassName = '',
 } ) => {
-	const isLg = useViewportMatch( 'large' );
-	const item = useContext( PricingTableContext )[ index ];
+	const { items, isLg } = useContext( PricingTableContext );
+	const item = items[ index ];
 	const isExplicitlyEmpty = label === '';
 	const showTick = isComingSoon || isIncluded;
 
@@ -157,11 +157,12 @@ const PricingTable: FC< PricingTableProps > = ( {
 	items,
 	children,
 	showIntroOfferDisclaimer = false,
+	breakpoint = 'large',
 } ) => {
-	const isLg = useViewportMatch( 'large' );
+	const isLg = useViewportMatch( breakpoint );
 
 	return (
-		<PricingTableContext.Provider value={ items }>
+		<PricingTableContext.Provider value={ { items, isLg } }>
 			<div
 				className={ clsx( styles.container, { [ styles[ 'is-viewport-large' ] ]: isLg } ) }
 				style={
