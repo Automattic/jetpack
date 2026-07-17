@@ -68,6 +68,19 @@ class Mock_Promote_Endpoint extends WPCOM_REST_API_V2_Endpoint_VideoPress {
 	}
 
 	/**
+	 * Public passthrough so tests assert against the production lock-key
+	 * format instead of hand-rebuilding it (a stale copy would make the
+	 * lock-release assertions pass vacuously).
+	 *
+	 * @param int $blog_id       The blog id.
+	 * @param int $attachment_id The attachment id.
+	 * @return string
+	 */
+	public function lock_key( $blog_id, $attachment_id ) {
+		return $this->promote_lock_key( $blog_id, $attachment_id );
+	}
+
+	/**
 	 * Scripted host availability.
 	 *
 	 * @return bool

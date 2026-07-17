@@ -52,26 +52,26 @@ describe( 'ThumbnailField — grid Details access', () => {
 		expect( screen.getByText( '01:15' ) ).toBeInTheDocument();
 	} );
 
-	it( 'does not render the open-details button for a local video, and offers Upload instead', async () => {
+	it( 'does not render the open-details button for a local video, and offers Upload on every host', async () => {
 		const actions = makeActions();
-		renderField( <ThumbnailField item={ item( { id: '9', type: 'local' } ) } />, actions );
+		const { unmount } = renderField(
+			<ThumbnailField item={ item( { id: '9', type: 'local' } ) } />,
+			actions
+		);
 
 		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Upload to VideoPress' } ) );
 		expect( actions.promoteLocal ).toHaveBeenCalledWith( '9' );
-	} );
+		unmount();
 
-	it( 'offers Upload to VideoPress on WordPress.com Simple too (VIDP-300)', async () => {
-		// The button used to be gated off on Simple while only the unreachable
-		// videopress/v1 walker existed; the wpcom/v2 promote route re-enabled it.
+		// On WordPress.com Simple too: the button used to be gated off there
+		// while only the unreachable videopress/v1 walker existed (VIDP-300).
 		setSimpleSite();
 		try {
-			const actions = makeActions();
 			renderField( <ThumbnailField item={ item( { id: '9', type: 'local' } ) } />, actions );
-
 			await userEvent.click( screen.getByRole( 'button', { name: 'Upload to VideoPress' } ) );
-			expect( actions.promoteLocal ).toHaveBeenCalledWith( '9' );
+			expect( actions.promoteLocal ).toHaveBeenCalledTimes( 2 );
 		} finally {
 			unsetSimpleSite();
 		}

@@ -149,31 +149,23 @@ describe( 'promoteOnSimple', () => {
 		mockApiFetch( async ( { path, method } ) => {
 			paths.push( path );
 			expect( method ).toBe( 'POST' );
-			return { guid: 'AbCd1234', media_id: 5 };
+			// `already_videopress` (the idempotent-replay marker) is unread
+			// by the mapper — same result shape either way.
+			return { guid: 'AbCd1234', media_id: 5, already_videopress: true };
 		} );
 
 		await expect( promoteOnSimple( 5 ) ).resolves.toEqual( { guid: 'AbCd1234', mediaId: 5 } );
 		expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/5' ] );
 	} );
 
-	it( 'maps an idempotent already-on-VideoPress response like a fresh promote', async () => {
-		mockApiFetch( async () => ( {
-			guid: 'AbCd1234',
-			media_id: 9,
-			already_videopress: true,
-		} ) );
-
-		await expect( promoteOnSimple( 9 ) ).resolves.toEqual( { guid: 'AbCd1234', mediaId: 9 } );
-	} );
-
-	it( 'rejects with the REST error payload so callers can surface the message', async () => {
+	it( 'rejects with an Error carrying the REST payload message', async () => {
 		mockApiFetch( async () => {
 			throw { code: 'videopress_promote_not_allowed', message: 'No VideoPress here.' };
 		} );
 
-		await expect( promoteOnSimple( 5 ) ).rejects.toMatchObject( {
-			message: 'No VideoPress here.',
-		} );
+		const rejection = promoteOnSimple( 5 );
+		await expect( rejection ).rejects.toBeInstanceOf( Error );
+		await expect( rejection ).rejects.toMatchObject( { message: 'No VideoPress here.' } );
 	} );
 
 	it( 'rethrows a rejection that is already an Error untouched', async () => {
@@ -224,20 +216,6 @@ describe( 'useUploadFromLibrary', () => {
 		// The listing only learns about the in-place promotion through this
 		// invalidation — nothing else refetches while no item is processing.
 		expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: [ LIBRARY_QUERY_KEY ] } );
-	} );
-
-	it( 'normalizes a plain apiFetch rejection into an Error with its message', async () => {
-		setSimpleSite();
-		mockApiFetch( async () => {
-			// apiFetch rejects REST errors as plain objects, not Error instances.
-			throw { code: 'videopress_promote_not_allowed', message: 'No VideoPress here.' };
-		} );
-
-		await expect( promoteOnSimple( 5 ) ).rejects.toBeInstanceOf( Error );
-		mockApiFetch( async () => {
-			throw { code: 'videopress_promote_not_allowed', message: 'No VideoPress here.' };
-		} );
-		await expect( promoteOnSimple( 5 ) ).rejects.toThrow( 'No VideoPress here.' );
 	} );
 
 	it( 'keeps walking the videopress/v1 upload endpoint off Simple', async () => {

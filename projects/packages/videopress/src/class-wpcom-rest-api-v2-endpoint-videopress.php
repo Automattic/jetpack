@@ -454,7 +454,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		 * atomic on the wpcom object cache; the TTL comfortably outlives the
 		 * primitive's sleep(3) and self-heals if the request dies mid-hold.
 		 */
-		$promote_lock = "videopress-promote-{$blog_id}-{$attachment_id}";
+		$promote_lock = $this->promote_lock_key( $blog_id, $attachment_id );
 		if ( ! wp_cache_add( $promote_lock, 1, 'video-info', 30 ) ) {
 			return new WP_Error(
 				'videopress_promote_in_progress',
@@ -503,6 +503,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * exactly these (and nothing else) to exercise the real ordering,
 	 * error contract, and mutex behavior.
 	 */
+
+	/**
+	 * The object-cache key serializing promotes of one attachment.
+	 *
+	 * @param int $blog_id       The blog id.
+	 * @param int $attachment_id The attachment id.
+	 * @return string
+	 */
+	protected function promote_lock_key( $blog_id, $attachment_id ) {
+		return "videopress-promote-{$blog_id}-{$attachment_id}";
+	}
 
 	/**
 	 * Whether the in-process promote flow is available on this host.

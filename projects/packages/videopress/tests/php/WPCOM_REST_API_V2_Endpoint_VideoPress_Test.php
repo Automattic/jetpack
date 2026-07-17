@@ -503,7 +503,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_promote_orchestration_respects_the_promote_lock() {
 		$endpoint      = $this->make_promote_double();
 		$attachment_id = $this->make_attachment();
-		$lock          = 'videopress-promote-' . get_current_blog_id() . '-' . $attachment_id;
+		$lock          = $endpoint->lock_key( get_current_blog_id(), $attachment_id );
 
 		$result = null;
 		wp_cache_add( $lock, 1, 'video-info', 30 );
@@ -526,7 +526,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$endpoint              = $this->make_promote_double();
 		$endpoint->video_infos = array( false, (object) array( 'guid' => 'Ne3w1234' ) );
 		$attachment_id         = $this->make_attachment();
-		$lock                  = 'videopress-promote-' . get_current_blog_id() . '-' . $attachment_id;
+		$lock                  = $endpoint->lock_key( get_current_blog_id(), $attachment_id );
 
 		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
 
@@ -550,7 +550,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_promote_orchestration_reports_failure_and_releases_the_lock() {
 		$endpoint      = $this->make_promote_double();
 		$attachment_id = $this->make_attachment();
-		$lock          = 'videopress-promote-' . get_current_blog_id() . '-' . $attachment_id;
+		$lock          = $endpoint->lock_key( get_current_blog_id(), $attachment_id );
 
 		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
 
@@ -572,19 +572,29 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 			$this->markTestSkipped( 'On WordPress.com the real seams are open by design.' );
 		}
 
-		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		$endpoint = new class() extends WPCOM_REST_API_V2_Endpoint_VideoPress {
+			/**
+			 * Expose the protected primitives-loading seam.
+			 *
+			 * @return bool
+			 */
+			public function load_primitives() {
+				return $this->promote_load_primitives();
+			}
 
-		$load_primitives = new \ReflectionMethod( $endpoint, 'promote_load_primitives' );
-		$plan_gate       = new \ReflectionMethod( $endpoint, 'promote_site_has_videopress' );
-		if ( \PHP_VERSION_ID < 80100 ) {
-			// Required to invoke protected methods before PHP 8.1; a
-			// deprecated no-op from PHP 8.5 on, so gate the call.
-			$load_primitives->setAccessible( true );
-			$plan_gate->setAccessible( true );
-		}
+			/**
+			 * Expose the protected plan-gate seam.
+			 *
+			 * @param int $blog_id The blog id.
+			 * @return bool
+			 */
+			public function plan_gate( $blog_id ) {
+				return $this->promote_site_has_videopress( $blog_id );
+			}
+		};
 
-		$this->assertFalse( $load_primitives->invoke( $endpoint ), 'Transcode primitives must not be loadable off-WPCOM.' );
-		$this->assertFalse( $plan_gate->invoke( $endpoint, get_current_blog_id() ), 'The plan gate must fail closed off-WPCOM.' );
+		$this->assertFalse( $endpoint->load_primitives(), 'Transcode primitives must not be loadable off-WPCOM.' );
+		$this->assertFalse( $endpoint->plan_gate( get_current_blog_id() ), 'The plan gate must fail closed off-WPCOM.' );
 	}
 
 	/**

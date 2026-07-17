@@ -193,15 +193,19 @@ const StageInner = () => {
 	// The factory owns the in-flight progress map (re-entry guard + overlay
 	// snapshots, chunk progress folded in) and reacts via the mutateAsync
 	// promise; see promote-local.ts for why.
-	const promoteLocal = useMemo(
-		() =>
-			createPromoteLocal( {
-				promote: uploadFromLibrary,
-				createSuccessNotice,
-				createErrorNotice,
-				onPromotingChange: setPromotingProgress,
-			} ),
-		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
+	// Deliberately created ONCE per stage instance: useGlobalNotices() returns
+	// fresh wrapper closures every render, so a dep-keyed useMemo would rebuild
+	// the factory (emptying its in-flight state) on each render — including the
+	// renders its own publishes trigger. All captured deps are stable: the
+	// notice wrappers forward to registry-bound dispatchers, mutateAsync is
+	// referentially stable in TanStack v5, and state setters never change.
+	const [ promoteLocal ] = useState( () =>
+		createPromoteLocal( {
+			promote: uploadFromLibrary,
+			createSuccessNotice,
+			createErrorNotice,
+			onPromotingChange: setPromotingProgress,
+		} )
 	);
 
 	const actions = useMemo(

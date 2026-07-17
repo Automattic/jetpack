@@ -35,6 +35,8 @@ export type PromoteLocalDeps = {
  *
  * Extracted from the library stage (mirroring `upload-drop.ts`) so the
  * notice/overlay sequencing is unit-testable without rendering the stage.
+ * Create it once per stage instance — the in-flight state lives in this
+ * closure, so a fresh factory would forget which rows are mid-promote.
  *
  * @param deps - The mutation trigger, notice creators, and overlay sink.
  * @return The `promoteLocal( id )` handler handed to actions and thumbnails.
