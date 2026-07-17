@@ -51,7 +51,6 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
  * @return The leaderboard chart data.
  */
 function buildLeaderboardData( rows: VideoPlaysRow[] ): LeaderboardChartData {
-	// `1` guards against division by zero when every value is 0.
 	const maxPlays = Math.max( ...rows.flatMap( row => [ row.plays, row.previousPlays ?? 0 ] ), 1 );
 
 	return rows.map( row => ( {
