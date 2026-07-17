@@ -10,9 +10,9 @@ import {
 import { reports } from '@jetpack-premium-analytics/icons';
 import { Icon, external } from '@wordpress/icons';
 import {
-	DownloadCsvButton,
 	LeaderboardChart,
 	ReportLink,
+	RowsCsvDownloadButton,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -349,7 +349,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 			<WidgetFooter>
 				<ReportLink report="posts" section="posts-pages" />
 				{ canExport && (
-					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
 				) }
 			</WidgetFooter>
 		</>
