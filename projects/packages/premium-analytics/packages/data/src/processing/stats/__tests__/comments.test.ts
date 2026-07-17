@@ -55,6 +55,35 @@ describe( 'Stats comments normalizer', () => {
 		] );
 	} );
 
+	it( 'links guest authors to the comments-admin search by email', () => {
+		const result = sanitizeStatsCommentsResponse( {
+			authors: [
+				{
+					name: 'Aggie',
+					comments: 2,
+					link: '?s=aggie@example.com',
+					follow_data: null,
+				},
+			],
+		} );
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'authors',
+				children: [
+					expect.objectContaining( {
+						label: 'Aggie',
+						// The raw `?s=<email>` fragment is not a URL; it maps to the
+						// comment management screen filtered to that author. WPCOM-user
+						// rows (`?user_id=<id>`) have no wp-admin equivalent and stay
+						// unlinked (covered above).
+						link: 'edit-comments.php?s=aggie%40example.com',
+					} ),
+				],
+			} ),
+		] );
+	} );
+
 	it( 'preserves follow params when present', () => {
 		const result = sanitizeStatsCommentsResponse( {
 			authors: [
