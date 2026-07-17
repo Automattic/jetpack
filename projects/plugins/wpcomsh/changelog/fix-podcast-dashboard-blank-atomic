@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast: Force the module active on plugins_loaded before Jetpack initializes it, so the dashboard renders instead of an empty container on Atomic sites.
+Podcast: Restore the Atomic opt-in so the module stays available on Jetpack builds that predate the self-hosted release, and force-activate it before Jetpack initializes so the dashboard renders instead of an empty container.

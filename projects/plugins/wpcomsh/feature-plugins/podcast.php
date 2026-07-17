@@ -2,14 +2,21 @@
 /**
  * Turn the Jetpack Podcast module on for Atomic sites.
  *
- * Podcast is available globally as a Jetpack module. Atomic temporarily forces
- * the module active so sites persist it in their `jetpack_active_modules`
- * setting as they receive requests, mirroring the previous always-on behavior.
- * The force-activation hook can be removed after the hydration window; the
- * stored setting will keep Podcast enabled while making it user-toggleable.
+ * Podcast ships as a Jetpack module that older Jetpack builds still hide behind
+ * the `jetpack_podcast_for_the_world` filter. The Jetpack plugin currently
+ * pinned on Atomic predates the self-hosted release (#50447) that removes that
+ * gate, so wpcomsh keeps opting Atomic in — otherwise the module drops out of
+ * the available list entirely. We also force it active so existing sites, which
+ * do not auto-activate the module on upgrade, persist it in their stored
+ * `jetpack_active_modules` setting. Remove both once the Jetpack build on Atomic
+ * includes #50447; the stored setting keeps Podcast on and user-toggleable.
  *
  * @package wpcomsh
  */
+
+// Un-hide Podcast on Jetpack builds that still gate it. Registered at
+// mu-plugin load so it is in place before get_available_modules() first runs.
+add_filter( 'jetpack_podcast_for_the_world', '__return_true' );
 
 /**
  * Force Podcast active while Atomic sites hydrate their stored module setting.
