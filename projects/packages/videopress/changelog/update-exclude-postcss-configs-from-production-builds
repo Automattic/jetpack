@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
-
 Comment: Exclude postcss.config.js from production builds via root .gitattributes; remove redundant package-level entry.
+
