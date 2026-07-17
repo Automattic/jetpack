@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@wordpress/dataviews';
@@ -33,13 +34,14 @@ export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 			getValue: ( { item } ) => getVideoTitle( item ),
 			render: ( { item } ) => {
 				const title = getVideoTitle( item );
+				const href = safeHttpUrl( item.link );
 
-				if ( ! item.link ) {
+				if ( ! href ) {
 					return <>{ title }</>;
 				}
 
 				return (
-					<a href={ item.link } target="_blank" rel="noopener noreferrer">
+					<a href={ href } target="_blank" rel="noopener noreferrer">
 						{ title }
 					</a>
 				);

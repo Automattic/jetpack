@@ -44,7 +44,6 @@ export {
 	type Region,
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
-export { safeHttpUrl } from './safe-http-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
 export { formatDisplayLabel } from './format-display-label';
 export { buildCsv, buildCsvDateRangeFilename, saveCsv, type CsvColumn } from './build-csv';

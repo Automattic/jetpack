@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { _n, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { safeHttpUrl } from '../../helpers/safe-http-url';
 import { ChartEmptyState } from '../chart-empty-state';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import styles from './subscriber-list.module.scss';

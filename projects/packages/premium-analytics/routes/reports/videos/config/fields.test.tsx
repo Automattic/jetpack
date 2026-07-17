@@ -48,6 +48,13 @@ describe( 'videos fields', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'renders plain text when the payload URL is unsafe', () => {
+		renderTitleField( { ...video, link: 'javascript:alert(1)' } );
+
+		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'exposes searchable title and sortable metric fields', () => {
 		const fields = getVideosFields();
 
