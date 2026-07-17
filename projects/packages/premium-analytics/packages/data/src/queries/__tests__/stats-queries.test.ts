@@ -173,7 +173,7 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/opens/emails/41',
 			'GET',
-			{ period: 'day', quantity: 7, date: '2026-06-07', stats_fields: 'timeline' },
+			{ period: 'day', quantity: 7, date: '2026-06-01', stats_fields: 'timeline' },
 			undefined,
 			'emailTimeSeries',
 		] );
@@ -186,7 +186,7 @@ describe( 'Stats query factories', () => {
 				to: '2026-06-30',
 				interval: 'month',
 			} ).queryKey[ 5 ]
-		).toEqual( { period: 'day', quantity: 30, date: '2026-06-30', stats_fields: 'timeline' } );
+		).toEqual( { period: 'day', quantity: 30, date: '2026-06-01', stats_fields: 'timeline' } );
 	} );
 
 	it( 'requests 24 hourly buckets per day so multi-day hourly ranges are not truncated', () => {
@@ -204,7 +204,7 @@ describe( 'Stats query factories', () => {
 				to: '2026-06-15',
 				interval: 'hour',
 			} ).queryKey[ 5 ]
-		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-15', stats_fields: 'timeline' } );
+		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-14', stats_fields: 'timeline' } );
 	} );
 
 	it( 'disables email time series queries without a positive integer post ID or a date', () => {
