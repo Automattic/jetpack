@@ -3,6 +3,7 @@
  */
 import {
 	bucketStatsTimeSeries,
+	flattenStatsLeaves,
 	type StatsChartBucketPeriod,
 	type StatsNormalizedReport,
 	type StatsReferrersItem,
@@ -16,47 +17,47 @@ import type { ReferrerRecord } from './fields';
 const GROUP_SEPARATOR = ' / ';
 
 /**
- * Build one table row for every leaf in a referrer hierarchy. DataViews does
- * not currently support nested table rows, so the parent path is retained in
- * the Group field instead.
+ * Read a referrer item's display label.
  *
- * @param item       - The current referrer item.
- * @param parentPath - Parent labels from the report root to this item.
- * @return Flattened leaf rows.
+ * @param item - The referrer item.
+ * @return The item label.
  */
-function flattenReferrerItem( item: StatsReferrersItem, parentPath: string[] ): ReferrerRecord[] {
-	const label = String( item.label ?? '' );
-	const children = item.children ?? [];
-
-	if ( children.length ) {
-		const nextPath = label ? [ ...parentPath, label ] : parentPath;
-
-		return children.flatMap( child => flattenReferrerItem( child, nextPath ) );
-	}
-
-	const link = typeof item.link === 'string' ? item.link : undefined;
-	const group = parentPath.join( GROUP_SEPARATOR );
-	const id = JSON.stringify( [ group, label, link ?? null ] );
-
-	return [
-		{
-			id,
-			label,
-			group,
-			views: item.views,
-			link,
-		},
-	];
+function getReferrerLabel( item: StatsReferrersItem ): string {
+	return String( item.label ?? '' );
 }
 
 /**
- * Flatten one bucket's referrer hierarchy into leaf table rows.
+ * Flatten one bucket's referrer hierarchy into leaf table rows. DataViews does
+ * not currently support nested table rows, so the parent path is retained in
+ * the Group field instead.
  *
  * @param items - Top-level referrer items.
  * @return Flattened leaf rows.
  */
 export function flattenReferrerRows( items: StatsReferrersItem[] ): ReferrerRecord[] {
-	return items.flatMap( item => flattenReferrerItem( item, [] ) );
+	return flattenStatsLeaves< StatsReferrersItem, ReferrerRecord >( items, {
+		getChildren: item => item.children,
+		mapLeaf: ( item, { ancestors } ) => {
+			const label = getReferrerLabel( item );
+			const link = typeof item.link === 'string' ? item.link : undefined;
+			const group = ancestors.map( getReferrerLabel ).filter( Boolean ).join( GROUP_SEPARATOR );
+			// Leaves inherit the closest ancestor favicon, like the dashboard
+			// widget (e.g. Google Search → google.com keeps the Google icon).
+			const icon =
+				item.icon ??
+				[ ...ancestors ].reverse().find( ancestor => ancestor.icon )?.icon ??
+				undefined;
+
+			return {
+				id: JSON.stringify( [ group, label, link ?? null ] ),
+				label,
+				group,
+				views: item.views,
+				link,
+				icon,
+			};
+		},
+	} );
 }
 
 /**

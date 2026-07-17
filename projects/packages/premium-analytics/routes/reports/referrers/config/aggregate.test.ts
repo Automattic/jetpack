@@ -12,7 +12,7 @@ const searchEngines: StatsReferrersItem = {
 			label: 'Google Search',
 			views: 12,
 			link: null,
-			icon: null,
+			icon: 'https://icons.example/google.png',
 			labelIcon: null,
 			children: [
 				{
@@ -64,7 +64,7 @@ const bucketedReport: StatsNormalizedReport< StatsReferrersItem > = {
 };
 
 describe( 'report referrers aggregate', () => {
-	it( 'flattens hierarchy leaves and preserves the full parent path as the group', () => {
+	it( 'flattens hierarchy leaves, keeps the parent path as the group, and inherits ancestor icons', () => {
 		expect( flattenReferrerRows( [ searchEngines ] ) ).toEqual( [
 			{
 				id: '["Search Engines / Google Search","google.com","https://www.google.com/"]',
@@ -72,16 +72,17 @@ describe( 'report referrers aggregate', () => {
 				group: 'Search Engines / Google Search',
 				views: 12,
 				link: 'https://www.google.com/',
+				icon: 'https://icons.example/google.png',
 			},
 		] );
 	} );
 
-	it( 'keeps ungrouped leaf referrers as top-level rows', () => {
+	it( 'keeps ungrouped leaf referrers as top-level rows with their own icon', () => {
 		const direct: StatsReferrersItem = {
 			label: 'jetpack.com',
 			views: 4,
 			link: 'https://jetpack.com/',
-			icon: null,
+			icon: 'https://icons.example/jetpack.png',
 			labelIcon: 'external',
 			children: null,
 		};
@@ -93,6 +94,7 @@ describe( 'report referrers aggregate', () => {
 				group: '',
 				views: 4,
 				link: 'https://jetpack.com/',
+				icon: 'https://icons.example/jetpack.png',
 			},
 		] );
 	} );

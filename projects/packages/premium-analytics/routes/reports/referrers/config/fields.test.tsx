@@ -46,4 +46,46 @@ describe( 'referrer field', () => {
 		expect( screen.getByText( 'Unknown' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'renders referrers with unsafe URL schemes as plain text', () => {
+		renderReferrerField( {
+			id: '|Evil|javascript:alert(1)',
+			label: 'Evil',
+			group: '',
+			views: 1,
+
+			link: 'javascript:alert(1)',
+		} );
+
+		expect( screen.getByText( 'Evil' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the referrer favicon when the row has an icon', () => {
+		renderReferrerField( {
+			id: 'search|google.com|https://www.google.com/',
+			label: 'google.com',
+			group: 'Search Engines',
+			views: 10,
+			link: 'https://www.google.com/',
+			icon: 'https://icons.example/google.png',
+		} );
+
+		// The favicon is decorative (empty alt), so it maps to the presentation role.
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://icons.example/google.png'
+		);
+	} );
+
+	it( 'renders no favicon image when the row has no icon', () => {
+		renderReferrerField( {
+			id: '|Unknown|',
+			label: 'Unknown',
+			group: '',
+			views: 2,
+		} );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+	} );
 } );
