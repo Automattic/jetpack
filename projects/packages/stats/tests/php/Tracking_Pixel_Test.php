@@ -486,59 +486,127 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * When honor_cookie_consent is on, the pixel push is wrapped in a WP Consent API gate.
+	 * Invoke the private build_stats_details() with a fixed data payload.
+	 *
+	 * @param array $data View data for the tracker.
+	 * @return string The emitted inline script.
+	 */
+	private function invoke_build_stats_details( $data ) {
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( new Tracking_Pixel(), $data );
+	}
+
+	/**
+	 * Sample view data used by the gate tests.
+	 *
+	 * @return array
+	 */
+	private function consent_gate_data() {
+		return array(
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+	}
+
+	/**
+	 * Invoke the private build_consent_gate() directly with a chosen fail-open value, so both
+	 * branches can be covered without manipulating the global wp_has_consent() function.
+	 *
+	 * @param bool $fail_open Whether the gate should fire when the client-side API is unavailable.
+	 * @return string
+	 */
+	private function invoke_build_consent_gate( $fail_open ) {
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_consent_gate' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( new Tracking_Pixel(), '_stq.push([ "view", {} ]);', $fail_open );
+	}
+
+	/**
+	 * When honor_cookie_consent is on, the tracking pushes must live *inside* the gate function
+	 * and nowhere else — otherwise a refactor could emit them unconditionally and silently
+	 * defeat the consent gate.
 	 */
 	public function test_build_stats_details_gates_on_consent_when_enabled() {
 		Options::set_option( 'honor_cookie_consent', true );
 
-		$data = array(
-			'v'    => 'ext',
-			'blog' => 1234,
-			'post' => 0,
-			'tz'   => false,
-			'srv'  => 'example.org',
-		);
+		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
 
-		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
-
-		$this->assertStringContainsString( 'window.wp_has_consent', $pixel_details );
-		$this->assertStringContainsString( '"statistics"', $pixel_details );
+		// The gate uses the documented WP Consent API surface.
+		$this->assertStringContainsString( 'window.wp_has_consent( "statistics" )', $pixel_details );
 		$this->assertStringContainsString( 'wp_listen_for_consent_change', $pixel_details );
-		$this->assertStringContainsString( '_stq.push([ "view",', $pixel_details );
-		// Backward-compat guard: absent Consent API still fires.
-		$this->assertStringContainsString( 'typeof window.wp_has_consent !== "function"', $pixel_details );
-		// Readiness-aware: the initial check is deferred to DOMContentLoaded rather than
-		// run synchronously at footer-parse time (avoids reading a permissive default).
+
+		// Readiness-aware: the initial check is deferred to DOMContentLoaded rather than run
+		// synchronously at footer-parse time (avoids reading a permissive default too early), and
+		// the wp_consent_type_defined event re-runs the check if the API loads even later.
 		$this->assertStringContainsString( 'DOMContentLoaded', $pixel_details );
 		$this->assertStringContainsString( 'document.readyState', $pixel_details );
-		// Withdrawal (Fix #4): a "deny" sets the suppress flag so a mid-page revoke can't re-fire.
-		$this->assertStringContainsString( '=== "deny"', $pixel_details );
-		$this->assertStringContainsString( '_jpStatsFire.denied = true', $pixel_details );
+		$this->assertStringContainsString( 'wp_consent_type_defined', $pixel_details );
+
+		// Structural guarantee: the view push appears exactly once, and only within the
+		// _jpStatsFire() body — never in a code path that bypasses the consent check.
+		$this->assertSame( 1, substr_count( $pixel_details, '_stq.push([ "view",' ) );
+		$this->assertSame( 1, preg_match( '/function _jpStatsFire\(\) \{(.*?)\n\}/s', $pixel_details, $matches ) );
+		$this->assertStringContainsString( '_stq.push([ "view",', $matches[1] );
+		$outside_gate = str_replace( $matches[0], '', $pixel_details );
+		$this->assertStringNotContainsString( '_stq.push', $outside_gate );
 	}
 
 	/**
-	 * When honor_cookie_consent is off (default), the emitted pixel markup is unchanged.
+	 * Fail-open (no WP Consent API plugin on the server): an unavailable client-side API still
+	 * fires the pixel, preserving historical behavior.
+	 */
+	public function test_build_consent_gate_fails_open() {
+		$gate = $this->invoke_build_consent_gate( true );
+
+		$this->assertStringContainsString( 'if ( true ) { _jpStatsFire(); }', $gate );
+		$this->assertStringContainsString( 'consented = true;', $gate );
+	}
+
+	/**
+	 * Fail-closed (WP Consent API plugin active on the server): an unavailable or throwing
+	 * client-side API waits for a consent-change event instead of firing.
+	 */
+	public function test_build_consent_gate_fails_closed() {
+		$gate = $this->invoke_build_consent_gate( false );
+
+		$this->assertStringContainsString( 'if ( false ) { _jpStatsFire(); }', $gate );
+		$this->assertStringContainsString( 'consented = false;', $gate );
+		$this->assertStringNotContainsString( 'if ( true ) { _jpStatsFire(); }', $gate );
+	}
+
+	/**
+	 * The default (no consent plugin in the test env) fails open, and the gate never emits the
+	 * removed withdrawal-suppression flag.
+	 */
+	public function test_build_stats_details_default_is_fail_open_and_has_no_denied_flag() {
+		$this->assertFalse( function_exists( 'wp_has_consent' ), 'Test env must not define wp_has_consent.' );
+		Options::set_option( 'honor_cookie_consent', true );
+
+		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
+
+		$this->assertStringContainsString( 'if ( true ) { _jpStatsFire(); }', $pixel_details );
+		$this->assertStringNotContainsString( 'denied', $pixel_details );
+	}
+
+	/**
+	 * When honor_cookie_consent is off (default), the emitted pixel markup is byte-for-byte the
+	 * historical output — this is the backward-compat guarantee for the majority of traffic.
 	 */
 	public function test_build_stats_details_unchanged_when_disabled() {
-		$data = array(
-			'v'    => 'ext',
-			'blog' => 1234,
-			'post' => 0,
-			'tz'   => false,
-			'srv'  => 'example.org',
-		);
+		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
 
-		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
+		$expected = "_stq = window._stq || [];\n"
+			. '_stq.push([ "view", {"v":"ext","blog":"1234","post":"0","tz":"","srv":"example.org"} ]);' . "\n"
+			. '_stq.push([ "clickTrackerInit", "1234", "0" ]);';
 
-		$this->assertStringStartsWith( '_stq = window._stq || [];', $pixel_details );
-		$this->assertStringNotContainsString( 'wp_has_consent', $pixel_details );
+		$this->assertSame( $expected, $pixel_details );
 	}
 }

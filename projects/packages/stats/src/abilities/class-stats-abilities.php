@@ -467,7 +467,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Stats settings', 'jetpack-stats' ),
 			'description'         => __(
-				'Read the current Jetpack Stats settings: who sees the Stats admin bar + menu, whose visits are counted, DNT behavior, and whether the tracking pixel honors cookie consent. Shape: { admin_bar, roles, count_roles, do_not_track, honor_cookie_consent }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted; `honor_cookie_consent` gates the front-end pixel on WP Consent API "statistics" consent. Call jetpack-stats/update-settings to change any of these.',
+				'Read the current Jetpack Stats settings: who sees the Stats admin bar + menu, whose visits are counted, DNT behavior, and whether the tracking pixel honors cookie consent. Shape: { admin_bar, roles, count_roles, do_not_track, honor_cookie_consent }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted; `honor_cookie_consent` gates the front-end pixel on WP Consent API "statistics" consent (applies to the standard inline pixel only, not the AMP pixel). Call jetpack-stats/update-settings to change any of these.',
 				'jetpack-stats'
 			),
 			'input_schema'        => array(
@@ -531,7 +531,7 @@ class Stats_Abilities extends Registrar {
 					),
 					'honor_cookie_consent' => array(
 						'type'        => 'boolean',
-						'description' => __( 'Whether the front-end tracking pixel waits for WP Consent API "statistics" consent before firing.', 'jetpack-stats' ),
+						'description' => __( 'Whether the standard inline tracking pixel waits for WP Consent API "statistics" consent before firing. Does not apply to AMP pages, where the pixel fires regardless.', 'jetpack-stats' ),
 					),
 				),
 				'additionalProperties' => false,
