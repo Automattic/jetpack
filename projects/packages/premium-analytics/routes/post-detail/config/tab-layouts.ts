@@ -14,12 +14,12 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		{
 			uuid: 'post-detail-highlights',
 			type: 'jpa/post-detail-highlights',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: 3, height: 1, order: 1 },
 		},
 		{
-			uuid: 'post-comments',
-			type: 'jpa/post-comments',
-			placement: { width: 1, height: 2, order: 2 },
+			uuid: 'post-views',
+			type: 'jpa/post-views',
+			placement: { width: 2, height: 1, order: 2 },
 		},
 		{
 			uuid: 'post-likes',
@@ -27,15 +27,20 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: 1, height: 2, order: 3 },
 		},
 		{
+			uuid: 'post-comments',
+			type: 'jpa/post-comments',
+			placement: { width: 1, height: 2, order: 4 },
+		},
+		{
 			uuid: 'post-utm',
 			type: 'jpa/utm-insights',
 			attributes: { utmDimension: 'utm_source,utm_medium', max: 10 },
-			placement: { width: 2, height: 2, order: 4 },
+			placement: { width: 2, height: 2, order: 5 },
 		},
 		{
 			uuid: 'post-traffic-activity',
 			type: 'jpa/post-traffic-activity',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 5 },
+			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 6 },
 		},
 	],
 	'email-opens': [
