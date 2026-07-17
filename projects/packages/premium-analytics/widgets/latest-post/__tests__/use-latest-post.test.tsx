@@ -1,29 +1,22 @@
 /**
  * External dependencies
  */
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@jetpack-premium-analytics/data';
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { queryClientWrapper as wrapper } from '../../test-utils';
 import { useLatestPost } from '../use-latest-post';
-import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
-function wrapper( { children }: { children: ReactNode } ) {
-	const queryClient = new QueryClient( {
-		defaultOptions: { queries: { retry: false } },
-	} );
-
-	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
-}
-
 describe( 'useLatestPost', () => {
 	beforeEach( () => {
+		queryClient.clear();
 		mockApiFetch.mockReset();
 	} );
 
