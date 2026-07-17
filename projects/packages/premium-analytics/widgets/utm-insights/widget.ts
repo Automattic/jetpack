@@ -34,10 +34,13 @@ export default {
 	name: 'jpa/utm-insights',
 	title: __( 'UTM Insights', 'jetpack-premium-analytics' ),
 	help: {
-		content: __(
-			'Track your campaign UTM performance data. Generate URL codes with our builder.',
-			'jetpack-premium-analytics'
-		),
+		content: __( 'Your top UTM campaigns, sorted by views.', 'jetpack-premium-analytics' ),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: trendingUp,
 	attributes: [
