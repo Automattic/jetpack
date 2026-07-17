@@ -12,7 +12,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'post-views',
 				type: 'jpa/post-views',
-				placement: { width: 2, height: 2, order: 2 },
+				placement: { width: 2, height: 1, order: 2 },
 			},
 			{
 				uuid: 'post-likes',
