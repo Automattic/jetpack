@@ -23,6 +23,9 @@
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "pnpm run build && pnpm webpack watch --config tools/webpack.config.js"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/color-studio": "4.1.0",
