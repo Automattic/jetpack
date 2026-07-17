@@ -40,35 +40,35 @@ For connected variants, it injects `helpCenterData` as inline JS containing user
 
 All routes are registered under the `help-center` namespace (`/wp-json/help-center/...`). Every endpoint proxies to a WPcom REST API.
 
-| Route                                                 | Method | Controller              | Proxies to                                    | Description                          |
-| ----------------------------------------------------- | ------ | ----------------------- | --------------------------------------------- | ------------------------------------ |
-| `/authenticate/chat`                                  | POST   | `Authenticate`          | `POST /help/authenticate/chat`                | Zendesk/messaging chat auth          |
-| `/support-availability/email`                         | GET    | `Email_Support_Enabled` | `GET /help/eligibility/email/mine`            | Check email support eligibility      |
-| `/fetch-post`                                         | GET    | `Fetch_Post`            | `GET /help/article/{blog_id}/{post_id}`       | Fetch a single support article       |
-| `/articles`                                           | GET    | `Fetch_Post`            | `GET /help/articles?blog_id=...&post_ids=...` | Fetch multiple support articles      |
-| `/forum/new`                                          | POST   | `Forum`                 | `POST /help/forum/new`                        | Create a forum topic                 |
+| Route                                                 | Method | Controller                  | Proxies to                                    | Description                           |
+| ----------------------------------------------------- | ------ | --------------------------- | --------------------------------------------- | ------------------------------------- |
+| `/authenticate/chat`                                  | POST   | `Authenticate`              | `POST /help/authenticate/chat`                | Zendesk/messaging chat auth           |
+| `/support-availability/email`                         | GET    | `Email_Support_Enabled`     | `GET /help/eligibility/email/mine`            | Check email support eligibility       |
+| `/fetch-post`                                         | GET    | `Fetch_Post`                | `GET /help/article/{blog_id}/{post_id}`       | Fetch a single support article        |
+| `/articles`                                           | GET    | `Fetch_Post`                | `GET /help/articles?blog_id=...&post_ids=...` | Fetch multiple support articles       |
+| `/forum/new`                                          | POST   | `Forum`                     | `POST /help/forum/new`                        | Create a forum topic                  |
 | `/jetpack-connection-health`                          | GET    | `Jetpack_Connection_Health` | `GET /sites/{site}/jetpack-connection-health` | Site connection health (reachability) |
-| `/jetpack-search/ai/search`                           | GET    | `Jetpack_Search_AI`     | `GET /sites/{site}/jetpack-search/ai/search`  | AI-powered article search            |
-| `/odie/chat/{bot_id}`                                 | POST   | `Odie`                  | `POST /odie/chat/{bot_id}/`                   | Start a new Odie chat                |
-| `/odie/chat/{bot_id}/{chat_id}`                       | GET    | `Odie`                  | `GET /odie/chat/{bot_id}/{chat_id}`           | Get an Odie chat conversation        |
-| `/odie/chat/{bot_id}/{chat_id}`                       | POST   | `Odie`                  | `POST /odie/chat/{bot_id}/{chat_id}`          | Send a message to an Odie chat       |
-| `/odie/chat/{bot_id}/{chat_id}/{message_id}/feedback` | POST   | `Odie`                  | `POST /odie/chat/.../feedback`                | Rate an Odie message                 |
-| `/odie/conversations/{bot_ids}`                       | GET    | `Odie`                  | `GET /odie/conversations/{bot_ids}`           | List recent Odie conversations       |
-| `/open-state`                                         | GET    | `Persisted_Open_State`  | `GET /me/preferences`                         | Get Help Center open/minimized state |
-| `/open-state`                                         | PUT    | `Persisted_Open_State`  | `POST /me/preferences`                        | Set Help Center open/minimized state |
-| `/search`                                             | GET    | `Search`                | `GET /help/search`                            | Search help articles                 |
-| `/sibyl`                                              | GET    | `Sibyl`                 | `GET /help/sibyl`                             | AI-suggested support articles        |
-| `/support-activity`                                   | GET    | `Support_Activity`      | `GET /support-activity`                       | Active support tickets               |
-| `/support-interactions`                               | GET    | `Support_Interactions`  | `GET /support-interactions/`                  | List support interactions            |
-| `/support-interactions/{id}`                          | GET    | `Support_Interactions`  | `GET /support-interactions/{id}`              | Get a single interaction             |
-| `/support-interactions`                               | POST   | `Support_Interactions`  | `POST /support-interactions`                  | Create a support interaction         |
-| `/support-interactions/{id}/events`                   | POST   | `Support_Interactions`  | `POST /support-interactions/{id}/events`      | Add event to interaction             |
-| `/support-interactions/{id}/status`                   | PUT    | `Support_Interactions`  | `PUT /support-interactions/{id}/status`       | Update interaction status            |
-| `/support-status`                                     | GET    | `Support_Status`        | `GET /help/support-status`                    | Support eligibility/tier             |
-| `/support-status/messaging`                           | GET    | `Support_Status`        | `GET /help/support-status/messaging`          | Messaging support availability       |
-| `/csat`                                               | POST   | `Ticket_CSAT`           | `POST /help/csat`                             | Submit ticket CSAT rating            |
-| `/ticket/new`                                         | POST   | `Ticket`                | `POST /help/ticket/new`                       | Create a support ticket              |
-| `/zendesk/user-fields`                                | POST   | `User_Fields`           | `POST /help/zendesk/update-user-fields`       | Update Zendesk user fields           |
+| `/jetpack-search/ai/search`                           | GET    | `Jetpack_Search_AI`         | `GET /sites/{site}/jetpack-search/ai/search`  | AI-powered article search             |
+| `/odie/chat/{bot_id}`                                 | POST   | `Odie`                      | `POST /odie/chat/{bot_id}/`                   | Start a new Odie chat                 |
+| `/odie/chat/{bot_id}/{chat_id}`                       | GET    | `Odie`                      | `GET /odie/chat/{bot_id}/{chat_id}`           | Get an Odie chat conversation         |
+| `/odie/chat/{bot_id}/{chat_id}`                       | POST   | `Odie`                      | `POST /odie/chat/{bot_id}/{chat_id}`          | Send a message to an Odie chat        |
+| `/odie/chat/{bot_id}/{chat_id}/{message_id}/feedback` | POST   | `Odie`                      | `POST /odie/chat/.../feedback`                | Rate an Odie message                  |
+| `/odie/conversations/{bot_ids}`                       | GET    | `Odie`                      | `GET /odie/conversations/{bot_ids}`           | List recent Odie conversations        |
+| `/open-state`                                         | GET    | `Persisted_Open_State`      | `GET /me/preferences`                         | Get Help Center open/minimized state  |
+| `/open-state`                                         | PUT    | `Persisted_Open_State`      | `POST /me/preferences`                        | Set Help Center open/minimized state  |
+| `/search`                                             | GET    | `Search`                    | `GET /help/search`                            | Search help articles                  |
+| `/sibyl`                                              | GET    | `Sibyl`                     | `GET /help/sibyl`                             | AI-suggested support articles         |
+| `/support-activity`                                   | GET    | `Support_Activity`          | `GET /support-activity`                       | Active support tickets                |
+| `/support-interactions`                               | GET    | `Support_Interactions`      | `GET /support-interactions/`                  | List support interactions             |
+| `/support-interactions/{id}`                          | GET    | `Support_Interactions`      | `GET /support-interactions/{id}`              | Get a single interaction              |
+| `/support-interactions`                               | POST   | `Support_Interactions`      | `POST /support-interactions`                  | Create a support interaction          |
+| `/support-interactions/{id}/events`                   | POST   | `Support_Interactions`      | `POST /support-interactions/{id}/events`      | Add event to interaction              |
+| `/support-interactions/{id}/status`                   | PUT    | `Support_Interactions`      | `PUT /support-interactions/{id}/status`       | Update interaction status             |
+| `/support-status`                                     | GET    | `Support_Status`            | `GET /help/support-status`                    | Support eligibility/tier              |
+| `/support-status/messaging`                           | GET    | `Support_Status`            | `GET /help/support-status/messaging`          | Messaging support availability        |
+| `/csat`                                               | POST   | `Ticket_CSAT`               | `POST /help/csat`                             | Submit ticket CSAT rating             |
+| `/ticket/new`                                         | POST   | `Ticket`                    | `POST /help/ticket/new`                       | Create a support ticket               |
+| `/zendesk/user-fields`                                | POST   | `User_Fields`               | `POST /help/zendesk/update-user-fields`       | Update Zendesk user fields            |
 
 ## Other Behaviors
 
