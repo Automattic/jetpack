@@ -9,13 +9,13 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 import {
+	addDays,
+	differenceInCalendarDays,
 	eachDayOfInterval,
 	eachMonthOfInterval,
 	eachWeekOfInterval,
 	format,
 	parseISO,
-	startOfISOWeek,
-	startOfMonth,
 } from 'date-fns';
 /**
  * Internal dependencies
@@ -49,6 +49,16 @@ export interface PostViewsState {
  * A date-only window sliced from the dashboard report params.
  */
 type DayWindow = {
+	from: string;
+	to: string;
+};
+
+/**
+ * One calendar bucket, including its visible label and the portion that falls
+ * inside the selected date window.
+ */
+type BucketWindow = {
+	date: string;
 	from: string;
 	to: string;
 };
@@ -93,42 +103,22 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 }
 
 /**
- * Bucket the post's daily view history into chart points for a window: day
- * buckets pass through, week/month buckets sum into their period start.
- * Every calendar bucket of the full requested window is zero-seeded before
- * summing — the endpoint may omit zero-view days and the history only starts
- * at publication, while the chart's comparison overlay aligns series by
- * index, so the primary and comparison windows must always yield the same
- * bucket count. Pre-publication days are genuinely zero views, so the
- * zero-fill is factual, not fabricated. The full history is bucketed
- * client-side because the endpoint's `weeks` field only covers a fixed
- * recent window.
+ * Build the primary range's calendar buckets. Each bucket keeps the calendar
+ * label used by the primary chart while clipping its data bounds to the
+ * selected range. The clipped bounds can then be applied to the comparison
+ * range as relative offsets, which preserves the primary series' bucket count
+ * across calendar boundaries.
  *
- * @param days   - The post's daily views, oldest first.
  * @param window - The date-only window to keep.
  * @param period - The bucket size.
- * @return One point per calendar bucket, oldest first.
+ * @return One bucket per calendar period, oldest first.
  */
-function bucketDays(
-	days: StatsPostDay[],
-	window: DayWindow,
-	period: PostViewsGranularity
-): PostViewsPoint[] {
+function calendarBucketWindows( window: DayWindow, period: PostViewsGranularity ): BucketWindow[] {
 	// The URL is user-editable, so an inverted range must not reach
 	// `eachDayOfInterval()` (it throws).
 	if ( window.from > window.to ) {
 		return [];
 	}
-
-	const bucketKey = ( date: string ): string => {
-		if ( period === 'day' ) {
-			return date;
-		}
-
-		const start =
-			period === 'week' ? startOfISOWeek( parseISO( date ) ) : startOfMonth( parseISO( date ) );
-		return format( start, 'yyyy-MM-dd' );
-	};
 
 	const interval = { start: parseISO( window.from ), end: parseISO( window.to ) };
 	let bucketStarts = eachDayOfInterval( interval );
@@ -138,22 +128,79 @@ function bucketDays(
 		bucketStarts = eachMonthOfInterval( interval );
 	}
 
-	const totals = new Map< string, number >(
-		bucketStarts.map( start => [ format( start, 'yyyy-MM-dd' ), 0 ] )
-	);
+	return bucketStarts.map( ( start, index ) => {
+		const date = format( start, 'yyyy-MM-dd' );
+		const nextDate = bucketStarts[ index + 1 ];
+		const end = nextDate ? format( addDays( nextDate, -1 ), 'yyyy-MM-dd' ) : window.to;
+
+		return {
+			date,
+			from: date < window.from ? window.from : date,
+			to: end > window.to ? window.to : end,
+		};
+	} );
+}
+
+/**
+ * Map primary bucket boundaries onto the comparison range. For example, a
+ * primary March 1–31 range has one monthly bucket; its equal-length January
+ * 29–February 28 comparison range must also have one bucket, even though it
+ * crosses two calendar months.
+ *
+ * @param primaryWindow    - The selected primary range.
+ * @param comparisonWindow - The previous-period range.
+ * @param buckets          - Calendar buckets clipped to the primary range.
+ * @return Comparison buckets with the primary range's relative boundaries.
+ */
+function relativeBucketWindows(
+	primaryWindow: DayWindow,
+	comparisonWindow: DayWindow,
+	buckets: BucketWindow[]
+): BucketWindow[] {
+	const primaryStart = parseISO( primaryWindow.from );
+	const comparisonStart = parseISO( comparisonWindow.from );
+
+	return buckets.map( bucket => {
+		const from = format(
+			addDays( comparisonStart, differenceInCalendarDays( parseISO( bucket.from ), primaryStart ) ),
+			'yyyy-MM-dd'
+		);
+		const to = format(
+			addDays( comparisonStart, differenceInCalendarDays( parseISO( bucket.to ), primaryStart ) ),
+			'yyyy-MM-dd'
+		);
+
+		return { date: from, from, to };
+	} );
+}
+
+/**
+ * Sum the post's daily view history into zero-filled buckets. The endpoint
+ * may omit zero-view days and the history only starts at publication, but
+ * those missing values are genuine zeroes. The full history is bucketed
+ * client-side because the endpoint's `weeks` field only covers a fixed recent
+ * window.
+ *
+ * @param days    - The post's daily views, oldest first.
+ * @param buckets - The bucket bounds to sum.
+ * @return One point per bucket, oldest first.
+ */
+function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsPoint[] {
+	const totals = new Map< string, number >( buckets.map( bucket => [ bucket.date, 0 ] ) );
 
 	for ( const day of days ) {
-		if ( day.date < window.from || day.date > window.to ) {
-			continue;
+		const bucket = buckets.find(
+			candidate => day.date >= candidate.from && day.date <= candidate.to
+		);
+		if ( bucket ) {
+			totals.set( bucket.date, ( totals.get( bucket.date ) ?? 0 ) + day.views );
 		}
-
-		const key = bucketKey( day.date );
-		totals.set( key, ( totals.get( key ) ?? 0 ) + day.views );
 	}
 
-	return Array.from( totals.entries() )
-		.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
-		.map( ( [ date, value ] ) => ( { date: localTZDate( date ), value } ) );
+	return buckets.map( bucket => ( {
+		date: localTZDate( bucket.date ),
+		value: totals.get( bucket.date ) ?? 0,
+	} ) );
 }
 
 /**
@@ -181,9 +228,12 @@ export default function usePostViews(
 		const days = data?.data ?? [];
 		const window = toDayWindow( reportParams.from, reportParams.to );
 		const compareWindow = toDayWindow( reportParams.compare_from, reportParams.compare_to );
-
-		const currentPoints = window ? bucketDays( days, window, period ) : [];
-		const previousPoints = compareWindow ? bucketDays( days, compareWindow, period ) : undefined;
+		const buckets = window ? calendarBucketWindows( window, period ) : [];
+		const currentPoints = bucketDays( days, buckets );
+		const previousPoints =
+			window && compareWindow
+				? bucketDays( days, relativeBucketWindows( window, compareWindow, buckets ) )
+				: undefined;
 
 		return {
 			current: currentPoints,

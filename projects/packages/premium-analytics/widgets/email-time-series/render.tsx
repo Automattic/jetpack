@@ -99,7 +99,7 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 	} );
 	const active = metric === 'clicks' ? clicks : opens;
 
-	const report = active.primary.data as StatsEmailTimeSeriesReport | undefined;
+	const report = active.data as StatsEmailTimeSeriesReport | undefined;
 	const field = METRIC_FIELDS[ metric ];
 
 	const chartReport = useMemo( () => {

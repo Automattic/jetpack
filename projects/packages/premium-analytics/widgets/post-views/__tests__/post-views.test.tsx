@@ -120,6 +120,41 @@ describe( 'PostViewsWidget', () => {
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'uses primary month buckets for a previous period that crosses a month boundary', async () => {
+		mockApiFetch.mockResolvedValue( {
+			data: [
+				[ '2026-01-29', 1 ],
+				[ '2026-02-01', 2 ],
+				[ '2026-02-28', 3 ],
+				[ '2026-03-01', 4 ],
+				[ '2026-03-31', 5 ],
+			],
+		} );
+
+		render(
+			<PostViewsWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-03-01T00:00:00.000+08:00',
+						to: '2026-03-31T23:59:59.999+08:00',
+						post_id: 779,
+						comp: '1',
+						compare_from: '2026-01-29T00:00:00.000+08:00',
+						compare_to: '2026-02-28T23:59:59.999+08:00',
+					},
+					granularity: 'month',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '9' );
+		// The previous period is one relative monthly bucket, not separate January
+		// and February points that the comparative chart would collapse onto March.
+		expect( chart ).toHaveAttribute( 'data-previous-values', '6' );
+	} );
+
 	it( 'renders the scopeless empty state and makes no request without a post scope', async () => {
 		render( <PostViewsWidget attributes={ {} } /> );
 
