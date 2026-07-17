@@ -12,7 +12,7 @@
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
 		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
-		"@wordpress/admin-ui": "2.1.0",
+		"@wordpress/admin-ui": "2.5.0",
 		"@wordpress/components": "37.0.0",
 		"@wordpress/dataviews": "14.3.0",
 		"@wordpress/element": "8.3.0",
