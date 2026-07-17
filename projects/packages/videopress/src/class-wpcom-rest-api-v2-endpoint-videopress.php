@@ -350,7 +350,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function videopress_promote_attachment( $request ) {
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		if ( ! $this->promote_is_available() ) {
 			return new WP_Error(
 				'videopress_promote_not_available',
 				__( 'Promoting local videos is only available on WordPress.com sites.', 'jetpack-videopress-pkg' ),
@@ -376,7 +376,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		 * itself checks nothing — without this, a site whose plan allows
 		 * plain video uploads but not VideoPress could enqueue transcodes.
 		 */
-		if ( ! function_exists( 'wpcom_site_has_videopress' ) || ! wpcom_site_has_videopress( $blog_id ) ) {
+		if ( ! $this->promote_site_has_videopress( $blog_id ) ) {
 			return new WP_Error(
 				'videopress_promote_not_allowed',
 				__( 'This site’s plan does not include VideoPress.', 'jetpack-videopress-pkg' ),
@@ -384,31 +384,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			);
 		}
 
-		/*
-		 * public-api requests define ADMIN_PLUGINS, so the transcode
-		 * primitives are normally already loaded. This mirrors the wpcom TUS
-		 * uploader's ensure_wpcom_admin_includes_present() guard for any
-		 * context where they aren't. Each file is existence-checked
-		 * individually so a partially-moved set mid-deploy degrades to the
-		 * clean error below rather than a require fatal.
-		 */
-		if ( ! function_exists( 'remote_transcode_one_video' ) && defined( 'ABSPATH' ) ) {
-			$transcode_includes = array(
-				'class.videopress-job-base.php',
-				'class.video-job-thumbnails.php',
-				'class.video-thumbnailer.php',
-				'video-transcoder.php',
-				'transcode.php',
-			);
-			foreach ( $transcode_includes as $transcode_include ) {
-				$transcode_include_path = ABSPATH . 'wp-content/admin-plugins/videopress/' . $transcode_include;
-				if ( file_exists( $transcode_include_path ) ) {
-					require_once $transcode_include_path;
-				}
-			}
-		}
-
-		if ( ! function_exists( 'remote_transcode_one_video' ) || ! function_exists( 'video_get_info_by_blogpostid' ) ) {
+		if ( ! $this->promote_load_primitives() ) {
 			return new WP_Error(
 				'videopress_promote_unavailable',
 				__( 'VideoPress is not available right now. Please try again later.', 'jetpack-videopress-pkg' ),
@@ -422,7 +398,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		 * 'video-info' entry must not misreport here — and the fresh read
 		 * re-primes the cache the primitive's own (non-busted) lookup uses.
 		 */
-		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id, true );
+		$info = $this->promote_video_info( $blog_id, $attachment_id );
 		if ( $info && ! empty( $info->guid ) ) {
 			return rest_ensure_response(
 				array(
@@ -444,10 +420,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		 * the primitive's $redo path is a possible follow-up, but it needs
 		 * rollback semantics this endpoint doesn't want to own yet.
 		 */
-		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- wpcom global table; the live-row helper above can't see tombstoned rows, and this must not be cached.
-		$tombstoned_guid = $wpdb->get_var( $wpdb->prepare( 'SELECT guid FROM videos WHERE blog_id = %d AND post_id = %d', $blog_id, $attachment_id ) );
-		if ( $tombstoned_guid ) {
+		if ( $this->promote_find_any_guid( $blog_id, $attachment_id ) ) {
 			return new WP_Error(
 				'videopress_promote_previously_deleted',
 				__( 'This video was previously deleted from VideoPress, so it can’t be promoted automatically. Please upload it as a new video instead.', 'jetpack-videopress-pkg' ),
@@ -495,14 +468,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		 * the async transcode job. The fresh-upload path sleep(3)s before
 		 * queueing (DB-write settling), so this request takes ~3s.
 		 */
-		remote_transcode_one_video( $attachment_id ); // @phan-suppress-current-line PhanUndeclaredFunction -- wpcom-only (admin-plugins/videopress/transcode.php), function_exists-guarded above; not in the generated wpcom stubs yet.
+		$this->promote_transcode( $attachment_id );
 
 		/*
 		 * The primitive returns bare false for every bail reason (missing
 		 * attachment, already transcoded, …), so verify by re-reading the
 		 * videos table instead of trusting the return value.
 		 */
-		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id, true );
+		$info = $this->promote_video_info( $blog_id, $attachment_id );
 
 		wp_cache_delete( $promote_lock, 'video-info' );
 
@@ -520,6 +493,101 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				'media_id' => $attachment_id,
 			)
 		);
+	}
+
+	/*
+	 * The five methods below are the promote flow's wpcom seams. They exist
+	 * so the orchestration above is unit-testable: monorepo CI can never
+	 * define IS_WPCOM, so without them every branch past the host guard
+	 * would be dead code under test. A WorDBless test double overrides
+	 * exactly these (and nothing else) to exercise the real ordering,
+	 * error contract, and mutex behavior.
+	 */
+
+	/**
+	 * Whether the in-process promote flow is available on this host.
+	 *
+	 * @return bool
+	 */
+	protected function promote_is_available() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}
+
+	/**
+	 * Whether the site's plan includes VideoPress.
+	 *
+	 * @param int $blog_id The blog to check.
+	 * @return bool
+	 */
+	protected function promote_site_has_videopress( $blog_id ) {
+		return function_exists( 'wpcom_site_has_videopress' ) && wpcom_site_has_videopress( $blog_id );
+	}
+
+	/**
+	 * Ensure the wpcom transcode primitives are loaded.
+	 *
+	 * Public-api requests define ADMIN_PLUGINS, so they normally already
+	 * are; this mirrors the wpcom TUS uploader's
+	 * ensure_wpcom_admin_includes_present() guard for any context where
+	 * they aren't. Each file is existence-checked individually so a
+	 * partially-moved set mid-deploy degrades to the handler's clean error
+	 * rather than a require fatal.
+	 *
+	 * @return bool Whether the primitives are callable.
+	 */
+	protected function promote_load_primitives() {
+		if ( ! function_exists( 'remote_transcode_one_video' ) && defined( 'ABSPATH' ) ) {
+			$transcode_includes = array(
+				'class.videopress-job-base.php',
+				'class.video-job-thumbnails.php',
+				'class.video-thumbnailer.php',
+				'video-transcoder.php',
+				'transcode.php',
+			);
+			foreach ( $transcode_includes as $transcode_include ) {
+				$transcode_include_path = ABSPATH . 'wp-content/admin-plugins/videopress/' . $transcode_include;
+				if ( file_exists( $transcode_include_path ) ) {
+					require_once $transcode_include_path;
+				}
+			}
+		}
+
+		return function_exists( 'remote_transcode_one_video' ) && function_exists( 'video_get_info_by_blogpostid' );
+	}
+
+	/**
+	 * Cache-busted read of the live videos-table row for an attachment.
+	 *
+	 * @param int $blog_id       The blog id.
+	 * @param int $attachment_id The attachment id.
+	 * @return object|false The video info object, or false when no live row exists.
+	 */
+	protected function promote_video_info( $blog_id, $attachment_id ) {
+		return video_get_info_by_blogpostid( $blog_id, $attachment_id, true );
+	}
+
+	/**
+	 * Find any videos-table guid for the attachment, tombstoned included —
+	 * the live-row helper can't see soft-deleted rows.
+	 *
+	 * @param int $blog_id       The blog id.
+	 * @param int $attachment_id The attachment id.
+	 * @return string|null The guid, or null when no row exists at all.
+	 */
+	protected function promote_find_any_guid( $blog_id, $attachment_id ) {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- wpcom global table; must see tombstoned rows and must not be cached.
+		return $wpdb->get_var( $wpdb->prepare( 'SELECT guid FROM videos WHERE blog_id = %d AND post_id = %d', $blog_id, $attachment_id ) );
+	}
+
+	/**
+	 * Run the wpcom promote primitive for an attachment.
+	 *
+	 * @param int $attachment_id The attachment id.
+	 * @return void
+	 */
+	protected function promote_transcode( $attachment_id ) {
+		remote_transcode_one_video( $attachment_id ); // @phan-suppress-current-line PhanUndeclaredFunction -- wpcom-only (admin-plugins/videopress/transcode.php), promote_load_primitives()-guarded; not in the generated wpcom stubs yet.
 	}
 
 	/**

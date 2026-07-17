@@ -325,6 +325,256 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Build a promote request for an attachment id.
+	 *
+	 * @param int $attachment_id The attachment id.
+	 * @return \WP_REST_Request
+	 */
+	private function promote_request( $attachment_id ) {
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/promote/' . $attachment_id );
+		$request->set_param( 'attachment_id', $attachment_id );
+		return $request;
+	}
+
+	/**
+	 * Create an attachment whose attached file has the given path and mime.
+	 *
+	 * @param string $file The attached-file path (leading slash keeps it verbatim).
+	 * @param string $mime The attachment mime type.
+	 * @return int The attachment id.
+	 */
+	private function make_attachment( $file = '/wp-content/blogs.dir/9a1/12345/files/2026/07/test.mp4', $mime = 'video/mp4' ) {
+		$attachment_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => $mime,
+				'post_title'     => 'Promote orchestration fixture',
+			)
+		);
+		update_post_meta( $attachment_id, '_wp_attached_file', $file );
+		return $attachment_id;
+	}
+
+	/**
+	 * Build the promote seam double.
+	 *
+	 * @return Mock_Promote_Endpoint
+	 */
+	private function make_promote_double() {
+		require_once __DIR__ . '/mocks/class-mock-promote-endpoint.php';
+		return new Mock_Promote_Endpoint();
+	}
+
+	/**
+	 * Test that the promote orchestration reports not-available when the
+	 * host seam says so (the production seam's IS_WPCOM path is covered by
+	 * the dispatch test above).
+	 */
+	public function test_promote_orchestration_reports_not_available() {
+		$endpoint            = $this->make_promote_double();
+		$endpoint->available = false;
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( 123 ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'videopress_promote_not_available', $result->get_error_code() );
+		$this->assertSame( 404, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that missing, non-attachment, trashed, and non-video targets are
+	 * all rejected as invalid attachments before any wpcom seam is touched.
+	 */
+	public function test_promote_orchestration_rejects_invalid_attachments() {
+		$endpoint = $this->make_promote_double();
+
+		$page_id    = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Not an attachment',
+			)
+		);
+		$trashed_id = $this->make_attachment();
+		wp_update_post(
+			array(
+				'ID'          => $trashed_id,
+				'post_status' => 'trash',
+			)
+		);
+		$text_id = $this->make_attachment( '/wp-content/blogs.dir/9a1/12345/files/2026/07/notes.txt', 'text/plain' );
+
+		foreach ( array( 999999, $page_id, $trashed_id, $text_id ) as $target ) {
+			$result = $endpoint->videopress_promote_attachment( $this->promote_request( $target ) );
+			$this->assertInstanceOf( \WP_Error::class, $result, "Target {$target} should be rejected." );
+			$this->assertSame( 'videopress_promote_invalid_attachment', $result->get_error_code(), "Target {$target} should be an invalid attachment." );
+		}
+		$this->assertSame( array(), $endpoint->transcoded );
+	}
+
+	/**
+	 * Test that a site without VideoPress gets a 403 from the plan gate.
+	 */
+	public function test_promote_orchestration_requires_videopress_plan() {
+		$endpoint                 = $this->make_promote_double();
+		$endpoint->has_videopress = false;
+		$attachment_id            = $this->make_attachment();
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+
+		$this->assertSame( 'videopress_promote_not_allowed', $result->get_error_code() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that unavailable transcode primitives produce a clean 500.
+	 */
+	public function test_promote_orchestration_reports_unavailable_primitives() {
+		$endpoint                    = $this->make_promote_double();
+		$endpoint->primitives_loaded = false;
+		$attachment_id               = $this->make_attachment();
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+
+		$this->assertSame( 'videopress_promote_unavailable', $result->get_error_code() );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that an attachment already on VideoPress reports success
+	 * idempotently without invoking the primitive.
+	 */
+	public function test_promote_orchestration_is_idempotent_for_live_videos() {
+		$endpoint              = $this->make_promote_double();
+		$endpoint->video_infos = array( (object) array( 'guid' => 'AbCd1234' ) );
+		$attachment_id         = $this->make_attachment();
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame(
+			array(
+				'guid'               => 'AbCd1234',
+				'media_id'           => $attachment_id,
+				'already_videopress' => true,
+			),
+			$result->get_data()
+		);
+		$this->assertSame( array(), $endpoint->transcoded );
+	}
+
+	/**
+	 * Test that a tombstoned videos row produces the specific 409 instead of
+	 * an unexplained failure, without invoking the primitive.
+	 */
+	public function test_promote_orchestration_rejects_previously_deleted_videos() {
+		$endpoint           = $this->make_promote_double();
+		$endpoint->any_guid = 'DeAd1234';
+		$attachment_id      = $this->make_attachment();
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+
+		$this->assertSame( 'videopress_promote_previously_deleted', $result->get_error_code() );
+		$this->assertSame( 409, $result->get_error_data()['status'] );
+		$this->assertSame( array(), $endpoint->transcoded );
+	}
+
+	/**
+	 * Test that a file outside the blogs.dir shape fails clean with a 400 —
+	 * the primitive would otherwise create a broken row plus a malformed
+	 * transcode job stuck at "Processing" forever.
+	 */
+	public function test_promote_orchestration_rejects_non_blogsdir_files() {
+		$endpoint      = $this->make_promote_double();
+		$attachment_id = $this->make_attachment( '/var/imported/2026/07/migrated.mp4' );
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+
+		$this->assertSame( 'videopress_promote_unsupported_file', $result->get_error_code() );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
+		$this->assertSame( array(), $endpoint->transcoded );
+	}
+
+	/**
+	 * Test that a concurrent promote holding the lock turns into a 409 and
+	 * the primitive is not invoked.
+	 */
+	public function test_promote_orchestration_respects_the_promote_lock() {
+		$endpoint      = $this->make_promote_double();
+		$attachment_id = $this->make_attachment();
+		$lock          = 'videopress-promote-' . get_current_blog_id() . '-' . $attachment_id;
+
+		wp_cache_add( $lock, 1, 'video-info', 30 );
+		try {
+			$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+		} finally {
+			wp_cache_delete( $lock, 'video-info' );
+		}
+
+		$this->assertSame( 'videopress_promote_in_progress', $result->get_error_code() );
+		$this->assertSame( 409, $result->get_error_data()['status'] );
+		$this->assertSame( array(), $endpoint->transcoded );
+	}
+
+	/**
+	 * Test the fresh-promote happy path: the primitive runs once, the
+	 * verification read supplies the new guid, and the lock is released.
+	 */
+	public function test_promote_orchestration_promotes_and_releases_the_lock() {
+		$endpoint              = $this->make_promote_double();
+		$endpoint->video_infos = array( false, (object) array( 'guid' => 'Ne3w1234' ) );
+		$attachment_id         = $this->make_attachment();
+		$lock                  = 'videopress-promote-' . get_current_blog_id() . '-' . $attachment_id;
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame(
+			array(
+				'guid'     => 'Ne3w1234',
+				'media_id' => $attachment_id,
+			),
+			$result->get_data()
+		);
+		$this->assertSame( array( $attachment_id ), $endpoint->transcoded );
+		$this->assertFalse( wp_cache_get( $lock, 'video-info' ), 'The promote lock should be released after success.' );
+	}
+
+	/**
+	 * Test that a promote whose verification read finds no row reports a 500
+	 * — the primitive returns bare false for every bail reason — and still
+	 * releases the lock.
+	 */
+	public function test_promote_orchestration_reports_failure_and_releases_the_lock() {
+		$endpoint      = $this->make_promote_double();
+		$attachment_id = $this->make_attachment();
+		$lock          = 'videopress-promote-' . get_current_blog_id() . '-' . $attachment_id;
+
+		$result = $endpoint->videopress_promote_attachment( $this->promote_request( $attachment_id ) );
+
+		$this->assertSame( 'videopress_promote_failed', $result->get_error_code() );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+		$this->assertSame( array( $attachment_id ), $endpoint->transcoded );
+		$this->assertFalse( wp_cache_get( $lock, 'video-info' ), 'The promote lock should be released after failure.' );
+	}
+
+	/**
+	 * Test that the real (non-double) wpcom seams fail closed off-WPCOM:
+	 * the transcode primitives can't be loaded (the admin-plugins files
+	 * don't exist here) and the plan gate reports no VideoPress.
+	 */
+	public function test_promote_real_seams_fail_closed_off_wpcom() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
+
+		$load_primitives = new \ReflectionMethod( $endpoint, 'promote_load_primitives' );
+		$this->assertFalse( $load_primitives->invoke( $endpoint ), 'Transcode primitives must not be loadable off-WPCOM.' );
+
+		$plan_gate = new \ReflectionMethod( $endpoint, 'promote_site_has_videopress' );
+		$this->assertFalse( $plan_gate->invoke( $endpoint, get_current_blog_id() ), 'The plan gate must fail closed off-WPCOM.' );
+	}
+
+	/**
 	 * Data provider for valid privacy_setting values.
 	 *
 	 * @return array[] Test cases.
