@@ -1,9 +1,16 @@
 .page {
-	max-width: none;
+	min-block-size: 0;
 }
 
 .content {
-	max-width: 1280px;
-	margin-inline: auto;
-	padding-inline: var(--wpds-dimension-padding-lg);
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+
+	/*
+	 * Match the horizontal padding of the header so the report sections line up
+	 * with it instead of sitting flush to the edge.
+	 */
+	padding-block-end: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }

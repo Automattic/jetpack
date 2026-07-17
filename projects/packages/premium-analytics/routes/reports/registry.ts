@@ -109,10 +109,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'tags',
 		getTitle: () => __( 'Tags & categories', 'jetpack-premium-analytics' ),
 		getDescription: () =>
-			__(
-				'Most visited tags and categories for the selected period.',
-				'jetpack-premium-analytics'
-			),
+			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ),
 		load: () => import( './tags/page' ),
 	},
 	videos: {

@@ -1,3 +1,2 @@
 export { getTagsFields } from './fields';
-export { aggregateTagRows, getTagRowId, tagsToTimeSeries } from './aggregate';
-export { useTagsReportRecords } from './use-report-records';
+export { getTagRowId, useTagsReportRecords } from './use-report-records';

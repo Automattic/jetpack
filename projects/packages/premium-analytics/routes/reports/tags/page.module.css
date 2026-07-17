@@ -1,13 +1,17 @@
 .page {
-	max-width: none;
+	min-block-size: 0;
 }
 
 .content {
-	max-width: 1280px;
-	margin-inline: auto;
-	padding-inline: var(--wpds-dimension-padding-lg);
-}
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
 
-.dateFilters {
-	width: 100%;
+	/*
+	 * Keep the report sections aligned with the header and separated from its
+	 * bottom border.
+	 */
+	padding-block-start: var(--wpds-dimension-padding-lg);
+	padding-block-end: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }

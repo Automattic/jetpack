@@ -1,53 +1,41 @@
 /**
  * External dependencies
  */
-import {
-	useStatsTags,
-	type ReportParams,
-	type StatsChartBucketPeriod,
-} from '@jetpack-premium-analytics/data';
+import { useStatsTags, type StatsTagsItem } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { aggregateTagRows, tagsToTimeSeries } from './aggregate';
 
 /**
- * Fetch and derive the Tags & categories report chart and table from one
- * bucketed query.
+ * Resolve the stable identity of a tag/category row.
  *
- * @param reportParams - The shared report-window parameters.
- * @param chartPeriod  - The chart's bucket period.
- * @return Chart data and table records.
+ * @param item - The normalized tag/category row.
+ * @return Stable row key.
  */
-export function useTagsReportRecords(
-	reportParams: ReportParams,
-	chartPeriod: StatsChartBucketPeriod
-) {
-	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 0,
-			period: 'day',
-		} ),
-		[ reportParams ]
-	);
-	const tags = useStatsTags( recordsParams );
-	const primaryData = tags.data;
+export function getTagRowId( item: StatsTagsItem ): string {
+	return item.link ?? item.labelText;
+}
 
-	const chartPrimary = useMemo(
-		() => tagsToTimeSeries( primaryData, chartPeriod ),
-		[ primaryData, chartPeriod ]
+/**
+ * Fetch the all-time Tags & categories rows.
+ *
+ * The endpoint ignores date-window parameters (`period`, `start_date`,
+ * `days`, `summarize`) and always reports one flat all-time list — verified
+ * against WPCOM directly, and matching Calypso, which never sends date
+ * params here — so the report requests only `max: 0` (all rows) and renders
+ * no chart or date filters.
+ *
+ * @return Table rows and fetch state.
+ */
+export function useTagsReportRecords() {
+	const tags = useStatsTags( { max: 0 } );
+	const rows = useMemo< StatsTagsItem[] >(
+		() => tags.data?.data?.[ 0 ]?.items ?? [],
+		[ tags.data ]
 	);
-	const rows = useMemo( () => aggregateTagRows( primaryData ), [ primaryData ] );
 
 	return {
-		chart: {
-			primary: chartPrimary,
-			isLoading: tags.isLoading,
-		},
 		rows,
 		isLoading: tags.isLoading,
+		isError: tags.isError,
+		refetch: tags.refetch,
 	};
 }

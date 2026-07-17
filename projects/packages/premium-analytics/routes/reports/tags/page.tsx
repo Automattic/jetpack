@@ -1,68 +1,27 @@
 /**
  * External dependencies
  */
+import { useDashboardLink } from '@jetpack-premium-analytics/routing';
 import {
-	normalizeReportParams,
-	type IntervalType,
-	type StatsChartBucketPeriod,
-	type StatsTagsItem,
-} from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import {
-	formatLegendLabels,
 	ReportPageLayout,
-	ReportPerformanceChart,
+	ReportPageSection,
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
+import { Button, EmptyState } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { route } from '../package.json';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import styles from './page.module.css';
-
-const ROUTE_FROM = route.path;
-const REPORT_PARAMS = { report: 'tags' };
-const CHART_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
+import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 
 /**
- * Check whether a value is a supported chart period.
- *
- * @param value - The value to check.
- * @return Whether the value is a chart period.
+ * Initial records-table view: views sort descending, the label column absorbs
+ * spare width, and the numeric column stays compact and right-aligned.
  */
-function isChartPeriod( value: unknown ): value is ChartPeriod {
-	return CHART_PERIODS.includes( value as ChartPeriod );
-}
-
-/**
- * Get the default chart period for a selected report interval.
- *
- * @param interval - The selected report interval.
- * @return The default chart period.
- */
-function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
-	if ( interval === 'week' ) {
-		return 'week';
-	}
-
-	if ( interval === 'month' || interval === 'quarter' || interval === 'year' ) {
-		return 'month';
-	}
-
-	return 'day';
-}
-
 const RECORDS_VIEW = {
 	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
@@ -74,47 +33,25 @@ const RECORDS_VIEW = {
 };
 
 /**
- * Premium Analytics Tags & categories report page.
+ * Premium Analytics Tags & categories report page component.
+ *
+ * The `stats/tags` endpoint reports one flat all-time list and ignores
+ * date-window parameters (verified against WPCOM; Calypso never sends date
+ * params here either), so the page composes only the breadcrumb header and
+ * records table: no date filters, tabs, or performance chart.
  *
  * @return The Tags & categories report page.
  */
 function TagsReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
-	const chartPeriod = isChartPeriod( search.period )
-		? search.period
-		: getDefaultChartPeriod( reportParams.interval );
-	const records = useTagsReportRecords( reportParams, chartPeriod );
+	const records = useTagsReportRecords();
 	const fields = useMemo( () => getTagsFields(), [] );
-	const chartMetrics = useMemo(
-		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
-		[]
-	);
-	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
-	const navigate = useNavigate();
-	const handleIntervalChange = useCallback(
-		( interval: IntervalType ) => {
-			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
-			navigate( {
-				to: ROUTE_FROM,
-				params: REPORT_PARAMS as unknown as never,
-				replace: true,
-				search: ( ( current: Record< string, unknown > ) => ( {
-					...current,
-					period,
-				} ) ) as unknown as never,
-			} );
-		},
-		[ navigate ]
-	);
-
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	// Preserve the shared report window when returning to the dashboard.
 	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
 		<Page
@@ -126,36 +63,44 @@ function TagsReport(): JSX.Element {
 					] }
 				/>
 			}
-			subTitle={ __(
-				'Most visited tags and categories for the selected period.',
-				'jetpack-premium-analytics'
-			) }
+			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ) }
 			className={ styles.page }
 		>
 			<div className={ styles.content }>
-				<ReportPageLayout
-					filters={
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-					}
-				>
-					<ReportPerformanceChart
-						primary={ records.chart.primary }
-						isLoading={ records.chart.isLoading }
-						metrics={ chartMetrics }
-						interval={ chartPeriod }
-						onIntervalChange={ handleIntervalChange }
-						legendLabels={ chartLegendLabels }
-					/>
-					<ReportRecordsTable< StatsTagsItem >
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getTagRowId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics' ) }
-					/>
+				<ReportPageLayout>
+					{ /*
+					 * The error state replaces the table rather than sitting beside it:
+					 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
+					 * status, so a failed refetch over cached rows would otherwise leave
+					 * stale data on screen with no notice and no way to retry.
+					 */ }
+					{ records.isError ? (
+						<ReportPageSection>
+							<EmptyState.Root>
+								<EmptyState.Title>
+									{ __( 'Unable to load tags and categories', 'jetpack-premium-analytics' ) }
+								</EmptyState.Title>
+								<EmptyState.Description>
+									{ __(
+										"We couldn't load this data. Please try again in a moment.",
+										'jetpack-premium-analytics'
+									) }
+								</EmptyState.Description>
+								<EmptyState.Actions>
+									<Button onClick={ retry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
+								</EmptyState.Actions>
+							</EmptyState.Root>
+						</ReportPageSection>
+					) : (
+						<ReportRecordsTable< StatsTagsItem >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getTagRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics' ) }
+						/>
+					) }
 				</ReportPageLayout>
 			</div>
 		</Page>
