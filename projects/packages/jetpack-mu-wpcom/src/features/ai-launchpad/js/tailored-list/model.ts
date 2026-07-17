@@ -50,6 +50,8 @@ export interface LaunchpadData {
 		payload: TailoredOutput;
 	} | null;
 	site?: SiteData;
+	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
+	wizard?: { goal?: string } | null;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

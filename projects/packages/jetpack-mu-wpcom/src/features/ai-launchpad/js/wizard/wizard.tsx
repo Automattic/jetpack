@@ -1,9 +1,16 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
-import { trackViewed, trackWizardCompleted, trackWizardSkipped } from '../lib/tracks.ts';
+import {
+	setTracksContext,
+	trackWizardBackClicked,
+	trackWizardCompleted,
+	trackWizardGoalClicked,
+	trackWizardStepCompleted,
+	trackWizardStepSkipped,
+} from '../lib/tracks.ts';
 import DetailsStep from './details-step.tsx';
 import GoalsStep from './goals-step.tsx';
 import {
@@ -60,16 +67,17 @@ export function Wizard( {
 
 	const state: WizardState = { goal, siteName, intent, locale };
 
-	useEffect( () => {
-		trackViewed();
-	}, [] );
-
 	// Background-tailor on Step-2 typing pauses; Finish reuses the prewarmed
 	// promise via getPrewarmedTailor.
 	usePrewarm( step === 1 ? toPrewarmInput( state ) : {} );
 
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
+			trackWizardStepCompleted( { step: 0 === step ? 'goal' : 'site_details' } );
+			// The goal is confirmed from here on; earlier funnel events carry null.
+			if ( goal ) {
+				setTracksContext( { goal } );
+			}
 			setStep( ( step + 1 ) as WizardStep );
 			return;
 		}
@@ -96,12 +104,14 @@ export function Wizard( {
 			.catch( () => {} );
 
 		const tailoring = getPrewarmedTailor( payload );
+		trackWizardStepCompleted( { step: 'site_details' } );
 		trackWizardCompleted();
 		onComplete?.( payload, tailoring );
 	};
 
 	const handleBack = () => {
 		if ( step > 0 ) {
+			trackWizardBackClicked();
 			setStep( ( step - 1 ) as WizardStep );
 		}
 	};
@@ -111,7 +121,7 @@ export function Wizard( {
 	// sites by their front-end host, so prefer the site URL over the wp-admin request host.
 	const handleSkip = async () => {
 		setSkipping( true );
-		trackWizardSkipped();
+		trackWizardStepSkipped( { step: 0 === step ? 'goal' : 'site_details' } );
 		try {
 			await apiFetch( { path: '/wpcom/v2/ai-launchpad', method: 'DELETE' } );
 		} catch {
@@ -142,7 +152,15 @@ export function Wizard( {
 				/>
 			</div>
 
-			{ step === 0 && <GoalsStep value={ goal } onChange={ setGoal } /> }
+			{ step === 0 && (
+				<GoalsStep
+					value={ goal }
+					onChange={ nextGoal => {
+						trackWizardGoalClicked( { goal_clicked: nextGoal } );
+						setGoal( nextGoal );
+					} }
+				/>
+			) }
 			{ step === 1 && (
 				<DetailsStep
 					goal={ goal }

@@ -265,11 +265,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_tailored' ),
 					'permission_callback' => array( $this, 'can_write' ),
 					'args'                => array(
-						'source' => array(
+						'source'      => array(
 							'description' => 'Whether the payload came from the AI or the deterministic fallback. Query parameter; the JSON body must match the agent output schema exactly.',
 							'type'        => 'string',
 							'enum'        => array( 'ai', 'fallback' ),
 							'default'     => 'ai',
+						),
+						'duration_ms' => array(
+							'description' => 'Client-measured tailoring duration in milliseconds, for the tailored Logstash record.',
+							'type'        => 'integer',
+							'minimum'     => 0,
+						),
+						'attempts'    => array(
+							'description' => 'How many jetpack-ai-query attempts the client made, for the tailored Logstash record.',
+							'type'        => 'integer',
+							'minimum'     => 0,
 						),
 					),
 				),
@@ -330,6 +340,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	public function get_data( $request = null ) {
 		$wizard    = get_option( self::OPTION_WIZARD );
 		$ai_output = get_option( self::OPTION_AI_OUTPUT );
+		if ( is_array( $ai_output ) ) {
+			// Internal analytics bookkeeping (see report_task_completions), not part of the client contract.
+			unset( $ai_output['tracked_completed'] );
+		}
 
 		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
 		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
@@ -504,7 +518,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Latches OPTION_COMPLETED the first time the list is fully done. Called on every path that can finish the last
+	 * Runs the completion pass: reports newly-completed tasks to Tracks, then latches OPTION_COMPLETED (and records
+	 * the all-tasks-completed event) the first time the list is fully done. Called on every path that can finish a
 	 * task (read, skip, complete-on-click); the already-set check skips the rebuild once latched.
 	 *
 	 * @return void
@@ -514,35 +529,87 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return;
 		}
 
-		if ( $this->compute_tasklist_complete() ) {
-			update_option( self::OPTION_COMPLETED, true, true );
-		}
-	}
-
-	/**
-	 * Whether every task on the tailored list is completed or skipped. An empty/absent list is not "complete" — the
-	 * wizard still needs to run.
-	 *
-	 * @return bool
-	 */
-	private function compute_tasklist_complete() {
+		// No AI output means the wizard hasn't produced a list yet: nothing to report or latch.
 		if ( ! get_option( self::OPTION_AI_OUTPUT ) ) {
-			return false;
+			return;
 		}
 
 		$tasks = $this->get_current_tasks();
+		// An empty list is not "complete" — the wizard still needs to run.
 		if ( empty( $tasks ) ) {
-			return false;
+			return;
 		}
+
+		$this->report_task_completions( $tasks );
 
 		foreach ( $tasks as $task ) {
 			// A skip coerces `completed` true; a disabled preview task stays incomplete until its prerequisite is met.
 			if ( empty( $task['completed'] ) ) {
-				return false;
+				return;
 			}
 		}
 
-		return true;
+		update_option( self::OPTION_COMPLETED, true, true );
+		// After the per-task reports above, so any task_completed reports precede it (a list finished
+		// purely by skips or born-completed tasks latches with none).
+		wpcom_ai_launchpad_record_tracks_event(
+			'jetpack_ai_launchpad_all_tasks_completed',
+			array(),
+			array_column( $tasks, 'id' )
+		);
+	}
+
+	/**
+	 * Records a `task_completed` Tracks event for every rendered task that newly reads as completed, whatever
+	 * completed it (client click, PHP listener, or live recomputation à la Woo/domains/memberships) — the only
+	 * uniform signal is the rendered list itself, so completions are diffed on read.
+	 *
+	 * The already-reported ids are embedded in the existing AI-output envelope (`tracked_completed`) rather than a
+	 * new option; a re-tailor rewrites the envelope, which re-baselines the set at the same moment the skip/completed
+	 * options reset. PUT /tailored seeds the key with the born-completed tasks, so a pass here only ever reports
+	 * user-triggered completions; an envelope persisted before the key existed gets the same silent baseline on its
+	 * first pass. Skipped tasks render as completed but already emit `task_skipped`, so they are excluded (and never
+	 * reported later).
+	 *
+	 * @param array $tasks The current rendered tasks.
+	 * @return void
+	 */
+	private function report_task_completions( $tasks ) {
+		$ai_output = get_option( self::OPTION_AI_OUTPUT );
+		if ( ! is_array( $ai_output ) ) {
+			return;
+		}
+
+		$skipped   = $this->get_skipped_task_ids();
+		$completed = array();
+		foreach ( $tasks as $task ) {
+			if ( ! empty( $task['completed'] ) && ! in_array( $task['id'], $skipped, true ) ) {
+				$completed[] = $task['id'];
+			}
+		}
+
+		// null = no key yet, i.e. the baseline pass right after tailoring.
+		$reported = isset( $ai_output['tracked_completed'] ) && is_array( $ai_output['tracked_completed'] )
+			? $ai_output['tracked_completed']
+			: null;
+		$newly    = array_values( array_diff( $completed, $reported ?? array() ) );
+
+		if ( null !== $reported ) {
+			if ( empty( $newly ) ) {
+				return;
+			}
+			$rendered_ids = array_column( $tasks, 'id' );
+			foreach ( $newly as $task_id ) {
+				wpcom_ai_launchpad_record_tracks_event(
+					'jetpack_ai_launchpad_task_completed',
+					array( 'task_id' => $task_id ),
+					$rendered_ids
+				);
+			}
+		}
+
+		$ai_output['tracked_completed'] = array_values( array_merge( $reported ?? array(), $newly ) );
+		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 	}
 
 	/**
@@ -644,8 +711,20 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		delete_option( self::OPTION_SKIPPED );
 		delete_option( self::OPTION_COMPLETED );
 
+		// Baseline the born-completed tasks now (needs the fresh options above), so completion
+		// reporting only ever emits for completions the user actually triggers afterwards.
+		$rendered_tasks = $this->get_current_tasks();
+		$baseline       = array();
+		foreach ( $rendered_tasks as $task ) {
+			if ( ! empty( $task['completed'] ) ) {
+				$baseline[] = $task['id'];
+			}
+		}
+		$ai_output['tracked_completed'] = $baseline;
+		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
+
 		// After the writes, so the observed rendered list is the fresh one.
-		$this->log_tailoring( $ai_output, $raw_task_ids );
+		$this->log_tailoring( $ai_output, $raw_task_ids, $request['duration_ms'], $request['attempts'], array_column( $rendered_tasks, 'id' ) );
 
 		return array( 'ai_output' => $ai_output );
 	}
@@ -655,11 +734,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * (the public-api logstash endpoint whitelists features by their `atomic_` prefix — a bare feature name is
 	 * rejected with a 400 on the Atomic HTTP dispatch path). Best-effort: logging must never fail the tailoring write.
 	 *
-	 * @param array    $ai_output    The persisted AI output envelope.
-	 * @param string[] $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param array         $ai_output    The persisted AI output envelope.
+	 * @param string[]      $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param int|null      $duration_ms  Client-measured tailoring duration, or null when not sent.
+	 * @param int|null      $attempts     Client-reported jetpack-ai-query attempt count, or null when not sent.
+	 * @param string[]|null $rendered_ids The rendered task ids, when the caller already computed them.
 	 * @return void
 	 */
-	private function log_tailoring( $ai_output, $raw_task_ids ) {
+	private function log_tailoring( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
 		try {
 			/**
 			 * Gates the tailoring observation event sent to Logstash. Checked before the event
@@ -674,7 +756,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
 				'atomic_ai_launchpad',
 				'tailored',
-				$this->tailoring_log_extra( $ai_output, $raw_task_ids )
+				$this->tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms, $attempts, $rendered_ids )
 			);
 		} catch ( \Throwable $e ) {
 			unset( $e );
@@ -691,19 +773,22 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * never included, and the inferred fields that can echo the user's own words near-verbatim are stripped:
 	 * `brand_name` restates the title and `tagline` is drafted from the description.
 	 *
-	 * @param array    $ai_output    The persisted AI output envelope.
-	 * @param string[] $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param array         $ai_output    The persisted AI output envelope.
+	 * @param string[]      $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param int|null      $duration_ms  Client-measured tailoring duration, or null when not sent.
+	 * @param int|null      $attempts     Client-reported jetpack-ai-query attempt count, or null when not sent.
+	 * @param string[]|null $rendered_ids The rendered task ids, when the caller already computed them.
 	 * @return array
 	 */
-	private function tailoring_log_extra( $ai_output, $raw_task_ids ) {
+	private function tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
 		// Schema-validated on the write path, so `inferred` is always present here.
 		$inferred = $ai_output['payload']['inferred'];
 		unset( $inferred['brand_name'], $inferred['tagline'] );
 
-		$rendered = array_column( $this->get_current_tasks(), 'id' );
+		$rendered = null !== $rendered_ids ? $rendered_ids : array_column( $this->get_current_tasks(), 'id' );
 		$remapped = array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $raw_task_ids ) );
 
-		return array(
+		$extra = array(
 			'source'   => $ai_output['source'],
 			'inferred' => $inferred,
 			'selected' => $raw_task_ids,
@@ -711,6 +796,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'dropped'  => array_values( array_diff( $remapped, $rendered ) ),
 			'added'    => array_values( array_diff( $rendered, $remapped ) ),
 		);
+
+		// Client-measured timing, replacing the retired ai_response_received Tracks event.
+		if ( null !== $duration_ms ) {
+			$extra['duration_ms'] = (int) $duration_ms;
+		}
+		if ( null !== $attempts ) {
+			$extra['attempts'] = (int) $attempts;
+		}
+
+		return $extra;
 	}
 
 	/**

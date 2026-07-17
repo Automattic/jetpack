@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Launchpad: rebuild the product analytics plane — shared context props on every Tracks event, full wizard/task funnel events, server-side task/all-tasks completion reporting, analytics-only inferred_goal, and tailoring telemetry folded into the tailored Logstash record.

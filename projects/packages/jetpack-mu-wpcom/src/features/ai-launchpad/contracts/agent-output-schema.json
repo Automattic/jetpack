@@ -42,6 +42,11 @@
 					"enum": [ "write", "build", "sell", "newsletter", "educate", "portfolio" ],
 					"description": "Echoes or re-resolves the wizard goal. Single source of truth downstream."
 				},
+				"inferred_goal": {
+					"type": "string",
+					"enum": [ "write", "build", "sell", "newsletter", "educate", "portfolio" ],
+					"description": "The goal the model infers from the site name and description ALONE, ignoring the wizard goal. Analytics only: read by the Tracks/Logstash context builders, never by tailoring or read-side logic. Optional so an output that omits it never fails into the fallback."
+				},
 				"brand_name": {
 					"type": "string",
 					"maxLength": 80,

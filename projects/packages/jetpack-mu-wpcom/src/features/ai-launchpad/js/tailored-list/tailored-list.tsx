@@ -4,7 +4,14 @@ import { __, sprintf } from '@wordpress/i18n';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
 import { createGalleryPage } from '../lib/pattern-page.ts';
-import { trackTaskClicked, trackTaskSkipped } from '../lib/tracks.ts';
+import {
+	contextFromInferred,
+	contextFromTaskIds,
+	setTracksContext,
+	trackTaskClicked,
+	trackTaskExpanded,
+	trackTaskSkipped,
+} from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
 import {
 	nextIncompleteId,
@@ -144,6 +151,17 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 			cancelled = true;
 		};
 	}, [ pendingTailor, initialData ] );
+
+	// Keep the shared Tracks context in step with what is actually rendered, on
+	// both the wizard→list path (fresh tailor) and the returning-user path.
+	useEffect( () => {
+		if ( output?.inferred ) {
+			setTracksContext( contextFromInferred( output.inferred ) );
+		}
+		if ( tasks && tasks.length > 0 ) {
+			setTracksContext( contextFromTaskIds( tasks.map( task => task.id ) ) );
+		}
+	}, [ tasks, output ] );
 
 	// Open the first incomplete card once the tasks first arrive on the wizard→list
 	// path. Guarded so it runs only once and never reopens a collapsed list.
@@ -291,7 +309,13 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
 						}
 						isOpen={ openId === task.id }
-						onOpenChange={ open => setOpenId( open ? task.id : null ) }
+						onOpenChange={ open => {
+							// User-initiated only: auto-expansion goes through setOpenId directly.
+							if ( open ) {
+								trackTaskExpanded( { task_id: task.id } );
+							}
+							setOpenId( open ? task.id : null );
+						} }
 						onGetStarted={ () => handleGetStarted( task ) }
 						onMarkComplete={ () => handleMarkComplete( task ) }
 						onSkip={ () => handleSkip( task ) }

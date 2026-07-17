@@ -1,4 +1,4 @@
-import type { TailorSource, TrackEventProps } from './types.ts';
+import type { GoalSlug, TailoredInferred, TrackEventProps } from './types.ts';
 
 declare global {
 	interface Window {
@@ -6,45 +6,158 @@ declare global {
 	}
 }
 
+/** The screens the Site Setup page can open on. */
+export type ViewedStep = 'goal' | 'site_details' | 'launchpad';
+
+/** The wizard steps that can be completed or skipped. */
+export type WizardStepName = 'goal' | 'site_details';
+
 /**
- * Records a Tracks event with `launchpad_variant: 'ai'` baked in, so call sites
- * can't forget it.
+ * Context merged into every event, so each one can be analyzed against the
+ * site's goal, inferred details, and rendered list without joins. Keys are null
+ * until the corresponding data exists (e.g. everything is null during the
+ * wizard funnel — tailoring hasn't run yet).
+ */
+export interface TracksContext {
+	goal: string | null;
+	niche: string | null;
+	theme_keyword: string | null;
+	vibe: string | null;
+	audience: string | null;
+	// JSON-stringified array of rendered task ids, in render order.
+	rendered_list: string | null;
+	// The goal the AI infers from the site name and description alone.
+	inferred_goal: string | null;
+}
+
+const EMPTY_CONTEXT: TracksContext = {
+	goal: null,
+	niche: null,
+	theme_keyword: null,
+	vibe: null,
+	audience: null,
+	rendered_list: null,
+	inferred_goal: null,
+};
+
+let context: TracksContext = { ...EMPTY_CONTEXT };
+
+/**
+ * Merges values into the shared event context. Call as data becomes available
+ * (initial read, goal confirmation, tailored output, rendered list).
+ *
+ * @param partial - The context keys to set.
+ */
+export function setTracksContext( partial: Partial< TracksContext > ): void {
+	context = { ...context, ...partial };
+}
+
+/** Resets the shared context to all-null. For tests. */
+export function resetTracksContext(): void {
+	context = { ...EMPTY_CONTEXT };
+}
+
+/**
+ * Derives context values from the AI output's inferred blob, coalescing missing
+ * fields to null so stale values never survive a re-tailor.
+ *
+ * @param inferred - The inferred blob from the persisted AI output, if any.
+ * @return The context slice to merge.
+ */
+export function contextFromInferred(
+	inferred: TailoredInferred | null | undefined
+): Partial< TracksContext > {
+	return {
+		goal: inferred?.goal ?? null,
+		niche: inferred?.niche ?? null,
+		theme_keyword: inferred?.theme_keyword ?? null,
+		vibe: inferred?.vibe ?? null,
+		audience: inferred?.audience ?? null,
+		inferred_goal: inferred?.inferred_goal ?? null,
+	};
+}
+
+/**
+ * Derives the rendered-list context value from the rendered task ids.
+ *
+ * @param ids - The rendered task ids, in render order.
+ * @return The context slice to merge.
+ */
+export function contextFromTaskIds( ids: string[] ): Partial< TracksContext > {
+	return { rendered_list: JSON.stringify( ids ) };
+}
+
+/**
+ * Records a Tracks event with the shared context merged in, so call sites can't
+ * forget it.
  *
  * @param eventName - The Tracks event name, already feature-prefixed.
  * @param props     - Event properties. No PII: task IDs are fine, free text is not.
  */
 function record( eventName: string, props: TrackEventProps = {} ): void {
 	window._tkq = window._tkq || [];
-	window._tkq.push( [ 'recordEvent', eventName, { ...props, launchpad_variant: 'ai' } ] );
+	window._tkq.push( [ 'recordEvent', eventName, { ...context, ...props } ] );
 }
 
-/** Records the page-view event. */
-export function trackViewed(): void {
-	record( 'jetpack_ai_launchpad_viewed' );
+/**
+ * Records the page-view event, once per Site Setup page load.
+ *
+ * @param props      - The event properties.
+ * @param props.step - The screen the page opened on.
+ */
+export function trackViewed( props: { step: ViewedStep } ): void {
+	record( 'jetpack_ai_launchpad_viewed', props );
 }
 
-/** Records the wizard-completed event. */
+/**
+ * Records a goal-card click (fires on every click, including reselection).
+ *
+ * @param props              - The event properties.
+ * @param props.goal_clicked - The goal card the user clicked.
+ */
+export function trackWizardGoalClicked( props: { goal_clicked: GoalSlug } ): void {
+	record( 'jetpack_ai_launchpad_wizard_goal_clicked', props );
+}
+
+/**
+ * Records a wizard step being completed (Continue on the goals step, Finish on
+ * the site-details step).
+ *
+ * @param props      - The event properties.
+ * @param props.step - The completed step.
+ */
+export function trackWizardStepCompleted( props: { step: WizardStepName } ): void {
+	record( 'jetpack_ai_launchpad_wizard_step_completed', props );
+}
+
+/**
+ * Records a wizard step being skipped.
+ *
+ * @param props      - The event properties.
+ * @param props.step - The step the user skipped from.
+ */
+export function trackWizardStepSkipped( props: { step: WizardStepName } ): void {
+	record( 'jetpack_ai_launchpad_wizard_step_skipped', props );
+}
+
+/** Records the Back click on the site-details step. */
+export function trackWizardBackClicked(): void {
+	record( 'jetpack_ai_launchpad_wizard_back_clicked' );
+}
+
+/** Records the wizard-completed event: the user finishes the wizard and lands on the tasklist. */
 export function trackWizardCompleted(): void {
 	record( 'jetpack_ai_launchpad_wizard_completed' );
 }
 
-/** Records the wizard-skipped event. */
-export function trackWizardSkipped(): void {
-	record( 'jetpack_ai_launchpad_wizard_skipped' );
-}
-
 /**
- * Records the AI-response-received event.
+ * Records a user-initiated task-card expansion (auto-expansion never fires this).
  *
- * @param props             - The event properties.
- * @param props.duration_ms - How long the AI response took, in milliseconds.
- * @param props.source      - Where the tailored output came from.
+ * @param props         - The event properties.
+ * @param props.task_id - The id of the expanded task.
  */
-export function trackAiResponseReceived( props: {
-	duration_ms: number;
-	source: TailorSource;
-} ): void {
-	record( 'jetpack_ai_launchpad_ai_response_received', props );
+export function trackTaskExpanded( props: { task_id: string } ): void {
+	record( 'jetpack_ai_launchpad_task_expanded', props );
 }
 
 /**
@@ -65,12 +178,4 @@ export function trackTaskClicked( props: { task_id: string } ): void {
  */
 export function trackTaskSkipped( props: { task_id: string } ): void {
 	record( 'jetpack_ai_launchpad_task_skipped', props );
-}
-
-/**
- * Records the launched event. Intentionally unwired in the MVP: launch completes
- * server-side, so there is no reliable client-side trigger here.
- */
-export function trackLaunched(): void {
-	record( 'jetpack_ai_launchpad_launched' );
 }
