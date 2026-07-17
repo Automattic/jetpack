@@ -6,10 +6,10 @@
 // plus its gap must live inside the button's own box (mirrors
 // widget-back-link).
 .downloadCsv:focus-visible {
-	border-radius: var(--wpds-border-radius-sm, 2px);
+	border-radius: var(--wpds-border-radius-sm);
 	outline:
 		var(--wpds-border-width-focus) solid
-		var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
+		var(--wpds-color-stroke-focus);
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 

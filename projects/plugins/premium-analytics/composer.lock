@@ -841,13 +841,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "2520bcc0d3875df8436b0fbef27888e00700b989"
+                "reference": "c1cc2e268a640efec6587b9b21f013a6165e9b0f"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-stats": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "automattic/woocommerce-analytics": "^0.16",

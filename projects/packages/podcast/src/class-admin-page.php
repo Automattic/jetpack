@@ -152,8 +152,8 @@ class Admin_Page {
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
-			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
+			'selected_category'   => self::get_selected_category(),
 			'upgrade'             => array(
 				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
 				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
@@ -161,6 +161,30 @@ class Admin_Page {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * The currently designated podcast category, injected so the settings
+	 * picker can label its selected option on first paint instead of waiting on
+	 * the client-side taxonomy→terms fetch. The full list still loads lazily.
+	 *
+	 * @return array{id:int, name:string}|null Null when no category is set.
+	 */
+	public static function get_selected_category() {
+		$category_id = (int) get_option( 'podcasting_category_id', 0 );
+		if ( $category_id <= 0 ) {
+			return null;
+		}
+
+		$term = get_term( $category_id, 'category' );
+		if ( ! $term instanceof \WP_Term ) {
+			return null;
+		}
+
+		return array(
+			'id'   => (int) $term->term_id,
+			'name' => $term->name,
+		);
 	}
 
 	/**

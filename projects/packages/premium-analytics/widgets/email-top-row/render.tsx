@@ -14,7 +14,7 @@ import {
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chartBar, envelope, link, people, percent, seen, send } from '@wordpress/icons';
 import { Icon, Stack } from '@wordpress/ui';
@@ -67,7 +67,7 @@ type EmailMetricSpec = {
 	 */
 	label: () => string;
 	/**
-	 * Counts are read with a zero default; rates convert 0–100 to a fraction and
+	 * Counts are read with a zero default; rates pass through 0–1 fractions and
 	 * collapse missing/zero to `null` for the placeholder.
 	 */
 	kind: 'count' | 'rate';
@@ -83,26 +83,25 @@ type EmailMetricSpec = {
 
 /**
  * The single source of truth for the top-row tiles, in display order. Mirrors
- * the Jetpack Stats "Email top row": the Opens view shows total sends, unique
- * opens (hidden when zero, as upstream does), total opens, and open rate; the
- * Clicks view shows total opens, total clicks, and click rate. The endpoint
- * drops the keys that don't apply to its view, so presence of any of these keys
- * signals real data (see `hasEmailMetrics`).
+ * the post-detail design: the Opens view shows total sends, unique opens, total
+ * opens, and open rate; the Clicks view keeps the shared send/open context but
+ * swaps in total clicks and click rate. The Clicks composition therefore merges
+ * the opens and clicks rate summaries before it reaches this table.
  */
 const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 	{
 		key: 'total_sends',
 		icon: send,
-		label: () => __( 'Total emails sent', 'jetpack-premium-analytics' ),
+		label: () => __( 'Sent', 'jetpack-premium-analytics' ),
 		kind: 'count',
-		views: [ 'opens' ],
+		views: [ 'opens', 'clicks' ],
 	},
 	{
 		key: 'unique_opens',
 		icon: people,
-		label: () => __( 'Unique opens', 'jetpack-premium-analytics' ),
+		label: () => __( 'Total unique opens', 'jetpack-premium-analytics' ),
 		kind: 'count',
-		views: [ 'opens' ],
+		views: [ 'opens', 'clicks' ],
 		hideWhenZero: true,
 	},
 	{
@@ -110,7 +109,7 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 		icon: seen,
 		label: () => __( 'Total opens', 'jetpack-premium-analytics' ),
 		kind: 'count',
-		views: [ 'opens', 'clicks' ],
+		views: [ 'opens' ],
 	},
 	{
 		key: 'opens_rate',
@@ -177,13 +176,13 @@ function readCount( summary: EmailRateSummary, key: string ): number {
 }
 
 /**
- * Reads a rate field (0–100 percentage) off a rate summary and converts it to a
- * fraction for the percentage formatter. Returns `null` for a missing or zero
- * rate so the tile renders the grid's placeholder ("—") instead of "0%". Mirrors
- * the Jetpack Stats top row, which renders "-" for a missing or zero rate: in
- * wp-calypso, `client/my-sites/stats/stats-email-top-row/index.jsx` passes
- * `counts?.opens_rate ? … : null` (a truthy check, so 0 becomes null) and
- * `top-card.jsx` renders a null value as "-".
+ * Reads a rate field off a rate summary. The endpoint returns rates as 0–1
+ * fractions — wp-calypso's `stats-email-top-row/index.jsx` renders
+ * `Math.round( counts.opens_rate * 100 )}%` — which is exactly what the
+ * percentage formatter takes, so the value passes through. Returns `null` for
+ * a missing or zero rate so the tile renders the grid's placeholder ("—")
+ * instead of "0%", mirroring the Jetpack Stats top row (a truthy check there
+ * turns 0 into "-").
  *
  * @param summary - The email rate summary.
  * @param key     - The rate field to read.
@@ -192,7 +191,7 @@ function readCount( summary: EmailRateSummary, key: string ): number {
 function readRate( summary: EmailRateSummary, key: string ): number | null {
 	const value = Number( summary[ key ] );
 
-	return Number.isFinite( value ) && value !== 0 ? value / 100 : null;
+	return Number.isFinite( value ) && value !== 0 ? value : null;
 }
 
 /**
@@ -352,15 +351,14 @@ type EmailTopRowReportProps = {
 };
 
 /**
- * Fetches the selected email's all-time rate breakdown for the active view and
- * hands its metrics to `EmailTopRowTiles`. The email is scoped by the host
+ * Fetches the selected email's all-time rate breakdowns for the active view and
+ * hands their metrics to `EmailTopRowTiles`. The email is scoped by the host
  * through `reportParams.post_id` — the shared single-resource "detail page"
  * param — so the widget needs no id attribute of its own. The Opens and Clicks
- * views each read their own per-post `stats/<opens|clicks>/emails/<postId>/rate`
- * endpoint — the same source the Jetpack Stats top row uses — so the widget
- * resolves a specific email by ID rather than scanning a summary list, and it
- * works for any email regardless of how recently it was sent. Only the active
- * view's request runs.
+ * view always reads the opens rate endpoint. The Clicks view reads both rate
+ * endpoints: sends and unique opens come from the opens response, while total
+ * clicks and click rate come from the clicks response. React Query shares the
+ * opens result with the Opens tab, so visiting both tabs does not duplicate it.
  *
  * @param {EmailTopRowReportProps} props - The component props.
  * @return The widget content.
@@ -370,33 +368,49 @@ function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
 
-	// Both hooks are called every render (hooks rule); only the active view's
-	// query is enabled, so a single request runs.
+	// Both hooks are called every render (hooks rule). Opens supplies shared
+	// send/open context in both views; Clicks only runs for the Clicks view.
 	const opens = useStatsEmailOpensBreakdown( postId, 'rate', {
-		enabled: hasSelection && metric === 'opens',
+		enabled: hasSelection,
 	} );
 	const clicks = useStatsEmailClicksBreakdown( postId, 'rate', {
 		enabled: hasSelection && metric === 'clicks',
 	} );
-	const active = metric === 'clicks' ? clicks : opens;
+	const activeQueries = metric === 'clicks' ? [ opens, clicks ] : [ opens ];
+	const opensSummary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
+	const clicksSummary = ( clicks.data as StatsEmailBreakdown | undefined )?.summary;
+	const hasResolvedRequiredData = activeQueries.every( query => query.data !== undefined );
+	const metrics = useMemo( () => {
+		if ( ! hasResolvedRequiredData ) {
+			return undefined;
+		}
 
-	const summary = ( active.data as StatsEmailBreakdown | undefined )?.summary;
-	const metrics = useMemo(
-		() => ( hasEmailMetrics( summary ) ? toEmailTopRowMetrics( summary!, metric ) : undefined ),
-		[ summary, metric ]
-	);
+		const summary =
+			metric === 'clicks' && opensSummary && clicksSummary
+				? { ...opensSummary, ...clicksSummary }
+				: opensSummary;
+
+		return hasEmailMetrics( summary ) ? toEmailTopRowMetrics( summary!, metric ) : undefined;
+	}, [ hasResolvedRequiredData, opensSummary, clicksSummary, metric ] );
+
+	const retryActiveQueries = useCallback( () => {
+		opens.refetch();
+		if ( metric === 'clicks' ) {
+			clicks.refetch();
+		}
+	}, [ clicks, metric, opens ] );
 
 	return (
 		<EmailTopRowTiles
 			metrics={ metrics }
 			hasSelection={ hasSelection }
-			isLoading={ active.isLoading }
-			isFetching={ active.isFetching }
-			// The query keeps prior data via `placeholderData`, so a transient refetch
-			// failure keeps the tiles visible; only surface the error when there is
-			// nothing to show.
-			isError={ active.isError && ! metrics }
-			onRetry={ active.refetch }
+			isLoading={ activeQueries.some( query => query.isLoading ) }
+			isFetching={ activeQueries.some( query => query.isFetching ) }
+			// Queries keep prior data via `placeholderData`, so a transient refetch
+			// failure keeps complete tiles visible. A first-load failure in either
+			// required response must not silently render a partial Clicks row.
+			isError={ activeQueries.some( query => query.isError && query.data === undefined ) }
+			onRetry={ retryActiveQueries }
 		/>
 	);
 }

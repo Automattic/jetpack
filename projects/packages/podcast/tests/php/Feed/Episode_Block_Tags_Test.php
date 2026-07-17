@@ -56,6 +56,41 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '<itunes:episode>99</itunes:episode>', $xml );
 	}
 
+	public function test_render_finds_block_nested_in_group() {
+		$xml = $this->render_post(
+			'<!-- wp:group --><div class="wp-block-group">'
+			. '<!-- wp:jetpack/podcast-episode {"episodeNumber":7} /-->'
+			. '</div><!-- /wp:group -->'
+		);
+
+		$this->assertStringContainsString( '<itunes:episode>7</itunes:episode>', $xml );
+	}
+
+	public function test_render_finds_deeply_nested_block() {
+		$xml = $this->render_post(
+			'<!-- wp:columns --><div class="wp-block-columns">'
+			. '<!-- wp:column --><div class="wp-block-column">'
+			. '<!-- wp:jetpack/podcast-episode {"seasonNumber":3} /-->'
+			. '</div><!-- /wp:column -->'
+			. '</div><!-- /wp:columns -->'
+		);
+
+		$this->assertStringContainsString( '<itunes:season>3</itunes:season>', $xml );
+	}
+
+	public function test_render_first_block_wins_across_nesting() {
+		// Depth-first order: the nested block appears first in reading order and wins.
+		$xml = $this->render_post(
+			'<!-- wp:group --><div class="wp-block-group">'
+			. '<!-- wp:jetpack/podcast-episode {"episodeNumber":1} /-->'
+			. '</div><!-- /wp:group -->'
+			. '<!-- wp:jetpack/podcast-episode {"episodeNumber":99} /-->'
+		);
+
+		$this->assertStringContainsString( '<itunes:episode>1</itunes:episode>', $xml );
+		$this->assertStringNotContainsString( '<itunes:episode>99</itunes:episode>', $xml );
+	}
+
 	public function test_episode_number_emits_both_namespaces() {
 		$xml = $this->render_from_attrs( array( 'episodeNumber' => 12 ) );
 

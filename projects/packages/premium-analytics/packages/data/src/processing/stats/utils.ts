@@ -125,6 +125,61 @@ export function mergeStatsComparisonRows< TPrimary, TComparison = TPrimary, TMap
 	return { rows, hasComparison };
 }
 
+export type FlattenStatsLeavesContext< TItem > = {
+	/**
+	 * Ancestor items from the report root down to the leaf's parent.
+	 */
+	ancestors: TItem[];
+	/**
+	 * The item's index at each level, from the root list down to the leaf.
+	 */
+	indexPath: number[];
+};
+
+export type FlattenStatsLeavesOptions< TItem, TRow > = {
+	/**
+	 * Read an item's child items.
+	 */
+	getChildren: ( item: TItem ) => readonly TItem[] | null | undefined;
+	/**
+	 * Map a leaf item to a table row.
+	 */
+	mapLeaf: ( item: TItem, context: FlattenStatsLeavesContext< TItem > ) => TRow;
+};
+
+/**
+ * Flatten a nested report hierarchy into one row per leaf, depth-first.
+ *
+ * DataViews tables do not support nested rows yet, so report tables show only
+ * the hierarchy leaves. Each leaf's ancestor chain and index path are passed
+ * to `mapLeaf` so callers can derive group labels, inherited icons, or stable
+ * row ids.
+ *
+ * @param items               - The top-level report items.
+ * @param options             - The traversal callbacks.
+ * @param options.getChildren - Read an item's child items.
+ * @param options.mapLeaf     - Map a leaf item to a table row.
+ * @return One mapped row per hierarchy leaf.
+ */
+export function flattenStatsLeaves< TItem, TRow >(
+	items: readonly TItem[],
+	{ getChildren, mapLeaf }: FlattenStatsLeavesOptions< TItem, TRow >
+): TRow[] {
+	const walk = ( item: TItem, ancestors: TItem[], indexPath: number[] ): TRow[] => {
+		const children = getChildren( item ) ?? [];
+
+		if ( children.length ) {
+			return children.flatMap( ( child, index ) =>
+				walk( child, [ ...ancestors, item ], [ ...indexPath, index ] )
+			);
+		}
+
+		return [ mapLeaf( item, { ancestors, indexPath } ) ];
+	};
+
+	return items.flatMap( ( item, index ) => walk( item, [], [ index ] ) );
+}
+
 function isStatsNumericSummaryValue( value: unknown ): boolean {
 	return (
 		typeof value === 'number' ||

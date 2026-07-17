@@ -16,6 +16,12 @@
 	line-height: var(--wpds-typography-line-height-sm);
 }
 
+.loading {
+	position: relative;
+	block-size: 100%;
+	min-block-size: 120px;
+}
+
 .ready {
 	position: relative;
 	block-size: 100%;

@@ -174,4 +174,68 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 		$this->assertArrayHasKey( 'has_password', $response );
 		$this->assertFalse( $response['has_password'] );
 	}
+
+	/**
+	 * A post fetched by ID resolves to that post. The ID arrives as the positional callback
+	 * argument, which is how it is delivered over both the REST and XML-RPC transports.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_post_by_id_resolves_to_correct_post() {
+		$post_id = $this->create_post( array( 'post_title' => 'Fetched by ID' ) );
+
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/' . $post_id,
+			self::$blog_id,
+			$post_id
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertSame( $post_id, $response['ID'] );
+	}
+
+	/**
+	 * A post fetched by slug resolves to the correct post. The slug arrives as the positional
+	 * callback argument (the `/posts/slug:` branch), matching how the tokenized REST route and
+	 * the XML-RPC path both deliver it.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_post_by_slug_resolves_to_correct_post() {
+		$post_id = $this->create_post(
+			array(
+				'post_title' => 'Fetched by slug',
+				'post_name'  => 'a-unique-slug',
+			)
+		);
+
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/slug:a-unique-slug',
+			self::$blog_id,
+			'a-unique-slug'
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertSame( $post_id, $response['ID'] );
+		$this->assertSame( 'a-unique-slug', $response['slug'] );
+	}
+
+	/**
+	 * An unknown slug returns an unknown_post error instead of resolving to a post.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_post_by_unknown_slug_returns_error() {
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/slug:does-not-exist',
+			self::$blog_id,
+			'does-not-exist'
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'unknown_post', $response->get_error_code() );
+	}
 }

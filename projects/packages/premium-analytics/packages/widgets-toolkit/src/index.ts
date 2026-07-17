@@ -116,6 +116,8 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useElementSize,
+	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetDrillDown,

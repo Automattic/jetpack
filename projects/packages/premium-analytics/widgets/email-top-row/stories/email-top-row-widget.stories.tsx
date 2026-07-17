@@ -80,7 +80,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total opens, total clicks, click rate) via the `metric` attribute. The email is selected by the host through `reportParams.post_id`. Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate` breakdown, which is all-time and returns no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
+					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total sends, unique opens, total clicks, click rate) via the `metric` attribute. The email is selected by the host through `reportParams.post_id`. Clicks combines the per-post opens and clicks rate summaries; both endpoints are all-time and return no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
 			},
 		},
 	},
@@ -100,7 +100,8 @@ export const Default: Story = {
 };
 
 /**
- * The Clicks view — total opens, total clicks, and click rate for the same email.
+ * The Clicks view — total sends, unique opens, total clicks, and click rate for
+ * the same email.
  */
 export const ClicksView: Story = {
 	render: args => renderEmailTopRow( args ),

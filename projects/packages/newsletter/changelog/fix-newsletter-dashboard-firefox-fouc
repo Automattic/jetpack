@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an intermittent flash of unstyled content on the Newsletter dashboard in Firefox.

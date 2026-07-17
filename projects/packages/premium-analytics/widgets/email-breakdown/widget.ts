@@ -6,6 +6,11 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which breakdown dimension the widget lists for the selected email.
  *
  * `countries`, `devices`, and `clients` read the opens or clicks breakdown per
@@ -38,6 +43,11 @@ export type EmailBreakdownAttributes = {
 	 * Number of rows to show. `0` means as many as the endpoint returns.
 	 */
 	max?: number;
+	/**
+	 * Whether the countries view also renders a world map. Used by the wide
+	 * Location clicks card in the fixed post-detail composition.
+	 */
+	showMap?: boolean;
 };
 
 /**
@@ -46,8 +56,10 @@ export type EmailBreakdownAttributes = {
  * Ported from the Jetpack Stats email detail "breakdown" modules
  * (`stats-email-module`). That family is one module rendered four times — by
  * country, device, email client, and clicked link — so this ships as a single
- * widget with a `view` selector (`relevance: 'high'`, rendered as a control by
- * the widget host) instead of four near-identical widgets. The breakdown is
+ * widget with a `view` selector instead of four near-identical widgets. The
+ * attributes stay at the default (low) relevance: the post detail page pins
+ * each view as its own fixed, page-titled card, so a header control would
+ * fight the composition. The breakdown is
  * scoped to a single email by the host through `reportParams.post_id` (the
  * shared single-resource "detail page" param), not by an attribute; the
  * endpoints report over the whole lifetime of the email, so there is no date
@@ -68,6 +80,7 @@ export default {
 			id: 'view',
 			label: __( 'Break down by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Countries', 'jetpack-premium-analytics' ),
@@ -86,12 +99,12 @@ export default {
 					value: 'links',
 				},
 			],
-			relevance: 'high',
 		},
 		{
 			id: 'metric',
 			label: __( 'Metric', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Opens', 'jetpack-premium-analytics' ),

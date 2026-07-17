@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Post detail: move the date filters directly below the tab bar, mirroring the dashboard's placement.

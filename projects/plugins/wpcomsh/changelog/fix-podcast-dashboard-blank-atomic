@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: Restore the Atomic opt-in so the module stays available on Jetpack builds that predate the self-hosted release, and force-activate it before Jetpack initializes so the dashboard renders instead of an empty container.

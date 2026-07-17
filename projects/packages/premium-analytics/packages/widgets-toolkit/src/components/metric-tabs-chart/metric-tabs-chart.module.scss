@@ -10,7 +10,7 @@
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md, 16px);
+	gap: var(--wpds-dimension-gap-md);
 	height: 100%;
 	min-height: 0;
 }
@@ -22,7 +22,7 @@
 	justify-content: space-between;
 	align-items: flex-start;
 	flex-shrink: 0;
-	gap: var(--wpds-dimension-gap-md, 16px);
+	gap: var(--wpds-dimension-gap-md);
 }
 
 /* The metric tab list: a row of cards that wrap (not a text tab bar).
@@ -31,7 +31,7 @@
 .tabs {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	gap: var(--wpds-dimension-gap-sm);
 	min-width: 0;
 	overflow: visible;
 }
@@ -53,14 +53,14 @@
  * rule sits in a low-priority @layer, so this unlayered override wins. */
 .metricSelect [class*="trigger-wrapper"] {
 	height: auto;
-	padding-block: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-sm);
 }
 
 /* Draw the focus ring inside the card; the default outset ring gets clipped
  * by the widget chrome's `overflow: auto`. */
 .tab,
 .metricSelect [class*="trigger-wrapper"] {
-	outline-offset: calc(-1 * var(--wpds-border-width-focus, 1.5px));
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 
 .metricSelect button {
@@ -70,8 +70,8 @@
 
 .tab {
 	height: auto;
-	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-md, 12px);
-	border-radius: var(--wpds-border-radius-md, 4px);
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-md);
 }
 
 /* Hide the selection underline; the card fill shows selection instead. Older
@@ -97,7 +97,7 @@
 .tabContent {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 	align-items: flex-start;
 	text-align: left;
 }

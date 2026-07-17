@@ -21,17 +21,17 @@
 			padding: 4px 4px 4px 8px;
 			box-shadow: none;
 			border-radius: 2px;
-			border: 1px solid var(--wpds-color-stroke-surface-neutral, #949494);
+			border: 1px solid var(--wpds-color-stroke-surface-neutral);
 		}
 
 		svg {
-			color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+			color: var(--wpds-color-foreground-content-neutral);
 			padding: 4px;
 		}
 	}
 
 	&__text {
-		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-content-neutral);
 		padding: 0 4px;
 	}
 }

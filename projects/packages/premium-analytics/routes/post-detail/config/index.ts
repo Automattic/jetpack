@@ -9,3 +9,5 @@ export {
 } from './tabs';
 
 export { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
+
+export { EMAIL_BREAKDOWN_TYPE, EMAIL_BREAKDOWN_TYPE_VARIANTS } from './email-widget-variants';

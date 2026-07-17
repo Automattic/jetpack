@@ -400,6 +400,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
+		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).

@@ -196,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "78c58dc683e5907f6e355f0d394c833412351d26"
+                "reference": "3e2c129b691220b22eca31e6f1299d5b653c2420"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -205,6 +205,7 @@
                 "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -2412,7 +2413,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "df4fd79f3320bb90180e5d45221b876e8d3b1cea"
+                "reference": "c8937133c1608f1daf32cf80ff17b436a66645d2"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2438,7 +2439,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-newsletter",
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "textdomain": "jetpack-newsletter",
                 "version-constants": {
@@ -3091,7 +3092,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "d410c56b142c703d6e6d6f6bdc1e28f55e28504b"
+                "reference": "9c344eed945bba3cfcad1db7218a9ceb9c00a083"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3124,7 +3125,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.83.x-dev"
+                    "dev-trunk": "0.84.x-dev"
                 }
             },
             "autoload": {
@@ -3457,7 +3458,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/seo",
-                "reference": "2ecd35cfe94d43e4f394761e7c4bda88f308d9cd"
+                "reference": "a5e96184ffbb1200fa599ee6c4e2cb3cc329f360"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3483,7 +3484,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-seo/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -3806,7 +3807,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "e8e2b20fdd6ea5e8fb69037dffe069950579e635"
+                "reference": "9955ba670bd8576cb77aa8318d9ac272eb1ae9d0"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3835,7 +3836,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.40.x-dev"
+                    "dev-trunk": "0.41.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
