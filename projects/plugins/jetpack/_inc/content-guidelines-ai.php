@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,14 +28,19 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	// Only load when Jetpack AI is enabled (currently WordPress.com Simple and
-	// Atomic sites by default). Free-tier Simple/Atomic sites still load the
-	// bundle so the upgrade path can be shown — the paid-plan requirement is
-	// enforced by the suggest-guidelines API.
-	if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+	// Content Guidelines AI is only offered on WordPress.com platform sites
+	// (Simple and Atomic) — a hard gate the jetpack_ai_enabled filter below
+	// cannot widen. Free-tier Simple/Atomic sites still load the bundle so
+	// the upgrade path can be shown — the paid-plan requirement is enforced
+	// by the suggest-guidelines API.
+	if ( ! ( new Host() )->is_wpcom_platform() ) {
+		return;
 	}
-	if ( ! Jetpack_AI_Helper::is_enabled() ) {
+
+	// Bail when Jetpack AI is disabled for the site: the AI settings master
+	// switch and other site-wide disables ride this filter.
+	/** This filter is documented in projects/plugins/jetpack/_inc/lib/class-jetpack-ai-helper.php */
+	if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
 		return;
 	}
 
