@@ -425,6 +425,28 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		}
 
 		/*
+		 * A soft-deleted VideoPress row may still occupy this attachment's
+		 * slot: the videos table's primary key is (blog_id, post_id), so a
+		 * tombstoned row makes video_create_info()'s insert fail silently
+		 * and the fresh promote below would report an unexplained failure.
+		 * (The tombstoned attachment renders as an ordinary local video —
+		 * the REST fields only see live rows — so the UI can reach this.)
+		 * Detect it and answer honestly instead. Resurrecting the row via
+		 * the primitive's $redo path is a possible follow-up, but it needs
+		 * rollback semantics this endpoint doesn't want to own yet.
+		 */
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- wpcom global table; the live-row helper above can't see tombstoned rows, and this must not be cached.
+		$tombstoned_guid = $wpdb->get_var( $wpdb->prepare( 'SELECT guid FROM videos WHERE blog_id = %d AND post_id = %d', $blog_id, $attachment_id ) );
+		if ( $tombstoned_guid ) {
+			return new WP_Error(
+				'videopress_promote_previously_deleted',
+				__( 'This video was previously deleted from VideoPress, so it can’t be promoted automatically. Please upload it as a new video instead.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		/*
 		 * remote_transcode_one_video() derives the transcoder's fetch URL
 		 * from the attached file's blogs.dir path with an unguarded regex; a
 		 * non-matching path (some imports/migrations) would still create the
