@@ -4,7 +4,7 @@ import type { ComponentProps, ComponentType } from 'react';
 
 type Props = ComponentProps< typeof ManageConnectionDialog >;
 
-type SiteHost = NonNullable< NonNullable< Window[ 'JetpackScriptData' ] >[ 'site' ] >[ 'host' ];
+type SiteHost = SiteData[ 'host' ];
 
 export default {
 	title: 'JS Packages/Connection/Manage Connection Dialog',
