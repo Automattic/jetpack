@@ -1,9 +1,11 @@
 /**
  * External dependencies
  */
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Button, Notice } from '@wordpress/ui';
+import { store as noticesStore } from '@wordpress/notices';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, type ComponentProps } from 'react';
 /**
@@ -56,7 +58,7 @@ function getErrorMessage( error: unknown ): string {
 }
 
 /**
- * Shared CSV download action with loading and local error states.
+ * Shared CSV download action with loading state and snackbar errors.
  *
  * @param props            - Component props.
  * @param props.onDownload - Download behavior supplied by the caller.
@@ -74,47 +76,38 @@ export function CsvDownloadButton( {
 	showIcon = true,
 }: CsvDownloadButtonProps ) {
 	const [ isBusy, setIsBusy ] = useState( false );
-	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const onClick = async () => {
 		if ( isBusy ) {
 			return;
 		}
 
-		setErrorMessage( null );
 		setIsBusy( true );
 
 		try {
 			await onDownload();
 		} catch ( error ) {
-			setErrorMessage( getErrorMessage( error ) );
+			createErrorNotice( getErrorMessage( error ), {
+				type: 'snackbar',
+				explicitDismiss: true,
+			} );
 		} finally {
 			setIsBusy( false );
 		}
 	};
 
 	return (
-		<>
-			{ errorMessage && (
-				<Notice.Root intent="error" spokenMessage={ errorMessage }>
-					<Notice.Description>{ errorMessage }</Notice.Description>
-					<Notice.CloseIcon
-						label={ __( 'Dismiss', 'jetpack-premium-analytics' ) }
-						onClick={ () => setErrorMessage( null ) }
-					/>
-				</Notice.Root>
-			) }
-			<Button
-				variant={ variant }
-				tone="neutral"
-				size="compact"
-				onClick={ onClick }
-				loading={ isBusy }
-				className={ clsx( styles.downloadCsv, className ) }
-			>
-				{ showIcon ? <Button.Icon icon={ download } /> : null }
-				<span className={ styles.label }>{ label }</span>
-			</Button>
-		</>
+		<Button
+			variant={ variant }
+			tone="neutral"
+			size="compact"
+			onClick={ onClick }
+			loading={ isBusy }
+			className={ clsx( styles.downloadCsv, className ) }
+		>
+			{ showIcon ? <Button.Icon icon={ download } /> : null }
+			<span className={ styles.label }>{ label }</span>
+		</Button>
 	);
 }

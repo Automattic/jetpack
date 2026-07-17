@@ -7,7 +7,23 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
  */
 import { CsvDownloadButton } from '../csv-download-button';
 
+const mockCreateErrorNotice = jest.fn();
+
+jest.mock( '@wordpress/data', () => ( {
+	useDispatch: () => ( {
+		createErrorNotice: mockCreateErrorNotice,
+	} ),
+} ) );
+
+jest.mock( '@wordpress/notices', () => ( {
+	store: 'core/notices',
+} ) );
+
 describe( 'CsvDownloadButton', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
 	it( 'supports a solid page action without an icon', () => {
 		render(
 			<CsvDownloadButton
@@ -50,7 +66,7 @@ describe( 'CsvDownloadButton', () => {
 		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 
-	it( 'shows download failures without replacing the action', async () => {
+	it( 'shows download failures in a dismissible snackbar', async () => {
 		render(
 			<CsvDownloadButton
 				onDownload={ () => Promise.reject( new Error( 'Upstream API unavailable.' ) ) }
@@ -60,17 +76,13 @@ describe( 'CsvDownloadButton', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
 
-		await expect(
-			screen.findByText( 'Upstream API unavailable.', { selector: 'span' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
-
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 		await waitFor( () =>
-			expect(
-				screen.queryByText( 'Upstream API unavailable.', { selector: 'span' } )
-			).not.toBeInTheDocument()
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
+				type: 'snackbar',
+				explicitDismiss: true,
+			} )
 		);
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Upstream API unavailable.' ) ).not.toBeInTheDocument();
 	} );
 } );

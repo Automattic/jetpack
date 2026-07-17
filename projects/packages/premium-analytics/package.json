@@ -64,6 +64,7 @@
 		"@wordpress/html-entities": "4.51.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
+		"@wordpress/notices": "5.51.0",
 		"@wordpress/preferences": "4.51.0",
 		"@wordpress/primitives": "4.51.0",
 		"@wordpress/private-apis": "1.51.0",

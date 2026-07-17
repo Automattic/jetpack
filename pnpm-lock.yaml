@@ -4047,6 +4047,9 @@ importers:
       '@wordpress/icons':
         specifier: ^15.0.0
         version: 15.1.0(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/notices':
+        specifier: 5.51.0
+        version: 5.51.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/preferences':
         specifier: 4.51.0
         version: 4.51.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
