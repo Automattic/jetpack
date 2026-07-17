@@ -111,9 +111,11 @@ export {
 } from './hooks/use-stats-visits';
 export {
 	bucketStatsTimeSeries,
+	flattenStatsLeaves,
 	getStatsChartBucketKey,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
+export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
