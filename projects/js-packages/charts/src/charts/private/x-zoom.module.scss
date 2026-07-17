@@ -28,7 +28,12 @@
 			var(--charts-zoom-reset-border, rgba(0, 0, 0, 0.16));
 		border-radius: var(--wpds-border-radius-md);
 		cursor: pointer;
-		box-shadow: var(--wpds-elevation-xs);
+		// No WPDS elevation token (ex `--wpds-elevation-xs`).
+		box-shadow:
+			0 1px 1px 0 #00000008,
+			0 1px 2px 0 #00000005,
+			0 3px 3px 0 #00000005,
+			0 4px 4px 0 #00000003;
 
 		&:hover {
 			background: var(--charts-zoom-reset-bg-hover, rgba(255, 255, 255, 1));

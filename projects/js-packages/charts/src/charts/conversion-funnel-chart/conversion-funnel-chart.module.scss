@@ -16,7 +16,7 @@
 	text-overflow: ellipsis;
 	font-size: var(--wpds-typography-font-size-xl);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	line-height: var(--wpds-typography-line-height-sm);
 	margin: 0;
 }
@@ -26,7 +26,7 @@
 	text-overflow: ellipsis;
 	font-size: var(--wpds-typography-font-size-md);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	line-height: var(--wpds-typography-line-height-sm);
 	margin: 0;
 }
@@ -56,7 +56,7 @@
 .step-label {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-sm);
-	font-weight: var(--wpds-typography-font-weight-regular);
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-xs);
 	white-space: nowrap;
 	overflow: hidden;
@@ -66,7 +66,7 @@
 .step-rate {
 	color: var(--wpds-color-foreground-content-neutral);
 	font-size: var(--wpds-typography-font-size-md);
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	line-height: var(--wpds-typography-line-height-xs);
 }
 
@@ -105,7 +105,12 @@
 	// Override .visx-tooltip inline styles.
 	border-radius: var(--wpds-border-radius-md) !important;
 	padding: var(--wpds-dimension-padding-md) !important;
-	box-shadow: var(--wpds-elevation-sm) !important;
+	// No WPDS elevation token (ex `--wpds-elevation-sm`).
+	box-shadow:
+		0 1px 2px 0 #0000000d,
+		0 2px 3px 0 #0000000a,
+		0 6px 6px 0 #00000008,
+		0 8px 8px 0 #00000005 !important;
 
 }
 
@@ -113,7 +118,7 @@
 	color: var(--wpds-color-foreground-content-neutral);
 	font-size: var(--wpds-typography-font-size-sm);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-regular);
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-xs);
 }
 
@@ -121,7 +126,7 @@
 	color: var(--wpds-color-foreground-content-neutral);
 	font-size: var(--wpds-typography-font-size-md);
 	font-style: normal;
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	line-height: var(--wpds-typography-line-height-sm);
 }
 
