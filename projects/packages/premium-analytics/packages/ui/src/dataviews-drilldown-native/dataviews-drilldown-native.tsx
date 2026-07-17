@@ -102,18 +102,18 @@ export function DataViewsDrilldownNative< Item >( {
 		const [ titleField, ...columnFields ] = viewFieldIds ?? fields.map( field => field.id );
 
 		return {
-			type: 'table',
 			page: 1,
 			perPage: perPageSizes[ 0 ] ?? 10,
 			search: '',
+			...viewRest,
+			type: 'table',
 			showLevels: true,
 			titleField,
 			fields: columnFields,
-			...viewRest,
 		} as View;
 	} );
 
-	const { data: orderedData, levelById } = useMemo(
+	const { data: orderedData, levelByItem } = useMemo(
 		() => processHierarchyLevels( data, getItemId, getItemParentId ),
 		[ data, getItemId, getItemParentId ]
 	);
@@ -124,8 +124,8 @@ export function DataViewsDrilldownNative< Item >( {
 	);
 
 	const getItemLevel = useCallback(
-		( item: Item ) => levelById.get( getItemId( item ) ) ?? 0,
-		[ levelById, getItemId ]
+		( item: Item ) => levelByItem.get( item ) ?? 0,
+		[ levelByItem ]
 	);
 
 	return (

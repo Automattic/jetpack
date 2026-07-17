@@ -1,44 +1,44 @@
 /**
- * One row of the resolved hierarchy: the item plus its depth.
+ * One row of the hierarchy walk: the item plus its resolved id.
  */
-export interface HierarchyRow< Item > {
+interface HierarchyRow< Item > {
 	item: Item;
 	id: string;
-	level: number;
 }
 
 type ProcessedHierarchyLevels< Item > = {
 	/** The items re-emitted in depth-first hierarchy order. */
 	data: Item[];
-	/** Depth per row id, for DataViews' `getItemLevel`. */
-	levelById: ReadonlyMap< string, number >;
+	/** Depth per item, for DataViews' `getItemLevel`. */
+	levelByItem: ReadonlyMap< Item, number >;
 };
 
 /**
  * Resolve flat parent/child rows into what DataViews' native hierarchy
  * support consumes: the rows re-emitted in depth-first hierarchy order, and a
- * depth per row id for `getItemLevel`.
+ * depth per item for `getItemLevel`.
  *
  * This is the only preprocessing the native `view.showLevels` rendering
  * needs — DataViews displays the level marker per row but does not order the
  * rows itself, so consumers (like the Gutenberg Pages screen) supply both.
  * Rows whose parent is absent from the data (or self-referential) become
- * roots.
+ * roots. Ids are expected to be stable, non-empty, and unique (DataViews
+ * requires that too); colliding ids degrade the parent/child wiring, but no
+ * row is ever dropped.
  *
  * @param data            - Flat rows: parents and children mixed.
  * @param getItemId       - Row id resolver.
  * @param getItemParentId - Parent id resolver.
- * @return The hierarchy-ordered items and the depth per row id.
+ * @return The hierarchy-ordered items and the depth per item.
  */
 export function processHierarchyLevels< Item >(
 	data: Item[],
 	getItemId: ( item: Item ) => string,
 	getItemParentId: ( item: Item ) => string | number | null | undefined
 ): ProcessedHierarchyLevels< Item > {
-	const rows: HierarchyRow< Item >[] = data.map( ( item, index ) => ( {
+	const rows: HierarchyRow< Item >[] = data.map( item => ( {
 		item,
-		id: getItemId( item ) || index.toString(),
-		level: 0,
+		id: getItemId( item ),
 	} ) );
 	const rowById = new Map( rows.map( row => [ row.id, row ] ) );
 	const roots: HierarchyRow< Item >[] = [];
@@ -61,14 +61,16 @@ export function processHierarchyLevels< Item >(
 	}
 
 	const orderedData: Item[] = [];
-	const levelById = new Map< string, number >();
+	const levelByItem = new Map< Item, number >();
+	const visited = new Set< HierarchyRow< Item > >();
 	const appendRows = ( pending: HierarchyRow< Item >[], level: number ) => {
 		for ( const row of pending ) {
-			if ( levelById.has( row.id ) ) {
+			if ( visited.has( row ) ) {
 				continue;
 			}
 
-			levelById.set( row.id, level );
+			visited.add( row );
+			levelByItem.set( row.item, level );
 			orderedData.push( row.item );
 			appendRows( childrenByParentId.get( row.id ) ?? [], level + 1 );
 		}
@@ -79,10 +81,10 @@ export function processHierarchyLevels< Item >(
 	// Rows caught in a parent cycle have no reachable root; emit them (and
 	// their descendants) as roots instead of dropping them.
 	for ( const row of rows ) {
-		if ( ! levelById.has( row.id ) ) {
+		if ( ! visited.has( row ) ) {
 			appendRows( [ row ], 0 );
 		}
 	}
 
-	return { data: orderedData, levelById };
+	return { data: orderedData, levelByItem };
 }
