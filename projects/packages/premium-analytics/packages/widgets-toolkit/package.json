@@ -12,6 +12,7 @@
 	],
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@jetpack-premium-analytics/formatters": "workspace:*",

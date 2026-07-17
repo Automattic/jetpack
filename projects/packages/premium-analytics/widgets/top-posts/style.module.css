@@ -15,13 +15,6 @@
 	min-height: 0;
 }
 
-.contentExport {
-	display: flex;
-	margin-block-start: auto;
-	justify-content: flex-end;
-	padding-block-start: var(--wpds-dimension-gap-sm);
-}
-
 /* Vertical padding sets the overlay bar height — the bar fills the row,
    whose height is driven by this label (there is no image to size it).
    The inline-start inset keeps the text off the bar's rounded left edge:

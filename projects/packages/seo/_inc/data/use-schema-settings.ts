@@ -22,12 +22,6 @@ type EditableSchemaSections = Pick<
 	'breadcrumbList' | 'organization' | 'localBusiness'
 >;
 
-const cleanSections = ( sections: EditableSchemaSections ): EditableSchemaSections => ( {
-	breadcrumbList: { ...sections.breadcrumbList },
-	organization: cleanOrganization( sections.organization ),
-	localBusiness: cleanLocalBusiness( sections.localBusiness ),
-} );
-
 export interface SchemaSettingsForm {
 	/** The editable BreadcrumbList setting. */
 	breadcrumbList: BreadcrumbListSettings;
@@ -40,16 +34,20 @@ export interface SchemaSettingsForm {
 	/** LocalBusiness defaults shown as field placeholders. */
 	localBusinessDefaults: LocalBusinessDefaults;
 	isSaving: boolean;
-	/** Whether the local schema values differ from the last-saved baseline. */
-	isDirty: boolean;
-	/** Patch one or more Organization fields locally (persisted by `save()`). */
+	/** Whether the local Organization values differ from their last-saved baseline. */
+	isOrganizationDirty: boolean;
+	/** Whether the local LocalBusiness values differ from their last-saved baseline. */
+	isLocalBusinessDirty: boolean;
+	/** Patch one or more Organization fields locally (persisted by `saveOrganization()`). */
 	setOrganizationField: ( patch: Partial< OrganizationSettings > ) => void;
 	/** Patch the BreadcrumbList setting and persist it immediately (toggles auto-save). */
 	commitBreadcrumbList: ( patch: Partial< BreadcrumbListSettings > ) => void;
-	/** Patch one or more LocalBusiness fields locally (persisted by `save()`). */
+	/** Patch one or more LocalBusiness fields locally (persisted by `saveLocalBusiness()`). */
 	setLocalBusinessField: ( patch: Partial< LocalBusinessSettings > ) => void;
-	/** Persist the current schema values through the schema-settings route. */
-	save: () => void;
+	/** Persist only the current Organization values through the schema-settings route. */
+	saveOrganization: () => void;
+	/** Persist only the current LocalBusiness values through the schema-settings route. */
+	saveLocalBusiness: () => void;
 }
 
 /**
@@ -70,18 +68,21 @@ export function useSchemaSettings(
 		localBusiness: initialSettings.localBusiness,
 	} );
 	const [ isSaving, setIsSaving ] = useState( false );
-	const [ isDirty, setIsDirty ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
-	// The last-saved baseline, kept in a ref so save() compares against the freshest
-	// value without re-creating its callback.
-	const baselineRef = useRef< EditableSchemaSections >(
-		cleanSections( {
-			breadcrumbList: initialSettings.breadcrumbList,
-			organization: initialSettings.organization,
-			localBusiness: initialSettings.localBusiness,
-		} )
-	);
+	// The last-saved baseline, kept in a ref so each section can be saved without
+	// disturbing pending edits in the others.
+	const baselineRef = useRef< EditableSchemaSections >( {
+		breadcrumbList: { ...initialSettings.breadcrumbList },
+		organization: cleanOrganization( initialSettings.organization ),
+		localBusiness: cleanLocalBusiness( initialSettings.localBusiness ),
+	} );
+	const isOrganizationDirty =
+		JSON.stringify( cleanOrganization( sections.organization ) ) !==
+		JSON.stringify( baselineRef.current.organization );
+	const isLocalBusinessDirty =
+		JSON.stringify( cleanLocalBusiness( sections.localBusiness ) ) !==
+		JSON.stringify( baselineRef.current.localBusiness );
 
 	const commitBreadcrumbList = useCallback(
 		( patch: Partial< BreadcrumbListSettings > ) => {
@@ -91,7 +92,7 @@ export function useSchemaSettings(
 			const next = { ...sections.breadcrumbList, ...patch };
 			setSections( current => ( { ...current, breadcrumbList: next } ) );
 			setIsSaving( true );
-			createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
+			createInfoNotice( __( 'Saving breadcrumbs…', 'jetpack-seo' ), {
 				id: NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
@@ -106,13 +107,7 @@ export function useSchemaSettings(
 						...baselineRef.current,
 						breadcrumbList: { ...settings.breadcrumbList },
 					};
-					setSections( current => {
-						const merged = { ...current, breadcrumbList: settings.breadcrumbList };
-						setIsDirty(
-							JSON.stringify( cleanSections( merged ) ) !== JSON.stringify( baselineRef.current )
-						);
-						return merged;
-					} );
+					setSections( current => ( { ...current, breadcrumbList: settings.breadcrumbList } ) );
 					onSave?.( settings );
 					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
 						id: NOTICE_ID,
@@ -132,72 +127,78 @@ export function useSchemaSettings(
 	);
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
-		setSections( current => {
-			const next = {
-				...current,
-				organization: { ...current.organization, ...patch },
-			};
-			setIsDirty(
-				JSON.stringify( cleanSections( next ) ) !== JSON.stringify( baselineRef.current )
-			);
-			return next;
-		} );
+		setSections( current => ( {
+			...current,
+			organization: { ...current.organization, ...patch },
+		} ) );
 	}, [] );
 
 	const setLocalBusinessField = useCallback( ( patch: Partial< LocalBusinessSettings > ) => {
-		setSections( current => {
-			const next = {
-				...current,
-				localBusiness: { ...current.localBusiness, ...patch },
-			};
-			setIsDirty(
-				JSON.stringify( cleanSections( next ) ) !== JSON.stringify( baselineRef.current )
-			);
-			return next;
-		} );
+		setSections( current => ( {
+			...current,
+			localBusiness: { ...current.localBusiness, ...patch },
+		} ) );
 	}, [] );
 
-	const save = useCallback( () => {
-		if ( isSaving ) {
-			return;
-		}
-		setIsSaving( true );
-		createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
-			id: NOTICE_ID,
-			type: 'snackbar',
-			isDismissible: false,
-		} );
-		apiFetch< SchemaSettings >( {
-			path: ENDPOINT,
-			method: 'POST',
-			data: cleanSections( sections ),
-		} )
-			.then( settings => {
-				// Re-seed from the server's response so the form reflects any sanitization
-				// (e.g. dropped/deduped URLs); a cleared field comes back empty and shows
-				// the placeholder again rather than re-freezing.
-				baselineRef.current = cleanSections( settings );
-				setSections( {
-					breadcrumbList: settings.breadcrumbList,
-					organization: settings.organization,
-					localBusiness: settings.localBusiness,
-				} );
-				onSave?.( settings );
-				setIsDirty( false );
-				createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
+	const saveSection = useCallback(
+		( section: 'organization' | 'localBusiness' ) => {
+			if ( isSaving ) {
+				return;
+			}
+			setIsSaving( true );
+			createInfoNotice(
+				section === 'organization'
+					? __( 'Saving organization…', 'jetpack-seo' )
+					: __( 'Saving local business…', 'jetpack-seo' ),
+				{
 					id: NOTICE_ID,
 					type: 'snackbar',
-				} );
+					isDismissible: false,
+				}
+			);
+			apiFetch< SchemaSettings >( {
+				path: ENDPOINT,
+				method: 'POST',
+				data:
+					section === 'organization'
+						? { organization: cleanOrganization( sections.organization ) }
+						: { localBusiness: cleanLocalBusiness( sections.localBusiness ) },
 			} )
-			.catch( ( error: { message?: string } ) => {
-				createErrorNotice(
-					error?.message ??
-						__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
-					{ id: NOTICE_ID, type: 'snackbar' }
-				);
-			} )
-			.finally( () => setIsSaving( false ) );
-	}, [ sections, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ] );
+				.then( settings => {
+					// Re-seed only the saved section from the server so sanitization is
+					// reflected without discarding pending edits in the sibling section.
+					if ( section === 'organization' ) {
+						baselineRef.current = {
+							...baselineRef.current,
+							organization: cleanOrganization( settings.organization ),
+						};
+						setSections( current => ( { ...current, organization: settings.organization } ) );
+					} else {
+						baselineRef.current = {
+							...baselineRef.current,
+							localBusiness: cleanLocalBusiness( settings.localBusiness ),
+						};
+						setSections( current => ( { ...current, localBusiness: settings.localBusiness } ) );
+					}
+					onSave?.( settings );
+					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
+						id: NOTICE_ID,
+						type: 'snackbar',
+					} );
+				} )
+				.catch( ( error: { message?: string } ) => {
+					createErrorNotice(
+						error?.message ??
+							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
+						{ id: NOTICE_ID, type: 'snackbar' }
+					);
+				} )
+				.finally( () => setIsSaving( false ) );
+		},
+		[ sections, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ]
+	);
+	const saveOrganization = useCallback( () => saveSection( 'organization' ), [ saveSection ] );
+	const saveLocalBusiness = useCallback( () => saveSection( 'localBusiness' ), [ saveSection ] );
 
 	return {
 		breadcrumbList: sections.breadcrumbList,
@@ -206,10 +207,12 @@ export function useSchemaSettings(
 		localBusiness: sections.localBusiness,
 		localBusinessDefaults: initialSettings.defaults.localBusiness,
 		isSaving,
-		isDirty,
+		isOrganizationDirty,
+		isLocalBusinessDirty,
 		commitBreadcrumbList,
 		setOrganizationField,
 		setLocalBusinessField,
-		save,
+		saveOrganization,
+		saveLocalBusiness,
 	};
 }

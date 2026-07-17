@@ -107,6 +107,7 @@ const baseConfig = {
 				'projects/packages/forms/src/**/*.{css,scss,sass}',
 				'projects/packages/my-jetpack/_inc/**/*.{css,scss,sass}',
 				'projects/packages/paypal-payments/src/**/*.{css,scss,sass}',
+				'projects/packages/newsletter/src/**/*.{css,scss,sass}',
 				'projects/packages/publicize/_inc/**/*.{css,scss,sass}',
 				'projects/packages/search/**/*.{css,scss,sass}',
 				'projects/packages/videopress/src/**/*.{css,scss,sass}',

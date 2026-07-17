@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link as RouteLink } from '@wordpress/route';
+import { Link as UiLink } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -18,24 +19,41 @@ import type { Field } from '@wordpress/dataviews';
  * @return The label cell.
  */
 function CommentLabel( { row }: { row: CommentReportRow } ) {
+	let content = (
+		<span title={ row.label } className={ styles.text }>
+			{ row.label }
+		</span>
+	);
+
+	if ( row.postId ) {
+		content = (
+			<RouteLink
+				to="/post/$postId"
+				params={ { postId: row.postId } as unknown as never }
+				title={ row.label }
+				className={ styles.text }
+			>
+				{ row.label }
+			</RouteLink>
+		);
+	} else if ( row.link ) {
+		content = (
+			<UiLink
+				href={ row.link }
+				variant="unstyled"
+				openInNewTab
+				title={ row.label }
+				className={ styles.text }
+			>
+				{ row.label }
+			</UiLink>
+		);
+	}
+
 	return (
 		<span className={ styles.label }>
 			{ row.avatarUrl ? <img src={ row.avatarUrl } alt="" className={ styles.avatar } /> : null }
-			{ row.link ? (
-				<Link
-					href={ row.link }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-					className={ styles.text }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<span title={ row.label } className={ styles.text }>
-					{ row.label }
-				</span>
-			) }
+			{ content }
 		</span>
 	);
 }

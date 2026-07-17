@@ -4,6 +4,8 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	type LeaderboardChartData,
@@ -173,31 +175,38 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	const rows = useMemo( () => toEmailRows( data, max ), [ data, max ] );
 
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			// The query keeps the prior response via `placeholderData`, so a failed
-			// refetch leaves rows on screen; only surface the error when there is
-			// nothing to show.
-			isError={ rows.length === 0 && isError }
-			isEmpty={ rows.length === 0 }
-			error={ {
-				description: __(
-					"We couldn't load email stats. Please try again in a moment.",
-					'jetpack-premium-analytics'
-				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-			} }
-			empty={ {
-				icon: envelope,
-				description: __(
-					'Your latest emails will appear here once you send a newsletter.',
-					'jetpack-premium-analytics'
-				),
-			} }
-		>
-			<EmailsLeaderboard rows={ rows } metric={ metric } />
-		</WidgetState>
+		<div className={ styles.widget }>
+			<div className={ styles.body }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The query keeps the prior response via `placeholderData`, so a failed
+					// refetch leaves rows on screen; only surface the error when there is
+					// nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load email stats. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: envelope,
+						description: __(
+							'Your latest emails will appear here once you send a newsletter.',
+							'jetpack-premium-analytics'
+						),
+					} }
+				>
+					<EmailsLeaderboard rows={ rows } metric={ metric } />
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="emails" />
+			</WidgetFooter>
+		</div>
 	);
 }
 

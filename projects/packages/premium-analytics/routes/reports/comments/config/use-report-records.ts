@@ -20,6 +20,7 @@ export type CommentReportRow = {
 	value: number;
 	avatarUrl?: string;
 	link?: string;
+	postId?: string;
 };
 
 /**
@@ -59,8 +60,7 @@ export function useCommentsReportRecords( activeTab: CommentsReportTabId ) {
 						label,
 						value: author.value,
 						avatarUrl: author.icon ?? undefined,
-						// The author's profile URL from the API, when they have one —
-						// the label renders as an external link exactly like post rows.
+						// The author's profile/admin URL from the API, when they have one.
 						link: author.link ?? undefined,
 					};
 				}
@@ -73,6 +73,7 @@ export function useCommentsReportRecords( activeTab: CommentsReportTabId ) {
 					label,
 					value: post.value,
 					link: post.link ?? undefined,
+					postId: post.id != null ? String( post.id ) : undefined,
 				};
 			} )
 			.sort( ( a, b ) => b.value - a.value );

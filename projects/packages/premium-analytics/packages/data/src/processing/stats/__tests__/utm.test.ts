@@ -58,6 +58,7 @@ describe( 'Stats UTM normalizer', () => {
 			{
 				label: 'spring-sale / newsletter / email',
 				value: 18,
+				paramValues: '["spring-sale","newsletter","email"]',
 				children: [
 					{
 						id: 41,
@@ -84,6 +85,7 @@ describe( 'Stats UTM normalizer', () => {
 			{
 				label: 'direct',
 				value: 7,
+				paramValues: 'direct',
 				children: null,
 			},
 		] );
@@ -96,7 +98,7 @@ describe( 'Stats UTM normalizer', () => {
 		} );
 	} );
 
-	it( 'treats an empty top posts object as already resolved', () => {
+	it( 'returns no children for an empty top posts object', () => {
 		const result = sanitizeStatsUtmResponse(
 			{
 				top_utm_values: {
@@ -111,6 +113,7 @@ describe( 'Stats UTM normalizer', () => {
 			{
 				label: 'direct',
 				value: 7,
+				paramValues: 'direct',
 				children: null,
 			},
 		] );
@@ -137,7 +140,7 @@ describe( 'Stats UTM normalizer', () => {
 		] );
 	} );
 
-	it( 'treats disabled top post queries as already resolved', () => {
+	it( 'keeps param values when top post queries are disabled', () => {
 		const result = sanitizeStatsUtmResponse(
 			{
 				top_utm_values: {
@@ -155,6 +158,7 @@ describe( 'Stats UTM normalizer', () => {
 			{
 				label: 'newsletter / email',
 				value: 24,
+				paramValues: '["newsletter","email"]',
 				children: null,
 			},
 		] );

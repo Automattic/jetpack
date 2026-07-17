@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@jetpack-premium-analytics/data';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { queryClientWrapper as wrapper } from '../../test-utils';
 import usePostTrafficActivity from '../use-post-traffic-activity';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
 
@@ -25,18 +25,11 @@ const STATS_POST_RESPONSE = {
 	],
 };
 
-function wrapper( { children }: { children: ReactNode } ) {
-	const queryClient = new QueryClient( {
-		defaultOptions: { queries: { retry: false } },
-	} );
-
-	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
-}
-
 const reportParams = ( params: Record< string, string > ) => params as unknown as ReportParams;
 
 describe( 'usePostTrafficActivity', () => {
 	beforeEach( () => {
+		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 	} );

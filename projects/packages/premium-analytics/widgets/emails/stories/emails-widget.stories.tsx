@@ -21,6 +21,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailsRender, { EmailsLeaderboard, type EmailRow } from '../render';
 import widgetDefinition from '../widget';
@@ -144,7 +145,7 @@ export const Loading: Story = {
 	render: () => renderEmailsWithMax( 7 ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/emails/summary', 'loading' );
 		return () => setReportMockState( 'stats/emails/summary', null );
@@ -158,7 +159,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderEmailsWithMax( 8 ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/emails/summary', 'error' );
 		return () => setReportMockState( 'stats/emails/summary', null );
@@ -172,7 +173,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderEmailsWithMax( 9 ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/emails/summary', 'empty' );
 		return () => setReportMockState( 'stats/emails/summary', null );

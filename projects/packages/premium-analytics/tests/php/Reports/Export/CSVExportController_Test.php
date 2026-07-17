@@ -163,6 +163,19 @@ class CSVExportController_Test extends TestCase {
 		remove_filter( 'user_has_cap', $grant_admin );
 	}
 
+	public function test_registers_date_type_endpoint_argument() {
+		$this->controller->register_routes();
+
+		$routes = rest_get_server()->get_routes();
+		$route  = '/jetpack-premium-analytics/v1/reports/csv-export';
+
+		$this->assertArrayHasKey( $route, $routes );
+		$this->assertSame(
+			array( 'created', 'paid', 'completed' ),
+			$routes[ $route ][0]['args']['date_type']['enum']
+		);
+	}
+
 	public function test_create_export_rejects_unknown_report_type() {
 		$request = new WP_REST_Request();
 		$request->set_param( 'report_type', 'nope' );
@@ -189,6 +202,7 @@ class CSVExportController_Test extends TestCase {
 		$request->set_param( 'delivery_method', 'email' );
 		$request->set_param( 'from', '2025-01-01T00:00:00' );
 		$request->set_param( 'to', '2025-06-01T00:00:00' );
+		$request->set_param( 'date_type', 'paid' );
 
 		$response = $this->controller->create_export( $request );
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
@@ -196,6 +210,7 @@ class CSVExportController_Test extends TestCase {
 		$this->assertSame( 123, $response->get_data()['job_id'] );
 		$this->assertCount( 1, $this->scheduler->calls );
 		$this->assertSame( 'ordersovertime', $this->scheduler->calls[0]['report_type'] );
+		$this->assertSame( 'paid', $this->scheduler->calls[0]['params']['date_type'] );
 	}
 
 	public function test_create_export_returns_scheduler_error() {
