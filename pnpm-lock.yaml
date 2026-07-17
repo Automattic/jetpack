@@ -36442,7 +36442,7 @@ snapshots:
       neo-async: 2.6.2
     optionalDependencies:
       sass-embedded: 1.97.3
-      webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
+      webpack: 5.107.2(webpack-cli@6.0.1)
 
   sax@1.6.0: {}
 
