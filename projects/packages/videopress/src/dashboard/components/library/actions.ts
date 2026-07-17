@@ -115,10 +115,10 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			// On WordPress.com Simple the promote mutation routes through
 			// wpcom/v2/videopress/promote (in-process — the file is already on
 			// WordPress.com storage); elsewhere it walks /videopress/v1/upload/{id}.
-			isEligible: item =>
-				item.type === 'local' &&
-				item.upload.status !== 'uploading' &&
-				item.upload.status !== 'failed',
+			// Allowlist on 'idle' (matching the design note at the top of this
+			// file) so a row whose promote is already in flight — overlaid as
+			// 'promoting' — can't double-fire it.
+			isEligible: item => item.type === 'local' && item.upload.status === 'idle',
 			callback: items => {
 				const [ item ] = items;
 				if ( item ) {

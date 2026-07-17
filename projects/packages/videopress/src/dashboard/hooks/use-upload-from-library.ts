@@ -158,10 +158,27 @@ type WpcomPromoteResponse = {
 export async function promoteOnSimple(
 	attachmentId: string | number
 ): Promise< UploadFromLibraryResult > {
-	const result = await apiFetch< WpcomPromoteResponse >( {
-		path: `/wpcom/v2/videopress/promote/${ attachmentId }`,
-		method: 'POST',
-	} );
+	let result: WpcomPromoteResponse;
+	try {
+		result = await apiFetch< WpcomPromoteResponse >( {
+			path: `/wpcom/v2/videopress/promote/${ attachmentId }`,
+			method: 'POST',
+		} );
+	} catch ( err ) {
+		// apiFetch rejects REST errors as plain { code, message } objects;
+		// normalize to Error so the mutation's declared error type stays
+		// truthful and stage-level notices can rely on `.message`.
+		if ( err instanceof Error ) {
+			throw err;
+		}
+		const message = ( err as { message?: string } )?.message;
+		throw new Error(
+			typeof message === 'string' && message !== ''
+				? message
+				: 'Failed to promote video to VideoPress.',
+			{ cause: err }
+		);
+	}
 	return { guid: result.guid, mediaId: result.media_id };
 }
 /**

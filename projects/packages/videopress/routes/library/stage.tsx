@@ -20,6 +20,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { createPromoteLocal } from './promote-local';
 import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -189,53 +190,17 @@ const StageInner = () => {
 		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
 	);
 
-	const promoteLocal = useCallback(
-		( id: string ) => {
-			setPromotingProgress( prev => new Map( prev ).set( id, 0 ) );
-			// React via the mutateAsync promise rather than mutate-level
-			// callbacks: TanStack detaches the observer from an in-flight
-			// mutation when the same hook instance starts another one,
-			// silently dropping that call's callbacks (see useDeleteVideo) —
-			// with promises, concurrent promotes each keep their own overlay
-			// teardown and notice.
-			uploadFromLibrary( {
-				id,
-				onProgress: ( percent: number ) => {
-					setPromotingProgress( prev => {
-						// Ignore a straggler progress report after settle.
-						if ( ! prev.has( id ) ) {
-							return prev;
-						}
-						return new Map( prev ).set( id, percent );
-					} );
-				},
-			} )
-				.then( () => {
-					createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
-				} )
-				.catch( ( error: Error ) => {
-					const reason = error?.message?.trim();
-					createErrorNotice(
-						reason
-							? sprintf(
-									/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
-									__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
-									reason
-							  )
-							: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
-					);
-				} )
-				.finally( () => {
-					setPromotingProgress( prev => {
-						if ( ! prev.has( id ) ) {
-							return prev;
-						}
-						const next = new Map( prev );
-						next.delete( id );
-						return next;
-					} );
-				} );
-		},
+	// The factory owns the in-flight progress map (re-entry guard + overlay
+	// snapshots, chunk progress folded in) and reacts via the mutateAsync
+	// promise; see promote-local.ts for why.
+	const promoteLocal = useMemo(
+		() =>
+			createPromoteLocal( {
+				promote: uploadFromLibrary,
+				createSuccessNotice,
+				createErrorNotice,
+				onPromotingChange: setPromotingProgress,
+			} ),
 		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
 	);
 

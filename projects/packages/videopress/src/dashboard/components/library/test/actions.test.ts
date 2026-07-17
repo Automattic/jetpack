@@ -73,4 +73,18 @@ describe( 'buildLibraryActions', () => {
 			unsetSimpleSite();
 		}
 	} );
+
+	it( 'makes a local row with any operation in flight ineligible for Upload to VideoPress', () => {
+		const action = buildLibraryActions( makeApi() ).find( a => a.id === 'upload-to-vp' );
+
+		// 'promoting' is the overlay the stage applies while a promote is in
+		// flight — the action must not double-fire it.
+		for ( const status of [ 'promoting', 'deleting', 'uploading', 'failed' ] as const ) {
+			const row = item( { type: 'local', upload: { status, progress: 0 } } );
+			expect( { status, eligible: action?.isEligible?.( row ) } ).toEqual( {
+				status,
+				eligible: false,
+			} );
+		}
+	} );
 } );

@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
+import { LIBRARY_QUERY_KEY } from '../use-library';
 import {
 	promoteOnSimple,
 	uploadFromLibrary,
@@ -180,7 +181,9 @@ describe( 'useUploadFromLibrary', () => {
 			return { guid: 'g1234567', media_id: 3 };
 		} );
 
-		const wrapper = createTestWrapper( createTestQueryClient() );
+		const client = createTestQueryClient();
+		const invalidateSpy = jest.spyOn( client, 'invalidateQueries' );
+		const wrapper = createTestWrapper( client );
 		const { result } = renderHook( () => useUploadFromLibrary(), { wrapper } );
 
 		let outcome;
@@ -190,6 +193,23 @@ describe( 'useUploadFromLibrary', () => {
 
 		expect( outcome ).toEqual( { guid: 'g1234567', mediaId: 3 } );
 		expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/3' ] );
+		// The listing only learns about the in-place promotion through this
+		// invalidation — nothing else refetches while no item is processing.
+		expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+	} );
+
+	it( 'normalizes a plain apiFetch rejection into an Error with its message', async () => {
+		setSimpleSite();
+		mockApiFetch( async () => {
+			// apiFetch rejects REST errors as plain objects, not Error instances.
+			throw { code: 'videopress_promote_not_allowed', message: 'No VideoPress here.' };
+		} );
+
+		await expect( promoteOnSimple( 5 ) ).rejects.toBeInstanceOf( Error );
+		mockApiFetch( async () => {
+			throw { code: 'videopress_promote_not_allowed', message: 'No VideoPress here.' };
+		} );
+		await expect( promoteOnSimple( 5 ) ).rejects.toThrow( 'No VideoPress here.' );
 	} );
 
 	it( 'keeps walking the videopress/v1 upload endpoint off Simple', async () => {

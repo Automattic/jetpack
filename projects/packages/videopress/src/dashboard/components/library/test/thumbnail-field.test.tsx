@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useProcessingProgress } from '../../../hooks/use-processing-progress';
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
+import { setSimpleSite, unsetSimpleSite } from '../../../test-utils/simple-site';
 import { libraryFields } from '../fields';
 import ThumbnailField from '../thumbnail-field';
 import { UploadActionsProvider, type UploadActions } from '../upload-actions-context';
@@ -59,6 +60,21 @@ describe( 'ThumbnailField — grid Details access', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Upload to VideoPress' } ) );
 		expect( actions.promoteLocal ).toHaveBeenCalledWith( '9' );
+	} );
+
+	it( 'offers Upload to VideoPress on WordPress.com Simple too (VIDP-300)', async () => {
+		// The button used to be gated off on Simple while only the unreachable
+		// videopress/v1 walker existed; the wpcom/v2 promote route re-enabled it.
+		setSimpleSite();
+		try {
+			const actions = makeActions();
+			renderField( <ThumbnailField item={ item( { id: '9', type: 'local' } ) } />, actions );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Upload to VideoPress' } ) );
+			expect( actions.promoteLocal ).toHaveBeenCalledWith( '9' );
+		} finally {
+			unsetSimpleSite();
+		}
 	} );
 
 	it( 'offers Retry for a failed upload', async () => {

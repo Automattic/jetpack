@@ -388,15 +388,24 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		 * public-api requests define ADMIN_PLUGINS, so the transcode
 		 * primitives are normally already loaded. This mirrors the wpcom TUS
 		 * uploader's ensure_wpcom_admin_includes_present() guard for any
-		 * context where they aren't, and degrades to the clean error below
-		 * (rather than a require fatal) if the files move mid-deploy.
+		 * context where they aren't. Each file is existence-checked
+		 * individually so a partially-moved set mid-deploy degrades to the
+		 * clean error below rather than a require fatal.
 		 */
-		if ( ! function_exists( 'remote_transcode_one_video' ) && defined( 'ABSPATH' ) && file_exists( ABSPATH . 'wp-content/admin-plugins/videopress/transcode.php' ) ) {
-			require_once ABSPATH . 'wp-content/admin-plugins/videopress/class.videopress-job-base.php';
-			require_once ABSPATH . 'wp-content/admin-plugins/videopress/class.video-job-thumbnails.php';
-			require_once ABSPATH . 'wp-content/admin-plugins/videopress/class.video-thumbnailer.php';
-			require_once ABSPATH . 'wp-content/admin-plugins/videopress/video-transcoder.php';
-			require_once ABSPATH . 'wp-content/admin-plugins/videopress/transcode.php';
+		if ( ! function_exists( 'remote_transcode_one_video' ) && defined( 'ABSPATH' ) ) {
+			$transcode_includes = array(
+				'class.videopress-job-base.php',
+				'class.video-job-thumbnails.php',
+				'class.video-thumbnailer.php',
+				'video-transcoder.php',
+				'transcode.php',
+			);
+			foreach ( $transcode_includes as $transcode_include ) {
+				$transcode_include_path = ABSPATH . 'wp-content/admin-plugins/videopress/' . $transcode_include;
+				if ( file_exists( $transcode_include_path ) ) {
+					require_once $transcode_include_path;
+				}
+			}
 		}
 
 		if ( ! function_exists( 'remote_transcode_one_video' ) || ! function_exists( 'video_get_info_by_blogpostid' ) ) {
@@ -464,6 +473,24 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		}
 
 		/*
+		 * Best-effort mutex around the primitive: the pre-checks above are
+		 * check-then-act, and remote_transcode_one_video() ignores
+		 * video_create_info()'s outcome and queues its transcode job
+		 * unconditionally — so two near-simultaneous promotes (double-click,
+		 * two tabs) would transcode the same video twice. wp_cache_add() is
+		 * atomic on the wpcom object cache; the TTL comfortably outlives the
+		 * primitive's sleep(3) and self-heals if the request dies mid-hold.
+		 */
+		$promote_lock = "videopress-promote-{$blog_id}-{$attachment_id}";
+		if ( ! wp_cache_add( $promote_lock, 1, 'video-info', 30 ) ) {
+			return new WP_Error(
+				'videopress_promote_in_progress',
+				__( 'This video is already being promoted to VideoPress.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		/*
 		 * Creates the videos-table row (video_create_info()) and enqueues
 		 * the async transcode job. The fresh-upload path sleep(3)s before
 		 * queueing (DB-write settling), so this request takes ~3s.
@@ -476,6 +503,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		 * videos table instead of trusting the return value.
 		 */
 		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id, true );
+
+		wp_cache_delete( $promote_lock, 'video-info' );
+
 		if ( ! $info || empty( $info->guid ) ) {
 			return new WP_Error(
 				'videopress_promote_failed',
