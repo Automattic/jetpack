@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Emit DS token fallbacks via PostCSS/tsdown and drop hardcoded fallbacks from Charts styles and theme JS.
+Comment: Emit DS token fallbacks via Lightning CSS/tsdown and drop hardcoded fallbacks from Charts styles and theme JS.
 

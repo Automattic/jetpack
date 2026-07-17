@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
+import lightningcssDsTokenFallbacks from '@wordpress/theme/lightningcss-plugins/lightningcss-ds-token-fallbacks';
 import viteDsTokenFallbacks from '@wordpress/theme/vite-plugins/vite-ds-token-fallbacks';
 import { defineConfig } from 'tsdown';
-import { postcssCssBundle } from './tools/postcss-css-bundle.ts';
 import { removeDataTestId } from './tools/remove-data-testid.ts';
 
 const pkg = JSON.parse( readFileSync( new URL( './package.json', import.meta.url ), 'utf8' ) ) as {
@@ -52,11 +52,13 @@ export default defineConfig( {
 		modules: {
 			generateScopedName: 'a8ccharts-[hash]-[local]',
 		},
+		lightningcss: {
+			visitor: lightningcssDsTokenFallbacks,
+		},
 	},
-	// PostCSS injects official `--wpds-*` fallbacks into the CSS bundle;
-	// the Vite plugin does the same for JS/TS theme strings (e.g. `themes.ts`).
-	// See tools/postcss-css-bundle.ts for why we don't use css.transformer: 'postcss'.
-	plugins: [ removeDataTestId(), viteDsTokenFallbacks(), postcssCssBundle() ],
+	// Lightning CSS injects official `--wpds-*` fallbacks into SCSS/CSS; the Vite
+	// plugin does the same for JS/TS theme strings (e.g. `themes.ts`).
+	plugins: [ removeDataTestId(), viteDsTokenFallbacks() ],
 	// Fail loudly once @tsdown/css stops emitting these, so the suppression can be dropped.
 	onSuccess() {
 		if ( ! suppressedCssSourcemapWarning ) {
