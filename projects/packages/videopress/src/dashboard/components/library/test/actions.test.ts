@@ -1,4 +1,5 @@
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
+import { setSimpleSite, unsetSimpleSite } from '../../../test-utils/simple-site';
 import { buildLibraryActions } from '../actions';
 
 jest.mock( '@wordpress/i18n', () => ( {
@@ -52,5 +53,22 @@ describe( 'buildLibraryActions', () => {
 		expect( actions.find( a => a.id === 'delete' )?.isEligible?.( idle ) ).toBe( true );
 		expect( actions.find( a => a.id === 'edit-details' )?.isEligible?.( idle ) ).toBe( true );
 		expect( actions.find( a => a.id === 'manage-captions' )?.isEligible?.( idle ) ).toBe( true );
+	} );
+
+	it( 'offers Upload to VideoPress for idle local items — except on WordPress.com Simple', () => {
+		const local = item( { type: 'local' } );
+		const eligible = ( actions: ReturnType< typeof buildLibraryActions > ) =>
+			actions.find( a => a.id === 'upload-to-vp' )?.isEligible?.( local );
+
+		expect( eligible( buildLibraryActions( makeApi() ) ) ).toBe( true );
+
+		// The promote flow needs /videopress/v1/upload/{id}, which never reaches
+		// the REST dispatcher on Simple — the action must not be offered there.
+		setSimpleSite();
+		try {
+			expect( eligible( buildLibraryActions( makeApi() ) ) ).toBe( false );
+		} finally {
+			unsetSimpleSite();
+		}
 	} );
 } );

@@ -20,7 +20,7 @@ const video: StatsVideoPlaysItem = {
  * @return The RTL render result.
  */
 function renderTitleField( item: StatsVideoPlaysItem ) {
-	const field = getVideosFields().find( candidate => candidate.id === 'title' );
+	const field = getVideosFields().find( candidate => candidate.id === 'label' );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const TitleField = field?.render;
 
@@ -51,8 +51,8 @@ describe( 'videos fields', () => {
 	it( 'exposes searchable title and sortable metric fields', () => {
 		const fields = getVideosFields();
 
-		expect( fields.map( field => field.id ) ).toEqual( [ 'title', 'plays', 'impressions' ] );
-		expect( fields.find( field => field.id === 'title' )?.enableGlobalSearch ).toBe( true );
+		expect( fields.map( field => field.id ) ).toEqual( [ 'label', 'plays', 'impressions' ] );
+		expect( fields.find( field => field.id === 'label' )?.enableGlobalSearch ).toBe( true );
 		expect( fields.find( field => field.id === 'plays' )?.getValue?.( { item: video } ) ).toBe(
 			11
 		);

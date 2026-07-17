@@ -3,17 +3,11 @@
  */
 import { PRESET_CUSTOM, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import { Composite } from '@wordpress/components';
-import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	MOBILE_CONTAINER_WIDTH_THRESHOLD,
-	WIDE_CALENDAR_CONTAINER_THRESHOLD,
-} from '../date-range-layout';
 import { DateRangePopover } from '../date-range-popover';
 import { DateRangeQuickPresets, getSurfacePresetId } from '../date-range-quick-presets';
 import type { DateRange } from '../date-range-popover';
@@ -21,13 +15,21 @@ import './date-range-filter.scss';
 
 type DateRangePopoverProps = Parameters< typeof DateRangePopover >[ 0 ];
 
-export type DateRangeFilterProps = Omit< DateRangePopoverProps, 'isWideScreen' > & {
+export type DateRangeFilterProps = Omit<
+	DateRangePopoverProps,
+	'isCompact' | 'isWideScreen' | 'triggerAsCompositeItem'
+> & {
 	/**
-	 * Optional external container element for responsive calculations. When
-	 * provided, this container's width is measured instead of `document.body`
-	 * to determine the compact and wide layouts.
+	 * Compact (mobile) layout: render the presets as a select and the custom
+	 * trigger as a bordered button. Owned and measured by `DateFiltersPanel`.
 	 */
-	containerElement?: HTMLElement | null;
+	isCompact?: boolean;
+
+	/**
+	 * Wide layout: let the calendar popover show two months. Owned and measured
+	 * by `DateFiltersPanel`; only forwarded because the calendar needs it.
+	 */
+	isWideScreen?: boolean;
 };
 
 /**
@@ -44,29 +46,10 @@ export function DateRangeFilter( {
 	onCancel,
 	canApply,
 	timeZone,
-	containerElement,
 	onOpenChange,
+	isCompact = false,
+	isWideScreen = false,
 }: DateRangeFilterProps ) {
-	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
-
-	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
-		const entry = entries[ 0 ];
-		if ( entry ) {
-			setContainerWidth( entry.contentRect.width );
-		}
-	}, [] );
-
-	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
-
-	useEffect( () => {
-		const element = containerElement ?? document.body;
-		setObserverRef( element );
-	}, [ containerElement, setObserverRef ] );
-
-	const isCompact = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
-	const isWideScreen =
-		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
-
 	const surfacePresetId = useMemo(
 		() => getSurfacePresetId( appliedPresetId ?? presetId ),
 		[ appliedPresetId, presetId ]
@@ -103,21 +86,14 @@ export function DateRangeFilter( {
 			isWideScreen={ isWideScreen }
 			onOpenChange={ onOpenChange }
 			triggerAsCompositeItem={ ! isCompact }
+			isCompact={ isCompact }
 		/>
 	);
 
-	if ( isCompact ) {
-		return (
-			<Stack className="date-range-filter" direction="row" gap="sm" wrap="wrap" align="center">
-				{ quickPresets }
-				{ customRangePopover }
-			</Stack>
-		);
-	}
-
 	/*
 	 * One composite group: preset pills plus the custom-range trigger share a
-	 * single tab stop with arrow-key navigation between them.
+	 * single tab stop with arrow-key navigation between them. The compact-layout
+	 * styling cascades from `.date-filters-panel.is-compact`.
 	 */
 	return (
 		<Composite

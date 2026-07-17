@@ -30,13 +30,13 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@wordpress/interactivity": "6.50.0"
+		"@wordpress/interactivity": "6.51.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"@wordpress/base-styles": "10.2.0",
-		"@wordpress/browserslist-config": "6.50.0",
+		"@wordpress/base-styles": "11.0.0",
+		"@wordpress/browserslist-config": "6.51.0",
 		"autoprefixer": "10.4.20",
 		"jest": "30.4.2",
 		"postcss": "8.5.14",

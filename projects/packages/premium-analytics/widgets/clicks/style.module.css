@@ -20,7 +20,7 @@
 }
 
 .labelLink {
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 }
 
 .labelLink:hover,

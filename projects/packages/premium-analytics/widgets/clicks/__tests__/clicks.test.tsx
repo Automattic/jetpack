@@ -12,9 +12,7 @@ import type { StatsClicksItem, StatsNormalizedReport } from '@jetpack-premium-an
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -89,6 +87,15 @@ describe( 'ClicksWidget', () => {
 
 		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
 		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
+	} );
+
+	it( 'links to the Clicks report', () => {
+		render( <ClicksWidget attributes={ { max: 10 } } /> );
+
+		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/clicks' )
+		);
 	} );
 
 	it( 'clears the stored drill-down when the selected link leaves the data', async () => {

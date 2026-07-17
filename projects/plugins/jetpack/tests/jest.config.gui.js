@@ -13,7 +13,7 @@ module.exports = {
 	// This is necessary to allow css from uplot, @wordpress/admin-ui, and @gravatar-com (the
 	// latter for the lifted Gravatar component's hovercard styles) to be imported.
 	transformIgnorePatterns: [
-		'/node_modules/(?!(.pnpm|@automattic)/|uuid/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
+		'/node_modules/(?!.*/node_modules/)(?!@automattic/|uuid/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
 		...baseConfig.transformIgnorePatterns,
 	],
 	collectCoverageFrom: [

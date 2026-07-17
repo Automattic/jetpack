@@ -168,10 +168,14 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 export default function VideoPress( { attributes = {}, setError }: VideoPressWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
-			<WidgetFooter>
-				<ReportLink report="videos" />
-			</WidgetFooter>
+			<div className={ styles.root }>
+				<div className={ styles.content }>
+					<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+				</div>
+				<WidgetFooter>
+					<ReportLink report="videos" />
+				</WidgetFooter>
+			</div>
 		</WidgetRoot>
 	);
 }

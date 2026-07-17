@@ -1,7 +1,7 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
@@ -136,20 +136,45 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		currentRenderItem?.message !== undefined &&
 		currentRenderItem.message !== baseMessage;
 
+	// Last rendered message for this connection, kept across cache-key changes
+	// (e.g. title/excerpt edits) so a pending re-render keeps showing rendered
+	// text instead of flashing the raw template or a skeleton.
+	const lastRenderedRef = useRef< { connectionId: string; message: string } | null >( null );
+	if ( templatesEnabled && typeof rendered === 'string' ) {
+		lastRenderedRef.current = { connectionId: connection.connection_id, message: rendered };
+	}
+	const lastRendered =
+		lastRenderedRef.current?.connectionId === connection.connection_id
+			? lastRenderedRef.current.message
+			: null;
+
 	return useMemo( () => {
-		const useRendered = templatesEnabled && typeof rendered === 'string';
-		const isLoading = templatesEnabled && ( isDebouncingRenderedMessage || isLoadingRendered );
+		const isPending = templatesEnabled && ( isDebouncingRenderedMessage || isLoadingRendered );
+
+		// The raw template (with `{title}`-style placeholders) may only show once
+		// rendering has settled without ever producing a result — e.g. templates
+		// disabled, or the request failed. While pending, fall back to the last
+		// rendered message, or to the skeleton (`isLoading`) when there is none.
+		let message = baseMessage;
+		if ( templatesEnabled && typeof rendered === 'string' ) {
+			message = rendered;
+		} else if ( lastRendered !== null ) {
+			message = lastRendered;
+		} else if ( isPending ) {
+			message = '';
+		}
 
 		return {
 			...postData,
-			message: useRendered ? rendered : baseMessage,
+			message,
 			media,
-			isLoading,
+			isLoading: isPending && message === '',
 		};
 	}, [
 		baseMessage,
 		isDebouncingRenderedMessage,
 		isLoadingRendered,
+		lastRendered,
 		media,
 		postData,
 		rendered,

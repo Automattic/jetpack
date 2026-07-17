@@ -4,19 +4,23 @@
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
-	HeatmapChart,
+	HeatmapChartUnresponsive,
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
+	useElementSize,
 	useWidgetRootContext,
-	type DataPointDate,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { computeCalendarHeatmapLayout, fitCompactCalendarHeatmapColumns } from './layout';
+import { resolveStreakRange } from './streak-range';
+import { buildStreakSeries } from './streak-series';
 import styles from './style.module.css';
 import type { PostingActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -27,35 +31,104 @@ type PostingActivityRenderAttributes = PostingActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
+// --- Heatmap sizing tuning ---------------------------------------------------
+const EXPANDED_ASPECT_RATIO = 61 / 40;
+const EXPANDED_MAX_CELL_HEIGHT = 48;
+// If the tile is at least this tall, use expanded cells ( not compact ).
+const EXPANDED_MIN_HEIGHT = 220;
+
+// Minimum span, in days.
+const MIN_STREAK_DAYS = 365;
+
 /**
  * Fetches the posting-activity streak through the designated `useStatsStreak`
  * hook and renders it as a calendar heatmap. The `stats/streak` endpoint
  * returns a `{ 'yyyy-MM-dd': count }` map of posts per day (no comparison
  * period); `buildCalendarHeatmapData` lays that out into the week-column /
- * weekday-row grid the chart expects. The date range comes from the dashboard
- * picker via `reportParams`.
+ * weekday-row grid the chart expects.
+ *
+ * The date range comes from the dashboard picker via `reportParams`, but the
+ * fetch window is floored to at least a year (`MIN_STREAK_DAYS`) ending on the
+ * picker's end date — a calendar heatmap needs a span of weeks, not a 7-day slice.
+ *
+ * The heatmap adapts to the tile: it measures the available space and picks
+ * compact (fixed-size squares) or expanded (scaled 61:40 cells with numbers) from
+ * the available height, trimming the data to the columns that fit the width.
  *
  * @return The widget content.
  */
 function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsStreak( reportParams );
+	// Floor the fetch window to a full year ending on the picker's end date.
+	const streakRange = useMemo(
+		() => resolveStreakRange( reportParams, MIN_STREAK_DAYS, format( new Date(), 'yyyy-MM-dd' ) ),
+		[ reportParams ]
+	);
+	const streakParams = useMemo(
+		() => ( { ...reportParams, startDate: streakRange.startDate, endDate: streakRange.endDate } ),
+		[ reportParams, streakRange ]
+	);
+
+	const { data, isLoading, isFetching, isError, refetch } = useStatsStreak( streakParams );
 
 	const { data: heatmapData, rowLabels } = useMemo( () => {
-		const series: DataPointDate[] = Object.entries( data ?? {} ).map(
-			( [ dateString, value ] ) => ( {
-				dateString,
-				value,
-			} )
-		);
+		// The endpoint returns only days with posts; densify to the full window so
+		// the heatmap spans every week column, not just the weeks that have posts.
+		const series = buildStreakSeries( data ?? {}, streakRange.startDate, streakRange.endDate );
 		return buildCalendarHeatmapData( series );
-	}, [ data ] );
+	}, [ data, streakRange ] );
 
 	const hasData = heatmapData.length > 0;
+	const dataColumns = heatmapData.length;
+
+	// Measure the tile; the parent div fills the widget slot (with no padding of its
+	// own), so its size is the space the heatmap has to work with.
+	const [ setRef, size ] = useElementSize< HTMLDivElement >();
+
+	// Height drives the mode. Expanded: a scaled 61:40 grid sized to the computed
+	// rectangle (numbers shown). Compact: the chart's own fixed-size squares — we
+	// don't size it, only compute how many columns fit so the data is trimmed to
+	// avoid a scroll.
+	const isExpanded = size.height >= EXPANDED_MIN_HEIGHT;
+
+	// Expanded is sized to the computed rectangle so its `minmax(0, 1fr)` tracks
+	// fill it with 61:40 cells; compact renders the chart's own fixed squares and
+	// sizes itself. The measured parent centers whichever one, so a grid smaller
+	// than the tile sits in centered whitespace.
+	const { columns, sizingProps } = useMemo( () => {
+		if ( isExpanded ) {
+			const layout = computeCalendarHeatmapLayout( {
+				availWidth: size.width,
+				availHeight: size.height,
+				dataColumns,
+				aspectRatio: EXPANDED_ASPECT_RATIO,
+				maxCellHeight: EXPANDED_MAX_CELL_HEIGHT,
+			} );
+			return {
+				columns: layout.columns,
+				sizingProps: {
+					width: layout.heatmapWidth,
+					height: layout.heatmapHeight,
+					showValues: layout.cellWidth > 30,
+				},
+			};
+		}
+
+		const fitColumns = fitCompactCalendarHeatmapColumns( {
+			availWidth: size.width,
+			dataColumns,
+		} );
+		return { columns: fitColumns, sizingProps: { compact: true } };
+	}, [ isExpanded, size.width, size.height, dataColumns ] );
+
+	// Keep the most-recent weeks: drop the oldest week columns from the left when
+	// the tile can't fit them all. `slice( -0 )` returns the whole array, so a zero
+	// column count (degenerate tile) leaves the data untouched.
+	const trimmedData = useMemo( () => heatmapData.slice( -columns ), [ heatmapData, columns ] );
 
 	return (
-		<div className={ styles.content }>
+		<div className={ styles.content } ref={ setRef }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
@@ -77,19 +150,19 @@ function PostingActivityInner() {
 					description: __( 'No posts published in this period.', 'jetpack-premium-analytics' ),
 				} }
 			>
-				<HeatmapChart
-					data={ heatmapData }
+				<HeatmapChartUnresponsive
+					data={ trimmedData }
 					rowLabels={ rowLabels }
-					compact
+					className={ styles.heatmap }
 					primaryColor="var(--wp-admin-theme-color, #3858e9)"
 					withTooltips
-					className={ styles.heatmap }
+					{ ...sizingProps }
 				>
-					<HeatmapChart.Legend
+					<HeatmapChartUnresponsive.Legend
 						lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics' ) }
 						moreLabel={ __( 'More Posts', 'jetpack-premium-analytics' ) }
 					/>
-				</HeatmapChart>
+				</HeatmapChartUnresponsive>
 			</WidgetState>
 		</div>
 	);

@@ -50,7 +50,7 @@
 
 // Individual comment (item)
 .jp-forms__feedback-comments-comment {
-	background-color: var(--jp-forms-white-off, var(--wpds-color-background-surface-neutral-weak, #e7e7e7));
+	background-color: var(--jp-forms-white-off, var(--wpds-color-background-surface-neutral-weak));
 	border-radius: var(--jp-forms-border-radius, 4px);
 	padding: 12px;
 
@@ -75,7 +75,7 @@
 	.jp-forms__feedback-comments-comment-author {
 		font-size: 14px;
 		font-weight: 600;
-		color: var(--jp-forms-color-darker-20, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+		color: var(--jp-forms-color-darker-20, var(--wpds-color-foreground-content-neutral));
 	}
 
 	.jp-forms__feedback-comments-comment-date {

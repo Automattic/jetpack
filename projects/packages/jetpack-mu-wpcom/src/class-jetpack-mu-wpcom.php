@@ -73,6 +73,7 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_plugin_state' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -400,6 +401,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
+		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
@@ -778,6 +780,13 @@ class Jetpack_Mu_Wpcom {
 	public static function load_custom_css() {
 		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
 		require_once __DIR__ . '/features/custom-css/custom-css.php';
+	}
+
+	/**
+	 * Load the Plugin State feature.
+	 */
+	public static function load_plugin_state() {
+		require_once __DIR__ . '/features/plugin-state/plugin-state.php';
 	}
 
 	/**

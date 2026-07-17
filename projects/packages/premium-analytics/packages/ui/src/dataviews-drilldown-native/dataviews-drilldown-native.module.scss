@@ -1,0 +1,25 @@
+@use "sass:meta";
+
+.root {
+
+	/* Load DataViews' stylesheet through Sass so it is inlined rather than
+	 * emitted as a relative @import that 404s at runtime. */
+	:global {
+
+		@include meta.load-css( "@wordpress/dataviews/build-style/style" );
+	}
+
+	width: 100%;
+}
+
+/* Let DataViews size to its container instead of its fixed wrapper height. */
+.root :global(.dataviews-wrapper) {
+	height: auto;
+}
+
+/* The one optional override: DataViews renders levels as an unstyled em-dash
+ * marker span ("— — "). Hiding it keeps its layout box, so the title content
+ * stays indented by depth with plain whitespace. */
+.hideLevelMarkers :global(.dataviews-view-table__level) {
+	visibility: hidden;
+}

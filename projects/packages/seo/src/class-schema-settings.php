@@ -4,8 +4,8 @@
  *
  * Persists the admin-configurable values WordPress has no native source for —
  * social profiles (`sameAs`), a contact `email`, optional `name` /
- * `description` overrides, and LocalBusiness details. The Organization node
- * reads the effective values via {@see self::get_organization()} and
+ * `description` overrides, LocalBusiness details, and the BreadcrumbList toggle.
+ * The Organization node reads the effective values via {@see self::get_organization()} and
  * {@see self::get_local_business()}; the Settings UI round-trips them through
  * {@see Schema_Settings_Controller}.
  *
@@ -45,16 +45,17 @@ class Schema_Settings {
 	 * as field placeholders. Keeping the two separate lets an empty field track the
 	 * Site Title instead of freezing its value.
 	 *
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}}}
+	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}}}
 	 */
 	public static function get_editable() {
 		$defaults = self::get_defaults();
 		$stored   = self::get_stored();
 
 		return array(
-			'organization'  => $stored['organization'],
-			'localBusiness' => $stored['localBusiness'],
-			'defaults'      => array(
+			'organization'   => $stored['organization'],
+			'localBusiness'  => $stored['localBusiness'],
+			'breadcrumbList' => $stored['breadcrumbList'],
+			'defaults'       => array(
 				'organization'  => array(
 					'name'        => $defaults['organization']['name'],
 					'description' => $defaults['organization']['description'],
@@ -134,16 +135,25 @@ class Schema_Settings {
 	}
 
 	/**
+	 * The BreadcrumbList settings consumed by the graph builder.
+	 *
+	 * @return array{enabled: bool}
+	 */
+	public static function get_breadcrumb_list() {
+		return self::get_stored()['breadcrumbList'];
+	}
+
+	/**
 	 * Sanitize a raw submission and persist it, then return the new editing payload
 	 * (so the caller can hand it straight back to the client).
 	 *
 	 * @param mixed $raw Raw input (expected to be the container array).
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}}}
+	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}}}
 	 */
 	public static function update( $raw ) {
 		$raw    = is_array( $raw ) ? $raw : array();
 		$stored = self::get_stored();
-		foreach ( array( 'organization', 'localBusiness' ) as $section ) {
+		foreach ( array( 'organization', 'localBusiness', 'breadcrumbList' ) as $section ) {
 			if ( ! array_key_exists( $section, $raw ) ) {
 				$raw[ $section ] = $stored[ $section ];
 			}
@@ -160,7 +170,7 @@ class Schema_Settings {
 	 * non-array / non-string input.
 	 *
 	 * @param mixed $raw Raw input.
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}}
+	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}}
 	 */
 	public static function sanitize( $raw ) {
 		$raw          = is_array( $raw ) ? $raw : array();
@@ -169,13 +179,14 @@ class Schema_Settings {
 			: array();
 
 		return array(
-			'organization'  => array(
+			'organization'   => array(
 				'name'        => self::text( $organization['name'] ?? '' ),
 				'description' => self::text( $organization['description'] ?? '' ),
 				'sameAs'      => self::sanitize_url_list( $organization['sameAs'] ?? array() ),
 				'email'       => self::email( $organization['email'] ?? '' ),
 			),
-			'localBusiness' => self::sanitize_local_business( $raw['localBusiness'] ?? array() ),
+			'localBusiness'  => self::sanitize_local_business( $raw['localBusiness'] ?? array() ),
+			'breadcrumbList' => self::sanitize_breadcrumb_list( $raw['breadcrumbList'] ?? array() ),
 		);
 	}
 
@@ -225,10 +236,24 @@ class Schema_Settings {
 	 * The stored settings, normalized to the full option shape (so callers can
 	 * rely on every key being present even when the option is absent or partial).
 	 *
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}}
+	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}}
 	 */
 	private static function get_stored() {
 		return self::sanitize( get_option( self::OPTION_NAME, array() ) );
+	}
+
+	/**
+	 * Normalize BreadcrumbList input. Missing legacy data defaults to enabled.
+	 *
+	 * @param mixed $raw Raw BreadcrumbList input.
+	 * @return array{enabled: bool}
+	 */
+	private static function sanitize_breadcrumb_list( $raw ) {
+		$raw = is_array( $raw ) ? $raw : array();
+
+		return array(
+			'enabled' => ! array_key_exists( 'enabled', $raw ) || rest_sanitize_boolean( $raw['enabled'] ),
+		);
 	}
 
 	/**

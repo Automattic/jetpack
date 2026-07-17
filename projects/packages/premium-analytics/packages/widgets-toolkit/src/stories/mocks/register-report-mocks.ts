@@ -55,12 +55,14 @@ import {
 	mockSiteSummary,
 	mockStatsInsightsData,
 	mockStatsPostData,
+	mockPostCommentsData,
 	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
 	mockPlanUsageData,
 	buildEmailRateResponse,
+	buildEmailTimelineResponse,
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,
 	mockEmailClientBreakdown,
@@ -92,6 +94,9 @@ const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wo
 // matched with its own pattern rather than through routeStatsReport().
 const POST_LIKES_PATH_PATTERN =
 	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.2\/posts\/\d+\/likes(?:\?|$)/;
+// Post comments use the public `posts/{id}/replies` v1.1 endpoint.
+const POST_COMMENTS_PATH_PATTERN =
+	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/replies(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -1249,6 +1254,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		return mockPostLikesData;
 	}
 
+	if ( POST_COMMENTS_PATH_PATTERN.test( requestPath ) ) {
+		return mockPostCommentsData;
+	}
+
 	if ( requestPath.startsWith( STATS_WORDADS_STATS_PATH ) ) {
 		const queryIndex = requestPath.indexOf( '?' );
 		return buildWordAdsStatsResponse(
@@ -1262,6 +1271,15 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {
 		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
+
+		// Per-post email timelines — `/opens|clicks/emails/<postId>` with
+		// `stats_fields=timeline`. Matched here rather than in routeStatsReport()
+		// because the generated buckets read period/quantity/date off the query.
+		const emailTimeline = subPath.match( /^\/(opens|clicks)\/emails\/\d+$/ );
+		if ( emailTimeline && getQueryParam( requestPath, 'stats_fields' ) === 'timeline' ) {
+			return buildEmailTimelineResponse( emailTimeline[ 1 ] as 'opens' | 'clicks', requestPath );
+		}
+
 		const response = routeStatsReport( subPath );
 
 		if ( response !== null ) {

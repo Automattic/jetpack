@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
+import { contextFromInferred, contextFromTaskIds, setTracksContext } from './lib/tracks.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
 import type { GoalSlug, TailorResult } from './lib/types.ts';
@@ -32,6 +33,17 @@ export function App() {
 			}
 			setInitialData( data );
 			setView( allTasks ? 'list' : decideInitialView( data ) );
+
+			// Seed the shared Tracks context from the persisted state (all-null for
+			// brand-new sites) before the mounted view records its viewed event.
+			const inferred = data.ai_output?.payload?.inferred;
+			setTracksContext( contextFromInferred( inferred ) );
+			if ( ! inferred?.goal && data.wizard?.goal ) {
+				setTracksContext( { goal: data.wizard.goal } );
+			}
+			if ( data.tasks?.length ) {
+				setTracksContext( contextFromTaskIds( data.tasks.map( task => task.id ) ) );
+			}
 		} );
 		return () => {
 			cancelled = true;

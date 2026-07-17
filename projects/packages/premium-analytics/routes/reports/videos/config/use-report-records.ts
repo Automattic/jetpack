@@ -3,17 +3,21 @@
  */
 import {
 	useStatsVideoPlays,
+	useStatsVideoPlaysSummary,
 	type ReportParams,
 	type StatsChartBucketPeriod,
+	type StatsVideoPlaysItem,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { aggregateVideoRows, videosToTimeSeries } from './aggregate';
+import { videosToTimeSeries } from './aggregate';
+
+const EMPTY_VIDEO_ROWS: StatsVideoPlaysItem[] = [];
 
 /**
- * Fetch and derive the Videos report chart and table from one bucketed query.
+ * Fetch the Videos report chart from daily plays and its table from the range summary.
  *
  * @param reportParams - The shared report-window parameters.
  * @param chartPeriod  - The chart's bucket period.
@@ -23,19 +27,48 @@ export function useVideosReportRecords(
 	reportParams: ReportParams,
 	chartPeriod: StatsChartBucketPeriod
 ) {
-	const recordsParams = useMemo(
+	const chartParams = useMemo(
 		() => ( {
 			...reportParams,
 			max: 0,
 			summarize: 0,
 			period: 'day',
-			complete_stats: 1,
 		} ),
 		[ reportParams ]
 	);
-	const videos = useStatsVideoPlays( recordsParams );
+	const videos = useStatsVideoPlays( chartParams );
+	const summary = useStatsVideoPlaysSummary( reportParams );
 	const primaryData = videos.primary.data;
 	const comparisonData = videos.comparison.data;
+	const summaryData = summary.data;
+	const primaryLinksById = useMemo( () => {
+		const links = new Map< string, string >();
+
+		for ( const point of primaryData?.data ?? [] ) {
+			for ( const video of point.items ) {
+				if ( video.id != null && video.link ) {
+					links.set( String( video.id ), video.link );
+				}
+			}
+		}
+
+		return links;
+	}, [ primaryData ] );
+	const rows = useMemo( () => {
+		if ( ! summaryData ) {
+			return EMPTY_VIDEO_ROWS;
+		}
+
+		return summaryData.data.flatMap( point =>
+			point.items.map( row => ( {
+				...row,
+				link:
+					row.link ??
+					( row.id != null ? primaryLinksById.get( String( row.id ) ) : undefined ) ??
+					null,
+			} ) )
+		);
+	}, [ summaryData, primaryLinksById ] );
 
 	const chartPrimary = useMemo(
 		() => videosToTimeSeries( primaryData, chartPeriod ),
@@ -48,7 +81,6 @@ export function useVideosReportRecords(
 
 		return videosToTimeSeries( comparisonData, chartPeriod );
 	}, [ videos.hasComparison, comparisonData, chartPeriod ] );
-	const rows = useMemo( () => aggregateVideoRows( primaryData ), [ primaryData ] );
 
 	return {
 		chart: {
@@ -57,6 +89,6 @@ export function useVideosReportRecords(
 			isLoading: videos.isLoading,
 		},
 		rows,
-		isLoading: videos.isLoading,
+		isLoading: summary.isLoading,
 	};
 }

@@ -239,6 +239,12 @@ $cg-diff-removed: #f8d7da;
 	flex-wrap: wrap;
 }
 
+// "Read more" support link injected inline at the end of the
+// header description paragraph.
+.jetpack-content-guidelines-ai__read-more-container {
+	margin-inline-start: 4px;
+}
+
 // Upgrade notice.
 .jetpack-content-guidelines-ai__upgrade-notice-container {
 	display: contents;

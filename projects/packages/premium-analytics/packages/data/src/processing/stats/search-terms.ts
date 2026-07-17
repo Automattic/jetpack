@@ -1,12 +1,16 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
+	coerceStatsArray,
+	createStatsDataPoint,
+	getStatsBuckets,
 	getStatsReportItems,
+	getStatsResponsePeriod,
 	limitStatsRows,
-	mapStatsReportDataPoints,
+	mapStatsSummaryDataPoint,
 	mergeStatsComparisonRows,
 	normalizeStatsReportSummary,
 } from './utils';
-import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
+import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 export type StatsSearchTermsItem = StatsNormalizedItemBase & {
@@ -23,18 +27,38 @@ function getSearchTermKey( item: StatsSearchTermsItem ): string {
 	return typeof item.label === 'string' ? item.label : String( item.label );
 }
 
+function normalizeStatsSearchTerm( item: StatsRecord ): StatsSearchTermsItem {
+	return {
+		label: item.term,
+		views: safeParseFloat( item.views ),
+		className: 'user-selectable',
+		children: null,
+	};
+}
+
 export function sanitizeStatsSearchTermsResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsSearchTermsItem > {
+	const summaryData = mapStatsSummaryDataPoint(
+		response,
+		query,
+		[ 'search_terms' ],
+		normalizeStatsSearchTerm
+	);
+
 	return {
 		summary: normalizeStatsReportSummary( response, query, [ 'search_terms' ] ),
-		data: mapStatsReportDataPoints( response, query, [ 'search_terms' ], item => ( {
-			label: item.term,
-			views: safeParseFloat( item.views ),
-			className: 'user-selectable',
-			children: null,
-		} ) ),
+		data: summaryData.length
+			? summaryData
+			: getStatsBuckets( response, query ).map( ( [ date, bucket ] ) => ( {
+					...createStatsDataPoint(
+						date,
+						query?.period ?? getStatsResponsePeriod( response ),
+						coerceStatsArray< StatsRecord >( bucket.search_terms ).map( normalizeStatsSearchTerm )
+					),
+					encrypted_search_terms: bucket.encrypted_search_terms,
+			  } ) ),
 	};
 }
 

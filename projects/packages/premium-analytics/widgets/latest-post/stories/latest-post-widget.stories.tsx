@@ -1,8 +1,4 @@
 /**
- * The Latest post widget reports lifetime totals, so it has no comparison
- * period: the `WithComparison` story passes comparison `reportParams` but
- * renders identically to `Default`.
- *
  * The widget reads its content locally from the core `/wp/v2/posts` endpoint and
  * its metrics (views, likes, comments) from the proxied `stats/post` endpoint,
  * both covered here by an `apiFetch` middleware that runs before the shared
@@ -97,21 +93,13 @@ registerLatestPostMocks();
 
 const LATEST_POST_RENDER_MODULE = 'storybook/latest-post';
 
-interface LatestPostStoryControls {
-	withComparison: boolean;
-}
-
 /**
  * Renders the data-connected widget with report params from the date range
  * picker.
- *
- * @param {LatestPostStoryControls} controls - The story controls.
  * @return The rendered widget.
  */
-function renderLatestPost( { withComparison }: LatestPostStoryControls ) {
-	return (
-		<LatestPostRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
-	);
+function renderLatestPost() {
+	return <LatestPostRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
@@ -162,40 +150,25 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/LatestPost',
 	component: LatestPostRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Latest post" widget shows the site\'s most recently published post with its all-time views, likes, and comments. The metrics are lifetime totals, so there is no comparison period — the `WithComparison` story renders identically to `Default`.',
+					'The "Latest post" widget shows the site\'s most recently published post with its all-time views, likes, and comments.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof LatestPostRender > & LatestPostStoryControls >;
+} satisfies Meta< typeof LatestPostRender >;
 
 export default meta;
 
-type Story = StoryObj< LatestPostStoryControls >;
+type Story = StoryObj< Partial< ComponentProps< typeof LatestPostRender > > >;
 
 /**
  * Default — the latest post with its lifetime views, likes, and comments.
  */
 export const Default: Story = {
 	render: renderLatestPost,
-	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * WithComparison — comparison `reportParams` are supplied by the date range
- * picker, but this module has no comparison data, so the widget renders
- * identically to `Default` (no deltas).
- */
-export const WithComparison: Story = {
-	render: renderLatestPost,
-	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -234,43 +207,34 @@ export const Empty: Story = {
 	beforeEach: () => forceLatestPostState( 'empty' ),
 };
 
-interface LatestPostDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		LatestPostStoryControls {}
-
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {LatestPostDashboardStoryProps} props - The dashboard story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real dashboard.
  */
-function LatestPostDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: LatestPostDashboardStoryProps ) {
+function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ LATEST_POST_RENDER_MODULE }
 			renderComponent={ LatestPostRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< LatestPostDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <LatestPostDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		// Latest post is a landscape widget: content left, featured image right.
 		widgetWidth: 2,
 		widgetHeight: 2,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };

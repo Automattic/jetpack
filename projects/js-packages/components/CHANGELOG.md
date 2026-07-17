@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.12.16] - 2026-07-13
+### Fixed
+- Pricing table: Align the highlighted column's gradient background to the right edge of the card. [#50346]
+
 ## [1.12.15] - 2026-07-09
 ### Changed
 - Update package dependencies. [#49272]
@@ -1873,6 +1877,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.12.16]: https://github.com/Automattic/jetpack-components/compare/1.12.15...1.12.16
 [1.12.15]: https://github.com/Automattic/jetpack-components/compare/1.12.14...1.12.15
 [1.12.14]: https://github.com/Automattic/jetpack-components/compare/1.12.13...1.12.14
 [1.12.13]: https://github.com/Automattic/jetpack-components/compare/1.12.12...1.12.13

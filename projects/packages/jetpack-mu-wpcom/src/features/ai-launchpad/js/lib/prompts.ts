@@ -98,7 +98,7 @@ export function buildTailorPrompt(
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
-Produce a single JSON object with THREE parts, in this order: an inferred-context blob, a tailored task list, and a starter blog post draft.
+Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft.
 
 Site name: ${ site_name }
 Goal: ${ goal }
@@ -107,6 +107,7 @@ User description: ${ description }
 ============ STEP 1 - inferred ============
 First, read the description closely and infer the site's context. You will use this to choose and describe the tasks, so do it before anything else.
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
+- "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. Same six values. Diagnostic only - it must NOT influence your task choices or anything else you produce.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
 - "theme_keyword": ONE lowercase word used to search for matching site designs. Pick the single most significant word for what the site is about, preferring the subject or site type over incidental modifiers: for "my weekend hiking trips" it is "hiking" (never "weekend"); for a handmade-ceramics shop it is "ceramics".
@@ -141,6 +142,11 @@ Write a friendly starter blog post the user can edit and publish.
 - "subtitle": ONE line, verb-led, max 10 words, describing what publishing this post does for them. Optional.
 - "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain English, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
 
+============ STEP 4 - about_page_draft ============
+Write starter content for the site's About page, grounded in the user's own description - never generic filler.
+- "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
+- "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
+
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
@@ -151,8 +157,9 @@ ${ menu.map( id => '- ' + id ).join( '\n' ) }
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
-  "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] }
+  "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
+  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }
 }`;
 }

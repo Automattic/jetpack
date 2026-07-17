@@ -9,7 +9,8 @@
  * To add a new scenario:
  * 1. Add an entry to the SCENARIOS array below.
  * 2. To measure another PAGE on an existing WordPress instance, reuse that instance's
- * dockerService/wpPath/envVar/defaultUrl and set `path` + `waitForSelector` (see formsResponses);
+ * dockerService/wpPath/envVar/defaultUrl and set `path` + `waitForSelector` (see formsResponses),
+ * plus the optional `expectUrlIncludes`, `minResourceCount` and `loadState` guards;
  * no new Docker service or setup is needed.
  * 3. Only when introducing a NEW WordPress instance, add the Docker service in
  * docker/docker-compose.yml and its setup in docker/setup-wordpress.sh.
@@ -90,13 +91,43 @@ export const SCENARIOS = [
 		// would populate the `forms-responses-*` keys from the wrong page. `expectUrlIncludes` makes
 		// measure-lcp.js fail the run if a future redirect change moves us off the inbox.
 		path: '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox',
-		waitForSelector: '#jetpack-forms-responses-wp-admin-app.boot-layout-container',
+		// Wait for the app's rendered layout, NOT the mount point. The wp-build `boot` shell
+		// (rebuilt in Automattic/jetpack#49272) renders the whole dashboard inside a
+		// `position: absolute` `.boot-layout` element nested under `display: contents` wrappers,
+		// so the outer `#jetpack-forms-responses-wp-admin-app.boot-layout-container` mount point
+		// now computes to height 0. measure-lcp.js waits for the selector to be *visible*, and a
+		// 0-height element is never visible, so waiting on the container timed out every iteration
+		// even though the dashboard rendered fine ("locator resolved to hidden"). `.boot-layout` is
+		// the positioned surface that actually fills the viewport (a stable, non-hashed BEM class
+		// from the wp-build boot framework), so it reflects the rendered page. Scoped by the app id
+		// so it can only match this dashboard's layout. See FORMS-729.
+		waitForSelector: '#jetpack-forms-responses-wp-admin-app .boot-layout',
 		expectUrlIncludes: '/responses/inbox',
-		// A healthy load of this page fetches ~80 resources; measure-lcp.js fails the run if it
-		// captures fewer than this, so a truncated/partial capture can't post an in-range but
-		// undercounted decodedBytesKB. Kept well below the real count (2x margin) and count-based,
-		// not editor-asset-based, so it never clips the legitimate drop when the editor lazy-loads.
-		minResourceCount: 40,
+		// Don't gate the measurement on `networkidle`. The wp-build dashboard framework fires a
+		// `canUser` OPTIONS probe to `/wp/v2/settings` during boot; in the headless-Chromium Docker
+		// fixture that request's response is intermittently not delivered to the browser (the server
+		// answers in ~0.02s and the request completes for curl/isolated fetches — it is a local
+		// boot-burst delivery stall, confirmed local-only), so `networkidle` never settles and every
+		// navigation timed out at 60s. `load` + the visible-selector + hydration waits below are a
+		// deterministic readiness signal that a single perpetually-pending request cannot blackhole;
+		// completeness for decodedBytesKB is then guarded by an in-flight-aware resource settle in
+		// measure-lcp.js (networkidle's quiet + nothing-in-flight guarantee minus only that one
+		// stuck probe, failing the iteration at its deadline) plus the `minResourceCount` floor
+		// below. Other scenarios keep the default 'networkidle'. See FORMS-729.
+		loadState: 'load',
+		// A healthy load of this page fetches ~91 resources (stable across iterations locally);
+		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
+		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the
+		// observed count — the same ratio as myJetpack. Honest scope: the floor only catches a
+		// capture BELOW 64; a settle during a gap where nothing is in flight and the next wave is
+		// not yet issued can pass it at 64–90 — the same residual window `networkidle` itself has
+		// always had (its 500ms quiet can fall in such a gap too). In that window the working
+		// defense is the settle's ~1s-quiet requirement (double networkidle's 500ms) — the
+		// decodedBytesKB SANITY range is far too wide to catch an undercount and is NOT a
+		// backstop for this. Still count-based, not editor-asset-based:
+		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
+		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
+		minResourceCount: 64,
 		// These four post straight to PRODUCTION keys — the `-staging` window in the README
 		// Safeguards is deliberately waived here (owner decision). The substitute for that window is
 		// the SANITY_RANGES + all-or-nothing gate plus manual sign-off before the first live post;

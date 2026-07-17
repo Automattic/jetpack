@@ -130,9 +130,9 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_LAST_12_MONTHS,
 		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics' ),
-		getRange: ( { initOfToday, endOfLastMonth } ) => ( {
-			from: startOfMonth( subMonths( initOfToday, 12 ) ),
-			to: endOfLastMonth,
+		getRange: ( { initOfToday, endOfYesterday } ) => ( {
+			from: subMonths( initOfToday, 12 ),
+			to: endOfYesterday,
 		} ),
 	},
 	{

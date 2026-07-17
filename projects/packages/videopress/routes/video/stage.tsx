@@ -12,6 +12,7 @@ import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
+import PreviewPlayer from '../../src/dashboard/components/video-details/preview-player';
 import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
 import RatingCard from '../../src/dashboard/components/video-details/rating-card';
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
@@ -149,6 +150,7 @@ const Editor = ( {
 			}
 		>
 			<div className="vp-video-details">
+				<PreviewPlayer video={ video } />
 				<ThumbnailCard
 					video={ video }
 					onAddToNewPost={ onAddToNewPost }

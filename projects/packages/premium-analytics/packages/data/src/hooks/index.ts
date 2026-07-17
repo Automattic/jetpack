@@ -13,6 +13,11 @@ export {
 	type StatsPostResponse,
 } from './use-stats-post';
 export {
+	useStatsPostComments,
+	type StatsPostCommentsParams,
+	type StatsPostCommentsResponse,
+} from './use-stats-post-comments';
+export {
 	useStatsPostLikes,
 	type StatsPostLikesParams,
 	type StatsPostLikesResponse,
@@ -26,6 +31,10 @@ export { useStatsTopAuthors } from './use-stats-top-authors';
 export { useStatsLocations } from './use-stats-locations';
 export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
+export {
+	useStatsVideoPlaysSummary,
+	type StatsVideoPlaysSummaryParams,
+} from './use-stats-video-plays-summary';
 export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,

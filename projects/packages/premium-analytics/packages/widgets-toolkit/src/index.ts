@@ -7,6 +7,7 @@ export {
 	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
+	type ComparativeLineChartSeries,
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
@@ -117,6 +118,8 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useElementSize,
+	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetDrillDown,

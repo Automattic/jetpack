@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.7.8] - 2026-07-13
+### Changed
+- Internal updates.
+
 ## [8.7.7] - 2026-07-09
 ### Changed
 - Route the is_usable_domain() IP check through Utils::ip_is_public(), so reserved and special-use ranges (CGNAT, link-local/cloud-metadata, multicast, and similar) are rejected consistently with the rest of the codebase. [#50175]
@@ -1939,6 +1943,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.7.8]: https://github.com/Automattic/jetpack-connection/compare/v8.7.7...v8.7.8
 [8.7.7]: https://github.com/Automattic/jetpack-connection/compare/v8.7.6...v8.7.7
 [8.7.6]: https://github.com/Automattic/jetpack-connection/compare/v8.7.5...v8.7.6
 [8.7.5]: https://github.com/Automattic/jetpack-connection/compare/v8.7.4...v8.7.5

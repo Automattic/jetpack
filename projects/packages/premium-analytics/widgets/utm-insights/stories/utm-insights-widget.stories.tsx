@@ -5,6 +5,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
@@ -72,7 +73,7 @@ export const Default: Story = {
 		/>
 	),
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
@@ -86,7 +87,7 @@ export const WithComparison: Story = {
 		/>
 	),
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
@@ -110,7 +111,7 @@ export const Loading: Story = {
 	render: () => renderUtmInsightsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/utm', 'loading' );
 		return () => forceStatsMockState( 'stats/utm', null );
@@ -124,7 +125,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderUtmInsightsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/utm', 'error' );
 		return () => forceStatsMockState( 'stats/utm', null );
@@ -138,7 +139,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderUtmInsightsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/utm', 'empty' );
 		return () => forceStatsMockState( 'stats/utm', null );
@@ -157,7 +158,7 @@ export const ByCampaign: Story = {
 		/>
 	),
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 // Full dashboard story — mounts the real WidgetDashboard so the widget renders

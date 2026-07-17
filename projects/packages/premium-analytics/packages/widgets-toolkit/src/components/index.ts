@@ -2,7 +2,11 @@ export { MetricDelta } from './metric-delta';
 export { MetricTileGrid } from './metric-tile';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
-export { ComparativeLineChart, type SeriesStyle } from './chart-comparative-line';
+export {
+	ComparativeLineChart,
+	type ComparativeLineChartSeries,
+	type SeriesStyle,
+} from './chart-comparative-line';
 export { Legend, type LegendItem } from './legend';
 export {
 	WidgetRoot,

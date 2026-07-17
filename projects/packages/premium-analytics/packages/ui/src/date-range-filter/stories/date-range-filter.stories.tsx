@@ -53,7 +53,15 @@ function buildInitialState( initialPreset: PrimaryPresetId ): FilterState {
 	};
 }
 
-function DateRangeFilterWithState( { initialPreset = 'last-30-days' as PrimaryPresetId } ) {
+function DateRangeFilterWithState( {
+	initialPreset = 'last-30-days' as PrimaryPresetId,
+	isCompact = false,
+	isWideScreen = false,
+}: {
+	initialPreset?: PrimaryPresetId;
+	isCompact?: boolean;
+	isWideScreen?: boolean;
+} ) {
 	const initialState = buildInitialState( initialPreset );
 
 	const [ committed, setCommitted ] = useState< FilterState >( initialState );
@@ -96,6 +104,8 @@ function DateRangeFilterWithState( { initialPreset = 'last-30-days' as PrimaryPr
 			onCancel={ handleCancel }
 			canApply={ canApply }
 			timeZone={ STORYBOOK_TIMEZONE }
+			isCompact={ isCompact }
+			isWideScreen={ isWideScreen }
 		/>
 	);
 }
@@ -108,10 +118,16 @@ export const CustomRange: Story = {
 	render: () => <DateRangeFilterWithState initialPreset="custom" />,
 };
 
+/*
+ * Compact renders the presets as a select and the custom trigger as a bordered
+ * button. The panel-level framing (gap, full-width row) cascades from
+ * `.date-filters-panel.is-compact` and is shown in the DateFiltersPanel story;
+ * here we only demo the control switch.
+ */
 export const Compact: Story = {
 	render: () => (
 		<div style={ { width: '360px' } }>
-			<DateRangeFilterWithState />
+			<DateRangeFilterWithState isCompact />
 		</div>
 	),
 };

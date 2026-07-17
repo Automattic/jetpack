@@ -12,9 +12,7 @@ import type { StatsEmailBreakdown } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -23,14 +21,14 @@ const OPENS_RATE_RESPONSE = {
 	total_sends: 1000,
 	total_opens: 400,
 	unique_opens: 380,
-	opens_rate: 38.1,
+	opens_rate: 0.381,
 };
 
 const CLICKS_RATE_RESPONSE = {
 	total_sends: 1000,
 	total_opens: 400,
 	total_clicks: 40,
-	clicks_rate: 3.81,
+	clicks_rate: 0.0381,
 };
 
 function routeRateResponse( options: unknown ) {
@@ -66,13 +64,13 @@ describe( 'EmailTopRowWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Emails sent' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Unique opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Total opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Open rate' ) ).toBeInTheDocument();
 		// Clicks-only tiles are not in the Opens view.
 		expect( screen.queryByText( 'Click rate' ) ).not.toBeInTheDocument();
-		// The open rate is formatted as a percentage from the 0–100 rate.
+		// The open rate is formatted as a percentage from the 0–1 rate fraction.
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
@@ -86,11 +84,22 @@ describe( 'EmailTopRowWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Total clicks' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Total opens' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Total clicks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Click rate' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Total opens' ) ).toBeInTheDocument();
 		// Opens-only tiles are not in the Clicks view.
+		expect( screen.queryByText( 'Emails sent' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Unique opens' ) ).not.toBeInTheDocument();
+
+		// The Clicks design combines the total-opens context from the opens summary
+		// with click totals from the clicks summary.
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect( requestedPaths.some( path => path.includes( 'stats/opens/emails/2000/rate' ) ) ).toBe(
+			true
+		);
+		expect( requestedPaths.some( path => path.includes( 'stats/clicks/emails/2000/rate' ) ) ).toBe(
+			true
+		);
 	} );
 
 	it( 'shows the empty state when the email has no stats', async () => {
@@ -147,14 +156,14 @@ describe( 'EmailTopRowWidget', () => {
 		mockApiFetch.mockImplementation( routeRateResponse );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
-		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Emails sent' ) ).resolves.toBeInTheDocument();
 	} );
 } );
 
 describe( 'toEmailTopRowMetrics', () => {
-	it( 'builds the Opens view tiles in order and converts the 0–100 rate', () => {
+	it( 'builds the Opens view tiles in order and preserves the 0–1 rate fraction', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 38.1 } ),
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 0.381 } ),
 			'opens'
 		);
 
@@ -170,7 +179,13 @@ describe( 'toEmailTopRowMetrics', () => {
 
 	it( 'builds the Clicks view tiles in order', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_opens: 400, total_clicks: 40, clicks_rate: 3.81 } ),
+			asSummary( {
+				total_sends: 1000,
+				unique_opens: 380,
+				total_opens: 400,
+				total_clicks: 40,
+				clicks_rate: 0.0381,
+			} ),
 			'clicks'
 		);
 
@@ -184,7 +199,7 @@ describe( 'toEmailTopRowMetrics', () => {
 
 	it( 'hides the Unique opens tile when there are no unique opens', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 38.1 } ),
+			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 0.381 } ),
 			'opens'
 		);
 

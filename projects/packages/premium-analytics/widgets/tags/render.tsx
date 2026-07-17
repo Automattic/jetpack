@@ -3,7 +3,9 @@
  */
 import {
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	useWidgetDrillDown,
@@ -198,6 +200,9 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					) }
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="tags" />
+			</WidgetFooter>
 		</Stack>
 	);
 }

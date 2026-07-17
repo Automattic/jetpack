@@ -15,6 +15,7 @@ const statsHookNames = [
 	'useStatsLocations',
 	'useStatsCountryViews',
 	'useStatsVideoPlays',
+	'useStatsVideoPlaysSummary',
 	'useStatsAppCommercialClassificationMutation',
 	'useStatsAppDashboardModuleSettings',
 	'useStatsAppDashboardModuleSettingsMutation',

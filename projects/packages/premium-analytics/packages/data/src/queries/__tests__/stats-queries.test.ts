@@ -31,6 +31,7 @@ import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
+import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
@@ -43,6 +44,7 @@ import {
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
+import { statsVideoPlaysSummaryQuery } from '../stats-video-plays-summary-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
@@ -99,6 +101,28 @@ describe( 'Stats query factories', () => {
 		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
 	} );
 
+	it( 'builds latest post comments query keys', () => {
+		const query = statsPostCommentsQuery( { postId: 41, number: 10 } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'post-comments',
+			'1.1',
+			'posts/41/replies',
+			'GET',
+			{ number: 10, type: 'comment', status: 'approved', order: 'DESC' },
+			undefined,
+			'postComments',
+		] );
+		expect( query.enabled ).toBe( true );
+	} );
+
+	it( 'disables post comments queries until a positive integer post ID is available', () => {
+		expect( statsPostCommentsQuery( { postId: 0 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: -1 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: 1.5 } ).enabled ).toBe( false );
+	} );
+
 	it( 'builds all-time email opens breakdown query keys without query params', () => {
 		const query = statsEmailOpensBreakdownQuery( 41, 'country' );
 
@@ -149,7 +173,7 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/opens/emails/41',
 			'GET',
-			{ period: 'day', quantity: 7, date: '2026-06-07', stats_fields: 'timeline' },
+			{ period: 'day', quantity: 7, date: '2026-06-01', stats_fields: 'timeline' },
 			undefined,
 			'emailTimeSeries',
 		] );
@@ -162,7 +186,7 @@ describe( 'Stats query factories', () => {
 				to: '2026-06-30',
 				interval: 'month',
 			} ).queryKey[ 5 ]
-		).toEqual( { period: 'day', quantity: 30, date: '2026-06-30', stats_fields: 'timeline' } );
+		).toEqual( { period: 'day', quantity: 30, date: '2026-06-01', stats_fields: 'timeline' } );
 	} );
 
 	it( 'requests 24 hourly buckets per day so multi-day hourly ranges are not truncated', () => {
@@ -180,7 +204,7 @@ describe( 'Stats query factories', () => {
 				to: '2026-06-15',
 				interval: 'hour',
 			} ).queryKey[ 5 ]
-		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-15', stats_fields: 'timeline' } );
+		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-14', stats_fields: 'timeline' } );
 	} );
 
 	it( 'disables email time series queries without a positive integer post ID or a date', () => {
@@ -262,6 +286,34 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'keeps the complete video summary mode out of the request params', () => {
+		const query = statsVideoPlaysSummaryQuery( {
+			from: '2026-07-09',
+			to: '2026-07-14',
+			interval: 'week',
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'video-plays-summary',
+			'1.1',
+			'stats/video-plays',
+			'GET',
+			{
+				period: 'day',
+				start_date: '2026-07-09',
+				days: 6,
+				date: '2026-07-14',
+				max: 0,
+				complete_stats: 1,
+			},
+			undefined,
+			'videoPlays',
+			{ summarize: 1 },
+		] );
 	} );
 
 	it( 'requests summarized archives data for multi-day ranges', () => {

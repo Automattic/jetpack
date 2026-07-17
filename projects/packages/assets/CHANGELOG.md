@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.5] - 2026-07-13
+### Changed
+- Update dependencies. [#42554]
+
 ## [4.4.4] - 2026-07-09
 ### Changed
 - Update dependencies. [#42554]
@@ -891,6 +895,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.4.5]: https://github.com/Automattic/jetpack-assets/compare/v4.4.4...v4.4.5
 [4.4.4]: https://github.com/Automattic/jetpack-assets/compare/v4.4.3...v4.4.4
 [4.4.3]: https://github.com/Automattic/jetpack-assets/compare/v4.4.2...v4.4.3
 [4.4.2]: https://github.com/Automattic/jetpack-assets/compare/v4.4.1...v4.4.2

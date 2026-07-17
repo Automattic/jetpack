@@ -1,7 +1,3 @@
-.date-range-quick-presets__select {
-	min-width: 12rem;
-}
-
 .date-range-quick-presets__pill {
 	// Hovered/focused pill: same brand-tinted highlight the select-control
 	// popup gives its items.
@@ -17,5 +13,6 @@
 		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
 		--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
 		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
+		outline-offset: 1px;
 	}
 }
