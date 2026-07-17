@@ -25,4 +25,8 @@ function wpcomsh_hydrate_podcast_module() {
 		Jetpack::activate_module( 'podcast', false, false );
 	}
 }
-add_action( 'init', 'wpcomsh_hydrate_podcast_module', 0, 0 );
+// Runs on plugins_loaded before Jetpack's late_initialization (priority 90),
+// which only calls Podcast::init() when the module already reads as active.
+// Activating on init (after plugins_loaded) lost that race: the menu still
+// rendered but the dashboard fell back to an empty container.
+add_action( 'plugins_loaded', 'wpcomsh_hydrate_podcast_module', 20 );
