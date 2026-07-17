@@ -2,18 +2,18 @@
  * All stories render the data-connected widget through `WidgetRoot`; the shared
  * `wordads/earnings` fixture (registered by `registerReportMocks`) resolves the
  * table. Loading / Error / Empty force the request into each state via
- * `setReportMockState`.
+ * `forceWordAdsEarningsState`.
  */
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
 import {
+	forceWordAdsEarningsState,
 	registerReportMocks,
-	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -31,25 +31,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerReportMocks();
 
 const RENDER_MODULE = 'storybook/wordads-earnings-history';
-
-/**
- * Puts the earnings request into a forced state for a story's lifetime, dropping
- * the cached entry on enter and cleanup so the state actually takes effect (the
- * earnings query key is static — the endpoint takes no params).
- *
- * @param state - The forced mock state.
- * @return A `beforeEach` implementation returning its cleanup.
- */
-function forceEarningsState( state: 'loading' | 'error' | 'empty' ) {
-	return () => {
-		setReportMockState( 'wordads/earnings', state );
-		queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-		return () => {
-			setReportMockState( 'wordads/earnings', null );
-			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-		};
-	};
-}
 
 /**
  * Story controls. `withComparison` toggles the comparison report params to
@@ -110,7 +91,7 @@ export const Loading: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceEarningsState( 'loading' ),
+	beforeEach: forceWordAdsEarningsState( 'loading' ),
 };
 
 /** The fetch failed — the error state with a Retry action. */
@@ -119,7 +100,7 @@ export const Error: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceEarningsState( 'error' ),
+	beforeEach: forceWordAdsEarningsState( 'error' ),
 };
 
 /** Resolved but empty — no earnings history for this breakdown. */
@@ -128,7 +109,7 @@ export const Empty: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceEarningsState( 'empty' ),
+	beforeEach: forceWordAdsEarningsState( 'empty' ),
 };
 
 interface WordAdsEarningsHistoryDashboardStoryProps

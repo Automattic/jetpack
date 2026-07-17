@@ -16,6 +16,7 @@
 /**
  * External dependencies
  */
+import { queryClient } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
 /**
@@ -174,6 +175,33 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	} else {
 		mockStateOverrides.set( pathFragment, state );
 	}
+}
+
+/**
+ * Story `beforeEach` that forces the shared `wordads/earnings` request into a
+ * loading, error, or empty state and drops its cached query on both enter and
+ * cleanup. Shared by every WordAds earnings widget story (highlights and the
+ * three history tables) so the cache-reset cannot drift between them.
+ *
+ * The earnings endpoint takes no params, so its query key is static and every
+ * WordAds story shares one cache entry (a distinct date preset can't separate
+ * them). Resetting on both edges gives each forced-state story a fresh fetch and
+ * clears a never-settling `loading` fetch before the next story reuses the key.
+ * Because the override is keyed by path, keep such stories off the shared
+ * autodocs page (`tags: [ '!autodocs' ]`).
+ *
+ * @param state - The forced mock state.
+ * @return A Storybook `beforeEach` implementation returning its cleanup.
+ */
+export function forceWordAdsEarningsState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'wordads/earnings', state );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+		return () => {
+			setReportMockState( 'wordads/earnings', null );
+			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+		};
+	};
 }
 
 const mockResponseOverrides = new Map< string, unknown >();
