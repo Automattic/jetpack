@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
 
-Add the video highlights widget: views, impressions, hours watched, and retention rate tiles for a selected video, with period-over-period comparison.
+Widgets: Add the video highlights widget: views, impressions, hours watched, and retention rate tiles for a selected video, with period-over-period comparison.
