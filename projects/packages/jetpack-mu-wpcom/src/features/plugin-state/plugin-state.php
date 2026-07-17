@@ -2,8 +2,7 @@
 /**
  * Plugin State feature.
  *
- * Exposes a single plugin's install and activation state to WordPress.com over a
- * blog-token-signed REST route. Atomic only.
+ * Exposes one plugin's state to WordPress.com over a blog-token-signed REST route. Atomic only.
  *
  * @package automattic/jetpack-mu-wpcom
  */

@@ -15,12 +15,11 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Answers whether one plugin is installed on this site, and whether it is active.
+ * Reports whether one plugin is installed, and whether it is active.
  *
- * WordPress.com polls this while it installs a marketplace plugin. The question is
- * narrow enough that the general plugin-list endpoint is the wrong tool for it: that
- * endpoint refreshes update transients and formats every installed plugin in order to
- * report on one of them. This reads a single directory and returns four fields.
+ * WordPress.com polls this while installing a marketplace plugin. The plugin-list endpoint
+ * answers the same question by refreshing update transients and formatting every installed
+ * plugin; this reads one directory.
  */
 class Plugin_State_REST_Controller extends WP_REST_Controller {
 
@@ -58,12 +57,8 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Only WordPress.com itself may ask, and only with this site's blog token.
-	 *
-	 * The end user's capability to install plugins is the caller's to check; what this
-	 * guards is that the request really is WordPress.com acting on the site. A user token
-	 * is refused as firmly as no token at all -- `is_signed_with_blog_token()` reports the
-	 * token type, not merely that some valid token was present.
+	 * Allow only blog-token-signed requests: WordPress.com acting on the site, not a user.
+	 * The caller checks the end user's capability.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -80,12 +75,10 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Validate the requested slug.
+	 * Validate the slug.
 	 *
-	 * The route pattern alone would not be enough. WP_REST_Server matches routes with the
-	 * `i` flag, so `[a-z0-9_.-]+` admits an uppercase slug, and the relative segments `.`
-	 * (the plugins directory itself) and `..` (its parent) are spelled entirely with
-	 * characters the pattern allows. Both would otherwise reach get_plugins() as a path.
+	 * The route pattern is not enough on its own: WP_REST_Server matches routes with the `i`
+	 * flag, so it admits uppercase, and `.` and `..` are spelled with characters it allows.
 	 *
 	 * @param mixed $value The submitted slug.
 	 *
@@ -108,11 +101,7 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Report whether the plugin is installed, and whether it is active.
-	 *
-	 * Read-only, and deliberately cheap: no update check, no autoupdate eligibility, no
-	 * action links, no uninstall check. An absent plugin is a state rather than a failure,
-	 * so it is reported as a 200 whose `installed` is false.
+	 * Report the plugin's state. An absent plugin is a 200, not a failure.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *
@@ -125,11 +114,8 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		/*
-		 * Scoping get_plugins() to the one directory keeps the work proportional to that
-		 * plugin's files rather than to everything the site has installed. A directory that
-		 * is missing, or that holds no file with a plugin header, comes back empty.
-		 */
+		// Scoped to one directory, so the work tracks that plugin's files rather than the whole
+		// inventory. A missing directory, or one with no plugin header, comes back empty.
 		$plugin_files = array_keys( get_plugins( '/' . $slug ) );
 
 		if ( ! $plugin_files ) {
@@ -141,8 +127,8 @@ class Plugin_State_REST_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// get_plugins() returns files relative to the directory it was given, so `give.php`
-		// here means `give/give.php`. Taking the first entry matches the plugin-list endpoint.
+		// get_plugins() returns paths relative to the directory given: `give.php` is `give/give.php`.
+		// Taking the first entry matches the plugin-list endpoint.
 		$plugin_file = $slug . '/' . reset( $plugin_files );
 
 		return rest_ensure_response(
