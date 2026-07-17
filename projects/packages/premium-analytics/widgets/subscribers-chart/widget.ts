@@ -69,7 +69,7 @@ export default {
 	title: __( 'Subscribers', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'A summary of the new subscribers you gained over time, with paid subscribers overlaid.',
+			'A summary of your subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.',
 			'jetpack-premium-analytics'
 		),
 	},
