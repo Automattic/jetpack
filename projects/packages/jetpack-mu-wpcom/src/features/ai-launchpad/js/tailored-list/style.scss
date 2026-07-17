@@ -2,31 +2,31 @@
 
 	// Centered content column: heading + progress, then a tasks | preview grid.
 	&__layout {
-		max-width: 960px;
+		max-width: var(--wpds-dimension-surface-width-2xl);
 		margin: 0 auto;
-		padding: clamp(24px, 8vh, 96px) 24px 48px;
+		padding: clamp(var(--wpds-dimension-padding-2xl), 8vh, 96px) var(--wpds-dimension-padding-2xl) 48px;
 	}
 
 	@media (max-width: 782px) {
 
 		&__layout {
-			padding: 24px 16px 32px;
+			padding: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-3xl);
 		}
 	}
 
 	&__heading {
-		margin-bottom: 24px;
+		margin-bottom: var(--wpds-dimension-gap-xl);
 	}
 
 	&__title-heading {
 		margin: 0;
-		font-size: 32px;
-		line-height: 1.2;
-		font-weight: 500;
+		font-size: var(--wpds-typography-font-size-2xl);
+		line-height: var(--wpds-typography-line-height-2xl);
+		font-weight: var(--wpds-typography-font-weight-medium);
 	}
 
 	&__progress {
-		margin: 8px 0 0;
+		margin: var(--wpds-dimension-gap-sm) 0 0;
 		color: #757575;
 		font-size: 14px;
 	}
@@ -34,7 +34,7 @@
 	&__columns {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: 32px;
+		gap: var(--wpds-dimension-gap-2xl);
 		align-items: start;
 
 		// Reserve the preview track only when there's a preview to show.
@@ -55,15 +55,15 @@
 	// grouped checklist.
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	padding: 8px;
+	gap: var(--wpds-dimension-gap-sm);
+	padding: var(--wpds-dimension-padding-sm);
 	background: #f6f7f7;
-	border-radius: 8px;
+	border-radius: var(--wpds-border-radius-lg);
 
 	// Tighten the Card padding for compact rows; zero the header→content margin
 	// (re-added on the subtitle, so a collapsed card shows no gap).
 	&__card {
-		--wp-ui-card-padding: 16px;
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 		--wp-ui-card-header-content-margin: 0;
 	}
 
@@ -71,12 +71,12 @@
 	&__header-inner {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--wpds-dimension-gap-sm);
 		min-width: 0;
 	}
 
 	&__title {
-		font-weight: 500;
+		font-weight: var(--wpds-typography-font-weight-medium);
 		font-size: 14px;
 		color: var(--wpds-color-foreground-interactive-neutral);
 
@@ -105,14 +105,14 @@
 
 	// Re-creates the header→content gap zeroed above; clipped when collapsed.
 	&__subtitle {
-		margin: 8px 0 16px;
+		margin: var(--wpds-dimension-gap-sm) 0 var(--wpds-dimension-gap-lg);
 		color: #757575;
 	}
 
 	&__actions {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--wpds-dimension-gap-sm);
 	}
 
 	// A locked preview of a task that isn't reachable yet: title and lock icon are
@@ -127,7 +127,7 @@
 
 	// The "available once…" line shown in place of the actions on a disabled card.
 	&__hint {
-		margin: 0 0 8px;
+		margin: 0 0 var(--wpds-dimension-gap-sm);
 		font-style: italic;
 		color: #757575;
 	}
@@ -147,8 +147,8 @@
 		max-width: 300px;
 		aspect-ratio: 4 / 3;
 		overflow: hidden;
-		border: 1px solid #e0e0e0;
-		border-radius: 8px;
+		border: var(--wpds-border-width-xs) solid #e0e0e0;
+		border-radius: var(--wpds-border-radius-lg);
 		background: #f6f7f7;
 
 		// Reveal the "Edit site" overlay on hover or when the button is focused.
@@ -198,19 +198,21 @@
 		transform: scale(0.25);
 		transform-origin: top left;
 		// Nudge up to crop the logged-in admin bar (~32px → ~8px at scale 0.25).
-		translate: 0 -8px;
+		translate: 0 calc(var(--wpds-dimension-size-4xs) * -1);
 		// Purely a thumbnail; the link below is interactive.
 		pointer-events: none;
 	}
 
 	&__preview-title {
-		margin: 12px 0 2px;
+		margin: var(--wpds-dimension-gap-md) 0 2px;
 		font-weight: 600;
-		font-size: 15px;
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-lg);
 	}
 
 	&__preview-link {
-		font-size: 13px;
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: var(--wpds-typography-line-height-md);
 	}
 
 	// Full-width on mobile; placed after the base rule to win at the breakpoint.
@@ -225,8 +227,8 @@
 	&__skeleton-bar {
 		display: block;
 		height: 56px;
-		border-radius: 4px;
-		background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 37%, #f0f0f0 63%);
+		border-radius: var(--wpds-border-radius-md);
+		background: linear-gradient(90deg, var(--wpds-color-background-track-neutral-weak) 25%, var(--wpds-color-background-interactive-neutral-strong-disabled) 37%, var(--wpds-color-background-track-neutral-weak) 63%);
 		background-size: 400% 100%;
 		animation: ai-launchpad-shimmer 1.4s ease infinite;
 	}
