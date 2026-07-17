@@ -5,7 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -16,39 +16,9 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( { to, params, search, children, ...props }: MockRouteLinkProps ) => {
-		// Interpolate `$name` path segments from `params`, mirroring the router,
-		// so a param route like `/reports/$report` resolves to `/reports/posts`.
-		const path = Object.entries( params ?? {} ).reduce(
-			( acc, [ key, value ] ) => acc.replace( `$${ key }`, String( value ) ),
-			to
-		);
-		const query = new URLSearchParams();
-		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-			if ( value !== undefined && value !== null ) {
-				query.set( key, String( value ) );
-			}
-		} );
-		const queryString = query.toString();
-
-		return (
-			<a href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-				{ children }
-			</a>
-		);
-	},
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockGetScriptData = getScriptData as jest.Mock;
 const mockApiFetch = apiFetch as unknown as jest.Mock;

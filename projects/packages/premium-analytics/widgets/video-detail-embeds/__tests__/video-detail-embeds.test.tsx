@@ -11,9 +11,7 @@ import VideoDetailEmbedsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
