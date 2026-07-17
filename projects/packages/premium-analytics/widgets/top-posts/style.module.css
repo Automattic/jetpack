@@ -78,9 +78,3 @@
 		opacity: 1;
 	}
 }
-
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
-}
