@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post detail: Align post view comparisons and avoid redundant email timeline requests.

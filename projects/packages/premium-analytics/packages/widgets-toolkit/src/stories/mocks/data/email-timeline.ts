@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { format, isValid, parseISO, subDays, subHours } from 'date-fns';
+import { addDays, addHours, format, isValid, parseISO } from 'date-fns';
 
 /**
  * The timeline matrix `stats/<opens|clicks>/emails/<postId>?stats_fields=timeline`
@@ -32,9 +32,9 @@ function emailTimelineCount( metric: 'opens' | 'clicks', index: number ): number
 
 /**
  * Builds a mock email timeline response for the "Email performance" widget. The
- * generated buckets end at the requested `date` and count back `quantity`
- * periods, mirroring how the real endpoint scopes its window, so the chart
- * always spans the dashboard date range the story requests.
+ * email timeline endpoint treats `date` as the first requested bucket and
+ * returns `quantity` periods going forward. Mirroring that behaviour keeps a
+ * story's chart aligned with its dashboard date range.
  *
  * @param metric      - Which timeline to return.
  * @param requestPath - The request path; `period`, `quantity`, and `date` are read off its query.
@@ -51,19 +51,21 @@ export function buildEmailTimelineResponse(
 		? Math.min( Math.max( parsedQuantity, 1 ), 24 * 90 )
 		: 30;
 	const parsedDate = parseISO( query.get( 'date' ) ?? '' );
-	const endDate = isValid( parsedDate ) ? parsedDate : new Date();
+	const startDate = isValid( parsedDate ) ? parsedDate : new Date();
 	const field = metric === 'opens' ? 'opens_count' : 'clicks_count';
 
 	const data: EmailTimelineRow[] = [];
 
-	for ( let index = quantity - 1; index >= 0; index-- ) {
-		const count = emailTimelineCount( metric, index );
+	for ( let index = 0; index < quantity; index++ ) {
+		// Preserve the existing send-decay shape while emitting buckets from
+		// the requested start date forward.
+		const count = emailTimelineCount( metric, quantity - 1 - index );
 
 		if ( period === 'hour' ) {
-			const bucket = subHours( endDate, index );
+			const bucket = addHours( startDate, index );
 			data.push( [ format( bucket, 'yyyy-MM-dd' ), bucket.getHours(), count ] );
 		} else {
-			data.push( [ format( subDays( endDate, index ), 'yyyy-MM-dd' ), count ] );
+			data.push( [ format( addDays( startDate, index ), 'yyyy-MM-dd' ), count ] );
 		}
 	}
 
