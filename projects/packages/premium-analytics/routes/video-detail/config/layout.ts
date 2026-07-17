@@ -9,8 +9,13 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
  */
 export const VIDEO_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
+		uuid: 'video-detail-highlights',
+		type: 'jpa/video-detail-highlights',
+		placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+	},
+	{
 		uuid: 'video-detail-embeds',
 		type: 'jpa/video-detail-embeds',
-		placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 1 },
+		placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 2 },
 	},
 ];
