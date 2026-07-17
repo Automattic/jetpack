@@ -7,7 +7,7 @@
 // the sticky `.jp-admin-page-tabs` strip. This file adds only the page-specific
 // pieces: the off-white canvas and the tab content padding.
 
-$jetpack-social-inset: var(--wpds-dimension-padding-2xl, 24px);
+$jetpack-social-inset: var(--wpds-dimension-padding-2xl);
 
 // Both body classes: `jetpack_page_*` when Social is a submenu under the
 // Jetpack menu (Jetpack plugin), `toplevel_page_*` when it's a top-level menu

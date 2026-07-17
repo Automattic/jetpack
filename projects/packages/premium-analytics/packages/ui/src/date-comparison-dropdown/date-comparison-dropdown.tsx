@@ -49,24 +49,23 @@ type DateComparisonDropdownProps = {
 	onClear: () => void;
 };
 
+type ComparisonTriggerLabelArgs = {
+	selectedPreset?: ComparisonDateRangePreset;
+	removeCompareToPrefix: boolean;
+	noComparisonLabel: string;
+};
+
 /**
  * Builds the comparison trigger label from the active preset range.
  *
- * @param args                       - Label formatting inputs.
- * @param args.selectedPreset        - Active comparison preset, if any.
- * @param args.removeCompareToPrefix - Whether to omit the "Compare to:" prefix.
- * @param args.noComparisonLabel     - Label used when comparison is disabled.
+ * @param {ComparisonTriggerLabelArgs} args - Label formatting inputs.
  * @return Trigger label text.
  */
 export function getComparisonTriggerLabel( {
 	selectedPreset,
 	removeCompareToPrefix,
 	noComparisonLabel,
-}: {
-	selectedPreset?: ComparisonDateRangePreset;
-	removeCompareToPrefix: boolean;
-	noComparisonLabel: string;
-} ): string {
+}: ComparisonTriggerLabelArgs ): string {
 	if ( ! selectedPreset?.range?.from || ! selectedPreset.range.to ) {
 		return noComparisonLabel;
 	}

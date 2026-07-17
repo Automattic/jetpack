@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Dev-only: converted connection test files to TypeScript so they are type-checked. No production code change.

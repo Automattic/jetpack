@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 // pull the UI into the route guard's import chain. `config/tabs.ts` only
 // depends on the routing helper and i18n, so it's safe to import here.
 import { resolveTabId } from './posts/config/tabs';
+import { resolveSection as resolveUtmSection } from './utm/config/tabs';
 import type { ComponentType } from 'react';
 
 /**
@@ -74,6 +75,16 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics' ),
 		load: () => import( './comment-followers/page' ),
 	},
+	clicks: {
+		id: 'clicks',
+		getTitle: () => __( 'Clicks', 'jetpack-premium-analytics' ),
+		load: () => import( './clicks/page' ),
+	},
+	downloads: {
+		id: 'downloads',
+		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics' ),
+		load: () => import( './downloads/page' ),
+	},
 	posts: {
 		id: 'posts',
 		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ),
@@ -81,11 +92,27 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
 	},
+	'search-terms': {
+		id: 'search-terms',
+		getTitle: () => __( 'Search terms', 'jetpack-premium-analytics' ),
+		load: () => import( './search-terms/page' ),
+	},
 	videos: {
 		id: 'videos',
 		getTitle: () => __( 'Videos', 'jetpack-premium-analytics' ),
 		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics' ),
 		load: () => import( './videos/page' ),
+	},
+	utm: {
+		id: 'utm',
+		getTitle: () => __( 'UTM', 'jetpack-premium-analytics' ),
+		resolveSection: resolveUtmSection,
+		load: () => import( './utm/page' ),
+	},
+	referrers: {
+		id: 'referrers',
+		getTitle: () => __( 'Referrers', 'jetpack-premium-analytics' ),
+		load: () => import( './referrers/page' ),
 	},
 };
 

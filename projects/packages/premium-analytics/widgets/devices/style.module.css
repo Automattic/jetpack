@@ -26,13 +26,13 @@
 	inline-size: min(100%, 320px);
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xl, 24px);
+	gap: var(--wpds-dimension-gap-xl);
 }
 
 @container (max-width: 420px) {
 
 	.chartShell {
 		inline-size: min(100%, 220px);
-		gap: var(--wpds-dimension-gap-sm, 8px);
+		gap: var(--wpds-dimension-gap-sm);
 	}
 }

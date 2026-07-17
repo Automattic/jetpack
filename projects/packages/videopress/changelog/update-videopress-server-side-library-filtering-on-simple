@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress dashboard on WordPress.com Simple: filter the library by privacy and by VideoPress/local type on the server (via the wpcom videos table) instead of over-fetching and filtering in the browser. This removes the silent truncation of filtered results past ~300 videos, keeps the pagination totals exact, fixes the free-tier upload count over-counting local videos, and surfaces a retryable error notice when the library fails to load instead of an empty grid.

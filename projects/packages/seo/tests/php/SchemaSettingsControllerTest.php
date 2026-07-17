@@ -112,6 +112,7 @@ class SchemaSettingsControllerTest extends TestCase {
 		$this->assertArrayHasKey( 'localBusiness', $data['defaults'] );
 		$this->assertFalse( $data['localBusiness']['enabled'] );
 		$this->assertSame( '', $data['localBusiness']['address']['streetAddress'] );
+		$this->assertTrue( $data['breadcrumbList']['enabled'] );
 	}
 
 	/**
@@ -124,11 +125,12 @@ class SchemaSettingsControllerTest extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/seo/schema-settings' );
 		$request->set_body_params(
 			array(
-				'organization' => array(
+				'organization'   => array(
 					'name'   => 'Acme Corporation',
 					'sameAs' => array( 'https://twitter.com/acme', 'https://twitter.com/acme' ),
 					'email'  => 'hello@acme.test',
 				),
+				'breadcrumbList' => array( 'enabled' => false ),
 			)
 		);
 
@@ -140,6 +142,7 @@ class SchemaSettingsControllerTest extends TestCase {
 		// Duplicate dropped by sanitization.
 		$this->assertSame( array( 'https://twitter.com/acme' ), $data['organization']['sameAs'] );
 		$this->assertSame( 'hello@acme.test', $data['organization']['email'] );
+		$this->assertFalse( $data['breadcrumbList']['enabled'] );
 		// Site identity is still exposed as the placeholder default.
 		$this->assertSame( 'Acme Co', $data['defaults']['organization']['name'] );
 
@@ -208,17 +211,18 @@ class SchemaSettingsControllerTest extends TestCase {
 	}
 
 	/**
-	 * Posting only Organization preserves stored LocalBusiness settings.
+	 * Posting only Organization preserves other stored schema settings.
 	 */
 	public function test_update_item_with_organization_only_preserves_local_business() {
 		Schema_Settings::update(
 			array(
-				'localBusiness' => array(
+				'localBusiness'  => array(
 					'enabled' => true,
 					'address' => array(
 						'streetAddress' => '123 Main St',
 					),
 				),
+				'breadcrumbList' => array( 'enabled' => false ),
 			)
 		);
 
@@ -237,5 +241,6 @@ class SchemaSettingsControllerTest extends TestCase {
 		$this->assertSame( 'Acme Corporation', $data['organization']['name'] );
 		$this->assertTrue( $data['localBusiness']['enabled'] );
 		$this->assertSame( '123 Main St', $data['localBusiness']['address']['streetAddress'] );
+		$this->assertFalse( $data['breadcrumbList']['enabled'] );
 	}
 }

@@ -4,9 +4,9 @@
 	align-self: flex-start;
 	display: inline-flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 	min-block-size: 20px;
-	margin-block-end: var(--wpds-dimension-gap-md, 12px);
+	margin-block-end: var(--wpds-dimension-gap-md);
 	// Widget roots clip overflow, so the focus ring is drawn inset and the ring
 	// plus its gap must live inside the button's own box.
 	padding: calc(var(--wpds-dimension-padding-xs) + var(--wpds-border-width-focus));
@@ -26,10 +26,10 @@
 }
 
 .backLink:focus-visible {
-	border-radius: var(--wpds-border-radius-sm, 2px);
+	border-radius: var(--wpds-border-radius-sm);
 	outline:
 		var(--wpds-border-width-focus) solid
-		var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
+		var(--wpds-color-stroke-focus);
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 

@@ -3,6 +3,7 @@
 import { TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
+import clsx from 'clsx';
 import type {
 	LocalBusinessAddress,
 	LocalBusinessSettings,
@@ -21,18 +22,23 @@ const OPENING_DAYS: Array< { code: OpeningHoursDay; label: string } > = [
 	{ code: 'Su', label: __( 'Sunday', 'jetpack-seo' ) },
 ];
 
-const ADDRESS_FIELDS: Array< { field: keyof LocalBusinessAddress; label: string; help?: string } > =
+const ADDRESS_FIELD_ROWS: Array<
+	Array< { field: keyof LocalBusinessAddress; label: string; help?: string } >
+> = [
+	[ { field: 'streetAddress', label: __( 'Street address', 'jetpack-seo' ) } ],
 	[
-		{ field: 'streetAddress', label: __( 'Street address', 'jetpack-seo' ) },
 		{ field: 'addressLocality', label: __( 'City', 'jetpack-seo' ) },
 		{ field: 'addressRegion', label: __( 'State/Region', 'jetpack-seo' ) },
+	],
+	[
 		{ field: 'postalCode', label: __( 'Postal code', 'jetpack-seo' ) },
 		{
 			field: 'addressCountry',
 			label: __( 'Country', 'jetpack-seo' ),
 			help: __( 'Two-letter country code (for example US).', 'jetpack-seo' ),
 		},
-	];
+	],
+];
 
 const GEO_FIELDS: Array< {
 	field: keyof LocalBusinessSettings[ 'geo' ];
@@ -179,79 +185,88 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 				</span>
 			) }
 
-			{ ADDRESS_FIELDS.map( ( { field, label, help } ) => {
-				const fieldError = field === 'addressCountry' && ! isCountryCode( address[ field ] );
-				return (
-					<div
-						key={ field }
-						className={ fieldError ? 'jetpack-seo-settings__schema-field--error' : undefined }
-					>
-						<TextControl
-							label={ label }
-							help={ fieldError ? COUNTRY_CODE_ERROR : help }
-							placeholder={ localBusinessDefaults.address[ field ] }
-							value={ address[ field ] }
-							onChange={ next =>
-								setAddress( field, field === 'addressCountry' ? uppercaseAscii( next ) : next )
-							}
-							disabled={ isSaving }
-							aria-invalid={ Boolean( fieldError ) }
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-						/>
-					</div>
-				);
-			} ) }
+			{ ADDRESS_FIELD_ROWS.map( fields => (
+				<div
+					key={ fields[ 0 ].field }
+					className={ clsx( {
+						'jetpack-seo-settings__schema-paired-fields': fields.length > 1,
+					} ) }
+				>
+					{ fields.map( ( { field, label, help } ) => {
+						const fieldError = field === 'addressCountry' && ! isCountryCode( address[ field ] );
+						return (
+							<div
+								key={ field }
+								className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
+									'jetpack-seo-settings__schema-field--error': fieldError,
+								} ) }
+							>
+								<TextControl
+									label={ label }
+									help={ fieldError ? COUNTRY_CODE_ERROR : help }
+									placeholder={ localBusinessDefaults.address[ field ] }
+									value={ address[ field ] }
+									onChange={ next =>
+										setAddress( field, field === 'addressCountry' ? uppercaseAscii( next ) : next )
+									}
+									disabled={ isSaving }
+									aria-invalid={ Boolean( fieldError ) }
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+								/>
+							</div>
+						);
+					} ) }
+				</div>
+			) ) }
 
-			<div
-				className={
-					! isPhoneNumber( localBusiness.telephone )
-						? 'jetpack-seo-settings__schema-field--error'
-						: undefined
-				}
-			>
-				<TextControl
-					label={ __( 'Phone', 'jetpack-seo' ) }
-					type="tel"
-					help={
-						! isPhoneNumber( localBusiness.telephone )
-							? PHONE_ERROR
-							: __( 'Include the country and area codes when possible.', 'jetpack-seo' )
-					}
-					value={ localBusiness.telephone }
-					onChange={ next => setLocalBusinessField( { telephone: next } ) }
-					disabled={ isSaving }
-					aria-invalid={ ! isPhoneNumber( localBusiness.telephone ) }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				/>
-			</div>
+			<div className="jetpack-seo-settings__schema-paired-fields">
+				<div
+					className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
+						'jetpack-seo-settings__schema-field--error': ! isPhoneNumber( localBusiness.telephone ),
+					} ) }
+				>
+					<TextControl
+						label={ __( 'Phone', 'jetpack-seo' ) }
+						type="tel"
+						help={
+							! isPhoneNumber( localBusiness.telephone )
+								? PHONE_ERROR
+								: __( 'Include the country and area codes when possible.', 'jetpack-seo' )
+						}
+						value={ localBusiness.telephone }
+						onChange={ next => setLocalBusinessField( { telephone: next } ) }
+						disabled={ isSaving }
+						aria-invalid={ ! isPhoneNumber( localBusiness.telephone ) }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+				</div>
 
-			<div
-				className={
-					! isPriceRange( localBusiness.priceRange )
-						? 'jetpack-seo-settings__schema-field--error'
-						: undefined
-				}
-			>
-				<TextControl
-					label={ __( 'Price range', 'jetpack-seo' ) }
-					placeholder="$$"
-					help={
-						! isPriceRange( localBusiness.priceRange )
-							? PRICE_RANGE_ERROR
-							: __(
-									'Use a numerical range (for example $10–$20) or a relative price level (for example $$).',
-									'jetpack-seo'
-							  )
-					}
-					value={ localBusiness.priceRange }
-					onChange={ next => setLocalBusinessField( { priceRange: next } ) }
-					disabled={ isSaving }
-					aria-invalid={ ! isPriceRange( localBusiness.priceRange ) }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				/>
+				<div
+					className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
+						'jetpack-seo-settings__schema-field--error': ! isPriceRange( localBusiness.priceRange ),
+					} ) }
+				>
+					<TextControl
+						label={ __( 'Price range', 'jetpack-seo' ) }
+						placeholder="$$"
+						help={
+							! isPriceRange( localBusiness.priceRange )
+								? PRICE_RANGE_ERROR
+								: __(
+										'Use a numerical range (for example $10–$20) or a relative price level (for example $$).',
+										'jetpack-seo'
+								  )
+						}
+						value={ localBusiness.priceRange }
+						onChange={ next => setLocalBusinessField( { priceRange: next } ) }
+						disabled={ isSaving }
+						aria-invalid={ ! isPriceRange( localBusiness.priceRange ) }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+				</div>
 			</div>
 
 			<div className="jetpack-seo-settings__schema-paired-fields">

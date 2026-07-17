@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress dashboard: show a retryable error notice when video stats fail to load instead of rendering all-zeros (indistinguishable from a zero-activity site), and stop the "still processing" library poll after 15 minutes so an orphaned/stuck record can't poll indefinitely.

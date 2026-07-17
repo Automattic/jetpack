@@ -21,7 +21,7 @@
 // non-mobile so the mobile breakpoint keeps cards content-sized with
 // natural breathing room instead of stretching edge-to-edge of the
 // viewport.
-@media (min-width: 600px) {
+@media ( min-width: 600px ) {
 
 	.vp-video-details {
 		width: 100%;
@@ -67,36 +67,53 @@
 	min-height: 320px;
 }
 
-.vp-video-details__thumbnail {
-	display: block;
-	max-width: 240px;
+// Playable preview at the top of the details screen. The frame is pinned
+// to 16:9 — the canonical player shape — and the embed letterboxes any
+// other aspect ratio inside it against the black background, so the page
+// doesn't reflow based on the video's own dimensions (which the media
+// record doesn't expose anyway).
+.vp-video-details__player {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	background: #000;
 	border-radius: 4px;
-	flex-shrink: 0;
+	overflow: hidden;
+
+	iframe,
+	video {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
+	}
 }
 
-// "Processing" badge shown in place of the poster <img> while the
-// VideoPress backend is still transcoding the upload. With no poster to
-// size it, the box hugs its label, so it needs its own padding to read as
-// a tidy pill instead of text pressed against the neutral background.
-// (Inherits the 4px border-radius from .vp-video-details__thumbnail.)
-.vp-video-details__thumbnail-processing {
+// "Processing" panel shown in place of the player while the VideoPress
+// backend is still transcoding the upload; keeps the player's 16:9 slot so
+// the page doesn't jump when playback becomes available.
+.vp-video-details__player-processing {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 4px 12px;
 	background: #f0f0f0;
 	color: #1e1e1e;
 }
 
-.vp-video-details__thumbnail-meta {
-	flex: 1;
-	min-width: 0;
+// The action buttons row should size to its content, not stretch across
+// the column flex parent.
+.vp-video-details__actions {
+	align-self: flex-start;
+	flex-wrap: wrap;
 }
 
-// Outlined "Add video to new post" should size to its content,
-// not stretch across the column flex parent.
-.vp-video-details__primary-action {
-	align-self: flex-start;
+// The "Update thumbnail" trigger is a @wordpress/components Button (36px
+// tall) sitting next to a @wordpress/ui Button, which sizes off the WPDS
+// size-lg token (40px). Pin the trigger to the same token so the two
+// actions read as one row. (No fallback — the build injects token
+// fallbacks automatically.)
+.vp-thumbnail-update__trigger .components-button {
+	height: var(--wpds-dimension-size-lg);
 }
 
 // "FILE NAME" / "UPLOADED ON" caption labels (Figma uses uppercase
@@ -118,54 +135,6 @@
 // breathing room without growing the row height.
 .vp-video-details__manage-subtitles {
 	padding-inline: 8px;
-}
-
-// Mobile: stack the Thumbnail card's two columns vertically. With the
-// meta column hosting full-width copy fields + the primary action,
-// anything narrower than ~600px squashes the meta into a barely-readable
-// strip. The thumbnail keeps its natural, width-capped size from the base
-// rule so it renders correctly for any aspect ratio.
-@media (max-width: 600px) {
-
-	.vp-video-details__thumbnail-row {
-		flex-direction: column !important;
-	}
-}
-
-.vp-video-details__thumbnail-wrapper {
-	position: relative;
-	flex-shrink: 0;
-}
-
-// The trigger is the @wordpress/components DropdownMenu wrapper; position it
-// over the thumbnail's top-right corner. Give the toggle button an opaque
-// surface so the pencil icon stays legible over any poster image (light or
-// dark), matching the solid affordance it had as a @wordpress/ui IconButton.
-.vp-thumbnail-update__trigger {
-	position: absolute;
-	top: 8px;
-	right: 8px;
-
-	.components-button {
-		background: rgba(255, 255, 255, 0.9);
-		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-
-		&:hover:not(:disabled) {
-			background: #fff;
-		}
-	}
-}
-
-.vp-video-details__thumbnail-updating {
-	position: absolute;
-	inset: 0;
-	z-index: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: rgba(0, 0, 0, 0.55);
-	color: #fff;
-	border-radius: 4px;
 }
 
 .vp-frame-scrubber {

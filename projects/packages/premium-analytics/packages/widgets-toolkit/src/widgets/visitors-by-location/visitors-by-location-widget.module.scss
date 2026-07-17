@@ -16,7 +16,7 @@
 	grid-template-rows: auto 1fr;
 	column-gap: var(--wpds-dimension-gap-lg);
 	// Separate the toggle from the leaderboard below it.
-	row-gap: var(--wpds-dimension-gap-md, 16px);
+	row-gap: var(--wpds-dimension-gap-md);
 	align-items: stretch;
 	height: 100%;
 	min-height: 0;
@@ -30,8 +30,8 @@
 	// (.next-admin-dashboard-widget__content) sets overflow: auto, which
 	// clips the ToggleGroupControl's outward focus ring.
 	// Add padding to create space for the focus indicator.
-	padding-block-start: var(--wpds-dimension-padding-xs, 4px);
-	padding-inline-end: var(--wpds-dimension-padding-xs, 4px);
+	padding-block-start: var(--wpds-dimension-padding-xs);
+	padding-inline-end: var(--wpds-dimension-padding-xs);
 	padding-block-end: 0;
 	padding-inline-start: 0;
 }
@@ -53,7 +53,7 @@
 		--jpa-leaderboard-image-width: 28px;
 		--jpa-leaderboard-image-height: auto;
 		--jpa-leaderboard-image-fit: contain;
-		--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm, 2px);
+		--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
 	}
 }
 

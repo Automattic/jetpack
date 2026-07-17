@@ -76,7 +76,7 @@
 	}
 
 	.launched__modal-view-site-text {
-		font-weight: $font-weight-medium;
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
 		font-size: $font-size-x-small;
 		line-height: $font-line-height-small;
 		white-space: nowrap;
@@ -84,7 +84,7 @@
 }
 
 .launched__modal-upsell {
-	align-items: center;
+	align-items: flex-start;
 	background-color: $gray-100;
 	display: flex;
 	flex-direction: column;
@@ -98,6 +98,7 @@
 	}
 
 	@media (min-width: $break-small) {
+		align-items: center;
 		flex-direction: row;
 		gap: $grid-unit-30;
 	}

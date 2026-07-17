@@ -19,7 +19,7 @@ interface JsonSchema {
  */
 export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 	type: 'object',
-	required: [ 'tasks', 'inferred', 'first_post_draft' ],
+	required: [ 'tasks', 'inferred', 'first_post_draft', 'about_page_draft' ],
 	additionalProperties: false,
 	properties: {
 		tasks: {
@@ -64,6 +64,20 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 					type: 'array',
 					minItems: 2,
 					maxItems: 2,
+					items: { type: 'string', minLength: 1, maxLength: 1200 },
+				},
+			},
+		},
+		about_page_draft: {
+			type: 'object',
+			required: [ 'title', 'paragraphs' ],
+			additionalProperties: false,
+			properties: {
+				title: { type: 'string', minLength: 1, maxLength: 80 },
+				paragraphs: {
+					type: 'array',
+					minItems: 2,
+					maxItems: 3,
 					items: { type: 'string', minLength: 1, maxLength: 1200 },
 				},
 			},

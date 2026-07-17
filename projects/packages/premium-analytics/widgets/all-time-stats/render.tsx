@@ -3,14 +3,14 @@
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
-	MetricWithComparison,
+	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
+	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, comment, people, postContent, seen, trendingUp } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { comment, people, postContent, seen, trendingUp } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -37,24 +37,24 @@ type AllTimeStatsWidgetProps = WidgetRenderProps< AllTimeStatsRenderAttributes >
  */
 type StatsSummary = Record< string, unknown >;
 
-const COUNT_FORMAT = {
-	type: 'number' as const,
+const COUNT_FORMAT: DataFormat = {
+	type: 'number',
 	options: { decimals: 0 },
 };
 
 /**
- * Render-only config per metric: the row icon. Ids and labels are shared with
+ * Render-only config per metric: the tile icon. Ids and labels are shared with
  * the settings checkboxes via `ALL_TIME_STATS_METRICS` in `widget.ts`; the id
- * doubles as the summary field the row reads.
+ * doubles as the summary field the tile reads.
  */
-const ROW_CONFIG: Record< AllTimeStatsMetricId, { icon: typeof seen } > = {
+const TILE_CONFIG: Record< AllTimeStatsMetricId, { icon: typeof seen } > = {
 	views: { icon: seen },
 	visitors: { icon: people },
 	posts: { icon: postContent },
 	comments: { icon: comment },
 };
 
-type AllTimeStatsRow = {
+type AllTimeStatsTile = {
 	key: AllTimeStatsMetricId;
 	label: string;
 	icon: typeof seen;
@@ -63,7 +63,7 @@ type AllTimeStatsRow = {
 
 /**
  * Reads a numeric summary field, returning `undefined` when the key is absent
- * or not a finite number, so rows for missing fields can be skipped.
+ * or not a finite number, so tiles for missing fields can be skipped.
  *
  * @param summary - The normalized all-time summary.
  * @param key     - The summary field to read.
@@ -78,7 +78,7 @@ function readCount( summary: StatsSummary | undefined, key: string ): number | u
 
 /**
  * Fetches the all-time site summary through the designated `useStatsSite` hook
- * and renders the lifetime totals as a labelled list of icon rows. Which rows
+ * and renders the lifetime totals as a grid of metric tiles. Which tiles
  * appear is controlled by the `metrics` attribute; fields absent from the
  * response are skipped. There is no comparison period for this module, so each
  * value renders as a bare number.
@@ -97,20 +97,20 @@ function AllTimeStatsReport( {
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
 
-	// Resolve selected ids against the canonical definitions so the row order
+	// Resolve selected ids against the canonical definitions so the tile order
 	// stays stable regardless of the order the ids were toggled in.
 	const enabledMetrics = useMemo( () => {
 		const selected = new Set( metrics );
 		return ALL_TIME_STATS_METRICS.filter( metric => selected.has( metric.id ) );
 	}, [ metrics ] );
 
-	const rows = useMemo(
+	const tiles = useMemo(
 		() =>
-			enabledMetrics.flatMap( ( { id, label } ): AllTimeStatsRow[] => {
+			enabledMetrics.flatMap( ( { id, label } ): AllTimeStatsTile[] => {
 				const value = readCount( summary, id );
 				return value === undefined
 					? []
-					: [ { key: id, label, icon: ROW_CONFIG[ id ].icon, value } ];
+					: [ { key: id, label, icon: TILE_CONFIG[ id ].icon, value } ];
 			} ),
 		[ enabledMetrics, summary ]
 	);
@@ -125,8 +125,8 @@ function AllTimeStatsReport( {
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the totals visible; only surface the error
 				// when there is nothing to show.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ rows.length === 0 }
+				isError={ tiles.length === 0 && isError }
+				isEmpty={ tiles.length === 0 }
 				error={ {
 					description: __(
 						"We couldn't load all-time stats. Please try again in a moment.",
@@ -144,20 +144,7 @@ function AllTimeStatsReport( {
 							: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ),
 				} }
 			>
-				<div className={ styles.list }>
-					{ rows.map( row => (
-						<div key={ row.key } className={ styles.row }>
-							<Icon className={ styles.icon } icon={ row.icon } />
-							<Text className={ styles.label }>{ row.label }</Text>
-							<MetricWithComparison
-								className={ styles.value }
-								value={ row.value }
-								dataFormat={ COUNT_FORMAT }
-								fontSize="md"
-							/>
-						</div>
-					) ) }
-				</div>
+				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);

@@ -22,7 +22,12 @@ import {
 	resolveResultsGit,
 	assertCaptureComplete,
 	assertExpectedUrl,
+	assertResourceCountSettled,
+	isStuckSettingsProbe,
+	settleOrThrow,
+	trackPendingRequests,
 	summarizeResources,
+	waitForResourceCountIdle,
 } from './measure-lcp.js';
 import {
 	checkSanityRange,
@@ -507,13 +512,18 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	// wrong tab cannot quietly populate the responses keys from the forms list.
 	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
 	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
-	// Lower bound is 40 (not 1): a degenerate floor of a handful of resources would pass the old
-	// `> 0` check while catching nothing. Upper bound stays below the real ~80-resource load so the
-	// floor keeps its 2x margin and never clips the legitimate editor-lazy-load drop.
-	assert.ok(
-		scenario.minResourceCount >= 40 && scenario.minResourceCount < 80,
-		'formsResponses must declare a resource-count floor of >=40 and below the real ~80-resource load'
+	// Pin the exact value (siblings pin every field by equality) so a later edit toward the
+	// ~91-resource load can't erode the margin silently, and exercise the real guard at the
+	// boundary: one below the floor must throw, the floor itself must not. Honest scope: the
+	// floor only catches captures BELOW 64 — a quiet-gap settle at 64–90 passes it (the same
+	// residual window networkidle itself has; see the residual-risk test in the FORMS-729
+	// block) — so it is a backstop under the in-flight-aware settle, not a completeness proof.
+	assert.equal( scenario.minResourceCount, 64 );
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 63 }, scenario ),
+		/Incomplete capture: 63 resources < expected minimum 64/
 	);
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
 test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
@@ -2568,4 +2578,323 @@ test( 'a dry run makes no dedup read even when dedup is fully configured', async
 	} finally {
 		global.fetch = origFetch;
 	}
+} );
+
+// --- FORMS-729: forms readiness selector + stuck-request-proof settle ---
+
+/**
+ * Fake Playwright page for waitForResourceCountIdle. `counts` is the sequence
+ * performance.getEntriesByType('resource').length returns on successive polls; the
+ * last value is repeated once the sequence is exhausted. waitForTimeout is a no-op
+ * so the test doesn't actually sleep. `polls()` reports how many times the count
+ * was read, so a test can pin WHERE the loop stopped, not just that it stopped.
+ */
+function fakeResourcePage( counts ) {
+	let i = 0;
+	return {
+		evaluate: async () => counts[ Math.min( i++, counts.length - 1 ) ],
+		waitForTimeout: async () => {},
+		polls: () => i,
+	};
+}
+
+test( 'waitForResourceCountIdle settles via early stability, not the deadline fallback', async () => {
+	// Count climbs 10→40→90 then holds; five equal polls (stableChecks) settle it. Pinning the
+	// exact poll count (3 climbing + 5 stable = 8) and settled:true distinguishes a working
+	// stability detector from a broken one that only returns because the cap expired — a
+	// disabled stability branch would read far past 8 polls and report settled:false.
+	const page = fakeResourcePage( [ 10, 40, 90, 90, 90, 90, 90, 90, 90, 90 ] );
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+	} );
+	assert.equal( result.settled, true, 'must reach genuine stability, not the cap' );
+	assert.equal( result.count, 90, 'must report the stable count it observed' );
+	assert.equal( page.polls(), 8, 'must stop at the 5th stable read, not poll to the cap' );
+} );
+
+test( 'waitForResourceCountIdle resets its stability streak when the count moves again', async () => {
+	// Four equal reads of 50 (one short of stableChecks:5) then movement to 80: the streak must
+	// reset instead of counting the pre-movement reads toward stability, then five equal reads
+	// of 80 settle it. Total polls: 1×50-first + 4×50-stable + 1×80-first + 5×80-stable = 11.
+	const page = fakeResourcePage( [ 50, 50, 50, 50, 50, 80, 80, 80, 80, 80, 80, 80 ] );
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+	} );
+	assert.equal( result.settled, true );
+	assert.equal( result.count, 80, 'must settle on the post-movement count, not the plateau' );
+	assert.equal( page.polls(), 11, 'the 4-read plateau must not count toward the new streak' );
+} );
+
+test( 'waitForResourceCountIdle caps at maxWaitMs and reports it did NOT settle', async () => {
+	// A count that increases every poll models a page that keeps streaming (or a buggy
+	// stub); the maxWait cap must return rather than loop forever, and must say so via
+	// settled:false — measure-lcp.js turns that into a failed iteration (fail closed)
+	// instead of capturing a still-loading page. A never-delivered request is the real
+	// stuck case: it never adds a resource entry, so the count would instead go flat —
+	// this test pins the harder "never flat" bound.
+	let polls = 0;
+	const page = {
+		evaluate: async () => ++polls, // strictly increasing: never stable
+		waitForTimeout: async () => {},
+	};
+	const start = Date.now();
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 50,
+	} );
+	assert.equal( result.settled, false, 'cap expiry must be reported, not disguised as a settle' );
+	assert.ok( polls > 0, 'it should have polled at least once' );
+	// The deadline must bound the loop: returning takes ~maxWaitMs, not multiples of it.
+	assert.ok( Date.now() - start < 2000, 'must return near maxWaitMs, not far past it' );
+} );
+
+test( 'assertResourceCountSettled fails a capped-out settle and passes a clean one', () => {
+	// The fail-closed gate measure-lcp.js applies to both settle sites (warm-up navigation and
+	// measured reload): a capped-out settle must throw (failing the iteration before capture),
+	// a genuine settle must not. The message must stay neutral about WHICH signal was active —
+	// settled:false can mean a moving count OR a stuck in-flight request, and the result cannot
+	// distinguish them, so claiming "count still changing" would misreport the stuck-request case.
+	assert.throws(
+		() => assertResourceCountSettled( { settled: false, count: 55 }, 'measured reload' ),
+		/never settled during measured reload.*resources or in-flight requests.*completed count 55/
+	);
+	assert.doesNotThrow( () =>
+		assertResourceCountSettled( { settled: true, count: 91 }, 'measured reload' )
+	);
+} );
+
+test( 'settleOrThrow threads the in-flight ledger into the settle', async () => {
+	// Pins the exact one-line regression the round-3 review proved survivable: dropping
+	// `pendingCount` from a settle call site left the whole suite green while silently
+	// reverting the in-flight guarantee. Through settleOrThrow (the seam both production call
+	// sites use), a never-clearing pending request MUST fail the settle even though the
+	// completed count is flat — quiet from the count's point of view.
+	const page = { evaluate: async () => 89, waitForTimeout: async () => {} };
+	await assert.rejects(
+		settleOrThrow(
+			page,
+			{ count: () => 1 }, // a request that never finishes
+			'measured reload',
+			{ intervalMs: 0, stableChecks: 5, maxWaitMs: 50 }
+		),
+		/never settled during measured reload/
+	);
+	// And the same flat count with an idle ledger settles cleanly.
+	await assert.doesNotReject(
+		settleOrThrow( page, { count: () => 0 }, 'warm-up navigation', {
+			intervalMs: 0,
+			stableChecks: 5,
+			maxWaitMs: 5000,
+		} )
+	);
+	// The ledger cannot be overridden through the tuning overrides.
+	await assert.rejects(
+		settleOrThrow( page, { count: () => 1 }, 'measured reload', {
+			intervalMs: 0,
+			stableChecks: 5,
+			maxWaitMs: 50,
+			pendingCount: () => 0, // must lose to the real ledger
+		} ),
+		/never settled/
+	);
+} );
+
+test( 'an in-flight request holds the settle open even while the completed count is flat', async () => {
+	// The completed-resource count cannot see an in-flight request (an entry appears only at
+	// responseEnd), so a flat count during a slow legitimate response would otherwise settle
+	// early and capture before that response lands. With pendingCount wired in, polls made
+	// while a request is in flight must not count toward stability: here the count is flat at
+	// 89 throughout, pending is 1 for the first 3 polls, so settling must take 3 + 5 polls —
+	// settling at poll 6 (ignoring pending) would reproduce the exact live fail-open this
+	// guards against.
+	let poll = 0;
+	const page = {
+		evaluate: async () => {
+			poll += 1;
+			return 89;
+		},
+		waitForTimeout: async () => {},
+	};
+	const pendingByPoll = [ 1, 1, 1 ]; // then 0 forever
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+		pendingCount: () => pendingByPoll[ poll - 1 ] || 0,
+	} );
+	assert.equal( result.settled, true );
+	assert.equal( result.count, 89 );
+	assert.equal( poll, 8, 'the 3 in-flight polls must not have counted toward stability' );
+} );
+
+test( 'a request that never finishes (other than the excluded probe) fails the settle closed', async () => {
+	// A non-excluded request stuck in flight forever must hold the settle open until the
+	// deadline and be reported as settled:false — assertResourceCountSettled then fails the
+	// iteration instead of capturing a page still waiting on a legitimate response.
+	const page = {
+		evaluate: async () => 89, // completed count flat: quiet from the count's point of view
+		waitForTimeout: async () => {},
+	};
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 50,
+		pendingCount: () => 1, // never clears
+	} );
+	assert.equal( result.settled, false );
+	assert.throws( () => assertResourceCountSettled( result, 'measured reload' ) );
+} );
+
+test( 'documents the accepted residual: a quiet-gap settle at or above the floor still passes', async () => {
+	// Accepted residual risk, on record: when NOTHING is in flight and the page has not yet
+	// issued its next resource wave, the settle sees genuine quiet and reports settled at a
+	// count that can clear the 64 floor (here 70 of an eventual 91). networkidle has this exact
+	// window too (its 500ms quiet can fall in the same gap) — this is parity, not a new hole.
+	// In this window the working defense is the settle's ~1s-quiet requirement (double
+	// networkidle's 500ms); minResourceCount catches captures below 64, and the decodedBytesKB
+	// SANITY range is far too wide to catch an undercount (NOT a backstop here). If this test
+	// starts failing, the settle got stricter and this documentation should be updated, not the
+	// settle loosened.
+	const page = fakeResourcePage( [ 70, 70, 70, 70, 70, 70, 91 ] );
+	const result = await waitForResourceCountIdle( page, {
+		intervalMs: 0,
+		stableChecks: 5,
+		maxWaitMs: 5000,
+		pendingCount: () => 0, // nothing in flight: the gap is invisible to the ledger too
+	} );
+	assert.equal( result.settled, true );
+	assert.equal( result.count, 70, 'settles at the plateau, never seeing the later resources' );
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.doesNotThrow(
+		() => assertCaptureComplete( { totalRequests: 70 }, forms ),
+		'70 >= the 64 floor: the floor does not catch this case, by design'
+	);
+} );
+
+test( 'isStuckSettingsProbe matches only the settings OPTIONS probe', () => {
+	const req = ( method, url ) => ( { method: () => method, url: () => url } );
+	// The real fixture shape: OPTIONS via the encoded rest_route form (with extra params).
+	assert.equal(
+		isStuckSettingsProbe(
+			req(
+				'OPTIONS',
+				'http://localhost:8083/index.php?rest_route=%2Fwp%2Fv2%2Fsettings&_locale=user'
+			)
+		),
+		true
+	);
+	// Pretty-permalink shape, with and without a trailing slash.
+	assert.equal(
+		isStuckSettingsProbe( req( 'OPTIONS', 'http://localhost:8083/wp-json/wp/v2/settings' ) ),
+		true
+	);
+	assert.equal(
+		isStuckSettingsProbe( req( 'OPTIONS', 'http://localhost:8083/wp-json/wp/v2/settings/' ) ),
+		true
+	);
+	// Same URL but a real data request: never excluded.
+	assert.equal(
+		isStuckSettingsProbe( req( 'GET', 'http://localhost:8083/wp-json/wp/v2/settings' ) ),
+		false
+	);
+	// Other OPTIONS probes: never excluded — any of them getting stuck must fail the iteration.
+	assert.equal(
+		isStuckSettingsProbe(
+			req( 'OPTIONS', 'http://localhost:8083/index.php?rest_route=%2Fwp%2Fv2%2Ffeedback' )
+		),
+		false
+	);
+	// The exact-route boundary (round-4 review, empirically driven through the settle): adjacent
+	// routes and URLs merely CARRYING the string must never be excluded — the match is the
+	// decoded route compared exactly, not a substring.
+	assert.equal(
+		isStuckSettingsProbe(
+			req( 'OPTIONS', 'http://localhost:8083/wp-json/wp/v2/settings/autosaves' )
+		),
+		false,
+		'a child route must not be excluded'
+	);
+	assert.equal(
+		isStuckSettingsProbe( req( 'OPTIONS', 'http://localhost:8083/wp-json/wp/v2/settings-extra' ) ),
+		false,
+		'a sibling route sharing the prefix must not be excluded'
+	);
+	assert.equal(
+		isStuckSettingsProbe(
+			req( 'OPTIONS', 'http://localhost:8083/index.php?rest_route=%2Fwp%2Fv2%2Fsettings%2Fchild' )
+		),
+		false,
+		'a child route in rest_route form must not be excluded'
+	);
+	assert.equal(
+		isStuckSettingsProbe(
+			req( 'OPTIONS', 'http://localhost:8083/wp-json/wp/v2/feedback?next=%2Fwp%2Fv2%2Fsettings' )
+		),
+		false,
+		'the settings string in an unrelated query value must not be excluded'
+	);
+	// A non-URL or malformed value must not throw — and must stay in the ledger (fail closed).
+	assert.equal( isStuckSettingsProbe( req( 'OPTIONS', 'not a url' ) ), false );
+	assert.equal( isStuckSettingsProbe( req( 'OPTIONS', 'http://x/%E0%A4%A' ) ), false );
+} );
+
+test( 'trackPendingRequests counts in-flight requests, skips excluded ones, and detaches cleanly', () => {
+	// Fake Playwright page event surface: on/off registries keyed by event name.
+	const handlers = {};
+	const page = {
+		on: ( event, fn ) => {
+			( handlers[ event ] ||= [] ).push( fn );
+		},
+		off: ( event, fn ) => {
+			handlers[ event ] = ( handlers[ event ] || [] ).filter( h => h !== fn );
+		},
+	};
+	const emit = ( event, arg ) => ( handlers[ event ] || [] ).forEach( fn => fn( arg ) );
+	const excluded = { id: 'stuck' };
+	const tracker = trackPendingRequests( page, r => r === excluded );
+
+	const a = { id: 'a' };
+	const b = { id: 'b' };
+	emit( 'request', a );
+	emit( 'request', b );
+	emit( 'request', excluded ); // the stuck probe: never enters the ledger
+	assert.equal( tracker.count(), 2 );
+	emit( 'requestfinished', a );
+	assert.equal( tracker.count(), 1 );
+	// Navigations abort outstanding requests as requestfailed — must also clear the ledger.
+	emit( 'requestfailed', b );
+	assert.equal( tracker.count(), 0 );
+	// Removing something never added (the excluded probe finishing) is a harmless no-op.
+	emit( 'requestfinished', excluded );
+	assert.equal( tracker.count(), 0 );
+
+	tracker.dispose();
+	emit( 'request', { id: 'after-dispose' } );
+	assert.equal( tracker.count(), 0, 'a disposed tracker must not keep counting' );
+} );
+
+test( 'formsResponses waits on the visible layout, not the 0-height mount point', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.ok( forms, 'formsResponses scenario must exist' );
+	// The mount point #jetpack-forms-responses-wp-admin-app.boot-layout-container computes to
+	// height 0 post-#49272 (content moved into a position:absolute child), so a *visible*-state
+	// wait on it never resolves. The selector must instead target the rendered .boot-layout.
+	assert.equal(
+		forms.waitForSelector,
+		'#jetpack-forms-responses-wp-admin-app .boot-layout',
+		'forms selector must target the rendered layout, not the 0-height container'
+	);
+} );
+
+test( 'formsResponses opts out of networkidle so a stuck request cannot blackhole it', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.equal( forms.loadState, 'load' );
+	// The scenarios that measure a settled page keep the default (undefined → 'networkidle').
+	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).loadState, undefined );
+	assert.equal( SCENARIOS.find( s => s.key === 'myJetpack' ).loadState, undefined );
 } );

@@ -1,5 +1,5 @@
 .site-activity-logs__event {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral);
 
 	// Event row icon — fixed 32×32 tile inside the Table layout's composite
 	// cell so the row alignment is stable regardless of surrounding
@@ -16,8 +16,8 @@
 		min-width: 32px;
 		padding: 4px;
 		border-radius: 2px;
-		fill: var(--wpds-color-foreground-content-neutral-weak, #757575);
-		background-color: var(--wpds-color-background-surface-neutral-weak, #f0f0f1);
+		fill: var(--wpds-color-foreground-content-neutral-weak);
+		background-color: var(--wpds-color-background-surface-neutral-weak);
 	}
 }
 
@@ -26,7 +26,7 @@
 	flex-wrap: wrap;
 
 	> span {
-		color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }
 

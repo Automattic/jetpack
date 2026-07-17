@@ -9,7 +9,9 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
@@ -355,6 +357,9 @@ export default function ReferrersWidget( {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ReferrersInner max={ max } />
+				<WidgetFooter>
+					<ReportLink report="referrers" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

@@ -7,7 +7,9 @@ import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	useWidgetDrillDown,
@@ -31,6 +33,13 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
+type UtmReportSection =
+	| 'source-medium'
+	| 'campaign-source-medium'
+	| 'source'
+	| 'medium'
+	| 'campaign';
+
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
@@ -45,6 +54,22 @@ type UtmInsightsInnerProps = {
 	 */
 	max: number;
 };
+
+/** Map a widget dimension to a section supported by the UTM report. */
+function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
+	switch ( utmDimension ) {
+		case 'utm_source,utm_medium':
+			return 'source-medium';
+		case 'utm_campaign,utm_source,utm_medium':
+			return 'campaign-source-medium';
+		case 'utm_source':
+			return 'source';
+		case 'utm_medium':
+			return 'medium';
+		case 'utm_campaign':
+			return 'campaign';
+	}
+}
 
 /**
  * Inner component — rendered inside WidgetRoot.
@@ -142,7 +167,6 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 			className={ styles.backLink }
 		/>
 	) : null;
-
 	return (
 		<>
 			{ backLink }
@@ -173,6 +197,9 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					/>
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+			</WidgetFooter>
 		</>
 	);
 }

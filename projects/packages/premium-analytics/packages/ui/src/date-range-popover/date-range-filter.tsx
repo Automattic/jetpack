@@ -223,6 +223,11 @@ type DateRangePopoverProps = DateRangePopoverContentProps & {
 	 * when the popover renders standalone.
 	 */
 	triggerAsCompositeItem?: boolean;
+
+	/**
+	 * Whether to show the compact version of the popover
+	 */
+	isCompact?: boolean;
 };
 
 export function DateRangePopover( {
@@ -238,6 +243,7 @@ export function DateRangePopover( {
 	onOpenChange,
 	isWideScreen = false,
 	triggerAsCompositeItem = false,
+	isCompact = false,
 }: DateRangePopoverProps ) {
 	const [ rememberedCustomRange, setRememberedCustomRange ] =
 		useState< RememberedCustomRange | null >( null );
@@ -311,7 +317,7 @@ export function DateRangePopover( {
 				const trigger = (
 					<Button
 						className="date-filters-panel-button"
-						variant="minimal"
+						variant={ isCompact ? 'outline' : 'minimal' }
 						tone="neutral"
 						onClick={ onToggle }
 						id="date-range-popover-button"

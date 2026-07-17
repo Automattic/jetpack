@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
@@ -79,6 +79,7 @@ export default {
 			id: 'granularity',
 			label: __( 'Group by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Auto', 'jetpack-premium-analytics' ),

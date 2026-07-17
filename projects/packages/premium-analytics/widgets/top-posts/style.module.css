@@ -23,10 +23,10 @@
 .labelRow {
 	display: flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 	min-width: 0;
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
 }
 
 /* `min-width: 0` lets the flex item shrink below its content width so the
@@ -49,16 +49,34 @@
 	text-decoration: underline;
 }
 
-/* Trailing external-link icon: opens the public page in a new tab. */
+/* Trailing external-link icon: opens the public page in a new tab. Hidden
+   until the row is hovered (or holds keyboard focus) so the resting rows read
+   as plain titles; opacity keeps the slot in the layout and the target
+   tappable, so nothing shifts on reveal. */
 .externalLink {
 	display: inline-flex;
 	flex: none;
-	color: var(--wpds-color-foreground-content-neutral-weak, currentColor);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	opacity: 0;
+	transition: opacity 120ms ease-in-out;
+}
+
+.labelRow:hover .externalLink,
+.labelRow:focus-within .externalLink {
+	opacity: 1;
 }
 
 .externalLink:hover,
-.externalLink:focus {
+.externalLink:focus-visible {
 	color: inherit;
+}
+
+/* Touch-capable devices: keep the icon visible so the affordance isn't lost. */
+@media (hover: none), (any-pointer: coarse) {
+
+	.externalLink {
+		opacity: 1;
+	}
 }
 
 :global([inert]:not([inert="true"])) .root {

@@ -1,9 +1,22 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "sass:meta";
 
-// Import dataviews styles for DataForm component
-@import "@wordpress/theme/design-tokens.css";
-@import "@wordpress/dataviews/build-style/style.css";
+// This stylesheet feeds two bundles: the wp-build dashboard
+// (`routes/dashboard/stage.tsx`) and the legacy settings page
+// (`src/settings/index.tsx`, the `newsletter` webpack entry, still served when
+// a site opts out via `rsm_jetpack_ui_modernization_newsletter`). Load shared
+// CSS with `meta.load-css`, never a literal `@import "….css"`:
+// - Sass passes `.css` `@import`s through as literal CSS at-rules. On the
+//   wp-build path they survive to runtime, where the bare specifiers resolve
+//   against `/wp-admin/…` and 404. Firefox applies NO rule from a stylesheet
+//   with pending imports, so the `jetpack-admin-page-layout` mixin below stays
+//   inert until they settle — an intermittent FOUC where the page paints
+//   unstyled (content under the admin menu, tabs mis-inset), then snaps in.
+// - `meta.load-css` inlines at Sass compile time, so both bundles get the rules
+//   and no runtime `@import` ever reaches the browser.
+// The DataViews CSS is required, not decorative: the sections below render
+// `DataForm`, which needs it for layout and spacing on both pages.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
 @include meta.load-css("./sections/placement-card");
 
 body.jetpack_page_jetpack-newsletter {
@@ -30,7 +43,7 @@ body.jetpack_page_jetpack-newsletter {
 .newsletter-settings-connect-notice {
 	max-width: 660px;
 	margin-inline: auto;
-	margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+	margin-block-end: var(--wpds-dimension-gap-lg);
 
 	.components-notice {
 		margin: 0;
@@ -56,10 +69,10 @@ body.jetpack_page_jetpack-newsletter {
 .newsletter-settings {
 	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
 	margin-inline: auto;
-	padding-block-end: var(--wpds-dimension-padding-3xl, 32px);
+	padding-block-end: var(--wpds-dimension-padding-3xl);
 
 	.components-notice {
-		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+		margin-block-end: var(--wpds-dimension-gap-lg);
 	}
 
 	.newsletter-card-footer {
@@ -67,7 +80,7 @@ body.jetpack_page_jetpack-newsletter {
 		flex-wrap: wrap;
 		gap: 8px;
 		justify-content: flex-end;
-		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
+		margin-block-start: var(--wpds-dimension-gap-lg);
 
 		// Two-element footer (NewsletterSection's privacy + manage links)
 		// brackets each child to opposite ends instead of stacking right.
