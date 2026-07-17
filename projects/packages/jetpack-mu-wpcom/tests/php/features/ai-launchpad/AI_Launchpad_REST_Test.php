@@ -596,6 +596,19 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The captured event at an index. Exists so static analysis sees a typed read:
+	 * the capture array is filled by reference from a hook closure, which Phan
+	 * cannot track (it otherwise infers the array stays empty).
+	 *
+	 * @param array $events The captured events.
+	 * @param int   $index  The event index.
+	 * @return array{0: string, 1: array} The `[ name, props ]` pair.
+	 */
+	private static function captured_event( $events, $index = 0 ) {
+		return $events[ $index ];
+	}
+
+	/**
 	 * Starts capturing server-side analytics events via the observation action.
 	 *
 	 * @param array $events Reference to the array capture appends `[ name, props ]` pairs to.
@@ -618,7 +631,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_tailored_site( array( 'niche' => 'hiking' ) );
 
-		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -633,7 +645,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->call_api( Requests::GET );
 		$this->assertCount( 1, $events );
-		list( $name, $props ) = $events[0];
+		list( $name, $props ) = self::captured_event( $events );
 		$this->assertSame( 'jetpack_ai_launchpad_task_completed', $name );
 		$this->assertSame( 'first_post_published', $props['task_id'] );
 		// The shared context rides along, populated from the persisted options.
@@ -663,7 +675,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_tailored_site();
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
 
-		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -681,8 +692,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->call_api( Requests::GET );
 		$this->assertCount( 1, $events );
-		$this->assertSame( 'jetpack_ai_launchpad_task_completed', $events[0][0] );
-		$this->assertSame( 'site_title', $events[0][1]['task_id'] );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', self::captured_event( $events )[0] );
+		$this->assertSame( 'site_title', self::captured_event( $events )[1]['task_id'] );
 
 		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
 	}
@@ -695,7 +706,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_tailored_site();
 
-		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -717,7 +727,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_tailored_site();
 
-		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -764,7 +773,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The bookkeeping key is persisted only — responses stay clean of it, like GET.
 		$this->assertArrayNotHasKey( 'tracked_completed', $result->get_data()['ai_output'] );
 
-		/** @var array{0: string, 1: array}[] $events Filled by reference from the capture hook. */
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
 
@@ -778,8 +786,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->call_api( Requests::GET );
 		$this->assertCount( 1, $events );
-		$this->assertSame( 'jetpack_ai_launchpad_task_completed', $events[0][0] );
-		$this->assertSame( 'site_title', $events[0][1]['task_id'] );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', self::captured_event( $events )[0] );
+		$this->assertSame( 'site_title', self::captured_event( $events )[1]['task_id'] );
 
 		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
 	}
