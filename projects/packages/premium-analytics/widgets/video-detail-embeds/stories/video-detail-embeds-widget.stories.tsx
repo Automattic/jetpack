@@ -20,7 +20,7 @@ import VideoDetailEmbedsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -35,48 +35,31 @@ const SINGLE_VIDEO_PATH_FRAGMENT = 'stats/video/';
 // `stats/video/{id}` endpoint returns the same fixture for any ID.
 const MOCK_VIDEO_ID = 105;
 
-// Widget-specific story control: toggles the previous-period comparison params.
-interface VideoDetailEmbedsStoryControls {
-	/**
-	 * Whether to request the previous-period comparison.
-	 */
-	withComparison: boolean;
-}
-
 /**
  * Builds the host-composed report params for the selected video, deriving the
- * date range / comparison from the `withComparison` control.
+ * requested date range.
  *
- * @param {boolean}    withComparison - Whether to include comparison params.
  * @param {PresetType} preset         - Optional date preset override.
  * @return The report params with the single-video `post_id` scope.
  */
-function reportParamsForVideo( withComparison: boolean, preset?: PresetType ) {
-	return { ...getDefaultQueryParams( withComparison, preset ), post_id: MOCK_VIDEO_ID };
+function reportParamsForVideo( preset?: PresetType ) {
+	return { ...getDefaultQueryParams( false, preset ), post_id: MOCK_VIDEO_ID };
 }
 
 /**
- * Render the data-connected widget with report params derived from the
- * `withComparison` control, so the close-up stories exercise the real data flow
- * (served by `registerReportMocks`).
+ * Render the data-connected widget with report params served by
+ * `registerReportMocks`.
  *
- * @param {VideoDetailEmbedsStoryControls} props - Story controls.
  * @return The rendered widget.
  */
-function renderVideoDetailEmbeds( { withComparison }: VideoDetailEmbedsStoryControls ) {
-	return (
-		<VideoDetailEmbedsRender
-			attributes={ { reportParams: reportParamsForVideo( withComparison ) } }
-		/>
-	);
+function renderVideoDetailEmbeds() {
+	return <VideoDetailEmbedsRender attributes={ { reportParams: reportParamsForVideo() } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderVideoDetailEmbedsOnPreset( preset: PresetType ) {
 	return (
-		<VideoDetailEmbedsRender
-			attributes={ { reportParams: reportParamsForVideo( false, preset ) } }
-		/>
+		<VideoDetailEmbedsRender attributes={ { reportParams: reportParamsForVideo( preset ) } } />
 	);
 }
 
@@ -84,41 +67,25 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/VideoDetailEmbeds',
 	component: VideoDetailEmbedsRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'Dashboard widget listing the pages where a single video is embedded, sourced from the Jetpack Stats `stats/video/%d` module via `useStatsSingleVideo`. The widget is scoped to one video through the host-composed `reportParams.post_id`; without one it prompts to select a video. The single-video module has no comparison data, so the `WithComparison` control only exercises that the widget still renders normally when comparison params are present. In Storybook the data is served by `registerReportMocks`.',
+					'Dashboard widget listing the pages where a single video is embedded, sourced from the Jetpack Stats `stats/video/%d` module via `useStatsSingleVideo`. The widget is scoped to one video through the host-composed `reportParams.post_id`; without one it prompts to select a video. In Storybook the data is served by `registerReportMocks`.',
 			},
 		},
 	},
-} satisfies Meta<
-	ComponentProps< typeof VideoDetailEmbedsRender > & VideoDetailEmbedsStoryControls
->;
+} satisfies Meta< typeof VideoDetailEmbedsRender >;
 
 export default meta;
 
-type Story = StoryObj< VideoDetailEmbedsStoryControls >;
+type Story = StoryObj;
 
 /**
  * The widget on its own, current period only.
  */
 export const Default: Story = {
 	render: renderVideoDetailEmbeds,
-	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Same close-up with comparison report params. The single-video module returns
- * no comparison rows, so the list renders normally without fabricated deltas.
- */
-export const WithComparison: Story = {
-	render: renderVideoDetailEmbeds,
-	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -176,41 +143,34 @@ export const Empty: Story = {
 	},
 };
 
-interface VideoDetailEmbedsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		VideoDetailEmbedsStoryControls {}
-
 /**
  * Renders the real registered widget through the shared dashboard harness, so
  * it appears exactly as it does in product, inheriting the size / edit-mode /
  * host-environment controls.
  *
- * @param {VideoDetailEmbedsDashboardStoryProps} props - Story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - Story controls.
  * @return The widget mounted in the dashboard harness.
  */
-function VideoDetailEmbedsDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: VideoDetailEmbedsDashboardStoryProps ) {
+function VideoDetailEmbedsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ widgetDefinition }
 			renderModule={ VIDEO_DETAIL_EMBEDS_RENDER_MODULE }
 			renderComponent={ VideoDetailEmbedsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: reportParamsForVideo( withComparison ) } }
+			attributes={ {
+				reportParams: { ...getDefaultQueryParams( true ), post_id: MOCK_VIDEO_ID },
+			} }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< VideoDetailEmbedsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <VideoDetailEmbedsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };

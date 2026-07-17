@@ -21,7 +21,7 @@ import widgetDefinition from '../widget';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -107,16 +107,8 @@ apiFetch.use( streakMocksMiddleware );
 
 const POSTING_ACTIVITY_RENDER_MODULE = 'storybook/posting-activity';
 
-interface PostingActivityStoryControls {
-	withComparison: boolean;
-}
-
-function renderPostingActivity( { withComparison }: PostingActivityStoryControls ) {
-	return (
-		<PostingActivityRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+function renderPostingActivity() {
+	return <PostingActivityRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
@@ -132,40 +124,25 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostingActivity',
 	component: PostingActivityRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Posting activity" widget. Renders a calendar (contribution-style) heatmap of the number of posts published per day for the dashboard date range. The `stats/streak` endpoint has no comparison period, so the WithComparison story renders identically to Default — no deltas are shown.',
+					'The "Posting activity" widget. Renders a calendar (contribution-style) heatmap of the number of posts published per day for the dashboard date range.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof PostingActivityRender > & PostingActivityStoryControls >;
+} satisfies Meta< typeof PostingActivityRender >;
 
 export default meta;
 
-type Story = StoryObj< PostingActivityStoryControls >;
+type Story = StoryObj;
 
 /**
  * Default populated state — a year of posting activity for the current period.
  */
 export const Default: Story = {
 	render: renderPostingActivity,
-	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Comparison state — the date range picker's comparison params are present, but
- * `stats/streak` has no comparison data, so the heatmap renders normally without
- * fabricated deltas.
- */
-export const WithComparison: Story = {
-	render: renderPostingActivity,
-	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -203,33 +180,24 @@ export const Empty: Story = {
 	beforeEach: () => forceStreakState( 'empty' ),
 };
 
-interface PostingActivityDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostingActivityStoryControls {}
-
-function PostingActivityDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: PostingActivityDashboardStoryProps ) {
+function PostingActivityDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ widgetDefinition }
 			renderModule={ POSTING_ACTIVITY_RENDER_MODULE }
 			renderComponent={ PostingActivityRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< PostingActivityDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <PostingActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };

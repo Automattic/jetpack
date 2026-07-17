@@ -41,33 +41,22 @@ const storyWidgetType = {
 
 interface SubscriberHighlightsStoryControls {
 	/**
-	 * Whether to inject comparison report params.
-	 */
-	withComparison: boolean;
-	/**
 	 * Metric tiles to show in the widget body.
 	 */
 	metrics: SubscriberMetricId[];
 }
 
 /**
- * Renders the data-connected widget with report params derived from the
- * comparison toggle and the selected metrics. The counts endpoint is not
- * period-scoped, so toggling comparison does not change what the widget shows
- * — it is wired through only to prove the widget renders unchanged when the
- * host injects comparison params.
+ * Renders the data-connected widget with the selected metrics.
  *
  * @param {SubscriberHighlightsStoryControls} props - Story controls.
  * @return The rendered widget.
  */
-function renderSubscriberHighlights( {
-	withComparison,
-	metrics,
-}: SubscriberHighlightsStoryControls ) {
+function renderSubscriberHighlights( { metrics }: SubscriberHighlightsStoryControls ) {
 	return (
 		<SubscriberHighlightsRender
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams(),
 				metrics,
 			} }
 		/>
@@ -90,14 +79,13 @@ const meta = {
 	component: SubscriberHighlightsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Subscriber highlights" widget. Shows current subscriber totals — total, paid, free, and social followers — as a grid of metric tiles. Which tiles appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsSubscribersCounts` hook; in Storybook it is served by `registerReportMocks()` (the `subscribers/counts` handler). The counts module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
+					'The "Subscriber highlights" widget. Shows current subscriber totals — total, paid, free, and social followers — as a grid of metric tiles. Which tiles appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsSubscribersCounts` hook; in Storybook it is served by `registerReportMocks()` (the `subscribers/counts` handler).',
 			},
 		},
 	},
@@ -114,18 +102,7 @@ type Story = StoryObj< SubscriberHighlightsStoryControls >;
  */
 export const Default: Story = {
 	render: renderSubscriberHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Same close-up with comparison report params injected. The counts module has no
- * comparison data, so this renders identically to `Default` — it only verifies
- * the widget stays stable when the host provides comparison params.
- */
-export const WithComparison: Story = {
-	render: renderSubscriberHighlights,
-	args: { withComparison: true, ...ALL_METRICS_ARGS },
+	args: { ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -144,7 +121,7 @@ function resetSubscribersCountsQuery() {
  */
 export const Loading: Story = {
 	render: renderSubscriberHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	args: { ...ALL_METRICS_ARGS },
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -164,7 +141,7 @@ export const Loading: Story = {
  */
 export const Error: Story = {
 	render: renderSubscriberHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	args: { ...ALL_METRICS_ARGS },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -183,7 +160,7 @@ export const Error: Story = {
  */
 export const Empty: Story = {
 	render: renderSubscriberHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	args: { ...ALL_METRICS_ARGS },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -207,7 +184,6 @@ interface SubscriberHighlightsDashboardStoryProps
  * @return The rendered dashboard with the widget.
  */
 function SubscriberHighlightsDashboardStory( {
-	withComparison,
 	metrics,
 	...dashboardArgs
 }: SubscriberHighlightsDashboardStoryProps ) {
@@ -220,7 +196,7 @@ function SubscriberHighlightsDashboardStory( {
 				SubscriberHighlightsRender as ComponentType< WidgetRenderProps< unknown > >
 			}
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams( true ),
 				metrics,
 			} }
 		/>
@@ -233,12 +209,10 @@ export const WidgetDashboardWithWidget: StoryObj< SubscriberHighlightsDashboardS
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 1,
 		widgetHeight: 1,
-		withComparison: true,
 		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
 };

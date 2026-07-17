@@ -41,7 +41,6 @@ const POST_TRAFFIC_ACTIVITY_RENDER_MODULE = 'storybook/post-traffic-activity';
 
 interface PostTrafficActivityStoryControls {
 	hasPostScope: boolean;
-	withComparison: boolean;
 	preset: 'last-30-days' | 'last-365-days';
 }
 
@@ -54,14 +53,13 @@ interface PostTrafficActivityStoryControls {
  */
 function getPostTrafficActivityAttributes( {
 	hasPostScope,
-	withComparison,
 	preset,
 }: PostTrafficActivityStoryControls ): ComponentProps<
 	typeof PostTrafficActivityRender
 >[ 'attributes' ] {
 	return {
 		reportParams: {
-			...getDefaultQueryParams( withComparison, preset ),
+			...getDefaultQueryParams( false, preset ),
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
 		},
 	};
@@ -93,10 +91,6 @@ const meta = {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
 		},
-		withComparison: {
-			control: 'boolean',
-			description: 'Include the date range picker comparison parameters.',
-		},
 		preset: {
 			control: 'select',
 			options: [ 'last-30-days', 'last-365-days' ],
@@ -124,27 +118,8 @@ type Story = StoryObj< PostTrafficActivityStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostTrafficActivity,
-	args: { hasPostScope: true, withComparison: false, preset: 'last-30-days' },
+	args: { hasPostScope: true, preset: 'last-30-days' },
 	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * WithComparison — verifies that comparison report params from the date range
- * picker pass through the widget host. The stats/post endpoint has no separate
- * comparison rows, so the activity grid intentionally remains primary-only.
- */
-export const WithComparison: Story = {
-	render: renderPostTrafficActivity,
-	args: { hasPostScope: true, withComparison: true, preset: 'last-30-days' },
-	decorators: [ withWidgetCanvas ],
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'The stats/post endpoint does not return a comparison series. This story verifies that comparison report parameters are accepted without inventing comparison activity.',
-			},
-		},
-	},
 };
 
 /**
@@ -153,7 +128,7 @@ export const WithComparison: Story = {
  */
 export const Paged: Story = {
 	render: renderPostTrafficActivity,
-	args: { hasPostScope: true, withComparison: false, preset: 'last-365-days' },
+	args: { hasPostScope: true, preset: 'last-365-days' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -164,7 +139,7 @@ export const Paged: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostTrafficActivity,
-	args: { hasPostScope: false, withComparison: false, preset: 'last-30-days' },
+	args: { hasPostScope: false, preset: 'last-30-days' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -181,7 +156,6 @@ interface PostTrafficActivityDashboardStoryProps
  */
 function PostTrafficActivityDashboardStory( {
 	hasPostScope,
-	withComparison,
 	preset,
 	...dashboardArgs
 }: PostTrafficActivityDashboardStoryProps ) {
@@ -191,7 +165,13 @@ function PostTrafficActivityDashboardStory( {
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ POST_TRAFFIC_ACTIVITY_RENDER_MODULE }
 			renderComponent={ PostTrafficActivityRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostTrafficActivityAttributes( { hasPostScope, withComparison, preset } ) }
+			attributes={ {
+				...getPostTrafficActivityAttributes( { hasPostScope, preset } ),
+				reportParams: {
+					...getDefaultQueryParams( true, preset ),
+					...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
+				},
+			} }
 		/>
 	);
 }
@@ -206,7 +186,6 @@ export const WidgetDashboardWithWidget: StoryObj< PostTrafficActivityDashboardSt
 		widgetWidth: 4,
 		widgetHeight: 2,
 		hasPostScope: true,
-		withComparison: true,
 		preset: 'last-30-days',
 	},
 	argTypes: {
@@ -214,10 +193,6 @@ export const WidgetDashboardWithWidget: StoryObj< PostTrafficActivityDashboardSt
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
-		},
-		withComparison: {
-			control: 'boolean',
-			description: 'Include the date range picker comparison parameters.',
 		},
 		preset: {
 			control: 'select',

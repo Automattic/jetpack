@@ -217,9 +217,9 @@ not be merged.
    shared `WidgetDashboardWithWidget` helper from `widgets/stories/widget-dashboard-with-widget.tsx`.
    It mounts the real `WidgetDashboard` with this single widget and exposes the standard
    dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
-   actually renders in product. The `Default` / `WithComparison` close-up stories use the
-   shared `withWidgetCanvas` decorator from the template below — but never ship _only_ a
-   close-up story.
+   actually renders in product. The `Default` and, when applicable, `WithComparison` close-up
+   stories use the shared `withWidgetCanvas` decorator from the template below — but never ship
+   _only_ a close-up story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
    - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
@@ -236,18 +236,19 @@ not be merged.
 
 ### Story template
 
-Every widget ships three stories: a **Default** close-up, a **WithComparison** close-up, and a
-**WidgetDashboardWithWidget** story that mounts the real dashboard. This template is
-self-contained — copy it as the base rather than an existing widget's story file, which may
-have drifted. `meta.component` is the widget's render component; widget-specific args
-(comparison toggles, view selectors, …) are wired as Storybook controls.
+Every widget ships a **Default** close-up and a **WidgetDashboardWithWidget** story that mounts
+the real dashboard. Add a **WithComparison** close-up only when the widget's data hook returns
+`hasComparison` or `comparisonRows` and the render path consumes that value. This is the explicit
+criterion: accepting comparison query parameters or rendering unchanged when they are present
+does not by itself require the story. This template is self-contained — copy it as the base
+rather than an existing widget's story file, which may have drifted. `meta.component` is the
+widget's render component; widget-specific args (comparison toggles, view selectors, …) are wired
+as Storybook controls.
 
-`WithComparison` tests the date range picker's comparison parameters, not only visible delta
-UI. Some Stats endpoints accept `compare_*` params but return no comparison rows. Those widgets
-must still render gracefully when `reportParams` contains comparison dates; in that case the data
-hook should report that no comparable rows are available, and the chart's comparison UI should
-stay disabled or empty rather than inventing `previousValue`/`delta` values. Add a short story
-docs note when a module has no comparison data to display.
+`WithComparison` tests the date range picker's comparison parameters and the visible comparison
+UI. Widgets without mapped comparison rows omit the story and the `withComparison` control. Their
+`WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
+widget is covered against crashing or inventing deltas when the host supplies comparison dates.
 
 The shared imports, helpers, and `meta`:
 
@@ -320,9 +321,9 @@ export const Default: Story = {
 };
 ```
 
-**2. `WithComparison`** — same close-up with comparison `reportParams` from the date range
-picker. Widgets with comparison data should show period-over-period values; widgets without
-comparison data should still render normally without fake deltas:
+**2. `WithComparison` (when the widget maps comparison rows)** — same close-up with comparison
+`reportParams` from the date range picker. It should show the period-over-period values consumed
+by the render path:
 
 ```tsx
 export const WithComparison: Story = {
@@ -366,6 +367,13 @@ export const WidgetDashboardWithWidget: StoryObj< MyWidgetDashboardStoryProps > 
 		withComparison: { control: 'boolean' },
 	},
 };
+```
+
+For a widget without mapped comparison rows, remove `withComparison` from the controls and omit
+the `WithComparison` export. Pass fixed comparison params in its dashboard story instead:
+
+```tsx
+attributes={ { reportParams: getDefaultQueryParams( true ) } }
 ```
 
 Expose additional widget-specific props (e.g. a `view: 'source' | 'channel' | 'campaign'`

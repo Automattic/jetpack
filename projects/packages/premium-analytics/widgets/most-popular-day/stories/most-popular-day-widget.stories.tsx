@@ -2,10 +2,7 @@
  * The stories render the data-connected widget fed by the shared
  * report-mock harness. `registerReportMocks` routes the `stats/` site summary
  * (`/proxy/v1.1/stats`) — including the `views_best_day*` fields this widget
- * reads — through `routeStatsReport()`, so no story-scoped middleware is
- * needed. The all-time "most popular day" highlight has no comparison period
- * and ignores the dashboard date range, so `WithComparison` renders identically
- * to `Default`.
+ * reads — through `routeStatsReport()`, so no story-scoped middleware is needed.
  */
 /**
  * External dependencies
@@ -29,7 +26,7 @@ import MostPopularDayRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -62,61 +59,37 @@ function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 	};
 }
 
-interface MostPopularDayStoryControls {
-	withComparison: boolean;
-}
-
 /**
  * Renders the data-connected widget for the close-up stories.
- *
- * @param {MostPopularDayStoryControls} props - The story controls.
  * @return The rendered widget.
  */
-function renderMostPopularDay( { withComparison }: MostPopularDayStoryControls ) {
-	return (
-		<MostPopularDayRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+function renderMostPopularDay() {
+	return <MostPopularDayRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/MostPopularDay',
 	component: MostPopularDayRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Most popular day" widget ports the Jetpack Stats all-time highlight: the single day your site drew the most views, with that day\'s view count and its share of all views. The value comes from a site-wide summary that has no comparison period and does not depend on the dashboard date range, so `WithComparison` renders identically to `Default`.',
+					'The "Most popular day" widget ports the Jetpack Stats all-time highlight: the single day your site drew the most views, with that day\'s view count and its share of all views. The value comes from a site-wide summary that does not depend on the dashboard date range.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof MostPopularDayRender > & MostPopularDayStoryControls >;
+} satisfies Meta< typeof MostPopularDayRender >;
 
 export default meta;
 
-type Story = StoryObj< MostPopularDayStoryControls >;
+type Story = StoryObj;
 
 /**
  * Default state — the best day for views and its share of all views.
  */
 export const Default: Story = {
 	render: renderMostPopularDay,
-	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Comparison params from the date-range picker are passed through, but the
- * highlight has no comparison data, so the widget renders the same single value.
- */
-export const WithComparison: Story = {
-	render: renderMostPopularDay,
-	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -125,7 +98,7 @@ export const WithComparison: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderMostPopularDay( { withComparison: false } ),
+	render: renderMostPopularDay,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -137,7 +110,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderMostPopularDay( { withComparison: false } ),
+	render: renderMostPopularDay,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceSiteSummaryState( 'error' ),
@@ -148,46 +121,37 @@ export const Error: Story = {
  * (the neutral calendar glyph and the "not enough views" message).
  */
 export const Empty: Story = {
-	render: () => renderMostPopularDay( { withComparison: false } ),
+	render: renderMostPopularDay,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceSiteSummaryState( 'empty' ),
 };
 
-interface MostPopularDayDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		MostPopularDayStoryControls {}
-
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {MostPopularDayDashboardStoryProps} props - The dashboard story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
-function MostPopularDayDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: MostPopularDayDashboardStoryProps ) {
+function MostPopularDayDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ widgetDefinition }
 			renderModule={ MOST_POPULAR_DAY_RENDER_MODULE }
 			renderComponent={ MostPopularDayRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< MostPopularDayDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <MostPopularDayDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };
