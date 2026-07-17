@@ -1,4 +1,6 @@
 export {
-	WordAdsEarningsHistoryWidget,
-	type WordAdsEarningsBreakdownKey,
-} from './wordads-earnings-history-widget';
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
+} from './fields';

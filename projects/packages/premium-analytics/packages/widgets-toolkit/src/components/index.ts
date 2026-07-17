@@ -65,6 +65,8 @@ export {
 export { DownloadCsvButton, type DownloadCsvButtonProps } from './download-csv-button';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
-	WordAdsEarningsHistoryWidget,
-	type WordAdsEarningsBreakdownKey,
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
 } from './wordads-earnings-history';

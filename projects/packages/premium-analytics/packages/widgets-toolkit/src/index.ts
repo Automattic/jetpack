@@ -68,8 +68,10 @@ export {
 	type DownloadCsvButtonProps,
 	WidgetDataTable,
 	type WidgetDataTableProps,
-	WordAdsEarningsHistoryWidget,
-	type WordAdsEarningsBreakdownKey,
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
 } from './components';
 
 /**
