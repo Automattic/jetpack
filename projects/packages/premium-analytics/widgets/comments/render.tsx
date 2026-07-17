@@ -60,11 +60,11 @@ function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 			/>
 		);
 
-		// Authors with a comments-admin search URL from the API link out.
+		// Authors with a profile URL from the API link out, like post rows.
 		if ( row.link ) {
 			return (
 				<Link
-					className={ styles.authorLabel }
+					className={ styles.postLabel }
 					href={ row.link }
 					variant="unstyled"
 					openInNewTab

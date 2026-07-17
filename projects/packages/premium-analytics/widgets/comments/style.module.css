@@ -41,20 +41,3 @@ a.postLabel:hover,
 a.postLabel:focus {
 	text-decoration: underline;
 }
-
-/* Author rows wrap the flex LeaderboardLabel in the anchor: lay the label and
-   the Link primitive's appended new-tab arrow on one line, or the block-level
-   label pushes the arrow onto its own row and stretches the leaderboard row. */
-.authorLabel {
-	display: inline-flex;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-	align-items: center;
-	min-width: 0;
-	color: inherit;
-	text-decoration: none;
-}
-
-.authorLabel:hover,
-.authorLabel:focus {
-	text-decoration: underline;
-}
