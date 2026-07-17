@@ -108,6 +108,7 @@ const baseConfig = {
 				// Webpack packages with `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks`
 				'projects/js-packages/licensing/**/*.{css,scss,sass}',
 				'projects/packages/activity-log/src/**/*.{css,scss,sass}',
+				'projects/packages/backup/src/**/*.{css,scss,sass}',
 				'projects/packages/forms/src/**/*.{css,scss,sass}',
 				'projects/packages/my-jetpack/_inc/**/*.{css,scss,sass}',
 				'projects/packages/paypal-payments/src/**/*.{css,scss,sass}',
