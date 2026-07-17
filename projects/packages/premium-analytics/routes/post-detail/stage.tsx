@@ -121,25 +121,32 @@ function PostDetail(): JSX.Element {
 						{ /*
 						 * The date filters and the summary card are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid. The filters sit
-						 * directly under the tabs, mirroring the main dashboard's
-						 * placement, with the summary header below them.
+						 * tab bar and above the per-tab widget grid. Everything below
+						 * the tab bar scrolls in one container: the summary header
+						 * scrolls away to give the widgets room, while the filters pin
+						 * to the top of the scroll area (position: sticky) so the date
+						 * range stays reachable — the tab bar itself never moves.
 						 *
 						 * The filters wrapper is also the responsive-measurement
 						 * target: DateFiltersPanel reads its width to pick mobile/wide
 						 * layouts instead of relying on the viewport.
 						 */ }
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+						<div className={ styles.scrollArea }>
+							<div ref={ setContainerElement } className={ styles.dateFilters }>
+								<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+							</div>
+							<div className={ styles.header }>
+								<PostSummaryCard
+									summary={ summary }
+									performanceRange={ dateFilters.appliedRange }
+								/>
+							</div>
+							{ tabs.map( tab => (
+								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
+									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+								</SectionTabPanel>
+							) ) }
 						</div>
-						<div className={ styles.header }>
-							<PostSummaryCard summary={ summary } performanceRange={ dateFilters.appliedRange } />
-						</div>
-						{ tabs.map( tab => (
-							<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-								{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
-							</SectionTabPanel>
-						) ) }
 					</PostDetailTabs>
 				</Page>
 			</WidgetDashboard>

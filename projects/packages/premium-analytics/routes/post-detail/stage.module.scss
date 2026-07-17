@@ -2,10 +2,16 @@
 	min-block-size: 0;
 }
 
-.content {
+// One scroll container for everything below the tab bar: the summary header
+// scrolls away with the widgets while the sticky date filters pin to its top,
+// so only the tab bar and the filters stay in view.
+.scrollArea {
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
+}
+
+.content {
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	// Match the horizontal padding of the tab bar and header so the widget grid
@@ -15,10 +21,15 @@
 }
 
 .dateFilters {
-	// Sits directly below the tab bar, mirroring the main dashboard's
-	// placement. The tab list already adds a bottom margin, so only pad below
-	// here to keep the spacing even; inline padding matches the tabs and the
-	// widget grid so it lines up.
+	// First element of the scroll area, pinned to its top while the summary
+	// header and widgets scroll underneath; the opaque background matches the
+	// page so passing content disappears behind it. The tab list already adds
+	// a bottom margin, so only pad below here to keep the spacing even; inline
+	// padding matches the tabs and the widget grid so it lines up.
+	position: sticky;
+	inset-block-start: 0;
+	z-index: 2;
+	background: var(--wpds-color-background-surface-neutral);
 	padding-block-end: var(--wpds-dimension-gap-lg);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
