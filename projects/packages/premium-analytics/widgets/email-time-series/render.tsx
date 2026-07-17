@@ -111,8 +111,8 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 			return report;
 		}
 
-		// The endpoint only buckets by hour/day; weeks aggregate client-side.
-		return bucketStatsTimeSeries( report, 'week', point => {
+		// The endpoint only buckets by hour/day; weeks/months aggregate client-side.
+		return bucketStatsTimeSeries( report, granularity, point => {
 			const value = Number( point[ field ] ?? 0 );
 
 			return { value, [ field ]: value };
