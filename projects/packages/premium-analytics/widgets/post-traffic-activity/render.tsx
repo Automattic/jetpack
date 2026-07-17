@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	HeatmapChartUnresponsive,
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
-	toPostId,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';

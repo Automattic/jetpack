@@ -1,12 +1,15 @@
 /**
  * External dependencies
  */
-import { useStatsSingleVideo, type StatsSingleVideoPage } from '@jetpack-premium-analytics/data';
+import {
+	useStatsSingleVideo,
+	toPostId,
+	type StatsSingleVideoPage,
+} from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
 	WidgetRoot,
 	WidgetState,
-	toPostId,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';

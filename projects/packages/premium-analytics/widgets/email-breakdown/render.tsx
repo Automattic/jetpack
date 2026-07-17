@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import {
 	GeoChart,
 	LeaderboardChart,
@@ -8,7 +9,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	flagUrl,
-	toPostId,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type GeoData,

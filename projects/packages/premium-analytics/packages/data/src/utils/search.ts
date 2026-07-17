@@ -14,6 +14,7 @@ import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary
 import { getDefaultQueryParams } from '../defaults';
 import { getDefaultIntervalForPeriod } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
+import { toPostId } from './to-post-id';
 import type { DateType } from './types';
 import type { FilterCondition } from '../types/filter-condition';
 
@@ -115,9 +116,7 @@ export function normalizeReportParams(
 	// Calculate the interval from the resolved date range.
 	const interval = getDefaultIntervalForPeriod( undefined, from, to );
 
-	// A valid single-resource scope is a positive integer post/page ID.
-	const postIdNumber = Number( search?.post_id );
-	const postId = Number.isInteger( postIdNumber ) && postIdNumber > 0 ? postIdNumber : undefined;
+	const postId = toPostId( search?.post_id );
 
 	// Params from `search`, or fallback to defaults.
 	const normalized: ReportParams = {
@@ -128,10 +127,9 @@ export function normalizeReportParams(
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		date_type: search?.date_type ?? 'created',
 		// Preserve the single-resource scope so detail-page widgets stay bound to
-		// their post/page. Coerce to a positive integer and drop anything else
-		// (non-numeric, zero, negative) so a hand-edited deep link can't push a
-		// malformed post_id into downstream Stats requests.
-		...( postId !== undefined ? { post_id: postId } : {} ),
+		// their post/page, dropping an invalid one so a hand-edited deep link can't
+		// push a malformed post_id into downstream Stats requests.
+		...( postId > 0 ? { post_id: postId } : {} ),
 	};
 
 	// Add comparison params from search if enabled

@@ -4,13 +4,13 @@
 import {
 	useStatsEmailOpensBreakdown,
 	useStatsEmailClicksBreakdown,
+	toPostId,
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
-	toPostId,
 	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,

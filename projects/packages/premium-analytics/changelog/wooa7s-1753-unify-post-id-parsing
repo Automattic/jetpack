@@ -1,4 +1,3 @@
 Significance: patch
-Type: fixed
-
-Stats: Handle invalid post IDs consistently across detail widgets.
+Type: changed
+Comment: Unify post ID parsing behind a shared toPostId() helper in the data package, used by both normalizeReportParams() and the detail widgets. No user-facing change.

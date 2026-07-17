@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { useStatsPostLikes } from '@jetpack-premium-analytics/data';
+import { useStatsPostLikes, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	WidgetRoot,
 	WidgetState,
-	toPostId,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 	type SubscriberListItem,

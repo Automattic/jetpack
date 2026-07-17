@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
-	toPostId,
 	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
