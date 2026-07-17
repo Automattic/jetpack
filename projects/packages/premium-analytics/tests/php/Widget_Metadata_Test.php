@@ -92,11 +92,13 @@ class Widget_Metadata_Test extends BaseTestCase {
 	 * Help content keeps only `em`/`strong` markup.
 	 */
 	public function test_sanitize_widget_help_keeps_only_emphasis_markup() {
-		$help = sanitize_widget_help(
-			array( 'content' => 'Use <strong>bold</strong>, <em>emphasis</em> and <a href="https://example.com">nothing else</a>.' )
+		$this->assertSame(
+			array( 'content' => 'Use <strong>bold</strong>, <em>emphasis</em> and nothing else.' ),
+			sanitize_widget_help(
+				array( 'content' => 'Use <strong>bold</strong>, <em>emphasis</em> and <a href="https://example.com">nothing else</a>.' )
+			),
+			'Only em/strong markup survives sanitization, and no other key rides along.'
 		);
-
-		$this->assertSame( 'Use <strong>bold</strong>, <em>emphasis</em> and nothing else.', $help['content'], 'Only em/strong markup survives sanitization.' );
 	}
 
 	/**
@@ -104,31 +106,32 @@ class Widget_Metadata_Test extends BaseTestCase {
 	 * to exactly label + href.
 	 */
 	public function test_sanitize_widget_help_drops_incomplete_links() {
-		$help = sanitize_widget_help(
+		$this->assertSame(
 			array(
 				'content' => 'Read the docs.',
 				'links'   => array(
 					array(
-						'label'  => 'Docs',
-						'href'   => 'https://example.com/docs',
-						'target' => '_blank',
+						'label' => 'Docs',
+						'href'  => 'https://example.com/docs',
 					),
-					array( 'label' => 'No href' ),
-					array( 'href' => 'https://example.com/no-label' ),
-					'not-a-link',
-				),
-			)
-		);
-
-		$this->assertSame(
-			array(
-				array(
-					'label' => 'Docs',
-					'href'  => 'https://example.com/docs',
 				),
 			),
-			$help['links'],
-			'Only complete links survive, reduced to label + href.'
+			sanitize_widget_help(
+				array(
+					'content' => 'Read the docs.',
+					'links'   => array(
+						array(
+							'label'  => 'Docs',
+							'href'   => 'https://example.com/docs',
+							'target' => '_blank',
+						),
+						array( 'label' => 'No href' ),
+						array( 'href' => 'https://example.com/no-label' ),
+						'not-a-link',
+					),
+				)
+			),
+			'Only complete links survive, reduced to exactly label + href.'
 		);
 	}
 
@@ -136,14 +139,16 @@ class Widget_Metadata_Test extends BaseTestCase {
 	 * When no link survives, the `links` key is omitted entirely.
 	 */
 	public function test_sanitize_widget_help_omits_links_when_none_survive() {
-		$help = sanitize_widget_help(
-			array(
-				'content' => 'Plain.',
-				'links'   => array( array( 'label' => 'No href' ) ),
-			)
+		$this->assertSame(
+			array( 'content' => 'Plain.' ),
+			sanitize_widget_help(
+				array(
+					'content' => 'Plain.',
+					'links'   => array( array( 'label' => 'No href' ) ),
+				)
+			),
+			'The links key is omitted when no link survives.'
 		);
-
-		$this->assertArrayNotHasKey( 'links', $help, 'The links key is omitted when no link survives.' );
 	}
 
 	/**
