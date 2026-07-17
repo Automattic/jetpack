@@ -47,7 +47,7 @@ function isCommentView( value: unknown ): value is CommentsView {
  */
 function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 	if ( view === 'authors' ) {
-		const label = (
+		return (
 			<LeaderboardLabel
 				label={ row.label }
 				imageUrl={ row.avatarUrl }
@@ -59,23 +59,6 @@ function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 				imageClassName={ styles.avatar }
 			/>
 		);
-
-		// Authors with a profile URL from the API link out, like post rows.
-		if ( row.link ) {
-			return (
-				<Link
-					className={ styles.postLabel }
-					href={ row.link }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ label }
-				</Link>
-			);
-		}
-
-		return label;
 	}
 
 	if ( row.link ) {
