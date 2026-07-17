@@ -154,6 +154,17 @@ export function trackWizardBackClicked( props: { step: WizardStepName } ): void 
 	record( 'jetpack_ai_launchpad_wizard_back_clicked', props );
 }
 
+/**
+ * Records that the user modified a site-details field before completing the
+ * step (compared against the pre-filled value; one event per changed field).
+ *
+ * @param props       - The event properties.
+ * @param props.field - The field the user changed.
+ */
+export function trackWizardSiteDetailsChanged( props: { field: 'title' | 'description' } ): void {
+	record( 'jetpack_ai_launchpad_wizard_site_details_changed', props );
+}
+
 /** Records the wizard-completed event: the user finishes the wizard and lands on the tasklist. */
 export function trackWizardCompleted(): void {
 	record( 'jetpack_ai_launchpad_wizard_completed' );

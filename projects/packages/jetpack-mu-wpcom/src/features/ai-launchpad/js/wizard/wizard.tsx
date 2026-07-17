@@ -8,6 +8,7 @@ import {
 	trackViewed,
 	trackWizardBackClicked,
 	trackWizardGoalClicked,
+	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
 } from '../lib/tracks.ts';
@@ -110,6 +111,13 @@ export function Wizard( {
 
 		const tailoring = getPrewarmedTailor( payload );
 		trackWizardStepCompleted( { step: 'site_details' } );
+		// One event per field the user actually modified, vs the pre-filled values.
+		if ( siteName.trim() !== initialSiteName.trim() ) {
+			trackWizardSiteDetailsChanged( { field: 'title' } );
+		}
+		if ( intent.trim() !== initialIntent.trim() ) {
+			trackWizardSiteDetailsChanged( { field: 'description' } );
+		}
 		// wizard_completed fires when the tailored list first lands (with the
 		// inferred context populated), not here — see TailoredList.
 		onComplete?.( payload, tailoring );

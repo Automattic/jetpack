@@ -12,6 +12,7 @@ import {
 	trackWizardBackClicked,
 	trackWizardCompleted,
 	trackWizardGoalClicked,
+	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
 } from './tracks.ts';
@@ -120,6 +121,13 @@ describe( 'ai-launchpad tracks', () => {
 			'recordEvent',
 			'jetpack_ai_launchpad_wizard_back_clicked',
 			{ step: 'site_details' },
+		] );
+
+		trackWizardSiteDetailsChanged( { field: 'description' } );
+		assert.deepEqual( lastEvent(), [
+			'recordEvent',
+			'jetpack_ai_launchpad_wizard_site_details_changed',
+			{ field: 'description' },
 		] );
 	} );
 
