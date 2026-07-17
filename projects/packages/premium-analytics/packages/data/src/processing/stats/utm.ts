@@ -143,9 +143,6 @@ export function sanitizeStatsUtmResponse(
 	const payload = coerceStatsRecord( response );
 	const topUtmValues = coerceStatsRecord( payload.top_utm_values );
 	const topPosts = coerceStatsRecord( payload.top_posts );
-	// Calypso treats the presence of top_posts, even an empty object, or an explicit
-	// top-post opt-out as the signal that top-post fetching has already been resolved.
-	const hasResolvedTopPosts = payload.top_posts != null || query?.query_top_posts === false;
 	const utmParam = query?.utm_param;
 	const items = Object.entries( topUtmValues )
 		.sort( ( [ , valueA ], [ , valueB ] ) => safeParseFloat( valueB ) - safeParseFloat( valueA ) )
@@ -158,7 +155,7 @@ export function sanitizeStatsUtmResponse(
 			return {
 				label: labelParts.join( ' / ' ),
 				value: safeParseFloat( value ),
-				...( hasResolvedTopPosts ? {} : { paramValues } ),
+				paramValues,
 				children: children.length ? children : null,
 			};
 		} );

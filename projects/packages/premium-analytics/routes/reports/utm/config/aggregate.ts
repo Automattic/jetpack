@@ -18,20 +18,23 @@ export type UtmReportRow = {
  * @return Aggregated UTM value rows.
  */
 export function aggregateUtmRows( report?: StatsNormalizedReport< StatsUtmItem > ): UtmReportRow[] {
-	const byLabel = new Map< string, UtmReportRow >();
+	// Key rows by the raw UTM tuple, not the display label: distinct tuples such as
+	// `["a / b","c"]` and `["a","b / c"]` format to the same label but are separate rows.
+	const byParamValues = new Map< string, UtmReportRow >();
 
 	for ( const point of report?.data ?? [] ) {
 		for ( const item of point.items ) {
 			const label = String( item.label ?? '' );
-			const existing = byLabel.get( label );
+			const key = item.paramValues ?? label;
+			const existing = byParamValues.get( key );
 
 			if ( existing ) {
 				existing.views += item.value;
 			} else {
-				byLabel.set( label, { id: label, label, views: item.value } );
+				byParamValues.set( key, { id: key, label, views: item.value } );
 			}
 		}
 	}
 
-	return [ ...byLabel.values() ];
+	return [ ...byParamValues.values() ];
 }
