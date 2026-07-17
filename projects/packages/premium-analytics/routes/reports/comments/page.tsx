@@ -4,12 +4,14 @@
 import { useDashboardLink, useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportPageLayout,
+	ReportPageSection,
 	ReportPageTabs,
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, EmptyState } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -55,6 +57,10 @@ function CommentsReport(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
 	const fields = useMemo( () => getCommentsFields(), [] );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 	const dashboardLink = useDashboardLink();
 
 	return (
@@ -77,15 +83,39 @@ function CommentsReport(): JSX.Element {
 				<ReportPageLayout
 					tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				>
-					<ReportRecordsTable< CommentReportRow >
-						key={ activeTab }
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getCommentRowId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search comments', 'jetpack-premium-analytics' ) }
-					/>
+					{ /*
+					 * The error state replaces the table rather than sitting beside it:
+					 * `ReportRecordsTable`'s empty state is row-count based, so a failed
+					 * request would otherwise look like a legitimate empty report.
+					 */ }
+					{ records.isError ? (
+						<ReportPageSection>
+							<EmptyState.Root>
+								<EmptyState.Title>
+									{ __( 'Unable to load comments', 'jetpack-premium-analytics' ) }
+								</EmptyState.Title>
+								<EmptyState.Description>
+									{ __(
+										"We couldn't load this data. Please try again in a moment.",
+										'jetpack-premium-analytics'
+									) }
+								</EmptyState.Description>
+								<EmptyState.Actions>
+									<Button onClick={ retry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
+								</EmptyState.Actions>
+							</EmptyState.Root>
+						</ReportPageSection>
+					) : (
+						<ReportRecordsTable< CommentReportRow >
+							key={ activeTab }
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getCommentRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics' ) }
+						/>
+					) }
 				</ReportPageLayout>
 			</div>
 		</Page>

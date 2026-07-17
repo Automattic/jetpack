@@ -2,10 +2,15 @@
  * External dependencies
  */
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
-import { ReportPageLayout, ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	ReportPageLayout,
+	ReportPageSection,
+	ReportRecordsTable,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, EmptyState } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -44,6 +49,10 @@ function getAnnualInsightRowId( item: StatsInsightsYear ): string {
 function AnnualInsightsReport(): JSX.Element {
 	const records = useAnnualInsightsReportRecords();
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
+	const { refetch } = records;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 	const dashboardLink = useDashboardLink();
 
 	return (
@@ -64,14 +73,38 @@ function AnnualInsightsReport(): JSX.Element {
 		>
 			<div className={ styles.content }>
 				<ReportPageLayout>
-					<ReportRecordsTable< StatsInsightsYear >
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getAnnualInsightRowId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics' ) }
-					/>
+					{ /*
+					 * The error state replaces the table rather than sitting beside it:
+					 * `ReportRecordsTable`'s empty state is row-count based, so a failed
+					 * request would otherwise look like a legitimate empty report.
+					 */ }
+					{ records.isError ? (
+						<ReportPageSection>
+							<EmptyState.Root>
+								<EmptyState.Title>
+									{ __( 'Unable to load annual insights', 'jetpack-premium-analytics' ) }
+								</EmptyState.Title>
+								<EmptyState.Description>
+									{ __(
+										"We couldn't load this data. Please try again in a moment.",
+										'jetpack-premium-analytics'
+									) }
+								</EmptyState.Description>
+								<EmptyState.Actions>
+									<Button onClick={ retry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
+								</EmptyState.Actions>
+							</EmptyState.Root>
+						</ReportPageSection>
+					) : (
+						<ReportRecordsTable< StatsInsightsYear >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getAnnualInsightRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics' ) }
+						/>
+					) }
 				</ReportPageLayout>
 			</div>
 		</Page>

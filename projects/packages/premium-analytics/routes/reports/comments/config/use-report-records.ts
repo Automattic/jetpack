@@ -78,5 +78,7 @@ export function useCommentsReportRecords( activeTab: CommentsReportTabId ) {
 	return {
 		rows,
 		isLoading: report.isLoading,
+		isError: report.isError,
+		refetch: report.refetch,
 	};
 }
