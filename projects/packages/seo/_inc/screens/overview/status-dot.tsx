@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import './status-dot.scss';
+import styles from './status-dot.module.scss';
 import type { FC } from 'react';
 
 interface Props {
@@ -9,14 +9,7 @@ interface Props {
 
 const StatusDot: FC< Props > = ( { status, label } ) => (
 	<span>
-		<span
-			className={ clsx( 'jetpack-seo-status-dot', {
-				'is-ok': status === 'ok',
-				'is-warn': status === 'warn',
-				'is-err': status === 'err',
-			} ) }
-			aria-hidden="true"
-		/>
+		<span className={ clsx( styles.root, styles[ status ] ) } aria-hidden="true" />
 		{ label }
 	</span>
 );

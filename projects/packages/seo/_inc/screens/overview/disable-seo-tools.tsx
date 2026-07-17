@@ -3,6 +3,7 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import useSeoToolsToggle from '../../data/use-seo-tools-toggle';
+import styles from './style.module.scss';
 import type { FC } from 'react';
 
 /**
@@ -17,7 +18,7 @@ const DisableSeoTools: FC = () => {
 	const { isToggling, setActive } = useSeoToolsToggle();
 
 	return (
-		<div className="jetpack-seo-overview__disable">
+		<div className={ styles.disable }>
 			<span>{ __( 'Using a different SEO solution?', 'jetpack-seo' ) }</span>{ ' ' }
 			<Button
 				variant="link"

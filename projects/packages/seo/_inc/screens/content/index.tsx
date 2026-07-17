@@ -5,7 +5,7 @@ import { pencil } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Badge, IconButton, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
-import './style.scss';
+import styles from './style.module.scss';
 import type { ContentRow } from '../../data/content-types';
 import type { Field, Operator, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
@@ -253,7 +253,7 @@ const ContentScreen: FC = () => {
 	const getItemId = useCallback( ( item: ContentRow ) => String( item.id ), [] );
 
 	return (
-		<div className="jetpack-seo-content">
+		<div className={ styles.root }>
 			<DataViews
 				data={ data }
 				fields={ fields as Field< unknown >[] }

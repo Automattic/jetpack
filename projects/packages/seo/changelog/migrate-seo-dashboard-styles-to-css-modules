@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Migrate shared, Content, and Overview dashboard styles to CSS Modules without changing user-facing behavior.

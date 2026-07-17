@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Card } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import StatusDot from './status-dot';
+import styles from './style.module.scss';
 import type { SiteVerification } from '../../data/overview-types';
 import type { FC } from 'react';
 
@@ -22,12 +23,12 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 		</Card.Header>
 		<Card.Content>
 			{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
-				<div key={ key } className="jetpack-seo-overview__stat-row">
+				<div key={ key } className={ styles.statRow }>
 					<StatusDot status={ data[ key ] ? 'ok' : 'warn' } label={ label } />
 					<span>{ data[ key ] ? setLabel : notSetLabel }</span>
 				</div>
 			) ) }
-			<div className="jetpack-seo-overview__card-footer">
+			<div className={ styles.footer }>
 				<Button variant="outline" tone="neutral" onClick={ onManage }>
 					{ __( 'Manage verification', 'jetpack-seo' ) }
 				</Button>

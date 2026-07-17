@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Stack } from '@wordpress/ui';
 import StatusDot from './status-dot';
+import styles from './style.module.scss';
 import type { OverviewResponse } from '../../data/overview-types';
 import type { FC } from 'react';
 
@@ -45,7 +46,7 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 						label={ data.seo_tools_active ? seoToolsActiveLabel : seoToolsInactiveLabel }
 					/>
 				</Stack>
-				<div className="jetpack-seo-overview__card-footer">
+				<div className={ styles.footer }>
 					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage visibility', 'jetpack-seo' ) }
 					</Button>

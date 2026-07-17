@@ -1,5 +1,6 @@
 import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
@@ -49,9 +50,9 @@ const DashboardPage = ( { active, showFooter = true, flush = false, children }: 
 		>
 			<DashboardNav active={ active }>
 				<div
-					className={ `jetpack-seo-page-content${
-						flush ? ' jetpack-seo-page-content--flush' : ''
-					}` }
+					className={ clsx( 'jetpack-seo-page-content', {
+						'jetpack-seo-page-content--flush': flush,
+					} ) }
 				>
 					{ children }
 				</div>

@@ -12,6 +12,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { Button, IconButton } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
+import styles from './style.module.scss';
 import type { ContentPostType, SchemaType, SeoPostMeta } from '../../data/content-types';
 import type { FC } from 'react';
 
@@ -225,11 +226,9 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	const permalink = ( editedRecord as { link?: string } | undefined )?.link ?? '';
 
 	return (
-		<div className="jetpack-seo-content__inspector" aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }>
-			<div className="jetpack-seo-content__inspector-header">
-				<h2 className="jetpack-seo-content__inspector-title">
-					{ __( 'Edit SEO', 'jetpack-seo' ) }
-				</h2>
+		<div className={ styles.inspector } aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }>
+			<div className={ styles.header }>
+				<h2 className={ styles.heading }>{ __( 'Edit SEO', 'jetpack-seo' ) }</h2>
 				<IconButton
 					icon={ close }
 					label={ __( 'Close', 'jetpack-seo' ) }
@@ -240,7 +239,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					tone="neutral"
 				/>
 			</div>
-			<div className="jetpack-seo-content__inspector-body">
+			<div className={ styles.body }>
 				<TextControl
 					label={ __( 'SEO title', 'jetpack-seo' ) }
 					help={ __(
@@ -289,7 +288,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					description={ local.advanced_seo_description }
 				/>
 			</div>
-			<div className="jetpack-seo-content__inspector-actions">
+			<div className={ styles.actions }>
 				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>

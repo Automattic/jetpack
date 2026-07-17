@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import './dashboard-skeleton.scss';
+import styles from './dashboard-skeleton.module.scss';
 import type { FC } from 'react';
 
 /**
@@ -11,13 +11,13 @@ import type { FC } from 'react';
  * @return The skeleton placeholder.
  */
 const DashboardSkeleton: FC = () => (
-	<div className="jetpack-seo-skeleton" role="status" aria-busy="true">
-		<span className="jetpack-seo-skeleton__label">{ __( 'Loading…', 'jetpack-seo' ) }</span>
+	<div className={ styles.root } role="status" aria-busy="true">
+		<span className={ styles.label }>{ __( 'Loading…', 'jetpack-seo' ) }</span>
 		{ [ 0, 1, 2 ].map( index => (
-			<div key={ index } className="jetpack-seo-skeleton__card" aria-hidden="true">
-				<div className="jetpack-seo-skeleton__line jetpack-seo-skeleton__line--title" />
-				<div className="jetpack-seo-skeleton__line" />
-				<div className="jetpack-seo-skeleton__line jetpack-seo-skeleton__line--short" />
+			<div key={ index } className={ styles.card } aria-hidden="true">
+				<div className={ `${ styles.line } ${ styles.title }` } />
+				<div className={ styles.line } />
+				<div className={ `${ styles.line } ${ styles.short }` } />
 			</div>
 		) ) }
 	</div>
