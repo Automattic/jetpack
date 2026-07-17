@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { GlobalChartsProvider } from '@automattic/charts';
+import '@wordpress/dataviews/build-style/style.css';
 import { Button } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
@@ -108,33 +109,6 @@ const POST_FIELDS: Field< PostRow >[] = [
 		enableGlobalSearch: true,
 		enableHiding: false,
 		getValue: ( { item } ) => item.title,
-		render: ( { item } ) => {
-			if ( ! item.link ) {
-				return <>{ item.title }</>;
-			}
-
-			const title = <span className={ styles.linkText }>{ item.title }</span>;
-
-			if ( item.isExternal ) {
-				return (
-					<a
-						className={ styles.externalLink }
-						href={ item.link }
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						{ title }
-						<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-					</a>
-				);
-			}
-
-			return (
-				<a className={ styles.titleLink } href={ item.link }>
-					{ title }
-				</a>
-			);
-		},
 	},
 	{
 		id: 'views',
@@ -220,8 +194,29 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 				fields={ POST_FIELDS }
 				getItemId={ ( item: PostRow ) => item.id }
 				isLoading={ isLoading }
-				initialView={ { sort: { field: 'views', direction: 'desc' } } }
+				initialView={ {
+					sort: { field: 'views', direction: 'desc' },
+					titleField: 'title',
+					fields: [ 'views' ],
+				} }
 				searchLabel="Search posts"
+				isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
+				renderItemLink={ ( { item, className, children, ...linkProps } ) => (
+					<a
+						{ ...linkProps }
+						className={ [ className, item.isExternal ? styles.externalLink : '' ]
+							.filter( Boolean )
+							.join( ' ' ) }
+						href={ item.link }
+						target={ item.isExternal ? '_blank' : undefined }
+						rel={ item.isExternal ? 'noopener noreferrer' : undefined }
+					>
+						{ children }
+						{ item.isExternal ? (
+							<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
+						) : null }
+					</a>
+				) }
 			/>
 		</ReportPageLayout>
 	);

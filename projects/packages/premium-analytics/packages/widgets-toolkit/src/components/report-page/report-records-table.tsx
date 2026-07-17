@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react';
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import type { Action, Field, SupportedLayouts, View } from '@wordpress/dataviews';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 
@@ -32,6 +32,12 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	empty?: ReactNode;
 	searchLabel?: string;
 	config?: { perPageSizes: number[] };
+	isItemClickable?: ( item: Item ) => boolean;
+	renderItemLink?: (
+		props: {
+			item: Item;
+		} & ComponentProps< 'a' >
+	) => ReactElement;
 } ) => ReturnType< typeof DataViews >;
 
 export interface ReportRecordsTableProps< Item > {
@@ -53,6 +59,14 @@ export interface ReportRecordsTableProps< Item > {
 	empty?: ReactNode;
 	/** Page size choices (defaults to 10/25/50/100). */
 	perPageSizes?: number[];
+	/** Whether a record's primary field should render as an interactive link. */
+	isItemClickable?: ( item: Item ) => boolean;
+	/** Render the primary-field link while preserving DataViews table styling. */
+	renderItemLink?: (
+		props: {
+			item: Item;
+		} & ComponentProps< 'a' >
+	) => ReactElement;
 }
 
 /**
@@ -78,6 +92,8 @@ export function ReportRecordsTable< Item >( {
 	actions,
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
+	isItemClickable,
+	renderItemLink,
 }: ReportRecordsTableProps< Item > ) {
 	const [ view, setView ] = useState< View >(
 		() =>
@@ -114,6 +130,8 @@ export function ReportRecordsTable< Item >( {
 				empty={ empty }
 				searchLabel={ searchLabel }
 				config={ { perPageSizes } }
+				isItemClickable={ isItemClickable }
+				renderItemLink={ renderItemLink }
 			/>
 		</ReportPageSection>
 	);

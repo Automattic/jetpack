@@ -1,17 +1,5 @@
-.titleLink,
 .externalLink {
-	display: inline-flex;
-	align-items: center;
 	gap: var(--wpds-dimension-gap-xs);
-	max-width: 100%;
-	vertical-align: top;
-}
-
-.linkText {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .externalIcon {
