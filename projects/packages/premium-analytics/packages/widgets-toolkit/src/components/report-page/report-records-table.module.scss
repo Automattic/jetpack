@@ -1,14 +1,3 @@
-@use "sass:meta";
-
-/* Inline DataViews' own stylesheet. It must load through :global so CSS Modules
- * keeps DataViews' class names (.dataviews-wrapper, …) intact — a plain @import
- * of the .css would instead be emitted verbatim and 404 at runtime against the
- * page base. */
-:global {
-
-	@include meta.load-css( "@wordpress/dataviews/build-style/style" );
-}
-
 /* DataViews pads its own chrome — the toolbar, the table's first/last cells,
  * and the footer all carry the same 24px inline inset the section card would
  * add — so the card contributes no padding of its own; otherwise the two

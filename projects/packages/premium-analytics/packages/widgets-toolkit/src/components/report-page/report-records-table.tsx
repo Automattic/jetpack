@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import './report-records-table.global.scss';
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import type { Action, Field, SupportedLayouts, View } from '@wordpress/dataviews';

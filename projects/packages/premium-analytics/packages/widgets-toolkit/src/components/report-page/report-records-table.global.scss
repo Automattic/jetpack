@@ -1,0 +1,7 @@
+@use "sass:meta";
+
+/* Inline DataViews' stylesheet from a non-module file so its class names
+ * (.dataviews-wrapper, …) remain global. Loading the CSS from the component
+ * directly is not reliable because @wordpress/dataviews marks imports as
+ * side-effect free. */
+@include meta.load-css( "@wordpress/dataviews/build-style/style" );
