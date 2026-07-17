@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@jetpack-premium-analytics/data';
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { queryClientWrapper as wrapper } from '../../test-utils';
 import usePostHighlights from '../use-post-highlights';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
 
@@ -27,18 +27,11 @@ const STATS_POST_RESPONSE = {
 	post: { comment_count: '8' },
 };
 
-function wrapper( { children }: { children: ReactNode } ) {
-	const queryClient = new QueryClient( {
-		defaultOptions: { queries: { retry: false } },
-	} );
-
-	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
-}
-
 const reportParams = ( params: Record< string, string > ) => params as unknown as ReportParams;
 
 describe( 'usePostHighlights', () => {
 	beforeEach( () => {
+		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 	} );
