@@ -8,15 +8,12 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { CsvDownloadButton } from '../csv-download-button';
 
 const mockCreateErrorNotice = jest.fn();
-
-jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( {
-		createErrorNotice: mockCreateErrorNotice,
-	} ),
+const mockDispatch = jest.fn( () => ( {
+	createErrorNotice: mockCreateErrorNotice,
 } ) );
 
-jest.mock( '@wordpress/notices', () => ( {
-	store: 'core/notices',
+jest.mock( '@wordpress/data', () => ( {
+	useRegistry: () => ( { dispatch: mockDispatch } ),
 } ) );
 
 describe( 'CsvDownloadButton', () => {
@@ -82,6 +79,7 @@ describe( 'CsvDownloadButton', () => {
 				explicitDismiss: true,
 			} )
 		);
+		expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
 		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Upstream API unavailable.' ) ).not.toBeInTheDocument();
 	} );

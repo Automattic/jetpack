@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { useDispatch } from '@wordpress/data';
+import { useRegistry } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { store as noticesStore } from '@wordpress/notices';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, type ComponentProps } from 'react';
@@ -76,7 +75,7 @@ export function CsvDownloadButton( {
 	showIcon = true,
 }: CsvDownloadButtonProps ) {
 	const [ isBusy, setIsBusy ] = useState( false );
-	const { createErrorNotice } = useDispatch( noticesStore );
+	const registry = useRegistry();
 
 	const onClick = async () => {
 		if ( isBusy ) {
@@ -88,7 +87,7 @@ export function CsvDownloadButton( {
 		try {
 			await onDownload();
 		} catch ( error ) {
-			createErrorNotice( getErrorMessage( error ), {
+			registry.dispatch( 'core/notices' ).createErrorNotice( getErrorMessage( error ), {
 				type: 'snackbar',
 				explicitDismiss: true,
 			} );
