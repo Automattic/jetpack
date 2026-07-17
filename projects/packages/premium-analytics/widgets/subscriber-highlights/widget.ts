@@ -58,7 +58,7 @@ export default {
 	title: __( 'Subscriber highlights', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Your subscriber totals at a glance — total, paid, free, and social followers.',
+			'A summary of your subscribers — total, paid, free, and social followers.',
 			'jetpack-premium-analytics'
 		),
 	},
