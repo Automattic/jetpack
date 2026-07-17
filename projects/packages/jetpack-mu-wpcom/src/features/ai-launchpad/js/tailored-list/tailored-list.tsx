@@ -11,6 +11,8 @@ import {
 	trackTaskClicked,
 	trackTaskCtaClicked,
 	trackTaskSkipped,
+	trackViewed,
+	trackWizardCompleted,
 	type TaskStatus,
 } from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
@@ -102,6 +104,12 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 		() => initialData?.site?.edit_url ?? site?.edit_url ?? null
 	);
 
+	// One viewed event per screen shown; the launchpad screen includes its
+	// loading skeleton. The host seeds the context before mounting this view.
+	useEffect( () => {
+		trackViewed( { step: 'launchpad' } );
+	}, [] );
+
 	useEffect( () => {
 		// Returning users: render from the data the host already fetched.
 		if ( initialData ) {
@@ -146,6 +154,24 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				setTasks( tasksFromFixture( result.output ) );
 			} else {
 				setTasks( [] );
+			}
+
+			// The wizard→list handoff: the user has completed the wizard and landed on
+			// their tasklist. Seed the context synchronously first, so the event
+			// carries the freshly inferred props instead of waiting a render cycle.
+			if ( pendingTailor ) {
+				const landedOutput = data?.ai_output?.payload ?? result?.output ?? null;
+				setTracksContext( contextFromInferred( landedOutput?.inferred ) );
+				let landedTasks: EnrichedTask[] = [];
+				if ( data && data.tasks.length > 0 ) {
+					landedTasks = data.tasks;
+				} else if ( result?.output ) {
+					landedTasks = tasksFromFixture( result.output );
+				}
+				if ( landedTasks.length > 0 ) {
+					setTracksContext( contextFromTaskIds( landedTasks.map( task => task.id ) ) );
+				}
+				trackWizardCompleted();
 			}
 		} )();
 		return () => {

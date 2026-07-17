@@ -1,12 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
 import {
 	setTracksContext,
+	trackViewed,
 	trackWizardBackClicked,
-	trackWizardCompleted,
 	trackWizardGoalClicked,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
@@ -67,6 +67,11 @@ export function Wizard( {
 
 	const state: WizardState = { goal, siteName, intent, locale };
 
+	// One viewed event per screen shown, re-firing when Back re-shows the goal step.
+	useEffect( () => {
+		trackViewed( { step: 0 === step ? 'goal' : 'site_details' } );
+	}, [ step ] );
+
 	// Background-tailor on Step-2 typing pauses; Finish reuses the prewarmed
 	// promise via getPrewarmedTailor.
 	usePrewarm( step === 1 ? toPrewarmInput( state ) : {} );
@@ -105,7 +110,8 @@ export function Wizard( {
 
 		const tailoring = getPrewarmedTailor( payload );
 		trackWizardStepCompleted( { step: 'site_details' } );
-		trackWizardCompleted();
+		// wizard_completed fires when the tailored list first lands (with the
+		// inferred context populated), not here — see TailoredList.
 		onComplete?.( payload, tailoring );
 	};
 
