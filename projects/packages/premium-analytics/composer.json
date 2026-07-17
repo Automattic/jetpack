@@ -9,6 +9,7 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-stats": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev",
 		"automattic/woocommerce-analytics": "^0.16"
