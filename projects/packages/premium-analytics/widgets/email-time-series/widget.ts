@@ -17,9 +17,9 @@ export type EmailTimeSeriesMetric = 'opens' | 'clicks';
 
 /**
  * Chart bucket granularity. The email timeline endpoint reports daily
- * buckets; weeks aggregate the daily buckets client-side.
+ * buckets; weeks and months aggregate the daily buckets client-side.
  */
-export type EmailTimeSeriesGranularity = 'day' | 'week';
+export type EmailTimeSeriesGranularity = 'day' | 'week' | 'month';
 
 /**
  * Configurable attributes for the Email performance widget.
@@ -52,7 +52,7 @@ export default {
 	icon: envelope,
 	help: {
 		content: __(
-			'How a single email performed over time: opens or clicks per day since it was sent, following the dashboard date range. Weekly grouping aggregates the daily buckets.',
+			'How a single email performed over time: opens or clicks per day since it was sent, following the dashboard date range. Weekly and monthly grouping aggregate the daily buckets.',
 			'jetpack-premium-analytics'
 		),
 	},
@@ -75,6 +75,7 @@ export default {
 			elements: [
 				{ label: __( 'By days', 'jetpack-premium-analytics' ), value: 'day' },
 				{ label: __( 'By weeks', 'jetpack-premium-analytics' ), value: 'week' },
+				{ label: __( 'By months', 'jetpack-premium-analytics' ), value: 'month' },
 			],
 			relevance: 'high',
 		},

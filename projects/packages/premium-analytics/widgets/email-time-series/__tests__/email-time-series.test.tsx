@@ -122,6 +122,33 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
+	it( 'aggregates the daily buckets into calendar months for the monthly granularity', async () => {
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				unit: 'day',
+				fields: [ 'date', 'opens_count' ],
+				data: [
+					[ '2026-06-28', 4 ],
+					[ '2026-07-04', 10 ],
+					[ '2026-07-05', 5 ],
+				],
+			},
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					metric: 'opens',
+					granularity: 'month',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
+	} );
+
 	it( 'renders the empty state when the timeline has no buckets', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
