@@ -757,6 +757,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			array( 'first_post_published' ),
 			get_option( 'wpcom_ai_launchpad_ai_output' )['tracked_completed']
 		);
+		// The bookkeeping key is persisted only — responses stay clean of it, like GET.
+		$this->assertArrayNotHasKey( 'tracked_completed', $result->get_data()['ai_output'] );
 
 		$events   = array();
 		$callback = $this->capture_tracks_events( $events );
@@ -811,6 +813,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$captured = $builder->invoke( new AI_Launchpad_REST(), get_option( 'wpcom_ai_launchpad_ai_output' ), array() );
 		$this->assertArrayNotHasKey( 'duration_ms', $captured );
 		$this->assertArrayNotHasKey( 'attempts', $captured );
+
+		// The route's arg schema rejects out-of-range telemetry before the callback runs.
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload(), array( 'duration_ms' => -1 ) );
+		$this->assertSame( 400, $result->get_status() );
 	}
 
 	/**

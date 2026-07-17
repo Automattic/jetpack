@@ -726,6 +726,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// After the writes, so the observed rendered list is the fresh one.
 		$this->log_tailoring( $ai_output, $raw_task_ids, $request['duration_ms'], $request['attempts'], array_column( $rendered_tasks, 'id' ) );
 
+		// The analytics bookkeeping stays out of responses, mirroring get_data().
+		unset( $ai_output['tracked_completed'] );
+
 		return array( 'ai_output' => $ai_output );
 	}
 
