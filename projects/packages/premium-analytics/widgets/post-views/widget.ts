@@ -13,37 +13,34 @@ import { SelectField } from '@jetpack-premium-analytics/fields';
 /**
  * Granularity the chart can be grouped by within the dashboard range.
  */
-export type PostPerformanceGranularity = 'day' | 'week' | 'month';
+export type PostViewsGranularity = 'day' | 'week' | 'month';
 
 /**
- * Configurable attributes for the Performance widget. The post scope and
+ * Configurable attributes for the Post views widget. The post scope and
  * report params reach it through WidgetRoot: the detail page seeds
  * `post_id` into the URL, and the dashboard date picker owns the range.
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `day`.
  */
-export type PostPerformanceAttributes = {
-	granularity?: PostPerformanceGranularity;
+export type PostViewsAttributes = {
+	granularity?: PostViewsGranularity;
 };
 
 /**
  * Widget type definition.
  *
- * The post detail Traffic view's Performance card, per the new design spec:
- * headline Views / Comments / Likes for the scoped post over a comparative
- * view-trend line chart. Merges the legacy Calypso post summary chart
- * (`stats-post-summary`) with the highlights metrics. The view series comes
- * from the `stats/post/{id}` daily history; comments and likes are lifetime
- * totals (the endpoint has no per-post series for them), so those tabs render
- * value-only. The `granularity` attribute (`relevance: 'high'`) chooses the
- * bucket size within the dashboard range.
+ * The post detail Traffic view's view-trend card, the legacy Calypso post
+ * summary chart (`stats-post-summary`): the scoped post's views over the
+ * dashboard date range as a comparative line chart. The series comes from
+ * the `stats/post/{id}` daily history, bucketed client-side; the
+ * `granularity` attribute (`relevance: 'high'`) chooses the bucket size.
  */
 export default {
-	name: 'jpa/post-performance',
+	name: 'jpa/post-views',
 	title: __( 'Post views', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Views, comments, and likes for the post or page being viewed, with the view trend over the selected period.',
+			'The view trend of the post or page being viewed over the selected period.',
 			'jetpack-premium-analytics'
 		),
 	},
@@ -70,7 +67,7 @@ export default {
 			],
 			relevance: 'high',
 		},
-	] as WidgetAttributeField< PostPerformanceAttributes >[],
+	] as WidgetAttributeField< PostViewsAttributes >[],
 	example: {
 		attributes: {
 			granularity: 'day',

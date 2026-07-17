@@ -8,7 +8,6 @@ import {
 	type StatsPostDay,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import {
 	eachDayOfInterval,
 	eachMonthOfInterval,
@@ -21,20 +20,24 @@ import {
 /**
  * Internal dependencies
  */
-import type { PostPerformanceGranularity } from './widget';
-import type { MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { PostViewsGranularity } from './widget';
 
 /**
- * Selectable bucket sizes.
+ * One chart point: a bucket-start date and the views summed into the bucket.
  */
-export type PostPerformancePeriod = PostPerformanceGranularity;
+export type PostViewsPoint = {
+	date: Date;
+	value: number;
+};
 
 /**
- * Normalized Performance state: one tab per metric plus the request's
- * load/error flags. `hasData` distinguishes the first load from refetches.
+ * Normalized Post views state: the primary (and optional comparison) series
+ * plus the request's load/error flags. `hasData` distinguishes the first load
+ * from refetches.
  */
-export interface PostPerformanceState {
-	metrics: MetricTab[];
+export interface PostViewsState {
+	current: PostViewsPoint[];
+	previous?: PostViewsPoint[];
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -106,7 +109,11 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  * @param period - The bucket size.
  * @return One point per calendar bucket, oldest first.
  */
-function bucketDays( days: StatsPostDay[], window: DayWindow, period: PostPerformancePeriod ) {
+function bucketDays(
+	days: StatsPostDay[],
+	window: DayWindow,
+	period: PostViewsGranularity
+): PostViewsPoint[] {
 	// The URL is user-editable, so an inverted range must not reach
 	// `eachDayOfInterval()` (it throws).
 	if ( window.from > window.to ) {
@@ -150,69 +157,38 @@ function bucketDays( days: StatsPostDay[], window: DayWindow, period: PostPerfor
 }
 
 /**
- * Fetch the scoped post's performance for the dashboard's report params. One
- * `stats/post` request carries everything: the daily view history (sliced
- * client-side into the primary and comparison windows, so comparison needs no
- * second request) and the lifetime comment/like totals. Comments and likes
- * have no per-post series or period totals in the API, so their tabs are
- * value-only with no delta.
+ * Fetch the scoped post's view trend for the dashboard's report params. One
+ * `stats/post` request carries the full daily view history; the primary and
+ * comparison windows are sliced from it client-side, so comparison needs no
+ * second request.
  *
  * @param postId       - The scoped post ID (0 disables the request).
  * @param reportParams - The dashboard date range + comparison state.
  * @param period       - The selected bucket granularity (day/week/month).
- * @return The metric tabs and load/error state.
+ * @return The view series and load/error state.
  */
-export default function usePostPerformance(
+export default function usePostViews(
 	postId: number,
 	reportParams: ReportParams,
-	period: PostPerformancePeriod
-): PostPerformanceState {
+	period: PostViewsGranularity
+): PostViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,
-		fields: [ 'data', 'like_count', 'post' ],
+		fields: [ 'data' ],
 	} );
 
-	const metrics = useMemo< MetricTab[] >( () => {
+	const { current, previous } = useMemo( () => {
 		const days = data?.data ?? [];
 		const window = toDayWindow( reportParams.from, reportParams.to );
 		const compareWindow = toDayWindow( reportParams.compare_from, reportParams.compare_to );
 
-		const current = window ? bucketDays( days, window, period ) : [];
-		const previous = compareWindow ? bucketDays( days, compareWindow, period ) : undefined;
+		const currentPoints = window ? bucketDays( days, window, period ) : [];
+		const previousPoints = compareWindow ? bucketDays( days, compareWindow, period ) : undefined;
 
-		const sum = ( points: { value: number }[] ) =>
-			points.reduce( ( total, point ) => total + point.value, 0 );
-
-		return [
-			{
-				key: 'views',
-				label: __( 'Views', 'jetpack-premium-analytics' ),
-				value: sum( current ),
-				previousValue: previous?.length ? sum( previous ) : undefined,
-				current,
-				previous: previous?.length ? previous : undefined,
-			},
-			{
-				key: 'comments',
-				label: __( 'Comments', 'jetpack-premium-analytics' ),
-				description: __(
-					'All-time total — this metric has no per-post history.',
-					'jetpack-premium-analytics'
-				),
-				value: Number( data?.post?.comment_count ) || 0,
-				current: [],
-			},
-			{
-				key: 'likes',
-				label: __( 'Likes', 'jetpack-premium-analytics' ),
-				description: __(
-					'All-time total — this metric has no per-post history.',
-					'jetpack-premium-analytics'
-				),
-				value: data?.like_count ?? 0,
-				current: [],
-			},
-		];
+		return {
+			current: currentPoints,
+			previous: previousPoints?.length ? previousPoints : undefined,
+		};
 	}, [
 		data,
 		period,
@@ -223,7 +199,8 @@ export default function usePostPerformance(
 	] );
 
 	return {
-		metrics,
+		current,
+		previous,
 		isLoading,
 		isFetching,
 		isError,

@@ -1,14 +1,14 @@
 /**
- * The Performance widget is the post detail Traffic view's main card: Views /
- * Comments / Likes metric tabs over a comparative view-trend chart. The post
- * scope arrives through `reportParams.post_id` (seeded from the detail page
- * URL in product); the `hasPostScope` control toggles it to exercise the
- * scopeless empty state. Comments and likes are lifetime totals with no
- * per-post series in the API, so those tabs render value-only.
+ * The Post views widget is the post detail Traffic view's view-trend card:
+ * the scoped post's views over the dashboard date range as a comparative
+ * line chart. The post scope arrives through `reportParams.post_id` (seeded
+ * from the detail page URL in product); the `hasPostScope` control toggles it
+ * to exercise the scopeless empty state.
  *
  * Data comes from the proxied `stats/post/{id}` endpoint, covered by the
  * shared report mocks' `stats-post` fixture (a deterministic daily series
- * ending today, so relative date presets always intersect it).
+ * ending today, so relative date presets always intersect it). The comparison
+ * window is sliced client-side from the same request.
  */
 /**
  * External dependencies
@@ -25,8 +25,8 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import PostPerformanceRender from '../render';
-import widgetDefinition, { type PostPerformanceGranularity } from '../widget';
+import PostViewsRender from '../render';
+import widgetDefinition, { type PostViewsGranularity } from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -37,12 +37,12 @@ registerReportMocks();
 // the fixture's own post row for coherence.
 const MOCK_POST_ID = 779;
 
-const POST_PERFORMANCE_RENDER_MODULE = 'storybook/post-performance';
+const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 
-interface PostPerformanceStoryControls {
+interface PostViewsStoryControls {
 	withComparison: boolean;
 	hasPostScope: boolean;
-	granularity: PostPerformanceGranularity;
+	granularity: PostViewsGranularity;
 }
 
 /**
@@ -50,14 +50,14 @@ interface PostPerformanceStoryControls {
  * with the post scope the detail page seeds from its URL when `hasPostScope`
  * is on.
  *
- * @param {PostPerformanceStoryControls} controls - The story controls.
+ * @param {PostViewsStoryControls} controls - The story controls.
  * @return The widget attributes.
  */
-function getPostPerformanceAttributes( {
+function getPostViewsAttributes( {
 	withComparison,
 	hasPostScope,
 	granularity,
-}: PostPerformanceStoryControls ): ComponentProps< typeof PostPerformanceRender >[ 'attributes' ] {
+}: PostViewsStoryControls ): ComponentProps< typeof PostViewsRender >[ 'attributes' ] {
 	return {
 		granularity,
 		reportParams: {
@@ -70,16 +70,16 @@ function getPostPerformanceAttributes( {
 /**
  * Renders the data-connected widget with the composed attributes.
  *
- * @param {PostPerformanceStoryControls} controls - The story controls.
+ * @param {PostViewsStoryControls} controls - The story controls.
  * @return The rendered widget.
  */
-function renderPostPerformance( controls: PostPerformanceStoryControls ) {
-	return <PostPerformanceRender attributes={ getPostPerformanceAttributes( controls ) } />;
+function renderPostViews( controls: PostViewsStoryControls ) {
+	return <PostViewsRender attributes={ getPostViewsAttributes( controls ) } />;
 }
 
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/PostPerformance',
-	component: PostPerformanceRender,
+	title: 'Packages/Premium Analytics/Widgets/PostViews',
+	component: PostViewsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: {
@@ -100,32 +100,33 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Performance" widget: the scoped post\'s views, comments, and likes as metric tabs over a comparative view-trend line chart — the post detail Traffic view\'s main card. Views carry the period total, delta, and series; comments and likes are lifetime totals with no per-post series in the API, so those tabs are value-only. Without a post scope the widget renders a scopeless empty state.',
+					'The "Post views" widget: the scoped post\'s view trend over the dashboard date range as a comparative line chart — the legacy Calypso post summary chart. The view series comes from `stats/post`\'s full daily history, zero-filled and bucketed client-side per the host-rendered "Group by" control, with the comparison window sliced from the same request. Without a post scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof PostPerformanceRender > & PostPerformanceStoryControls >;
+} satisfies Meta< ComponentProps< typeof PostViewsRender > & PostViewsStoryControls >;
 
 export default meta;
 
-type Story = StoryObj< PostPerformanceStoryControls >;
+type Story = StoryObj< PostViewsStoryControls >;
 
 /**
- * Default — the scoped post's performance for the primary period only; the
- * Views tab shows no delta and the chart no overlay.
+ * Default — the scoped post's views for the primary period only: a single
+ * "Views" line with no overlay.
  */
 export const Default: Story = {
-	render: renderPostPerformance,
+	render: renderPostViews,
 	args: { withComparison: false, hasPostScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
  * WithComparison — the previous-period comparison from the date range picker;
- * the Views tab carries a delta and the chart a dashed overlay.
+ * the chart adds a dashed previous-period overlay and the legend switches to
+ * date-range labels.
  */
 export const WithComparison: Story = {
-	render: renderPostPerformance,
+	render: renderPostViews,
 	args: { withComparison: true, hasPostScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
@@ -136,45 +137,45 @@ export const WithComparison: Story = {
  * firing a stats request.
  */
 export const NoPostScope: Story = {
-	render: renderPostPerformance,
+	render: renderPostViews,
 	args: { withComparison: false, hasPostScope: false, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
-interface PostPerformanceDashboardStoryProps
+interface PostViewsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
-		PostPerformanceStoryControls {}
+		PostViewsStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, host "Group by" toolbar
  * control, sizing, edit mode).
  *
- * @param {PostPerformanceDashboardStoryProps} props - The dashboard story controls.
+ * @param {PostViewsDashboardStoryProps} props - The dashboard story controls.
  * @return The widget mounted inside the real dashboard.
  */
-function PostPerformanceDashboardStory( {
+function PostViewsDashboardStory( {
 	withComparison,
 	hasPostScope,
 	granularity,
 	...dashboardArgs
-}: PostPerformanceDashboardStoryProps ) {
+}: PostViewsDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
-			renderModule={ POST_PERFORMANCE_RENDER_MODULE }
-			renderComponent={ PostPerformanceRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostPerformanceAttributes( { withComparison, hasPostScope, granularity } ) }
+			renderModule={ POST_VIEWS_RENDER_MODULE }
+			renderComponent={ PostViewsRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ getPostViewsAttributes( { withComparison, hasPostScope, granularity } ) }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< PostPerformanceDashboardStoryProps > = {
-	render: args => <PostPerformanceDashboardStory { ...args } />,
+export const WidgetDashboardWithWidget: StoryObj< PostViewsDashboardStoryProps > = {
+	render: args => <PostViewsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 3,
+		widgetWidth: 2,
 		widgetHeight: 2,
 		withComparison: true,
 		hasPostScope: true,
