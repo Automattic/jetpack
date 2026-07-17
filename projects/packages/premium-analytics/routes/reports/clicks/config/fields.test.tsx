@@ -64,6 +64,35 @@ describe( 'clicks fields', () => {
 		expect( screen.queryByRole( 'link', { name: groupRow.clickedUrl } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'announces the click group on nested URL rows for screen readers', () => {
+		const field = getClicksFields().find( candidate => candidate.id === 'clickedUrl' );
+		const { render: UrlField } = field ?? {};
+
+		if ( ! field || ! UrlField ) {
+			throw new Error( 'Clicked URL field render callback is unavailable' );
+		}
+
+		render( <UrlField item={ row } field={ field as never } /> );
+
+		// The nesting is visual-only (no aria-level), so the group context is
+		// announced as visually-hidden text before the link.
+		expect( screen.getByText( `${ row.parentId }:` ) ).toBeInTheDocument();
+	} );
+
+	it( 'omits group context on flat top-level URL rows', () => {
+		const field = getClicksFields().find( candidate => candidate.id === 'clickedUrl' );
+		const { render: UrlField } = field ?? {};
+		const flatRow: ClickRow = { ...row, parentId: undefined };
+
+		if ( ! field || ! UrlField ) {
+			throw new Error( 'Clicked URL field render callback is unavailable' );
+		}
+
+		render( <UrlField item={ flatRow } field={ field as never } /> );
+
+		expect( screen.queryByText( /:$/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'makes URL values globally searchable', () => {
 		const fields = getClicksFields();
 

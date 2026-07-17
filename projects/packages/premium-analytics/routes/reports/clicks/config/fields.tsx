@@ -42,7 +42,10 @@ export function getClicksFields(): Field< ClickRow >[] {
 				const safeUrl = safeHttpUrl( item.href );
 
 				return (
-					<DrilldownLeafCell>
+					// The parent row id is the click-group label; announcing
+					// it restores the group context the nesting only shows
+					// visually.
+					<DrilldownLeafCell groupLabel={ item.parentId }>
 						{ safeUrl ? (
 							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
 								{ item.clickedUrl }
