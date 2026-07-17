@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Button, Icon, Notice } from '@wordpress/ui';
+import { Button, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, type ComponentProps } from 'react';
 /**
@@ -112,7 +112,7 @@ export function CsvDownloadButton( {
 				loading={ isBusy }
 				className={ clsx( styles.downloadCsv, className ) }
 			>
-				{ showIcon ? <Icon icon={ download } size={ 20 } className={ styles.icon } /> : null }
+				{ showIcon ? <Button.Icon icon={ download } /> : null }
 				<span className={ styles.label }>{ label }</span>
 			</Button>
 		</>
