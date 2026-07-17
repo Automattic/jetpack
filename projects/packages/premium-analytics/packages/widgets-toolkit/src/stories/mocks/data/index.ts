@@ -85,6 +85,8 @@ export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
 
 export { buildEmailRateResponse } from './email-rate';
 
+export { buildEmailTimelineResponse } from './email-timeline';
+
 export {
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,

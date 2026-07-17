@@ -62,6 +62,7 @@ import {
 	mockStatsSubscribersCountsData,
 	mockPlanUsageData,
 	buildEmailRateResponse,
+	buildEmailTimelineResponse,
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,
 	mockEmailClientBreakdown,
@@ -1270,6 +1271,15 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {
 		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
+
+		// Per-post email timelines — `/opens|clicks/emails/<postId>` with
+		// `stats_fields=timeline`. Matched here rather than in routeStatsReport()
+		// because the generated buckets read period/quantity/date off the query.
+		const emailTimeline = subPath.match( /^\/(opens|clicks)\/emails\/\d+$/ );
+		if ( emailTimeline && getQueryParam( requestPath, 'stats_fields' ) === 'timeline' ) {
+			return buildEmailTimelineResponse( emailTimeline[ 1 ] as 'opens' | 'clicks', requestPath );
+		}
+
 		const response = routeStatsReport( subPath );
 
 		if ( response !== null ) {

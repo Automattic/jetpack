@@ -1,0 +1,7 @@
+{
+	"name": "jpa/email-time-series",
+	"title": "Email performance",
+	"description": "A single email's opens or clicks over time since it was sent.",
+	"category": "stats",
+	"presentation": "framed"
+}

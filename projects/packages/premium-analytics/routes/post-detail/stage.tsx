@@ -14,7 +14,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard } from './components';
-import { EMAIL_BREAKDOWN_TYPE, EMAIL_BREAKDOWN_TYPE_VARIANTS } from './config';
+import { EMAIL_WIDGET_TYPE_ALIASES } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
@@ -65,25 +65,25 @@ function PostDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
 
-	// The fixed email compositions reuse `jpa/email-breakdown` under page-local
-	// aliases so each card carries its design title — the host titles a card by
-	// its widget *type*. Each alias clones the resolved type (render module and
-	// all) under a variant name and title; see `config/email-widget-variants`.
+	// The fixed email compositions reuse registered widget types under
+	// page-local aliases so each card carries its design title — the host
+	// titles a card by its widget *type*. Each alias clones the resolved base
+	// type (render module and all) under a variant name and title; see
+	// `config/email-widget-variants`.
 	const pageWidgetTypes = useMemo( () => {
-		const base = widgetTypes.find( widgetType => widgetType.name === EMAIL_BREAKDOWN_TYPE );
+		const aliases = EMAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
+			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
 
-		if ( ! base ) {
-			return widgetTypes;
-		}
+			return base
+				? variants.map( variant => ( {
+						...base,
+						name: variant.name,
+						title: variant.getTitle(),
+				  } ) )
+				: [];
+		} );
 
-		return [
-			...widgetTypes,
-			...EMAIL_BREAKDOWN_TYPE_VARIANTS.map( variant => ( {
-				...base,
-				name: variant.name,
-				title: variant.getTitle(),
-			} ) ),
-		];
+		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
 	}, [ widgetTypes ] );
 
 	// The single resource, date range, and comparison all live in the URL search
