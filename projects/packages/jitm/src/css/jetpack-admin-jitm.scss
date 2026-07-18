@@ -151,7 +151,7 @@ $jp-gray-20:             #a7aaad;
 	display: block;
 	clear: both;
 	position: relative;
-	margin: rem.convert(48px) rem.convert(20px) 0 auto;
+	margin: rem.convert(16px) auto;
 	padding: rem.convert(16px);
 	padding-left: rem.convert(20px);
 	box-sizing: border-box;
@@ -174,6 +174,10 @@ $jp-gray-20:             #a7aaad;
 
 	&.is-card-link {
 		padding-right: rem.convert(48px);
+	}
+
+	@include breakpoints.breakpoint( "<480px" ) {
+		margin: rem.convert(9px) auto;
 	}
 }
 

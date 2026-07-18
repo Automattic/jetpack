@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update .jitm-card margins to be horizontally centered (16px auto, 9px auto on mobile).
