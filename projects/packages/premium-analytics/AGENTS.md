@@ -107,6 +107,27 @@ Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM 
 and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
 `Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
 
+### Route guards must use the shared site-readiness helpers
+
+Every route's `beforeLoad` that checks connection or sync state must call
+`isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
+`routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
+or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
+connection, so a direct read silently evaluates to "not connected" there.
+
+That's more than one broken route: it's a redirect loop. `/connect` and `/syncing` already go
+through the shared helpers and treat Simple as connected and synced, so if a route added later
+skips the helpers, Simple hits that route, gets redirected to `/connect`, and `/connect` — seeing
+Simple as already connected — immediately redirects back to `/`. From the user's side this looks
+like "the page just bounces to the dashboard," with nothing in the console pointing at the cause.
+This shipped once (Automattic/jetpack#50266): the `/reports/$report` route was left reading script
+data directly when the other four routes were migrated to the shared helpers, so it fell out of
+sync with `/connect`'s guard and the two routes bounced traffic between each other on Simple.
+
+Adding a new route with a connection/sync guard: grep `routes/` for
+`isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
+script data.
+
 ### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
 
 The dashboard support routes (widget modules, default layout, sections) used to live under
