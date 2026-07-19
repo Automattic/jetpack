@@ -20,6 +20,10 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * those internals doesn't require a coordinated change on the WPCOM side.
  * `Analytics::init()` calls the same method for connected Jetpack sites, so
  * there is one implementation of "how to register these routes", not two.
+ *
+ * Despite the WPCOM motivation, the method itself isn't WPCOM-specific — it
+ * registers routes that both platforms serve — so it follows this package's
+ * plain `::register()` convention (see Sync\Configuration, REST\Notices_Controller).
  */
 class Dashboard_Support_Routes {
 
@@ -34,7 +38,7 @@ class Dashboard_Support_Routes {
 	 *
 	 * @return void
 	 */
-	public static function register_for_wpcom() {
+	public static function register() {
 		// Defines jpa_get_registered_widget_modules(), the manifest
 		// register_widget_types() below reads. Guarded: absent in
 		// environments without a JS build (e.g. some PHPUnit runs);

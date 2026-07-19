@@ -28,13 +28,13 @@ class Dashboard_Support_Routes_Test extends TestCase {
 
 	/**
 	 * A host that has loaded nothing else from this package can call
-	 * register_for_wpcom() and get all three dashboard support routes.
+	 * register() and get all three dashboard support routes.
 	 *
 	 * This is the exact contract WPCOM's public-api process relies on: it
 	 * never calls Analytics::init(), only this one method.
 	 */
-	public function test_register_for_wpcom_registers_all_three_routes() {
-		Dashboard_Support_Routes::register_for_wpcom();
+	public function test_register_registers_all_three_routes() {
+		Dashboard_Support_Routes::register();
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -55,9 +55,9 @@ class Dashboard_Support_Routes_Test extends TestCase {
 	 * Calling it a second time (e.g. from a second host hook) does not
 	 * register a route twice or error.
 	 */
-	public function test_register_for_wpcom_is_safe_to_call_twice() {
-		Dashboard_Support_Routes::register_for_wpcom();
-		Dashboard_Support_Routes::register_for_wpcom();
+	public function test_register_is_safe_to_call_twice() {
+		Dashboard_Support_Routes::register();
+		Dashboard_Support_Routes::register();
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();

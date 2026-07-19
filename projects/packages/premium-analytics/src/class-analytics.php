@@ -62,15 +62,7 @@ class Analytics {
 		// Piggybacks on the Jetpack Stats module; checks Jetpack connection state.
 		Jetpack_Stats_Tracker::configure();
 
-		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-		WooCommerce_Analytics_Tracker::configure();
-
-		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
-		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
-		Export::configure();
-
-		self::load_widget_registry();
-		self::load_dashboard_components();
+		self::boot_shared_services();
 		self::register_dashboard_support_routes();
 		self::load_build();
 		self::register_admin_page();
@@ -97,15 +89,7 @@ class Analytics {
 		self::$initialized = true;
 		self::apply_options( $options );
 
-		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-		WooCommerce_Analytics_Tracker::configure();
-
-		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
-		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
-		Export::configure();
-
-		self::load_widget_registry();
-		self::load_dashboard_components();
+		self::boot_shared_services();
 		self::load_build();
 		self::register_admin_page();
 	}
@@ -120,6 +104,24 @@ class Analytics {
 		if ( ! empty( $options['menu_title'] ) ) {
 			self::$menu_title = $options['menu_title'];
 		}
+	}
+
+	/**
+	 * Boot the services and registries every platform needs, regardless of
+	 * whether the site serves the dashboard support routes itself.
+	 *
+	 * @return void
+	 */
+	private static function boot_shared_services() {
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
+		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
+		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
+		Export::configure();
+
+		self::load_widget_registry();
+		self::load_dashboard_components();
 	}
 
 	/**
@@ -193,13 +195,13 @@ class Analytics {
 	 * Serve the dashboard support routes (widget modules, default layout,
 	 * sections) from the site.
 	 *
-	 * Simple skips this: WPCOM calls Dashboard_Support_Routes::register_for_wpcom()
+	 * Simple skips this: WPCOM calls Dashboard_Support_Routes::register()
 	 * directly from its own public-api process instead.
 	 *
 	 * @return void
 	 */
 	private static function register_dashboard_support_routes() {
-		Dashboard_Support_Routes::register_for_wpcom();
+		Dashboard_Support_Routes::register();
 	}
 
 	/**
