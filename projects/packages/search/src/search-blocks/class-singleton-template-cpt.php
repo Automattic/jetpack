@@ -139,7 +139,10 @@ abstract class Singleton_Template_Cpt {
 	 * Mirror `Search_Blocks::sync_filters_popover_content()` onto this
 	 * singleton's REST response so the Site Editor opens with the popover
 	 * already matching the sidebar Filters block, instead of showing stale
-	 * content until the next save/reload.
+	 * content until the next save/reload. Only `content.raw` (what the editor
+	 * hydrates from) needs this — `content.rendered` is post-`the_content`
+	 * HTML with block comments already replaced by their output, so the
+	 * block-name guard in `sync_filters_popover_content()` never matches it.
 	 *
 	 * @param \WP_REST_Response $response REST response for the singleton post.
 	 * @return \WP_REST_Response
@@ -147,9 +150,6 @@ abstract class Singleton_Template_Cpt {
 	public static function sync_filters_popover_in_rest_response( $response ) {
 		if ( isset( $response->data['content']['raw'] ) ) {
 			$response->data['content']['raw'] = Search_Blocks::sync_filters_popover_content( $response->data['content']['raw'] );
-		}
-		if ( isset( $response->data['content']['rendered'] ) ) {
-			$response->data['content']['rendered'] = Search_Blocks::sync_filters_popover_content( $response->data['content']['rendered'] );
 		}
 		return $response;
 	}
