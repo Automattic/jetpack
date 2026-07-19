@@ -24,6 +24,8 @@ class Analytics_Test extends TestCase {
 	protected function tearDown(): void {
 		unset( $_GET['page'] );
 		unset( $GLOBALS['current_screen'] );
+		global $wp_rest_server;
+		$wp_rest_server = null;
 		remove_all_actions( 'jetpack_sync_processed_actions' );
 		remove_all_actions( 'plugins_loaded' );
 		remove_all_actions( 'rest_api_init' );
@@ -78,15 +80,26 @@ class Analytics_Test extends TestCase {
 
 	/**
 	 * Normal package bootstrap serves the dashboard support routes from the site.
+	 *
+	 * The route files themselves are loaded lazily, on rest_api_init, via
+	 * Dashboard_Support_Routes::boot_routes() - so this checks that hook is
+	 * wired, then dispatches it and confirms the routes actually land.
 	 */
 	public function test_init_registers_dashboard_support_routes_by_default() {
 		$this->reset_analytics_init_state();
 
 		Analytics::init();
 
-		$this->assertNotFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' ) );
-		$this->assertNotFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) );
-		$this->assertNotFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' ) );
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', array( Dashboard_Support_Routes::class, 'boot_routes' ) )
+		);
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( '/wpcom/v2/widget-modules', $routes );
 	}
 
 	/**
@@ -97,9 +110,9 @@ class Analytics_Test extends TestCase {
 
 		Analytics::init_wpcom_simple();
 
-		$this->assertFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' ) );
-		$this->assertFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) );
-		$this->assertFalse( has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' ) );
+		$this->assertFalse(
+			has_action( 'rest_api_init', array( Dashboard_Support_Routes::class, 'boot_routes' ) )
+		);
 	}
 
 	/**

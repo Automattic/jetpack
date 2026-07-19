@@ -28,22 +28,31 @@ class Dashboard_Support_Routes {
 	 * @return void
 	 */
 	public static function register() {
-		// Manifest register_widget_types() reads; absent without a JS build.
-		$widgets_manifest = __DIR__ . '/../build/widgets.php';
-		if ( file_exists( $widgets_manifest ) ) {
-			require_once $widgets_manifest;
-		}
+		add_action( 'rest_api_init', array( __CLASS__, 'boot_routes' ) );
+	}
 
-		require_once __DIR__ . '/widget-types.php';
-		require_once __DIR__ . '/widget-availability.php';
-		bootstrap_widget_types();
-
+	/**
+	 * Load the route files and register their REST routes.
+	 *
+	 * Deferred here (rest_api_init), not run from register() itself: register()
+	 * runs on every request that boots this package, and on WPCOM Simple that's
+	 * every request across all of WPCOM's public-api process, most of which
+	 * never dispatch a Premium Analytics route. dashboard-layout.php hooks
+	 * get_user_metadata unconditionally at file scope, and dashboard-sections.php
+	 * hydrates its own section registry at file scope — neither should run
+	 * before WordPress has decided this request is actually dispatching a REST
+	 * route. widget-modules.php hydrates the widget type registry itself, lazily,
+	 * only when its REST callback or the boot-deps filter actually runs.
+	 *
+	 * @return void
+	 */
+	public static function boot_routes() {
 		require_once __DIR__ . '/widget-modules.php';
 		require_once __DIR__ . '/dashboard-layout.php';
 		require_once __DIR__ . '/dashboard-sections.php';
 
-		add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
-		add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
-		add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' );
+		register_widget_modules_rest_route();
+		register_dashboard_default_layout_route();
+		register_dashboard_sections_rest_routes();
 	}
 }

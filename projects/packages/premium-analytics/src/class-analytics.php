@@ -118,7 +118,6 @@ class Analytics {
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
 		Export::configure();
 
-		self::load_widget_registry();
 		self::load_dashboard_components();
 	}
 
@@ -148,22 +147,6 @@ class Analytics {
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
-	}
-
-	/**
-	 * Load and hydrate the widget type registry.
-	 *
-	 * @return void
-	 */
-	private static function load_widget_registry() {
-		// Registry, accessors, and registry-time/runtime filters.
-		require_once __DIR__ . '/widget-types.php';
-
-		// Hides developer-only widget types from production.
-		require_once __DIR__ . '/widget-availability.php';
-
-		// Hydrate the registry with the availability filter already in place.
-		bootstrap_widget_types();
 	}
 
 	/**

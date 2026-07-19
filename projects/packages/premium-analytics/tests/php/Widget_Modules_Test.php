@@ -47,4 +47,17 @@ class Widget_Modules_Test extends TestCase {
 		$this->assertArrayHasKey( self::ROUTE, $routes );
 		$this->assertArrayNotHasKey( self::LEGACY_ROUTE, $routes );
 	}
+
+	/**
+	 * The route's callback works standalone: it hydrates the widget type
+	 * registry itself (ensure_widget_registry_ready()) rather than assuming a
+	 * caller already did, so it returns valid data even when nothing else in
+	 * the process has touched the registry yet.
+	 */
+	public function test_response_hydrates_the_registry_on_first_use() {
+		$response = get_widget_modules_response();
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertIsArray( $response->get_data() );
+	}
 }
