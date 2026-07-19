@@ -107,6 +107,24 @@ Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM 
 and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
 `Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
 
+### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
+
+The dashboard support routes (widget modules, default layout, sections) used to live under
+`jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
+recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
+routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
+treats as site-specific by default for plain function-callback routes: registering under it is
+enough for WPCOM to rewrite and expose the route as `/wpcom/v2/sites/<blog_id>/...` through
+public-api, with no separate dotcom-side registration and no `wpcom_rest_api_v2_load_plugin()`
+class shim required. That's why the rename happened (Automattic/jetpack#50266), and it's why
+`Dashboard_Support_Routes::register()` exists as a standalone entry point WPCOM can call.
+
+**Any future Premium Analytics REST endpoint that needs to work on both connected Jetpack sites
+and WPCOM Simple must register under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in
+`src/rest-namespace.php`), not `jetpack/v4` or a plugin-specific namespace — those only reach
+connected sites. An endpoint that's intentionally connected-site-only (e.g. the local data proxy,
+notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls it.
+
 **WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
 (widget modules, default layout, sections) standalone. The WPCOM-side caller is
