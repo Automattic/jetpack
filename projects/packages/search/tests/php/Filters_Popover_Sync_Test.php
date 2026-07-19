@@ -130,6 +130,8 @@ class Filters_Popover_Sync_Test extends Search_TestCase {
 		Overlay_Template::reset_customized_content_cache();
 
 		$synced = Overlay_Template::get_customized_content();
+		$this->assertNotNull( $synced );
+		$synced = (string) $synced;
 
 		$this->assertStringContainsString( '"label":"Limit results to"', $synced );
 		$this->assertStringNotContainsString( '"taxonomy":"post_tag"', $synced );
