@@ -677,13 +677,10 @@ class Search_Blocks {
 					'supportsPaidSearch'         => self::supports_paid_search(),
 					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
 					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
-					// Clamped the same way `search-results/render.php` resolves the
+					// Resolved the same way `search-results/render.php` resolves the
 					// live value, so the editor placeholder never claims a default
-					// higher than what visitors actually get.
-					'defaultResultsPerPage'      => min(
-						max( 1, (int) get_option( 'posts_per_page' ) ),
-						Helper::get_max_posts_per_page()
-					),
+					// visitors won't actually get.
+					'defaultResultsPerPage'      => Helper::resolve_results_per_page(),
 					'maxResultsPerPage'          => Helper::get_max_posts_per_page(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
