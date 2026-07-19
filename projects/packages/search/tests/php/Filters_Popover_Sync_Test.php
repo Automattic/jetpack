@@ -138,6 +138,21 @@ class Filters_Popover_Sync_Test extends Search_TestCase {
 	}
 
 	/**
+	 * The REST filter is what the Site Editor's load actually goes through
+	 * (bypassing get_customized_content() entirely) — covers that path
+	 * directly rather than only through the singleton-CPT read path above.
+	 */
+	public function test_rest_response_sync_normalizes_content_raw() {
+		$content  = static::wrap_columns( static::SIDEBAR_FILTERS, static::STALE_POPOVER );
+		$response = new \WP_REST_Response( array( 'content' => array( 'raw' => $content ) ) );
+
+		$synced = Overlay_Template::sync_filters_popover_in_rest_response( $response );
+
+		$this->assertStringContainsString( '"label":"Limit results to"', $synced->data['content']['raw'] );
+		$this->assertStringNotContainsString( '"taxonomy":"post_tag"', $synced->data['content']['raw'] );
+	}
+
+	/**
 	 * Guards the no-op path at the Singleton_Template_Cpt layer too: a
 	 * customization with no filters-popover block round-trips byte-for-byte,
 	 * matching Search_Template_Test::test_customized_state_returns_post_content().
