@@ -103,25 +103,18 @@ prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dash
 
 ## WordPress.com Simple
 
-Simple has no local proxy, notices, sync, or dashboard support routes — the dashboard is served
-by WPCOM and reaches `public-api.wordpress.com` directly via WPCOM's own apiFetch bridge.
-`jetpack-mu-wpcom` boots the package with `Analytics::init_wpcom_simple()` behind the
-`jetpack-premium-analytics` blog sticker (see `Jetpack_Mu_Wpcom::load_wpcom_simple_premium_analytics()`).
+Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
+and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
+`Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
 
-**The one method WPCOM calls directly: `Dashboard_Support_Routes::register()`**
-(`src/class-dashboard-support-routes.php`). It registers the dashboard's REST support routes
-(widget modules, default layout, sections) standalone, without booting the rest of the package —
-this is what makes those routes exist in WPCOM's own public-api process, separate from the site.
-`Analytics::init()` calls the same method for connected sites, so there is one implementation, not
-two.
-
-**If you rename this method, move it, or change its parameters or namespace, you must update the
-WPCOM-side caller in the same PR round** (or coordinate a WPCOM-side follow-up before merging):
+**WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
+(`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
+(widget modules, default layout, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
-repo. That file `require_once`s this class by its exact path and calls `::register()` by name
-behind an `is_callable()` guard — it has no other knowledge of this package's internals, which is
-the point, but it does hard-depend on this one call staying valid. See Automattic/jetpack#50266
-and the `wpcom` PR it links for the change that established this contract.
+repo — it `require_once`s this exact file and calls `::register()` by name.
+
+**Renaming, moving, or changing this method's signature requires a matching WPCOM-side update.**
+See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Pitfalls
 
