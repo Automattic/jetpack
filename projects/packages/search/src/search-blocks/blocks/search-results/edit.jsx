@@ -59,8 +59,8 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 		() => ( Array.isArray( attributes?.postTypes ) ? attributes.postTypes : [] ),
 		[ attributes?.postTypes ]
 	);
-	const maxResultsPerPage = window?.JetpackSearchBlocksConfig?.maxResultsPerPage ?? 100;
-	const defaultResultsPerPage = window?.JetpackSearchBlocksConfig?.defaultResultsPerPage ?? 10;
+	const maxResultsPerPage = window.JetpackSearchBlocksConfig?.maxResultsPerPage ?? 100;
+	const defaultResultsPerPage = window.JetpackSearchBlocksConfig?.defaultResultsPerPage ?? 10;
 
 	// Empty clears back to `0` (auto) — must short-circuit before the numeric
 	// clamp, since `Number( '' )` is `0` and `Math.max( 1, 0 )` would floor an
