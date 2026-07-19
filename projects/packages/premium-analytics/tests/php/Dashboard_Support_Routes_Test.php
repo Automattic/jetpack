@@ -53,6 +53,7 @@ class Dashboard_Support_Routes_Test extends TestCase {
 	 */
 	public function test_register_is_safe_to_call_twice() {
 		Dashboard_Support_Routes::register();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional: testing that a second call is a no-op.
 		Dashboard_Support_Routes::register();
 
 		global $wp_rest_server;
