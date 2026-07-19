@@ -10,39 +10,25 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
  * Registers the dashboard's REST support routes (widget modules, default
- * layout, sections) on a host that never calls Analytics::init().
+ * layout, sections) for a host that never calls Analytics::init().
  *
- * WordPress.com Simple serves the Premium Analytics dashboard from WPCOM
- * rather than from the site itself (see Analytics::init_wpcom_simple()), so
- * these routes need to exist in WPCOM's own public-api process instead. This
- * class is the single entry point for that: it owns the file list, load
- * order, and function names the routes depend on, so a future refactor of
- * those internals doesn't require a coordinated change on the WPCOM side.
- * `Analytics::init()` calls the same method for connected Jetpack sites, so
- * there is one implementation of "how to register these routes", not two.
- *
- * Despite the WPCOM motivation, the method itself isn't WPCOM-specific — it
- * registers routes that both platforms serve — so it follows this package's
- * plain `::register()` convention (see Sync\Configuration, REST\Notices_Controller).
+ * WordPress.com Simple serves the dashboard from WPCOM, not the site (see
+ * Analytics::init_wpcom_simple()), so WPCOM's public-api process calls this
+ * directly — see AGENTS.md for the call site and what to update on the WPCOM
+ * side if this changes. Analytics::init() calls the same method for
+ * connected sites, so there's one implementation, not two.
  */
 class Dashboard_Support_Routes {
 
 	/**
 	 * Register the dashboard support routes.
 	 *
-	 * Safe to call from a process that has otherwise loaded none of this
-	 * package, and safe to call more than once: every step here is already
-	 * idempotent on its own (require_once, the widget registry's own
-	 * is_registered() check, and WordPress's de-duplication of an identical
-	 * add_action() callback), so no extra guard is needed here.
+	 * Idempotent: safe to call standalone, and safe to call more than once.
 	 *
 	 * @return void
 	 */
 	public static function register() {
-		// Defines jpa_get_registered_widget_modules(), the manifest
-		// register_widget_types() below reads. Guarded: absent in
-		// environments without a JS build (e.g. some PHPUnit runs);
-		// register_widget_types() itself guards its use of the manifest.
+		// Manifest register_widget_types() reads; absent without a JS build.
 		$widgets_manifest = __DIR__ . '/../build/widgets.php';
 		if ( file_exists( $widgets_manifest ) ) {
 			require_once $widgets_manifest;

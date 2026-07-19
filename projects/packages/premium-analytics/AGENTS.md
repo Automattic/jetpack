@@ -101,6 +101,28 @@ routes (`jetpack/v4/stats-app/*`) → `stats` / `jetpack-stats` / `subscribers` 
 prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dashboard UI lives in
 `routes/` here, not in Calypso. Frontend helpers go under `packages/data/src/api/`.
 
+## WordPress.com Simple
+
+Simple has no local proxy, notices, sync, or dashboard support routes — the dashboard is served
+by WPCOM and reaches `public-api.wordpress.com` directly via WPCOM's own apiFetch bridge.
+`jetpack-mu-wpcom` boots the package with `Analytics::init_wpcom_simple()` behind the
+`jetpack-premium-analytics` blog sticker (see `Jetpack_Mu_Wpcom::load_wpcom_simple_premium_analytics()`).
+
+**The one method WPCOM calls directly: `Dashboard_Support_Routes::register()`**
+(`src/class-dashboard-support-routes.php`). It registers the dashboard's REST support routes
+(widget modules, default layout, sections) standalone, without booting the rest of the package —
+this is what makes those routes exist in WPCOM's own public-api process, separate from the site.
+`Analytics::init()` calls the same method for connected sites, so there is one implementation, not
+two.
+
+**If you rename this method, move it, or change its parameters or namespace, you must update the
+WPCOM-side caller in the same PR round** (or coordinate a WPCOM-side follow-up before merging):
+`wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
+repo. That file `require_once`s this class by its exact path and calls `::register()` by name
+behind an `is_callable()` guard — it has no other knowledge of this package's internals, which is
+the point, but it does hard-depend on this one call staying valid. See Automattic/jetpack#50266
+and the `wpcom` PR it links for the change that established this contract.
+
 ## Pitfalls
 
 - Never put the blog ID in a proxy path — it's injected server-side.

@@ -27,11 +27,8 @@ class Dashboard_Support_Routes_Test extends TestCase {
 	}
 
 	/**
-	 * A host that has loaded nothing else from this package can call
-	 * register() and get all three dashboard support routes.
-	 *
-	 * This is the exact contract WPCOM's public-api process relies on: it
-	 * never calls Analytics::init(), only this one method.
+	 * Standalone register() registers all three routes — the contract
+	 * WPCOM's public-api process relies on.
 	 */
 	public function test_register_registers_all_three_routes() {
 		Dashboard_Support_Routes::register();
@@ -52,8 +49,7 @@ class Dashboard_Support_Routes_Test extends TestCase {
 	}
 
 	/**
-	 * Calling it a second time (e.g. from a second host hook) does not
-	 * register a route twice or error.
+	 * Calling it twice doesn't register a route twice or error.
 	 */
 	public function test_register_is_safe_to_call_twice() {
 		Dashboard_Support_Routes::register();

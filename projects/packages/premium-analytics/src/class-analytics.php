@@ -71,11 +71,9 @@ class Analytics {
 	/**
 	 * Initialize the Analytics app on WordPress.com Simple.
 	 *
-	 * Simple serves the dashboard from WPCOM and uses WPCOM's wp-admin apiFetch
-	 * bridge to reach public-api.wordpress.com directly, so it registers none of
-	 * the site-served REST surfaces a connected Jetpack site provides: no proxy,
-	 * no notices, no sync bootstrap, and no dashboard support routes — WPCOM
-	 * registers those endpoints separately on public-api.
+	 * Simple reaches public-api.wordpress.com directly via WPCOM's apiFetch
+	 * bridge, so it registers no local REST surface: no proxy, notices, sync
+	 * bootstrap, or dashboard support routes. WPCOM registers those separately.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
@@ -158,15 +156,13 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_widget_registry() {
-		// Load the widget type registry: hydration routine, registry-time and
-		// runtime filters, and the registry accessors.
+		// Registry, accessors, and registry-time/runtime filters.
 		require_once __DIR__ . '/widget-types.php';
 
-		// Apply Premium Analytics' availability policy: hooks the registry-time
-		// filter to keep developer-only types out of production.
+		// Hides developer-only widget types from production.
 		require_once __DIR__ . '/widget-availability.php';
 
-		// Hydrate the registry with the availability filter in place.
+		// Hydrate the registry with the availability filter already in place.
 		bootstrap_widget_types();
 	}
 
@@ -176,27 +172,23 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_dashboard_components() {
-		// Wire dashboard widget modules into the page import map for dynamic
-		// import() on the client.
+		// Widget modules for the client's dynamic import() map.
 		require_once __DIR__ . '/widget-modules.php';
 
-		// Register the dashboard's default layout first-load preference injection.
+		// Default layout's first-load preference injection.
 		require_once __DIR__ . '/dashboard-layout.php';
 
-		// Register dashboard sections and their default layout seeding.
+		// Dashboard sections and their default layout seeding.
 		require_once __DIR__ . '/dashboard-sections.php';
 
-		// Expose opt-in CSV export settings to the dashboard.
+		// Opt-in CSV export settings.
 		require_once __DIR__ . '/csv-exports.php';
 		configure_csv_exports();
 	}
 
 	/**
-	 * Serve the dashboard support routes (widget modules, default layout,
-	 * sections) from the site.
-	 *
-	 * Simple skips this: WPCOM calls Dashboard_Support_Routes::register()
-	 * directly from its own public-api process instead.
+	 * Serve the dashboard support routes from the site. Simple skips this —
+	 * WPCOM calls Dashboard_Support_Routes::register() itself instead.
 	 *
 	 * @return void
 	 */
@@ -207,11 +199,9 @@ class Analytics {
 	/**
 	 * Load the wp-build output (interceptor, modules, routes, page render).
 	 *
-	 * Must run before the is_admin() gate: build/widgets.php defines the
-	 * manifest the widget registry reads, and the registry serves REST requests
-	 * (e.g. /wpcom/v2/widget-modules) where is_admin() is false. The render
-	 * pieces here self-gate on admin_init, so loading them globally is inert
-	 * off the dashboard.
+	 * Must run before the is_admin() gate: the registry serves REST requests
+	 * too (is_admin() false there). Render pieces self-gate on admin_init, so
+	 * this is inert off the dashboard.
 	 *
 	 * @return void
 	 */
