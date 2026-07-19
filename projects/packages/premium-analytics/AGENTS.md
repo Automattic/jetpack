@@ -119,6 +119,8 @@ public-api, with no separate dotcom-side registration and no `wpcom_rest_api_v2_
 class shim required. That's why the rename happened (Automattic/jetpack#50266), and it's why
 `Dashboard_Support_Routes::register()` exists as a standalone entry point WPCOM can call.
 
+### Choosing a REST namespace for new endpoints
+
 **Any future Premium Analytics REST endpoint that needs to work on both connected Jetpack sites
 and WPCOM Simple must register under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in
 `src/rest-namespace.php`), not `jetpack/v4` or a plugin-specific namespace — those only reach
