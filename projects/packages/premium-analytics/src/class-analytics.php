@@ -193,15 +193,13 @@ class Analytics {
 	 * Serve the dashboard support routes (widget modules, default layout,
 	 * sections) from the site.
 	 *
-	 * Simple skips this: WPCOM registers these endpoints separately on
-	 * public-api, and Simple dashboard requests are dispatched there.
+	 * Simple skips this: WPCOM calls Dashboard_Support_Routes::register_for_wpcom()
+	 * directly from its own public-api process instead.
 	 *
 	 * @return void
 	 */
 	private static function register_dashboard_support_routes() {
-		add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
-		add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
-		add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' );
+		Dashboard_Support_Routes::register_for_wpcom();
 	}
 
 	/**
