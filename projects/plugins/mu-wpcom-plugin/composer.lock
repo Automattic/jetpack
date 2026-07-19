@@ -1727,13 +1727,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "1b3067feb4367b82e67cde8076b9199bcbe44fb3"
+                "reference": "8a37e653800a0f6eab73996b880000796cd0ff4c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-stats": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "automattic/woocommerce-analytics": "^0.16",

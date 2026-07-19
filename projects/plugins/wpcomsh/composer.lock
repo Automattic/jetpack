@@ -1027,7 +1027,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "104841325e090f4137640ab5b09373de64d6ead9"
+                "reference": "d0bc548ee29c5ba855d266114ab41d469d33cba5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1700,7 +1700,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "cdeaa612312a11508d74183eae8f6374d87123ac"
+                "reference": "3e434b0a0774d49bc15913fbb7df57f831dfbe10"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1908,13 +1908,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "b3511e8ca26dd4052147f368ebf1b0aa9179a787"
+                "reference": "2e38923863dbc23890ece6403cd0ad2fb153b650"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-stats": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "automattic/woocommerce-analytics": "^0.16",
