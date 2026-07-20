@@ -1142,47 +1142,45 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Atomically add a transient only when it does not already exist.
+	 * Atomically add a durable claim for a login attempt token.
 	 *
-	 * @param string $transient Transient name. Expected to not be SQL-escaped. Must be
-	 *                          45 characters or fewer in length.
-	 * @param mixed  $value Value to store. Must be serializable if non-scalar.
+	 * The claim intentionally remains in the options table when an external object
+	 * cache is active. Its unique option name is the source of truth for single use,
+	 * so selective cache eviction cannot make an approved token reusable.
+	 *
+	 * @param string $claim_name Claim name. Expected to not be SQL-escaped. Must be
+	 *                           45 characters or fewer in length.
 	 * @param int    $expiration Time until expiration in seconds.
 	 *
-	 * @return bool Whether the transient was added.
+	 * @return bool Whether the claim was added.
 	 */
-	public function add_transient( $transient, $value, $expiration ) {
+	public function add_login_attempt_claim( $claim_name, $expiration ) {
 		if ( is_multisite() && ! is_main_site() ) {
 			switch_to_blog( $this->get_main_blog_id() );
-			$return = $this->add_transient_for_current_site( $transient, $value, $expiration );
+			$return = $this->add_login_attempt_claim_for_current_site( $claim_name, $expiration );
 			restore_current_blog();
 
 			return $return;
 		}
 
-		return $this->add_transient_for_current_site( $transient, $value, $expiration );
+		return $this->add_login_attempt_claim_for_current_site( $claim_name, $expiration );
 	}
 
 	/**
-	 * Atomically add a transient on the current site.
+	 * Atomically add a durable login attempt claim on the current site.
 	 *
-	 * @param string $transient Transient name.
-	 * @param mixed  $value Value to store.
+	 * @param string $claim_name Claim name.
 	 * @param int    $expiration Time until expiration in seconds.
 	 *
-	 * @return bool Whether the transient was added.
+	 * @return bool Whether the claim was added.
 	 */
-	private function add_transient_for_current_site( $transient, $value, $expiration ) {
-		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_add( $transient, $value, 'transient', $expiration );
-		}
-
-		$option_name = '_transient_' . $transient;
-		if ( ! add_option( $option_name, $value, '', false ) ) {
+	private function add_login_attempt_claim_for_current_site( $claim_name, $expiration ) {
+		$option_name = '_transient_' . $claim_name;
+		if ( ! add_option( $option_name, 1, '', false ) ) {
 			return false;
 		}
 
-		$timeout_name = '_transient_timeout_' . $transient;
+		$timeout_name = '_transient_timeout_' . $claim_name;
 		if ( $expiration && ! add_option( $timeout_name, time() + $expiration, '', false ) ) {
 			delete_option( $option_name );
 			delete_option( $timeout_name );

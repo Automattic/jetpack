@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 /**
  * Brute Force Protection login attempt token test case.
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	/**
 	 * Tokens issued during the current test.
@@ -22,12 +22,20 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	private $issued_tokens = array();
 
 	/**
+	 * Whether the test environment was using an external object cache.
+	 *
+	 * @var bool
+	 */
+	private $was_using_ext_object_cache;
+
+	/**
 	 * Set up each test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 
-		$_SERVER['REMOTE_ADDR'] = '203.0.113.10';
+		$this->was_using_ext_object_cache = wp_using_ext_object_cache();
+		$_SERVER['REMOTE_ADDR']           = '203.0.113.10';
 		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
 		delete_site_option( 'trusted_ip_header' );
 	}
@@ -45,9 +53,13 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 		delete_transient( 'jpp_attempt_' . md5( '203.0.113.10' ) );
 
 		foreach ( $this->issued_tokens as $token ) {
-			delete_transient( 'jpp_claim_' . substr( hash( 'sha256', $token ), 0, 32 ) );
+			$claim_name = 'jpp_claim_' . substr( hash( 'sha256', $token ), 0, 32 );
+			delete_transient( $claim_name );
+			delete_option( '_transient_' . $claim_name );
+			delete_option( '_transient_timeout_' . $claim_name );
 		}
 		$this->issued_tokens = array();
+		wp_using_ext_object_cache( $this->was_using_ext_object_cache );
 
 		parent::tearDown();
 	}
@@ -60,6 +72,20 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token;
 
 		$this->assertTrue( $this->token_manager( 'jpp_li_browser' )->consume() );
+		$this->assertFalse( $this->token_manager( 'jpp_li_browser' )->consume() );
+	}
+
+	/**
+	 * Verify that evicting only an external-cache claim cannot make a token reusable.
+	 */
+	public function test_claim_survives_selective_external_object_cache_eviction() {
+		wp_using_ext_object_cache( true );
+		$token = $this->render_token( 'jpp_li_browser' );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token;
+
+		$this->assertTrue( $this->token_manager( 'jpp_li_browser' )->consume() );
+		wp_cache_delete( 'jpp_claim_' . substr( hash( 'sha256', $token ), 0, 32 ), 'transient' );
+
 		$this->assertFalse( $this->token_manager( 'jpp_li_browser' )->consume() );
 	}
 
