@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Search overlay/embedded templates: make it obvious in the editor when a new filter lands outside the Filters (or Filters Product) block instead of inside it — a bounded insertion target, a labeled boundary outline, and a warning notice when a filter ends up stray.
+Search overlay/embedded templates: make it obvious in the editor when adding a new filter to the Filters (or Filters Product) block — a bounded insertion target and a labeled boundary outline mark where it belongs.
