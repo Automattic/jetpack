@@ -76,7 +76,7 @@ describe( 'useAuthorsReportRecords', () => {
 
 		expect( mockUseStatsTopAuthors ).toHaveBeenLastCalledWith( {
 			...params,
-			max: 0,
+			max: 20,
 			summarize: 0,
 			period: 'day',
 		} );
