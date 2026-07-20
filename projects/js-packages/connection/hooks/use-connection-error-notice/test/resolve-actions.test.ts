@@ -3,6 +3,7 @@ import {
 	DEFAULT_RECONNECT_TRACKING_EVENT,
 	resolveConnectionErrorActions,
 } from '../resolve-actions';
+import type { ConnectionErrorObject } from '../types';
 
 describe( 'resolveConnectionErrorActions', () => {
 	// restoreConnection is typed () => Promise<unknown>; the mock must return a
@@ -97,7 +98,7 @@ describe( 'resolveConnectionErrorActions', () => {
 	it( 'resolves a named action handler', () => {
 		const handler = jest.fn();
 		const trackingCallback = jest.fn();
-		const error = {
+		const error: ConnectionErrorObject = {
 			error_message: 'Custom',
 			error_data: {
 				action: 'fix_it',

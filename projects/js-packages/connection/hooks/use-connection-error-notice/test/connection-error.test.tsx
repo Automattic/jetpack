@@ -1,5 +1,7 @@
 import { jest } from '@jest/globals';
 import { render } from '@testing-library/react';
+import type { ConnectionErrorNoticeProps } from '../../../components/connection-error-notice/types';
+import type { ReactNode } from 'react';
 
 // The connection store reader — mocked to drive the error inputs.
 const useConnection = jest.fn();
@@ -20,7 +22,9 @@ jest.unstable_mockModule( '../../use-restore-connection', () => ( {
 
 // Mock the presentational notice so these tests assert the wiring (which props
 // ConnectionError passes), not the @wordpress/ui rendering.
-const ConnectionErrorNotice = jest.fn( () => null );
+const ConnectionErrorNotice = jest.fn< ( props: ConnectionErrorNoticeProps ) => ReactNode >(
+	() => null
+);
 jest.unstable_mockModule( '../../../components/connection-error-notice', () => ( {
 	__esModule: true,
 	default: ConnectionErrorNotice,
@@ -28,7 +32,7 @@ jest.unstable_mockModule( '../../../components/connection-error-notice', () => (
 
 const { ConnectionError } = await import( '../index' );
 
-const mockConnection = overrides =>
+const mockConnection = ( overrides = {} ) =>
 	useConnection.mockReturnValue( {
 		connectionErrors: {},
 		isRegistered: true,

@@ -1,5 +1,6 @@
 import { action } from 'storybook/actions';
 import ConnectScreenVisual from '../visual';
+import type { Props } from '../visual';
 
 export default {
 	title: 'JS Packages/Connection/Connect Screen',
@@ -7,7 +8,7 @@ export default {
 };
 
 // Export additional stories using pre-defined values
-const Template = props => (
+const Template = ( props: Props ) => (
 	<ConnectScreenVisual { ...props }>
 		<p>Secure and speed up your site for free with Jetpack&apos;s powerful WordPress tools</p>
 
