@@ -7,6 +7,7 @@ export {
 	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
+	type ComparativeLineChartSeries,
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
@@ -49,23 +50,39 @@ export {
 	type SubscriberListProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	ReportDrilldownTable,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
+	ReportPageShell,
 	ReportPageTabPanel,
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportDrilldownTableProps,
+	type ReportErrorStateProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
+	type ReportPageShellProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
-	DownloadCsvButton,
-	type DownloadCsvButtonProps,
+	isCsvExportEnabled,
+	ReportCsvDownloadButton,
+	type ReportCsvDownloadButtonProps,
+	RowsCsvDownloadButton,
+	type RowsCsvDownloadButtonProps,
+	WidgetDataTable,
+	type WidgetDataTableProps,
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
 } from './components';
 
 /**
@@ -99,6 +116,7 @@ export {
 	formatLegendLabels,
 	formatDisplayLabel,
 	buildCsv,
+	buildCsvDateRangeFilename,
 	saveCsv,
 	type CsvColumn,
 	sharePercentage,
@@ -174,3 +192,12 @@ export {
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 } from '@automattic/charts';
+
+/**
+ * UI passthrough
+ *
+ * Widgets must import these from here, never from
+ * `@jetpack-premium-analytics/ui` directly: the toolkit is a shared script
+ * module, so the ui package is bundled once instead of once per widget.
+ */
+export { safeHttpUrl } from '@jetpack-premium-analytics/ui';

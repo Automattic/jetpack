@@ -142,7 +142,7 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentViews ),
 			previousValue,
 			previousShare: hasPrevious ? sharePercentage( previousValue, maxPreviousViews ) : undefined,
 			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,

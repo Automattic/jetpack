@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reuse shared data and percentage helpers across Premium Analytics widgets.

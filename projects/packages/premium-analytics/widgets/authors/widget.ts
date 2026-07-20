@@ -25,9 +25,15 @@ export default {
 	title: __( 'Authors', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Learn about your most popular authors to better understand how they contribute to grow your site.',
+			'The authors whose content received the most views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: postAuthor,
 	attributes: [

@@ -16,7 +16,7 @@ import { WidgetState } from '../../components/widget-state';
 /**
  * Internal dependencies
  */
-import { formatLegendLabels, calculateDelta } from '../../helpers';
+import { formatLegendLabels, calculateDelta, sharePercentage } from '../../helpers';
 
 export type TopPerformingProductLeaderboardWidgetProps = {
 	/**
@@ -169,12 +169,12 @@ export function TopPerformingProductLeaderboardWidget( {
 					id: String( product.product_id || index ),
 					label: <LeaderboardLabel label={ label } imageUrl={ imageUrl } imageAlt={ imageAlt } />,
 					currentValue,
-					currentShare: ( currentValue / maxCurrentValue ) * 100,
+					currentShare: sharePercentage( currentValue, maxCurrentValue ),
 					previousValue,
 					// Net revenue can be negative once refunds outweigh sales; a
 					// negative share would render an invalid bar width.
 					previousShare: hasComparisonValue
-						? ( Math.max( previousValue, 0 ) / maxPreviousValue ) * 100
+						? sharePercentage( Math.max( previousValue, 0 ), maxPreviousValue )
 						: undefined,
 					delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
 				};

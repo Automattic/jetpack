@@ -107,6 +107,7 @@ User description: ${ description }
 ============ STEP 1 - inferred ============
 First, read the description closely and infer the site's context. You will use this to choose and describe the tasks, so do it before anything else.
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
+- "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. Same six values. Diagnostic only - it must NOT influence your task choices or anything else you produce.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
 - "theme_keyword": ONE lowercase word used to search for matching site designs. Pick the single most significant word for what the site is about, preferring the subject or site type over incidental modifiers: for "my weekend hiking trips" it is "hiking" (never "weekend"); for a handmade-ceramics shop it is "ceramics".
@@ -156,7 +157,7 @@ ${ menu.map( id => '- ' + id ).join( '\n' ) }
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }

@@ -12,6 +12,7 @@
  * External dependencies
  */
 import { saveBlob } from '@jetpack-premium-analytics/data';
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
 
 /**
  * A single CSV column: which row key to read and the header label to print.
@@ -74,6 +75,27 @@ export function buildCsv< Row extends Record< string, unknown > >(
 	);
 
 	return [ header, ...body ].join( '\n' );
+}
+
+/**
+ * Build a date-stamped filename for a CSV export.
+ *
+ * The dates are coerced to strings because the router JSON-parses search
+ * parameters, so a hand-edited numeric value must not throw on `.slice()`.
+ *
+ * @param prefix     - Report-specific filename prefix.
+ * @param range      - Report date range.
+ * @param range.from - Start of the report date range.
+ * @param range.to   - End of the report date range.
+ * @return The filename without its `.csv` extension.
+ */
+export function buildCsvDateRangeFilename(
+	prefix: string,
+	range: { from: string | number; to: string | number }
+): string {
+	const from = getDatePart( range.from ) ?? String( range.from );
+	const to = getDatePart( range.to ) ?? String( range.to );
+	return `${ prefix }-${ from }_${ to }`;
 }
 
 /**

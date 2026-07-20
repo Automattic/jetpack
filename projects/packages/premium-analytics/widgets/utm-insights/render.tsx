@@ -12,6 +12,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -135,11 +136,11 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					</Stack>
 				),
 				currentValue: item.value,
-				currentShare: ( item.value / maxValue ) * 100,
+				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
 				previousShare:
 					withComparison && previousValue !== undefined
-						? ( previousValue / maxPreviousValue ) * 100
+						? sharePercentage( previousValue, maxPreviousValue )
 						: undefined,
 				delta:
 					withComparison && previousValue !== undefined

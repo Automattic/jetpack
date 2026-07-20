@@ -7,6 +7,7 @@ import {
 	type StatsArchivesItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
@@ -80,7 +81,9 @@ export function getPostsFields(): Field< StatsTopPostsItem >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }
@@ -182,7 +185,9 @@ export function getArchivesFields(): Field< ArchiveRow >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }

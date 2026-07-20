@@ -1,6 +1,14 @@
-@import "@wordpress/dataviews/build-style/style.css";
+@use "sass:meta";
 
 .root {
+
+	/* Load DataViews' stylesheet through Sass so it is inlined rather than
+	 * emitted as a relative @import that 404s at runtime. */
+	:global {
+
+		@include meta.load-css( "@wordpress/dataviews/build-style/style" );
+	}
+
 	width: 100%;
 }
 

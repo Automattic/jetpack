@@ -1,12 +1,14 @@
 /**
  * Editor preview for jetpack-search/filters.
  *
- * Renders an InnerBlocks region pre-populated with the most common Jetpack
- * Search filters. The container itself owns no behavior — it's a Group-like
- * wrapper, so the front-end render.php just emits `$content` inside the
- * block-wrapper div and lets each inner filter contribute its own markup.
+ * A stray click near the default appender can drop a new filter as a
+ * sibling instead of a child, silently excluding it from the composition
+ * (SEARCH-317). `ButtonBlockAppender` plus the outline+label below make the
+ * container's boundary unambiguous — see AGENTS.md's "InnerBlocks appender
+ * boundary trap".
  */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { __ } from '@wordpress/i18n';
 
 const TEMPLATE = [
 	[ 'jetpack-search/active-filters' ],
@@ -30,10 +32,19 @@ const ALLOWED = [
  * @return {object} Rendered element.
  */
 export default function FiltersEdit() {
-	const blockProps = useBlockProps( { className: 'jetpack-search-filters' } );
+	const blockProps = useBlockProps( {
+		className: 'jetpack-search-filters jetpack-search-filters__editor-canvas',
+	} );
 	return (
 		<div { ...blockProps }>
-			<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />
+			<span className="jetpack-search-filters__editor-label">
+				{ __( 'Filters', 'jetpack-search-pkg' ) }
+			</span>
+			<InnerBlocks
+				template={ TEMPLATE }
+				allowedBlocks={ ALLOWED }
+				renderAppender={ InnerBlocks.ButtonBlockAppender }
+			/>
 		</div>
 	);
 }

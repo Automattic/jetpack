@@ -487,6 +487,11 @@ function* fetchResults( pageHandle ) {
 		// Page-level scope from the `search-results` block (seeded at render).
 		// Singular per page; no per-instance overrides.
 		staticPostTypes: state.staticPostTypes ?? null,
+		// No state literal default here deliberately — the Interactivity API's
+		// server-state merge is additive-only (`deepMerge(..., override:false)`),
+		// so a same-keyed default in the `store()` state object would be applied
+		// *after* and clobber the seeded value back down every time.
+		size: state.resultsPerPage ?? 10,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+PricingTable: add optional `breakpoint` prop to control the viewport width at which offers switch from columns to stacked blocks (defaults to 'large').

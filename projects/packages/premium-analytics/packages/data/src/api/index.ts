@@ -49,6 +49,7 @@ export type {
 	ExportReportResponse,
 } from './report-export-fetch';
 export {
+	fetchReport,
 	fetchStatsProxy,
 	getStatsProxyPath,
 	type StatsProxyFetchParams,
