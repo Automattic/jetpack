@@ -20,7 +20,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
-import { useLeaderboardLegendItems } from './hooks';
+import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
@@ -148,6 +148,7 @@ const BarWithLabel = ( {
  * @param props.valueFormatter   - Custom formatter for values
  * @param props.deltaFormatter   - Custom formatter for delta values
  * @param props.loading          - Whether the chart is in loading state
+ * @param props.fitRows          - Whether to show only the rows that fit the chart's height
  * @param props.animation        - Whether the chart should animate on load
  * @param props.showLegend       - Whether to show legend
  * @param props.legend           - Legend configuration (orientation, position, alignment, shape, shapeStyles, interactive)
@@ -171,6 +172,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	deltaFormatter = defaultDeltaFormatter,
 	animation,
 	loading = false,
+	fitRows = false,
 	showLegend = false,
 	legend = {},
 	legendLabels,
@@ -269,6 +271,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
+	const { contentRef, fittedCount } = useFittedRowCount( fitRows, data?.length ?? 0 );
+
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
@@ -338,14 +342,36 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				data-testid="leaderboard-chart-container"
 				trailingContent={ nonLegendChildren }
 			>
-				<div className={ styles.leaderboardChart__content }>
+				<div
+					ref={ contentRef }
+					className={ clsx( styles.leaderboardChart__content, {
+						[ styles[ 'leaderboardChart__content--fit' ] ]: fitRows,
+					} ) }
+				>
+					{ fitRows && fittedCount === 0 && ! allSeriesHidden && (
+						// Overlaid rather than rendered instead of the rows: the rows have to
+						// stay in the layout to remain measurable, otherwise a container that
+						// grows back would have nothing left to measure and could never
+						// recover its row count.
+						<div className={ clsx( styles.emptyState, styles.fitEmptyState ) }>
+							{ __( 'Not enough space to display data', 'jetpack-charts' ) }
+						</div>
+					) }
 					{ allSeriesHidden ? (
 						<div className={ styles.emptyState }>
 							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
 						</div>
 					) : (
 						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
-							{ data.map( entry => {
+							{ data.map( ( entry, rowIndex ) => {
+								// Hidden rows keep their geometry so the next measurement sees the
+								// same layout and growing the container can reveal them again.
+								// visibility also takes them out of hit testing, focus order, and
+								// the accessibility tree, which clipping alone would not.
+								const rowStyle =
+									fitRows && rowIndex >= fittedCount
+										? ( { visibility: 'hidden' } as const )
+										: undefined;
 								const showComparisonColumn = withComparison && isComparisonVisible;
 								const hasDeltaValue = hasComparisonValue( entry );
 								const showComparisonValue = showComparisonColumn && hasDeltaValue;
@@ -403,6 +429,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										<button
 											key={ entry.id }
 											type="button"
+											data-row-index={ rowIndex }
+											style={ rowStyle }
 											className={ clsx( styles.row, styles.interactiveRow ) }
 											onClick={ entry.onClick }
 											aria-label={ entry.ariaLabel }
@@ -414,7 +442,12 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 								}
 
 								return (
-									<div key={ entry.id } className={ styles.row }>
+									<div
+										key={ entry.id }
+										data-row-index={ rowIndex }
+										style={ rowStyle }
+										className={ styles.row }
+									>
 										{ rowCells }
 									</div>
 								);

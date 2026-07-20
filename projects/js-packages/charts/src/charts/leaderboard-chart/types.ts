@@ -51,6 +51,17 @@ export interface LeaderboardChartProps
 	loading?: boolean;
 
 	/**
+	 * Show only the rows that fit the chart's height instead of scrolling.
+	 *
+	 * Off by default, so a standalone chart keeps its scrollable row list. Turn
+	 * it on inside a fixed-height container — such as a dashboard tile — where an
+	 * inner scrollbar is unexpected. Rows that do not fit stay measurable and
+	 * reappear as soon as the container grows, but are hidden from painting, hit
+	 * testing, focus order, and the accessibility tree.
+	 */
+	fitRows?: boolean;
+
+	/**
 	 * Custom styling for the chart container
 	 */
 	style?: React.CSSProperties & {
