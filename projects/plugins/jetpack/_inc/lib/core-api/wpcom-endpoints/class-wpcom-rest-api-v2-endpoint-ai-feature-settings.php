@@ -21,6 +21,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -238,14 +239,17 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 
 	/**
 	 * Whether the site can know its plan: Simple sites always can; elsewhere a
-	 * connected owner is required. Mirrors the connection predicate the AI
-	 * feature load points use.
+	 * connected owner outside offline mode is required. Mirrors the connection
+	 * predicate the AI feature load points use — offline mode included, since a
+	 * site can hold connection tokens while offline mode keeps every AI surface
+	 * from loading.
 	 *
 	 * @return bool
 	 */
 	private function is_connected() {
 		return ( new Host() )->is_wpcom_simple()
-			|| ( new Manager( 'jetpack' ) )->has_connected_owner();
+			|| ( ( new Manager( 'jetpack' ) )->has_connected_owner()
+				&& ! ( new Status() )->is_offline_mode() );
 	}
 }
 

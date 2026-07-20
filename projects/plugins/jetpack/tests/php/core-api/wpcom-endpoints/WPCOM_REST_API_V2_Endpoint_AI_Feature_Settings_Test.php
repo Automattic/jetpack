@@ -9,7 +9,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -59,6 +61,11 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		remove_filter( 'wp_supports_ai', '__return_false' );
 
 		delete_option( Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
+		( new Connection_Manager( 'jetpack' ) )->reset_connection_status();
 
 		parent::tear_down();
 	}
@@ -183,6 +190,28 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$data = $this->dispatch( 'GET' )->get_data();
 		$this->assertTrue( $data['features']['ai_search']['requires_upgrade'] );
 		$this->assertTrue( $data['plan']['supports_search'] );
+	}
+
+	/**
+	 * A connected owner in offline mode must not report is_connected: every AI
+	 * feature load point requires `! is_offline_mode()` alongside the connected
+	 * owner, so the endpoint has to report the same gate state or the settings
+	 * page would describe features that cannot load.
+	 */
+	public function test_is_connected_false_in_offline_mode() {
+		wp_set_current_user( self::$admin_id );
+
+		// Simulate a connected owner — same fixture the load-point tests use.
+		\Jetpack_Options::update_option( 'master_user', self::$admin_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( self::$admin_id => 'token.secret.' . self::$admin_id ) );
+		( new Connection_Manager( 'jetpack' ) )->reset_connection_status();
+
+		$this->assertTrue( $this->dispatch( 'GET' )->get_data()['is_connected'] );
+
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+
+		$this->assertFalse( $this->dispatch( 'GET' )->get_data()['is_connected'] );
 	}
 
 	/**
