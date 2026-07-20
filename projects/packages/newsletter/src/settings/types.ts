@@ -57,6 +57,11 @@ export interface NewsletterScriptData {
 				username: string;
 		  }
 		| false;
+	/**
+	 * Whether Newsletter Mode is switched on for this site. Bootstrapped from
+	 * Mode::is_enabled() in class-settings.php.
+	 */
+	modeEnabled: boolean;
 }
 
 /**

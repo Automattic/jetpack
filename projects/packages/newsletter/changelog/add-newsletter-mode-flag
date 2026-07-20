@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Newsletter Mode: add an internal, disabled-by-default flag for an opt-in newsletter workspace.
