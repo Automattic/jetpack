@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1-a.3 - 2026-07-20
+### Enhancements
+- AI Sidebar: Add Jetpack AI abilities in the page and site editors. [#49979]
+- Content Guidelines: Add a Read more support link to the page description. [#50574]
+- Content Guidelines AI: Resolve the AI plan state in PHP and preload it into the page, hydrating the plans store at boot so buttons render in the correct locked/unlocked state on first paint with no client-side plan fetch. When the server-side lookup fails, the AI UI is omitted for that load instead of guessing. [#50494]
+- Content Guidelines AI: Show the Generate/Improve buttons in a locked state for sites without an AI plan, and open the upgrade notice when clicked (even after dismissal). Prevent the AI buttons from briefly appearing unlocked while the feature check resolves. [#50224]
+- Podcast: Release Podcast to self-hosted sites, enabled by default on new installations and available but disabled on existing installations. [#50447]
+
+### Bug fixes
+- Content Guidelines AI: Read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites, where the REST endpoint class is not loaded during admin page loads. [#50223]
+- Likes: Restore the per-post Likes toggle in the block editor, which failed to register when withSelect returned a memo object. [#50495]
+- Normalize the size, weight, centering, and alignment of block inserter icons across Jetpack monetize blocks (Donations, Tips, Payment Button, Paid Content, Tock, WhatsApp Button, and others) so they render consistently. [#50528]
+- Paid Content: expire subscription access at the end of the end_date day (UTC) rather than the exact purchase timestamp, so a same-day auto-renewal completes before access is cut and enforcement matches the platform's end-of-day expiration convention. [#50460]
+- Related Posts: enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run. [#50420]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blaze: point the settings card link to the new Blaze Ads menu location under admin.php. [#49584]
+- Connection: Ensure Jetpack dashboard connection components styles do not conflict with Connection package styles. [#50370]
+- Heartbeat: Site environment stats are now provided by the Connection package. [#50006]
+- JSON API: support path-parameter endpoints over the REST transport, so single-item and action routes can migrate off XML-RPC. [#50400]
+- Update package dependencies. [#50510]
+- Update package dependencies. [#50529]
+
 ## 16.1-a.1 - 2026-07-13
 ### Enhancements
 - Account Protection: Add additional context to Verify your identity page to reduce user confusion. [#50338]

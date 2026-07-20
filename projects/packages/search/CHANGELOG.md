@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.3.0] - 2026-07-20
+### Added
+- Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset. [#50652]
+
+### Changed
+- Update package dependencies. [#50529]
+
+### Fixed
+- Fix checkout for unregistered sites getting stuck or redirected to the site selector instead of completing the purchase. [#50474]
+- Fix the Search upsell page's product-availability check not returning its promise, which caused checkout to always run even when the site already had the Search product. [#50474]
+- Search overlay/embedded templates: keep the Collapsible Filters panel in sync with the sidebar Filters block, so editing filter labels or adding/removing filters in the sidebar always shows up in the panel too. When both blocks coexist, the panel is locked read-only in the editor since it now mirrors the sidebar; it stays fully editable when used standalone. [#50653]
+- Search overlay/embedded templates: make it obvious in the editor when adding a new filter to the Filters (or Product Filters) block — a bounded insertion target and a labeled boundary outline mark where it belongs. [#50655]
+
 ## [7.2.8] - 2026-07-13
 ### Changed
 - Update package dependencies. [#49272]
@@ -1826,6 +1839,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[7.3.0]: https://github.com/Automattic/jetpack-search/compare/v7.2.8...v7.3.0
 [7.2.8]: https://github.com/Automattic/jetpack-search/compare/v7.2.7...v7.2.8
 [7.2.7]: https://github.com/Automattic/jetpack-search/compare/v7.2.6...v7.2.7
 [7.2.6]: https://github.com/Automattic/jetpack-search/compare/v7.2.5...v7.2.6

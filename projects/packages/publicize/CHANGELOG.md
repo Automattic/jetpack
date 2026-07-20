@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.1] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510]
+- Update package dependencies. [#50529]
+- Update package dependencies. [#50582]
+
+### Fixed
+- Prevent previews from showing raw message-template placeholders while rendering is pending [#50164]
+
 ## [0.84.0] - 2026-07-13
 ### Changed
 - Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites). [#50376]
@@ -1569,6 +1578,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1
 [0.84.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.5...v0.84.0
 [0.83.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.4...v0.83.5
 [0.83.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.3...v0.83.4
