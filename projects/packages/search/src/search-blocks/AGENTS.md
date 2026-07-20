@@ -167,6 +167,12 @@ Rendering a read-only preview of *another* block's current children (not your ow
 
 Given both, prefer locking the block's own (already-synced) `InnerBlocks` read-only with `<Disabled>` (a long-stable public component) over live-mirroring another block's content. It loses "reflects edits before you save," but every reload/save picks up the source's current state regardless — self-healing, no unstable dependency.
 
+## InnerBlocks appender boundary trap
+
+The default `InnerBlocks` appender's click/hover target isn't visually bounded — a click just outside a container's InnerBlocks region silently inserts the new block as a *sibling* instead of a *child*, with no visual cue anything went wrong. `filters`/`filters-product` hit this: an author adding a new filter could end up with it outside the Filters composition entirely (SEARCH-317).
+
+Mitigation, in both blocks' `edit.jsx`: `renderAppender={InnerBlocks.ButtonBlockAppender}` bounds the insertion target (established pattern — see `extensions/blocks/recipe/*/edit.jsx`, `packages/forms/src/blocks/form-step/edit.jsx`); an editor-only outline + label (added only in `edit.jsx`, matched by a `style.scss` rule `render.php` never emits — same zero-build-cost trick as the read-only-preview gotcha above) makes the boundary visible before a click. Not `templateLock` — that restricts *what* can be inserted, not *where* a click resolves, so it doesn't touch the actual bug.
+
 ## Comments
 
 Code is the source of truth — well-named identifiers should make most code easier to read than any prose attached to it. Default to **no comment**.
