@@ -4,8 +4,8 @@
  * A stray click near the default appender can drop a new filter as a
  * sibling instead of a child, silently excluding it from the composition
  * (SEARCH-317). `ButtonBlockAppender` plus the outline+label below make the
- * container's boundary unambiguous — see AGENTS.md's "Editor preview
- * gotchas".
+ * container's boundary unambiguous — see AGENTS.md's "InnerBlocks appender
+ * boundary trap".
  */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
