@@ -15,38 +15,49 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 #[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	/**
-	 * Form field used by the login attempt token.
+	 * Tokens issued during the current test.
+	 *
+	 * @var string[]
 	 */
-	private const FIELD_NAME = 'jetpack_protect_login_attempt';
+	private $issued_tokens = array();
+
+	/**
+	 * Set up each test.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		$_SERVER['REMOTE_ADDR'] = '203.0.113.10';
+		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+		delete_site_option( 'trusted_ip_header' );
+	}
+
 	/**
 	 * Clean up after each test.
 	 */
 	public function tearDown(): void {
 		$_POST = array();
+		unset( $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_X_FORWARDED_FOR'] );
+		remove_filter( 'wp_die_handler', array( $this, 'throw_on_wp_die' ) );
 		delete_transient( 'brute_use_math' );
+		delete_site_option( 'trusted_ip_header' );
 
-		foreach ( array( 'jpp_li_browser', 'jpp_li_renderer', 'jpp_li_preauth', 'jpp_li_replay', 'jpp_li_hard-block' ) as $fingerprint ) {
-			delete_transient( 'jpp_attempt_' . md5( $fingerprint ) );
+		delete_transient( 'jpp_attempt_' . md5( '203.0.113.10' ) );
+
+		foreach ( $this->issued_tokens as $token ) {
+			delete_transient( 'jpp_claim_' . substr( hash( 'sha256', $token ), 0, 32 ) );
 		}
+		$this->issued_tokens = array();
 
 		parent::tearDown();
-	}
-
-	/**
-	 * Verify that the login attempt token helper is available.
-	 */
-	public function test_login_attempt_token_helper_is_available() {
-		$this->assertTrue(
-			class_exists( 'Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Login_Attempt_Token' )
-		);
 	}
 
 	/**
 	 * Verify that a valid token cannot be replayed.
 	 */
 	public function test_token_can_only_be_consumed_once() {
-		$token                     = $this->render_token( 'jpp_li_browser' );
-		$_POST[ self::FIELD_NAME ] = $token;
+		$token = $this->render_token( 'jpp_li_browser' );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token;
 
 		$this->assertTrue( $this->token_manager( 'jpp_li_browser' )->consume() );
 		$this->assertFalse( $this->token_manager( 'jpp_li_browser' )->consume() );
@@ -56,17 +67,30 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	 * Verify that a token cannot move between Protect client fingerprints.
 	 */
 	public function test_token_is_bound_to_the_client_fingerprint() {
-		$_POST[ self::FIELD_NAME ] = $this->render_token( 'jpp_li_browser-a' );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $this->render_token( 'jpp_li_browser-a' );
 
 		$this->assertFalse( $this->token_manager( 'jpp_li_browser-b' )->consume() );
+	}
+
+	/**
+	 * Verify that malformed input is not normalized into a valid token.
+	 */
+	public function test_malformed_token_does_not_consume_the_valid_token() {
+		$token = $this->render_token( 'jpp_li_browser' );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token . '!!!';
+
+		$this->assertFalse( $this->token_manager( 'jpp_li_browser' )->consume() );
+
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token;
+		$this->assertTrue( $this->token_manager( 'jpp_li_browser' )->consume() );
 	}
 
 	/**
 	 * Verify that a token without its transient is rejected.
 	 */
 	public function test_expired_token_is_rejected() {
-		$_POST[ self::FIELD_NAME ] = $this->render_token( 'jpp_li_browser' );
-		delete_transient( 'jpp_attempt_' . md5( 'jpp_li_browser' ) );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $this->render_token( 'jpp_li_browser' );
+		delete_transient( 'jpp_attempt_' . md5( '203.0.113.10' ) );
 
 		$this->assertFalse( $this->token_manager( 'jpp_li_browser' )->consume() );
 	}
@@ -78,25 +102,90 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 		$old_token = $this->render_token( 'jpp_li_browser' );
 		$new_token = $this->render_token( 'jpp_li_browser' );
 
-		$_POST[ self::FIELD_NAME ] = $old_token;
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $old_token;
 		$this->assertFalse( $this->token_manager( 'jpp_li_browser' )->consume() );
 
-		$_POST[ self::FIELD_NAME ] = $new_token;
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $new_token;
 		$this->assertTrue( $this->token_manager( 'jpp_li_browser' )->consume() );
+	}
+
+	/**
+	 * Verify that attacker-controlled proxy headers cannot create extra token slots.
+	 */
+	public function test_untrusted_proxy_headers_do_not_create_additional_token_slots() {
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.1';
+		$old_token                       = $this->render_token( 'jpp_li_spoof-a' );
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.2';
+		$new_token                       = $this->render_token( 'jpp_li_spoof-b' );
+
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $old_token;
+		$this->assertFalse( $this->token_manager( 'jpp_li_spoof-a' )->consume() );
+
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $new_token;
+		$this->assertTrue( $this->token_manager( 'jpp_li_spoof-b' )->consume() );
+	}
+
+	/**
+	 * Verify that an interleaved render cannot make an old token reusable or destroy the replacement.
+	 */
+	public function test_render_during_consume_preserves_single_use_and_the_replacement_token() {
+		$state                = array();
+		$replacement_token    = '';
+		$replacement_rendered = false;
+		$protection           = $this->getMockBuilder( Brute_Force_Protection::class )
+			->disableOriginalConstructor()
+			->onlyMethods( array( 'delete_transient', 'get_transient', 'get_transient_name', 'set_transient' ) )
+			->getMock();
+		$protection->method( 'get_transient_name' )->willReturn( 'jpp_li_interleaved' );
+		$protection->method( 'set_transient' )
+			->willReturnCallback(
+				static function ( $name, $value ) use ( &$state ) {
+					$state[ $name ] = $value;
+					return true;
+				}
+			);
+		$protection->method( 'get_transient' )
+			->willReturnCallback(
+				function ( $name ) use ( &$state, &$replacement_token, &$replacement_rendered, $protection ) {
+					$value = $state[ $name ] ?? false;
+
+					if ( 0 === strpos( $name, 'jpp_attempt_' ) && ! $replacement_rendered ) {
+						$replacement_rendered = true;
+						$replacement_token    = $this->render_token_for_protection( $protection );
+					}
+
+					return $value;
+				}
+			);
+		$protection->method( 'delete_transient' )
+			->willReturnCallback(
+				static function ( $name ) use ( &$state ) {
+					unset( $state[ $name ] );
+					return true;
+				}
+			);
+
+		$old_token = $this->render_token_for_protection( $protection );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $old_token;
+		$this->assertFalse( ( new Brute_Force_Protection_Login_Attempt_Token( $protection ) )->consume() );
+		$this->assertNotSame( '', $replacement_token );
+
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $replacement_token;
+		$this->assertTrue( ( new Brute_Force_Protection_Login_Attempt_Token( $protection ) )->consume() );
+		$this->assertFalse( ( new Brute_Force_Protection_Login_Attempt_Token( $protection ) )->consume() );
 	}
 
 	/**
 	 * Verify that an approved login form receives a login attempt token.
 	 */
 	public function test_protection_renders_token_for_approved_login_form() {
-		$this->assertTrue( method_exists( Brute_Force_Protection::class, 'render_login_attempt_token' ) );
 		$protection = $this->protection( 'jpp_li_renderer' );
 
 		ob_start();
 		$protection->render_login_attempt_token();
 		$html = ob_get_clean();
 
-		$this->assertStringContainsString( 'name="' . self::FIELD_NAME . '"', $html );
+		$this->assertStringContainsString( 'name="' . Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME . '"', $html );
 	}
 
 	/**
@@ -106,6 +195,9 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 		$reflection  = new ReflectionClass( Brute_Force_Protection::class );
 		$protection  = $reflection->newInstanceWithoutConstructor();
 		$constructor = $reflection->getConstructor();
+		if ( PHP_VERSION_ID < 80100 ) {
+			$constructor->setAccessible( true );
+		}
 		$constructor->invoke( $protection );
 
 		$this->assertSame( 2, has_action( 'login_form', array( $protection, 'render_login_attempt_token' ) ) );
@@ -115,7 +207,6 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	 * Verify that no approval token is issued once the math fallback is active.
 	 */
 	public function test_protection_does_not_render_token_while_math_fallback_is_active() {
-		$this->assertTrue( method_exists( Brute_Force_Protection::class, 'render_login_attempt_token' ) );
 		$protection = $this->protection( 'jpp_li_renderer' );
 		$protection->set_transient( 'brute_use_math', 1, 600 );
 
@@ -129,9 +220,11 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	 * Verify that no approval token is issued once a soft block selects math.
 	 */
 	public function test_protection_does_not_render_token_after_soft_block() {
-		$this->assertTrue( method_exists( Brute_Force_Protection::class, 'render_login_attempt_token' ) );
 		$protection = $this->protection( 'jpp_li_renderer' );
 		$property   = new ReflectionProperty( Brute_Force_Protection::class, 'block_login_with_math' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( $protection, 1 );
 
 		ob_start();
@@ -141,16 +234,49 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Verify that a database-style string transient still invokes the math fallback.
+	 */
+	public function test_string_math_transient_still_requires_math_without_approved_token() {
+		$protection = $this->getMockBuilder( Brute_Force_Protection::class )
+			->disableOriginalConstructor()
+			->onlyMethods( array( 'check_login_ability', 'get_transient' ) )
+			->getMock();
+		$protection->method( 'check_login_ability' )->willReturn( true );
+		$protection->method( 'get_transient' )->with( 'brute_use_math' )->willReturn( '1' );
+		$_POST['log'] = 'example';
+		add_filter( 'wp_die_handler', array( $this, 'throw_on_wp_die' ) );
+
+		$this->expectException( Exception::class );
+
+		$protection->check_preauth();
+	}
+
+	/**
 	 * Verify that a previously approved request bypasses a newly selected math fallback.
 	 */
 	public function test_approved_attempt_continues_when_status_changes_during_submission() {
 		$protection = $this->preauth_protection( 'jpp_li_preauth', 1 );
 		$protection->expects( $this->never() )->method( 'block_with_math' );
-		$token                     = $this->render_token_for_protection( $protection );
-		$_POST[ self::FIELD_NAME ] = $token;
-		$_POST['log']              = 'example';
+		$token = $this->render_token_for_protection( $protection );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token;
+		$_POST['log'] = 'example';
 
 		$this->assertSame( 'approved-user', $protection->check_preauth( 'approved-user' ) );
+	}
+
+	/**
+	 * Verify that Protect leaves a downstream authentication error unchanged and consumes the token.
+	 */
+	public function test_approved_attempt_preserves_authentication_error_and_consumes_token() {
+		$protection = $this->preauth_protection( 'jpp_li_preauth', 1 );
+		$protection->expects( $this->never() )->method( 'block_with_math' );
+		$token = $this->render_token_for_protection( $protection );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token;
+		$_POST['log'] = 'example';
+		$error        = new WP_Error( 'incorrect_password', 'Incorrect password.' );
+
+		$this->assertSame( $error, $protection->check_preauth( $error ) );
+		$this->assertFalse( ( new Brute_Force_Protection_Login_Attempt_Token( $protection ) )->consume() );
 	}
 
 	/**
@@ -159,9 +285,9 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	public function test_replayed_attempt_does_not_bypass_fallback() {
 		$protection = $this->preauth_protection( 'jpp_li_replay', 2 );
 		$protection->expects( $this->once() )->method( 'block_with_math' )->willReturn( false );
-		$token                     = $this->render_token_for_protection( $protection );
-		$_POST[ self::FIELD_NAME ] = $token;
-		$_POST['log']              = 'example';
+		$token = $this->render_token_for_protection( $protection );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $token;
+		$_POST['log'] = 'example';
 
 		$first_attempt  = $protection->check_preauth( 'approved-user' );
 		$replay_attempt = $protection->check_preauth( 'approved-user' );
@@ -175,14 +301,15 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	public function test_approved_attempt_does_not_bypass_hard_block_check() {
 		$protection = $this->getMockBuilder( Brute_Force_Protection::class )
 			->disableOriginalConstructor()
-			->onlyMethods( array( 'check_login_ability', 'get_transient_name' ) )
+			->onlyMethods( array( 'get_cached_status', 'get_transient_name', 'is_current_ip_allowed', 'kill_login' ) )
 			->getMock();
 		$protection->method( 'get_transient_name' )->willReturn( 'jpp_li_hard-block' );
+		$protection->method( 'is_current_ip_allowed' )->willReturn( false );
+		$protection->method( 'get_cached_status' )->willReturn( 'blocked-hard' );
 		$protection->expects( $this->once() )
-			->method( 'check_login_ability' )
-			->with( true )
+			->method( 'kill_login' )
 			->willThrowException( new RuntimeException( 'hard block' ) );
-		$_POST[ self::FIELD_NAME ] = $this->render_token_for_protection( $protection );
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $this->render_token_for_protection( $protection );
 
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessage( 'hard block' );
@@ -254,13 +381,29 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	 * @return string
 	 */
 	private function render_token_for_protection( $protection ) {
-
 		ob_start();
 		( new Brute_Force_Protection_Login_Attempt_Token( $protection ) )->render_field();
 		$html = ob_get_clean();
 
 		$this->assertSame( 1, preg_match( '/value="([a-f0-9]{32})"/', $html, $matches ) );
+		$this->issued_tokens[] = $matches[1];
 
 		return $matches[1];
+	}
+
+	/**
+	 * Return a wp_die handler that throws for assertions.
+	 *
+	 * @return callable
+	 */
+	public function throw_on_wp_die() {
+		/**
+		 * Throw instead of terminating the test process.
+		 *
+		 * @return never
+		 */
+		return static function () {
+			throw new Exception( 'wp_die called' );
+		};
 	}
 }

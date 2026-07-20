@@ -102,7 +102,7 @@ class Brute_Force_Protection {
 	public $last_response;
 
 	/**
-	 * Block login with math, default is 1.
+	 * Block login with math, default is 0.
 	 *
 	 * @var int
 	 */
@@ -600,22 +600,25 @@ class Brute_Force_Protection {
 	 *
 	 * If we are using our math fallback, authenticate via math-fallback.php
 	 *
-	 * @param string $user     - the user.
+	 * @param mixed  $user     - the current authentication result.
 	 * @param string $username - the username.
 	 * @param string $password - the password.
 	 *
-	 * @return string $user
+	 * @return mixed $user
 	 */
 	public function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$login_attempt_allowed = ( new Brute_Force_Protection_Login_Attempt_Token( $this ) )->consume();
-		$allow_login           = $this->check_login_ability( true );
-		$use_math              = $this->get_transient( 'brute_use_math' );
+
+		// Always refresh Protect's decision so a hard block remains authoritative. The token only
+		// prevents a newly introduced soft/math fallback from replacing an in-flight credential POST.
+		$allow_login = $this->check_login_ability( true );
+		$use_math    = $this->get_transient( 'brute_use_math' );
 
 		if ( ! $allow_login && ! $login_attempt_allowed ) {
 			$this->block_with_math();
 		}
 
-		if ( ( 1 === $use_math || 1 === $this->block_login_with_math ) && isset( $_POST['log'] ) && ! $login_attempt_allowed ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
+		if ( ( 1 === (int) $use_math || 1 === $this->block_login_with_math ) && isset( $_POST['log'] ) && ! $login_attempt_allowed ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
 
 			Brute_Force_Protection_Math_Authenticate::math_authenticate();
 		}
@@ -1136,6 +1139,57 @@ class Brute_Force_Protection {
 		}
 
 		return set_transient( $transient, $value, $expiration );
+	}
+
+	/**
+	 * Atomically add a transient only when it does not already exist.
+	 *
+	 * @param string $transient Transient name. Expected to not be SQL-escaped. Must be
+	 *                          45 characters or fewer in length.
+	 * @param mixed  $value Value to store. Must be serializable if non-scalar.
+	 * @param int    $expiration Time until expiration in seconds.
+	 *
+	 * @return bool Whether the transient was added.
+	 */
+	public function add_transient( $transient, $value, $expiration ) {
+		if ( is_multisite() && ! is_main_site() ) {
+			switch_to_blog( $this->get_main_blog_id() );
+			$return = $this->add_transient_for_current_site( $transient, $value, $expiration );
+			restore_current_blog();
+
+			return $return;
+		}
+
+		return $this->add_transient_for_current_site( $transient, $value, $expiration );
+	}
+
+	/**
+	 * Atomically add a transient on the current site.
+	 *
+	 * @param string $transient Transient name.
+	 * @param mixed  $value Value to store.
+	 * @param int    $expiration Time until expiration in seconds.
+	 *
+	 * @return bool Whether the transient was added.
+	 */
+	private function add_transient_for_current_site( $transient, $value, $expiration ) {
+		if ( wp_using_ext_object_cache() ) {
+			return wp_cache_add( $transient, $value, 'transient', $expiration );
+		}
+
+		$option_name = '_transient_' . $transient;
+		if ( ! add_option( $option_name, $value, '', false ) ) {
+			return false;
+		}
+
+		$timeout_name = '_transient_timeout_' . $transient;
+		if ( $expiration && ! add_option( $timeout_name, time() + $expiration, '', false ) ) {
+			delete_option( $option_name );
+			delete_option( $timeout_name );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

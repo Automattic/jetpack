@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
+
 /**
  * Manages a short-lived, single-use login attempt token.
  */
@@ -25,6 +27,11 @@ class Brute_Force_Protection_Login_Attempt_Token {
 	 * Transient prefix. The full name stays within WordPress's 45-character limit.
 	 */
 	const TRANSIENT_PREFIX = 'jpp_attempt_';
+
+	/**
+	 * Prefix for the atomic, per-token claim.
+	 */
+	const CLAIM_TRANSIENT_PREFIX = 'jpp_claim_';
 
 	/**
 	 * Brute Force Protection instance.
@@ -46,9 +53,23 @@ class Brute_Force_Protection_Login_Attempt_Token {
 	 * Render a token for a login attempt that Protect already approved.
 	 */
 	public function render_field() {
-		$token = str_replace( '-', '', wp_generate_uuid4() );
+		$transient_name = $this->transient_name();
+		if ( ! $transient_name ) {
+			return;
+		}
 
-		if ( ! $this->protection->set_transient( $this->transient_name(), hash( 'sha256', $token ), self::EXPIRATION ) ) {
+		try {
+			$token = bin2hex( random_bytes( 16 ) );
+		} catch ( \Exception $error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Fail closed by omitting the token.
+			return;
+		}
+
+		$token_data = array(
+			'token_hash'       => hash( 'sha256', $token ),
+			'fingerprint_hash' => $this->fingerprint_hash(),
+		);
+
+		if ( ! $this->protection->set_transient( $transient_name, $token_data, self::EXPIRATION ) ) {
 			return;
 		}
 
@@ -69,27 +90,69 @@ class Brute_Force_Protection_Login_Attempt_Token {
 			return false;
 		}
 
-		$token = sanitize_key( wp_unslash( $_POST[ self::FIELD_NAME ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- The random, single-use token authorizes this request.
+		$token = wp_unslash( $_POST[ self::FIELD_NAME ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Exact validation below rejects altered input.
 		if ( 1 !== preg_match( '/\A[a-f0-9]{32}\z/D', $token ) ) {
 			return false;
 		}
 
 		$transient_name = $this->transient_name();
-		$expected_hash  = $this->protection->get_transient( $transient_name );
-
-		if ( ! is_string( $expected_hash ) || ! hash_equals( $expected_hash, hash( 'sha256', $token ) ) ) {
+		if ( ! $transient_name ) {
 			return false;
 		}
 
-		return $this->protection->delete_transient( $transient_name );
+		$token_data = $this->protection->get_transient( $transient_name );
+
+		if ( ! $this->token_data_matches( $token_data, $token ) ) {
+			return false;
+		}
+
+		if (
+			! $this->protection->add_transient(
+				self::CLAIM_TRANSIENT_PREFIX . substr( hash( 'sha256', $token ), 0, 32 ),
+				1,
+				self::EXPIRATION
+			)
+		) {
+			return false;
+		}
+
+		return $this->token_data_matches( $this->protection->get_transient( $transient_name ), $token );
 	}
 
 	/**
-	 * Get the transient name for the current Protect client fingerprint.
+	 * Get the IP-keyed slot for the current outstanding login token.
+	 *
+	 * @return string|false
+	 */
+	private function transient_name() {
+		$ip = IP_Utils::get_ip();
+
+		return $ip ? self::TRANSIENT_PREFIX . md5( $ip ) : false;
+	}
+
+	/**
+	 * Hash the complete Protect fingerprint for validation inside the IP-keyed slot.
 	 *
 	 * @return string
 	 */
-	private function transient_name() {
-		return self::TRANSIENT_PREFIX . md5( $this->protection->get_transient_name() );
+	private function fingerprint_hash() {
+		return hash( 'sha256', $this->protection->get_transient_name() );
+	}
+
+	/**
+	 * Check token data against the submitted token and current Protect fingerprint.
+	 *
+	 * @param mixed  $token_data Stored token data.
+	 * @param string $token Submitted token.
+	 * @return bool
+	 */
+	private function token_data_matches( $token_data, $token ) {
+		return is_array( $token_data )
+			&& isset( $token_data['token_hash'] )
+			&& isset( $token_data['fingerprint_hash'] )
+			&& is_string( $token_data['token_hash'] )
+			&& is_string( $token_data['fingerprint_hash'] )
+			&& hash_equals( $token_data['token_hash'], hash( 'sha256', $token ) )
+			&& hash_equals( $token_data['fingerprint_hash'], $this->fingerprint_hash() );
 	}
 }
