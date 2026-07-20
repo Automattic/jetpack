@@ -15,6 +15,7 @@ import {
 	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -98,10 +99,7 @@ function ReferrersReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useReferrersReportRecords( reportParams, chartPeriod );
-	const { refetch } = records;
-	const retry = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getReferrerFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],

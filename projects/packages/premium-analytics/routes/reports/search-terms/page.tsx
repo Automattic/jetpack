@@ -15,6 +15,7 @@ import {
 	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -98,10 +99,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useSearchTermsReportRecords( reportParams, chartPeriod );
-	const { refetch } = records;
-	const retry = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getSearchTermsFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],

@@ -4,9 +4,13 @@
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	isCsvExportEnabled,
+	ReportErrorState,
+	ReportPerformanceChart,
+	ReportRecordsTable,
 	RowsCsvDownloadButton,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -38,6 +42,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		`${ prefix }-${ String( range.from ).slice( 0, 10 ) }_${ String( range.to ).slice( 0, 10 ) }`,
 	formatLegendLabels: () => [],
 	isCsvExportEnabled: jest.fn(),
+	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
+		<div data-testid="report-error-state">
+			<span>{ title }</span>
+			<button onClick={ onRetry }>Retry</button>
+		</div>
+	) ),
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
@@ -46,9 +56,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportPageTabs: () => null,
-	ReportPerformanceChart: () => null,
-	ReportRecordsTable: () => null,
+	ReportPerformanceChart: jest.fn( () => null ),
+	ReportRecordsTable: jest.fn( () => null ),
 	RowsCsvDownloadButton: jest.fn( ( { label }: { label: string } ) => <button>{ label }</button> ),
+	useReportRetry: ( refetch: () => unknown ) => () => {
+		void refetch();
+	},
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -68,6 +81,9 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( usePostsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const csvExportEnabledMock = jest.mocked( isCsvExportEnabled );
+const reportErrorStateMock = jest.mocked( ReportErrorState );
+const reportPerformanceChartMock = jest.mocked( ReportPerformanceChart );
+const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const rowsCsvDownloadButtonMock = jest.mocked( RowsCsvDownloadButton );
 
 /**
@@ -89,6 +105,8 @@ function buildRecords( {
 	isError?: boolean;
 } = {} ) {
 	return {
+		isError,
+		refetch: jest.fn(),
 		chart: {
 			primary: undefined,
 			comparison: undefined,
@@ -249,5 +267,28 @@ describe( 'PostsReportPage', () => {
 				],
 			} )
 		);
+	} );
+
+	it( 'renders the error state instead of the chart and records table', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.getByTestId( 'report-error-state' ) ).toHaveTextContent(
+			'Unable to load posts'
+		);
+		expect( reportErrorStateMock ).toHaveBeenCalled();
+		expect( reportPerformanceChartMock ).not.toHaveBeenCalled();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'refetches the report when Retry is clicked', async () => {
+		const records = buildRecords( { isError: true } );
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

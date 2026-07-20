@@ -10,10 +10,11 @@ import {
 	ReportPageSection,
 	ReportPageShell,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { EmptyState, Text } from '@wordpress/ui';
 /**
@@ -58,10 +59,7 @@ function getCommentFollowerRowId( item: StatsCommentFollowersItem ): string {
 function CommentFollowersReport(): JSX.Element {
 	const records = useCommentFollowersReportRecords();
 	const fields = useMemo( () => getCommentFollowersFields(), [] );
-	const { refetch } = records;
-	const retry = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
+	const retry = useReportRetry( records.refetch );
 
 	// Preserve the shared report window when returning to the dashboard.
 	const dashboardLink = useDashboardLink();

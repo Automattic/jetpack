@@ -16,6 +16,7 @@ import {
 	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -99,10 +100,7 @@ function DownloadsReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useDownloadsReportRecords( reportParams, chartPeriod );
-	const { refetch } = records;
-	const retry = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getDownloadsFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics' ) } ],

@@ -59,6 +59,7 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
 	type ReportDrilldownTableProps,

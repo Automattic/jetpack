@@ -16,6 +16,7 @@ import {
 	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -90,10 +91,7 @@ function VideosReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useVideosReportRecords( reportParams, chartPeriod );
-	const { refetch } = records;
-	const retry = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getVideosFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics' ) } ],
