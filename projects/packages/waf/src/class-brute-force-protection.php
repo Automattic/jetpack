@@ -106,7 +106,7 @@ class Brute_Force_Protection {
 	 *
 	 * @var int
 	 */
-	private $block_login_with_math;
+	private $block_login_with_math = 0;
 
 	/**
 	 * Singleton implementation
@@ -142,6 +142,7 @@ class Brute_Force_Protection {
 
 		// This is a backup in case $pagenow fails for some reason.
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
+		add_action( 'login_form', array( $this, 'render_login_attempt_token' ), 2 );
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases.
@@ -606,19 +607,31 @@ class Brute_Force_Protection {
 	 * @return string $user
 	 */
 	public function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$allow_login = $this->check_login_ability( true );
-		$use_math    = $this->get_transient( 'brute_use_math' );
+		$login_attempt_allowed = ( new Brute_Force_Protection_Login_Attempt_Token( $this ) )->consume();
+		$allow_login           = $this->check_login_ability( true );
+		$use_math              = $this->get_transient( 'brute_use_math' );
 
-		if ( ! $allow_login ) {
+		if ( ! $allow_login && ! $login_attempt_allowed ) {
 			$this->block_with_math();
 		}
 
-		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
+		if ( ( 1 === $use_math || 1 === $this->block_login_with_math ) && isset( $_POST['log'] ) && ! $login_attempt_allowed ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
 
 			Brute_Force_Protection_Math_Authenticate::math_authenticate();
 		}
 
 		return $user;
+	}
+
+	/**
+	 * Add a token to a login form that Protect has already approved.
+	 */
+	public function render_login_attempt_token() {
+		if ( 1 === $this->block_login_with_math || $this->get_transient( 'brute_use_math' ) ) {
+			return;
+		}
+
+		( new Brute_Force_Protection_Login_Attempt_Token( $this ) )->render_field();
 	}
 
 	/**
