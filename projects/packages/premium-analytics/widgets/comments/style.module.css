@@ -33,7 +33,7 @@
 	display: block;
 	padding-block: var(--wpds-dimension-padding-sm);
 	padding-inline-start: var(--wpds-dimension-padding-sm);
-	line-height: 20px;
+	line-height: var(--wpds-typography-line-height-sm);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -46,17 +46,19 @@ a.postLabel:focus {
 
 /* Author rows wrap the flex LeaderboardLabel in the anchor: lay the label and
    the Link primitive's appended new-tab arrow on one line, or the block-level
-   label pushes the arrow onto its own row and stretches the leaderboard row. */
+   label pushes the arrow onto its own row and stretches the leaderboard row.
+   Color/decoration come from the Link's `variant="unstyled"`, so only the
+   layout and the hover underline are set here. */
 .authorLabel {
 	display: inline-flex;
 	align-items: center;
 	min-width: 0;
-	color: inherit;
-	text-decoration: none;
 }
 
-/* The label container carries its own inline padding for the bar inset; drop
-   the trailing side inside the anchor so the new-tab arrow hugs the name. */
+/* Drop the trailing inline padding so the new-tab arrow hugs the name. This
+   targets LeaderboardLabel's outer container (the anchor's only child), so it
+   is coupled to that component rendering a single wrapping element — revisit if
+   LeaderboardLabel's structure changes. */
 .authorLabel > :first-child {
 	padding-inline-end: 0;
 }

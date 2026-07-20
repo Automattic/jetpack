@@ -69,9 +69,10 @@ interface CommentViewsState {
  * `useStatsComments` returns a single all-time report whose `data[0].items` are
  * two group rows — one keyed `authors`, one keyed `posts`. This selects the
  * group matching `view`, maps its children to a flat row shape (attaching the
- * avatar for authors and the external link for posts), sorts by comment count,
- * and trims to `max`. The endpoint has no comparison period, so no previous
- * values are produced.
+ * avatar for authors, and the external link — the comments-admin search for
+ * authors, the published post for posts — when the API reports one), sorts by
+ * comment count, and trims to `max`. The endpoint has no comparison period, so
+ * no previous values are produced.
  *
  * @param {UseCommentViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state for the active view.

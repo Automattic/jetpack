@@ -36,10 +36,10 @@ function isCommentView( value: unknown ): value is CommentsView {
 }
 
 /**
- * Builds a leaderboard row label. Authors render as a name + avatar; posts render
- * as an external link to the published post (or plain text when a post has no
- * permalink). Author rows carry no link in the normalized data, so they are
- * always static labels.
+ * Builds a leaderboard row label. Authors render as a name + avatar, linking to
+ * the comments-admin search when the normalized data carries a URL (or a static
+ * label when it doesn't); posts render as an external link to the published post
+ * (or plain text when a post has no permalink).
  *
  * @param {CommentRow}   row  - The row to label.
  * @param {CommentsView} view - The active view.
@@ -51,11 +51,18 @@ function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 			<LeaderboardLabel
 				label={ row.label }
 				imageUrl={ row.avatarUrl }
-				imageAlt={ sprintf(
-					/* translators: %s is the comment author name */
-					__( 'Avatar of %s', 'jetpack-premium-analytics' ),
-					row.label
-				) }
+				// The linked row's anchor already announces the author name, so the
+				// avatar is decorative there — an empty alt avoids a doubled
+				// "Avatar of X, X" screen-reader announcement.
+				imageAlt={
+					row.link
+						? ''
+						: sprintf(
+								/* translators: %s is the comment author name */
+								__( 'Avatar of %s', 'jetpack-premium-analytics' ),
+								row.label
+						  )
+				}
 				imageClassName={ styles.avatar }
 			/>
 		);
