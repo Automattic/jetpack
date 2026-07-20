@@ -44,9 +44,9 @@ describe( 'FiltersProductEdit', () => {
 		expect( props.renderAppender ).toBe( InnerBlocks.ButtonBlockAppender );
 	} );
 
-	it( 'shows the "Filters Product" boundary label', () => {
+	it( 'shows the "Product Filters" boundary label', () => {
 		render( <FiltersProductEdit /> );
 
-		expect( screen.getByText( 'Filters Product' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Product Filters' ) ).toBeInTheDocument();
 	} );
 } );

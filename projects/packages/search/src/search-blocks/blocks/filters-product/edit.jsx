@@ -69,7 +69,7 @@ export default function FiltersProductEdit() {
 	return (
 		<div { ...blockProps }>
 			<span className="jetpack-search-filters-product__editor-label">
-				{ __( 'Filters Product', 'jetpack-search-pkg' ) }
+				{ __( 'Product Filters', 'jetpack-search-pkg' ) }
 			</span>
 			<InnerBlocks
 				template={ TEMPLATE }
