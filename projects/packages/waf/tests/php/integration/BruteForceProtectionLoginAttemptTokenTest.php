@@ -163,8 +163,10 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 		$_POST[ self::FIELD_NAME ] = $token;
 		$_POST['log']              = 'example';
 
-		$this->assertSame( 'approved-user', $protection->check_preauth( 'approved-user' ) );
-		$this->assertSame( 'approved-user', $protection->check_preauth( 'approved-user' ) );
+		$first_attempt  = $protection->check_preauth( 'approved-user' );
+		$replay_attempt = $protection->check_preauth( 'approved-user' );
+
+		$this->assertSame( array( 'approved-user', 'approved-user' ), array( $first_attempt, $replay_attempt ) );
 	}
 
 	/**
@@ -202,7 +204,7 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	 * Create a testable Brute Force Protection instance with a stable fingerprint.
 	 *
 	 * @param string $fingerprint Protect client fingerprint.
-	 * @return Brute_Force_Protection
+	 * @return Brute_Force_Protection|\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private function protection( $fingerprint ) {
 		$protection = $this->getMockBuilder( Brute_Force_Protection::class )
@@ -219,7 +221,7 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	 *
 	 * @param string $fingerprint Protect client fingerprint.
 	 * @param int    $check_count Number of expected status checks.
-	 * @return Brute_Force_Protection
+	 * @return Brute_Force_Protection|\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private function preauth_protection( $fingerprint, $check_count ) {
 		$protection = $this->getMockBuilder( Brute_Force_Protection::class )
