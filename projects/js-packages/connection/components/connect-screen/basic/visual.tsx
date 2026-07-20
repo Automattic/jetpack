@@ -4,7 +4,7 @@ import ConnectScreenAction from '../action';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
-import type { SyntheticEvent } from 'react';
+import type { MouseEventHandler } from 'react';
 import './style.scss';
 
 type SharedProps = Pick<
@@ -22,7 +22,7 @@ type OwnProps = {
 	// Whether the connection status is still loading
 	isLoading?: boolean;
 	// Callback to be called on button click
-	handleButtonClick?: ( e?: Event | SyntheticEvent ) => void;
+	handleButtonClick?: MouseEventHandler< HTMLElement >;
 	// Whether the error message appears or not
 	displayButtonError?: boolean;
 	// The connection error code

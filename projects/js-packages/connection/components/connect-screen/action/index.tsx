@@ -2,13 +2,13 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
-import type { MouseEvent, ReactNode, SyntheticEvent } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 
 export type Props = {
 	// The Connect Button label
 	buttonLabel: string;
 	// Callback to be called on button click
-	handleButtonClick?: ( e?: Event | SyntheticEvent | MouseEvent< HTMLElement > ) => void;
+	handleButtonClick?: MouseEventHandler< HTMLElement >;
 	// Whether the button is loading or not
 	buttonIsLoading?: boolean;
 	// Whether the error message appears or not

@@ -8,7 +8,7 @@ import debugFactory from 'debug';
 import ConnectScreenAction from '../action';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenRequiredPlanProps } from './types';
-import type { MouseEvent } from 'react';
+import type { MouseEventHandler } from 'react';
 import './style.scss';
 
 const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual' );
@@ -30,7 +30,7 @@ type OwnProps = {
 	// Whether the connection status is still loading
 	isLoading?: boolean;
 	// Callback that is applied into click for all buttons
-	handleButtonClick?: ( e?: MouseEvent< HTMLElement > ) => void;
+	handleButtonClick?: MouseEventHandler< HTMLElement >;
 	// Whether the button error is active or not
 	displayButtonError?: boolean;
 	// The connection error code
