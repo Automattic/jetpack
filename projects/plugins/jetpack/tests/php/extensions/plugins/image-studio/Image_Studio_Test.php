@@ -551,6 +551,40 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a later jetpack_ai_enabled filter cannot re-enable Image Studio
+	 * once the master switch is off — the contract's "off must stay off" state
+	 * test. This is why the environment gate calls apply_master_gates() directly
+	 * instead of re-applying the filter: apply_filters() would let any
+	 * later-priority callback overturn the master switch.
+	 */
+	public function test_master_off_cannot_be_reenabled_by_late_filter() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_enabled', 0 );
+		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_environment_available() );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a jetpack_ai_enabled kill-switch filter does not take Image
+	 * Studio down in Big Sky/CIAB environments. The environment enable predates
+	 * the master gates and never consulted the filter chain there — on
+	 * WordPress.com, Big Sky's free-trial __return_false callback targets the
+	 * AI Assistant sidebar only, while Image Studio stays offered so Jetpack
+	 * keeps signalling Big Sky to defer its own copy. Only the host gate, the
+	 * master option, and the per-feature toggles may turn it off.
+	 */
+	public function test_ai_enabled_filter_does_not_gate_big_sky_environment() {
+		$this->enable_big_sky();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertTrue( ImageStudio\is_image_studio_environment_available() );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
 	 * Test that register_plugin registers unconditionally regardless of screen.
 	 *
 	 * Screen-level gating happens at enqueue time, not registration.
