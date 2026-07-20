@@ -60,6 +60,46 @@ const report: StatsNormalizedReport< StatsVideoPlaysItem > = {
 	],
 };
 
+const comparisonReport: StatsNormalizedReport< StatsVideoPlaysItem > = {
+	summary: {},
+	data: [
+		{
+			time_interval: '2026-07-07',
+			date_start: '2026-07-07T00:00:00+00:00',
+			date_end: '2026-07-07T23:59:59+00:00',
+			items: [
+				{
+					id: 777,
+					label: 'Comparison video',
+					plays: 4,
+					impressions: 0,
+					watch_time: 0,
+					retention_rate: 0,
+					link: null,
+					children: null,
+				},
+			],
+		},
+		{
+			time_interval: '2026-07-08',
+			date_start: '2026-07-08T00:00:00+00:00',
+			date_end: '2026-07-08T23:59:59+00:00',
+			items: [
+				{
+					id: 777,
+					label: 'Comparison video',
+					plays: 5,
+					impressions: 0,
+					watch_time: 0,
+					retention_rate: 0,
+					link: null,
+					children: null,
+				},
+			],
+		},
+	],
+};
+
 const summaryRows: StatsVideoPlaysItem[] = [
 	{
 		id: 441,
@@ -194,5 +234,39 @@ describe( 'useVideosReportRecords', () => {
 
 		expect( result.current.chart.isLoading ).toBe( false );
 		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'includes comparison chart buckets when videos do not overlap the primary period', () => {
+		mockQueries();
+		mockUseStatsVideoPlays.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: comparisonReport },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsVideoPlays > );
+		const comparisonParams: ReportParams = {
+			...params,
+			compare_from: '2026-07-07',
+			compare_to: '2026-07-08',
+		};
+
+		const { result } = renderHook( () => useVideosReportRecords( comparisonParams, 'day' ) );
+
+		expect( result.current.chart.comparison ).toBeDefined();
+		expect( result.current.chart.comparison?.data.map( point => point.plays ) ).toEqual( [ 4, 5 ] );
+	} );
+
+	it( 'omits the comparison chart when comparison params are absent', () => {
+		mockQueries();
+		mockUseStatsVideoPlays.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: comparisonReport },
+			hasComparison: false,
+			isLoading: false,
+		} as ReturnType< typeof useStatsVideoPlays > );
+
+		const { result } = renderHook( () => useVideosReportRecords( params, 'day' ) );
+
+		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
 } );

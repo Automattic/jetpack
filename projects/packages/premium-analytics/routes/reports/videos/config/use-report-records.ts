@@ -75,12 +75,12 @@ export function useVideosReportRecords(
 		[ primaryData, chartPeriod ]
 	);
 	const chartComparison = useMemo( () => {
-		if ( ! videos.hasComparison ) {
+		if ( ! reportParams.compare_from || ! reportParams.compare_to || ! comparisonData ) {
 			return undefined;
 		}
 
 		return videosToTimeSeries( comparisonData, chartPeriod );
-	}, [ videos.hasComparison, comparisonData, chartPeriod ] );
+	}, [ reportParams.compare_from, reportParams.compare_to, comparisonData, chartPeriod ] );
 
 	return {
 		chart: {
