@@ -8,7 +8,6 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
-import { canToggleSocialModule } from '../../../../utils/misc';
 import ConnectionManagement from '../../../connection-management';
 import { MessageTemplateSection } from '../../message-template-section';
 import ToggleSection from '../toggle-section';
@@ -55,7 +54,11 @@ const SocialModuleToggle: FC = () => {
 		) : null;
 	};
 
-	const hideToggle = ! canToggleSocialModule();
+	// The module on/off switch is intentionally not rendered here: the Social
+	// dashboard is only reachable while the module is active, so toggling it off
+	// would hide the very page the switch lives on. The module can still be
+	// managed from Jetpack > Settings > Sharing, which stays accessible.
+	const hideToggle = true;
 	return (
 		<ToggleSection
 			hideToggle={ hideToggle }

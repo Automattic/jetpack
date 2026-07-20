@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the Social admin page and block editor sidebar when the Publicize module is disabled and the standalone Jetpack Social plugin is not active

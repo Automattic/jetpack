@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the Social module on/off toggle from the Social dashboard to prevent deactivating the module from the page it lives on

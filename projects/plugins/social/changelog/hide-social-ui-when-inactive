@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update Publicize package: hide Social UI when the module and plugin are inactive

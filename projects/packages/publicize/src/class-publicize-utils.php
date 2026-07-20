@@ -85,6 +85,23 @@ class Publicize_Utils {
 	}
 
 	/**
+	 * Whether the Social UI (admin page, editor sidebar and their assets) should
+	 * be loaded at all.
+	 *
+	 * Social is only available when the Publicize module is active or the
+	 * standalone Jetpack Social plugin is installed. When neither is true we load
+	 * nothing - no admin menu, no block editor scripts/styles and no script data.
+	 *
+	 * The cheap `defined()` check is evaluated first to short-circuit the module
+	 * lookup in the common standalone-plugin case.
+	 *
+	 * @return bool
+	 */
+	public static function is_social_ui_available() {
+		return defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || self::is_publicize_active();
+	}
+
+	/**
 	 * Check if we are on WPCOM.
 	 *
 	 * @return bool
