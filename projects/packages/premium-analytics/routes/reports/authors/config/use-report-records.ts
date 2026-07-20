@@ -25,8 +25,11 @@ export function useAuthorsReportRecords(
 ) {
 	/*
 	 * `summarize: 0` keeps the interval buckets needed by the chart, while
-	 * `max: 0` requests every author so search, sorting, and pagination can run
-	 * client-side. The same hook result feeds both sections.
+	 * `max: 0` avoids requesting a smaller result set. The Stats endpoint still
+	 * caps each daily bucket at its top 20 authors, so this is a top-authors
+	 * report rather than a complete author census. Search, sorting, and
+	 * pagination run client-side across the returned aggregate, and the same
+	 * hook result feeds both sections.
 	 */
 	const recordsParams = useMemo(
 		() => ( {

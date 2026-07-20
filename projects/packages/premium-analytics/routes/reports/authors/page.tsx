@@ -138,7 +138,7 @@ function AuthorsReport(): JSX.Element {
 				<Breadcrumbs
 					items={ [
 						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Authors', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Top authors', 'jetpack-premium-analytics' ) },
 					] }
 				/>
 			}

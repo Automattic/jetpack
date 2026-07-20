@@ -80,7 +80,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	authors: {
 		id: 'authors',
-		getTitle: () => __( 'Authors', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Top authors', 'jetpack-premium-analytics' ),
 		load: () => import( './authors/page' ),
 	},
 	'comment-followers': {
