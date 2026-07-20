@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI dashboard: render JITMs inside the content column via JetpackAdminNotices.

@@ -4,7 +4,7 @@
  * Manages the view stack (hub → read | write | setup) and owns the MCP settings state.
  */
 
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, JetpackAdminNotices } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -130,6 +130,8 @@ export default function App() {
 			apiNonce={ apiNonce }
 		>
 			<div className="jetpack-ai-admin__content">
+				<JetpackAdminNotices />
+
 				{ isLoading && (
 					<div className="jetpack-ai-admin__loading">
 						<Spinner />
