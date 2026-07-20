@@ -92,28 +92,52 @@ describe( 'drafts', () => {
 			expect( listener ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( 'notifies on input events anywhere in the document once tracking starts', () => {
+		it( 'notifies on input events that change a watched draft', async () => {
 			renderSections();
 			startDraftTracking();
+			await flushObserver();
 
 			const listener = jest.fn();
 			const unsubscribe = subscribeToDrafts( listener );
 
-			getSectionTextarea( 'site' ).dispatchEvent( new Event( 'input', { bubbles: true } ) );
+			const textarea = getSectionTextarea( 'site' );
+			textarea.value = 'A new draft.';
+			textarea.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 			expect( listener ).toHaveBeenCalledTimes( 1 );
 
 			unsubscribe();
 		} );
 
-		it( 'attaches the listeners only once across repeated starts', () => {
+		it( 'does not notify on input events in unrelated fields', async () => {
 			renderSections();
 			startDraftTracking();
-			startDraftTracking();
+
+			const unrelated = document.createElement( 'input' );
+			document.body.appendChild( unrelated );
+			await flushObserver();
 
 			const listener = jest.fn();
 			const unsubscribe = subscribeToDrafts( listener );
 
-			getSectionTextarea( 'site' ).dispatchEvent( new Event( 'input', { bubbles: true } ) );
+			unrelated.value = 'searching…';
+			unrelated.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+			expect( listener ).not.toHaveBeenCalled();
+
+			unsubscribe();
+		} );
+
+		it( 'attaches the listeners only once across repeated starts', async () => {
+			renderSections();
+			startDraftTracking();
+			startDraftTracking();
+			await flushObserver();
+
+			const listener = jest.fn();
+			const unsubscribe = subscribeToDrafts( listener );
+
+			const textarea = getSectionTextarea( 'site' );
+			textarea.value = 'Only one notification.';
+			textarea.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 			expect( listener ).toHaveBeenCalledTimes( 1 );
 
 			unsubscribe();

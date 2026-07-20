@@ -80,16 +80,33 @@ export function notifyDraftChange() {
 	listeners.forEach( listener => listener() );
 }
 
-// Composite of every watched value; lets the MutationObserver skip
-// notifications for DOM churn that didn't touch any draft.
+// Every watched value, in a fixed order; lets the change checks skip
+// notifications for events that didn't touch any draft. Kept as an array and
+// compared element-wise — joining would copy up to ~25KB of guideline text
+// per check (5000 chars per section, see wp_guideline_max_length()).
 function watchedValues() {
 	return [
 		...VALID_SECTIONS.map( readSectionDraft ),
 		getBlockModalTextarea( document.querySelector( '.block-guideline-modal' ) )?.value || '',
-	].join( '\u0000' );
+	];
 }
 
-let lastWatched = null;
+let lastWatched = [];
+
+// Notify only when a watched value actually changed. Both event sources
+// funnel through here, so typing in unrelated fields (the block combobox,
+// admin search) and non-draft DOM churn cost one read pass and no fan-out.
+function checkAndNotify() {
+	const current = watchedValues();
+	if (
+		current.length === lastWatched.length &&
+		current.every( ( value, i ) => value === lastWatched[ i ] )
+	) {
+		return;
+	}
+	lastWatched = current;
+	notifyDraftChange();
+}
 
 let tracking = false;
 
@@ -97,8 +114,8 @@ let tracking = false;
  * Start observing draft edits. Typing and our own setTextareaValue() both
  * dispatch bubbling `input` events (captured so a stopPropagation in the
  * page can't hide them). Value changes Gutenberg makes without input events
- * are caught by re-checking the watched values whenever the DOM mutates,
- * notifying only when one actually changed.
+ * are caught by re-checking the watched values whenever the DOM mutates.
+ * Either way, subscribers are notified only when a watched value changed.
  */
 export function startDraftTracking() {
 	if ( tracking ) {
@@ -106,22 +123,9 @@ export function startDraftTracking() {
 	}
 	tracking = true;
 
-	document.addEventListener(
-		'input',
-		() => {
-			lastWatched = watchedValues();
-			notifyDraftChange();
-		},
-		true
-	);
+	document.addEventListener( 'input', checkAndNotify, true );
 
-	const observer = new MutationObserver( () => {
-		const current = watchedValues();
-		if ( current !== lastWatched ) {
-			lastWatched = current;
-			notifyDraftChange();
-		}
-	} );
+	const observer = new MutationObserver( checkAndNotify );
 	observer.observe( document.body, { childList: true, subtree: true, attributes: true } );
 	lastWatched = watchedValues();
 }

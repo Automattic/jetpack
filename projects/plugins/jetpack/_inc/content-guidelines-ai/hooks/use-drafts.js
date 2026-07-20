@@ -7,18 +7,20 @@ import {
 } from '../lib/drafts';
 
 // Reactive views over the DOM drafts (see lib/drafts.js). Snapshots are
-// primitives, so useSyncExternalStore re-renders only on actual changes.
+// booleans on purpose: the consumers only pick Generate-vs-Improve labels,
+// so components re-render at the empty/non-empty boundary instead of on
+// every keystroke. Handlers that need the text read it at click time.
 
 /**
- * The live draft text of a section.
+ * Whether a section currently has draft text.
  *
  * @param {string} slug - Section slug.
- * @return {string} The draft text.
+ * @return {boolean} True when the section's draft is non-empty.
  */
-export function useSectionDraft( slug ) {
+export function useSectionHasDraft( slug ) {
 	return useSyncExternalStore(
 		subscribeToDrafts,
-		useCallback( () => readSectionDraft( slug ), [ slug ] )
+		useCallback( () => !! readSectionDraft( slug ), [ slug ] )
 	);
 }
 
@@ -32,14 +34,14 @@ export function useAllSectionsEmpty() {
 }
 
 /**
- * The live draft text of the block guideline modal's textarea.
+ * Whether the block guideline modal's textarea currently has text.
  *
  * @param {HTMLElement|null} blockModal - The block guideline modal element.
- * @return {string} The draft text.
+ * @return {boolean} True when the modal draft is non-empty.
  */
-export function useBlockDraft( blockModal ) {
+export function useBlockHasDraft( blockModal ) {
 	return useSyncExternalStore(
 		subscribeToDrafts,
-		useCallback( () => getBlockModalTextarea( blockModal )?.value || '', [ blockModal ] )
+		useCallback( () => !! getBlockModalTextarea( blockModal )?.value, [ blockModal ] )
 	);
 }

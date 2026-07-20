@@ -5,7 +5,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { useSectionDraft } from '../hooks/use-drafts';
+import { useSectionHasDraft } from '../hooks/use-drafts';
 import { suggestGuidelines } from '../lib/api';
 import { readSectionDraft } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
@@ -21,9 +21,7 @@ export default function SectionGenerateButton( { slug } ) {
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
 	);
-	const draft = useSectionDraft( slug );
-
-	const isEmpty = ! draft;
+	const isEmpty = ! useSectionHasDraft( slug );
 	const generateLabel = __( 'Generate guidelines', 'jetpack' );
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
 	const label = isEmpty ? generateLabel : improveLabel;

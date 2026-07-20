@@ -5,7 +5,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { useBlockDraft } from '../hooks/use-drafts';
+import { useBlockHasDraft } from '../hooks/use-drafts';
 import { suggestGuidelines } from '../lib/api';
 import { acceptBlockSuggestion } from '../lib/dom';
 import { getBlockModalTextarea } from '../lib/drafts';
@@ -30,7 +30,7 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 
 	// The modal textarea opens prefilled with the saved guideline, so a
 	// non-empty draft is what "a guideline exists" looks like from here.
-	const draft = useBlockDraft( blockModal );
+	const hasDraft = useBlockHasDraft( blockModal );
 
 	const handleGenerate = useCallback( async () => {
 		// Snapshot at click time; the render-time hook value drives the label.
@@ -88,7 +88,7 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 
 	const generateLabel = __( 'Generate guidelines', 'jetpack' );
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
-	const label = draft ? improveLabel : generateLabel;
+	const label = hasDraft ? improveLabel : generateLabel;
 
 	// Locked look without an AI plan, but no click action: the upgrade notice
 	// renders on the page behind this modal, so a click-to-nudge here would be

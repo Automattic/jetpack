@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { useSectionDraft, useAllSectionsEmpty, useBlockDraft } from '../hooks/use-drafts';
+import { useSectionHasDraft, useAllSectionsEmpty, useBlockHasDraft } from '../hooks/use-drafts';
 import { startDraftTracking, getSectionTextarea } from '../lib/drafts';
 import { renderSections, renderBlockModal, typeInto } from './fixtures';
 
@@ -21,22 +21,22 @@ describe( 'use-drafts', () => {
 		document.body.innerHTML = '';
 	} );
 
-	describe( 'useSectionDraft', () => {
-		it( 'returns the current draft and follows input events', async () => {
+	describe( 'useSectionHasDraft', () => {
+		it( 'reflects whether the section has text and follows edits', async () => {
 			renderSections( { site: 'A cooking blog.' } );
 			await flushObserver();
-			const { result } = renderHook( () => useSectionDraft( 'site' ) );
-			expect( result.current ).toBe( 'A cooking blog.' );
+			const { result } = renderHook( () => useSectionHasDraft( 'site' ) );
+			expect( result.current ).toBe( true );
 
 			act( () => {
-				typeInto( getSectionTextarea( 'site' ), 'A woodworking blog.' );
+				typeInto( getSectionTextarea( 'site' ), '' );
 			} );
-			expect( result.current ).toBe( 'A woodworking blog.' );
+			expect( result.current ).toBe( false );
 		} );
 
-		it( 'returns an empty string when the section is not rendered', () => {
-			const { result } = renderHook( () => useSectionDraft( 'copy' ) );
-			expect( result.current ).toBe( '' );
+		it( 'is false when the section is not rendered', () => {
+			const { result } = renderHook( () => useSectionHasDraft( 'copy' ) );
+			expect( result.current ).toBe( false );
 		} );
 	} );
 
@@ -54,22 +54,22 @@ describe( 'use-drafts', () => {
 		} );
 	} );
 
-	describe( 'useBlockDraft', () => {
-		it( 'reads the modal textarea and follows input events', async () => {
+	describe( 'useBlockHasDraft', () => {
+		it( 'reflects whether the modal textarea has text and follows edits', async () => {
 			const { modal, textarea } = renderBlockModal( 'Keep paragraphs short.' );
 			await flushObserver();
-			const { result } = renderHook( () => useBlockDraft( modal ) );
-			expect( result.current ).toBe( 'Keep paragraphs short.' );
+			const { result } = renderHook( () => useBlockHasDraft( modal ) );
+			expect( result.current ).toBe( true );
 
 			act( () => {
 				typeInto( textarea, '' );
 			} );
-			expect( result.current ).toBe( '' );
+			expect( result.current ).toBe( false );
 		} );
 
-		it( 'returns an empty string without a modal', () => {
-			const { result } = renderHook( () => useBlockDraft( null ) );
-			expect( result.current ).toBe( '' );
+		it( 'is false without a modal', () => {
+			const { result } = renderHook( () => useBlockHasDraft( null ) );
+			expect( result.current ).toBe( false );
 		} );
 	} );
 } );
