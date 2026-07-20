@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Clicks report: Show clicked URLs nested under their click group instead of in a separate Group column, and announce the group to screen readers on nested rows.

@@ -25,9 +25,11 @@ export type SalesByUtmCampaignAttributes = Record< never, never >;
 export default {
 	name: 'jpa/sales-by-utm-campaign',
 	title: __( 'Sales by UTM campaign', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top UTM campaigns by order revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'See which marketing campaigns are driving sales in your store.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

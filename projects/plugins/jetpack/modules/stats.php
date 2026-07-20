@@ -65,6 +65,7 @@ function stats_load() {
 	Admin_Post_List_Column::register();
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+	add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -822,6 +823,34 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	);
 
 	$wp_admin_bar->add_menu( $menu );
+}
+
+/**
+ * Adds a Stats link to the site-name admin bar submenu, alongside Dashboard.
+ *
+ * @access public
+ * @return void
+ */
+function stats_add_link_to_admin_bar_site_menu() {
+	global $wp_admin_bar;
+
+	if (
+		! is_object( $wp_admin_bar ) ||
+		! $wp_admin_bar->get_node( 'dashboard' ) ||
+		! current_user_can( 'view_stats' ) ||
+		( new Host() )->is_wpcom_platform()
+	) {
+		return;
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'site-name',
+			'id'     => 'jetpack-stats',
+			'title'  => __( 'Stats', 'jetpack' ),
+			'href'   => admin_url( 'admin.php?page=stats' ),
+		)
+	);
 }
 
 /**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Type widget attribute fields with WidgetAttributeField, export attribute types from widget.ts, and unify component JSDoc to single typed param tags across all widgets.

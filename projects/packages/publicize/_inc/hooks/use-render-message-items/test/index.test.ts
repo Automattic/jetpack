@@ -13,7 +13,7 @@ jest.mock( '@automattic/jetpack-script-data', () => {
 
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
-	const mocks = { useSelect: jest.fn() };
+	const mocks = { useSelect: jest.fn(), useRegistry: jest.fn() };
 	return new Proxy( actual, {
 		get( target, property ) {
 			return mocks[ property as keyof typeof mocks ] ?? target[ property as keyof typeof target ];
@@ -54,9 +54,9 @@ jest.mock( '../../use-sig-preview', () => ( {
 } ) );
 
 import { act, renderHook } from '@testing-library/react';
-import { useSelect } from '@wordpress/data';
+import { useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRenderMessageInputs, useRenderMessageItems } from '../';
+import { useDriveRenderedMessagesFetch, useRenderMessageInputs, useRenderMessageItems } from '../';
 import useFeaturedImage from '../../use-featured-image';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
@@ -70,6 +70,7 @@ import type { Connection } from '../../../social-store/types';
 const mockSiteHasFeature = jest.requireMock( '@automattic/jetpack-script-data' )
 	.siteHasFeature as jest.Mock;
 const mockUseSelect = useSelect as jest.Mock;
+const mockUseRegistry = useRegistry as jest.Mock;
 const mockUsePerNetworkCustomization = usePerNetworkCustomization as jest.Mock;
 const mockUsePostMeta = usePostMeta as jest.Mock;
 const mockUseSocialPreviewPostData = useSocialPreviewPostData as jest.Mock;
@@ -145,6 +146,7 @@ describe( 'useRenderMessageItems', () => {
 
 				if ( store === editorStore ) {
 					return {
+						getCurrentPostId: () => 42,
 						getEditedPostAttribute: ( attribute: string ) =>
 							mockPostIntent[ attribute as keyof typeof mockPostIntent ],
 					};
@@ -406,5 +408,48 @@ describe( 'useRenderMessageItems', () => {
 
 		expect( result.current[ 0 ].is_social_post ).toBe( true );
 		expect( result.current[ 0 ].message ).toBe( 'same' );
+	} );
+
+	describe( 'useDriveRenderedMessagesFetch', () => {
+		it( 'invalidates the resolution when the fetch produced no batch, so the next mount retries', async () => {
+			mockSelect( [ conn() ] );
+			const invalidateResolution = jest.fn();
+			const getRenderedMessages = jest.fn().mockResolvedValue( undefined );
+			mockUseRegistry.mockReturnValue( {
+				resolveSelect: () => ( { getRenderedMessages } ),
+				dispatch: () => ( { invalidateResolution } ),
+			} );
+
+			renderHook( () => useDriveRenderedMessagesFetch() );
+
+			await act( async () => {
+				await Promise.resolve();
+			} );
+
+			expect( getRenderedMessages ).toHaveBeenCalledTimes( 1 );
+			expect( invalidateResolution ).toHaveBeenCalledWith(
+				'getRenderedMessages',
+				getRenderedMessages.mock.calls[ 0 ]
+			);
+		} );
+
+		it( 'keeps the resolution when the fetch produced a batch', async () => {
+			mockSelect( [ conn() ] );
+			const invalidateResolution = jest.fn();
+			const getRenderedMessages = jest.fn().mockResolvedValue( { c1: { rendered_message: 'Hi' } } );
+			mockUseRegistry.mockReturnValue( {
+				resolveSelect: () => ( { getRenderedMessages } ),
+				dispatch: () => ( { invalidateResolution } ),
+			} );
+
+			renderHook( () => useDriveRenderedMessagesFetch() );
+
+			await act( async () => {
+				await Promise.resolve();
+			} );
+
+			expect( getRenderedMessages ).toHaveBeenCalledTimes( 1 );
+			expect( invalidateResolution ).not.toHaveBeenCalled();
+		} );
 	} );
 } );

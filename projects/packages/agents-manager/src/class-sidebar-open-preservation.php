@@ -143,21 +143,15 @@ class Sidebar_Open_Preservation {
 	/**
 	 * Whether the docked-open shell should be pre-rendered on this request.
 	 *
-	 * True only when the app is loading (so the shell will be reconciled by the
-	 * app that mounts to manage it) and the cached state is both open and docked
-	 * — the only state that reshapes the admin layout. A cold session (no cache),
-	 * a closed sidebar, a floating (undocked) chat, or the Site Editor navigation
-	 * view all pre-render nothing.
+	 * True only when the app is loading (so it will take over the shell once
+	 * mounted) and the cached state is both open and docked — the only state
+	 * that reshapes the admin layout. A cold session (no cache), a closed
+	 * sidebar, or a floating (undocked) chat all pre-render nothing.
 	 *
 	 * @return bool
 	 */
 	private function should_pre_render_docked_shell(): bool {
 		if ( ! $this->should_preserve_sidebar_open_state() ) {
-			return false;
-		}
-
-		// Skip the pre-render on the Site Editor navigation view, where the chat can't dock.
-		if ( Agents_Manager::is_site_editor_navigation() ) {
 			return false;
 		}
 

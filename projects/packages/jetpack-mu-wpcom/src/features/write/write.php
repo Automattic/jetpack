@@ -96,6 +96,7 @@ function wpcom_write_get_editor_strings() {
 		'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
 		// translators: %s is the error message from the upload failure.
 		'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+		'uploadingImage'       => __( 'Uploading image…', 'jetpack-mu-wpcom' ),
 		'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
 		'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
 		'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
@@ -114,6 +115,8 @@ function wpcom_write_get_editor_strings() {
 		'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 		// translators: %s is the error message.
 		'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
+		'couldNotSave'         => __( 'Could not save. Please try again.', 'jetpack-mu-wpcom' ),
+		'saveTimedOut'         => __( 'Saving timed out. Please check your connection and try again.', 'jetpack-mu-wpcom' ),
 		'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 		'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 		'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
@@ -987,7 +990,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
 	<!-- Top bar -->
-	<header class="bw-topbar">
+	<header class="bw-topbar" data-wp-class--has-topbar-message="state.hasMessage">
 		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
@@ -1005,6 +1008,13 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 		</div><!-- /.bw-help-wrap -->
 		<span class="bw-status" data-wp-text="state.displayStatus"></span>
+		<?php
+		// Screen-reader announcement for transient status (saving/publishing,
+		// "Please write something" validation, save/publish errors). Bound to
+		// state.message only — not state.displayStatus — so the title mirror that
+		// the visible .bw-status also carries isn't re-announced on every keystroke.
+		?>
+		<span class="bw-visually-hidden" role="status" aria-live="polite" data-wp-text="state.message"></span>
 		<div class="bw-topbar-actions">
 			<button
 				class="bw-btn bw-btn-draft"

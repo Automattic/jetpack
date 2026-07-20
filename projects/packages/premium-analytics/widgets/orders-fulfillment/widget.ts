@@ -25,9 +25,11 @@ export type OrdersFulfillmentAttributes = Record< never, never >;
 export default {
 	name: 'jpa/orders-fulfillment',
 	title: __( 'Orders fulfillment', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the breakdown of fulfilled vs unfulfilled order counts over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Shows the breakdown of fulfilled vs unfulfilled order counts over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

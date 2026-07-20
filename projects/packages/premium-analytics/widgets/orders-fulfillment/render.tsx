@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type OrdersFulfillmentRenderAttributes = OrdersFulfillmentAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type OrdersFulfillmentRenderProps = WidgetRenderProps< OrdersFulfillmentRenderAttributes > & {
+type OrdersFulfillmentWidgetProps = WidgetRenderProps< OrdersFulfillmentRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,11 +28,14 @@ type OrdersFulfillmentRenderProps = WidgetRenderProps< OrdersFulfillmentRenderAt
  * Thin composition over WidgetRoot: WidgetRoot provides the query client, chart
  * theme, and resolved report params; OrdersFulfillmentWidget renders the
  * fulfilled vs unfulfilled orders donut chart.
+ *
+ * @param {OrdersFulfillmentWidgetProps} props - The widget render props.
+ * @return The rendered widget.
  */
 export default function OrdersFulfillmentRender( {
 	attributes = {},
 	setError,
-}: OrdersFulfillmentRenderProps ) {
+}: OrdersFulfillmentWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrdersFulfillmentWidget />

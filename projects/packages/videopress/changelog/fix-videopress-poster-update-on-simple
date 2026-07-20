@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix "Could not obtain a VideoPress upload token" when setting a video thumbnail from a frame on WordPress.com Simple sites.

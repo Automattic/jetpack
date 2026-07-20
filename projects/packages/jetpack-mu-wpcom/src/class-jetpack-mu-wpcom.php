@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
+
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
  * Jetpack_Mu_Wpcom main class.
@@ -64,14 +66,17 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
 		}
 
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_plugin_state' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -399,6 +404,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
+		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
@@ -440,9 +446,16 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
+	}
 
-		// Init here rather than in load_wpcom_user_features so feed-customization
-		// hooks register for anonymous requests too (Apple/Spotify crawlers).
+	/**
+	 * Load the Podcast module on Simple sites.
+	 *
+	 * Atomic and self-hosted load Podcast through the Jetpack module system
+	 * (Jetpack::late_initialization). Simple doesn't boot that Jetpack class, so
+	 * initialize the module directly here.
+	 */
+	public static function load_podcast() {
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
@@ -765,11 +778,53 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Whether Premium Analytics should be loaded on WordPress.com Simple.
+	 *
+	 * @return bool True when the Simple rollout gate is enabled.
+	 */
+	public static function should_load_wpcom_simple_premium_analytics() {
+		$blog_id = (int) get_wpcom_blog_id();
+		$enabled = $blog_id > 0 && wpcom_has_blog_sticker( 'jetpack-premium-analytics', $blog_id );
+
+		/**
+		 * Filters whether Premium Analytics loads on WordPress.com Simple.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether the Simple rollout gate is enabled.
+		 * @param int  $blog_id WPCOM blog ID.
+		 */
+		return (bool) apply_filters( 'jetpack_premium_analytics_wpcom_simple_enabled', $enabled, $blog_id );
+	}
+
+	/**
+	 * Load Premium Analytics on WordPress.com Simple sites behind the rollout gate.
+	 */
+	public static function load_wpcom_simple_premium_analytics() {
+		if ( ! self::should_load_wpcom_simple_premium_analytics() ) {
+			return;
+		}
+
+		Premium_Analytics::init_wpcom_simple(
+			array(
+				'menu_title' => 'Premium Analytics',
+			)
+		);
+	}
+
+	/**
 	 * Load the Jetpack Custom CSS feature.
 	 */
 	public static function load_custom_css() {
 		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
 		require_once __DIR__ . '/features/custom-css/custom-css.php';
+	}
+
+	/**
+	 * Load the Plugin State feature.
+	 */
+	public static function load_plugin_state() {
+		require_once __DIR__ . '/features/plugin-state/plugin-state.php';
 	}
 
 	/**

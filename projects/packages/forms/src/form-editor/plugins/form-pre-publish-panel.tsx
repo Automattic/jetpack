@@ -20,7 +20,7 @@ import { Notice } from '@wordpress/ui';
  */
 import ConsentToggle from '../../blocks/contact-form/components/jetpack-integrations-modal/components/consent-toggle.tsx';
 import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal/index.tsx';
-import { settings as formBlockSettings } from '../../blocks/contact-form/index.js';
+import { settings as formBlockSettings } from '../../blocks/contact-form/index.jsx';
 import { isCollectingResponses } from '../../blocks/contact-form/util/is-collecting-responses.ts';
 import { FORM_POST_TYPE, FORM_BLOCK_NAME } from '../../blocks/shared/util/constants.js';
 import { INTEGRATIONS_STORE } from '../../store/integrations/index.ts';

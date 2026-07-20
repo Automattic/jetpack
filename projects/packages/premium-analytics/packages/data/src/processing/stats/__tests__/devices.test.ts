@@ -1,9 +1,24 @@
-import { sanitizeStatsDevicesResponse } from '..';
+import { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from '..';
 import {
 	devicesBrowserFixture,
 	devicesEmptyFixture,
 	devicesFixture,
 } from '../__fixtures__/devices';
+import type { StatsDevicesItem, StatsNormalizedReport } from '..';
+
+function makeReport( items: StatsDevicesItem[] ): StatsNormalizedReport< StatsDevicesItem > {
+	return {
+		summary: {},
+		data: [
+			{
+				time_interval: '2026-06-25',
+				date_start: '2026-06-25T00:00:00+00:00',
+				date_end: '2026-06-25T23:59:59+00:00',
+				items,
+			},
+		],
+	};
+}
 
 describe( 'Stats devices normalizer', () => {
 	it( 'normalizes top_values object into a single data point', () => {
@@ -39,5 +54,31 @@ describe( 'Stats devices normalizer', () => {
 	it( 'returns empty data for an empty response', () => {
 		const result = sanitizeStatsDevicesResponse( {}, { end_date: '2026-06-25' } );
 		expect( result.data ).toHaveLength( 0 );
+	} );
+
+	it( 'detects comparison overlap only in visible rows and preserves zero values', () => {
+		const primary = makeReport( [
+			{ label: 'desktop', value: 85, children: null },
+			{ label: 'mobile', value: 15, children: null },
+		] );
+		const comparison = makeReport( [ { label: 'mobile', value: 0, children: null } ] );
+
+		expect( mergeStatsDevicesComparisonRows( primary, comparison, 1 ) ).toEqual( {
+			hasComparison: false,
+			rows: [
+				expect.objectContaining( {
+					label: 'desktop',
+					previousValue: undefined,
+				} ),
+			],
+		} );
+
+		expect( mergeStatsDevicesComparisonRows( primary, comparison, 2 ) ).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( { label: 'desktop', previousValue: undefined } ),
+				expect.objectContaining( { label: 'mobile', previousValue: 0 } ),
+			],
+		} );
 	} );
 } );

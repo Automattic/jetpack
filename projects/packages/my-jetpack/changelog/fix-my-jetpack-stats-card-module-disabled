@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: hide the large Stats graph when the Stats module is disabled, and show the compact Stats card with an activation CTA instead.

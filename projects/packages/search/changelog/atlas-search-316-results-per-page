@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset.

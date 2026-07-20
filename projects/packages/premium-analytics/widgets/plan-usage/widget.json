@@ -1,0 +1,7 @@
+{
+	"name": "jpa/plan-usage",
+	"title": "Plan usage",
+	"description": "How your billable views compare to your plan's monthly limit.",
+	"category": "stats",
+	"presentation": "framed"
+}

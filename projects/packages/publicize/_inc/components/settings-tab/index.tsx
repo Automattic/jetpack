@@ -9,6 +9,8 @@ import CustomizeLinksCard from './customize-links-card';
 import CustomizeMediaCard from './customize-media-card';
 import DefaultShareMessageCard from './default-share-message-card';
 import PublicizeInactiveEmptyState from './publicize-inactive-empty-state';
+import SocialModuleCard from './social-module-card';
+import { useTurnOnSocial } from './turn-on-social-context';
 import './style.scss';
 
 /**
@@ -21,12 +23,13 @@ import './style.scss';
  * - **Customize media** — Social Image Generator (paid).
  * - **Customize links** — UTM parameters.
  *
- * The legacy master Publicize on/off toggle (`SocialModuleToggle`) is
- * intentionally not ported; product visibility lives on the wp-admin
- * module-toggles surface. When an admin lands on the page while
- * Publicize is inactive on a self-hosted site, the empty state points
- * them back there. WPCOM Simple sites never hit that state — Publicize
- * is always on, and `canToggleSocialModule()` returns false.
+ * A compact master on/off (`SocialModuleCard`) sits at the top whenever the
+ * current user can toggle the module (`canToggleSocialModule()`), and when the
+ * module is off the tab collapses to `PublicizeInactiveEmptyState`, which turns
+ * it on in place. This replaces the old link-out to the wp-admin module-toggles
+ * surface (umbrella #48824), which is unreachable on WordPress.com Atomic sites
+ * using the Calypso interface. WPCOM Simple sites never see the toggle —
+ * Publicize is always on there and `canToggleSocialModule()` returns false.
  *
  * @return The Settings tab body.
  */
@@ -36,7 +39,12 @@ export default function SettingsTab(): JSX.Element {
 		[]
 	);
 
-	if ( ! isPublicizeActive && canToggleSocialModule() ) {
+	// While turning Social on we keep showing the turn-on surface until the
+	// reload — the store flips `publicize` on optimistically, but rendering the
+	// settings cards for that sub-second gap before the reload just flickers.
+	const { isEnabling } = useTurnOnSocial();
+
+	if ( ( ! isPublicizeActive || isEnabling ) && canToggleSocialModule() ) {
 		return (
 			<div className="jetpack-social-settings">
 				<Card.Root>
@@ -55,6 +63,7 @@ export default function SettingsTab(): JSX.Element {
 
 	return (
 		<Stack direction="column" gap="lg" className="jetpack-social-settings">
+			{ canToggleSocialModule() && <SocialModuleCard /> }
 			{ hasMessageTemplates && <DefaultShareMessageCard /> }
 			{ hasSocialPlugin && <ContentCreationCard /> }
 			{ hasImageGenerator && <CustomizeMediaCard /> }

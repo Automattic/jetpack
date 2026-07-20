@@ -25,9 +25,11 @@ export type VisitorsOverTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/visitors-over-time',
 	title: __( 'Visitors over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track website visitor trends and monitor traffic patterns over time.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Track website visitor trends and monitor traffic patterns over time.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: seen,
 };

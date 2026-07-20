@@ -9,16 +9,14 @@ import {
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
-import { ChartEmptyState } from '../../components';
+import { WidgetState } from '../../components';
 import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import { flagUrl } from '../../helpers';
-import { useWidgetError } from '../../hooks';
 import { useVisitorsByLocation, type Region } from './use-visitors-by-location';
 import styles from './visitors-by-location-widget.module.scss';
 
@@ -38,12 +36,8 @@ export function VisitorsByLocationWidget() {
 		hasData,
 		hasComparison,
 		isError,
-		error,
 		refetch,
 	} = useVisitorsByLocation( reportParams, region );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
 
 	const leaderboardDataWithImages = useMemo(
 		() =>
@@ -86,53 +80,55 @@ export function VisitorsByLocationWidget() {
 		<GeoChart data={ geoData } resizeDebounceTime={ RESIZE_DEBOUNCE_MS } { ...geoChartProps } />
 	);
 
-	const hasError = useWidgetError( isError, error, refetch );
-
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	if ( ! leaderboardData || leaderboardData.length === 0 ) {
-		return (
-			<>
-				<ChartEmptyState icon={ location } />
-				{ isRefetching && <WidgetLoadingOverlay /> }
-			</>
-		);
-	}
-
 	return (
-		<>
-			<div className={ styles.root }>
-				<div className={ styles.container }>
-					<div className={ styles.toggleControl }>
-						<ToggleGroupControl
-							__next40pxDefaultSize
-							isBlock
-							hideLabelFromVision
-							label={ __( 'Location', 'jetpack-premium-analytics' ) }
-							onChange={ value => {
-								if ( isRegion( value ) ) {
-									setRegion( value );
-								}
-							} }
-							value={ region }
-						>
-							<ToggleGroupControlOption
-								value="US"
-								label={ __( 'United States', 'jetpack-premium-analytics' ) }
-							/>
-							<ToggleGroupControlOption
-								value="world"
-								label={ __( 'Worldwide', 'jetpack-premium-analytics' ) }
-							/>
-						</ToggleGroupControl>
-					</div>
+		<div className={ styles.root }>
+			<div className={ styles.container }>
+				{ /* The region toggle drives the query, so it stays available in
+				     every state (a sibling of WidgetState, per the widget contract). */ }
+				<div className={ styles.toggleControl }>
+					<ToggleGroupControl
+						__next40pxDefaultSize
+						isBlock
+						hideLabelFromVision
+						label={ __( 'Location', 'jetpack-premium-analytics' ) }
+						onChange={ value => {
+							if ( isRegion( value ) ) {
+								setRegion( value );
+							}
+						} }
+						value={ region }
+					>
+						<ToggleGroupControlOption
+							value="US"
+							label={ __( 'United States', 'jetpack-premium-analytics' ) }
+						/>
+						<ToggleGroupControlOption
+							value="world"
+							label={ __( 'Worldwide', 'jetpack-premium-analytics' ) }
+						/>
+					</ToggleGroupControl>
+				</div>
 
+				<WidgetState
+					isLoading={ isLoading && ! hasData }
+					isFetching={ isFetching }
+					// The report queries keep the previous period's data as placeholders
+					// across range changes, so only surface the error when there is
+					// nothing to show.
+					isError={ isError && ! hasData }
+					isEmpty={ leaderboardData.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load location data. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: location,
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
 					<LeaderboardChart
 						data={ leaderboardDataWithImages }
 						withOverlayLabel={ true }
@@ -146,9 +142,8 @@ export function VisitorsByLocationWidget() {
 					/>
 
 					<div className={ styles.geoChart }>{ geoChart }</div>
-				</div>
+				</WidgetState>
 			</div>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</div>
 	);
 }

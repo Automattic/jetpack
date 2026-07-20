@@ -8,9 +8,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import StoreConversionRateBookingsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -24,27 +26,27 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 let conversionRateMocksRegistered = false;
 let conversionRateRequestCount = 0;
 
-type StoreConversionRateBookingsRenderProps = ComponentProps<
+type StoreConversionRateBookingsWidgetProps = ComponentProps<
 	typeof StoreConversionRateBookingsRender
 >;
 
 interface StoreConversionRateBookingsStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset to use for report params.
+	 */
 	preset: SelectablePresetId;
 }
 
-type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsRenderProps &
+type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsWidgetProps &
 	StoreConversionRateBookingsStoryControls;
 
 interface StoreConversionRateBookingsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		StoreConversionRateBookingsStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 /**
  * Builds a mock conversion-rate report response.
@@ -104,7 +106,7 @@ function registerConversionRateMocks(): void {
 function getStoreConversionRateBookingsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): StoreConversionRateBookingsRenderProps[ 'attributes' ] {
+): StoreConversionRateBookingsWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -143,9 +145,7 @@ function getStoreConversionRateBookingsSource(
 /**
  * Renders the standalone store conversion rate bookings widget story.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to include comparison report params.
- * @param props.preset         - Date-range preset to use for report params.
+ * @param {StoreConversionRateBookingsStoryControls} props - Story controls.
  * @return Store conversion rate bookings widget story element.
  */
 function renderStoreConversionRateBookings( {
@@ -159,12 +159,19 @@ function renderStoreConversionRateBookings( {
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderStoreConversionRateBookingsOnPreset( preset: SelectablePresetId ) {
+	return (
+		<StoreConversionRateBookingsRender
+			attributes={ getStoreConversionRateBookingsAttributes( false, preset ) }
+		/>
+	);
+}
+
 /**
  * Renders the store conversion rate bookings widget inside the dashboard story shell.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to include comparison report params.
- * @param props.preset         - Date-range preset to use for report params.
+ * @param {StoreConversionRateBookingsDashboardStoryProps} props - Story controls.
  * @return Store conversion rate bookings dashboard story element.
  */
 function StoreConversionRateBookingsDashboardStory( {
@@ -259,6 +266,56 @@ export const WithComparison: Story = {
 				) => getStoreConversionRateBookingsSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ *
+ * The story's own conversion-rate mock middleware (registered above) would
+ * otherwise shadow `setReportMockState` — it always answers
+ * `sessions/by-conversion-rate` with canned data and never falls through.
+ * `forceStatsMockState` re-registers its shared override when this story sets a
+ * forced state, keeping it ahead of story-local middleware even if Storybook
+ * lazy-loads another story module later.
+ */
+export const Loading: Story = {
+	render: () => renderStoreConversionRateBookingsOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'sessions/by-conversion-rate', 'loading' );
+		return () => forceStatsMockState( 'sessions/by-conversion-rate', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderStoreConversionRateBookingsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'sessions/by-conversion-rate', 'error' );
+		return () => forceStatsMockState( 'sessions/by-conversion-rate', null );
+	},
+};
+
+/**
+ * Resolved with no active sessions: the widget shows its empty state ("No
+ * conversion data in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderStoreConversionRateBookingsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'sessions/by-conversion-rate', 'empty' );
+		return () => forceStatsMockState( 'sessions/by-conversion-rate', null );
 	},
 };
 

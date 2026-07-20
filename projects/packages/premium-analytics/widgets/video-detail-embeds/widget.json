@@ -1,0 +1,7 @@
+{
+	"name": "jpa/video-detail-embeds",
+	"title": "Video embeds",
+	"description": "Pages where the selected video is embedded, sourced from Jetpack Stats.",
+	"category": "stats",
+	"presentation": "framed"
+}

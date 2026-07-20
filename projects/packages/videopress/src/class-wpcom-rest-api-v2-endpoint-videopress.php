@@ -200,6 +200,107 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				},
 			)
 		);
+
+		// Settings Routes. Primarily for WordPress.com Simple, where the
+		// videopress/v1 namespace never reaches the REST dispatcher; the
+		// routes also register self-hosted as a harmless duplicate of
+		// videopress/v1/settings (the callbacks are host-safe).
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/settings',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'videopress_get_settings' ),
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'videopress_update_settings' ),
+					'permission_callback' => function () {
+						return Data::can_perform_action() && current_user_can( 'manage_options' );
+					},
+					'args'                => array(
+						'videopress_videos_private_for_site' => array(
+							'description' => __( 'If the VideoPress videos should be private by default', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
+						'videopress_auto_subtitles_disabled' => array(
+							'description' => __( 'If auto-generated subtitles should be skipped for new videos', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Returns the VideoPress site settings.
+	 *
+	 * `Data::get_videopress_settings()` is already IS_WPCOM-aware (site
+	 * privacy / site type resolution), so the same callback serves every
+	 * host.
+	 *
+	 * @return WP_REST_Response The response object.
+	 */
+	public function videopress_get_settings() {
+		return rest_ensure_response( Data::get_videopress_settings() );
+	}
+
+	/**
+	 * Updates the VideoPress site settings.
+	 *
+	 * Mirrors `VideoPress_Rest_Api_V1_Settings::update_settings()`, except
+	 * on WPCOM only `videopress_auto_subtitles_disabled` is honored:
+	 * `videopress_private_enabled_for_site` is a dead option on Simple,
+	 * where the site-default privacy derives from the site's own privacy
+	 * setting. When a caller supplies that param on WPCOM it is not
+	 * persisted, and the response reports it under `ignored` so consumers
+	 * are not told a write succeeded when it was silently discarded.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_REST_Response The response object.
+	 */
+	public function videopress_update_settings( $request ) {
+		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
+		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
+
+		$ignored = array();
+
+		// On WordPress.com Simple the site-default privacy derives from the
+		// site's own privacy setting, so `videopress_private_enabled_for_site`
+		// is a dead option. Drop the param rather than pretend to persist it,
+		// and surface it as ignored so the response stays truthful.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( null !== $private_for_site ) {
+				$ignored[] = 'videopress_videos_private_for_site';
+			}
+			$private_for_site = null;
+		}
+
+		if ( null !== $private_for_site ) {
+			update_option( 'videopress_private_enabled_for_site', $private_for_site );
+		}
+
+		if ( null !== $auto_subtitles_disabled ) {
+			update_option( 'videopress_auto_subtitles_disabled', $auto_subtitles_disabled );
+		}
+
+		$response = array(
+			'code'    => 'success',
+			'message' => __( 'VideoPress settings updated successfully.', 'jetpack-videopress-pkg' ),
+			'data'    => 200,
+		);
+
+		if ( ! empty( $ignored ) ) {
+			$response['ignored'] = $ignored;
+			$response['message'] = __( 'VideoPress settings updated. Some settings are not configurable on this site and were ignored.', 'jetpack-videopress-pkg' );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**

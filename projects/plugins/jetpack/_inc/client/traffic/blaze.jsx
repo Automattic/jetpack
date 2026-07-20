@@ -69,7 +69,7 @@ export function Blaze( props ) {
 
 	const getBlazeDashboardUrl = () => {
 		return blazeDashboardEnabled
-			? siteAdminUrl + 'tools.php?page=advertising'
+			? siteAdminUrl + 'admin.php?page=advertising'
 			: getRedirectUrl( 'jetpack-blaze' );
 	};
 

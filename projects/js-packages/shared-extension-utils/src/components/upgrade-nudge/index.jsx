@@ -19,7 +19,7 @@ export const Nudge = ( {
 	target = '_top',
 } ) => {
 	const cssClasses = clsx( className, 'jetpack-upgrade-plan-banner', {
-		'wp-block': context === 'editor-canvas',
+		'jetpack-nudge-canvas': context === 'editor-canvas',
 		'block-editor-block-list__block': context === 'editor-canvas',
 		'jetpack-upgrade-plan__hidden': ! visible,
 	} );

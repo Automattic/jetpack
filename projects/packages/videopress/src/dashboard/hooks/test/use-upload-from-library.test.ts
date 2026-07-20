@@ -46,6 +46,40 @@ describe( 'uploadFromLibrary', () => {
 		expect( i ).toBe( 3 );
 	} );
 
+	it( 'reports the upload percentage after each chunk response', async () => {
+		const responses = [
+			{ status: 'new' as const, bytes_uploaded: 0, file_size: 200 },
+			{ status: 'uploading' as const, bytes_uploaded: 100, file_size: 200 },
+			{
+				status: 'complete' as const,
+				bytes_uploaded: 200,
+				file_size: 200,
+				uploaded_details: { guid: 'g', media_id: 9 },
+			},
+		];
+		let i = 0;
+		mockApiFetch( async () => responses[ i++ ] );
+		const onProgress = jest.fn();
+
+		await uploadFromLibrary( 1, { delayMs: 0, onProgress } );
+
+		expect( onProgress.mock.calls.map( ( [ percent ] ) => percent ) ).toEqual( [ 0, 50, 100 ] );
+	} );
+
+	it( 'skips progress reporting when the response lacks byte counts', async () => {
+		const responses = [
+			{ status: 'uploading' as const },
+			{ status: 'complete' as const, uploaded_details: { guid: 'g', media_id: 9 } },
+		];
+		let i = 0;
+		mockApiFetch( async () => responses[ i++ ] );
+		const onProgress = jest.fn();
+
+		await uploadFromLibrary( 1, { delayMs: 0, onProgress } );
+
+		expect( onProgress ).not.toHaveBeenCalled();
+	} );
+
 	it( 'throws after exceeding the max poll attempts', async () => {
 		mockApiFetch( async () => ( { status: 'uploading' } ) );
 

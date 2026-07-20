@@ -10,17 +10,5 @@
 }
 
 .tabList {
-	border-block-end:
-		var(--wpds-border-width-xs, 1px) solid
-		var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
-	margin-block-end: var(--wpds-dimension-gap-lg, 16px);
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
-}
-
-.tabList :global([role="tab"][aria-selected="true"]) {
-	color: var(--wp-admin-theme-color, #3858e9);
-}
-
-.tabList :global([role="tablist"] > [data-orientation="horizontal"]:not([role="tab"])) {
-	background-color: var(--wp-admin-theme-color, #3858e9);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }

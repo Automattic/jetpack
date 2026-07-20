@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type VisitorsOverTimeRenderAttributes = VisitorsOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type VisitorsOverTimeRenderProps = WidgetRenderProps< VisitorsOverTimeRenderAttributes > & {
+type VisitorsOverTimeWidgetProps = WidgetRenderProps< VisitorsOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,11 +28,14 @@ type VisitorsOverTimeRenderProps = WidgetRenderProps< VisitorsOverTimeRenderAttr
  * Thin composition over WidgetRoot: WidgetRoot provides the query client,
  * chart theme, and resolved report params; VisitorMetricWidget fetches the
  * visitors report and renders visitor trends over time.
+ *
+ * @param {VisitorsOverTimeWidgetProps} props - The widget render props.
+ * @return The rendered widget.
  */
 export default function VisitorsOverTimeRender( {
 	attributes = {},
 	setError,
-}: VisitorsOverTimeRenderProps ) {
+}: VisitorsOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<VisitorMetricWidget />

@@ -9,9 +9,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// $config is supplied by Cookie_Consent::get_ccpa_page_content() when this template is included.
+// $config (and normally $copy) are supplied by Cookie_Consent::get_ccpa_page_content() when
+// this template is included. $copy falls back to get_copy( $config ) so the template can also
+// be included directly with just a raw $config (tests, Storybook).
 $config = isset( $config ) && is_array( $config ) ? $config : array();
-$copy   = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
+$copy   = isset( $copy ) && is_array( $copy ) ? $copy : \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
 ?>
 
 <!-- wp:paragraph -->

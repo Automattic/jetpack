@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a config-driven core: init( $config ) with per-feature feature toggles and a declarative Config_Schema. Keep the jetpack_cookie_consent_config and jetpack_cookie_consent_log_retention_days filters as override points for code that does not own the init() call.

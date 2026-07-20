@@ -15,7 +15,8 @@ import { AI_STORE_NAME } from '../store';
  */
 export default function useGenerateAll() {
 	const { createErrorNotice } = useDispatch( noticesStore );
-	const { startLoading, stopLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
+	const { startLoading, stopLoading, setSuggestion, showUpgradeNotice } =
+		useDispatch( AI_STORE_NAME );
 	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
 	const { hasFeature } = useAiFeature();
 
@@ -26,6 +27,11 @@ export default function useGenerateAll() {
 
 	const generate = useCallback( async () => {
 		if ( ! hasFeature ) {
+			// No AI plan: surface the upgrade notice instead of generating. The
+			// click is a fresh intent signal, so the notice reappears even after
+			// a persisted dismissal.
+			recordGuidelinesEvent( 'upgrade_notice', { trigger: 'generate_all' } );
+			showUpgradeNotice();
 			return;
 		}
 
@@ -60,7 +66,15 @@ export default function useGenerateAll() {
 		} finally {
 			stopLoading();
 		}
-	}, [ hasFeature, allGuidelines, startLoading, stopLoading, setSuggestion, createErrorNotice ] );
+	}, [
+		hasFeature,
+		allGuidelines,
+		startLoading,
+		stopLoading,
+		setSuggestion,
+		showUpgradeNotice,
+		createErrorNotice,
+	] );
 
 	return { generate, loading, hasFeature };
 }

@@ -3,26 +3,32 @@
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
-	MetricWithComparison,
-	WidgetLoadingOverlay,
+	MetricTileGrid,
 	WidgetRoot,
+	WidgetState,
+	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, comment, people, postContent, seen } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { comment, people, postContent, seen, trendingUp } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { AllTimeStatsAttributes } from './widget';
+import {
+	ALL_TIME_STATS_METRICS,
+	DEFAULT_ALL_TIME_STATS_METRICS,
+	type AllTimeStatsAttributes,
+	type AllTimeStatsMetricId,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The host (and Storybook) may inject report params via `attributes`, but the
 // totals are all-time: the summary query takes no date params, so the picker's
 // range and comparison state do not change what this widget shows.
 type AllTimeStatsRenderAttributes = AllTimeStatsAttributes & Partial< ReportParamsFieldAttributes >;
+type AllTimeStatsWidgetProps = WidgetRenderProps< AllTimeStatsRenderAttributes >;
 
 /**
  * The all-time summary carries dynamic WPCOM keys (`views`, `visitors`,
@@ -31,23 +37,33 @@ type AllTimeStatsRenderAttributes = AllTimeStatsAttributes & Partial< ReportPara
  */
 type StatsSummary = Record< string, unknown >;
 
-const COUNT_FORMAT = {
-	type: 'number' as const,
+const COUNT_FORMAT: DataFormat = {
+	type: 'number',
 	options: { decimals: 0 },
 };
 
-// Lifetime totals shown, in display order, each keyed to its summary field and
-// Stats icon. Rows whose field is absent from the response are skipped.
-const ROWS = [
-	{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ), icon: seen },
-	{ key: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ), icon: people },
-	{ key: 'posts', label: __( 'Posts', 'jetpack-premium-analytics' ), icon: postContent },
-	{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ), icon: comment },
-] as const;
+/**
+ * Render-only config per metric: the tile icon. Ids and labels are shared with
+ * the settings checkboxes via `ALL_TIME_STATS_METRICS` in `widget.ts`; the id
+ * doubles as the summary field the tile reads.
+ */
+const TILE_CONFIG: Record< AllTimeStatsMetricId, { icon: typeof seen } > = {
+	views: { icon: seen },
+	visitors: { icon: people },
+	posts: { icon: postContent },
+	comments: { icon: comment },
+};
+
+type AllTimeStatsTile = {
+	key: AllTimeStatsMetricId;
+	label: string;
+	icon: typeof seen;
+	value: number;
+};
 
 /**
  * Reads a numeric summary field, returning `undefined` when the key is absent
- * or not a finite number, so rows for missing fields can be skipped.
+ * or not a finite number, so tiles for missing fields can be skipped.
  *
  * @param summary - The normalized all-time summary.
  * @param key     - The summary field to read.
@@ -62,64 +78,76 @@ function readCount( summary: StatsSummary | undefined, key: string ): number | u
 
 /**
  * Fetches the all-time site summary through the designated `useStatsSite` hook
- * and renders the lifetime totals as a labelled list of icon rows. Only fields
- * present in the response are shown. There is no comparison period for this
- * module, so each value renders as a bare number.
+ * and renders the lifetime totals as a grid of metric tiles. Which tiles
+ * appear is controlled by the `metrics` attribute; fields absent from the
+ * response are skipped. There is no comparison period for this module, so each
+ * value renders as a bare number.
  *
+ * @param {AllTimeStatsMetricId[]} metrics - Enabled metric row ids.
  * @return The widget content.
  */
-function AllTimeStatsReport() {
+function AllTimeStatsReport( {
+	metrics = DEFAULT_ALL_TIME_STATS_METRICS,
+}: {
+	metrics?: AllTimeStatsMetricId[];
+} ) {
 	// The summary is all-time, so the query takes no date params — its key stays
 	// stable across dashboard date-range and comparison changes.
-	const { data, isLoading, isError } = useStatsSite();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
 
-	const rows = useMemo(
-		() =>
-			ROWS.map( row => ( { ...row, value: readCount( summary, row.key ) } ) ).filter(
-				( row ): row is ( typeof ROWS )[ number ] & { value: number } => row.value !== undefined
-			),
-		[ summary ]
-	);
+	// Resolve selected ids against the canonical definitions so the tile order
+	// stays stable regardless of the order the ids were toggled in.
+	const enabledMetrics = useMemo( () => {
+		const selected = new Set( metrics );
+		return ALL_TIME_STATS_METRICS.filter( metric => selected.has( metric.id ) );
+	}, [ metrics ] );
 
-	let content;
-	if ( isError ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>{ __( 'Unable to load all-time stats.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
-	} else if ( isLoading && rows.length === 0 ) {
-		content = <WidgetLoadingOverlay />;
-	} else if ( rows.length === 0 ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>{ __( 'No stats recorded yet.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
-	} else {
-		content = (
-			<div className={ styles.list }>
-				{ rows.map( row => (
-					<div key={ row.key } className={ styles.row }>
-						<Icon className={ styles.icon } icon={ row.icon } />
-						<Text className={ styles.label }>{ row.label }</Text>
-						<MetricWithComparison
-							className={ styles.value }
-							value={ row.value }
-							dataFormat={ COUNT_FORMAT }
-							fontSize="md"
-						/>
-					</div>
-				) ) }
-			</div>
-		);
-	}
+	const tiles = useMemo(
+		() =>
+			enabledMetrics.flatMap( ( { id, label } ): AllTimeStatsTile[] => {
+				const value = readCount( summary, id );
+				return value === undefined
+					? []
+					: [ { key: id, label, icon: TILE_CONFIG[ id ].icon, value } ];
+			} ),
+		[ enabledMetrics, summary ]
+	);
 
 	// The states share the `.root` body wrapper so sizing (and the widget-picker
 	// aspect-ratio) stays consistent whether data, a spinner, or a message shows.
-	return <div className={ styles.root }>{ content }</div>;
+	return (
+		<div className={ styles.root }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the totals visible; only surface the error
+				// when there is nothing to show.
+				isError={ tiles.length === 0 && isError }
+				isEmpty={ tiles.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load all-time stats. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: trendingUp,
+					// No metrics selected is a configuration state, not an absence of
+					// data — prompt to pick one rather than implying there are no stats.
+					description:
+						enabledMetrics.length === 0
+							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
+							: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+			</WidgetState>
+		</div>
+	);
 }
 
 /**
@@ -130,16 +158,13 @@ function AllTimeStatsReport() {
  * range; report params still flow into WidgetRoot for parity with the other
  * Stats widgets.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {AllTimeStatsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function AllTimeStats( {
-	attributes = {},
-}: WidgetRenderProps< AllTimeStatsRenderAttributes > ) {
+export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AllTimeStatsReport />
+			<AllTimeStatsReport metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

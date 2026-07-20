@@ -1,5 +1,11 @@
 import { safeParseFloat } from '../../utils/parsing';
-import { mapStatsReportDataPoints, normalizeStatsReportSummary } from './utils';
+import {
+	getStatsReportItems,
+	limitStatsRows,
+	mapStatsReportDataPoints,
+	mergeStatsComparisonRows,
+	normalizeStatsReportSummary,
+} from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -11,6 +17,14 @@ export type StatsFileDownloadsItem = StatsNormalizedItemBase & {
 	labelIcon: string;
 	children: null;
 };
+
+export type StatsFileDownloadsComparisonItem = StatsFileDownloadsItem & {
+	previousDownloads?: number;
+};
+
+function getFileDownloadItemKey( item: StatsFileDownloadsItem ) {
+	return item.link ?? String( item.label ?? item.shortLabel ?? '' );
+}
 
 export function sanitizeStatsFileDownloadsResponse(
 	response: unknown,
@@ -36,4 +50,26 @@ export function sanitizeStatsFileDownloadsResponse(
 			children: null,
 		} ) ),
 	};
+}
+
+export function mergeStatsFileDownloadsComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsFileDownloadsItem >,
+	comparisonReport?: StatsNormalizedReport< StatsFileDownloadsItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows<
+		StatsFileDownloadsItem,
+		StatsFileDownloadsItem,
+		StatsFileDownloadsComparisonItem
+	>( {
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		getPrimaryKey: getFileDownloadItemKey,
+		getComparisonKey: getFileDownloadItemKey,
+		getComparisonValue: item => item.downloads,
+		mapRow: ( item, { previousValue } ) => ( {
+			...item,
+			previousDownloads: previousValue,
+		} ),
+	} );
 }

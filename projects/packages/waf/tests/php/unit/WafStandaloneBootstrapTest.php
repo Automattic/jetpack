@@ -22,7 +22,7 @@ interface WafStandaloneBootstrapTest_filesystem_mock {
 /**
  * Runtime test suite.
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 	/**

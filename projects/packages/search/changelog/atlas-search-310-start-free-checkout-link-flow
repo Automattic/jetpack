@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix checkout for unregistered sites getting stuck or redirected to the site selector instead of completing the purchase.
