@@ -48,6 +48,8 @@ export function useClicksReportRecords(
 	const rows = useMemo( () => aggregateClickRows( report.primary.data ), [ report.primary.data ] );
 
 	return {
+		isError: report.isError,
+		refetch: report.refetch,
 		chart: {
 			primary: chartPrimary,
 			comparison: report.comparison.data ? chartComparison : undefined,

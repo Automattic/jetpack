@@ -87,6 +87,8 @@ export function usePostsReportRecords(
 	);
 
 	return {
+		isError: activeReport.isError,
+		refetch: activeReport.refetch,
 		chart: {
 			primary: chartPrimary,
 			comparison: activeReport.comparison.data ? chartComparison : undefined,

@@ -269,4 +269,30 @@ describe( 'useVideosReportRecords', () => {
 
 		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
+
+	it( 'combines errors and refetches both report sources', async () => {
+		const videosRefetch = jest.fn();
+		const summaryRefetch = jest.fn();
+		mockUseStatsVideoPlays.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: undefined },
+			hasComparison: false,
+			isLoading: false,
+			isError: false,
+			refetch: videosRefetch,
+		} as unknown as ReturnType< typeof useStatsVideoPlays > );
+		mockUseStatsVideoPlaysSummary.mockReturnValue( {
+			data: summaryReport,
+			isLoading: false,
+			isError: true,
+			refetch: summaryRefetch,
+		} as unknown as ReturnType< typeof useStatsVideoPlaysSummary > );
+
+		const { result } = renderHook( () => useVideosReportRecords( params, 'day' ) );
+
+		expect( result.current.isError ).toBe( true );
+		await result.current.refetch();
+		expect( videosRefetch ).toHaveBeenCalledTimes( 1 );
+		expect( summaryRefetch ).toHaveBeenCalledTimes( 1 );
+	} );
 } );

@@ -11,9 +11,11 @@ import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
 	ReportDrilldownTable,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPerformanceChart,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -111,6 +113,7 @@ function ClicksReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useClicksReportRecords( reportParams, chartPeriod );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getClicksFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'clicks', label: __( 'Clicks', 'jetpack-premium-analytics' ) } ],
@@ -166,25 +169,34 @@ function ClicksReport(): JSX.Element {
 					</div>
 				}
 			>
-				<ReportPerformanceChart
-					primary={ records.chart.primary }
-					comparison={ records.chart.comparison }
-					isLoading={ records.chart.isLoading }
-					metrics={ chartMetrics }
-					interval={ chartPeriod }
-					onIntervalChange={ handleIntervalChange }
-					legendLabels={ chartLegendLabels }
-				/>
-				<ReportDrilldownTable< ClickRow >
-					data={ records.rows }
-					fields={ fields }
-					getItemId={ getClickRowId }
-					getItemParentId={ getClickRowParentId }
-					isLoading={ records.isLoading }
-					initialView={ RECORDS_VIEW }
-					searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics' ) }
-					hideLevelMarkers
-				/>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
+						/>
+						<ReportDrilldownTable< ClickRow >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getClickRowId }
+							getItemParentId={ getClickRowParentId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics' ) }
+							hideLevelMarkers
+						/>
+					</>
+				) }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

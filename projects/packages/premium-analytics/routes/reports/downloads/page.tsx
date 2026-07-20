@@ -11,10 +11,12 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -98,6 +100,7 @@ function DownloadsReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useDownloadsReportRecords( reportParams, chartPeriod );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getDownloadsFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics' ) } ],
@@ -144,23 +147,32 @@ function DownloadsReport(): JSX.Element {
 					</div>
 				}
 			>
-				<ReportPerformanceChart
-					primary={ records.chart.primary }
-					comparison={ records.chart.comparison }
-					isLoading={ records.chart.isLoading }
-					metrics={ chartMetrics }
-					interval={ chartPeriod }
-					onIntervalChange={ handleIntervalChange }
-					legendLabels={ chartLegendLabels }
-				/>
-				<ReportRecordsTable< StatsFileDownloadsItem >
-					data={ records.rows }
-					fields={ fields }
-					getItemId={ getDownloadRowId }
-					isLoading={ records.isLoading }
-					initialView={ RECORDS_VIEW }
-					searchLabel={ __( 'Search files', 'jetpack-premium-analytics' ) }
-				/>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
+						/>
+						<ReportRecordsTable< StatsFileDownloadsItem >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getDownloadRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search files', 'jetpack-premium-analytics' ) }
+						/>
+					</>
+				) }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
