@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-LeaderboardLabel: own the shared 36px row height and expose a `hugTrailing` prop, so avatar-less leaderboard consumers stop re-patching row rhythm and the Comments widget no longer reaches into the component's structure to hug the new-tab arrow.
+Keep leaderboard row heights consistent when images are unavailable and improve spacing for linked comment authors.
