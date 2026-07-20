@@ -36,7 +36,7 @@
 		}
 
 		&:focus-visible {
-			outline: 2px solid var(--a8c-charts-color-zoom-reset-focus, var(--wpds-color-stroke-focus, #3858e9));
+			outline: 2px solid var(--a8c-charts-color-zoom-reset-focus, var(--a8c-charts-color-focus, var(--wpds-color-stroke-focus, #3858e9)));
 			outline-offset: 1px;
 		}
 	}
