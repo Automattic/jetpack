@@ -5,10 +5,17 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getAnnualInsightsFields } from './annual-insights/config/fields';
 import { getClicksFields } from './clicks/config/fields';
 import { getCommentFollowersFields } from './comment-followers/config/fields';
+import { getCommentsFields } from './comments/config/fields';
 import { getDownloadsFields } from './downloads/config/fields';
+import { getEmailsFields } from './emails/config/fields';
 import { getArchivesFields, getPostsFields } from './posts/config/fields';
+import { getReferrerFields } from './referrers/config/fields';
+import { getSearchTermsFields } from './search-terms/config/fields';
+import { getTagsFields } from './tags/config/fields';
+import { getUtmFields } from './utm/config/fields';
 import { getVideosFields } from './videos/config/fields';
 import type { Field } from '@wordpress/dataviews';
 
@@ -48,7 +55,27 @@ describe( 'report table count fields', () => {
 		renderCountField( getVideosFields(), 'impressions', { impressions: 12345 } as never );
 		renderCountField( getDownloadsFields(), 'downloads', { downloads: 12345 } as never );
 		renderCountField( getClicksFields(), 'clicks', { clicks: 12345 } as never );
+		renderCountField( getCommentsFields(), 'comments', { value: 12345 } as never );
+		renderCountField( getTagsFields(), 'views', { value: 12345 } as never );
+		renderCountField( getReferrerFields(), 'views', { views: 12345 } as never );
+		renderCountField( getSearchTermsFields(), 'views', { views: 12345 } as never );
+		renderCountField( getUtmFields( 'source-medium' ), 'views', { views: 12345 } as never );
+		renderCountField( getEmailsFields(), 'opens', { opens: 12345 } as never );
+		renderCountField( getAnnualInsightsFields(), 'total_posts', {
+			total_posts: 12345,
+		} as never );
 
-		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 7 );
+		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 14 );
+	} );
+
+	it( 'formats Annual insights averages with the shared formatter', () => {
+		jest.spyOn( Number.prototype, 'toLocaleString' ).mockImplementation( () => {
+			throw new Error( 'Browser-locale formatting should not be used' );
+		} );
+
+		// Legacy keeps a trailing `.0` on whole-number averages.
+		renderCountField( getAnnualInsightsFields(), 'avg_comments', { avg_comments: 4 } as never );
+
+		expect( screen.getByText( '4.0' ) ).toBeInTheDocument();
 	} );
 } );

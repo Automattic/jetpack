@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 /**
@@ -17,7 +18,7 @@ import type { Field } from '@wordpress/dataviews';
  * @return The formatted number.
  */
 function formatNumber( value: number ): string {
-	return value.toLocaleString();
+	return formatMetricValue( value, 'number', { decimals: 0, useMultipliers: false } );
 }
 
 /**
