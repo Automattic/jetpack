@@ -114,6 +114,7 @@ export {
 	bucketStatsTimeSeries,
 	flattenStatsLeaves,
 	getStatsChartBucketKey,
+	getStatsReportItems,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';

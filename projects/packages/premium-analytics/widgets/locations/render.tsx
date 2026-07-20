@@ -279,7 +279,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 				),
 				currentValue: location.value,
 				previousValue,
-				currentShare: maxValue > 0 ? ( location.value / maxValue ) * 100 : 0,
+				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
 					hasComparison && previousValue !== undefined
 						? sharePercentage( previousValue, maxComparisonValue )

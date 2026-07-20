@@ -8,6 +8,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -113,7 +114,7 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 			id: row.id,
 			label: buildRowLabel( row, view ),
 			currentValue: row.value,
-			currentShare: maxValue > 0 ? ( row.value / maxValue ) * 100 : 0,
+			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );
 	}, [ data, view ] );
 
