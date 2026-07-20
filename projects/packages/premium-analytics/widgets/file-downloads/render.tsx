@@ -204,7 +204,8 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 		label: item.shortLabel ?? String( item.label ?? '' ),
 		value: item.downloads,
 		previousValue: item.previousDownloads,
-		href: safeHttpUrl( item.link ) ?? undefined,
+		// The endpoint falls back to a root-relative `relative_url` here.
+		href: safeHttpUrl( item.link, { allowRelative: true } ) ?? undefined,
 	} ) );
 }
 

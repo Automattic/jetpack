@@ -115,7 +115,8 @@ export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
 								{ post.title }
 							</Link>
 						) : (
-							post.title
+							// `.title` clamps to three lines, so keep the tooltip the link branch carries.
+							<span title={ post.title }>{ post.title }</span>
 						) }
 					</Text>
 					{ publishDate && (

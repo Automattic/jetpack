@@ -32,7 +32,8 @@ export function getDownloadsFields(): Field< StatsFileDownloadsItem >[] {
 			getValue: ( { item } ) => getFileLabel( item ),
 			render: ( { item } ) => {
 				const label = getFileLabel( item );
-				const href = safeHttpUrl( item.link );
+				// The endpoint falls back to a root-relative `relative_url` here.
+				const href = safeHttpUrl( item.link, { allowRelative: true } );
 
 				if ( ! href ) {
 					return <>{ label }</>;

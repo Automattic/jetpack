@@ -28,11 +28,31 @@ describe( 'safeHttpUrl', () => {
 		expect( safeHttpUrl( undefined ) ).toBeNull();
 	} );
 
-	it( 'allows root-relative paths', () => {
-		expect( safeHttpUrl( '/relative/path' ) ).toBe( '/relative/path' );
-	} );
-
 	it.each( [ null, 42, { href: 'https://example.com' } ] )( 'rejects non-strings: %p', url => {
 		expect( safeHttpUrl( url ) ).toBeNull();
+	} );
+
+	describe( 'root-relative paths', () => {
+		it( 'rejects them by default, so only the download sinks opt in', () => {
+			expect( safeHttpUrl( '/relative/path' ) ).toBeNull();
+		} );
+
+		it.each( [ '/relative/path', '/report 2025.pdf', '/' ] )(
+			'allows %s with allowRelative',
+			url => {
+				expect( safeHttpUrl( url, { allowRelative: true } ) ).toBe( url );
+			}
+		);
+
+		// `\` normalizes to `/` in special schemes, so these resolve cross-origin despite the
+		// single-slash prefix: `new URL( '/\\evil.example/x', 'https://site.example/' )` is
+		// `https://evil.example/x`.
+		it.each( [
+			[ 'backslash authority', '/\\evil.example/x' ],
+			[ 'slash-backslash authority', '/\\/evil.example' ],
+			[ 'protocol-relative URL', '//evil.example/x' ],
+		] )( 'rejects %s even with allowRelative', ( _label, url ) => {
+			expect( safeHttpUrl( url, { allowRelative: true } ) ).toBeNull();
+		} );
 	} );
 } );

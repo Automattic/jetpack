@@ -596,9 +596,9 @@ shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` v
 
 **Remote URLs in links**
 
-Pass every URL from report data through `safeHttpUrl` from `widgets-toolkit` before using it
-as an `href`. It allows http(s) and root-relative URLs; render a plain-text fallback when it
-returns `null`:
+Pass every URL from report data through `safeHttpUrl` from `@jetpack-premium-analytics/ui`
+(re-exported by `widgets-toolkit` for widgets) before using it as an `href`. It allows http(s)
+only; render a plain-text fallback when it returns `null`:
 
 ```tsx
 const href = safeHttpUrl( item.link );
@@ -608,8 +608,12 @@ const href = safeHttpUrl( item.link );
 }
 ```
 
-Guard at the link sink, not in `packages/data/`, because some modules use the URL for row
-matching. Locally constructed URLs do not need the guard.
+Pass `{ allowRelative: true }` only where the endpoint is known to return a root-relative path
+— currently just the file-download sinks, whose `relative_url` fallback has no scheme.
+
+Guard in the widget or route layer, either where the row is mapped or at the link itself, but
+never in `packages/data/`: some modules key comparison rows on the raw URL. Locally constructed
+URLs do not need the guard.
 
 **Drill-down leaderboards**
 
