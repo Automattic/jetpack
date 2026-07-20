@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import styles from './dashboard-load-error.module.scss';
 import type { FC } from 'react';
 
@@ -18,13 +18,15 @@ interface Props {
  * @return The load-error state.
  */
 const DashboardLoadError: FC< Props > = ( { onRetry } ) => (
-	<div className={ styles.root }>
-		<h2 className={ styles.title }>{ __( 'We couldn’t load this page', 'jetpack-seo' ) }</h2>
-		<p className={ styles.body }>
+	<Stack direction="column" align="center" justify="center" gap="sm" className={ styles.root }>
+		<Text variant="heading-xl" render={ <h2 /> }>
+			{ __( 'We couldn’t load this page', 'jetpack-seo' ) }
+		</Text>
+		<Text variant="body-md" render={ <p /> } className={ styles.body }>
 			{ __( 'This is usually temporary. Give it another try.', 'jetpack-seo' ) }
-		</p>
+		</Text>
 		<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-seo' ) }</Button>
-	</div>
+	</Stack>
 );
 
 export default DashboardLoadError;

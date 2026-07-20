@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Card } from '@wordpress/ui';
+import { Button, Card, Stack } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
@@ -21,19 +21,25 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 		<Card.Header>
 			<Card.Title>{ __( 'Site verification', 'jetpack-seo' ) }</Card.Title>
 		</Card.Header>
-		<Card.Content>
+		<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 			{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
-				<div key={ key } className={ styles.statRow }>
+				<Stack
+					key={ key }
+					direction="row"
+					align="center"
+					justify="space-between"
+					className={ styles.statRow }
+				>
 					<StatusDot status={ data[ key ] ? 'ok' : 'warn' } label={ label } />
 					<span>{ data[ key ] ? setLabel : notSetLabel }</span>
-				</div>
+				</Stack>
 			) ) }
-			<div className={ styles.footer }>
+			<Stack direction="row" justify="flex-end" className={ styles.footer }>
 				<Button variant="outline" tone="neutral" onClick={ onManage }>
 					{ __( 'Manage verification', 'jetpack-seo' ) }
 				</Button>
-			</div>
-		</Card.Content>
+			</Stack>
+		</Stack>
 	</Card.Root>
 );
 

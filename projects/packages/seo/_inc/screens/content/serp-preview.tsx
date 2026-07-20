@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
@@ -47,14 +48,22 @@ const SerpPreview: FC< Props > = ( { link, postTitle, customTitle, description }
 	const title = customTitle || postTitle;
 
 	return (
-		<div className={ styles.preview }>
-			<div className={ styles.label }>{ __( 'Search engine preview', 'jetpack-seo' ) }</div>
-			<div>
-				<div className={ styles.url }>{ toBreadcrumb( link ) }</div>
+		<Stack direction="column" gap="sm" className={ styles.preview }>
+			<Text variant="heading-sm" className={ styles.muted }>
+				{ __( 'Search engine preview', 'jetpack-seo' ) }
+			</Text>
+			<Stack direction="column" gap="xs">
+				<Text variant="body-sm" className={ styles.muted }>
+					{ toBreadcrumb( link ) }
+				</Text>
 				<div className={ styles.title }>{ title || __( '(no title)', 'jetpack-seo' ) }</div>
-				{ description && <div className={ styles.description }>{ description }</div> }
-			</div>
-		</div>
+				{ description && (
+					<Text variant="body-md" className={ styles.muted }>
+						{ description }
+					</Text>
+				) }
+			</Stack>
+		</Stack>
 	);
 };
 

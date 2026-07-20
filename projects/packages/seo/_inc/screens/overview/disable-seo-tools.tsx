@@ -2,6 +2,7 @@
 
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import useSeoToolsToggle from '../../data/use-seo-tools-toggle';
 import styles from './style.module.scss';
 import type { FC } from 'react';
@@ -18,8 +19,8 @@ const DisableSeoTools: FC = () => {
 	const { isToggling, setActive } = useSeoToolsToggle();
 
 	return (
-		<div className={ styles.disable }>
-			<span>{ __( 'Using a different SEO solution?', 'jetpack-seo' ) }</span>{ ' ' }
+		<Text variant="body-md" render={ <div /> } className={ styles.disable }>
+			{ __( 'Using a different SEO solution?', 'jetpack-seo' ) }{ ' ' }
 			<Button
 				variant="link"
 				onClick={ () => setActive( false ) }
@@ -28,7 +29,7 @@ const DisableSeoTools: FC = () => {
 			>
 				{ __( 'Disable Jetpack SEO tools', 'jetpack-seo' ) }
 			</Button>
-		</div>
+		</Text>
 	);
 };
 

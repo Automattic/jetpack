@@ -31,7 +31,7 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 			<Card.Header>
 				<Card.Title>{ __( 'Site visibility', 'jetpack-seo' ) }</Card.Title>
 			</Card.Header>
-			<Card.Content>
+			<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 				<Stack direction="column" gap="xs">
 					<StatusDot
 						status={ data.search_engines_visible ? 'ok' : 'err' }
@@ -46,12 +46,12 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 						label={ data.seo_tools_active ? seoToolsActiveLabel : seoToolsInactiveLabel }
 					/>
 				</Stack>
-				<div className={ styles.footer }>
+				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage visibility', 'jetpack-seo' ) }
 					</Button>
-				</div>
-			</Card.Content>
+				</Stack>
+			</Stack>
 		</Card.Root>
 	);
 };

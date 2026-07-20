@@ -13,34 +13,20 @@
 	align-items: stretch;
 }
 
-// Make each Overview card a flex column so its body stretches and equal-height
-// cards line up across the row. Targets Card.Root's last child (Card.Content),
-// since @wordpress/ui uses hashed (non-stable) class names.
-.grid > * {
-	display: flex;
-	flex-direction: column;
-	block-size: 100%;
-}
-
-.grid > * > *:last-child {
-	display: flex;
-	flex-direction: column;
+// Let each status card's content fill the equal-height grid row so its action
+// stays pinned to the bottom.
+.cardContent {
 	flex: 1 1 auto;
 }
 
 // A status row in the Site verification card: indicator + label on the left,
 // "Verified"/"Not set" on the right.
 .statRow {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
 	padding-block: var(--wpds-dimension-gap-xs);
 }
 
 // Card action row (Manage button), pinned to the bottom-right of the card.
 .footer {
-	display: flex;
-	justify-content: flex-end;
 	margin-block-start: auto;
 	padding-block-start: var(--wpds-dimension-gap-md);
 }
@@ -56,24 +42,10 @@
 }
 
 .ring {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
 	text-align: center;
-	gap: var(--wpds-dimension-gap-xs);
 	// Let the cell shrink below its content width so long labels wrap inside
 	// the grid track instead of forcing the column wider.
 	min-inline-size: 0;
-}
-
-.count {
-	font-weight: 600;
-}
-
-.label {
-	// Inherit the card's text color rather than the muted `-neutral-weak` variant,
-	// so the metric labels match the rest of the text on the page.
-	font-size: 12px;
 }
 
 // The Content SEO card sits below the two status cards, spanning the full
@@ -86,5 +58,4 @@
 .disable {
 	margin-block-start: var(--wpds-dimension-gap-lg);
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	font-size: 13px;
 }

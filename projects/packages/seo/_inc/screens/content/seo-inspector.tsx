@@ -9,7 +9,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, IconButton } from '@wordpress/ui';
+import { Button, IconButton, Stack, Text } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
 import styles from './style.module.scss';
@@ -226,9 +226,16 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	const permalink = ( editedRecord as { link?: string } | undefined )?.link ?? '';
 
 	return (
-		<div className={ styles.inspector } aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }>
-			<div className={ styles.header }>
-				<h2 className={ styles.heading }>{ __( 'Edit SEO', 'jetpack-seo' ) }</h2>
+		<Stack
+			direction="column"
+			gap="lg"
+			className={ styles.inspector }
+			aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }
+		>
+			<Stack direction="row" align="center" justify="space-between" gap="sm">
+				<Text variant="heading-lg" render={ <h2 /> }>
+					{ __( 'Edit SEO', 'jetpack-seo' ) }
+				</Text>
 				<IconButton
 					icon={ close }
 					label={ __( 'Close', 'jetpack-seo' ) }
@@ -238,8 +245,8 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					variant="minimal"
 					tone="neutral"
 				/>
-			</div>
-			<div className={ styles.body }>
+			</Stack>
+			<Stack direction="column" gap="lg">
 				<TextControl
 					label={ __( 'SEO title', 'jetpack-seo' ) }
 					help={ __(
@@ -287,8 +294,8 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					customTitle={ local.jetpack_seo_html_title }
 					description={ local.advanced_seo_description }
 				/>
-			</div>
-			<div className={ styles.actions }>
+			</Stack>
+			<Stack direction="row" justify="flex-end" gap="sm">
 				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
@@ -303,8 +310,8 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
-			</div>
-		</div>
+			</Stack>
+		</Stack>
 	);
 };
 
