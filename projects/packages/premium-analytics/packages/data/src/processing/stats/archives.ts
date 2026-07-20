@@ -2,12 +2,16 @@ import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
-	createStatsListDataPoint,
+	createStatsDataPoint,
 	createStatsSummaryDataPoint,
 	emptyStatsReport,
 	getStatsBuckets,
 	getStatsLabel,
+	getStatsReportItems,
 	getStatsTopLevelDataDate,
+	getStatsTopLevelPeriod,
+	limitStatsRows,
+	mergeStatsComparisonRows,
 } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
@@ -16,6 +20,11 @@ export interface StatsArchivesItem extends StatsNormalizedItemBase< StatsArchive
 	value: number;
 	link?: unknown;
 }
+
+export type StatsArchivesComparisonItem = Omit< StatsArchivesItem, 'children' > & {
+	previousValue?: number;
+	children: StatsArchivesComparisonItem[] | null;
+};
 
 function normalizeArchiveChildren(
 	archiveType: string,
@@ -66,11 +75,15 @@ export function sanitizeStatsArchivesResponse(
 			.map( ( [ archiveType, archiveItems ] ) => {
 				const children = normalizeArchiveChildren( archiveType, archiveItems );
 				const value = children.reduce( ( total, item ) => total + item.value, 0 );
+				const collapseHome = archiveType === 'home' && children.length < 2;
 
 				return {
 					label: archiveType,
 					value,
-					children: archiveType === 'home' && children.length < 2 ? null : children,
+					...( collapseHome && children[ 0 ]?.link !== undefined
+						? { link: children[ 0 ].link }
+						: {} ),
+					children: collapseHome ? null : children,
 				};
 			} )
 			.filter( item => item.value > 0 )
@@ -93,28 +106,28 @@ export function sanitizeStatsArchivesResponse(
 		return emptyStatsReport();
 	}
 
-	const data = buckets
-		.map( ( [ date, bucket ] ) => {
-			const items = Object.entries( bucket )
-				.map( ( [ archiveType, archiveItems ] ) => {
-					const children = normalizeArchiveChildren( archiveType, archiveItems );
-					const value = children.reduce( ( total, item ) => total + item.value, 0 );
+	const data = buckets.map( ( [ date, bucket ] ) => {
+		const items = Object.entries( bucket )
+			.map( ( [ archiveType, archiveItems ] ) => {
+				const children = normalizeArchiveChildren( archiveType, archiveItems );
+				const value = children.reduce( ( total, item ) => total + item.value, 0 );
+				const collapseHome = archiveType === 'home' && children.length < 2;
 
-					return {
-						label: archiveType,
-						value,
-						children: archiveType === 'home' && children.length < 2 ? null : children,
-					};
-				} )
-				.filter( item => item.value > 0 )
-				.sort( ( a, b ) => b.value - a.value );
-
-			return {
-				...createStatsListDataPoint( { date }, query, items ),
-				time_interval: date,
-			};
-		} )
-		.filter( point => point.items.length );
+				return {
+					label: archiveType,
+					value,
+					...( collapseHome && children[ 0 ]?.link !== undefined
+						? { link: children[ 0 ].link }
+						: {} ),
+					children: collapseHome ? null : children,
+				};
+			} )
+			.filter( item => item.value > 0 )
+			.sort( ( a, b ) => b.value - a.value );
+		return {
+			...createStatsDataPoint( date, getStatsTopLevelPeriod( response, query ), items ),
+		};
+	} );
 
 	return {
 		summary: {
@@ -125,5 +138,70 @@ export function sanitizeStatsArchivesResponse(
 			),
 		},
 		data,
+	};
+}
+
+// Archive nodes match across periods by label within the same parent —
+// merging children against the matched parent's children means same-named
+// terms under different parents cannot cross-match.
+function getStatsArchiveKey( item: StatsArchivesItem ): string | null {
+	const label = getStatsLabel( item.label );
+	return label === '' ? null : label;
+}
+
+function sortStatsArchivesComparisonItems(
+	items: StatsArchivesComparisonItem[]
+): StatsArchivesComparisonItem[] {
+	return [ ...items ].sort( ( a, b ) => b.value - a.value );
+}
+
+function mergeStatsArchivesComparisonItems(
+	items: StatsArchivesItem[],
+	comparisonItems: StatsArchivesItem[]
+): { rows: StatsArchivesComparisonItem[]; hasComparison: boolean } {
+	const { rows, hasComparison } = mergeStatsComparisonRows<
+		StatsArchivesItem,
+		StatsArchivesItem,
+		StatsArchivesComparisonItem
+	>( {
+		primaryRows: items,
+		comparisonRows: comparisonItems,
+		getPrimaryKey: getStatsArchiveKey,
+		getComparisonKey: getStatsArchiveKey,
+		getComparisonValue: item => item.value,
+		mapRow: ( item, { previousValue, comparisonItem } ) => {
+			const { rows: children } = mergeStatsArchivesComparisonItems(
+				item.children ?? [],
+				comparisonItem?.children ?? []
+			);
+
+			return {
+				...item,
+				previousValue,
+				children: children.length ? children : null,
+			};
+		},
+	} );
+
+	return { rows: sortStatsArchivesComparisonItems( rows ), hasComparison };
+}
+
+export function mergeStatsArchivesComparisonRows(
+	primaryReport: StatsNormalizedReport< StatsArchivesItem > | undefined,
+	comparisonReport: StatsNormalizedReport< StatsArchivesItem > | undefined,
+	maxRows?: number
+): { rows: StatsArchivesComparisonItem[]; hasComparison: boolean } {
+	const { rows } = mergeStatsArchivesComparisonItems(
+		getStatsReportItems( primaryReport ),
+		getStatsReportItems( comparisonReport )
+	);
+
+	// The overlap gate is computed on the visible rows so an off-screen match
+	// cannot switch the comparison UI on (see AGENTS.md).
+	const visibleRows = limitStatsRows( rows, maxRows );
+
+	return {
+		rows: visibleRows,
+		hasComparison: visibleRows.some( row => row.previousValue !== undefined ),
 	};
 }

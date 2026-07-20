@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Build with tsgo instead of webpack. The package no longer bundles its dependencies: react and zod are now peer dependencies, and @tanstack/react-query is a regular dependency.

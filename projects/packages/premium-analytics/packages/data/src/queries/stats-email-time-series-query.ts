@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { reportParamsToStatsQueryParams, statsQueryParamsToApiParams } from '../utils/stats-params';
+import { reportParamsToStatsQueryParams } from '../utils/stats-params';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -32,21 +32,22 @@ const toEmailPeriod = ( period?: string ): StatsEmailTimeSeriesPeriod =>
 	period === 'hour' ? 'hour' : 'day';
 
 // Mirror Calypso's requestEmailStats: the timeline is period-scoped and always sends period,
-// quantity, date, and stats_fields=timeline. quantity is the number of buckets ending at date,
-// so it must span the whole requested range — 24 buckets per day for hourly, one per day otherwise.
+// quantity, date, and stats_fields=timeline. Unlike the other stats endpoints (where `date`
+// is the window's END), the email timeline reads `date` as the window's START and returns
+// `quantity` buckets going forward, so it gets the range start and a quantity spanning the
+// whole requested range — 24 buckets per day for hourly, one per day otherwise.
 function emailTimeSeriesQuery(
 	statType: 'opens' | 'clicks',
 	postId: number,
 	params: StatsReportParams
 ): StatsReportQueryOptions< 'emailTimeSeries' > {
 	const statsParams = reportParamsToStatsQueryParams( params );
-	const apiParams = statsQueryParamsToApiParams( statsParams );
 	const period = toEmailPeriod( statsParams.period );
 	const days = statsParams.days ?? ( period === 'hour' ? 1 : 30 );
 	const emailParams: StatsProxyParams = {
 		period,
 		quantity: period === 'hour' ? 24 * days : days,
-		...( apiParams.date ? { date: apiParams.date } : {} ),
+		...( statsParams.start_date ? { date: statsParams.start_date } : {} ),
 		stats_fields: 'timeline',
 	};
 

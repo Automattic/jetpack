@@ -3,7 +3,15 @@ import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
-import { trackViewed, trackWizardCompleted } from '../lib/tracks.ts';
+import {
+	setTracksContext,
+	trackViewed,
+	trackWizardBackClicked,
+	trackWizardGoalClicked,
+	trackWizardSiteDetailsChanged,
+	trackWizardStepCompleted,
+	trackWizardStepSkipped,
+} from '../lib/tracks.ts';
 import DetailsStep from './details-step.tsx';
 import GoalsStep from './goals-step.tsx';
 import {
@@ -24,6 +32,8 @@ interface Props {
 	initialSiteName?: string;
 	// Existing site tagline (blogdescription). Pre-fills the Brief description.
 	initialIntent?: string;
+	// The site's front-end URL, used to key the Calypso My Home URL on Skip.
+	siteUrl?: string;
 	// User locale, forwarded to the wizard payload and the AI call.
 	locale?: string;
 	// Fired once Finish completes, with the persisted input and the in-flight
@@ -38,6 +48,7 @@ interface Props {
  * @param props                 - Component props.
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
+ * @param props.siteUrl         - The site's front-end URL (for the Skip redirect).
  * @param props.locale          - User locale forwarded to the payload.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
@@ -45,6 +56,7 @@ interface Props {
 export function Wizard( {
 	initialSiteName = '',
 	initialIntent = '',
+	siteUrl,
 	locale = 'en',
 	onComplete,
 }: Props ) {
@@ -52,12 +64,16 @@ export function Wizard( {
 	const [ goal, setGoal ] = useState< GoalSlug | null >( null );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
+	const [ skipping, setSkipping ] = useState( false );
 
 	const state: WizardState = { goal, siteName, intent, locale };
+	// The analytics name of the current step, shared by every event that reports one.
+	const stepName = 0 === step ? 'goal' : 'site_details';
 
+	// One viewed event per screen shown, re-firing when Back re-shows the goal step.
 	useEffect( () => {
-		trackViewed();
-	}, [] );
+		trackViewed( { step: stepName } );
+	}, [ stepName ] );
 
 	// Background-tailor on Step-2 typing pauses; Finish reuses the prewarmed
 	// promise via getPrewarmedTailor.
@@ -65,6 +81,11 @@ export function Wizard( {
 
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
+			trackWizardStepCompleted( { step: stepName } );
+			// The goal is confirmed from here on; earlier funnel events carry null.
+			if ( goal ) {
+				setTracksContext( { goal } );
+			}
 			setStep( ( step + 1 ) as WizardStep );
 			return;
 		}
@@ -73,20 +94,62 @@ export function Wizard( {
 		}
 		const payload = buildWizardPayload( goal, state );
 		// Persist in the background, best-effort so a failed save isn't an unhandled rejection.
+		// Once it lands, reflect the new title in the server-rendered admin bar in place —
+		// a reload instead would re-show the wizard (the tailored output isn't persisted yet).
+		// Mirrors the server's guard: an empty/whitespace Name never writes blogname.
 		apiFetch( {
 			path: '/wpcom/v2/ai-launchpad/wizard',
 			method: 'PUT',
 			data: payload,
-		} ).catch( () => {} );
+		} )
+			.then( () => {
+				const adminBarSiteName = document.querySelector( '#wp-admin-bar-site-name > a' );
+				const savedName = payload.site_name.trim();
+				if ( adminBarSiteName && savedName ) {
+					adminBarSiteName.textContent = savedName;
+				}
+			} )
+			.catch( () => {} );
+
 		const tailoring = getPrewarmedTailor( payload );
-		trackWizardCompleted();
+		trackWizardStepCompleted( { step: stepName } );
+		// One event per field the user actually modified, vs the pre-filled values.
+		if ( siteName.trim() !== initialSiteName.trim() ) {
+			trackWizardSiteDetailsChanged( { field: 'title' } );
+		}
+		if ( intent.trim() !== initialIntent.trim() ) {
+			trackWizardSiteDetailsChanged( { field: 'description' } );
+		}
+		// wizard_completed fires when the tailored list first lands (with the
+		// inferred context populated), not here — see TailoredList.
 		onComplete?.( payload, tailoring );
 	};
 
 	const handleBack = () => {
 		if ( step > 0 ) {
+			trackWizardBackClicked( { step: 'site_details' } );
 			setStep( ( step - 1 ) as WizardStep );
 		}
+	};
+
+	// Skipping opts out of the AI Launchpad entirely: dismiss it server-side (which reverts
+	// the site to the regular launchpad surfaces) and leave for Calypso My Home. Calypso keys
+	// sites by their front-end host, so prefer the site URL over the wp-admin request host.
+	const handleSkip = async () => {
+		setSkipping( true );
+		trackWizardStepSkipped( { step: stepName } );
+		try {
+			await apiFetch( { path: '/wpcom/v2/ai-launchpad', method: 'DELETE' } );
+		} catch {
+			// Still navigate away: a failed dismiss write must not trap the user in the wizard.
+		}
+		let siteHost = window.location.hostname;
+		try {
+			siteHost = siteUrl ? new URL( siteUrl ).hostname : siteHost;
+		} catch {
+			// Malformed site URL: keep the request host.
+		}
+		window.location.href = 'https://wordpress.com/home/' + siteHost;
 	};
 
 	return (
@@ -105,7 +168,15 @@ export function Wizard( {
 				/>
 			</div>
 
-			{ step === 0 && <GoalsStep value={ goal } onChange={ setGoal } /> }
+			{ step === 0 && (
+				<GoalsStep
+					value={ goal }
+					onChange={ nextGoal => {
+						trackWizardGoalClicked( { goal_clicked: nextGoal } );
+						setGoal( nextGoal );
+					} }
+				/>
+			) }
 			{ step === 1 && (
 				<DetailsStep
 					goal={ goal }
@@ -117,16 +188,19 @@ export function Wizard( {
 			) }
 
 			<footer className="ai-launchpad-wizard__footer">
+				<Button variant="link" onClick={ handleSkip } disabled={ skipping }>
+					{ __( 'Skip', 'jetpack-mu-wpcom' ) }
+				</Button>
 				<div className="ai-launchpad-wizard__footer-right">
 					{ step > 0 && (
-						<Button variant="secondary" onClick={ handleBack }>
+						<Button variant="secondary" onClick={ handleBack } disabled={ skipping }>
 							{ __( 'Back', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
 					<Button
 						variant="primary"
 						onClick={ handleNext }
-						disabled={ ! canContinue( step, state ) }
+						disabled={ skipping || ! canContinue( step, state ) }
 					>
 						{ isLastStep( step )
 							? __( 'Finish', 'jetpack-mu-wpcom' )

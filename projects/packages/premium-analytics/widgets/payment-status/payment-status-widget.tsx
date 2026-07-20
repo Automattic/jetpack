@@ -6,12 +6,12 @@ import { payment } from '@jetpack-premium-analytics/icons';
 import {
 	DonutChart,
 	PAYMENT_STATUS_FILTERS,
-	WidgetLoadingOverlay,
+	WidgetState,
 	buildPaymentStatusData,
 	useSegmentStyles,
-	useWidgetError,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
@@ -37,23 +37,11 @@ import styles from './style.module.css';
 export function PaymentStatusWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportOrders( {
-		...reportParams,
-		filters: PAYMENT_STATUS_FILTERS,
-	} );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportOrders( {
+			...reportParams,
+			filters: PAYMENT_STATUS_FILTERS,
+		} );
 
 	const { chartData, total, comparisonTotal, legendData } = useMemo(
 		() => buildPaymentStatusData( primary.data, comparison.data ),
@@ -62,17 +50,26 @@ export function PaymentStatusWidget() {
 
 	const segmentStyles = useSegmentStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading && ! hasData }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholder across
+			// range changes, so only surface the error when there is nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ chartData.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load payment data. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: payment,
+				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics' ),
+			} }
+		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
 					chartData={ chartData }
@@ -86,11 +83,9 @@ export function PaymentStatusWidget() {
 						options: { useMultipliers: true, decimals: 1 },
 					} }
 					maxSize={ null }
-					emptyStateIcon={ payment }
 					withTooltips
 				/>
 			</Stack>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

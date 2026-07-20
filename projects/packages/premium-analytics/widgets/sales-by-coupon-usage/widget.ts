@@ -25,9 +25,8 @@ export type SalesByCouponUsageAttributes = Record< never, never >;
 export default {
 	name: 'jpa/sales-by-coupon-usage',
 	title: __( 'Sales by coupon usage', 'jetpack-premium-analytics' ),
-	description: __(
-		'Sales by coupon usage over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __( 'Compare sales with and without coupons.', 'jetpack-premium-analytics' ),
+	},
 	icon: chartBar,
 };

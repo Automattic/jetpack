@@ -7,13 +7,13 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
 use Automattic\Jetpack\Blaze\REST_Controller;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 use WP_Post;
@@ -83,6 +83,12 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
+		// Redirect legacy/duplicate advertising URLs (the old tools.php location, or the
+		// admin.php?page=advertising slug when the standalone Blaze Ads plugin owns the
+		// menu). Runs late (after WooCommerce and core register their menus, so
+		// get_menu_parent() resolves the real parent) but still before WordPress
+		// validates the page parameter.
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_advertising_url' ), 999 );
 		// Add Blaze dashboard app REST API endpoints.
 		add_action( 'rest_api_init', array( Blaze_Dashboard_REST_Controller::class, 'register' ) );
 		// Add general Blaze REST API endpoints.
@@ -135,32 +141,338 @@ class Blaze {
 			return;
 		}
 
-		$blaze_dashboard = new Blaze_Dashboard();
+		/**
+		 * Filter the menu page slug used for the Blaze dashboard.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $menu_slug The menu page slug. Default 'advertising'.
+		 */
+		$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
 
-		if ( self::is_dashboard_enabled() ) {
-			$page_suffix = add_submenu_page(
-				'tools.php',
-				esc_attr__( 'Advertising', 'jetpack-blaze' ),
-				__( 'Advertising', 'jetpack-blaze' ),
-				'manage_options',
-				'advertising',
-				array( $blaze_dashboard, 'render' ),
-				1
-			);
-			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
-		} elseif ( ( new Host() )->is_wpcom_platform() ) {
-			$domain      = ( new Jetpack_Status() )->get_site_suffix();
-			$page_suffix = add_submenu_page(
-				'tools.php',
-				esc_attr__( 'Advertising', 'jetpack-blaze' ),
-				__( 'Advertising', 'jetpack-blaze' ),
-				'manage_options',
-				'https://wordpress.com/advertising/' . $domain,
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
-				1
-			);
-			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		// Avoid a duplicate Blaze Ads menu when the standalone Blaze Ads plugin
+		// (Automattic/blaze-ads) is also active. Releases <= 0.9.0 register their own
+		// menu and leave our slug at the default 'advertising', so we bail to avoid a
+		// second entry; the standalone owns the menu under 'wp-blaze' and
+		// redirect_legacy_advertising_url() forwards 'advertising' links there. When the
+		// standalone instead delegates registration to us by filtering the slug (e.g. to
+		// 'wp-blaze'), we are the only registrant and must register normally -- the
+		// non-default slug is what tells the two cases apart.
+		if ( 'advertising' === $menu_slug && self::is_standalone_blaze_ads_active() ) {
+			return;
 		}
+
+		/**
+		 * Filter the menu label for the Blaze dashboard menu item.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
+		 */
+		$menu_label = apply_filters( 'jetpack_blaze_menu_label', 'Blaze Ads' ); // Product name, do not translate.
+
+		/**
+		 * Filter the CSS class prefix for the Blaze dashboard.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $css_prefix The CSS class prefix. Default 'jp-blaze'.
+		 */
+		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
+
+		$parent_slug     = self::get_menu_parent();
+		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
+
+		if ( self::is_dashboard_enabled() || ( new Host() )->is_wpcom_platform() ) {
+			if ( 'jetpack' === $parent_slug ) {
+				// Register through Admin_Menu: on WordPress.com Simple sites the Jetpack
+				// parent menu does not exist yet at this priority, and registering the
+				// submenu before its parent produces a broken menu URL.
+				$page_suffix = Admin_Menu::add_menu(
+					esc_attr( $menu_label ),
+					$menu_label,
+					'manage_options',
+					$menu_slug,
+					array( $blaze_dashboard, 'render' ),
+					1
+				);
+			} else {
+				// Other parents already exist at this priority, so add_submenu_page is safe.
+				$page_suffix = add_submenu_page(
+					$parent_slug,
+					esc_attr( $menu_label ),
+					$menu_label,
+					'manage_options',
+					$menu_slug,
+					array( $blaze_dashboard, 'render' ),
+					1
+				);
+			}
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+
+			// Temporary entry at the old Tools location; remove ~1 month after the move ships.
+			if ( 'tools.php' !== $parent_slug ) {
+				self::add_migration_notice_menu();
+			}
+		}
+	}
+
+	/**
+	 * Detect whether the standalone Blaze Ads plugin (Automattic/blaze-ads) is active.
+	 *
+	 * Both this package and the standalone plugin can register a Blaze Ads menu, which
+	 * would result in a duplicate entry when both are active on the same site (for
+	 * example a WooCommerce store running Jetpack alongside the standalone plugin). When
+	 * the standalone plugin is present it owns the menu, so this package defers to it.
+	 *
+	 * Detection relies on a class/constant defined by the standalone plugin rather than
+	 * on any cooperation from it, so it works with every released version of the plugin,
+	 * including ones that predate the jetpack_blaze_menu_* filters.
+	 *
+	 * @return bool True if the standalone Blaze Ads plugin is active.
+	 */
+	public static function is_standalone_blaze_ads_active() {
+		$is_active = defined( 'BLAZEADS_PLUGIN_FILE' )
+			|| defined( 'BLAZE_ADS_VERSION_NUMBER' )
+			|| class_exists( 'Blaze_Ads' );
+
+		/**
+		 * Filter whether the standalone Blaze Ads plugin (Automattic/blaze-ads) is
+		 * considered active. When active and this package is still using the default
+		 * menu slug, the package skips registering its own Blaze Ads menu to avoid a
+		 * duplicate entry.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $is_active Whether the standalone Blaze Ads plugin is active.
+		 */
+		return (bool) apply_filters( 'jetpack_blaze_standalone_active', $is_active );
+	}
+
+	/**
+	 * Determine the appropriate parent menu slug based on the installation context.
+	 *
+	 * - WooCommerce active (Marketing menu registered): parent is 'woocommerce-marketing'
+	 * - WordPress.com platform or Jetpack connected: parent is 'jetpack'
+	 * - Otherwise: parent is 'tools.php'
+	 *
+	 * @return string The parent menu slug.
+	 */
+	public static function get_menu_parent() {
+		if ( class_exists( 'WooCommerce' ) ) {
+			// Only use woocommerce-marketing if the menu is actually registered.
+			global $menu;
+			foreach ( (array) $menu as $item ) {
+				if ( isset( $item[2] ) && 'woocommerce-marketing' === $item[2] ) {
+					/**
+					 * Filter the parent menu slug for the Blaze dashboard submenu item.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string $parent The parent menu slug.
+					 */
+					return apply_filters( 'jetpack_blaze_menu_parent', 'woocommerce-marketing' );
+				}
+			}
+		}
+
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			/** This filter is documented above. */
+			return apply_filters( 'jetpack_blaze_menu_parent', 'jetpack' );
+		}
+
+		if ( ( new Jetpack_Connection() )->is_connected() ) {
+			/** This filter is documented above. */
+			return apply_filters( 'jetpack_blaze_menu_parent', 'jetpack' );
+		}
+
+		/** This filter is documented above. */
+		return apply_filters( 'jetpack_blaze_menu_parent', 'tools.php' );
+	}
+
+	/**
+	 * Register a temporary "moved" notice page at the old Tools menu location.
+	 *
+	 * The menu keeps its old "Advertising" label so users who knew it by that
+	 * name still recognize it; the page itself explains the move to Blaze Ads.
+	 *
+	 * @return void
+	 */
+	public static function add_migration_notice_menu() {
+		/**
+		 * Filter whether to show the temporary migration notice at the old
+		 * Tools > Advertising location.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $show_notice Whether to show the migration notice. Default true.
+		 */
+		if ( ! apply_filters( 'jetpack_blaze_show_migration_notice', true ) ) {
+			return;
+		}
+
+		add_submenu_page(
+			'tools.php',
+			esc_attr__( 'Advertising', 'jetpack-blaze' ),
+			__( 'Advertising', 'jetpack-blaze' ),
+			'manage_options',
+			'advertising-moved',
+			array( __CLASS__, 'render_migration_notice' ),
+			1
+		);
+	}
+
+	/**
+	 * Render the temporary migration notice shown at the old Tools menu location.
+	 *
+	 * @return void
+	 */
+	public static function render_migration_notice() {
+		/** This filter is documented in Blaze::enable_blaze_menu() */
+		$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
+
+		$parent_slug  = self::get_menu_parent();
+		$parent_label = 'woocommerce-marketing' === $parent_slug
+			? __( 'Marketing', 'jetpack-blaze' )
+			: 'Jetpack';
+
+		$dashboard_url = admin_url( 'admin.php?page=' . $menu_slug );
+		$image_file    = 'woocommerce-marketing' === $parent_slug
+			? 'blaze-ads-moved-woo.webp'
+			: 'blaze-ads-moved.webp';
+		$image_path    = dirname( __DIR__ ) . '/assets/images/' . $image_file;
+		$image_url     = plugins_url( 'assets/images/' . $image_file, __DIR__ );
+
+		?>
+		<div class="wrap blaze-ads-migration">
+			<div class="blaze-ads-migration__header">
+				<svg class="blaze-ads-migration__logo" xmlns="http://www.w3.org/2000/svg" height="32" width="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+					<path d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z" fill="#069e08" />
+					<polygon points="15,19 7,19 15,3" fill="#fff" />
+					<polygon points="17,29 17,13 25,13" fill="#fff" />
+				</svg>
+				<span class="blaze-ads-migration__brand">Blaze Ads</span>
+			</div>
+			<h1 class="blaze-ads-migration__title">
+				<?php
+				printf(
+					/* translators: %s is the product name (not translatable). */
+					esc_html__( '%s has moved', 'jetpack-blaze' ),
+					'Blaze Ads'
+				);
+				?>
+			</h1>
+			<p class="blaze-ads-migration__subtitle">
+				<?php
+				printf(
+					/* translators: %s is the menu path where the section lives now, e.g. "Jetpack → Blaze Ads" or "Marketing → Blaze Ads". */
+					esc_html__( "Now it's part of %s", 'jetpack-blaze' ),
+					esc_html( $parent_label . ' → Blaze Ads' )
+				);
+				?>
+			</p>
+			<p>
+				<a class="button button-primary button-hero" href="<?php echo esc_url( $dashboard_url ); ?>">
+					<?php
+					printf(
+						/* translators: %s is the product name (not translatable). */
+						esc_html__( 'Check new %s', 'jetpack-blaze' ),
+						'Blaze Ads'
+					);
+					?>
+				</a>
+			</p>
+			<?php if ( file_exists( $image_path ) ) : ?>
+				<p class="blaze-ads-migration__image">
+					<img
+						src="<?php echo esc_url( $image_url ); ?>"
+						alt="<?php echo esc_attr( sprintf( /* translators: %s is the product name (not translatable). */ __( '%s has moved', 'jetpack-blaze' ), 'Blaze Ads' ) ); ?>"
+					/>
+				</p>
+			<?php endif; ?>
+		</div>
+		<style>
+			.blaze-ads-migration__header { display: flex; align-items: center; gap: 8px; margin: 16px 0 24px; }
+			.blaze-ads-migration__brand { font-size: 1.65em; font-weight: 500; line-height: 1; }
+			.blaze-ads-migration__title { font-size: 2.5em; margin-bottom: 0.25em; padding: 0; }
+			.blaze-ads-migration__subtitle { font-size: 1.4em; margin-top: 0; color: #50575e; }
+			.blaze-ads-migration__image { margin-top: 3em; }
+			.blaze-ads-migration__image img { max-width: 100%; height: auto; }
+		</style>
+		<?php
+	}
+
+	/**
+	 * Redirect legacy/duplicate Blaze dashboard URLs to wherever the menu actually lives.
+	 *
+	 * Runs early on admin_menu, before WordPress validates the ?page= parameter against
+	 * registered submenus. The target is computed by get_legacy_advertising_redirect_target();
+	 * this method only performs the redirect.
+	 *
+	 * @return void
+	 */
+	public static function redirect_legacy_advertising_url() {
+		$target = self::get_legacy_advertising_redirect_target();
+		if ( null !== $target ) {
+			wp_safe_redirect( $target, 302 );
+			exit;
+		}
+	}
+
+	/**
+	 * Compute where a legacy/duplicate `page=advertising` request should be redirected, or
+	 * null if it should be left alone. Pure (no side effects) so it is unit-testable.
+	 *
+	 * Two cases produce a redirect:
+	 *
+	 * - Standard move: `tools.php?page=advertising` -> `admin.php?page=advertising`, once the
+	 *   menu has moved away from Tools.
+	 * - Standalone Blaze Ads plugin present: this package does not register the 'advertising'
+	 *   page (the standalone owns the menu under 'wp-blaze'), so BOTH the tools.php and the
+	 *   admin.php `page=advertising` entry points are forwarded to the standalone's page. We
+	 *   forward both ourselves rather than relying on the standalone shipping its own
+	 *   redirect, so correctness never depends on a particular standalone release.
+	 *
+	 * @return string|null The redirect URL, or null if no redirect should happen.
+	 */
+	public static function get_legacy_advertising_redirect_target() {
+		global $pagenow;
+
+		if (
+			! isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check to redirect, no data is processed.
+			|| 'advertising' !== $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check to redirect, no data is processed.
+		) {
+			return null;
+		}
+
+		if ( ! self::should_initialize()['can_init'] ) {
+			return null;
+		}
+
+		if ( self::is_standalone_blaze_ads_active() ) {
+			// Only the two URLs that can carry the dashboard page parameter.
+			if ( 'admin.php' !== $pagenow && 'tools.php' !== $pagenow ) {
+				return null;
+			}
+			/**
+			 * Filter the standalone Blaze Ads plugin's menu slug used as the redirect
+			 * target when this package defers to it.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param string $standalone_slug The standalone menu slug. Default 'wp-blaze'.
+			 */
+			$standalone_slug = apply_filters( 'jetpack_blaze_standalone_menu_slug', 'wp-blaze' );
+			return admin_url( 'admin.php?page=' . $standalone_slug );
+		}
+
+		if ( 'tools.php' !== $pagenow || 'tools.php' === self::get_menu_parent() ) {
+			return null;
+		}
+
+		/** This filter is documented in Blaze::enable_blaze_menu() */
+		$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
+		return admin_url( 'admin.php?page=' . $menu_slug );
 	}
 
 	/**
@@ -421,11 +733,27 @@ class Blaze {
 	 */
 	public static function get_campaign_management_url( $post_id ) {
 		if ( self::is_dashboard_enabled() ) {
-			$admin_url = admin_url( 'tools.php?page=advertising' );
+			/** This filter is documented in Blaze::enable_blaze_menu() */
+			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
+
+			// When the standalone Blaze Ads plugin owns the menu under its own slug and
+			// this package did not register 'advertising', point the link straight at the
+			// standalone's page. Relying on the admin.php?page=advertising redirect would
+			// drop the #! route fragment and land the user on the dashboard home instead
+			// of the specific post's promotion flow.
+			if ( 'advertising' === $menu_slug && self::is_standalone_blaze_ads_active() ) {
+				/** This filter is documented in Blaze::redirect_legacy_advertising_url() */
+				$menu_slug = apply_filters( 'jetpack_blaze_standalone_menu_slug', 'wp-blaze' );
+			}
+
+			$admin_url = admin_url( 'admin.php?page=' . $menu_slug );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
+			// The dashboard SPA routes under its menu slug (see Dashboard), so the #! path
+			// prefix must match the slug rather than being hardcoded to 'advertising'.
 			$blaze_url = sprintf(
-				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
+				'%1$s#!/%2$s/posts/promote/post-%3$s/%4$s',
 				$admin_url,
+				$menu_slug,
 				esc_attr( $post_id ),
 				$hostname
 			);

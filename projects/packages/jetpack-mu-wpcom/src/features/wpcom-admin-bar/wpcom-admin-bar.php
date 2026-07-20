@@ -497,16 +497,16 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
 
 /**
- * Adds a "Stats" link to the site-name submenu, alongside "Dashboard" (STATS-287).
+ * Adds a "Stats" link to the site-name submenu, alongside "Dashboard"/"Visit Site" (STATS-287).
  *
- * Hooks `wp_before_admin_bar_render`, the last point before WP_Admin_Bar builds
- * its render tree, so core's `dashboard` node (added during `admin_bar_menu`) is
- * guaranteed to exist.
+ * Hooks `admin_bar_menu` at priority 40, after core's `wp_admin_bar_site_menu`
+ * (priority 30) has added the `site-name` node and either `dashboard` (front end)
+ * or `view-site` (wp-admin), so this shows in both contexts.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar Admin bar instance.
  */
-function wpcom_add_stats_to_site_menu() {
-	global $wp_admin_bar;
-
-	if ( ! is_object( $wp_admin_bar ) || ! $wp_admin_bar->get_node( 'dashboard' ) || ! current_user_can( 'view_stats' ) ) {
+function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
+	if ( ( ! $wp_admin_bar->get_node( 'dashboard' ) && ! $wp_admin_bar->get_node( 'view-site' ) ) || ! current_user_can( 'view_stats' ) ) {
 		return;
 	}
 
@@ -519,4 +519,4 @@ function wpcom_add_stats_to_site_menu() {
 		)
 	);
 }
-add_action( 'wp_before_admin_bar_render', 'wpcom_add_stats_to_site_menu' );
+add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );

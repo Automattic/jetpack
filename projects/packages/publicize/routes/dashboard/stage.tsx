@@ -1,15 +1,17 @@
 import analytics from '@automattic/jetpack-analytics';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useDispatch } from '@wordpress/data';
-import { useEffect, useRef } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { Button, Tabs } from '@wordpress/ui';
 import OverviewTab from '../../_inc/components/overview-tab';
 import SettingsTab from '../../_inc/components/settings-tab';
+import { TurnOnSocialProvider } from '../../_inc/components/settings-tab/turn-on-social-context';
 import SocialPage, { type SocialTab } from '../../_inc/components/social-page';
 import { store as socialStore } from '../../_inc/social-store';
+import { canToggleSocialModule } from '../../_inc/utils/misc';
 
 type StageSearch = Record< string, unknown > & {
 	tab?: string;
@@ -61,8 +63,36 @@ const Stage = () => {
 	// chrome for them, and we ignore any stale `?tab=settings` left in the URL.
 	const canManageOptions = currentUserCan( 'manage_options' );
 
+	// When Social is off and this user can turn it on, there are no connections
+	// to manage — so collapse to the Settings tab (which hosts the turn-on
+	// surface), hide the Overview tab, and drop the "Add account" action. Keeps
+	// the user off a dead Overview and out of the enable → Overview → "Add
+	// account points to the editor" friction loop.
+	const isModuleActive = useSelect(
+		select => select( socialStore ).getSocialModuleSettings().publicize,
+		[]
+	);
+
+	// `turnOn` latches `isEnabling` until the reload. We keep the page collapsed
+	// while enabling (`|| isEnabling`) even though the store flips the module on
+	// optimistically — otherwise the dashboard would flash the enabled tabs
+	// during the save, right before reloading. On enable we reload so the tabs,
+	// connection list and settings hydrate; the reload lands on Overview.
+	const { updateSocialModuleSettings } = useDispatch( socialStore );
+	const [ isEnabling, setIsEnabling ] = useState( false );
+	const turnOn = useCallback( async () => {
+		setIsEnabling( true );
+		await updateSocialModuleSettings( { publicize: true } );
+		// `saveEntityRecord` (jetpack/v4) resolves even on API error rather than
+		// throwing, so we always reload here; a failed enable just reloads back
+		// onto this turn-on surface. Surfacing the error is a follow-up.
+		window.location.reload();
+	}, [ updateSocialModuleSettings ] );
+
+	const socialOff = canToggleSocialModule() && ( ! isModuleActive || isEnabling );
+
 	const activeTab: SocialTab =
-		canManageOptions && search.tab === 'settings' ? 'settings' : 'overview';
+		socialOff || ( canManageOptions && search.tab === 'settings' ) ? 'settings' : 'overview';
 
 	const actions = activeTab === 'overview' ? <AddAccountAction /> : null;
 
@@ -90,22 +120,33 @@ const Stage = () => {
 		analytics.tracks.recordEvent( 'jetpack_social_tab_view', { tab: activeTab } );
 	}, [ activeTab ] );
 
+	// Social off → the lone turn-on surface; admins → the two tab panels;
+	// non-admins → the bare Overview (connection management) the shell hands us.
+	let content;
+	if ( socialOff ) {
+		content = <SettingsTab />;
+	} else if ( canManageOptions ) {
+		content = (
+			<>
+				<Tabs.Panel value="overview">
+					{ activeTab === 'overview' ? <OverviewTab /> : null }
+				</Tabs.Panel>
+				<Tabs.Panel value="settings">
+					{ activeTab === 'settings' ? <SettingsTab /> : null }
+				</Tabs.Panel>
+			</>
+		);
+	} else {
+		content = <OverviewTab />;
+	}
+
 	return (
 		<QueryClientProvider client={ queryClient }>
-			<SocialPage activeTab={ activeTab } actions={ actions }>
-				{ canManageOptions ? (
-					<>
-						<Tabs.Panel value="overview">
-							{ activeTab === 'overview' ? <OverviewTab /> : null }
-						</Tabs.Panel>
-						<Tabs.Panel value="settings">
-							{ activeTab === 'settings' ? <SettingsTab /> : null }
-						</Tabs.Panel>
-					</>
-				) : (
-					<OverviewTab />
-				) }
-			</SocialPage>
+			<TurnOnSocialProvider value={ { isEnabling, turnOn } }>
+				<SocialPage activeTab={ activeTab } actions={ actions } hideTabs={ socialOff }>
+					{ content }
+				</SocialPage>
+			</TurnOnSocialProvider>
 		</QueryClientProvider>
 	);
 };

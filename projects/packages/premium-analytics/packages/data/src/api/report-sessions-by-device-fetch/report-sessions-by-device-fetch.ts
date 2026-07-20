@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { BaseReportParams } from '../../utils/types';
 
 /**
@@ -51,10 +46,8 @@ export async function fetchReportSessionsByDevice( {
 	from,
 	to,
 }: RequestReportSessionsByDeviceParams ): Promise< ReportsSessionsByDeviceResponse > {
-	const path = addQueryArgs( `${ reportsPath }/sessions/by-device`, {
+	return fetchReport< ReportsSessionsByDeviceResponse >( 'sessions/by-device', {
 		from,
 		to,
 	} );
-
-	return apiFetch( { path } ) as Promise< ReportsSessionsByDeviceResponse >;
 }

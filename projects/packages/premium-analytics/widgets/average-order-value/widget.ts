@@ -25,9 +25,11 @@ export type AverageOrderValueAttributes = Record< never, never >;
 export default {
 	name: 'jpa/average-order-value',
 	title: __( 'Average order value', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track the average value of each order over a set period of time.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Track the average value of each order over a set period of time.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

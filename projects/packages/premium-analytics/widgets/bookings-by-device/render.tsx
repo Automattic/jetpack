@@ -7,6 +7,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -19,12 +20,24 @@ import type { ComponentProps } from 'react';
 type BookingsByDeviceRenderAttributes = BookingsByDeviceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type BookingsByDeviceRenderProps = WidgetRenderProps< BookingsByDeviceRenderAttributes > & {
+type BookingsByDeviceWidgetProps = WidgetRenderProps< BookingsByDeviceRenderAttributes > & {
+	/**
+	 * Dashboard error handler.
+	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 function BookingsByDeviceWidget() {
-	return <SalesByDeviceWidget filter={ BOOKINGS_FILTER } />;
+	return (
+		<SalesByDeviceWidget
+			filter={ BOOKINGS_FILTER }
+			emptyStateText={ __( 'No booking data in this period.', 'jetpack-premium-analytics' ) }
+			errorText={ __(
+				"We couldn't load booking data by device. Please try again in a moment.",
+				'jetpack-premium-analytics'
+			) }
+		/>
+	);
 }
 
 /**
@@ -33,11 +46,14 @@ function BookingsByDeviceWidget() {
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; SalesByDeviceWidget fetches
  * the filtered bookings attribution report and renders the device breakdown.
+ *
+ * @param {BookingsByDeviceWidgetProps} props - The widget render props.
+ * @return The rendered widget.
  */
 export default function BookingsByDeviceRender( {
 	attributes = {},
 	setError,
-}: BookingsByDeviceRenderProps ) {
+}: BookingsByDeviceWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingsByDeviceWidget />

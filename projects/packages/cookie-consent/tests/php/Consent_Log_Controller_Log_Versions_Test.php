@@ -19,14 +19,6 @@ use ReflectionMethod;
 class Consent_Log_Controller_Log_Versions_Test extends TestCase {
 
 	/**
-	 * Tear down: clear cookie-consent config filters.
-	 */
-	public function tearDown(): void {
-		remove_all_filters( 'jetpack_cookie_consent_config' );
-		parent::tearDown();
-	}
-
-	/**
 	 * Invoke a private method on a fresh controller instance.
 	 *
 	 * @param string $method Method name.
@@ -87,14 +79,13 @@ class Consent_Log_Controller_Log_Versions_Test extends TestCase {
 	 * Configured values are normalized and truncated end to end.
 	 */
 	public function test_get_log_versions_normalizes_and_truncates() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['log']['policy_version'] = ' policy-trimmed ';
-				$config['log']['banner_version'] = str_repeat( 'b', 300 );
-
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'policy_version' => ' policy-trimmed ',
+					'banner_version' => str_repeat( 'b', 300 ),
+				),
+			)
 		);
 
 		$versions = $this->invoke( 'get_log_versions' );

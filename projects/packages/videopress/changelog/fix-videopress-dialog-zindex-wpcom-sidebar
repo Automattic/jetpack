@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix VideoPress dashboard dialogs (thumbnail picker, chapters help) rendering behind the admin sidebar on WordPress.com. They now dim the full viewport and center over it, matching the subtitle manager.

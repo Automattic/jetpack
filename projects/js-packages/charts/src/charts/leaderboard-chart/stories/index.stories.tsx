@@ -179,6 +179,53 @@ export const WithOverlayLabel: Story = {
 	},
 };
 
+const missingComparisonData: LeaderboardEntry[] = sampleData.map( entry =>
+	entry.id === 'social' || entry.id === 'referral'
+		? {
+				id: entry.id,
+				label: entry.label,
+				currentValue: entry.currentValue,
+				currentShare: entry.currentShare,
+		  }
+		: entry
+);
+
+export const MissingComparisonRows: Story = {
+	args: {
+		data: missingComparisonData,
+		withComparison: true,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Rows without a matching comparison-period value ("Social Media" and "Referral" here) omit `previousValue`/`previousShare`/`delta`. Those rows render no comparison bar and show a placeholder in the delta column instead of a fabricated value.',
+			},
+		},
+	},
+};
+
+export const MissingComparisonRowsWithOverlayLabel: Story = {
+	args: {
+		data: missingComparisonData,
+		withComparison: true,
+		withOverlayLabel: true,
+		loading: false,
+		style: {
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Missing comparison rows in the overlay-label variant, as used by the Premium Analytics Stats widgets. The delta column still shows a placeholder for rows without comparison data.',
+			},
+		},
+	},
+};
+
 export const Loading: Story = {
 	args: {
 		data: sampleData,

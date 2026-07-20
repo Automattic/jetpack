@@ -31,6 +31,15 @@ export type PricingTableProps = {
 	 * Whether to show the intro offer disclaimer text with the ToS.
 	 */
 	showIntroOfferDisclaimer?: boolean;
+
+	/**
+	 * Viewport breakpoint at or above which the table renders as columns
+	 * (below it, offers stack into blocks). Defaults to 'large' (960px).
+	 * Interstitials hosting 3 offers can pass 'xlarge' (1080px) to stack
+	 * earlier and avoid cramped columns. Accepts any `@wordpress/compose`
+	 * viewport-match breakpoint name.
+	 */
+	breakpoint?: 'mobile' | 'small' | 'medium' | 'large' | 'xlarge' | 'wide' | 'huge' | 'xhuge';
 };
 
 export type PricingTableColumnProps = {

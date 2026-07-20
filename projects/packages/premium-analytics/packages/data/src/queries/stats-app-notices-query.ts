@@ -1,9 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { getNoticesPath } from '../api/stats-proxy-fetch';
 import { statsAppQueryKeyPart } from './stats-app-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
-
-const noticesPath = '/jetpack-premium-analytics/v1/notices';
 
 export type StatsAppNoticeId =
 	| 'able_to_submit_user_feedback'
@@ -35,7 +34,7 @@ export const statsAppNoticesQuery = (
 	queryKey: [ 'stats-app', 'notices', statsAppQueryKeyPart( params ) ],
 	queryFn: () =>
 		apiFetch< StatsAppNotices >( {
-			path: addQueryArgs( noticesPath, params ),
+			path: addQueryArgs( getNoticesPath(), params ),
 		} ),
 	placeholderData: previousData => previousData,
 } );
@@ -50,7 +49,7 @@ export type StatsAppNoticeMutationResponse = StatsAppNotices;
 
 export const updateStatsAppNotice = ( data: StatsAppNoticeMutationParams ) =>
 	apiFetch< StatsAppNoticeMutationResponse >( {
-		path: noticesPath,
+		path: getNoticesPath(),
 		method: 'POST',
 		data,
 	} );

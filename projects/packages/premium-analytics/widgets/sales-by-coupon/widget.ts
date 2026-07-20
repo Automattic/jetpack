@@ -25,9 +25,11 @@ export type SalesByCouponAttributes = Record< never, never >;
 export default {
 	name: 'jpa/sales-by-coupon',
 	title: __( 'Sales by coupon', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top coupon codes by order revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Revenue from physical product sales using coupons over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

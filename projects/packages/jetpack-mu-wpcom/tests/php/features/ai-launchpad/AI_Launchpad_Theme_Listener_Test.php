@@ -87,6 +87,59 @@ class AI_Launchpad_Theme_Listener_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A sell list always shows a Choose-a-theme task, so switch_theme completes it
+	 * even when the AI did not explicitly pick site_theme_selected.
+	 */
+	public function test_switch_theme_completes_guaranteed_sell_theme() {
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version' => 1,
+				'payload' => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'woo_products',
+							'subtitle' => 'Add products.',
+						),
+					),
+					'inferred' => array( 'goal' => 'sell' ),
+				),
+			),
+			false
+		);
+
+		AI_Launchpad_Theme_Listener::mark_theme_selected_complete();
+
+		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertIsArray( $statuses );
+		$this->assertTrue( $statuses['site_theme_selected'] );
+	}
+
+	/**
+	 * A sell output can carry an inferred goal but no task list (a partial write). The
+	 * render side still shows the guaranteed Choose-a-theme task, so switch_theme must
+	 * complete it here too.
+	 */
+	public function test_switch_theme_completes_guaranteed_sell_theme_without_task_list() {
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version' => 1,
+				'payload' => array(
+					'inferred' => array( 'goal' => 'sell' ),
+				),
+			),
+			false
+		);
+
+		AI_Launchpad_Theme_Listener::mark_theme_selected_complete();
+
+		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertIsArray( $statuses );
+		$this->assertTrue( $statuses['site_theme_selected'] );
+	}
+
+	/**
 	 * The listener self-registers on the switch_theme action at file load.
 	 */
 	public function test_listener_is_registered_on_switch_theme() {

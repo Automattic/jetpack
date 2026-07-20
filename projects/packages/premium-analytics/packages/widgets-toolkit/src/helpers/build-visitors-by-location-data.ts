@@ -5,6 +5,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { calculateDelta } from './calculate-delta';
+import { sharePercentage } from './share-percentage';
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
 import type { GeoData } from '@automattic/charts';
 
@@ -13,6 +15,15 @@ export type Region = 'US' | 'world';
 export type VisitorsByLocationData = {
 	geoData: GeoData;
 	leaderboardData: LeaderboardChartData;
+
+	/**
+	 * Whether any visible leaderboard row has a matching comparison-period row.
+	 *
+	 * Callers combine this with the date-range comparison state so a period with
+	 * no overlapping rows hides comparison mode instead of rendering a column of
+	 * placeholders.
+	 */
+	hasRowComparison: boolean;
 };
 
 export type LocationDataEntry = {
@@ -36,7 +47,7 @@ type BuildVisitorsByLocationDataParams = {
  * @param params.comparisonData - Comparison period data (optional)
  * @param params.region         - The region ('US' or 'world')
  * @param params.limit          - Maximum number of items for leaderboard (default: 5)
- * @return Geo chart data and leaderboard data
+ * @return Geo chart data, leaderboard data, and whether any row has a comparison
  */
 export function buildVisitorsByLocationData( {
 	primaryData,
@@ -61,24 +72,35 @@ export function buildVisitorsByLocationData( {
 		? Math.max( ...comparisonData.map( d => d.value ), 0 )
 		: 0;
 
+	let hasRowComparison = false;
+
 	// Build leaderboard data (top N items)
 	const leaderboardData: LeaderboardChartData = primaryData.slice( 0, limit ).map( item => {
 		const comparisonItem = comparisonData?.find( c => c.id === item.id );
-		const previousValue = comparisonItem?.value ?? 0;
-		const currentShare = maxPrimaryValue > 0 ? ( item.value / maxPrimaryValue ) * 100 : 0;
-		const previousShare = maxComparisonValue > 0 ? ( previousValue / maxComparisonValue ) * 100 : 0;
-		const delta = previousValue > 0 ? ( ( item.value - previousValue ) / previousValue ) * 100 : 0;
+
+		// A location absent from the comparison period has an unknown previous
+		// value, not a real 0, so leave the comparison fields undefined and let
+		// the chart show a placeholder instead of a fabricated delta. A location
+		// present with 0 visitors has a known previous value and keeps its delta.
+		const previousValue = comparisonItem?.value;
+		const hasComparisonValue = previousValue !== undefined;
+
+		if ( hasComparisonValue ) {
+			hasRowComparison = true;
+		}
 
 		return {
 			id: item.id,
 			label: item.label,
 			currentValue: item.value,
 			previousValue,
-			currentShare,
-			previousShare,
-			delta,
+			currentShare: sharePercentage( item.value, maxPrimaryValue ),
+			previousShare: hasComparisonValue
+				? sharePercentage( previousValue, maxComparisonValue )
+				: undefined,
+			delta: hasComparisonValue ? calculateDelta( item.value, previousValue ) : undefined,
 		};
 	} );
 
-	return { geoData, leaderboardData };
+	return { geoData, leaderboardData, hasRowComparison };
 }

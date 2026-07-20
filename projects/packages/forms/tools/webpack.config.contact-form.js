@@ -5,7 +5,6 @@
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 import RemoveAssetWebpackPlugin from '@automattic/remove-asset-webpack-plugin';
-import autoprefixer from 'autoprefixer';
 import { glob } from 'glob';
 
 const __dirname = import.meta.dirname;
@@ -53,7 +52,9 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: [ autoprefixer ] },
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
 						},
 					},
 					{

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Leaderboard widgets: centralize the widget-picker preview image-size fix in the shared LeaderboardLabel and render Referrers row labels through it.

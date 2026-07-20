@@ -19,7 +19,7 @@ function goalOptions(): GoalOption[] {
 	return [
 		{
 			key: 'write',
-			title: __( 'Write', 'jetpack-mu-wpcom' ),
+			title: __( 'Start a blog', 'jetpack-mu-wpcom' ),
 			description: __( 'Share your ideas, stories, or expertise.', 'jetpack-mu-wpcom' ),
 			icon: pencil,
 		},
@@ -40,19 +40,19 @@ function goalOptions(): GoalOption[] {
 		},
 		{
 			key: 'newsletter',
-			title: __( 'Newsletter', 'jetpack-mu-wpcom' ),
+			title: __( 'Start a newsletter', 'jetpack-mu-wpcom' ),
 			description: __( 'Reach subscribers directly in their inbox.', 'jetpack-mu-wpcom' ),
 			icon: envelope,
 		},
 		{
 			key: 'educate',
 			title: __( 'Educate', 'jetpack-mu-wpcom' ),
-			description: __( 'For schools, nonprofits, courses, or communities.', 'jetpack-mu-wpcom' ),
+			description: __( 'Teach students, run courses, or grow a community.', 'jetpack-mu-wpcom' ),
 			icon: people,
 		},
 		{
 			key: 'portfolio',
-			title: __( 'Portfolio', 'jetpack-mu-wpcom' ),
+			title: __( 'Build a portfolio', 'jetpack-mu-wpcom' ),
 			description: __( 'Showcase your work, projects, or creative side.', 'jetpack-mu-wpcom' ),
 			icon: gallery,
 		},
@@ -80,7 +80,7 @@ export default function GoalsStep( { value, onChange }: Props ) {
 					{ __( "What's your main goal?", 'jetpack-mu-wpcom' ) }
 				</h2>
 				<p className="ai-launchpad-wizard__step-subtitle">
-					{ __( 'This helps us tailor your setup checklist.', 'jetpack-mu-wpcom' ) }
+					{ __( "We'll tailor your next steps to help you launch.", 'jetpack-mu-wpcom' ) }
 				</p>
 			</div>
 			<div className="ai-launchpad-wizard__cards" role="radiogroup">

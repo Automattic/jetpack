@@ -29,6 +29,7 @@ export {
 	SELECTABLE_PRESETS,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
@@ -50,6 +51,7 @@ export {
 	PRESET_DEFINITIONS,
 	getPresetLabel,
 	getDefaultDateRangePresets,
+	getQuickSurfacePresets,
 	computePrimaryRange,
 	type DateRangePreset,
 

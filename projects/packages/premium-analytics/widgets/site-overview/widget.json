@@ -1,0 +1,7 @@
+{
+	"name": "jpa/site-overview",
+	"title": "Site overview",
+	"description": "Views, visitors, likes, and comments for the selected period, with period-over-period change.",
+	"category": "stats",
+	"presentation": "framed"
+}

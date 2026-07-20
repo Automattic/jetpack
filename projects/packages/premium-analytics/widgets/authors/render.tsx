@@ -6,11 +6,11 @@ import {
 	LeaderboardChart,
 	LeaderboardLabel,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	formatLegendLabels,
+	toMaxRows,
 	useWidgetDrillDown,
-	useWidgetError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -27,7 +27,6 @@ import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-auth
 import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
@@ -35,15 +34,7 @@ const DEFAULT_MAX = 7;
 // also pass them via `attributes`. Compose the render-only shape to cover both.
 type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
-type AuthorsRenderProps = WidgetRenderProps< AuthorsRenderAttributes > & {
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
-
-const toPositiveInt = ( value: string | number | undefined, fallback: number ) => {
-	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
-
-	return Number.isFinite( parsed ) && parsed > 0 ? parsed : fallback;
-};
+type AuthorsWidgetProps = WidgetRenderProps< AuthorsRenderAttributes >;
 
 export type AuthorsLeaderboardProps = {
 	/**
@@ -54,14 +45,21 @@ export type AuthorsLeaderboardProps = {
 	 */
 	rows?: AuthorLeaderboardRow[];
 	/**
-	 * When `true`, the initial loading overlay is rendered instead of the chart.
+	 * When `true`, the first fetch is in flight and there is no data to show yet.
 	 */
 	isLoading?: boolean;
 	/**
-	 * When `true`, a loading overlay is layered over the chart while data
-	 * refetches in the background.
+	 * When `true`, a background refetch is in flight while data is shown.
 	 */
-	isRefetching?: boolean;
+	isFetching?: boolean;
+	/**
+	 * When `true`, the error state is rendered instead of the chart.
+	 */
+	isError?: boolean;
+	/**
+	 * Re-runs the failed query from the error state's Retry action.
+	 */
+	refetch?: () => void;
 	/**
 	 * When `true`, render each row's previous-period delta next to its value.
 	 */
@@ -87,18 +85,15 @@ export type AuthorsLeaderboardProps = {
  * is no Stats backend in Storybook, so the data-connected entry point would
  * only ever show chrome.
  *
- * @param props                - Component props.
- * @param props.rows           - Author rows to render.
- * @param props.isLoading      - Whether to render the initial loading overlay.
- * @param props.isRefetching   - Whether to layer a loading overlay over the chart.
- * @param props.withComparison - Whether to render previous-period deltas.
- * @param props.legendLabels   - Custom labels for the current/comparison periods.
+ * @param {AuthorsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export function AuthorsLeaderboard( {
 	rows = [],
 	isLoading = false,
-	isRefetching = false,
+	isFetching = false,
+	isError = false,
+	refetch,
 	withComparison = false,
 	legendLabels,
 }: AuthorsLeaderboardProps ) {
@@ -116,15 +111,18 @@ export function AuthorsLeaderboard( {
 		[ rows, selectedAuthorId ]
 	);
 
+	// Clear the stored selection only once data has settled without the
+	// author — an in-flight load or refetch must not wipe a valid selection
+	// while rows are briefly empty or stale (see WOOA7S-1666).
 	useEffect( () => {
-		if ( selectedAuthorId && ! selectedAuthor ) {
+		if ( selectedAuthorId && ! selectedAuthor && ! isLoading && ! isFetching ) {
 			clearSelectedAuthor();
 		}
-	}, [ selectedAuthorId, selectedAuthor, clearSelectedAuthor ] );
+	}, [ selectedAuthorId, selectedAuthor, isLoading, isFetching, clearSelectedAuthor ] );
 
 	const chartData: LeaderboardChartData = useMemo( () => {
 		// Drilled-in: show the selected author's posts. Rows are not interactive;
-		// the data builder already aligned current/comparison values, including
+		// the data layer already aligned current/comparison values, including
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => {
@@ -195,14 +193,6 @@ export function AuthorsLeaderboard( {
 		} ) );
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
-	if ( isLoading ) {
-		return (
-			<div className={ styles.content }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
 	const isDrilled = Boolean( selectedAuthor );
 
 	return (
@@ -213,82 +203,98 @@ export function AuthorsLeaderboard( {
 					onClick={ clearSelectedAuthor }
 				/>
 			) }
-			<LeaderboardChart
-				data={ chartData }
-				withComparison={ withComparison }
-				withOverlayLabel
-				showLegend={ false }
-				legendLabels={ legendLabels }
-				dataFormat={ {
-					type: 'number',
-					options: { useMultipliers: true, decimals: 0 },
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ chartData.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load authors. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: refetch
+						? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ]
+						: undefined,
 				} }
-				emptyStateIcon={ postAuthor }
-				emptyStateText={
-					isDrilled
+				empty={ {
+					icon: postAuthor,
+					description: isDrilled
 						? __(
 								'This author has no posts with views for the selected period.',
 								'jetpack-premium-analytics'
 						  )
-						: __(
-								'Learn about your most popular authors to better understand how they contribute to growing your site.',
-								'jetpack-premium-analytics'
-						  )
-				}
-			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
+						: __( 'No author views in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<LeaderboardChart
+					data={ chartData }
+					withComparison={ withComparison }
+					withOverlayLabel
+					showLegend={ false }
+					legendLabels={ legendLabels }
+					dataFormat={ {
+						type: 'number',
+						options: { useMultipliers: true, decimals: 0 },
+					} }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
 
+type AuthorsReportProps = {
+	/**
+	 * Maximum number of authors to display.
+	 */
+	max: number;
+};
+
 /**
  * Fetches the top-authors report through the Jetpack Stats hook, builds the
- * leaderboard rows, and hands them to the presentational `AuthorsLeaderboard`.
+ * leaderboard rows from the data layer's merged comparison rows, and hands
+ * them to the presentational `AuthorsLeaderboard`.
  *
- * @param props     - Component props.
- * @param props.max - Maximum number of authors to display.
+ * @param {AuthorsReportProps} props - The component props.
  * @return The widget content.
  */
-function AuthorsReport( { max }: { max: number } ) {
+function AuthorsReport( { max }: AuthorsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	const {
 		primary,
-		comparison,
+		comparisonRows,
 		hasComparison,
 		isLoading,
 		isFetching,
 		hasData,
 		isError,
-		error,
 		refetch,
-	} = useStatsTopAuthors( statsParams );
+	} = useStatsTopAuthors( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
-	const isRefetching = isFetching && hasData;
-	const primaryData = primary.data;
-	const comparisonData = comparison.data;
 
 	const rows = useMemo(
-		() => buildTopAuthorsData( primaryData, comparisonData ),
-		[ primaryData, comparisonData ]
+		() => buildTopAuthorsData( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
 
 	return (
 		<AuthorsLeaderboard
 			rows={ rows }
 			isLoading={ isInitialLoading }
-			isRefetching={ isRefetching }
+			isFetching={ isFetching }
+			// The Stats queries carry `placeholderData: previousData => previousData`, so a
+			// failed range change keeps the prior period's rows while `isError` flips true.
+			// Only surface the error when there's nothing to show, so a transient refetch
+			// failure doesn't replace populated rows with the error state.
+			isError={ rows.length === 0 && isError }
+			refetch={ refetch }
 			withComparison={ hasComparison }
 			legendLabels={ legendLabels }
 		/>
@@ -304,16 +310,14 @@ function AuthorsReport( { max }: { max: number } ) {
  * `attributes.reportParams` directly. The widget's own `max` is forwarded to
  * the inner component.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error handler.
+ * @param {AuthorsWidgetProps} props - The widget render props.
  * @return The rendered Authors widget.
  */
-export default function Authors( { attributes = {}, setError }: AuthorsRenderProps ) {
+export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError }>
+		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+				<AuthorsReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
 			</div>
 		</WidgetRoot>
 	);

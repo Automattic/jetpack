@@ -101,6 +101,14 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		);
 	} );
 
+	it( 'forwards the Stats archives handling option', () => {
+		expect( reportParamsToStatsQueryParams( { skip_archives: 1 } ) ).toEqual(
+			expect.objectContaining( {
+				skip_archives: 1,
+			} )
+		);
+	} );
+
 	it( 'does not forward Woo report-only params to Stats endpoints', () => {
 		const params = reportParamsToStatsQueryParams( {
 			from: '2026-06-01',

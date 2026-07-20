@@ -1,8 +1,4 @@
 /**
- * The Latest post widget reports lifetime totals, so it has no comparison
- * period: the `WithComparison` story passes comparison `reportParams` but
- * renders identically to `Default`.
- *
  * The widget reads its content locally from the core `/wp/v2/posts` endpoint and
  * its metrics (views, likes, comments) from the proxied `stats/post` endpoint,
  * both covered here by an `apiFetch` middleware that runs before the shared
@@ -12,22 +8,28 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	getDefaultQueryParams,
+	queryClient,
+	type PresetType,
+} from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LatestPostRender from '../render';
 import widgetDefinition from '../widget';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -91,108 +93,148 @@ registerLatestPostMocks();
 
 const LATEST_POST_RENDER_MODULE = 'storybook/latest-post';
 
-interface LatestPostStoryControls {
-	withComparison: boolean;
-}
-
 /**
  * Renders the data-connected widget with report params from the date range
  * picker.
- *
- * @param {LatestPostStoryControls} controls - The story controls.
  * @return The rendered widget.
  */
-function renderLatestPost( { withComparison }: LatestPostStoryControls ) {
+function renderLatestPost() {
+	return <LatestPostRender attributes={ { reportParams: getDefaultQueryParams() } } />;
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderLatestPostOnPreset( preset: PresetType ) {
 	return (
-		<LatestPostRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
+		<LatestPostRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
-// Close-up canvas so the card fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
+/**
+ * Forces the widget's requests into a loading/error/empty state for a story.
+ *
+ * This widget's endpoints are served by this file's own fixture middleware, so
+ * the shared `setReportMockState` override never sees them; the story-side
+ * `forceStatsMockState` helper re-registers its shared middleware whenever a
+ * forced state is set, keeping it ahead of these fixtures. An `empty` override
+ * resolves to the generic no-rows shape, which the latest-post sanitizer
+ * reduces to "no published post".
+ *
+ * The latest-post and stats/post query keys also carry no date params, so a
+ * distinct date preset alone would not give the story a fresh cache entry.
+ * Evict both queries from the shared client on enter and on cleanup so each
+ * forced-state story hits the mock fresh (and no forced result leaks into the
+ * sibling stories).
+ *
+ * @param state - The forced state.
+ * @return The story cleanup callback.
+ */
+function forceLatestPostState( state: 'loading' | 'error' | 'empty' ) {
+	const setState = ( value: typeof state | null ) => {
+		forceStatsMockState( LATEST_POST_PATH, value );
+		forceStatsMockState( STATS_POST_PATH, value );
+	};
+	const evict = () => {
+		queryClient.removeQueries( { queryKey: [ 'latest-post' ] } );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'post' ] } );
+	};
+
+	setState( state );
+	evict();
+	return () => {
+		setState( null );
+		evict();
+	};
+}
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/LatestPost',
 	component: LatestPostRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Latest post" widget shows the site\'s most recently published post with its all-time views, likes, and comments. The metrics are lifetime totals, so there is no comparison period — the `WithComparison` story renders identically to `Default`.',
+					'The "Latest post" widget shows the site\'s most recently published post with its all-time views, likes, and comments.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof LatestPostRender > & LatestPostStoryControls >;
+} satisfies Meta< typeof LatestPostRender >;
 
 export default meta;
 
-type Story = StoryObj< LatestPostStoryControls >;
+type Story = StoryObj< Partial< ComponentProps< typeof LatestPostRender > > >;
 
 /**
  * Default — the latest post with its lifetime views, likes, and comments.
  */
 export const Default: Story = {
 	render: renderLatestPost,
-	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * WithComparison — comparison `reportParams` are supplied by the date range
- * picker, but this module has no comparison data, so the widget renders
- * identically to `Default` (no deltas).
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
  */
-export const WithComparison: Story = {
-	render: renderLatestPost,
-	args: { withComparison: true },
+export const Loading: Story = {
+	render: () => renderLatestPostOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceLatestPostState( 'loading' ),
 };
 
-interface LatestPostDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		LatestPostStoryControls {}
+/**
+ * The content fetch failed: the widget shows its error state with a Retry
+ * action (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderLatestPostOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceLatestPostState( 'error' ),
+};
+
+/**
+ * Resolved with no published posts: the widget shows its empty state (the
+ * neutral post-list glyph and "Publish a post to see its stats here.").
+ */
+export const Empty: Story = {
+	render: () => renderLatestPostOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceLatestPostState( 'empty' ),
+};
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {LatestPostDashboardStoryProps} props - The dashboard story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real dashboard.
  */
-function LatestPostDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: LatestPostDashboardStoryProps ) {
+function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ LATEST_POST_RENDER_MODULE }
 			renderComponent={ LatestPostRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< LatestPostDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <LatestPostDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		// Latest post is a landscape widget: content left, featured image right.
 		widgetWidth: 2,
 		widgetHeight: 2,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };
