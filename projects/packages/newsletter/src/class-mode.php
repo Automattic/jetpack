@@ -13,6 +13,8 @@
 
 namespace Automattic\Jetpack\Newsletter;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Owns Newsletter Mode state and request-scoping helpers.
  */
@@ -61,6 +63,47 @@ class Mode {
 		self::$initialized = true;
 
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
+
+		// Register the top-level "Newsletters" menu link when the mode is on. On
+		// wpcom Simple the Jetpack menu is built at priority 999999, so match that
+		// ordering there; standalone Jetpack / Atomic use an early priority so the
+		// submenu-hiding filter lands before Settings adds its submenu at 999.
+		$menu_priority = ( new Host() )->is_wpcom_simple() ? 999999 : 1;
+		add_action( 'admin_menu', array( self::class, 'maybe_register_admin_menu' ), $menu_priority );
+	}
+
+	/**
+	 * When the mode is enabled, add a top-level "Newsletters" menu link and hide
+	 * the default "Jetpack → Newsletter" submenu so there is no duplicate entry.
+	 *
+	 * The top-level item uses the Newsletter page URL as its menu slug, so it
+	 * deep-links to the page Settings already registers — no new page or render
+	 * callback is created here. Core add_menu_page() is used deliberately: the
+	 * admin-ui Admin_Menu wrapper only creates submenus under `jetpack`, never a
+	 * new top-level root.
+	 *
+	 * @return void
+	 */
+	public static function maybe_register_admin_menu() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
+		// Hide the default "Jetpack → Newsletter" submenu; the page stays
+		// reachable by URL. Added before Settings::add_wp_admin_menu() (priority
+		// 999) reads the filter, so it takes effect this request.
+		add_filter( 'jetpack_show_newsletter_menu_item', '__return_false' );
+
+		add_menu_page(
+			/** "Newsletters" is a product surface name. */
+			__( 'Newsletters', 'jetpack-newsletter' ),
+			__( 'Newsletters', 'jetpack-newsletter' ),
+			'manage_options',
+			'admin.php?page=' . Settings::ADMIN_PAGE_SLUG,
+			'',
+			'dashicons-email',
+			3.9
+		);
 	}
 
 	/**
