@@ -74,7 +74,6 @@ describe( 'shouldReloadAfterPlanUpgrade', () => {
 describe( 'plan-upgrade-notification IIFE', () => {
 	const originalSessionStorage = window.sessionStorage;
 
-	let reloadMock;
 	let store;
 
 	// A Map-backed sessionStorage double whose individual methods can be overridden
@@ -90,28 +89,15 @@ describe( 'plan-upgrade-notification IIFE', () => {
 	};
 
 	/*
-	 * jsdom's window.location is non-configurable and window.location.reload is
-	 * read-only, and a real reload() logs "Not implemented" (which jest-console
-	 * turns into a test failure). Install the mock on whichever of the instance or
-	 * its prototype accepts a redefine, and drive the query string via the history
-	 * API rather than reassigning location.
+	 * jsdom's window.location is unforgeable, so reload() cannot be mocked. A real
+	 * reload() is a no-op that logs "Not implemented: navigation", which shows up
+	 * as a console error. The reload path is therefore asserted indirectly: it
+	 * writes the guard and returns before the notice, and its console error is
+	 * consumed via expect( console ).toHaveErrored(). The no-reload paths assert
+	 * expect( console ).not.toHaveErrored() (jest-console also auto-fails on an
+	 * unexpected reload). The query string is driven via the history API, not by
+	 * reassigning the non-configurable window.location.
 	 */
-	const mockReload = () => {
-		reloadMock = jest.fn();
-		for ( const target of [ window.location, Object.getPrototypeOf( window.location ) ] ) {
-			try {
-				Object.defineProperty( target, 'reload', {
-					configurable: true,
-					writable: true,
-					value: reloadMock,
-				} );
-				return;
-			} catch {
-				// Try the next target.
-			}
-		}
-	};
-
 	const setSearch = search =>
 		window.history.pushState( {}, '', `/wp-admin/post.php${ search ? `?${ search }` : '' }` );
 
@@ -147,7 +133,6 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		mockIsSimpleSite = false;
 		mockApiFetch.mockReset();
 		mockCreateNotice.mockReset();
-		mockReload();
 		setStorage( makeStorage() );
 		window.Jetpack_Editor_Initial_State = {
 			wpcomBlogId: 1,
@@ -172,7 +157,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		await flush();
 
 		expect( store.removeItem ).toHaveBeenCalledWith( RELOAD_GUARD_KEY );
-		expect( reloadMock ).not.toHaveBeenCalled();
+		expect( console ).not.toHaveErrored(); // no reload
 		expect( mockCreateNotice ).not.toHaveBeenCalled();
 	} );
 
@@ -183,10 +168,11 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		loadModule();
 		await flush();
 
-		expect( reloadMock ).toHaveBeenCalledTimes( 1 );
 		expect( store.setItem ).toHaveBeenCalledWith( RELOAD_GUARD_KEY, 'jetpack_free' );
-		// Reload returns before the notice fires.
+		// The reload returns before the notice fires; the real reload() logs a
+		// "Not implemented: navigation" console error, which we consume here.
 		expect( mockCreateNotice ).not.toHaveBeenCalled();
+		expect( console ).toHaveErrored();
 	} );
 
 	it( 'does not reload again once the guard already matches the rendered slug', async () => {
@@ -197,7 +183,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		loadModule();
 		await flush();
 
-		expect( reloadMock ).not.toHaveBeenCalled();
+		expect( console ).not.toHaveErrored(); // no reload
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
@@ -208,7 +194,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		loadModule();
 		await flush();
 
-		expect( reloadMock ).not.toHaveBeenCalled();
+		expect( console ).not.toHaveErrored(); // no reload
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
@@ -219,7 +205,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		loadModule();
 		await flush();
 
-		expect( reloadMock ).not.toHaveBeenCalled();
+		expect( console ).not.toHaveErrored(); // no reload
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
@@ -238,7 +224,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		await flush();
 
 		// Unreadable storage reports "already reloaded" -> no reload, no loop.
-		expect( reloadMock ).not.toHaveBeenCalled();
+		expect( console ).not.toHaveErrored();
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
@@ -257,7 +243,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		await flush();
 
 		// Cannot persist the one-shot guard -> refuse the reload, avoid a loop.
-		expect( reloadMock ).not.toHaveBeenCalled();
+		expect( console ).not.toHaveErrored();
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
