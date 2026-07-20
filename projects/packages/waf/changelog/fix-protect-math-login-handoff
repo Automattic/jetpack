@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Brute Force Protection: Preserve an approved login attempt when protection status changes during submission.
