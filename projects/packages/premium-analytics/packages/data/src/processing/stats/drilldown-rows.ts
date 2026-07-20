@@ -77,9 +77,9 @@ function flattenDrilldownItem(
  * single linked record in the source stay flat top-level rows so they don't
  * read as drill-down parents.
  *
- * Rows come out ordered by value (groups, then each group's records) —
- * DataViews' native hierarchy rendering has no tree-aware sorting, so the
- * display order is baked into the data instead of the view.
+ * Rows come out ordered by value (groups, then each group's records), so an
+ * unsorted DataViews hierarchy shows a meaningful default order without a
+ * view-level sort.
  *
  * @param report - The bucketed grouped report.
  * @return Nested drilldown rows in display order.

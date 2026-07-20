@@ -82,8 +82,9 @@ function getClickRowParentId( item: ClickRow ): string | undefined {
 }
 
 /*
- * No default sort: DataViews' native hierarchy has no tree-aware sorting, so
- * the group/URL order is baked into the aggregated rows instead.
+ * No default sort: the aggregated rows arrive pre-ordered by clicks (groups,
+ * then each group's URLs), and the unsorted view preserves that order. Sorting
+ * a field reorders rows within each hierarchy level.
  */
 const RECORDS_VIEW = {
 	layout: {
