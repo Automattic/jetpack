@@ -158,6 +158,15 @@ Block edit components mirror the server `render.php` so the canvas preview match
 - **Snap empty selections to the full set.** Persisting `availableSortOptions: []` would make the renderer fall back to "all options" while every inspector checkbox stays unchecked — invisible mismatch. The setter writes the canonical full set back instead.
 - **Per-instance IDs.** Edit components that emit `<label htmlFor=…>` use `useId()` — the editor canvas may render the same block twice, and a shared static id breaks the label→control association on the second instance.
 
+## Editor preview gotchas
+
+Rendering a read-only preview of *another* block's current children (not your own `InnerBlocks`) inside an edit component — `filters-popover` does this to mirror `filters`/`filters-product` — has two traps:
+
+- **`<BlockPreview>` silently renders at zero height when nested inside the Site Editor's own iframed canvas.** It renders its content into its own internal iframe and sizes itself via a `ResizeObserver` on that iframe's content; the observer never reports a nonzero height when the whole thing is nested one level inside the canvas iframe the Site Editor already uses, so the preview loads real content but stays invisible. Confirmed by inspecting the live DOM in a browser (real content, `0` measured height) — not a timing/mount-order issue, waiting longer doesn't fix it.
+- **The non-iframed alternative, `useBlockPreview()`, is only published under the experimental name `__experimentalUseBlockPreview`** in `@wordpress/block-editor` as of the versions this package installs — there's no stable `useBlockPreview` export despite the un-prefixed name existing in Gutenberg's own source. Importing the plain name resolves to `undefined` and throws at call time. Depending on the `__experimental` name ties a shipped block to an unstable API that WordPress core can rename or remove without notice.
+
+Given both, prefer locking the block's own (already-synced) `InnerBlocks` read-only with `<Disabled>` (a long-stable public component) over live-mirroring another block's content. It loses "reflects edits before you save," but every reload/save picks up the source's current state regardless — self-healing, no unstable dependency.
+
 ## Comments
 
 Code is the source of truth — well-named identifiers should make most code easier to read than any prose attached to it. Default to **no comment**.

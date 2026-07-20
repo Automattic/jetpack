@@ -1018,7 +1018,7 @@ class Search_Blocks {
 		$template_path = __DIR__ . '/templates/jetpack-search.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
 		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return static::substitute_template_placeholders( $raw );
+		return static::sync_filters_popover_content( static::substitute_template_placeholders( $raw ) );
 	}
 
 	/**
@@ -1093,7 +1093,8 @@ class Search_Blocks {
 		$file          = $is_product ? 'jetpack-search-overlay-product.html' : 'jetpack-search-overlay.html';
 		$template_path = __DIR__ . '/templates/' . $file;
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		self::$overlay_template_content_cache[ $key ] = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		self::$overlay_template_content_cache[ $key ] = static::sync_filters_popover_content( $raw );
 		return self::$overlay_template_content_cache[ $key ];
 	}
 
@@ -1664,7 +1665,7 @@ CSS;
 		$template_path = __DIR__ . '/templates/jetpack-search-product-results.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
 		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return static::substitute_template_placeholders( $raw );
+		return static::sync_filters_popover_content( static::substitute_template_placeholders( $raw ) );
 	}
 
 	/**
@@ -1698,6 +1699,93 @@ CSS;
 	 */
 	protected static function resolve_chrome_slugs(): array {
 		return Theme_Chrome_Slug_Resolver::resolve();
+	}
+
+	/**
+	 * Names of the "source of truth" filter-composition blocks — whichever is
+	 * present in a template supplies the canonical filter config that
+	 * `jetpack-search/filters-popover` mirrors. See {@see sync_filters_popover_content()}.
+	 */
+	const FILTERS_SOURCE_BLOCK_NAMES = array( 'jetpack-search/filters', 'jetpack-search/filters-product' );
+
+	/**
+	 * `jetpack-search/filters-popover` (the collapsible/mobile filter panel) and
+	 * `jetpack-search/filters` / `jetpack-search/filters-product` (the wide-viewport
+	 * sidebar) are two independently-serialized copies of the same filter
+	 * configuration, shown one-or-the-other via a CSS breakpoint. Nothing keeps
+	 * them in sync, so editing one silently leaves the other stale (SEARCH-307).
+	 *
+	 * Rather than a two-way sync, the sidebar block is treated as the single
+	 * source of truth: every time template content is read — for rendering or
+	 * for editing — the popover's inner blocks are recomputed to mirror
+	 * whatever the sidebar currently contains. A direct edit to the popover's
+	 * own inner blocks still saves, but is overwritten back to match the
+	 * sidebar on the next read; self-healing, no migration needed for content
+	 * that already diverged before this existed.
+	 *
+	 * @param string $content Block markup, e.g. a full template or singleton-CPT post_content.
+	 * @return string Block markup with the popover's inner blocks synced to the sidebar's, unchanged if either block is absent.
+	 */
+	public static function sync_filters_popover_content( string $content ): string {
+		if ( '' === $content || false === strpos( $content, 'jetpack-search/filters-popover' ) ) {
+			return $content;
+		}
+		$blocks = parse_blocks( $content );
+		$source = static::find_block_by_name( $blocks, self::FILTERS_SOURCE_BLOCK_NAMES );
+		if ( null === $source ) {
+			return $content;
+		}
+		$replaced = static::replace_block_inner_content( $blocks, 'jetpack-search/filters-popover', $source );
+		return $replaced ? serialize_blocks( $blocks ) : $content;
+	}
+
+	/**
+	 * Depth-first search for the first block matching one of `$names`.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Parsed blocks (`parse_blocks()` shape).
+	 * @param string[]                       $names  Block names to match.
+	 * @return array<string,mixed>|null
+	 */
+	protected static function find_block_by_name( array $blocks, array $names ): ?array {
+		foreach ( $blocks as $block ) {
+			if ( in_array( $block['blockName'], $names, true ) ) {
+				return $block;
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$found = static::find_block_by_name( $block['innerBlocks'], $names );
+				if ( null !== $found ) {
+					return $found;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Depth-first search that overwrites the first block named `$name` with
+	 * `$source`'s inner blocks. `innerBlocks`/`innerContent`/`innerHTML` are
+	 * copied together from `$source` so the null-placeholder bookkeeping in
+	 * `innerContent` stays internally consistent regardless of how many
+	 * filters `$source` has.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Parsed blocks, modified in place.
+	 * @param string                         $name   Block name to replace.
+	 * @param array<string,mixed>            $source Block whose inner content is cloned onto the match.
+	 * @return bool Whether a match was found and replaced.
+	 */
+	protected static function replace_block_inner_content( array &$blocks, string $name, array $source ): bool {
+		foreach ( $blocks as &$block ) {
+			if ( $block['blockName'] === $name ) {
+				$block['innerBlocks']  = $source['innerBlocks'];
+				$block['innerContent'] = $source['innerContent'];
+				$block['innerHTML']    = $source['innerHTML'];
+				return true;
+			}
+			if ( ! empty( $block['innerBlocks'] ) && static::replace_block_inner_content( $block['innerBlocks'], $name, $source ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
