@@ -1,0 +1,7 @@
+{
+	"name": "jpa/tags",
+	"title": "Tags & categories",
+	"description": "Your most visited tags and categories, ranked by views.",
+	"category": "stats",
+	"presentation": "framed"
+}

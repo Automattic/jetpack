@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+ArrayCheckboxField: Use design tokens for sizing and show the field label in the inline menu trigger.

@@ -18,7 +18,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type SalesByUtmChannelRenderAttributes = SalesByUtmChannelAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type SalesByUtmChannelRenderProps = WidgetRenderProps< SalesByUtmChannelRenderAttributes > & {
+type SalesByUtmChannelWidgetProps = WidgetRenderProps< SalesByUtmChannelRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -27,11 +27,14 @@ type SalesByUtmChannelRenderProps = WidgetRenderProps< SalesByUtmChannelRenderAt
  *
  * WidgetRoot provides the query client, chart theme, and resolved report params;
  * the shared SalesByUtmWidget renders the channel leaderboard.
+ *
+ * @param {SalesByUtmChannelWidgetProps} props - The widget render props.
+ * @return The rendered widget.
  */
 export default function SalesByUtmChannelRender( {
 	attributes = {},
 	setError,
-}: SalesByUtmChannelRenderProps ) {
+}: SalesByUtmChannelWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByUtmWidget view="channel" />

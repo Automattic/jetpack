@@ -14,6 +14,20 @@ body.jetpack_page_jetpack-videopress {
 	// fallback) and future tweaks have one place to land.
 	--vp-page-bg-canvas: #fcfcfc;
 
+	// Lift `@wordpress/ui` Dialogs above the admin chrome. Their overlay
+	// z-index reads from `--wp-ui-dialog-z-index` (default `auto`), which on
+	// WordPress.com wp-admin loses the stacking contest to the wide, high-z
+	// admin menu: the fixed backdrop renders *behind* the sidebar, so the
+	// menu stays bright and the centered dialog looks anchored to / crammed
+	// against the content area. `@wordpress/components` Modal (the subtitle
+	// manager) already clears this with its 100000 overlay layer; match it so
+	// every Dialog (thumbnail picker, chapters help, …) dims the whole viewport
+	// and centers over it, identically on self-hosted and Simple — no
+	// per-environment sidebar-width math. The Dialog portals into <body>, which
+	// carries this class, so the property inherits into the portaled backdrop
+	// and popup.
+	--wp-ui-dialog-z-index: 100000;
+
 	// jetpack-components typography & spacing tokens. Components consumed by
 	// the connection gate (pricing table, ProductPrice, Text) reference these
 	// custom properties but don't define them — each host dashboard supplies

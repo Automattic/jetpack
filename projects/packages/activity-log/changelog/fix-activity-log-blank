@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Register wp-build polyfills so the admin bundle loads on WordPress versions that don't provide the wp-theme script handle

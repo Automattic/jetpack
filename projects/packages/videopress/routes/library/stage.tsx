@@ -5,7 +5,9 @@ import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
+import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
@@ -63,16 +65,27 @@ const StageInner = () => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
-	// Local IDs currently being promoted from local-storage to VideoPress.
-	// The upload-from-library endpoint doesn't report progress, so we just
-	// need to know which rows to overlay with an "Uploading…" state.
-	const [ promotingIds, setPromotingIds ] = useState< Set< string > >( () => new Set() );
-	// IDs currently being deleted. Same overlay technique as promotingIds:
+	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
+	// Local IDs currently being promoted from local-storage to VideoPress,
+	// mapped to the last upload percentage (0–100) reported by the chunked
+	// upload-from-library endpoint, so their rows can show the same live
+	// progress as a regular upload.
+	const [ promotingProgress, setPromotingProgress ] = useState< Map< string, number > >(
+		() => new Map()
+	);
+	// IDs currently being deleted. Same overlay technique as promotingProgress:
 	// rows get a "Deleting…" state (thumbnail overlay in grid, title pill in
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
-	const { items, isLoading, paginationInfo } = useLibrary( view );
+	const {
+		items,
+		isLoading,
+		paginationInfo,
+		isError,
+		error: libraryError,
+		refetch,
+	} = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -178,38 +191,48 @@ const StageInner = () => {
 
 	const promoteLocal = useCallback(
 		( id: string ) => {
-			setPromotingIds( prev => {
-				const next = new Set( prev );
-				next.add( id );
-				return next;
-			} );
-			uploadFromLibrary( id, {
-				onSuccess: () => {
-					createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
+			setPromotingProgress( prev => new Map( prev ).set( id, 0 ) );
+			uploadFromLibrary(
+				{
+					id,
+					onProgress: ( percent: number ) => {
+						setPromotingProgress( prev => {
+							// Ignore a straggler progress report after settle.
+							if ( ! prev.has( id ) ) {
+								return prev;
+							}
+							return new Map( prev ).set( id, percent );
+						} );
+					},
 				},
-				onError: ( error: Error ) => {
-					const reason = error?.message?.trim();
-					createErrorNotice(
-						reason
-							? sprintf(
-									/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
-									__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
-									reason
-							  )
-							: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
-					);
-				},
-				onSettled: () => {
-					setPromotingIds( prev => {
-						if ( ! prev.has( id ) ) {
-							return prev;
-						}
-						const next = new Set( prev );
-						next.delete( id );
-						return next;
-					} );
-				},
-			} );
+				{
+					onSuccess: () => {
+						createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
+					},
+					onError: ( error: Error ) => {
+						const reason = error?.message?.trim();
+						createErrorNotice(
+							reason
+								? sprintf(
+										/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
+										__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
+										reason
+								  )
+								: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
+						);
+					},
+					onSettled: () => {
+						setPromotingProgress( prev => {
+							if ( ! prev.has( id ) ) {
+								return prev;
+							}
+							const next = new Map( prev );
+							next.delete( id );
+							return next;
+						} );
+					},
+				}
+			);
 		},
 		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
 	);
@@ -220,6 +243,9 @@ const StageInner = () => {
 				promoteLocal,
 				retryUpload,
 				openVideoDetails,
+				manageCaptions: ( item: LibraryItem ) => {
+					setCaptionVideo( item );
+				},
 				deleteItems: async ( ids: string[] ) => {
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
@@ -386,14 +412,16 @@ const StageInner = () => {
 				allowDownloads: false,
 				shortcode: '',
 				isProcessing: false,
+				tracks: [],
 			} ) );
 		// Overlay an in-flight state on items currently being promoted from
 		// local-storage to VideoPress or being deleted, so the title-cell
 		// pill and the thumbnail overlay reflect the operation without
 		// needing a parallel signal at every render site.
 		const overlaid = items.map( item => {
-			if ( promotingIds.has( item.id ) ) {
-				return { ...item, upload: { status: 'promoting' as const, progress: 0 } };
+			const promoting = promotingProgress.get( item.id );
+			if ( promoting !== undefined ) {
+				return { ...item, upload: { status: 'promoting' as const, progress: promoting } };
 			}
 			if ( deletingIds.has( item.id ) ) {
 				return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
@@ -401,9 +429,13 @@ const StageInner = () => {
 			return item;
 		} );
 		return [ ...inFlight, ...overlaid ];
-	}, [ uploadQueue, items, promotingIds, deletingIds ] );
+	}, [ uploadQueue, items, promotingProgress, deletingIds ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
+
+	const onCaptionTracksChange = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
 	return (
 		<DashboardLayout
@@ -446,21 +478,52 @@ const StageInner = () => {
 						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
 						onFilesDrop={ handleFilesDrop }
 					/>
-					<DataViews< LibraryItem >
-						data={ renderedItems }
-						fields={ libraryFields }
-						actions={ actions }
-						view={ view }
-						onChangeView={ onChangeView }
-						selection={ selection }
-						onChangeSelection={ setSelection }
-						getItemId={ getItemId }
-						paginationInfo={ paginationInfo }
-						isLoading={ isLoading }
-						defaultLayouts={ defaultLayouts }
-					/>
+					{ isError && items.length === 0 ? (
+						// A failed listing request would otherwise render as DataViews'
+						// "No results" — indistinguishable from an empty library. Surface
+						// the error explicitly with a Retry that refetches. Only when the
+						// QUERY has nothing valid to show: a failed *background* refresh
+						// keeps its cached rows (grid stays, self-heals on the next
+						// poll), while a failed view change / first load leaves data
+						// undefined (react-query drops keepPreviousData placeholders on
+						// error), so it lands here. Deliberately `items`, not
+						// `renderedItems` — the latter splices in in-flight upload rows,
+						// which must not mask a failed listing.
+						<FetchErrorNotice
+							className="vp-library__error"
+							message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
+							error={ libraryError }
+							onRetry={ () => void refetch() }
+						/>
+					) : (
+						<DataViews< LibraryItem >
+							data={ renderedItems }
+							fields={ libraryFields }
+							actions={ actions }
+							view={ view }
+							onChangeView={ onChangeView }
+							selection={ selection }
+							onChangeSelection={ setSelection }
+							getItemId={ getItemId }
+							paginationInfo={ paginationInfo }
+							isLoading={ isLoading }
+							defaultLayouts={ defaultLayouts }
+						/>
+					) }
 				</div>
 			</UploadActionsProvider>
+			{ captionVideo && (
+				<CaptionManagerModal
+					isOpen={ !! captionVideo }
+					guid={ captionVideo.guid }
+					title={ captionVideo.title }
+					poster={ captionVideo.thumbnailUrl }
+					isPrivate={ captionVideo.isPrivate }
+					tracks={ captionVideo.tracks }
+					onClose={ () => setCaptionVideo( null ) }
+					onTracksChange={ onCaptionTracksChange }
+				/>
+			) }
 		</DashboardLayout>
 	);
 };

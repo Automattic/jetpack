@@ -20,7 +20,6 @@ const TASK_SUBTITLES: Record< string, string > = {
 	drive_traffic: 'Help people find your site.',
 	site_launched: 'Launch your site for the world to see.',
 	blog_launched: 'Launch your blog for the world to see.',
-	woo_launch_site: 'Launch your store and start selling.',
 	link_in_bio_launched: 'Launch your link-in-bio page.',
 };
 
@@ -52,7 +51,7 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'set_up_payments',
 		'site_theme_selected',
 		'complete_profile',
-		'woo_launch_site',
+		'site_launched',
 	],
 	newsletter: [
 		'first_post_published_newsletter',
@@ -127,6 +126,15 @@ export function selectFallback( input: WizardInput ): TailoredOutput {
 					siteName +
 					'. It marks the starting point of something new, and there is plenty more to come.',
 				'Thanks for being here at the very beginning. Stay tuned for what comes next.',
+			],
+		},
+		about_page_draft: {
+			title: 'About',
+			paragraphs: [
+				'This is where the story of ' +
+					siteName +
+					' begins. Use this page to share who is behind the site and what it is all about.',
+				'Tell visitors how it started, what they can expect to find here, and where it is headed next.',
 			],
 		},
 	};

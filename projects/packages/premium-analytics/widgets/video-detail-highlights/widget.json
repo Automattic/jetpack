@@ -1,0 +1,7 @@
+{
+	"name": "jpa/video-detail-highlights",
+	"title": "Video highlights",
+	"description": "Views, impressions, hours watched, and retention rate for the video being viewed.",
+	"category": "stats",
+	"presentation": "framed"
+}

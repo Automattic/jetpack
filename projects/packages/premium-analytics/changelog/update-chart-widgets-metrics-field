@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Traffic and Subscribers charts: Define the visible metric tabs as a metrics array attribute with an inline header control.

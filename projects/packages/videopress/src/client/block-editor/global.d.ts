@@ -13,6 +13,7 @@ declare global {
 			jetpackVideoPressSettingUrl: string;
 			imagesURLBase: string;
 			playerBridgeUrl: string;
+			webpackPublicPath: string;
 		};
 	}
 }

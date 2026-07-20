@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Notice,
@@ -152,9 +153,22 @@ const CategoryPicker = ( {
 		}
 	}, [ trimmedName, saveEntityRecord, onSelect, onCreateSuccess ] );
 
+	// The full list loads lazily; seed the currently-set category from injected
+	// script data so its label shows immediately instead of a blank select.
+	const selectedCategory = getScriptData()?.podcast?.selected_category;
+	const seededCategories =
+		selectedCategory && ! categories.some( cat => cat.id === selectedCategory.id )
+			? [ selectedCategory, ...categories ]
+			: categories;
+
+	// Only grey the control out for loading when there's nothing to show yet.
+	// With a seeded selection we render it enabled so it doesn't look like a
+	// disabled placeholder until the lazy list resolves.
+	const loadingWithNothingToShow = isLoading && seededCategories.length === 0;
+
 	const options: Array< { label: string; value: string } > = [
 		{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
-		...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
+		...seededCategories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 	];
 	if ( canCreateCategory !== false ) {
 		options.push( {
@@ -173,7 +187,7 @@ const CategoryPicker = ( {
 				value={ isCreating ? CREATE_NEW : String( selectedId || '' ) }
 				onChange={ handleSelectChange }
 				options={ options }
-				disabled={ disabled || isLoading || saving }
+				disabled={ disabled || loadingWithNothingToShow || saving }
 			/>
 			{ isCreating && (
 				<VStack spacing={ 2 }>

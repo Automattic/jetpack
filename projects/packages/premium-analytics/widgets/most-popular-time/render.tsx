@@ -3,11 +3,12 @@
  */
 import { useStatsInsights, type StatsInsightsResponse } from '@jetpack-premium-analytics/data';
 import {
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
+import { scheduled } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -21,18 +22,31 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // comparison period), but WidgetRoot still expects them on `attributes`.
 type MostPopularTimeRenderAttributes = MostPopularTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
+type MostPopularTimeWidgetProps = WidgetRenderProps< MostPopularTimeRenderAttributes >;
+
+type HighlightProps = {
+	/**
+	 * The highlight label (e.g. "Best day").
+	 */
+	label: string;
+	/**
+	 * The peak value (e.g. "Tuesday" or "3:00 PM").
+	 */
+	value: string;
+	/**
+	 * The value's share of total views, as a whole percent.
+	 */
+	percent: number;
+};
 
 /**
  * A single "best day" / "best hour" highlight: a label, the peak value rendered
  * as a large display figure, and its share of total views.
  *
- * @param props         - The highlight props.
- * @param props.label   - The highlight label (e.g. "Best day").
- * @param props.value   - The peak value (e.g. "Tuesday" or "3:00 PM").
- * @param props.percent - The value's share of total views, as a whole percent.
+ * @param {HighlightProps} props - The component props.
  * @return The highlight block.
  */
-function Highlight( { label, value, percent }: { label: string; value: string; percent: number } ) {
+function Highlight( { label, value, percent }: HighlightProps ) {
 	return (
 		<Stack direction="column" gap="xs">
 			<Text variant="heading-md" render={ <h4 /> } className={ styles.label }>
@@ -60,45 +74,52 @@ function Highlight( { label, value, percent }: { label: string; value: string; p
  * @return The widget content.
  */
 function MostPopularTimeReport() {
-	const { data, isLoading, isError } = useStatsInsights();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const report = data as StatsInsightsResponse | undefined;
-
-	if ( isError ) {
-		return (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load insights.', 'jetpack-premium-analytics' ) }
-			</Text>
-		);
-	}
-
-	if ( isLoading && ! report?.hour ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	if ( ! report?.day || ! report?.hour ) {
-		return (
-			<Text className={ styles.placeholder }>
-				{ __(
-					'Not enough data to determine your most popular time yet.',
-					'jetpack-premium-analytics'
-				) }
-			</Text>
-		);
-	}
+	const isEmpty = ! report?.day || ! report?.hour;
 
 	return (
-		<Stack className={ styles.root } direction="column" gap="lg">
-			<Highlight
-				label={ __( 'Best day', 'jetpack-premium-analytics' ) }
-				value={ report.day }
-				percent={ report.percent ?? 0 }
-			/>
-			<Highlight
-				label={ __( 'Best hour', 'jetpack-premium-analytics' ) }
-				value={ report.hour }
-				percent={ report.hourPercent ?? 0 }
-			/>
-		</Stack>
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps the previous response via `placeholderData`, so only
+				// surface the error when there is nothing to show.
+				isError={ isError && isEmpty }
+				isEmpty={ isEmpty }
+				error={ {
+					description: __(
+						"We couldn't load your most popular time. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [
+						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+					],
+				} }
+				empty={ {
+					icon: scheduled,
+					description: __(
+						'Not enough data to determine your most popular time yet.',
+						'jetpack-premium-analytics'
+					),
+				} }
+			>
+				{ report?.day && report?.hour && (
+					<Stack className={ styles.root } direction="column" gap="lg">
+						<Highlight
+							label={ __( 'Best day', 'jetpack-premium-analytics' ) }
+							value={ report.day }
+							percent={ report.percent ?? 0 }
+						/>
+						<Highlight
+							label={ __( 'Best hour', 'jetpack-premium-analytics' ) }
+							value={ report.hour }
+							percent={ report.hourPercent ?? 0 }
+						/>
+					</Stack>
+				) }
+			</WidgetState>
+		</div>
 	);
 }
 
@@ -109,12 +130,10 @@ function MostPopularTimeReport() {
  * report takes no parameters, so the inner component reads nothing from
  * `attributes`.
  *
- * @param {WidgetRenderProps< MostPopularTimeRenderAttributes >} props - The render props supplied by the widget host.
+ * @param {MostPopularTimeWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function MostPopularTime( {
-	attributes = {},
-}: WidgetRenderProps< MostPopularTimeRenderAttributes > ) {
+export default function MostPopularTime( { attributes = {} }: MostPopularTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<MostPopularTimeReport />

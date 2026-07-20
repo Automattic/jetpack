@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,6 +16,75 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( Initializer::class )]
 class InitializerTest extends TestCase {
+
+	/**
+	 * The cache and the database both persist between tests here, so every one of them
+	 * has to start from a known-empty state.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->reset_coverage_cache();
+		$this->reset_content();
+	}
+
+	protected function tearDown(): void {
+		$this->reset_content();
+		$this->reset_coverage_cache();
+		parent::tearDown();
+	}
+
+	/**
+	 * Empty the posts tables. WorDBless keeps the SQLite database between tests, so
+	 * content created by one test would otherwise be counted by the next.
+	 */
+	private function reset_content() {
+		global $wpdb;
+
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$wpdb->posts}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		wp_cache_flush();
+	}
+
+	/**
+	 * Drop the cached counts.
+	 */
+	private function reset_coverage_cache() {
+		delete_transient( Initializer::COVERAGE_COUNTS_TRANSIENT );
+	}
+
+	/**
+	 * Invoke one of the class's private statics.
+	 *
+	 * @param string $name Method name.
+	 * @param mixed  ...$args Arguments.
+	 * @return mixed
+	 */
+	private function invoke_private( $name, ...$args ) {
+		$method = new \ReflectionMethod( Initializer::class, $name );
+		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null, ...$args );
+	}
+
+	/**
+	 * A coverage payload with distinctive numbers, so a cached read is unmistakable:
+	 * recomputing in this database-less suite can only ever produce zeros.
+	 *
+	 * @return array
+	 */
+	private function seeded_coverage() {
+		return array(
+			'total'               => 41,
+			'with_schema'         => 7,
+			'with_title'          => 13,
+			'with_description'    => 11,
+			'with_search_visible' => 39,
+		);
+	}
 
 	/**
 	 * The Initializer class exists and exposes the expected menu slug.
@@ -60,23 +130,312 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * `count_published_with_meta()` supports an exact-value match (used for the
-	 * schema-type metric) in addition to the default "non-empty" mode. Exercised
-	 * directly because the Overview only ever calls the non-empty mode, so the
-	 * value-match branch would otherwise go uncovered. Returns an integer count
-	 * (zero in the empty test environment).
+	 * The coverage query joins `wp_postmeta` on the key list `coverage_meta_keys()`
+	 * returns, but counts each metric with its own CASE arm naming a `META_*`
+	 * constant directly. Those two have to name the same keys: a key dropped from
+	 * the join list (or a CASE arm pointing at a key the join never selected) makes
+	 * the affected metric silently count zero rather than fail. Pin both lists.
 	 */
-	public function test_count_published_with_meta_supports_exact_value() {
-		$method = new \ReflectionMethod( Initializer::class, 'count_published_with_meta' );
+	public function test_coverage_targets_the_seo_meta_keys_and_post_types() {
+		$meta_keys  = new \ReflectionMethod( Initializer::class, 'coverage_meta_keys' );
+		$post_types = new \ReflectionMethod( Initializer::class, 'coverage_post_types' );
 		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
 		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
+			$meta_keys->setAccessible( true );
+			$post_types->setAccessible( true );
 		}
 
-		$count = $method->invoke( null, array( 'post', 'page' ), 'jetpack_seo_schema_type', 'article' );
+		$this->assertEqualsCanonicalizing(
+			array(
+				Initializer::META_SCHEMA_TYPE,
+				Initializer::META_TITLE,
+				Initializer::META_DESCRIPTION,
+				Initializer::META_NOINDEX,
+			),
+			$meta_keys->invoke( null ),
+			'Every meta key a CASE arm counts must also be selected by the join.'
+		);
 
-		$this->assertIsInt( $count );
-		$this->assertSame( 0, $count );
+		$this->assertSame( array( 'post', 'page' ), $post_types->invoke( null ) );
+	}
+
+	/**
+	 * An empty site still gets a well-formed payload. The aggregate has no GROUP BY, so
+	 * it returns its row even with nothing to count, and the Overview card destructures
+	 * all five counts unconditionally.
+	 */
+	public function test_content_coverage_is_all_zeros_on_an_empty_site() {
+		$this->assertSame(
+			array(
+				'total'               => 0,
+				'with_schema'         => 0,
+				'with_title'          => 0,
+				'with_description'    => 0,
+				'with_search_visible' => 0,
+			),
+			$this->invoke_private( 'get_content_coverage' )
+		);
+	}
+
+	/**
+	 * The counts against real content. Every fixture here is one the query could plausibly
+	 * get wrong: a post with two rows for the same meta key must be counted once, not
+	 * twice; an empty-string value means "not set"; noindex only counts on an exact '1',
+	 * so '0' leaves the post search-visible; and drafts, trashed posts and other post types
+	 * are not part of the published set at all.
+	 */
+	public function test_content_coverage_counts_published_posts_and_pages() {
+		// Published, everything set, and hidden from search.
+		$this->publish(
+			array(
+				Initializer::META_SCHEMA_TYPE => 'Article',
+				Initializer::META_TITLE       => 'A title',
+				Initializer::META_DESCRIPTION => 'A description',
+				Initializer::META_NOINDEX     => '1',
+			)
+		);
+
+		// Published, nothing set.
+		$this->publish();
+
+		// Empty strings are not "set".
+		$this->publish(
+			array(
+				Initializer::META_TITLE       => '',
+				Initializer::META_DESCRIPTION => '',
+			)
+		);
+
+		// noindex '0' is not noindexed — the post stays search-visible.
+		$this->publish( array( Initializer::META_NOINDEX => '0' ) );
+
+		// Two rows for one key: the post has a title, and counts once.
+		$duplicated = $this->publish();
+		$this->add_meta_row( $duplicated, Initializer::META_TITLE, 'first' );
+		$this->add_meta_row( $duplicated, Initializer::META_TITLE, 'second' );
+
+		// A page counts alongside posts.
+		$this->publish( array( Initializer::META_DESCRIPTION => 'Page description' ), 'page' );
+
+		// None of these are part of the published set.
+		$this->publish( array( Initializer::META_TITLE => 'Draft title' ), 'post', 'draft' );
+		$this->publish( array( Initializer::META_TITLE => 'Trashed title' ), 'post', 'trash' );
+		$this->publish( array( Initializer::META_TITLE => 'Attachment title' ), 'attachment' );
+
+		$this->assertSame(
+			array(
+				'total'               => 6,
+				'with_schema'         => 1,
+				'with_title'          => 2,
+				'with_description'    => 2,
+				'with_search_visible' => 5,
+			),
+			$this->invoke_private( 'get_content_coverage' )
+		);
+	}
+
+	/**
+	 * Publish a post with the given SEO meta.
+	 *
+	 * @param array  $meta      Meta keys to set.
+	 * @param string $post_type Post type.
+	 * @param string $status    Post status.
+	 * @return int Post ID.
+	 */
+	private function publish( $meta = array(), $post_type = 'post', $status = 'publish' ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test post',
+				'post_status' => $status,
+				'post_type'   => $post_type,
+			)
+		);
+
+		foreach ( $meta as $key => $value ) {
+			update_post_meta( $post_id, $key, $value );
+		}
+
+		return $post_id;
+	}
+
+	/**
+	 * Add a postmeta row directly, so a post can end up with two rows for one key —
+	 * which `update_post_meta()` would never produce, and which the counts must dedupe.
+	 *
+	 * @param int    $post_id Post to attach the row to.
+	 * @param string $key     Meta key.
+	 * @param string $value   Meta value.
+	 * @return void
+	 */
+	private function add_meta_row( $post_id, $key, $value ) {
+		global $wpdb;
+
+		$wpdb->insert(
+			$wpdb->postmeta,
+			array(
+				'post_id'    => $post_id,
+				'meta_key'   => $key,
+				'meta_value' => $value,
+			)
+		);
+	}
+
+	/**
+	 * A warm cache is returned as-is. The seeded numbers can't have been recomputed —
+	 * there's no database here, so a recompute yields zeros — which is what makes this
+	 * prove the query was skipped rather than merely that the shape survived.
+	 */
+	public function test_content_coverage_is_served_from_the_cache() {
+		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
+
+		$this->assertSame( $this->seeded_coverage(), $this->invoke_private( 'get_content_coverage' ) );
+	}
+
+	/**
+	 * A miss computes and then writes the counts back, so the next read is a hit.
+	 */
+	public function test_content_coverage_populates_the_cache_on_a_miss() {
+		$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+
+		$coverage = $this->invoke_private( 'get_content_coverage' );
+
+		$this->assertSame( $coverage, get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+	}
+
+	/**
+	 * Anything in the transient that isn't a well-formed payload — a truncated write, a
+	 * value left by an older version of this code, someone else's data under the key — is
+	 * treated as a miss. The Overview card destructures all five counts unconditionally,
+	 * so handing it a partial array would be worse than recomputing.
+	 *
+	 * @param mixed $garbage Value found in the transient.
+	 * @dataProvider provide_malformed_cache_values
+	 */
+	#[DataProvider( 'provide_malformed_cache_values' )]
+	public function test_malformed_cache_value_is_recomputed( $garbage ) {
+		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $garbage, HOUR_IN_SECONDS );
+
+		$coverage = $this->invoke_private( 'get_content_coverage' );
+
+		$this->assertSame(
+			array(
+				'total'               => 0,
+				'with_schema'         => 0,
+				'with_title'          => 0,
+				'with_description'    => 0,
+				'with_search_visible' => 0,
+			),
+			$coverage
+		);
+	}
+
+	/**
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provide_malformed_cache_values() {
+		return array(
+			'a string'           => array( 'nonsense' ),
+			'a partial payload'  => array( array( 'total' => 5 ) ),
+			'non-integer counts' => array(
+				array(
+					'total'               => '5',
+					'with_schema'         => '1',
+					'with_title'          => '1',
+					'with_description'    => '1',
+					'with_search_visible' => '5',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Writing one of the four SEO fields the Overview counts drops the cache; writing any
+	 * other post meta leaves it alone. Without that second half, every meta write on the
+	 * site — and plugins write a lot of it — would throw the counts away.
+	 */
+	public function test_meta_change_invalidates_only_for_the_counted_keys() {
+		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
+
+		Initializer::invalidate_content_coverage_on_meta_change( 1, 123, '_edit_lock' );
+		$this->assertSame(
+			$this->seeded_coverage(),
+			get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ),
+			'An unrelated meta key must not invalidate the counts.'
+		);
+
+		Initializer::invalidate_content_coverage_on_meta_change( 1, 123, Initializer::META_DESCRIPTION );
+		$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+	}
+
+	/**
+	 * Publishing and unpublishing move the counts; a transition between two unpublished
+	 * states doesn't, and neither does one on a post type the Overview never counts.
+	 *
+	 * @param string $new_status  Status transitioned to.
+	 * @param string $old_status  Status transitioned from.
+	 * @param string $post_type   Post type transitioning.
+	 * @param bool   $invalidates Whether the cache should be dropped.
+	 * @dataProvider provide_status_transitions
+	 */
+	#[DataProvider( 'provide_status_transitions' )]
+	public function test_status_change_invalidates_only_when_the_published_set_changes( $new_status, $old_status, $post_type, $invalidates ) {
+		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
+
+		$post = new \WP_Post( (object) array( 'post_type' => $post_type ) );
+		Initializer::invalidate_content_coverage_on_status_change( $new_status, $old_status, $post );
+
+		if ( $invalidates ) {
+			$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+		} else {
+			$this->assertSame( $this->seeded_coverage(), get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+		}
+	}
+
+	/**
+	 * @return array<string, array{string, string, string, bool}>
+	 */
+	public static function provide_status_transitions() {
+		return array(
+			'post published'         => array( 'publish', 'draft', 'post', true ),
+			'page published'         => array( 'publish', 'auto-draft', 'page', true ),
+			'post unpublished'       => array( 'draft', 'publish', 'post', true ),
+			'post trashed'           => array( 'trash', 'publish', 'post', true ),
+			'draft to pending'       => array( 'pending', 'draft', 'post', false ),
+			'uncounted post type'    => array( 'publish', 'draft', 'attachment', false ),
+			'uncounted type trashed' => array( 'trash', 'publish', 'product', false ),
+		);
+	}
+
+	/**
+	 * A hard delete drops the cache for the counted post types only. Trashing already went
+	 * through the status transition; this is the path where an already-trashed post is
+	 * deleted for good and transitions nothing.
+	 */
+	public function test_delete_invalidates_only_for_the_counted_post_types() {
+		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
+
+		Initializer::invalidate_content_coverage_on_delete( 123, new \WP_Post( (object) array( 'post_type' => 'attachment' ) ) );
+		$this->assertSame( $this->seeded_coverage(), get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+
+		Initializer::invalidate_content_coverage_on_delete( 123, new \WP_Post( (object) array( 'post_type' => 'page' ) ) );
+		$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+	}
+
+	/**
+	 * Every tracked write drops the transient, with no once-per-request guard: a later
+	 * write in the same request must clear a cache a concurrent read re-warmed in between,
+	 * so an intermediate count can't survive to the end of a bulk update.
+	 */
+	public function test_every_tracked_write_invalidates_the_cache() {
+		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
+
+		Initializer::invalidate_content_coverage_on_meta_change( 1, 123, Initializer::META_TITLE );
+		$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
+
+		// A concurrent read re-warms the cache mid-write; the next write must still clear it.
+		set_transient( Initializer::COVERAGE_COUNTS_TRANSIENT, $this->seeded_coverage(), HOUR_IN_SECONDS );
+		Initializer::invalidate_content_coverage_on_meta_change( 2, 124, Initializer::META_TITLE );
+		$this->assertFalse( get_transient( Initializer::COVERAGE_COUNTS_TRANSIENT ) );
 	}
 
 	/**
@@ -139,6 +498,22 @@ class InitializerTest extends TestCase {
 			$this->assertNotFalse(
 				has_action( 'rest_api_init', array( Initializer::class, 'register_rest_settings' ) )
 			);
+
+			// The coverage cache is invalidated from writes that happen anywhere — the block
+			// editor posts through REST, where is_admin() is false — so these have to be
+			// registered by init() itself, not by the admin-only branch above.
+			$this->assertNotFalse(
+				has_action( 'transition_post_status', array( Initializer::class, 'invalidate_content_coverage_on_status_change' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'deleted_post', array( Initializer::class, 'invalidate_content_coverage_on_delete' ) )
+			);
+			foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
+				$this->assertNotFalse(
+					has_action( $hook, array( Initializer::class, 'invalidate_content_coverage_on_meta_change' ) ),
+					"init() must hook {$hook} to keep the coverage counts fresh."
+				);
+			}
 		} finally {
 			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'jetpack_active_modules', $enable_module );

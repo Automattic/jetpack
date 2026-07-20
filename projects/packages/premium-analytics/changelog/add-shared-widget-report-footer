@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: add shared WidgetFooter and ReportLink primitives and migrate top-posts.

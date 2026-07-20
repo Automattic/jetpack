@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add ArrayCheckboxField, a DataForm edit control for array fields with elements.

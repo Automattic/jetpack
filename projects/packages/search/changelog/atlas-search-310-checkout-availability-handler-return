@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Search upsell page's product-availability check not returning its promise, which caused checkout to always run even when the site already had the Search product.

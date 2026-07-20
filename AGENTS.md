@@ -43,7 +43,11 @@ jp install plugins/jetpack        # Install project dependencies
 jp clean plugins/jetpack          # Clean build artifacts
 jp docker up -d                   # Start Docker environment
 jp docker install                 # Install WordPress in Docker
-# Parallel instances on a second worktree: `jp docker up -d --name <slug> --port <n> [--port-phpmy/-inbox/-smtp/-sftp <n>]`.
+# In a git worktree, run `tools/docker/bin/seed-worktree-env.sh` once BEFORE `jp docker up`.
+# It writes a unique COMPOSE_PROJECT_NAME + free ports to tools/docker/.env (which `jp docker up`
+# reads) so worktrees don't clobber the primary jetpack_dev or each other. Without it, every
+# bare `up` shares jetpack_dev on the default ports. The script is idempotent and a no-op in the
+# primary checkout, so it's safe to run before every `up`.
 # See tools/docker/README.md § "Parallel development environments", or use the `/work-on` skill end-to-end.
 jp phan                           # Run PHP static analysis
 ```

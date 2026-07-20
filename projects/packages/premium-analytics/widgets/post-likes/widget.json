@@ -1,0 +1,7 @@
+{
+	"name": "jpa/post-likes",
+	"title": "Latest likes",
+	"description": "The people who liked the post or page being viewed.",
+	"category": "stats",
+	"presentation": "framed"
+}

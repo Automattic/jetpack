@@ -16,7 +16,7 @@ use WP_REST_Server;
  *
  * @package automattic/jetpack-publicize
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Connections_Post_Field_Test extends TestCase {
 
 	/**

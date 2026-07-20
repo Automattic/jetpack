@@ -3,13 +3,15 @@
  */
 import { __ } from '@wordpress/i18n';
 import { desktop } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Widget attributes shape.
- *
- * @property max - Maximum rows to display (0 = all). Defaults to 5.
  */
 export type DevicesAttributes = {
+	/**
+	 * Maximum rows to display (0 = all). Defaults to 5.
+	 */
 	max?: number;
 };
 
@@ -23,6 +25,18 @@ export type DevicesAttributes = {
 export default {
 	name: 'jpa/devices',
 	title: __( 'Devices', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'A breakdown of the device types your visitors used, sorted by views.',
+			'jetpack-premium-analytics'
+		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
+	},
 	icon: desktop,
 	attributes: [
 		{
@@ -30,7 +44,7 @@ export default {
 			label: __( 'Max rows', 'jetpack-premium-analytics' ),
 			type: 'number',
 		},
-	],
+	] as WidgetAttributeField< DevicesAttributes >[],
 	example: {
 		attributes: {
 			max: 5,

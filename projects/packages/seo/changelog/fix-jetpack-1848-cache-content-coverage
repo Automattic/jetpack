@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: cache the content-coverage counts and compute them in a single query.

@@ -13,8 +13,8 @@
 //      causes.
 // `translateX(-50%)` keeps the frame horizontally centered against `left: 50%`.
 .services-list {
-	top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wpds-dimension-padding-2xl, 24px));
-	max-height: calc(100dvh - var(--wp-admin--admin-bar--height, 0px) - 2 * var(--wpds-dimension-padding-2xl, 24px));
+	top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wpds-dimension-padding-2xl));
+	max-height: calc(100dvh - var(--wp-admin--admin-bar--height, 0px) - 2 * var(--wpds-dimension-padding-2xl));
 	transform: translateX(-50%);
 }
 
@@ -48,7 +48,7 @@
 	--jetpack-social-admin-menu-width: 160px;
 
 	left: calc(50% + var(--jetpack-social-admin-menu-width) / 2);
-	max-width: min(960px, calc(100dvw - var(--jetpack-social-admin-menu-width) - 2 * var(--wpds-dimension-padding-2xl, 24px)));
+	max-width: min(960px, calc(100dvw - var(--jetpack-social-admin-menu-width) - 2 * var(--wpds-dimension-padding-2xl)));
 }
 
 // The sidebar width varies by environment and menu state; mirror the chassis

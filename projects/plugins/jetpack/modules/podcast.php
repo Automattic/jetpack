@@ -16,6 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Podcast intentionally omits module-introduction metadata. This keeps it out
+// of version-ranged upgrade activation for existing sites, while Auto Activate
+// enables it when a new installation loads the complete default module list.
+
 // Core (feed, settings, block) is local WordPress — no connection needed.
 // Loading is wired in Jetpack::late_initialization() (not here) so it also
 // covers disconnected sites, which load_modules() skips.

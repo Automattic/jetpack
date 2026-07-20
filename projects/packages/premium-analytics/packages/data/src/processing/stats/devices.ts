@@ -2,7 +2,14 @@
  * Internal dependencies
  */
 import { safeParseFloat } from '../../utils/parsing';
-import { coerceStatsRecord, createStatsListDataPoint, normalizeStatsReportSummary } from './utils';
+import {
+	coerceStatsRecord,
+	createStatsListDataPoint,
+	getStatsReportItems,
+	limitStatsRows,
+	mergeStatsComparisonRows,
+	normalizeStatsReportSummary,
+} from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -19,6 +26,10 @@ export interface StatsDevicesItem extends StatsNormalizedItemBase {
 	value: number;
 	children: null;
 }
+
+export type StatsDevicesComparisonItem = StatsDevicesItem & {
+	previousValue?: number;
+};
 
 /**
  * Parse the `top_values` object returned by `stats/devices/{property}`.
@@ -73,4 +84,24 @@ export function sanitizeStatsDevicesResponse(
 		summary: normalizeStatsReportSummary( response, query ),
 		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
 	};
+}
+
+export function mergeStatsDevicesComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsDevicesItem >,
+	comparisonReport?: StatsNormalizedReport< StatsDevicesItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows< StatsDevicesItem, StatsDevicesItem, StatsDevicesComparisonItem >(
+		{
+			primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+			comparisonRows: getStatsReportItems( comparisonReport ),
+			getPrimaryKey: item => item.label,
+			getComparisonKey: item => item.label,
+			getComparisonValue: item => item.value,
+			mapRow: ( item, { previousValue } ) => ( {
+				...item,
+				previousValue,
+			} ),
+		}
+	);
 }

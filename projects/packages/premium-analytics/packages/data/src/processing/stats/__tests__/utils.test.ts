@@ -1,6 +1,12 @@
 import { combineStatsNormalizedReports, sanitizeStatsTopPostsResponse } from '..';
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
-import { getStatsLabel, getStatsSummaryIntervalFields, normalizeStatsSummary } from '../utils';
+import {
+	flattenStatsLeaves,
+	getStatsLabel,
+	getStatsSummaryIntervalFields,
+	mergeStatsComparisonRows,
+	normalizeStatsSummary,
+} from '../utils';
 
 describe( 'Stats report utilities', () => {
 	it( 'combines separately requested summary and by-date data', () => {
@@ -66,5 +72,81 @@ describe( 'Stats report utilities', () => {
 		expect( getStatsLabel( 'broken%label' ) ).toBe( 'broken%label' );
 		expect( getStatsLabel( 42 ) ).toBe( '42' );
 		expect( getStatsLabel( { label: 'Example' } ) ).toBe( '' );
+	} );
+
+	it( 'merges comparison rows by key without fabricating missing values', () => {
+		const result = mergeStatsComparisonRows( {
+			primaryRows: [
+				{ key: 'us', value: 4 },
+				{ key: 'jp', value: 1 },
+			],
+			comparisonRows: [ { key: 'us', value: 4 } ],
+			getPrimaryKey: row => row.key,
+			getComparisonKey: row => row.key,
+			getComparisonValue: row => row.value,
+			mapRow: ( row, { previousValue } ) => ( {
+				...row,
+				previousValue,
+			} ),
+		} );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows ).toEqual( [
+			{ key: 'us', value: 4, previousValue: 4 },
+			{ key: 'jp', value: 1, previousValue: undefined },
+		] );
+	} );
+
+	it( 'treats zero as a real comparison row value', () => {
+		const result = mergeStatsComparisonRows( {
+			primaryRows: [ { key: 'newsletter', value: 3 } ],
+			comparisonRows: [ { key: 'newsletter', value: 0 } ],
+			getPrimaryKey: row => row.key,
+			getComparisonKey: row => row.key,
+			getComparisonValue: row => row.value,
+			mapRow: ( row, { previousValue } ) => ( {
+				...row,
+				previousValue,
+			} ),
+		} );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows[ 0 ].previousValue ).toBe( 0 );
+	} );
+
+	describe( 'flattenStatsLeaves', () => {
+		type Node = { label: string; children?: Node[] | null };
+
+		const flatten = ( items: Node[] ) =>
+			flattenStatsLeaves( items, {
+				getChildren: item => item.children,
+				mapLeaf: ( item, { ancestors, indexPath } ) => ( {
+					label: item.label,
+					path: ancestors.map( ancestor => ancestor.label ),
+					indexPath,
+				} ),
+			} );
+
+		it( 'maps hierarchy leaves with their ancestor chain and index path', () => {
+			const rows = flatten( [
+				{
+					label: 'group',
+					children: [ { label: 'leaf-a' }, { label: 'branch', children: [ { label: 'leaf-b' } ] } ],
+				},
+				{ label: 'leaf-c', children: null },
+			] );
+
+			expect( rows ).toEqual( [
+				{ label: 'leaf-a', path: [ 'group' ], indexPath: [ 0, 0 ] },
+				{ label: 'leaf-b', path: [ 'group', 'branch' ], indexPath: [ 0, 1, 0 ] },
+				{ label: 'leaf-c', path: [], indexPath: [ 1 ] },
+			] );
+		} );
+
+		it( 'treats items with empty child lists as leaves', () => {
+			expect( flatten( [ { label: 'solo', children: [] } ] ) ).toEqual( [
+				{ label: 'solo', path: [], indexPath: [ 0 ] },
+			] );
+		} );
 	} );
 } );

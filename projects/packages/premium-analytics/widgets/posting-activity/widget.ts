@@ -21,5 +21,11 @@ export type PostingActivityAttributes = Record< never, never >;
 export default {
 	name: 'jpa/posting-activity',
 	title: __( 'Posting activity', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'Your posting activity, shown as a heatmap to help you spot your most and least active days.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: calendar,
 };

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Menu_Badges;
  */
 class Menu_Badges {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Initialize the package. Idempotent.
