@@ -10,14 +10,16 @@ import {
 import { reports } from '@jetpack-premium-analytics/icons';
 import { Icon, external } from '@wordpress/icons';
 import {
-	DownloadCsvButton,
 	LeaderboardChart,
 	ReportLink,
+	RowsCsvDownloadButton,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildCsvDateRangeFilename,
 	calculateDelta,
+	sharePercentage,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -155,13 +157,13 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentViews ),
 			// Rows without a comparison-period match keep `undefined` so the chart
 			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousViews ) * 100
+					? sharePercentage( previousValue, maxPreviousViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
@@ -307,12 +309,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 		return base;
 	}, [ withComparison ] );
 
-	// Date-stamp the download so exports of different periods don't collide.
-	// `from`/`to` are coerced because the router JSON-parses search params, so a
-	// hand-edited numeric `?from=123` would otherwise throw on `.slice`.
-	const csvFilename = `top-posts-${ String( reportParams.from ).slice( 0, 10 ) }_${ String(
-		reportParams.to
-	).slice( 0, 10 ) }`;
+	const csvFilename = buildCsvDateRangeFilename( 'top-posts', reportParams );
 
 	// Only expose the export once the query has settled on data for the current
 	// params. Stats queries keep the previous period's rows as placeholder data
@@ -349,7 +346,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 			<WidgetFooter>
 				<ReportLink report="posts" section="posts-pages" />
 				{ canExport && (
-					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
 				) }
 			</WidgetFooter>
 		</>

@@ -32,6 +32,81 @@ if ( ! function_exists( 'wpcom_ai_launchpad_remap_task_id' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
+	/**
+	 * The shared analytics context merged into every AI Launchpad Tracks event, mirroring the
+	 * client-side context in `js/lib/tracks.ts`. Values are null until the corresponding data
+	 * exists. Only model-inferred fields are included — never the user's raw title/description
+	 * (`brand_name`/`tagline` echo them near-verbatim and are excluded).
+	 *
+	 * @param string[]|null $rendered_task_ids The rendered task ids, when the caller has them.
+	 * @return array The context props.
+	 */
+	function wpcom_ai_launchpad_tracks_context( $rendered_task_ids = null ) {
+		$ai_output = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$inferred  = array();
+		if ( is_array( $ai_output ) && isset( $ai_output['payload']['inferred'] ) && is_array( $ai_output['payload']['inferred'] ) ) {
+			$inferred = $ai_output['payload']['inferred'];
+		}
+
+		$string_or_null = static function ( $value ) {
+			return is_string( $value ) && '' !== trim( $value ) ? $value : null;
+		};
+
+		$goal = $string_or_null( $inferred['goal'] ?? null );
+		if ( null === $goal ) {
+			$wizard = get_option( 'wpcom_ai_launchpad_wizard' );
+			$goal   = is_array( $wizard ) ? $string_or_null( $wizard['goal'] ?? null ) : null;
+		}
+
+		return array(
+			'goal'          => $goal,
+			'niche'         => $string_or_null( $inferred['niche'] ?? null ),
+			'theme_keyword' => $string_or_null( $inferred['theme_keyword'] ?? null ),
+			'vibe'          => $string_or_null( $inferred['vibe'] ?? null ),
+			'audience'      => $string_or_null( $inferred['audience'] ?? null ),
+			'rendered_list' => is_array( $rendered_task_ids ) ? wp_json_encode( array_values( $rendered_task_ids ), JSON_UNESCAPED_SLASHES ) : null,
+			'inferred_goal' => $string_or_null( $inferred['inferred_goal'] ?? null ),
+		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
+	/**
+	 * Records an AI Launchpad Tracks event server-side with the shared context merged in,
+	 * so call sites can't forget it. Explicit props win over the context.
+	 *
+	 * @param string        $event_name        The Tracks event name, already feature-prefixed.
+	 * @param array         $props             Event properties. No PII: task IDs are fine, free text is not.
+	 * @param string[]|null $rendered_task_ids The rendered task ids, when the caller has them.
+	 * @return void
+	 */
+	function wpcom_ai_launchpad_record_tracks_event( $event_name, $props = array(), $rendered_task_ids = null ) {
+		$props = array_merge( wpcom_ai_launchpad_tracks_context( $rendered_task_ids ), $props );
+		// Null-valued props are omitted, mirroring the client recorder.
+		$props = array_filter(
+			$props,
+			static function ( $value ) {
+				return null !== $value;
+			}
+		);
+
+		/**
+		 * Fires for every server-side AI Launchpad analytics event, before it is sent to
+		 * Tracks. Exists as an observation seam (tests hook it; neither Tracks client is
+		 * loaded in the unit-test environment).
+		 *
+		 * @param string $event_name The Tracks event name.
+		 * @param array  $props      The merged event properties.
+		 */
+		do_action( 'wpcom_ai_launchpad_tracks_event', $event_name, $props );
+
+		if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event' ) ) {
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event( $event_name, $props );
+		}
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 	/**
 	 * The AI-selected task IDs from the `wpcom_ai_launchpad_ai_output` option, remapped

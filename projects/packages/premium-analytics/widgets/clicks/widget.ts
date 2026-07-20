@@ -26,9 +26,15 @@ export default {
 	title: __( 'Clicks', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Most clicked external links to track engaging content.',
+			'The external links your visitors clicked most often, sorted by clicks.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: link,
 	attributes: [

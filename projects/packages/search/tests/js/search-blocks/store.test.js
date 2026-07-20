@@ -148,6 +148,7 @@ describe( 'store actions', () => {
 			priceRange: null,
 			staticFilterSelections: {},
 			staticPostTypes: null,
+			resultsPerPage: 10,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -235,6 +236,19 @@ describe( 'store actions', () => {
 		expect( decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] ) ).not.toContain(
 			'[term][post_type]'
 		);
+	} );
+
+	it( 'fetches the page-level results-per-page value from state on every fetch', async () => {
+		// `search-results/render.php` seeds `state.resultsPerPage` once at
+		// template render (author override or the site's `posts_per_page`);
+		// the store reads it on every fetch, same as `staticPostTypes`.
+		const ok = () =>
+			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
+
+		state.resultsPerPage = 30;
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain( 'size=30' );
 	} );
 
 	it( 'popstate re-runs search with only the syncUrl option (scope stays seeded)', async () => {

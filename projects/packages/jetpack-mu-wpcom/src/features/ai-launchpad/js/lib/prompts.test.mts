@@ -77,6 +77,17 @@ describe( 'buildTailorPrompt', () => {
 		assert.ok( /return only a json object/i.test( prompt ) );
 	} );
 
+	it( 'asks for a diagnostic inferred_goal that must not influence the output', () => {
+		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
+		assert.ok( prompt.includes( '"inferred_goal"' ), 'inferred_goal missing from prompt' );
+		// The field is analytics-only; the prompt must tell the model to keep it
+		// out of its task selection.
+		assert.ok(
+			/must NOT influence/.test( prompt ),
+			'no-influence instruction missing from prompt'
+		);
+	} );
+
 	it( 'asks for a theme_keyword naming the core subject, not an incidental word', () => {
 		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
 		assert.ok( prompt.includes( '"theme_keyword"' ), 'theme_keyword missing from prompt' );

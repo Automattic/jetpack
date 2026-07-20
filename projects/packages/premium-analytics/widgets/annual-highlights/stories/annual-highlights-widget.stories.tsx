@@ -15,6 +15,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -143,7 +144,7 @@ type Story = StoryObj< AnnualHighlightsStoryControls >;
 export const Default: Story = {
 	render: renderAnnualHighlights,
 	args: { ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -154,7 +155,7 @@ export const Loading: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'loading' ),
 };
 
@@ -165,7 +166,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'error' ),
 };
 
@@ -176,7 +177,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'empty' ),
 };
 
@@ -220,4 +221,5 @@ export const WidgetDashboardWithWidget: StoryObj< AnnualHighlightsDashboardStory
 		...widgetDashboardWithWidgetArgTypes,
 		...METRIC_ARG_TYPES,
 	},
+	decorators: [ withStoryRouter ],
 };

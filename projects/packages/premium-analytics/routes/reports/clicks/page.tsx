@@ -10,11 +10,14 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
+	ReportDrilldownTable,
+	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportPerformanceChart,
-	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -23,7 +26,6 @@ import { useNavigate, useSearch } from '@wordpress/route';
  */
 import { route } from '../package.json';
 import { getClicksFields, useClicksReportRecords, type ClickRow } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 const REPORT_PARAMS = { report: 'clicks' };
@@ -71,8 +73,22 @@ function getClickRowId( item: ClickRow ): string {
 	return item.id;
 }
 
+/**
+ * Resolve the click-group parent row id for nested URL rows.
+ *
+ * @param item - The clicked URL row.
+ * @return The parent row id, if any.
+ */
+function getClickRowParentId( item: ClickRow ): string | undefined {
+	return item.parentId;
+}
+
+/*
+ * No default sort: the aggregated rows arrive pre-ordered by clicks (groups,
+ * then each group's URLs), and the unsorted view preserves that order. Sorting
+ * a field reorders rows within each hierarchy level.
+ */
 const RECORDS_VIEW = {
-	sort: { field: 'clicks', direction: 'desc' as const },
 	layout: {
 		styles: {
 			clickedUrl: { width: '100%' },
@@ -97,6 +113,7 @@ function ClicksReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useClicksReportRecords( reportParams, chartPeriod );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getClicksFields(), [] );
 	const chartMetrics = useMemo(
 		() => [ { key: 'clicks', label: __( 'Clicks', 'jetpack-premium-analytics' ) } ],
@@ -132,7 +149,7 @@ function ClicksReport(): JSX.Element {
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<Page
+		<ReportPageShell
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
@@ -144,36 +161,44 @@ function ClicksReport(): JSX.Element {
 					] }
 				/>
 			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					filters={
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-					}
-				>
-					<ReportPerformanceChart
-						primary={ records.chart.primary }
-						comparison={ records.chart.comparison }
-						isLoading={ records.chart.isLoading }
-						metrics={ chartMetrics }
-						interval={ chartPeriod }
-						onIntervalChange={ handleIntervalChange }
-						legendLabels={ chartLegendLabels }
+			<ReportPageLayout
+				filters={
+					<div ref={ setContainerElement }>
+						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+					</div>
+				}
+			>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
 					/>
-					<ReportRecordsTable< ClickRow >
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getClickRowId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics' ) }
-					/>
-				</ReportPageLayout>
-			</div>
-		</Page>
+				) : (
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
+						/>
+						<ReportDrilldownTable< ClickRow >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getClickRowId }
+							getItemParentId={ getClickRowParentId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics' ) }
+							hideLevelMarkers
+						/>
+					</>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

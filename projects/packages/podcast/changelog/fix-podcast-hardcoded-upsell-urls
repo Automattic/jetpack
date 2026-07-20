@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast: fix hardcoded upsell fallback URL to use the injected upgrade product.

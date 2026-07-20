@@ -98,6 +98,10 @@ class Helpers_Test extends TestCase {
 
 		Constants::$set_constants = static::$constants_backup;
 		remove_all_filters( 'jetpack_search_has_vip_index' );
+
+		// Restore `posts_per_page` so a `resolve_results_per_page()` test that
+		// mutates it doesn't leak into other tests in this class.
+		update_option( 'posts_per_page', 10 );
 	}
 
 	/**
@@ -608,6 +612,46 @@ class Helpers_Test extends TestCase {
 	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
 		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Helper::get_max_posts_per_page() );
+	}
+
+	/**
+	 * An explicit override takes precedence over the site's `posts_per_page`
+	 * setting, clamped to `get_max_posts_per_page()`.
+	 */
+	public function test_resolve_results_per_page_uses_override() {
+		update_option( 'posts_per_page', 5 );
+		$this->assertSame( 25, Helper::resolve_results_per_page( 25 ) );
+	}
+
+	/**
+	 * No override (or `0`) falls back to the site's `posts_per_page` setting.
+	 */
+	public function test_resolve_results_per_page_falls_back_to_site_setting() {
+		update_option( 'posts_per_page', 7 );
+		$this->assertSame( 7, Helper::resolve_results_per_page() );
+		$this->assertSame( 7, Helper::resolve_results_per_page( 0 ) );
+	}
+
+	/**
+	 * A non-positive `posts_per_page` (e.g. `-1`, "show all") falls back to
+	 * 10 rather than clamping down to a single result.
+	 */
+	public function test_resolve_results_per_page_handles_show_all_reading_setting() {
+		update_option( 'posts_per_page', -1 );
+		$this->assertSame( 10, Helper::resolve_results_per_page() );
+	}
+
+	/**
+	 * Both the override and the site-default path clamp to
+	 * `get_max_posts_per_page()`.
+	 */
+	public function test_resolve_results_per_page_clamps_to_max() {
+		update_option( 'posts_per_page', 500 );
+		$this->assertSame( Helper::get_max_posts_per_page(), Helper::resolve_results_per_page() );
+		$this->assertSame(
+			Helper::get_max_posts_per_page(),
+			Helper::resolve_results_per_page( Helper::get_max_posts_per_page() + 500 )
+		);
 	}
 
 	/**

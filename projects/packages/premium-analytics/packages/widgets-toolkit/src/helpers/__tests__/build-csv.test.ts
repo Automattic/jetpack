@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { buildCsv, saveCsv, type CsvColumn } from '../build-csv';
+import { buildCsv, buildCsvDateRangeFilename, saveCsv, type CsvColumn } from '../build-csv';
 
 type Row = {
 	label: string;
@@ -71,6 +71,23 @@ describe( 'buildCsv', () => {
 	it( 'neutralizes non-finite numbers that start with a sign', () => {
 		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: -Infinity } ] );
 		expect( csv.split( '\n' )[ 1 ] ).toBe( '"\'-Infinity"' );
+	} );
+} );
+
+describe( 'buildCsvDateRangeFilename', () => {
+	it( 'uses only the date portion of ISO timestamps', () => {
+		expect(
+			buildCsvDateRangeFilename( 'top-posts', {
+				from: '2026-06-01T00:00:00Z',
+				to: '2026-06-30T23:59:59Z',
+			} )
+		).toBe( 'top-posts-2026-06-01_2026-06-30' );
+	} );
+
+	it( 'coerces numeric router values to strings', () => {
+		expect( buildCsvDateRangeFilename( 'top-posts', { from: 123, to: 456 } ) ).toBe(
+			'top-posts-123_456'
+		);
 	} );
 } );
 

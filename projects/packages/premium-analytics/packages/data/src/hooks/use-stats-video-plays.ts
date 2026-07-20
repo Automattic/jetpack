@@ -7,6 +7,7 @@ import { useCallback } from 'react';
  */
 import { mergeStatsVideoPlaysComparisonRows } from '../processing/stats';
 import { statsVideoPlaysQuery } from '../queries/stats-video-plays-query';
+import { statsVideoPlaysSummaryQuery } from '../queries/stats-video-plays-summary-query';
 import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
@@ -22,6 +23,13 @@ type StatsVideoPlaysOptions = UseStatsOptions & {
 
 export function useStatsVideoPlays( params: StatsReportParams, options?: StatsVideoPlaysOptions ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	// The complete-stats range summary uses the same endpoint and normalized
+	// response as the standard report, but its API request must omit the
+	// `summarize` mode switch. Reuse the dedicated query factory that keeps
+	// `summarize` sanitizer-only while preserving this hook's comparison and
+	// row-merging contract for callers.
+	const queryFactory =
+		params.complete_stats && params.summarize ? statsVideoPlaysSummaryQuery : statsVideoPlaysQuery;
 	const mergeComparisonRows = useCallback(
 		(
 			primary?: StatsNormalizedReport< StatsVideoPlaysItem >,
@@ -34,7 +42,7 @@ export function useStatsVideoPlays( params: StatsReportParams, options?: StatsVi
 		StatsReportParams,
 		StatsNormalizedReport< StatsVideoPlaysItem >,
 		StatsVideoPlaysComparisonItem
-	>( statsVideoPlaysQuery, params, 'video-plays', {
+	>( queryFactory, params, 'video-plays', {
 		...queryOptions,
 		mergeComparisonRows,
 	} );

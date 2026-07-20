@@ -1,10 +1,13 @@
 export {
 	DataViewsDrilldownNative,
 	type DataViewsDrilldownNativeProps,
+	DrilldownLeafCell,
+	type DrilldownLeafCellProps,
 	processHierarchyLevels,
 	withAncestors,
 } from './dataviews-drilldown-native';
 export { DateFiltersPanel } from './date-filters-panel';
+export { safeHttpUrl } from './utils/safe-http-url';
 export {
 	SectionTabPanel,
 	SectionTabs,

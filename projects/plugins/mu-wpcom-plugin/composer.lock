@@ -640,6 +640,77 @@
             }
         },
         {
+            "name": "automattic/jetpack-config",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/config",
+                "reference": "c57552fadeaa0ee131577eea652128b3686f62cc"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-account-protection": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-import": "@dev",
+                "automattic/jetpack-jitm": "@dev",
+                "automattic/jetpack-post-list": "@dev",
+                "automattic/jetpack-publicize": "@dev",
+                "automattic/jetpack-search": "@dev",
+                "automattic/jetpack-stats": "@dev",
+                "automattic/jetpack-stats-admin": "@dev",
+                "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-videopress": "@dev",
+                "automattic/jetpack-waf": "@dev",
+                "automattic/jetpack-yoast-promo": "@dev"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-config",
+                "textdomain": "jetpack-config",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "3.1.x-dev"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/account-protection",
+                        "packages/connection",
+                        "packages/import",
+                        "packages/jitm",
+                        "packages/post-list",
+                        "packages/publicize",
+                        "packages/search",
+                        "packages/stats-admin",
+                        "packages/stats",
+                        "packages/sync",
+                        "packages/videopress",
+                        "packages/waf",
+                        "packages/yoast-promo"
+                    ]
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-connection",
             "version": "dev-trunk",
             "dist": {
@@ -1300,7 +1371,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "ca1d73cfbf0fac87c62e8b11d3528fe9f605b6ed"
+                "reference": "f5a0802d45daac83c0bf9df90cf6f330527227cf"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1315,6 +1386,7 @@
                 "automattic/jetpack-google-analytics": "@dev",
                 "automattic/jetpack-masterbar": "@dev",
                 "automattic/jetpack-podcast": "@dev",
+                "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-rtc": "@dev",
                 "automattic/jetpack-stats-admin": "@dev",
@@ -1512,7 +1584,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "732b4c245ccd501c5f4bf1ce18fef9c9b1624e5a"
+                "reference": "cdeaa612312a11508d74183eae8f6374d87123ac"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1538,7 +1610,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.3.x-dev"
+                    "dev-trunk": "1.4.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -1645,6 +1717,79 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tools to extract useful information and meta data from WordPress posts.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-premium-analytics",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/premium-analytics",
+                "reference": "8a37e653800a0f6eab73996b880000796cd0ff4c"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-config": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-stats": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
+                "automattic/woocommerce-analytics": "^0.16",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-premium-analytics",
+                "textdomain": "jetpack-premium-analytics",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-analytics.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Premium Analytics dashboard for Jetpack sites.",
             "transport-options": {
                 "relative": true
             }
@@ -2281,6 +2426,58 @@
             "transport-options": {
                 "relative": true
             }
+        },
+        {
+            "name": "automattic/woocommerce-analytics",
+            "version": "0.16.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/woocommerce-analytics.git",
+                "reference": "92b67c5f12b3f9b3dcb34e1b668743cfbe552666"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/92b67c5f12b3f9b3dcb34e1b668743cfbe552666",
+                "reference": "92b67c5f12b3f9b3dcb34e1b668743cfbe552666",
+                "shasum": ""
+            },
+            "require": {
+                "automattic/block-delimiter": "^0.3",
+                "automattic/jetpack-assets": "^4.3",
+                "automattic/jetpack-connection": "^8.1",
+                "automattic/jetpack-constants": "^3.0",
+                "automattic/jetpack-device-detection": "^3.4",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "3.3.0",
+                "automattic/wordbless": "^0.5",
+                "woocommerce/woocommerce-sniffs": "1.0.0",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "changelogger": {
+                    "changelog": "CHANGELOG.md"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Enhanced analytics for WooCommerce users.",
+            "support": {
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.16.6"
+            },
+            "time": "2026-06-17T08:21:41+00:00"
         },
         {
             "name": "league/uri",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Metric tiles: pin wide-layout values at 32px regular and use the neutral stroke for tile borders, per the post/email detail mocks

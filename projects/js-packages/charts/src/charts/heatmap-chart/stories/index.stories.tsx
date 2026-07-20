@@ -92,20 +92,30 @@ export const MinimumCellSize: Story = {
 	},
 };
 
-export const Calendar: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
-	render: ( { weekStartsOn, ...args } ) => {
-		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries, {
+export const Calendar: StoryObj<
+	StoryArgs & { weekStartsOn: 0 | 1; hideOutOfRangeDays: boolean }
+> = {
+	render: ( { weekStartsOn, hideOutOfRangeDays, ...args } ) => {
+		// A mid-week span (Wed to Wed) so both calendar edges are ragged.
+		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries.slice( 2, 115 ), {
 			weekStartsOn,
+			hideOutOfRangeDays,
 		} );
 		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
 	},
-	args: { ...sharedThemeArgs, withTooltips: true, weekStartsOn: 1 },
+	args: {
+		...sharedThemeArgs,
+		withTooltips: true,
+		weekStartsOn: 1,
+		hideOutOfRangeDays: true,
+	},
 	argTypes: {
 		weekStartsOn: {
 			control: { type: 'inline-radio', labels: { 0: 'Sunday', 1: 'Monday' } },
 			options: [ 1, 0 ],
 			table: { category: 'Calendar' },
 		},
+		hideOutOfRangeDays: { control: 'boolean', table: { category: 'Calendar' } },
 	},
 };
 
