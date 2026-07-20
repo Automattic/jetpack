@@ -14,5 +14,8 @@
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/route": "0.16.0",
 		"@wordpress/ui": "0.17.0"
+	},
+	"devDependencies": {
+		"@testing-library/react": "16.3.2"
 	}
 }

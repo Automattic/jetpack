@@ -80,11 +80,26 @@ describe( 'videos fields', () => {
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
+	it( 'does not create a detail link for a non-positive ID', () => {
+		renderTitleField( { ...video, id: 0 } );
+
+		expect( screen.getByRole( 'link', { name: 'Launch video' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/video/'
+		);
+	} );
+
 	it( 'renders plain text when a row has neither an ID nor a URL', () => {
 		renderTitleField( { ...video, id: undefined, link: null } );
 
 		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the report-owned untitled fallback', () => {
+		renderTitleField( { ...video, id: undefined, label: undefined, link: null } );
+
+		expect( screen.getByText( 'Untitled video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'exposes searchable title and sortable metric fields', () => {

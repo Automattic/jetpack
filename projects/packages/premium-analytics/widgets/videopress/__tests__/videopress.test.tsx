@@ -21,13 +21,13 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 // Build a raw Stats "video-plays" response that satisfies both the summarized
 // (multi-day) and single-day read paths of `sanitizeStatsVideoPlaysResponse`.
 const buildResponse = (
-	videos: Array< { post_id?: number; title: string; plays: number; url?: string } >
+	videos: Array< { post_id?: number; title: string; plays: number; url?: string | null } >
 ) => {
 	const date = '2026-06-16';
 	const rows = videos.map( video => ( {
 		post_id: video.post_id,
 		title: video.title,
-		url: video.url ?? `https://example.com/video/${ video.post_id }/`,
+		url: video.url === undefined ? `https://example.com/video/${ video.post_id }/` : video.url,
 		plays: video.plays,
 		impressions: video.plays * 2,
 		watch_time: video.plays * 10,
@@ -78,6 +78,7 @@ describe( 'VideoPressWidget', () => {
 			'/video/101?from=2026-06-01&to=2026-06-16&interval=day&date_type=created'
 		);
 		expect( detailLink ).not.toHaveAttribute( 'target' );
+		expect( detailLink ).toHaveAttribute( 'title', 'Getting Started Walkthrough' );
 		expect(
 			screen.queryByRole( 'link', {
 				name: /Open Getting Started Walkthrough in a new tab/,
@@ -103,9 +104,25 @@ describe( 'VideoPressWidget', () => {
 		const link = await screen.findByRole( 'link', { name: /Legacy video/ } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/legacy/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		expect( link ).toHaveAttribute( 'title', 'Legacy video' );
 		expect(
 			screen.queryByRole( 'link', { name: /Open Legacy video in a new tab/ } )
 		).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the title tooltip when a row has neither an ID nor a URL', async () => {
+		mockApiFetch.mockResolvedValue(
+			buildResponse( [ { title: 'Unlinked video', plays: 8, url: null } ] )
+		);
+
+		renderInDashboard(
+			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />
+		);
+
+		const title = await screen.findByText( 'Unlinked video' );
+		expect( title ).not.toHaveRole( 'link' );
+		expect( title ).toHaveAttribute( 'title', 'Unlinked video' );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {

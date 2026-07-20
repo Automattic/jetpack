@@ -9,6 +9,7 @@ export const singleVideoFixture = {
 		ID: 31533,
 		post_title: 'Launch recap',
 		post_date: '2026-06-12 14:30:00',
+		post_mime_type: 'video/mp4',
 	},
 };
 

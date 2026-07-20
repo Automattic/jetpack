@@ -45,6 +45,8 @@ export {
 	type WidgetFooterProps,
 	ReportLink,
 	type ReportLinkProps,
+	VideoTitleLink,
+	type VideoTitleLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,

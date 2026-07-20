@@ -25,6 +25,7 @@ describe( 'Stats single video normalizer', () => {
 				id: 31533,
 				title: 'Launch recap',
 				date: '2026-06-12 14:30:00',
+				mimeType: 'video/mp4',
 			},
 		} );
 	} );
@@ -59,17 +60,23 @@ describe( 'Stats single video normalizer', () => {
 	it( 'keeps only well-formed attachment post fields', () => {
 		expect(
 			sanitizeStatsSingleVideoResponse( {
-				post: { ID: '42', post_title: 'Demo', post_date: '2026-06-15 09:00:00' },
+				post: {
+					ID: '42',
+					post_title: 'Demo',
+					post_date: '2026-06-15 09:00:00',
+					post_mime_type: 'video/webm',
+				},
 			} ).post
 		).toEqual( {
 			id: 42,
 			title: 'Demo',
 			date: '2026-06-15 09:00:00',
+			mimeType: 'video/webm',
 		} );
 
 		expect(
 			sanitizeStatsSingleVideoResponse( {
-				post: { ID: -1, post_title: 7, post_date: false },
+				post: { ID: -1, post_title: 7, post_date: false, post_mime_type: 12 },
 			} ).post
 		).toEqual( {} );
 	} );

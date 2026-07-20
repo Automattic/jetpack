@@ -3,8 +3,9 @@
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link, useSearch } from '@wordpress/route';
+import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
 import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@wordpress/dataviews';
@@ -35,28 +36,9 @@ function VideoTitle( { item }: { item: StatsVideoPlaysItem } ) {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo( () => pickReportDateParams( search ), [ search ] );
 	const title = getVideoTitle( item );
-	const videoId = Number( item.id );
-
-	if ( Number.isInteger( videoId ) && videoId > 0 ) {
-		return (
-			<Link
-				to="/video/$videoId"
-				params={ { videoId: String( item.id ) } as unknown as never }
-				search={ detailSearch as unknown as never }
-			>
-				{ title }
-			</Link>
-		);
-	}
-
-	if ( ! item.link ) {
-		return <>{ title }</>;
-	}
 
 	return (
-		<a href={ item.link } target="_blank" rel="noopener noreferrer">
-			{ title }
-		</a>
+		<VideoTitleLink id={ item.id } label={ title } link={ item.link } search={ detailSearch } />
 	);
 }
 

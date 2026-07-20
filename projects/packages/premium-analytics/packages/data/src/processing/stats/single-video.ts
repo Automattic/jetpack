@@ -15,6 +15,7 @@ export type StatsSingleVideoPost = {
 	id?: number;
 	title?: string;
 	date?: string;
+	mimeType?: string;
 };
 
 export type StatsSingleVideoReport = {
@@ -38,6 +39,7 @@ function sanitizeSingleVideoPost( value: unknown ): StatsSingleVideoPost | null 
 			: {} ),
 		...( typeof value.post_title === 'string' ? { title: value.post_title } : {} ),
 		...( typeof value.post_date === 'string' ? { date: value.post_date } : {} ),
+		...( typeof value.post_mime_type === 'string' ? { mimeType: value.post_mime_type } : {} ),
 	};
 }
 

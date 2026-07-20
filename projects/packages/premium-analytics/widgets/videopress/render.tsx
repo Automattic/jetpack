@@ -6,6 +6,7 @@ import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
 	ReportLink,
+	VideoTitleLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
@@ -17,8 +18,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Link } from '@wordpress/route';
-import { Link as ExternalLink } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -49,38 +48,19 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
  * @return The linked or plain row title.
  */
 function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > ): JSX.Element {
-	if ( row.id ) {
-		return (
-			<Link
-				className={ styles.internalLink }
-				to="/video/$videoId"
-				params={ { videoId: String( row.id ) } as unknown as never }
-				search={ search as unknown as never }
-				title={ row.label }
-			>
-				{ row.label }
-			</Link>
-		);
-	}
-
-	if ( row.link ) {
-		return (
-			<ExternalLink
-				className={ styles.labelLink }
-				href={ row.link }
-				variant="unstyled"
-				openInNewTab
-				title={ row.label }
-			>
-				{ row.label }
-			</ExternalLink>
-		);
-	}
-
 	return (
-		<span className={ styles.labelText } title={ row.label }>
-			{ row.label }
-		</span>
+		<VideoTitleLink
+			id={ row.id }
+			label={ row.label }
+			link={ row.link }
+			search={ search }
+			classNames={ {
+				internal: styles.internalLink,
+				external: styles.labelLink,
+				plain: styles.labelText,
+			} }
+			title={ row.label }
+		/>
 	);
 }
 

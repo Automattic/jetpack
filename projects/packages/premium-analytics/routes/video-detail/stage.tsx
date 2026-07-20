@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
-import { useParams } from '@wordpress/route';
+import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -25,11 +25,12 @@ function VideoDetail(): JSX.Element {
 	const { videoId: videoIdParam } = useParams( { from: ROUTE_FROM } ) as { videoId?: string };
 	const summary = useVideoSummary( Number( videoIdParam ) );
 	const dashboardLink = useDashboardLink();
-	// On error there is no trustworthy title: the fallback label must not be
-	// presented as real data, so the crumb and heading stay empty and the body
-	// shows the error state instead.
+	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
+	const reportSearch = pickReportDateParams( search );
+	// Error and not-found responses have no trustworthy title, so only resolved
+	// videos add the title crumb or render the heading.
 	const title =
-		summary.isLoading || summary.isError
+		summary.isLoading || summary.isError || summary.isNotFound
 			? undefined
 			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
 
@@ -46,7 +47,7 @@ function VideoDetail(): JSX.Element {
 			className={ styles.page }
 		>
 			<div className={ styles.content }>
-				{ summary.isError ? (
+				{ summary.isError && (
 					<Stack direction="column" align="flex-start" gap="sm">
 						<Text>
 							{ __(
@@ -58,7 +59,19 @@ function VideoDetail(): JSX.Element {
 							{ __( 'Retry', 'jetpack-premium-analytics' ) }
 						</Button>
 					</Stack>
-				) : null }
+				) }
+				{ summary.isNotFound && (
+					<Stack direction="column" align="flex-start" gap="sm">
+						<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics' ) }</Text>
+						<Link
+							to="/reports/$report"
+							params={ { report: 'videos' } as unknown as never }
+							search={ reportSearch as unknown as never }
+						>
+							{ __( 'Back to Videos', 'jetpack-premium-analytics' ) }
+						</Link>
+					</Stack>
+				) }
 				{ title ? (
 					<Text variant="heading-xl" render={ <h1 /> }>
 						{ title }
