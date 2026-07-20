@@ -181,10 +181,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		const wpVersion = process.env.WP_VERSION || minWpVersion();
 
 		// Reject it here, rather than let every job discover it after standing up docker. This also
-		// keeps the value safe to echo into $GITHUB_OUTPUT.
-		if ( ! /^(?:latest|\d+\.\d+(?:\.\d+)?)$/.test( wpVersion ) ) {
+		// keeps the value safe to echo into $GITHUB_OUTPUT. Pre-release suffixes are allowed so we
+		// can test ahead of a stable release, e.g. '7.1-beta2' or '7.1-RC1'.
+		if ( ! /^(?:latest|nightly|\d+\.\d+(?:\.\d+)?(?:-[A-Za-z]+\d*)?)$/.test( wpVersion ) ) {
 			throw new Error(
-				`Invalid WordPress version '${ wpVersion }'. Expected something like '6.9' or 'latest'.`
+				`Invalid WordPress version '${ wpVersion }'. Expected something like '6.9', '7.1-beta2', 'latest' or 'nightly'.`
 			);
 		}
 
