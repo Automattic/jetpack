@@ -27,7 +27,7 @@ export default {
 	title: __( 'Shares', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Learn where your content has been shared the most.',
+			'The platforms where your content was shared most often, sorted by number of shares.',
 			'jetpack-premium-analytics'
 		),
 	},

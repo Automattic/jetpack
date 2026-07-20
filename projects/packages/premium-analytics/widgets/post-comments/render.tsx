@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsPostComments } from '@jetpack-premium-analytics/data';
+import { useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
@@ -35,8 +35,7 @@ const COMMENTS_SHOWN = 10;
  */
 function PostCommentsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const parsedPostId = Number( reportParams.post_id );
-	const postId = Number.isInteger( parsedPostId ) && parsedPostId > 0 ? parsedPostId : 0;
+	const postId = toPostId( reportParams.post_id );
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPostComments( {
 		postId,

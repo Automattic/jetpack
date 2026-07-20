@@ -23,6 +23,9 @@
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",

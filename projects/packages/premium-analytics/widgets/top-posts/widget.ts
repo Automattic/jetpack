@@ -45,9 +45,15 @@ export default {
 	title: __( 'Most viewed', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Most viewed posts, pages and archive. Learn about what content resonates the most.',
+			'Your most popular posts and pages, sorted by views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: postList,
 	attributes: [

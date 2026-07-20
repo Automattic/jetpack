@@ -102,6 +102,18 @@ describe( 'validateAgainstSchema', () => {
 		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
 	} );
 
+	it( 'accepts an inferred_goal and rejects an out-of-enum value', () => {
+		const out = validOutput();
+		( out.inferred as Record< string, unknown > ).inferred_goal = 'portfolio';
+		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
+		( out.inferred as Record< string, unknown > ).inferred_goal = 'cook';
+		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
+	} );
+
+	it( 'accepts an output without inferred_goal (optional field)', () => {
+		assert.deepEqual( validateAgainstSchema( validOutput(), fileSchema ), [] );
+	} );
+
 	it( 'rejects an unknown goal enum value', () => {
 		const out = validOutput();
 		( out.inferred as { goal: string } ).goal = 'cook';

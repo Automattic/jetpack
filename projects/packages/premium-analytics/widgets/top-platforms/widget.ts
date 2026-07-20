@@ -33,9 +33,15 @@ export default {
 	title: __( 'Top Platforms', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Top browsers and operating systems your visitors use.',
+			'A breakdown of the operating systems and browsers your visitors used, sorted by views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: chartBar,
 	attributes: [

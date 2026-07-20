@@ -1,20 +1,19 @@
 @use "sass:meta";
 
-/* Inline DataViews' own stylesheet. It must load through :global so CSS Modules
- * keeps DataViews' class names (.dataviews-wrapper, …) intact — a plain @import
- * of the .css would instead be emitted verbatim and 404 at runtime against the
- * page base. */
-:global {
-
-	@include meta.load-css( "@wordpress/dataviews/build-style/style" );
-}
-
 /* DataViews pads its own chrome — the toolbar, the table's first/last cells,
  * and the footer all carry the same 24px inline inset the section card would
  * add — so the card contributes no padding of its own; otherwise the two
  * stack and the whole table sits doubly inset. Clip children so DataViews'
  * square row and footer edges follow the card's rounded corners. */
 .root {
+
+	/* Keep DataViews' selectors global within this component while loading the
+	 * stylesheet through Sass so Storybook does not emit a relative @import. */
+	:global {
+
+		@include meta.load-css( "@wordpress/dataviews/build-style/style" );
+	}
+
 	padding: 0;
 	overflow: hidden;
 }
@@ -28,4 +27,19 @@
 
 .root :global(.dataviews-layout__container) {
 	flex: 1 1 auto;
+}
+
+/* Per the report-table design, row links rest as neutral text and only take
+ * the interactive color and underline on hover/keyboard focus. Scoped to the
+ * DataViews table body so custom empty states or other table chrome can keep
+ * their own link treatment. */
+.root :global(.dataviews-view-table tbody a:any-link) {
+	color: var(--wpds-color-foreground-content-neutral);
+	text-decoration: none;
+}
+
+.root :global(.dataviews-view-table tbody a:any-link:hover),
+.root :global(.dataviews-view-table tbody a:any-link:focus-visible) {
+	color: var(--wpds-color-foreground-interactive-brand);
+	text-decoration: underline;
 }

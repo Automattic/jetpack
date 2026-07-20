@@ -132,7 +132,7 @@ describe( 'report clicks aggregate', () => {
 		] );
 	} );
 
-	it( 'flattens grouped child URLs and aggregates them across buckets', () => {
+	it( 'nests grouped child URLs under a parent row and aggregates them across buckets', () => {
 		const item = ( views: number ): StatsClicksItem => ( {
 			label: 'wordpress.org',
 			views,
@@ -170,11 +170,92 @@ describe( 'report clicks aggregate', () => {
 
 		expect( aggregateClickRows( report ) ).toEqual( [
 			{
+				id: 'wordpress.org',
+				clickedUrl: 'wordpress.org',
+				isGroup: true,
+				clicks: 13,
+			},
+			{
 				id: 'wordpress.org|https://wordpress.org/plugins/jetpack-search',
+				parentId: 'wordpress.org',
 				clickedUrl: 'https://wordpress.org/plugins/jetpack-search',
 				href: 'https://wordpress.org/plugins/jetpack-search',
-				group: 'wordpress.org',
 				clicks: 13,
+			},
+		] );
+	} );
+
+	it( 'folds a single-URL group into the nested group that lists the same URL', () => {
+		const report: StatsNormalizedReport< StatsClicksItem > = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-01',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-01T23:59:59+00:00',
+					items: [
+						{
+							label: 'github.com',
+							views: 5,
+							link: null,
+							icon: null,
+							labelIcon: null,
+							children: [
+								{
+									label: 'github.com/Automattic/jetpack',
+									views: 3,
+									link: 'https://github.com/Automattic/jetpack',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+								{
+									label: 'github.com/Automattic/themes',
+									views: 2,
+									link: 'https://github.com/Automattic/themes',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+							],
+						},
+					],
+				},
+				{
+					time_interval: '2026-06-02',
+					date_start: '2026-06-02T00:00:00+00:00',
+					date_end: '2026-06-02T23:59:59+00:00',
+					items: [
+						// The only github.com URL clicked this day, so Stats
+						// reports it as its own top-level group.
+						{
+							label: 'github.com/Automattic/themes',
+							views: 5,
+							link: 'https://github.com/Automattic/themes',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+					],
+				},
+			],
+		};
+
+		expect( aggregateClickRows( report ) ).toEqual( [
+			{ id: 'github.com', clickedUrl: 'github.com', isGroup: true, clicks: 10 },
+			{
+				id: 'github.com|https://github.com/Automattic/themes',
+				parentId: 'github.com',
+				clickedUrl: 'https://github.com/Automattic/themes',
+				href: 'https://github.com/Automattic/themes',
+				clicks: 7,
+			},
+			{
+				id: 'github.com|https://github.com/Automattic/jetpack',
+				parentId: 'github.com',
+				clickedUrl: 'https://github.com/Automattic/jetpack',
+				href: 'https://github.com/Automattic/jetpack',
+				clicks: 3,
 			},
 		] );
 	} );
@@ -204,9 +285,11 @@ describe( 'report clicks aggregate', () => {
 		expect( aggregateClickRows( report ) ).toEqual( [
 			expect.objectContaining( {
 				clickedUrl: 'https://jetpack.com/',
-				group: 'jetpack.com',
+				href: 'https://jetpack.com/',
 				clicks: 4,
 			} ),
 		] );
+		// A single-URL group stays one flat row — no drill-down parent.
+		expect( aggregateClickRows( report ) ).toHaveLength( 1 );
 	} );
 } );

@@ -64,8 +64,8 @@ describe( 'EmailTopRowWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Sent' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Total unique opens' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Emails sent' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Unique opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Total opens' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Open rate' ) ).toBeInTheDocument();
 		// Clicks-only tiles are not in the Opens view.
@@ -84,15 +84,15 @@ describe( 'EmailTopRowWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Sent' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Total unique opens' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Total opens' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Total clicks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Click rate' ) ).toBeInTheDocument();
-		// Total opens remains specific to the Opens view.
-		expect( screen.queryByText( 'Total opens' ) ).not.toBeInTheDocument();
+		// Opens-only tiles are not in the Clicks view.
+		expect( screen.queryByText( 'Emails sent' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Unique opens' ) ).not.toBeInTheDocument();
 
-		// The Clicks design combines send/open context from the opens summary with
-		// click totals from the clicks summary.
+		// The Clicks design combines the total-opens context from the opens summary
+		// with click totals from the clicks summary.
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
 		expect( requestedPaths.some( path => path.includes( 'stats/opens/emails/2000/rate' ) ) ).toBe(
 			true
@@ -156,7 +156,7 @@ describe( 'EmailTopRowWidget', () => {
 		mockApiFetch.mockImplementation( routeRateResponse );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
-		await expect( screen.findByText( 'Sent' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Emails sent' ) ).resolves.toBeInTheDocument();
 	} );
 } );
 
@@ -182,6 +182,7 @@ describe( 'toEmailTopRowMetrics', () => {
 			asSummary( {
 				total_sends: 1000,
 				unique_opens: 380,
+				total_opens: 400,
 				total_clicks: 40,
 				clicks_rate: 0.0381,
 			} ),
@@ -189,8 +190,7 @@ describe( 'toEmailTopRowMetrics', () => {
 		);
 
 		expect( metrics.map( metric => metric.key ) ).toEqual( [
-			'total_sends',
-			'unique_opens',
+			'total_opens',
 			'total_clicks',
 			'clicks_rate',
 		] );

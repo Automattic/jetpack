@@ -384,9 +384,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A backfilled filler card must be skippable so it can never strand the launchpad, and GET must stay a read: it
-	 * must not rewrite the persisted AI output. The skip route accepts a backfilled id (via the pool allowlist), and
-	 * the persisted payload is untouched by the read.
+	 * A backfilled filler card must be skippable so it can never strand the launchpad, and GET must never rewrite
+	 * the persisted AI payload. (The read does add the `tracked_completed` analytics bookkeeping key to the
+	 * envelope — that's the completion-reporting baseline, not a payload mutation.) The skip route accepts a
+	 * backfilled id (via the pool allowlist).
 	 */
 	public function test_backfilled_task_is_skippable_and_get_does_not_mutate_ai_output() {
 		wp_set_current_user( $this->admin_id );
@@ -396,8 +397,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$rendered = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		$this->assertCount( 6, $rendered, 'the short list is backfilled to six' );
 
-		// GET is a pure read: the persisted AI output is unchanged.
-		$this->assertSame( $before, get_option( 'wpcom_ai_launchpad_ai_output' ) );
+		// The read must not rewrite the AI payload; only the analytics baseline key may appear.
+		$after = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertArrayHasKey( 'tracked_completed', $after );
+		unset( $after['tracked_completed'] );
+		$this->assertSame( $before, $after );
 
 		// A backfilled filler card (one not in the seeded AI list) can be skipped.
 		$backfilled = array_values( array_diff( $rendered, array( 'first_post_published', 'site_launched' ) ) );
@@ -555,6 +559,335 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// Additions (synthetics/backfill) are reported so list inflation is observable: dropping two of six picks
 		// leaves a short list, and the backfill tops it up from the pool.
 		$this->assertContains( 'add_new_page', $captured['added'] );
+	}
+
+	/**
+	 * Seeds a persisted wizard + AI output (Alpine Notes, write goal) so GET renders the six-task list.
+	 *
+	 * @param array $inferred_overrides Extra/overriding `inferred` fields for the payload.
+	 * @return void
+	 */
+	private function seed_tailored_site( $inferred_overrides = array() ) {
+		update_option(
+			'wpcom_ai_launchpad_wizard',
+			array(
+				'version'      => 1,
+				'goal'         => 'write',
+				'site_name'    => 'Alpine Notes',
+				'description'  => 'Personal blog about long-distance hiking in the Alps.',
+				'locale'       => 'en',
+				'generated_at' => 1717000000,
+			),
+			false
+		);
+
+		$payload             = self::valid_payload();
+		$payload['inferred'] = array_merge( $payload['inferred'], $inferred_overrides );
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => $payload,
+			),
+			false
+		);
+	}
+
+	/**
+	 * The captured event at an index. Exists so static analysis sees a typed read:
+	 * the capture array is filled by reference from a hook closure, which Phan
+	 * cannot track (it otherwise infers the array stays empty).
+	 *
+	 * @param array $events The captured events.
+	 * @param int   $index  The event index.
+	 * @return array{0: string, 1: array} The `[ name, props ]` pair.
+	 */
+	private static function captured_event( $events, $index = 0 ) {
+		return $events[ $index ];
+	}
+
+	/**
+	 * Starts capturing server-side analytics events via the observation action.
+	 *
+	 * @param array $events Reference to the array capture appends `[ name, props ]` pairs to.
+	 * @return callable The hooked callback, for `remove_action`.
+	 */
+	private function capture_tracks_events( &$events ) {
+		$callback = static function ( $name, $props ) use ( &$events ) {
+			$events[] = array( $name, $props );
+		};
+		add_action( 'wpcom_ai_launchpad_tracks_event', $callback, 10, 2 );
+		return $callback;
+	}
+
+	/**
+	 * Test that task completions are reported by diffing the rendered list on read: the first read baselines
+	 * born-completed tasks silently, a task that completes later is reported exactly once (with the shared
+	 * context props), and repeat reads report nothing new.
+	 */
+	public function test_task_completed_is_reported_once_via_diff_on_read() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site( array( 'niche' => 'hiking' ) );
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		// First read: no tracked_completed key yet, so it only baselines (nothing is completed here anyway).
+		$this->call_api( Requests::GET );
+		$this->assertSame( array(), $events );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( array(), $envelope['tracked_completed'] );
+
+		// A listener-style completion lands between reads.
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+		list( $name, $props ) = self::captured_event( $events );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', $name );
+		$this->assertSame( 'first_post_published', $props['task_id'] );
+		// The shared context rides along, populated from the persisted options.
+		$this->assertSame( 'write', $props['goal'] );
+		$this->assertSame( 'hiking', $props['niche'] );
+		// Null context values are omitted from the recorded event, never "null" strings.
+		$this->assertArrayNotHasKey( 'inferred_goal', $props );
+		$this->assertJson( $props['rendered_list'] );
+		$this->assertContains( 'first_post_published', json_decode( $props['rendered_list'], true ) );
+
+		// Reported ids persist inside the existing envelope — no new option.
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( array( 'first_post_published' ), $envelope['tracked_completed'] );
+
+		// A repeat read reports nothing new.
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that tasks completed before the first read are baselined silently: the user never triggered them,
+	 * so only completions that happen after the baseline are reported.
+	 */
+	public function test_born_completed_tasks_are_baselined_not_reported() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site();
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		$this->call_api( Requests::GET );
+		$this->assertSame( array(), $events );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( array( 'first_post_published' ), $envelope['tracked_completed'] );
+
+		update_option(
+			'launchpad_checklist_tasks_statuses',
+			array(
+				'first_post_published' => true,
+				'site_title'           => true,
+			)
+		);
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', self::captured_event( $events )[0] );
+		$this->assertSame( 'site_title', self::captured_event( $events )[1]['task_id'] );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that a skipped task renders as completed but is never reported as a completion — it already
+	 * emitted `task_skipped` client-side.
+	 */
+	public function test_skipped_tasks_are_never_reported_as_completed() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site();
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		$this->call_api( Requests::GET );
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_title' ) );
+		$this->assertSame( 200, $result->get_status() );
+		$this->call_api( Requests::GET );
+
+		$this->assertSame( array(), $events );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that finishing the list records all_tasks_completed exactly once, at the latch, after the final
+	 * task_completed report — and that skips count toward completion.
+	 */
+	public function test_all_tasks_completed_fires_once_at_the_latch() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site();
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		// Baseline read, then skip everything except the first task.
+		$this->call_api( Requests::GET );
+		foreach ( array( 'design_edited', 'site_title', 'setup_free', 'site_theme_selected', 'site_launched' ) as $task_id ) {
+			$this->assertSame( 200, $this->call_api( 'POST', '/skip-task', array( 'task_id' => $task_id ) )->get_status() );
+		}
+		$this->assertSame( array(), $events );
+
+		// The last real completion finishes the list.
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+		$this->call_api( Requests::GET );
+
+		$names = array_column( $events, 0 );
+		$this->assertSame(
+			array( 'jetpack_ai_launchpad_task_completed', 'jetpack_ai_launchpad_all_tasks_completed' ),
+			$names
+		);
+
+		// The latch prevents a re-fire on later reads.
+		$this->call_api( Requests::GET );
+		$this->assertCount( 2, $events );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that PUT /tailored seeds the reported set with the fresh list's born-completed tasks: a re-tailor
+	 * re-baselines (in lockstep with the skip/completed option resets), a still-complete task is not re-reported
+	 * afterwards, and — because the baseline exists from birth — a completion landing before any GET is still
+	 * reported instead of being swallowed as baseline.
+	 */
+	public function test_update_tailored_baselines_the_born_completed_tasks() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array( 'first_post_published' ),
+			get_option( 'wpcom_ai_launchpad_ai_output' )['tracked_completed']
+		);
+		// The bookkeeping key is persisted only — responses stay clean of it, like GET.
+		$this->assertArrayNotHasKey( 'tracked_completed', $result->get_data()['ai_output'] );
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		// The born-completed task is never reported; a completion that lands before any GET is.
+		update_option(
+			'launchpad_checklist_tasks_statuses',
+			array(
+				'first_post_published' => true,
+				'site_title'           => true,
+			)
+		);
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', self::captured_event( $events )[0] );
+		$this->assertSame( 'site_title', self::captured_event( $events )[1]['task_id'] );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that PUT /tailored accepts the client's timing telemetry as query params and the tailored
+	 * Logstash record carries it (replacing the retired ai_response_received Tracks event).
+	 */
+	public function test_update_tailored_carries_timing_telemetry_into_the_log() {
+		wp_set_current_user( $this->admin_id );
+
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array(
+				'source'      => 'ai',
+				'duration_ms' => 4200,
+				'attempts'    => 2,
+			)
+		);
+		$this->assertSame( 200, $result->get_status() );
+
+		$builder  = new \ReflectionMethod( AI_Launchpad_REST::class, 'tailoring_log_extra' );
+		$captured = $builder->invoke(
+			new AI_Launchpad_REST(),
+			get_option( 'wpcom_ai_launchpad_ai_output' ),
+			array(),
+			4200,
+			2
+		);
+		$this->assertSame( 4200, $captured['duration_ms'] );
+		$this->assertSame( 2, $captured['attempts'] );
+
+		// Without telemetry the record keeps its original shape.
+		$captured = $builder->invoke( new AI_Launchpad_REST(), get_option( 'wpcom_ai_launchpad_ai_output' ), array() );
+		$this->assertArrayNotHasKey( 'duration_ms', $captured );
+		$this->assertArrayNotHasKey( 'attempts', $captured );
+
+		// The route's arg schema rejects out-of-range telemetry before the callback runs.
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload(), array( 'duration_ms' => -1 ) );
+		$this->assertSame( 400, $result->get_status() );
+	}
+
+	/**
+	 * Test that the schema accepts the analytics-only inferred_goal (persisting it into the envelope, where
+	 * the Tracks context readers find it) and rejects an out-of-enum value.
+	 */
+	public function test_update_tailored_accepts_inferred_goal_and_rejects_bad_enum() {
+		wp_set_current_user( $this->admin_id );
+
+		$payload                              = self::valid_payload();
+		$payload['inferred']['inferred_goal'] = 'portfolio';
+		$result                               = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( 'portfolio', $envelope['payload']['inferred']['inferred_goal'] );
+
+		$payload['inferred']['inferred_goal'] = 'cook';
+		$result                               = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 422, $result->get_status() );
+	}
+
+	/**
+	 * Test the shared server-side Tracks context: all-null with no persisted state, populated from the
+	 * options once they exist, with the wizard goal as the pre-tailoring fallback.
+	 */
+	public function test_tracks_context_reads_the_persisted_options() {
+		$this->assertSame(
+			array(
+				'goal'          => null,
+				'niche'         => null,
+				'theme_keyword' => null,
+				'vibe'          => null,
+				'audience'      => null,
+				'rendered_list' => null,
+				'inferred_goal' => null,
+			),
+			wpcom_ai_launchpad_tracks_context()
+		);
+
+		// Wizard persisted, tailoring not yet: the wizard goal fills in.
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'sell' ), false );
+		$this->assertSame( 'sell', wpcom_ai_launchpad_tracks_context()['goal'] );
+
+		$this->seed_tailored_site(
+			array(
+				'niche'         => 'hiking',
+				'theme_keyword' => 'hiking',
+				'inferred_goal' => 'portfolio',
+			)
+		);
+		$context = wpcom_ai_launchpad_tracks_context( array( 'a', 'b' ) );
+		$this->assertSame( 'write', $context['goal'] );
+		$this->assertSame( 'hiking', $context['niche'] );
+		$this->assertSame( 'hiking', $context['theme_keyword'] );
+		$this->assertSame( 'portfolio', $context['inferred_goal'] );
+		$this->assertNull( $context['vibe'] );
+		$this->assertSame( '["a","b"]', $context['rendered_list'] );
 	}
 
 	/**

@@ -5,6 +5,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -94,7 +95,7 @@ type Story = StoryObj< CommentsStoryControls >;
 export const Default: Story = {
 	render: renderComments,
 	args: { view: 'authors' },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -107,7 +108,7 @@ export const Loading: Story = {
 	// Kept off the shared autodocs page: the mock override is keyed by path, so it
 	// would otherwise force the sibling stories on that page into the same state.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: forceCommentsState( 'loading' ),
 };
 
@@ -119,7 +120,7 @@ export const ErrorState: Story = {
 	render: renderComments,
 	args: { view: 'authors' },
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: forceCommentsState( 'error' ),
 };
 
@@ -131,7 +132,7 @@ export const Empty: Story = {
 	render: renderComments,
 	args: { view: 'authors' },
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: forceCommentsState( 'empty' ),
 };
 
@@ -161,4 +162,5 @@ export const WidgetDashboardWithWidget: StoryObj< CommentsDashboardStoryProps > 
 		...widgetDashboardWithWidgetArgTypes,
 		view: VIEW_CONTROL,
 	},
+	decorators: [ withStoryRouter ],
 };

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
@@ -62,7 +63,14 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 			id: 'subscribers',
 			label: __( 'Subscribers', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.followers,
-			render: ( { item } ) => <>{ item.followers.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>
+					{ formatMetricValue( item.followers, 'number', {
+						decimals: 0,
+						useMultipliers: false,
+					} ) }
+				</>
+			),
 		},
 	];
 }

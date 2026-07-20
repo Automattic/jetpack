@@ -52,4 +52,22 @@ describe( 'useUtmReportRecords', () => {
 			expect( options ).toEqual( { enabled: utmParam === activeUtmParam } );
 		} );
 	} );
+
+	it( 'surfaces error and refetch from the active report', () => {
+		const refetch = jest.fn();
+		mockUseStatsUtm.mockImplementation(
+			( _params, options ) =>
+				( {
+					primary: { data: undefined },
+					isLoading: false,
+					isError: options?.enabled ?? false,
+					refetch: options?.enabled ? refetch : jest.fn(),
+				} ) as never
+		);
+
+		const { result } = renderHook( () => useUtmReportRecords( 'source', REPORT_PARAMS ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.refetch ).toBe( refetch );
+	} );
 } );
