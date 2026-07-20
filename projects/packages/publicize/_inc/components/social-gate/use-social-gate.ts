@@ -32,7 +32,7 @@ export default function useSocialGate(): {
 	let gate: SocialGateType = null;
 
 	// WPCOM Simple sites have no Jetpack connection to establish, so the connection
-	// gate never applies there (mirrors the legacy admin page's `! isSimple` guard).
+	// gate never applies there.
 	if ( ! isSimpleSite() && ( ! isRegistered || ! isUserConnected ) ) {
 		gate = 'connection';
 	} else if (

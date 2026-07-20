@@ -133,8 +133,8 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 	if ( ! planEnabled ) {
 		// Engine is on but the site's plan tier lacks per-connection
 		// customization; surface the upgrade path. Ships only in the modernized
-		// chassis — the legacy admin page and block editor keep the trunk
-		// behavior (no editor when the plan is missing).
+		// chassis — the block editor keeps the trunk behavior (no editor when
+		// the plan is missing).
 		if ( ! isModernized || isSimpleSite() ) {
 			return null;
 		}

@@ -22,8 +22,8 @@ const ConnectionManagement = ( {
 	const isModernized = useIsModernized();
 	const ConnectionInfoVariant = isModernized ? ModernConnectionInfo : ConnectionInfo;
 	// The modernized chassis owns its list chrome (edge-to-edge dividers, no
-	// outline, rows supply their own padding). The legacy admin page / block
-	// editor keep the trunk `style.module.scss` classes byte-for-byte.
+	// outline, rows supply their own padding). The block editor keeps the trunk
+	// `style.module.scss` classes byte-for-byte.
 	const listStyles = isModernized ? modernStyles : styles;
 
 	const {

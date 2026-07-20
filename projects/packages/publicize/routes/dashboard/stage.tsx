@@ -47,8 +47,7 @@ const AddAccountAction = () => {
  * When the site is disconnected, or on the free plan with the pricing
  * nudge not yet dismissed, the client-side `SocialGate` (rendered inside
  * `SocialPage`) shows the connection or pricing gate in place of these
- * tabs — so the modernized dashboard handles those states itself instead
- * of falling back to the legacy admin page.
+ * tabs — so the modernized dashboard handles those states itself.
  *
  * @return Stage content.
  */

@@ -5,9 +5,9 @@ const ModernizationContext = createContext( false );
 
 /**
  * Marks its subtree as the modernized (chassis) Social UI so shared
- * connection/modal components render their WPDS variants. The legacy admin
- * page and the block editor mount these components without this provider, so
- * they keep rendering the original UI.
+ * connection/modal components render their WPDS variants. The block editor
+ * mounts these components without this provider, so it keeps rendering the
+ * original UI.
  *
  * @param props          - Props.
  * @param props.children - Subtree rendered with the modernized components.
@@ -19,7 +19,7 @@ export function ModernizationProvider( { children }: { children: ReactNode } ) {
 
 /**
  * Whether the current subtree is the modernized (chassis) Social UI. Defaults
- * to false outside a ModernizationProvider (legacy admin page / block editor).
+ * to false outside a ModernizationProvider (block editor).
  *
  * @return True when rendered inside a ModernizationProvider.
  */
