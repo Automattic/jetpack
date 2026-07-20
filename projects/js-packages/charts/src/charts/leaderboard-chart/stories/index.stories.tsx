@@ -1,5 +1,6 @@
 import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
+import { expect } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -269,6 +270,49 @@ export const Interactive: Story = {
 					'Rows with an `onClick` become interactive: the whole row is clickable and keyboard-focusable (Enter/Space), with a chevron revealed on hover/focus. The consumer supplies the action (e.g. drill-down).',
 			},
 		},
+	},
+};
+
+export const MixedInteractivity: Story = {
+	args: {
+		...sharedThemeArgs,
+		data: sampleData.map( ( entry, index ) =>
+			index % 2 === 0 ? { ...entry, onClick: () => onLeaderboardItemClick( entry.id ) } : entry
+		),
+		withComparison: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive and non-interactive rows in one chart. Being clickable is a visual affordance only — it must not change a row height or column alignment, otherwise a drill-down that swaps clickable parent rows for non-clickable child rows visibly shifts the list.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const grid = canvasElement.querySelector( '[class*="leaderboardChart__content"] > *' );
+
+		// The story must actually mix both row shapes for the rest to mean anything.
+		const interactiveRows = grid.querySelectorAll( '[class*="interactiveRow"]' ).length;
+		expect( interactiveRows ).toBeGreaterThan( 0 );
+		expect( interactiveRows ).toBeLessThan( sampleData.length );
+
+		// An interactive row is one subgrid button wrapping both cells; a
+		// non-interactive row is those cells as bare grid children. Either way every
+		// grid child fills its row, so one distinct height means one row height.
+		const heights = new Set(
+			[ ...grid.children ].map( child => child.getBoundingClientRect().height )
+		);
+		expect( heights.size ).toBe( 1 );
+
+		// Column edges are read off the cells themselves — the button wrapper spans
+		// the full row even when its padding insets the cells inside it.
+		const edge = ( selector: string, side: 'left' | 'right' ) =>
+			new Set(
+				[ ...grid.querySelectorAll( selector ) ].map( cell => cell.getBoundingClientRect()[ side ] )
+			);
+		expect( edge( '[class*="barWithLabelContainer"]', 'left' ).size ).toBe( 1 );
+		expect( edge( '[class*="valueContainer"]', 'right' ).size ).toBe( 1 );
 	},
 };
 
