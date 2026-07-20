@@ -2,33 +2,29 @@
  * External dependencies
  */
 import {
+	aggregateStatsDrilldownRows,
 	bucketStatsTimeSeries,
 	type StatsChartBucketPeriod,
+	type StatsDrilldownItemContext,
+	type StatsDrilldownRow,
+	type StatsDrilldownRowContext,
 	type StatsNormalizedReport,
 	type StatsTimeSeriesReport,
 	type StatsTopAuthorsItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
 
-/**
- * One author or nested post row in the report table.
- */
-export type AuthorRow = {
-	id: string;
-	/** The author parent row id; unset on author rows. */
-	parentId?: string;
-	/** The parent author's raw name, used to announce nested post context. */
+type AuthorDrilldownItem = StatsTopAuthorsItem | StatsTopPostsItem;
+
+type AuthorDrilldownMetadata = {
 	parentName?: string;
-	label: string;
 	avatarUrl: string | null;
 	postId?: string;
-	isGroup?: boolean;
-	views: number;
 };
 
-type AggregatedAuthor = {
-	row: AuthorRow;
-	posts: Map< string, AuthorRow >;
+/** One author or nested post row in the report table. */
+export type AuthorRow = Omit< StatsDrilldownRow< AuthorDrilldownMetadata >, 'value' > & {
+	views: number;
 };
 
 /**
@@ -66,6 +62,52 @@ function getPostKey( post: StatsTopPostsItem ): string {
 }
 
 /**
+ * Build a stable hierarchy row id for an author or one of their posts.
+ *
+ * @param item    - The normalized author or post.
+ * @param context - The item's hierarchy context.
+ * @return The stable row id.
+ */
+function getAuthorDrilldownId(
+	item: AuthorDrilldownItem,
+	context: StatsDrilldownItemContext< AuthorDrilldownItem >
+): string {
+	if ( context.depth === 0 ) {
+		return getAuthorKey( item as StatsTopAuthorsItem );
+	}
+
+	const postKey = getPostKey( item as StatsTopPostsItem );
+
+	return context.parentId ? `${ context.parentId }|post:${ postKey }` : `post:${ postKey }`;
+}
+
+/**
+ * Preserve report-specific author and post metadata on common drill-down rows.
+ *
+ * @param item    - The normalized author or post.
+ * @param context - The aggregated row context.
+ * @return Metadata used by the Authors table fields.
+ */
+function getAuthorDrilldownMetadata(
+	item: AuthorDrilldownItem,
+	context: StatsDrilldownRowContext< AuthorDrilldownItem >
+): AuthorDrilldownMetadata {
+	if ( context.depth === 0 ) {
+		return {
+			avatarUrl: ( item as StatsTopAuthorsItem ).icon,
+		};
+	}
+
+	const post = item as StatsTopPostsItem;
+
+	return {
+		avatarUrl: null,
+		parentName: String( context.parentItem?.label ?? '' ),
+		postId: post.id != null ? String( post.id ) : undefined,
+	};
+}
+
+/**
  * Convert a daily top-authors report into the views-per-bucket series used by
  * the performance chart.
  *
@@ -95,60 +137,12 @@ export function authorsToTimeSeries(
 export function aggregateAuthorRows(
 	report: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
 ): AuthorRow[] {
-	const authors = new Map< string, AggregatedAuthor >();
-
-	for ( const point of report?.data ?? [] ) {
-		for ( const author of point.items ) {
-			const key = getAuthorKey( author );
-			let aggregate = authors.get( key );
-
-			if ( aggregate ) {
-				aggregate.row.views += author.views;
-			} else {
-				aggregate = {
-					row: {
-						id: key,
-						label: String( author.label ?? '' ),
-						avatarUrl: author.icon,
-						isGroup: true,
-						views: author.views,
-					},
-					posts: new Map(),
-				};
-				authors.set( key, aggregate );
-			}
-
-			for ( const post of author.children ?? [] ) {
-				const postKey = getPostKey( post );
-				const rowId = `${ key }|post:${ postKey }`;
-				const existingPost = aggregate.posts.get( postKey );
-
-				if ( existingPost ) {
-					existingPost.views += post.views;
-				} else {
-					aggregate.posts.set( postKey, {
-						id: rowId,
-						parentId: key,
-						parentName: aggregate.row.label,
-						label: String( post.label ?? '' ),
-						avatarUrl: null,
-						postId: post.id ? String( post.id ) : undefined,
-						views: post.views,
-					} );
-				}
-			}
-		}
-	}
-
-	const rows: AuthorRow[] = [];
-	const sortedAuthors = [ ...authors.values() ].sort( ( a, b ) => b.row.views - a.row.views );
-
-	for ( const author of sortedAuthors ) {
-		rows.push( author.row );
-		rows.push( ...[ ...author.posts.values() ].sort( ( a, b ) => b.views - a.views ) );
-	}
-
-	console.log( 'rows', rows );
-
-	return rows;
+	return aggregateStatsDrilldownRows< AuthorDrilldownItem, AuthorDrilldownMetadata >( report, {
+		getChildren: item => item.children,
+		getId: getAuthorDrilldownId,
+		getLabel: item => String( item.label ?? '' ),
+		getValue: item => item.views,
+		isGroup: ( _item, { depth, hasChildren } ) => depth === 0 || hasChildren,
+		getRowMetadata: getAuthorDrilldownMetadata,
+	} ).map( ( { value, ...row } ) => ( { ...row, views: value } ) );
 }

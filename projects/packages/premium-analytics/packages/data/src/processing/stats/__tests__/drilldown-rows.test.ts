@@ -1,7 +1,41 @@
 import { aggregateStatsDrilldownRows } from '../drilldown-rows';
-import type { StatsDrilldownSourceItem, StatsDrilldownSourceReport } from '../drilldown-rows';
+import type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownSourceReport,
+} from '../drilldown-rows';
 
-type Item = StatsDrilldownSourceItem;
+type Item = {
+	key?: string;
+	label: string;
+	value: number;
+	isGroup?: boolean;
+	href?: string;
+	imageUrl?: string;
+	children?: Item[] | null;
+};
+
+type RowMetadata = {
+	href?: string;
+	imageUrl?: string;
+};
+
+const options: AggregateStatsDrilldownRowsOptions< Item, RowMetadata > = {
+	getChildren: item => item.children,
+	getId: ( item, { parentId } ) => {
+		if ( ! item.key ) {
+			return null;
+		}
+
+		return parentId ? `${ parentId }|${ item.key }` : item.key;
+	},
+	getLabel: item => item.label,
+	getValue: item => item.value,
+	isGroup: ( item, { hasChildren } ) => item.isGroup === true || hasChildren,
+	getRowMetadata: item => ( {
+		...( item.href ? { href: item.href } : {} ),
+		...( item.imageUrl ? { imageUrl: item.imageUrl } : {} ),
+	} ),
+};
 
 function makeReport( days: Item[][] ): StatsDrilldownSourceReport< Item > {
 	return {
@@ -10,129 +44,100 @@ function makeReport( days: Item[][] ): StatsDrilldownSourceReport< Item > {
 }
 
 describe( 'aggregateStatsDrilldownRows', () => {
-	it( 'nests grouped records under a parent row and aggregates across buckets', () => {
-		const day = ( views: number ): Item => ( {
-			label: 'wordpress.org',
-			views,
-			link: null,
+	it( 'aggregates nested rows across buckets and preserves report metadata', () => {
+		const day = ( authorValue: number, postValue: number ): Item => ( {
+			key: 'author:42',
+			label: 'Ada Lovelace',
+			value: authorValue,
+			isGroup: true,
+			imageUrl: 'https://example.com/ada.png',
 			children: [
 				{
-					label: '/plugins/jetpack-search',
-					views,
-					link: 'https://wordpress.org/plugins/jetpack-search',
-					children: null,
+					key: 'post:1',
+					label: 'Analytical Engine',
+					value: postValue,
+					href: '/post/1',
 				},
 			],
 		} );
 
-		expect( aggregateStatsDrilldownRows( makeReport( [ [ day( 8 ) ], [ day( 5 ) ] ] ) ) ).toEqual( [
-			{ id: 'wordpress.org', label: 'wordpress.org', isGroup: true, value: 13 },
+		expect(
+			aggregateStatsDrilldownRows( makeReport( [ [ day( 10, 6 ) ], [ day( 12, 5 ) ] ] ), options )
+		).toEqual( [
 			{
-				id: 'wordpress.org|https://wordpress.org/plugins/jetpack-search',
-				parentId: 'wordpress.org',
-				label: '/plugins/jetpack-search',
-				href: 'https://wordpress.org/plugins/jetpack-search',
-				value: 13,
+				id: 'author:42',
+				label: 'Ada Lovelace',
+				isGroup: true,
+				value: 22,
+				imageUrl: 'https://example.com/ada.png',
+			},
+			{
+				id: 'author:42|post:1',
+				parentId: 'author:42',
+				label: 'Analytical Engine',
+				value: 11,
+				href: '/post/1',
 			},
 		] );
 	} );
 
-	it( 'keeps a single-record group as one flat row', () => {
+	it( 'keeps a semantic group when it has no children', () => {
 		const report = makeReport( [
-			[ { label: 'jetpack.com', views: 4, link: 'https://jetpack.com/', children: null } ],
+			[ { key: 'author:guest', label: 'Guest Author', value: 3, isGroup: true } ],
 		] );
 
-		expect( aggregateStatsDrilldownRows( report ) ).toEqual( [
+		expect( aggregateStatsDrilldownRows( report, options ) ).toEqual( [
 			{
-				id: 'jetpack.com|https://jetpack.com/',
-				label: 'jetpack.com',
-				href: 'https://jetpack.com/',
-				value: 4,
-			},
-		] );
-	} );
-
-	it( 'folds a single-record group into the nested group that lists the same URL', () => {
-		const report = makeReport( [
-			[
-				{
-					label: 'github.com',
-					views: 5,
-					link: null,
-					children: [
-						{
-							label: 'github.com/Automattic/jetpack',
-							views: 3,
-							link: 'https://github.com/Automattic/jetpack',
-							children: null,
-						},
-						{
-							label: 'github.com/Automattic/themes',
-							views: 2,
-							link: 'https://github.com/Automattic/themes',
-							children: null,
-						},
-					],
-				},
-			],
-			[
-				// The only github.com record clicked this day, so Stats
-				// reports it as its own top-level group.
-				{
-					label: 'github.com/Automattic/themes',
-					views: 5,
-					link: 'https://github.com/Automattic/themes',
-					children: null,
-				},
-			],
-		] );
-
-		expect( aggregateStatsDrilldownRows( report ) ).toEqual( [
-			{ id: 'github.com', label: 'github.com', isGroup: true, value: 10 },
-			{
-				id: 'github.com|https://github.com/Automattic/themes',
-				parentId: 'github.com',
-				label: 'github.com/Automattic/themes',
-				href: 'https://github.com/Automattic/themes',
-				value: 7,
-			},
-			{
-				id: 'github.com|https://github.com/Automattic/jetpack',
-				parentId: 'github.com',
-				label: 'github.com/Automattic/jetpack',
-				href: 'https://github.com/Automattic/jetpack',
+				id: 'author:guest',
+				label: 'Guest Author',
+				isGroup: true,
 				value: 3,
 			},
 		] );
 	} );
 
-	it( 'orders groups and records by value descending', () => {
+	it( 'keeps a non-group root as one flat row', () => {
+		const report = makeReport( [
+			[ { key: 'page', label: 'Example', value: 4, href: 'https://example.com/' } ],
+		] );
+
+		expect( aggregateStatsDrilldownRows( report, options ) ).toEqual( [
+			{
+				id: 'page',
+				label: 'Example',
+				value: 4,
+				href: 'https://example.com/',
+			},
+		] );
+	} );
+
+	it( 'orders siblings by value descending at every level', () => {
 		const report = makeReport( [
 			[
-				{ label: 'small.com', views: 2, link: 'https://small.com/', children: null },
+				{ key: 'small', label: 'Small', value: 2, isGroup: true },
 				{
-					label: 'big.com',
-					views: 9,
-					link: null,
+					key: 'big',
+					label: 'Big',
+					value: 9,
 					children: [
-						{ label: 'big.com/a', views: 4, link: 'https://big.com/a', children: null },
-						{ label: 'big.com/b', views: 5, link: 'https://big.com/b', children: null },
+						{ key: 'a', label: 'A', value: 4 },
+						{ key: 'b', label: 'B', value: 5 },
 					],
 				},
 			],
 		] );
 
-		expect( aggregateStatsDrilldownRows( report ).map( row => row.id ) ).toEqual( [
-			'big.com',
-			'big.com|https://big.com/b',
-			'big.com|https://big.com/a',
-			'small.com|https://small.com/',
+		expect( aggregateStatsDrilldownRows( report, options ).map( row => row.id ) ).toEqual( [
+			'big',
+			'big|b',
+			'big|a',
+			'small',
 		] );
 	} );
 
-	it( 'drops leaves without a link', () => {
-		const report = makeReport( [ [ { label: 'no-link', views: 3, link: null, children: null } ] ] );
+	it( 'omits items without an id selected by the report adapter', () => {
+		const report = makeReport( [ [ { label: 'No identity', value: 3 } ] ] );
 
-		expect( aggregateStatsDrilldownRows( report ) ).toEqual( [] );
+		expect( aggregateStatsDrilldownRows( report, options ) ).toEqual( [] );
 	} );
 } );
