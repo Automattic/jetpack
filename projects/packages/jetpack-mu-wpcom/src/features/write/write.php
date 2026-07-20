@@ -1011,8 +1011,8 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<?php
 		// Screen-reader announcement for transient status (saving/publishing,
 		// "Please write something" validation, save/publish errors). Bound to
-		// state.message only — not state.displayStatus — so the title mirror the
-		// visible .bw-status also carries isn't re-announced on every keystroke.
+		// state.message only — not state.displayStatus — so the title mirror that
+		// the visible .bw-status also carries isn't re-announced on every keystroke.
 		?>
 		<span class="bw-visually-hidden" role="status" aria-live="polite" data-wp-text="state.message"></span>
 		<div class="bw-topbar-actions">

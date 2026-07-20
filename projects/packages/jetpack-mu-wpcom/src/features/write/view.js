@@ -6618,15 +6618,16 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 		recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, phase: 'save_request' } );
 		state.isSaving = false;
 		if ( ! isAutosave ) {
-			const { code } = describeSaveError( err );
+			const { code, message } = describeSaveError( err );
 			// A timed-out/aborted request or a dropped connection carries no
 			// useful server message (the dominant failure in RSM-4323 was a
 			// network-layer reject with no HTTP status). Show a plain retry
-			// prompt instead of an empty or opaque "Error: ".
+			// prompt instead of an empty or opaque "Error: ". `message` is
+			// already capped at MAX_ERROR_MESSAGE_LENGTH by describeSaveError.
 			const detail =
-				code === 'AbortError' || ! err?.message
+				code === 'AbortError' || ! message
 					? i18n.saveTimedOut || 'Saving timed out. Please check your connection and try again.'
-					: err.message;
+					: message;
 			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', detail );
 			setTimeout( () => {
 				state.message = '';
