@@ -240,7 +240,7 @@ class Error_Handler {
 			}
 
 			foreach ( $users as $user_id => $error ) {
-				$audience = $this->classify_error_audience( $user_id, $owner_id );
+				$audience = $this->classify_error_audience( $error_code, $user_id, $owner_id );
 
 				$message = $generic_message;
 				$action  = 'reconnect';
@@ -250,7 +250,10 @@ class Error_Handler {
 				// This admin cannot resolve the error themselves, so surface an
 				// informational notice naming the owner and offer no reconnect CTA.
 				if ( 'owner' === $audience && ! $viewer_is_owner && ! $is_transferable ) {
-					$owner      = $manager->get_connection_owner();
+					// Resolve the owner's name from the local user so we avoid calling
+					// get_connection_owner() (which re-reports the error) and still get a
+					// name when the owner's WordPress.com account cannot be resolved.
+					$owner      = $owner_id > 0 ? get_userdata( $owner_id ) : false;
 					$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
 
 					$message = $owner_name
@@ -324,11 +327,19 @@ class Error_Handler {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string|int $user_id  The user ID associated with the error (`0`, a positive integer, or 'invalid').
-	 * @param int        $owner_id The local user ID of the connection owner, or 0 if there is none.
+	 * @param string     $error_code The error code being classified.
+	 * @param string|int $user_id    The user ID associated with the error (`0`, a positive integer, or 'invalid').
+	 * @param int        $owner_id   The local user ID of the connection owner, or 0 if there is none.
 	 * @return string One of 'site', 'owner', or 'user'.
 	 */
-	private function classify_error_audience( $user_id, $owner_id ) {
+	private function classify_error_audience( $error_code, $user_id, $owner_id ) {
+		// `invalid_connection_owner` is inherently about the connection owner: it is
+		// reported with an empty token (so its user_id resolves to 'invalid'), but it
+		// always concerns whoever owns the connection.
+		if ( 'invalid_connection_owner' === $error_code && $owner_id > 0 ) {
+			return 'owner';
+		}
+
 		if ( 'invalid' === $user_id ) {
 			return 'site';
 		}

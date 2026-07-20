@@ -1699,6 +1699,57 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that an `invalid_connection_owner` error (stored with an empty token, so its
+	 * user_id is 'invalid') is classified as owner-scoped and, on a locked site, shows a
+	 * secondary admin an informational notice with no reconnect CTA.
+	 */
+	public function test_get_displayable_errors_invalid_connection_owner_is_owner_scoped() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connection_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'connection_owner@example.org',
+				'display_name' => 'Owner Person',
+				'role'         => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		// Act as a secondary admin (a different user than the owner).
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'secondary_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+
+		// Lock ownership.
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		$error = array(
+			'error_code'    => 'invalid_connection_owner',
+			'user_id'       => 'invalid',
+			'error_message' => 'Invalid connection owner',
+			'error_data'    => array( 'token' => '' ),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_invalid_owner',
+			'error_type'    => 'connection',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'invalid_connection_owner' => array( 'invalid' => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$displayed = $result['invalid_connection_owner']['invalid'];
+		$this->assertSame( 'owner', $displayed['audience'], 'invalid_connection_owner is inherently owner-scoped.' );
+		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
+		$this->assertStringContainsString( 'Owner Person', $displayed['error_message'], 'The informational notice names the local connection owner.' );
+	}
+
+	/**
 	 * Test that a consumer-injected error takes precedence over the default state and
 	 * survives the viewer-aware pipeline unchanged, including when it omits the optional
 	 * `audience` field (backward-compatibility guarantee for pluggable notices).
