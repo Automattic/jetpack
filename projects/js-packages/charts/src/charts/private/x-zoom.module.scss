@@ -1,8 +1,9 @@
 .x-zoom {
 
-	// The translucent rgba overlay colors (selection fill/stroke, reset
-	// background/border) have no WPDS equivalent and stay as-is; only the
-	// opaque foreground and focus colors are tokenized.
+	// All zoom controls read --a8c-charts-color-zoom-* names. The translucent
+	// rgba overlays (selection fill/stroke, reset background/border) have no WPDS
+	// equivalent, so they fall back to their rgba literals; the opaque foreground
+	// and focus colors fall back to WPDS tokens.
 	&__selection {
 		fill: var(--a8c-charts-color-zoom-selection-fill, rgba(56, 88, 233, 0.16));
 		stroke: var(--a8c-charts-color-zoom-selection-stroke, rgba(56, 88, 233, 0.65));

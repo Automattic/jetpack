@@ -29,7 +29,7 @@
 
 	&:focus-visible {
 		outline:
-			var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid
+			var(--a8c-charts-border-width-focus, var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px))) solid
 			var(--a8c-charts-color-focus, var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9)));
 		outline-offset: 2px;
 		border-radius: var(--wpds-border-radius-sm, 2px);
@@ -102,9 +102,9 @@
 
 .heatmap-chart__cell--selected {
 	outline:
-		var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid
+		var(--a8c-charts-border-width-focus, var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px))) solid
 		var(--a8c-charts-color-focus, var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9)));
-	outline-offset: calc(-1 * var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)));
+	outline-offset: calc(-1 * var(--a8c-charts-border-width-focus, var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px))));
 }
 
 .heatmap-chart__cell-value {
