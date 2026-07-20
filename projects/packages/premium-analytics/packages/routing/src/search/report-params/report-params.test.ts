@@ -15,6 +15,12 @@ describe( 'pickReportDateParams', () => {
 	it( 'returns an empty object for undefined search', () => {
 		expect( pickReportDateParams( undefined ) ).toEqual( {} );
 	} );
+
+	it( 'does not pick the page-owned chart period', () => {
+		expect( pickReportDateParams( { from: '2026-01-01', period: 'week' } ) ).toEqual( {
+			from: '2026-01-01',
+		} );
+	} );
 } );
 
 describe( 'buildDashboardLink', () => {
@@ -30,8 +36,13 @@ describe( 'buildDashboardLink', () => {
 	} );
 
 	it( 'drops page-scoped params, carrying only the report window', () => {
-		expect( buildDashboardLink( { from: '2026-01-01', post_id: '42', section: 'archives' } ) ).toBe(
-			'/?from=2026-01-01'
-		);
+		expect(
+			buildDashboardLink( {
+				from: '2026-01-01',
+				period: 'week',
+				post_id: '42',
+				section: 'archives',
+			} )
+		).toBe( '/?from=2026-01-01' );
 	} );
 } );

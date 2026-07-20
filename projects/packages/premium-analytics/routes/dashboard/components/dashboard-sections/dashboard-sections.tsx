@@ -1,5 +1,4 @@
-import { Tabs } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { SectionTabs } from '@jetpack-premium-analytics/ui';
 import styles from './dashboard-sections.module.scss';
 import type { DashboardSection, DashboardSectionId } from '../../config';
 import type { ReactNode } from 'react';
@@ -46,24 +45,15 @@ export function DashboardSections( {
 	onChange,
 	children,
 }: DashboardSectionsProps ) {
-	// Hoisted so it isn't an inline arrow in JSX (react/jsx-no-bind is an error).
-	const handleValueChange = useCallback(
-		( sectionId: string ) => onChange( sectionId as DashboardSectionId ),
-		[ onChange ]
-	);
-
 	return (
-		<Tabs.Root value={ value } onValueChange={ handleValueChange } className={ styles.root }>
-			<div className={ styles.tabList }>
-				<Tabs.List variant="minimal">
-					{ sections.map( section => (
-						<Tabs.Tab key={ section.id } value={ section.id }>
-							{ section.label }
-						</Tabs.Tab>
-					) ) }
-				</Tabs.List>
-			</div>
+		<SectionTabs
+			tabs={ sections }
+			value={ value }
+			onChange={ onChange }
+			rootClassName={ styles.root }
+			className={ styles.tabList }
+		>
 			{ children }
-		</Tabs.Root>
+		</SectionTabs>
 	);
 }

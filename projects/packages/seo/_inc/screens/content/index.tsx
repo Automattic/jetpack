@@ -121,6 +121,7 @@ const ContentScreen: FC = () => {
 				id: 'title',
 				label: __( 'Title', 'jetpack-seo' ),
 				enableHiding: false,
+				enableGlobalSearch: true,
 				getValue: ( { item } ) => item.title,
 				render: ( { item } ) => <Link href={ item.editLink }>{ item.title || noTitleLabel }</Link>,
 			},
@@ -167,7 +168,13 @@ const ContentScreen: FC = () => {
 				id: 'seoTitle',
 				label: __( 'SEO title', 'jetpack-seo' ),
 				enableSorting: false,
-				getValue: ( { item } ) => ( item.hasCustomTitle ? 'set' : 'not_set' ),
+				enableGlobalSearch: true,
+				// These columns render a Set/Not set badge, but `getValue` feeds the
+				// global search, so it returns the underlying text: typing part of an
+				// SEO title or meta description finds the row it belongs to. Nothing
+				// sorts or filters on these ids — the set/not-set state has its own
+				// filter-only field below.
+				getValue: ( { item } ) => item.customTitle,
 				render: ( { item } ) => (
 					<Badge intent={ item.hasCustomTitle ? 'stable' : 'draft' }>
 						{ item.hasCustomTitle ? setLabel : notSetLabel }
@@ -178,7 +185,8 @@ const ContentScreen: FC = () => {
 				id: 'metaDescription',
 				label: __( 'Meta description', 'jetpack-seo' ),
 				enableSorting: false,
-				getValue: ( { item } ) => ( item.hasDescription ? 'set' : 'not_set' ),
+				enableGlobalSearch: true,
+				getValue: ( { item } ) => item.description,
 				render: ( { item } ) => (
 					<Badge intent={ item.hasDescription ? 'stable' : 'draft' }>
 						{ item.hasDescription ? setLabel : notSetLabel }

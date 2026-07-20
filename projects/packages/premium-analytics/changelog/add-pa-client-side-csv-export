@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Top pages by views: Add an opt-in client-side CSV export that serializes already-loaded rows in the browser.

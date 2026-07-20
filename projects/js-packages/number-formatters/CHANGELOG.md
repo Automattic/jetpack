@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.6] - 2026-07-13
+### Changed
+- Internal updates.
+
 ## [1.2.5] - 2026-06-26
 ### Changed
 - Internal updates.
@@ -176,6 +180,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.2.6]: https://github.com/Automattic/number-formatters/compare/1.2.5...1.2.6
 [1.2.5]: https://github.com/Automattic/number-formatters/compare/1.2.4...1.2.5
 [1.2.4]: https://github.com/Automattic/number-formatters/compare/1.2.3...1.2.4
 [1.2.3]: https://github.com/Automattic/number-formatters/compare/1.2.2...1.2.3

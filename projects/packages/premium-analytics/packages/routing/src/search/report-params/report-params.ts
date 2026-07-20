@@ -2,16 +2,15 @@
  * The URL search params that describe the shared report window (date range,
  * interval, and comparison) — the state every analytics surface has in common.
  *
- * Page-owned scope params such as `post_id` and `section` are deliberately
- * excluded, so this set is safe to carry between routes without leaking one
- * page's scope onto another.
+ * Page-owned params such as `post_id`, `section`, and the report chart's
+ * `period` are deliberately excluded, so this set is safe to carry between
+ * routes without leaking one page's state onto another.
  */
 export const REPORT_DATE_PARAM_KEYS = [
 	'from',
 	'to',
 	'interval',
 	'preset',
-	'period',
 	'date_type',
 	'compare_from',
 	'compare_to',

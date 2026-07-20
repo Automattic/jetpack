@@ -321,7 +321,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	public static function matrix_access() {
-		$time_outdated = time() - HOUR_IN_SECONDS;
+		// A prior-day timestamp. Paid Content grants access through the end of the
+		// end_date day (UTC), so an "expired" fixture must be before that day to
+		// actually read as expired.
+		$time_outdated = time() - 2 * DAY_IN_SECONDS;
 
 		return array(
 			// The follow use cases are mainly yot be thourough and probably duplicates some former use cases
@@ -841,9 +844,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
-		// Let's make sure date is taken into account
+		// Let's make sure date is taken into account (a fully-past day, since access
+		// lasts through the end of the end_date day).
 		$subscription_service = $this->set_returned_token(
-			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $gold_tier_annual_plan_id )
+			$this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS, null, $gold_tier_annual_plan_id )
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
@@ -899,9 +903,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
-		// Expired comp should NOT bypass the tier gate.
+		// Expired comp should NOT bypass the tier gate (a fully-past day, since access
+		// lasts through the end of the end_date day).
 		$subscription_service = $this->set_returned_token(
-			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $bronze_tier_plan_id, true )
+			$this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS, null, $bronze_tier_plan_id, true )
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 

@@ -438,6 +438,21 @@ function wpcom_add_jetpack_submenu() {
 			$newsletter_settings->add_wp_admin_submenu();
 		}
 
+		// Jetpack > VideoPress.
+		// Register the in-admin VideoPress dashboard page. Like Newsletter above, this
+		// must run here (priority 999999) because the Jetpack parent menu is created by
+		// this function and doesn't exist at earlier priorities. Gated on the VideoPress
+		// site feature so it only surfaces for VideoPress-enabled Simple sites during dev.
+		if (
+			class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) &&
+			function_exists( 'wpcom_site_has_feature' ) &&
+			class_exists( '\WPCOM_Features' ) &&
+			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
+		) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
+		}
+
 		// Jetpack > Traffic
 		add_submenu_page(
 			'jetpack',
@@ -467,6 +482,7 @@ function wpcom_add_jetpack_submenu() {
 		array(
 			'my-jetpack',
 			'stats',
+			'advertising',
 			'boost',
 			'social',
 			'akismet-key-config',
@@ -703,7 +719,7 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising',
+			'advertising-moved',
 			'marketing',
 			'monetize',
 			'import',

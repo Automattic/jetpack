@@ -25,6 +25,18 @@ export type FileDownloadsAttributes = {
 export default {
 	name: 'jpa/file-downloads',
 	title: __( 'File downloads', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'The files your visitors downloaded most often, sorted by number of downloads.',
+			'jetpack-premium-analytics'
+		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
+	},
 	icon: download,
 	attributes: [
 		{

@@ -7,14 +7,18 @@ import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -30,6 +34,13 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
+type UtmReportSection =
+	| 'source-medium'
+	| 'campaign-source-medium'
+	| 'source'
+	| 'medium'
+	| 'campaign';
+
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
@@ -44,6 +55,22 @@ type UtmInsightsInnerProps = {
 	 */
 	max: number;
 };
+
+/** Map a widget dimension to a section supported by the UTM report. */
+function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
+	switch ( utmDimension ) {
+		case 'utm_source,utm_medium':
+			return 'source-medium';
+		case 'utm_campaign,utm_source,utm_medium':
+			return 'campaign-source-medium';
+		case 'utm_source':
+			return 'source';
+		case 'utm_medium':
+			return 'medium';
+		case 'utm_campaign':
+			return 'campaign';
+	}
+}
 
 /**
  * Inner component — rendered inside WidgetRoot.
@@ -65,13 +92,12 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		clearSelectedUtm();
 	}, [ clearSelectedUtm, utmDimension ] );
 
-	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
+	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
 		max,
 	} );
 
-	const showLoading = isLoading || ( isFetching && hasData );
 	const selectedUtm = useMemo(
 		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
 		[ data, selectedUtmLabel ]
@@ -81,38 +107,58 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
+	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
+
+	// The view already falls back to the top list when the selected row is
+	// missing or no longer drillable (no children); clear the stored selection
+	// too once data has settled without a drillable match, so stale state
+	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
+	// placeholder rows and errors aren't settled data, so a valid selection
+	// survives refetches and transient failures.
+	useEffect( () => {
+		if ( selectedUtmLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
+			clearSelectedUtm();
+		}
+	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
-		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ), 1 );
+		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ?? 0 ), 1 );
 
-		return activeData.map( ( item, index ) => ( {
-			id: `${ index }-${ item.label }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ item.label }</Text>
-				</Stack>
-			),
-			currentValue: item.value,
-			currentShare: ( item.value / maxValue ) * 100,
-			previousValue: item.previousValue,
-			previousShare:
-				hasComparison && item.previousValue > 0
-					? ( item.previousValue / maxPreviousValue ) * 100
-					: 0,
-			delta: hasComparison ? calculateDelta( item.value, item.previousValue ) : 0,
-			...( ! isDrillDown &&
-				'children' in item &&
-				item.children?.length && {
-					onClick: () => selectUtmLabel( item.label ),
-					ariaLabel: sprintf(
-						/* translators: %s is the UTM value label. */
-						__( 'View posts for %s', 'jetpack-premium-analytics' ),
-						item.label
-					),
-				} ),
-		} ) );
-	}, [ activeData, hasComparison, isDrillDown, selectUtmLabel ] );
+		return activeData.map( ( item, index ) => {
+			const previousValue = item.previousValue;
+
+			return {
+				id: `${ index }-${ item.label }`,
+				label: (
+					<Stack align="center" className={ styles.itemLabel }>
+						<Text className={ styles.itemLabelText }>{ item.label }</Text>
+					</Stack>
+				),
+				currentValue: item.value,
+				currentShare: sharePercentage( item.value, maxValue ),
+				previousValue,
+				previousShare:
+					withComparison && previousValue !== undefined
+						? sharePercentage( previousValue, maxPreviousValue )
+						: undefined,
+				delta:
+					withComparison && previousValue !== undefined
+						? calculateDelta( item.value, previousValue )
+						: undefined,
+				...( ! isDrillDown &&
+					'children' in item &&
+					item.children?.length && {
+						onClick: () => selectUtmLabel( item.label ),
+						ariaLabel: sprintf(
+							/* translators: %s is the UTM value label. */
+							__( 'View posts for %s', 'jetpack-premium-analytics' ),
+							item.label
+						),
+					} ),
+			};
+		} );
+	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
@@ -122,40 +168,39 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 			className={ styles.backLink }
 		/>
 	) : null;
-
-	if ( isError ) {
-		return (
-			<>
-				{ backLink }
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<>
-				{ backLink }
-				<WidgetLoadingOverlay />
-			</>
-		);
-	}
-
 	return (
 		<>
 			{ backLink }
-			<LeaderboardChart
-				data={ leaderboardData }
-				loading={ showLoading }
-				withComparison={ hasComparison }
-				withOverlayLabel
-				showLegend={ false }
-				emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
-				dataFormat={ DATA_FORMAT }
-				className={ styles.leaderboard }
-			/>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load UTM data. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: megaphone,
+						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ withComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+			</WidgetFooter>
 		</>
 	);
 }

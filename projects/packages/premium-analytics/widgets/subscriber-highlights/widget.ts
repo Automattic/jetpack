@@ -56,6 +56,12 @@ export const DEFAULT_SUBSCRIBER_METRICS: SubscriberMetricId[] = SUBSCRIBER_METRI
 export default {
 	name: 'jpa/subscriber-highlights',
 	title: __( 'Subscriber highlights', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'A summary of your subscribers — total, paid, free, and social followers.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: people,
 	attributes: [
 		{

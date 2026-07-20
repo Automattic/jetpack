@@ -5,6 +5,7 @@
 	"type": "module",
 	"dependencies": {
 		"@jetpack-premium-analytics/data": "link:../../packages/data",
+		"@jetpack-premium-analytics/icons": "link:../../packages/icons",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
@@ -14,6 +15,6 @@
 	},
 	"devDependencies": {
 		"@testing-library/react": "16.3.2",
-		"@wordpress/api-fetch": "7.50.0"
+		"@wordpress/api-fetch": "7.51.0"
 	}
 }

@@ -11,16 +11,13 @@ import {
 import { PaymentStatusWidget } from './payment-status-widget';
 import type { PaymentStatusAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps } from 'react';
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but callers may
 // also pass them via `attributes`. Compose the render-only shape to cover both.
 type PaymentStatusRenderAttributes = PaymentStatusAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type PaymentStatusWidgetProps = WidgetRenderProps< PaymentStatusRenderAttributes > & {
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+type PaymentStatusWidgetProps = WidgetRenderProps< PaymentStatusRenderAttributes >;
 
 /**
  * Payment status widget.
@@ -32,12 +29,9 @@ type PaymentStatusWidgetProps = WidgetRenderProps< PaymentStatusRenderAttributes
  * @param {PaymentStatusWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function PaymentStatusRender( {
-	attributes = {},
-	setError,
-}: PaymentStatusWidgetProps ) {
+export default function PaymentStatusRender( { attributes = {} }: PaymentStatusWidgetProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
 			<PaymentStatusWidget />
 		</WidgetRoot>
 	);

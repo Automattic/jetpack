@@ -25,9 +25,11 @@ export type TotalSalesOverTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/total-sales-over-time',
 	title: __( 'Total sales over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track total sales including all orders and transactions.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Track total sales including all orders and transactions.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

@@ -75,6 +75,7 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `jetpack-stats-dashboard`                                         | `view_stats`       | whole prefix (busts read cache) |
 | `commercial-classification`                                       | `view_stats`       | exact path                      |
 | `upgrades` (not under `/sites/`)                                  | `view_stats`       | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`       | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
@@ -99,6 +100,62 @@ Re-point a screen's data layer at the proxy instead of re-implementing old route
 routes (`jetpack/v4/stats-app/*`) → `stats` / `jetpack-stats` / `subscribers` / `wordads`
 prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dashboard UI lives in
 `routes/` here, not in Calypso. Frontend helpers go under `packages/data/src/api/`.
+
+## WordPress.com Simple
+
+Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
+and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
+`Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
+
+### Route guards must use the shared site-readiness helpers
+
+Every route's `beforeLoad` that checks connection or sync state must call
+`isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
+`routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
+or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
+connection, so a direct read silently evaluates to "not connected" there.
+
+That's more than one broken route: it's a redirect loop. `/connect` and `/syncing` already go
+through the shared helpers and treat Simple as connected and synced, so if a route added later
+skips the helpers, Simple hits that route, gets redirected to `/connect`, and `/connect` — seeing
+Simple as already connected — immediately redirects back to `/`. From the user's side this looks
+like "the page just bounces to the dashboard," with nothing in the console pointing at the cause.
+This shipped once (Automattic/jetpack#50266): the `/reports/$report` route was left reading script
+data directly when the other four routes were migrated to the shared helpers, so it fell out of
+sync with `/connect`'s guard and the two routes bounced traffic between each other on Simple.
+
+Adding a new route with a connection/sync guard: grep `routes/` for
+`isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
+script data.
+
+### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
+
+The dashboard support routes (widget modules, default layout, sections) used to live under
+`jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
+recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
+routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
+treats as site-specific by default for plain function-callback routes: registering under it is
+enough for WPCOM to rewrite and expose the route as `/wpcom/v2/sites/<blog_id>/...` through
+public-api, with no separate dotcom-side registration and no `wpcom_rest_api_v2_load_plugin()`
+class shim required. That's why the rename happened (Automattic/jetpack#50266), and it's why
+`Dashboard_Support_Routes::register()` exists as a standalone entry point WPCOM can call.
+
+### Choosing a REST namespace for new endpoints
+
+**Any future Premium Analytics REST endpoint that needs to work on both connected Jetpack sites
+and WPCOM Simple must register under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in
+`src/rest-namespace.php`), not `jetpack/v4` or a plugin-specific namespace — those only reach
+connected sites. An endpoint that's intentionally connected-site-only (e.g. the local data proxy,
+notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls it.
+
+**WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
+(`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
+(widget modules, default layout, sections) standalone. The WPCOM-side caller is
+`wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
+repo — it `require_once`s this exact file and calls `::register()` by name.
+
+**Renaming, moving, or changing this method's signature requires a matching WPCOM-side update.**
+See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Pitfalls
 
@@ -216,8 +273,9 @@ not be merged.
    shared `WidgetDashboardWithWidget` helper from `widgets/stories/widget-dashboard-with-widget.tsx`.
    It mounts the real `WidgetDashboard` with this single widget and exposes the standard
    dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
-   actually renders in product. The `Default` / `WithComparison` close-up stories use the
-   simpler canvas decorator from the template below — but never ship _only_ a bare-div story.
+   actually renders in product. The `Default` and, when applicable, `WithComparison` close-up
+   stories use the shared `withWidgetCanvas` decorator from the template below — but never ship
+   _only_ a close-up story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
    - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
@@ -234,18 +292,21 @@ not be merged.
 
 ### Story template
 
-Every widget ships three stories: a **Default** close-up, a **WithComparison** close-up, and a
-**WidgetDashboardWithWidget** story that mounts the real dashboard. This template is
-self-contained — copy it as the base rather than an existing widget's story file, which may
-have drifted. `meta.component` is the widget's render component; widget-specific args
-(comparison toggles, view selectors, …) are wired as Storybook controls.
+Every widget ships a **Default** close-up and a **WidgetDashboardWithWidget** story that mounts
+the real dashboard. Add a **WithComparison** close-up only when the widget's data hook populates
+`comparisonRows` — in practice, when it passes `mergeComparisonRows` to `useStatsReport` (see
+`packages/data/src/hooks/use-stats-clicks.ts`). `rg -l mergeComparisonRows packages/data/src/hooks`
+lists the comparison-capable hooks; a widget whose hook is not in that list omits the story.
+`hasComparison` alone does not qualify — `useReport` returns it for any params carrying `compare_*`,
+whether or not the module has comparison data to show. This template is self-contained — copy it as
+the base rather than an existing widget's story file, which may have drifted. `meta.component` is
+the widget's render component; widget-specific args (view selectors, metric toggles, …) are wired
+as Storybook controls.
 
-`WithComparison` tests the date range picker's comparison parameters, not only visible delta
-UI. Some Stats endpoints accept `compare_*` params but return no comparison rows. Those widgets
-must still render gracefully when `reportParams` contains comparison dates; in that case keep
-the chart's comparison UI disabled or empty rather than inventing `previousValue`/`delta`
-values, and add a short story docs note explaining that the module has no comparison data to
-display.
+`WithComparison` tests the date range picker's comparison parameters and the visible comparison
+UI. Widgets without mapped comparison rows omit the story and the `withComparison` control. Their
+`WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
+widget is covered against crashing or inventing deltas when the host supplies comparison dates.
 
 The shared imports, helpers, and `meta`:
 
@@ -257,10 +318,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -268,7 +330,77 @@ registerReportMocks();
 
 const MY_WIDGET_RENDER_MODULE = 'storybook/<widget-name>';
 
-// Widget-specific controls — add view selectors, metric toggles, etc. here.
+function renderMyWidget() {
+	return <MyWidgetRender attributes={ { reportParams: getDefaultQueryParams() } } />;
+}
+
+// Close-up canvas: `withWidgetCanvas` from `widgets/stories/with-widget-canvas` frames the
+// story in a white, widget-sized card so each state reads as a real dashboard widget. Import
+// the shared decorator — do not redefine a local bare-div canvas.
+
+const meta = {
+	title: 'Packages/Premium Analytics/Widgets/MyWidget',
+	component: MyWidgetRender,
+	tags: [ 'autodocs' ],
+	parameters: {
+		docs: {
+			description: {
+				component: 'Brief description of what this widget shows and when to use it.',
+			},
+		},
+	},
+} satisfies Meta< typeof MyWidgetRender >;
+
+export default meta;
+
+// Always parameterize the alias: bare `StoryObj` defaults to `Args = { [name: string]: any }`,
+// which silently accepts any `args` key and degrades `render`'s parameter to `{}`.
+type Story = StoryObj< typeof meta >;
+```
+
+**1. `Default`** — the widget on its own, current period only:
+
+```tsx
+export const Default: Story = {
+	render: renderMyWidget,
+	decorators: [ withWidgetCanvas ],
+};
+```
+
+**2. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
+exactly as it does in product, inheriting the size / edit-mode / host-environment controls. It
+passes comparison params unconditionally, so the widget stays covered against crashing or
+inventing deltas when the host supplies comparison dates:
+
+```tsx
+function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ widgetDefinition }
+			renderModule={ MY_WIDGET_RENDER_MODULE }
+			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <MyWidgetDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+```
+
+**3. `WithComparison` — only when the widget's hook populates `comparisonRows`** (see the
+criterion above). Add a `withComparison` control, thread it through the render helper, and add
+the second close-up. It should show the period-over-period values the render path consumes:
+
+```tsx
 interface MyWidgetStoryControls {
 	withComparison: boolean;
 }
@@ -279,52 +411,24 @@ function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
 	);
 }
 
-// Close-up canvas so the chart fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
+// The story args are the widget-specific controls, but `component` is the render component
+// (host `WidgetRenderProps`). Intersect the two so `component` type-checks against the meta
+// while the controls still drive `argTypes`/`args`.
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/MyWidget',
-	component: MyWidgetRender,
-	tags: [ 'autodocs' ],
+	// …as above, plus:
 	argTypes: {
 		withComparison: { control: 'boolean' },
 	},
-	parameters: {
-		docs: {
-			description: {
-				component: 'Brief description of what this widget shows and when to use it.',
-			},
-		},
-	},
-	// The story args are the widget-specific controls, but `component` is the render
-	// component (host `WidgetRenderProps`). Intersect the two so `component` type-checks
-	// against the meta while the controls still drive `argTypes`/`args`.
 } satisfies Meta< ComponentProps< typeof MyWidgetRender > & MyWidgetStoryControls >;
 
-export default meta;
-
 type Story = StoryObj< MyWidgetStoryControls >;
-```
 
-**1. `Default`** — the widget on its own, current period only:
-
-```tsx
 export const Default: Story = {
 	render: renderMyWidget,
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
-```
 
-**2. `WithComparison`** — same close-up with comparison `reportParams` from the date range
-picker. Widgets with comparison data should show period-over-period values; widgets without
-comparison data should still render normally without fake deltas:
-
-```tsx
 export const WithComparison: Story = {
 	render: renderMyWidget,
 	args: { withComparison: true },
@@ -332,46 +436,19 @@ export const WithComparison: Story = {
 };
 ```
 
-**3. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
-exactly as it does in product, inheriting the size / edit-mode / host-environment controls:
-
-```tsx
-interface MyWidgetDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		MyWidgetStoryControls {}
-
-function MyWidgetDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: MyWidgetDashboardStoryProps ) {
-	return (
-		<WidgetDashboardWithWidgetStory
-			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
-			renderModule={ MY_WIDGET_RENDER_MODULE }
-			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
-}
-
-export const WidgetDashboardWithWidget: StoryObj< MyWidgetDashboardStoryProps > = {
-	render: args => <MyWidgetDashboardStory { ...args } />,
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
-	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
-	},
-};
-```
-
 Expose additional widget-specific props (e.g. a `view: 'source' | 'channel' | 'campaign'`
-selector) as extra fields on the controls interface plus matching `args` and `argTypes`. The
-shared dashboard helper already provides container width / edit-mode / host-environment
-controls, so there's no need to add custom size decorators per widget.
+selector) as fields on a `MyWidgetStoryControls` interface plus matching `args` and `argTypes`,
+switching the alias to `StoryObj< MyWidgetStoryControls >` and the `meta` to the intersection
+form shown above. Where the dashboard story also needs those controls, have its props interface
+extend both: `interface MyWidgetDashboardStoryProps extends WidgetDashboardWithWidgetControls,
+MyWidgetStoryControls {}`. The shared dashboard helper already provides container width /
+edit-mode / host-environment controls, so there's no need to add custom size decorators per
+widget.
+
+Helpers that compose a story's `reportParams` (e.g. to add a `post_id` scope) should keep
+comparison as a parameter — `getMyWidgetAttributes( controls, withComparison = false )` — so the
+dashboard story can call them with `true` instead of rebuilding the params and duplicating the
+scoping rule.
 
 If a story exposes `withComparison`, both the close-up story and the dashboard story must pass
 `reportParams: getDefaultQueryParams( withComparison )` into the render component, and the render
@@ -382,9 +459,8 @@ Report mocks should exercise the shapes reviewers need to validate, not only the
 populated primary data for every widget; comparison data when the widget maps comparison rows;
 parent rows plus child rows for drill-down widgets; leaf rows with external links when a
 leaderboard can render non-drill-down links; and known unsupported/error responses when the
-module has a special failure mode. Prefer adding those shapes to the existing Default,
-WithComparison, or WidgetDashboardWithWidget stories over creating one-off state stories unless
-the state needs direct review.
+module has a special failure mode. Prefer adding those shapes to the widget's existing stories
+over creating one-off state stories unless the state needs direct review.
 
 To review a widget's loading / error / empty state directly, force it with
 `setReportMockState( '<endpoint>', 'loading' | 'error' | 'empty' )` in the story's `beforeEach`,
@@ -436,7 +512,7 @@ before writing any Stats widget — many mistakes here are silent at build time.
 `useStatsSearchTerms`, `useStatsLocations`, `useStatsDevices`, …). Look there first —
 do not call `fetchStatsProxy` or `apiFetch` directly from a widget.
 
-Each hook returns `{ primary, comparison, isLoading, isError, … }`. For the standard
+Each hook returns `{ primary, comparison, comparisonRows, isLoading, isError, … }`. For the standard
 leaderboard/list widgets, reach data through:
 
 ```ts
@@ -495,21 +571,26 @@ data/view hook's result to its four signals and pass generic descriptors:
 
 **Comparison data**
 
-Stats hooks built on `useStatsReport()` return `{ primary, comparison, hasComparison, ... }`.
-When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`, the data layer fetches
-the comparison period automatically.
+Stats hooks built on `useStatsReport()` return `{ primary, comparison, comparisonRows,
+hasComparison, ... }`. When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`,
+the data layer fetches the comparison period automatically.
 
-Widgets still need to map comparison rows into chart data explicitly. For leaderboard/list
-widgets, build a lookup from `comparison.data?.[ 0 ]?.items` using the same stable key used for
-the primary row (post ID/URL, country code, search term, device key, etc.), then set
-`previousValue`, `previousShare`, and `delta` from the matched comparison row. Do not assume
-primary and comparison arrays have the same order or the same rows.
+For leaderboard/list Stats widgets, row matching belongs in the data layer. Add or update the
+module-specific `mergeStats*ComparisonRows()` helper in `packages/data/src/processing/stats/`,
+then pass it to `useStatsReport()` from the corresponding `useStats*` hook. If the hook captures
+options such as `maxRows`, wrap that mapper with `useCallback()` so the `useStatsReport()`
+comparison memo stays stable across renders.
 
-If comparison params are present but the endpoint returns no comparable rows, the widget should
-fall back to a non-comparison view. Using `previousValue: 0` and `delta: 0` as placeholders is
-only acceptable when the chart comparison UI is disabled (`withComparison={ false }` or omitted)
-or when the story explicitly documents that the module has no comparison data to display. Do not
-render a visible delta/sparkline from placeholder values.
+The merge helper should compare primary and comparison rows with the module's stable row key
+(post ID/URL, country code, search term, device key, etc.), preserve missing comparison values
+as `undefined`, and treat `0` as a valid previous value. Return `hasComparison: true` only when
+at least one primary row has a matching comparison row.
+
+Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`; do not call
+`mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
+Widget-level mapping may still add presentation-only fields such as labels, icons, links,
+shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
+`undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
 
 **Drill-down leaderboards**
 

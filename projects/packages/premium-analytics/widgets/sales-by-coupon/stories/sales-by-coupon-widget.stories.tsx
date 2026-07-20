@@ -6,10 +6,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SalesByCouponRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -39,12 +43,6 @@ interface SalesByCouponDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		SalesByCouponStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 function getSalesByCouponAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
@@ -58,6 +56,16 @@ function renderSalesByCoupon( { withComparison, preset }: SalesByCouponStoryCont
 	return (
 		<SalesByCouponRender
 			attributes={ getSalesByCouponAttributes( withComparison, preset ) }
+			setError={ setStoryError }
+		/>
+	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderSalesByCouponOnPreset( preset: SelectablePresetId ) {
+	return (
+		<SalesByCouponRender
+			attributes={ getSalesByCouponAttributes( false, preset ) }
 			setError={ setStoryError }
 		/>
 	);
@@ -137,6 +145,50 @@ export const WithComparison: Story = {
 		withComparison: true,
 	},
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the coupons report is in flight, so the widget shows its loading
+ * state. The mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderSalesByCouponOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'loading' );
+		return () => setReportMockState( 'coupons/', null );
+	},
+};
+
+/**
+ * The coupons report failed: the widget shows its error state with a Retry
+ * action (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderSalesByCouponOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'error' );
+		return () => setReportMockState( 'coupons/', null );
+	},
+};
+
+/**
+ * Resolved with no coupon rows: the widget shows its empty state (the neutral
+ * coupon glyph and "No coupon sales in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderSalesByCouponOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/', 'empty' );
+		return () => setReportMockState( 'coupons/', null );
+	},
 };
 
 /**

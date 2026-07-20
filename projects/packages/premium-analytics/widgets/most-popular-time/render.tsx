@@ -3,11 +3,12 @@
  */
 import { useStatsInsights, type StatsInsightsResponse } from '@jetpack-premium-analytics/data';
 import {
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
+import { scheduled } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -73,45 +74,52 @@ function Highlight( { label, value, percent }: HighlightProps ) {
  * @return The widget content.
  */
 function MostPopularTimeReport() {
-	const { data, isLoading, isError } = useStatsInsights();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const report = data as StatsInsightsResponse | undefined;
-
-	if ( isError ) {
-		return (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load insights.', 'jetpack-premium-analytics' ) }
-			</Text>
-		);
-	}
-
-	if ( isLoading && ! report?.hour ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	if ( ! report?.day || ! report?.hour ) {
-		return (
-			<Text className={ styles.placeholder }>
-				{ __(
-					'Not enough data to determine your most popular time yet.',
-					'jetpack-premium-analytics'
-				) }
-			</Text>
-		);
-	}
+	const isEmpty = ! report?.day || ! report?.hour;
 
 	return (
-		<Stack className={ styles.root } direction="column" gap="lg">
-			<Highlight
-				label={ __( 'Best day', 'jetpack-premium-analytics' ) }
-				value={ report.day }
-				percent={ report.percent ?? 0 }
-			/>
-			<Highlight
-				label={ __( 'Best hour', 'jetpack-premium-analytics' ) }
-				value={ report.hour }
-				percent={ report.hourPercent ?? 0 }
-			/>
-		</Stack>
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The query keeps the previous response via `placeholderData`, so only
+				// surface the error when there is nothing to show.
+				isError={ isError && isEmpty }
+				isEmpty={ isEmpty }
+				error={ {
+					description: __(
+						"We couldn't load your most popular time. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [
+						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+					],
+				} }
+				empty={ {
+					icon: scheduled,
+					description: __(
+						'Not enough data to determine your most popular time yet.',
+						'jetpack-premium-analytics'
+					),
+				} }
+			>
+				{ report?.day && report?.hour && (
+					<Stack className={ styles.root } direction="column" gap="lg">
+						<Highlight
+							label={ __( 'Best day', 'jetpack-premium-analytics' ) }
+							value={ report.day }
+							percent={ report.percent ?? 0 }
+						/>
+						<Highlight
+							label={ __( 'Best hour', 'jetpack-premium-analytics' ) }
+							value={ report.hour }
+							percent={ report.hourPercent ?? 0 }
+						/>
+					</Stack>
+				) }
+			</WidgetState>
+		</div>
 	);
 }
 

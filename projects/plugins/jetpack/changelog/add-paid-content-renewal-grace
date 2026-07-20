@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Paid Content: expire subscription access at the end of the end_date day (UTC) rather than the exact purchase timestamp, so a same-day auto-renewal completes before access is cut and enforcement matches the platform's end-of-day expiration convention.

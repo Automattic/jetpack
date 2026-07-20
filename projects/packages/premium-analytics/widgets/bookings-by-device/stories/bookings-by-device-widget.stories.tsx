@@ -6,10 +6,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import BookingsByDeviceRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -31,12 +35,6 @@ type BookingsByDeviceStoryProps = BookingsByDeviceRenderProps & BookingsByDevice
 interface BookingsByDeviceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		BookingsByDeviceStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getBookingsByDeviceAttributes(
 	withComparison = false,
@@ -81,6 +79,11 @@ function renderBookingsByDevice( { withComparison, preset }: BookingsByDeviceSto
 			attributes={ getBookingsByDeviceAttributes( withComparison, preset ) }
 		/>
 	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderBookingsByDeviceOnPreset( preset: SelectablePresetId ) {
+	return <BookingsByDeviceRender attributes={ getBookingsByDeviceAttributes( false, preset ) } />;
 }
 
 function BookingsByDeviceDashboardStory( {
@@ -169,6 +172,51 @@ export const WithComparison: Story = {
 				) => getBookingsByDeviceSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the filtered order-attribution report is in flight, so the widget
+ * shows its loading state. The mock is forced to never resolve for the duration
+ * of this story.
+ */
+export const Loading: Story = {
+	render: () => renderBookingsByDeviceOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'order-attribution-by-product/device/summary', 'loading' );
+		return () => setReportMockState( 'order-attribution-by-product/device/summary', null );
+	},
+};
+
+/**
+ * The filtered order-attribution report failed: the widget shows its error state
+ * with a Retry action (which re-runs the query — still mocked as failing while
+ * this story is active).
+ */
+export const Error: Story = {
+	render: () => renderBookingsByDeviceOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'order-attribution-by-product/device/summary', 'error' );
+		return () => setReportMockState( 'order-attribution-by-product/device/summary', null );
+	},
+};
+
+/**
+ * Resolved with no order-attribution rows: the widget shows its empty state (the
+ * neutral device glyph and "No booking data in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderBookingsByDeviceOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'order-attribution-by-product/device/summary', 'empty' );
+		return () => setReportMockState( 'order-attribution-by-product/device/summary', null );
 	},
 };
 

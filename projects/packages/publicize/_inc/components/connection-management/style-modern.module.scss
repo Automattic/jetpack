@@ -2,8 +2,8 @@
 	align-items: start;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xl, 24px);
-	padding-top: var(--wpds-dimension-padding-lg, 16px);
+	gap: var(--wpds-dimension-gap-xl);
+	padding-top: var(--wpds-dimension-padding-lg);
 	width: 100%;
 
 	> h3 {
@@ -12,7 +12,7 @@
 }
 
 .description {
-	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .connection-list {
@@ -31,7 +31,7 @@
 	// divider line that separates it from the surrounding Card.Header
 	// (or whatever chrome wraps the list).
 	.connection-list-item {
-		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		margin: 0;
 	}
 }
@@ -42,8 +42,8 @@
 .connection-row {
 	align-items: center;
 	display: flex;
-	gap: var(--wpds-dimension-gap-lg, 16px);
-	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-2xl, 24px);
+	gap: var(--wpds-dimension-gap-lg);
+	padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
 	width: 100%;
 }
 
@@ -55,16 +55,16 @@
 	appearance: none;
 	background: none;
 	border: 0;
-	border-radius: var(--wpds-border-radius-sm, 2px);
+	border-radius: var(--wpds-border-radius-sm);
 	color: inherit;
-	cursor: var(--wpds-cursor-control, pointer);
+	cursor: var(--wpds-cursor-control);
 	display: inline-flex;
 	flex-shrink: 0;
 	margin: 0;
-	padding: var(--wpds-dimension-padding-xs, 4px);
+	padding: var(--wpds-dimension-padding-xs);
 
 	&:focus-visible {
-		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: 0;
 	}
 }
@@ -79,20 +79,20 @@
 // Size comes from the `body-lg` Text variant; keep the neutral colour and the
 // medium weight that the variant doesn't set.
 .connection-item-name {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	color: var(--wpds-color-foreground-content-neutral);
+	font-weight: var(--wpds-typography-font-weight-medium);
 }
 
 .connection-network {
-	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .chevron {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral);
 	flex-shrink: 0;
 
 	@media not (prefers-reduced-motion) {
-		transition: rotate var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+		transition: rotate var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
 	}
 }
 
@@ -120,7 +120,7 @@
 	}
 
 	@media not (prefers-reduced-motion) {
-		transition: all var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+		transition: all var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
 	}
 }
 
@@ -129,17 +129,17 @@
 	// padding doubles as clearance for the focus ring of the first focusable
 	// child (e.g. the mark-as-shared info button) — without it the ring's top
 	// edge is clipped by the panel.
-	padding: var(--wpds-dimension-padding-xs, 4px) var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-xl);
 }
 
 // Stack supplies the row layout (align + gap); only the trailing spacing
 // below the toggle is left here.
 .mark-shared-wrap {
-	padding-bottom: var(--wpds-dimension-padding-lg, 16px);
+	padding-bottom: var(--wpds-dimension-padding-lg);
 }
 
 .connection-template-wrap {
-	margin-bottom: var(--wpds-dimension-gap-xl, 24px);
+	margin-bottom: var(--wpds-dimension-gap-xl);
 
 	&:empty {
 		margin-bottom: 0;

@@ -84,7 +84,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	 * Close the Manage Connection Dialog.
 	 */
 	const closeManageConnectionDialog = useCallback(
-		( e: MouseEvent< HTMLButtonElement > ) => {
+		( e?: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
 			setIsManageConnectionDialogOpen( false );
 		},
@@ -92,7 +92,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	);
 
 	const onDisconnectedCallback = useCallback(
-		( e: MouseEvent< HTMLButtonElement > ) => {
+		( e?: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
 			setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
 			onDisconnected?.();
@@ -101,7 +101,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	);
 
 	const onUnlinkedCallback = useCallback(
-		( e: MouseEvent< HTMLButtonElement > ) => {
+		( e?: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
 			setConnectionStatus( { isUserConnected: false } );
 			onUnlinked?.();

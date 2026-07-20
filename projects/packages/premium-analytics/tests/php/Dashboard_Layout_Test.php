@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\TestCase;
+use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
 
@@ -15,6 +16,37 @@ require_once __DIR__ . '/../../src/dashboard-layout.php';
  * Tests for Premium Analytics dashboard layout defaults.
  */
 class Dashboard_Layout_Test extends TestCase {
+
+	const ROUTE        = '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
+	const LEGACY_ROUTE = '/jetpack/v4/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
+
+	/**
+	 * Reset REST globals after route registration tests.
+	 */
+	protected function tearDown(): void {
+		global $wp_rest_server;
+		$wp_rest_server = null;
+		parent::tearDown();
+	}
+
+	/**
+	 * The default-layout route uses the WPCOM namespace.
+	 */
+	public function test_default_layout_route_uses_wpcom_v2_namespace() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+
+		if ( false === has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
+		}
+
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertArrayHasKey( self::ROUTE, $routes );
+		$this->assertArrayNotHasKey( self::LEGACY_ROUTE, $routes );
+	}
 
 	/**
 	 * Non-Premium-Analytics dashboards are left untouched.
@@ -68,6 +100,9 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/traffic-chart', $layout_types );
 		$this->assertContains( 'jpa/stats-top-posts', $layout_types );
 		$this->assertContains( 'jpa/referrers', $layout_types );
+		$this->assertContains( 'jpa/authors', $layout_types );
+		$this->assertContains( 'jpa/videopress', $layout_types );
+		$this->assertContains( 'jpa/plan-usage', $layout_types );
 		$this->assertArrayHasKey( 'default-locations-widget-instance', $layout_by_uuid );
 		$this->assertArrayHasKey( $utm_widget_uuid, $layout_by_uuid );
 		$this->assertArrayHasKey( $file_downloads_uuid, $layout_by_uuid );
@@ -112,15 +147,33 @@ class Dashboard_Layout_Test extends TestCase {
 	 * The insights tab receives its bundled stats widgets.
 	 */
 	public function test_seed_default_dashboard_layout_adds_insights_widgets() {
-		$layout       = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
-		$layout_types = array_column( $layout, 'type' );
+		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+		$layout_types   = array_column( $layout, 'type' );
 
 		$this->assertContains( 'jpa/annual-highlights', $layout_types );
 		$this->assertContains( 'jpa/all-time-stats', $layout_types );
 		$this->assertContains( 'jpa/latest-post', $layout_types );
 		$this->assertContains( 'jpa/posting-activity', $layout_types );
-		$this->assertContains( 'jpa/authors', $layout_types );
+		$this->assertNotContains( 'jpa/authors', $layout_types );
+		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		$this->assertContains( 'jpa/stats-emails', $layout_types );
+		$this->assertContains( 'jpa/shares', $layout_types );
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-shares-widget-instance',
+				'type'       => 'jpa/shares',
+				'attributes' => array(
+					'max' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 5,
+				),
+			),
+			$layout_by_uuid['default-shares-widget-instance']
+		);
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ),
 			get_dashboard_default_layout_for( 'analytics/insights' )
@@ -138,6 +191,7 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/subscriber-highlights', $layout_types );
 		$this->assertContains( 'jpa/subscribers-chart', $layout_types );
 		$this->assertContains( 'jpa/subscribers-list', $layout_types );
+		$this->assertContains( 'jpa/stats-emails', $layout_types );
 		$this->assertSame(
 			array(
 				'uuid'       => 'default-subscribers-list-widget-instance',
@@ -146,12 +200,28 @@ class Dashboard_Layout_Test extends TestCase {
 					'num' => 6,
 				),
 				'placement'  => array(
-					'width'  => 1,
+					'width'  => 2,
 					'height' => 2,
 					'order'  => 2,
 				),
 			),
 			$layout_by_uuid['default-subscribers-list-widget-instance']
+		);
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-subscribers-emails-widget-instance',
+				'type'       => 'jpa/stats-emails',
+				'attributes' => array(
+					'max'    => 10,
+					'metric' => 'opens',
+				),
+				'placement'  => array(
+					'width'  => 2,
+					'height' => 2,
+					'order'  => 3,
+				),
+			),
+			$layout_by_uuid['default-subscribers-emails-widget-instance']
 		);
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_SUBSCRIBERS_SECTION_ID ),

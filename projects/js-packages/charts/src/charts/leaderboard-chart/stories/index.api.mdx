@@ -26,6 +26,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `legendLabels` | `{ primary?: string; comparison?: string }` | `undefined` | Custom labels for legend items |
 | `width` | `number` | `undefined` | Optional fixed width of the chart container in pixels |
 | `height` | `number` | `undefined` | Optional fixed height of the chart container in pixels |
+| `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `gap` | `GapSize` | `'md'` | Spacing between legend and chart content, using the WordPress `GapSize` scale |
 | `className` | `string` | `undefined` | Additional CSS class name for the chart container |
 | `style` | `React.CSSProperties & CustomProperties` | `undefined` | Custom styling for the chart container |

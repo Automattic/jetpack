@@ -7,7 +7,7 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
-		"@wordpress/primitives": "4.50.0"
+		"@wordpress/primitives": "4.51.0"
 	},
 	"devDependencies": {
 		"@storybook/react": "10.4.6",

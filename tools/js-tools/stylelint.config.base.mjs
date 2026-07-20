@@ -14,7 +14,7 @@ const baseConfig = {
 	rules: {
 		'plugin-wpds/no-unknown-ds-tokens': true,
 		'plugin-wpds/no-setting-wpds-custom-properties': true,
-		'plugin-wpds/no-token-fallback-values': null, // Disabled because `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks` is not configured yet.
+		'plugin-wpds/no-token-fallback-values': true,
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
 		'@stylistic/max-line-length': [
 			80,
@@ -84,6 +84,21 @@ const baseConfig = {
 			},
 		],
 	},
+	overrides: [
+		{
+			// Packages that still ship hardcoded WPDS fallbacks (no build-time inject yet).
+			files: [
+				'projects/js-packages/base-styles/**/*.{css,scss,sass}',
+				'projects/js-packages/charts/**/*.{css,scss,sass}',
+				'projects/js-packages/components/**/*.{css,scss,sass}',
+				'projects/js-packages/social-previews/**/*.{css,scss,sass}',
+				'projects/plugins/jetpack/**/*.{css,scss,sass}',
+			],
+			rules: {
+				'plugin-wpds/no-token-fallback-values': null,
+			},
+		},
+	],
 };
 
 export default baseConfig;

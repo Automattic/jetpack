@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Surface an actionable connection-error notice when the activity log fails to load due to a broken connection.

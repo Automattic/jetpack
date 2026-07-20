@@ -25,9 +25,11 @@ export type SalesByUtmChannelAttributes = Record< never, never >;
 export default {
 	name: 'jpa/sales-by-utm-channel',
 	title: __( 'Sales by UTM channel', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top UTM channels by order revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'See which marketing channels are driving sales in your store.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

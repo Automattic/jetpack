@@ -55,6 +55,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 			'notes',
 			'photon-cdn',
 			'photon',
+			'podcast',
 			'post-by-email',
 			'protect',
 			'publicize',

@@ -6,11 +6,15 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import BookingsOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -35,12 +39,6 @@ type BookingsOverTimeStoryProps = BookingsOverTimeRenderProps & BookingsOverTime
 interface BookingsOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		BookingsOverTimeStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getBookingsOverTimeAttributes(
 	withComparison = false,
@@ -87,6 +85,13 @@ function renderBookingsOverTime( { withComparison, preset }: BookingsOverTimeSto
 			attributes={ getBookingsOverTimeAttributes( withComparison, preset ) }
 		/>
 	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderBookingsOverTimeOnPreset( preset: SelectablePresetId ) {
+	ensureLineChartComposition();
+
+	return <BookingsOverTimeRender attributes={ getBookingsOverTimeAttributes( false, preset ) } />;
 }
 
 function BookingsOverTimeDashboardStory( {
@@ -177,6 +182,53 @@ export const WithComparison: Story = {
 				) => getBookingsOverTimeSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ *
+ * Bookings are order data filtered to booking product types, so this widget's
+ * report goes through the `orders-by-product-type/by-date` endpoint rather than
+ * the plain `orders/by-date` endpoint the other order-metric widgets use.
+ */
+export const Loading: Story = {
+	render: () => renderBookingsOverTimeOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders-by-product-type/by-date', 'loading' );
+		return () => setReportMockState( 'orders-by-product-type/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderBookingsOverTimeOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders-by-product-type/by-date', 'error' );
+		return () => setReportMockState( 'orders-by-product-type/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no booking data: the widget shows its empty state ("No bookings
+ * in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderBookingsOverTimeOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders-by-product-type/by-date', 'empty' );
+		return () => setReportMockState( 'orders-by-product-type/by-date', null );
 	},
 };
 

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
@@ -10,6 +9,10 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import {
+	isPremiumAnalyticsInitialSyncFinished,
+	isPremiumAnalyticsSiteConnected,
+} from '../site-readiness';
 import { DASHBOARD_REST_NAMESPACE } from './hooks/constants';
 
 type DashboardSearch = Record< string, string | undefined >;
@@ -34,6 +37,8 @@ type DashboardSearch = Record< string, string | undefined >;
  * so the stage's `getEntityRecords` read resolves and feeds the records to
  * `useWidgetTypes`. Premium Analytics serves the records from its own namespace
  * (see `src/widget-modules.php`), independent of core's `wp/v2` endpoint.
+ * The route is registered under `wpcom/v2` so WPCOM can expose it through the
+ * site-scoped public-api path for Simple sites.
  * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
  *
  * That registration is one-time bootstrap setup that could move to the page's
@@ -43,14 +48,11 @@ type DashboardSearch = Record< string, string | undefined >;
  */
 export const route = {
 	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
-		const connectionStatus = getScriptData()?.connection?.connectionStatus;
-
-		if ( ! connectionStatus?.isRegistered ) {
+		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
 		}
 
-		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
-		if ( ! syncFinished ) {
+		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
 			throw redirect( { to: '/syncing' } );
 		}
 

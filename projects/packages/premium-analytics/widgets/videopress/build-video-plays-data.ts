@@ -1,16 +1,12 @@
 /**
  * External dependencies
  */
-import {
-	getVideoKey,
-	getVideoLabel,
-	toVideoItems,
-} from '@jetpack-premium-analytics/widgets-toolkit';
-import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
+import { getVideoKey, getVideoLabel } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 /**
- * A single normalized video row, flattened from the video-plays report with
- * its comparison-period plays already matched by stable video key.
+ * A single video row with its presentation fields resolved, built from the
+ * already-merged video-plays rows the Stats data layer returns.
  */
 export type VideoPlaysRow = {
 	/**
@@ -31,40 +27,27 @@ export type VideoPlaysRow = {
 	 */
 	plays: number;
 	/**
-	 * Play count for the comparison period. `null` when the video has no
-	 * matching comparison row — distinct from a real zero, so the widget can
-	 * fall back to a non-comparison view instead of fabricating deltas.
+	 * Play count for the comparison period. `undefined` when the video has no
+	 * matching comparison row — distinct from a real zero, so the chart can
+	 * suppress the row's delta instead of fabricating one.
 	 */
-	previousPlays: number | null;
+	previousPlays: number | undefined;
 };
 
 /**
- * Flattens the primary video-plays report into normalized rows, attaching each
- * video's comparison-period plays matched by stable video key. Videos missing
- * from the comparison period keep `previousPlays: null` so the caller can tell
- * "no comparison row" apart from a real zero.
+ * Maps merged video-plays rows from the Stats data layer onto normalized rows
+ * ready for the leaderboard. Comparison matching already happened in the data
+ * layer; this only resolves the display key, label, and link.
  *
- * @param primary    - Primary period video-plays report
- * @param comparison - Comparison period video-plays report
- * @return Normalized rows ready for the leaderboard
+ * @param videos - Merged video-plays rows from the Stats data layer.
+ * @return Normalized rows ready for the leaderboard.
  */
-export function toVideoPlaysRows(
-	primary: StatsNormalizedReport< StatsVideoPlaysItem > | undefined,
-	comparison: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
-): VideoPlaysRow[] {
-	const comparisonPlays = new Map(
-		toVideoItems( comparison ).map( video => [ getVideoKey( video ), video.plays ] )
-	);
-
-	return toVideoItems( primary ).map( video => {
-		const key = getVideoKey( video );
-
-		return {
-			key,
-			label: getVideoLabel( video ),
-			link: video.link,
-			plays: video.plays,
-			previousPlays: comparisonPlays.get( key ) ?? null,
-		};
-	} );
+export function toVideoPlaysRows( videos: StatsVideoPlaysComparisonItem[] = [] ): VideoPlaysRow[] {
+	return videos.map( video => ( {
+		key: getVideoKey( video ),
+		label: getVideoLabel( video ),
+		link: video.link,
+		plays: video.plays,
+		previousPlays: video.previousPlays,
+	} ) );
 }

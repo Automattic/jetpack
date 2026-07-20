@@ -8,7 +8,6 @@ const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package
 const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const CssMinimizerWebpackPlugin = require( 'css-minimizer-webpack-plugin' );
-const ForkTSCheckerWebpackPlugin = require( 'fork-ts-checker-webpack-plugin' );
 const MiniCssExtractWebpackPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
 const BundledWpPkgsTranspileRules = require( './webpack/bundled-wp-pkgs-transpile-rules' );
@@ -173,21 +172,6 @@ const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),
 ];
 
-const ForkTSCheckerPlugin = options => [
-	new ForkTSCheckerWebpackPlugin( {
-		typescript: {
-			mode: 'write-dts',
-			diagnosticOptions: {
-				semantic: true,
-				syntactic: true,
-				...options?.typescript?.diagnosticOptions,
-			},
-			...options?.typescript,
-		},
-		...options,
-	} ),
-];
-
 const I18nCheckPlugin = options => {
 	const opts = { filter: i18nFilterFunction, ...options };
 
@@ -250,9 +234,6 @@ const PnpmDeterministicModuleIdsPlugin = options => [
 const WebpackRtlPlugin = options => [ new WebpackRTLWebpackPlugin( options ) ];
 
 const StandardPlugins = ( options = {} ) => {
-	if ( typeof options.ForkTSCheckerPlugin === 'undefined' ) {
-		options.ForkTSCheckerPlugin = false;
-	}
 	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
 		options.I18nCheckPlugin = false;
 	}
@@ -271,9 +252,6 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.DuplicatePackageCheckerPlugin === false
 			? []
 			: DuplicatePackageCheckerPlugin( options.DuplicatePackageCheckerPlugin ) ),
-		...( options.ForkTSCheckerPlugin === false
-			? []
-			: ForkTSCheckerPlugin( options.ForkTSCheckerPlugin ) ),
 		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
 		...( options.I18nSafeMangleExportsPlugin === false
@@ -325,7 +303,6 @@ module.exports = {
 	DefinePlugin,
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
-	ForkTSCheckerPlugin,
 	I18nCheckPlugin,
 	I18nLoaderPlugin,
 	I18nSafeMangleExportsPlugin,

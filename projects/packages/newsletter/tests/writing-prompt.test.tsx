@@ -44,7 +44,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	},
 } ) );
 
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import WritingPrompt from '../src/writing-prompt/writing-prompt';
 
 const PROMPT = {
@@ -110,7 +110,7 @@ describe( 'WritingPrompt widget empty state', () => {
 		).toHaveAttribute( 'href', 'https://wordpress.com/reader?origin_site_id=12345' );
 
 		// None of the prompt-only controls should render without a prompt.
-		expect( screen.queryByRole( 'button', { name: 'Post Answer' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Post your answer' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Next/ } ) ).not.toBeInTheDocument();
 	} );
 
@@ -152,33 +152,51 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		mockIsWpcomPlatformSite.mockReturnValue( true );
 	} );
 
-	it( 'renders the View responses button and avatar faces outside the footer', async () => {
+	it( 'renders the View responses link and avatar faces outside the footer', async () => {
 		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
 
 		const { container } = render( <WritingPrompt /> );
 
-		// The responses control is a secondary button rendered as an anchor, so it
-		// carries the button role while still navigating via its href.
-		const responsesButton = await screen.findByRole( 'button', { name: /View responses/ } );
-		expect( responsesButton ).toHaveAttribute( 'href', 'https://example.com/tag/dailyprompt-1' );
-		expect( responsesButton ).toHaveAttribute( 'target', '_blank' );
+		// The responses control is an external link that opens the Reader tag
+		// archive in a new tab.
+		const responsesLink = await screen.findByRole( 'link', { name: /View responses/ } );
+		expect( responsesLink ).toHaveAttribute( 'href', 'https://example.com/tag/dailyprompt-1' );
+		expect( responsesLink ).toHaveAttribute( 'target', '_blank' );
 		expect( screen.getAllByRole( 'img', { name: 'User avatar' } ) ).toHaveLength( 2 );
 
-		// The responses button now lives in the answered-users group, next to the avatars.
+		// The facepile closes with a "+N" chip for the answerers beyond the two
+		// sampled avatars (3 total answerers - 2 shown = 1 more).
+		expect( screen.getByText( '+1' ) ).toBeInTheDocument();
+
+		// The responses link now lives in the answered-users group, next to the avatars.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The answered-users group has no ARIA role, so a class selector is the most direct way to scope this assertion.
 		const answeredUsers = container.querySelector( '.wpcom-daily-writing-prompt--answered-users' );
 		expect( answeredUsers ).not.toBeNull();
 		expect(
-			within( answeredUsers as HTMLElement ).getByRole( 'button', { name: /View responses/ } )
+			within( answeredUsers as HTMLElement ).getByRole( 'link', { name: /View responses/ } )
 		).toBeInTheDocument();
 
-		// The branding footer must NOT contain the responses button.
+		// The branding footer must NOT contain the responses link.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The branding footer has no ARIA role, so a class selector is the most direct way to scope this assertion.
 		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
 		expect( footer ).not.toBeNull();
 		expect(
-			within( footer as HTMLElement ).queryByRole( 'button', { name: /View responses/ } )
+			within( footer as HTMLElement ).queryByRole( 'link', { name: /View responses/ } )
 		).not.toBeInTheDocument();
+	} );
+
+	it( 'omits the "+N" facepile chip when every answerer is already shown', async () => {
+		// answered_users_count matches the number of sampled avatars, so there are
+		// no additional answerers to summarise.
+		mockApiFetch.mockResolvedValue( [ { ...PROMPT_WITH_RESPONSES, answered_users_count: 2 } ] );
+
+		render( <WritingPrompt /> );
+
+		await expect(
+			screen.findByRole( 'link', { name: /View responses/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getAllByRole( 'img', { name: 'User avatar' } ) ).toHaveLength( 2 );
+		expect( screen.queryByText( /^\+\d/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the Reader link in the footer with the origin_site_id', async () => {
@@ -304,6 +322,64 @@ const PROMPTS = [
 	},
 ];
 
+describe( 'WritingPrompt widget prompt navigation', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+	} );
+
+	it( 'renders icon-only Previous/Next controls and disables Previous on the first prompt', async () => {
+		mockApiFetch.mockResolvedValue( PROMPTS );
+
+		render( <WritingPrompt /> );
+
+		// The navigation controls are icon-only buttons whose accessible name comes
+		// from their label (rendered as a tooltip), replacing the old text buttons.
+		const previous = await screen.findByRole( 'button', { name: 'Previous prompt' } );
+		const next = screen.getByRole( 'button', { name: 'Next prompt' } );
+
+		// On the first prompt there is nothing before it, so Previous is disabled
+		// while Next stays available to advance through the remaining prompts.
+		// @wordpress/ui buttons express their disabled state via `aria-disabled`
+		// (the element stays focusable), so assert on that rather than the native
+		// `disabled` attribute.
+		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( next ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	it( 'advances to the next prompt and disables Next on the last prompt', async () => {
+		mockApiFetch.mockResolvedValue( PROMPTS );
+
+		render( <WritingPrompt /> );
+
+		const next = await screen.findByRole( 'button', { name: 'Next prompt' } );
+		expect( screen.getByText( 'What is your favorite way to relax?' ) ).toBeInTheDocument();
+
+		// The package favours the native `.click()` pattern over fireEvent; wrap it
+		// in act() so the resulting index state update flushes cleanly.
+		act( () => {
+			next.click();
+		} );
+
+		// The second (and last) prompt is now shown, so Next is disabled and
+		// Previous becomes available again.
+		await expect(
+			screen.findByText( 'What did you eat for breakfast?' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Next prompt' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Previous prompt' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+} );
+
 describe( 'WritingPrompt widget analytics', () => {
 	beforeEach( () => {
 		mockApiFetch.mockReset();
@@ -344,10 +420,10 @@ describe( 'WritingPrompt widget analytics', () => {
 		expect( mockInitialize ).not.toHaveBeenCalled();
 	} );
 
-	it( 'records a post-answer event with the prompt id when Post Answer is clicked', async () => {
+	it( 'records a post-answer event with the prompt id when Post your answer is clicked', async () => {
 		render( <WritingPrompt /> );
 
-		const postAnswerButton = await screen.findByRole( 'button', { name: 'Post Answer' } );
+		const postAnswerButton = await screen.findByRole( 'button', { name: 'Post your answer' } );
 		postAnswerButton.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
@@ -364,8 +440,8 @@ describe( 'WritingPrompt widget analytics', () => {
 	it( 'records a view-responses event with the prompt id when View responses is clicked', async () => {
 		render( <WritingPrompt /> );
 
-		const responsesButton = await screen.findByRole( 'button', { name: /View responses/ } );
-		responsesButton.click();
+		const responsesLink = await screen.findByRole( 'link', { name: /View responses/ } );
+		responsesLink.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_view_responses_click',

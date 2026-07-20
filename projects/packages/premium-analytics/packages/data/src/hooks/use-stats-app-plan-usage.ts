@@ -28,8 +28,11 @@ export type StatsAppPlanPriceTier = {
 export type StatsAppPlanUsage = {
 	current_usage: StatsAppPlanPeriodUsage;
 	recent_usages: StatsAppPlanPeriodUsage[];
-	views_limit: number;
-	over_limit_months: number;
+	// `null` when the site has no billable-views limit: no plan / free plan, or a
+	// legacy/unlimited commercial subscription. Callers must branch on `null`.
+	views_limit: number | null;
+	// `null` whenever `views_limit` is `null` (no limit to be over).
+	over_limit_months: number | null;
 	current_tier: StatsAppPlanPriceTier;
 	is_internal: boolean;
 	billable_monthly_views: number;

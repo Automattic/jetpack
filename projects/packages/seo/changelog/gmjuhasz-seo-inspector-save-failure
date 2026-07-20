@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix SEO inspector save issues: report failed saves, block saving over unloaded meta, and keep edits scoped to their post.

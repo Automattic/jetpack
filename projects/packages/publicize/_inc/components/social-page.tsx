@@ -7,12 +7,9 @@ import { Tabs, Tooltip } from '@wordpress/ui';
 import { ModernizationProvider } from '../hooks/use-is-modernized';
 import SocialGate from './social-gate';
 import useSocialGate from './social-gate/use-social-gate';
-// Define the `--color-facebook`, `--color-twitter`, ... custom properties
-// that `SocialServiceIcon` (and friends) consume to paint per-service
-// brand colours. The legacy `social-admin-page` webpack bundle inlines
-// these via `postcss-custom-properties { preserve: false }`; the chassis
-// esbuild pipeline doesn't run postcss, so the variables would otherwise
-// be undefined and the icons render black on a white surface.
+// Define the `--jetpack-social-logo-color-facebook`, `--jetpack-social-logo-color-twitter`,
+// etc. custom properties from `social-logos/colors.css` that `SocialServiceIcon` (and friends)
+// consume to paint per-service brand colours.
 import 'social-logos/colors.css';
 import './social-page.scss';
 import type { ReactNode } from 'react';

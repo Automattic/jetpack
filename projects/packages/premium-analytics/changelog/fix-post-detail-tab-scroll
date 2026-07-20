@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post detail: keep the tab bar in place while the page scrolls, matching the dashboard

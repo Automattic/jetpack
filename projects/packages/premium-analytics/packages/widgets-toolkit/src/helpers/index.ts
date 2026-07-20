@@ -46,5 +46,7 @@ export {
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
 export { formatDisplayLabel } from './format-display-label';
-export { getVideoKey, getVideoLabel, toVideoItems } from './video-plays';
+export { buildCsv, buildCsvDateRangeFilename, saveCsv, type CsvColumn } from './build-csv';
+export { sharePercentage } from './share-percentage';
+export { getVideoKey, getVideoLabel } from './video-plays';
 export { toMaxRows } from './to-max-rows';

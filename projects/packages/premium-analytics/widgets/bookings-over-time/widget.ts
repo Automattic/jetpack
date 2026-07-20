@@ -25,9 +25,11 @@ export type BookingsOverTimeAttributes = Record< never, never >;
 export default {
 	name: 'jpa/bookings-over-time',
 	title: __( 'Bookings over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'See a breakdown of when bookings are placed to identify peak selling periods.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'See a breakdown of when bookings are placed to identify peak selling periods.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

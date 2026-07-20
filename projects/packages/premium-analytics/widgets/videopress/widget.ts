@@ -30,6 +30,18 @@ export type VideoPressAttributes = {
 export default {
 	name: 'jpa/videopress',
 	title: __( 'VideoPress', 'jetpack-premium-analytics' ),
+	help: {
+		content: __(
+			'The published videos your visitors watched most often, sorted by views.',
+			'jetpack-premium-analytics'
+		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
+	},
 	icon: video,
 	attributes: [
 		{

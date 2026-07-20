@@ -44,8 +44,11 @@ describe( 'useSearchTermViews', () => {
 		mockUseStatsSearchTerms.mockReturnValue( {
 			primary: queryResult( { isError: true } ),
 			comparison: queryResult( {} ),
+			comparisonRows: { rows: [], hasComparison: false },
 			hasComparison: false,
+			isLoading: false,
 			isFetching: false,
+			isError: true,
 			refetch: jest.fn(),
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 
@@ -62,8 +65,14 @@ describe( 'useSearchTermViews', () => {
 		mockUseStatsSearchTerms.mockReturnValue( {
 			primary: queryResult( { data: report( [ [ 'coffee', 42 ] ] ), isError: true } ),
 			comparison: queryResult( {} ),
+			comparisonRows: {
+				rows: [ { label: 'coffee', views: 42 } ],
+				hasComparison: false,
+			},
 			hasComparison: false,
+			isLoading: false,
 			isFetching: false,
+			isError: true,
 			refetch: jest.fn(),
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 
@@ -72,7 +81,9 @@ describe( 'useSearchTermViews', () => {
 		);
 
 		expect( result.current.isError ).toBe( false );
-		expect( result.current.data ).toEqual( [ { label: 'coffee', views: 42, previousViews: 0 } ] );
+		expect( result.current.data ).toEqual( [
+			{ label: 'coffee', views: 42, previousViews: undefined },
+		] );
 	} );
 
 	it( 'drops to a non-comparison view when the comparison query fails but primary has rows', () => {
@@ -81,8 +92,14 @@ describe( 'useSearchTermViews', () => {
 		mockUseStatsSearchTerms.mockReturnValue( {
 			primary: queryResult( { data: report( [ [ 'coffee', 42 ] ] ) } ),
 			comparison: queryResult( { data: report( [ [ 'coffee', 30 ] ] ), isError: true } ),
+			comparisonRows: {
+				rows: [ { label: 'coffee', views: 42, previousViews: 30 } ],
+				hasComparison: true,
+			},
 			hasComparison: true,
+			isLoading: false,
 			isFetching: false,
+			isError: true,
 			refetch: jest.fn(),
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 
@@ -92,7 +109,9 @@ describe( 'useSearchTermViews', () => {
 
 		expect( result.current.isError ).toBe( false );
 		expect( result.current.hasComparison ).toBe( false );
-		expect( result.current.data ).toEqual( [ { label: 'coffee', views: 42, previousViews: 0 } ] );
+		expect( result.current.data ).toEqual( [
+			{ label: 'coffee', views: 42, previousViews: undefined },
+		] );
 	} );
 
 	it( 'forwards the data layer combined refetch and isFetching', () => {
@@ -103,8 +122,11 @@ describe( 'useSearchTermViews', () => {
 		mockUseStatsSearchTerms.mockReturnValue( {
 			primary: queryResult( { data: report( [] ) } ),
 			comparison: queryResult( { data: report( [] ) } ),
+			comparisonRows: { rows: [], hasComparison: true },
 			hasComparison: true,
+			isLoading: false,
 			isFetching: true,
+			isError: false,
 			refetch,
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 

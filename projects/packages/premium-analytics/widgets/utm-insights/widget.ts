@@ -8,6 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
+import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Widget attributes shape.
@@ -32,12 +33,22 @@ export type UtmInsightsAttributes = {
 export default {
 	name: 'jpa/utm-insights',
 	title: __( 'UTM Insights', 'jetpack-premium-analytics' ),
+	help: {
+		content: __( 'Your top UTM campaigns, sorted by views.', 'jetpack-premium-analytics' ),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
+	},
 	icon: trendingUp,
 	attributes: [
 		{
 			id: 'utmDimension',
 			label: __( 'UTM parameter', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Source / Medium', 'jetpack-premium-analytics' ),

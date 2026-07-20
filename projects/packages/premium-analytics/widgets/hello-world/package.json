@@ -10,7 +10,7 @@
 		"@wordpress/widget-primitives": "0.2.0"
 	},
 	"devDependencies": {
-		"@wordpress/element": "8.2.0",
+		"@wordpress/element": "8.3.0",
 		"@wordpress/widget-dashboard": "0.2.0"
 	}
 }

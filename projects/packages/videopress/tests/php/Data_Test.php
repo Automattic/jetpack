@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -164,6 +165,236 @@ class Data_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'mime_type', $captured_params, 'Request should include mime_type parameter' );
 		$this->assertEquals( 'video/videopress', $captured_params['mime_type'], 'mime_type should be video/videopress' );
 		$this->assertArrayNotHasKey( 'media_type', $captured_params, 'Request should NOT include media_type parameter (this causes the bug)' );
+	}
+
+	/**
+	 * Test that the custom query filters hook is registered unconditionally
+	 * (it used to be skipped on WPCOM, where the `videopress_only_videos`
+	 * param is now handled).
+	 */
+	public function test_query_filters_hook_registers_unconditionally() {
+		$instance = new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', array( $instance, 'add_jetpack_videopress_custom_query_filters' ) ),
+			'add_jetpack_videopress_custom_query_filters should hook rest_api_init on every host'
+		);
+	}
+
+	/**
+	 * Test that off-WPCOM the `videopress_only_videos` param is a no-op:
+	 * no post_mime_type narrowing, no meta_query entries. The WPCOM branch
+	 * (post_mime_type = video, meta_query skipped) can't be exercised here
+	 * because IS_WPCOM can't be defined in this test environment.
+	 */
+	public function test_videopress_only_videos_is_ignored_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_only_videos', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertArrayNotHasKey( 'post_mime_type', $args, 'Off-WPCOM the param must not touch post_mime_type' );
+		$this->assertSame( array(), $args['meta_query'], 'No meta_query entries should be added for this param' );
+	}
+
+	/**
+	 * Test that off-WPCOM the meta-query filters still apply when
+	 * `videopress_only_videos` accompanies them (the WPCOM early-return
+	 * must not leak into the self-hosted path).
+	 */
+	public function test_meta_query_filters_still_apply_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_only_videos', 1 );
+		$request->set_param( 'no_videopress', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'key'     => 'videopress_guid',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+			$args['meta_query'],
+			'no_videopress must keep producing its meta_query entry off-WPCOM'
+		);
+	}
+
+	/**
+	 * Test that off-WPCOM the new WPCOM-only `videopress_has_guid` param is a
+	 * no-op: the videos-table ID-set logic is IS_WPCOM-guarded, so on a
+	 * self-hosted site it must not add a post__in constraint or a meta_query
+	 * entry. (The WPCOM branch itself can't be exercised here because IS_WPCOM
+	 * can't be defined in this test environment.)
+	 */
+	public function test_videopress_has_guid_is_ignored_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_has_guid', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertArrayNotHasKey( 'post__in', $args, 'Off-WPCOM the param must not add a post__in constraint' );
+		$this->assertSame( array(), $args['meta_query'], 'No meta_query entries should be added for this param' );
+	}
+
+	/**
+	 * Test the pure effective-visibility folding used to build the WPCOM
+	 * privacy ID set. It must reproduce the client's old matchesClientSideFilters:
+	 * effective_private = setting===1 OR ((setting===2 or absent) AND site private);
+	 * the 'site-default' request (2) matches the stored setting (2 or absent).
+	 *
+	 * @dataProvider provider_privacy_value_set
+	 *
+	 * @param int   $code            Requested privacy code.
+	 * @param bool  $site_is_private Whether the site default resolves to private.
+	 * @param int[] $expected_values Expected acceptable stored privacy_setting values.
+	 * @param bool  $expected_null   Whether an absent meta row should qualify.
+	 */
+	#[DataProvider( 'provider_privacy_value_set' )]
+	public function test_wpcom_privacy_value_set( $code, $site_is_private, $expected_values, $expected_null ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'wpcom_privacy_value_set' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		list( $values, $inc_null ) = $method->invoke( self::$videopress_rest_data, $code, $site_is_private );
+
+		$this->assertSame( $expected_values, $values );
+		$this->assertSame( $expected_null, $inc_null );
+	}
+
+	/**
+	 * Data provider for test_wpcom_privacy_value_set.
+	 *
+	 * @return array<string, array{0:int,1:bool,2:int[],3:bool}>
+	 */
+	public static function provider_privacy_value_set() {
+		return array(
+			// On a private-by-default site, site-default + absent fold into "private".
+			'private on private site'      => array( 1, true, array( 1, 2 ), true ),
+			'public on private site'       => array( 0, true, array( 0 ), false ),
+			// On a public-by-default site, site-default + absent fold into "public".
+			'private on public site'       => array( 1, false, array( 1 ), false ),
+			'public on public site'        => array( 0, false, array( 0, 2 ), true ),
+			// Site-default matches the stored setting regardless of resolved privacy.
+			'site-default on private site' => array( 2, true, array( 2 ), true ),
+			'site-default on public site'  => array( 2, false, array( 2 ), true ),
+		);
+	}
+
+	/**
+	 * Test the pure (type, privacy) → ID-set-constraint mapping that reproduces
+	 * the old client-side matchesClientSideFilters. Exhaustively covers all 12
+	 * (type ∈ {none, videopress, local}) × (privacy ∈ {none, private, public,
+	 * site-default}) combinations. This plan is independent of the resolved site
+	 * privacy — only the *contents* of each named set depend on it — so it's
+	 * asserted directly against ($mode, $set).
+	 *
+	 * @dataProvider provider_privacy_type_plan
+	 *
+	 * @param bool        $has_guid Type filter = VideoPress.
+	 * @param bool        $no_vp    Type filter = local.
+	 * @param int|null    $privacy  Single privacy code (0/1/2) or null.
+	 * @param string      $mode     Expected mode: none|in|not_in|empty.
+	 * @param string|null $set      Expected named set: all|priv|pub|sd|expl|null.
+	 */
+	#[DataProvider( 'provider_privacy_type_plan' )]
+	public function test_wpcom_privacy_type_plan( $has_guid, $no_vp, $privacy, $mode, $set ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'wpcom_privacy_type_plan' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame(
+			array( $mode, $set ),
+			$method->invoke( self::$videopress_rest_data, $has_guid, $no_vp, $privacy )
+		);
+	}
+
+	/**
+	 * Data provider for test_wpcom_privacy_type_plan — the full 12-combo truth table.
+	 *
+	 * @return array<string, array{0:bool,1:bool,2:int|null,3:string,4:string|null}>
+	 */
+	public static function provider_privacy_type_plan() {
+		return array(
+			// type = none (no type filter): privacy folds L into Public/Site-default.
+			'none / none'               => array( false, false, null, 'none', null ),
+			'none / private'            => array( false, false, 1, 'in', 'priv' ),
+			'none / public'             => array( false, false, 0, 'not_in', 'priv' ),
+			'none / site-default'       => array( false, false, 2, 'not_in', 'expl' ),
+			// type = videopress: always restrict to videos-table members.
+			'videopress / none'         => array( true, false, null, 'in', 'all' ),
+			'videopress / private'      => array( true, false, 1, 'in', 'priv' ),
+			'videopress / public'       => array( true, false, 0, 'in', 'pub' ),
+			'videopress / site-default' => array( true, false, 2, 'in', 'sd' ),
+			// type = local: exclude members; locals are public + site-default, never private.
+			'local / none'              => array( false, true, null, 'not_in', 'all' ),
+			'local / private'           => array( false, true, 1, 'empty', null ),
+			'local / public'            => array( false, true, 0, 'not_in', 'all' ),
+			'local / site-default'      => array( false, true, 2, 'not_in', 'all' ),
+		);
+	}
+
+	/**
+	 * Tests that apply_wpcom_id_constraint composes with core's include/exclude
+	 * (post__in / post__not_in) instead of clobbering them, and keeps the
+	 * match-nothing sentinel on empty restrict-sets.
+	 *
+	 * @dataProvider provider_apply_id_constraint
+	 *
+	 * @param array  $args     Incoming WP_Query args.
+	 * @param string $mode     Constraint mode: none|in|not_in|empty.
+	 * @param int[]  $ids      Resolved ID set.
+	 * @param array  $expected Expected outgoing args.
+	 */
+	#[DataProvider( 'provider_apply_id_constraint' )]
+	public function test_apply_wpcom_id_constraint( $args, $mode, $ids, $expected ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'apply_wpcom_id_constraint' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( self::$videopress_rest_data, $args, $mode, $ids ) );
+	}
+
+	/**
+	 * Data provider for test_apply_wpcom_id_constraint.
+	 *
+	 * @return array<string, array{0:array,1:string,2:int[],3:array}>
+	 */
+	public static function provider_apply_id_constraint() {
+		return array(
+			'in, plain'                       => array( array(), 'in', array( 3, 5 ), array( 'post__in' => array( 3, 5 ) ) ),
+			'in, empty set -> sentinel'       => array( array(), 'in', array(), array( 'post__in' => array( 0 ) ) ),
+			'in intersects REST include'      => array( array( 'post__in' => array( 5, 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 5 ) ) ),
+			'in disjoint include -> sentinel' => array( array( 'post__in' => array( 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'in folds a lone REST exclude'    => array( array( 'post__not_in' => array( 3 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 5 ) ) ),
+			'in exclude-swallows -> sentinel' => array( array( 'post__not_in' => array( 3, 5 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'in include+exclude: core precedence (exclude dropped)' => array(
+				array(
+					'post__in'     => array( 3, 9 ),
+					'post__not_in' => array( 3 ),
+				),
+				'in',
+				array( 3, 5 ),
+				array(
+					'post__in'     => array( 3 ),
+					'post__not_in' => array( 3 ),
+				),
+			),
+			'not_in, plain'                   => array( array(), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 3, 5 ) ) ),
+			'not_in, empty set -> untouched'  => array( array( 'post__not_in' => array( 7 ) ), 'not_in', array(), array( 'post__not_in' => array( 7 ) ) ),
+			'not_in merges REST exclude'      => array( array( 'post__not_in' => array( 7, 3 ) ), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 7, 3, 5 ) ) ),
+			'not_in subtracts REST include'   => array( array( 'post__in' => array( 3, 9 ) ), 'not_in', array( 3, 5 ), array( 'post__in' => array( 9 ) ) ),
+			'not_in swallows include whole'   => array( array( 'post__in' => array( 3, 5 ) ), 'not_in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'empty overrides include'         => array( array( 'post__in' => array( 9 ) ), 'empty', array(), array( 'post__in' => array( 0 ) ) ),
+			'none leaves args alone'          => array( array( 'post__in' => array( 9 ) ), 'none', array(), array( 'post__in' => array( 9 ) ) ),
+		);
 	}
 
 	/**
