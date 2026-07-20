@@ -1,19 +1,19 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setup } from '../../../utils/test-factory';
-import { ModernManageConnectionsModal } from '../index-modern';
+import { DashboardManageConnectionsModal } from '../index-dashboard';
 
 jest.mock( '../confirmation-form', () => ( {
 	ConfirmationForm: () => <div>Confirmation Form</div>,
 } ) );
-jest.mock( '../../services/services-list-modern', () => ( {
-	ModernServicesList: () => <div>Services List</div>,
+jest.mock( '../../services/services-list-dashboard', () => ( {
+	DashboardServicesList: () => <div>Services List</div>,
 } ) );
 jest.mock( '../../../hooks/use-user-can-share-connection', () => ( {
 	useUserCanShareConnection: jest.fn( () => true ),
 } ) );
 
-describe( 'ModernManageConnectionsModal', () => {
+describe( 'DashboardManageConnectionsModal', () => {
 	let stubSetKeyringResult, stubGetKeyringResult;
 
 	beforeEach( () => {
@@ -30,7 +30,7 @@ describe( 'ModernManageConnectionsModal', () => {
 	// The Dialog/Tooltip primitives schedule async positioning effects after
 	// mount, so flush them inside act before asserting.
 	const renderModal = async () => {
-		render( <ModernManageConnectionsModal /> );
+		render( <DashboardManageConnectionsModal /> );
 		// Settle the floating-ui/tooltip effects (some resolve via microtasks,
 		// some via timers) so no state update escapes act.
 		await act( async () => {

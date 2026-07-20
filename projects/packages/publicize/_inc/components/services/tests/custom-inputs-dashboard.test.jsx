@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import { store } from '../../../social-store';
 import { setup } from '../../../utils/test-factory';
-import { ModernCustomInputs } from '../custom-inputs-modern';
+import { DashboardCustomInputs } from '../custom-inputs-dashboard';
 
 const stubReconnectingAccount = value => {
 	let storeSelect;
@@ -11,7 +11,7 @@ const stubReconnectingAccount = value => {
 	jest.spyOn( storeSelect, 'getReconnectingAccount' ).mockReturnValue( value );
 };
 
-describe( 'ModernCustomInputs', () => {
+describe( 'DashboardCustomInputs', () => {
 	beforeEach( () => {
 		setup();
 	} );
@@ -23,7 +23,7 @@ describe( 'ModernCustomInputs', () => {
 	test( 'renders the Mastodon handle field', () => {
 		stubReconnectingAccount( undefined );
 
-		render( <ModernCustomInputs service={ { id: 'mastodon' } } /> );
+		render( <DashboardCustomInputs service={ { id: 'mastodon' } } /> );
 
 		expect( screen.getByRole( 'textbox', { name: /Mastodon handle/i } ) ).toBeInTheDocument();
 	} );
@@ -31,7 +31,7 @@ describe( 'ModernCustomInputs', () => {
 	test( 'renders the Bluesky handle and app password fields', () => {
 		stubReconnectingAccount( undefined );
 
-		render( <ModernCustomInputs service={ { id: 'bluesky' } } /> );
+		render( <DashboardCustomInputs service={ { id: 'bluesky' } } /> );
 
 		expect( screen.getByRole( 'textbox', { name: /Bluesky handle/i } ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( /App password/i ) ).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe( 'ModernCustomInputs', () => {
 		const user = userEvent.setup();
 		stubReconnectingAccount( undefined );
 
-		render( <ModernCustomInputs service={ { id: 'bluesky' } } /> );
+		render( <DashboardCustomInputs service={ { id: 'bluesky' } } /> );
 
 		await user.type(
 			screen.getByRole( 'textbox', { name: /Bluesky handle/i } ),
@@ -54,7 +54,7 @@ describe( 'ModernCustomInputs', () => {
 	test( 'shows the reconnect notice when reconnecting a Bluesky account', () => {
 		stubReconnectingAccount( { service_name: 'bluesky', external_handle: 'me.bsky.social' } );
 
-		render( <ModernCustomInputs service={ { id: 'bluesky' } } /> );
+		render( <DashboardCustomInputs service={ { id: 'bluesky' } } /> );
 
 		// The Notice renders the message and @wordpress/a11y mirrors it into a
 		// live region, so the copy appears more than once — assert it's present.
@@ -66,7 +66,7 @@ describe( 'ModernCustomInputs', () => {
 	test( 'renders nothing for services without custom inputs', () => {
 		stubReconnectingAccount( undefined );
 
-		const { container } = render( <ModernCustomInputs service={ { id: 'facebook' } } /> );
+		const { container } = render( <DashboardCustomInputs service={ { id: 'facebook' } } /> );
 
 		expect( container ).toBeEmptyDOMElement();
 	} );

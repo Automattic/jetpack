@@ -8,7 +8,7 @@ import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
 import { ServiceStatus } from './service-status';
-import styles from './style-modern.module.scss';
+import styles from './style-dashboard.module.scss';
 import type { SyntheticEvent } from 'react';
 
 export type ServicesItemProps = ServicesItemDetailsProps & {
@@ -28,7 +28,7 @@ const stopPropagation = ( event: SyntheticEvent ) => event.stopPropagation();
  *
  * @return {import('react').ReactNode} Service item component
  */
-export function ModernServiceItem( {
+export function DashboardServiceItem( {
 	service,
 	serviceConnections,
 	isPanelDefaultOpen,

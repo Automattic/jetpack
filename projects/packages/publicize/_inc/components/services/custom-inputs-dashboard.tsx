@@ -7,7 +7,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { store } from '../../social-store';
-import styles from './style-modern.module.scss';
+import styles from './style-dashboard.module.scss';
 import { SupportedService } from './types';
 
 type CustomInputsProps = {
@@ -20,7 +20,7 @@ type CustomInputsProps = {
  *
  * @return {import('react').ReactNode} Custom inputs component
  */
-export function ModernCustomInputs( { service }: CustomInputsProps ) {
+export function DashboardCustomInputs( { service }: CustomInputsProps ) {
 	const [ handleError, setHandleError ] = useState< string | null >( null );
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );

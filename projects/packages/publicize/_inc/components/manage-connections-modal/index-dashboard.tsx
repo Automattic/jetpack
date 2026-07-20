@@ -6,11 +6,11 @@ import { __ } from '@wordpress/i18n';
 import { Dialog, Link, Text, Tooltip } from '@wordpress/ui';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
-import { ModernServicesList } from '../services/services-list-modern';
+import { DashboardServicesList } from '../services/services-list-dashboard';
 import { ConfirmationForm } from './confirmation-form';
-import styles from './style-modern.module.scss';
+import styles from './style-dashboard.module.scss';
 
-export const ModernManageConnectionsModal = () => {
+export const DashboardManageConnectionsModal = () => {
 	const { keyringResult } = useSelect( select => {
 		const { getKeyringResult } = select( store );
 
@@ -68,7 +68,7 @@ export const ModernManageConnectionsModal = () => {
 				 * Both non-`full` views also carry the admin-menu workaround so they
 				 * don't tuck under the wp-admin sidebar: `services-list` (its
 				 * horizontal half) and `menu-aware` (the confirmation view). See the
-				 * workaround section in style-modern.module.scss.
+				 * workaround section in style-dashboard.module.scss.
 				 */ }
 				<Dialog.Popup
 					size={ isSmall ? 'full' : 'large' }
@@ -104,7 +104,7 @@ export const ModernManageConnectionsModal = () => {
 						 * the header/footer stay pinned at the popup edges.
 						 */
 						<Dialog.Content className={ styles[ 'modal-content' ] }>
-							<ModernServicesList />
+							<DashboardServicesList />
 							<Text variant="body-sm" render={ <p className={ styles[ 'manual-share' ] } /> }>
 								{ __(
 									'Want to share to other networks? Use our Manual Sharing feature from the editor.',

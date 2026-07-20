@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import { store } from '../../../../social-store';
 import { setup } from '../../../../utils/test-factory';
-import { ModernConnectionInfo } from '../../connection-info-modern';
+import { DashboardConnectionInfo } from '../../connection-info-dashboard';
 
 jest.mock( '../../../connection-icon', () => ( {
 	__esModule: true,
@@ -45,7 +45,7 @@ const renderInfo = ( props = {} ) => {
 	jest.spyOn( storeSelect, 'getServicesBy' ).mockReturnValue( [] );
 
 	return render(
-		<ModernConnectionInfo
+		<DashboardConnectionInfo
 			connection={ CONNECTION }
 			service={ SERVICE }
 			canMarkAsShared={ false }
@@ -54,7 +54,7 @@ const renderInfo = ( props = {} ) => {
 	);
 };
 
-describe( 'ModernConnectionInfo', () => {
+describe( 'DashboardConnectionInfo', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
 	} );

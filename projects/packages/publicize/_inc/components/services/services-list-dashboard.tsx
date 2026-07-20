@@ -3,8 +3,8 @@ import { useMemo } from '@wordpress/element';
 import { Card } from '@wordpress/ui';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { ModernServiceItem } from './service-item-modern';
-import styles from './style-modern.module.scss';
+import { DashboardServiceItem } from './service-item-dashboard';
+import styles from './style-dashboard.module.scss';
 import { useSupportedServices } from './use-supported-services';
 
 /**
@@ -12,7 +12,7 @@ import { useSupportedServices } from './use-supported-services';
  *
  * @return {import('react').ReactNode} Services list component
  */
-export function ModernServicesList() {
+export function DashboardServicesList() {
 	const supportedServices = useSupportedServices();
 
 	const allConnections = useSelect( select => {
@@ -41,7 +41,7 @@ export function ModernServicesList() {
 			<ul className={ styles.services }>
 				{ supportedServices.map( service => (
 					<li key={ service.id } className={ styles[ 'service-list-item' ] }>
-						<ModernServiceItem
+						<DashboardServiceItem
 							service={ service }
 							serviceConnections={ connections[ service.id ] || [] }
 							isPanelDefaultOpen={ reconnectingAccount?.service_name === service.id }

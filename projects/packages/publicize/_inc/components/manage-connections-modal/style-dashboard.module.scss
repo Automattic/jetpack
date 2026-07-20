@@ -30,7 +30,7 @@
 // base-styles/admin-page-layout.scss (160 wp-admin / 272 nav-unification /
 // 36 folded / 0 off-canvas). Deleting everything between the BEGIN and END
 // markers reverts both views to the Dialog's centering; the `menu-aware`
-// class on the confirmation popup (index-modern.tsx) then becomes a no-op —
+// class on the confirmation popup (index-dashboard.tsx) then becomes a no-op —
 // drop that branch too when convenient. The real fix belongs in @wordpress/ui;
 // file the issue and link it here.
 

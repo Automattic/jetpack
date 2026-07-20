@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setup } from '../../../utils/test-factory';
-import { ModernServiceItem } from '../service-item-modern';
+import { DashboardServiceItem } from '../service-item-dashboard';
 
 jest.mock( '../connect-form', () => ( {
 	ConnectForm: () => <div>Connect Form</div>,
@@ -21,7 +21,7 @@ const SERVICE = {
 	icon: () => <svg aria-hidden="true" />,
 };
 
-describe( 'ModernServiceItem', () => {
+describe( 'DashboardServiceItem', () => {
 	beforeEach( () => {
 		setup();
 		// jsdom doesn't implement scrollIntoView, which the auto-open path calls.
@@ -34,7 +34,7 @@ describe( 'ModernServiceItem', () => {
 	} );
 
 	test( 'renders the service heading collapsed by default', () => {
-		render( <ModernServiceItem service={ SERVICE } serviceConnections={ [] } /> );
+		render( <DashboardServiceItem service={ SERVICE } serviceConnections={ [] } /> );
 
 		expect( screen.getByText( 'Mastodon' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { expanded: false } ) ).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe( 'ModernServiceItem', () => {
 
 	test( 'expands the panel to reveal the service details when the row is clicked', async () => {
 		const user = userEvent.setup();
-		render( <ModernServiceItem service={ SERVICE } serviceConnections={ [] } /> );
+		render( <DashboardServiceItem service={ SERVICE } serviceConnections={ [] } /> );
 
 		await user.click( screen.getByRole( 'button', { expanded: false } ) );
 
@@ -52,7 +52,7 @@ describe( 'ModernServiceItem', () => {
 
 	test( 'opens with the panel already expanded when isPanelDefaultOpen is set', () => {
 		render(
-			<ModernServiceItem service={ SERVICE } serviceConnections={ [] } isPanelDefaultOpen />
+			<DashboardServiceItem service={ SERVICE } serviceConnections={ [] } isPanelDefaultOpen />
 		);
 
 		expect( screen.getByRole( 'button', { expanded: true } ) ).toBeInTheDocument();

@@ -10,7 +10,7 @@ import { ConnectionStatus } from '../connection-management/connection-status';
 import { ConnectionTemplateEditor } from '../connection-management/connection-template';
 import { Disconnect } from '../connection-management/disconnect';
 import { MarkAsShared } from '../connection-management/mark-as-shared';
-import styles from './style-modern.module.scss';
+import styles from './style-dashboard.module.scss';
 import { SupportedService } from './types';
 
 export type ServiceConnectionInfoProps = {
@@ -19,7 +19,7 @@ export type ServiceConnectionInfoProps = {
 	canMarkAsShared: boolean;
 };
 
-export const ModernServiceConnectionInfo = ( {
+export const DashboardServiceConnectionInfo = ( {
 	connection,
 	service,
 	canMarkAsShared,

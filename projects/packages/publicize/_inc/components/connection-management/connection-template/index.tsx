@@ -12,7 +12,7 @@ import {
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import { useIsModernized } from '../../../hooks/use-is-modernized';
+import { useIsDashboard } from '../../../hooks/use-is-dashboard';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { features } from '../../../utils/constants';
@@ -47,7 +47,7 @@ const NOOP = () => {};
  * so the component renders nothing for every connection until then. With the
  * engine on, it renders the live editor when the site also has the
  * `social-enhanced-publishing` paid plan and the user can manage the connection,
- * or — in the modernized chassis only — a disabled-textarea variant with an
+ * or — in the Social dashboard only — a disabled-textarea variant with an
  * Upgrade link for plan tiers that lack per-connection customization.
  *
  * @param {ConnectionTemplateEditorProps} props - The component's props.
@@ -56,19 +56,19 @@ const NOOP = () => {};
 export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps ) {
 	const { connection } = props;
 
-	const isModernized = useIsModernized();
+	const isDashboard = useIsDashboard();
 
 	const { canManageConnection, globalTemplate } = useSelect(
 		select => ( {
 			canManageConnection: select( socialStore ).canUserManageConnection( connection ),
-			// Only the modernized chassis renders the gated upsell, which is the
+			// Only the Social dashboard renders the gated upsell, which is the
 			// only consumer of the global default message. Keeping this read out
 			// of the legacy path preserves the trunk data dependencies exactly.
-			globalTemplate: isModernized
+			globalTemplate: isDashboard
 				? select( socialStore ).getSocialSettings().messageTemplate ?? ''
 				: '',
 		} ),
-		[ connection, isModernized ]
+		[ connection, isDashboard ]
 	);
 
 	const { recordEvent } = useAnalytics();
@@ -132,10 +132,10 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 
 	if ( ! planEnabled ) {
 		// Engine is on but the site's plan tier lacks per-connection
-		// customization; surface the upgrade path. Ships only in the modernized
-		// chassis — the block editor keeps the trunk behavior (no editor when
+		// customization; surface the upgrade path. Ships only in the Social
+		// dashboard — the block editor keeps the trunk behavior (no editor when
 		// the plan is missing).
-		if ( ! isModernized || isSimpleSite() ) {
+		if ( ! isDashboard || isSimpleSite() ) {
 			return null;
 		}
 

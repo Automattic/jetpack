@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { setup } from '../../../utils/test-factory';
-import { ModernServiceConnectionInfo } from '../service-connection-info-modern';
+import { DashboardServiceConnectionInfo } from '../service-connection-info-dashboard';
 
 jest.mock( '../../connection-management/connection-name', () => ( {
 	ConnectionName: ( { connection } ) => <div>{ connection.display_name }</div>,
@@ -18,7 +18,7 @@ jest.mock( '../../connection-management/mark-as-shared', () => ( {
 	MarkAsShared: () => <button>Mark as Shared</button>,
 } ) );
 
-describe( 'ModernServiceConnectionInfo', () => {
+describe( 'DashboardServiceConnectionInfo', () => {
 	const connection = {
 		profile_picture: 'https://example.com/profile.jpg',
 		display_name: 'Example User',
@@ -28,7 +28,7 @@ describe( 'ModernServiceConnectionInfo', () => {
 	const renderComponent = ( connOverrides = {}, serviceOverrides = {}, props = {} ) => {
 		setup( { canUserManageConnection: props.canUserManageConnection ?? true } );
 		render(
-			<ModernServiceConnectionInfo
+			<DashboardServiceConnectionInfo
 				connection={ { ...connection, ...connOverrides } }
 				service={ { ...serviceOverrides } }
 				canMarkAsShared={ props.canMarkAsShared ?? false }
