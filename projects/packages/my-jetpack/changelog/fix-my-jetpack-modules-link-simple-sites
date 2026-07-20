@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide the Modules footer links on WordPress.com Simple sites, where the Jetpack modules admin page does not exist.
