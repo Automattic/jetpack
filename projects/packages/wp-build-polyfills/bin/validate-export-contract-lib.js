@@ -358,6 +358,7 @@ module.exports = {
 	checkContract,
 	validateExportContracts,
 	parseSimulateEnv,
+	formatError,
 	PROVIDER_PACKAGES,
 	CONSUMER_PACKAGES,
 };

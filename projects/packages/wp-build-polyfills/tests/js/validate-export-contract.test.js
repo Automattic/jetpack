@@ -1,3 +1,4 @@
+const { execFileSync } = require( 'child_process' );
 const assert = require( 'node:assert/strict' );
 const { describe, it } = require( 'node:test' );
 const path = require( 'path' );
@@ -7,6 +8,7 @@ const {
 	checkContract,
 	parseSimulateEnv,
 	validateExportContracts,
+	formatError,
 	PROVIDER_PACKAGES,
 	CONSUMER_PACKAGES,
 } = require( '../../bin/validate-export-contract-lib.js' );
@@ -136,6 +138,78 @@ describe( 'validate-export-contract', () => {
 		it( 'returns empty for undefined/blank', () => {
 			assert.deepEqual( parseSimulateEnv( undefined ), {} );
 			assert.deepEqual( parseSimulateEnv( '' ), {} );
+		} );
+
+		it( 'skips malformed entries (no colon) and blank pkg/symbol', () => {
+			assert.deepEqual(
+				parseSimulateEnv( 'nocolon,:onlysymbol,@wordpress/theme:,@wordpress/theme:ThemeProvider' ),
+				{ '@wordpress/theme': [ 'ThemeProvider' ] }
+			);
+		} );
+	} );
+
+	describe( 'formatError', () => {
+		it( 'renders a failures-only message with the 16.0 reference', () => {
+			const msg = formatError(
+				[
+					{
+						consumer: '@wordpress/boot',
+						provider: '@wordpress/theme',
+						missing: [ 'ThemeProvider' ],
+					},
+				],
+				[]
+			);
+			assert.match( msg, /16\.0 failure mode/ );
+			assert.match( msg, /ThemeProvider/ );
+			assert.doesNotMatch( msg, /Additional problems/ );
+		} );
+
+		it( 'renders an errors-only message (unreadable packages, etc.)', () => {
+			const msg = formatError( [], [ 'Could not read exports for @wordpress/theme.' ] );
+			assert.match( msg, /Additional problems/ );
+			assert.match( msg, /Could not read exports/ );
+		} );
+	} );
+
+	describe( 'validateExportContracts — resolution branches', () => {
+		it( 'skips providers/consumers that are not installed (no false failure)', () => {
+			const result = validateExportContracts( {
+				packageRoot: path.join( __dirname, '..', '..' ),
+				providers: [ '@wordpress/definitely-not-a-real-package' ],
+				consumers: [ '@wordpress/definitely-not-a-real-package' ],
+			} );
+			assert.equal( result.ok, true );
+			assert.deepEqual( result.results, [] );
+		} );
+	} );
+
+	describe( 'CLI (bin/validate-export-contract.js)', () => {
+		const cli = path.join( __dirname, '..', '..', 'bin', 'validate-export-contract.js' );
+		const cwd = path.join( __dirname, '..', '..' );
+
+		it( 'exits 0 when contracts are satisfied', () => {
+			// Throws if the process exits non-zero.
+			execFileSync( process.execPath, [ cli ], { cwd, stdio: 'pipe' } );
+		} );
+
+		it( 'exits non-zero and reports the violation when a symbol is simulated missing', () => {
+			assert.throws(
+				() =>
+					execFileSync( process.execPath, [ cli ], {
+						cwd,
+						stdio: 'pipe',
+						env: {
+							...process.env,
+							WP_BUILD_POLYFILLS_SIMULATE_MISSING: '@wordpress/theme:ThemeProvider',
+						},
+					} ),
+				err => {
+					assert.notEqual( err.status, 0 );
+					assert.match( String( err.stderr ), /ThemeProvider|16\.0 failure mode/ );
+					return true;
+				}
+			);
 		} );
 	} );
 
