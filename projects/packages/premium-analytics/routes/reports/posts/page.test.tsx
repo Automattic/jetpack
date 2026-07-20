@@ -39,6 +39,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	formatLegendLabels: () => [],
 	isCsvExportEnabled: jest.fn(),
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions ? <div data-testid="page-actions">{ actions }</div> : null }
+			{ children }
+		</>
+	),
 	ReportPageTabs: () => null,
 	ReportPerformanceChart: () => null,
 	ReportRecordsTable: () => null,
@@ -47,12 +53,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => null,
-	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions ? <div data-testid="page-actions">{ actions }</div> : null }
-			{ children }
-		</>
-	),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
