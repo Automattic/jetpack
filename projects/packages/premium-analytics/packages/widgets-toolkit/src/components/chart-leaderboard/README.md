@@ -89,6 +89,7 @@ const data = [
 | `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                    |
 | `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                            |
 | `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                      |
+| `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
 
 ### LeaderboardChartData Type
 
@@ -238,6 +239,20 @@ The LeaderboardChart automatically adapts to its container width. For optimal di
 - **Label truncation**: Long labels automatically truncate with ellipsis
 - **Bar scaling**: Bars scale proportionally to container width
 
+Height is handled by `fitRows`, which is on by default because these charts sit
+in fixed-height dashboard tiles where an inner scrollbar is unexpected:
+
+- **Whole rows only**: the chart shows as many complete rows as the height
+  allows and hides the rest — a row is never half-clipped.
+- **Nothing is refetched**: hidden rows stay in the layout, so making the tile
+  taller reveals them immediately.
+- **Hidden means hidden**: rows that do not fit leave the focus order and the
+  accessibility tree, so there are no invisible-but-tabbable rows.
+- **Opting out**: pass `fitRows={ false }` for a widget that genuinely wants a
+  scrollable list.
+- **When nothing fits**: if the height cannot hold even one row, the chart says
+  so rather than rendering an empty panel.
+
 ## Storybook
 
 Run `pnpm storybook` and navigate to **Widgets Toolkit / Components / LeaderboardChart** to see:
@@ -261,7 +276,10 @@ Run `pnpm storybook` and navigate to **Widgets Toolkit / Components / Leaderboar
 | Use case           | Rankings, top N            | Distribution       | Two-segment comparison |
 | Context dependency | Yes (GlobalChartsProvider) | No (pure)          | No (pure)              |
 | Comparison mode    | Yes                        | Yes                | Yes                    |
-| Data items         | Unlimited                  | Unlimited segments | 2-5 segments typical   |
+| Data items         | Unlimited (see note)       | Unlimited segments | 2-5 segments typical   |
+
+All supplied items stay available to the chart, but with `fitRows` on (the
+default) a fixed-height widget displays only the leading complete rows.
 
 ## Common Patterns
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Leaderboard widgets no longer show an inner scrollbar when their rows exceed the tile height.

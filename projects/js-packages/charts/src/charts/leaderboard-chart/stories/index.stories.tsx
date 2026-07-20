@@ -581,3 +581,46 @@ export const WithCompositionLegend: Story = {
 		},
 	},
 };
+export const FitRows: Story = {
+	render: args => (
+		// Short enough that the five sample rows cannot all fit, standing in for a
+		// fixed-height dashboard tile.
+		<div style={ { height: 160, width: 360 } }>
+			<LeaderboardChart { ...args } fitRows />
+		</div>
+	),
+	args: {
+		data: sampleData,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`fitRows` shows only the rows that fit the chart height instead of scrolling, for charts placed in a fixed-height container such as a dashboard tile. Rows that do not fit keep their place in the layout but are hidden from painting, hit testing, focus order, and the accessibility tree, so growing the container reveals them again without refetching.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const content = canvasElement.querySelector( '[class*="leaderboardChart__content"]' );
+		const grid = content.firstElementChild;
+		const rows = [ ...grid.querySelectorAll( ':scope > [data-row-index]' ) ];
+
+		// The story only means something if the height actually forces a cut.
+		const hidden = rows.filter( row => getComputedStyle( row ).visibility === 'hidden' );
+		expect( hidden.length ).toBeGreaterThan( 0 );
+		expect( hidden.length ).toBeLessThan( rows.length );
+
+		// No inner scrollbar: the rows that do not fit are hidden, not scrolled to.
+		expect( getComputedStyle( content ).overflow ).toBe( 'hidden' );
+
+		// Every row left visible is whole — none is clipped by the container edge.
+		const contentBottom = content.getBoundingClientRect().bottom;
+		for ( const row of rows ) {
+			if ( getComputedStyle( row ).visibility === 'hidden' ) {
+				continue;
+			}
+			expect( row.getBoundingClientRect().bottom ).toBeLessThanOrEqual( contentBottom + 0.5 );
+		}
+	},
+};
