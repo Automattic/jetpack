@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import type { StatsFileDownloadsItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@wordpress/dataviews';
@@ -46,7 +47,14 @@ export function getDownloadsFields(): Field< StatsFileDownloadsItem >[] {
 			id: 'downloads',
 			label: __( 'Downloads', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.downloads,
-			render: ( { item } ) => <>{ item.downloads.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>
+					{ formatMetricValue( item.downloads, 'number', {
+						decimals: 0,
+						useMultipliers: false,
+					} ) }
+				</>
+			),
 		},
 	];
 }

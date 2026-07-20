@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import type { Field } from '@wordpress/dataviews';
 
@@ -66,7 +67,9 @@ export function getClicksFields(): Field< ClickRow >[] {
 			id: 'clicks',
 			label: __( 'Clicks', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.clicks,
-			render: ( { item } ) => <>{ item.clicks.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.clicks, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }
