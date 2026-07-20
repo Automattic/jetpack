@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-07-16
+### Added
+- Podcast Episode: add editor controls for soundbites and alternate audio/video files, so the front-end seek buttons and Podcasting 2.0 feed tags that already render can now be authored.
+
+### Changed
+- Podcast: remove the unused `Episode_Block_Tags::render()` seam; production and tests compose `get_block_attrs()` + `render_from_attrs()` directly. No behavior change.
+- Podcast Episode: the rich player is now a paid feature, gated in the editor for sites without a qualifying plan (an upgrade prompt on WordPress.com, hidden on self-hosted Jetpack like other paid blocks).
+- Update package dependencies.
+
+### Removed
+- Podcast: drop the settings-saved analytics event.
+
+### Fixed
+- Podcast: count episodes published with the Podcast Episode block in publish telemetry.
+- Podcast: derive the distribution feed URL from WordPress's canonical category-feed API so it stays valid on plain-permalink and no-trailing-slash sites instead of producing a malformed URL.
+- Podcast: fix hardcoded upsell fallback URL to use the injected upgrade product.
+- Podcast: preload the selected category so the settings picker shows it immediately instead of rendering blank while the category list loads.
+- Podcast: show a clear message when episode play counts can't load, instead of quietly showing zero plays.
+- Podcast feed: fixed missing episode details when the Podcast Episode block sits inside another block.
+- Podcast feed: stop podcast feed pages from showing up short or empty.
+- Podcast stats: fix time-window labels and show a loading state instead of stale numbers when switching periods.
+
 ## [1.3.2] - 2026-07-13
 ### Changed
 - Stop exposing the `podcasting_*` options through core `/wp/v2/settings`; the dashboard now reads and writes them via the dedicated `wpcom/v2/podcast/settings` endpoint. [#50458]
@@ -171,6 +193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.4.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.2.0...v1.3.0

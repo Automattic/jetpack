@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@wordpress/dataviews';
@@ -48,13 +49,22 @@ export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 			id: 'plays',
 			label: __( 'Plays', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.plays,
-			render: ( { item } ) => <>{ item.plays.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.plays, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 		{
 			id: 'impressions',
 			label: __( 'Impressions', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.impressions,
-			render: ( { item } ) => <>{ item.impressions.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>
+					{ formatMetricValue( item.impressions, 'number', {
+						decimals: 0,
+						useMultipliers: false,
+					} ) }
+				</>
+			),
 		},
 	];
 }

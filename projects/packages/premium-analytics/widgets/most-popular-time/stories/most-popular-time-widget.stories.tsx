@@ -2,9 +2,7 @@
  * The stories render the data-connected widget through `WidgetRoot`, so
  * they need report data to resolve against. `registerReportMocks` covers the
  * shared paths, including the `stats/insights` fixture wired into
- * `routeStatsReport()`. The insights endpoint has no comparison period, so
- * `WithComparison` renders identically to `Default` even though comparison
- * report params are supplied.
+ * `routeStatsReport()`.
  */
 /**
  * External dependencies
@@ -59,35 +57,18 @@ function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 }
 
 /**
- * Story controls. `withComparison` toggles the comparison report params to
- * confirm the widget renders identically — the insights endpoint has no
- * comparison period.
- */
-interface MostPopularTimeStoryControls {
-	withComparison: boolean;
-}
-
-/**
- * Renders the data-connected widget with the given comparison state.
+ * Renders the data-connected widget.
  *
- * @param {MostPopularTimeStoryControls} controls - The story controls.
  * @return The rendered widget.
  */
-function renderMostPopularTime( { withComparison }: MostPopularTimeStoryControls ) {
-	return (
-		<MostPopularTimeRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+function renderMostPopularTime() {
+	return <MostPopularTimeRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/MostPopularTime',
 	component: MostPopularTimeRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
@@ -96,37 +77,18 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof MostPopularTimeRender > & MostPopularTimeStoryControls >;
+} satisfies Meta< typeof MostPopularTimeRender >;
 
 export default meta;
 
-type Story = StoryObj< MostPopularTimeStoryControls >;
+type Story = StoryObj< Partial< ComponentProps< typeof MostPopularTimeRender > > >;
 
 /**
  * Default state — the peak day and hour highlights.
  */
 export const Default: Story = {
 	render: renderMostPopularTime,
-	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Comparison state — comparison report params are supplied, but the insights
- * endpoint has no comparison data, so this renders identically to Default.
- */
-export const WithComparison: Story = {
-	render: renderMostPopularTime,
-	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'The insights endpoint has no comparison period, so this renders identically to Default even when comparison report params are supplied.',
-			},
-		},
-	},
 };
 
 /**
@@ -134,7 +96,7 @@ export const WithComparison: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderMostPopularTime( { withComparison: false } ),
+	render: renderMostPopularTime,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -146,7 +108,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderMostPopularTime( { withComparison: false } ),
+	render: renderMostPopularTime,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceInsightsState( 'error' ),
@@ -158,27 +120,20 @@ export const Error: Story = {
  * analytics icon set).
  */
 export const Empty: Story = {
-	render: () => renderMostPopularTime( { withComparison: false } ),
+	render: renderMostPopularTime,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceInsightsState( 'empty' ),
 };
 
-interface MostPopularTimeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		MostPopularTimeStoryControls {}
-
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {MostPopularTimeDashboardStoryProps} props - The dashboard story controls.
+ * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
-function MostPopularTimeDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: MostPopularTimeDashboardStoryProps ) {
+function MostPopularTimeDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -190,19 +145,17 @@ function MostPopularTimeDashboardStory( {
 			} }
 			renderModule={ MOST_POPULAR_TIME_RENDER_MODULE }
 			renderComponent={ MostPopularTimeRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< MostPopularTimeDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <MostPopularTimeDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };

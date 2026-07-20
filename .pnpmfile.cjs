@@ -127,18 +127,43 @@ async function fixDeps( pkg ) {
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
 				dep.endsWith( '/eslint-config' ) ||
-				dep.startsWith( '@typescript-eslint/' )
+				dep.startsWith( '@typescript-eslint/' ) ||
+				dep === '@wordpress/theme'
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
+		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
+		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
+			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
+		}
 	}
 
-	// Outdated dependency
+	// Turn `@wordpress/stylelint-config` deps into peer deps too.
+	if ( pkg.name === '@wordpress/stylelint-config' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ! ver.startsWith( '>' ) ) {
+				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
+		}
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			delete pkg.dependencies[ dep ];
+			pkg.peerDependencies[ dep ] = ver.startsWith( '>' ) ? ver : ver.replace( /^\^?/, '>=' );
+		}
+		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
+		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
+			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
+		}
+	}
+
+	// Outdated dependencies
 	if ( pkg.name === '@wordpress/build' ) {
 		if ( pkg.dependencies.cssnano === '^6.0.1' ) {
 			pkg.dependencies.cssnano = '^6 || ^7';
+		}
+		if ( pkg.dependencies.esbuild === '^0.27.2' ) {
+			pkg.dependencies.esbuild = '^0.27 || ^0.28';
 		}
 	}
 
@@ -149,38 +174,6 @@ async function fixDeps( pkg ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
 			}
 		}
-	}
-
-	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
-	// https://github.com/WordPress/gutenberg/issues/75047
-	if ( pkg.name === '@wordpress/stylelint-config' ) {
-		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
-			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
-		}
-		if ( pkg.dependencies?.[ 'stylelint-config-recommended' ]?.startsWith( '^14.' ) ) {
-			pkg.dependencies[ 'stylelint-config-recommended' ] = '^17'; // 18 is ESM
-		}
-		if ( pkg.dependencies?.[ 'stylelint-config-recommended-scss' ]?.startsWith( '^14.' ) ) {
-			pkg.dependencies[ 'stylelint-config-recommended-scss' ] = '^16'; // 17 is ESM
-		}
-		if ( pkg.peerDependencies?.stylelint?.startsWith( '^16.' ) ) {
-			pkg.peerDependencies.stylelint = '^17';
-		}
-		if ( pkg.peerDependencies?.[ 'stylelint-scss' ]?.startsWith( '^6.' ) ) {
-			pkg.peerDependencies[ 'stylelint-scss' ] = '^7';
-		}
-	}
-	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
-		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
-	}
-
-	// Make sure @wordpress/eslint-plugin and @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
-	if (
-		( pkg.name === '@wordpress/stylelint-config' || pkg.name === '@wordpress/eslint-plugin' ) &&
-		pkg.dependencies?.[ '@wordpress/theme' ]
-	) {
-		delete pkg.dependencies[ '@wordpress/theme' ];
-		pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 	}
 
 	// Update localtunnel axios dep to avoid CVE
@@ -261,14 +254,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// Temporarily outdated deps. Storybook is already updated upstream.
-	if (
-		pkg.dependencies?.esbuild?.match( /\^0\.27/ ) &&
-		! pkg.dependencies?.esbuild?.match( /\^0\.28/ )
-	) {
-		pkg.dependencies.esbuild += ' || ^0.28';
-	}
-
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
@@ -336,11 +321,14 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// Apparently this for some reason includes a vite plugin, instead of that being a separate package.
-	// And it depends on the wrong version of vite. Since we mostly don't use vite anyway (just in storybook),
-	// it should be safe to broaden the dep.
-	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.vite ) {
-		pkg.peerDependencies.vite = '*';
+	// @wordpress/theme includes plugins for various tools. Widen peer dependencies so it doesn't conflict.
+	// @see https://github.com/WordPress/gutenberg/pull/80267 for example
+	if ( pkg.name === '@wordpress/theme' ) {
+		for ( const dep of [ 'esbuild', 'postcss', 'stylelint', 'vite' ] ) {
+			if ( pkg.peerDependencies[ dep ] && ! pkg.peerDependencies[ dep ].startsWith( '>' ) ) {
+				pkg.peerDependencies[ dep ] = pkg.peerDependencies[ dep ].replace( /^\^?/, '>=' );
+			}
+		}
 	}
 
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
@@ -395,18 +383,6 @@ function fixPeerDeps( pkg ) {
 	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
 	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
 		delete pkg.dependencies.sass;
-	}
-
-	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
-	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
-	// https://github.com/WordPress/gutenberg/issues/75047
-	if (
-		( pkg.name === 'stylelint-config-recommended' ||
-			pkg.name === 'stylelint-config-recommended-scss' ||
-			pkg.name === 'stylelint-scss' ) &&
-		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
-	) {
-		pkg.peerDependencies.stylelint = '^17';
 	}
 
 	// Having copies with and without the peer dep tends to break tests. So let's just make it non-optional.

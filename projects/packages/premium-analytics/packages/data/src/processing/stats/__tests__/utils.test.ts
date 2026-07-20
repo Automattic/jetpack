@@ -1,6 +1,7 @@
 import { combineStatsNormalizedReports, sanitizeStatsTopPostsResponse } from '..';
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
 import {
+	flattenStatsLeaves,
 	getStatsLabel,
 	getStatsSummaryIntervalFields,
 	mergeStatsComparisonRows,
@@ -111,5 +112,41 @@ describe( 'Stats report utilities', () => {
 
 		expect( result.hasComparison ).toBe( true );
 		expect( result.rows[ 0 ].previousValue ).toBe( 0 );
+	} );
+
+	describe( 'flattenStatsLeaves', () => {
+		type Node = { label: string; children?: Node[] | null };
+
+		const flatten = ( items: Node[] ) =>
+			flattenStatsLeaves( items, {
+				getChildren: item => item.children,
+				mapLeaf: ( item, { ancestors, indexPath } ) => ( {
+					label: item.label,
+					path: ancestors.map( ancestor => ancestor.label ),
+					indexPath,
+				} ),
+			} );
+
+		it( 'maps hierarchy leaves with their ancestor chain and index path', () => {
+			const rows = flatten( [
+				{
+					label: 'group',
+					children: [ { label: 'leaf-a' }, { label: 'branch', children: [ { label: 'leaf-b' } ] } ],
+				},
+				{ label: 'leaf-c', children: null },
+			] );
+
+			expect( rows ).toEqual( [
+				{ label: 'leaf-a', path: [ 'group' ], indexPath: [ 0, 0 ] },
+				{ label: 'leaf-b', path: [ 'group', 'branch' ], indexPath: [ 0, 1, 0 ] },
+				{ label: 'leaf-c', path: [], indexPath: [ 1 ] },
+			] );
+		} );
+
+		it( 'treats items with empty child lists as leaves', () => {
+			expect( flatten( [ { label: 'solo', children: [] } ] ) ).toEqual( [
+				{ label: 'solo', path: [], indexPath: [ 0 ] },
+			] );
+		} );
 	} );
 } );

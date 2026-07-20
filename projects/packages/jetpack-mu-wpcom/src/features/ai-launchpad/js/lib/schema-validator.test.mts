@@ -36,6 +36,10 @@ function validOutput() {
 			title: 'Trails worth remembering',
 			paragraphs: [ 'First paragraph of the post.', 'Second paragraph of the post.' ],
 		},
+		about_page_draft: {
+			title: 'About',
+			paragraphs: [ 'Who is behind the site.', 'What visitors will find here.' ],
+		},
 	};
 }
 
@@ -98,6 +102,18 @@ describe( 'validateAgainstSchema', () => {
 		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
 	} );
 
+	it( 'accepts an inferred_goal and rejects an out-of-enum value', () => {
+		const out = validOutput();
+		( out.inferred as Record< string, unknown > ).inferred_goal = 'portfolio';
+		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
+		( out.inferred as Record< string, unknown > ).inferred_goal = 'cook';
+		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
+	} );
+
+	it( 'accepts an output without inferred_goal (optional field)', () => {
+		assert.deepEqual( validateAgainstSchema( validOutput(), fileSchema ), [] );
+	} );
+
 	it( 'rejects an unknown goal enum value', () => {
 		const out = validOutput();
 		( out.inferred as { goal: string } ).goal = 'cook';
@@ -113,6 +129,20 @@ describe( 'validateAgainstSchema', () => {
 	it( 'rejects a missing required field', () => {
 		const out = validOutput() as Record< string, unknown >;
 		delete out.first_post_draft;
+		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
+	} );
+
+	it( 'rejects a missing about_page_draft', () => {
+		const out = validOutput() as Record< string, unknown >;
+		delete out.about_page_draft;
+		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
+	} );
+
+	it( 'accepts a third About paragraph but rejects a fourth', () => {
+		const out = validOutput();
+		out.about_page_draft.paragraphs.push( 'A closing invitation.' );
+		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
+		out.about_page_draft.paragraphs.push( 'One too many.' );
 		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
 	} );
 } );

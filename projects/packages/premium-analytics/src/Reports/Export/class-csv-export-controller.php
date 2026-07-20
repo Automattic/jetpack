@@ -179,6 +179,11 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 				'enum'              => array( 'hour', 'day', 'week', 'month', 'quarter', 'year' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
+			'date_type'       => array(
+				'description' => __( 'Date field used to filter orders.', 'jetpack-premium-analytics' ),
+				'type'        => 'string',
+				'enum'        => array( 'created', 'paid', 'completed' ),
+			),
 			'compare_from'    => array(
 				'description'       => __( 'Start date for comparison period (ISO 8601 format).', 'jetpack-premium-analytics' ),
 				'type'              => 'string',
@@ -424,6 +429,9 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			'compare_from' => $request->get_param( 'compare_from' ),
 			'compare_to'   => $request->get_param( 'compare_to' ),
 		);
+		if ( $request->has_param( 'date_type' ) ) {
+			$params['date_type'] = $request->get_param( 'date_type' );
+		}
 
 		// Handle delivery method.
 		if ( 'email' === $delivery_method ) {

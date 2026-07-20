@@ -32,9 +32,15 @@ export default {
 	title: __( 'VideoPress', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Most popular videos uploaded to your site. Learn more about their performance.',
+			'The published videos your visitors watched most often, sorted by views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: video,
 	attributes: [

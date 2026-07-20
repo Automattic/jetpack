@@ -4,6 +4,7 @@
 import {
 	useStatsEmailOpensBreakdown,
 	useStatsEmailClicksBreakdown,
+	toPostId,
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -83,25 +84,26 @@ type EmailMetricSpec = {
 
 /**
  * The single source of truth for the top-row tiles, in display order. Mirrors
- * the post-detail design: the Opens view shows total sends, unique opens, total
- * opens, and open rate; the Clicks view keeps the shared send/open context but
- * swaps in total clicks and click rate. The Clicks composition therefore merges
- * the opens and clicks rate summaries before it reaches this table.
+ * the post-detail design: the Opens view shows emails sent, unique opens,
+ * total opens, and open rate; the Clicks view shows total opens, total
+ * clicks, and click rate. Total opens comes from the opens rate summary, so
+ * the Clicks composition merges the opens and clicks rate summaries before it
+ * reaches this table.
  */
 const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 	{
 		key: 'total_sends',
 		icon: send,
-		label: () => __( 'Sent', 'jetpack-premium-analytics' ),
+		label: () => __( 'Emails sent', 'jetpack-premium-analytics' ),
 		kind: 'count',
-		views: [ 'opens', 'clicks' ],
+		views: [ 'opens' ],
 	},
 	{
 		key: 'unique_opens',
 		icon: people,
-		label: () => __( 'Total unique opens', 'jetpack-premium-analytics' ),
+		label: () => __( 'Unique opens', 'jetpack-premium-analytics' ),
 		kind: 'count',
-		views: [ 'opens', 'clicks' ],
+		views: [ 'opens' ],
 		hideWhenZero: true,
 	},
 	{
@@ -109,7 +111,7 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 		icon: seen,
 		label: () => __( 'Total opens', 'jetpack-premium-analytics' ),
 		kind: 'count',
-		views: [ 'opens' ],
+		views: [ 'opens', 'clicks' ],
 	},
 	{
 		key: 'opens_rate',
@@ -328,21 +330,6 @@ const EmailTopRowTiles = ( {
 	);
 };
 
-/**
- * Resolves the email's post ID from the host-composed report params. `post_id`
- * is typed `string | number` (a string when it comes straight from the URL), so
- * it is coerced to a positive integer; anything else yields `0`, which the
- * widget treats as "no email selected".
- *
- * @param postId - The `post_id` report param.
- * @return The email's post ID, or `0` when none is set.
- */
-function toPostId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : 0;
-}
-
 type EmailTopRowReportProps = {
 	/**
 	 * Which view's metrics to fetch and show.
@@ -356,9 +343,9 @@ type EmailTopRowReportProps = {
  * through `reportParams.post_id` — the shared single-resource "detail page"
  * param — so the widget needs no id attribute of its own. The Opens and Clicks
  * view always reads the opens rate endpoint. The Clicks view reads both rate
- * endpoints: sends and unique opens come from the opens response, while total
- * clicks and click rate come from the clicks response. React Query shares the
- * opens result with the Opens tab, so visiting both tabs does not duplicate it.
+ * endpoints: total opens comes from the opens response, while total clicks and
+ * click rate come from the clicks response. React Query shares the opens
+ * result with the Opens tab, so visiting both tabs does not duplicate it.
  *
  * @param {EmailTopRowReportProps} props - The component props.
  * @return The widget content.
@@ -368,8 +355,8 @@ function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
 
-	// Both hooks are called every render (hooks rule). Opens supplies shared
-	// send/open context in both views; Clicks only runs for the Clicks view.
+	// Both hooks are called every render (hooks rule). Opens supplies the
+	// total-opens context in both views; Clicks only runs for the Clicks view.
 	const opens = useStatsEmailOpensBreakdown( postId, 'rate', {
 		enabled: hasSelection,
 	} );

@@ -8,6 +8,8 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -193,6 +195,9 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					</Stack>
 				) }
 			</WidgetState>
+			<WidgetFooter>
+				<ReportLink report="annual-insights" />
+			</WidgetFooter>
 		</div>
 	);
 }

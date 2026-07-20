@@ -16,7 +16,7 @@
    clipped by the content area's overflow (same treatment as the metric
    tabs). */
 .pager button {
-	outline-offset: calc(-1 * var(--wpds-border-width-focus, 1.5px));
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 
 /* Remaining tile height for WidgetState's block-level ready wrapper. */
@@ -35,7 +35,7 @@
 	/* The pager + content-sized grid center as one block in the leftover
 	   tile height. */
 	justify-content: center;
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	gap: var(--wpds-dimension-gap-sm);
 
 	/* Safety net for sub-minimum widths (the page floor is 4 week columns). */
 	overflow-x: auto;

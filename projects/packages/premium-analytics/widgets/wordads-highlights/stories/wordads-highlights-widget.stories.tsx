@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -13,8 +13,8 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
+	forceWordAdsEarningsState,
 	registerReportMocks,
-	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import WordAdsHighlightsRender from '../render';
 import widgetDefinition, {
@@ -44,30 +44,22 @@ const storyWidgetType = {
 
 interface WordAdsHighlightsStoryControls {
 	/**
-	 * Whether to inject comparison report params.
-	 */
-	withComparison: boolean;
-	/**
 	 * Earnings cards to show in the widget body.
 	 */
 	metrics: WordAdsEarningsMetricId[];
 }
 
 /**
- * Renders the data-connected widget with report params derived from the
- * comparison toggle and the selected metrics. The earnings endpoint is not
- * period-scoped, so toggling comparison does not change what the widget shows
- * — it is wired through only to prove the widget renders unchanged when the
- * host injects comparison params.
+ * Renders the data-connected widget with the selected metrics.
  *
  * @param {WordAdsHighlightsStoryControls} props - Story controls.
  * @return The rendered widget.
  */
-function renderWordAdsHighlights( { withComparison, metrics }: WordAdsHighlightsStoryControls ) {
+function renderWordAdsHighlights( { metrics }: WordAdsHighlightsStoryControls ) {
 	return (
 		<WordAdsHighlightsRender
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams(),
 				metrics,
 			} }
 		/>
@@ -90,14 +82,13 @@ const meta = {
 	component: WordAdsHighlightsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "WordAds highlights" widget. Shows all-time WordAds payouts — total earnings, amount paid, and outstanding balance — as a grid of currency tiles (paid = earnings − outstanding). Ported from the Calypso WordAds "Totals" section. Which cards appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsWordAdsEarnings` hook; in Storybook it is served by `registerReportMocks()` (the `wordads/earnings` handler). The earnings module has no comparison period, so the tiles show bare amounts and the `WithComparison` story renders identically to `Default`.',
+					'The "WordAds highlights" widget. Shows all-time WordAds payouts — total earnings, amount paid, and outstanding balance — as a grid of currency tiles (paid = earnings − outstanding). Ported from the Calypso WordAds "Totals" section. Which cards appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsWordAdsEarnings` hook; in Storybook it is served by `registerReportMocks()` (the `wordads/earnings` handler). The earnings module has no comparison period, so the tiles show bare amounts.',
 			},
 		},
 	},
@@ -114,29 +105,9 @@ type Story = StoryObj< WordAdsHighlightsStoryControls >;
  */
 export const Default: Story = {
 	render: renderWordAdsHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	args: { ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
-
-/**
- * Same close-up with comparison report params injected. The earnings module has
- * no comparison data, so this renders identically to `Default` — it only
- * verifies the widget stays stable when the host provides comparison params.
- */
-export const WithComparison: Story = {
-	render: renderWordAdsHighlights,
-	args: { withComparison: true, ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
-};
-
-// The earnings endpoint takes no params, so its query key is static and every
-// story in this file shares one cache entry (a distinct date preset can't
-// separate them — the query does not key on report params). Dropping the query
-// on story enter and exit gives each forced-state story a fresh fetch, and
-// clears a never-settling `loading` fetch before the other stories reuse the key.
-function resetWordAdsEarningsQuery() {
-	queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-}
 
 /**
  * First load: the fetch is in flight, so the widget shows its loading state. The
@@ -144,18 +115,11 @@ function resetWordAdsEarningsQuery() {
  */
 export const Loading: Story = {
 	render: renderWordAdsHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
-	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	args: { ...ALL_METRICS_ARGS },
+	// Off the shared autodocs page — path-keyed override; see forceWordAdsEarningsState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		resetWordAdsEarningsQuery();
-		setReportMockState( 'wordads/earnings', 'loading' );
-		return () => {
-			setReportMockState( 'wordads/earnings', null );
-			resetWordAdsEarningsQuery();
-		};
-	},
+	beforeEach: forceWordAdsEarningsState( 'loading' ),
 };
 
 /**
@@ -164,17 +128,10 @@ export const Loading: Story = {
  */
 export const Error: Story = {
 	render: renderWordAdsHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	args: { ...ALL_METRICS_ARGS },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		resetWordAdsEarningsQuery();
-		setReportMockState( 'wordads/earnings', 'error' );
-		return () => {
-			setReportMockState( 'wordads/earnings', null );
-			resetWordAdsEarningsQuery();
-		};
-	},
+	beforeEach: forceWordAdsEarningsState( 'error' ),
 };
 
 /**
@@ -185,7 +142,7 @@ export const Error: Story = {
  */
 export const Empty: Story = {
 	render: renderWordAdsHighlights,
-	args: { withComparison: false, metrics: [] },
+	args: { metrics: [] },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -200,7 +157,6 @@ interface WordAdsHighlightsDashboardStoryProps
  * @return The rendered dashboard with the widget.
  */
 function WordAdsHighlightsDashboardStory( {
-	withComparison,
 	metrics,
 	...dashboardArgs
 }: WordAdsHighlightsDashboardStoryProps ) {
@@ -211,7 +167,7 @@ function WordAdsHighlightsDashboardStory( {
 			renderModule={ WORDADS_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ WordAdsHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams( true ),
 				metrics,
 			} }
 		/>
@@ -224,12 +180,10 @@ export const WidgetDashboardWithWidget: StoryObj< WordAdsHighlightsDashboardStor
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 1,
 		widgetHeight: 1,
-		withComparison: true,
 		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
 };

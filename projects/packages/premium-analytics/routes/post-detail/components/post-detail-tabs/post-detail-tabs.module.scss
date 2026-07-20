@@ -1,3 +1,14 @@
+// Flex column so the tab panel fills the remaining viewport height and
+// scrolls internally instead of growing with the widget grid — the tab bar,
+// date filters, and summary header stay put while the widgets scroll,
+// matching the dashboard's section tabs.
+.root {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
 .tabList {
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }

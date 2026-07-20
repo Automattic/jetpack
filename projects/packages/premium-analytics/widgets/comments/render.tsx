@@ -4,8 +4,11 @@
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -34,10 +37,10 @@ function isCommentView( value: unknown ): value is CommentsView {
 }
 
 /**
- * Builds a leaderboard row label. Authors render as a name + avatar; posts render
- * as an external link to the published post (or plain text when a post has no
- * permalink). Author rows carry no link in the normalized data, so they are
- * always static labels.
+ * Builds a leaderboard row label. Authors render as a name + avatar, linking to
+ * the comments-admin search when the normalized data carries a URL (or a static
+ * label when it doesn't); posts render as an external link to the published post
+ * (or plain text when a post has no permalink).
  *
  * @param {CommentRow}   row  - The row to label.
  * @param {CommentsView} view - The active view.
@@ -45,18 +48,42 @@ function isCommentView( value: unknown ): value is CommentsView {
  */
 function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 	if ( view === 'authors' ) {
-		return (
+		const label = (
 			<LeaderboardLabel
 				label={ row.label }
 				imageUrl={ row.avatarUrl }
-				imageAlt={ sprintf(
-					/* translators: %s is the comment author name */
-					__( 'Avatar of %s', 'jetpack-premium-analytics' ),
-					row.label
-				) }
+				// The linked row's anchor already announces the author name, so the
+				// avatar is decorative there — an empty alt avoids a doubled
+				// "Avatar of X, X" screen-reader announcement.
+				imageAlt={
+					row.link
+						? ''
+						: sprintf(
+								/* translators: %s is the comment author name */
+								__( 'Avatar of %s', 'jetpack-premium-analytics' ),
+								row.label
+						  )
+				}
 				imageClassName={ styles.avatar }
 			/>
 		);
+
+		// Authors with a comments-admin search URL from the API link out.
+		if ( row.link ) {
+			return (
+				<Link
+					className={ styles.authorLabel }
+					href={ row.link }
+					variant="unstyled"
+					openInNewTab
+					title={ row.label }
+				>
+					{ label }
+				</Link>
+			);
+		}
+
+		return label;
 	}
 
 	if ( row.link ) {
@@ -111,7 +138,7 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 			id: row.id,
 			label: buildRowLabel( row, view ),
 			currentValue: row.value,
-			currentShare: maxValue > 0 ? ( row.value / maxValue ) * 100 : 0,
+			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );
 	}, [ data, view ] );
 
@@ -146,6 +173,9 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 					/>
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="comments" section={ view } />
+			</WidgetFooter>
 		</Stack>
 	);
 }

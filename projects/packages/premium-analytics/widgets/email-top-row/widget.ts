@@ -6,6 +6,11 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which set of headline metrics the top row shows for the selected email —
  * mirrors the Opens and Clicks internal tabs on the Jetpack Stats email detail
  * page. Each view is backed by its own all-time `stats/<opens|clicks>/emails/<postId>/rate`
@@ -53,7 +58,7 @@ export type EmailTopRowAttributes = {
  */
 export default {
 	name: 'jpa/email-top-row',
-	title: __( 'Newsletter performance', 'jetpack-premium-analytics' ),
+	title: __( 'Email highlights', 'jetpack-premium-analytics' ),
 	icon: envelope,
 	help: {
 		content: __(
@@ -66,6 +71,7 @@ export default {
 			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Opens', 'jetpack-premium-analytics' ),

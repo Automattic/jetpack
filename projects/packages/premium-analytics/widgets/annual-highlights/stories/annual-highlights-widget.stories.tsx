@@ -15,6 +15,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -45,30 +46,22 @@ const storyWidgetType = {
 
 interface AnnualHighlightsStoryControls {
 	/**
-	 * Whether to inject comparison report params.
-	 */
-	withComparison: boolean;
-	/**
 	 * Metric tiles to show in the widget body.
 	 */
 	metrics: AnnualHighlightMetric[];
 }
 
 /**
- * Renders the data-connected widget with report params derived from the
- * comparison toggle and the selected metrics. The insights endpoint is not
- * period-scoped, so toggling comparison does not change what the widget shows
- * — it is wired through only to prove the widget renders unchanged when the
- * host injects comparison params.
+ * Renders the data-connected widget with the selected metrics.
  *
  * @param {AnnualHighlightsStoryControls} props - Story controls.
  * @return The rendered widget.
  */
-function renderAnnualHighlights( { withComparison, metrics }: AnnualHighlightsStoryControls ) {
+function renderAnnualHighlights( { metrics }: AnnualHighlightsStoryControls ) {
 	return (
 		<AnnualHighlightsRender
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams(),
 				metrics,
 			} }
 		/>
@@ -129,14 +122,13 @@ const meta = {
 	component: AnnualHighlightsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					"The \"Annual highlights\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.",
+					"The \"Annual highlights\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts.",
 			},
 		},
 	},
@@ -151,19 +143,8 @@ type Story = StoryObj< AnnualHighlightsStoryControls >;
  */
 export const Default: Story = {
 	render: renderAnnualHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Same close-up with comparison report params injected. The insights module has
- * no comparison data, so this renders identically to `Default` — it only
- * verifies the widget stays stable when the host provides comparison params.
- */
-export const WithComparison: Story = {
-	render: renderAnnualHighlights,
-	args: { withComparison: true, ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
+	args: { ...ALL_METRICS_ARGS },
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -174,7 +155,7 @@ export const Loading: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'loading' ),
 };
 
@@ -185,7 +166,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'error' ),
 };
 
@@ -196,7 +177,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'empty' ),
 };
 
@@ -211,7 +192,6 @@ interface AnnualHighlightsDashboardStoryProps
  * @return The rendered dashboard with the widget.
  */
 function AnnualHighlightsDashboardStory( {
-	withComparison,
 	metrics,
 	...dashboardArgs
 }: AnnualHighlightsDashboardStoryProps ) {
@@ -222,7 +202,7 @@ function AnnualHighlightsDashboardStory( {
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams( true ),
 				metrics,
 			} }
 		/>
@@ -235,12 +215,11 @@ export const WidgetDashboardWithWidget: StoryObj< AnnualHighlightsDashboardStory
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 1,
 		widgetHeight: 1,
-		withComparison: true,
 		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 		...METRIC_ARG_TYPES,
 	},
+	decorators: [ withStoryRouter ],
 };

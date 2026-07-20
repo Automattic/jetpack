@@ -23,8 +23,8 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@wordpress/api-fetch": "7.50.0",
-		"@wordpress/data": "10.50.0"
+		"@wordpress/api-fetch": "7.51.0",
+		"@wordpress/data": "10.51.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

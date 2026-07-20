@@ -9,6 +9,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	sharePercentage,
 	toMaxRows,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -71,10 +72,10 @@ function buildLeaderboardData( rows: VideoPlaysRow[] ): LeaderboardChartData {
 			</span>
 		),
 		currentValue: row.plays,
-		currentShare: ( row.plays / maxPlays ) * 100,
+		currentShare: sharePercentage( row.plays, maxPlays ),
 		previousValue: row.previousPlays,
 		previousShare:
-			row.previousPlays !== undefined ? ( row.previousPlays / maxPlays ) * 100 : undefined,
+			row.previousPlays !== undefined ? sharePercentage( row.previousPlays, maxPlays ) : undefined,
 		delta:
 			row.previousPlays !== undefined ? calculateDelta( row.plays, row.previousPlays ) : undefined,
 	} ) );

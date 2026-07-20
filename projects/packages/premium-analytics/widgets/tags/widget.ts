@@ -27,9 +27,15 @@ export default {
 	title: __( 'Tags & categories', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Most visited tags & categories. Learn about the most engaging topics.',
+			'The tags and categories associated with your most-viewed content, sorted by views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: tag,
 	attributes: [

@@ -2,7 +2,8 @@ import { ToggleControl } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useSchemaSettings } from '../../data/use-schema-settings';
-import OrganizationBusinessSection from './schema-settings/organization-business-section';
+import LocalBusinessSection from './schema-settings/local-business-section';
+import OrganizationSection from './schema-settings/organization-section';
 import type { SchemaSettings } from '../../data/schema-settings-types';
 import './style.scss';
 
@@ -13,9 +14,9 @@ const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 /**
  * Site-level Schema settings section.
  *
- * Splits the site-level BreadcrumbList control from the combined Organization /
- * LocalBusiness form across two collapsible cards. The per-user Author profile
- * (Person / ProfilePage) lives in its own card.
+ * Renders the site-level BreadcrumbList, Organization, and LocalBusiness controls
+ * in separate collapsible cards. The per-user Author profile (Person /
+ * ProfilePage) lives in its own card.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site
@@ -38,29 +39,18 @@ interface Props {
  */
 function SchemaCard( { initialSettings, onSave }: Props ) {
 	const form = useSchemaSettings( initialSettings, onSave );
-	const {
-		breadcrumbList,
-		organization,
-		defaults,
-		localBusiness,
-		localBusinessDefaults,
-		isSaving,
-		commitBreadcrumbList,
-	} = form;
+	const { breadcrumbList, organization, defaults, localBusiness, isSaving, commitBreadcrumbList } =
+		form;
 
 	// Whether each Organization field counts as "set" for the header badge: `name` /
 	// `description` count when overridden here OR present in site identity (Site Title /
 	// Tagline); `sameAs` when it has a profile; `email` when filled. So a typical site
 	// reads "2 of 4 set" before the admin adds anything.
-	const localBusinessAddressSet =
-		Object.values( localBusiness.address ).some( Boolean ) ||
-		Object.values( localBusinessDefaults.address ).some( Boolean );
 	const fieldsSet = [
 		organization.name || defaults.name,
 		organization.description || defaults.description,
 		organization.sameAs.length > 0,
 		organization.email,
-		...( localBusiness.enabled ? [ localBusinessAddressSet ] : [] ),
 	];
 	const setCount = fieldsSet.filter( Boolean ).length;
 
@@ -94,7 +84,7 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 			<CollapsibleCard.Root defaultOpen={ false }>
 				<CollapsibleCard.Header>
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Card.Title>{ __( 'Schema', 'jetpack-seo' ) }</Card.Title>
+						<Card.Title>{ __( 'Organization', 'jetpack-seo' ) }</Card.Title>
 						<Badge intent={ setCount === fieldsSet.length ? 'stable' : 'draft' }>
 							{ setCount > 0
 								? sprintf(
@@ -108,7 +98,21 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 					</Stack>
 				</CollapsibleCard.Header>
 				<CollapsibleCard.Content>
-					<OrganizationBusinessSection form={ form } />
+					<OrganizationSection form={ form } />
+				</CollapsibleCard.Content>
+			</CollapsibleCard.Root>
+
+			<CollapsibleCard.Root defaultOpen={ false }>
+				<CollapsibleCard.Header>
+					<Stack direction="row" justify="space-between" align="center" gap="sm">
+						<Card.Title>{ __( 'Local business', 'jetpack-seo' ) }</Card.Title>
+						<Badge intent={ localBusiness.enabled ? 'stable' : 'draft' }>
+							{ localBusiness.enabled ? enabledLabel : disabledLabel }
+						</Badge>
+					</Stack>
+				</CollapsibleCard.Header>
+				<CollapsibleCard.Content>
+					<LocalBusinessSection form={ form } />
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 		</Stack>

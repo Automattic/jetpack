@@ -12,10 +12,13 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -179,11 +182,11 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentClicks ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentClicks ),
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousClicks ) * 100
+					? sharePercentage( previousValue, maxPreviousClicks )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
@@ -358,6 +361,9 @@ export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ClicksInner max={ max } />
+				<WidgetFooter>
+					<ReportLink report="clicks" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);
