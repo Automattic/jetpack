@@ -10,9 +10,9 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
+	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportPerformanceChart,
-	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -63,13 +63,23 @@ function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
 }
 
 /**
- * Return the stable id generated while aggregating an author row.
+ * Return the stable id generated while aggregating an author or post row.
  *
  * @param item - The aggregate author row.
  * @return The row id.
  */
 function getAuthorRowId( item: AuthorRow ): string {
 	return item.id;
+}
+
+/**
+ * Resolve the author parent row id for nested post rows.
+ *
+ * @param item - The author or post row.
+ * @return The parent author row id, if any.
+ */
+function getAuthorRowParentId( item: AuthorRow ): string | undefined {
+	return item.parentId;
 }
 
 const RECORDS_VIEW = {
@@ -161,13 +171,15 @@ function AuthorsReport(): JSX.Element {
 						onIntervalChange={ handleIntervalChange }
 						legendLabels={ chartLegendLabels }
 					/>
-					<ReportRecordsTable
+					<ReportDrilldownTable< AuthorRow >
 						data={ records.authors.rows }
 						fields={ fields }
 						getItemId={ getAuthorRowId }
+						getItemParentId={ getAuthorRowParentId }
 						isLoading={ records.authors.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search authors and posts', 'jetpack-premium-analytics' ) }
+						hideLevelMarkers
 					/>
 				</ReportPageLayout>
 			</div>

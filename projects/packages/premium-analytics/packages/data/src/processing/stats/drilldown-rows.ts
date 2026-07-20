@@ -180,5 +180,7 @@ export function aggregateStatsDrilldownRows< TItem extends StatsDrilldownSourceI
 		rows.push( ...leaves.map( leaf => ( { ...leaf, parentId: aggregate.label } ) ) );
 	}
 
+	console.log( 'rows drilldown', rows );
+
 	return rows;
 }
