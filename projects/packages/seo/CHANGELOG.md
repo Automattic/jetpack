@@ -12,14 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improve the organization and local business schema settings layout. [#50541]
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
+- Update package dependencies. [#50510] [#50529]
 
 ### Fixed
-- Content tab: make the search box match titles, SEO titles and meta descriptions instead of returning no results [#50411]
-- Content tab: page through posts and pages instead of silently capping the list at 100 of each [#50411]
+- Content tab: Make the search box match titles, SEO titles and meta descriptions instead of returning no results. [#50411]
+- Content tab: Page through posts and pages instead of silently capping the list at 100 of each. [#50411]
 - Fix the FAQ schema so FAQPage JSON-LD emits from editor-saved Details blocks. [#50565]
-- Overview: cache the content-coverage counts and compute them in a single query. [#50508]
+- Overview: Cache the content-coverage counts and compute them in a single query. [#50508]
 
 ## [0.5.0] - 2026-07-13
 ### Added

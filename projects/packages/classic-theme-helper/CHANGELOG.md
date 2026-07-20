@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#50529]
 
 ### Fixed
-- Food Menus: register the Nova custom post type after the theme loads during REST API requests, so the menu link appears in the Calypso sidebar on Simple sites. [#50480]
+- Food Menus: Register the Nova custom post type after the theme loads during REST API requests, so the menu link appears in the Calypso sidebar on Simple sites. [#50480]
 
 ## [0.14.36] - 2026-07-13
 ### Changed

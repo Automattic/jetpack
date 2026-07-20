@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.9] - 2026-07-20
 ### Changed
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
+- Update package dependencies. [#50510] [#50529]
 
 ### Fixed
-- Upgrade nudge: replace `.wp-block` CSS class with `.jetpack-nudge-canvas` to avoid Gutenberg iframe compatibility warnings in the block editor. [#50260]
+- Upgrade nudge: Replace `.wp-block` CSS class with `.jetpack-nudge-canvas` to avoid Gutenberg iframe compatibility warnings in the block editor. [#50260]
 
 ## [2.0.8] - 2026-07-13
 ### Changed

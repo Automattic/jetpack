@@ -7,14 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.40.8] - 2026-07-20
 ### Changed
-- Allow pricing interstitials to limit container width [#50567]
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
-- Update package dependencies. [#50582]
+- Allow pricing interstitials to limit container width. [#50567]
+- Update package dependencies. [#50510] [#50529] [#50582]
 
 ### Fixed
 - Connection: Ensure My Jetpack Connection status card is compatible with TSX in Jetpack Connection package. [#50370]
-- My Jetpack: hide the large Stats graph when the Stats module is disabled, and show the compact Stats card with an activation CTA instead. [#50464]
+- Hide the large Stats graph when the Stats module is disabled, and show the compact Stats card with an activation CTA instead. [#50464]
 - Register a pricing-table config for Stats so the interstitial no longer renders an empty column. [#50535]
 - Reload the page after toggling a menu-registering module (Podcast, Newsletter, Reader) in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior. [#50269]
 

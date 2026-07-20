@@ -7,10 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.1] - 2026-07-20
 ### Changed
-- Daily Writing Prompt widget: refresh the layout and fix its styling on self-hosted Jetpack. [#50500]
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
-- Update package dependencies. [#50582]
+- Refresh the Daily Writing Prompt widget layout and fix its styling on self-hosted Jetpack. [#50500]
+- Update package dependencies. [#50510] [#50529] [#50582]
 
 ### Fixed
 - Fix an intermittent flash of unstyled content on the Newsletter dashboard in Firefox. [#50558]

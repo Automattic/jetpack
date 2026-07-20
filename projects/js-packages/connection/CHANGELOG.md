@@ -4,11 +4,9 @@
 
 ## [2.0.2] - 2026-07-20
 ### Changed
-- Connection UI: Convert remaining component files to TS / TSX. [#50620]
-- Connection UI: TSX conversion and component updates. [#50370]
-- Connection UI: TSX conversion and component updates. [#50543]
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
+- UI: Convert component files to TSX and update components. [#50370] [#50543]
+- UI: Convert remaining component files to TS / TSX. [#50620]
+- Update package dependencies. [#50510] [#50529]
 
 ## [2.0.1] - 2026-07-13
 ### Fixed

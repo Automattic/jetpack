@@ -4,12 +4,11 @@
 
 ## [1.12.17] - 2026-07-20
 ### Changed
-- PricingTable: add optional `breakpoint` prop to control the viewport width at which offers switch from columns to stacked blocks (defaults to 'large'). [#50567]
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
+- PricingTable: Add optional `breakpoint` prop to control the viewport width at which offers switch from columns to stacked blocks (defaults to 'large'). [#50567]
+- Update package dependencies. [#50510] [#50529]
 
 ### Fixed
-- Jetpack Footer: add explicit `display: flex` so the footer lays out horizontally on WordPress.com Simple sites instead of stacking vertically. [#50637]
+- Jetpack Footer: Add explicit `display: flex` so the footer lays out horizontally on WordPress.com Simple sites instead of stacking vertically. [#50637]
 
 ## [1.12.16] - 2026-07-13
 ### Fixed

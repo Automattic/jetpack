@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.0] - 2026-07-20
 ### Changed
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
+- Update package dependencies. [#50510] [#50529]
 
 ### Removed
-- Remove the broken prebuilt JS client bundle. Within the monorepo the client is consumed from source. [#50526]
+- Remove the broken prebuilt JS client bundle. [#50526]
 
 ## [0.4.36] - 2026-07-13
 ### Changed

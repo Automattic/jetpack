@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.12] - 2026-07-20
 ### Changed
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
+- Update package dependencies. [#50510] [#50529]
 
 ### Fixed
-- Register wp-build polyfills so the admin bundle loads on WordPress versions that don't provide the wp-theme script handle [#50557]
+- Register wp-build polyfills so the admin bundle loads on WordPress versions that don't provide the wp-theme script handle. [#50557]
 
 ## [0.1.11] - 2026-07-13
 ### Added

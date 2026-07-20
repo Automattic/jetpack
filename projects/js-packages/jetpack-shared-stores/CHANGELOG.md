@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Export mapAiFeatureResponseToAiFeatureProps from the package barrel so consumers can hydrate the wordpress-com/plans store from a server-side preload of the ai-assistant-feature payload. [#50494]
 
 ### Changed
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50529]
+- Update package dependencies. [#50510] [#50529]
 
 ## [0.1.5] - 2026-07-13
 ### Changed

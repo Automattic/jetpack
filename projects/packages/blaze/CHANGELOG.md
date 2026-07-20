@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#50529]
 
 ### Fixed
-- Blaze: avoid a duplicate Blaze Ads menu when the standalone Blaze Ads plugin is active, and point campaign/promote links (and the legacy advertising URL) at the standalone's page so they resolve and preserve their deep-link route. [#49584]
+- Avoid a duplicate Blaze Ads menu when the standalone Blaze Ads plugin is active, and point campaign/promote links (and the legacy advertising URL) at the standalone's page so they resolve and preserve their deep-link route. [#49584]
 
 ## [0.27.27] - 2026-07-13
 ### Changed

@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix checkout for unregistered sites getting stuck or redirected to the site selector instead of completing the purchase. [#50474]
 - Fix the Search upsell page's product-availability check not returning its promise, which caused checkout to always run even when the site already had the Search product. [#50474]
-- Search overlay/embedded templates: keep the Collapsible Filters panel in sync with the sidebar Filters block, so editing filter labels or adding/removing filters in the sidebar always shows up in the panel too. When both blocks coexist, the panel is locked read-only in the editor since it now mirrors the sidebar; it stays fully editable when used standalone. [#50653]
-- Search overlay/embedded templates: make it obvious in the editor when adding a new filter to the Filters (or Product Filters) block — a bounded insertion target and a labeled boundary outline mark where it belongs. [#50655]
+- Overlay/embedded templates: Keep the Collapsible Filters panel in sync with the sidebar Filters block, so editing filter labels or adding/removing filters in the sidebar always shows up in the panel too. When both blocks coexist, the panel is locked read-only in the editor since it now mirrors the sidebar; it stays fully editable when used standalone. [#50653]
+- Overlay/embedded templates: Make it obvious in the editor when adding a new filter to the Filters (or Product Filters) block — a bounded insertion target and a labeled boundary outline mark where it belongs. [#50655]
 
 ## [7.2.8] - 2026-07-13
 ### Changed

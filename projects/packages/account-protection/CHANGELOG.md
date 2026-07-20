@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.7] - 2026-07-20
 ### Fixed
-- Account Protection: Default the login form password detection callback's password argument to null so other plugins hooking into the authenticate filter without a password do not trigger a fatal error. [#50539]
+- Default the login form password detection callback's password argument to null so other plugins hooking into the authenticate filter without a password do not trigger a fatal error. [#50539]
 
 ## [0.3.6] - 2026-07-13
 ### Added
