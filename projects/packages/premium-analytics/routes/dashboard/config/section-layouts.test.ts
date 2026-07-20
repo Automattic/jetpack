@@ -13,12 +13,15 @@ describe( 'section layouts config', () => {
 		).toBe( true );
 	} );
 
-	it( 'rejects unknown section keys', () => {
+	it( 'accepts keys for sections not currently available', () => {
+		// Slugs are server-driven, so the map must keep layouts for sections
+		// that are temporarily unavailable (e.g. store with WooCommerce off).
 		expect(
 			isDashboardSectionLayouts( {
-				unknown: [],
+				store: [],
+				conversions: [],
 			} )
-		).toBe( false );
+		).toBe( true );
 	} );
 
 	it( 'rejects non-array layouts', () => {
@@ -27,5 +30,10 @@ describe( 'section layouts config', () => {
 				traffic: {},
 			} )
 		).toBe( false );
+	} );
+
+	it( 'rejects non-object values', () => {
+		expect( isDashboardSectionLayouts( [ [] ] ) ).toBe( false );
+		expect( isDashboardSectionLayouts( null ) ).toBe( false );
 	} );
 } );

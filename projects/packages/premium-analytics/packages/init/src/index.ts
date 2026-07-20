@@ -13,9 +13,11 @@ import { chartBar } from '@wordpress/icons';
 let authConfigured = false;
 
 /**
- * Configure the bundled apiFetch instance with the WordPress REST API root URL
- * and authentication nonce from Jetpack script data. Runs once before routes
- * render so shared packages (e.g. site-sync) can call the REST API.
+ * Configure the bundled apiFetch instance with the WordPress REST API root URL,
+ * authentication nonce, and server-printed response preloads from Jetpack
+ * script data. Runs once before routes render so shared packages (e.g.
+ * site-sync) can call the REST API and preloaded requests resolve without a
+ * network round trip.
  */
 function setupApiFetch(): void {
 	if ( authConfigured ) {
@@ -28,9 +30,16 @@ function setupApiFetch(): void {
 	if ( site?.rest_nonce ) {
 		apiFetch.use( apiFetch.createNonceMiddleware( site.rest_nonce ) );
 	}
+	// The dashboard page render prints the `GET /sections` response keyed by
+	// its REST path; the preloading middleware serves it to the first matching
+	// apiFetch call instead of hitting the network.
+	const sectionsPreload = getScriptData()?.premium_analytics?.dashboard_sections_preload;
+	if ( sectionsPreload ) {
+		apiFetch.use( apiFetch.createPreloadingMiddleware( sectionsPreload ) );
+	}
 	// Only latch once we actually registered, so an early call before
 	// script-data is ready doesn't permanently skip configuration.
-	if ( site?.rest_root || site?.rest_nonce ) {
+	if ( site?.rest_root || site?.rest_nonce || sectionsPreload ) {
 		authConfigured = true;
 	}
 }

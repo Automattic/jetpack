@@ -24,8 +24,8 @@ import styles from './stage.module.scss';
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
 function Dashboard(): JSX.Element {
-	const sections = useDashboardSections();
-	const [ activeSection, setActiveSection ] = useActiveSection();
+	const sections = useDashboardSections( DASHBOARD_NAME );
+	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
 		DASHBOARD_NAME,
 		activeSection
@@ -105,8 +105,12 @@ function Dashboard(): JSX.Element {
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
 						{ sections.map( section => (
-							<SectionTabPanel key={ section.id } value={ section.id } className={ styles.content }>
-								{ activeSection === section.id ? (
+							<SectionTabPanel
+								key={ section.slug }
+								value={ section.slug }
+								className={ styles.content }
+							>
+								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
 										<WidgetDashboard.Widgets />

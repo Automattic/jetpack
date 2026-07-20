@@ -15,6 +15,10 @@ declare module '@automattic/jetpack-script-data' {
 			has_store_data: boolean;
 			// Whether experimental CSV export controls should render.
 			csv_exports_enabled?: boolean;
+			// Preloaded `GET /sections` responses keyed by REST path, printed by
+			// the dashboard page render. Consumed by apiFetch's preloading
+			// middleware and the dashboard's section hooks.
+			dashboard_sections_preload?: Record< string, { body?: unknown } >;
 		};
 	}
 }

@@ -58,6 +58,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
 		wp_set_current_user( 0 );
+		unset( $_GET['page'] );
 
 		parent::tear_down();
 	}
@@ -714,6 +715,86 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$this->assertSame( 404, $response->get_status(), $case );
 			$this->assertSame( 'rest_no_route', $response->as_error()->get_error_code(), $case );
 		}
+	}
+
+	/**
+	 * Script data carries the sections preload, keyed by the REST path, on dashboard pages.
+	 */
+	public function test_script_data_injects_sections_preload_on_dashboard_page() {
+		register_default_dashboard_sections();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );
+		$_GET['page'] = 'jetpack-premium-analytics';
+
+		$data    = inject_dashboard_sections_script_data( array() );
+		$path    = '/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections';
+		$preload = $data['premium_analytics']['dashboard_sections_preload'];
+
+		$this->assertArrayHasKey( $path, $preload );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers', 'store' ),
+			array_column( $preload[ $path ]['body'], 'slug' )
+		);
+		$this->assertSame(
+			array(
+				'id'    => 'analytics/traffic',
+				'slug'  => 'traffic',
+				'label' => 'Traffic',
+				'order' => 10,
+			),
+			$preload[ $path ]['body'][0]
+		);
+	}
+
+	/**
+	 * The preload reflects section availability, mirroring the REST response.
+	 */
+	public function test_script_data_preload_omits_unavailable_sections() {
+		register_default_dashboard_sections();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );
+		$_GET['page'] = 'jetpack-premium-analytics-wp-admin';
+
+		$data    = inject_dashboard_sections_script_data( array() );
+		$preload = $data['premium_analytics']['dashboard_sections_preload'];
+
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			array_column( $preload[ '/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections' ]['body'], 'slug' )
+		);
+	}
+
+	/**
+	 * The preload stays off script data rendered for other admin pages.
+	 */
+	public function test_script_data_preload_skips_other_admin_pages() {
+		register_default_dashboard_sections();
+
+		set_current_screen( 'edit-post' );
+		$_GET['page'] = 'some-other-plugin';
+
+		$data = inject_dashboard_sections_script_data( array( 'existing' => true ) );
+
+		$this->assertSame( array( 'existing' => true ), $data );
+	}
+
+	/**
+	 * Bootstrapping registers the script data preload filter.
+	 *
+	 * Re-runs the bootstrap rather than relying on the require-time call:
+	 * other test classes (e.g. Analytics_Test) clear all script data filters
+	 * in their teardown.
+	 */
+	public function test_bootstrap_registers_script_data_preload_filter() {
+		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data', 20 );
+
+		bootstrap_dashboard_sections();
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data' )
+		);
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: drive the section tab bar from the server-side section registry — the GET /sections response is preloaded into the page render, ?section= is validated against the available slugs with URL rewrite on fallback, and the Store tab renders only when WooCommerce is active.

@@ -1,13 +1,15 @@
-import { DASHBOARD_SECTION_IDS } from './sections';
 import type { DashboardSectionId } from './sections';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 export type DashboardSectionLayouts = Partial< Record< DashboardSectionId, DashboardWidget[] > >;
 
-const SECTION_IDS = new Set< string >( DASHBOARD_SECTION_IDS );
-
 /**
  * Check whether a value can be used as the persisted section layout map.
+ *
+ * Keys are section slugs, which are server-driven, so any string key is
+ * accepted: a stored layout must survive its section becoming unavailable
+ * (e.g. the store section after WooCommerce is deactivated) so it is still
+ * there when the section comes back.
  *
  * @param value - Candidate preference value.
  * @return Whether the value is a valid section layout map.
@@ -17,7 +19,5 @@ export function isDashboardSectionLayouts( value: unknown ): value is DashboardS
 		return false;
 	}
 
-	return Object.entries( value ).every(
-		( [ sectionId, layout ] ) => SECTION_IDS.has( sectionId ) && Array.isArray( layout )
-	);
+	return Object.values( value ).every( layout => Array.isArray( layout ) );
 }

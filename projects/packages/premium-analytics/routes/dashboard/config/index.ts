@@ -1,8 +1,7 @@
 export {
-	DASHBOARD_SECTION_IDS,
-	DEFAULT_SECTION_ID,
-	getSectionLabel,
-	getDashboardSections,
+	getDashboardSectionsPath,
+	getPreloadedDashboardSections,
+	normalizeDashboardSections,
 	resolveSectionId,
 	type DashboardSection,
 	type DashboardSectionId,

@@ -131,6 +131,46 @@ function bootstrap_dashboard_sections() {
 	} else {
 		add_action( 'init', __NAMESPACE__ . '\\register_default_dashboard_sections' );
 	}
+
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data', 20 );
+}
+
+/**
+ * Injects the `GET /sections` response into JetpackScriptData as an apiFetch
+ * preload, keyed by the REST path the frontend requests.
+ *
+ * The dashboard tab bar is built from this response, so it is preloaded into
+ * the page render: the frontend resolves the section list synchronously on
+ * first paint instead of flashing an empty tab bar while a request is in
+ * flight. Scoped to the dashboard pages so other admin script-data consumers
+ * don't carry the payload.
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_dashboard_sections_script_data( array $data ): array {
+	if ( ! Analytics::is_dashboard_request() ) {
+		return $data;
+	}
+
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
+	}
+
+	$sections_path = '/' . DASHBOARD_REST_NAMESPACE . '/dashboards/' . DASHBOARD_NAME . '/sections';
+
+	$data['premium_analytics']['dashboard_sections_preload'] = array(
+		$sections_path => array(
+			'body' => array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->to_array();
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			),
+		),
+	);
+
+	return $data;
 }
 
 /**

@@ -2,7 +2,6 @@ import { useState } from '@wordpress/element';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DashboardSections } from '../../../routes/dashboard/components';
-import { DEFAULT_SECTION_ID, getDashboardSections } from '../../../routes/dashboard/config';
 import styles from '../../../routes/dashboard/stage.module.scss';
 import type { Meta, StoryObj } from '@storybook/react';
 import type {
@@ -14,6 +13,15 @@ import type {
 type StoryWidgetAttributes = {
 	title: string;
 };
+
+// In product the section list is server-driven (GET /sections); the story pins
+// a static list mirroring that response shape.
+const storySections = [
+	{ id: 'analytics/traffic', slug: 'traffic', label: 'Traffic', order: 10 },
+	{ id: 'analytics/insights', slug: 'insights', label: 'Insights', order: 20 },
+	{ id: 'analytics/subscribers', slug: 'subscribers', label: 'Subscribers', order: 30 },
+	{ id: 'woocommerce/store', slug: 'store', label: 'Store', order: 40 },
+];
 
 type StoryWidgetProps = WidgetRenderProps< StoryWidgetAttributes >;
 
@@ -98,8 +106,8 @@ const resolveWidgetModule: ResolveWidgetModule = moduleId =>
  * @return Story component.
  */
 function DashboardSectionsGridStory() {
-	const sections = getDashboardSections();
-	const [ activeSection, setActiveSection ] = useState( DEFAULT_SECTION_ID );
+	const sections = storySections;
+	const [ activeSection, setActiveSection ] = useState( sections[ 0 ].slug );
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( initialLayout );
 
 	return (
@@ -131,8 +139,8 @@ function DashboardSectionsGridStory() {
 				onChange={ setActiveSection }
 			>
 				{ sections.map( section => (
-					<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
-						{ activeSection === section.id ? (
+					<Tabs.Panel key={ section.slug } value={ section.slug } className={ styles.content }>
+						{ activeSection === section.slug ? (
 							<WidgetDashboard
 								widgetTypes={ widgetTypes }
 								layout={ layout }
