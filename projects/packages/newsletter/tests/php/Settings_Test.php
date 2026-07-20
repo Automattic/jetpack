@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -68,8 +69,42 @@ class Settings_Test extends BaseTestCase {
 		wp_dequeue_script( 'jetpack-newsletter' );
 		wp_deregister_script( 'jp-tracks' );
 		wp_deregister_script( 'jetpack-newsletter' );
+		wp_deregister_script( 'wp-theme' );
+
+		// The polyfill registrar keeps its request map, hook latch, and version
+		// threshold in process-global statics. Reset them so a legacy-surface
+		// test cannot leak state into — or read state from — another test.
+		$this->reset_wp_build_polyfills_statics();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Reset WP_Build_Polyfills' static state between tests.
+	 *
+	 * Mirrors WP_Build_Polyfills_Test's own tear_down: the registrar records
+	 * requested handles, whether it has hooked wp_default_scripts, and the
+	 * force-replacement version threshold in statics that otherwise persist
+	 * across tests in the same process.
+	 */
+	private function reset_wp_build_polyfills_statics() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		$statics = array(
+			'requested'            => array(),
+			'hooked'               => false,
+			'wp_version_threshold' => '7.0',
+		);
+
+		foreach ( $statics as $name => $value ) {
+			$property = new \ReflectionProperty( WP_Build_Polyfills::class, $name );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, $value );
+		}
 	}
 
 	/**
@@ -298,23 +333,102 @@ class Settings_Test extends BaseTestCase {
 	 * here, `wp_enqueue_script` silently drops `jetpack-newsletter` over the
 	 * unregistered dependency and the page renders blank.
 	 */
-	public function test_load_admin_scripts_requests_wp_theme_polyfill_on_legacy_surface() {
+	public function test_load_admin_scripts_registers_wp_theme_polyfill_on_legacy_surface() {
 		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
 
-		( new Settings() )->load_admin_scripts();
+		// The polyfill only registers wp-theme when its build asset exists on
+		// disk. That build directory is gitignored and absent in CI PHP runs, so
+		// borrow WP_Build_Polyfills_Test's fixture approach and lay down a stub
+		// asset file when the real build is missing.
+		$fixture = $this->ensure_wp_theme_polyfill_asset();
 
-		$consumers = \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::get_consumers();
+		// Core never registers wp-theme; start clean so the assertion reflects
+		// what our code registers rather than a leftover registration.
+		wp_deregister_script( 'wp-theme' );
 
-		$this->assertArrayHasKey(
-			'wp-theme',
-			$consumers,
-			'The legacy surface must request the wp-theme polyfill; the legacy bundle depends on that handle and Core never registers it.'
+		try {
+			( new Settings() )->load_admin_scripts();
+
+			$consumers = WP_Build_Polyfills::get_consumers();
+			$this->assertContains(
+				'jetpack-newsletter',
+				$consumers['wp-theme'] ?? array(),
+				'The legacy newsletter bundle must be recorded as a wp-theme polyfill consumer.'
+			);
+
+			// The behaviour the bug was about: wp-theme is actually registered, so
+			// WordPress no longer drops jetpack-newsletter over a missing dependency.
+			$this->assertTrue(
+				wp_script_is( 'wp-theme', 'registered' ),
+				'The legacy surface must register wp-theme; Core never does, and the bundle depends on it.'
+			);
+		} finally {
+			$this->remove_wp_theme_polyfill_asset( $fixture );
+		}
+	}
+
+	/**
+	 * Ensure the polyfill's built wp-theme asset file exists so register() can
+	 * register the handle.
+	 *
+	 * The wp-build-polyfills build directory is gitignored, so it may be missing
+	 * during PHP test runs. When it is, write a minimal stub at the exact path
+	 * register() reads (dirname of the class file, two levels up, + /build).
+	 *
+	 * @return array {file, dirs} describing what we created, for cleanup. Empty
+	 *               when the real asset already exists and nothing was created.
+	 */
+	private function ensure_wp_theme_polyfill_asset() {
+		$reflector = new \ReflectionClass( WP_Build_Polyfills::class );
+		$asset_dir = dirname( $reflector->getFileName(), 2 ) . '/build/scripts/theme';
+		$asset     = $asset_dir . '/index.asset.php';
+
+		if ( file_exists( $asset ) ) {
+			return array();
+		}
+
+		// Create the missing directory chain, tracking what we made so tear-down
+		// removes only our fixture and never a real build artifact.
+		$missing = array();
+		$dir     = $asset_dir;
+		while ( ! is_dir( $dir ) ) {
+			$missing[] = $dir;
+			$dir       = dirname( $dir );
+		}
+		$created_dirs = array();
+		foreach ( array_reverse( $missing ) as $dir ) {
+			mkdir( $dir );
+			$created_dirs[] = $dir;
+		}
+
+		file_put_contents( $asset, "<?php return array( 'dependencies' => array(), 'version' => 'test' );\n" );
+
+		return array(
+			'file' => $asset,
+			'dirs' => $created_dirs,
 		);
-		$this->assertContains(
-			'jetpack-newsletter',
-			$consumers['wp-theme'],
-			'The legacy newsletter bundle must be recorded as a wp-theme polyfill consumer.'
-		);
+	}
+
+	/**
+	 * Remove the stub wp-theme asset created by ensure_wp_theme_polyfill_asset().
+	 *
+	 * @param array $fixture The {file, dirs} descriptor it returned.
+	 */
+	private function remove_wp_theme_polyfill_asset( $fixture ) {
+		if ( empty( $fixture ) ) {
+			return;
+		}
+
+		if ( isset( $fixture['file'] ) && file_exists( $fixture['file'] ) ) {
+			unlink( $fixture['file'] );
+		}
+
+		// Remove deepest-first so each directory is empty when we drop it.
+		foreach ( array_reverse( $fixture['dirs'] ?? array() ) as $dir ) {
+			if ( is_dir( $dir ) ) {
+				rmdir( $dir );
+			}
+		}
 	}
 
 	/**
