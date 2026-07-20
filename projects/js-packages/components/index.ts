@@ -68,6 +68,7 @@ export { default as RecordMeterBar } from './components/record-meter-bar/index.t
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger/index.tsx';
 export { default as Alert } from './components/alert/index.tsx';
 export { default as Notice } from './components/notice/index.tsx';
+export { default as JetpackAdminNotices } from './components/jetpack-admin-notices/index.tsx';
 export { default as Popover } from './components/popover/index.tsx';
 export { default as Status } from './components/status/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';

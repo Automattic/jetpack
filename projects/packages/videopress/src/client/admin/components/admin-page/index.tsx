@@ -9,6 +9,7 @@ import {
 	Container,
 	Button,
 	Col,
+	JetpackAdminNotices,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -110,10 +111,7 @@ const Admin = () => {
 						<AdminSectionHero>
 							<Container horizontalSpacing={ 0 }>
 								<Col>
-									<div
-										id="jp-admin-notices"
-										className={ styles[ 'jetpack-videopress-jitm-card' ] }
-									/>
+									<JetpackAdminNotices />
 								</Col>
 							</Container>
 

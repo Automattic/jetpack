@@ -187,6 +187,13 @@ $jp-gray-20:             #a7aaad;
 	}
 }
 
+// Shared container (JetpackAdminNotices) and the Social container: the content
+// column is already sized, so render full width with only a bottom gap.
+.jetpack-jitm-card .jitm-card,
+.jetpack-social-jitm-card .jitm-card {
+	margin: 0 0 1.5rem;
+}
+
 // if JITM appears directly below WordPress "help" menu adjust margins
 #screen-meta-links + .jitm-card {
 	margin: rem.convert(40px) 1.5385em 0 auto;

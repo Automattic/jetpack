@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render JITMs via the shared JetpackAdminNotices component (in-column).

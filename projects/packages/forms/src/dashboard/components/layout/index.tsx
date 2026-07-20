@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { JetpackAdminNotices } from '@automattic/jetpack-components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
 import { Outlet, useLocation } from 'react-router';
@@ -46,6 +47,7 @@ const Layout = () => {
 	return (
 		<div className="jp-forms-layout">
 			<div className="jp-forms-layout__content">
+				<JetpackAdminNotices />
 				{ ! isLoadingConfig && <Outlet /> }
 				{ isIntegrationsOpen && showDashboardIntegrations && <Integrations /> }
 			</div>

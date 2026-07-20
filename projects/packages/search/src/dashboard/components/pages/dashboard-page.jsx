@@ -1,4 +1,9 @@
-import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Button,
+	getProductCheckoutUrl,
+	JetpackAdminNotices,
+} from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -339,10 +344,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 							<div className="jp-search-dashboard-row">
-								<div
-									id="jp-admin-notices"
-									className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
-								/>
+								<JetpackAdminNotices className="sm-col-span-4 md-col-span-8 lg-col-span-12" />
 							</div>
 							{ isPageLoading && <Loading /> }
 							{ ! isPageLoading && (

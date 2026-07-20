@@ -6,7 +6,7 @@
  * column isn't linked, and the "Manage backup" row action is stubbed
  * until #48236 lands.
  */
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, JetpackAdminNotices } from '@automattic/jetpack-components';
 import {
 	ConnectionError,
 	useConnectionErrorNotice,
@@ -555,6 +555,7 @@ export default function ActivityLog() {
 				 * overrides needed.
 				 */ }
 				<div className="jp-activity-log__inner">
+					<JetpackAdminNotices />
 					{ showConnectionError ? (
 						<ConnectionError
 							// `<ConnectionError>` re-runs `useConnectionErrorNotice`

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render JITMs inside the Activity Log content column via JetpackAdminNotices.
