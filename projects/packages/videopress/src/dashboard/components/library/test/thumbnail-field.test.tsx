@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useProcessingProgress } from '../../../hooks/use-processing-progress';
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
 import { libraryFields } from '../fields';
 import ThumbnailField from '../thumbnail-field';
@@ -10,6 +11,11 @@ import type { Field } from '@wordpress/dataviews';
 // Avoid the react-query/apiFetch poster request; the poster URL is irrelevant here.
 jest.mock( '../../../hooks/use-poster-url', () => ( {
 	usePosterUrl: jest.fn( () => null ),
+} ) );
+
+// Avoid the socket.io connection; tests drive the returned value directly.
+jest.mock( '../../../hooks/use-processing-progress', () => ( {
+	useProcessingProgress: jest.fn( () => null ),
 } ) );
 
 const makeActions = ( overrides: Partial< UploadActions > = {} ): UploadActions => ( {
@@ -77,6 +83,19 @@ describe( 'ThumbnailField — grid Details access', () => {
 		expect( screen.getByText( '40%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows live upload progress while promoting a local video to VideoPress', () => {
+		renderField(
+			<ThumbnailField
+				item={ item( { type: 'local', upload: { status: 'promoting', progress: 60 } } ) }
+			/>,
+			makeActions()
+		);
+		expect( screen.getByText( '60%' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Upload to VideoPress' } )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'shows a Deleting… overlay and removes the open-details button while deleting', () => {
 		renderField(
 			<ThumbnailField item={ item( { upload: { status: 'deleting', progress: 0 } } ) } />,
@@ -84,6 +103,74 @@ describe( 'ThumbnailField — grid Details access', () => {
 		);
 		expect( screen.getByText( 'Deleting…' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'ThumbnailField — processing overlay', () => {
+	const mockedUseProcessingProgress = useProcessingProgress as jest.Mock;
+
+	afterEach( () => {
+		mockedUseProcessingProgress.mockReturnValue( null );
+	} );
+
+	it( 'subscribes to progress for a processing VideoPress video', () => {
+		renderField(
+			<ThumbnailField item={ item( { guid: 'abc123', isProcessing: true } ) } />,
+			makeActions()
+		);
+		expect( mockedUseProcessingProgress ).toHaveBeenCalledWith( 'abc123', false, true );
+	} );
+
+	it( 'shows the plain Processing label before the first progress event', () => {
+		renderField( <ThumbnailField item={ item( { isProcessing: true } ) } />, makeActions() );
+		expect( screen.getByText( 'Processing' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the live transcoding percentage once progress is known', () => {
+		mockedUseProcessingProgress.mockReturnValue( 42 );
+		renderField( <ThumbnailField item={ item( { isProcessing: true } ) } />, makeActions() );
+		expect( screen.getByText( 'Processing 42%' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'TitleCell — promoting pill', () => {
+	it( 'shows the live upload percentage while promoting a local video', () => {
+		renderField(
+			<TitleCellRender
+				item={ item( {
+					type: 'local',
+					title: 'Raw Footage',
+					upload: { status: 'promoting', progress: 33 },
+				} ) }
+			/>,
+			makeActions()
+		);
+		expect( screen.getByText( 'Uploading 33%' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'TitleCell — processing pill', () => {
+	const mockedUseProcessingProgress = useProcessingProgress as jest.Mock;
+
+	afterEach( () => {
+		mockedUseProcessingProgress.mockReturnValue( null );
+	} );
+
+	it( 'shows the live transcoding percentage in the status pill', () => {
+		mockedUseProcessingProgress.mockReturnValue( 87 );
+		renderField(
+			<TitleCellRender item={ item( { title: 'Fresh upload', isProcessing: true } ) } />,
+			makeActions()
+		);
+		expect( screen.getByText( 'Processing 87%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'falls back to the plain Processing pill before the first progress event', () => {
+		renderField(
+			<TitleCellRender item={ item( { title: 'Fresh upload', isProcessing: true } ) } />,
+			makeActions()
+		);
+		expect( screen.getByText( 'Processing' ) ).toBeInTheDocument();
 	} );
 } );
 

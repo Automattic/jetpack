@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Video details: Show the video player while a video is processing, reporting live transcoding progress, instead of a static placeholder.
