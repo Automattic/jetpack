@@ -5,6 +5,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -78,13 +79,13 @@ type Story = StoryObj< SearchTermsStoryControls >;
 export const Default: Story = {
 	render: renderSearchTerms,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderSearchTerms,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -95,7 +96,7 @@ export const Loading: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/search-terms', 'loading' );
 		return () => setReportMockState( 'stats/search-terms', null );
@@ -109,7 +110,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/search-terms', 'error' );
 		return () => setReportMockState( 'stats/search-terms', null );
@@ -123,7 +124,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/search-terms', 'empty' );
 		return () => setReportMockState( 'stats/search-terms', null );

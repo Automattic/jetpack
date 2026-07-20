@@ -20,6 +20,9 @@ export interface TailoredInferred {
 	vibe?: string;
 	audience?: string;
 	tagline?: string;
+	// The goal the AI infers from the site name and description alone. Analytics
+	// only: never consumed by tailoring or read-side logic.
+	inferred_goal?: GoalSlug;
 }
 
 export interface FirstPostDraft {
@@ -52,4 +55,4 @@ export interface TailorResult {
 	output: TailoredOutput;
 }
 
-export type TrackEventProps = Record< string, string | number | boolean >;
+export type TrackEventProps = Record< string, string | number | boolean | null >;

@@ -4,6 +4,8 @@
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	type LeaderboardChartData,
@@ -163,6 +165,9 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 					/>
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="comments" section={ view } />
+			</WidgetFooter>
 		</Stack>
 	);
 }

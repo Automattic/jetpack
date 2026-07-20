@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	useStatsArchives,
 	useStatsTopPosts,
@@ -83,10 +82,6 @@ type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = { num: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-
-function areClientSideCsvExportsEnabled(): boolean {
-	return getScriptData()?.premium_analytics?.client_side_csv_exports_enabled === true;
-}
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -323,39 +318,41 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	// params. Stats queries keep the previous period's rows as placeholder data
 	// while a refetch is in flight, so exporting mid-fetch (or after an error)
 	// could hand the user stale rows under the new-period `csvFilename`.
-	const canExport =
-		areClientSideCsvExportsEnabled() && rows.length > 0 && ! isFetching && ! isError;
+	const canExport = rows.length > 0 && ! isFetching && ! isError;
 
 	return (
-		<div className={ styles.content }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData`, so a failed range change
-				// keeps the prior period's rows visible; only surface the error when
-				// there is nothing to show.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ rows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load posts and pages. Please try again in a moment.",
-						'jetpack-premium-analytics'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
-				} }
-			>
-				<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
-			</WidgetState>
-			{ canExport && (
-				<div className={ styles.contentExport }>
+		<>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load posts and pages. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: reports,
+						description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="posts-pages" />
+				{ canExport && (
 					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
-				</div>
-			) }
-		</div>
+				) }
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -599,16 +596,15 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
-					<ArchivesReport num={ num } />
+					<>
+						<ArchivesReport num={ num } />
+						<WidgetFooter>
+							<ReportLink report="posts" section="archives" />
+						</WidgetFooter>
+					</>
 				) : (
 					<TopPostsReport num={ num } />
 				) }
-				<WidgetFooter>
-					<ReportLink
-						report="posts"
-						section={ contentView === 'archives' ? 'archives' : 'posts-pages' }
-					/>
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

@@ -1,4 +1,4 @@
-import { processHierarchyLevels } from '../process-hierarchy-levels';
+import { processHierarchyLevels, withAncestors } from '../process-hierarchy-levels';
 
 type Row = {
 	id: string;
@@ -105,5 +105,72 @@ describe( 'processHierarchyLevels', () => {
 		expect( data ).toHaveLength( 2 );
 		expect( levelByItem.get( noIdRows[ 0 ] ) ).toBe( 0 );
 		expect( levelByItem.get( noIdRows[ 1 ] ) ).toBe( 0 );
+	} );
+} );
+
+describe( 'withAncestors', () => {
+	it( 'includes the ancestor chain of a matched row, in data order', () => {
+		const result = withAncestors(
+			rows,
+			new Set( [ 'google-search' ] ),
+			getItemId,
+			getItemParentId
+		);
+
+		expect( result.map( row => row.id ) ).toEqual( [ 'search', 'google', 'google-search' ] );
+	} );
+
+	it( 'returns a top-level match on its own', () => {
+		const result = withAncestors( rows, new Set( [ 'social' ] ), getItemId, getItemParentId );
+
+		expect( result.map( row => row.id ) ).toEqual( [ 'social' ] );
+	} );
+
+	it( 'collects a shared ancestor once for sibling matches', () => {
+		const result = withAncestors(
+			rows,
+			new Set( [ 'google', 'bing' ] ),
+			getItemId,
+			getItemParentId
+		);
+
+		expect( result.map( row => row.id ) ).toEqual( [ 'search', 'google', 'bing' ] );
+	} );
+
+	it( 'returns nothing when no row matched', () => {
+		expect( withAncestors( rows, new Set< string >(), getItemId, getItemParentId ) ).toEqual( [] );
+	} );
+
+	it( 'returns every row when all matched, preserving order', () => {
+		const result = withAncestors(
+			rows,
+			new Set( rows.map( getItemId ) ),
+			getItemId,
+			getItemParentId
+		);
+
+		expect( result ).toEqual( rows );
+	} );
+
+	it( 'stops at a parent absent from the data', () => {
+		const orphan: Row = { id: 'orphan', parentId: 'missing', referrer: 'Orphan', views: 1 };
+		const result = withAncestors(
+			[ ...rows, orphan ],
+			new Set( [ 'orphan' ] ),
+			getItemId,
+			getItemParentId
+		);
+
+		expect( result.map( row => row.id ) ).toEqual( [ 'orphan' ] );
+	} );
+
+	it( 'does not loop on a parent cycle', () => {
+		const cycle: Row[] = [
+			{ id: 'a', parentId: 'b', referrer: 'A', views: 1 },
+			{ id: 'b', parentId: 'a', referrer: 'B', views: 1 },
+		];
+		const result = withAncestors( cycle, new Set( [ 'a' ] ), getItemId, getItemParentId );
+
+		expect( result.map( row => row.id ).sort() ).toEqual( [ 'a', 'b' ] );
 	} );
 } );

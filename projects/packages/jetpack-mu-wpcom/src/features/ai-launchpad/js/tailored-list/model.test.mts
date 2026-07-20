@@ -238,7 +238,7 @@ describe( 'resolveCtaUrl', () => {
 		return {
 			clicked,
 			handlers: {
-				trackTaskClicked: ( props: { task_id: string } ) => clicked.push( props.task_id ),
+				trackTaskCtaClicked: ( props: { task_id: string } ) => clicked.push( props.task_id ),
 				createFirstPostDraft: async () => ( { post_id: 1, edit_url: '/wp-admin/post.php?post=1' } ),
 				createAboutPage: async () => ( { page_id: 2, edit_url: '/wp-admin/post.php?post=2' } ),
 				createGalleryPage: async () => ( { page_id: 3, edit_url: '/wp-admin/post.php?post=3' } ),
@@ -304,7 +304,7 @@ describe( 'resolveCtaUrl', () => {
 	it( 'hands each page task its own input: the About draft and the inferred details', async () => {
 		const received: unknown[] = [];
 		const handlers = {
-			trackTaskClicked: () => {},
+			trackTaskCtaClicked: () => {},
 			createFirstPostDraft: async () => ( { post_id: 1, edit_url: '/wp-admin/post.php?post=1' } ),
 			createAboutPage: async ( draft: TailoredOutput[ 'about_page_draft' ] ) => {
 				received.push( draft );

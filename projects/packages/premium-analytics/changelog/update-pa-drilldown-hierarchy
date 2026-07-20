@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+UI: keep the DataViewsDrilldownNative hierarchy under search, filter, and sort.

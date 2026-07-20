@@ -9,3 +9,7 @@
 		var(--wpds-color-stroke-surface-neutral-weak);
 	padding-block-start: var(--wpds-dimension-padding-md);
 }
+
+.footer:empty {
+	display: none;
+}

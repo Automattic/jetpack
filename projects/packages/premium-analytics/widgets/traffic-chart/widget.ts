@@ -72,7 +72,7 @@ export default {
 	title: __( 'Traffic', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.',
+			"A summary of your site's views, visitors, likes, and comments, with the previous period overlaid for comparison.",
 			'jetpack-premium-analytics'
 		),
 	},

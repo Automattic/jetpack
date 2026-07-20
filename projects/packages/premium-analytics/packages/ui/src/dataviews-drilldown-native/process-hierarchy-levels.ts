@@ -88,3 +88,53 @@ export function processHierarchyLevels< Item >(
 
 	return { data: orderedData, levelByItem };
 }
+
+/**
+ * Given the ids of the rows a search or filter matched, return those rows plus
+ * every ancestor up to a root, in the original `data` order (ready for
+ * {@link processHierarchyLevels}). This keeps a filtered view's matches under
+ * their parents instead of orphaning them. A missing, self-referential, or
+ * already-kept parent ends the walk, so cycles cannot loop.
+ *
+ * @param data            - The full flat rows.
+ * @param matchedIds      - Ids (from `getItemId`) of the rows that matched.
+ * @param getItemId       - Row id resolver.
+ * @param getItemParentId - Parent id resolver.
+ * @return The matched rows plus their ancestors, in `data` order.
+ */
+export function withAncestors< Item >(
+	data: Item[],
+	matchedIds: ReadonlySet< string >,
+	getItemId: ( item: Item ) => string,
+	getItemParentId: ( item: Item ) => string | number | null | undefined
+): Item[] {
+	const itemById = new Map( data.map( item => [ getItemId( item ), item ] ) );
+	const keep = new Set< string >( matchedIds );
+
+	for ( const id of matchedIds ) {
+		let current = itemById.get( id );
+
+		while ( current ) {
+			const rawParentId = getItemParentId( current );
+			const parentId =
+				rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();
+
+			// Stop at a root, a self-referential parent, or one already kept
+			// (the last also breaks cycles, since a kept id's ancestors are
+			// guaranteed collected).
+			if ( ! parentId || parentId === getItemId( current ) || keep.has( parentId ) ) {
+				break;
+			}
+
+			const parent = itemById.get( parentId );
+			if ( ! parent ) {
+				break;
+			}
+
+			keep.add( parentId );
+			current = parent;
+		}
+	}
+
+	return data.filter( item => keep.has( getItemId( item ) ) );
+}

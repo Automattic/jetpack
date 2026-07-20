@@ -14,6 +14,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import ReferrersRender from '../render';
 import widgetDefinition from '../widget';
@@ -101,13 +102,13 @@ type DashboardStory = StoryObj< ReferrersDashboardStoryProps >;
 export const Default: Story = {
 	render: renderReferrersWidget,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderReferrersWidget,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -122,7 +123,7 @@ export const Loading: Story = {
 	render: () => renderReferrersOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/referrers', 'loading' );
 		return () => forceStatsMockState( 'stats/referrers', null );
@@ -136,7 +137,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderReferrersOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/referrers', 'error' );
 		return () => forceStatsMockState( 'stats/referrers', null );
@@ -150,7 +151,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderReferrersOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/referrers', 'empty' );
 		return () => forceStatsMockState( 'stats/referrers', null );

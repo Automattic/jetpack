@@ -10,11 +10,16 @@ import { SelectControl } from '@wordpress/ui';
 import useElements from '../helpers/use-elements';
 import type { DataFormControlProps, Option } from '@wordpress/dataviews';
 
-function toSelectItems( elements: Option[] ) {
+export function toSelectItems( elements: Option[] ) {
 	return elements.map( element => ( {
 		label: element.label,
 		value: String( element.value ),
 	} ) );
+}
+
+export function fromSelectValue( elements: Option[], value: string ) {
+	const element = elements.find( candidate => String( candidate.value ) === value );
+	return element ? element.value : value;
 }
 
 /**
@@ -28,7 +33,7 @@ export default function SelectField< Item >( {
 }: DataFormControlProps< Item > ) {
 	const { label, description, getValue, setValue } = field;
 	const disabled = field.isDisabled( { item: data, field } );
-	const value = getValue( { item: data } ) ?? '';
+	const value = String( getValue( { item: data } ) ?? '' );
 
 	const { elements, isLoading } = useElements( {
 		elements: field.elements,
@@ -38,7 +43,7 @@ export default function SelectField< Item >( {
 	const items = useMemo( () => toSelectItems( elements ), [ elements ] );
 
 	const selectedItem = useMemo(
-		() => items.find( item => item.value === String( value ) ) ?? items[ 0 ] ?? null,
+		() => items.find( item => item.value === value ) ?? items[ 0 ] ?? null,
 		[ items, value ]
 	);
 
@@ -48,9 +53,9 @@ export default function SelectField< Item >( {
 				return;
 			}
 
-			onChange( setValue( { item: data, value: item.value } ) );
+			onChange( setValue( { item: data, value: fromSelectValue( elements, item.value ) } ) );
 		},
-		[ data, onChange, setValue ]
+		[ data, elements, onChange, setValue ]
 	);
 
 	if ( isLoading ) {

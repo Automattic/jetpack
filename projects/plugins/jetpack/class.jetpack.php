@@ -24,6 +24,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
+use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Import\Main as Import_Main;
 use Automattic\Jetpack\Licensing;
@@ -1931,20 +1932,8 @@ class Jetpack {
 	 * @todo Store the result in core's object cache maybe?
 	 */
 	public static function get_active_plugins() {
-		$active_plugins = (array) get_option( 'active_plugins', array() );
-
-		if ( is_multisite() ) {
-			// Due to legacy code, active_sitewide_plugins stores them in the keys,
-			// whereas active_plugins stores them in the values.
-			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
-			if ( $network_plugins ) {
-				$active_plugins = array_merge( $active_plugins, $network_plugins );
-			}
-		}
-
-		sort( $active_plugins );
-
-		return array_unique( $active_plugins );
+		// Delegates to the canonical implementation in the Connection package.
+		return Heartbeat::get_active_plugins();
 	}
 
 	/**
@@ -3385,7 +3374,8 @@ p {
 	 * @return array|string Stats data. Array if $encode is false. JSON-encoded string is $encode is true.
 	 */
 	public static function get_stat_data( $encode = true, $extended = true ) {
-		$data = Jetpack_Heartbeat::generate_stats_array();
+		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
+		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
 
 		if ( $extended ) {
 			$additional_data = self::get_additional_stat_data();
@@ -4779,7 +4769,7 @@ endif;
 		wp_send_json(
 			array(
 				'enabled' => $result,
-				'message' => get_transient( 'jetpack_https_test_message' ),
+				'message' => self::get_ssl_test_message(),
 			),
 			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			JSON_UNESCAPED_SLASHES
@@ -4913,38 +4903,31 @@ endif;
 	 * @since 2.3.3
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
-		// Do some fancy tests to see if ssl is being supported.
-		$ssl = false;
-		if ( ! $force_recheck ) {
-			$ssl = get_transient( 'jetpack_https_test' );
+		// Delegates to the canonical SSL check in the Connection package.
+		return Heartbeat::permit_ssl( $force_recheck );
+	}
+
+	/**
+	 * Returns a localized message describing the last SSL connectivity failure, if any.
+	 *
+	 * The Connection package's canonical SSL check stores a neutral reason code; this maps it to
+	 * a translated, `jetpack`-domain message for display in the admin notice and AJAX recheck.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The localized message, or an empty string when there is no failure.
+	 */
+	public static function get_ssl_test_message() {
+		$error = Heartbeat::get_ssl_test_error();
+
+		switch ( $error['code'] ) {
+			case 'no_ssl_support':
+				return __( 'WordPress reports no SSL support', 'jetpack' );
+			case 'bad_response':
+				return __( 'Response was not OK: ', 'jetpack' ) . $error['detail'];
+			default:
+				return '';
 		}
-
-		if ( $force_recheck || false === $ssl ) {
-			$message = '';
-			if ( ! str_starts_with( JETPACK__API_BASE, 'https' ) ) {
-				$ssl = 0;
-			} else {
-				$ssl = 1;
-
-				if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
-					$ssl     = 0;
-					$message = __( 'WordPress reports no SSL support', 'jetpack' );
-				} else {
-					$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
-					if ( is_wp_error( $response ) ) {
-						$ssl     = 0;
-						$message = __( 'WordPress reports no SSL support', 'jetpack' );
-					} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
-						$ssl     = 0;
-						$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
-					}
-				}
-			}
-			set_transient( 'jetpack_https_test', $ssl, DAY_IN_SECONDS );
-			set_transient( 'jetpack_https_test_message', $message, DAY_IN_SECONDS );
-		}
-
-		return (bool) $ssl;
 	}
 
 	/**
@@ -4965,7 +4948,7 @@ endif;
 				<p>
 					<?php esc_html_e( 'Jetpack will re-test for HTTPS support once a day, but you can click here to try again immediately: ', 'jetpack' ); ?>
 					<a href="#" id="jetpack-recheck-ssl-button"><?php esc_html_e( 'Try again', 'jetpack' ); ?></a>
-					<span id="jetpack-recheck-ssl-output"><?php echo esc_html( get_transient( 'jetpack_https_test_message' ) ); ?></span>
+					<span id="jetpack-recheck-ssl-output"><?php echo esc_html( self::get_ssl_test_message() ); ?></span>
 				</p>
 				<p>
 					<?php
@@ -5893,7 +5876,8 @@ endif;
 	 * $return array $filtered_data
 	 */
 	public static function jetpack_check_heartbeat_data() {
-		$raw_data = Jetpack_Heartbeat::generate_stats_array();
+		// Site environment stats (incl. wp-version/php-version checked below) now live in the Connection package.
+		$raw_data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
 
 		$good    = array();
 		$caution = array();

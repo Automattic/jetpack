@@ -7,6 +7,7 @@ export {
 	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
+	type ComparativeLineChartSeries,
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
