@@ -68,6 +68,32 @@ describe( 'report table count fields', () => {
 		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 14 );
 	} );
 
+	it( 'formats Emails rates with the shared formatter', () => {
+		jest.spyOn( Number.prototype, 'toLocaleString' ).mockImplementation( () => {
+			throw new Error( 'Browser-locale formatting should not be used' );
+		} );
+
+		// The summary endpoint reports rates as 0–100, not 0–1.
+		renderCountField( getEmailsFields(), 'opens_rate', {
+			opens_rate: 66.666,
+			opens: 100,
+			unique_opens: 66,
+		} as never );
+
+		// Rounded to two decimals, unsigned — not `+66.67%`.
+		expect( screen.getByText( '66.67%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an em dash for a rate that is not attributable', () => {
+		renderCountField( getEmailsFields(), 'opens_rate', {
+			opens_rate: 0,
+			opens: 5,
+			unique_opens: 0,
+		} as never );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+	} );
+
 	it( 'formats Annual insights averages with the shared formatter', () => {
 		jest.spyOn( Number.prototype, 'toLocaleString' ).mockImplementation( () => {
 			throw new Error( 'Browser-locale formatting should not be used' );

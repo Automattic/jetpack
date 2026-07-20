@@ -23,9 +23,9 @@ function formatNumber( value: number ): string {
 
 /**
  * Format a rate for display. The summary endpoint reports rates as 0–100
- * percentages (unlike the per-post rate breakdown's 0–1 fractions) — Calypso's
- * Emails module renders `formatNumber( item.opens_rate )%` — so the value only
- * needs a `%` suffix.
+ * percentages (unlike the per-post rate breakdown's 0–1 fractions), so the
+ * value is scaled back to a fraction for `percentage` formatting, which
+ * supplies a locale-correct percent sign.
  *
  * Rates count *unique* recipients against sends. When events exist but none
  * could be attributed to a recipient (e.g. link-scanner or view-in-browser
@@ -43,7 +43,8 @@ function formatRate( rate: number, total: number, unique: number ): string {
 		return '—';
 	}
 
-	return `${ rate.toLocaleString( undefined, { maximumFractionDigits: 2 } ) }%`;
+	// `signDisplay` is forced to `auto` so a rate is not rendered as `+12%`.
+	return formatMetricValue( rate / 100, 'percentage', { decimals: 2, signDisplay: 'auto' } );
 }
 
 /**
