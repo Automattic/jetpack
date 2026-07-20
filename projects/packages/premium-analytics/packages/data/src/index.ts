@@ -236,6 +236,7 @@ export {
 	getStatsPlanErrorReason,
 	saveBlob,
 	shouldRetryApiError,
+	toPostId,
 	useSiteHomeUrl,
 } from './utils';
 export type { StatsPlanErrorReason } from './utils';
