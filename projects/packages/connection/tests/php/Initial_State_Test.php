@@ -36,18 +36,31 @@ class Initial_State_Test extends TestCase {
 
 		$_GET['calypso_env'] = 'wpcalypso';
 
+		$manager  = new Manager();
+		$owner    = $manager->get_connection_owner();
+		$owner_id = $manager->get_connection_owner_id();
+
 		$expected_state = array(
-			'apiRoot'            => esc_url_raw( rest_url() ),
-			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connectionStatus'   => REST_Connector::connection_status( false ),
-			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
-			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
-			'wpVersion'          => $wp_version,
-			'siteSuffix'         => ( new Status() )->get_site_suffix(),
-			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
-			'isOfflineMode'      => ( new Status() )->is_offline_mode(),
-			'calypsoEnv'         => 'wpcalypso',
+			'apiRoot'                      => esc_url_raw( rest_url() ),
+			'apiNonce'                     => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'            => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connectionStatus'             => REST_Connector::connection_status( false ),
+			'userConnectionData'           => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'             => REST_Connector::get_connection_plugins( false ),
+			'wpVersion'                    => $wp_version,
+			'siteSuffix'                   => ( new Status() )->get_site_suffix(),
+			'connectionErrors'             => Error_Handler::get_instance()->get_verified_errors(),
+			'isOfflineMode'                => ( new Status() )->is_offline_mode(),
+			'calypsoEnv'                   => 'wpcalypso',
+			'currentUserId'                => get_current_user_id(),
+			'isCurrentUserConnectionOwner' => $manager->is_connection_owner(),
+			'isOwnershipTransferable'      => $manager->is_ownership_transferable(),
+			'connectionOwner'              => $owner instanceof \WP_User
+				? array(
+					'id'          => $owner_id,
+					'displayName' => $owner->display_name,
+				)
+				: null,
 		);
 		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( $expected_state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );

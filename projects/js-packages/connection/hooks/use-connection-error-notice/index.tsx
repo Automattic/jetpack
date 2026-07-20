@@ -98,6 +98,7 @@ export const ConnectionError = ( {
 	const {
 		hasConnectionError,
 		connectionErrorMessage,
+		connectionError,
 		actions,
 		restoreConnection,
 		isRestoringConnection,
@@ -108,11 +109,17 @@ export const ConnectionError = ( {
 		return null;
 	}
 
+	// An explicit 'none' action marks the error as informational only, so the
+	// default "Restore Connection" fallback must not be shown either.
+	const suppressRestoreFallback = connectionError?.error_data?.action === 'none';
+
 	return (
 		<ConnectionErrorNotice
 			isRestoringConnection={ isRestoringConnection }
 			restoreConnectionError={ restoreConnectionError }
-			restoreConnectionCallback={ actions.length === 0 ? restoreConnection : null }
+			restoreConnectionCallback={
+				actions.length === 0 && ! suppressRestoreFallback ? restoreConnection : null
+			}
 			message={ connectionErrorMessage }
 			context={ context }
 			actions={ actions }

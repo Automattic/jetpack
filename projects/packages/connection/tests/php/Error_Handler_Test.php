@@ -49,6 +49,11 @@ class Error_Handler_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_connection_get_verified_errors' );
 		remove_all_filters( 'jetpack_connection_error_notice_message' );
 		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
+		remove_all_filters( 'jetpack_connection_ownership_transferable' );
+
+		// Reset viewer/owner state used by the audience-aware display tests.
+		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( 'master_user' );
 	}
 
 	/**
@@ -1557,5 +1562,186 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertEquals( 'Secondary Action', $result['secondary_action_label'] );
 		$this->assertEquals( 'https://example.com/secondary', $result['secondary_action_url'] );
 		$this->assertEquals( 'jetpack_secondary_tracking', $result['secondary_tracking_event'] );
+	}
+
+	/**
+	 * Test that get_displayable_errors classifies each error's audience by user ID.
+	 */
+	public function test_get_displayable_errors_classifies_audience() {
+		\Jetpack_Options::update_option( 'master_user', 7 );
+
+		$make_error = function ( $error_code, $user_id ) {
+			return array(
+				'error_code'    => $error_code,
+				'user_id'       => (string) $user_id,
+				'error_message' => 'Test message',
+				'error_data'    => array(),
+				'timestamp'     => time(),
+				'nonce'         => 'nonce_' . $user_id,
+				'error_type'    => 'xmlrpc',
+			);
+		};
+
+		$verified_errors = array(
+			'invalid_token'       => array( '0' => $make_error( 'invalid_token', 0 ) ),
+			'no_valid_user_token' => array( '7' => $make_error( 'no_valid_user_token', 7 ) ),
+			'no_valid_blog_token' => array( '3' => $make_error( 'no_valid_blog_token', 3 ) ),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertSame( 'site', $result['invalid_token']['0']['audience'], 'A blog-token error (user 0) is site-wide.' );
+		$this->assertSame( 'owner', $result['no_valid_user_token']['7']['audience'], "The connection owner's token error is owner-scoped." );
+		$this->assertSame( 'user', $result['no_valid_blog_token']['3']['audience'], "A non-owner user's token error is user-scoped." );
+	}
+
+	/**
+	 * Test that a malformed-token error is classified as site-wide.
+	 */
+	public function test_get_displayable_errors_classifies_invalid_user_as_site() {
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => 'invalid',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_invalid',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'invalid_token' => array( 'invalid' => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertSame( 'site', $result['invalid_token']['invalid']['audience'] );
+	}
+
+	/**
+	 * Test that a secondary admin sees an informational (no-CTA) notice for an owner-token
+	 * error when connection ownership is locked (non-transferable).
+	 */
+	public function test_get_displayable_errors_locked_owner_shows_informational_notice() {
+		$owner_id = 999;
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		// Act as a secondary admin (a different user than the owner).
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'secondary_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $admin_id );
+		$this->assertNotSame( $owner_id, $admin_id );
+		wp_set_current_user( $admin_id );
+
+		// Lock ownership.
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		$error = array(
+			'error_code'    => 'no_valid_user_token',
+			'user_id'       => (string) $owner_id,
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_owner',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
+		$this->assertSame( 'owner', $displayed['audience'] );
+		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
+		$this->assertStringContainsString( 'reconnect their WordPress.com account', $displayed['error_message'] );
+	}
+
+	/**
+	 * Test that a secondary admin still gets the reconnect CTA for an owner-token error
+	 * when ownership is transferable (the default model).
+	 */
+	public function test_get_displayable_errors_transferable_owner_keeps_reconnect() {
+		$owner_id = 999;
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'secondary_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+
+		// Ownership transferable is the default (no filter added).
+
+		$error = array(
+			'error_code'    => 'no_valid_user_token',
+			'user_id'       => (string) $owner_id,
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_owner',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
+		$this->assertSame( 'owner', $displayed['audience'] );
+		$this->assertSame( 'reconnect', $displayed['error_data']['action'], 'Transferable ownership keeps the reconnect CTA.' );
+		$this->assertStringContainsString( 'broken', $displayed['error_message'] );
+	}
+
+	/**
+	 * Test that a consumer-injected error takes precedence over the default state and
+	 * survives the viewer-aware pipeline unchanged, including when it omits the optional
+	 * `audience` field (backward-compatibility guarantee for pluggable notices).
+	 */
+	public function test_get_displayable_errors_preserves_injected_error() {
+		// Force error filtering on regardless of host, so the injected filter runs.
+		$handler = new class() extends Error_Handler {
+			public function __construct() {
+			}
+			public function should_allow_error_filtering() {
+				return true;
+			}
+		};
+
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function ( $errors ) {
+				$errors['protected_owner_missing'] = array(
+					'0' => array(
+						'error_code'    => 'protected_owner_missing',
+						'user_id'       => '0',
+						'error_message' => 'The owner account is missing.',
+						'error_data'    => array(
+							'action'       => 'create_missing_account',
+							'action_label' => 'Create Account',
+							'action_url'   => 'https://example.org/wp-admin/user-new.php',
+						),
+						'timestamp'     => time(),
+						'nonce'         => 'injected_nonce',
+						'error_type'    => 'protected_owner',
+					),
+				);
+				return $errors;
+			}
+		);
+
+		$result = $handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'protected_owner_missing', $result, 'Injected errors must survive the viewer-aware pipeline.' );
+		$injected = $result['protected_owner_missing']['0'];
+		$this->assertSame( 'create_missing_account', $injected['error_data']['action'], "The injected error's custom action is preserved." );
+		$this->assertSame( 'The owner account is missing.', $injected['error_message'], "The injected error's message is preserved." );
+		// The optional `audience` field is not required and is left untouched on injected errors.
+		$this->assertArrayNotHasKey( 'audience', $injected, 'Injected errors are not mutated with an audience default.' );
 	}
 }

@@ -946,6 +946,33 @@ class Manager {
 	}
 
 	/**
+	 * Determines whether the connection ownership can be transferred to another user.
+	 *
+	 * The default Jetpack connection uses a transferable ownership model. A consumer
+	 * can declare ownership locked (for example wpcomsh's Protected Owner on Atomic, or
+	 * WooPayments) by returning `false` from the `jetpack_connection_ownership_transferable`
+	 * filter. This is the single chokepoint used both when deciding which connection-error
+	 * CTA to surface and (eventually) when performing an ownership change.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True if ownership can be transferred, false if it is locked.
+	 */
+	public function is_ownership_transferable() {
+		/**
+		 * Filters whether the Jetpack connection ownership can be transferred.
+		 *
+		 * Return `false` to lock ownership so it can never be taken over (for example
+		 * on managed hosts or when a specific consumer plugin requires a fixed owner).
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $transferable Whether ownership can be transferred. Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+	}
+
+	/**
 	 * Connects the user with a specified ID to a WordPress.com user using the
 	 * remote login flow.
 	 *

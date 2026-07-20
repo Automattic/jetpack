@@ -22,20 +22,33 @@ class Initial_State {
 	private static function get_data() {
 		global $wp_version;
 
-		$status = new Status();
+		$status  = new Status();
+		$manager = new Manager();
+
+		$owner    = $manager->get_connection_owner();
+		$owner_id = $manager->get_connection_owner_id();
 
 		return array(
-			'apiRoot'            => esc_url_raw( rest_url() ),
-			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connectionStatus'   => REST_Connector::connection_status( false ),
-			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
-			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
-			'wpVersion'          => $wp_version,
-			'siteSuffix'         => $status->get_site_suffix(),
-			'connectionErrors'   => Error_Handler::get_instance()->get_displayable_errors(),
-			'isOfflineMode'      => $status->is_offline_mode(),
-			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
+			'apiRoot'                      => esc_url_raw( rest_url() ),
+			'apiNonce'                     => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'            => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connectionStatus'             => REST_Connector::connection_status( false ),
+			'userConnectionData'           => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'             => REST_Connector::get_connection_plugins( false ),
+			'wpVersion'                    => $wp_version,
+			'siteSuffix'                   => $status->get_site_suffix(),
+			'connectionErrors'             => Error_Handler::get_instance()->get_displayable_errors(),
+			'isOfflineMode'                => $status->is_offline_mode(),
+			'calypsoEnv'                   => ( new Status\Host() )->get_calypso_env(),
+			'currentUserId'                => get_current_user_id(),
+			'isCurrentUserConnectionOwner' => $manager->is_connection_owner(),
+			'isOwnershipTransferable'      => $manager->is_ownership_transferable(),
+			'connectionOwner'              => $owner instanceof \WP_User
+				? array(
+					'id'          => $owner_id,
+					'displayName' => $owner->display_name,
+				)
+				: null,
 		);
 	}
 

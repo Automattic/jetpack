@@ -194,9 +194,15 @@ class Error_Handler {
 	 *               ]
 	 */
 	public function get_displayable_errors() {
-		// Check if we have cached result AND no filters are applied
-		if ( $this->cached_displayable_errors !== null && ! $this->has_external_filters() ) {
-			return $this->cached_displayable_errors;
+		$viewer_id = get_current_user_id();
+
+		// Check if we have a cached result for this viewer AND no filters are applied.
+		// The output is viewer-dependent (see audience classification below), so the
+		// cache is keyed by the current user.
+		if ( is_array( $this->cached_displayable_errors )
+			&& array_key_exists( $viewer_id, $this->cached_displayable_errors )
+			&& ! $this->has_external_filters() ) {
+			return $this->cached_displayable_errors[ $viewer_id ];
 		}
 
 		$verified_errors    = $this->get_verified_errors();
@@ -220,22 +226,58 @@ class Error_Handler {
 			'invalid_connection_owner',
 		);
 
+		$manager         = new Manager();
+		$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
+		$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
+		$is_transferable = $manager->is_ownership_transferable();
+
+		$generic_message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
+
 		foreach ( $verified_errors as $error_code => $users ) {
 			// Skip error codes that are not meant to be displayed
 			if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
 				continue;
 			}
 
-			$displayable_errors[ $error_code ] = array();
-
 			foreach ( $users as $user_id => $error ) {
-				// Override other error messages with default display message
-				$displayable_errors[ $error_code ][ $user_id ] = array_merge(
-					$error,
-					array(
-						'error_message' => __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' ),
-					)
-				);
+				$audience = $this->classify_error_audience( $user_id, $owner_id );
+
+				$message = $generic_message;
+				$action  = 'reconnect';
+
+				// A secondary admin looking at the connection owner's token error, on a
+				// site where ownership is locked (a consumer declared it non-transferable).
+				// This admin cannot resolve the error themselves, so surface an
+				// informational notice naming the owner and offer no reconnect CTA.
+				if ( 'owner' === $audience && ! $viewer_is_owner && ! $is_transferable ) {
+					$owner      = $manager->get_connection_owner();
+					$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
+
+					$message = $owner_name
+						? sprintf(
+							/* translators: %s is the display name of the Jetpack connection owner. */
+							__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
+							$owner_name
+						)
+						: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+					$action = 'none';
+				}
+
+				$error['audience']      = $audience;
+				$error['error_message'] = $message;
+
+				// Set error_data.action without discarding any pre-existing custom data.
+				// A pre-existing action is only overridden to explicitly suppress the CTA.
+				$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
+				if ( 'none' === $action || ! isset( $error_data['action'] ) ) {
+					$error_data['action'] = $action;
+				}
+				$error['error_data'] = $error_data;
+
+				if ( ! isset( $displayable_errors[ $error_code ] ) ) {
+					$displayable_errors[ $error_code ] = array();
+				}
+				$displayable_errors[ $error_code ][ $user_id ] = $error;
 			}
 		}
 
@@ -245,6 +287,11 @@ class Error_Handler {
 		 * This filter allows sites to customize how connection errors are displayed,
 		 * including modifying error messages, actions, and data. Access to this filter
 		 * is controlled by should_allow_error_filtering().
+		 *
+		 * Consumer-injected errors take precedence over the default state. They are not
+		 * required to carry the newer `audience` field: it is optional metadata used
+		 * only for our own audience-aware messaging, and any reader must treat a missing
+		 * value as site-wide (`$error['audience'] ?? 'site'`).
 		 *
 		 * @since 6.12.0
 		 *
@@ -257,10 +304,46 @@ class Error_Handler {
 
 		// Only cache if no external filters are applied
 		if ( ! $this->has_external_filters() ) {
-			$this->cached_displayable_errors = $displayable_errors;
+			if ( ! is_array( $this->cached_displayable_errors ) ) {
+				$this->cached_displayable_errors = array();
+			}
+			$this->cached_displayable_errors[ $viewer_id ] = $displayable_errors;
 		}
 
 		return $displayable_errors;
+	}
+
+	/**
+	 * Classifies the audience of a stored connection error based on its user ID.
+	 *
+	 * The audience determines who a connection error is relevant to and, in turn,
+	 * how it should be surfaced:
+	 * - `site`  : blog-token / site-wide errors (user ID `0` or a malformed token).
+	 * - `owner` : errors tied to the connection owner's user token.
+	 * - `user`  : errors tied to a specific (non-owner) user's token.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|int $user_id  The user ID associated with the error (`0`, a positive integer, or 'invalid').
+	 * @param int        $owner_id The local user ID of the connection owner, or 0 if there is none.
+	 * @return string One of 'site', 'owner', or 'user'.
+	 */
+	private function classify_error_audience( $user_id, $owner_id ) {
+		if ( 'invalid' === $user_id ) {
+			return 'site';
+		}
+
+		$user_id = (int) $user_id;
+
+		if ( 0 === $user_id ) {
+			return 'site';
+		}
+
+		if ( $owner_id > 0 && $user_id === $owner_id ) {
+			return 'owner';
+		}
+
+		return 'user';
 	}
 
 	/**
