@@ -4,7 +4,6 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/data": "link:../../packages/data",
 		"@jetpack-premium-analytics/icons": "link:../../packages/icons",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",

@@ -9,7 +9,9 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
@@ -140,7 +142,7 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentViews ),
 			previousValue,
 			previousShare: hasPrevious ? sharePercentage( previousValue, maxPreviousViews ) : undefined,
 			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
@@ -355,6 +357,9 @@ export default function ReferrersWidget( {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ReferrersInner max={ max } />
+				<WidgetFooter>
+					<ReportLink report="referrers" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

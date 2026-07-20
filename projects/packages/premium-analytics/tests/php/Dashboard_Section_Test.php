@@ -220,7 +220,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/analytics/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/analytics/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -245,7 +245,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/unregistered_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/unregistered_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -474,7 +474,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_sections_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -523,7 +523,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_sections_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -571,7 +571,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_sections_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -596,7 +596,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_sections_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
 		);
 
 		$this->assertSame( 401, $response->get_status() );
@@ -628,7 +628,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/default-layout' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/default-layout' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -642,7 +642,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/missing/default-layout' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/missing/default-layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );
@@ -666,7 +666,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_unavailable_dashboard/sections/analytics/insights/default-layout' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_unavailable_dashboard/sections/analytics/insights/default-layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );
@@ -703,7 +703,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$user_id = $this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
 		$request->set_param( 'layout', $custom_layout );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -750,7 +750,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$user_id = $this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
 		$request->set_param( 'layout', $custom_layout );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -790,7 +790,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
 		$request->set_param( 'layout', array() );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -823,7 +823,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
 		$request->set_param(
 			'layout',
 			array(
@@ -853,7 +853,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
 		$request->set_param(
 			'layout',
 			array(
@@ -885,7 +885,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		wp_set_current_user( 0 );
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
 		$request->set_param( 'layout', array() );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -899,7 +899,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_update_layout_route_returns_404_for_unknown_section() {
 		$this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/missing/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/missing/layout' );
 		$request->set_param( 'layout', array() );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -924,7 +924,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/jetpack/v4/dashboards/route_unavailable_dashboard/sections/analytics/insights/layout' );
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_unavailable_dashboard/sections/analytics/insights/layout' );
 		$request->set_param( 'layout', array() );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -969,7 +969,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' )
+			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -997,7 +997,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/missing/layout' )
+			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/missing/layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );
@@ -1021,7 +1021,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/jetpack/v4/dashboards/route_unavailable_dashboard/sections/analytics/insights/layout' )
+			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_unavailable_dashboard/sections/analytics/insights/layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );
@@ -1086,7 +1086,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/jetpack/v4/dashboards/route_layout_dashboard/sections' )
+			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -1148,7 +1148,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/jetpack/v4/dashboards/route_layout_dashboard/sections' )
+			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -1165,7 +1165,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/jetpack/v4/dashboards/route_layout_dashboard/sections' )
+			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' )
 		);
 
 		$this->assertSame( 401, $response->get_status() );

@@ -45,7 +45,10 @@ export default {
 	name: 'jpa/stats-emails',
 	title: __( 'Emails', 'jetpack-premium-analytics' ),
 	help: {
-		content: __( 'Latest emails sent and their performance.', 'jetpack-premium-analytics' ),
+		content: __(
+			'Your most recently sent emails, including their open and click rates.',
+			'jetpack-premium-analytics'
+		),
 	},
 	icon: envelope,
 	attributes: [

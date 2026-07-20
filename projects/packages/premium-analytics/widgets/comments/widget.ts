@@ -45,9 +45,15 @@ export default {
 	title: __( 'Comments', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Learn about the comments your site receives by authors, posts, and pages.',
+			'A breakdown of comments, grouped by author and by post or page.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: comment,
 	attributes: [

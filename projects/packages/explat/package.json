@@ -16,19 +16,13 @@
 	"author": "Automattic",
 	"exports": {
 		".": {
-			"jetpack:src": "./src/client/index.ts",
-			"types": "./build/index.d.ts",
-			"default": "./build/index.js"
+			"jetpack:src": "./src/client/index.ts"
 		}
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run compile",
-		"clean": "rm -rf build/",
-		"compile": "webpack",
 		"test": "jest --config=tests/jest.config.cjs --passWithNoTests",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit",
-		"watch": "pnpm run build --watch"
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@automattic/explat-client": "0.1.0",
@@ -40,13 +34,8 @@
 		"wpcom-proxy-request": "^7.0.7"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.7",
 		"@types/node": "^24.12.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"concurrently": "10.0.3",
-		"jest": "30.4.2",
-		"webpack": "5.107.2",
-		"webpack-cli": "6.0.1"
+		"jest": "30.4.2"
 	}
 }

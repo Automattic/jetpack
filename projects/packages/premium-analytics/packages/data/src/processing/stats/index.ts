@@ -1,12 +1,24 @@
 export {
 	combineStatsNormalizedReports,
+	flattenStatsLeaves,
+	getStatsReportItems,
 	mergeStatsComparisonRows,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
 } from './utils';
-export type { StatsComparisonRowContext } from './utils';
+export type {
+	FlattenStatsLeavesContext,
+	FlattenStatsLeavesOptions,
+	StatsComparisonRowContext,
+} from './utils';
 export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
+export { aggregateStatsDrilldownRows } from './drilldown-rows';
+export type {
+	StatsDrilldownRow,
+	StatsDrilldownSourceItem,
+	StatsDrilldownSourceReport,
+} from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsPostCommentsResponse } from './post-comments';

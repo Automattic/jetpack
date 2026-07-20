@@ -25,9 +25,15 @@ export default {
 	title: __( 'Referrers', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Websites referring visitors sorted by most clicked. Learn about where your audience comes from.',
+			'The sources that sent the most visitors to your site, sorted by clicks.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: globe,
 	attributes: [

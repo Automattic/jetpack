@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import {
 	GeoChart,
 	LeaderboardChart,
@@ -8,6 +9,8 @@ import {
 	WidgetRoot,
 	WidgetState,
 	flagUrl,
+	safeHttpUrl,
+	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type GeoData,
@@ -61,27 +64,6 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
 			.filter( row => Boolean( row.countryCode ) )
 			.map( row => [ row.countryCode as string, row.value ] as [ string, number ] ),
 	];
-}
-
-/**
- * Returns the URL only when it parses as an http(s) link, so remote link data
- * cannot smuggle a clickable `javascript:`/`data:` protocol into an anchor.
- *
- * @param url - The candidate URL from remote breakdown data.
- * @return The safe http(s) URL, or null when it is missing, unparseable, or a
- *         non-http(s) protocol.
- */
-function safeHttpUrl( url: string | undefined ): string | null {
-	if ( ! url ) {
-		return null;
-	}
-
-	try {
-		const { protocol } = new URL( url );
-		return protocol === 'http:' || protocol === 'https:' ? url : null;
-	} catch {
-		return null;
-	}
 }
 
 /**
@@ -154,7 +136,7 @@ function buildLeaderboardData(
 			id: String( row.id ),
 			label,
 			currentValue: row.value,
-			currentShare: maxValue > 0 ? ( row.value / maxValue ) * 100 : 0,
+			currentShare: sharePercentage( row.value, maxValue ),
 			previousValue: 0,
 			previousShare: 0,
 			delta: 0,
@@ -317,21 +299,6 @@ type EmailBreakdownReportProps = {
 	max: number;
 	showMap: boolean;
 };
-
-/**
- * Resolves the email's post ID from the host-composed report params. `post_id`
- * is typed `string | number` (a string when it comes straight from the URL), so
- * it is coerced to a positive integer; anything else yields `0`, which the
- * widget treats as "no email selected".
- *
- * @param postId - The `post_id` report param.
- * @return The email's post ID, or `0` when none is set.
- */
-function toPostId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : 0;
-}
 
 /**
  * Fetches the email breakdown rows for the selected email, view, and metric,

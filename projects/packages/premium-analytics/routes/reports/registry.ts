@@ -11,7 +11,9 @@ import { __ } from '@wordpress/i18n';
 // barrel re-exports `fields.tsx` (JSX + `@wordpress/route` Link), which would
 // pull the UI into the route guard's import chain. `config/tabs.ts` only
 // depends on the routing helper and i18n, so it's safe to import here.
+import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
+import { resolveSection as resolveUtmSection } from './utm/config/tabs';
 import type { ComponentType } from 'react';
 
 /**
@@ -69,6 +71,13 @@ export type ReportDefinition = {
  * needed (see this folder's README).
  */
 export const REPORTS: Record< string, ReportDefinition > = {
+	'annual-insights': {
+		id: 'annual-insights',
+		getTitle: () => __( 'Annual insights', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics' ),
+		load: () => import( './annual-insights/page' ),
+	},
 	'comment-followers': {
 		id: 'comment-followers',
 		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics' ),
@@ -79,10 +88,28 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getTitle: () => __( 'Clicks', 'jetpack-premium-analytics' ),
 		load: () => import( './clicks/page' ),
 	},
+	comments: {
+		id: 'comments',
+		getTitle: () => __( 'Comments', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__(
+				'Learn about the comments your site receives by authors, posts, and pages.',
+				'jetpack-premium-analytics'
+			),
+		resolveSection: resolveCommentsTabId,
+		load: () => import( './comments/page' ),
+	},
 	downloads: {
 		id: 'downloads',
 		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics' ),
 		load: () => import( './downloads/page' ),
+	},
+	emails: {
+		id: 'emails',
+		getTitle: () => __( 'Emails', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__( 'Open and click performance of your latest emails.', 'jetpack-premium-analytics' ),
+		load: () => import( './emails/page' ),
 	},
 	posts: {
 		id: 'posts',
@@ -91,11 +118,34 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
 	},
+	'search-terms': {
+		id: 'search-terms',
+		getTitle: () => __( 'Search terms', 'jetpack-premium-analytics' ),
+		load: () => import( './search-terms/page' ),
+	},
+	tags: {
+		id: 'tags',
+		getTitle: () => __( 'Tags & categories', 'jetpack-premium-analytics' ),
+		getDescription: () =>
+			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ),
+		load: () => import( './tags/page' ),
+	},
 	videos: {
 		id: 'videos',
 		getTitle: () => __( 'Videos', 'jetpack-premium-analytics' ),
 		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics' ),
 		load: () => import( './videos/page' ),
+	},
+	utm: {
+		id: 'utm',
+		getTitle: () => __( 'UTM', 'jetpack-premium-analytics' ),
+		resolveSection: resolveUtmSection,
+		load: () => import( './utm/page' ),
+	},
+	referrers: {
+		id: 'referrers',
+		getTitle: () => __( 'Referrers', 'jetpack-premium-analytics' ),
+		load: () => import( './referrers/page' ),
 	},
 };
 

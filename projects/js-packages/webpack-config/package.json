@@ -43,7 +43,6 @@
 		"core-js": "3.38.1",
 		"css-loader": "6.11.0",
 		"css-minimizer-webpack-plugin": "8.0.0",
-		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"mini-css-extract-plugin": "2.9.4",
 		"react-refresh": "0.17.0",
 		"terser-webpack-plugin": "5.3.17",
@@ -53,7 +52,6 @@
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"typescript": "6.0.3",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1",
 		"webpack-dev-server": "5.2.5"
@@ -61,7 +59,6 @@
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
 		"@babel/runtime": "7.29.7",
-		"typescript": ">=4.9.5",
 		"webpack": "^5.104.1",
 		"webpack-dev-server": "^5.2.5"
 	},
@@ -70,9 +67,6 @@
 			"optional": true
 		},
 		"@babel/runtime": {
-			"optional": true
-		},
-		"typescript": {
 			"optional": true
 		},
 		"webpack-dev-server": {
