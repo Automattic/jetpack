@@ -2,35 +2,22 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import type { Field } from '@wordpress/dataviews';
 
 export type ClickRow = {
 	id: string;
+	/** The click-group parent row id; unset on group rows and single-URL groups. */
+	parentId?: string;
 	clickedUrl: string;
-	href: string;
-	group: string;
+	/** The external URL; group parent rows have none. */
+	href?: string;
+	/** Group parent rows keep the title-field styling; leaf rows opt out. */
+	isGroup?: boolean;
 	clicks: number;
 };
-
-/**
- * Return a URL only when it parses with an HTTP or HTTPS scheme.
- *
- * @param url - The candidate URL.
- * @return The safe HTTP(S) URL, or null when it is missing, unparseable, or uses another scheme.
- */
-function safeHttpUrl( url: string | undefined ): string | null {
-	if ( ! url ) {
-		return null;
-	}
-
-	try {
-		const { protocol } = new URL( url );
-		return protocol === 'http:' || protocol === 'https:' ? url : null;
-	} catch {
-		return null;
-	}
-}
 
 /**
  * DataViews field config for the Clicks records table.
@@ -46,22 +33,29 @@ export function getClicksFields(): Field< ClickRow >[] {
 			enableHiding: false,
 			getValue: ( { item } ) => item.clickedUrl,
 			render: ( { item } ) => {
+				// Only rows with children are titles; DataViews' title-field
+				// styling applies to them as-is.
+				if ( item.isGroup ) {
+					return <>{ item.clickedUrl }</>;
+				}
+
 				const safeUrl = safeHttpUrl( item.href );
 
-				return safeUrl ? (
-					<a href={ safeUrl } target="_blank" rel="noopener noreferrer">
-						{ item.clickedUrl }
-					</a>
-				) : (
-					<>{ item.clickedUrl }</>
+				return (
+					// The parent row id is the click-group label; announcing
+					// it restores the group context the nesting only shows
+					// visually.
+					<DrilldownLeafCell groupLabel={ item.parentId }>
+						{ safeUrl ? (
+							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
+								{ item.clickedUrl }
+							</Link>
+						) : (
+							item.clickedUrl
+						) }
+					</DrilldownLeafCell>
 				);
 			},
-		},
-		{
-			id: 'group',
-			label: __( 'Group', 'jetpack-premium-analytics' ),
-			enableGlobalSearch: true,
-			getValue: ( { item } ) => item.group,
 		},
 		{
 			id: 'clicks',

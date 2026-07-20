@@ -110,12 +110,14 @@ export {
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
 export {
+	aggregateStatsDrilldownRows,
 	bucketStatsTimeSeries,
 	flattenStatsLeaves,
 	getStatsChartBucketKey,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
+export type { StatsDrilldownRow, StatsDrilldownSourceItem } from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	aggregateStatsDrilldownRows,
 	bucketStatsTimeSeries,
 	type StatsChartBucketPeriod,
 	type StatsClicksItem,
@@ -35,59 +36,22 @@ export function clicksToTimeSeries(
 }
 
 /**
- * Flatten a click group to linked leaf rows.
- *
- * @param item  - The current click item.
- * @param group - The root click group label.
- * @return Linked leaf rows.
- */
-function flattenClickItem( item: StatsClicksItem, group: string ): ClickRow[] {
-	const children = item.children ?? [];
-
-	if ( children.length ) {
-		return children.flatMap( child => flattenClickItem( child, group ) );
-	}
-
-	if ( ! item.link ) {
-		return [];
-	}
-
-	return [
-		{
-			id: `${ group }|${ item.link }`,
-			clickedUrl: item.link,
-			href: item.link,
-			group,
-			clicks: item.views,
-		},
-	];
-}
-
-/**
- * Aggregate bucketed click groups into one flat row per clicked URL.
+ * Aggregate bucketed click groups into nested rows: one parent row per click
+ * group with its clicked URLs as child rows, in display order.
  *
  * @param report - The bucketed clicks report.
- * @return Flat URL rows with their root click group.
+ * @return Nested click rows in display order.
  */
 export function aggregateClickRows(
 	report?: StatsNormalizedReport< StatsClicksItem >
 ): ClickRow[] {
-	const byKey = new Map< string, ClickRow >();
-
-	for ( const point of report?.data ?? [] ) {
-		for ( const item of point.items ) {
-			const group = String( item.label ?? '' );
-			for ( const row of flattenClickItem( item, group ) ) {
-				const existing = byKey.get( row.id );
-
-				if ( existing ) {
-					existing.clicks += row.clicks;
-				} else {
-					byKey.set( row.id, { ...row } );
-				}
-			}
-		}
-	}
-
-	return [ ...byKey.values() ];
+	return aggregateStatsDrilldownRows( report ).map( row => ( {
+		id: row.id,
+		parentId: row.parentId,
+		// Leaf rows show the full clicked URL; group rows show the group label.
+		clickedUrl: row.href ?? row.label,
+		href: row.href,
+		isGroup: row.isGroup,
+		clicks: row.value,
+	} ) );
 }
