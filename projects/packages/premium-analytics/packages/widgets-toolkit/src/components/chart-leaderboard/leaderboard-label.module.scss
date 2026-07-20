@@ -5,6 +5,23 @@
 	padding: var(--wpds-dimension-padding-sm);
 	min-inline-size: 0;
 	max-inline-size: 100%;
+
+	/* Own the shared 36px leaderboard row height here so avatar-less consumers
+	   (e.g. Referrers/Clicks with imageFallback="hidden") don't each re-patch it
+	   with per-widget min-block-size or line-height rules. Avatar rows already
+	   reach 36px (20px image + 2x padding-sm); this floors the height for rows
+	   with no image. Font-size is intentionally left to `.label` so this rule
+	   can't regress a consumer whose text inherits a different size. */
+	min-block-size: var(--jpa-leaderboard-row-min-height, 36px);
+	align-items: center;
+}
+
+/* Opt-in for consumers that append inline content after the label (e.g. a
+   Link's new-tab arrow): drop the container's trailing inline padding so the
+   following node hugs the label. Replaces widgets reaching into this
+   component's structure with `.someLabel > :first-child`. */
+.hugTrailing {
+	padding-inline-end: 0;
 }
 
 /* Leaderboard rows are a fixed 36px, so labels truncate rather than wrap. */

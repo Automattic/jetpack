@@ -29,6 +29,13 @@ export type LeaderboardLabelProps = {
 	 * How to render a missing image
 	 */
 	imageFallback?: 'placeholder' | 'hidden';
+	/**
+	 * Drop the label's trailing inline padding so following inline content
+	 * (e.g. a Link's new-tab arrow) hugs the label instead of sitting a
+	 * padding-sm gap away. Prefer this over targeting the container's
+	 * internal structure from the consuming widget.
+	 */
+	hugTrailing?: boolean;
 };
 
 // Simple default image for when the image is not available.
@@ -52,6 +59,7 @@ const DEFAULT_IMAGE_URL =
  * @param props.imageAlt       - Alt text for the image
  * @param props.imageClassName - Class name for the image
  * @param props.imageFallback  - How to render a missing image
+ * @param props.hugTrailing    - Drop trailing inline padding so following inline content hugs the label
  */
 export function LeaderboardLabel( {
 	label,
@@ -59,13 +67,19 @@ export function LeaderboardLabel( {
 	imageAlt,
 	imageClassName,
 	imageFallback = 'placeholder',
+	hugTrailing = false,
 }: LeaderboardLabelProps ) {
 	// Use default if undefined OR empty string to prevent broken image flash
 	const finalImageUrl = imageUrl || DEFAULT_IMAGE_URL;
 	const shouldRenderImage = imageFallback === 'placeholder' || Boolean( imageUrl );
 
 	return (
-		<Stack direction="row" gap="sm" align="center" className={ styles.container }>
+		<Stack
+			direction="row"
+			gap="sm"
+			align="center"
+			className={ clsx( styles.container, hugTrailing && styles.hugTrailing ) }
+		>
 			{ shouldRenderImage && (
 				<img
 					src={ finalImageUrl }

@@ -65,6 +65,9 @@ function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
 						  )
 				}
 				imageClassName={ styles.avatar }
+				// Drop the label's trailing inline padding so the linking Link's
+				// appended new-tab arrow hugs the author name.
+				hugTrailing
 			/>
 		);
 
