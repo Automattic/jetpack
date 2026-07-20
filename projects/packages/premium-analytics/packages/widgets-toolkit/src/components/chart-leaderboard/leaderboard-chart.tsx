@@ -92,6 +92,17 @@ export type LeaderboardChartProps = {
 	style?: React.CSSProperties & {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
+
+	/**
+	 * Show only the rows that fit the widget's height instead of scrolling.
+	 *
+	 * On by default: these charts sit in fixed-height dashboard tiles, where a
+	 * scrollbar inside the tile is unexpected. Rows that do not fit are hidden
+	 * rather than dropped, so widening or heightening the tile reveals them
+	 * immediately without refetching. Pass `false` for a widget that genuinely
+	 * wants a scrollable list.
+	 */
+	fitRows?: boolean;
 };
 
 /**
@@ -125,6 +136,7 @@ export function LeaderboardChart( {
 	emptyStateIcon,
 	emptyStateText,
 	style,
+	fitRows = true,
 }: LeaderboardChartProps ) {
 	const { getElementStyles, theme } = useGlobalChartsContext();
 
@@ -192,6 +204,7 @@ export function LeaderboardChart( {
 				primaryColor={ barColor }
 				withOverlayLabel={ withOverlayLabel }
 				showLegend={ false }
+				fitRows={ fitRows }
 				style={ chartStyle }
 				className={ styles.chart }
 			>
