@@ -72,16 +72,54 @@ describe( 'shouldReloadAfterPlanUpgrade', () => {
 } );
 
 describe( 'plan-upgrade-notification IIFE', () => {
-	let reloadSpy;
+	const originalLocation = window.location;
+	const originalSessionStorage = window.sessionStorage;
 
+	let reloadMock;
+	let store;
+
+	// jsdom's window.location and window.sessionStorage are read-only, so replace
+	// them wholesale (jest.spyOn / assignment throw). configurable lets us restore.
+	const defineWindowProp = ( prop, value ) =>
+		Object.defineProperty( window, prop, { configurable: true, writable: true, value } );
+
+	// A Map-backed sessionStorage double whose individual methods can be overridden
+	// to simulate storage that throws (blocked site data, private-mode quota).
+	const makeStorage = ( overrides = {} ) => {
+		const map = new Map();
+		return {
+			getItem: jest.fn( key => ( map.has( key ) ? map.get( key ) : null ) ),
+			setItem: jest.fn( ( key, value ) => void map.set( key, String( value ) ) ),
+			removeItem: jest.fn( key => void map.delete( key ) ),
+			...overrides,
+		};
+	};
+
+	const setLocation = search => {
+		reloadMock = jest.fn();
+		defineWindowProp( 'location', {
+			search: search ? `?${ search }` : '',
+			protocol: 'http:',
+			href: 'http://localhost/wp-admin/post.php',
+			reload: reloadMock,
+		} );
+	};
+
+	const setStorage = storage => {
+		store = storage;
+		defineWindowProp( 'sessionStorage', storage );
+	};
+
+	const resolveWith = slug =>
+		mockApiFetch.mockResolvedValue( {
+			data: JSON.stringify( { plan: { product_name: 'Complete', product_slug: slug } } ),
+		} );
+
+	// The IIFE awaits apiFetch, then runs synchronously; flush a couple of ticks.
 	const flush = async () => {
-		// The IIFE awaits apiFetch, then runs synchronously; flush a couple of ticks.
 		await Promise.resolve();
 		await new Promise( resolve => setTimeout( resolve, 0 ) );
 	};
-
-	const setSearch = search =>
-		window.history.replaceState( {}, '', '/wp-admin/post.php' + ( search ? `?${ search }` : '' ) );
 
 	// Load the module fresh so its IIFE re-runs against the current window state.
 	const loadModule = () => {
@@ -95,111 +133,112 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		mockIsSimpleSite = false;
 		mockApiFetch.mockReset();
 		mockCreateNotice.mockReset();
-		window.sessionStorage.clear();
+		setStorage( makeStorage() );
 		window.Jetpack_Editor_Initial_State = {
 			wpcomBlogId: 1,
 			jetpack: { jetpack_plan: { data: 'jetpack_free' } },
 		};
-		// jsdom's reload is unimplemented; spy so we can assert without navigating.
-		reloadSpy = jest.spyOn( window.location, 'reload' ).mockImplementation( () => {} );
 	} );
 
 	afterEach( () => {
-		reloadSpy.mockRestore();
-		jest.restoreAllMocks();
+		defineWindowProp( 'location', originalLocation );
+		defineWindowProp( 'sessionStorage', originalSessionStorage );
 	} );
 
-	const resolveWith = slug =>
-		mockApiFetch.mockResolvedValue( {
-			data: JSON.stringify( { plan: { product_name: 'Complete', product_slug: slug } } ),
-		} );
-
 	it( 'clears the guard and does nothing on normal navigation (no plan_upgraded)', async () => {
-		window.sessionStorage.setItem( RELOAD_GUARD_KEY, 'jetpack_free' );
-		setSearch( '' );
+		setStorage( makeStorage( { getItem: jest.fn( () => 'jetpack_free' ) } ) );
+		setLocation( '' );
 
 		loadModule();
 		await flush();
 
-		expect( window.sessionStorage.getItem( RELOAD_GUARD_KEY ) ).toBeNull();
-		expect( reloadSpy ).not.toHaveBeenCalled();
+		expect( store.removeItem ).toHaveBeenCalledWith( RELOAD_GUARD_KEY );
+		expect( reloadMock ).not.toHaveBeenCalled();
 		expect( mockCreateNotice ).not.toHaveBeenCalled();
 	} );
 
 	it( 'reloads once and records the rendered slug when the fresh plan differs', async () => {
-		setSearch( 'plan_upgraded=1' );
+		setLocation( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' ); // fresh differs from rendered jetpack_free
 
 		loadModule();
 		await flush();
 
-		expect( reloadSpy ).toHaveBeenCalledTimes( 1 );
-		expect( window.sessionStorage.getItem( RELOAD_GUARD_KEY ) ).toBe( 'jetpack_free' );
+		expect( reloadMock ).toHaveBeenCalledTimes( 1 );
+		expect( store.setItem ).toHaveBeenCalledWith( RELOAD_GUARD_KEY, 'jetpack_free' );
 		// Reload returns before the notice fires.
 		expect( mockCreateNotice ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not reload again once the guard already matches the rendered slug', async () => {
-		window.sessionStorage.setItem( RELOAD_GUARD_KEY, 'jetpack_free' );
-		setSearch( 'plan_upgraded=1' );
+		setStorage( makeStorage( { getItem: jest.fn( () => 'jetpack_free' ) } ) );
+		setLocation( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' );
 
 		loadModule();
 		await flush();
 
-		expect( reloadSpy ).not.toHaveBeenCalled();
+		expect( reloadMock ).not.toHaveBeenCalled();
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'shows the notice without reloading when the rendered plan already matches', async () => {
-		setSearch( 'plan_upgraded=1' );
+		setLocation( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_free' ); // fresh equals rendered
 
 		loadModule();
 		await flush();
 
-		expect( reloadSpy ).not.toHaveBeenCalled();
+		expect( reloadMock ).not.toHaveBeenCalled();
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'falls through to a generic notice without reloading when the plan fetch fails', async () => {
-		setSearch( 'plan_upgraded=1' );
+		setLocation( 'plan_upgraded=1' );
 		mockApiFetch.mockRejectedValue( new Error( 'network' ) );
 
 		loadModule();
 		await flush();
 
-		expect( reloadSpy ).not.toHaveBeenCalled();
+		expect( reloadMock ).not.toHaveBeenCalled();
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'does not reload (and does not throw) when sessionStorage reads throw', async () => {
-		setSearch( 'plan_upgraded=1' );
+		setStorage(
+			makeStorage( {
+				getItem: jest.fn( () => {
+					throw new Error( 'SecurityError' );
+				} ),
+			} )
+		);
+		setLocation( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' );
-		jest.spyOn( window.sessionStorage, 'getItem' ).mockImplementation( () => {
-			throw new Error( 'SecurityError' );
-		} );
 
 		loadModule();
 		await flush();
 
 		// Unreadable storage reports "already reloaded" -> no reload, no loop.
-		expect( reloadSpy ).not.toHaveBeenCalled();
+		expect( reloadMock ).not.toHaveBeenCalled();
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'does not reload when the guard cannot be persisted (sessionStorage writes throw)', async () => {
-		setSearch( 'plan_upgraded=1' );
+		setStorage(
+			makeStorage( {
+				setItem: jest.fn( () => {
+					throw new Error( 'QuotaExceededError' );
+				} ),
+			} )
+		);
+		setLocation( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' );
-		jest.spyOn( window.sessionStorage, 'setItem' ).mockImplementation( () => {
-			throw new Error( 'QuotaExceededError' );
-		} );
 
 		loadModule();
 		await flush();
 
 		// Cannot persist the one-shot guard -> refuse the reload, avoid a loop.
-		expect( reloadSpy ).not.toHaveBeenCalled();
+		expect( reloadMock ).not.toHaveBeenCalled();
 		expect( mockCreateNotice ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
