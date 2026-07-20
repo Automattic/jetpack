@@ -188,8 +188,9 @@ $jp-gray-20:             #a7aaad;
 }
 
 // Shared container rendered by the JetpackAdminNotices component.
+// The content column is already sized, so no extra margin is needed.
 .jetpack-jitm-card .jitm-card {
-	margin: 0 0 1.5rem; // full width in the column, bottom spacing, no top gap
+	margin: 0;
 }
 
 // if JITM appears directly below WordPress "help" menu adjust margins
