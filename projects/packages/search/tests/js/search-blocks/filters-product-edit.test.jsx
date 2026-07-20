@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { InnerBlocks } from '@wordpress/block-editor';
-import FiltersEdit from '../../../src/search-blocks/blocks/filters/edit';
+import FiltersProductEdit from '../../../src/search-blocks/blocks/filters-product/edit';
 
 jest.mock( '@wordpress/block-editor', () => {
-	const mockInnerBlocks = jest.fn( () => <div data-testid="filters-inner-blocks" /> );
+	const mockInnerBlocks = jest.fn( () => <div data-testid="filters-product-inner-blocks" /> );
 	mockInnerBlocks.ButtonBlockAppender = () => null;
 	return {
 		useBlockProps: props => ( { ...props, className: props?.className } ),
@@ -28,9 +28,9 @@ jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback => callback( () => mockBlockEditorStore ),
 } ) );
 
-const THIS_CLIENT_ID = 'filters-block-client-id';
+const THIS_CLIENT_ID = 'filters-product-block-client-id';
 
-describe( 'FiltersEdit', () => {
+describe( 'FiltersProductEdit', () => {
 	beforeEach( () => {
 		InnerBlocks.mockClear();
 		// Default: no siblings at all — no stray filter block.
@@ -40,60 +40,56 @@ describe( 'FiltersEdit', () => {
 		};
 	} );
 
-	it( 'renders InnerBlocks with the default filter template + allowedBlocks contract', () => {
-		render( <FiltersEdit clientId={ THIS_CLIENT_ID } /> );
+	it( 'renders InnerBlocks with the default WC filter template + allowedBlocks contract', () => {
+		render( <FiltersProductEdit clientId={ THIS_CLIENT_ID } /> );
 
-		expect( screen.getByTestId( 'filters-inner-blocks' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'filters-product-inner-blocks' ) ).toBeInTheDocument();
 		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
-		expect( props.template ).toEqual( [
-			[ 'jetpack-search/active-filters' ],
-			[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'category' } ],
-			[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'post_tag' } ],
-			[ 'jetpack-search/filter-checkbox', { filterType: 'author' } ],
-			[ 'jetpack-search/filter-checkbox', { filterType: 'post_type' } ],
-			[ 'jetpack-search/filter-date', { interval: 'year' } ],
-		] );
 		expect( props.allowedBlocks ).toEqual( [
 			'jetpack-search/active-filters',
 			'jetpack-search/clear-filters',
+			'jetpack-search/filter-wc-stock-status',
+			'jetpack-search/filter-wc-rating',
+			'jetpack-search/filter-wc-price',
+			'jetpack-search/filter-wc-attribute',
 			'jetpack-search/filter-checkbox',
 			'jetpack-search/filter-date',
 		] );
 	} );
 
 	it( 'bounds the insertion target with a persistent ButtonBlockAppender', () => {
-		render( <FiltersEdit clientId={ THIS_CLIENT_ID } /> );
+		render( <FiltersProductEdit clientId={ THIS_CLIENT_ID } /> );
 
 		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
 		expect( props.renderAppender ).toBe( InnerBlocks.ButtonBlockAppender );
 	} );
 
-	it( 'shows the "Filters" boundary label', () => {
-		render( <FiltersEdit clientId={ THIS_CLIENT_ID } /> );
+	it( 'shows the "Filters Product" boundary label', () => {
+		render( <FiltersProductEdit clientId={ THIS_CLIENT_ID } /> );
 
-		expect( screen.getByText( 'Filters' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Filters Product' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows no warning when no stray filter block sits outside the container', () => {
-		render( <FiltersEdit clientId={ THIS_CLIENT_ID } /> );
+		render( <FiltersProductEdit clientId={ THIS_CLIENT_ID } /> );
 
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'warns when a filter-family block sits as a sibling instead of a child', () => {
+	it( 'warns when a WC filter block sits as a sibling instead of a child', () => {
 		mockBlockEditorStore = {
 			getBlockRootClientId: clientId =>
 				clientId === THIS_CLIENT_ID ? 'parent-column' : undefined,
 			getBlocks: parentClientId =>
 				parentClientId === 'parent-column'
 					? [
-							{ clientId: THIS_CLIENT_ID, name: 'jetpack-search/filters' },
-							{ clientId: 'stray-block', name: 'jetpack-search/filter-checkbox' },
+							{ clientId: THIS_CLIENT_ID, name: 'jetpack-search/filters-product' },
+							{ clientId: 'stray-block', name: 'jetpack-search/filter-wc-price' },
 					  ]
 					: [],
 		};
 
-		render( <FiltersEdit clientId={ THIS_CLIENT_ID } /> );
+		render( <FiltersProductEdit clientId={ THIS_CLIENT_ID } /> );
 
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( /sits outside this container/ );
 	} );
@@ -105,13 +101,13 @@ describe( 'FiltersEdit', () => {
 			getBlocks: parentClientId =>
 				parentClientId === 'parent-column'
 					? [
-							{ clientId: THIS_CLIENT_ID, name: 'jetpack-search/filters' },
+							{ clientId: THIS_CLIENT_ID, name: 'jetpack-search/filters-product' },
 							{ clientId: 'unrelated-block', name: 'core/paragraph' },
 					  ]
 					: [],
 		};
 
-		render( <FiltersEdit clientId={ THIS_CLIENT_ID } /> );
+		render( <FiltersProductEdit clientId={ THIS_CLIENT_ID } /> );
 
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );

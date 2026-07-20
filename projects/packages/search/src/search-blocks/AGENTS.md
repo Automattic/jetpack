@@ -167,6 +167,12 @@ Rendering a read-only preview of *another* block's current children (not your ow
 
 Given both, prefer locking the block's own (already-synced) `InnerBlocks` read-only with `<Disabled>` (a long-stable public component) over live-mirroring another block's content. It loses "reflects edits before you save," but every reload/save picks up the source's current state regardless — self-healing, no unstable dependency.
 
+## InnerBlocks appender boundary trap
+
+The default `InnerBlocks` appender's click/hover target isn't visually bounded — a click just outside a container's actual InnerBlocks region silently inserts the new block as a *sibling* in the parent instead of a *child* inside the container. The canvas gives no indication anything went wrong (shared parent spacing/typography makes the escaped block still look grouped with its intended siblings). `filters`/`filters-product` hit this: an author adding a new filter could end up with it outside the Filters composition entirely — not synced to `filters-popover`, not rendered inside the sidebar's styled wrapper (SEARCH-317).
+
+Mitigation, applied in both blocks' `edit.jsx`: `renderAppender={InnerBlocks.ButtonBlockAppender}` bounds the insertion target inside the container (established pattern — see `extensions/blocks/recipe/*/edit.jsx`, `packages/forms/src/blocks/form-step/edit.jsx`); an editor-only outline + label (a class/element only added in `edit.jsx`, matched by a `style.scss` rule that `render.php` never emits, so it's inert on the front end — same zero-build-cost trick as the read-only-preview gotcha above) makes the boundary visible before a click; and a `useSelect` check via `getBlockRootClientId` + the parent's direct children (the same cross-block-detection shape as `filters-popover`'s sync check above) warns via `Notice` if a filter-family block still ends up as a sibling. None of this is `templateLock` — that only restricts *what* can be inserted once a location is resolved, not *where* a click resolves, so it doesn't touch the actual bug.
+
 ## Comments
 
 Code is the source of truth — well-named identifiers should make most code easier to read than any prose attached to it. Default to **no comment**.
