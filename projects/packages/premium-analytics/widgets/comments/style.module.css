@@ -63,7 +63,12 @@ a.postLabel:focus {
 	padding-inline-end: 0;
 }
 
-.authorLabel:hover,
-.authorLabel:focus {
+/* Underline the label container (avatar + name) on hover, not the inline-flex
+   anchor: an underline on the anchor paints a continuous line across the whole
+   box, including the gap and the Link's trailing new-tab arrow. Scoping it to
+   the first child leaves the arrow (the anchor's other child) undecorated,
+   matching the text-only underline the post rows get. */
+.authorLabel:hover > :first-child,
+.authorLabel:focus > :first-child {
 	text-decoration: underline;
 }
