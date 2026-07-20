@@ -160,10 +160,19 @@ export function visibleSections( sections, features ) {
  * @param {boolean}  props.checked       - Whether the feature is enabled.
  * @param {boolean}  props.isSaving      - Whether this toggle is being saved.
  * @param {boolean}  props.masterEnabled - Whether the site-wide AI master switch is on.
+ * @param {boolean}  props.isConnected   - Whether the AI connection gate passes (connected owner, not offline).
  * @param {Function} props.onChange      - Called with (key, enabled) on toggle.
  * @return {object} Component markup.
  */
-function FeatureRow( { feature, reported, checked, isSaving, masterEnabled, onChange } ) {
+function FeatureRow( {
+	feature,
+	reported,
+	checked,
+	isSaving,
+	masterEnabled,
+	isConnected,
+	onChange,
+} ) {
 	const handleChange = useCallback(
 		enabled => onChange( feature.key, enabled ),
 		[ feature.key, onChange ]
@@ -171,9 +180,10 @@ function FeatureRow( { feature, reported, checked, isSaving, masterEnabled, onCh
 
 	const action = checked ? feature.enabledAction : feature.disabledAction;
 	// The toggle keeps showing the SAVED value but can't be used while the
-	// master switch is off (the saved choice returns when master does) or
+	// connection gate fails (no feature can load without it), while the
+	// master switch is off (the saved choice returns when master does), or
 	// while the plan doesn't include the feature.
-	const isDisabled = isSaving || ! masterEnabled || !! reported?.requires_upgrade;
+	const isDisabled = isSaving || ! isConnected || ! masterEnabled || !! reported?.requires_upgrade;
 
 	return (
 		<Stack direction="column" gap="xs" className="jetpack-ai-features__row">
@@ -185,7 +195,7 @@ function FeatureRow( { feature, reported, checked, isSaving, masterEnabled, onCh
 				help={ feature.description }
 				onChange={ handleChange }
 			/>
-			{ action && masterEnabled && (
+			{ action && masterEnabled && isConnected && (
 				<Link
 					className="jetpack-ai-features__action"
 					href={ action.href }
@@ -213,6 +223,11 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	// page shows them greyed with a site-wide notice instead of misreporting
 	// the user's choices as off.
 	const masterEnabled = settings?.master_enabled !== false;
+	// The connection gate sits outside the master switch: false covers both a
+	// site without a connected owner and one in offline mode, and in either
+	// case no AI feature can load. Saved values stay visible but inert, and
+	// the connection ask comes before any upgrade messaging.
+	const isConnected = settings?.is_connected !== false;
 
 	const sections = visibleSections( SECTIONS, features );
 
@@ -233,7 +248,23 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 
 	return (
 		<Stack direction="column" gap="md">
-			{ ! masterEnabled && (
+			{ ! isConnected && (
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'AI features need a connection to run. Your saved settings will apply once the site is connected.',
+							'jetpack'
+						) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect Jetpack', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
+			) }
+			{ isConnected && ! masterEnabled && (
 				<Notice.Root intent="warning">
 					<Notice.Title>
 						{ __( 'Jetpack AI is turned off for this site.', 'jetpack' ) }
@@ -257,9 +288,10 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 								<Text as="h3" weight="600">
 									{ section.title }
 								</Text>
-								{ section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
-									<Badge intent="informational">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
-								) }
+								{ isConnected &&
+									section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
+										<Badge intent="informational">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
+									) }
 							</div>
 							{ section.features.map( feature => (
 								<FeatureRow
@@ -269,6 +301,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 									checked={ !! features[ feature.key ]?.enabled }
 									isSaving={ savingKeys.has( feature.key ) }
 									masterEnabled={ masterEnabled }
+									isConnected={ isConnected }
 									onChange={ handleToggle }
 								/>
 							) ) }

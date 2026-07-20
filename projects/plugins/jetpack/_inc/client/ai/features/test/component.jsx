@@ -63,6 +63,35 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'not connected: connect notice, toggles keep saved values but disable, links and badge hidden', () => {
+		renderFeatures( { is_connected: false } );
+
+		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
+
+		// The saved value stays visible — the toggle must not misreport it as off.
+		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeDisabled();
+
+		// The connection ask comes before any upgrade messaging: without a
+		// connection the plan is unknown, so no upgrade badge may show.
+		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'not connected takes precedence over the master-off notice', () => {
+		renderFeatures( { is_connected: false, master_enabled: false } );
+
+		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Jetpack AI is turned off for this site.' )
+		).not.toBeInTheDocument();
+	} );
+
 	test( 'toggling a row sends a partial update for just that key', async () => {
 		analytics.tracks.recordEvent.mockClear();
 		const onUpdate = jest.fn().mockResolvedValue( true );
