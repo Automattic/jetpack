@@ -39,7 +39,10 @@ class Analytics {
 	private static $menu_title = 'Analytics';
 
 	/**
-	 * Initialize the Analytics app.
+	 * Initialize the Analytics app on a connected Jetpack site.
+	 *
+	 * Registers the full local surface: the site serves the WPCOM data proxy,
+	 * notices, sync bootstrap, and the dashboard support routes itself.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
@@ -50,76 +53,154 @@ class Analytics {
 		if ( self::$initialized ) {
 			return;
 		}
-
 		self::$initialized = true;
+		self::apply_options( $options );
 
+		self::register_sync_bootstrap();
+		self::register_local_api();
+
+		// Piggybacks on the Jetpack Stats module; checks Jetpack connection state.
+		Jetpack_Stats_Tracker::configure();
+
+		self::boot_shared_services();
+		self::register_dashboard_support_routes();
+		self::load_build();
+		self::register_admin_page();
+	}
+
+	/**
+	 * Initialize the Analytics app on WordPress.com Simple.
+	 *
+	 * Simple reaches public-api.wordpress.com directly via WPCOM's apiFetch
+	 * bridge, so it registers no local REST surface: no proxy, notices, sync
+	 * bootstrap, or dashboard support routes. WPCOM registers those separately.
+	 *
+	 * @param array $options Optional configuration options.
+	 *                       Supported keys:
+	 *                       - menu_title (string): Admin menu label.
+	 * @return void
+	 */
+	public static function init_wpcom_simple( $options = array() ) {
+		if ( self::$initialized ) {
+			return;
+		}
+		self::$initialized = true;
+		self::apply_options( $options );
+
+		self::boot_shared_services();
+		self::load_build();
+		self::register_admin_page();
+	}
+
+	/**
+	 * Apply init-time configuration options.
+	 *
+	 * @param array $options Options passed to the init entry points.
+	 * @return void
+	 */
+	private static function apply_options( $options ) {
 		if ( ! empty( $options['menu_title'] ) ) {
 			self::$menu_title = $options['menu_title'];
 		}
+	}
 
+	/**
+	 * Boot the services and registries every platform needs, regardless of
+	 * whether the site serves the dashboard support routes itself.
+	 *
+	 * @return void
+	 */
+	private static function boot_shared_services() {
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
+		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
+		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
+		Export::configure();
+
+		self::load_dashboard_components();
+	}
+
+	/**
+	 * Register the sync services that feed the local data pipeline.
+	 *
+	 * @return void
+	 */
+	private static function register_sync_bootstrap() {
 		// Keep the shared connection available when another connection-owning plugin is deactivated.
 		Connection_Configuration::configure();
 
-		// Always on: sync runs in cron; REST routes + registry serve REST requests
-		// (is_admin() false). REST_REQUEST isn't defined this early, so they
-		// self-gate on their own rest_api_init / init hooks.
 		Sync_Status_Tracker::configure();
 
 		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
 		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
 		Sync_Configuration::register();
+	}
+
+	/**
+	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 *
+	 * Both self-gate on their own rest_api_init hooks.
+	 *
+	 * @return void
+	 */
+	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+	}
 
-		// Emit front-end page views into the Jetpack Stats pipeline.
-		Jetpack_Stats_Tracker::configure();
-
-		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-		WooCommerce_Analytics_Tracker::configure();
-
-		// CSV report export pipeline (WOOA7S-1581). Must register above the is_admin() gate so its
-		// REST route hooks rest_api_init (is_admin() is false during REST requests). Self-gates on
-		// WooCommerce being active + Jetpack connected.
-		Export::configure();
-
-		// Load the widget type registry: hydration routine, registry-time and
-		// runtime filters, and the registry accessors.
-		require_once __DIR__ . '/widget-types.php';
-
-		// Apply Premium Analytics' availability policy: hooks the registry-time
-		// filter to keep developer-only types out of production.
-		require_once __DIR__ . '/widget-availability.php';
-
-		// Hydrate the registry with the availability filter in place.
-		bootstrap_widget_types();
-
-		// Expose dashboard widget modules over REST and wire them into the
-		// page import map for dynamic import() on the client.
+	/**
+	 * Load the dashboard components every platform renders with.
+	 *
+	 * @return void
+	 */
+	private static function load_dashboard_components() {
+		// Widget modules for the client's dynamic import() map.
 		require_once __DIR__ . '/widget-modules.php';
 
-		// Register the dashboard's default layout: the first-load preference
-		// injection and the REST route the "reset to default" action reads.
+		// Default layout's first-load preference injection.
 		require_once __DIR__ . '/dashboard-layout.php';
 
-		// Register dashboard sections and expose section metadata/defaults over REST.
+		// Dashboard sections and their default layout seeding.
 		require_once __DIR__ . '/dashboard-sections.php';
 
-		// Expose opt-in CSV export settings to the dashboard.
+		// Opt-in CSV export settings.
 		require_once __DIR__ . '/csv-exports.php';
 		configure_csv_exports();
+	}
 
-		// Load wp-build output (interceptor, modules, routes, page render).
-		// Must stay above the is_admin() gate: build/widgets.php defines the
-		// manifest the widget registry reads, and the registry serves REST
-		// requests (e.g. /jetpack/v4/widget-modules) where is_admin() is false. The render
-		// pieces here self-gate on admin_init, so loading them globally is inert
-		// off the dashboard. Only the polyfill registration below is admin-scoped.
+	/**
+	 * Serve the dashboard support routes from the site. Simple skips this —
+	 * WPCOM calls Dashboard_Support_Routes::register() itself instead.
+	 *
+	 * @return void
+	 */
+	private static function register_dashboard_support_routes() {
+		Dashboard_Support_Routes::register();
+	}
+
+	/**
+	 * Load the wp-build output (interceptor, modules, routes, page render).
+	 *
+	 * Must run before the is_admin() gate: the registry serves REST requests
+	 * too (is_admin() false there). Render pieces self-gate on admin_init, so
+	 * this is inert off the dashboard.
+	 *
+	 * @return void
+	 */
+	private static function load_build() {
 		$build_entry = __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
+	}
 
-		// Below: admin-only render path (assets, menu).
+	/**
+	 * Register the admin-only render path: polyfills, menu, and page hooks.
+	 *
+	 * @return void
+	 */
+	private static function register_admin_page() {
 		if ( ! is_admin() ) {
 			return;
 		}

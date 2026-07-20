@@ -4,7 +4,7 @@
  *
  * Reads get_available_widget_types() (the registry filtered by
  * widget-availability.php) and exposes it two ways: the
- * `/jetpack/v4/widget-modules` REST list, and the page import map, where each
+ * `/wpcom/v2/widget-modules` REST list, and the page import map, where each
  * widget's render and metadata modules are registered for dynamic `import()`.
  *
  * @package automattic/jetpack-premium-analytics
@@ -12,14 +12,16 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/rest-namespace.php';
+
 /**
- * Register the `/jetpack/v4/widget-modules` REST route.
+ * Register the `/wpcom/v2/widget-modules` REST route.
  *
  * @return void
  */
 function register_widget_modules_rest_route() {
 	register_rest_route(
-		'jetpack/v4',
+		DASHBOARD_REST_NAMESPACE,
 		'/widget-modules',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
@@ -30,7 +32,37 @@ function register_widget_modules_rest_route() {
 		)
 	);
 }
-add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
+
+/**
+ * Load and hydrate the widget type registry, once.
+ *
+ * Deferred to here (the registry's only two readers) instead of running
+ * unconditionally at boot: this package boots on every request to a site
+ * that has it active, and on WPCOM Simple this file's registration runs on
+ * every public-api request across all of WPCOM, not just ones that touch
+ * Premium Analytics. Most such requests never read the registry at all, so
+ * parsing the widget manifest and hydrating it eagerly was wasted work.
+ *
+ * @return void
+ */
+function ensure_widget_registry_ready() {
+	static $ready = false;
+	if ( $ready ) {
+		return;
+	}
+	$ready = true;
+
+	require_once __DIR__ . '/widget-types.php';
+	require_once __DIR__ . '/widget-availability.php';
+
+	// Manifest register_widget_types() reads; absent without a JS build.
+	$widgets_manifest = __DIR__ . '/../build/widgets.php';
+	if ( file_exists( $widgets_manifest ) ) {
+		require_once $widgets_manifest;
+	}
+
+	bootstrap_widget_types();
+}
 
 /**
  * Build the REST response: one record per available widget type.
@@ -38,6 +70,8 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_rou
  * @return \WP_REST_Response
  */
 function get_widget_modules_response() {
+	ensure_widget_registry_ready();
+
 	$records = array();
 
 	foreach ( get_available_widget_types() as $widget_type ) {
@@ -60,6 +94,8 @@ function get_widget_modules_response() {
  * @return array Updated boot dependencies.
  */
 function add_widget_modules_to_boot_deps( $boot_dependencies ) {
+	ensure_widget_registry_ready();
+
 	foreach ( get_available_widget_types() as $widget_type ) {
 		if ( ! empty( $widget_type->render_module ) ) {
 			$boot_dependencies[] = array(

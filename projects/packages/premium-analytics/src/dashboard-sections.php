@@ -651,4 +651,3 @@ function register_dashboard_sections_rest_routes() {
 }
 
 bootstrap_dashboard_sections();
-add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_sections_rest_routes' );

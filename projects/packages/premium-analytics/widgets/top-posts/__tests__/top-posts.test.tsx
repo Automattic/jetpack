@@ -13,6 +13,7 @@ import TopPostsWidget from '../render';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: jest.fn(),
+	isSimpleSite: jest.fn().mockReturnValue( false ),
 } ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 

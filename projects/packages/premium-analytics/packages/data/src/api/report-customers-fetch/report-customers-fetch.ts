@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -40,14 +35,10 @@ export async function fetchReportCustomers( {
 	filters,
 	date_type,
 }: RequestReportCustomersParams ): Promise< ReportsCustomersNewReturningResponse > {
-	const path = addQueryArgs( `${ reportsPath }/customers/new-returning`, {
+	return fetchReport< ReportsCustomersNewReturningResponse >( 'customers/new-returning', {
 		from,
 		to,
 		filters,
 		date_type,
 	} );
-
-	return apiFetch( {
-		path,
-	} ) as Promise< ReportsCustomersNewReturningResponse >;
 }
