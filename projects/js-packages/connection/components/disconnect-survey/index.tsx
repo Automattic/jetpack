@@ -1,18 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import { Fragment, useCallback, useState } from 'react';
-import SurveyChoiceComponent from './survey-choice';
-import type { ChangeEvent, ComponentType, KeyboardEvent, ReactNode } from 'react';
-
-// survey-choice.jsx is untyped and its JSDoc types its return as a class Component, which is not a
-// valid JSX element type. Cast to a typed function component for the props this file passes.
-const SurveyChoice = SurveyChoiceComponent as unknown as ComponentType< {
-	id: string;
-	onClick: ( id: string ) => void;
-	onKeyDown: ( answerId: string, e: KeyboardEvent< HTMLDivElement > ) => void;
-	className: string;
-	children?: ReactNode;
-} >;
+import SurveyChoice from './survey-choice';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 
 interface DisconnectSurveyProps {
 	/** Callback handler function for when the survey response is submitted. */
