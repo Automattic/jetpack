@@ -64,6 +64,10 @@
 /tools/**                                                production-exclude
 /wp-cli-templates/**                                     production-exclude
 
+# rowbot/idna lookup tables: underscored base names the wpcom mirror rejects, and
+# only loaded by the IDNA host parser the Reprint export path never invokes.
+/vendor/wp-php-toolkit/*/**/disallowed_STD3_*.php        production-exclude
+
 # Cruft from poorly-cleaned wp-php-toolkit vendor packages (reprint exporter).
 /vendor/wp-php-toolkit/*/Tests/**                        production-exclude
 /vendor/wp-php-toolkit/*/*.sh                            production-exclude
