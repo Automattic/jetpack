@@ -82,8 +82,8 @@ class Widget_Metadata_Test extends BaseTestCase {
 	}
 
 	/**
-	 * register_widget_types() hydrates the registry from the manifest with
-	 * metadata translated, the help note sanitized, and every field mapped.
+	 * Hydration registers manifest candidates with metadata translated,
+	 * the help note sanitized, and every field mapped onto the type.
 	 */
 	public function test_register_widget_types_hydrates_metadata_from_manifest() {
 		$GLOBALS['jpa_test_widget_manifest'] = array(
