@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow: crop images to a uniform square grid when rendering in email, so the gallery aspect-ratio crop fix also applies to slideshows instead of leaving mismatched image heights.

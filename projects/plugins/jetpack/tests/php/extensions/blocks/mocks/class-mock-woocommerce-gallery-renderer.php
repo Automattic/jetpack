@@ -12,6 +12,14 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 	 */
 	class Mock_WooCommerce_Gallery_Renderer {
 		/**
+		 * The most recent parsed block handed to render(), captured so tests can
+		 * assert what the caller passed to the gallery renderer (e.g. aspectRatio).
+		 *
+		 * @var array|null
+		 */
+		public static $last_parsed_block = null;
+
+		/**
 		 * Mock render method
 		 *
 		 * @param string $block_content The block content.
@@ -20,6 +28,8 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 		 * @return string
 		 */
 		public function render( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			self::$last_parsed_block = $parsed_block;
+
 			$inner_blocks = $parsed_block['innerBlocks'] ?? array();
 			$attributes   = $parsed_block['attrs'] ?? array();
 			$columns      = $attributes['columns'] ?? 3;

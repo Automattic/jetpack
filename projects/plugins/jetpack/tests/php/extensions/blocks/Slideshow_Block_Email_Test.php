@@ -245,6 +245,29 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test render_email hands the gallery renderer a square (1:1) aspect ratio.
+	 *
+	 * A slideshow carries no authored aspect ratio, so without this the gallery
+	 * renderer's crop path never engages and images render at mismatched natural
+	 * heights. Passing aspectRatio "1" is what makes the email grid uniform.
+	 */
+	public function test_render_email_sets_square_aspect_ratio() {
+		Mock_WooCommerce_Gallery_Renderer::$last_parsed_block = null;
+
+		$parsed_block = $this->create_parsed_block_with_images();
+		$mock_context = $this->create_rendering_context_mock();
+		\Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
+
+		$captured = Mock_WooCommerce_Gallery_Renderer::$last_parsed_block;
+
+		$this->assertIsArray( $captured, 'Gallery renderer should have received a parsed block.' );
+		$this->assertArrayHasKey( 'attrs', $captured );
+		$this->assertArrayHasKey( 'aspectRatio', $captured['attrs'], 'Mock gallery must request an aspect ratio so the crop path engages.' );
+		$this->assertSame( '1', $captured['attrs']['aspectRatio'], 'Slideshow email grid should crop to a 1:1 square.' );
+		$this->assertSame( 2, $captured['attrs']['columns'], 'Slideshow email grid should keep the two-column layout.' );
+	}
+
+	/**
 	 * Test render_email with missing attrs.
 	 */
 	public function test_render_email_with_missing_attrs() {

@@ -115,12 +115,19 @@ function render_email_implementation( $block_content, array $parsed_block, $rend
 	// The renderer uses $block_content parameter to extract gallery-level captions
 	$block_content_html = '<figure class="wp-block-gallery has-nested-images columns-default is-cropped"><ul class="blocks-gallery-grid"></ul></figure>';
 
-	// Create a mock parsed block that WooCommerce's gallery renderer can handle
-	// The renderer uses columns from attrs (defaults to 3, but 2 works better for email)
+	// Create a mock parsed block that WooCommerce's gallery renderer can handle.
+	// columns: the renderer defaults to 3, but 2 reads better in a narrow email column.
+	// aspectRatio: a slideshow has no authored aspect ratio (only a sizeSlug), so email has
+	// nothing to inherit and images would otherwise render at their natural, mismatched heights.
+	// Passing a square ratio engages the gallery renderer's crop path (WooCommerce's
+	// woocommerce_email_editor_gallery_cropped_image_url filter, served via Photon on
+	// WordPress.com), giving a uniform grid. 1:1 is the floor of the live slideshow container
+	// clamp -- max( min( --aspect-ratio, 16/9 ), 1 ) -- and the tidiest fit for two columns.
 	$mock_parsed_block = array(
 		'innerBlocks' => $inner_blocks,
 		'attrs'       => array(
-			'columns' => 2,
+			'columns'     => 2,
+			'aspectRatio' => '1',
 		),
 	);
 
