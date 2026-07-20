@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render JITMs in the Forms dashboard via the shared JetpackAdminNotices component.
