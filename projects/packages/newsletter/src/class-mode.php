@@ -13,6 +13,7 @@
 
 namespace Automattic\Jetpack\Newsletter;
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -70,6 +71,28 @@ class Mode {
 		// submenu-hiding filter lands before Settings adds its submenu at 999.
 		$menu_priority = ( new Host() )->is_wpcom_simple() ? 999999 : 1;
 		add_action( 'admin_menu', array( self::class, 'maybe_register_admin_menu' ), $menu_priority );
+
+		// Declutter the left menu on newsletter-mode surfaces down to the focused
+		// nav. Runs at a very late priority so it happens after every menu builder
+		// (including wpcom's 999999 ones) has finished.
+		add_action( 'admin_menu', array( self::class, 'maybe_declutter_menu' ), 1000000 );
+
+		// Fix the browser-tab title on the Newsletter page (which is a hidden,
+		// empty-parent page once the mode hides the Jetpack submenu).
+		add_filter( 'admin_title', array( self::class, 'maybe_filter_admin_title' ), 10, 2 );
+
+		// Keep the Newsletter page's layout CSS working. Hiding the Jetpack
+		// submenu turns the page into a hidden (empty-parent) page, which flips
+		// its <body> class from `jetpack_page_jetpack-newsletter` to
+		// `admin_page_jetpack-newsletter` — but the wp-build layout mixin is keyed
+		// on the former. Add the expected class back on that page.
+		add_filter( 'admin_body_class', array( self::class, 'maybe_add_body_class' ) );
+
+		// Render the "Newsletters" header (with a chevron exit link) at the top of
+		// the decluttered menu on mode surfaces: styles here, markup injected in
+		// the footer once #adminmenu exists in the DOM.
+		add_action( 'admin_enqueue_scripts', array( self::class, 'maybe_enqueue_mode_assets' ) );
+		add_action( 'admin_footer', array( self::class, 'maybe_render_mode_header' ) );
 	}
 
 	/**
@@ -103,6 +126,274 @@ class Mode {
 			'',
 			'dashicons-email',
 			3.9
+		);
+	}
+
+	/**
+	 * On the newsletter surface, strip the left menu down to a focused nav.
+	 *
+	 * Keeps the native wp-admin frame (admin bar + left menu column) but removes
+	 * the unrelated top-level items and rebuilds a short list: an exit link back
+	 * to the full dashboard, then the newsletter surfaces. Uses core
+	 * remove_menu_page()/add_menu_page() (the sanctioned "menu sweep" approach)
+	 * rather than mutating the raw globals, so access checks stay intact. The
+	 * admin bar is untouched.
+	 *
+	 * @return void
+	 */
+	public static function maybe_declutter_menu() {
+		if ( ! self::is_active_for_request() ) {
+			return;
+		}
+
+		global $menu;
+
+		// Remove every existing top-level item; we rebuild a focused set below.
+		$slugs = array();
+		foreach ( (array) $menu as $item ) {
+			if ( ! empty( $item[2] ) ) {
+				$slugs[] = $item[2];
+			}
+		}
+		foreach ( $slugs as $slug ) {
+			remove_menu_page( $slug );
+		}
+
+		$newsletter_url = 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG;
+
+		// The exit affordance is the chevron in the injected "Newsletters" header
+		// (see maybe_render_mode_header), not a menu item.
+		add_menu_page(
+			__( 'Subscribers', 'jetpack-newsletter' ),
+			__( 'Subscribers', 'jetpack-newsletter' ),
+			'manage_options',
+			$newsletter_url,
+			'',
+			'dashicons-groups',
+			4
+		);
+		add_menu_page(
+			__( 'Settings', 'jetpack-newsletter' ),
+			__( 'Settings', 'jetpack-newsletter' ),
+			'manage_options',
+			// The SPA router encodes its path+search into a single `p` param, so
+			// encode the value rather than letting the nested `?`/`&` be parsed as
+			// separate query args.
+			$newsletter_url . '&p=' . rawurlencode( '/?tab=settings' ),
+			'',
+			'dashicons-admin-settings',
+			5
+		);
+		// Prefer the mu-wpcom Write editor when its feature is loaded (WP.com
+		// Simple/Atomic); fall back to the block editor on standalone Jetpack,
+		// where that page isn't registered.
+		$write_url = function_exists( 'wpcom_write_url' )
+			? add_query_arg( 'source', 'write_editor', wpcom_write_url() )
+			: admin_url( 'post-new.php' );
+
+		add_menu_page(
+			__( 'Write & send', 'jetpack-newsletter' ),
+			__( 'Write & send', 'jetpack-newsletter' ),
+			'edit_posts',
+			$write_url,
+			'',
+			'dashicons-edit',
+			6
+		);
+		add_menu_page(
+			__( 'Payments', 'jetpack-newsletter' ),
+			__( 'Payments', 'jetpack-newsletter' ),
+			'manage_options',
+			self::get_payments_url(),
+			'',
+			'dashicons-money-alt',
+			7
+		);
+	}
+
+	/**
+	 * Resolve the "Payments" surface URL — the existing monetization page, not a
+	 * reimplementation. WordPress.com sites use the Calypso Earn page; Jetpack
+	 * sites use the Jetpack Cloud monetize page.
+	 *
+	 * @return string
+	 */
+	private static function get_payments_url() {
+		$suffix = ( new Status() )->get_site_suffix();
+		$base   = ( new Host() )->is_wpcom_platform()
+			? 'https://wordpress.com/earn/'
+			: 'https://cloud.jetpack.com/monetize/payments/';
+
+		return $base . $suffix;
+	}
+
+	/**
+	 * Give the Newsletter page a proper browser-tab title while the mode is
+	 * active. When the mode hides the "Jetpack → Newsletter" submenu the page
+	 * becomes a hidden (empty-parent) page whose title get_admin_page_title()
+	 * can't resolve, so the tab would otherwise show only the site name.
+	 *
+	 * @param string $admin_title The full <title> text WordPress computed.
+	 * @param string $title       The page-title portion (empty for hidden pages).
+	 * @return string
+	 */
+	public static function maybe_filter_admin_title( $admin_title, $title ) {
+		if ( '' === $title && self::is_active_for_request() ) {
+			/** "Newsletter" is a product name, do not translate. */
+			return 'Newsletter' . $admin_title;
+		}
+
+		return $admin_title;
+	}
+
+	/**
+	 * Restore the Newsletter page's expected <body> class while the mode is
+	 * active, so its layout CSS (keyed on `body.jetpack_page_jetpack-newsletter`)
+	 * still applies even though the page is registered as a hidden page.
+	 *
+	 * @param string $classes Space-separated admin body classes.
+	 * @return string
+	 */
+	public static function maybe_add_body_class( $classes ) {
+		if ( self::is_active_for_request() ) {
+			$classes .= ' jetpack_page_jetpack-newsletter';
+		}
+
+		return $classes;
+	}
+
+	/**
+	 * Enqueue styles for the injected "Newsletters" menu header on mode surfaces.
+	 *
+	 * @return void
+	 */
+	public static function maybe_enqueue_mode_assets() {
+		if ( ! self::is_active_for_request() ) {
+			return;
+		}
+
+		$handle = 'jetpack-newsletter-mode';
+		wp_register_style( $handle, false, array(), '1.0' );
+		wp_enqueue_style( $handle );
+		wp_add_inline_style(
+			$handle,
+			'#adminmenu .jetpack-newsletter-mode-header {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				padding: 14px 12px 14px 0;
+				margin: 0;
+			}
+			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				color: rgba( 240, 246, 252, 0.7 );
+				text-decoration: none;
+			}
+			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit:hover,
+			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit:focus {
+				color: #72aee6;
+			}
+			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit svg {
+				display: block;
+				width: 24px;
+				height: 24px;
+				fill: currentColor;
+			}
+			#adminmenu .jetpack-newsletter-mode-header h3 {
+				margin: 0;
+				padding: 0;
+				color: #fff;
+				font-size: 15px;
+				font-weight: 600;
+				line-height: 1.4;
+			}
+			/* Collapsed menu (#collapse-button → body.folded, or the responsive
+			   auto-fold range): show only the chevron, hide the heading text —
+			   mirroring how core folds a normal menu item to icon-only. */
+			body.folded #adminmenu .jetpack-newsletter-mode-header {
+				justify-content: center;
+				padding-left: 0;
+				padding-right: 0;
+			}
+			body.folded #adminmenu .jetpack-newsletter-mode-header h3 {
+				display: none;
+			}
+			@media only screen and ( min-width: 783px ) and ( max-width: 960px ) {
+				.auto-fold #adminmenu .jetpack-newsletter-mode-header {
+					justify-content: center;
+					padding-left: 0;
+					padding-right: 0;
+				}
+				.auto-fold #adminmenu .jetpack-newsletter-mode-header h3 {
+					display: none;
+				}
+			}
+			/* Subscribers/Settings live in the left nav in mode, so hide the
+			   in-page tab bar (the tab content stays; only the bar is hidden). */
+			.jp-admin-page-tabs {
+				display: none;
+			}'
+		);
+
+		// On WP.com Simple/Atomic the platform menu is 272px wide (set by the
+		// masterbar package). That rule doesn't apply in mode, so re-assert it so
+		// the focused nav matches the platform. Desktop only — leave the folded /
+		// auto-fold responsive widths to core.
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			wp_add_inline_style(
+				$handle,
+				'@media ( min-width: 961px ) {
+					body:not(.folded) #adminmenuback,
+					body:not(.folded) #adminmenuwrap,
+					body:not(.folded) #adminmenu {
+						width: 272px;
+					}
+					body:not(.folded) #wpcontent,
+					body:not(.folded) #wpfooter {
+						margin-left: 272px;
+					}
+				}'
+			);
+		}
+	}
+
+	/**
+	 * Inject the "Newsletters" header at the top of the decluttered menu.
+	 *
+	 * An <h3> heading with a chevron to its left that links back out of the mode.
+	 * Injected client-side because wp-admin renders each menu item as `<li><a>`,
+	 * which can't hold a separate heading + exit link; this runs in the footer,
+	 * after #adminmenu is in the DOM.
+	 *
+	 * @return void
+	 */
+	public static function maybe_render_mode_header() {
+		if ( ! self::is_active_for_request() ) {
+			return;
+		}
+
+		$markup = sprintf(
+			'<a href="%1$s" class="jetpack-newsletter-mode-exit" aria-label="%2$s"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z"></path></svg></a><h3>%3$s</h3>',
+			esc_url( admin_url() ),
+			esc_attr__( 'Exit Newsletter Mode', 'jetpack-newsletter' ),
+			/** "Newsletters" is a product surface name. */
+			'Newsletters'
+		);
+
+		wp_print_inline_script_tag(
+			sprintf(
+				'( function () {' .
+					'var menu = document.getElementById( "adminmenu" );' .
+					'if ( ! menu ) { return; }' .
+					'var li = document.createElement( "li" );' .
+					'li.className = "jetpack-newsletter-mode-header";' .
+					'li.innerHTML = %s;' .
+					'menu.insertBefore( li, menu.firstChild );' .
+				'}() );',
+				wp_json_encode( $markup, JSON_HEX_TAG | JSON_HEX_AMP )
+			)
 		);
 	}
 
