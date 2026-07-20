@@ -56,7 +56,8 @@ describe( 'useFeatureSettings', () => {
 			features: { ...SETTINGS.features, image_editor: { enabled: true } },
 		};
 		let request;
-		act( () => {
+		// Async act: the POST dispatches from the save queue in a microtask.
+		await act( async () => {
 			request = result.current.updateSettings( { features: { image_editor: true } } );
 		} );
 
@@ -110,6 +111,75 @@ describe( 'useFeatureSettings', () => {
 		expect( result.current.error ).toBeNull();
 	} );
 
+	test( 'serializes concurrent saves so a stale snapshot cannot clobber a later one', async () => {
+		apiFetch.mockResolvedValueOnce( SETTINGS );
+		const { result } = renderHook( () => useFeatureSettings() );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		// Every POST response is a full settings snapshot: if both requests were
+		// in flight together, the first response arriving last would revert the
+		// second save on screen. The queue must hold the second POST back.
+		const afterFirst = {
+			...SETTINGS,
+			features: { ...SETTINGS.features, writing_assistant: { enabled: false } },
+		};
+		const afterSecond = {
+			...afterFirst,
+			features: { ...afterFirst.features, image_editor: { enabled: true } },
+		};
+		let resolveFirst;
+		apiFetch
+			.mockReturnValueOnce( new Promise( resolve => ( resolveFirst = resolve ) ) )
+			.mockResolvedValueOnce( afterSecond );
+
+		let first, second;
+		await act( async () => {
+			first = result.current.updateSettings( { features: { writing_assistant: false } } );
+			second = result.current.updateSettings( { features: { image_editor: true } } );
+		} );
+
+		// Both toggles report saving, but only the first POST is on the wire.
+		expect( result.current.savingKeys.has( 'writing_assistant' ) ).toBe( true );
+		expect( result.current.savingKeys.has( 'image_editor' ) ).toBe( true );
+		expect( apiFetch ).toHaveBeenCalledTimes( 2 ); // The GET plus the first POST.
+
+		await act( async () => {
+			resolveFirst( afterFirst );
+			await Promise.all( [ first, second ] );
+		} );
+
+		expect( apiFetch ).toHaveBeenCalledTimes( 3 );
+		expect( apiFetch ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { method: 'POST', data: { features: { image_editor: true } } } )
+		);
+		expect( result.current.settings ).toEqual( afterSecond );
+		expect( result.current.savingKeys.size ).toBe( 0 );
+	} );
+
+	test( 'a failed save does not block the save queued behind it', async () => {
+		apiFetch.mockResolvedValueOnce( SETTINGS );
+		const { result } = renderHook( () => useFeatureSettings() );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		const updated = {
+			...SETTINGS,
+			features: { ...SETTINGS.features, image_editor: { enabled: true } },
+		};
+		apiFetch.mockRejectedValueOnce( new Error( 'offline' ) ).mockResolvedValueOnce( updated );
+
+		await act( async () => {
+			const first = result.current.updateSettings( { features: { writing_assistant: false } } );
+			const second = result.current.updateSettings( { features: { image_editor: true } } );
+			await expect( first ).rejects.toThrow( 'offline' );
+			await second;
+		} );
+
+		// The queued save ran and its snapshot shows the failed toggle unchanged.
+		expect( result.current.settings ).toEqual( updated );
+		expect( result.current.savingKeys.size ).toBe( 0 );
+		expect( result.current.error ).toBeNull();
+	} );
+
 	test( 'a master switch update is tracked under the __master__ key', async () => {
 		apiFetch.mockResolvedValueOnce( SETTINGS );
 		const { result } = renderHook( () => useFeatureSettings() );
@@ -119,7 +189,8 @@ describe( 'useFeatureSettings', () => {
 		apiFetch.mockReturnValueOnce( new Promise( resolve => ( resolvePost = resolve ) ) );
 
 		let request;
-		act( () => {
+		// Async act: the POST dispatches from the save queue in a microtask.
+		await act( async () => {
 			request = result.current.updateSettings( { master_enabled: false } );
 		} );
 

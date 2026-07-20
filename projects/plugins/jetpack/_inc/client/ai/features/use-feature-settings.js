@@ -9,7 +9,7 @@
  */
 
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const ENDPOINT = '/wpcom/v2/jetpack-ai/feature-settings';
@@ -24,6 +24,8 @@ export function useFeatureSettings() {
 	const [ savingKeys, setSavingKeys ] = useState( () => new Set() );
 	const [ settings, setSettings ] = useState( null );
 	const [ error, setError ] = useState( null );
+	// Saves queue behind this promise so only one POST is ever in flight.
+	const saveQueue = useRef( Promise.resolve() );
 
 	useEffect( () => {
 		let cancelled = false;
@@ -71,12 +73,27 @@ export function useFeatureSettings() {
 			return next;
 		} );
 
-		return (
+		// Saves are serialized: every response is a full settings snapshot, so
+		// with concurrent POSTs a slow earlier response arriving last would
+		// overwrite a later save with stale values. One request in flight at a
+		// time means the server applies writes in dispatch order and each
+		// snapshot reflects every earlier save.
+		const request = saveQueue.current.then( () =>
 			apiFetch( {
 				path: ENDPOINT,
 				method: 'POST',
 				data: update,
 			} )
+		);
+		// The queue advances when this save settles; a failure must not block
+		// the saves queued behind it.
+		saveQueue.current = request.then(
+			() => {},
+			() => {}
+		);
+
+		return (
+			request
 				.then( data => {
 					setSettings( prev => data ?? prev );
 					setError( null );
