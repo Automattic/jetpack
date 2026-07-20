@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add JetpackAdminNotices: a shared #jp-admin-notices JITM mount point component.
