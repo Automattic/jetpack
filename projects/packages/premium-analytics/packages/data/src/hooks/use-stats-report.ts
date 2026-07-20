@@ -31,7 +31,7 @@ type StatsReportQueryFactory< TParams extends StatsReportParams, TData > = (
 	params: TParams
 ) => UseQueryOptions< TData >;
 
-type StatsListReportOptions = UseStatsOptions & {
+export type StatsListReportOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
@@ -50,12 +50,32 @@ type StatsListReportHookConfig<
 		maxRows: number | undefined,
 		mergeOption: TMergeOption
 	) => StatsComparisonRowsResult< TComparisonRow >;
-	getOptions?: ( options: TOptions | undefined ) => {
+	// Required so that narrowing `TMergeOption` cannot leave the merge callback
+	// receiving an `undefined` the type says is impossible. Modules with no merge
+	// option pass `splitStatsListOptions`.
+	getOptions: ( options: TOptions | undefined ) => {
 		queryOptions: UseStatsOptions;
 		maxRows?: number;
 		mergeOption: TMergeOption;
 	};
 };
+
+/**
+ * The `getOptions` mapper for list reports whose merge helper takes no extra option:
+ * splits `maxRows` off the query options and leaves the merge option undefined.
+ *
+ * @param options - The hook's caller options.
+ * @return The split query options, row cap, and (absent) merge option.
+ */
+export function splitStatsListOptions( options: StatsListReportOptions | undefined ): {
+	queryOptions: UseStatsOptions;
+	maxRows?: number;
+	mergeOption: undefined;
+} {
+	const { maxRows, ...queryOptions } = options ?? {};
+
+	return { queryOptions, maxRows, mergeOption: undefined };
+}
 
 export function createStatsListReportHook<
 	TParams extends StatsReportParams,
@@ -70,18 +90,7 @@ export function createStatsListReportHook<
 	getOptions,
 }: StatsListReportHookConfig< TParams, TData, TComparisonRow, TOptions, TMergeOption > ) {
 	return function useStatsListReport( params: TParams, options?: TOptions ) {
-		const defaultOptions = () => {
-			const { maxRows, ...queryOptions } = options ?? {};
-
-			return {
-				queryOptions,
-				maxRows,
-				mergeOption: undefined as TMergeOption,
-			};
-		};
-		const { queryOptions, maxRows, mergeOption } = getOptions
-			? getOptions( options )
-			: defaultOptions();
+		const { queryOptions, maxRows, mergeOption } = getOptions( options );
 		const mergeComparisonRows = useCallback(
 			( primaryReport?: TData, comparisonReport?: TData ) =>
 				mergeRows( primaryReport, comparisonReport, maxRows, mergeOption ),

@@ -3,7 +3,7 @@
  */
 import { mergeStatsFileDownloadsComparisonRows } from '../processing/stats';
 import { statsFileDownloadsQuery } from '../queries/stats-file-downloads-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsFileDownloadsComparisonItem,
@@ -25,4 +25,5 @@ export const useStatsFileDownloads = createStatsListReportHook<
 	queryFactory: statsFileDownloadsQuery,
 	reportSlug: 'file-downloads',
 	mergeComparisonRows: mergeStatsFileDownloadsComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

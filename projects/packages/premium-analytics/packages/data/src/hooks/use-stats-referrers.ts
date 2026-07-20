@@ -3,7 +3,7 @@
  */
 import { mergeStatsReferrersComparisonRows } from '../processing/stats';
 import { statsReferrersQuery } from '../queries/stats-referrers-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsNormalizedReport,
@@ -25,4 +25,5 @@ export const useStatsReferrers = createStatsListReportHook<
 	queryFactory: statsReferrersQuery,
 	reportSlug: 'referrers',
 	mergeComparisonRows: mergeStatsReferrersComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

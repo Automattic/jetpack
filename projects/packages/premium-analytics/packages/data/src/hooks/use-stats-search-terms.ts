@@ -3,7 +3,7 @@
  */
 import { mergeStatsSearchTermsComparisonRows } from '../processing/stats';
 import { statsSearchTermsQuery } from '../queries/stats-search-terms-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsNormalizedReport,
@@ -25,4 +25,5 @@ export const useStatsSearchTerms = createStatsListReportHook<
 	queryFactory: statsSearchTermsQuery,
 	reportSlug: 'search-terms',
 	mergeComparisonRows: mergeStatsSearchTermsComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

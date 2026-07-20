@@ -4,7 +4,7 @@
 import { mergeStatsVideoPlaysComparisonRows } from '../processing/stats';
 import { statsVideoPlaysQuery } from '../queries/stats-video-plays-query';
 import { statsVideoPlaysSummaryQuery } from '../queries/stats-video-plays-summary-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsNormalizedReport,
@@ -31,4 +31,5 @@ export const useStatsVideoPlays = createStatsListReportHook<
 			: statsVideoPlaysQuery( params ),
 	reportSlug: 'video-plays',
 	mergeComparisonRows: mergeStatsVideoPlaysComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

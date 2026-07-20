@@ -6,7 +6,7 @@ import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { createStatsListReportHook } from '../use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from '../use-stats-report';
 import type { StatsReportParams } from '../../queries/stats-query';
 import type { UseStatsOptions } from '../use-stats-report';
 import type { ReactNode } from 'react';
@@ -17,26 +17,57 @@ type TestOptions = UseStatsOptions & {
 	group?: string;
 };
 
-function wrapper( { children }: { children: ReactNode } ) {
-	const queryClient = new QueryClient( {
-		defaultOptions: {
-			queries: {
-				retry: false,
-				queryFn: async () => ( { value: 0 } ),
-			},
+// Built once per file: a client rebuilt inside `wrapper` would be discarded on
+// every rerender, so any test that actually fetches would miss its own cache.
+const queryClient = new QueryClient( {
+	defaultOptions: {
+		queries: {
+			retry: false,
+			queryFn: async () => ( { value: 0 } ),
 		},
-	} );
+	},
+} );
 
+function wrapper( { children }: { children: ReactNode } ) {
 	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
 }
 
+const params: StatsReportParams = {
+	from: '2026-07-01',
+	to: '2026-07-07',
+	interval: 'day',
+};
+
+const queryFactory = ( queryParams: StatsReportParams ): UseQueryOptions< TestReport > => ( {
+	queryKey: [ 'test-stats-list', queryParams.from, queryParams.to ],
+	queryFn: async () => ( { value: 1 } ),
+	enabled: false,
+} );
+
 describe( 'createStatsListReportHook', () => {
-	it( 'forwards list options and keeps the comparison mapper stable', () => {
-		const queryFactory = ( params: StatsReportParams ): UseQueryOptions< TestReport > => ( {
-			queryKey: [ 'test-stats-list', params.from, params.to ],
-			queryFn: async () => ( { value: 1 } ),
-			enabled: false,
+	it( 'forwards maxRows through splitStatsListOptions when a module has no merge option', () => {
+		const mergeComparisonRows = jest.fn( () => ( {
+			rows: [],
+			hasComparison: false,
+		} ) );
+		const useTestStatsList = createStatsListReportHook<
+			StatsReportParams,
+			TestReport,
+			unknown,
+			TestOptions
+		>( {
+			queryFactory,
+			reportSlug: 'test-default-list',
+			mergeComparisonRows,
+			getOptions: splitStatsListOptions,
 		} );
+
+		renderHook( () => useTestStatsList( params, { enabled: false, maxRows: 3 } ), { wrapper } );
+
+		expect( mergeComparisonRows ).toHaveBeenLastCalledWith( undefined, undefined, 3, undefined );
+	} );
+
+	it( 'forwards list options and keeps the comparison mapper stable', () => {
 		const mergeComparisonRows = jest.fn( () => ( {
 			rows: [],
 			hasComparison: false,
@@ -57,11 +88,6 @@ describe( 'createStatsListReportHook', () => {
 				return { queryOptions, maxRows, mergeOption: group };
 			},
 		} );
-		const params: StatsReportParams = {
-			from: '2026-07-01',
-			to: '2026-07-07',
-			interval: 'day',
-		};
 		const { rerender } = renderHook(
 			( { maxRows } ) =>
 				useTestStatsList( params, {

@@ -3,7 +3,7 @@
  */
 import { mergeStatsClicksComparisonRows } from '../processing/stats';
 import { statsClicksQuery } from '../queries/stats-clicks-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsClicksComparisonItem,
@@ -25,4 +25,5 @@ export const useStatsClicks = createStatsListReportHook<
 	queryFactory: statsClicksQuery,
 	reportSlug: 'clicks',
 	mergeComparisonRows: mergeStatsClicksComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

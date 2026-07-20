@@ -3,7 +3,7 @@
  */
 import { mergeStatsLocationsComparisonRows } from '../processing/stats';
 import { statsLocationsQuery } from '../queries/stats-locations-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsLocationsComparisonItem,
@@ -25,4 +25,5 @@ export const useStatsLocations = createStatsListReportHook<
 	queryFactory: statsLocationsQuery,
 	reportSlug: 'locations',
 	mergeComparisonRows: mergeStatsLocationsComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

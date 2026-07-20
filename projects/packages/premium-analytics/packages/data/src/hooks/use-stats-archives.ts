@@ -3,7 +3,7 @@
  */
 import { mergeStatsArchivesComparisonRows } from '../processing/stats';
 import { statsArchivesQuery } from '../queries/stats-archives-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsArchivesComparisonItem,
@@ -27,4 +27,5 @@ export const useStatsArchives = createStatsListReportHook<
 	queryFactory: statsArchivesQuery,
 	reportSlug: 'archives',
 	mergeComparisonRows: mergeStatsArchivesComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

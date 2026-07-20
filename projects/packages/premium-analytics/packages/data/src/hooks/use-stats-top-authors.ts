@@ -3,7 +3,7 @@
  */
 import { mergeStatsTopAuthorsComparisonRows } from '../processing/stats';
 import { statsTopAuthorsQuery } from '../queries/stats-top-authors-query';
-import { createStatsListReportHook } from './use-stats-report';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsNormalizedReport,
@@ -25,4 +25,5 @@ export const useStatsTopAuthors = createStatsListReportHook<
 	queryFactory: statsTopAuthorsQuery,
 	reportSlug: 'top-authors',
 	mergeComparisonRows: mergeStatsTopAuthorsComparisonRows,
+	getOptions: splitStatsListOptions,
 } );

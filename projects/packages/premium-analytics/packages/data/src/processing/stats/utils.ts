@@ -262,6 +262,10 @@ export function mergeStatsTreeComparisonRows<
 	};
 
 	const { rows } = mergeLevel( primaryRows, comparisonRows, parentContext );
+
+	// The overlap gate is computed on the visible rows so an off-screen match
+	// cannot switch the comparison UI on (see AGENTS.md). Keep the limit ahead of
+	// the gate below — swapping the two silently changes that behavior.
 	const visibleRows = limitStatsRows( rows, maxRows );
 
 	return {
