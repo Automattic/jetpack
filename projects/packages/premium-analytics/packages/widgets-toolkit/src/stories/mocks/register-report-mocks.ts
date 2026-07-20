@@ -16,6 +16,7 @@
 /**
  * External dependencies
  */
+import { queryClient } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
 /**
@@ -179,6 +180,33 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	} else {
 		mockStateOverrides.set( pathFragment, state );
 	}
+}
+
+/**
+ * Story `beforeEach` that forces the shared `wordads/earnings` request into a
+ * loading, error, or empty state and drops its cached query on both enter and
+ * cleanup. Shared by every WordAds earnings widget story (highlights and the
+ * three history tables) so the cache-reset cannot drift between them.
+ *
+ * The earnings endpoint takes no params, so its query key is static and every
+ * WordAds story shares one cache entry (a distinct date preset can't separate
+ * them). Resetting on both edges gives each forced-state story a fresh fetch and
+ * clears a never-settling `loading` fetch before the next story reuses the key.
+ * Because the override is keyed by path, keep such stories off the shared
+ * autodocs page (`tags: [ '!autodocs' ]`).
+ *
+ * @param state - The forced mock state.
+ * @return A Storybook `beforeEach` implementation returning its cleanup.
+ */
+export function forceWordAdsEarningsState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'wordads/earnings', state );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+		return () => {
+			setReportMockState( 'wordads/earnings', null );
+			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+		};
+	};
 }
 
 const mockResponseOverrides = new Map< string, unknown >();
@@ -1156,13 +1184,14 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 }
 
 /**
- * Builds the wordads/earnings response for the WordAds earnings widget.
+ * Builds the wordads/earnings response for the WordAds earnings widgets.
  *
  * The earnings module reports all-time totals (not period-scoped), so this
  * returns a fixed raw WPCOM payload: `total_earnings` and `total_amount_owed`
  * feed the widget's Earnings / Paid / Outstanding cards (paid = earnings −
- * owed). The per-period breakdowns are included for shape fidelity even though
- * the highlights widget does not read them.
+ * owed). All three per-period breakdowns are populated so the three history
+ * widgets render their primary table state by default. Together the rows cover
+ * every known payment status for visual review.
  *
  * @return Raw wordads/earnings response in the WPCOM shape.
  */
@@ -1172,11 +1201,21 @@ function buildWordAdsEarningsResponse() {
 			total_earnings: 1284.57,
 			total_amount_owed: 342.19,
 			wordads: {
-				'2026-06': { amount: 212.34, pageviews: 84210, status: 1 },
-				'2026-05': { amount: 198.72, pageviews: 79880, status: 2 },
+				'2026-02': { amount: '96.80', pageviews: 71178, status: 1 },
+				'2026-03': { amount: '79.51', pageviews: 64642, status: 1 },
+				'2026-04': { amount: '75.67', pageviews: 62021, status: 1 },
+				'2026-05': { amount: '129.24', pageviews: 84470, status: 1 },
+				'2026-06': { amount: '75.99', pageviews: 59367, status: 0 },
+				'2026-07': { amount: '90.31', pageviews: 65921, status: 0 },
 			},
-			sponsored: {},
-			adjustment: {},
+			sponsored: {
+				'2026-07': { amount: '44.14', pageviews: 14332, status: 3 },
+				'2026-06': { amount: '28.23', pageviews: 8580, status: 4 },
+			},
+			adjustment: {
+				'2026-04': { amount: '2.47', pageviews: 0, status: 2 },
+				'2026-02': { amount: '3.32', pageviews: 0, status: 1 },
+			},
 		},
 	};
 }

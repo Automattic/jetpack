@@ -73,3 +73,10 @@ export {
 	RowsCsvDownloadButton,
 	type RowsCsvDownloadButtonProps,
 } from './download-csv';
+export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
+export {
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
+} from './wordads-earnings-history';

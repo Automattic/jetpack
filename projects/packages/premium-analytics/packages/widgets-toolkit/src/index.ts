@@ -70,6 +70,12 @@ export {
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,
 	type RowsCsvDownloadButtonProps,
+	WidgetDataTable,
+	type WidgetDataTableProps,
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
 } from './components';
 
 /**
