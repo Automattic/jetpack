@@ -72,16 +72,10 @@ describe( 'shouldReloadAfterPlanUpgrade', () => {
 } );
 
 describe( 'plan-upgrade-notification IIFE', () => {
-	const originalLocation = window.location;
 	const originalSessionStorage = window.sessionStorage;
 
 	let reloadMock;
 	let store;
-
-	// jsdom's window.location and window.sessionStorage are read-only, so replace
-	// them wholesale (jest.spyOn / assignment throw). configurable lets us restore.
-	const defineWindowProp = ( prop, value ) =>
-		Object.defineProperty( window, prop, { configurable: true, writable: true, value } );
 
 	// A Map-backed sessionStorage double whose individual methods can be overridden
 	// to simulate storage that throws (blocked site data, private-mode quota).
@@ -95,19 +89,39 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		};
 	};
 
-	const setLocation = search => {
+	/*
+	 * jsdom's window.location is non-configurable and window.location.reload is
+	 * read-only, and a real reload() logs "Not implemented" (which jest-console
+	 * turns into a test failure). Install the mock on whichever of the instance or
+	 * its prototype accepts a redefine, and drive the query string via the history
+	 * API rather than reassigning location.
+	 */
+	const mockReload = () => {
 		reloadMock = jest.fn();
-		defineWindowProp( 'location', {
-			search: search ? `?${ search }` : '',
-			protocol: 'http:',
-			href: 'http://localhost/wp-admin/post.php',
-			reload: reloadMock,
-		} );
+		for ( const target of [ window.location, Object.getPrototypeOf( window.location ) ] ) {
+			try {
+				Object.defineProperty( target, 'reload', {
+					configurable: true,
+					writable: true,
+					value: reloadMock,
+				} );
+				return;
+			} catch {
+				// Try the next target.
+			}
+		}
 	};
+
+	const setSearch = search =>
+		window.history.pushState( {}, '', `/wp-admin/post.php${ search ? `?${ search }` : '' }` );
 
 	const setStorage = storage => {
 		store = storage;
-		defineWindowProp( 'sessionStorage', storage );
+		Object.defineProperty( window, 'sessionStorage', {
+			configurable: true,
+			writable: true,
+			value: storage,
+		} );
 	};
 
 	const resolveWith = slug =>
@@ -133,6 +147,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 		mockIsSimpleSite = false;
 		mockApiFetch.mockReset();
 		mockCreateNotice.mockReset();
+		mockReload();
 		setStorage( makeStorage() );
 		window.Jetpack_Editor_Initial_State = {
 			wpcomBlogId: 1,
@@ -141,13 +156,17 @@ describe( 'plan-upgrade-notification IIFE', () => {
 	} );
 
 	afterEach( () => {
-		defineWindowProp( 'location', originalLocation );
-		defineWindowProp( 'sessionStorage', originalSessionStorage );
+		Object.defineProperty( window, 'sessionStorage', {
+			configurable: true,
+			writable: true,
+			value: originalSessionStorage,
+		} );
+		setSearch( '' );
 	} );
 
 	it( 'clears the guard and does nothing on normal navigation (no plan_upgraded)', async () => {
 		setStorage( makeStorage( { getItem: jest.fn( () => 'jetpack_free' ) } ) );
-		setLocation( '' );
+		setSearch( '' );
 
 		loadModule();
 		await flush();
@@ -158,7 +177,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 	} );
 
 	it( 'reloads once and records the rendered slug when the fresh plan differs', async () => {
-		setLocation( 'plan_upgraded=1' );
+		setSearch( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' ); // fresh differs from rendered jetpack_free
 
 		loadModule();
@@ -172,7 +191,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 
 	it( 'does not reload again once the guard already matches the rendered slug', async () => {
 		setStorage( makeStorage( { getItem: jest.fn( () => 'jetpack_free' ) } ) );
-		setLocation( 'plan_upgraded=1' );
+		setSearch( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' );
 
 		loadModule();
@@ -183,7 +202,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 	} );
 
 	it( 'shows the notice without reloading when the rendered plan already matches', async () => {
-		setLocation( 'plan_upgraded=1' );
+		setSearch( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_free' ); // fresh equals rendered
 
 		loadModule();
@@ -194,7 +213,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 	} );
 
 	it( 'falls through to a generic notice without reloading when the plan fetch fails', async () => {
-		setLocation( 'plan_upgraded=1' );
+		setSearch( 'plan_upgraded=1' );
 		mockApiFetch.mockRejectedValue( new Error( 'network' ) );
 
 		loadModule();
@@ -212,7 +231,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 				} ),
 			} )
 		);
-		setLocation( 'plan_upgraded=1' );
+		setSearch( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' );
 
 		loadModule();
@@ -231,7 +250,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 				} ),
 			} )
 		);
-		setLocation( 'plan_upgraded=1' );
+		setSearch( 'plan_upgraded=1' );
 		resolveWith( 'jetpack_complete' );
 
 		loadModule();
