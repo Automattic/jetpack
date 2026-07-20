@@ -5,6 +5,11 @@ import { __ } from '@wordpress/i18n';
 import { mapMarker } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
+/**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
 export type LocationsAttributes = {
 	max?: number;
 	geoGranularity?: 'country' | 'city';
@@ -31,9 +36,15 @@ export default {
 	title: __( 'Locations', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Visitors’ viewing location by countries, regions and cities.',
+			'The countries, regions, and cities where your visitors came from, sorted by views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: mapMarker,
 	attributes: [
@@ -46,6 +57,7 @@ export default {
 			id: 'geoGranularity',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Countries', 'jetpack-premium-analytics' ),

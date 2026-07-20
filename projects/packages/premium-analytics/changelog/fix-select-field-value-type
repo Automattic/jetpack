@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fields: SelectField preserves the original option value type when writing a selection, avoiding string coercion of numeric-valued enums.

@@ -6,6 +6,11 @@ import { postList } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Configurable attributes for the Most viewed widget. Mirrors the
  * `attributes` declared on the widget definition below; the host passes the
  * selected values through to `render.tsx`. The date range is owned by the
@@ -40,9 +45,15 @@ export default {
 	title: __( 'Most viewed', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Most viewed posts, pages and archive. Learn about what content resonates the most.',
+			'Your most popular posts and pages, sorted by views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: postList,
 	attributes: [
@@ -55,6 +66,7 @@ export default {
 			id: 'contentView',
 			label: __( 'View', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{ label: __( 'Posts & pages', 'jetpack-premium-analytics' ), value: 'posts' },
 				{ label: __( 'Archives', 'jetpack-premium-analytics' ), value: 'archives' },

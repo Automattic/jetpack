@@ -4,19 +4,17 @@
 import { GlobalErrorProvider, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactElement } from 'react';
 /**
  * Internal dependencies
  */
 import VideoPressWidget from '../render';
-import type { ReactElement } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -90,6 +88,17 @@ describe( 'VideoPressWidget', () => {
 		expect( requestedPath ).toContain( 'start_date=2026-03-01' );
 		expect( requestedPath ).toContain( 'date=2026-03-10' );
 		expect( requestedPath ).toContain( 'days=10' );
+	} );
+
+	it( 'links to the Videos report', () => {
+		renderInDashboard(
+			<VideoPressWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+		);
+
+		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/videos' )
+		);
 	} );
 
 	it( 'shows the empty state when the period has no video plays', async () => {

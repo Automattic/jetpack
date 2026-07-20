@@ -7,6 +7,7 @@ import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
@@ -74,7 +75,14 @@ const StageInner = () => {
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
-	const { items, isLoading, paginationInfo, refetch } = useLibrary( view );
+	const {
+		items,
+		isLoading,
+		paginationInfo,
+		isError,
+		error: libraryError,
+		refetch,
+	} = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -456,19 +464,38 @@ const StageInner = () => {
 						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
 						onFilesDrop={ handleFilesDrop }
 					/>
-					<DataViews< LibraryItem >
-						data={ renderedItems }
-						fields={ libraryFields }
-						actions={ actions }
-						view={ view }
-						onChangeView={ onChangeView }
-						selection={ selection }
-						onChangeSelection={ setSelection }
-						getItemId={ getItemId }
-						paginationInfo={ paginationInfo }
-						isLoading={ isLoading }
-						defaultLayouts={ defaultLayouts }
-					/>
+					{ isError && items.length === 0 ? (
+						// A failed listing request would otherwise render as DataViews'
+						// "No results" — indistinguishable from an empty library. Surface
+						// the error explicitly with a Retry that refetches. Only when the
+						// QUERY has nothing valid to show: a failed *background* refresh
+						// keeps its cached rows (grid stays, self-heals on the next
+						// poll), while a failed view change / first load leaves data
+						// undefined (react-query drops keepPreviousData placeholders on
+						// error), so it lands here. Deliberately `items`, not
+						// `renderedItems` — the latter splices in in-flight upload rows,
+						// which must not mask a failed listing.
+						<FetchErrorNotice
+							className="vp-library__error"
+							message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
+							error={ libraryError }
+							onRetry={ () => void refetch() }
+						/>
+					) : (
+						<DataViews< LibraryItem >
+							data={ renderedItems }
+							fields={ libraryFields }
+							actions={ actions }
+							view={ view }
+							onChangeView={ onChangeView }
+							selection={ selection }
+							onChangeSelection={ setSelection }
+							getItemId={ getItemId }
+							paginationInfo={ paginationInfo }
+							isLoading={ isLoading }
+							defaultLayouts={ defaultLayouts }
+						/>
+					) }
 				</div>
 			</UploadActionsProvider>
 			{ captionVideo && (

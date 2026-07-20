@@ -26,9 +26,15 @@ export default {
 	title: __( 'Search Terms', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Learn about popular terms visitors use to find your site content on search engines.',
+			'The most popular search terms visitors used to find your site.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: search,
 	attributes: [

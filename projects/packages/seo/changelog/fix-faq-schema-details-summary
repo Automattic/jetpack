@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the FAQ schema so FAQPage JSON-LD emits from editor-saved Details blocks.

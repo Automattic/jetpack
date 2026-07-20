@@ -51,7 +51,13 @@ export interface LocalBusinessDefaults {
 	address: LocalBusinessAddress;
 }
 
+export interface BreadcrumbListSettings {
+	enabled: boolean;
+}
+
 export interface SchemaSettings {
+	/** Whether Jetpack emits sitewide BreadcrumbList structured data. */
+	breadcrumbList: BreadcrumbListSettings;
 	/** The stored overrides; empty fields fall back to the matching default. */
 	organization: OrganizationSettings;
 	/** LocalBusiness details stored as overrides; address fields can fall back to WooCommerce defaults. */

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: Remove manual WPDS token fallbacks from dashboard styles so build-time PostCSS injects canonical design-token fallbacks.

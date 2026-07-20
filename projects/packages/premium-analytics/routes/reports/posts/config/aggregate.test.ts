@@ -1,4 +1,9 @@
-import { aggregateArchiveRows, aggregatePostRows, postsToTimeSeries } from './aggregate';
+import {
+	aggregateArchiveRows,
+	aggregatePostRows,
+	archivesToTimeSeries,
+	postsToTimeSeries,
+} from './aggregate';
 import type {
 	StatsArchivesItem,
 	StatsNormalizedReport,
@@ -11,9 +16,9 @@ describe( 'report posts aggregate', () => {
 			summary: {},
 			data: [
 				{
-					time_interval: '2026-W23',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-07T23:59:59+00:00',
+					time_interval: '2026-07-09',
+					date_start: '2026-07-09T00:00:00+00:00',
+					date_end: '2026-07-09T23:59:59+00:00',
 					items: [
 						{
 							id: 1,
@@ -32,9 +37,9 @@ describe( 'report posts aggregate', () => {
 					],
 				},
 				{
-					time_interval: '2026-W24',
-					date_start: '2026-06-08T00:00:00+00:00',
-					date_end: '2026-06-14T23:59:59+00:00',
+					time_interval: '2026-07-10',
+					date_start: '2026-07-10T00:00:00+00:00',
+					date_end: '2026-07-10T23:59:59+00:00',
 					items: [
 						{
 							id: 1,
@@ -55,14 +60,19 @@ describe( 'report posts aggregate', () => {
 			],
 		};
 
-		const series = postsToTimeSeries( report );
+		const series = postsToTimeSeries( report, 'week' );
 
 		expect( series.summary ).toEqual( {
-			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-14T23:59:59+00:00',
+			date_start: '2026-07-09T00:00:00+00:00',
+			date_end: '2026-07-10T23:59:59+00:00',
 		} );
-		expect( series.data.map( point => point.time_interval ) ).toEqual( [ '2026-W23', '2026-W24' ] );
-		expect( series.data.map( point => point.views ) ).toEqual( [ 15, 19 ] );
+		expect( series.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-07-06',
+				value: 34,
+				views: 34,
+			} ),
+		] );
 		expect( aggregatePostRows( report ) ).toEqual( [
 			expect.objectContaining( {
 				id: 1,
@@ -76,6 +86,42 @@ describe( 'report posts aggregate', () => {
 				link: null,
 				type: 'homepage',
 			} ),
+		] );
+	} );
+
+	it( 'groups daily archive chart points by month', () => {
+		const report: StatsNormalizedReport< StatsArchivesItem > = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-30',
+					date_start: '2026-06-30T00:00:00+00:00',
+					date_end: '2026-06-30T23:59:59+00:00',
+					items: [ { label: 'home', value: 3, children: null } ],
+				},
+				{
+					time_interval: '2026-07-01',
+					date_start: '2026-07-01T00:00:00+00:00',
+					date_end: '2026-07-01T23:59:59+00:00',
+					items: [ { label: 'home', value: 5, children: null } ],
+				},
+				{
+					time_interval: '2026-07-02',
+					date_start: '2026-07-02T00:00:00+00:00',
+					date_end: '2026-07-02T23:59:59+00:00',
+					items: [ { label: 'home', value: 7, children: null } ],
+				},
+			],
+		};
+
+		expect(
+			archivesToTimeSeries( report, 'month' ).data.map( point => ( {
+				time_interval: point.time_interval,
+				views: point.views,
+			} ) )
+		).toEqual( [
+			{ time_interval: '2026-06-01', views: 3 },
+			{ time_interval: '2026-07-01', views: 12 },
 		] );
 	} );
 

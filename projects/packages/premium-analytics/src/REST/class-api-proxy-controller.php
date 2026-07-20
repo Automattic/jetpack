@@ -97,7 +97,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  fixed `path` takes no sub-path. Omit for the normal `/sites/<id>/<key>/…`.
 	 *  - `pattern`    (string, optional) Regex the sub-path (after `<key>/`) must fully match,
 	 *                  for groups where only specific endpoints are safe to expose (e.g. `posts`
-	 *                  → only `<id>/likes`, never post content). Anchored on both ends and
+	 *                  → only `<id>/likes` and `<id>/replies`, never post content). Anchored on both ends and
 	 *                  enforced in the route regex AND in `validate_data_endpoint()` (the route
 	 *                  capture can be shadowed with `?endpoint=`). Omit to allow the whole group.
 	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
@@ -143,12 +143,12 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		),
 		'posts'                         => array(
 			'capability'      => 'view_stats',
-			// Only a post's likers list — never post content (the blog token could
-			// otherwise read private posts for any view_stats user).
-			'pattern'         => '[0-9]+/likes',
-			// The likes endpoint rejects blog-token auth ("That API call is not
-			// allowed for this account") but serves public posts without
-			// credentials; forward unsigned, mirroring stats-admin's Odyssey proxy.
+			// Only a post's public likers and approved replies — never post content
+			// (the blog token could otherwise read private posts for any view_stats user).
+			'pattern'         => '[0-9]+/(?:likes|replies)',
+			// Both endpoints serve public data without credentials, while likes
+			// rejects blog-token auth; forward the constrained group unsigned,
+			// mirroring stats-admin's Odyssey proxy for likes.
 			'unauthenticated' => true,
 		),
 	);

@@ -17,25 +17,25 @@ export const videoPlaysFixture = {
 	},
 };
 
-export const videoPlaysSummaryFixture = {
-	date: '2026-06-22',
+export const videoPlaysCompleteStatsSummaryFixture = {
+	date: '2026-07-14',
 	period: 'day',
 	days: {
 		summary: {
 			data: [
 				{
-					post_id: 12,
-					title: 'Launch video',
-					views: '11',
-					impressions: '42',
-					watch_time: '128.5',
-					retention_rate: '61.25',
+					post_id: 454,
+					title: 'Product tour',
+					views: '106',
+					impressions: '183',
+					watch_time: '0.0597',
+					retention_rate: '67.6',
 				},
 			],
 			total: {
-				views: '11',
-				impressions: '42',
-				watch_time: '128.5',
+				impressions: '584',
+				views: '337',
+				watch_time: '0.186',
 			},
 		},
 	},

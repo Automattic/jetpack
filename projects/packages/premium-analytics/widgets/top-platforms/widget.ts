@@ -5,6 +5,11 @@ import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
+/**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
 export type TopPlatformsAttributes = {
 	/**
 	 * Maximum rows to display (0 = all). Defaults to 10.
@@ -28,9 +33,15 @@ export default {
 	title: __( 'Top Platforms', 'jetpack-premium-analytics' ),
 	help: {
 		content: __(
-			'Top browsers and operating systems your visitors use.',
+			'A breakdown of the operating systems and browsers your visitors used, sorted by views.',
 			'jetpack-premium-analytics'
 		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
 	},
 	icon: chartBar,
 	attributes: [
@@ -43,6 +54,7 @@ export default {
 			id: 'platformDimension',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Browser', 'jetpack-premium-analytics' ),

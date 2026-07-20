@@ -2412,6 +2412,34 @@ body.bw-modal-open {
 		padding: 0 16px;
 	}
 
+	/*
+	 * The topbar status mirrors the post title ("Untitled" when
+	 * empty), which on a narrow topbar collides with the anon
+	 * "WordPress.com · Write" / "Not signed in" labels + Publish.
+	 * When idle, hide the title mirror and pin the actions right. The
+	 * has-topbar-message class (data-wp-class, driven by
+	 * state.hasMessage) marks when a transient message is showing
+	 * (Saving/Saved, "Please write something").
+	 */
+	.bw-topbar:not(.has-topbar-message) .bw-status {
+		display: none;
+	}
+
+	.bw-topbar-actions {
+		margin-left: auto;
+	}
+
+	/*
+	 * While a message is showing, let it take over the bar: hide the
+	 * brand wordmark and "Not signed in" so the centered message uses
+	 * the full width instead of being squished between them. Both
+	 * reappear once the message clears.
+	 */
+	.bw-topbar.has-topbar-message .bw-anon-brand,
+	.bw-topbar.has-topbar-message .bw-anon-status {
+		display: none;
+	}
+
 	.bw-editor {
 		padding: 0 16px;
 	}

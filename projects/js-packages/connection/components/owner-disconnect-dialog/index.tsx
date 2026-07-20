@@ -5,10 +5,10 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Link } from '@wordpress/ui';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
+import useRestApiInit from '../../hooks/use-rest-api-init';
+import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import './style.scss';
 
@@ -50,10 +50,7 @@ const OwnerDisconnectDialog = ( {
 	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
 
 	// Initialize the REST API
-	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
+	useRestApiInit( apiRoot, apiNonce );
 
 	const handleStayConnected = useCallback( () => {
 		onClose();
@@ -131,57 +128,14 @@ const OwnerDisconnectDialog = ( {
 						action="check-users"
 					/>
 				</div>
-				<div className="jp-connection__disconnect-dialog__actions">
-					<div className="jp-row">
-						<div className="lg-col-span-8 md-col-span-9 sm-col-span-4">
-							<p>
-								{ createInterpolateElement(
-									__(
-										'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>',
-										'jetpack-connection-js'
-									),
-									{
-										strong: <strong></strong>,
-										connectionInfoLink: (
-											<Link
-												openInNewTab
-												href={ getRedirectUrl(
-													'why-the-wordpress-com-connection-is-important-for-jetpack'
-												) }
-												className="jp-connection__disconnect-dialog__link"
-											/>
-										),
-										supportLink: (
-											<Link
-												openInNewTab
-												href={ getRedirectUrl( 'jetpack-support' ) }
-												className="jp-connection__disconnect-dialog__link"
-											/>
-										),
-									}
-								) }
-							</p>
-						</div>
-						<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-4 md-col-span-7 sm-col-span-4">
-							<Button
-								onClick={ handleStayConnected }
-								className="jp-connection__disconnect-dialog__btn-dismiss"
-							>
-								{ __( 'Stay Connected', 'jetpack-connection-js' ) }
-							</Button>
-							<Button
-								onClick={ handleDisconnectAnyway }
-								className="jp-connection__disconnect-dialog__btn-disconnect"
-								disabled={ isDisconnecting }
-							>
-								{ isDisconnecting ? disconnectingText : disconnectText }
-							</Button>
-						</div>
-					</div>
-					{ disconnectError && (
-						<p className="jp-connection__disconnect-dialog__error">{ disconnectError }</p>
-					) }
-				</div>
+				<DisconnectActionFooter
+					stayLabel={ __( 'Stay connected', 'jetpack-connection-js' ) }
+					onStay={ handleStayConnected }
+					disconnectLabel={ isDisconnecting ? disconnectingText : disconnectText }
+					disconnectDisabled={ isDisconnecting }
+					onDisconnect={ handleDisconnectAnyway }
+					error={ disconnectError }
+				/>
 			</Modal>
 		)
 	);

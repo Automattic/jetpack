@@ -46,6 +46,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	className,
 	compact = false,
 	showValues,
+	maxCellWidth,
+	maxCellHeight,
+	minCellWidth,
+	minCellHeight,
 	rowLabels = [],
 	primaryColor,
 	gap = 'md',
@@ -243,12 +247,21 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		);
 	}
 
-	const trackSize = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
+	// Non-compact tracks split the container by default; a max cap makes them
+	// stop growing there instead, so sparse ranges keep sensible cell sizes,
+	// and a min floor makes the grid overflow (for a scrollable wrapper)
+	// rather than crushing cells on long ranges.
+	const columnTrack = compact
+		? 'var(--heatmap-cell-size)'
+		: `minmax(${ minCellWidth ?? 0 }px, ${ maxCellWidth ? `${ maxCellWidth }px` : '1fr' })`;
+	const rowTrack = compact
+		? 'var(--heatmap-cell-size)'
+		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	const gridStyle: Record< string, string | number > = {
 		'--heatmap-primary': primaryColorHex,
 		'--heatmap-bg': theme.backgroundColor,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ trackSize })`,
-		gridTemplateRows: `auto repeat(${ rows }, ${ trackSize })`,
+		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
+		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
 		gridStyle[ '--heatmap-cell-gap' ] = `${ compactCellGap }px`;
@@ -260,6 +273,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			? `${ chartId }-cell-${ Math.floor( selectedIndex / rows ) }-${ selectedIndex % rows }`
 			: undefined;
 
+	// A capped row track makes the chart content-sized vertically: neither the
+	// wrapper nor the grid stretches, or the leftover container height would
+	// land in the auto label row. A width-only cap must keep the normal vertical
+	// flex sizing, so it does not opt into this class.
+	const heightCapped = ! compact && Boolean( maxCellHeight );
+
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
 			<SingleChartContext.Provider value={ { chartId } }>
@@ -269,7 +288,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
-					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
+					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className, {
+						[ styles[ 'heatmap-chart--height-capped' ] ]: heightCapped,
+					} ) }
 					// Explicit dimensions (the unresponsive export) pin the size; otherwise
 					// width/height are unset and the grid fills its container via CSS. The
 					// responsive export drops the measured pixels so reflow stays fluid.
@@ -289,6 +310,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
+							[ styles[ 'heatmap-chart__grid--height-capped' ] ]: heightCapped,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>

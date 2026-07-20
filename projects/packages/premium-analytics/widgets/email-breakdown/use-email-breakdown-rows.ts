@@ -100,6 +100,9 @@ type UseEmailBreakdownRowsArgs = {
 };
 
 type EmailBreakdownRowsState = {
+	/** All normalized rows returned by the active report. */
+	allRows: EmailBreakdownRow[];
+	/** Rows capped by `max` for the leaderboard. */
 	rows: EmailBreakdownRow[];
 	isLoading: boolean;
 	isFetching: boolean;
@@ -154,7 +157,7 @@ export default function useEmailBreakdownRows( {
 	const userContentLinksReport = userContentLinks.data as StatsEmailBreakdown | undefined;
 	const dimensionReport = dimensionQuery.data as StatsEmailBreakdown | undefined;
 
-	const rows = useMemo( () => {
+	const allRows = useMemo( () => {
 		const merged = isLinksView
 			? // Keep internal-type rows (no URL) from `link` and URL rows from
 			  // `user-content-link`, so a row can never be double-counted if an
@@ -166,14 +169,17 @@ export default function useEmailBreakdownRows( {
 			  ].sort( compareEmailBreakdownItems )
 			: toRows( dimensionReport );
 
-		// `max = 0` means "all rows" (the Stats-widget convention), so only slice
-		// when a positive `max` is requested.
-		return merged
-			.slice( 0, max > 0 ? max : undefined )
-			.map( ( row, index ) => ( { ...row, id: index } ) );
-	}, [ isLinksView, internalLinksReport, userContentLinksReport, dimensionReport, max ] );
+		return merged.map( ( row, index ) => ( { ...row, id: index } ) );
+	}, [ isLinksView, internalLinksReport, userContentLinksReport, dimensionReport ] );
+
+	// `max = 0` means "all rows" (the Stats-widget convention), so only slice
+	// when a positive `max` is requested. Keep `allRows` for visualizations such
+	// as the country map, where the complete report should remain visible even
+	// when the adjacent leaderboard is intentionally capped.
+	const rows = useMemo( () => allRows.slice( 0, max > 0 ? max : undefined ), [ allRows, max ] );
 
 	return {
+		allRows,
 		rows,
 		isLoading: activeQueries.some( query => query.isLoading ),
 		isFetching: activeQueries.some( query => query.isFetching ),

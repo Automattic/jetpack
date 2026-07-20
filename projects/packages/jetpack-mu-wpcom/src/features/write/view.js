@@ -3558,6 +3558,12 @@ const { state } = store( 'wpcom-write', {
 		get displayStatus() {
 			return state.message || state.headerLabel;
 		},
+		get hasMessage() {
+			// Drives the has-topbar-message class on the topbar (data-wp-class) so the
+			// mobile layout can hide the idle title mirror and let a transient message
+			// take over the bar. See style.css.
+			return !! ( state.message && state.message.trim() );
+		},
 		get isClassicWarning() {
 			return state.unsupportedWarning === 'classic-editor';
 		},
@@ -5932,6 +5938,17 @@ const { state } = store( 'wpcom-write', {
 
 		async publish() {
 			if ( isAnon() ) {
+				// Nothing to hand off to signup yet — block the empty publish the
+				// same way the authenticated path does in performSave(), so an anon
+				// visitor can't wall themselves into signup with a blank draft.
+				if ( ! hasWritableContent() ) {
+					state.message = i18n.pleaseWriteSomething || 'Please write something';
+					setTimeout( () => {
+						state.message = '';
+					}, 2500 );
+					return;
+				}
+
 				// The publish-intent event — the moment an anon visitor hits the
 				// signup wall. Captured before navigating away so it isn't lost to
 				// the handoff. word_count / draft_size_bytes size the draft; the

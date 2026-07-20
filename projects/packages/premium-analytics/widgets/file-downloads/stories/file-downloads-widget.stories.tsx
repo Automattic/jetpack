@@ -14,6 +14,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import FileDownloadsRender from '../render';
 import widgetDefinition from '../widget';
@@ -101,13 +102,13 @@ type DashboardStory = StoryObj< FileDownloadsDashboardStoryProps >;
 export const Default: Story = {
 	render: renderFileDownloadsWidget,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderFileDownloadsWidget,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -118,7 +119,7 @@ export const Loading: Story = {
 	render: () => renderFileDownloadsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/file-downloads', 'loading' );
 		return () => forceStatsMockState( 'stats/file-downloads', null );
@@ -132,7 +133,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderFileDownloadsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/file-downloads', 'error' );
 		return () => forceStatsMockState( 'stats/file-downloads', null );
@@ -146,7 +147,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderFileDownloadsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/file-downloads', 'empty' );
 		return () => forceStatsMockState( 'stats/file-downloads', null );

@@ -13,7 +13,7 @@ import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
 /**
  * The lifetime totals the widget can show, in display order: the persisted id
  * and label of each metric. Single source for the settings checkboxes and the
- * rendered rows so the two cannot drift apart; `render.tsx` maps the ids to
+ * rendered tiles so the two cannot drift apart; `render.tsx` maps the ids to
  * icons and summary fields.
  */
 export const ALL_TIME_STATS_METRICS = [
@@ -24,8 +24,8 @@ export const ALL_TIME_STATS_METRICS = [
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
- * Identifier persisted in the widget's `metrics` attribute for one total row.
- * Each id doubles as the summary field the row reads.
+ * Identifier persisted in the widget's `metrics` attribute for one total tile.
+ * Each id doubles as the summary field the tile reads.
  */
 export type AllTimeStatsMetricId = ( typeof ALL_TIME_STATS_METRICS )[ number ][ 'id' ];
 
@@ -53,8 +53,8 @@ export const DEFAULT_ALL_TIME_STATS_METRICS: AllTimeStatsMetricId[] = ALL_TIME_S
 /**
  * Widget type definition.
  *
- * Ported from the Jetpack Stats "All-time stats" card: a labelled list of
- * lifetime totals — views, visitors, posts, and comments. `example.attributes`
+ * Ported from the Jetpack Stats "All-time stats" card: a grid of metric tiles
+ * for lifetime totals — views, visitors, posts, and comments. `example.attributes`
  * doubles as the defaults applied to new instances: every metric enabled.
  */
 export default {

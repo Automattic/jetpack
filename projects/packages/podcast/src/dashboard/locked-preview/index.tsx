@@ -23,7 +23,6 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 		siteSlug: getSiteData()?.suffix ?? '',
 		returnUrl,
 		params: { cancel_to: returnUrl },
-		noSiteSlugUrl: 'https://wordpress.com/pricing',
 	} );
 
 	const titleId = useId();

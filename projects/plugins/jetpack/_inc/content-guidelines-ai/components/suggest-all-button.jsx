@@ -12,14 +12,6 @@ export default function SuggestAllButton() {
 
 	const bannerDismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
 
-	// The plans store defaults hasFeature to true until its fetch resolves —
-	// waiting for the real answer avoids the button flashing into the wrong
-	// state (it briefly rendered as functional on no-plan sites).
-	const featureResolved = useSelect(
-		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
-		[]
-	);
-
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
 		return Object.fromEntries( VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] ) );
@@ -36,10 +28,6 @@ export default function SuggestAllButton() {
 	// clicking it opens the upgrade notice (see useGenerateAll).
 	const hidden = ! bannerDismissed && hasFeature;
 	const hiddenProps = hidden ? { style: { display: 'none' }, 'aria-hidden': true } : {};
-
-	if ( ! featureResolved ) {
-		return null;
-	}
 
 	const button = (
 		<Button

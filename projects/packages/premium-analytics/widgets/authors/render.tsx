@@ -9,6 +9,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	formatLegendLabels,
+	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -34,12 +35,6 @@ const DEFAULT_MAX = 7;
 type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
 type AuthorsWidgetProps = WidgetRenderProps< AuthorsRenderAttributes >;
-
-const toPositiveInt = ( value: string | number | undefined, fallback: number ) => {
-	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
-
-	return Number.isFinite( parsed ) && parsed > 0 ? parsed : fallback;
-};
 
 export type AuthorsLeaderboardProps = {
 	/**
@@ -322,7 +317,7 @@ export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+				<AuthorsReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
 			</div>
 		</WidgetRoot>
 	);

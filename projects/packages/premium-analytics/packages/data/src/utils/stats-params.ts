@@ -9,6 +9,7 @@ import {
 /**
  * Internal dependencies
  */
+import { localTZDate } from './date';
 import { getDaysBetweenInclusive } from './interval';
 import type { ReportParams } from './search';
 import type { StatsProxyParams } from '../api/stats-proxy-fetch';
@@ -88,8 +89,15 @@ export function getPeriodsBetweenInclusive(
 		return getDaysBetweenInclusive( from, to );
 	}
 
-	const fromDate = new Date( `${ datePart( from ) }T00:00:00Z` );
-	const toDate = new Date( `${ datePart( to ) }T00:00:00Z` );
+	// Anchor both dates in UTC before diffing: the calendar-diff functions read
+	// their arguments' local getters, and a plain UTC-tagged `Date`'s getters
+	// reflect the machine's local timezone, not UTC. Left unanchored, a
+	// negative-offset machine can read a UTC midnight instant that lands
+	// exactly on a week/month/year boundary as the previous local period,
+	// shifting only one side of the range and skewing the bucket count (e.g.
+	// a 4-week range reading as 5 weeks).
+	const fromDate = localTZDate( `${ datePart( from ) }T00:00:00Z`, '+00:00' );
+	const toDate = localTZDate( `${ datePart( to ) }T00:00:00Z`, '+00:00' );
 
 	const differenceForPeriod = {
 		week: differenceInCalendarISOWeeks,

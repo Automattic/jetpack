@@ -4,8 +4,8 @@
 	box-shadow: none !important;
 
 	.stats-line-chart-tooltip {
-		color: var(--wpds-color-foreground-interactive-brand-strong, #fff);
-		background: var(--wpds-color-background-interactive-neutral-strong-active, #1e1e1e);
+		color: var(--wpds-color-foreground-interactive-brand-strong);
+		background: var(--wpds-color-background-interactive-neutral-strong-active);
 		border-radius: 4px;
 		font-size: var(--font-body-small, 14px);
 		padding: 28px 24px 16px;
@@ -57,7 +57,7 @@
 					// vertical-align: middle;
 					width: 24px;
 					height: 24px;
-					fill: var(--wpds-color-foreground-interactive-brand-strong, #fff);
+					fill: var(--wpds-color-foreground-interactive-brand-strong);
 				}
 
 				// &:last-child {

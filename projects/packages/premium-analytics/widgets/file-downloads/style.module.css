@@ -1,8 +1,8 @@
 .labelLink {
 	display: block;
 
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
 	overflow: hidden;
 	color: inherit;
 	text-decoration: none;
@@ -17,8 +17,8 @@
 
 .labelText {
 	display: block;
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

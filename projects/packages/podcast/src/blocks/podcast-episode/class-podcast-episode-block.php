@@ -249,6 +249,31 @@ class Podcast_Episode_Block {
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
+		// Drop incomplete rows up front so an all-empty list doesn't enqueue the seek script or emit a bare <ul>.
+		$soundbites           = array_values(
+			array_filter(
+				$soundbites,
+				static function ( $soundbite ) {
+					return is_array( $soundbite ) && isset( $soundbite['startTime'] );
+				}
+			)
+		);
+		$alternate_enclosures = array_values(
+			array_filter(
+				$alternate_enclosures,
+				static function ( $alt ) {
+					if ( ! is_array( $alt ) || empty( $alt['url'] ) ) {
+						return false;
+					}
+					if ( ! wp_http_validate_url( esc_url_raw( (string) $alt['url'] ) ) ) {
+						return false;
+					}
+					// `type` is required per spec — mirror the feed, which skips typeless entries.
+					return '' !== ( isset( $alt['type'] ) ? trim( (string) $alt['type'] ) : '' );
+				}
+			)
+		);
+
 		// Only ship the click-to-seek script when there are soundbites to wire.
 		if ( ! empty( $soundbites ) ) {
 			self::enqueue_view_script();
@@ -421,9 +446,10 @@ class Podcast_Episode_Block {
 								}
 								$start_label     = self::format_seconds_label( $soundbite['startTime'] );
 								$soundbite_title = isset( $soundbite['title'] ) ? trim( (string) $soundbite['title'] ) : '';
-								$start_seconds   = (int) floor( max( 0, (float) $soundbite['startTime'] ) );
-								$end_seconds     = isset( $soundbite['duration'] )
-									? $start_seconds + (int) floor( max( 0, (float) $soundbite['duration'] ) )
+								// Keep fractional offsets so the seek button and Clip metadata match the feed.
+								$start_seconds = max( 0, (float) $soundbite['startTime'] );
+								$end_seconds   = isset( $soundbite['duration'] )
+									? $start_seconds + max( 0, (float) $soundbite['duration'] )
 									: null;
 								?>
 								<li

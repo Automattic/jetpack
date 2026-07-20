@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Upgrade nudge: replace `.wp-block` CSS class with `.jetpack-nudge-canvas` to avoid Gutenberg iframe compatibility warnings in the block editor.
