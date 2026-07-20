@@ -10,8 +10,10 @@ import ConnectionStatusCard from '../connection-status-card';
  * @return ConnectionsSection React component.
  */
 export default function ConnectionsSection() {
-	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins, offlineMode } =
+		useMyJetpackConnection();
 	const { adminUrl } = getMyJetpackWindowInitialState();
+	const offlineLandingPageUrl = `${ adminUrl }admin.php?page=jetpack#/dashboard`;
 
 	// Handle full site disconnection - redirect to admin
 	const onFullyDisconnected = () => {
@@ -28,8 +30,8 @@ export default function ConnectionsSection() {
 	};
 
 	const onConnectUser = useCallback( () => {
-		window.location.href = getUserConnectionUrl();
-	}, [] );
+		window.location.href = offlineMode?.isActive ? offlineLandingPageUrl : getUserConnectionUrl();
+	}, [ offlineMode, offlineLandingPageUrl ] );
 	return (
 		<ConnectionStatusCard
 			apiRoot={ apiRoot }

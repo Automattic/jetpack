@@ -11,6 +11,7 @@ import {
 	useConnection,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
+import OfflineModeScreen from '@automattic/jetpack-connection/offline-mode-screen';
 import {
 	getMyJetpackUrl,
 	isJetpackSelfHostedSite,
@@ -39,7 +40,7 @@ export const SocialAdminPage = () => {
 
 	const isJetpackSite = isJetpackSelfHostedSite();
 
-	const { isUserConnected, isRegistered } = useConnection();
+	const { isUserConnected, isRegistered, offlineMode } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const showConnectionCard = ! isSimple && ( ! isRegistered || ! isUserConnected );
 
@@ -61,6 +62,15 @@ export const SocialAdminPage = () => {
 	const { social } = getSocialScriptData().plugin_info;
 
 	const canManageOptions = currentUserCan( 'manage_options' );
+
+	if ( showConnectionCard && offlineMode?.isActive ) {
+		return (
+			<OfflineModeScreen
+				productName="Social"
+				subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
+			/>
+		);
+	}
 
 	if ( showConnectionCard ) {
 		return (

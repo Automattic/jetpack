@@ -71,6 +71,44 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
+
+	/*
+	 * The real Stats admin page lives in `modules/stats.php`, whose file is never
+	 * loaded in Offline Mode (it requires a connection). Bootstrap the actual
+	 * Odyssey Stats dashboard (the same one connected sites see) directly here
+	 * instead -- `Stats_Dashboard::init()` has no dependency on the module file
+	 * itself, only on the `stats`/`stats-admin` packages, which autoload
+	 * regardless of module state. The underlying data calls are mocked with
+	 * sample data in Offline Mode (see WPCOM_Stats::fetch_remote_stats()), so
+	 * the real dashboard UI renders instead of erroring out with no connection.
+	 */
+	if ( ( new Automattic\Jetpack\Status() )->is_offline_mode() ) {
+		Automattic\Jetpack\Stats_Admin\Dashboard::init();
+	}
+
+	/*
+	 * The "Subscribers" menu item is normally registered by modules/subscriptions.php's
+	 * add_subscribers_menu(), which -- for the default modernized path -- calls
+	 * Subscribers_Announcement::add_menu() with no connection requirement of its own.
+	 * But that module file (Requires Connection: Yes) is never loaded at all in Offline
+	 * Mode, so the menu item silently disappears rather than being intentionally hidden.
+	 * The announcement page itself is a static, connection-independent "subscriber
+	 * management moved to Newsletter" notice, so it's safe to bootstrap directly here,
+	 * scoped to Offline Mode only so the module's own registration is never duplicated
+	 * once a real connection exists.
+	 */
+	if ( ( new Automattic\Jetpack\Status() )->is_offline_mode() && ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::init();
+		// init() hooks maybe_load_wp_build() to `admin_menu` at priority 1, which
+		// require()s the announcement app's build.php and defines the JS render
+		// function add_menu() checks for via function_exists(). add_menu() must
+		// run after that -- calling it directly here (immediately, at plugin
+		// bootstrap, long before `admin_menu` fires at all) would always find
+		// the function undefined and permanently lock in the plain-text
+		// render_fallback(), even though the real app would have been ready by
+		// the time the page actually rendered.
+		add_action( 'admin_menu', array( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement', 'add_menu' ), 5 );
+	}
 }
 
 // Play nice with https://wp-cli.org/.

@@ -112,6 +112,7 @@ const getDynamicTitle = metric => {
  * @param {number}   props.headingLevel         - Heading level between 1 and 6.
  * @param {Array}    props.chartData            - Chart data for the bar chart visualization.
  * @param {boolean}  props.isLoading            - Whether the data is loading.
+ * @param {boolean}  props.isOfflineMode        - Whether the site is in local development mode (data is mocked).
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
  *
  * @return {object} StatsCards React component.
@@ -122,6 +123,7 @@ const StatsCards = ( {
 	headingLevel,
 	chartData,
 	isLoading,
+	isOfflineMode,
 	onDetailedStatsClick,
 } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
@@ -186,6 +188,17 @@ const StatsCards = ( {
 			>
 				<Heading className={ styles[ 'section-title' ] }>
 					<span>{ getDynamicTitle( selectedMetric ) }</span>
+					{ isOfflineMode && (
+						<span
+							className={ styles[ 'section-description' ] }
+							title={ __(
+								'This site is in local development mode, so these numbers are mock data.',
+								'jetpack-my-jetpack'
+							) }
+						>
+							{ __( 'Sample data', 'jetpack-my-jetpack' ) }
+						</span>
+					) }
 				</Heading>
 				<div>
 					<Icon icon={ chevronRight } />

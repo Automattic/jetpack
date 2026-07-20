@@ -10,6 +10,7 @@ import { AdminPage } from '@automattic/jetpack-components';
 import {
 	ConnectionError,
 	useConnectionErrorNotice,
+	LocalDevModeBadge,
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
 import { useQuery } from '@tanstack/react-query';
@@ -514,23 +515,29 @@ export default function ActivityLog() {
 	// disabled upgrade affordance (no popover, hover tooltip), keeping
 	// the page surface visually consistent with the paid version.
 	const headerActions = (
-		<DateRangePicker
-			start={ dateRange.start }
-			end={ dateRange.end }
-			onChange={ onChangeDateRange }
-			timezoneString={ timezoneString }
-			gmtOffset={ gmtOffset }
-			locale={ locale }
-			disabled={ ! hasActivityLogsAccess }
-			disabledTooltipText={ __( 'Upgrade your plan to use this feature.', 'jetpack-activity-log' ) }
-		/>
+		<>
+			<LocalDevModeBadge />
+			<DateRangePicker
+				start={ dateRange.start }
+				end={ dateRange.end }
+				onChange={ onChangeDateRange }
+				timezoneString={ timezoneString }
+				gmtOffset={ gmtOffset }
+				locale={ locale }
+				disabled={ ! hasActivityLogsAccess }
+				disabledTooltipText={ __(
+					'Upgrade your plan to use this feature.',
+					'jetpack-activity-log'
+				) }
+			/>
+		</>
 	);
 
 	return (
 		<AdminPage
 			title={ __( 'Activity Log', 'jetpack-activity-log' ) }
 			subTitle={ __(
-				'Every change made to your site, in one searchable timeline.',
+				'Every change made to your site by every user, in one searchable timeline. See what changed and who did it.',
 				'jetpack-activity-log'
 			) }
 			actions={ headerActions }

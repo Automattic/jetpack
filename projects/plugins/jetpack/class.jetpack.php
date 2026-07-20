@@ -446,7 +446,7 @@ class Jetpack {
 	 * Must never be called statically
 	 */
 	public function plugin_upgrade() {
-		if ( self::is_connection_ready() ) {
+		if ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION !== $version ) {
 				// Prevent multiple upgrades at once - only a single process should trigger an upgrade to avoid stampedes.
@@ -948,6 +948,24 @@ class Jetpack {
 		}
 
 		$modules = new Automattic\Jetpack\Modules();
+
+		/*
+		 * Registered unconditionally -- unlike the full package `ensure()` below,
+		 * which only loads once Publicize is already active and connected -- so
+		 * the module's own on/off toggle can activate it from an offline/local
+		 * development site in the first place. The Social dashboard already ships
+		 * a full offline-safe experience (sample traffic data, connection
+		 * management) with no real network calls, so the module's "Requires
+		 * Connection: Yes" header shouldn't leave that toggle permanently stuck
+		 * for a site that may never connect. See Modules::activate().
+		 */
+		add_filter(
+			'jetpack_offline_mode_module_activation_blocked',
+			array( '\Automattic\Jetpack\Publicize\Publicize_Setup', 'allow_offline_mode_activation' ),
+			10,
+			2
+		);
+
 		if ( $modules->is_active( 'publicize' ) && $this->connection_manager->has_connected_user() ) {
 			$config->ensure( 'publicize' );
 		}
@@ -3086,7 +3104,7 @@ p {
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
-		if ( self::is_connection_ready() ) {
+		if ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) {
 			self::handle_default_module_activation( true );
 		}
 

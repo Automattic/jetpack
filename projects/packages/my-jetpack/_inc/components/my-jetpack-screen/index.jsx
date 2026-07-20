@@ -31,6 +31,7 @@ import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
+import LocalDevModeNotice from '../local-dev-mode-notice';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
@@ -199,6 +200,7 @@ export default function MyJetpackScreen() {
 				beforeContent={
 					<>
 						<GlobalNotices />
+						<LocalDevModeNotice />
 						{ ! isNewUser && (
 							<Container horizontalSpacing={ 0 }>
 								<Col>

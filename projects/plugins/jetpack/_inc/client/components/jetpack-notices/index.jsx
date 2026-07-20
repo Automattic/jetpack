@@ -101,9 +101,9 @@ export class OfflineModeNotice extends Component {
 			}
 
 			const text = createInterpolateElement(
-				/* translators: reasons is an unordered list of reasons why a site may be in Offline mode. */
+				/* translators: reasons is an unordered list of reasons why a site may be in local development mode. */
 				__(
-					'Currently in <a>Offline Mode</a> (some features are disabled) because: <reasons/>',
+					'Currently in <a>local development mode</a> (some features are disabled) because: <reasons/>',
 					'jetpack'
 				),
 				{
@@ -205,10 +205,12 @@ class JetpackNotices extends Component {
 					isDevVersion={ this.props.isDevVersion }
 					userIsSubscriber={ this.props.userIsSubscriber }
 				/>
-				<OfflineModeNotice
-					siteConnectionStatus={ this.props.siteConnectionStatus }
-					siteOfflineMode={ this.props.siteOfflineMode }
-				/>
+				{ ! this.props.hideOfflineModeNotice && (
+					<OfflineModeNotice
+						siteConnectionStatus={ this.props.siteConnectionStatus }
+						siteOfflineMode={ this.props.siteOfflineMode }
+					/>
+				) }
 				<PlanConflictWarning location={ this.props.location } />
 				<DismissableNotices />
 				{ ! this.props.isReconnectingSite &&

@@ -27,6 +27,7 @@ const ConnectButton = props => {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		offlineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -36,11 +37,18 @@ const ConnectButton = props => {
 		from,
 	} );
 
+	const onClick = offlineMode?.isActive
+		? () => {
+				window.location.hash = '#/dashboard';
+		  }
+		: handleRegisterSite;
+
 	return (
 		<>
 			{ ( ! isRegistered || ! isUserConnected ) && (
 				<>
-					<Button onClick={ handleRegisterSite } loading={ siteIsRegistering || userIsConnecting }>
+					{ /* eslint-disable-next-line react/jsx-no-bind */ }
+					<Button onClick={ onClick } loading={ siteIsRegistering || userIsConnecting }>
 						{ connectLabel }
 					</Button>
 					{ registrationError && (

@@ -1,3 +1,6 @@
+import LocalDevModeBadge from '@automattic/jetpack-connection/local-dev-mode-badge';
+import useConnection from '@automattic/jetpack-connection/use-connection';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
@@ -8,7 +11,9 @@ import MostViewedCard from '../../src/dashboard/components/overview/most-viewed-
 import StorageMeterCard from '../../src/dashboard/components/overview/storage-meter-card';
 import TopByWatchTimeCard from '../../src/dashboard/components/overview/top-by-watch-time-card';
 import ViewsTrendsCard from '../../src/dashboard/components/overview/views-trends-card';
-import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import QueryClientWrapper, {
+	getVideopressQueryClient,
+} from '../../src/dashboard/components/query-client-wrapper';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useStats } from '../../src/dashboard/hooks/use-stats';
 import './style.scss';
@@ -23,7 +28,7 @@ const KPI_TAB_IDS: Record< ActiveMetric, string > = {
 	watch_time: 'vp-overview-kpi-tab-watch-time',
 };
 
-const StageInner = () => {
+const StageInner = ( { isOfflineMode = false }: { isOfflineMode?: boolean } ) => {
 	const {
 		stats,
 		isLoading,
@@ -52,7 +57,12 @@ const StageInner = () => {
 	return (
 		<DashboardLayout
 			activeTab="overview"
-			actions={ <DateRangeSelector value={ dateRange } onChange={ setDateRange } /> }
+			actions={
+				<>
+					{ isOfflineMode && <LocalDevModeBadge /> }
+					<DateRangeSelector value={ dateRange } onChange={ setDateRange } />
+				</>
+			}
 		>
 			<div className="vp-overview">
 				{ isFree && <FreeTierNotice /> }
@@ -102,10 +112,30 @@ const StageInner = () => {
 	);
 };
 
-const Stage = () => (
-	<QueryClientWrapper>
-		<StageInner />
-	</QueryClientWrapper>
-);
+const Stage = () => {
+	const { offlineMode } = useConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
+
+	// Local development mode sites are never "connected" (the handshake needs
+	// WordPress.com to reach back to this site), so `ConnectionGate` -- which
+	// `QueryClientWrapper` wraps every route in, including this one -- would
+	// otherwise block the page. Its underlying data is mocked server-side
+	// (see REST_Controller::get_stats_video_plays()), so the real dashboard is
+	// safe to render directly here, bypassing the gate rather than the whole
+	// page. Reuses the same shared QueryClient singleton as the gated path.
+	if ( isOfflineMode ) {
+		return (
+			<QueryClientProvider client={ getVideopressQueryClient() }>
+				<StageInner isOfflineMode />
+			</QueryClientProvider>
+		);
+	}
+
+	return (
+		<QueryClientWrapper>
+			<StageInner />
+		</QueryClientWrapper>
+	);
+};
 
 export { Stage as stage };

@@ -50,7 +50,8 @@ export class Masthead extends Component {
 	render() {
 		const { sandboxDomain, siteConnectionStatus } = this.props;
 
-		const offlineNotice = siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
+		const offlineNotice =
+				siteConnectionStatus === 'offline' ? <code>Local development mode</code> : '',
 			sandboxedBadge = sandboxDomain ? (
 				<code
 					id="sandbox-domain-badge"

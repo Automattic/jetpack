@@ -1,4 +1,7 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import LocalDevModeBadge from '@automattic/jetpack-connection/local-dev-mode-badge';
+import useConnection from '@automattic/jetpack-connection/use-connection';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { DropZone, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
@@ -11,7 +14,9 @@ import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice'
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
-import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import QueryClientWrapper, {
+	getVideopressQueryClient,
+} from '../../src/dashboard/components/query-client-wrapper';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
@@ -25,6 +30,11 @@ import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
+
+const SITE_MUST_BE_PUBLIC_MESSAGE = __(
+	'Uploads need a live connection. This site is in local development mode, so we can’t reach it. Make it publicly available to upload videos.',
+	'jetpack-videopress-pkg'
+);
 
 const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 	public: __( 'Public', 'jetpack-videopress-pkg' ),
@@ -61,7 +71,7 @@ const defaultLayouts: SupportedLayouts = {
 	table: { layout: { density: 'balanced' } },
 };
 
-const StageInner = () => {
+const StageInner = ( { isOfflineMode = false }: { isOfflineMode?: boolean } ) => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
@@ -88,7 +98,7 @@ const StageInner = () => {
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
-	const runUpgrade = useVideoPressUpgrade();
+	const { run: runUpgrade, offlineNoticeModal } = useVideoPressUpgrade();
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -109,11 +119,11 @@ const StageInner = () => {
 
 	const filePickerRef = useRef< HTMLInputElement >( null );
 	const onClickHeaderUpload = useCallback( () => {
-		if ( isAtLimit ) {
+		if ( isAtLimit || isOfflineMode ) {
 			return;
 		}
 		filePickerRef.current?.click();
-	}, [ isAtLimit ] );
+	}, [ isAtLimit, isOfflineMode ] );
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
 			const file = event.target.files?.[ 0 ];
@@ -141,6 +151,10 @@ const StageInner = () => {
 	// front so a drop can't sneak past the limit the picker button guards.
 	const handleFilesDrop = useCallback(
 		( files: File[] ) => {
+			if ( isOfflineMode ) {
+				createErrorNotice( SITE_MUST_BE_PUBLIC_MESSAGE );
+				return;
+			}
 			const decision = planVideoDrop( files, {
 				isFree,
 				isUnlimited,
@@ -183,11 +197,24 @@ const StageInner = () => {
 				);
 			}
 		},
-		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
+		[
+			isFree,
+			isUnlimited,
+			limit,
+			videoCount,
+			startUpload,
+			createErrorNotice,
+			runUpgrade,
+			isOfflineMode,
+		]
 	);
 
 	const promoteLocal = useCallback(
 		( id: string ) => {
+			if ( isOfflineMode ) {
+				createErrorNotice( SITE_MUST_BE_PUBLIC_MESSAGE );
+				return;
+			}
 			setPromotingIds( prev => {
 				const next = new Set( prev );
 				next.add( id );
@@ -221,7 +248,7 @@ const StageInner = () => {
 				},
 			} );
 		},
-		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
+		[ uploadFromLibrary, createSuccessNotice, createErrorNotice, isOfflineMode ]
 	);
 
 	const actions = useMemo(
@@ -423,12 +450,23 @@ const StageInner = () => {
 		void refetch();
 	}, [ refetch ] );
 
+	let uploadButtonTooltip = __( 'Upload a new video', 'jetpack-videopress-pkg' );
+	if ( isOfflineMode ) {
+		uploadButtonTooltip = SITE_MUST_BE_PUBLIC_MESSAGE;
+	} else if ( isAtLimit ) {
+		uploadButtonTooltip = __(
+			'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
+			'jetpack-videopress-pkg'
+		);
+	}
+
 	return (
 		<DashboardLayout
 			activeTab="library"
 			hideFooter
 			actions={
 				<>
+					{ isOfflineMode && <LocalDevModeBadge /> }
 					<input
 						ref={ filePickerRef }
 						type="file"
@@ -436,21 +474,12 @@ const StageInner = () => {
 						style={ { display: 'none' } }
 						onChange={ onFilePicked }
 					/>
-					<Tooltip
-						text={
-							isAtLimit
-								? __(
-										'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
-										'jetpack-videopress-pkg'
-								  )
-								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-						}
-					>
+					<Tooltip text={ uploadButtonTooltip }>
 						<Button
 							className="vp-library__upload-button"
 							size="compact"
 							onClick={ onClickHeaderUpload }
-							aria-disabled={ isAtLimit }
+							aria-disabled={ isAtLimit || isOfflineMode }
 						>
 							{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
 						</Button>
@@ -510,14 +539,34 @@ const StageInner = () => {
 					onTracksChange={ onCaptionTracksChange }
 				/>
 			) }
+			{ offlineNoticeModal }
 		</DashboardLayout>
 	);
 };
 
-const Stage = () => (
-	<QueryClientWrapper>
-		<StageInner />
-	</QueryClientWrapper>
-);
+const Stage = () => {
+	const { offlineMode } = useConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
+
+	// Local development mode sites are never "connected", so `ConnectionGate`
+	// (which `QueryClientWrapper` wraps every route in) would otherwise block
+	// this page entirely. The listing itself is real, local WordPress media
+	// library data (`useLibrary` reads `/wp/v2/media`, not a WPCOM proxy), so
+	// it's safe to render directly -- only the upload actions are disabled,
+	// with an explanatory tooltip, since those genuinely need a reachable site.
+	if ( isOfflineMode ) {
+		return (
+			<QueryClientProvider client={ getVideopressQueryClient() }>
+				<StageInner isOfflineMode />
+			</QueryClientProvider>
+		);
+	}
+
+	return (
+		<QueryClientWrapper>
+			<StageInner />
+		</QueryClientWrapper>
+	);
+};
 
 export { Stage as stage };

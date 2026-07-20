@@ -100,8 +100,12 @@ class Social_Admin_Page {
 			return;
 		}
 
-		// We don't need Jetpack connection on WP.com.
-		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
+		// We don't need Jetpack connection on WP.com. Offline mode sites can't
+		// connect at all, but the dashboard has its own connection-required
+		// fallback, so still show the menu rather than hiding it there too.
+		$needs_site_connection = ! ( new Host() )->is_wpcom_platform()
+			&& ! ( new Connection_Manager() )->is_connected()
+			&& ! ( new \Automattic\Jetpack\Status() )->is_offline_mode();
 
 		/**
 		 * If the Jetpack Social plugin is not active,

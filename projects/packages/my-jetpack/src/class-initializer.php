@@ -190,11 +190,14 @@ class Initializer {
 			exit( 0 );
 		}
 
-		// Handle onboarding redirects based on connection status
+		// Handle onboarding redirects based on connection status.
+		// Offline mode sites can never complete a connection, so don't force them
+		// into the onboarding/connect flow -- let them land on the dashboard instead.
+		$is_offline_mode = ( new Status() )->is_offline_mode();
 		$should_redirect = false;
 		$redirect_args   = array( 'page' => 'my-jetpack' );
 
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
+		if ( ! $connection->is_connected() && ! $is_offline_mode && $step !== 'onboarding' ) {
 			// Redirect to onboarding if not connected
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
@@ -328,7 +331,12 @@ class Initializer {
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
 				'siteUrl'                => esc_url( get_site_url() ),
-				'blogID'                 => Connection_Manager::get_site_id( true ),
+				// A never-connected site has no real blog ID, but the My Jetpack Stats
+				// card queries the same `jetpack/v4/stats-app/sites/{id}/stats/visits`
+				// route Odyssey Stats registers with a placeholder ID in local
+				// development mode (see stats-admin's REST_Controller::get_blog_id()) --
+				// this must match that same placeholder or the card's request 404s.
+				'blogID'                 => Connection_Manager::get_site_id( true ) ?? ( ( new Status() )->is_offline_mode() ? 999999999 : null ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
@@ -603,11 +611,6 @@ class Initializer {
 	 */
 	public static function should_initialize() {
 		$should = true;
-
-		// All options presented in My Jetpack require a connection to WordPress.com.
-		if ( ( new Status() )->is_offline_mode() ) {
-			$should = false;
-		}
 
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.

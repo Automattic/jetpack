@@ -63,6 +63,17 @@ export interface RegistrationError {
 	[ key: string ]: unknown;
 }
 
+export interface OfflineModeDetails {
+	isActive: boolean;
+	constant: boolean;
+	url: boolean;
+	filter: boolean;
+	wpLocalConstant: boolean;
+	option: boolean;
+	localEnvironment?: string | null;
+	hasInternet?: boolean;
+}
+
 export interface UseConnectionReturn {
 	handleRegisterSite: ( e?: Event | SyntheticEvent ) => Promise< unknown >;
 	handleConnectUser: () => Promise< unknown >;
@@ -78,4 +89,5 @@ export interface UseConnectionReturn {
 	connectionErrors: Array< string | object >;
 	connectionHealthErrors: ConnectionErrorMap;
 	isOfflineMode: boolean;
+	offlineMode: OfflineModeDetails;
 }

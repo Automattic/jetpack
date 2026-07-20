@@ -81,8 +81,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			$script_version = $asset_manifest['version'];
 		}
 
-		$blog_id     = Connection_Manager::get_site_id( true );
-		$site_suffix = ( new Status() )->get_site_suffix();
+		$blog_id      = Connection_Manager::get_site_id( true );
+		$offline_mode = ( new Status() )->is_offline_mode();
+		$site_suffix  = ( new Status() )->get_site_suffix();
 		// Use the plain hostname for the Atomic activity log URL — get_site_suffix() can
 		// include '::' for subdirectory installs, which would break the URL. This matches
 		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
@@ -108,6 +109,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
 					'blogId'         => $blog_id ? (int) $blog_id : 0,
+					'isOfflineMode'  => $offline_mode,
 					'activityLogUrl' => $activity_log_url,
 					'siteAdminUrl'   => admin_url(),
 					'apiRoot'        => esc_url_raw( rest_url() ),

@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -40,14 +41,20 @@ class Odyssey_Config_Data {
 		global $wp_version;
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
-		$host    = new Host();
+		// See REST_Controller::get_blog_id() for why this placeholder exists: a
+		// never-connected site has no real blog ID, and the frontend must agree
+		// with the backend's registered route pattern or every Stats REST call 404s.
+		if ( empty( $blog_id ) && ( new Status() )->is_offline_mode() ) {
+			$blog_id = 999999999;
+		}
+		$host = new Host();
 
 		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
 
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
 			'api_root'                       => esc_url_raw( rest_url() ),
-			'blog_id'                        => Jetpack_Options::get_option( 'id' ),
+			'blog_id'                        => $blog_id,
 			'enable_all_sections'            => false,
 			'env_id'                         => 'production',
 			'google_analytics_key'           => 'UA-10673494-15',

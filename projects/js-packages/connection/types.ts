@@ -15,6 +15,16 @@ export type ConnectionScriptData = {
 			url: boolean;
 			filter: boolean;
 			wpLocalConstant: boolean;
+			option: boolean;
+			/**
+			 * Local development tool detected on the server, e.g. 'studio', 'ddev', 'lando'.
+			 * Only present when offline mode is active.
+			 */
+			localEnvironment?: string | null;
+			/**
+			 * Whether the server could reach the internet. Only present when offline mode is active.
+			 */
+			hasInternet?: boolean;
 		};
 		isPublic: boolean;
 	};

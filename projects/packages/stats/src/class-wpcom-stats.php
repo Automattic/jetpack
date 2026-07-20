@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Error;
@@ -574,6 +575,13 @@ class WPCOM_Stats {
 	 * @return array|WP_Error
 	 */
 	protected function fetch_remote_stats( $endpoint, $args ) {
+		// Offline Mode sites can never complete a connection, so there's no blog
+		// token to sign this request with. Rather than show an empty/broken
+		// dashboard, return realistic sample data matching the real API's shape.
+		if ( ( new Status() )->is_offline_mode() ) {
+			return Offline_Mock_Data::get( $this->resource, is_array( $args ) ? $args : array() );
+		}
+
 		if ( is_array( $args ) && ! empty( $args ) ) {
 			$endpoint .= '?' . http_build_query( $args );
 		}

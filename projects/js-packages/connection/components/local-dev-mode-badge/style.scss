@@ -1,0 +1,22 @@
+.jp-connection__local-dev-mode-badge {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	height: 20px;
+	padding: 0 6px;
+	border-radius: 4px;
+	background: var(--jp-green-50, #069e08);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+	text-decoration: none;
+	text-transform: uppercase;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus {
+		background: var(--jp-green-60, #057f07);
+		color: #fff;
+	}
+}

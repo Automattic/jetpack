@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use WP_Error;
 
@@ -50,6 +51,12 @@ class Plan {
 	 * Refresh plan info stored in options
 	 */
 	public function get_plan_info_from_wpcom() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			$response = self::get_offline_mock_plan_response();
+			$this->update_search_plan_info( $response );
+			return $response;
+		}
+
 		$blog_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
@@ -63,6 +70,49 @@ class Plan {
 		$this->update_search_plan_info( $response );
 
 		return $response;
+	}
+
+	/**
+	 * Sample plan data shown in local development mode, so the real Search
+	 * dashboard renders as a free-plan site instead of erroring out with no
+	 * connection. Shaped like a `wp_remote_get()` response so it round-trips
+	 * through `update_search_plan_info()` / the REST controller's
+	 * `make_proper_response()` the same way a real WPCOM response would.
+	 *
+	 * @return array
+	 */
+	private static function get_offline_mock_plan_response() {
+		return array(
+			'body'     => wp_json_encode(
+				array(
+					'supports_instant_search'       => true,
+					'supports_only_classic_search'  => false,
+					'supports_search'               => true,
+					'tier_maximum_records'          => 5000,
+					'plan_usage'                    => array(
+						'must_upgrade'                    => false,
+						'should_upgrade'                  => false,
+						'num_records'                     => 116,
+						'upgrade_reason'                  => array(
+							'records'  => false,
+							'requests' => false,
+						),
+						'months_over_plan_records_limit'  => 0,
+						'months_over_plan_requests_limit' => 0,
+						'num_requests_3m'                 => array( array( 'num_requests' => 340 ) ),
+					),
+					'effective_subscription'        => array( 'product_slug' => self::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+					'plan_current'                  => array(
+						'record_limit'                 => 5000,
+						'monthly_search_request_limit' => 10000,
+					),
+					'default_upgrade_bill_period'   => null,
+					'swap_classic_to_inline_search' => false,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'response' => array( 'code' => 200 ),
+		);
 	}
 
 	/**

@@ -14,6 +14,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status as Jetpack_Status;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -121,6 +122,10 @@ class Rest_Controller {
 	 * @return mixed Decoded JSON response from WPCOM, or WP_Error on failure.
 	 */
 	public static function get_stats_video_plays( WP_REST_Request $request ) {
+		if ( ( new Jetpack_Status() )->is_offline_mode() ) {
+			return rest_ensure_response( self::get_offline_mock_video_plays( $request ) );
+		}
+
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error(
@@ -171,5 +176,84 @@ class Rest_Controller {
 		}
 
 		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Sample video-plays data shown in local development mode, so the real
+	 * VideoPress Overview dashboard renders with representative numbers
+	 * instead of erroring out with no connection. Shape matches the real
+	 * complete-stats WPCOM response documented on get_stats_video_plays().
+	 *
+	 * `useStats()` on the frontend fires this query twice -- once for the
+	 * current date range, once for the prior period it compares against --
+	 * so this generates one entry per requested day rather than a single
+	 * fixed day, covering whatever range each call asks for.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 * @return array
+	 */
+	private static function get_offline_mock_video_plays( WP_REST_Request $request ) {
+		$sample_videos = array(
+			array(
+				'post_id' => 1,
+				'title'   => __( 'Product walkthrough', 'jetpack-videopress-pkg' ),
+				'weight'  => 0.42,
+			),
+			array(
+				'post_id' => 2,
+				'title'   => __( 'Behind the scenes', 'jetpack-videopress-pkg' ),
+				'weight'  => 0.33,
+			),
+			array(
+				'post_id' => 3,
+				'title'   => __( 'Customer story: Ana', 'jetpack-videopress-pkg' ),
+				'weight'  => 0.25,
+			),
+		);
+
+		$date       = $request->get_param( 'date' );
+		$start_date = $request->get_param( 'start_date' );
+		$num        = (int) $request->get_param( 'num' );
+		$end        = $date ? strtotime( $date ) : time();
+		$start      = $start_date ? strtotime( $start_date ) : strtotime( '-13 days', $end );
+		if ( ! $num ) {
+			$num = max( 1, (int) round( ( $end - $start ) / DAY_IN_SECONDS ) + 1 );
+		}
+
+		$days = array();
+		for ( $i = 0; $i < $num; $i++ ) {
+			$day_timestamp = $start + ( $i * DAY_IN_SECONDS );
+			if ( $day_timestamp > $end ) {
+				break;
+			}
+			$day_key   = gmdate( 'Y-m-d', $day_timestamp );
+			$day_total = 90 + ( $i % 7 ) * 12;
+			$per_video = array();
+			foreach ( $sample_videos as $video ) {
+				$views       = (int) round( $day_total * $video['weight'] );
+				$per_video[] = array(
+					'post_id'        => $video['post_id'],
+					'title'          => $video['title'],
+					'views'          => $views,
+					'impressions'    => $views * 4,
+					'watch_time'     => round( $views * 0.062, 1 ),
+					'retention_rate' => 0.6,
+				);
+			}
+			$days[ $day_key ] = array(
+				'total' => array(
+					'views'       => $day_total,
+					'impressions' => $day_total * 4,
+					'watch_time'  => round( $day_total * 0.062, 1 ),
+				),
+				'data'  => $per_video,
+			);
+		}
+
+		return array(
+			'date'   => gmdate( 'Y-m-d', $end ),
+			'period' => $request->get_param( 'period' ) ? $request->get_param( 'period' ) : 'day',
+			'days'   => $days,
+		);
 	}
 }

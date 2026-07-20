@@ -1,6 +1,7 @@
 import { LineChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
 import { Spinner, SelectControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -39,34 +40,41 @@ const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
  */
 export default function TrafficChartCard(): JSX.Element {
 	const needsUpgrade = ! siteHasFeature( features.ENHANCED_PUBLISHING );
+	const { offlineMode } = useConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
+	// Offline sites can never fetch real traffic data either, so they get the
+	// same locked/demo-data treatment as a free plan -- just with different
+	// overlay copy pointing at the Offline Mode explanation instead of a
+	// pricing upsell.
+	const isLocked = needsUpgrade || isOfflineMode;
 	const { setTrafficInterval } = useDispatch( socialStore );
 
 	// Only read real referrer data when we'd actually show it. Reading
 	// the resolver-backed selector triggers the fetch, so skipping it
-	// on the free path keeps us off the stats-app endpoint entirely.
+	// on the locked path keeps us off the stats-app endpoint entirely.
 	const { interval, days, isLoading, hasError, connections } = useSelect(
 		select => {
 			const store = select( socialStore );
 			const current = store.getTrafficInterval();
 			return {
 				interval: current,
-				days: needsUpgrade ? undefined : store.getTrafficReferrers( current ),
-				isLoading: needsUpgrade ? false : store.isTrafficReferrersLoading( current ),
-				hasError: needsUpgrade ? false : store.getTrafficReferrersError( current ),
+				days: isLocked ? undefined : store.getTrafficReferrers( current ),
+				isLoading: isLocked ? false : store.isTrafficReferrersLoading( current ),
+				hasError: isLocked ? false : store.getTrafficReferrersError( current ),
 				connections: ( store.getConnections() ?? [] ) as Connection[],
 			};
 		},
-		[ needsUpgrade ]
+		[ isLocked ]
 	);
 
 	const mockDays = useMemo(
-		() => ( needsUpgrade ? buildMockReferrers( interval ) : undefined ),
-		[ needsUpgrade, interval ]
+		() => ( isLocked ? buildMockReferrers( interval ) : undefined ),
+		[ isLocked, interval ]
 	);
 
 	const series = useMemo(
-		() => buildSeries( needsUpgrade ? mockDays : days, connections ),
-		[ needsUpgrade, mockDays, days, connections ]
+		() => buildSeries( isLocked ? mockDays : days, connections ),
+		[ isLocked, mockDays, days, connections ]
 	);
 
 	// Every series spans the full (non-empty) date range, so a non-empty
@@ -78,6 +86,10 @@ export default function TrafficChartCard(): JSX.Element {
 		__( 'Visits from social media networks over the last %d days.', 'jetpack-publicize-pkg' ),
 		interval
 	);
+
+	const onGoToOfflineDashboard = useCallback( () => {
+		window.location.href = 'admin.php?page=jetpack#/dashboard';
+	}, [] );
 
 	const onUpgrade = useCallback( () => {
 		const data = getScriptData();
@@ -98,10 +110,10 @@ export default function TrafficChartCard(): JSX.Element {
 	// for a freshly selected interval); a fetched-but-empty window comes back
 	// as `{}`. Treating the unresolved case as loading avoids a one-tick flash
 	// of the empty state before the resolver flips the loading flag on.
-	const isUnresolved = ! needsUpgrade && days === undefined && ! hasError;
-	const showSpinner = ! needsUpgrade && ! hasData && ( isLoading || isUnresolved );
-	const showError = ! needsUpgrade && ! isLoading && hasError && ! hasData;
-	const showEmpty = ! needsUpgrade && ! isLoading && ! hasError && ! hasData && days !== undefined;
+	const isUnresolved = ! isLocked && days === undefined && ! hasError;
+	const showSpinner = ! isLocked && ! hasData && ( isLoading || isUnresolved );
+	const showError = ! isLocked && ! isLoading && hasError && ! hasData;
+	const showEmpty = ! isLocked && ! isLoading && ! hasError && ! hasData && days !== undefined;
 
 	return (
 		<Card.Root>
@@ -111,7 +123,7 @@ export default function TrafficChartCard(): JSX.Element {
 					<Text variant="body-sm">{ subtitle }</Text>
 				</Stack>
 				<div className="jetpack-social-overview__chart-range">
-					{ needsUpgrade ? (
+					{ isLocked ? (
 						<Tooltip.Root>
 							{ /*
 							 * `disabled` on the native <select> swallows pointer
@@ -131,7 +143,9 @@ export default function TrafficChartCard(): JSX.Element {
 								/>
 							</Tooltip.Trigger>
 							<Tooltip.Popup>
-								{ __( 'Available with a paid plan', 'jetpack-publicize-pkg' ) }
+								{ isOfflineMode
+									? __( 'Available once connected to WordPress.com', 'jetpack-publicize-pkg' )
+									: __( 'Available with a paid plan', 'jetpack-publicize-pkg' ) }
 							</Tooltip.Popup>
 						</Tooltip.Root>
 					) : (
@@ -188,11 +202,11 @@ export default function TrafficChartCard(): JSX.Element {
 					<div className="jetpack-social-overview__chart-wrapper">
 						<div
 							className={
-								needsUpgrade
+								isLocked
 									? 'jetpack-social-overview__chart-canvas jetpack-social-overview__chart-canvas--locked'
 									: 'jetpack-social-overview__chart-canvas'
 							}
-							aria-hidden={ needsUpgrade ? 'true' : undefined }
+							aria-hidden={ isLocked ? 'true' : undefined }
 						>
 							<LineChart
 								data={ series }
@@ -201,23 +215,44 @@ export default function TrafficChartCard(): JSX.Element {
 								withGradientFill={ false }
 							/>
 						</div>
-						{ needsUpgrade && (
+						{ isLocked && (
 							<div className="jetpack-social-overview__chart-overlay">
 								<Notice.Root intent="info" className="jetpack-social-overview__upgrade-notice">
-									<Notice.Title>
-										{ __( 'Unlock traffic insights', 'jetpack-publicize-pkg' ) }
-									</Notice.Title>
-									<Notice.Description>
-										{ __(
-											'Upgrade to see which social networks are driving visits to your site, day by day.',
-											'jetpack-publicize-pkg'
-										) }
-									</Notice.Description>
-									<Notice.Actions>
-										<Button variant="solid" size="compact" onClick={ onUpgrade }>
-											{ __( 'Upgrade now', 'jetpack-publicize-pkg' ) }
-										</Button>
-									</Notice.Actions>
+									{ isOfflineMode ? (
+										<>
+											<Notice.Title>
+												{ __( 'Sample traffic data', 'jetpack-publicize-pkg' ) }
+											</Notice.Title>
+											<Notice.Description>
+												{ __(
+													"This site is in local development mode, so the chart above uses sample data. This traffic data comes from WordPress.com, but we can't reach this site right now.",
+													'jetpack-publicize-pkg'
+												) }
+											</Notice.Description>
+											<Notice.Actions>
+												<Button variant="solid" size="compact" onClick={ onGoToOfflineDashboard }>
+													{ __( 'Go to the local development dashboard', 'jetpack-publicize-pkg' ) }
+												</Button>
+											</Notice.Actions>
+										</>
+									) : (
+										<>
+											<Notice.Title>
+												{ __( 'Unlock traffic insights', 'jetpack-publicize-pkg' ) }
+											</Notice.Title>
+											<Notice.Description>
+												{ __(
+													'Upgrade to see which social networks are driving visits to your site, day by day.',
+													'jetpack-publicize-pkg'
+												) }
+											</Notice.Description>
+											<Notice.Actions>
+												<Button variant="solid" size="compact" onClick={ onUpgrade }>
+													{ __( 'Upgrade now', 'jetpack-publicize-pkg' ) }
+												</Button>
+											</Notice.Actions>
+										</>
+									) }
 								</Notice.Root>
 							</div>
 						) }

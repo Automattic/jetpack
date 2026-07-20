@@ -6,6 +6,7 @@ import analytics from '@automattic/jetpack-analytics';
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
 import { useCallback } from '@wordpress/element';
 import { VIDEOPRESS_ADMIN_PAGE } from '../utils/constants';
+import type { ReactNode } from 'react';
 
 // Tracks event recorded when the upgrade CTA is clicked. Carried over verbatim
 // from the legacy dashboard's `UpgradeTrigger` so both dashboards report
@@ -37,23 +38,25 @@ function getInitialState() {
  * returned callback only records the event; its `blog_id` is supplied
  * automatically by `window.jpTracksContext`.
  *
- * @return A callback that records the upgrade-click event and starts checkout.
+ * @return A callback that records the upgrade-click event and starts checkout, and the "purchases need your live site" modal element to render (null outside local development mode) when that callback can't proceed with a real checkout.
  */
-export function useVideoPressUpgrade(): () => void {
+export function useVideoPressUpgrade(): { run: () => void; offlineNoticeModal: ReactNode } {
 	const state = getInitialState();
 
-	const { run } = useProductCheckoutWorkflow( {
+	const { run, offlineNoticeModal } = useProductCheckoutWorkflow( {
 		productSlug: state?.product?.slug ?? '',
 		redirectUrl: VIDEOPRESS_ADMIN_PAGE,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );
 
-	return useCallback( () => {
+	const onUpgradeClick = useCallback( () => {
 		// Record the click, then defer the checkout redirect by a microtask so
 		// the Tracks pixel is dispatched before navigation can cancel it.
 		// Mirrors the legacy dashboard's `recordEvent( … ).then( run )`.
 		analytics.tracks.recordEvent( UPGRADE_CLICK_EVENT );
 		void Promise.resolve().then( () => run() );
 	}, [ run ] );
+
+	return { run: onUpgradeClick, offlineNoticeModal };
 }

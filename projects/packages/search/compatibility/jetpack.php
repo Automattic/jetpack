@@ -21,8 +21,9 @@ function should_show_jetpack_search_submenu() {
 		return false;
 	}
 
-	// If site is in Offline Mode or not connected yet.
-	if ( ! Jetpack::is_active_and_not_offline_mode() ) {
+	// Offline mode sites can't connect, but the dashboard has its own
+	// connection-page fallback, so still show the menu rather than hiding it.
+	if ( ! Jetpack::is_connection_ready() && ! ( new \Automattic\Jetpack\Status() )->is_offline_mode() ) {
 		return false;
 	}
 

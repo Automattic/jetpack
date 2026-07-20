@@ -35,6 +35,25 @@ class Initializer {
 
 			if ( Status::is_active() ) {
 				self::active_initialization();
+			} elseif ( self::should_initialize_admin_ui() && ( new \Automattic\Jetpack\Status() )->is_offline_mode() ) {
+				/*
+				 * Offline mode sites can never activate the (connection-required)
+				 * videopress module, but the admin menu should still show with its
+				 * own connection-required fallback rather than being hidden entirely.
+				 * Everything else in active_initialization() -- JWT token bridge,
+				 * attachment/REST upload handling, oembed providers -- genuinely
+				 * needs a live connection, so it stays gated on Status::is_active().
+				 *
+				 * Rest_Controller is the one exception: its `/stats/video-plays`
+				 * route returns mock data in Offline Mode (see
+				 * REST_Controller::get_stats_video_plays()), so the real Overview
+				 * dashboard can render with sample stats instead of a connection
+				 * wall. Registered directly here rather than via the full
+				 * active_initialization() loop, so the other (still
+				 * connection-required) endpoints in that loop stay gated.
+				 */
+				Admin_UI::init();
+				add_action( 'rest_api_init', array( Rest_Controller::class, 'init' ), 0 );
 			}
 		}
 

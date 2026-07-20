@@ -17,15 +17,24 @@ export default function useConnection() {
 		...select( CONNECTION_STORE_ID ).getConnectionStatus(),
 	} ) );
 	const isWpcom = useSelect( select => select( SEARCH_STORE_ID ).isWpcom(), [] );
+	const isOfflineMode = Boolean( connectionStatus?.offlineMode?.isActive );
 
+	// Local development mode sites can never complete a real connection (the
+	// handshake needs WordPress.com to reach back to this site), but the REST
+	// data underneath the dashboard is mocked in that case (see
+	// Plan::get_plan_info_from_wpcom() / Stats::get_stats_from_wpcom()), so the
+	// real dashboard is safe to render rather than showing a bare connect wall.
 	const isFullyConnected =
 		( Object.keys( connectionStatus ).length &&
 			connectionStatus.hasConnectedOwner &&
 			connectionStatus.isRegistered ) ||
-		isWpcom;
+		isWpcom ||
+		isOfflineMode;
 
 	const isSiteConnected =
-		( Object.keys( connectionStatus ).length && connectionStatus.isRegistered ) || isWpcom;
+		( Object.keys( connectionStatus ).length && connectionStatus.isRegistered ) ||
+		isWpcom ||
+		isOfflineMode;
 
-	return { connectionStatus, isFullyConnected, isSiteConnected };
+	return { connectionStatus, isFullyConnected, isSiteConnected, isOfflineMode };
 }

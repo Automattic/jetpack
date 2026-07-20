@@ -423,7 +423,21 @@ class Modules {
 
 				// If we're not connected but in offline mode, make sure the module doesn't require a connection.
 				if ( $status->is_offline_mode() && $module_data['requires_connection'] ) {
-					return false;
+					/**
+					 * Filters whether a module that normally requires a connection stays blocked
+					 * from activation while the site is in offline/local development mode. Lets a
+					 * module that ships its own offline-safe experience (mocked data, no network
+					 * calls) opt itself out of the blanket connection requirement, instead of being
+					 * permanently un-toggleable on a site that may never connect.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param bool   $blocked Whether activation should still be blocked. Default true.
+					 * @param string $module  The module slug.
+					 */
+					if ( apply_filters( 'jetpack_offline_mode_module_activation_blocked', true, $module ) ) {
+						return false;
+					}
 				}
 			}
 

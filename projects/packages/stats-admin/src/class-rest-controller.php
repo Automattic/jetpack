@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -58,6 +59,28 @@ class REST_Controller {
 	}
 
 	/**
+	 * The site's WPCOM blog ID, used to build every route in this class.
+	 *
+	 * A never-connected site has no blog ID -- it's only ever assigned during the
+	 * WPCOM connection handshake, which Offline Mode sites can never complete. The
+	 * Odyssey frontend independently reads the same `Jetpack_Options::get_option( 'id' )`
+	 * value to build its request URLs, so if the routes below registered with an
+	 * empty ID, the frontend and backend would disagree (`/sites/null/...` requested
+	 * vs. `/sites/0/...` registered) and every Stats REST call would 404. Filling in
+	 * a stable placeholder in Offline Mode keeps both sides consistent; the
+	 * individual route handlers return sample data rather than proxying it onward.
+	 *
+	 * @return int
+	 */
+	protected static function get_blog_id() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( empty( $blog_id ) && ( new Status() )->is_offline_mode() ) {
+			return 999999999;
+		}
+		return $blog_id;
+	}
+
+	/**
 	 * Registers the REST routes for Odyssey Stats.
 	 *
 	 * Odyssey Stats is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
@@ -70,7 +93,7 @@ class REST_Controller {
 		// Stats for single resource type.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_resource_stats' ),
@@ -81,7 +104,7 @@ class REST_Controller {
 		// Stats for a resource type.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_stats_resource' ),
@@ -92,7 +115,7 @@ class REST_Controller {
 		// Single post info.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/posts/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/posts/(?P<resource_id>[\d]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_post' ),
@@ -103,7 +126,7 @@ class REST_Controller {
 		// Single post likes.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/posts/(?P<resource_id>[\d]+)/likes', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/posts/(?P<resource_id>[\d]+)/likes', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_post_likes' ),
@@ -114,7 +137,7 @@ class REST_Controller {
 		// General stats for the site.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_stats' ),
@@ -125,7 +148,7 @@ class REST_Controller {
 		// Whether site has never published post / page.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/site-has-never-published-post', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/site-has-never-published-post', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'site_has_never_published_post' ),
@@ -136,7 +159,7 @@ class REST_Controller {
 		// List posts.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/posts', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/posts', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_posts' ),
@@ -147,7 +170,7 @@ class REST_Controller {
 		// Subscribers counts.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/subscribers/counts', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/subscribers/counts', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_subscribers_counts' ),
@@ -158,7 +181,7 @@ class REST_Controller {
 		// Stats Plan Usage.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats/usage', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats/usage', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_plan_usage' ),
@@ -169,7 +192,7 @@ class REST_Controller {
 		// User feedback endpoint.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats/user-feedback', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats/user-feedback', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'post_user_feedback' ),
@@ -180,7 +203,7 @@ class REST_Controller {
 		// WordAds Earnings.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/earnings', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/wordads/earnings', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_wordads_earnings' ),
@@ -191,7 +214,7 @@ class REST_Controller {
 		// WordAds Stats.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/stats', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/wordads/stats', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_wordads_stats' ),
@@ -232,7 +255,7 @@ class REST_Controller {
 		// Update Stats notices.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_notice_status' ),
@@ -261,7 +284,7 @@ class REST_Controller {
 		// Get Stats notices.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_notice_status' ),
@@ -272,7 +295,7 @@ class REST_Controller {
 		// Get referrer spam list.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/referrers/spam', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/referrers/spam', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_referrer_spam_list' ),
@@ -283,7 +306,7 @@ class REST_Controller {
 		// Mark referrer spam.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/referrers/spam/new', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/referrers/spam/new', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'mark_referrer_spam' ),
@@ -301,7 +324,7 @@ class REST_Controller {
 		// Unmark referrer spam.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/referrers/spam/delete', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/referrers/spam/delete', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'unmark_referrer_spam' ),
@@ -319,7 +342,7 @@ class REST_Controller {
 		// Update dashboard modules.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_dashboard_modules' ),
@@ -330,7 +353,7 @@ class REST_Controller {
 		// Get dashboard modules.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dashboard_modules' ),
@@ -341,7 +364,7 @@ class REST_Controller {
 		// Update dashboard module settings.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats-dashboard/module-settings', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats-dashboard/module-settings', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_dashboard_module_settings' ),
@@ -352,7 +375,7 @@ class REST_Controller {
 		// Get dashboard module settings.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/jetpack-stats-dashboard/module-settings', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/jetpack-stats-dashboard/module-settings', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dashboard_module_settings' ),
@@ -363,7 +386,7 @@ class REST_Controller {
 		// Get email stats as a list.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/emails/(?P<resource>[\-\w\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/emails/(?P<resource>[\-\w\d]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_email_stats_list' ),
@@ -374,7 +397,7 @@ class REST_Controller {
 		// Get Email opens stats for a single post.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/opens/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/opens/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_email_opens_stats_single' ),
@@ -385,7 +408,7 @@ class REST_Controller {
 		// Get Email clicks stats for a single post.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/clicks/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/clicks/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_email_clicks_stats_single' ),
@@ -396,7 +419,7 @@ class REST_Controller {
 		// Get Email stats time series.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/emails/(?P<post_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/emails/(?P<post_id>[\d]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_email_stats_time_series' ),
@@ -408,7 +431,7 @@ class REST_Controller {
 		register_rest_route(
 			static::$namespace,
 			// /stats/utm/utm_campaign,utm_source,utm_medium
-			sprintf( '/sites/%d/stats/utm/(?P<utm_params>[_,\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/utm/(?P<utm_params>[_,\-\w]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_utm_stats_time_series' ),
@@ -420,7 +443,7 @@ class REST_Controller {
 		register_rest_route(
 			static::$namespace,
 			// /stats/devices/screensize
-			sprintf( '/sites/%d/stats/devices/(?P<device_property>[\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/devices/(?P<device_property>[\w]+)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_devices_stats_time_series' ),
@@ -431,7 +454,7 @@ class REST_Controller {
 		// Rerun commercial classificiation.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/commercial-classification', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/commercial-classification', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'run_commercial_classification' ),
@@ -442,7 +465,7 @@ class REST_Controller {
 		// Purchases endpoint.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/purchases', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_purchases' ),
@@ -453,7 +476,7 @@ class REST_Controller {
 		// Get Location stats.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/stats/location-views/(?P<geo_mode>country|region|city)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/location-views/(?P<geo_mode>country|region|city)', self::get_blog_id() ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_location_stats' ),
@@ -553,7 +576,7 @@ class REST_Controller {
 				return WPCOM_Client::request_as_blog_cached(
 					sprintf(
 						'/sites/%d/stats/subscribers?%s',
-						Jetpack_Options::get_option( 'id' ),
+						self::get_blog_id(),
 						$this->filter_and_build_query_string(
 							$req->get_query_params()
 						)
@@ -577,7 +600,7 @@ class REST_Controller {
 			sprintf(
 				'%s/rest/v1.2/sites/%d/posts/%d/likes?%s',
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$req->get_param( 'resource_id' ),
 				$this->filter_and_build_query_string(
 					$req->get_params(),
@@ -647,7 +670,7 @@ class REST_Controller {
 		// 'like_count' is not included in the response because it's available through another endpoint `/sites/$site_id/posts/$post_id/likes`.
 		return array(
 			'ID'             => $post->ID,
-			'site_ID'        => Jetpack_Options::get_option( 'id' ),
+			'site_ID'        => self::get_blog_id(),
 			'title'          => $post->post_title,
 			'URL'            => get_permalink( $post->ID ),
 			'type'           => $post->post_type,
@@ -681,7 +704,7 @@ class REST_Controller {
 			sprintf(
 				'%s/rest/v1.1/sites/%d/posts?%s',
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$req->get_param( 'resource_id' ),
 				$this->filter_and_build_query_string( $params, array( 'resource_id' ) )
 			),
@@ -714,10 +737,18 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_subscribers_counts( $req ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return array(
+				'value'               => 4,
+				'value_paid'          => 0,
+				'is_owner_subscribed' => false,
+			);
+		}
+
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/subscribers/counts?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -737,10 +768,39 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_plan_usage( $req ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return array(
+				'current_usage'          => array(
+					'current_start' => gmdate( 'Y-m-01' ),
+					'next_start'    => gmdate( 'Y-m-01', strtotime( '+1 month' ) ),
+					'views_count'   => 151,
+					'days_to_reset' => (int) gmdate( 't' ) - (int) gmdate( 'j' ),
+				),
+				'recent_usages'          => array(),
+				'views_limit'            => 10000,
+				'over_limit_months'      => 0,
+				'current_tier'           => array(
+					'maximum_price'                 => 0,
+					'maximum_price_display'         => '$0',
+					'maximum_price_monthly_display' => '$0',
+					'maximum_units'                 => 10000,
+					'minimum_price'                 => 0,
+					'minimum_price_display'         => '$0',
+					'minimum_price_monthly_display' => '$0',
+					'minimum_units'                 => 0,
+				),
+				'is_internal'            => false,
+				'billable_monthly_views' => 151,
+				'should_show_paywall'    => false,
+				'paywall_date_from'      => null,
+				'upgrade_deadline_date'  => null,
+			);
+		}
+
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/jetpack-stats/usage?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -769,7 +829,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/jetpack-stats/user-feedback?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -800,10 +860,17 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function site_has_never_published_post( $req ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			// The dashboard shows an empty/onboarding state when this is true; the
+			// sample data below assumes a site with published content, so this must
+			// stay false regardless of whether the Offline Mode site has real posts.
+			return false;
+		}
+
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/site-has-never-published-post?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
@@ -825,7 +892,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/wordads/earnings?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
@@ -845,7 +912,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/wordads/stats?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
@@ -867,7 +934,7 @@ class REST_Controller {
 				return WPCOM_Client::request_as_blog_cached(
 					sprintf(
 						'/sites/%d/stats/emails/%s?%s',
-						Jetpack_Options::get_option( 'id' ),
+						self::get_blog_id(),
 						$req->get_param( 'resource' ),
 						$this->filter_and_build_query_string(
 							$req->get_params()
@@ -896,7 +963,7 @@ class REST_Controller {
 				return WPCOM_Client::request_as_blog_cached(
 					sprintf(
 						'/sites/%d/stats/opens/emails/%d/%s?%s',
-						Jetpack_Options::get_option( 'id' ),
+						self::get_blog_id(),
 						$req->get_param( 'post_id' ),
 						$req->get_param( 'resource' ),
 						$this->filter_and_build_query_string(
@@ -928,7 +995,7 @@ class REST_Controller {
 				return WPCOM_Client::request_as_blog_cached(
 					sprintf(
 						'/sites/%d/stats/clicks/emails/%d/%s?%s',
-						Jetpack_Options::get_option( 'id' ),
+						self::get_blog_id(),
 						$req->get_param( 'post_id' ),
 						$req->get_param( 'resource' ),
 						$this->filter_and_build_query_string(
@@ -956,7 +1023,7 @@ class REST_Controller {
 				return WPCOM_Client::request_as_blog_cached(
 					sprintf(
 						'/sites/%d/stats/%s/emails/%d?%s',
-						Jetpack_Options::get_option( 'id' ),
+						self::get_blog_id(),
 						$req->get_param( 'resource' ),
 						$req->get_param( 'post_id' ),
 						$this->filter_and_build_query_string(
@@ -981,7 +1048,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/stats/utm/%s?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$req->get_param( 'utm_params' ),
 				$this->filter_and_build_query_string(
 					$req->get_params()
@@ -1002,7 +1069,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/stats/devices/%s?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$req->get_param( 'device_property' ),
 				$this->filter_and_build_query_string(
 					$req->get_params()
@@ -1055,7 +1122,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/stats/referrers/spam',
-				Jetpack_Options::get_option( 'id' )
+				self::get_blog_id()
 			),
 			'v1.1',
 			array(
@@ -1075,7 +1142,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/stats/referrers/spam/new?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -1098,7 +1165,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/stats/referrers/spam/delete?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -1123,7 +1190,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/modules?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -1146,10 +1213,14 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_dashboard_modules( $req ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return array();
+		}
+
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/modules?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -1177,7 +1248,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/module-settings?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -1200,10 +1271,14 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_dashboard_module_settings( $req ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return array();
+		}
+
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/module-settings?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -1229,7 +1304,7 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/commercial-classification?%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
@@ -1252,10 +1327,14 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_purchases( $req ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return array();
+		}
+
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/upgrades?site=%d&%s',
-				Jetpack_Options::get_option( 'id' ),
+				self::get_blog_id(),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)

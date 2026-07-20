@@ -8,6 +8,7 @@ import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -56,7 +57,10 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		status,
 		requiresUserConnection,
 	} = detail;
-	const { siteIsRegistering, isRegistered, isUserConnected } = useMyJetpackConnection();
+	const { siteIsRegistering, isRegistered, isUserConnected, offlineMode } =
+		useMyJetpackConnection();
+	const { adminUrl } = getMyJetpackWindowInitialState();
+	const offlineLandingPageUrl = `${ adminUrl }admin.php?page=jetpack#/dashboard`;
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
 	const chevronRef = useRef( null );
@@ -230,7 +234,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
-					href: getUserConnectionUrl(),
+					href: offlineMode?.isActive ? offlineLandingPageUrl : getUserConnectionUrl(),
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: fixUserConnectionHandler,
@@ -339,6 +343,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		learnMoreHandler,
 		manageHandler,
 		labelledBy,
+		offlineMode,
+		offlineLandingPageUrl,
 	] );
 
 	const allActions = useMemo(

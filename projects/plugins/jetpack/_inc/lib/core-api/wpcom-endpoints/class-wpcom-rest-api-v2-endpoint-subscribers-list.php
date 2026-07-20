@@ -11,6 +11,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -317,6 +318,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_subscribers( $request ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return rest_ensure_response( $this->get_offline_mock_subscribers( $request ) );
+		}
+
 		$blog_id = Connection_Manager::get_site_id();
 
 		if ( is_wp_error( $blog_id ) ) {
@@ -687,6 +692,12 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_memberships_products() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			// No paid newsletter tiers configured -- a reasonable, honest
+			// answer for a site that was never connected to set any up.
+			return rest_ensure_response( array() );
+		}
+
 		$blog_id = Connection_Manager::get_site_id();
 
 		if ( is_wp_error( $blog_id ) ) {
@@ -867,6 +878,106 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Sample subscribers shown in local development mode, so the real
+	 * Subscribers DataViews table renders with representative rows instead of
+	 * erroring out with no connection. Shape matches the real
+	 * `/sites/{id}/subscribers` (use_new_helper=true) response.
+	 *
+	 * @param WP_REST_Request $request Request (used for pagination/search so the
+	 *                                 table's own controls feel functional).
+	 * @return array
+	 */
+	private function get_offline_mock_subscribers( $request ) {
+		$now = time();
+		$all = array(
+			array(
+				'user_id'               => 1001,
+				'display_name'          => 'Ana Rivera',
+				'email_address'         => 'ana.rivera@example.com',
+				'subscription_status'   => 'Subscribed',
+				'wpcom_subscription_id' => 5001,
+				'wpcom_date_subscribed' => gmdate( 'Y-m-d\TH:i:s', $now - 40 * DAY_IN_SECONDS ),
+				'email_subscription_id' => 9001,
+				'email_date_subscribed' => gmdate( 'Y-m-d\TH:i:s', $now - 40 * DAY_IN_SECONDS ),
+				'plans'                 => array(
+					array(
+						'is_comp'        => false,
+						'status'         => 'active',
+						'title'          => 'Supporter',
+						'currency'       => 'USD',
+						'renewal_period' => '1 month',
+						'renewal_price'  => 5,
+						'start_date'     => gmdate( 'Y-m-d\TH:i:s', $now - 40 * DAY_IN_SECONDS ),
+					),
+				),
+			),
+			array(
+				'user_id'               => 1002,
+				'display_name'          => 'Sam Okafor',
+				'email_address'         => 'sam.okafor@example.com',
+				'subscription_status'   => 'Subscribed',
+				'email_subscription_id' => 9002,
+				'email_date_subscribed' => gmdate( 'Y-m-d\TH:i:s', $now - 21 * DAY_IN_SECONDS ),
+				'plans'                 => array(),
+			),
+			array(
+				'user_id'               => 0,
+				'display_name'          => 'jordan.k@example.com',
+				'email_address'         => 'jordan.k@example.com',
+				'subscription_status'   => 'Not confirmed',
+				'email_subscription_id' => 9003,
+				'email_date_subscribed' => gmdate( 'Y-m-d\TH:i:s', $now - 3 * DAY_IN_SECONDS ),
+				'plans'                 => array(),
+			),
+			array(
+				'user_id'               => 1004,
+				'display_name'          => 'Priya Natarajan',
+				'email_address'         => 'priya.n@example.com',
+				'subscription_status'   => 'Subscribed',
+				'wpcom_subscription_id' => 5004,
+				'wpcom_date_subscribed' => gmdate( 'Y-m-d\TH:i:s', $now - 90 * DAY_IN_SECONDS ),
+				'plans'                 => array(),
+			),
+			array(
+				'user_id'               => 0,
+				'display_name'          => 'reader.hello@example.com',
+				'email_address'         => 'reader.hello@example.com',
+				'subscription_status'   => 'Not sending',
+				'email_subscription_id' => 9005,
+				'email_date_subscribed' => gmdate( 'Y-m-d\TH:i:s', $now - 12 * DAY_IN_SECONDS ),
+				'plans'                 => array(),
+			),
+		);
+
+		$search = (string) $request->get_param( 'search' );
+		if ( '' !== $search ) {
+			$all = array_values(
+				array_filter(
+					$all,
+					function ( $subscriber ) use ( $search ) {
+						return false !== stripos( $subscriber['display_name'], $search )
+							|| false !== stripos( $subscriber['email_address'], $search );
+					}
+				)
+			);
+		}
+
+		$page       = max( 1, (int) $request->get_param( 'page' ) );
+		$per_page   = max( 1, (int) $request->get_param( 'per_page' ) );
+		$total      = count( $all );
+		$page_items = array_slice( $all, ( $page - 1 ) * $per_page, $per_page );
+
+		return array(
+			'total'               => $total,
+			'pages'               => max( 1, (int) ceil( $total / $per_page ) ),
+			'page'                => $page,
+			'per_page'            => $per_page,
+			'subscribers'         => $page_items,
+			'is_owner_subscribed' => false,
+		);
 	}
 }
 

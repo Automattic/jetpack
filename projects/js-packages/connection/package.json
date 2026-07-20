@@ -21,6 +21,8 @@
 	"exports": {
 		".": "./index.jsx",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
+		"./local-dev-mode-badge": "./components/local-dev-mode-badge/index.tsx",
+		"./offline-mode-screen": "./components/offline-mode-screen/index.tsx",
 		"./use-connection": "./components/use-connection/index.ts",
 		"./use-connection-error-notice": "./hooks/use-connection-error-notice/index.tsx"
 	},

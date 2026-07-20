@@ -126,16 +126,20 @@ const processStatsData = visitsData => {
  */
 const StatsSection = () => {
 	const slug = 'stats';
-	const { blogID, isSiteConnected } = useMyJetpackConnection();
+	const { blogID, isSiteConnected, offlineMode } = useMyJetpackConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { recordEvent } = useAnalytics();
 
-	// New stats visits hook for time series data
+	// New stats visits hook for time series data. Local development mode sites
+	// are never "connected" (isSiteConnected is false), but the underlying REST
+	// route serves mock data in that case (see WPCOM_Stats::fetch_remote_stats()),
+	// so the query should still run.
 	const { data: visitsData, isLoading: isVisitsDataLoading } = useStatsVisits(
 		blogID,
-		isSiteConnected,
+		isSiteConnected || isOfflineMode,
 		VISITS_OPTIONS
 	);
 
@@ -198,6 +202,7 @@ const StatsSection = () => {
 				headingLevel={ 3 }
 				chartData={ chartData }
 				isLoading={ isVisitsDataLoading }
+				isOfflineMode={ isOfflineMode }
 				onDetailedStatsClick={ onDetailedStatsClick }
 			/>
 		</ProductCard>

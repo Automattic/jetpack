@@ -52,6 +52,19 @@ class Initial_State {
 			$data['site']['wpcom']['blog_id'] = absint( \Jetpack_Options::get_option( 'id', 0 ) );
 		}
 
+		if ( empty( $data['site']['wpcom']['blog_id'] ) && ( new Status() )->is_offline_mode() ) {
+			/*
+			 * Several REST routes (Odyssey Stats, VideoPress) bake this same blog
+			 * ID into their registered route pattern at PHP boot time -- see
+			 * REST_Controller::get_blog_id() in the stats-admin package for the
+			 * canonical explanation. A never-connected site has no real ID, so
+			 * every frontend reading it from here must agree on the same
+			 * placeholder or requests built from it 404 against the registered
+			 * route.
+			 */
+			$data['site']['wpcom']['blog_id'] = 999999999;
+		}
+
 		return $data;
 	}
 

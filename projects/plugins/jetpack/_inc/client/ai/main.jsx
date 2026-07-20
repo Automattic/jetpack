@@ -17,7 +17,8 @@ import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
 
-const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
+const { blogId, isOfflineMode, activityLogUrl, apiRoot, apiNonce } =
+	window?.jetpackAiSettings ?? {};
 
 const VALID_VIEWS = [ 'read', 'write', 'setup' ];
 
@@ -149,7 +150,21 @@ export default function App() {
 					</Notice.Root>
 				) }
 
-				{ ! isLoading && ! error && ! blogId && (
+				{ ! isLoading && ! error && ! blogId && isOfflineMode && (
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ __(
+								"This site is in local development mode, so it can't connect to WordPress.com to manage MCP settings.",
+								'jetpack'
+							) }{ ' ' }
+							<a href="admin.php?page=jetpack#/dashboard">
+								{ __( 'Go to the local development dashboard', 'jetpack' ) }
+							</a>
+						</Notice.Description>
+					</Notice.Root>
+				) }
+
+				{ ! isLoading && ! error && ! blogId && ! isOfflineMode && (
 					<Notice.Root intent="warning">
 						<Notice.Description>
 							{ __(

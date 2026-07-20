@@ -389,6 +389,12 @@ class Current_Plan {
 			return true;
 		}
 
+		// Publicize (Jetpack Social) has a free tier available to all plans; only
+		// its enhanced-publishing add-on is paid-gated separately.
+		if ( 'publicize' === $feature ) {
+			return true;
+		}
+
 		// As of 05 2023 - all plans support Earn features (minus 'simple-payments').
 		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container' ), true ) ) {
 			return true;

@@ -36,6 +36,9 @@ export type Props = {
 	footer?: ReactNode;
 	// The logo to display at the top of the component
 	logo?: ReactNode;
+	// Where the "Offline Mode" link in the error message should point.
+	// Defaults to the general jetpack.com support article.
+	offlineModeUrl?: string;
 };
 
 /*
@@ -58,6 +61,7 @@ const ConnectScreen: FC< Props > = ( {
 	skipUserConnection,
 	skipPricingPage,
 	logo,
+	offlineModeUrl,
 } ) => {
 	const {
 		handleRegisterSite,
@@ -96,6 +100,7 @@ const ConnectScreen: FC< Props > = ( {
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
 			isOfflineMode={ isOfflineMode }
+			offlineModeUrl={ offlineModeUrl }
 			logo={ logo }
 		>
 			{ children }

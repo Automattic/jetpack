@@ -33,14 +33,20 @@ const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
 	) }&from_site_slug=${ siteSuffix }&source=my-jetpack`;
 	const query = `${ connectAfterCheckoutUrl }${ redirectUri }&unlinked=1`;
 	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', { query } );
-	const { handleRegisterSite } = useMyJetpackConnection( {
+	const { handleRegisterSite, offlineMode } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri,
 	} );
+	const offlineLandingPageUrl = `${ adminUrl }admin.php?page=jetpack#/dashboard`;
 
 	const connectSite = useCallback(
 		async ( e: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
+
+			if ( offlineMode?.isActive ) {
+				window.location.href = offlineLandingPageUrl;
+				return;
+			}
 
 			setTimeout( () => {
 				window.scrollTo( {
@@ -67,6 +73,8 @@ const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
 		[
 			handleRegisterSite,
 			jetpackPlansPath,
+			offlineMode,
+			offlineLandingPageUrl,
 			recordEvent,
 			refetchOwnershipData,
 			resetNotice,

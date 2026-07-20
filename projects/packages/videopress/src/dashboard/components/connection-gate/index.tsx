@@ -1,5 +1,7 @@
+import OfflineModeScreen from '@automattic/jetpack-connection/offline-mode-screen';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { __ } from '@wordpress/i18n';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import ConnectScreen from './connect-screen';
 import PricingUpsell from './pricing-upsell';
@@ -34,6 +36,7 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 		siteIsRegistering,
 		userIsConnecting,
 		handleRegisterSite,
+		offlineMode,
 	} = useConnection( {
 		from: 'jetpack-videopress',
 		redirectUri: VIDEOPRESS_ADMIN_PAGE,
@@ -58,11 +61,25 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined' &&
 		Boolean( JPVIDEOPRESS_INITIAL_STATE?.pricing );
 
-	// Unregistered sites get the full pricing upsell; everything else (registered
-	// but no connected owner/user, or missing pricing data) gets the lighter
-	// connect screen, whose CTA registers the site and/or connects the user.
+	// Unregistered sites get the full pricing upsell -- including in local
+	// development mode: the price/product payload is a public, unauthenticated
+	// WPCOM catalog lookup (see class-initial-state.php's get_pricing_data()),
+	// so it's real data regardless of whether this site itself is reachable.
+	// "Get VideoPress" is a real external checkout redirect that works the same
+	// way either way; "Start for free" attempts a real site connection, which
+	// (like on any disconnected site) can fail -- local development mode isn't
+	// special-cased there, since the actual point of failure varies by cause.
 	if ( ! isRegistered && hasPricing ) {
 		return <PricingUpsell />;
+	}
+
+	if ( offlineMode?.isActive ) {
+		return (
+			<OfflineModeScreen
+				productName="VideoPress"
+				subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			/>
+		);
 	}
 
 	return (

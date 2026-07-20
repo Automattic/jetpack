@@ -32,11 +32,14 @@ type OwnProps = {
 	buttonIsLoading?: boolean;
 	// Whether the site is in offline mode
 	isOfflineMode?: boolean;
+	// Where the "Offline Mode" link in the error message should point.
+	// Defaults to the general jetpack.com support article.
+	offlineModeUrl?: string;
 };
 
 export type Props = WithRequired< SharedProps, 'buttonLabel' > & OwnProps;
 
-const getErrorMessage = ( errorCode, isOfflineMode ) => {
+const getErrorMessage = ( errorCode, isOfflineMode, offlineModeUrl ) => {
 	// Explicit error code takes precedence over the offline mode.
 	switch ( errorCode ) {
 		case 'fail_domain_forbidden':
@@ -58,7 +61,7 @@ const getErrorMessage = ( errorCode, isOfflineMode ) => {
 			{
 				a: (
 					<a
-						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+						href={ offlineModeUrl || getRedirectUrl( 'jetpack-support-development-mode' ) }
 						target="_blank"
 						rel="noopener noreferrer"
 					/>
@@ -85,6 +88,7 @@ const ConnectScreenVisual: FC< Props > = ( {
 	loadingLabel,
 	footer,
 	isOfflineMode,
+	offlineModeUrl,
 	logo,
 } ) => (
 	<ConnectScreenLayout
@@ -113,7 +117,7 @@ const ConnectScreenVisual: FC< Props > = ( {
 			</Button>
 			{ ( displayButtonError || isOfflineMode ) && (
 				<p className="jp-connection__connect-screen__error">
-					{ getErrorMessage( errorCode, isOfflineMode ) ||
+					{ getErrorMessage( errorCode, isOfflineMode, offlineModeUrl ) ||
 						__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
 				</p>
 			) }

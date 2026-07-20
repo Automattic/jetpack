@@ -1,5 +1,9 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import {
+	useConnectionErrorNotice,
+	ConnectionError,
+	LocalDevModeBadge,
+} from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
@@ -307,21 +311,25 @@ export default function DashboardPage( { isLoading = false } ) {
 					'jetpack-search-pkg'
 				) }
 				actions={
-					! isPageLoading &&
-					( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
-						<Button size="compact" variant="link" onClick={ sendPaidPlanToCart }>
-							{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
-						</Button>
-					)
+					<>
+						<LocalDevModeBadge />
+						{ ! isPageLoading && ( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
+							<Button size="compact" variant="link" onClick={ sendPaidPlanToCart }>
+								{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
+							</Button>
+						) }
+					</>
 				}
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
 			>
-				<NoticesList
-					notices={ notices }
-					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-				/>
+				<div className="jp-search-dashboard-page__notices">
+					<NoticesList
+						notices={ notices }
+						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+					/>
+				</div>
 				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">

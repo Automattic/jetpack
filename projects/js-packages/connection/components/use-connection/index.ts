@@ -4,6 +4,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store.jsx';
 import type {
+	OfflineModeDetails,
 	RegistrationError,
 	UserConnectionData,
 	UseConnectionProps,
@@ -53,6 +54,7 @@ export default function useConnection( {
 		isUserConnected,
 		hasConnectedOwner,
 		isOfflineMode,
+		offlineMode,
 	} = useSelect( ( select: StoreSelector ) => {
 		const connectionStatus = select( STORE_ID ).getConnectionStatus() as Record< string, unknown >;
 		return {
@@ -72,6 +74,7 @@ export default function useConnection( {
 			connectionHealthErrors: ( select( STORE_ID ).getConnectionHealthErrors?.() ??
 				{} ) as ConnectionErrorMap,
 			isOfflineMode: select( STORE_ID ).getIsOfflineMode() as boolean,
+			offlineMode: ( connectionStatus.offlineMode ?? {} ) as OfflineModeDetails,
 			isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
 			isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,
 			hasConnectedOwner: ( connectionStatus.hasConnectedOwner ?? false ) as boolean,
@@ -150,5 +153,6 @@ export default function useConnection( {
 		connectionErrors,
 		connectionHealthErrors,
 		isOfflineMode,
+		offlineMode,
 	};
 }

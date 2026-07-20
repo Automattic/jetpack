@@ -17,7 +17,7 @@ import type { MouseEvent } from 'react';
 const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
-	const { siteIsRegistering, isSiteConnected } = useMyJetpackConnection( {
+	const { siteIsRegistering, isSiteConnected, offlineMode } = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
 	const { data: products, isLoading: isAllProductsLoading, isError } = useAllProducts();
@@ -41,6 +41,12 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 
 	useEffect( () => {
 		if ( ! connectionError ) {
+			return;
+		}
+
+		// Offline mode sites can't connect at all -- LocalDevModeNotice already
+		// explains that, so a "Connect your site" CTA here would just be a dead end.
+		if ( offlineMode?.isActive ) {
 			return;
 		}
 
@@ -137,6 +143,7 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		refetchOwnershipData,
 		productSlugsThatRequireUserConnection,
 		isLoading,
+		offlineMode,
 	] );
 };
 

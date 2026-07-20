@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Activity_Log;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -242,6 +243,12 @@ class REST_Controller {
 			return false;
 		}
 
+		// Offline Mode sites can never complete a connection; serve sample data
+		// (see proxy_get()) instead of blocking the whole page on a 403.
+		if ( ( new Status() )->is_offline_mode() ) {
+			return true;
+		}
+
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
 			return new WP_Error(
 				'activity_log_user_not_connected',
@@ -270,6 +277,14 @@ class REST_Controller {
 	 * @return bool True when the site has the full-activity-log feature.
 	 */
 	public static function has_activity_logs_access() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			// Show the same free-tier upsell a real, unconnected/free-plan site
+			// would see, rather than a special-cased "unlocked because offline"
+			// state -- keeps the offline preview honest about what the product
+			// actually gates behind a paid plan.
+			return false;
+		}
+
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return false;
@@ -411,6 +426,10 @@ class REST_Controller {
 	 * @return mixed Decoded JSON response from WPCOM, or WP_Error on failure.
 	 */
 	private static function proxy_get( $wpcom_path, WP_REST_Request $request, array $allowed_keys ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return rest_ensure_response( self::get_offline_mock_response( $wpcom_path ) );
+		}
+
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error(
@@ -469,5 +488,132 @@ class REST_Controller {
 		}
 
 		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Sample activity log data shown in Offline Mode, so the real Activity Log UI
+	 * renders with representative entries instead of erroring out with no
+	 * connection. Shapes match the real WPCOM `/sites/{id}/activity*` endpoints
+	 * this class normally proxies (see the JS-side types in
+	 * `src/js/components/ActivityLog/types.ts`).
+	 *
+	 * @param string $wpcom_path Which of the three endpoints was requested
+	 *                           (`/activity`, `/activity/count/group`, or `/activity/actors`).
+	 * @return array
+	 */
+	private static function get_offline_mock_response( $wpcom_path ) {
+		$user  = wp_get_current_user();
+		$actor = array(
+			'id'           => (int) $user->ID,
+			'type'         => 'Person',
+			'name'         => $user->display_name ? $user->display_name : __( 'Admin', 'jetpack-activity-log' ),
+			'role'         => 'administrator',
+			'icon'         => array(
+				'type'   => 'gravatar',
+				'url'    => get_avatar_url( $user->ID ),
+				'width'  => 96,
+				'height' => 96,
+			),
+			'is_cli'       => false,
+			'is_happiness' => false,
+			'is_mcp_agent' => false,
+			'mcp_client'   => null,
+		);
+
+		$now     = time();
+		$entries = array(
+			array(
+				'activity_id'   => 'offline-mock-1',
+				'actor'         => $actor,
+				'name'          => 'post__published',
+				'summary'       => __( 'Post published', 'jetpack-activity-log' ),
+				'content'       => array( 'text' => __( '"A guide to getting started" was published.', 'jetpack-activity-log' ) ),
+				'gridicon'      => 'posts',
+				'is_rewindable' => false,
+				'published'     => gmdate( 'c', $now - 2 * HOUR_IN_SECONDS ),
+			),
+			array(
+				'activity_id'   => 'offline-mock-2',
+				'actor'         => $actor,
+				'name'          => 'comment__approved',
+				'summary'       => __( 'Comment approved', 'jetpack-activity-log' ),
+				'content'       => array( 'text' => __( 'A comment on "About" was approved.', 'jetpack-activity-log' ) ),
+				'gridicon'      => 'checkmark-circle',
+				'is_rewindable' => false,
+				'published'     => gmdate( 'c', $now - 6 * HOUR_IN_SECONDS ),
+			),
+			array(
+				'activity_id'   => 'offline-mock-3',
+				'actor'         => $actor,
+				'name'          => 'plugin__activated',
+				'summary'       => __( 'Plugin activated', 'jetpack-activity-log' ),
+				'content'       => array( 'text' => __( 'Jetpack was activated.', 'jetpack-activity-log' ) ),
+				'gridicon'      => 'plugins',
+				'is_rewindable' => true,
+				'published'     => gmdate( 'c', $now - DAY_IN_SECONDS ),
+			),
+			array(
+				'activity_id'   => 'offline-mock-4',
+				'actor'         => $actor,
+				'name'          => 'theme__customized',
+				'summary'       => __( 'Theme customized', 'jetpack-activity-log' ),
+				'content'       => array( 'text' => __( 'Site colors and typography were updated.', 'jetpack-activity-log' ) ),
+				'gridicon'      => 'themes',
+				'is_rewindable' => true,
+				'published'     => gmdate( 'c', $now - 2 * DAY_IN_SECONDS ),
+			),
+			array(
+				'activity_id'   => 'offline-mock-5',
+				'actor'         => $actor,
+				'name'          => 'user__login',
+				'summary'       => __( 'Successful login', 'jetpack-activity-log' ),
+				'content'       => array( 'text' => sprintf( /* translators: %s: user's display name */ __( '%s logged in.', 'jetpack-activity-log' ), $actor['name'] ) ),
+				'gridicon'      => 'user',
+				'is_rewindable' => false,
+				'published'     => gmdate( 'c', $now - 3 * DAY_IN_SECONDS ),
+			),
+		);
+
+		switch ( $wpcom_path ) {
+			case '/activity/count/group':
+				return array(
+					'groups'     => array(
+						'post'    => array(
+							'name'  => __( 'Posts and Pages', 'jetpack-activity-log' ),
+							'count' => 1,
+						),
+						'comment' => array(
+							'name'  => __( 'Comments', 'jetpack-activity-log' ),
+							'count' => 1,
+						),
+						'plugin'  => array(
+							'name'  => __( 'Plugins', 'jetpack-activity-log' ),
+							'count' => 1,
+						),
+						'theme'   => array(
+							'name'  => __( 'Themes', 'jetpack-activity-log' ),
+							'count' => 1,
+						),
+						'user'    => array(
+							'name'  => __( 'People', 'jetpack-activity-log' ),
+							'count' => 1,
+						),
+					),
+					'totalItems' => count( $entries ),
+				);
+			case '/activity/actors':
+				return array(
+					'actors'     => array( $actor ),
+					'totalItems' => 1,
+				);
+			default:
+				return array(
+					'current'      => array( 'orderedItems' => $entries ),
+					'totalItems'   => count( $entries ),
+					'pages'        => 1,
+					'itemsPerPage' => count( $entries ),
+					'totalPages'   => 1,
+				);
+		}
 	}
 }

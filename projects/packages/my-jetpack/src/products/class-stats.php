@@ -11,6 +11,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -192,6 +193,17 @@ class Stats extends Module_Product {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
 			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+		}
+		// A local development mode site can never complete a real connection, but
+		// the Stats admin page and its underlying REST data are fully functional
+		// there (mock data -- see WPCOM_Stats::fetch_remote_stats()), so show the
+		// real My Jetpack Stats card (chart + counts) instead of treating this the
+		// same as a genuinely broken/disconnected site.
+		if (
+			( Products::STATUS_SITE_CONNECTION_ERROR === $status || Products::STATUS_NEEDS_FIRST_SITE_CONNECTION === $status )
+			&& ( new Status() )->is_offline_mode()
+		) {
+			$status = Products::STATUS_ACTIVE;
 		}
 		return $status;
 	}

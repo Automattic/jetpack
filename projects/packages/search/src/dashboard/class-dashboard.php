@@ -178,8 +178,11 @@ class Dashboard {
 			'../../build/dashboard/jp-search-dashboard.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-search-pkg',
+				'in_footer'        => true,
+				'textdomain'       => 'jetpack-search-pkg',
+				// Base styles for @wordpress/components (Button, etc.), used by the
+				// Offline Mode fallback screen -- otherwise never enqueued on this page.
+				'css_dependencies' => array( 'wp-components' ),
 			)
 		);
 		Assets::enqueue_script( 'jp-search-dashboard' );

@@ -20,7 +20,7 @@ import type { ReactElement } from 'react';
  * @return The Notice element.
  */
 export default function FreeTierNotice(): ReactElement {
-	const runUpgrade = useVideoPressUpgrade();
+	const { run: runUpgrade, offlineNoticeModal } = useVideoPressUpgrade();
 
 	const handleUpgradeClick = useCallback(
 		( event: { preventDefault: () => void } ) => {
@@ -33,18 +33,21 @@ export default function FreeTierNotice(): ReactElement {
 	);
 
 	return (
-		<Notice.Root intent="info">
-			<Notice.Description>
-				{ __(
-					'You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.',
-					'jetpack-videopress-pkg'
-				) }
-			</Notice.Description>
-			<Notice.Actions>
-				<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>
-					{ __( 'Upgrade', 'jetpack-videopress-pkg' ) }
-				</Notice.ActionLink>
-			</Notice.Actions>
-		</Notice.Root>
+		<>
+			<Notice.Root intent="info">
+				<Notice.Description>
+					{ __(
+						'You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.',
+						'jetpack-videopress-pkg'
+					) }
+				</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>
+						{ __( 'Upgrade', 'jetpack-videopress-pkg' ) }
+					</Notice.ActionLink>
+				</Notice.Actions>
+			</Notice.Root>
+			{ offlineNoticeModal }
+		</>
 	);
 }

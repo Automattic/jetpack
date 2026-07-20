@@ -19,7 +19,8 @@ export default function useSocialGate(): {
 	gate: SocialGateType;
 	dismissPricing: () => void;
 } {
-	const { isRegistered, isUserConnected } = useConnection();
+	const { isRegistered, isUserConnected, offlineMode } = useConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
 
 	const showPricingPage = useSelect(
 		select => select( socialStore ).getSocialSettings().showPricingPage,
@@ -33,9 +34,18 @@ export default function useSocialGate(): {
 
 	// WPCOM Simple sites have no Jetpack connection to establish, so the connection
 	// gate never applies there (mirrors the legacy admin page's `! isSimple` guard).
-	if ( ! isSimpleSite() && ( ! isRegistered || ! isUserConnected ) ) {
+	// Offline mode sites can never complete a connection either, but rather than a
+	// "Get Started" wall that's a dead end, they fall through to the real tabs --
+	// the traffic chart and connections list render their own offline-aware demo
+	// content instead.
+	if ( ! isSimpleSite() && ! isOfflineMode && ( ! isRegistered || ! isUserConnected ) ) {
 		gate = 'connection';
 	} else if (
+		// The pricing nudge exists to sell an upgrade -- pointless (and, since the
+		// underlying module toggle needs a live connection to save, currently a
+		// dead end) for a site that can't complete a purchase or connection at
+		// all right now. Offline sites skip straight to the real tabs.
+		! isOfflineMode &&
 		isJetpackSelfHostedSite() &&
 		! hasSocialPaidFeatures() &&
 		showPricingPage &&

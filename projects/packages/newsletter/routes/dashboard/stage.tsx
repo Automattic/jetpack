@@ -1,4 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
+import LocalDevModeBadge from '@automattic/jetpack-connection/local-dev-mode-badge';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getSiteData, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -64,6 +65,7 @@ const Stage = () => {
 		siteIsRegistering,
 		userIsConnecting,
 		handleRegisterSite,
+		offlineMode,
 	} = useConnection( {
 		from: 'jetpack-newsletter',
 		redirectUri: getRedirectUri(),
@@ -74,8 +76,14 @@ const Stage = () => {
 	// Simple sites are already hosted on WP.com — they never have a Jetpack
 	// connection, and the `/wpcom/v2/subscribers/*` endpoints resolve directly
 	// to WP.com authenticated by the logged-in user — so the gate never applies.
+	// Local development mode sites are never "connected" either, but the core
+	// listing endpoint returns mock data there (see
+	// WPCOM_REST_API_V2_Endpoint_Subscribers_List::get_subscribers()), so the
+	// real DataViews table is safe to render instead of the connect wall.
 	const canManageSubscribers =
-		isSimpleSite() || ( isRegistered && hasConnectedOwner && isUserConnected );
+		isSimpleSite() ||
+		( isRegistered && hasConnectedOwner && isUserConnected ) ||
+		Boolean( offlineMode?.isActive );
 
 	// `handleRegisterSite` registers the site if needed and then connects the
 	// user; on an already-registered site it connects the user directly.
@@ -124,13 +132,19 @@ const Stage = () => {
 						<ConnectionGate
 							onConnect={ handleConnect }
 							isConnecting={ siteIsRegistering || userIsConnecting }
+							isOfflineMode={ offlineMode?.isActive }
 						/>
 					);
 
 					return (
 						<NewsletterPage
 							activeTab={ activeTab }
-							actions={ activeTab === 'subscribers' && canManageSubscribers ? actions : undefined }
+							actions={
+								<>
+									{ offlineMode?.isActive && <LocalDevModeBadge /> }
+									{ activeTab === 'subscribers' && canManageSubscribers ? actions : null }
+								</>
+							}
 							contentHasPadding={ activeTab === 'settings' }
 							hideFooter={ activeTab === 'subscribers' }
 						>

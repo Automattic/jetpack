@@ -1,4 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -89,7 +90,13 @@ const Stage = () => {
 		window.location.reload();
 	}, [ updateSocialModuleSettings ] );
 
-	const socialOff = canToggleSocialModule() && ( ! isModuleActive || isEnabling );
+	// Offline sites always show the full tabbed experience -- the "turn on"
+	// surface's own toggle needs a live connection to save, so collapsing to
+	// it here would be a dead end just like the pricing nudge was.
+	const { offlineMode } = useConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
+	const socialOff =
+		! isOfflineMode && canToggleSocialModule() && ( ! isModuleActive || isEnabling );
 
 	const activeTab: SocialTab =
 		socialOff || ( canManageOptions && search.tab === 'settings' ) ? 'settings' : 'overview';

@@ -3,6 +3,7 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import connectImage from './connect.webp';
 import styles from './styles.module.scss';
 import type { FC, ReactNode } from 'react';
@@ -47,6 +48,7 @@ interface ConnectScreenProps {
 
 const ConnectionScreenBody: FC< ConnectScreenProps > = props => {
 	const { title } = props;
+	const { adminUrl } = getMyJetpackWindowInitialState();
 
 	return (
 		<ConnectScreen
@@ -54,6 +56,7 @@ const ConnectionScreenBody: FC< ConnectScreenProps > = props => {
 			loadingLabel={ __( 'Connecting your account…', 'jetpack-my-jetpack' ) }
 			images={ [ connectImage ] }
 			from="my-jetpack"
+			offlineModeUrl={ `${ adminUrl }admin.php?page=jetpack#/dashboard` }
 			{ ...props }
 			title={
 				title ||

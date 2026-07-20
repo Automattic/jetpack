@@ -1,0 +1,10 @@
+.jp-connection__offline-mode-screen {
+	// The shared jetpack-components Button reads padding/sizing from this
+	// custom property, but it's scoped per-container rather than global --
+	// without it here, the button silently collapses to zero padding.
+	--spacing-base: 8px;
+
+	max-width: 480px;
+	margin: 64px auto;
+	text-align: center;
+}

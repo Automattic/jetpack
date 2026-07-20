@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Status;
 
 /**
  * Responsible for adding a stats dashboard to wp-admin.
@@ -91,6 +92,37 @@ class Dashboard {
 		}
 
 		?>
+		<?php if ( ( new Status() )->is_offline_mode() ) : ?>
+			<style>
+				.jp-stats-local-dev-badge-row { display: flex; justify-content: flex-end; padding: 8px 20px 0 2px; }
+				.jp-stats-local-dev-badge {
+					display: inline-flex;
+					align-items: center;
+					height: 20px;
+					padding: 0 6px;
+					border-radius: 4px;
+					background: #069e08;
+					color: #fff;
+					font-size: 10px;
+					font-weight: 600;
+					letter-spacing: 0.3px;
+					text-decoration: none;
+					text-transform: uppercase;
+					white-space: nowrap;
+				}
+				.jp-stats-local-dev-badge:hover,
+				.jp-stats-local-dev-badge:focus { background: #057f07; color: #fff; }
+			</style>
+			<div class="jp-stats-local-dev-badge-row">
+				<a
+					class="jp-stats-local-dev-badge"
+					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/dashboard' ) ); ?>"
+					title="<?php esc_attr_e( "This site is in local development mode, so everything below is mock data. Real stats are tracked on WordPress.com, but we can't reach this site right now. Click for details.", 'jetpack-stats-admin' ); ?>"
+				>
+					<?php esc_html_e( 'Sample data', 'jetpack-stats-admin' ); ?>
+				</a>
+			</div>
+		<?php endif; ?>
 		<div id="wpcom" class="jp-stats-dashboard" style="min-height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
 			<div class="hide-if-no-js" style="height: 100%">

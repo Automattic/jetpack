@@ -157,15 +157,19 @@ class Settings {
 	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
 	 */
 	public function add_wp_admin_menu() {
-		// On sites using Jetpack, only show the menu if the site is connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		// On sites using Jetpack, only show the menu if the site is connected --
+		// except in Offline Mode, where the dashboard has its own connection-required
+		// fallback for the Subscribers tab, so the menu shouldn't disappear entirely.
+		if ( ! ( new Connection_Manager() )->is_connected() && ! ( new Status() )->is_offline_mode() ) {
 			return;
 		}
 
 		// On the modernized dashboard, the Newsletter screen is only useful when the
 		// subscriptions module is active, so skip registering the menu entirely when it
 		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
-		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
+		// Offline mode sites can never activate this connection-required module, so
+		// show the menu there anyway -- the dashboard's own gate explains why.
+		if ( self::is_modernized() && ! $this->is_subscriptions_active() && ! ( new Status() )->is_offline_mode() ) {
 			return;
 		}
 

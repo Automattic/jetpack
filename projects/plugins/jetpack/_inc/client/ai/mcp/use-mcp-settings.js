@@ -18,13 +18,22 @@ const ENDPOINT = '/wpcom/v2/jetpack-ai/mcp-settings';
  * @return {{ isLoading: boolean, isSaving: boolean, mcpAbilities: Object|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
  */
 export function useMcpSettings() {
-	const [ isLoading, setIsLoading ] = useState( true );
+	// A site with no blog ID (never connected) can't have MCP settings to fetch --
+	// the endpoint would just fail with a generic connection error. Skip the call
+	// so the page can show its own "not connected" / offline messaging instead.
+	const hasBlogId = !! window?.jetpackAiSettings?.blogId;
+
+	const [ isLoading, setIsLoading ] = useState( hasBlogId );
 	const [ savingToolIds, setSavingToolIds ] = useState( () => new Set() );
 	const [ mcpAbilities, setMcpAbilities ] = useState( null );
 	const [ hasMcpAccess, setHasMcpAccess ] = useState( null );
 	const [ error, setError ] = useState( null );
 
 	useEffect( () => {
+		if ( ! hasBlogId ) {
+			return;
+		}
+
 		let cancelled = false;
 		setIsLoading( true );
 		apiFetch( { path: ENDPOINT } )
@@ -53,7 +62,7 @@ export function useMcpSettings() {
 		return () => {
 			cancelled = true;
 		};
-	}, [] );
+	}, [ hasBlogId ] );
 
 	/**
 	 * Send a partial mcp_abilities update.

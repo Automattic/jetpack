@@ -124,6 +124,13 @@ class Jetpack_Activity_Log {
 			return false;
 		}
 
+		// Offline mode sites can never complete a connection, but the page already
+		// shows an honest error notice (rather than crashing) when its REST calls
+		// fail, so show the menu there too instead of hiding it entirely.
+		if ( class_exists( '\Automattic\Jetpack\Status' ) && ( new \Automattic\Jetpack\Status() )->is_offline_mode() ) {
+			return true;
+		}
+
 		return ( new Connection_Manager() )->is_user_connected();
 	}
 

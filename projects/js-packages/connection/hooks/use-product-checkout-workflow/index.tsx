@@ -1,8 +1,10 @@
 import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { Button, Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import useConnection from '../../components/use-connection';
 import getCalypsoOrigin from '../../helpers/get-calypso-origin';
 import { STORE_ID } from '../../state/store.jsx';
@@ -47,6 +49,7 @@ export default function useProductCheckoutWorkflow(
 	debug( 'siteSuffix is %s', siteSuffix );
 	debug( 'from is %s', from );
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
+	const [ isOfflineNoticeOpen, setOfflineNoticeOpen ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
 	const blogID = useSelect(
@@ -57,7 +60,7 @@ export default function useProductCheckoutWorkflow(
 
 	useBlogIdSuffix = useBlogIdSuffix && !! blogID;
 
-	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
+	const { isUserConnected, isRegistered, handleConnectUser, offlineMode } = useConnection( {
 		redirectUri: redirectUrl,
 		from,
 	} );
@@ -159,6 +162,16 @@ export default function useProductCheckoutWorkflow(
 	 */
 	const run = ( event?: { preventDefault: () => void }, redirect: string | null = null ) => {
 		event && event.preventDefault();
+
+		// A local development site's URL isn't the one the purchase would attach
+		// to (that has to be the live, publicly reachable site), so checkout
+		// itself would be meaningless here -- explain that instead of starting
+		// a workflow that can't complete correctly.
+		if ( offlineMode?.isActive ) {
+			setOfflineNoticeOpen( true );
+			return;
+		}
+
 		setCheckoutStarted( true );
 		// By default we will connect first prior to checkout unless `props.connectAfterCheckout`
 		// is set (true), in which we will connect after purchase is completed.
@@ -181,9 +194,30 @@ export default function useProductCheckoutWorkflow(
 		restApi.setApiNonce( apiNonce );
 	}, [] );
 
+	const closeOfflineNotice = useCallback( () => setOfflineNoticeOpen( false ), [] );
+
+	const offlineNoticeModal = isOfflineNoticeOpen ? (
+		<Modal
+			title={ __( 'This site is in local development mode', 'jetpack-connection-js' ) }
+			onRequestClose={ closeOfflineNotice }
+			className="jp-connection__checkout-offline-modal"
+		>
+			<p>
+				{ __(
+					'Purchases are tied to your site’s URL, so they need to be made from your live, publicly reachable site rather than from here.',
+					'jetpack-connection-js'
+				) }
+			</p>
+			<Button variant="primary" onClick={ closeOfflineNotice }>
+				{ __( 'Got it', 'jetpack-connection-js' ) }
+			</Button>
+		</Modal>
+	) : null;
+
 	return {
 		run,
 		isRegistered,
 		hasCheckoutStarted,
+		offlineNoticeModal,
 	};
 }

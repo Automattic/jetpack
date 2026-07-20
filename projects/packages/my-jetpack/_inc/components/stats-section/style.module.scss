@@ -30,7 +30,9 @@ $min-card-width: 155px;
 
 .section-title {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
+	row-gap: 0.25rem;
 	font-weight: 500;
 	margin-bottom: 0;
 	margin-top: 0;
@@ -39,13 +41,21 @@ $min-card-width: 155px;
 }
 
 .section-description {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	height: 20px;
 	margin-left: 0.75rem;
+	padding: 0 6px;
+	border-radius: 4px;
+	background: var(--jp-green-50, #069e08);
+	color: #fff;
 	font-family: $sans-font;
-	font-weight: 400;
-	font-size: var(--font-body-small);
-	color: var(--jp-gray-60);
-	line-height: 20px;
-	letter-spacing: -0.15px;
+	font-weight: 600;
+	font-size: 10px;
+	letter-spacing: 0.3px;
+	text-transform: uppercase;
+	white-space: nowrap;
 }
 
 .my-jetpack-stats-cards.cards-list {

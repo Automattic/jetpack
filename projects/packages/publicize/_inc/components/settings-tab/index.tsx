@@ -1,3 +1,4 @@
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import { currentUserCan, siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { Card, Stack } from '@wordpress/ui';
@@ -44,7 +45,15 @@ export default function SettingsTab(): JSX.Element {
 	// settings cards for that sub-second gap before the reload just flickers.
 	const { isEnabling } = useTurnOnSocial();
 
-	if ( ( ! isPublicizeActive || isEnabling ) && canToggleSocialModule() ) {
+	// The turn-on wall's copy ("connect to get started") doesn't fit an offline
+	// site, and Social's own toggle already saves fine locally (Publicize is
+	// allowed to activate without a connection while offline -- see
+	// Publicize_Setup::allow_offline_mode_activation()), so show the real
+	// settings cards directly instead, same as every other local dev mode surface.
+	const { offlineMode } = useConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
+
+	if ( ( ! isPublicizeActive || isEnabling ) && canToggleSocialModule() && ! isOfflineMode ) {
 		return (
 			<div className="jetpack-social-settings">
 				<Card.Root>

@@ -22,6 +22,7 @@ import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import NonAdminView from 'components/non-admin-view';
+import OfflineModePage from 'components/offline-mode-page';
 import ReconnectModal from 'components/reconnect-modal';
 import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
@@ -136,6 +137,18 @@ const recommendationsRoutes = [
 
 const myJetpackRoutes = [ 'my-jetpack ' ];
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
+// Routes that render OfflineModePage instead of AtAGlance when offline -- see
+// renderMainContent()'s switch statement. Kept as a separate list (rather than reusing
+// dashboardRoutes) because it also covers the connect/setup routes, which redirect to
+// the offline landing page instead of their normal connect flow when offline.
+const offlineLandingPageRoutes = [
+	'/dashboard',
+	'/reconnect',
+	'/disconnect',
+	'/connect-user',
+	'/connect-user-setup',
+	'/woo-setup',
+];
 const settingsRoutes = [
 	'/settings',
 	'/security',
@@ -282,6 +295,13 @@ class Main extends Component {
 	 */
 	renderMainNav = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
+			return null;
+		}
+
+		// The offline landing page stands on its own -- a nav bar with a single
+		// "At a Glance" tab pointing at itself is a vestige of the legacy dashboard
+		// this page replaces, not a real set of tabs to switch between.
+		if ( this.props.isOfflineMode && offlineLandingPageRoutes.includes( route ) ) {
 			return null;
 		}
 
@@ -506,6 +526,10 @@ class Main extends Component {
 			case '/connect-user':
 			case '/connect-user-setup':
 			case '/woo-setup':
+				if ( this.props.isOfflineMode ) {
+					pageComponent = <OfflineModePage />;
+					break;
+				}
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -883,7 +907,11 @@ class Main extends Component {
 
 				<div className={ jpClasses.join( ' ' ) }>
 					<AdminNotices />
-					<JetpackNotices />
+					<JetpackNotices
+						hideOfflineModeNotice={
+							this.props.isOfflineMode && offlineLandingPageRoutes.includes( pathname )
+						}
+					/>
 					{ this.shouldConnectUser() && this.connectUser() }
 
 					{ this.renderMainContent( pathname ) }

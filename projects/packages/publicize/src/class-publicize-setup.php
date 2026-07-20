@@ -38,6 +38,19 @@ class Publicize_Setup {
 	}
 
 	/**
+	 * Lets the `publicize` module activate while the site is in offline/local
+	 * development mode, despite its "Requires Connection: Yes" header.
+	 *
+	 * @param bool   $blocked Whether activation should still be blocked.
+	 * @param string $module  The module slug being activated.
+	 *
+	 * @return bool
+	 */
+	public static function allow_offline_mode_activation( $blocked, $module ) {
+		return 'publicize' === $module ? false : $blocked;
+	}
+
+	/**
 	 * Whether to load the Publicize module.
 	 *
 	 * @return bool

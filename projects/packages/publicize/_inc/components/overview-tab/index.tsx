@@ -1,3 +1,4 @@
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
@@ -60,6 +61,8 @@ const NoConnectionsEmptyState = () => {
  */
 export default function OverviewTab(): JSX.Element {
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { offlineMode } = useConnection();
+	const isOfflineMode = Boolean( offlineMode?.isActive );
 
 	const hasConnections = useSelect(
 		select => ( select( socialStore ).getConnections() ?? [] ).length > 0,
@@ -95,9 +98,16 @@ export default function OverviewTab(): JSX.Element {
 			 * the onboarding CTA in the accounts card; non-admins never
 			 * see the chart at all (they can't read stats). Once an admin
 			 * connects a single account, the chart appears above with the
-			 * paid/free/empty branches taking over from there.
+			 * paid/free/empty branches taking over from there. Offline sites
+			 * can never have a real connection, so they see the chart's own
+			 * sample-data demo state instead of waiting on a connection that
+			 * will never happen -- but sharing (the accounts card, below) is
+			 * the product's core feature, so it leads over the secondary
+			 * traffic-analytics chart there.
 			 */ }
-			{ hasConnections && canManageOptions && <TrafficChartCard /> }
+			{ ! isOfflineMode && ( hasConnections || isOfflineMode ) && canManageOptions && (
+				<TrafficChartCard />
+			) }
 			<Card.Root>
 				{ hasConnections && (
 					<Card.Header className="jetpack-social-overview__accounts-card-header">
@@ -120,6 +130,7 @@ export default function OverviewTab(): JSX.Element {
 					) }
 				</Card.Content>
 			</Card.Root>
+			{ isOfflineMode && canManageOptions && <TrafficChartCard /> }
 		</div>
 	);
 }
