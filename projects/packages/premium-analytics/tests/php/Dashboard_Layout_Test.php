@@ -118,7 +118,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'placement'  => array(
 					'width'  => 1,
 					'height' => 2,
-					'order'  => 7,
+					'order'  => 8,
 				),
 			),
 			$layout_by_uuid[ $utm_widget_uuid ]
@@ -157,7 +157,8 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/posting-activity', $layout_types );
 		$this->assertNotContains( 'jpa/authors', $layout_types );
 		$this->assertNotContains( 'jpa/videopress', $layout_types );
-		$this->assertContains( 'jpa/stats-emails', $layout_types );
+		// Emails is not an Insights module — it lives on the Subscribers tab.
+		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		$this->assertContains( 'jpa/shares', $layout_types );
 		$this->assertSame(
 			array(
@@ -169,7 +170,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'placement'  => array(
 					'width'  => 1,
 					'height' => 2,
-					'order'  => 5,
+					'order'  => 8,
 				),
 			),
 			$layout_by_uuid['default-shares-widget-instance']
