@@ -28,6 +28,7 @@ import {
 	EmailReplyToSettingsSection,
 	LegacySubscriptionsSection,
 	NewsletterCategoriesSection,
+	NewsletterModeSection,
 	NewsletterSection,
 	PaidNewsletterSection,
 	SubscribeModalSection,
@@ -563,6 +564,9 @@ export function NewsletterSettingsBody( {
 				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
 			>
 				<Stack gap="xl" direction="column" className="newsletter-settings">
+					{ /* Newsletter Mode opt-in. Only surfaced when the spike-stage
+					     feature gate (Mode::is_available()) is on. */ }
+					{ newsletterScriptData?.modeAvailable && <NewsletterModeSection /> }
 					{ isModernized ? (
 						<Disabled isDisabled={ ! data.subscriptions }>
 							<Stack gap="xl" direction="column">

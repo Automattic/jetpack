@@ -30,6 +30,40 @@ class Mode {
 	const OPTION_NAME = 'jetpack_newsletter_mode_enabled';
 
 	/**
+	 * REST namespace for the package-owned Newsletter Mode route.
+	 *
+	 * Deliberately a package-owned namespace (not `jetpack/v4`) so persisting the
+	 * flag does not require registering it on the shared settings whitelist.
+	 *
+	 * @var string
+	 */
+	const REST_NAMESPACE = 'jetpack-newsletter/v1';
+
+	/**
+	 * Whether init() has already wired up hooks.
+	 *
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
+	 * Wire up Newsletter Mode hooks (idempotent).
+	 *
+	 * Must be called on every request — including REST API requests, which are
+	 * NOT is_admin() — so `register_rest_routes` runs on `rest_api_init`.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		if ( self::$initialized ) {
+			return;
+		}
+		self::$initialized = true;
+
+		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
+	}
+
+	/**
 	 * Whether Newsletter Mode is available on this site at all.
 	 *
 	 * Spike-stage feature gate: defaults to false so the mode stays dark until it
@@ -83,5 +117,71 @@ class Mode {
 		}
 
 		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === Settings::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Register the package-owned REST route that reads/writes the mode option.
+	 *
+	 * GET  /jetpack-newsletter/v1/mode → { enabled: bool }
+	 * POST /jetpack-newsletter/v1/mode { enabled: bool } → { enabled: bool }
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/mode',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( self::class, 'rest_get_mode' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( self::class, 'rest_update_mode' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+					'args'                => array(
+						'enabled' => array(
+							'type'     => 'boolean',
+							'required' => true,
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Permission check for the mode route: site admins only.
+	 *
+	 * @return bool
+	 */
+	public static function rest_permission_check() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * GET handler: return whether the mode is currently enabled.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_get_mode() {
+		return rest_ensure_response( array( 'enabled' => self::is_enabled() ) );
+	}
+
+	/**
+	 * POST handler: persist the mode option and return the resulting state.
+	 *
+	 * Writes the plain option directly (not the shared settings whitelist). The
+	 * new value applies on the next page load, which is expected — see plan.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_update_mode( \WP_REST_Request $request ) {
+		update_option( self::OPTION_NAME, (bool) $request->get_param( 'enabled' ) );
+
+		return rest_ensure_response( array( 'enabled' => self::is_enabled() ) );
 	}
 }

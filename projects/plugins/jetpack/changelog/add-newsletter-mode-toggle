@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Newsletter Mode: register the mode REST route on all requests so the settings toggle can save.

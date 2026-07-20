@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Newsletter Mode: add an opt-in settings toggle backed by a package-owned REST route.
