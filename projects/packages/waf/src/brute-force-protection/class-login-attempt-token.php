@@ -107,9 +107,8 @@ class Brute_Force_Protection_Login_Attempt_Token {
 		}
 
 		if (
-			! $this->protection->add_transient(
+			! $this->protection->add_login_attempt_claim(
 				self::CLAIM_TRANSIENT_PREFIX . substr( hash( 'sha256', $token ), 0, 32 ),
-				1,
 				self::EXPIRATION
 			)
 		) {
