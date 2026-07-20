@@ -6,7 +6,6 @@
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
-	padding-block-end: 24px;
 
 	/*
 	 * Mirror the top padding of Page's own `hasPadding` content so the filters
@@ -14,9 +13,10 @@
 	 * tab strip is designed to sit flush under the header.
 	 */
 	padding-block-start: var(--wpds-dimension-padding-lg);
+	padding-block-end: var(--wpds-dimension-padding-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
-.dateFilters {
-	inline-size: 100%;
+.contentFlush {
+	padding-block-start: 0;
 }

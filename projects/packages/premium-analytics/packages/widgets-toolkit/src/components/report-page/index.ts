@@ -4,6 +4,7 @@ export {
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 } from './report-page-layout';
+export { ReportPageShell, type ReportPageShellProps } from './report-page-shell';
 export {
 	ReportPerformanceChart,
 	type ReportPerformanceChartProps,
