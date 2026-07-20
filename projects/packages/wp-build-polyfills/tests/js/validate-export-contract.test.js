@@ -9,8 +9,9 @@ const {
 	parseSimulateEnv,
 	validateExportContracts,
 	formatError,
-	PROVIDER_PACKAGES,
-	CONSUMER_PACKAGES,
+	handleToPackage,
+	parsePhpConstArray,
+	getShippedPackages,
 } = require( '../../bin/validate-export-contract-lib.js' );
 
 describe( 'validate-export-contract', () => {
@@ -213,23 +214,37 @@ describe( 'validate-export-contract', () => {
 		} );
 	} );
 
-	describe( 'package lists stay in sync with the build config', () => {
-		it( 'PROVIDER_PACKAGES matches webpack classicPolyfills', () => {
-			const webpack = require( '../../webpack.config.js' );
-			const scriptNames = webpack
-				.filter( c => c.name && c.name.startsWith( 'script-' ) )
-				.map( c => '@wordpress/' + c.name.replace( 'script-', '' ) )
-				.sort();
-			assert.deepEqual( [ ...PROVIDER_PACKAGES ].sort(), scriptNames );
+	describe( 'shipped-package derivation (single source of truth)', () => {
+		const packageRoot = path.join( __dirname, '..', '..' );
+
+		it( 'handleToPackage maps `wp-*` handles to `@wordpress/*` names', () => {
+			assert.equal( handleToPackage( 'wp-theme' ), '@wordpress/theme' );
+			assert.equal( handleToPackage( 'wp-private-apis' ), '@wordpress/private-apis' );
 		} );
 
-		it( 'CONSUMER_PACKAGES matches webpack modulePolyfills', () => {
+		it( 'parsePhpConstArray extracts a class-constant array', () => {
+			const php = "const SCRIPT_HANDLES = array( 'wp-notices', 'wp-theme' );";
+			assert.deepEqual( parsePhpConstArray( php, 'SCRIPT_HANDLES' ), [ 'wp-notices', 'wp-theme' ] );
+		} );
+
+		it( 'parsePhpConstArray returns [] when the constant is absent', () => {
+			assert.deepEqual( parsePhpConstArray( '<?php // nothing', 'SCRIPT_HANDLES' ), [] );
+		} );
+
+		// The provider/consumer lists are derived from SCRIPT_HANDLES + MODULE_IDS
+		// in class-wp-build-polyfills.php (the single source of truth). This test
+		// guards that the PHP registration and the webpack build cannot silently
+		// diverge — if a polyfill is added to one but not the other, it fails.
+		it( 'PHP-derived packages match what webpack actually builds', () => {
+			const { providers, consumers } = getShippedPackages( packageRoot );
 			const webpack = require( '../../webpack.config.js' );
-			const moduleNames = webpack
-				.filter( c => c.name && c.name.startsWith( 'module-' ) )
-				.map( c => '@wordpress/' + c.name.replace( 'module-', '' ) )
-				.sort();
-			assert.deepEqual( [ ...CONSUMER_PACKAGES ].sort(), moduleNames );
+			const built = prefix =>
+				webpack
+					.filter( c => c.name && c.name.startsWith( prefix ) )
+					.map( c => '@wordpress/' + c.name.replace( prefix, '' ) )
+					.sort();
+			assert.deepEqual( [ ...providers ].sort(), built( 'script-' ) );
+			assert.deepEqual( [ ...consumers ].sort(), built( 'module-' ) );
 		} );
 	} );
 

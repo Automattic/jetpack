@@ -33,27 +33,66 @@
 const { readFileSync, readdirSync, existsSync } = require( 'fs' );
 const path = require( 'path' );
 
-// Provider packages whose public exports we verify. Scoped to the CLASSIC
-// SCRIPT polyfills (the `window.wp.<pkg>` globals) — this is the surface where
-// a missing export silently resolves to `undefined` at runtime (the 16.0
-// failure mode). Keep in sync with `classicPolyfills` in webpack.config.js and
-// SCRIPT_HANDLES in src/class-wp-build-polyfills.php (asserted by a test).
+// The shipped package set has a single source of truth: the class constants in
+// src/class-wp-build-polyfills.php (SCRIPT_HANDLES + MODULE_IDS), which is also
+// what registers them at runtime. We derive the validator's provider/consumer
+// lists from there rather than maintaining a second copy (see getShippedPackages).
 //
-// NOTE: the ESM module polyfills (@wordpress/route, @wordpress/a11y) are
-// resolved via the browser import map rather than a window global, so they
-// have a different (import-map) failure mode. Verifying them is a documented
-// follow-up; see README "Export-contract validation".
-const PROVIDER_PACKAGES = [
-	'@wordpress/theme',
-	'@wordpress/notices',
-	'@wordpress/private-apis',
-	'@wordpress/views',
-];
+// - Providers (whose exports we verify) = SCRIPT_HANDLES, the CLASSIC-SCRIPT
+//   polyfills (`window.wp.<pkg>` globals) — the surface where a missing export
+//   silently resolves to `undefined` at runtime (the 16.0 failure mode).
+// - Consumers (whose imports we scan) = MODULE_IDS, the ESM module polyfills
+//   that compose the providers.
+//
+// NOTE: the ESM module polyfills are only scanned as consumers, not verified as
+// providers — they resolve via the browser import map rather than a window
+// global, a different failure mode. Verifying them is a documented follow-up
+// (see README "Safety checks").
 
-// Consumer packages whose imports we scan. These are the ESM polyfills that
-// compose the provider packages above. Keep in sync with `modulePolyfills` in
-// webpack.config.js (asserted by a test).
-const CONSUMER_PACKAGES = [ '@wordpress/boot', '@wordpress/route', '@wordpress/a11y' ];
+/**
+ * Map a classic-script handle to its npm package name (e.g. `wp-theme` → `@wordpress/theme`).
+ *
+ * @param {string} handle - A `wp-*` script handle.
+ * @return {string} The `@wordpress/*` package name.
+ */
+function handleToPackage( handle ) {
+	return '@wordpress/' + handle.replace( /^wp-/, '' );
+}
+
+/**
+ * Extract a `const NAME = array( 'a', 'b' );` PHP class-constant array's string values.
+ *
+ * @param {string} phpSource - PHP file contents.
+ * @param {string} constName - Constant name (e.g. 'SCRIPT_HANDLES').
+ * @return {string[]} The array's string literal values, or [] if not found.
+ */
+function parsePhpConstArray( phpSource, constName ) {
+	const match = phpSource.match(
+		new RegExp( `const\\s+${ constName }\\s*=\\s*array\\(([^)]*)\\)` )
+	);
+	if ( ! match ) {
+		return [];
+	}
+	return match[ 1 ].match( /'([^']+)'/g )?.map( s => s.replace( /'/g, '' ) ) ?? [];
+}
+
+/**
+ * Derive the shipped provider/consumer package lists from the PHP class constants
+ * (the single source of truth).
+ *
+ * @param {string} packageRoot - Polyfill package root.
+ * @return {{ providers: string[], consumers: string[] }} Classic-script providers and module consumers.
+ */
+function getShippedPackages( packageRoot ) {
+	const php = readFileSync(
+		path.join( packageRoot, 'src', 'class-wp-build-polyfills.php' ),
+		'utf8'
+	);
+	return {
+		providers: parsePhpConstArray( php, 'SCRIPT_HANDLES' ).map( handleToPackage ),
+		consumers: parsePhpConstArray( php, 'MODULE_IDS' ), // Already `@wordpress/*` names.
+	};
+}
 
 /**
  * Extract the ORIGINAL names of the symbols named-imported from a specific
@@ -222,8 +261,9 @@ function readPackageExports( pkgDir ) {
  */
 function validateExportContracts( options = {} ) {
 	const packageRoot = options.packageRoot || path.join( __dirname, '..' );
-	const providers = options.providers || PROVIDER_PACKAGES;
-	const consumers = options.consumers || CONSUMER_PACKAGES;
+	const shipped = getShippedPackages( packageRoot );
+	const providers = options.providers || shipped.providers;
+	const consumers = options.consumers || shipped.consumers;
 	const simulateMissing =
 		options.simulateMissing || parseSimulateEnv( process.env.WP_BUILD_POLYFILLS_SIMULATE_MISSING );
 
@@ -359,6 +399,7 @@ module.exports = {
 	validateExportContracts,
 	parseSimulateEnv,
 	formatError,
-	PROVIDER_PACKAGES,
-	CONSUMER_PACKAGES,
+	handleToPackage,
+	parsePhpConstArray,
+	getShippedPackages,
 };
