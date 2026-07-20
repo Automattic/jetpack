@@ -187,6 +187,11 @@ $jp-gray-20:             #a7aaad;
 	}
 }
 
+// Shared container rendered by the JetpackAdminNotices component.
+.jetpack-jitm-card .jitm-card {
+	margin: 0 0 1.5rem; // full width in the column, bottom spacing, no top gap
+}
+
 // if JITM appears directly below WordPress "help" menu adjust margins
 #screen-meta-links + .jitm-card {
 	margin: rem.convert(40px) 1.5385em 0 auto;
