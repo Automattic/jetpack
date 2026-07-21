@@ -96,7 +96,8 @@ export type LeaderboardChartProps = {
 	/**
 	 * Show only complete rows that fit the widget height instead of scrolling.
 	 *
-	 * Pass `false` to keep the list scrollable.
+	 * Defaults to `true` here, unlike the underlying charts prop, because widgets
+	 * sit in fixed-height tiles. Pass `false` to keep the list scrollable.
 	 * @default true
 	 */
 	fitRows?: boolean;

@@ -357,10 +357,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					} ) }
 				>
 					{ fitRows && fittedCount === 0 && ! allSeriesHidden && (
-						// Overlaid rather than rendered instead of the rows: the rows have to
-						// stay in the layout to remain measurable, otherwise a container that
-						// grows back would have nothing left to measure and could never
-						// recover its row count.
+						// Overlaid, not swapped in: the rows must stay laid out to stay measurable.
 						<div className={ clsx( styles.emptyState, styles.fitEmptyState ) }>
 							{ __( 'Not enough space to display data', 'jetpack-charts' ) }
 						</div>
@@ -377,10 +374,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							data-leaderboard-grid
 						>
 							{ data.map( ( entry, rowIndex ) => {
-								// Hidden rows keep their geometry so the next measurement sees the
-								// same layout and growing the container can reveal them again.
-								// visibility also takes them out of hit testing, focus order, and
-								// the accessibility tree, which clipping alone would not.
+								// visibility, not clipping: hidden rows keep their geometry (so a
+								// taller container can reveal them) but leave hit testing, focus,
+								// and the accessibility tree.
 								const rowStyle =
 									fitRows && rowIndex >= fittedCount
 										? ( { visibility: 'hidden' } as const )

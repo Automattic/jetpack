@@ -76,19 +76,19 @@ const data = [
 
 ## Props
 
-| Prop               | Type                   | Default                                                                | Description                                                       |
-| ------------------ | ---------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `data`             | `LeaderboardChartData` | required                                                               | Array of leaderboard items with label, values, shares, and deltas |
-| `className`        | `string`               | -                                                                      | Additional CSS classes for container                              |
-| `loading`          | `boolean`              | `false`                                                                | Shows loading skeleton when true                                  |
-| `withComparison`   | `boolean`              | `false`                                                                | Enables comparison mode with previous period data                 |
-| `withOverlayLabel` | `boolean`              | `false`                                                                | Places labels on top of bars instead of beside them               |
-| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }`         | Custom legend labels                                              |
-| `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                        |
-| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true, decimals: 2 } }` | Value formatting configuration                                    |
-| `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                    |
-| `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                            |
-| `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                      |
+| Prop               | Type                   | Default                                                                | Description                                                        |
+| ------------------ | ---------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `data`             | `LeaderboardChartData` | required                                                               | Array of leaderboard items with label, values, shares, and deltas  |
+| `className`        | `string`               | -                                                                      | Additional CSS classes for container                               |
+| `loading`          | `boolean`              | `false`                                                                | Shows loading skeleton when true                                   |
+| `withComparison`   | `boolean`              | `false`                                                                | Enables comparison mode with previous period data                  |
+| `withOverlayLabel` | `boolean`              | `false`                                                                | Places labels on top of bars instead of beside them                |
+| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }`         | Custom legend labels                                               |
+| `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
+| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true, decimals: 2 } }` | Value formatting configuration                                     |
+| `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
+| `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                             |
+| `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                       |
 | `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
 
 ### LeaderboardChartData Type
@@ -244,8 +244,8 @@ in fixed-height dashboard tiles where an inner scrollbar is unexpected:
 
 - **Whole rows only**: the chart shows as many complete rows as the height
   allows and hides the rest — a row is never half-clipped.
-- **Nothing is refetched**: hidden rows stay in the layout, so making the tile
-  taller reveals them immediately.
+- **Instant on resize**: hidden rows stay mounted, so a taller tile reveals them
+  without the widget re-rendering or re-requesting data.
 - **Hidden means hidden**: rows that do not fit leave the focus order and the
   accessibility tree, so there are no invisible-but-tabbable rows.
 - **Opting out**: pass `fitRows={ false }` for a widget that genuinely wants a

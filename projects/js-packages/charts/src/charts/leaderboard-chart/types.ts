@@ -53,7 +53,9 @@ export interface LeaderboardChartProps
 	/**
 	 * Show only complete rows that fit the chart height instead of scrolling.
 	 *
-	 * Use with `LeaderboardChartUnresponsive` inside a fixed-height container.
+	 * Requires a container that constrains the chart's height; otherwise every
+	 * row fits. Refits are debounced with the parent resize on the responsive
+	 * export, so `LeaderboardChartUnresponsive` tracks a live drag more closely.
 	 * @default false
 	 */
 	fitRows?: boolean;

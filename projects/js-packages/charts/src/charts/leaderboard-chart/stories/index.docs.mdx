@@ -82,7 +82,7 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 
 **State & Styling:**
 - **`loading`**: Whether the chart is in loading state - `false` by default
-- **`fitRows`**: Show only complete rows that fit a fixed-height container instead of scrolling - `false` by default. Use with `LeaderboardChartUnresponsive`
+- **`fitRows`**: Show only complete rows that fit a height-constrained container instead of scrolling - `false` by default
 - **`className`**: Additional CSS class name for the chart container
 - **`style`**: Custom styling including CSS custom properties for border radius
 - **`width` / `height`**: Optional fixed chart container dimensions
@@ -511,7 +511,7 @@ By default, leaderboard charts **fill their parent container's dimensions**. The
 		/>` }
 />
 
-By default, when content is taller than the available area, the content region scrolls and the legend remains visible without overlap. Set `fitRows` on `LeaderboardChartUnresponsive` inside a fixed-height container to hide rows that do not fit instead:
+By default, when content is taller than the available area, the content region scrolls and the legend remains visible without overlap. Set `fitRows` inside a height-constrained container to hide rows that do not fit instead. The example below uses `LeaderboardChartUnresponsive` because refits are debounced with the parent resize on the responsive export, which lags a live drag:
 
 <Canvas of={ LeaderboardChartStories.FitRows } />
 
