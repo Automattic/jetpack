@@ -1,4 +1,4 @@
-import { setLocaleData } from '@wordpress/i18n';
+import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from '..';
 import {
 	emailCountriesFixture,
@@ -103,7 +103,7 @@ describe( 'Stats email breakdown localization', () => {
 	afterEach( () => {
 		// The i18n instance is a module-level singleton, so drop the locale data
 		// again or the sibling suites stop seeing the untranslated labels.
-		setLocaleData( {}, 'jetpack-premium-analytics' );
+		resetLocaleData( {}, 'jetpack-premium-analytics' );
 	} );
 
 	it( 'translates the catch-all label and keeps it pinned last', () => {
@@ -117,14 +117,18 @@ describe( 'Stats email breakdown localization', () => {
 
 	it( 'translates internal link type labels', () => {
 		setLocaleData(
-			{ 'Post URL': [ 'URL des Beitrags' ], Like: [ 'Gefällt mir' ] },
+			{
+				'Email link type\u0004Post URL': [ 'URL des Beitrags' ],
+				'Email link type\u0004Like': [ 'Gefällt mir' ],
+				'Email link type\u0004Other': [ 'Sonstige Links' ],
+			},
 			'jetpack-premium-analytics'
 		);
 
 		const items = sanitizeStatsEmailBreakdownResponse( emailFieldlessLinksFixture ).data[ 0 ].items;
 
 		expect( items.map( item => item.label ) ).toEqual(
-			expect.arrayContaining( [ 'URL des Beitrags', 'Gefällt mir' ] )
+			expect.arrayContaining( [ 'URL des Beitrags', 'Gefällt mir', 'Sonstige Links' ] )
 		);
 	} );
 

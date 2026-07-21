@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, createStatsListDataPoint } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
@@ -48,18 +48,22 @@ function isEmailLinkType( value: unknown ): value is EmailLinkType {
 function emailLinkLabel( linkType: EmailLinkType ): string {
 	switch ( linkType ) {
 		case 'post-url':
-			return __( 'Post URL', 'jetpack-premium-analytics' );
+			return _x( 'Post URL', 'Email link type', 'jetpack-premium-analytics' );
 		case 'like-post':
-			return __( 'Like', 'jetpack-premium-analytics' );
+			return _x( 'Like', 'Email link type', 'jetpack-premium-analytics' );
 		case 'comment-post':
-			return __( 'Comment', 'jetpack-premium-analytics' );
+			return _x( 'Comment', 'Email link type', 'jetpack-premium-analytics' );
 		case 'remove-subscription':
-			return __( 'Unsubscribe', 'jetpack-premium-analytics' );
+			return _x( 'Unsubscribe', 'Email link type', 'jetpack-premium-analytics' );
 	}
 }
 
 function otherLabel(): string {
 	return __( 'Other', 'jetpack-premium-analytics' );
+}
+
+function otherEmailLinkLabel(): string {
+	return _x( 'Other', 'Email link type', 'jetpack-premium-analytics' );
 }
 
 function isEmailBreakdownSummaryValue( value: unknown ): boolean {
@@ -182,7 +186,7 @@ function parseFieldlessEmailLinkRows( response: StatsRecord ): StatsEmailBreakdo
 
 	if ( otherInternalLinks ) {
 		items.push( {
-			label: otherLabel(),
+			label: otherEmailLinkLabel(),
 			value: otherInternalLinks,
 			isOther: true,
 			children: null,
