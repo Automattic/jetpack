@@ -138,6 +138,56 @@ class Dashboard {
 	}
 
 	/**
+	 * Register translations for the wp-build script modules.
+	 *
+	 * The wp-build (@wordpress/boot) generator registers each route/page script
+	 * module with wp_register_script_module() but never calls
+	 * wp_set_script_module_translations(). Without it, core loads locale data for
+	 * these modules under the 'default' text domain (see
+	 * WP_Script_Modules::print_script_module_translations()), so the Forms UI
+	 * strings — which are registered under the 'jetpack-forms' text domain — fall
+	 * back to English.
+	 *
+	 * We hook the generated `{page}_boot_dependencies` filter: it receives every
+	 * boot module id after the modules are registered and before translations are
+	 * printed in the footer, which is the right moment to set the text domain on
+	 * each Forms-owned module.
+	 *
+	 * @todo Remove once @wordpress/boot's wp-build emits
+	 *       wp_set_script_module_translations() for plugin modules.
+	 */
+	public static function set_module_translations() {
+		// Script-module translations require WP 7.0+.
+		if ( ! function_exists( 'wp_set_script_module_translations' ) ) {
+			return;
+		}
+
+		$set_translations = static function ( $boot_dependencies ) {
+			if ( ! is_array( $boot_dependencies ) ) {
+				return $boot_dependencies;
+			}
+
+			foreach ( $boot_dependencies as $dependency ) {
+				if ( empty( $dependency['id'] ) || ! is_string( $dependency['id'] ) ) {
+					continue;
+				}
+
+				// Only our own modules use the 'jetpack-forms' text domain; core
+				// modules ('@wordpress/*') use 'default' and resolve automatically.
+				if ( strpos( $dependency['id'], 'jetpack-forms' ) === 0 ) {
+					wp_set_script_module_translations( $dependency['id'], 'jetpack-forms' );
+				}
+			}
+
+			return $boot_dependencies;
+		};
+
+		// Both page variants (standalone and wp-admin-integrated) expose this filter.
+		add_filter( self::FORMS_WPBUILD_ADMIN_SLUG . '_boot_dependencies', $set_translations );
+		add_filter( 'jetpack-forms-responses_boot_dependencies', $set_translations );
+	}
+
+	/**
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
 	 * @var string
@@ -185,6 +235,7 @@ class Dashboard {
 		if ( $is_wp_build_enabled ) {
 			self::load_wp_build();
 			self::fix_boot_import_map_ordering();
+			self::set_module_translations();
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
