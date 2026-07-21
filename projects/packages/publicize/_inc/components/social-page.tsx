@@ -4,7 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs, Tooltip } from '@wordpress/ui';
-import { ModernizationProvider } from '../hooks/use-is-modernized';
+import { DashboardProvider } from '../hooks/use-is-dashboard';
 import SocialGate from './social-gate';
 import useSocialGate from './social-gate/use-social-gate';
 // Define the `--jetpack-social-logo-color-facebook`, `--jetpack-social-logo-color-twitter`,
@@ -89,7 +89,7 @@ export default function SocialPage( {
 	);
 
 	return (
-		<ModernizationProvider>
+		<DashboardProvider>
 			<Tooltip.Provider delay={ 0 }>
 				<AdminPage
 					apiRoot={ getSiteData()?.rest_root }
@@ -127,6 +127,6 @@ export default function SocialPage( {
 					</SocialGate>
 				</AdminPage>
 			</Tooltip.Provider>
-		</ModernizationProvider>
+		</DashboardProvider>
 	);
 }

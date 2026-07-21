@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import './dashboard-skeleton.scss';
+import { Card, Stack, VisuallyHidden } from '@wordpress/ui';
+import styles from './dashboard-skeleton.module.scss';
 import type { FC } from 'react';
 
 /**
@@ -11,16 +12,20 @@ import type { FC } from 'react';
  * @return The skeleton placeholder.
  */
 const DashboardSkeleton: FC = () => (
-	<div className="jetpack-seo-skeleton" role="status" aria-busy="true">
-		<span className="jetpack-seo-skeleton__label">{ __( 'Loading…', 'jetpack-seo' ) }</span>
+	<Stack direction="column" gap="lg" role="status" aria-busy="true">
+		<VisuallyHidden>{ __( 'Loading…', 'jetpack-seo' ) }</VisuallyHidden>
 		{ [ 0, 1, 2 ].map( index => (
-			<div key={ index } className="jetpack-seo-skeleton__card" aria-hidden="true">
-				<div className="jetpack-seo-skeleton__line jetpack-seo-skeleton__line--title" />
-				<div className="jetpack-seo-skeleton__line" />
-				<div className="jetpack-seo-skeleton__line jetpack-seo-skeleton__line--short" />
-			</div>
+			<Card.Root key={ index } aria-hidden="true">
+				<Card.Content>
+					<Stack direction="column" gap="md">
+						<div className={ `${ styles.line } ${ styles.title }` } />
+						<div className={ styles.line } />
+						<div className={ `${ styles.line } ${ styles.short }` } />
+					</Stack>
+				</Card.Content>
+			</Card.Root>
 		) ) }
-	</div>
+	</Stack>
 );
 
 export default DashboardSkeleton;
