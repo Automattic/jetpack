@@ -42,6 +42,13 @@
 	margin: 0 auto;
 }
 
+.my-jetpack-tab-panel--single-tab {
+
+	:global(.components-tab-panel__tabs) {
+		display: none;
+	}
+}
+
 .my-jetpack-tab-panel--full-width {
 
 	width: 100%;

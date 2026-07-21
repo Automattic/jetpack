@@ -4,12 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
-import { MY_JETPACK_SECTION_OVERVIEW } from './constants';
 import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
 import { MyJetpackSection } from './types';
-import { getMyJetpackSections, isValidMyJetpackSection } from './utils';
+import { getDefaultMyJetpackSection, getMyJetpackSections, isValidMyJetpackSection } from './utils';
 import type { ReactNode } from 'react';
 
 /**
@@ -31,7 +30,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	// If the tab is not valid, use the default one.
 	const currentTab = useMemo( () => {
 		const validTab = isValidMyJetpackSection( params.section );
-		return validTab ? params.section : MY_JETPACK_SECTION_OVERVIEW;
+		return validTab ? params.section : getDefaultMyJetpackSection();
 	}, [ params.section ] );
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
@@ -45,7 +44,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				// Record tab click event
 				recordEvent( 'jetpack_myjetpack_tab_click', {
 					tab_name: tabName,
-					previous_tab: params.section || MY_JETPACK_SECTION_OVERVIEW,
+					previous_tab: params.section || getDefaultMyJetpackSection(),
 					session_duration: sessionDuration,
 					user_type: isNewUser ? 'new' : 'returning',
 				} );
@@ -104,7 +103,11 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			className={ clsx(
 				styles[ 'tab-panel' ],
 				styles[ 'my-jetpack-tab-panel--full-width' ],
-				'jetpack-my-jetpack-tab-panel'
+				'jetpack-my-jetpack-tab-panel',
+				{
+					// With a single section there is nothing to switch between, so hide the tab bar.
+					[ styles[ 'my-jetpack-tab-panel--single-tab' ] ]: tabs.length === 1,
+				}
 			) }
 			initialTabName={ currentTab }
 			onSelect={ onTabSelect }
