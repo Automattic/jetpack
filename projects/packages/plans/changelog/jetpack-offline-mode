@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Current_Plan::supports() returning false for Publicize on sites with no plan data yet (e.g. never connected), the same free-tier exception already made for VideoPress.

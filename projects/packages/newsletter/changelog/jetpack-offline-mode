@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render the real Newsletter dashboard, including a fully functional Settings tab, with sample subscriber data in local development mode.

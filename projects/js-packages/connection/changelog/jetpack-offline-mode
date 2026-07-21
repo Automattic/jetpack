@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a LocalDevModeBadge and OfflineModeScreen for products to use when a site is in local development mode, and a blog-ID fallback so REST routes registered at boot time match the frontend in that mode.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render the real VideoPress dashboard and Library (showing local media library videos) with sample data in local development mode, and show an explanatory modal instead of starting checkout when an upgrade nudge is clicked there.

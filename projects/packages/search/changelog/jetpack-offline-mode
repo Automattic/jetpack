@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render the real Search dashboard with sample plan and index data in local development mode instead of a connection wall.

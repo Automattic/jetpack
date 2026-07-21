@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add a jetpack_offline_mode_module_activation_blocked filter so a module with its own offline-safe experience can opt out of the blanket connection requirement that otherwise blocks it from ever activating on a site in local development mode.

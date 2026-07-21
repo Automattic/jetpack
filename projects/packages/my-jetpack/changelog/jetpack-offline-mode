@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Show the real Stats card with sample data and a clear "Sample data" label in local development mode, and fix its status incorrectly downgrading to a connection error.

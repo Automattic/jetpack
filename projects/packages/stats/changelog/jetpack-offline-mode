@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add sample stats data (Views, Referrers, Top Posts, and more) used to render the real Stats dashboard in local development mode.

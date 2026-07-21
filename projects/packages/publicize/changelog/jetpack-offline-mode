@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render the real Social dashboard with sample traffic data and a functional Settings tab in local development mode, including fixing the module's own on/off toggle silently failing to save there.

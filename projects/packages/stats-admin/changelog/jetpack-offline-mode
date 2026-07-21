@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render the real Stats dashboard with sample data in local development mode, with a "Sample data" badge overlaid on the header rather than a connection wall.

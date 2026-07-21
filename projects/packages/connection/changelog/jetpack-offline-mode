@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a blog-ID mismatch between REST routes registered at boot time and the frontend's connection state on sites that have never connected.

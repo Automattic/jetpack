@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Render the real Activity Log dashboard with sample data in local development mode instead of a connection wall, gated behind the same free-tier upsell a connected free-plan site sees.
