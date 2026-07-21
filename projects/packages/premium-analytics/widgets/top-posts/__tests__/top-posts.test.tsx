@@ -380,7 +380,7 @@ describe( 'TopPostsWidget', () => {
 
 	it( 'renders a placeholder instead of a fabricated delta for unmatched rows', async () => {
 		// Only one post overlaps the comparison period; the other must show the
-		// chart's placeholder, not a fabricated +100%.
+		// chart's missing-data placeholder, not an implied zero previous value.
 		const partialComparison = {
 			date: '2026-02-10',
 			days: {},

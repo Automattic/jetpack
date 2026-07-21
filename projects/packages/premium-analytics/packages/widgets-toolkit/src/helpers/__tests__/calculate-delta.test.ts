@@ -16,6 +16,10 @@ describe( 'calculateDelta', () => {
 		expect( calculateDelta( 0, 0 ) ).toBe( 0 );
 	} );
 
+	it( 'returns -100 when the current value drops to zero', () => {
+		expect( calculateDelta( 0, 100 ) ).toBe( -100 );
+	} );
+
 	it.each( [ 100, -100 ] )(
 		'returns undefined when the previous value is zero and the current value is %d',
 		currentValue => {

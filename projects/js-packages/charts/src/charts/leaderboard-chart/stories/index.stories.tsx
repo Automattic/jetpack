@@ -243,8 +243,13 @@ export const UnavailableDelta: Story = {
 	play: async ( { canvasElement } ) => {
 		const canvas = within( canvasElement );
 
-		await expect( canvas.getByText( '—' ) ).toBeInTheDocument();
+		// getAllByText rather than getByText so adding another placeholder row to
+		// the fixture fails on the count instead of on an ambiguous match.
+		await expect( canvas.getAllByText( '—' ) ).toHaveLength( 1 );
 		await expect( canvas.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		// The discriminator: a known previous value of 0 must not fall into the
+		// missing-comparison bucket.
+		await expect( canvas.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
 		await expect( canvas.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	},
 };

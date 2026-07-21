@@ -125,6 +125,30 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'still renders the comparison bar when the previous value is known but the delta is unavailable', () => {
+		// The comparison bar is gated on a known previous value, not on the
+		// delta, so a row whose delta is unavailable keeps its bar. previousShare
+		// is non-zero here so a dropped bar cannot hide behind a zero width.
+		const { container } = render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'zero-prev',
+						label: 'Zero Prev',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 40,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
+	} );
+
 	it( 'shows custom label when provided', () => {
 		render(
 			<LeaderboardChart

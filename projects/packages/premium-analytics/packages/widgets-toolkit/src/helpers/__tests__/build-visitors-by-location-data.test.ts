@@ -46,7 +46,8 @@ describe( 'buildVisitorsByLocationData', () => {
 
 		const japan = leaderboardData.find( row => row.id === 'JP' );
 
-		// No matching comparison row → em dash, not a fabricated +100%.
+		// No matching comparison row → comparison fields stay undefined, so the
+		// chart shows the missing-data placeholder rather than implying a real 0.
 		expect( japan?.previousValue ).toBeUndefined();
 		expect( japan?.previousShare ).toBeUndefined();
 		expect( japan?.delta ).toBeUndefined();
