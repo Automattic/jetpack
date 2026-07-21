@@ -405,6 +405,11 @@ class Mode {
 			   in-page tab bar (the tab content stays; only the bar is hidden). */
 			.jp-admin-page-tabs {
 				display: none;
+			}
+			/* Hide the WordPress.com site-notices upsell banner, which a late hook
+			   injects into #adminmenu after our declutter runs. */
+			#adminmenu #toplevel_page_site-notices {
+				display: none !important;
 			}'
 		);
 
