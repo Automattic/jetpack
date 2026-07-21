@@ -3,8 +3,11 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 /**
  * Fractional layout rounding can put a row's bottom a hair past the container's
  * without any visible clipping. Allow that much slack before hiding a row.
+ *
+ * Exported so tests and stories assert against the real tolerance rather than
+ * restating it.
  */
-const SUBPIXEL_TOLERANCE = 0.5;
+export const SUBPIXEL_TOLERANCE = 0.5;
 
 /**
  * Counts how many leading rows fit inside the content container.
@@ -34,22 +37,32 @@ export function useFittedRowCount( enabled: boolean, rowCount: number, data: unk
 		}
 
 		// Switching from the default scrollable mode can leave the content at a
-		// non-zero scroll offset. Fitting always starts with the leading rows, and
-		// the viewport-relative measurements below must reflect that position.
+		// non-zero scroll offset, which would shift every measurement below.
 		content.scrollTop = 0;
 
-		// content > grid > rows. Selecting the grid's direct children matters:
-		// an interactive row's cells are nested inside its button and carry the
-		// same index, and counting them as rows would still produce the right
-		// total — a correct answer arrived at by accident.
+		// Grid's direct children only: an interactive row's cells are nested
+		// inside its button and repeat the same index.
 		const cells = content.querySelectorAll< HTMLElement >( ':scope > * > [data-row-index]' );
 
 		const rowBottoms: number[] = [];
 		cells.forEach( cell => {
 			const index = Number( cell.getAttribute( 'data-row-index' ) );
+			// An unparseable index would write a non-numeric key, leaving a hole
+			// that silently truncates the scan below at the preceding row.
+			if ( ! Number.isInteger( index ) || index < 0 || index >= rowCount ) {
+				return;
+			}
 			const { bottom } = cell.getBoundingClientRect();
 			rowBottoms[ index ] = Math.max( rowBottoms[ index ] ?? -Infinity, bottom );
 		} );
+
+		// Fail open. If the rows cannot be measured at all — a changed DOM shape,
+		// a detached container — falling back to the scrollable default keeps the
+		// data reachable, where hiding every row reads as a broken tile.
+		if ( rowBottoms.length === 0 ) {
+			setFittedCount( rowCount );
+			return;
+		}
 
 		const contentBottom = content.getBoundingClientRect().bottom + SUBPIXEL_TOLERANCE;
 
@@ -58,11 +71,10 @@ export function useFittedRowCount( enabled: boolean, rowCount: number, data: unk
 			fits++;
 		}
 
-		// Bail before setState: visibility changes preserve geometry, so this
-		// should never re-trigger the observers, but setState inside a
-		// ResizeObserver callback is the usual way this grows a render loop.
+		// Bail before setState: setState inside a ResizeObserver callback is the
+		// usual way this grows a render loop.
 		setFittedCount( current => ( current === fits ? current : fits ) );
-	}, [] );
+	}, [ rowCount ] );
 
 	// Measure after row data changes so geometry updates are caught even when the
 	// row count and the grid's overall size stay the same (for example, one label

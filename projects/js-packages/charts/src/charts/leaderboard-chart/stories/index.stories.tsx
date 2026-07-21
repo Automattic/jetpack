@@ -1,6 +1,6 @@
 import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
-import { expect } from 'storybook/test';
+import { expect, waitFor } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -20,6 +20,7 @@ import {
 	type LegendStoryControls,
 } from '../../../stories/legend-config';
 import { formatMetricValue, hexToRgba } from '../../../utils';
+import { SUBPIXEL_TOLERANCE } from '../hooks';
 import LeaderboardChart, { LeaderboardChartUnresponsive } from '../leaderboard-chart';
 import type { ChartLegendConfig, LeaderboardEntry } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -611,19 +612,30 @@ export const FitRows: Story = {
 		docs: {
 			description: {
 				story:
-					"`fitRows` shows only the rows that fit the chart height instead of scrolling, for charts placed in a fixed-height container such as a dashboard tile. Rows that do not fit keep their place in the layout but are hidden from painting, hit testing, focus order, and the accessibility tree, so growing the container reveals them again without refetching. Drag the container's resize handle to watch the visible row count follow the height — a row appears only once it fits whole.",
+					"`fitRows` shows only the rows that fit the chart height instead of scrolling, for charts placed in a fixed-height container such as a dashboard tile. Rows that do not fit keep their place in the layout but are hidden from painting, hit testing, focus order, and the accessibility tree, so growing the container reveals them again immediately. Drag the container's resize handle to watch the visible row count follow the height — a row appears only once it fits whole.",
 			},
 		},
 	},
 	play: async ( { canvasElement } ) => {
+		// Row heights depend on the web fonts, so measuring before they land
+		// samples geometry the chart is still in the middle of correcting.
+		await document.fonts.ready;
+
 		const content = canvasElement.querySelector( '[class*="leaderboardChart__content"]' );
-		const grid = content.firstElementChild;
+		const grid = content.querySelector( ':scope > [data-leaderboard-grid]' );
 		const rows = [ ...grid.querySelectorAll( ':scope > [data-row-index]' ) ];
+		const isHidden = row => getComputedStyle( row ).visibility === 'hidden';
+		const visibleCount = () =>
+			new Set(
+				rows.filter( row => ! isHidden( row ) ).map( row => row.getAttribute( 'data-row-index' ) )
+			).size;
 
 		// The story only means something if the height actually forces a cut.
-		const hidden = rows.filter( row => getComputedStyle( row ).visibility === 'hidden' );
-		expect( hidden.length ).toBeGreaterThan( 0 );
-		expect( hidden.length ).toBeLessThan( rows.length );
+		await waitFor( () => {
+			const hidden = rows.filter( isHidden );
+			expect( hidden.length ).toBeGreaterThan( 0 );
+			expect( hidden.length ).toBeLessThan( rows.length );
+		} );
 
 		// No inner scrollbar: the rows that do not fit are hidden, not scrolled to.
 		expect( getComputedStyle( content ).overflow ).toBe( 'hidden' );
@@ -632,47 +644,35 @@ export const FitRows: Story = {
 		const wholeRowsOnly = () => {
 			const contentBottom = content.getBoundingClientRect().bottom;
 			for ( const row of rows ) {
-				if ( getComputedStyle( row ).visibility === 'hidden' ) {
+				if ( isHidden( row ) ) {
 					continue;
 				}
-				expect( row.getBoundingClientRect().bottom ).toBeLessThanOrEqual( contentBottom + 0.5 );
+				expect( row.getBoundingClientRect().bottom ).toBeLessThanOrEqual(
+					contentBottom + SUBPIXEL_TOLERANCE
+				);
 			}
 		};
 		wholeRowsOnly();
 
-		// Resizing must work in both directions. Growing is the property the whole
-		// design rests on — hidden rows are only acceptable because a taller
-		// container brings them back — and it is the one a pinned pixel height
-		// silently breaks, so assert the round trip rather than the first render.
-		// Select by test id, not by style: the shared decorator also renders a
-		// resizable box, and it comes first in document order.
+		// Assert the round trip: a pinned pixel height passes the first render and
+		// silently breaks re-growth.
+		// Select by test id — the shared decorator renders its own resizable box first.
 		const box = canvasElement.querySelector< HTMLElement >( '[data-testid="fit-rows-tile"]' );
-		const visibleCount = () =>
-			new Set(
-				rows
-					.filter( row => getComputedStyle( row ).visibility !== 'hidden' )
-					.map( row => row.getAttribute( 'data-row-index' ) )
-			).size;
-		const resizeTo = async height => {
+		// Poll for the effect rather than sleeping a fixed amount: ResizeObserver
+		// delivery is tied to the rendering pipeline, and a loaded CI runner can
+		// miss a flat deadline.
+		const resizeTo = async ( height, expected ) => {
 			box.style.height = `${ height }px`;
-			await new Promise( resolve => requestAnimationFrame( () => setTimeout( resolve, 300 ) ) );
+			await waitFor( () => expected( visibleCount() ) );
+			wholeRowsOnly();
+			return visibleCount();
 		};
 
 		const atStart = visibleCount();
 
-		await resizeTo( 100 );
-		const whenShort = visibleCount();
-		expect( whenShort ).toBeLessThan( atStart );
-		wholeRowsOnly();
-
-		await resizeTo( 280 );
-		const whenTall = visibleCount();
-		expect( whenTall ).toBeGreaterThan( whenShort );
-		wholeRowsOnly();
-
-		await resizeTo( 100 );
-		expect( visibleCount() ).toBe( whenShort );
-
-		await resizeTo( 180 );
+		const whenShort = await resizeTo( 100, count => expect( count ).toBeLessThan( atStart ) );
+		await resizeTo( 280, count => expect( count ).toBeGreaterThan( whenShort ) );
+		await resizeTo( 100, count => expect( count ).toBe( whenShort ) );
+		await resizeTo( 180, count => expect( count ).toBe( atStart ) );
 	},
 };
