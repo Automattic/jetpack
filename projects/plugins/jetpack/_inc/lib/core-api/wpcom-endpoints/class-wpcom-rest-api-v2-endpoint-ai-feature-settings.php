@@ -202,7 +202,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			'features'       => array(
 				'writing_assistant' => array( 'enabled' => $stored['writing_assistant'] ),
 				'image_editor'      => array( 'enabled' => $stored['image_editor'] ),
-				'feature_clip'      => array( 'enabled' => $stored['feature_clip'] ),
+				'feature_clip'      => array(
+					'enabled'   => $stored['feature_clip'],
+					'available' => $this->is_feature_clip_available(),
+				),
 				'seo_enhancer'      => array(
 					'enabled'   => $stored['seo_enhancer'],
 					'available' => $this->is_seo_enhancer_available(),
@@ -235,6 +238,30 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			&& Current_Plan::supports( 'ai-seo-enhancer' );
 
 		return $filter_on && $module_active && $plan_supports;
+	}
+
+	/**
+	 * Whether Feature Clip can operate on this site, so the settings page can
+	 * hide its row where the feature can't run.
+	 *
+	 * Reports the shared Image Studio *environment* only — the host and master
+	 * gates plus the platform checks. The `image_editor` toggle is deliberately
+	 * not consulted: Feature Clip and the image editor toggle independently by
+	 * contract, so the image editor being off must not hide the clip row.
+	 *
+	 * The extension file that defines the predicate isn't loaded in every
+	 * context this endpoint is (on WordPress.com the endpoint loads from the
+	 * synced jetpack-endpoints directory), so a partial load defaults to
+	 * available rather than hiding a row that works.
+	 *
+	 * @return bool
+	 */
+	private function is_feature_clip_available() {
+		if ( ! function_exists( '\Automattic\Jetpack\Extensions\ImageStudio\is_image_studio_environment_available' ) ) {
+			return true;
+		}
+
+		return (bool) \Automattic\Jetpack\Extensions\ImageStudio\is_image_studio_environment_available();
 	}
 
 	/**
