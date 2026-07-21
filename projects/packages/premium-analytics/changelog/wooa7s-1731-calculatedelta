@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Comparison widgets: Show an unavailable percentage change when the previous value is zero.
+Comparison widgets: Show an unavailable percentage change when the previous value is zero, and keep Sales by UTM rows with no comparison period in the missing-data state.

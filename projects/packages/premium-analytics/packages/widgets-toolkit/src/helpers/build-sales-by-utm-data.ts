@@ -38,8 +38,14 @@ export function buildSalesByUtmData(
 
 	return data.slice( 0, maxEntries ).map( ( item, idx ) => {
 		const currentValue = item.current_period.value || 0;
-		const previousValue = item.previous_period?.value ?? 0;
-		const delta = calculateDelta( currentValue, previousValue );
+
+		// A source absent from the comparison period has an unknown previous
+		// value, not a real 0, so leave the comparison fields undefined and let
+		// the chart show a missing-data placeholder. A source present with 0
+		// sales keeps its known comparison value while its unavailable delta
+		// renders separately.
+		const previousValue = item.previous_period?.value;
+		const hasComparisonValue = previousValue !== undefined;
 
 		return {
 			id: item.item ? String( item.item ) : String( idx ),
@@ -47,8 +53,8 @@ export function buildSalesByUtmData(
 			currentValue,
 			previousValue,
 			currentShare: sharePercentage( currentValue, maxValue ),
-			previousShare: sharePercentage( previousValue, maxValue ),
-			delta,
+			previousShare: hasComparisonValue ? sharePercentage( previousValue, maxValue ) : undefined,
+			delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
 		};
 	} );
 }
