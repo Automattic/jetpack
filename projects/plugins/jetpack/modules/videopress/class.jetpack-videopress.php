@@ -52,12 +52,9 @@ class Jetpack_VideoPress {
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_media_new_scripts' ) );
 
 		VideoPress_Scheduler::init();
-
-		if ( $this->is_videopress_enabled() ) {
-			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
-		}
 	}
 
 	/**
@@ -71,32 +68,42 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * The media-new.php page isn't supported for uploading to VideoPress.
+	 * Enqueues the script that routes media-new.php video uploads to VideoPress.
 	 *
-	 * There is either a technical reason for this (bulk uploader isn't overridable),
-	 * or it is an intentional way to give site owners an option for uploading videos that bypass VideoPress.
+	 * The classic uploader on media-new.php builds a raw plupload.Uploader
+	 * (via plupload-handlers) instead of wp.Uploader, so the override in
+	 * videopress-plupload.js never engages there. This companion script
+	 * registers the same videopress_check_uploads plupload filter and
+	 * re-targets video uploads to VideoPress. The filter is injected into the
+	 * uploader settings through the plupload_init filter, which
+	 * media_upload_form() applies when it renders later in the request.
+	 *
+	 * @param string $hook_suffix The current admin page.
 	 */
-	public function media_new_page_admin_notice() {
-		global $pagenow;
-		if ( 'media-new.php' !== $pagenow ) {
+	public function enqueue_media_new_scripts( $hook_suffix ) {
+		if ( 'media-new.php' !== $hook_suffix ) {
 			return;
 		}
 
-		$message = sprintf(
-			wp_kses(
-				/* translators: %s is the url to the Media Library */
-				__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a> or the block editor using the Video block.', 'jetpack' ),
-				array( 'a' => array( 'href' => array() ) )
+		if ( ! $this->is_videopress_enabled() ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'videopress-media-new',
+			Assets::get_file_url_for_environment(
+				'_inc/build/videopress/js/videopress-media-new.min.js',
+				'modules/videopress/js/videopress-media-new.js'
 			),
-			esc_url( admin_url( 'upload.php?mode=grid&action=add-new' ) )
-		);
-		wp_admin_notice(
-			$message,
 			array(
-				'type'        => 'warning',
-				'dismissible' => true,
-			)
+				'jquery',
+				'plupload-handlers',
+			),
+			JETPACK__VERSION,
+			true
 		);
+
+		add_filter( 'plupload_init', array( $this, 'videopress_pluploder_config' ) );
 	}
 
 	/**
