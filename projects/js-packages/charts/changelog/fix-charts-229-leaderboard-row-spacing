@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: keep LeaderboardChart row spacing and column alignment identical whether or not a row is interactive.
+LeaderboardChart: Keep row spacing and column alignment identical whether or not a row is interactive.
