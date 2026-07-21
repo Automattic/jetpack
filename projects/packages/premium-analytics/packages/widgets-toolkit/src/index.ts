@@ -134,6 +134,7 @@ export {
 	summaryCount,
 	toDay,
 	defaultPeriodForInterval,
+	buildMetricTab,
 } from './helpers';
 
 /**
