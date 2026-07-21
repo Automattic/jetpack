@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Fix invalid WPDS token in store-performance widget styles to resolve stylelint failure.

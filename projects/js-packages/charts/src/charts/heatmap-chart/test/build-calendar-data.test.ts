@@ -33,15 +33,71 @@ describe( 'buildCalendarHeatmapData', () => {
 		expect( data[ 0 ].data[ 1 ].value ).toBeNull(); // Tue Jan 2 has no datum
 	} );
 
+	test( 'hides the week-completion days outside the span by default', () => {
+		const midWeek: DataPointDate[] = [
+			{ dateString: '2024-01-03', value: 5 }, // Wed
+			{ dateString: '2024-01-09', value: 2 }, // Tue (2nd week)
+		];
+		const { data } = buildCalendarHeatmapData( midWeek, {
+			weekStartsOn: 1,
+		} );
+
+		// Mon Jan 1 and Tue Jan 2 precede the span — hidden; Wed Jan 3 opens it.
+		expect( data[ 0 ].data[ 0 ].hidden ).toBe( true );
+		expect( data[ 0 ].data[ 1 ].hidden ).toBe( true );
+		expect( data[ 0 ].data[ 2 ].hidden ).toBeUndefined();
+
+		// Thu Jan 4 is inside the span with no entry — a blank cell, not hidden.
+		expect( data[ 0 ].data[ 3 ].hidden ).toBeUndefined();
+		expect( data[ 0 ].data[ 3 ].value ).toBeNull();
+
+		// Tue Jan 9 closes the span; Wed Jan 10 onward is hidden.
+		expect( data[ 1 ].data[ 1 ].hidden ).toBeUndefined();
+		expect( data[ 1 ].data[ 2 ].hidden ).toBe( true );
+		expect( data[ 1 ].data[ 6 ].hidden ).toBe( true );
+	} );
+
+	test( 'out-of-span days stay blank cells when hideOutOfRangeDays is false', () => {
+		const midWeek: DataPointDate[] = [ { dateString: '2024-01-03', value: 5 } ]; // Wed
+		const { data } = buildCalendarHeatmapData( midWeek, {
+			weekStartsOn: 1,
+			hideOutOfRangeDays: false,
+		} );
+		expect( data[ 0 ].data[ 0 ].hidden ).toBeUndefined();
+		expect( data[ 0 ].data[ 0 ].value ).toBeNull();
+	} );
+
 	test( 'labels only the first column of each month', () => {
 		const multiMonth: DataPointDate[] = [
-			{ dateString: '2024-01-29', value: 1 },
+			{ dateString: '2024-01-01', value: 1 },
 			{ dateString: '2024-02-05', value: 1 },
 		];
 		const { data } = buildCalendarHeatmapData( multiMonth );
 		expect( data[ 0 ].label ).toBe( 'Jan' );
 		const labels = data.map( c => c.label ).filter( Boolean );
 		expect( labels ).toContain( 'Feb' );
+	} );
+
+	test( 'suppresses a partial first month label so it cannot collide with the next', () => {
+		// Jan 29 is the only January column; February should be the first visible label.
+		const partialFirstMonth: DataPointDate[] = [
+			{ dateString: '2024-01-29', value: 1 },
+			{ dateString: '2024-02-05', value: 1 },
+		];
+		const { data } = buildCalendarHeatmapData( partialFirstMonth, { weekStartsOn: 1 } );
+		expect( data[ 0 ].label ).toBe( '' );
+		expect( data.map( c => c.label ).filter( Boolean )[ 0 ] ).toBe( 'Feb' );
+	} );
+
+	test( 'keeps the first month label when the range never reaches a second month', () => {
+		// Single-month ranges keep their lone month label.
+		const singleMonth: DataPointDate[] = [
+			{ dateString: '2024-01-01', value: 1 },
+			{ dateString: '2024-01-03', value: 2 },
+		];
+		const { data } = buildCalendarHeatmapData( singleMonth, { weekStartsOn: 1 } );
+		expect( data ).toHaveLength( 1 );
+		expect( data[ 0 ].label ).toBe( 'Jan' );
 	} );
 
 	test( 'filters out entries with unparseable or missing dates', () => {

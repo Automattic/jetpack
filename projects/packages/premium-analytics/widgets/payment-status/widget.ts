@@ -25,9 +25,11 @@ export type PaymentStatusAttributes = Record< never, never >;
 export default {
 	name: 'jpa/payment-status',
 	title: __( 'Payment status', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the breakdown of paid vs unpaid order revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Shows the breakdown of paid vs unpaid order revenue over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

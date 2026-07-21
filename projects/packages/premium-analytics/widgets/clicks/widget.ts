@@ -2,7 +2,8 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { link } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Clicks widget.
@@ -23,14 +24,26 @@ export type ClicksAttributes = {
 export default {
 	name: 'jpa/clicks',
 	title: __( 'Clicks', 'jetpack-premium-analytics' ),
-	icon: chartBar,
+	help: {
+		content: __(
+			'The external links your visitors clicked most often, sorted by clicks.',
+			'jetpack-premium-analytics'
+		),
+		links: [
+			{
+				label: __( 'Learn more', 'jetpack-premium-analytics' ),
+				href: 'https://jetpack.com/support/jetpack-stats/',
+			},
+		],
+	},
+	icon: link,
 	attributes: [
 		{
 			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer' as const,
+			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< ClicksAttributes >[],
 	example: {
 		attributes: {
 			max: 10,

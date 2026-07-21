@@ -1,22 +1,39 @@
 /**
  * Internal dependencies
  */
-import { statsDevicesQuery } from '../queries/stats-devices-query';
-import { useStatsReport } from './use-stats-report';
+import { mergeStatsDevicesComparisonRows } from '../processing/stats';
+import { statsDevicesQuery, type StatsDeviceProperty } from '../queries/stats-devices-query';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
-	StatsDevices,
-	StatsDevicesDeviceParam,
-	StatsDevicesParams,
-} from '../queries/stats-devices-query';
+	StatsDevicesComparisonItem,
+	StatsDevicesItem,
+	StatsNormalizedReport,
+} from '../processing/stats';
+import type { StatsReportParams } from '../queries/stats-query';
+import type { ReportParams } from '../utils/search';
 
-export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsOptions ) {
-	return useStatsReport(
-		statsDevicesQuery,
-		params,
-		[ 'stats', 'devices', '__comparison__', 'disabled' ],
+type StatsDevicesParams = ReportParams & { deviceProperty?: StatsDeviceProperty };
+
+type StatsDevicesOptions = UseStatsOptions & {
+	maxRows?: number;
+};
+
+const useStatsDevicesReport = createStatsListReportHook<
+	StatsReportParams & { deviceProperty?: StatsDeviceProperty },
+	StatsNormalizedReport< StatsDevicesItem >,
+	StatsDevicesComparisonItem,
+	StatsDevicesOptions
+>( {
+	queryFactory: statsDevicesQuery,
+	reportSlug: 'devices',
+	mergeComparisonRows: mergeStatsDevicesComparisonRows,
+	getOptions: splitStatsListOptions,
+} );
+
+export function useStatsDevices( params: StatsDevicesParams, options?: StatsDevicesOptions ) {
+	return useStatsDevicesReport(
+		params as StatsReportParams & { deviceProperty?: StatsDeviceProperty },
 		options
 	);
 }
-
-export type { StatsDevices, StatsDevicesDeviceParam, StatsDevicesParams };

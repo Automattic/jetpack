@@ -12,6 +12,12 @@ A registered dashboard widget is a folder under `widgets/`, auto-discovered by c
 These rules apply to registered dashboard widgets. Presentational-only folders under
 `widgets/` are out of scope unless they are being converted into registered widgets.
 
+Chart components always come from `@jetpack-premium-analytics/widgets-toolkit` — a shared
+script module bundled once for the whole dashboard. Never import `@automattic/charts`
+directly from a widget: that inlines the entire charting stack (charts, visx, react-spring)
+into the widget's render bundle. If a chart component isn't exposed yet, re-export it from
+the toolkit's "Charts passthrough" section.
+
 The render component is bound by `WidgetRenderProps<Item>` from
 `@wordpress/widget-primitives`: it receives only `{ attributes, setAttributes }`.
 `attributes` may arrive empty — default it (`= {}`).

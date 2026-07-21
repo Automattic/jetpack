@@ -20,20 +20,12 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
-	 * Query var the checkout return URL carries so the gate busts its cached
-	 * purchases lookup the instant a buyer lands back on the dashboard. Kept in
-	 * sync with the `podcast_purchased` literal in `withPurchaseReturnMarker()`
-	 * (`src/dashboard/upgrade.ts`).
-	 */
-	const PURCHASE_RETURN_QUERY_VAR = 'podcast_purchased';
-
-	/**
 	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
 	 *
-	 * Placed after content/product items like Newsletter and Search (10), but
-	 * before Settings (13).
+	 * Placed after content/product items like Newsletter and Search (10), and
+	 * above Activity Log (12) so Activity Log stays immediately before Settings (13).
 	 */
-	const MENU_POSITION = 12;
+	const MENU_POSITION = 11;
 
 	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
@@ -152,14 +144,6 @@ class Admin_Page {
 			}
 		}
 
-		// A buyer returning from checkout carries the purchase marker; bust the
-		// cached purchases lookup so the gate re-reads `/upgrades` and unlocks
-		// the paid surfaces now instead of after the transient expires.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET[ self::PURCHASE_RETURN_QUERY_VAR ] ) ) {
-			Podcast_Gate::flush_purchases_cache();
-		}
-
 		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
 		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
 		// product name shown in the locked-preview copy (not translated).
@@ -168,8 +152,8 @@ class Admin_Page {
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
-			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
+			'selected_category'   => self::get_selected_category(),
 			'upgrade'             => array(
 				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
 				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
@@ -177,6 +161,30 @@ class Admin_Page {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * The currently designated podcast category, injected so the settings
+	 * picker can label its selected option on first paint instead of waiting on
+	 * the client-side taxonomy→terms fetch. The full list still loads lazily.
+	 *
+	 * @return array{id:int, name:string}|null Null when no category is set.
+	 */
+	public static function get_selected_category() {
+		$category_id = (int) get_option( 'podcasting_category_id', 0 );
+		if ( $category_id <= 0 ) {
+			return null;
+		}
+
+		$term = get_term( $category_id, 'category' );
+		if ( ! $term instanceof \WP_Term ) {
+			return null;
+		}
+
+		return array(
+			'id'   => (int) $term->term_id,
+			'name' => $term->name,
+		);
 	}
 
 	/**

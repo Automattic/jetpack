@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Stats: clarify the wp-admin post list column header as "Views: 30 days" so the figure's 30-day time window is obvious at a glance.

@@ -1,5 +1,5 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import './dashboard-load-error.scss';
 import type { FC } from 'react';
 
@@ -25,9 +25,7 @@ const DashboardLoadError: FC< Props > = ( { onRetry } ) => (
 		<p className="jetpack-seo-load-error__body">
 			{ __( 'This is usually temporary. Give it another try.', 'jetpack-seo' ) }
 		</p>
-		<Button variant="primary" onClick={ onRetry }>
-			{ __( 'Try again', 'jetpack-seo' ) }
-		</Button>
+		<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-seo' ) }</Button>
 	</div>
 );
 

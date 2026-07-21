@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-JSON API: Ensure error responses always serialize an HTTP error status (>= 400), never a non-integer or a 2xx that clients could interpret as success.

@@ -7,7 +7,7 @@
  * Recognized query args (on any admin page, for a `manage_options` user):
  *   ?enable-ai-launchpad=1  Set wpcom_ai_launchpad_enabled to 1.
  *   ?enable-ai-launchpad=0  Delete wpcom_ai_launchpad_enabled (turn back off).
- *   ?reset-ai-launchpad=1   Clear the wizard / AI-output / dismissed / task-status options so the wizard runs fresh.
+ *   ?reset-ai-launchpad=1   Clear the wizard / AI-output / dismissed / skipped / task-status options so the wizard runs fresh.
  *
  * Hooked on `admin_menu`, not `admin_init`: when the feature is OFF its page is unregistered and
  * `user_can_access_admin_page()` dies before `admin_init`; `admin_menu` fires before that check, so the page's own
@@ -39,6 +39,8 @@ class AI_Launchpad_Dev_Enable {
 		AI_Launchpad_REST::OPTION_WIZARD,
 		AI_Launchpad_REST::OPTION_AI_OUTPUT,
 		AI_Launchpad_REST::OPTION_DISMISSED,
+		AI_Launchpad_REST::OPTION_SKIPPED,
+		AI_Launchpad_REST::OPTION_COMPLETED,
 		'launchpad_checklist_tasks_statuses', // Shared completion option; no dedicated constant.
 	);
 

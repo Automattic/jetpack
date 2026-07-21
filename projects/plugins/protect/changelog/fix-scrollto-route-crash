@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: fix route changes in Chrome when scroll APIs return promises.

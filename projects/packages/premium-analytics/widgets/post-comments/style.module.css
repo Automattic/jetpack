@@ -1,0 +1,15 @@
+/* Fill the tile so empty/error states center, but let a long roster grow past
+ * it — the framed widget host's content area is the scroll viewport. */
+.root {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
+/* Grow the state container to the tile: WidgetState centers error/empty via a
+ * percentage block-size, which can't resolve against the root's min-height
+ * (auto height), so give it real height through flex instead. Basis stays
+ * auto so a long roster still grows past the tile and scrolls. */
+.root > * {
+	flex: 1 0 auto;
+}

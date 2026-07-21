@@ -155,8 +155,9 @@ class OrganizationSchemaNodeTest extends TestCase {
 	}
 
 	/**
-	 * `sameAs` comes only from settings (WordPress has no site-level source). Empty
-	 * and invalid entries are dropped and duplicates removed.
+	 * `sameAs` comes only from settings (WordPress has no site-level source) and is
+	 * sanitized before emission — the exhaustive URL rules live in SchemaSettingsTest;
+	 * here we just confirm invalid entries are dropped and duplicates removed.
 	 */
 	public function test_same_as_from_settings_is_sanitized() {
 		$this->set_site_identity( 'Acme Co' );
@@ -165,11 +166,7 @@ class OrganizationSchemaNodeTest extends TestCase {
 			array(
 				'sameAs' => array(
 					'https://example.test/twitter',
-					'',
 					'/relative-profile',
-					'not a url',
-					'javascript:alert(1)',
-					'mailto:hello@acme.test',
 					'https://example.test/twitter',
 					'https://example.test/facebook',
 				),
@@ -177,7 +174,10 @@ class OrganizationSchemaNodeTest extends TestCase {
 		);
 
 		$this->assertSame(
-			array( 'https://example.test/twitter', 'https://example.test/facebook' ),
+			array(
+				'https://example.test/twitter',
+				'https://example.test/facebook',
+			),
 			$node['sameAs']
 		);
 	}

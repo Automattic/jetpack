@@ -22,6 +22,13 @@ use WP_Post;
 class SchemaBuilderTest extends TestCase {
 
 	/**
+	 * Users created during the test.
+	 *
+	 * @var int[]
+	 */
+	private $user_ids = array();
+
+	/**
 	 * Reset the host-plugin stubs (see tests/php/bootstrap.php) before each test.
 	 *
 	 * @return void
@@ -31,6 +38,10 @@ class SchemaBuilderTest extends TestCase {
 		\Jetpack_SEO_Utils::$enabled     = true;
 		\Jetpack_SEO_Posts::$schema_type = '';
 		\Jetpack_SEO_Posts::$description = '';
+		\WooCommerce::$is_template       = false;
+		$this->remove_schema_builder_hooks();
+		$this->remove_woo_schema_hooks();
+		\WC()->structured_data->reset_data();
 	}
 
 	/**
@@ -40,8 +51,52 @@ class SchemaBuilderTest extends TestCase {
 	 */
 	protected function tearDown(): void {
 		remove_all_filters( 'pre_option_blogname' );
+		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'home_url' );
+		\WooCommerce::$is_template = false;
+		$this->remove_schema_builder_hooks();
+		$this->remove_woo_schema_hooks();
+		\WC()->structured_data->reset_data();
+		delete_option( Schema_Settings::OPTION_NAME );
+		wp_set_current_user( 0 );
+		foreach ( $this->user_ids as $user_id ) {
+			if ( function_exists( 'wp_delete_user' ) ) {
+				wp_delete_user( $user_id );
+			}
+		}
 		parent::tearDown();
+	}
+
+	/**
+	 * Remove the WooCommerce callbacks used by duplicate-output tests.
+	 *
+	 * @return void
+	 */
+	private function remove_woo_schema_hooks() {
+		$structured_data = \WC()->structured_data;
+		remove_action( 'woocommerce_breadcrumb', array( $structured_data, 'generate_breadcrumblist_data' ) );
+		remove_action( 'wp_footer', array( $structured_data, 'output_structured_data' ) );
+	}
+
+	/**
+	 * Remove Schema_Builder's front-end hooks so lifecycle tests stay isolated.
+	 *
+	 * @return void
+	 */
+	private function remove_schema_builder_hooks() {
+		remove_action( 'wp_head', array( Schema_Builder::class, 'emit' ), 5 );
+		remove_action( 'wp_footer', array( Schema_Builder::class, 'emit_woocommerce_breadcrumb_fallback' ), 11 );
+	}
+
+	/**
+	 * Register the standard WooCommerce breadcrumb generator and footer emitter.
+	 *
+	 * @return void
+	 */
+	private function register_woo_schema_hooks() {
+		$structured_data = \WC()->structured_data;
+		add_action( 'woocommerce_breadcrumb', array( $structured_data, 'generate_breadcrumblist_data' ) );
+		add_action( 'wp_footer', array( $structured_data, 'output_structured_data' ) );
 	}
 
 	/**
@@ -85,6 +140,31 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * Create a WP user.
+	 *
+	 * @param array $overrides User field overrides.
+	 * @return \WP_User
+	 */
+	private function make_user( array $overrides = array() ) {
+		$suffix  = (string) wp_rand();
+		$user_id = wp_insert_user(
+			array_merge(
+				array(
+					'user_login'   => 'schema_author_' . $suffix,
+					'user_pass'    => 'password',
+					'user_email'   => 'schema_author_' . $suffix . '@example.test',
+					'display_name' => 'Jane Doe',
+				),
+				$overrides
+			)
+		);
+
+		$this->assertIsInt( $user_id );
+		$this->user_ids[] = $user_id;
+		return get_userdata( $user_id );
+	}
+
+	/**
 	 * Drive Schema_Builder::emit() against a queried singular post and return the
 	 * decoded JSON-LD document, or null when nothing is emitted. This is the
 	 * regression surface that matters: the actual emitted
@@ -102,6 +182,41 @@ class SchemaBuilderTest extends TestCase {
 			$wp_query->queried_object_id = $post->ID;
 		}
 
+		return $this->capture_emitted_document();
+	}
+
+	/**
+	 * Drive Schema_Builder::emit() against the blog-index home page (is_home,
+	 * non-singular) and return the decoded JSON-LD document, or null.
+	 *
+	 * `is_front_page()` is a computed WP_Query method: it's true when the query is
+	 * the home and `show_on_front` is `posts`. The dbless env doesn't seed that
+	 * option, so pin it to `posts` (its real default) alongside `is_home`.
+	 *
+	 * @return array|null Decoded JSON-LD document, or null when emit() outputs nothing.
+	 */
+	private function emit_front_page_document() {
+		add_filter(
+			'pre_option_show_on_front',
+			static function () {
+				return 'posts';
+			}
+		);
+
+		global $wp_query;
+		$wp_query          = new \WP_Query();
+		$wp_query->is_home = true;
+
+		return $this->capture_emitted_document();
+	}
+
+	/**
+	 * Run emit() with the current `$wp_query`, capture its output, and decode the
+	 * single JSON-LD script block (or null when nothing is emitted).
+	 *
+	 * @return array|null
+	 */
+	private function capture_emitted_document() {
 		ob_start();
 		Schema_Builder::emit();
 		$html = (string) ob_get_clean();
@@ -119,6 +234,86 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * Capture Jetpack's head output, optional WooCommerce breadcrumb generation,
+	 * and the footer output where WooCommerce emits data and Jetpack can fall back.
+	 *
+	 * @param WP_Post $post                  Queried singular post.
+	 * @param bool    $render_woo_breadcrumb Whether the template renders WooCommerce breadcrumbs.
+	 * @return string Captured lifecycle output.
+	 */
+	private function capture_woo_schema_lifecycle( WP_Post $post, $render_woo_breadcrumb ) {
+		global $wp_query;
+		$wp_query                    = new \WP_Query();
+		$wp_query->is_singular       = true;
+		$wp_query->queried_object    = $post;
+		$wp_query->queried_object_id = $post->ID;
+
+		Schema_Builder::init();
+		// Invoked directly rather than via do_action( 'wp_footer' ), which would
+		// also fire core's own footer callbacks (one is deprecated and fails the
+		// suite). The assertion pins the ordering the direct calls simulate.
+		$this->assertSame(
+			11,
+			has_action( 'wp_footer', array( Schema_Builder::class, 'emit_woocommerce_breadcrumb_fallback' ) )
+		);
+
+		ob_start();
+		Schema_Builder::emit();
+		if ( $render_woo_breadcrumb ) {
+			do_action( 'woocommerce_breadcrumb' );
+		}
+		\WC()->structured_data->output_structured_data();
+		Schema_Builder::emit_woocommerce_breadcrumb_fallback();
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Find all nodes of a given type across every captured JSON-LD script.
+	 *
+	 * @param string $html Captured HTML.
+	 * @param string $type Schema.org type.
+	 * @return array<int, array>
+	 */
+	private function schema_nodes_of_type_from_html( $html, $type ) {
+		preg_match_all( '#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches );
+
+		$found = array();
+		foreach ( $matches[1] as $json ) {
+			$document = json_decode( $json, true );
+			if ( ! is_array( $document ) ) {
+				continue;
+			}
+
+			$nodes = isset( $document['@graph'] ) && is_array( $document['@graph'] )
+				? $document['@graph']
+				: array( $document );
+			foreach ( $nodes as $node ) {
+				if ( is_array( $node ) && $type === ( $node['@type'] ?? '' ) ) {
+					$found[] = $node;
+				}
+			}
+		}
+
+		return $found;
+	}
+
+	/**
+	 * Drive Schema_Builder::emit() against an author archive.
+	 *
+	 * @param \WP_User $user Queried author.
+	 * @return array|null Decoded JSON-LD document, or null when emit() outputs nothing.
+	 */
+	private function emit_author_document( $user ) {
+		global $wp_query;
+		$wp_query                    = new \WP_Query();
+		$wp_query->is_author         = true;
+		$wp_query->queried_object    = $user;
+		$wp_query->queried_object_id = $user->ID;
+
+		return $this->capture_emitted_document();
+	}
+
+	/**
 	 * Find the first node of a given `@type` in a `@graph` document, or null.
 	 *
 	 * Looking nodes up by type (rather than position) keeps these assertions
@@ -130,7 +325,8 @@ class SchemaBuilderTest extends TestCase {
 	 */
 	private function node_of_type( array $document, string $type ) {
 		foreach ( $document['@graph'] as $node ) {
-			if ( is_array( $node ) && ( $node['@type'] ?? '' ) === $type ) {
+			$node_type = is_array( $node ) ? ( $node['@type'] ?? '' ) : '';
+			if ( $type === $node_type || ( is_array( $node_type ) && in_array( $type, $node_type, true ) ) ) {
 				return $node;
 			}
 		}
@@ -146,11 +342,9 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * Nothing is emitted on non-singular requests (home, archives, 404). Site-level
-	 * nodes ride along on the singular request's graph; they are not emitted on
-	 * their own yet.
+	 * Nothing is emitted on an unsupported non-singular request.
 	 */
-	public function test_emits_nothing_on_non_singular() {
+	public function test_emits_nothing_on_unsupported_request() {
 		$this->assertNull( $this->emit_document( null ) );
 	}
 
@@ -162,10 +356,23 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * A page with no schema override yields no page node, so the request emits
-	 * nothing at all (no standalone site-level graph).
+	 * A page with no page-schema override can still emit the default-enabled
+	 * BreadcrumbList as the graph's only node.
 	 */
-	public function test_emits_nothing_for_page_without_override() {
+	public function test_emits_breadcrumb_for_page_without_override() {
+		$doc = $this->emit_document( $this->make_post( array( 'post_type' => 'page' ) ) );
+
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
+		$this->assertNull( $this->node_of_type( $doc, 'Article' ) );
+	}
+
+	/**
+	 * Disabling BreadcrumbList preserves the empty-graph behavior for a page with
+	 * no page-schema override.
+	 */
+	public function test_disabled_breadcrumb_emits_nothing_for_page_without_override() {
+		Schema_Settings::update( array( 'breadcrumbList' => array( 'enabled' => false ) ) );
+
 		$this->assertNull( $this->emit_document( $this->make_post( array( 'post_type' => 'page' ) ) ) );
 	}
 
@@ -184,9 +391,15 @@ class SchemaBuilderTest extends TestCase {
 
 		$article = $this->node_of_type( $doc, 'Article' );
 		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
 		$this->assertArrayHasKey( 'headline', $article );
 		$this->assertArrayHasKey( 'datePublished', $article );
 		$this->assertArrayHasKey( 'mainEntityOfPage', $article );
+		$this->assertArrayNotHasKey( 'author', $article, 'An unresolvable post author adds no author property.' );
+
+		// The full Organization node lives on the home page only; a post references
+		// it by @id (see test_post_references_publisher_by_id_without_organization_node).
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
 	}
 
 	/**
@@ -195,7 +408,7 @@ class SchemaBuilderTest extends TestCase {
 	public function test_emits_graph_with_faqpage_for_faq_override() {
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
-		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
+		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
 		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';
@@ -209,42 +422,345 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * The graph leads with the site-level Organization node, and the Article
-	 * references it as `publisher` by `@id`.
+	 * The home page emits the site-level Organization node (Google's guidance: one
+	 * canonical entity, on the home page) and, being non-singular, no page node.
 	 */
-	public function test_graph_leads_with_organization_referenced_as_article_publisher() {
+	public function test_emits_organization_on_front_page() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertIsArray( $organization, 'Expected an Organization node on the home page.' );
+		$this->assertSame( 'Acme Co', $organization['name'] );
+
+		$this->assertNull( $this->node_of_type( $doc, 'Article' ), 'The home page has no Article node.' );
+	}
+
+	/**
+	 * A single post references the home-page Organization as its `publisher` by the
+	 * stable `@id`, without duplicating the full Organization node onto the post.
+	 */
+	public function test_post_references_publisher_by_id_without_organization_node() {
 		$this->set_site_name( 'Acme Co' );
 
 		$doc = $this->emit_document( $this->make_post() );
 
-		$this->assertSame( 'Organization', $doc['@graph'][0]['@type'], 'Site-level nodes come first.' );
-
-		$organization = $this->node_of_type( $doc, 'Organization' );
-		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
-		$this->assertSame( 'Acme Co', $organization['name'] );
-
 		$article = $this->node_of_type( $doc, 'Article' );
-		$this->assertSame( $organization['@id'], $article['publisher']['@id'] );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::organization(), $article['publisher']['@id'] );
+
+		// Site-level nodes live on the home page only, never duplicated onto a post.
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
+		$this->assertNull( $this->node_of_type( $doc, 'WebSite' ), 'A post must not carry the WebSite node.' );
 	}
 
 	/**
-	 * A FAQPage joins the graph alongside the Organization, but carries no
-	 * `publisher` (only Article references a publisher).
+	 * The home page includes the site-level WebSite node, referenced to the
+	 * Organization by `publisher`. Like Organization, it lives on the home page
+	 * only — never on posts.
 	 */
-	public function test_faqpage_has_no_publisher_but_graph_has_organization() {
+	public function test_graph_includes_website_referenced_to_organization() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$website      = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
+		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::website(), $website['@id'] );
+		$this->assertSame( 'Acme Co', $website['name'] );
+		$this->assertSame( $organization['@id'], $website['publisher']['@id'] );
+		$this->assertSame( 'SearchAction', $website['potentialAction']['@type'] );
+	}
+
+	/**
+	 * Without a Site Title, neither site-level node is emitted on the home page, so
+	 * the home page graph is empty.
+	 */
+	public function test_graph_omits_site_level_nodes_without_site_name() {
+		$this->set_site_name( '' );
+
+		$doc = $this->emit_front_page_document();
+
+		$this->assertNull( $doc, 'An unnamed site emits no site-level nodes.' );
+	}
+
+	/**
+	 * An Article references its author by `@id` only, resolving to the full Person
+	 * node in the same graph — never a duplicated inline author object.
+	 */
+	public function test_article_author_resolves_to_person_node_by_id() {
+		$this->set_site_name( 'Acme Co' );
+		$user = $this->make_user();
+		update_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, 'Creator' );
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertSame(
+			array( '@id' => Schema_Node_Ids::person( $user->ID, $user->user_nicename ) ),
+			$article['author'],
+			'Article.author must be an @id-only reference.'
+		);
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the full Person node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::person( $user->ID, $user->user_nicename ), $person['@id'] );
+		$this->assertSame( 'Jane Doe', $person['name'] );
+		$this->assertSame( 'Creator', $person['jobTitle'] );
+		$this->assertSame( array( '@id' => Schema_Node_Ids::organization() ), $person['worksFor'] );
+
+		// Site-level nodes still live on the home page only.
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
+	}
+
+	/**
+	 * Without an Organization, author archives emit ProfilePage and Person nodes
+	 * linked by `mainEntity`, with no `worksFor`.
+	 */
+	public function test_author_archive_emits_profile_page_wrapping_person() {
+		$this->set_site_name( '' );
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person       = $this->node_of_type( $doc, 'Person' );
+		$profile_page = $this->node_of_type( $doc, 'ProfilePage' );
+		$this->assertIsArray( $person, 'Expected a Person node in the graph.' );
+		$this->assertIsArray( $profile_page, 'Expected a ProfilePage node in the graph.' );
+		$this->assertSame( $person['@id'], $profile_page['mainEntity']['@id'] );
+		$this->assertArrayNotHasKey( 'worksFor', $person );
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
+	}
+
+	/**
+	 * With the Organization configured, the author-archive Person references it as
+	 * `worksFor` by `@id` — without duplicating the Organization node itself.
+	 */
+	public function test_author_archive_person_works_for_organization() {
+		$this->set_site_name( 'Acme Co' );
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected a Person node in the graph.' );
+		$this->assertSame( array( '@id' => Schema_Node_Ids::organization() ), $person['worksFor'] );
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'An author archive must not carry the Organization node.' );
+	}
+
+	/**
+	 * Saved schema settings reach the emitted JSON-LD: a configured `sameAs` (and a
+	 * `name` override) flows through Schema_Settings → the `$settings` seam on
+	 * Organization_Schema_Node → the emitted Organization node. This is the end-to-end
+	 * proof that the settings store is wired into the front-end output.
+	 */
+	public function test_emitted_organization_reflects_saved_schema_settings() {
+		$this->set_site_name( 'Acme Co' );
+		Schema_Settings::update(
+			array(
+				'organization' => array(
+					'name'   => 'Acme Corporation',
+					'sameAs' => array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+					'email'  => 'hello@acme.test',
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
+		// The stored name override wins over the Site Title.
+		$this->assertSame( 'Acme Corporation', $organization['name'] );
+		$this->assertSame(
+			array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+			$organization['sameAs']
+		);
+		$this->assertSame( 'hello@acme.test', $organization['email'] );
+	}
+
+	/**
+	 * With no saved settings, the emitted Organization node still comes purely from
+	 * site identity and omits `sameAs` / `email`.
+	 */
+	public function test_emitted_organization_unconfigured_preserves_site_identity_only() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertSame( 'Acme Co', $organization['name'] );
+		$this->assertArrayNotHasKey( 'sameAs', $organization );
+		$this->assertArrayNotHasKey( 'email', $organization );
+	}
+
+	/**
+	 * Enabled LocalBusiness settings with an address decorate the front-page
+	 * Organization node in place.
+	 */
+	public function test_front_page_organization_emits_local_business_details_when_configured() {
+		$this->set_site_name( 'Acme Co' );
+		Schema_Settings::update(
+			array(
+				'localBusiness' => array(
+					'enabled' => true,
+					'address' => array(
+						'streetAddress' => '123 Main St',
+					),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$organization   = $this->node_of_type( $doc, 'Organization' );
+		$local_business = $this->node_of_type( $doc, 'LocalBusiness' );
+		$this->assertIsArray( $organization, 'Expected the Organization node to remain findable.' );
+		$this->assertSame( $organization, $local_business );
+		$this->assertSame( array( 'Organization', 'LocalBusiness' ), $organization['@type'] );
+		$this->assertSame( 'PostalAddress', $organization['address']['@type'] );
+		$this->assertSame( '123 Main St', $organization['address']['streetAddress'] );
+	}
+
+	/**
+	 * Disabled LocalBusiness settings keep the front-page Organization node plain.
+	 */
+	public function test_front_page_organization_stays_plain_when_local_business_disabled() {
+		$this->set_site_name( 'Acme Co' );
+		Schema_Settings::update(
+			array(
+				'localBusiness' => array(
+					'enabled' => false,
+					'address' => array(
+						'streetAddress' => '123 Main St',
+					),
+				),
+			)
+		);
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertSame( 'Organization', $organization['@type'] );
+		$this->assertArrayNotHasKey( 'address', $organization );
+		$this->assertNull( $this->node_of_type( $doc, 'LocalBusiness' ) );
+	}
+
+	/**
+	 * A Woo template that never renders its breadcrumb gets Jetpack's late
+	 * fallback instead of ending the request with no BreadcrumbList.
+	 */
+	public function test_woo_template_without_rendered_breadcrumb_emits_jetpack_fallback() {
+		\WooCommerce::$is_template = true;
+		$this->register_woo_schema_hooks();
+
+		$html  = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), false );
+		$nodes = $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' );
+
+		$this->assertCount( 1, $nodes );
+		$this->assertArrayNotHasKey( '@id', $nodes[0], 'Expected Jetpack fallback data, not the WooCommerce fixture.' );
+	}
+
+	/**
+	 * A Woo template that generated BreadcrumbList data remains authoritative and
+	 * does not receive a duplicate Jetpack fallback in the footer.
+	 */
+	public function test_woo_template_with_rendered_breadcrumb_emits_only_woocommerce_node() {
+		\WooCommerce::$is_template = true;
+		$this->register_woo_schema_hooks();
+
+		$html  = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), true );
+		$nodes = $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' );
+
+		$this->assertCount( 1, $nodes );
+		$this->assertSame( 'https://example.test/#woocommerce-breadcrumb', $nodes[0]['@id'] );
+	}
+
+	/**
+	 * Firing WooCommerce's breadcrumb action is not enough when its generator
+	 * returns without storing data; Jetpack still supplies the late fallback.
+	 */
+	public function test_woo_breadcrumb_action_without_generated_data_emits_jetpack_fallback() {
+		\WooCommerce::$is_template                       = true;
+		\WC()->structured_data->generate_breadcrumb_data = false;
+		$this->register_woo_schema_hooks();
+
+		$html  = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), true );
+		$nodes = $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' );
+
+		$this->assertCount( 1, $nodes );
+		$this->assertArrayNotHasKey( '@id', $nodes[0], 'Expected Jetpack fallback data, not the WooCommerce fixture.' );
+	}
+
+	/**
+	 * Disabling Jetpack BreadcrumbList output also disables its WooCommerce
+	 * fallback when the template did not generate one.
+	 */
+	public function test_disabled_breadcrumb_setting_does_not_emit_woo_fallback() {
+		\WooCommerce::$is_template = true;
+		$this->register_woo_schema_hooks();
+		Schema_Settings::update( array( 'breadcrumbList' => array( 'enabled' => false ) ) );
+
+		$html = $this->capture_woo_schema_lifecycle( $this->make_post( array( 'post_type' => 'page' ) ), false );
+
+		$this->assertCount( 0, $this->schema_nodes_of_type_from_html( $html, 'BreadcrumbList' ) );
+	}
+
+	/**
+	 * Both WooCommerce callbacks are required before Jetpack suppresses its node.
+	 */
+	public function test_woo_template_does_not_suppress_breadcrumb_with_only_one_callback() {
+		$structured_data           = \WC()->structured_data;
+		\WooCommerce::$is_template = true;
+		$callbacks                 = array(
+			array( 'woocommerce_breadcrumb', 'generate_breadcrumblist_data' ),
+			array( 'wp_footer', 'output_structured_data' ),
+		);
+
+		foreach ( $callbacks as $callback ) {
+			$this->remove_woo_schema_hooks();
+			add_action( $callback[0], array( $structured_data, $callback[1] ) );
+
+			$doc = $this->emit_document( $this->make_post( array( 'post_type' => 'page' ) ) );
+			$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
+		}
+	}
+
+	/**
+	 * Active WooCommerce callbacks do not suppress Jetpack on an ordinary post.
+	 */
+	public function test_woo_callbacks_do_not_suppress_breadcrumb_on_regular_post() {
+		$this->register_woo_schema_hooks();
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$this->assertIsArray( $this->node_of_type( $doc, 'Article' ) );
+		$this->assertIsArray( $this->node_of_type( $doc, 'BreadcrumbList' ) );
+	}
+
+	/**
+	 * A FAQPage on a single post carries no `publisher` (only Article references
+	 * one) and, like any post, does not carry the site-level Organization node.
+	 */
+	public function test_faqpage_has_no_publisher() {
 		$this->set_site_name( 'Acme Co' );
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
-		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
+		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
 		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';
 
 		$doc = $this->emit_document( $this->make_post( array( 'post_content' => $content ) ) );
 
-		$this->assertIsArray( $this->node_of_type( $doc, 'Organization' ) );
-
 		$faq = $this->node_of_type( $doc, 'FAQPage' );
+		$this->assertIsArray( $faq, 'Expected a FAQPage node in the graph.' );
 		$this->assertArrayNotHasKey( 'publisher', $faq );
+
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
 	}
 }

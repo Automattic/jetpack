@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Connection errors: useConnectionErrorNotice now owns CTA/action resolution and returns resolved actions, so consumers no longer re-derive copy/handlers from error_data. No change to which errors are surfaced.

@@ -7,7 +7,7 @@ import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
 
 const codeBlockStyle = {
-	backgroundColor: 'var(--wpds-color-bg-surface-neutral-weak, #f6f7f7)',
+	backgroundColor: 'var(--wpds-color-background-surface-neutral-weak, #f6f7f7)',
 	border: '1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0)',
 	borderRadius: 4,
 	fontFamily: 'Menlo, Consolas, monaco, "Courier New", Courier, monospace',

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-JSON API: Only default a missing or invalid error status to 400, and stop overwriting valid HTTP status codes below 400 that callers return via WP_Error.

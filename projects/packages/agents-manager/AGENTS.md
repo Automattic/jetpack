@@ -14,6 +14,7 @@ These two are independent: block-editor enablement does not imply the unified ex
 ## Cross-Repo Relationship
 
 - All JS/CSS bundles are fetched from `widgets.wp.com/agents-manager/`, built by the Calypso `apps/agents-manager/` app.
+- Translations are loaded from `widgets.wp.com/agents-manager/languages/{locale}-v1.js` (the same directory Image Studio uses, since it ships from the same Calypso app). The locale is normalised to an ISO 639 code by `determine_iso_639_locale()`. Skipped for English and for disconnected variants, mirroring Help Center.
 - Asset metadata (`.asset.json`) is fetched via HTTP on Atomic sites or read from disk on Simple sites, then cached in a transient for 1 hour.
 - The REST endpoint proxies to `/agents-manager/state` on wpcom via `Jetpack\Connection\Client::wpcom_json_api_request_as_user()`.
 

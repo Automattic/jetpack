@@ -1,6 +1,9 @@
 // Shape of the editable Settings state the server bootstraps onto
 // `window.JetpackScriptData.seo.settings` (see `Initializer::get_settings_data()`).
-// Writes go through the existing `/jetpack/v4/settings` REST endpoint.
+// Most writes go through `/jetpack/v4/settings`; nested Schema writes use the
+// package-owned schema-settings route.
+
+import type { SchemaSettings } from './schema-settings-types';
 
 export interface TitleFormatToken {
 	type: 'string' | 'token';
@@ -23,6 +26,8 @@ export interface SettingsResponse {
 	// serveable. Not editable, so it's never sent back in a save payload.
 	sitemap_url: string;
 	canonical_active: boolean;
+	// Read by the Settings bootstrap; saved through `/jetpack/v4/seo/schema-settings`.
+	schema: SchemaSettings;
 }
 
 export type VerificationKey = keyof SettingsResponse[ 'verification' ];

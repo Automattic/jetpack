@@ -98,5 +98,6 @@
 		<exclude name="PHPCompatibility.IniDirectives.NewIniDirectives.zend_max_allowed_stack_sizeFound" />
 		<exclude name="PHPCompatibility.IniDirectives.NewIniDirectives.zend_reserved_stack_sizeFound" />
 		<exclude name="PHPCompatibility.ParameterValues.NewClassAliasInternalClass.Found" />
+		<exclude name="PHPCompatibility.Syntax.NewDynamicClassConstantFetch.Found" />
 	</rule>
 </ruleset>

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add CSV export for the ranked and attribution analytics reports: top performing products, sales by channel/source/device/campaign/coupon, sessions by device/location, revenue by customer type, and tax rate breakdown.

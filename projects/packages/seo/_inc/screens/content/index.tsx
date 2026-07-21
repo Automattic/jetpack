@@ -1,10 +1,9 @@
-import { Button } from '@wordpress/components';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { Badge, Link } from '@wordpress/ui';
+import { Badge, IconButton, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
 import './style.scss';
 import type { ContentRow } from '../../data/content-types';
@@ -61,7 +60,16 @@ interface EditButtonProps {
 
 const EditButton: FC< EditButtonProps > = ( { item, onEdit } ) => {
 	const handleClick = useCallback( () => onEdit( item ), [ item, onEdit ] );
-	return <Button icon={ pencil } label={ editSeoLabel } size="small" onClick={ handleClick } />;
+	return (
+		<IconButton
+			icon={ pencil }
+			label={ editSeoLabel }
+			size="small"
+			variant="minimal"
+			tone="neutral"
+			onClick={ handleClick }
+		/>
+	);
 };
 
 /**
@@ -113,6 +121,7 @@ const ContentScreen: FC = () => {
 				id: 'title',
 				label: __( 'Title', 'jetpack-seo' ),
 				enableHiding: false,
+				enableGlobalSearch: true,
 				getValue: ( { item } ) => item.title,
 				render: ( { item } ) => <Link href={ item.editLink }>{ item.title || noTitleLabel }</Link>,
 			},
@@ -159,7 +168,13 @@ const ContentScreen: FC = () => {
 				id: 'seoTitle',
 				label: __( 'SEO title', 'jetpack-seo' ),
 				enableSorting: false,
-				getValue: ( { item } ) => ( item.hasCustomTitle ? 'set' : 'not_set' ),
+				enableGlobalSearch: true,
+				// These columns render a Set/Not set badge, but `getValue` feeds the
+				// global search, so it returns the underlying text: typing part of an
+				// SEO title or meta description finds the row it belongs to. Nothing
+				// sorts or filters on these ids — the set/not-set state has its own
+				// filter-only field below.
+				getValue: ( { item } ) => item.customTitle,
 				render: ( { item } ) => (
 					<Badge intent={ item.hasCustomTitle ? 'stable' : 'draft' }>
 						{ item.hasCustomTitle ? setLabel : notSetLabel }
@@ -170,7 +185,8 @@ const ContentScreen: FC = () => {
 				id: 'metaDescription',
 				label: __( 'Meta description', 'jetpack-seo' ),
 				enableSorting: false,
-				getValue: ( { item } ) => ( item.hasDescription ? 'set' : 'not_set' ),
+				enableGlobalSearch: true,
+				getValue: ( { item } ) => item.description,
 				render: ( { item } ) => (
 					<Badge intent={ item.hasDescription ? 'stable' : 'draft' }>
 						{ item.hasDescription ? setLabel : notSetLabel }
@@ -216,7 +232,7 @@ const ContentScreen: FC = () => {
 			},
 			{
 				id: 'editAction',
-				label: __( 'Actions', 'jetpack-seo' ),
+				label: editSeoLabel,
 				enableSorting: false,
 				enableHiding: false,
 				getValue: () => '',

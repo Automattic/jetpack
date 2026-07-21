@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Authors widget: label rows with the author name and avatar, and let a row click drill down into that author's posts with comparison deltas and a back link to all authors.

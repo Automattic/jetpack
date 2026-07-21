@@ -17,8 +17,15 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ) ) );
 }
+
+// Post-publish next-steps checklist, shown on the published post after a
+// Write-editor publish on a Coming Soon site.
+require_once __DIR__ . '/post-publish-checklist.php';
+
+// Email-verification launch gate backing the checklist's inline confirm-email step.
+require_once __DIR__ . '/email-verification.php';
 
 /**
  * Get the URL for a Write feature asset file.
@@ -89,6 +96,7 @@ function wpcom_write_get_editor_strings() {
 		'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
 		// translators: %s is the error message from the upload failure.
 		'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+		'uploadingImage'       => __( 'Uploading image…', 'jetpack-mu-wpcom' ),
 		'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
 		'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
 		'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
@@ -107,6 +115,8 @@ function wpcom_write_get_editor_strings() {
 		'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 		// translators: %s is the error message.
 		'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
+		'couldNotSave'         => __( 'Could not save. Please try again.', 'jetpack-mu-wpcom' ),
+		'saveTimedOut'         => __( 'Saving timed out. Please check your connection and try again.', 'jetpack-mu-wpcom' ),
 		'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 		'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 		'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
@@ -810,6 +820,11 @@ function wpcom_write_render_admin_page() {
 		$event_props = array(
 			'is_new_post' => (int) ( 0 === $edit_post_id ),
 			'source'      => $source,
+			// Anon entry is the only logged-out render of this editor (the wp-admin
+			// page requires auth), so logged-out is a reliable proxy for the anon
+			// fake-door funnel. Lets the funnel scope its top-of-funnel denominator
+			// to anon traffic without depending on the client-only wpcomWriteIsAnon flag.
+			'is_anon'     => (int) ! is_user_logged_in(),
 		);
 
 		if ( $edit_post_id > 0 ) {
@@ -881,6 +896,14 @@ function wpcom_write_render_admin_page() {
 			'editPostId'             => $edit_post_id,
 			'postStatus'             => $post_status,
 			'isPublishedPost'        => 'publish' === $post_status,
+			// When the site is still Coming Soon (private by default), publishing
+			// lands a private post. The publish redirect tags the post URL so the
+			// post-publish next-steps checklist can surface there.
+			'isComingSoon'           => 1 === (int) get_option( 'wpcom_public_coming_soon' ),
+			// The query arg the redirect tags onto the post URL, kept in sync with
+			// the server-side gate by sharing WPCOM_WRITE_PUBLISHED_MARKER (defined
+			// in post-publish-checklist.php) rather than hardcoding it in view.js.
+			'publishedMarker'        => WPCOM_WRITE_PUBLISHED_MARKER,
 			'title'                  => $edit_title,
 			'isSaving'               => false,
 			'isPublished'            => false,
@@ -967,7 +990,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
 	<!-- Top bar -->
-	<header class="bw-topbar">
+	<header class="bw-topbar" data-wp-class--has-topbar-message="state.hasMessage">
 		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
@@ -985,6 +1008,13 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 		</div><!-- /.bw-help-wrap -->
 		<span class="bw-status" data-wp-text="state.displayStatus"></span>
+		<?php
+		// Screen-reader announcement for transient status (saving/publishing,
+		// "Please write something" validation, save/publish errors). Bound to
+		// state.message only — not state.displayStatus — so the title mirror that
+		// the visible .bw-status also carries isn't re-announced on every keystroke.
+		?>
+		<span class="bw-visually-hidden" role="status" aria-live="polite" data-wp-text="state.message"></span>
 		<div class="bw-topbar-actions">
 			<button
 				class="bw-btn bw-btn-draft"

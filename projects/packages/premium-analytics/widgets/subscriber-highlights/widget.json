@@ -1,0 +1,7 @@
+{
+	"name": "jpa/subscriber-highlights",
+	"title": "Subscriber highlights",
+	"description": "Your subscriber totals at a glance — total, paid, free, and social followers.",
+	"category": "subscribers",
+	"presentation": "framed"
+}

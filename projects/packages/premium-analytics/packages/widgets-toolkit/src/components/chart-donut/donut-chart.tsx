@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { PieChartUnresponsive as PieChart } from '@automattic/charts';
-import { useResizeObserver } from '@wordpress/compose';
 import { Icon, Stack } from '@wordpress/ui';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -14,6 +13,7 @@ import {
 	isEmptyPieChartData,
 	type SegmentStyle,
 } from '../../helpers';
+import { useElementSize } from '../../hooks';
 import { ChartEmptyState } from '../chart-empty-state';
 import { PieChartTooltip } from '../chart-tooltip';
 import { Legend as LegendPure } from '../legend/legend';
@@ -35,63 +35,6 @@ const MIN_SIZE = 64;
 const MAX_SIZE = 192;
 const COMPACT_LEGEND_GAP_SIZE = 8;
 const DEFAULT_LEGEND_GAP_SIZE = 24;
-
-type ElementSize = {
-	width: number;
-	height: number;
-};
-
-function getElementSize( element: Element ): ElementSize {
-	const { width, height } = element.getBoundingClientRect();
-
-	return {
-		width: Math.round( width ),
-		height: Math.round( height ),
-	};
-}
-
-function useElementSize< T extends HTMLElement >() {
-	const elementRef = useRef< T | null >( null );
-	const [ size, setSize ] = useState< ElementSize >( {
-		width: 0,
-		height: 0,
-	} );
-
-	const updateSize = useCallback( ( nextSize: ElementSize ) => {
-		setSize( previousSize =>
-			previousSize.width === nextSize.width && previousSize.height === nextSize.height
-				? previousSize
-				: nextSize
-		);
-	}, [] );
-
-	const observerRef = useResizeObserver< T >( entries => {
-		const element = entries[ 0 ]?.target ?? elementRef.current;
-
-		if ( ! element ) {
-			return;
-		}
-
-		updateSize( getElementSize( element ) );
-	} );
-
-	const setElementRef = useCallback(
-		( element: T | null ) => {
-			elementRef.current = element;
-
-			if ( typeof ResizeObserver !== 'undefined' ) {
-				observerRef( element );
-			}
-
-			if ( element ) {
-				updateSize( getElementSize( element ) );
-			}
-		},
-		[ observerRef, updateSize ]
-	);
-
-	return [ setElementRef, size ] as const;
-}
 
 export type DonutChartProps = {
 	/**

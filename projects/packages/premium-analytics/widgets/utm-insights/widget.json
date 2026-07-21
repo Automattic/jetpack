@@ -3,5 +3,5 @@
 	"title": "UTM Insights",
 	"description": "Traffic breakdown by UTM parameters — source, medium, campaign, and combinations.",
 	"category": "traffic",
-	"presentation": "full-bleed"
+	"presentation": "framed"
 }

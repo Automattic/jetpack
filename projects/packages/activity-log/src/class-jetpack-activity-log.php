@@ -16,6 +16,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use function add_action;
 use function add_filter;
 use function current_user_can;
@@ -145,6 +146,21 @@ class Jetpack_Activity_Log {
 				REST_Controller::clear_access_cache();
 			}
 		}
+
+		// The admin bundle depends on `@wordpress/*` handles (e.g. `wp-theme`,
+		// pulled in via `@wordpress/ui`) that Core does not register on older
+		// WordPress versions. Without them, WP_Scripts silently drops the
+		// bundle and the page renders as an empty root node. Register the
+		// polyfills here so this only runs on the Activity Log screen — the
+		// register() call can force-replace Core handles, so it must stay
+		// page-scoped rather than firing on every admin request.
+		WP_Build_Polyfills::register(
+			'jetpack-activity-log',
+			array_merge(
+				WP_Build_Polyfills::SCRIPT_HANDLES,
+				WP_Build_Polyfills::MODULE_IDS
+			)
+		);
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 	}

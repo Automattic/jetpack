@@ -8,7 +8,9 @@ import type { StatsPostResponse } from '../processing/stats';
 
 export type StatsPostField =
 	| 'date'
+	| 'data'
 	| 'views'
+	| 'like_count'
 	| 'years'
 	| 'averages'
 	| 'weeks'

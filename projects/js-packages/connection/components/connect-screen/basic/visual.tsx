@@ -5,7 +5,7 @@ import { Button } from '@wordpress/ui';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
-import type { FC, SyntheticEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import './style.scss';
 
 type SharedProps = Pick<
@@ -68,10 +68,13 @@ const getErrorMessage = ( errorCode, isOfflineMode ) => {
 	}
 };
 
-/*
+/**
  * The Connection Screen Visual component.
+ *
+ * @param {Props} props - The properties.
+ * @return {import('react').ReactNode} The Connection Screen Visual component.
  */
-const ConnectScreenVisual: FC< Props > = ( {
+function ConnectScreenVisual( {
 	title,
 	images,
 	children,
@@ -86,44 +89,46 @@ const ConnectScreenVisual: FC< Props > = ( {
 	footer,
 	isOfflineMode,
 	logo,
-} ) => (
-	<ConnectScreenLayout
-		title={ title }
-		assetBaseUrl={ assetBaseUrl }
-		images={ images }
-		className={
-			'jp-connection__connect-screen' +
-			( isLoading ? ' jp-connection__connect-screen__loading' : '' )
-		}
-		logo={ logo }
-	>
-		<div className="jp-connection__connect-screen__content">
-			{ children }
+}: Props ) {
+	return (
+		<ConnectScreenLayout
+			title={ title }
+			assetBaseUrl={ assetBaseUrl }
+			images={ images }
+			className={
+				'jp-connection__connect-screen' +
+				( isLoading ? ' jp-connection__connect-screen__loading' : '' )
+			}
+			logo={ logo }
+		>
+			<div className="jp-connection__connect-screen__content">
+				{ children }
 
-			<div className="jp-connection__connect-screen__tos">
-				<TermsOfService agreeButtonLabel={ buttonLabel } />
+				<div className="jp-connection__connect-screen__tos">
+					<TermsOfService agreeButtonLabel={ buttonLabel } />
+				</div>
+				<Button
+					className="jp-connection__connect-screen__action-button"
+					onClick={ handleButtonClick }
+					loading={ buttonIsLoading }
+					disabled={ isOfflineMode }
+				>
+					{ buttonLabel }
+				</Button>
+				{ ( displayButtonError || isOfflineMode ) && (
+					<p className="jp-connection__connect-screen__error">
+						{ getErrorMessage( errorCode, isOfflineMode ) ||
+							__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+					</p>
+				) }
+				<span className="jp-connection__connect-screen__loading-message" role="status">
+					{ buttonIsLoading ? loadingLabel || __( 'Loading', 'jetpack-connection-js' ) : '' }
+				</span>
+
+				{ footer && <div className="jp-connection__connect-screen__footer">{ footer }</div> }
 			</div>
-			<Button
-				className="jp-connection__connect-screen__action-button"
-				onClick={ handleButtonClick }
-				loading={ buttonIsLoading }
-				disabled={ isOfflineMode }
-			>
-				{ buttonLabel }
-			</Button>
-			{ ( displayButtonError || isOfflineMode ) && (
-				<p className="jp-connection__connect-screen__error">
-					{ getErrorMessage( errorCode, isOfflineMode ) ||
-						__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
-				</p>
-			) }
-			<span className="jp-connection__connect-screen__loading-message" role="status">
-				{ buttonIsLoading ? loadingLabel || __( 'Loading', 'jetpack-connection-js' ) : '' }
-			</span>
-
-			{ footer && <div className="jp-connection__connect-screen__footer">{ footer }</div> }
-		</div>
-	</ConnectScreenLayout>
-);
+		</ConnectScreenLayout>
+	);
+}
 
 export default ConnectScreenVisual;

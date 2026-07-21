@@ -25,9 +25,11 @@ export type NewVsReturningCustomerAttributes = Record< never, never >;
 export default {
 	name: 'jpa/new-vs-returning-customer',
 	title: __( 'New vs returning customer', 'jetpack-premium-analytics' ),
-	description: __(
-		'Unique customer counts broken down by new vs returning customers over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Unique customer counts broken down by new vs returning customers over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

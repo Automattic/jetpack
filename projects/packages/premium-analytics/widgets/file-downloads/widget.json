@@ -3,5 +3,5 @@
 	"title": "File downloads",
 	"description": "Most downloaded files on your site.",
 	"category": "stats",
-	"presentation": "full-bleed"
+	"presentation": "framed"
 }

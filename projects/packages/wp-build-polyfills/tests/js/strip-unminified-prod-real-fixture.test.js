@@ -8,10 +8,10 @@
  * The fixture under `tests/fixtures/wp-build-source/` is a minimal
  * wp-build-compatible package exercising the strip script's four targets:
  * one route with `stage` + `route` entries emits paired `.js`/`.min.js`
- * under `build/routes/dashboard/`, and one `wpScript` sub-package with a
+ * under `build/routes/dashboard/`, one `wpScript` sub-package with a
  * `build-style/style.css` emits paired `.css`/`.min.css` under
  * `build/styles/css-test/` plus paired `.js`/`.min.js` under
- * `build/scripts/css-test/`.
+ * `build/scripts/css-test/`, and one widget under `build/widgets/hello-world`.
  *
  * The fixture is *not* a workspace member and ships nothing — `tests/**`
  * is production-exclude in this package's .gitattributes, and the
@@ -43,6 +43,8 @@ const PAIRED_BUNDLES = [
 	[ 'routes/dashboard/route.js', 'routes/dashboard/route.min.js' ],
 	[ 'scripts/css-test/index.js', 'scripts/css-test/index.min.js' ],
 	[ 'styles/css-test/style.css', 'styles/css-test/style.min.css' ],
+	[ 'widgets/hello-world/render.js', 'widgets/hello-world/render.min.js' ],
+	[ 'widgets/hello-world/widget.js', 'widgets/hello-world/widget.min.js' ],
 ];
 
 describe(
@@ -115,9 +117,9 @@ describe(
 		it( 'strips paired unminified bundles and patches every PHP loader', () => {
 			const result = strip( FIXTURE_BUILD );
 			assert.equal( result.skipped, false );
-			// 2 routes paired + 1 wpScript paired + 1 CSS paired = 4 deletions.
-			assert.equal( result.deletedFiles, 4 );
-			assert.equal( result.patchedFiles, 4 );
+			// 2 routes paired + 1 wpScript paired + 1 CSS paired + 1 widget (2 paired) = 6 deletions.
+			assert.equal( result.deletedFiles, 6 );
+			assert.equal( result.patchedFiles, 5 );
 
 			// Paired bundles gone, minified siblings retained.
 			for ( const [ unminified, minified ] of PAIRED_BUNDLES ) {

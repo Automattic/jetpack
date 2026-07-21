@@ -38,6 +38,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
+		Customize_Feed::reset_enclosure_dedup();
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
@@ -342,6 +343,81 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
 	}
 
+	/**
+	 * Core `rss_enclosure()` emits one `<enclosure>` per `enclosure` post-meta
+	 * row, and posts accumulate several as the source URL drifts across saves.
+	 * All rows rewrite to the same post-ID-keyed stats URL, so the second and
+	 * subsequent rows must be dropped — a valid podcast item has exactly one.
+	 */
+	public function test_rewrite_enclosure_drops_repeated_rows_that_collapse_to_same_stats_url() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter(
+			'wpcom_podcasting_tracked_blog_id',
+			static function () {
+				return 555;
+			}
+		);
+
+		// Two distinct source URLs — a re-upload / CDN-host drift — both
+		// resolve to real attachments and both rewrite to `.../4242.mp3`.
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				if ( 'https://i0.wp.com/example.com/episode.mp3' === $url ) {
+					return 8001;
+				}
+				if ( 'https://i1.wp.com/example.com/episode.mp3' === $url ) {
+					return 8002;
+				}
+				return $pre;
+			},
+			10,
+			2
+		);
+
+		$first  = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i0.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+		$second = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i1.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+
+		$this->assertStringContainsString(
+			'url="https://public-api.wordpress.com/wpcom/v2/sites/555/podcast-play/4242.mp3"',
+			$first
+		);
+		$this->assertSame( '', $second );
+	}
+
+	/**
+	 * The dedup registry is per feed render: `reset_enclosure_dedup()` (hooked
+	 * on `rss2_head`) clears it so re-generating the same feed within one
+	 * long-lived process emits enclosures again instead of dropping them all.
+	 */
+	public function test_reset_enclosure_dedup_lets_the_same_url_emit_on_a_fresh_render() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter( 'wpcom_podcasting_enable_play_tracking', '__return_false' );
+
+		$markup = '<enclosure url="https://example.com/episode.mp3" length="123" type="audio/mpeg" />';
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
+		$this->assertSame( '', Customize_Feed::rewrite_enclosure( $markup ) );
+
+		Customize_Feed::reset_enclosure_dedup();
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
+	}
+
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
 		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
@@ -437,6 +513,41 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 100, $result[0]->ID );
 
 		delete_post_meta( 100, 'enclosure' );
+	}
+
+	public function test_constrain_feed_query_leaves_where_untouched_for_non_podcast_query() {
+		$where = ' AND 1=1';
+		$query = $this->build_podcast_feed_query_mock( 17, array( 'is_feed' => false ) );
+
+		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
+	}
+
+	public function test_constrain_feed_query_leaves_where_untouched_when_queried_term_does_not_match() {
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+
+		$where = ' AND 1=1';
+		$query = $this->build_podcast_feed_query_mock( 999 );
+
+		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
+	}
+
+	public function test_constrain_feed_query_appends_enclosure_exists_subquery_for_podcast_feed() {
+		global $wpdb;
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+
+		$query  = $this->build_podcast_feed_query_mock( 17 );
+		$result = Customize_Feed::constrain_feed_query( ' AND 1=1', $query );
+
+		// Constraint is a correlated EXISTS semi-join, so an episode with
+		// several `enclosure` rows still yields exactly one post row — no
+		// LIMIT-breaking duplicates.
+		$this->assertStringContainsString(
+			"EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = 'enclosure' )",
+			$result
+		);
+		$this->assertStringStartsWith( ' AND 1=1', $result );
 	}
 
 	/**
@@ -611,5 +722,41 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Body prose that listeners should see.', $output );
 		$this->assertStringNotContainsString( 'mediaUrl', $output );
 		$this->assertStringNotContainsString( 'example.com/ep.mp3', $output );
+	}
+
+	public function test_strip_block_from_feed_strips_episode_block() {
+		$this->assertSame(
+			'',
+			Customize_Feed::strip_block_from_feed(
+				'<figure class="wp-block-jetpack-podcast-episode">player widget</figure>',
+				array( 'blockName' => 'jetpack/podcast-episode' )
+			)
+		);
+	}
+
+	public function test_strip_block_from_feed_strips_player_and_subscribe_blocks() {
+		foreach ( array( 'jetpack/podcast-player', 'jetpack/subscriptions' ) as $block_name ) {
+			$this->assertSame(
+				'',
+				Customize_Feed::strip_block_from_feed( 'rendered widget', array( 'blockName' => $block_name ) ),
+				"Expected {$block_name} to be stripped from the feed body."
+			);
+		}
+	}
+
+	public function test_strip_block_from_feed_keeps_prose_blocks() {
+		$html = '<p>Real show notes prose listeners should see.</p>';
+		$this->assertSame(
+			$html,
+			Customize_Feed::strip_block_from_feed( $html, array( 'blockName' => 'core/paragraph' ) )
+		);
+	}
+
+	public function test_strip_block_from_feed_keeps_classic_freeform_content() {
+		$html = '<p>Classic editor content.</p>';
+		$this->assertSame(
+			$html,
+			Customize_Feed::strip_block_from_feed( $html, array( 'blockName' => null ) )
+		);
 	}
 }

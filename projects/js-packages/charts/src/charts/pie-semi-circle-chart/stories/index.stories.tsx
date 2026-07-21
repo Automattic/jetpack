@@ -9,11 +9,14 @@ import {
 	legendArgTypes,
 	partialOsUsageData as data,
 	themeArgTypes,
+	type LegendStoryControls,
 } from '../../../stories';
 import { PieSemiCircleChart } from '../index';
+import type { ChartLegendConfig, DataPointPercentage } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > > &
+	LegendStoryControls;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Pie Semi Circle Chart',
@@ -59,7 +62,7 @@ const meta: Meta< StoryArgs > = {
 		},
 	},
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( args );
 		return <PieSemiCircleChart { ...args } legend={ legend } />;
 	},
 } satisfies Meta< StoryArgs >;
@@ -152,7 +155,7 @@ export const WithLegend: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( args );
 		return (
 			<PieSemiCircleChart
 				{ ...Default.args }
@@ -214,7 +217,7 @@ export const ErrorStates: Story = {
 		</div>
 	),
 	args: {
-		containerHeight: 600,
+		containerHeight: '600px',
 	},
 	parameters: {
 		docs: {

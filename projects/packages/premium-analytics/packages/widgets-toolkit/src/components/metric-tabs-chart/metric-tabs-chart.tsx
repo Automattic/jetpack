@@ -4,8 +4,8 @@
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Tabs, Text } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { SelectControl, Tabs, Text } from '@wordpress/ui';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -19,10 +19,10 @@ import type { ComparativeLineChartSeries } from '../chart-comparative-line/types
 import type { ReactNode } from 'react';
 
 /**
- * Minimum widget height (px) before the chart is worth showing; below this only
- * the metric cards render, so the chart never collapses into a sliver.
+ * Width (px) budgeted per metric tab; below `metrics.length` times this the
+ * tabs collapse into a dropdown instead of overflowing into a scrollbar.
  */
-const MIN_HEIGHT_FOR_CHART = 260;
+const MIN_TAB_WIDTH = 120;
 
 /**
  * A single time-series point for a metric.
@@ -116,8 +116,9 @@ function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
 
 /**
  * The chart for a single metric — the current line with its dashed
- * previous-period overlay. Rendered inside the metric's tab panel, so the chart
- * (and its `useSeriesStyles` work) only mounts for the selected metric.
+ * previous-period overlay. `compactWhenShort` lets the chart degrade to a
+ * sparkline (dropping its axis, grid, and legend) on short tiles instead of
+ * squashing its labels on top of each other.
  *
  * @param {object}     props            - The component props.
  * @param {MetricTab}  props.metric     - The metric to chart.
@@ -147,6 +148,7 @@ function MetricChart( {
 				series={ series }
 				styles={ seriesStyles }
 				dataFormat={ metric.dataFormat ?? dataFormat }
+				compactWhenShort
 			/>
 			{ loading && <WidgetLoadingOverlay /> }
 		</>
@@ -160,6 +162,9 @@ function MetricChart( {
  * previous-period overlay. Reused by Stats time-series widgets (subscribers
  * chart, traffic chart) — the consumer supplies the per-metric data and headline
  * values; this owns selection, series building, and layout.
+ *
+ * Responsive: on narrow tiles the tabs collapse into a dropdown whose trigger
+ * is the selected metric's card; on short tiles the chart degrades to a sparkline.
  *
  * @param {MetricTabsChartProps} props - The component props.
  * @return The metric tabs + chart.
@@ -175,15 +180,34 @@ export function MetricTabsChart( {
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
-	// Hide the chart on short tiles and show only the metric cards, rather than
-	// squashing the chart into an unreadable sliver. Mirrors analytics-at-a-glance.
-	const [ hasRoomForChart, setHasRoomForChart ] = useState( true );
+	// Controlled open state: the dashboard's focusable drag-sortable wrapper
+	// closes the popup (reason 'none') right after it opens, so we open on
+	// click, drop 'none' closes, and close explicitly on selection. Real closes
+	// (outside press, Escape) carry a specific reason and pass through.
+	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
+
+	// Tabs↔dropdown flips are debounced: each flip remounts the header + chart
+	// subtree, and during a drag-resize the width oscillates around grid snap
+	// boundaries fast enough to freeze the page and abort the gesture.
+	const [ width, setWidth ] = useState< number >();
+	const hasMeasuredRef = useRef( false );
+	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >();
 	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
 		const rect = entries[ 0 ]?.contentRect;
-		if ( rect ) {
-			setHasRoomForChart( rect.height >= MIN_HEIGHT_FOR_CHART );
+		if ( ! rect ) {
+			return;
 		}
+		// Apply the mount measure immediately so a narrow tile doesn't flash tabs.
+		if ( ! hasMeasuredRef.current ) {
+			hasMeasuredRef.current = true;
+			setWidth( rect.width );
+			return;
+		}
+		clearTimeout( flipTimerRef.current );
+		flipTimerRef.current = setTimeout( () => setWidth( rect.width ), 150 );
 	} );
+	useEffect( () => () => clearTimeout( flipTimerRef.current ), [] );
+	const useDropdown = width !== undefined && width < metrics.length * MIN_TAB_WIDTH;
 
 	// Fall back to the first metric if the selected one is no longer present.
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
@@ -195,6 +219,86 @@ export function MetricTabsChart( {
 		},
 		[ onMetricChange ]
 	);
+
+	// Memoised: an unstable `items` identity makes the select re-initialise and
+	// close its popup as it opens.
+	const metricItems = useMemo(
+		() => metrics.map( metric => ( { label: metric.label, value: metric.key } ) ),
+		[ metrics ]
+	);
+
+	if ( useDropdown ) {
+		// `value` must be a reference into `metricItems` for the select to match it.
+		const activeItem =
+			metricItems.find( item => item.value === activeMetric?.key ) ?? metricItems[ 0 ];
+
+		return (
+			<div ref={ measureRef } className={ styles.root }>
+				<div className={ styles.header }>
+					{ /* Stops pointer-down from starting a widget drag and opens the select
+					     on click (see `isDropdownOpen`). Mouse-only supplement — keyboard
+					     users open the select through the trigger button itself. */ }
+					{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
+					<div
+						className={ styles.picker }
+						onPointerDown={ event => event.stopPropagation() }
+						onMouseDown={ event => event.stopPropagation() }
+						onClick={ event => {
+							// React bubbles portaled popup events through the component tree,
+							// so option clicks land here too; reopening on them would undo the
+							// close-on-select. Only treat clicks inside the wrapper as opens.
+							if ( event.currentTarget.contains( event.target as Node ) ) {
+								setIsDropdownOpen( true );
+							}
+						} }
+					>
+						<SelectControl
+							className={ styles.metricSelect }
+							label={ groupLabel }
+							hideLabelFromVision
+							open={ isDropdownOpen }
+							onOpenChange={ ( nextOpen, details ) => {
+								// Drop the wrapper focus churn's 'none' closes; selection closes
+								// are handled in `onValueChange`.
+								if ( ! nextOpen && details?.reason === 'none' ) {
+									return;
+								}
+								setIsDropdownOpen( nextOpen );
+							} }
+							items={ metricItems }
+							value={ activeItem }
+							onValueChange={ item => {
+								if ( item?.value ) {
+									handleValueChange( item.value );
+								}
+								setIsDropdownOpen( false );
+							} }
+							triggerContent={
+								activeMetric && (
+									<span className={ styles.tabContent }>
+										<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
+										<MetricWithComparison
+											value={ activeMetric.value }
+											previousValue={ activeMetric.previousValue }
+											dataFormat={ activeMetric.dataFormat ?? dataFormat }
+											direction="row"
+											align="flex-end"
+										/>
+									</span>
+								)
+							}
+						/>
+					</div>
+					{ controls }
+				</div>
+				<div className={ styles.chart }>
+					{ activeMetric && (
+						<MetricChart metric={ activeMetric } dataFormat={ dataFormat } loading={ loading } />
+					) }
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<Tabs.Root
@@ -231,9 +335,7 @@ export function MetricTabsChart( {
 			     metric's panel renders its chart; the rest stay empty. */ }
 			{ metrics.map( metric => (
 				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
-					{ hasRoomForChart && (
-						<MetricChart metric={ metric } dataFormat={ dataFormat } loading={ loading } />
-					) }
+					<MetricChart metric={ metric } dataFormat={ dataFormat } loading={ loading } />
 				</Tabs.Panel>
 			) ) }
 		</Tabs.Root>

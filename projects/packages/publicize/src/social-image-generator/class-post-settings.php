@@ -100,7 +100,7 @@ class Post_Settings {
 		 *
 		 * @module publicize
 		 *
-		 * @since $$next-version$$
+		 * @since 0.83.5
 		 *
 		 * @param bool $disable_text Whether to disable the text overlay. Default false.
 		 * @param int  $post_id      The Post ID.

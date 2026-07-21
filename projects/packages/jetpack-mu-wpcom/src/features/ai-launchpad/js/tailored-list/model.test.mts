@@ -33,7 +33,7 @@ const fixture: TailoredOutput = {
 		{ id: 'set_up_payments', subtitle: 'Set up checkout so customers can buy.' },
 		{ id: 'site_theme_selected', subtitle: 'Pick a theme that suits a ceramics studio.' },
 		{ id: 'complete_profile', subtitle: 'Tell shoppers the story behind Terra Ceramics.' },
-		{ id: 'woo_launch_site', subtitle: 'Launch the shop and start selling.' },
+		{ id: 'site_launched', subtitle: 'Launch the shop and start selling.' },
 	],
 	inferred: {
 		goal: 'sell',
@@ -51,6 +51,13 @@ const fixture: TailoredOutput = {
 			'Browse the shop to find a piece that fits your table, or follow along here as we share new collections, studio notes, and the slow craft behind every glaze.',
 		],
 	},
+	about_page_draft: {
+		title: 'About Terra Ceramics',
+		paragraphs: [
+			'Terra Ceramics is a one-person pottery studio making small-batch homewares by hand.',
+			'Every glaze and curve is shaped at the wheel, meant to bring a little ritual to everyday tables.',
+		],
+	},
 };
 
 /**
@@ -66,6 +73,7 @@ function task( overrides: Partial< EnrichedTask > = {} ): EnrichedTask {
 		title: 'Choose a design',
 		completed: false,
 		in_progress: false,
+		disabled: false,
 		calypso_path: '/themes/example.com',
 		...overrides,
 	};
@@ -83,8 +91,8 @@ describe( 'ctaKind', () => {
 		assert.equal( ctaKind( 'first_post_published_newsletter' ), 'first_post' );
 	} );
 
-	it( 'routes page-creating tasks to the pattern page handler', () => {
-		assert.equal( ctaKind( 'add_about_page' ), 'pattern_page' );
+	it( 'routes the About task to the AI-drafted page handler', () => {
+		assert.equal( ctaKind( 'add_about_page' ), 'about_page' );
 	} );
 
 	it( 'routes pathless launch tasks to the launch handler', () => {
@@ -95,8 +103,18 @@ describe( 'ctaKind', () => {
 
 	it( 'routes everything else to a deeplink', () => {
 		assert.equal( ctaKind( 'site_theme_selected' ), 'deeplink' );
-		// woo_launch_site has its own wc-admin deeplink, so it is not a launch kind.
+		// woo_launch_site is dropped server-side (remapped to site_launched), but guard the client too: were a stray
+		// one to reach here it must not be treated as a launch task.
 		assert.equal( ctaKind( 'woo_launch_site' ), 'deeplink' );
+		// The synthetic store tasks navigate to their wp-admin CTAs.
+		assert.equal( ctaKind( 'install_woocommerce' ), 'deeplink' );
+		assert.equal( ctaKind( 'setup_woocommerce_store' ), 'deeplink' );
+	} );
+} );
+
+describe( 'ctaKind gallery', () => {
+	it( 'routes add_gallery_page through the gallery pattern-page flow', () => {
+		assert.equal( ctaKind( 'add_gallery_page' ), 'gallery_page' );
 	} );
 } );
 
@@ -180,6 +198,17 @@ describe( 'isTaskActionable', () => {
 			false
 		);
 	} );
+
+	it( 'is never actionable for a disabled preview task', () => {
+		// Even with an otherwise-actionable shape, disabled short-circuits to false.
+		assert.equal(
+			isTaskActionable(
+				task( { id: 'woo_products', disabled: true, calypso_path: '/themes/example.com' } ),
+				null
+			),
+			false
+		);
+	} );
 } );
 
 describe( 'isCompleteOnClickTask', () => {
@@ -209,9 +238,10 @@ describe( 'resolveCtaUrl', () => {
 		return {
 			clicked,
 			handlers: {
-				trackTaskClicked: ( props: { task_id: string } ) => clicked.push( props.task_id ),
+				trackTaskCtaClicked: ( props: { task_id: string } ) => clicked.push( props.task_id ),
 				createFirstPostDraft: async () => ( { post_id: 1, edit_url: '/wp-admin/post.php?post=1' } ),
-				createPatternPage: async () => ( { page_id: 2, edit_url: '/wp-admin/post.php?post=2' } ),
+				createAboutPage: async () => ( { page_id: 2, edit_url: '/wp-admin/post.php?post=2' } ),
+				createGalleryPage: async () => ( { page_id: 3, edit_url: '/wp-admin/post.php?post=3' } ),
 			},
 		};
 	}
@@ -260,7 +290,7 @@ describe( 'resolveCtaUrl', () => {
 		assert.deepEqual( clicked, [ 'first_post_published' ] );
 	} );
 
-	it( 'builds a pattern page and returns its editor URL for page tasks', async () => {
+	it( 'writes the AI-drafted About page and returns its editor URL', async () => {
 		const { clicked, handlers } = stubHandlers();
 		const url = await resolveCtaUrl(
 			task( { id: 'add_about_page', calypso_path: null } ),
@@ -269,6 +299,53 @@ describe( 'resolveCtaUrl', () => {
 		);
 		assert.equal( url, '/wp-admin/post.php?post=2' );
 		assert.deepEqual( clicked, [ 'add_about_page' ] );
+	} );
+
+	it( 'hands each page task its own input: the About draft and the inferred details', async () => {
+		const received: unknown[] = [];
+		const handlers = {
+			trackTaskCtaClicked: () => {},
+			createFirstPostDraft: async () => ( { post_id: 1, edit_url: '/wp-admin/post.php?post=1' } ),
+			createAboutPage: async ( draft: TailoredOutput[ 'about_page_draft' ] ) => {
+				received.push( draft );
+				return { page_id: 2, edit_url: '/wp-admin/post.php?post=2' };
+			},
+			createGalleryPage: async ( inferred: TailoredOutput[ 'inferred' ] ) => {
+				received.push( inferred );
+				return { page_id: 3, edit_url: '/wp-admin/post.php?post=3' };
+			},
+		};
+
+		const galleryUrl = await resolveCtaUrl(
+			task( { id: 'add_gallery_page', calypso_path: null } ),
+			fixture,
+			handlers
+		);
+		await resolveCtaUrl( task( { id: 'add_about_page', calypso_path: null } ), fixture, handlers );
+
+		assert.equal( galleryUrl, '/wp-admin/post.php?post=3' );
+		assert.deepEqual( received, [ fixture.inferred, fixture.about_page_draft ] );
+	} );
+
+	it( 'still creates the About page (as an empty shell) for an output without a draft', async () => {
+		// Outputs persisted before about_page_draft existed lack the field; the handler
+		// receives undefined and must still be called.
+		const drafts: unknown[] = [];
+		const { handlers } = stubHandlers();
+		handlers.createAboutPage = async ( draft?: TailoredOutput[ 'about_page_draft' ] ) => {
+			drafts.push( draft );
+			return { page_id: 2, edit_url: '/wp-admin/post.php?post=2' };
+		};
+		const legacy = { ...fixture };
+		delete ( legacy as Record< string, unknown > ).about_page_draft;
+
+		const url = await resolveCtaUrl(
+			task( { id: 'add_about_page', calypso_path: null } ),
+			legacy,
+			handlers
+		);
+		assert.equal( url, '/wp-admin/post.php?post=2' );
+		assert.deepEqual( drafts, [ undefined ] );
 	} );
 
 	it( 'reopens the existing draft for an in-progress task instead of creating a new one', async () => {
@@ -368,6 +445,21 @@ describe( 'nextIncompleteId', () => {
 	it( 'returns null when the given id was the only incomplete task', () => {
 		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', completed: true } ) ];
 		assert.equal( nextIncompleteId( tasks, 'b' ), null );
+	} );
+
+	it( 'skips disabled preview tasks as auto-expand targets', () => {
+		const tasks = [
+			task( { id: 'a', disabled: true } ),
+			task( { id: 'b', disabled: true } ),
+			task( { id: 'c', completed: false } ),
+		];
+		// The two disabled cards are passed over in favor of the first actionable one.
+		assert.equal( nextIncompleteId( tasks ), 'c' );
+	} );
+
+	it( 'returns null when only disabled tasks remain', () => {
+		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', disabled: true } ) ];
+		assert.equal( nextIncompleteId( tasks ), null );
 	} );
 } );
 

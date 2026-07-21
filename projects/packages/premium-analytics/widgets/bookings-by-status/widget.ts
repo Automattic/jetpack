@@ -25,9 +25,11 @@ export type BookingsByStatusAttributes = Record< never, never >;
 export default {
 	name: 'jpa/bookings-by-status',
 	title: __( 'Bookings by status', 'jetpack-premium-analytics' ),
-	description: __(
-		'Number of bookings by status over the selected time period.',
-		'jetpack-premium-analytics'
-	),
+	help: {
+		content: __(
+			'Number of bookings by status over the selected time period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	icon: chartBar,
 };

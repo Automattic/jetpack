@@ -17,7 +17,7 @@ use Test_Plugin_Factory;
 /**
  * Test suite class for the Autoloader part responsible for ensuring only the latest autoloader is ever executed.
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */]
 class LatestAutoloaderGuardTest extends TestCase {
 
 	/**

@@ -13,9 +13,13 @@ import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { lineChartTooltipArgTypes } from '../../../stories/tooltip-config';
 import { DefaultGlyph } from '../../private/default-glyph';
 import LineChart from '../line-chart';
+import type { LegendStoryControls } from '../../../stories/legend-config';
+import type { TooltipStoryControls } from '../../../stories/tooltip-config';
 import type { Meta } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
+export type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > &
+	LegendStoryControls &
+	TooltipStoryControls;
 
 /**
  * Custom storybook theme with glyphs

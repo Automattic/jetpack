@@ -1,4 +1,5 @@
 import { AI_PATH, OVERVIEW_PATH, SETTINGS_PATH } from '../../get-preloaded';
+import { makeSchemaSettings } from './schema-settings-fixtures';
 import type { AiState } from '../../ai-types';
 import type { ContentCoverage } from '../../overview-types';
 import type { SettingsResponse } from '../../settings-types';
@@ -20,6 +21,8 @@ export const SEEDED_COVERAGE: ContentCoverage = {
 	with_search_visible: 8,
 };
 
+export const SEEDED_SCHEMA = makeSchemaSettings();
+
 export const SEEDED_SETTINGS: SettingsResponse = {
 	front_page_description: 'Welcome to the site.',
 	title_formats: {},
@@ -28,6 +31,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
+	schema: SEEDED_SCHEMA,
 };
 
 export const SEEDED_AI: AiState = {

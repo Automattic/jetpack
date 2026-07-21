@@ -106,8 +106,8 @@ export const Loading: Story = {
 };
 
 /**
- * On a short tile the chart is dropped and only the metric cards remain, so it
- * never collapses into an unreadable sliver.
+ * On a short tile the chart degrades to a sparkline — dropping its axis, grid,
+ * and legend — instead of squashing its labels, while the metric cards stay.
  */
 export const Compact: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT },

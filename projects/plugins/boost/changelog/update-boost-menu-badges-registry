@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Boost now reports its problem count to the central menu-badges registry instead of writing admin-menu markup directly.

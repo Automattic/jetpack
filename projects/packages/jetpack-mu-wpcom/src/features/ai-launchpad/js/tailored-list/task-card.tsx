@@ -1,16 +1,21 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { border, drafts, published } from '@wordpress/icons';
+import { border, drafts, lock, published } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard } from '@wordpress/ui';
 import { ctaKind, type EnrichedTask } from './model.ts';
 
 interface Props {
 	task: EnrichedTask;
 	isBusy: boolean;
+	isLocked: boolean;
 	canStart: boolean;
 	canMarkComplete: boolean;
 	isOpen: boolean;
 	onOpenChange: ( open: boolean ) => void;
+	// Fired when a completed/skipped card — which cannot expand — is clicked, so
+	// reopen-attempts are still observable. Collapsible cards report through
+	// onOpenChange instead.
+	onCollapsedClick: () => void;
 	onGetStarted: () => void;
 	onMarkComplete: () => void;
 	onSkip: () => void;
@@ -29,6 +34,12 @@ interface Props {
  * @return The translated CTA label.
  */
 function getCtaLabel( taskId: string, inProgress: boolean ): string {
+	// The install task's in-progress state means "installed but inactive", so its CTA activates the plugin rather
+	// than resuming a draft.
+	if ( inProgress && taskId === 'install_woocommerce' ) {
+		return __( 'Activate WooCommerce', 'jetpack-mu-wpcom' );
+	}
+
 	// An in-progress task reopens its existing draft, so the CTA invites the user to pick up where they left off.
 	if ( inProgress ) {
 		return __( 'Continue', 'jetpack-mu-wpcom' );
@@ -37,6 +48,12 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 	switch ( taskId ) {
 		case 'site_theme_selected':
 			return __( 'Browse themes', 'jetpack-mu-wpcom' );
+		case 'add_gallery_page':
+			return __( 'Create gallery', 'jetpack-mu-wpcom' );
+		case 'install_woocommerce':
+			return __( 'Install WooCommerce', 'jetpack-mu-wpcom' );
+		case 'setup_woocommerce_store':
+			return __( 'Set up store', 'jetpack-mu-wpcom' );
 		case 'woo_products':
 			return __( 'Add products', 'jetpack-mu-wpcom' );
 		case 'woo_customize_store':
@@ -55,7 +72,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 	switch ( ctaKind( taskId ) ) {
 		case 'first_post':
 			return __( 'Write post', 'jetpack-mu-wpcom' );
-		case 'pattern_page':
+		case 'about_page':
 			return __( 'Add page', 'jetpack-mu-wpcom' );
 		case 'launch':
 			return __( 'Launch site', 'jetpack-mu-wpcom' );
@@ -70,34 +87,74 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  * `CollapsibleCard` that expands to reveal the subtitle and the CTA / "Skip"
  * actions. Open state is controlled by the parent so the list acts as an accordion.
  *
- * @param props                 - The component props.
- * @param props.task            - The enriched task to render.
- * @param props.isBusy          - Whether the primary action is in flight.
- * @param props.canStart        - Whether the task has an actionable CTA destination.
- * @param props.canMarkComplete - Whether the task offers a "Mark as complete" button
- *                              (a complete-on-click task with no CTA destination).
- * @param props.isOpen          - Whether the card is expanded (controlled by the parent).
- * @param props.onOpenChange    - Called with the requested open state when the header
- *                              is toggled, so the parent can enforce single-open.
- * @param props.onGetStarted    - Called when the primary CTA is clicked.
- * @param props.onMarkComplete  - Called when "Mark as complete" is clicked.
- * @param props.onSkip          - Called when "Skip" is clicked.
+ * @param props                  - The component props.
+ * @param props.task             - The enriched task to render.
+ * @param props.isBusy           - Whether this card's action is in flight (spinner).
+ * @param props.isLocked         - Whether any card's action is in flight; disables all
+ *                               actions so concurrent writes can't interleave.
+ * @param props.canStart         - Whether the task has an actionable CTA destination.
+ * @param props.canMarkComplete  - Whether the task offers a "Mark as complete" button
+ *                               (a complete-on-click task with no CTA destination).
+ * @param props.isOpen           - Whether the card is expanded (controlled by the parent).
+ * @param props.onOpenChange     - Called with the requested open state when the header
+ *                               is toggled, so the parent can enforce single-open.
+ * @param props.onCollapsedClick - Called when a completed/skipped (non-expandable)
+ *                               card is clicked, for analytics.
+ * @param props.onGetStarted     - Called when the primary CTA is clicked.
+ * @param props.onMarkComplete   - Called when "Mark as complete" is clicked.
+ * @param props.onSkip           - Called when "Skip" is clicked.
  * @return The task card element.
  */
 export function TaskCard( {
 	task,
 	isBusy,
+	isLocked,
 	canStart,
 	canMarkComplete,
 	isOpen,
 	onOpenChange,
+	onCollapsedClick,
 	onGetStarted,
 	onMarkComplete,
 	onSkip,
 }: Props ) {
+	// A disabled task is a locked preview of a task that isn't reachable yet (a sell site's
+	// commerce tasks before WooCommerce is active). It still expands to its subtitle, but
+	// shows a lock glyph and a hint in place of any CTA / Skip actions. Checked before
+	// `completed` so a stale completion flag can never render it as a struck-through "done".
+	if ( task.disabled ) {
+		return (
+			<CollapsibleCard.Root
+				className="ai-launchpad-tailored-list__card is-disabled"
+				open={ isOpen }
+				onOpenChange={ onOpenChange }
+			>
+				<CollapsibleCard.Header>
+					<span className="ai-launchpad-tailored-list__header-inner">
+						<span className="ai-launchpad-tailored-list__icon">
+							<Icon icon={ lock } size={ 24 } />
+						</span>
+						<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
+					</span>
+				</CollapsibleCard.Header>
+				<CollapsibleCard.Content>
+					<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
+					<p className="ai-launchpad-tailored-list__hint">
+						{ __( 'Available once WooCommerce is active.', 'jetpack-mu-wpcom' ) }
+					</p>
+				</CollapsibleCard.Content>
+			</CollapsibleCard.Root>
+		);
+	}
+
 	if ( task.completed ) {
 		return (
-			<Card.Root className="ai-launchpad-tailored-list__card is-completed">
+			// Analytics-only click listener: the card stays non-interactive (no role or
+			// keyboard affordance) — it just observes users trying to reopen a done card.
+			<Card.Root
+				className="ai-launchpad-tailored-list__card is-completed"
+				onClick={ onCollapsedClick }
+			>
 				<Card.Header>
 					<span className="ai-launchpad-tailored-list__header-inner">
 						<span className="ai-launchpad-tailored-list__icon is-done">
@@ -129,7 +186,12 @@ export function TaskCard( {
 				<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
 				<div className="ai-launchpad-tailored-list__actions">
 					{ canStart && (
-						<Button variant="solid" onClick={ onGetStarted } loading={ isBusy } disabled={ isBusy }>
+						<Button
+							variant="solid"
+							onClick={ onGetStarted }
+							loading={ isBusy }
+							disabled={ isLocked }
+						>
 							{ getCtaLabel( task.id, task.in_progress ) }
 						</Button>
 					) }
@@ -138,12 +200,13 @@ export function TaskCard( {
 							variant="solid"
 							onClick={ onMarkComplete }
 							loading={ isBusy }
-							disabled={ isBusy }
+							disabled={ isLocked }
 						>
 							{ __( 'Mark as complete', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
-					<Button variant="minimal" tone="neutral" onClick={ onSkip }>
+					{ /* Skip persists a server write too, so it shares the lock with the primary action. */ }
+					<Button variant="minimal" tone="neutral" onClick={ onSkip } disabled={ isLocked }>
 						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</div>

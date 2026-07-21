@@ -9,18 +9,21 @@ import {
 	largeValuesData,
 	trafficData,
 	themeArgTypes,
+	type LegendStoryControls,
 } from '../../../stories';
 import BarChart from '../bar-chart';
+import type { ChartLegendConfig, SeriesData } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Story-specific args that provide convenient Storybook controls.
  * These don't map directly to component props but control how data/state is manipulated in stories.
  */
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > & {
-	/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
-	seriesCount?: 'single' | 'multiple' | 'many';
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > &
+	LegendStoryControls & {
+		/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
+		seriesCount?: 'single' | 'multiple' | 'many';
+	};
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Bar Chart',
@@ -59,7 +62,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
 
 		// Determine data based on seriesCount control
 		let data = chartProps.data;
@@ -180,7 +183,7 @@ export const Animation: Story = {
 	},
 };
 
-export const ErrorStates: StoryObj< typeof BarChart > = {
+export const ErrorStates: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '20px' } }>
 			<div>
@@ -254,9 +257,9 @@ export const WithLegend: Story = {
 };
 
 // Story demonstrating composition API
-export const WithCompositionLegend: StoryObj< typeof BarChart > = {
+export const WithCompositionLegend: Story = {
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
 		return (
 			<BarChart
 				{ ...Default.args }
@@ -325,7 +328,7 @@ const dataWithZeroValues = [
 		],
 	},
 ];
-export const ZeroValueComparison: StoryObj< typeof BarChart > = {
+export const ZeroValueComparison: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
 			<div>
@@ -514,7 +517,7 @@ export const ComparisonGroups: Story = {
 	},
 };
 
-export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
+export const LabelOverflowEllipsis: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
 			<div>

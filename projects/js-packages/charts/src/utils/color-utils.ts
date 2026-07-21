@@ -234,6 +234,34 @@ export const lightenHexColor = ( hex: string, blend: number ): string => {
 };
 
 /**
+ * Blend one hex color toward another, per-channel in sRGB.
+ *
+ * @param  fromHex - Starting hex color, returned when blend is 0
+ * @param  toHex   - Target hex color, returned when blend is 1
+ * @param  blend   - Amount toward toHex, clamped to [0, 1]
+ * @return Blended hex color string
+ * @throws {Error} if either hex string is malformed
+ */
+export const mixHexColors = ( fromHex: string, toHex: string, blend: number ): string => {
+	validateHexColor( fromHex );
+	validateHexColor( toHex );
+
+	const amount = Math.min( 1, Math.max( 0, blend ) );
+	const channel = ( start: number, end: number ): string =>
+		Math.round( start + ( end - start ) * amount )
+			.toString( 16 )
+			.padStart( 2, '0' );
+
+	return `#${ channel(
+		parseInt( fromHex.slice( 1, 3 ), 16 ),
+		parseInt( toHex.slice( 1, 3 ), 16 )
+	) }${ channel(
+		parseInt( fromHex.slice( 3, 5 ), 16 ),
+		parseInt( toHex.slice( 3, 5 ), 16 )
+	) }${ channel( parseInt( fromHex.slice( 5, 7 ), 16 ), parseInt( toHex.slice( 5, 7 ), 16 ) ) }`;
+};
+
+/**
  * WCAG relative luminance of a hex color (0 = black, 1 = white).
  *
  * @param  hex - Hex color string (e.g., '#98C8DF')

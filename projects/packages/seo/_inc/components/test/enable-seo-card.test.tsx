@@ -41,6 +41,9 @@ describe( 'EnableSeoCard', () => {
 
 		render( <EnableSeoCard /> );
 
-		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 } );

@@ -71,8 +71,8 @@ class Consent_Log_Controller_Test extends TestCase {
 		$_SERVER = $this->server;
 		// Reset state some tests flip on, so sibling suites see the defaults.
 		wp_using_ext_object_cache( false );
-		remove_all_filters( 'jetpack_cookie_consent_config' );
 		remove_all_filters( 'jetpack_cookie_consent_rate_limit_max' );
+		remove_all_filters( 'jetpack_cookie_consent_log_retention_days' );
 		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] );
 		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'] );
 		wp_cache_flush();
@@ -126,7 +126,7 @@ class Consent_Log_Controller_Test extends TestCase {
 		foreach ( $this->get_ip_mode_cases() as $case => $args ) {
 			list( $mode, $ip_address, $expected ) = $args;
 
-			remove_all_filters( 'jetpack_cookie_consent_config' );
+			$this->reset_cookie_consent_config();
 			$this->set_config_ip_mode( $mode );
 			$this->set_server_ip( $ip_address );
 
@@ -208,6 +208,176 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that an IP mode injected via init()'s log config takes priority over
+	 * Cookie_Consent's global config, without a consumer needing to touch that config.
+	 */
+	public function test_ip_mode_read_from_injected_log_config() {
+		$instance = Consent_Log_Controller::init( array( 'ip_mode' => 'hash' ) );
+
+		$ref = new ReflectionMethod( Consent_Log_Controller::class, 'get_ip_mode' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+
+		$this->assertSame( 'hash', $ref->invoke( $instance ) );
+	}
+
+	/**
+	 * An unknown injected ip_mode falls back to the schema default. get_ip_mode() now
+	 * validates against Config_Schema (the single enum source) rather than a local
+	 * constant, so this guards that the controller and schema can't drift apart.
+	 */
+	public function test_get_ip_mode_falls_back_to_default_for_unknown_mode() {
+		$instance = Consent_Log_Controller::init( array( 'ip_mode' => 'bogus' ) );
+
+		$ref = new ReflectionMethod( Consent_Log_Controller::class, 'get_ip_mode' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+
+		$this->assertSame( Config_Schema::default_ip_mode(), $ref->invoke( $instance ) );
+	}
+
+	/**
+	 * The cleanup cutoff is derived from the retention_days injected via init().
+	 */
+	public function test_cleanup_uses_injected_retention_days() {
+		$cutoff_ts = $this->capture_cleanup_cutoff( array( 'retention_days' => 1 ) );
+
+		$this->assertEqualsWithDelta( time() - DAY_IN_SECONDS, $cutoff_ts, 600, 'Cutoff should be one day back for retention_days=1.' );
+	}
+
+	/**
+	 * A malformed injected retention_days falls back to DEFAULT_RETENTION_DAYS rather than
+	 * deleting everything (cutoff = now) or erroring. Guards the `log` group's deliberate
+	 * lack of schema validation, whose sole protection is the filter_var/`<= 0` guard.
+	 */
+	public function test_cleanup_falls_back_on_malformed_retention_days() {
+		$default_days = ( new \ReflectionClass( Consent_Log_Controller::class ) )->getConstant( 'DEFAULT_RETENTION_DAYS' );
+
+		foreach ( array( 'nonsense', 0, -5 ) as $bad ) {
+			$cutoff_ts = $this->capture_cleanup_cutoff( array( 'retention_days' => $bad ) );
+
+			$this->assertEqualsWithDelta(
+				time() - ( $default_days * DAY_IN_SECONDS ),
+				$cutoff_ts,
+				600,
+				"Malformed retention_days ($bad) should fall back to DEFAULT_RETENTION_DAYS."
+			);
+		}
+	}
+
+	/**
+	 * The `jetpack_cookie_consent_log_retention_days` filter stays as a back-compat
+	 * override for sites that don't own the init() call, taking precedence over the
+	 * injected retention_days.
+	 */
+	public function test_cleanup_retention_days_filter_overrides_injected_value() {
+		add_filter(
+			'jetpack_cookie_consent_log_retention_days',
+			static function () {
+				return 3;
+			}
+		);
+
+		$cutoff_ts = $this->capture_cleanup_cutoff( array( 'retention_days' => 1 ) );
+
+		$this->assertEqualsWithDelta( time() - ( 3 * DAY_IN_SECONDS ), $cutoff_ts, 600, 'Filter value should override the injected retention_days.' );
+	}
+
+	/**
+	 * Run cleanup_expired_logs() against a $wpdb that records the DELETE cutoff instead of
+	 * touching a real table, mirroring the insert-boundary interception used elsewhere.
+	 *
+	 * @param array $log_config Log config to inject via init().
+	 * @return int Cutoff as a UNIX timestamp parsed from the captured GMT date.
+	 */
+	private function capture_cleanup_cutoff( array $log_config ) {
+		$instance = Consent_Log_Controller::init( $log_config );
+
+		global $wpdb;
+		$real_wpdb = $wpdb;
+		$wpdb      = new class( $real_wpdb ) {
+			/**
+			 * Underlying database handle.
+			 *
+			 * @var \wpdb
+			 */
+			private $real;
+
+			/**
+			 * Cutoff date (GMT) captured from the DELETE prepare() call.
+			 *
+			 * @var string|null
+			 */
+			public $cutoff = null;
+
+			/**
+			 * Wrap the real database handle.
+			 *
+			 * @param \wpdb $real Real database handle.
+			 */
+			public function __construct( $real ) {
+				$this->real = $real;
+			}
+
+			/**
+			 * Delegate property reads (e.g. prefix) to the real handle.
+			 *
+			 * @param string $name Property name.
+			 * @return mixed
+			 */
+			public function __get( $name ) {
+				return $this->real->$name;
+			}
+
+			/**
+			 * Delegate uncaptured method calls to the real handle.
+			 *
+			 * @param string $name Method name.
+			 * @param array  $args Arguments.
+			 * @return mixed
+			 */
+			public function __call( $name, $args ) {
+				return $this->real->$name( ...$args );
+			}
+
+			/**
+			 * Capture the cutoff argument, then delegate to the real prepare().
+			 *
+			 * @param string $query Query with placeholders.
+			 * @param mixed  ...$args Positional args: table, cutoff, batch size.
+			 * @return string
+			 */
+			public function prepare( $query, ...$args ) {
+				if ( null === $this->cutoff && isset( $args[1] ) ) {
+					$this->cutoff = $args[1];
+				}
+				return $this->real->prepare( $query, ...$args );
+			}
+
+			/**
+			 * Report zero rows deleted so cleanup's batch loop terminates immediately.
+			 *
+			 * @return int
+			 */
+			public function query() {
+				return 0;
+			}
+		};
+
+		try {
+			$instance->cleanup_expired_logs();
+			$cutoff = $wpdb->cutoff;
+		} finally {
+			$wpdb = $real_wpdb;
+		}
+
+		$this->assertNotNull( $cutoff, 'cleanup_expired_logs() should reach the DELETE prepare().' );
+		return (int) strtotime( $cutoff . ' UTC' );
+	}
+
+	/**
 	 * Test that the read schema allows dropped IP addresses.
 	 */
 	public function test_consent_logs_schema_allows_null_ip_address() {
@@ -234,12 +404,12 @@ class Consent_Log_Controller_Test extends TestCase {
 	 * @param string $mode IP handling mode.
 	 */
 	private function set_config_ip_mode( $mode ) {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			function ( $config ) use ( $mode ) {
-				$config['log']['ip_mode'] = $mode;
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'ip_mode' => $mode,
+				),
+			)
 		);
 	}
 
@@ -357,20 +527,21 @@ class Consent_Log_Controller_Test extends TestCase {
 	 * Consent types are allowed from the configured category registry.
 	 */
 	public function test_sanitize_consent_types_allows_configured_category_keys() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['consent']['categories'][] = array(
-					'key'             => 'personalization',
-					'label'           => 'Personalization',
-					'description'     => 'Personalized site features.',
-					'required'        => false,
-					'default_checked' => false,
-					'wp_consent_map'  => array( 'personalization' ),
-				);
-
-				return $config;
-			}
+		$categories   = Config_Schema::resolve()['consent']['categories'];
+		$categories[] = array(
+			'key'             => 'personalization',
+			'label'           => 'Personalization',
+			'description'     => 'Personalized site features.',
+			'required'        => false,
+			'default_checked' => false,
+			'wp_consent_map'  => array( 'personalization' ),
+		);
+		$this->set_cookie_consent_config(
+			array(
+				'consent' => array(
+					'categories' => $categories,
+				),
+			)
 		);
 
 		$result = $this->controller->sanitize_consent_types(
@@ -494,14 +665,13 @@ class Consent_Log_Controller_Test extends TestCase {
 		// Admit the write past the rate limiter (object-cache backend is portable here).
 		$this->force_object_cache_limit( 10 );
 
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['log']['policy_version'] = 'policy-2026-06';
-				$config['log']['banner_version'] = 'banner-2026-06';
-
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'policy_version' => 'policy-2026-06',
+					'banner_version' => 'banner-2026-06',
+				),
+			)
 		);
 
 		global $wpdb;

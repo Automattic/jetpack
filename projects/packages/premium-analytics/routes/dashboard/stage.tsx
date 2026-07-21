@@ -1,12 +1,11 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DashboardSections } from './components';
@@ -31,7 +30,7 @@ function Dashboard(): JSX.Element {
 		DASHBOARD_NAME,
 		activeSection
 	);
-	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
+	const [ gridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
 		select =>
@@ -74,12 +73,13 @@ function Dashboard(): JSX.Element {
 				onLayoutChange={ setLayout }
 				onLayoutReset={ resetLayout }
 				gridSettings={ gridSettings }
-				onGridSettingsChange={ setGridSettings }
 				editMode={ editMode }
 				onEditChange={ setEditMode }
 			>
 				<Page
-					title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
+					breadcrumbs={
+						<Breadcrumbs items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics' ) } ] } />
+					}
 					subTitle={ __(
 						'Track your site performance and visitor insights.',
 						'jetpack-premium-analytics'
@@ -105,14 +105,14 @@ function Dashboard(): JSX.Element {
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
 						{ sections.map( section => (
-							<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
+							<SectionTabPanel key={ section.id } value={ section.id } className={ styles.content }>
 								{ activeSection === section.id ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
 										<WidgetDashboard.Widgets />
 									</>
 								) : null }
-							</Tabs.Panel>
+							</SectionTabPanel>
 						) ) }
 					</DashboardSections>
 

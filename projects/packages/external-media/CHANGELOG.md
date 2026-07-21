@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.26] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+
+## [0.8.25] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
 ## [0.8.24] - 2026-06-29
 ### Changed
 - Internal updates.
@@ -379,6 +387,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the button size in the editor for Gutenberg 18 or below. [#41619]
 - Media Library: Fix the Import Media button color in some color schemes. [#41664]
 
+[0.8.26]: https://github.com/Automattic/jetpack-external-media/compare/v0.8.25...v0.8.26
+[0.8.25]: https://github.com/Automattic/jetpack-external-media/compare/v0.8.24...v0.8.25
 [0.8.24]: https://github.com/Automattic/jetpack-external-media/compare/v0.8.23...v0.8.24
 [0.8.23]: https://github.com/Automattic/jetpack-external-media/compare/v0.8.22...v0.8.23
 [0.8.22]: https://github.com/Automattic/jetpack-external-media/compare/v0.8.21...v0.8.22

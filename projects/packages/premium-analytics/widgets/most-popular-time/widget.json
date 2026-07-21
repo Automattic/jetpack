@@ -1,0 +1,7 @@
+{
+	"name": "jpa/most-popular-time",
+	"title": "Most popular time",
+	"description": "The day of week and hour of day when your site gets the most views.",
+	"category": "stats",
+	"presentation": "framed"
+}
