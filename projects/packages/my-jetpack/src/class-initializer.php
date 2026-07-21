@@ -80,6 +80,12 @@ class Initializer {
 	/**
 	 * Initialize My Jetpack
 	 *
+	 * Makes one `should_initialize()` decision, sets up every subsystem, and fires
+	 * the `my_jetpack_init` action. That action only fires from here; the individual
+	 * `init_*` methods never fire it. This path does not consume the one-shot marks
+	 * used by the individual `init_*` methods, so re-running `init()` (guarded only
+	 * by `did_action`) behaves exactly as it did before the subsystem split.
+	 *
 	 * @return void
 	 */
 	public static function init() {
@@ -87,14 +93,14 @@ class Initializer {
 			return;
 		}
 
-		self::init_plugins_action_links();
-		self::init_rest_api();
-		self::init_licensing();
-		self::init_speed_score();
-		self::init_admin_ui();
-		self::init_explat();
-		self::init_jitm();
-		self::init_jetpack_manage();
+		self::load_plugins_action_links();
+		self::load_rest_api();
+		self::load_licensing();
+		self::load_speed_score();
+		self::load_admin_ui();
+		self::load_explat();
+		self::load_jitm();
+		self::load_jetpack_manage();
 
 		/**
 		 * Fires after the My Jetpack package is initialized
@@ -122,7 +128,8 @@ class Initializer {
 	 * Extend the action links of Jetpack plugins on the Plugins screen.
 	 *
 	 * Like all `init_*` methods, this is a no-op when `should_initialize()` is false
-	 * and on any call after the first.
+	 * and on any call after the first. The `my_jetpack_init` action is not fired by
+	 * the individual `init_*` methods; only `init()` fires it.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -133,7 +140,7 @@ class Initializer {
 			return;
 		}
 
-		Products::extend_plugins_action_links();
+		self::load_plugins_action_links();
 	}
 
 	/**
@@ -148,11 +155,7 @@ class Initializer {
 			return;
 		}
 
-		// Set up the REST authentication hooks.
-		Connection_Rest_Authentication::init();
-
-		// Add custom WP REST API endpoints.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+		self::load_rest_api();
 	}
 
 	/**
@@ -167,13 +170,12 @@ class Initializer {
 			return;
 		}
 
-		if ( self::is_licensing_ui_enabled() ) {
-			Licensing::instance()->initialize();
-		}
+		self::load_licensing();
 	}
 
 	/**
-	 * Set up the Boost Speed Score endpoints.
+	 * Set up the Boost Speed Score subsystem: its REST endpoints and the hooks that
+	 * invalidate cached scores when the environment changes.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -184,7 +186,7 @@ class Initializer {
 			return;
 		}
 
-		new Speed_Score( array(), 'jetpack-my-jetpack' );
+		self::load_speed_score();
 	}
 
 	/**
@@ -200,16 +202,12 @@ class Initializer {
 			return;
 		}
 
-		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
-
-		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
-		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
-		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
-		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
+		self::load_admin_ui();
 	}
 
 	/**
-	 * Set up the ExPlat package endpoints.
+	 * Set up the ExPlat package: its REST endpoints and authentication hooks.
+	 * `ExPlat::init()` also fires `jetpack_explat_initialized`.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -220,7 +218,7 @@ class Initializer {
 			return;
 		}
 
-		ExPlat::init();
+		self::load_explat();
 	}
 
 	/**
@@ -235,7 +233,7 @@ class Initializer {
 			return;
 		}
 
-		JITM::configure();
+		self::load_jitm();
 	}
 
 	/**
@@ -250,6 +248,86 @@ class Initializer {
 			return;
 		}
 
+		self::load_jetpack_manage();
+	}
+
+	/**
+	 * Extend the action links of Jetpack plugins on the Plugins screen.
+	 *
+	 * @return void
+	 */
+	private static function load_plugins_action_links() {
+		Products::extend_plugins_action_links();
+	}
+
+	/**
+	 * Set up the REST authentication hooks and register the My Jetpack REST API endpoints.
+	 *
+	 * @return void
+	 */
+	private static function load_rest_api() {
+		Connection_Rest_Authentication::init();
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+	}
+
+	/**
+	 * Set up the licensing UI when `is_licensing_ui_enabled()` allows it.
+	 *
+	 * @return void
+	 */
+	private static function load_licensing() {
+		if ( self::is_licensing_ui_enabled() ) {
+			Licensing::instance()->initialize();
+		}
+	}
+
+	/**
+	 * Set up the Boost Speed Score subsystem.
+	 *
+	 * @return void
+	 */
+	private static function load_speed_score() {
+		new Speed_Score( array(), 'jetpack-my-jetpack' );
+	}
+
+	/**
+	 * Set up the My Jetpack wp-admin surfaces.
+	 *
+	 * @return void
+	 */
+	private static function load_admin_ui() {
+		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
+
+		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
+		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
+		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
+	}
+
+	/**
+	 * Set up the ExPlat package.
+	 *
+	 * @return void
+	 */
+	private static function load_explat() {
+		ExPlat::init();
+	}
+
+	/**
+	 * Set up JITMs.
+	 *
+	 * @return void
+	 */
+	private static function load_jitm() {
+		JITM::configure();
+	}
+
+	/**
+	 * Set up the "Jetpack Manage" menu item.
+	 *
+	 * @return void
+	 */
+	private static function load_jetpack_manage() {
 		Jetpack_Manage::init();
 	}
 
