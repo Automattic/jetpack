@@ -107,9 +107,7 @@
 	grid-column: 1 / -1;
 	grid-template-columns: subgrid;
 	align-items: center;
-	box-sizing: border-box;
 	width: 100%;
-	margin: 0;
 	// Every row reserves the same space for the interactive focus ring. Keeping
 	// this on the shared wrapper ensures that adding or removing an action never
 	// changes the row height or subgrid column edges.
