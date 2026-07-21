@@ -43,7 +43,7 @@ class GutenbergModsTest extends WP_UnitTestCase {
 	 *
 	 * @return array<string, array{0: string, 1: bool}>
 	 */
-	public function provide_wp_versions() {
+	public static function provide_wp_versions() {
 		return array(
 			'stable release'    => array( '6.6.1', false ),
 			'stable major'      => array( '6.7', false ),
