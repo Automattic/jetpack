@@ -117,6 +117,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	// The shared empty state reserves generous vertical whitespace. This overlay
+	// is specifically for compact containers, where the text may fit even though
+	// a complete data row does not.
+	padding-block: 0;
 }
 
 .row {
