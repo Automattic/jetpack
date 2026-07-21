@@ -32,8 +32,9 @@ start_env() {
 
 # The container downloads whatever WordPress is current at start-up. If $WP_VERSION is set,
 # switch core to it instead, so the suite can run against e.g. the minimum supported version.
+# 'latest' is what we already have, and update-core would re-download it for nothing.
 select_wp_version() {
-	[[ -n "$WP_VERSION" ]] || return 0
+	[[ -n "$WP_VERSION" && "$WP_VERSION" != 'latest' ]] || return 0
 	$BASE_CMD update-core "$WP_VERSION"
 }
 

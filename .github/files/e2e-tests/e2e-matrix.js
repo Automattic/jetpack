@@ -146,6 +146,19 @@ function minWpVersion() {
 
 const matrix = [];
 
+/**
+ * Queue a project against both the latest WordPress release and the oldest one we still support,
+ * so a change that only breaks the minimum version is caught while it's still in review.
+ *
+ * @param {object} project - The project entry to expand.
+ * @param {object} extra   - Additional properties to merge into each entry.
+ */
+function pushBothVersions( project, extra = {} ) {
+	for ( const wpVersion of [ 'latest', minWpVersion() ] ) {
+		matrix.push( { ...project, ...extra, wpVersion } );
+	}
+}
+
 switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'pull_request':
 	case 'push': {
@@ -158,7 +171,7 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		for ( const project of projects ) {
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
-				matrix.push( project );
+				pushBothVersions( project );
 				continue;
 			}
 
@@ -169,15 +182,15 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				.split( '\n' );
 
 			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
-				matrix.push( project );
+				pushBothVersions( project );
 			}
 		}
 		break;
 	}
-	case 'schedule':
 	case 'workflow_dispatch': {
-		// There's no diff to narrow things down to, so run everything. WP_VERSION comes from the
-		// workflow_dispatch input, and defaults to the oldest version we claim to support.
+		// There's no diff to narrow things down to, so run everything against the single version
+		// asked for, defaulting to the oldest one we claim to support. Unlike the other events this
+		// doesn't also run 'latest': the point of a manual dispatch is to target one version.
 		const wpVersion = process.env.WP_VERSION || minWpVersion();
 
 		// Reject it here, rather than let every job discover it after standing up docker. This also
@@ -215,10 +228,8 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 					suiteName = `${ suiteName }-rc`;
 				}
 
-				project.suite = suiteName;
-
 				if ( packageJson?.ci?.mirrorName === repoName ) {
-					matrix.push( project );
+					pushBothVersions( project, { suite: suiteName } );
 				}
 			}
 		} else {

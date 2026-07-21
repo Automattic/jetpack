@@ -113,7 +113,7 @@ By default the environment runs the latest WordPress release. Set `WP_VERSION` t
 WP_VERSION=6.9 pnpm env:up
 ```
 
-In CI, the E2E suites run against the latest release on pull requests, and against `MIN_WP_VERSION` in a nightly scheduled run. The `E2E Tests` workflow can also be dispatched manually with a `wp_version` input to test any other version.
+In CI, every E2E suite runs twice: once against the latest WordPress release and once against `MIN_WP_VERSION`, so a change that only breaks the oldest supported version is caught in review. The `E2E Tests` workflow can also be dispatched manually with a `wp_version` input to run everything against a single other version, including pre-releases such as `7.1-RC1`.
 
 ##### 1.3. Run the tests
 
