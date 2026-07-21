@@ -1,4 +1,3 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
@@ -107,21 +106,16 @@ export default function ThumbnailField( { item }: Props ) {
 					>
 						<Text>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</Text>
 					</Stack>
-					{ /* The promote flow walks /videopress/v1/upload/{id}, which never
-					     reaches the REST dispatcher on WordPress.com Simple — don't
-					     offer a button that can only fail there. */ }
-					{ ! isSimpleSite() && (
-						<Stack
-							direction="row"
-							align="center"
-							justify="center"
-							className="vp-library__hover-action"
-						>
-							<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
-								{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</Stack>
-					) }
+					<Stack
+						direction="row"
+						align="center"
+						justify="center"
+						className="vp-library__hover-action"
+					>
+						<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
+							{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+						</Button>
+					</Stack>
 				</>
 			) : null }
 

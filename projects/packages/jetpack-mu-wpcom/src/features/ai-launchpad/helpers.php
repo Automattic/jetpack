@@ -60,13 +60,13 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 		}
 
 		return array(
-			'goal'          => $goal,
-			'niche'         => $string_or_null( $inferred['niche'] ?? null ),
-			'theme_keyword' => $string_or_null( $inferred['theme_keyword'] ?? null ),
-			'vibe'          => $string_or_null( $inferred['vibe'] ?? null ),
-			'audience'      => $string_or_null( $inferred['audience'] ?? null ),
-			'rendered_list' => is_array( $rendered_task_ids ) ? wp_json_encode( array_values( $rendered_task_ids ), JSON_UNESCAPED_SLASHES ) : null,
-			'inferred_goal' => $string_or_null( $inferred['inferred_goal'] ?? null ),
+			'goal'           => $goal,
+			'niche'          => $string_or_null( $inferred['niche'] ?? null ),
+			'theme_category' => $string_or_null( $inferred['theme_category'] ?? null ),
+			'vibe'           => $string_or_null( $inferred['vibe'] ?? null ),
+			'audience'       => $string_or_null( $inferred['audience'] ?? null ),
+			'rendered_list'  => is_array( $rendered_task_ids ) ? wp_json_encode( array_values( $rendered_task_ids ), JSON_UNESCAPED_SLASHES ) : null,
+			'inferred_goal'  => $string_or_null( $inferred['inferred_goal'] ?? null ),
 		);
 	}
 }

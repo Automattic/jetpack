@@ -64,13 +64,13 @@ describe( 'ai-launchpad tracks', () => {
 		const inferred = {
 			goal: 'write',
 			niche: 'hiking',
-			theme_keyword: 'hiking',
+			theme_category: 'travel-lifestyle',
 			inferred_goal: 'portfolio',
 		} as TailoredInferred;
 		assert.deepEqual( contextFromInferred( inferred ), {
 			goal: 'write',
 			niche: 'hiking',
-			theme_keyword: 'hiking',
+			theme_category: 'travel-lifestyle',
 			vibe: null,
 			audience: null,
 			inferred_goal: 'portfolio',
@@ -81,7 +81,7 @@ describe( 'ai-launchpad tracks', () => {
 		assert.deepEqual( contextFromInferred( undefined ), {
 			goal: null,
 			niche: null,
-			theme_keyword: null,
+			theme_category: null,
 			vibe: null,
 			audience: null,
 			inferred_goal: null,

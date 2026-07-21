@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Connection UI: Unify error handling across Basic and Required Plan screens, modernize components, and remove the unused `ConnectUser` component.

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Tests: Replace a legacy feature-specific fixture name with generic terminology. No functional change.
