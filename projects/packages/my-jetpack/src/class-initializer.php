@@ -191,15 +191,16 @@ class Initializer {
 		}
 
 		// Handle onboarding redirects based on connection status
-		$should_redirect = false;
-		$redirect_args   = array( 'page' => 'my-jetpack' );
+		$should_redirect      = false;
+		$redirect_args        = array( 'page' => 'my-jetpack' );
+		$onboarding_available = self::is_onboarding_available();
 
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
+		if ( $onboarding_available && ! $connection->is_connected() && $step !== 'onboarding' ) {
 			// Redirect to onboarding if not connected
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
-		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
-			// Redirect away from onboarding if already connected
+		} elseif ( $step === 'onboarding' && ( ! $onboarding_available || $connection->is_connected() ) ) {
+			// Redirect away from onboarding if already connected or onboarding is not available on this site
 			$should_redirect = true;
 		}
 
@@ -222,6 +223,19 @@ class Initializer {
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+	}
+
+	/**
+	 * Whether the My Jetpack onboarding flow is available on this site.
+	 *
+	 * WordPress.com Simple sites are connected by definition and don't manage their
+	 * connection through My Jetpack, so the onboarding flow (which asks the user to
+	 * connect) never applies there.
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_available() {
+		return ! ( new Status_Host() )->is_wpcom_simple();
 	}
 
 	/**

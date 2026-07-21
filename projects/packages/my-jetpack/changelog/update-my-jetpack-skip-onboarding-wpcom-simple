@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: skip the connection onboarding flow on WordPress.com Simple sites, which are connected by definition.
