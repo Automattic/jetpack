@@ -106,6 +106,24 @@ class Mode {
 		// the footer once #adminmenu exists in the DOM.
 		add_action( 'admin_enqueue_scripts', array( self::class, 'maybe_enqueue_mode_assets' ) );
 		add_action( 'admin_footer', array( self::class, 'maybe_render_mode_header' ) );
+
+		// Let the mu-wpcom Write editor's back button return to the Newsletter
+		// page (the "Write & send" link passes source=newsletter).
+		add_filter( 'wpcom_write_back_destinations', array( self::class, 'add_write_back_destination' ) );
+	}
+
+	/**
+	 * Register the Newsletter page as a Write editor "back" destination, so the
+	 * editor's back button returns to the mode instead of the dashboard.
+	 * Consumed by wpcom_write_resolve_back_url() for source=newsletter.
+	 *
+	 * @param array $destinations Map of source token to destination URL.
+	 * @return array
+	 */
+	public static function add_write_back_destination( $destinations ) {
+		$destinations['newsletter'] = admin_url( 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG );
+
+		return $destinations;
 	}
 
 	/**
@@ -231,7 +249,7 @@ class Mode {
 		// where that page isn't registered.
 		if ( function_exists( 'wpcom_write_url' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists(); wpcom_write_url() is provided by jetpack-mu-wpcom on WP.com Simple/Atomic.
-			$write_url = add_query_arg( 'source', 'write_editor', wpcom_write_url() );
+			$write_url = add_query_arg( 'source', 'newsletter', wpcom_write_url() );
 		} else {
 			$write_url = admin_url( 'post-new.php' );
 		}

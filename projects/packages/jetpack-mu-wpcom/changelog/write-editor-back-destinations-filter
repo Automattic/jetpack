@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write editor: add a filter so callers can register vetted back-button destinations.
