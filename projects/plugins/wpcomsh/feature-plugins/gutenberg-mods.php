@@ -15,7 +15,7 @@
 add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 
-// Ignore the Gutenberg plugin on beta builds of WordPress so the core-bundled block editor is used.
+// Ignore the Gutenberg plugin on beta builds of WordPress so the core-bundled Gutenberg is used.
 add_filter( 'option_active_plugins', 'wpcomsh_ignore_gutenberg_plugin_on_wp_beta' );
 
 /**
@@ -40,9 +40,9 @@ function wpcomsh_is_wp_beta_version() {
 /**
  * Ignore the Gutenberg plugin on sites running a beta build of WordPress core.
  *
- * Beta/RC builds already bundle a matching block editor, so keeping the Gutenberg
- * plugin active on top can shadow core with an older or incompatible editor. Removing
- * it from the active plugins list at load time embraces core's bundled version without
+ * Beta/RC builds already bundle a matching Gutenberg, so keeping the Gutenberg
+ * plugin active on top can shadow core with an older or incompatible version. Removing
+ * it from the active plugins list at load time embraces the core-bundled Gutenberg without
  * touching the stored option, so the plugin returns once the site leaves the beta track.
  *
  * @param mixed $plugins Value of the active_plugins option.

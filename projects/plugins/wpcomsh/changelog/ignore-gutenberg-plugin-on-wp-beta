@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Ignore the Gutenberg plugin on sites running a beta build of WordPress core so the core-bundled block editor is used, and expose the editor source and WP version from the gutenberg-version endpoint.
+Ignore the Gutenberg plugin on sites running a beta build of WordPress core so the core-bundled Gutenberg is used.

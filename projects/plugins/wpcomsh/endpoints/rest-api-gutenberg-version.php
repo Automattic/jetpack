@@ -10,26 +10,19 @@
  */
 
 /**
- * Returns the active Gutenberg version and where it comes from.
+ * Returns the active Gutenberg plugin version, or null if the plugin is not active.
  *
- * When the Gutenberg plugin is active, `version` is its release number and `source`
- * is `plugin`. Otherwise the block editor is served by WordPress core's bundle, which
- * carries no discrete Gutenberg version constant; in that case `version` is null,
- * `source` is `core`, and `wp_version` is returned so tooling can map the core release
- * to its bundled editor.
+ * On WordPress beta builds the Gutenberg plugin is ignored in favor of the
+ * core-bundled Gutenberg, which carries no version constant, so null is returned.
  *
  * @return WP_REST_Response
  */
 function wpcomsh_rest_api_gutenberg_version() {
-	global $wp_version;
-
-	$version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
+	$version = ( ! wpcomsh_is_wp_beta_version() && defined( 'GUTENBERG_VERSION' ) ) ? GUTENBERG_VERSION : null;
 
 	return new WP_REST_Response(
 		array(
-			'version'    => $version,
-			'source'     => null === $version ? 'core' : 'plugin',
-			'wp_version' => is_string( $wp_version ) ? $wp_version : null,
+			'version' => $version,
 		),
 		200
 	);
