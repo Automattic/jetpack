@@ -1,8 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { LeaderboardChartUnresponsive as LeaderboardChart } from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
 
 const ROW_HEIGHT = 40;
+const originalResizeObserver = globalThis.ResizeObserver;
 
 const makeData = ( count: number ): LeaderboardEntry[] =>
 	Array.from( { length: count }, ( _, index ) => ( {
@@ -47,6 +49,7 @@ describe( 'LeaderboardChart fitRows', () => {
 
 	afterEach( () => {
 		restoreLayout?.();
+		globalThis.ResizeObserver = originalResizeObserver;
 	} );
 
 	it( 'hides rows that do not fit the content height', () => {
@@ -119,5 +122,85 @@ describe( 'LeaderboardChart fitRows', () => {
 
 		expect( screen.getByText( 'Row 0' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Row 2' ) ).toBeInTheDocument();
+	} );
+
+	it( 'remeasures rows when an interactive legend restores a hidden series', async () => {
+		restoreLayout = mockLayout( 100 );
+		const user = userEvent.setup();
+		const fitObservers = new Set< { active: boolean; callback: ResizeObserverCallback } >();
+
+		globalThis.ResizeObserver = class ResizeObserver {
+			private state: { active: boolean; callback: ResizeObserverCallback };
+
+			constructor( callback: ResizeObserverCallback ) {
+				this.state = { active: true, callback };
+			}
+
+			observe( target: Element ) {
+				if ( target.classList.contains( 'leaderboardChart__content' ) ) {
+					fitObservers.add( this.state );
+				}
+			}
+
+			unobserve() {}
+
+			disconnect() {
+				this.state.active = false;
+			}
+		};
+
+		const data = makeData( 3 ).map( entry => ( {
+			...entry,
+			previousValue: entry.currentValue - 10,
+			previousShare: entry.currentShare - 10,
+			delta: 10,
+		} ) );
+
+		render(
+			<LeaderboardChart
+				data={ data }
+				fitRows
+				withComparison
+				showLegend
+				legend={ { interactive: true } }
+			/>
+		);
+
+		await user.click(
+			screen.getByRole( 'button', {
+				name: 'Current period: visible. Toggle visibility.',
+			} )
+		);
+		await user.click(
+			screen.getByRole( 'button', {
+				name: 'Previous period: visible. Toggle visibility.',
+			} )
+		);
+
+		expect(
+			screen.getByText( 'All series are hidden. Click legend items to show data.' )
+		).toBeVisible();
+
+		// Removing an observed grid may deliver a final resize notification. The
+		// fitting observer must already be disconnected while no rows are mounted,
+		// or that notification records zero rows and leaves the replacement grid hidden.
+		act( () => {
+			fitObservers.forEach( observer => {
+				if ( observer.active ) {
+					observer.callback( [], {} as ResizeObserver );
+				}
+			} );
+		} );
+
+		await user.click(
+			screen.getByRole( 'button', {
+				name: 'Current period: hidden. Toggle visibility.',
+			} )
+		);
+
+		expect( screen.getByText( 'Row 0' ) ).toBeVisible();
+		expect( screen.getByText( 'Row 1' ) ).toBeVisible();
+		expect( screen.getByText( 'Row 2' ) ).not.toBeVisible();
+		expect( screen.queryByText( 'Not enough space to display data' ) ).not.toBeInTheDocument();
 	} );
 } );

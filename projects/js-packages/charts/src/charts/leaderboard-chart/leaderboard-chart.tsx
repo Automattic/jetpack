@@ -271,7 +271,13 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
-	const { contentRef, fittedCount } = useFittedRowCount( fitRows, data?.length ?? 0 );
+	// There are no rows to measure while an interactive legend has hidden every
+	// series. Pausing fitting restores the full row count and, when a series is shown
+	// again, re-runs the effect against the newly mounted grid.
+	const { contentRef, fittedCount } = useFittedRowCount(
+		fitRows && ! allSeriesHidden,
+		data?.length ?? 0
+	);
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {

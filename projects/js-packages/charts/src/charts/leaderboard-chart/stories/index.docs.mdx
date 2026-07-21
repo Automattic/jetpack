@@ -82,6 +82,7 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 
 **State & Styling:**
 - **`loading`**: Whether the chart is in loading state - `false` by default
+- **`fitRows`**: Show only complete rows that fit a fixed-height container instead of scrolling - `false` by default. Use with `LeaderboardChartUnresponsive`
 - **`className`**: Additional CSS class name for the chart container
 - **`style`**: Custom styling including CSS custom properties for border radius
 - **`width` / `height`**: Optional fixed chart container dimensions
@@ -510,7 +511,18 @@ By default, leaderboard charts **fill their parent container's dimensions**. The
 		/>` }
 />
 
-When content is taller than the available area, the content region scrolls and the legend remains visible without overlap.
+By default, when content is taller than the available area, the content region scrolls and the legend remains visible without overlap. Set `fitRows` on `LeaderboardChartUnresponsive` inside a fixed-height container to hide rows that do not fit instead:
+
+<Canvas of={ LeaderboardChartStories.FitRows } />
+
+<Source
+	language="tsx"
+	code={ `import { LeaderboardChartUnresponsive } from '@automattic/charts';
+
+	<div style={{ height: '180px' }}>
+		<LeaderboardChartUnresponsive data={ data } fitRows />
+	</div>` }
+/>
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
@@ -582,4 +594,4 @@ The Leaderboard Chart component supports an optional entry animation that create
 ### Focus Management
 
 - Interactive legend items use standard focus behavior and visible focus indicators from the shared legend component.
-- The chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping.
+- By default, the chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping. With `fitRows`, rows that do not fit are removed from the focus order and accessibility tree.
