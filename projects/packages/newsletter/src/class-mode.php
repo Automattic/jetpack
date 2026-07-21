@@ -187,9 +187,12 @@ class Mode {
 		// Prefer the mu-wpcom Write editor when its feature is loaded (WP.com
 		// Simple/Atomic); fall back to the block editor on standalone Jetpack,
 		// where that page isn't registered.
-		$write_url = function_exists( 'wpcom_write_url' )
-			? add_query_arg( 'source', 'write_editor', wpcom_write_url() )
-			: admin_url( 'post-new.php' );
+		if ( function_exists( 'wpcom_write_url' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists(); wpcom_write_url() is provided by jetpack-mu-wpcom on WP.com Simple/Atomic.
+			$write_url = add_query_arg( 'source', 'write_editor', wpcom_write_url() );
+		} else {
+			$write_url = admin_url( 'post-new.php' );
+		}
 
 		add_menu_page(
 			__( 'Write & send', 'jetpack-newsletter' ),
