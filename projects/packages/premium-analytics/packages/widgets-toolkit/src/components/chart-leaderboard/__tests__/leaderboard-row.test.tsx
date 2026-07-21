@@ -65,17 +65,29 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).toMatchObject( { onClick, ariaLabel: 'View posts by Alice' } );
 	} );
 
-	it( 'hides a favicon when it fails to load', () => {
+	it( 'hides only the failed favicon URL across rerenders', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Example',
 			media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
 			action: { kind: 'static' },
 		} );
 
-		render( row.label );
-		const image = screen.getByAltText( 'Example' );
+		const { rerender } = render( row.label );
+		const image = screen.getByRole( 'presentation' );
 		fireEvent.error( image );
 
-		expect( image ).not.toBeVisible();
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+
+		const nextRow = buildLeaderboardRow( {
+			label: 'WordPress',
+			media: { kind: 'favicon', url: 'https://wordpress.org/favicon.ico' },
+			action: { kind: 'static' },
+		} );
+		rerender( nextRow.label );
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://wordpress.org/favicon.ico'
+		);
 	} );
 } );

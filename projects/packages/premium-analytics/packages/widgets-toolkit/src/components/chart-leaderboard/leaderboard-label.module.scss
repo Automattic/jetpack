@@ -12,40 +12,41 @@
 	text-overflow: ellipsis;
 }
 
-.avatar,
-.favicon,
-.flag,
-.thumbnail {
+.media {
 	flex: none;
+	width: var(--jpa-leaderboard-image-width);
+	height: var(--jpa-leaderboard-image-height);
 	vertical-align: middle;
+	border-radius: var(--jpa-leaderboard-image-radius);
+	object-fit: var(--jpa-leaderboard-image-fit);
 }
 
 .avatar {
-	width: 20px;
-	height: 20px;
-	border-radius: 50%;
-	object-fit: cover;
+	--jpa-leaderboard-image-width: 20px;
+	--jpa-leaderboard-image-height: 20px;
+	--jpa-leaderboard-image-radius: 50%;
+	--jpa-leaderboard-image-fit: cover;
 }
 
 .favicon {
-	width: 16px;
-	height: 16px;
-	border-radius: var(--wpds-border-radius-sm);
-	object-fit: cover;
+	--jpa-leaderboard-image-width: 16px;
+	--jpa-leaderboard-image-height: 16px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
+	--jpa-leaderboard-image-fit: cover;
 }
 
 .flag {
-	width: 28px;
-	height: auto;
-	border-radius: var(--wpds-border-radius-sm);
-	object-fit: contain;
+	--jpa-leaderboard-image-width: 28px;
+	--jpa-leaderboard-image-height: auto;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
+	--jpa-leaderboard-image-fit: contain;
 }
 
 .thumbnail {
-	width: 28px;
-	height: 28px;
-	border-radius: var(--wpds-border-radius-md);
-	object-fit: cover;
+	--jpa-leaderboard-image-width: 28px;
+	--jpa-leaderboard-image-height: 28px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-md);
+	--jpa-leaderboard-image-fit: cover;
 }
 
 .row,
@@ -75,29 +76,8 @@
 
 /* DataViews picker cells stretch media images to 100%. Widget previews render
  * inert, so keep each semantic media kind at its shared size. */
-:global([inert]) .container {
-
-	.avatar {
-		width: 20px;
-		height: 20px;
-		object-fit: cover;
-	}
-
-	.favicon {
-		width: 16px;
-		height: 16px;
-		object-fit: cover;
-	}
-
-	.flag {
-		width: 28px;
-		height: auto;
-		object-fit: contain;
-	}
-
-	.thumbnail {
-		width: 28px;
-		height: 28px;
-		object-fit: cover;
-	}
+:global([inert]) .container .media {
+	width: var(--jpa-leaderboard-image-width);
+	height: var(--jpa-leaderboard-image-height);
+	object-fit: var(--jpa-leaderboard-image-fit);
 }

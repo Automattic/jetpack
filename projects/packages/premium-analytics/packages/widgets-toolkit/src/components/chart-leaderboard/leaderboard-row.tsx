@@ -5,7 +5,7 @@ import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { LeaderboardLabelContent, type LeaderboardRowMedia } from './leaderboard-label';
+import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
 import type { MouseEvent, ReactElement } from 'react';
 
@@ -50,11 +50,7 @@ export type LeaderboardRowChartProps =
  */
 export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
 	const content = (
-		<LeaderboardLabelContent
-			label={ label }
-			media={ media }
-			decorativeMedia={ action.kind === 'link' }
-		/>
+		<LeaderboardLabel label={ label } media={ media } decorativeMedia={ action.kind === 'link' } />
 	);
 
 	if ( action.kind === 'link' ) {

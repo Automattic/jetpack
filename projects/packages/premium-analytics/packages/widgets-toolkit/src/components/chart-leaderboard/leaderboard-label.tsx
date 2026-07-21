@@ -3,6 +3,8 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
+import clsx from 'clsx';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,16 +26,11 @@ export type LeaderboardLabelProps = {
 	decorativeMedia?: boolean;
 };
 
-type LeaderboardLabelContentProps = Omit< LeaderboardLabelProps, 'decorativeMedia' > & {
-	/** Whether assistive technology should ignore the image. */
-	decorativeMedia: boolean;
-};
-
 // Simple default image for media kinds that reserve space when no image is available.
 const DEFAULT_IMAGE_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="%23e5e7eb"/></svg>';
 
-function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } >, label: string ) {
+function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } > ) {
 	switch ( media.kind ) {
 		case 'avatar':
 			return {
@@ -48,7 +45,7 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 			};
 		case 'favicon':
 			return {
-				alt: label,
+				alt: '',
 				className: styles.favicon,
 				fallback: 'hidden' as const,
 				url: media.url,
@@ -75,46 +72,6 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 }
 
 /**
- * Render media and truncating text without leaderboard-row sizing or actions.
- *
- * @param props                 - Component props.
- * @param props.label           - Label text.
- * @param props.media           - Optional media rendered before the label.
- * @param props.decorativeMedia - Whether assistive technology should ignore the image.
- * @return The rendered label.
- */
-export function LeaderboardLabelContent( {
-	label,
-	media,
-	decorativeMedia,
-}: LeaderboardLabelContentProps ) {
-	const mediaDetails = media.kind === 'none' ? null : getMediaDetails( media, label );
-	const shouldRenderImage =
-		mediaDetails && ( mediaDetails.fallback === 'placeholder' || Boolean( mediaDetails.url ) );
-
-	return (
-		<Stack direction="row" gap="sm" align="center" className={ styles.container }>
-			{ shouldRenderImage && (
-				<img
-					src={ mediaDetails.url || DEFAULT_IMAGE_URL }
-					onError={ event => {
-						if ( mediaDetails.fallback === 'hidden' ) {
-							event.currentTarget.hidden = true;
-							return;
-						}
-
-						event.currentTarget.src = DEFAULT_IMAGE_URL;
-					} }
-					alt={ decorativeMedia ? '' : mediaDetails.alt }
-					className={ mediaDetails.className }
-				/>
-			) }
-			<span className={ styles.label }>{ label }</span>
-		</Stack>
-	);
-}
-
-/**
  * Render media and truncating text outside a leaderboard chart row.
  *
  * @param props                 - Component props.
@@ -128,7 +85,36 @@ export function LeaderboardLabel( {
 	media,
 	decorativeMedia = false,
 }: LeaderboardLabelProps ) {
+	const [ failedImageUrl, setFailedImageUrl ] = useState< string >();
+	const mediaDetails = media.kind === 'none' ? null : getMediaDetails( media );
+	const shouldRenderImage =
+		mediaDetails &&
+		( mediaDetails.fallback === 'placeholder' || Boolean( mediaDetails.url ) ) &&
+		( mediaDetails.fallback !== 'hidden' || mediaDetails.url !== failedImageUrl );
+
 	return (
-		<LeaderboardLabelContent label={ label } media={ media } decorativeMedia={ decorativeMedia } />
+		<Stack
+			direction="row"
+			gap="sm"
+			align="center"
+			className={ clsx( styles.container, mediaDetails?.className ) }
+		>
+			{ shouldRenderImage && (
+				<img
+					src={ mediaDetails.url || DEFAULT_IMAGE_URL }
+					onError={ event => {
+						if ( mediaDetails.fallback === 'hidden' ) {
+							setFailedImageUrl( mediaDetails.url );
+							return;
+						}
+
+						event.currentTarget.src = DEFAULT_IMAGE_URL;
+					} }
+					alt={ decorativeMedia ? '' : mediaDetails.alt }
+					className={ styles.media }
+				/>
+			) }
+			<span className={ styles.label }>{ label }</span>
+		</Stack>
 	);
 }
