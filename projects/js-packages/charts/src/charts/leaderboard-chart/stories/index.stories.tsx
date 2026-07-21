@@ -20,7 +20,7 @@ import {
 	type LegendStoryControls,
 } from '../../../stories/legend-config';
 import { formatMetricValue, hexToRgba } from '../../../utils';
-import LeaderboardChart from '../leaderboard-chart';
+import LeaderboardChart, { LeaderboardChartUnresponsive } from '../leaderboard-chart';
 import type { ChartLegendConfig, LeaderboardEntry } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -583,21 +583,35 @@ export const WithCompositionLegend: Story = {
 };
 export const FitRows: Story = {
 	render: args => (
-		// Short enough that the five sample rows cannot all fit, standing in for a
-		// fixed-height dashboard tile.
-		<div style={ { height: 160, width: 360 } }>
-			<LeaderboardChart { ...args } fitRows />
+		// Stands in for a resizable dashboard tile. The chart fills this box, so
+		// dragging its bottom edge changes the height the rows are fitted to.
+		<div
+			data-testid="fit-rows-tile"
+			style={ {
+				height: 180,
+				width: 360,
+				resize: 'vertical',
+				// `resize` is ignored unless overflow is something other than visible.
+				overflow: 'hidden',
+				border: '1px dashed #ccc',
+			} }
+		>
+			<LeaderboardChartUnresponsive { ...args } fitRows />
 		</div>
 	),
 	args: {
 		data: sampleData,
 		loading: false,
+		// The shared decorator is resizable by default. Two nested resize handles
+		// read as one control, and dragging the outer one leaves the chart's height
+		// untouched — so turn it off and leave the box above as the only handle.
+		resize: 'none',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'`fitRows` shows only the rows that fit the chart height instead of scrolling, for charts placed in a fixed-height container such as a dashboard tile. Rows that do not fit keep their place in the layout but are hidden from painting, hit testing, focus order, and the accessibility tree, so growing the container reveals them again without refetching.',
+					"`fitRows` shows only the rows that fit the chart height instead of scrolling, for charts placed in a fixed-height container such as a dashboard tile. Rows that do not fit keep their place in the layout but are hidden from painting, hit testing, focus order, and the accessibility tree, so growing the container reveals them again without refetching. Drag the container's resize handle to watch the visible row count follow the height — a row appears only once it fits whole.",
 			},
 		},
 	},
@@ -615,12 +629,50 @@ export const FitRows: Story = {
 		expect( getComputedStyle( content ).overflow ).toBe( 'hidden' );
 
 		// Every row left visible is whole — none is clipped by the container edge.
-		const contentBottom = content.getBoundingClientRect().bottom;
-		for ( const row of rows ) {
-			if ( getComputedStyle( row ).visibility === 'hidden' ) {
-				continue;
+		const wholeRowsOnly = () => {
+			const contentBottom = content.getBoundingClientRect().bottom;
+			for ( const row of rows ) {
+				if ( getComputedStyle( row ).visibility === 'hidden' ) {
+					continue;
+				}
+				expect( row.getBoundingClientRect().bottom ).toBeLessThanOrEqual( contentBottom + 0.5 );
 			}
-			expect( row.getBoundingClientRect().bottom ).toBeLessThanOrEqual( contentBottom + 0.5 );
-		}
+		};
+		wholeRowsOnly();
+
+		// Resizing must work in both directions. Growing is the property the whole
+		// design rests on — hidden rows are only acceptable because a taller
+		// container brings them back — and it is the one a pinned pixel height
+		// silently breaks, so assert the round trip rather than the first render.
+		// Select by test id, not by style: the shared decorator also renders a
+		// resizable box, and it comes first in document order.
+		const box = canvasElement.querySelector< HTMLElement >( '[data-testid="fit-rows-tile"]' );
+		const visibleCount = () =>
+			new Set(
+				rows
+					.filter( row => getComputedStyle( row ).visibility !== 'hidden' )
+					.map( row => row.getAttribute( 'data-row-index' ) )
+			).size;
+		const resizeTo = async height => {
+			box.style.height = `${ height }px`;
+			await new Promise( resolve => requestAnimationFrame( () => setTimeout( resolve, 300 ) ) );
+		};
+
+		const atStart = visibleCount();
+
+		await resizeTo( 100 );
+		const whenShort = visibleCount();
+		expect( whenShort ).toBeLessThan( atStart );
+		wholeRowsOnly();
+
+		await resizeTo( 280 );
+		const whenTall = visibleCount();
+		expect( whenTall ).toBeGreaterThan( whenShort );
+		wholeRowsOnly();
+
+		await resizeTo( 100 );
+		expect( visibleCount() ).toBe( whenShort );
+
+		await resizeTo( 180 );
 	},
 };

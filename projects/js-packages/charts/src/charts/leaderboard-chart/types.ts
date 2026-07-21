@@ -58,6 +58,13 @@ export interface LeaderboardChartProps
 	 * inner scrollbar is unexpected. Rows that do not fit stay measurable and
 	 * reappear as soon as the container grows, but are hidden from painting, hit
 	 * testing, focus order, and the accessibility tree.
+	 *
+	 * Use this with `LeaderboardChartUnresponsive` inside a container that has a
+	 * definite height, which is how the Premium Analytics widgets consume it.
+	 * Combined with the responsive default export, the row count was observed not
+	 * to recover when the container grew back: the responsive wrapper supplies a
+	 * measured pixel height instead of letting the chart fill its parent, and a
+	 * `width`/`height` prop also turns off the chart's own fill styling.
 	 */
 	fitRows?: boolean;
 
