@@ -27,7 +27,6 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 add_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', '__return_false' );
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WpOrg\Requests\Requests;
@@ -853,19 +852,38 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that PUT /tailored enforces the theme_category enum: a showcase subject slug
+	 * persists, anything else is rejected, so the read side can trust the stored value.
+	 */
+	public function test_update_tailored_accepts_theme_category_and_rejects_bad_enum() {
+		wp_set_current_user( $this->admin_id );
+
+		$payload                               = self::valid_payload();
+		$payload['inferred']['theme_category'] = 'travel-lifestyle';
+		$result                                = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( 'travel-lifestyle', $envelope['payload']['inferred']['theme_category'] );
+
+		$payload['inferred']['theme_category'] = 'hiking';
+		$result                                = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 422, $result->get_status() );
+	}
+
+	/**
 	 * Test the shared server-side Tracks context: all-null with no persisted state, populated from the
 	 * options once they exist, with the wizard goal as the pre-tailoring fallback.
 	 */
 	public function test_tracks_context_reads_the_persisted_options() {
 		$this->assertSame(
 			array(
-				'goal'          => null,
-				'niche'         => null,
-				'theme_keyword' => null,
-				'vibe'          => null,
-				'audience'      => null,
-				'rendered_list' => null,
-				'inferred_goal' => null,
+				'goal'           => null,
+				'niche'          => null,
+				'theme_category' => null,
+				'vibe'           => null,
+				'audience'       => null,
+				'rendered_list'  => null,
+				'inferred_goal'  => null,
 			),
 			wpcom_ai_launchpad_tracks_context()
 		);
@@ -876,15 +894,15 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->seed_tailored_site(
 			array(
-				'niche'         => 'hiking',
-				'theme_keyword' => 'hiking',
-				'inferred_goal' => 'portfolio',
+				'niche'          => 'hiking',
+				'theme_category' => 'travel-lifestyle',
+				'inferred_goal'  => 'portfolio',
 			)
 		);
 		$context = wpcom_ai_launchpad_tracks_context( array( 'a', 'b' ) );
 		$this->assertSame( 'write', $context['goal'] );
 		$this->assertSame( 'hiking', $context['niche'] );
-		$this->assertSame( 'hiking', $context['theme_keyword'] );
+		$this->assertSame( 'travel-lifestyle', $context['theme_category'] );
 		$this->assertSame( 'portfolio', $context['inferred_goal'] );
 		$this->assertNull( $context['vibe'] );
 		$this->assertSame( '["a","b"]', $context['rendered_list'] );
@@ -993,14 +1011,12 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test that GET points the theme task at the Calypso themes showcase pre-filtered
-	 * by the AI-inferred niche, so the theme list feels relevant to what the user is
-	 * building. This overrides the plain wp-admin themes.php target, which can only
-	 * filter already-installed themes.
-	 *
-	 * The showcase search ANDs its terms, so a multi-word niche is reduced to its first
-	 * keyword — 'ceramics and pottery' matches no theme, but 'ceramics' does.
+	 * by the AI-inferred category, so the theme list feels relevant to what the user
+	 * is building. A category filter (unlike the free-text search used previously)
+	 * always surfaces free themes, and it overrides the plain wp-admin themes.php
+	 * target, which can only filter already-installed themes.
 	 */
-	public function test_get_filters_theme_ctas_by_inferred_niche() {
+	public function test_get_filters_theme_ctas_by_inferred_category() {
 		wp_set_current_user( $this->admin_id );
 
 		update_option(
@@ -1021,8 +1037,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 						),
 					),
 					'inferred' => array(
-						'goal'  => 'build',
-						'niche' => 'ceramics and pottery',
+						'goal'           => 'build',
+						'theme_category' => 'art-design',
 					),
 				),
 			),
@@ -1034,18 +1050,17 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		$expected = '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=ceramics';
-		$this->assertSame( $expected, $paths['site_theme_selected'] );
-		// A non-theme task is untouched by the niche filter.
+		$this->assertSame( '/themes/filter/art-design/' . rawurlencode( wpcom_get_site_slug() ), $paths['site_theme_selected'] );
+		// A non-theme task is untouched by the category filter.
 		$this->assertNull( $paths['site_launched'] );
 	}
 
 	/**
-	 * Test that when the AI supplied a dedicated theme_keyword, the theme CTAs search
-	 * by it instead of the first-word niche heuristic — "weekend hiking trips" should
-	 * surface hiking themes, not "weekend" ones.
+	 * Test that a theme_category outside the showcase's subject taxonomy (the envelope is
+	 * stored data, so read-side re-checks the allowlist) falls back to the unfiltered
+	 * showcase — never to the catalog CTA, which can resolve to wp-admin's themes.php.
 	 */
-	public function test_get_prefers_inferred_theme_keyword_for_theme_ctas() {
+	public function test_get_falls_back_to_plain_showcase_for_invalid_category() {
 		wp_set_current_user( $this->admin_id );
 
 		update_option(
@@ -1066,9 +1081,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 						),
 					),
 					'inferred' => array(
-						'goal'          => 'write',
-						'niche'         => 'weekend hiking trips',
-						'theme_keyword' => 'hiking',
+						'goal'           => 'write',
+						'theme_category' => 'space-tourism',
 					),
 				),
 			),
@@ -1080,82 +1094,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		$this->assertSame( '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=hiking', $paths['site_theme_selected'] );
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ), $paths['site_theme_selected'] );
 	}
 
 	/**
-	 * Test that a multi-word niche is reduced to a single search keyword: connective
-	 * words are dropped and the first meaningful keyword is kept, so the showcase's
-	 * term-ANDing search still returns matching themes.
-	 *
-	 * @dataProvider provider_niche_search_terms
-	 *
-	 * @param string $niche    The inferred niche.
-	 * @param string $expected The expected `?s=` search term.
+	 * Test that without an inferred category the theme task still lands on the themes
+	 * showcase (unfiltered), not the catalog CTA.
 	 */
-	#[DataProvider( 'provider_niche_search_terms' )]
-	public function test_get_reduces_multiword_niche_to_single_keyword( $niche, $expected ) {
+	public function test_get_points_theme_ctas_at_plain_showcase_without_category() {
 		wp_set_current_user( $this->admin_id );
-
-		update_option(
-			'wpcom_ai_launchpad_ai_output',
-			array(
-				'version'      => 1,
-				'source'       => 'ai',
-				'generated_at' => 1717000000,
-				'payload'      => array(
-					'tasks'    => array(
-						array(
-							'id'       => 'site_theme_selected',
-							'subtitle' => 'Pick a theme.',
-						),
-						array(
-							'id'       => 'site_launched',
-							'subtitle' => 'Go live.',
-						),
-					),
-					'inferred' => array(
-						'goal'  => 'build',
-						'niche' => $niche,
-					),
-				),
-			),
-			false
-		);
-
-		$path = null;
-		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
-			if ( 'site_theme_selected' === $task['id'] ) {
-				$path = $task['calypso_path'];
-			}
-		}
-
-		$this->assertSame( '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $expected ), $path );
-	}
-
-	/**
-	 * Niche → single search keyword expectations.
-	 *
-	 * @return array
-	 */
-	public static function provider_niche_search_terms() {
-		return array(
-			'strips "and" connective'      => array( 'ceramics and pottery', 'ceramics' ),
-			'keeps first of two subjects'  => array( 'photography and travel', 'photography' ),
-			'drops leading adjective-only' => array( 'handmade ceramics', 'handmade' ),
-			'drops ampersand connective'   => array( 'arts & crafts', 'arts' ),
-			'single word is unchanged'     => array( 'cooking', 'cooking' ),
-			'skips leading stop word'      => array( 'the great outdoors', 'great' ),
-		);
-	}
-
-	/**
-	 * Test that without an inferred niche the theme task keeps its catalog target, so
-	 * the showcase filter is purely additive.
-	 */
-	public function test_get_leaves_theme_ctas_unfiltered_without_niche() {
-		wp_set_current_user( $this->admin_id );
-		// seed_ai_output_with_tasks writes no `inferred` block, so there is no niche.
+		// seed_ai_output_with_tasks writes no `inferred` block, so there is no category.
 		$this->seed_ai_output_with_tasks( array( 'site_theme_selected', 'site_launched' ) );
 
 		$paths = array();
@@ -1163,8 +1111,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		// The load_calypso_path branch keeps the catalog's default theme path.
-		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '#theme-selected', $paths['site_theme_selected'] );
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ), $paths['site_theme_selected'] );
 	}
 
 	/**
