@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CCPA: Make the auto-created "Your Privacy Choices" page removable. It is now created only once, is no longer locked from deletion, and the footer links for both the privacy-choices and Privacy Policy pages are hidden if their page is deleted.

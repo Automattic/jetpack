@@ -16,6 +16,7 @@
 		".": "./src/index.js"
 	},
 	"main": "./src/index.js",
+	"types": "./src/index.d.ts",
 	"scripts": {
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage"

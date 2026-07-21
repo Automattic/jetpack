@@ -111,6 +111,7 @@ export const JETPACK_NON_PAID_MODULES = [
 	'notes',
 	'photon',
 	'photon-cdn',
+	'podcast',
 	'post-by-email',
 	'post-list',
 	'protect',

@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Poll shortcode script-loading fix shipped in 16.0.1 and recorded in that release's changelog block; no separate 16.1 entry needed.
+
+

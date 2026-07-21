@@ -1,4 +1,6 @@
+import { __ } from '@wordpress/i18n';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import DateRangeSelector from '../../src/dashboard/components/overview/date-range-selector';
 import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
 import KpiCardsRow from '../../src/dashboard/components/overview/kpi-cards-row';
@@ -25,6 +27,10 @@ const StageInner = () => {
 	const {
 		stats,
 		isLoading,
+		isError,
+		error: statsError,
+		hasData,
+		refetch,
 		dateRange,
 		setDateRange,
 		granularity,
@@ -37,6 +43,11 @@ const StageInner = () => {
 	const { isFree, isAtomic, isUnlimited, videoCount } = useFreeTier();
 
 	const showStorageMeter = ! isFree && videoCount > 0 && ! isUnlimited && ! isAtomic;
+	// A failed stats request would otherwise render as all-zero KPI cards —
+	// indistinguishable from a genuine zero-activity site. Only when there's
+	// no (cached) data behind it, though: a failed *background* refetch keeps
+	// the stats already on screen instead of swapping them for the error pane.
+	const statsUnavailable = isError && ! hasData;
 
 	return (
 		<DashboardLayout
@@ -45,32 +56,47 @@ const StageInner = () => {
 		>
 			<div className="vp-overview">
 				{ isFree && <FreeTierNotice /> }
-				<KpiCardsRow
-					views={ stats.views }
-					impressions={ stats.impressions }
-					watchTimeSeconds={ stats.watchTimeSeconds }
-					isLoading={ isLoading }
-					activeMetric={ activeMetric }
-					onChangeActiveMetric={ setActiveMetric }
-					tabIds={ KPI_TAB_IDS }
-					panelId={ TRENDS_PANEL_ID }
-				/>
-				<ViewsTrendsCard
-					series={ stats.series }
-					activeMetric={ activeMetric }
-					compare={ compare }
-					granularity={ granularity }
-					isLoading={ isLoading }
-					onChangeCompare={ setCompare }
-					onChangeGranularity={ setGranularity }
-					panelId={ TRENDS_PANEL_ID }
-					activeTabId={ KPI_TAB_IDS[ activeMetric ] }
-				/>
+				{ statsUnavailable ? (
+					<FetchErrorNotice
+						className="vp-overview__error"
+						message={ __( 'We couldn’t load your video stats.', 'jetpack-videopress-pkg' ) }
+						error={ statsError }
+						onRetry={ () => refetch() }
+					/>
+				) : (
+					<>
+						<KpiCardsRow
+							views={ stats.views }
+							impressions={ stats.impressions }
+							watchTimeSeconds={ stats.watchTimeSeconds }
+							isLoading={ isLoading }
+							activeMetric={ activeMetric }
+							onChangeActiveMetric={ setActiveMetric }
+							tabIds={ KPI_TAB_IDS }
+							panelId={ TRENDS_PANEL_ID }
+						/>
+						<ViewsTrendsCard
+							series={ stats.series }
+							activeMetric={ activeMetric }
+							compare={ compare }
+							granularity={ granularity }
+							isLoading={ isLoading }
+							onChangeCompare={ setCompare }
+							onChangeGranularity={ setGranularity }
+							panelId={ TRENDS_PANEL_ID }
+							activeTabId={ KPI_TAB_IDS[ activeMetric ] }
+						/>
+					</>
+				) }
+				{ /* Storage isn't stats-derived (it sources its own data via
+				     useSite), so a stats failure doesn't take it down. */ }
 				{ showStorageMeter && <StorageMeterCard /> }
-				<div className="vp-overview__row--bottom">
-					<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />
-					<TopByWatchTimeCard videos={ stats.topVideosByWatchTime } isLoading={ isLoading } />
-				</div>
+				{ ! statsUnavailable && (
+					<div className="vp-overview__row--bottom">
+						<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />
+						<TopByWatchTimeCard videos={ stats.topVideosByWatchTime } isLoading={ isLoading } />
+					</div>
+				) }
 			</div>
 		</DashboardLayout>
 	);

@@ -8,3 +8,5 @@
 routes/**         production-exclude
 packages/**       production-exclude
 shims/**          production-exclude
+types/**          production-exclude
+widgets/**        production-exclude

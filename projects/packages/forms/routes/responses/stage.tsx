@@ -6,17 +6,17 @@ import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
  */
-import {
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { caution } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Link, Stack } from '@wordpress/ui';
+import { Badge, Link, Notice, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -26,6 +26,7 @@ import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
@@ -169,6 +170,7 @@ function StageInner() {
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -490,7 +492,7 @@ function StageInner() {
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
-								<Stack direction="column" gap="2xs">
+								<Stack direction="column" gap="xs">
 									<Stack direction="row" align="center" gap="xs">
 										<Text ellipsizeMode="tail" limit={ 50 } truncate>
 											{ displayName }
@@ -669,6 +671,51 @@ function StageInner() {
 		onOpenIntegrations: handleIntegrations,
 	} );
 
+	// On a single-form view, surface a persistent warning when the form isn't
+	// collecting its responses anywhere (email + saving off, no integration).
+	const isFormNotCollecting = useSelect(
+		select => {
+			if ( ! isSingleFormView ) {
+				return false;
+			}
+			const form = select( coreStore ).getEntityRecord(
+				'postType',
+				'jetpack_form',
+				sourceIdNumber,
+				{ context: 'edit' }
+			) as { is_collecting_responses?: boolean } | undefined;
+			return form ? form.is_collecting_responses === false : false;
+		},
+		[ isSingleFormView, sourceIdNumber ]
+	);
+
+	// Link to the form editor, where the author can set up a response destination.
+	const formEditUrl = useMemo(
+		() => getFormEditUrl( sourceIdNumber, adminUrl ),
+		[ adminUrl, sourceIdNumber ]
+	);
+
+	// Whether the form has any stored responses — summed across inbox, spam and
+	// trash, not just the current view, so a form with responses only in spam or
+	// trash still keeps the table (and its status tabs) and gets a banner above it.
+	// These counts carry the active search / read-status filters, so they're only
+	// a reliable "has anything at all" signal when no search or filter is applied —
+	// otherwise a search that matches nothing would read as an empty form.
+	const totalResponseCount =
+		( totalItemsInbox ?? 0 ) + ( totalItemsSpam ?? 0 ) + ( totalItemsTrash ?? 0 );
+	const hasActiveSearchOrFilter = !! view.search || ( view.filters?.length ?? 0 ) > 0;
+	const countsReady = ! isLoadingData && ! isQueryStale;
+	const hasAnyResponses = countsReady && totalResponseCount > 0;
+	// Replace the table with the front-and-center warning only when the form truly
+	// has no responses anywhere — never while a search/filter is narrowing the list,
+	// so real data is never hidden behind the callout.
+	const showNotCollectingCallout =
+		isFormNotCollecting &&
+		isSingleFormView &&
+		countsReady &&
+		! hasActiveSearchOrFilter &&
+		totalResponseCount === 0;
+
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
@@ -691,42 +738,78 @@ function StageInner() {
 			hasPadding={ false }
 			showFooter={ false }
 		>
-			<DataViews
-				empty={
+			{ isFormNotCollecting && hasAnyResponses && (
+				<Notice.Root
+					intent="error"
+					icon={ caution }
+					className="jetpack-forms__not-collecting-banner"
+				>
+					<Notice.Title>
+						{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'New submissions are being dropped because this form has nowhere to send them.',
+							'jetpack-forms'
+						) }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ formEditUrl }>
+							{ __( 'Choose where responses go', 'jetpack-forms' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
+			{ showNotCollectingCallout ? (
+				<Stack className="jetpack-forms__not-collecting-callout" align="center" justify="center">
 					<EmptyResponses
-						isSearch={ !! view.search }
+						isSearch={ false }
 						isSingleFormView={ isSingleFormView }
-						readStatusFilter={ readStatusFilter }
 						status={ statusView }
+						isNotCollecting
+						notCollectingEditUrl={ formEditUrl }
 					/>
-				}
-				data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
-				fields={ fields as Field< unknown >[] }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ paginationInfo }
-				isLoading={ isLoadingData || isQueryStale }
-				getItemId={ getItemId }
-				defaultLayouts={ defaultLayouts }
-				selection={ selection }
-				onChangeSelection={ onChangeSelection }
-				onClickItem={ onClickItem }
-				actions={ actions as Action< unknown >[] }
-			>
-				<DataViewsHeaderRow
-					activeTab="responses"
-					isSingleFormView={ isSingleFormView }
-					activeStatus={ statusView }
-					statusCounts={ {
-						inbox: totalItemsInbox ?? 0,
-						spam: totalItemsSpam ?? 0,
-						trash: totalItemsTrash ?? 0,
-					} }
-					onStatusChange={ onStatusChange }
-				/>
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
+				</Stack>
+			) : (
+				<DataViews
+					empty={
+						<EmptyResponses
+							isSearch={ !! view.search }
+							isSingleFormView={ isSingleFormView }
+							readStatusFilter={ readStatusFilter }
+							status={ statusView }
+							isNotCollecting={ isFormNotCollecting }
+							notCollectingEditUrl={ formEditUrl }
+						/>
+					}
+					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
+					fields={ fields as Field< unknown >[] }
+					view={ view }
+					onChangeView={ onChangeView }
+					paginationInfo={ paginationInfo }
+					isLoading={ isLoadingData || isQueryStale }
+					getItemId={ getItemId }
+					defaultLayouts={ defaultLayouts }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					onClickItem={ onClickItem }
+					actions={ actions as Action< unknown >[] }
+				>
+					<DataViewsHeaderRow
+						activeTab="responses"
+						isSingleFormView={ isSingleFormView }
+						activeStatus={ statusView }
+						statusCounts={ {
+							inbox: totalItemsInbox ?? 0,
+							spam: totalItemsSpam ?? 0,
+							trash: totalItemsTrash ?? 0,
+						} }
+						onStatusChange={ onStatusChange }
+					/>
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+			) }
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
 				onClose={ closeIntegrationsModal }

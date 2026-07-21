@@ -1,0 +1,7 @@
+{
+	"name": "jpa/average-order-value",
+	"title": "Average order value",
+	"description": "Track the average value of each order over a set period of time.",
+	"category": "orders",
+	"presentation": "framed"
+}

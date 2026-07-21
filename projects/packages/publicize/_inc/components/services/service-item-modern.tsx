@@ -37,7 +37,9 @@ export function ModernServiceItem( {
 
 	const [ isPanelOpen, setIsPanelOpen ] = useState( Boolean( isPanelDefaultOpen ) );
 	const togglePanel = useCallback( () => setIsPanelOpen( open => ! open ), [] );
-	const rowRef = useRef< HTMLDivElement >( null );
+	// `Collapsible.Trigger` types its ref as `HTMLButtonElement` even when
+	// rendered as a `<div>` (via `render`), so match that to satisfy the ref type.
+	const rowRef = useRef< HTMLButtonElement >( null );
 
 	useEffect( () => {
 		if ( isPanelDefaultOpen ) {

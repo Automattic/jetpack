@@ -22,15 +22,6 @@ export const getScheduledSharesForPost = createRegistrySelector( select => {
 	};
 } );
 
-export const isSavingScheduledShare = createRegistrySelector( select => {
-	return () =>
-		select( coreStore ).isSavingEntityRecord(
-			'wpcom/v2',
-			'publicize/scheduled-actions',
-			undefined
-		);
-} );
-
 /**
  * Whether the current post is being scheduled for sharing.
  *

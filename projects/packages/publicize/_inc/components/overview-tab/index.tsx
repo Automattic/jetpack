@@ -1,6 +1,7 @@
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
+import { currentUserCan } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { share } from '@wordpress/icons';
@@ -65,6 +66,13 @@ export default function OverviewTab(): JSX.Element {
 		[]
 	);
 
+	// Social traffic is read from the WPCOM stats endpoint, which requires
+	// `view_stats` — a capability non-admins lack, so the fetch 403s and the
+	// card falls into its error state. Admins are the only role we expose
+	// client-side, so gate the whole chart on `manage_options`: non-admins
+	// only get the connection-management UI below.
+	const canManageOptions = currentUserCan( 'manage_options' );
+
 	return (
 		<div className="jetpack-social-overview">
 			{ hasConnectionError && (
@@ -82,13 +90,14 @@ export default function OverviewTab(): JSX.Element {
 			 */ }
 			{ ! hasConnections && <ThemedConnectionsModal /> }
 			{ /*
-			 * Traffic chart only renders when at least one connection
-			 * exists, so the no-connections state focuses the user on
-			 * the onboarding CTA in the accounts card. Once a single
-			 * account is connected, the chart appears above with the
+			 * Traffic chart only renders for admins with at least one
+			 * connection. The no-connections state focuses the user on
+			 * the onboarding CTA in the accounts card; non-admins never
+			 * see the chart at all (they can't read stats). Once an admin
+			 * connects a single account, the chart appears above with the
 			 * paid/free/empty branches taking over from there.
 			 */ }
-			{ hasConnections && <TrafficChartCard /> }
+			{ hasConnections && canManageOptions && <TrafficChartCard /> }
 			<Card.Root>
 				{ hasConnections && (
 					<Card.Header className="jetpack-social-overview__accounts-card-header">

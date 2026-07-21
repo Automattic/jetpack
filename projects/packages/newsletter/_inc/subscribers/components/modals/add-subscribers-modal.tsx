@@ -75,7 +75,7 @@ function ImportConsentNotice(): JSX.Element {
 		<Stack
 			direction="column"
 			gap="xs"
-			style={ { color: 'var(--wpds-color-fg-content-neutral-weak)' } }
+			style={ { color: 'var(--wpds-color-foreground-content-neutral-weak)' } }
 		>
 			<Text variant="body-sm">
 				{ __(
@@ -214,8 +214,7 @@ function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | nu
 				<Notice.Actions>
 					<Notice.ActionLink
 						href="https://jetpack.com/support/newsletter/import-subscribers/"
-						target="_blank"
-						rel="noreferrer"
+						openInNewTab
 					>
 						{ __( 'Learn more', 'jetpack-newsletter' ) }
 					</Notice.ActionLink>

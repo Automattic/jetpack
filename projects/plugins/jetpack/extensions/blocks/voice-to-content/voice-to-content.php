@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\Voice_To_Content;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack_Gutenberg;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -44,20 +43,15 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * "Voice to content" block registration/dependency declaration.
  *
+ * The render implementation lives in render.php and is only loaded when the
+ * block is actually rendered, keeping it out of the eager front-end path.
+ *
  * @param array  $attr    Array containing the "Voice to content" block attributes.
  * @param string $content String containing the "Voice to content" block content.
  *
  * @return string
  */
 function load_assets( $attr, $content ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
-	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
-
-	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-		$content
-	);
+	require_once __DIR__ . '/render.php';
+	return load_assets_implementation( $attr, $content );
 }

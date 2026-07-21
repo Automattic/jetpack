@@ -33,6 +33,14 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		// Start with a clean state.
 		$wp_scripts = new WP_Scripts();
 		WPCOM_Enqueue_Dynamic_Script::reset();
+
+		// test_before_after fires wp_footer, which runs core's wp_enqueue_global_styles
+		// and the wpcom-global-styles theme_json filter. That filter calls wpcom-only
+		// functions (wpcom_site_has_feature et al.) that aren't defined in the test env,
+		// and it only passed before because an earlier test in the run happened to warm
+		// the theme-json cache. Detach the incidental filter so this suite is
+		// self-contained regardless of execution order; it's restored in tear_down.
+		remove_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
 	}
 
 	/**
@@ -44,6 +52,10 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 
 		// Reset to original state.
 		$wp_scripts = $this->original_scripts;
+
+		// Restore the global-styles filter detached in set_up so it can't leak to
+		// other test classes (e.g. WPCOM_Global_Styles_Test relies on it).
+		add_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
 		parent::tear_down();
 	}
 

@@ -1,0 +1,7 @@
+{
+	"name": "jpa/search-terms",
+	"title": "Search Terms",
+	"description": "The search terms visitors use to find your site.",
+	"category": "stats",
+	"presentation": "framed"
+}

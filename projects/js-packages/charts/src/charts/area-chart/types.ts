@@ -1,6 +1,6 @@
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type { RenderTooltipParams } from '../../visx/types';
 import type { CurveType } from '../line-chart/types';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { ReactNode } from 'react';
 
 export interface AreaChartProps extends BaseChartProps< SeriesData[] > {

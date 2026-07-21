@@ -1,10 +1,6 @@
-import {
-	getRedirectUrl,
-	Text,
-	ThemeProvider,
-	useBreakpointMatch,
-} from '@automattic/jetpack-components';
+import { getRedirectUrl, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -29,7 +25,7 @@ export const ManageConnectionsModal = () => {
 
 	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );

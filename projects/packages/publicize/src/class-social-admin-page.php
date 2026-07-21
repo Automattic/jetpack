@@ -185,6 +185,8 @@ class Social_Admin_Page {
 			return;
 		}
 
+		Publicize_Assets::register_wp_build_polyfills();
+
 		// Dequeue the old Social assets.
 		wp_dequeue_script( 'jetpack-social' );
 		wp_dequeue_style( 'jetpack-social' );
@@ -218,6 +220,8 @@ class Social_Admin_Page {
 
 		require_once $build_index;
 
+		// The wp-build dashboard (unlike the Social bundles) uses the full polyfill set:
+		// the @wordpress/boot|route|a11y modules, wp-notices, wp-views, etc.
 		if ( ! class_exists( '\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills' ) ) {
 			return;
 		}
@@ -256,10 +260,14 @@ class Social_Admin_Page {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
+	 * The modernized Social dashboard now defaults on for every site. Hosts (and
+	 * a11ns who want the legacy view back) can still force the legacy experience
+	 * with `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
+	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**

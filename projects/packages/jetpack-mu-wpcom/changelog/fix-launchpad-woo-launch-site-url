@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launchpad: fix the WooCommerce "Launch your store" task opening an empty wc-admin page by pointing it at the canonical launch-your-store route.

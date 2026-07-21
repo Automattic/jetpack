@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\CookieConsent\Cookie_Consent;
 use Automattic\Jetpack\PremiumAnalytics\Analytics;
 
 /**
@@ -24,6 +25,10 @@ class Jetpack_Premium_Analytics {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Analytics::init( array( 'menu_title' => 'Premium Analytics' ) );
+		Analytics::init( array( 'menu_title' => 'Analytics' ) );
+
+		// Ships disabled: the banner is planned for a later release. The package stays wired up
+		// so the `jetpack_cookie_consent_config` filter can switch it back on for development.
+		Cookie_Consent::init( array( 'enabled' => false ) );
 	}
 }

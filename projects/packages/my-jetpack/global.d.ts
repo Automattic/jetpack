@@ -43,6 +43,7 @@ type JetpackModule =
 	| 'newsletter'
 	| 'related-posts'
 	| 'jetpack-forms'
+	| 'podcast'
 	| 'brute-force';
 
 type JetpackModuleWithCard =
@@ -656,5 +657,9 @@ interface Window {
 	myJetpackRest?: {
 		apiRoot: string;
 		apiNonce: string;
+	};
+	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+	jetpackMenuBadges?: {
+		setCount: ( menuSlug: string, count: number ) => void;
 	};
 }

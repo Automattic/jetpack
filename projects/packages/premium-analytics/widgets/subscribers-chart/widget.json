@@ -1,0 +1,7 @@
+{
+	"name": "jpa/subscribers-chart",
+	"title": "Subscribers",
+	"description": "Track subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.",
+	"category": "subscribers",
+	"presentation": "framed"
+}

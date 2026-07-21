@@ -87,17 +87,18 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
+					'visibility'           => false,
 				),
 			),
 			'jetpack/label'   => array(
 				'jetpack/label',
 				array(
-					'color'           => array(
+					'color'      => array(
 						'text'       => true,
 						'background' => false,
 						'gradients'  => false,
 					),
-					'typography'      => array(
+					'typography' => array(
 						'fontSize'                     => true,
 						'lineHeight'                   => true,
 						'__experimentalFontFamily'     => true,
@@ -107,7 +108,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
-					'blockVisibility' => true,
+					'visibility' => true,
 				),
 			),
 			'jetpack/options' => array(
@@ -126,6 +127,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'spacing'              => array(
 						'blockGap' => false,
 					),
+					'visibility'           => false,
 				),
 			),
 			'jetpack/option'  => array(
@@ -146,6 +148,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
+					'visibility' => false,
 				),
 			),
 		);
@@ -543,5 +546,128 @@ class Contact_Form_Block_Test extends BaseTestCase {
 
 		// Cleanup
 		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test that ::disable_field_visibility_support turns off the visibility
+	 * support on every field, input, and choice/option block, and leaves the
+	 * label and non-forms blocks untouched. See FORMS-694.
+	 *
+	 * @dataProvider data_disable_field_visibility_support
+	 *
+	 * @param string $block_name     The block name being registered.
+	 * @param bool   $should_disable Whether visibility should be disabled for it.
+	 */
+	#[DataProvider( 'data_disable_field_visibility_support' )]
+	public function test_disable_field_visibility_support( $block_name, $should_disable ) {
+		$result = Contact_Form_Block::disable_field_visibility_support( array(), $block_name );
+
+		if ( $should_disable ) {
+			$this->assertArrayHasKey( 'supports', $result );
+			$this->assertFalse( $result['supports']['visibility'] );
+		} else {
+			$this->assertArrayNotHasKey( 'supports', $result );
+		}
+	}
+
+	/**
+	 * Data provider for test_disable_field_visibility_support.
+	 *
+	 * @return array
+	 */
+	public static function data_disable_field_visibility_support() {
+		return array(
+			'field'                  => array( 'jetpack/field-name', true ),
+			'field (file)'           => array( 'jetpack/field-file', true ),
+			'deprecated option'      => array( 'jetpack/field-option-radio', true ),
+			'standard input'         => array( 'jetpack/input', true ),
+			'range input'            => array( 'jetpack/input-range', true ),
+			'rating input'           => array( 'jetpack/input-rating', true ),
+			'image-option input'     => array( 'jetpack/input-image-option', true ),
+			'phone input'            => array( 'jetpack/phone-input', true ),
+			'dropzone'               => array( 'jetpack/dropzone', true ),
+			'option'                 => array( 'jetpack/option', true ),
+			'options'                => array( 'jetpack/options', true ),
+			'fieldset-image-options' => array( 'jetpack/fieldset-image-options', true ),
+			'label (kept)'           => array( 'jetpack/label', false ),
+			'non-forms block'        => array( 'core/paragraph', false ),
+		);
+	}
+
+	/**
+	 * Test that ::drop_field_hidden_everywhere removes a field's rendered output
+	 * when it has been hidden everywhere (metadata.blockVisibility === false), and
+	 * leaves it untouched for the per-viewport hide, no visibility, non-field
+	 * blocks, and non-boolean values. See FORMS-694.
+	 *
+	 * @dataProvider data_drop_field_hidden_everywhere
+	 *
+	 * @param array $block        The parsed block passed to the render_block filter.
+	 * @param bool  $should_drop  Whether the field output should be dropped.
+	 */
+	#[DataProvider( 'data_drop_field_hidden_everywhere' )]
+	public function test_drop_field_hidden_everywhere( $block, $should_drop ) {
+		$content = '[contact-field type="text" label="Name"/]';
+		$result  = Contact_Form_Block::drop_field_hidden_everywhere( $content, $block );
+
+		$this->assertSame( $should_drop ? '' : $content, $result );
+	}
+
+	/**
+	 * Data provider for test_drop_field_hidden_everywhere.
+	 *
+	 * @return array
+	 */
+	public static function data_drop_field_hidden_everywhere() {
+		$field = static function ( $block_visibility ) {
+			$attrs = array();
+			if ( null !== $block_visibility ) {
+				$attrs['metadata'] = array( 'blockVisibility' => $block_visibility );
+			}
+			return array(
+				'blockName' => 'jetpack/field-name',
+				'attrs'     => $attrs,
+			);
+		};
+
+		return array(
+			'field hidden everywhere'     => array( $field( false ), true ),
+			'field per-viewport hide'     => array( $field( array( 'viewport' => array( 'mobile' => false ) ) ), false ),
+			'field no visibility set'     => array( $field( null ), false ),
+			'field visibility true'       => array( $field( true ), false ),
+			'non-field hidden everywhere' => array(
+				array(
+					'blockName' => 'core/paragraph',
+					'attrs'     => array( 'metadata' => array( 'blockVisibility' => false ) ),
+				),
+				false,
+			),
+			'block without a name'        => array( array( 'attrs' => array() ), false ),
+		);
+	}
+
+	/**
+	 * Integration: confirm the render_block filter is actually wired by
+	 * register_child_blocks() and drops a hidden-everywhere field in the real
+	 * do_blocks() pipeline (independent of core's visibility filter), while a
+	 * normal field still renders its [contact-field] shortcode. Dropping the
+	 * shortcode before it reaches Contact_Form::parse() is what keeps a required
+	 * hidden field from ever being validated. See FORMS-694.
+	 */
+	public function test_hidden_everywhere_field_is_dropped_in_do_blocks() {
+		Contact_Form_Block::register_block();
+		Contact_Form_Block::register_child_blocks();
+
+		$hidden = '<!-- wp:jetpack/field-text {"label":"Hide me","required":true,"metadata":{"blockVisibility":false}} /-->';
+		$shown  = '<!-- wp:jetpack/field-text {"label":"Keep me","required":true} /-->';
+
+		// The hidden-everywhere required field produces no output — so it never
+		// becomes a [contact-field] shortcode, is never parsed, and is never
+		// validated (a required field that isn't in the form can't block submit).
+		$this->assertSame( '', trim( do_blocks( $hidden ) ) );
+
+		// A normal field still flattens to its shortcode.
+		$this->assertStringContainsString( 'contact-field', do_blocks( $shown ) );
+		$this->assertStringContainsString( 'Keep me', do_blocks( $shown ) );
 	}
 }

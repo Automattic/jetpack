@@ -138,26 +138,30 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 						'jetpack-seo'
 					) }
 				</p>
-				<div className="jetpack-seo-settings__preview-group">
-					<h3 className="jetpack-seo-settings__preview-label">
-						<GoogleIcon />
-						{ __( 'Google search result', 'jetpack-seo' ) }
-					</h3>
-					<GooglePreview site={ site } description={ description } />
-				</div>
-				<div className="jetpack-seo-settings__preview-group">
-					<h3 className="jetpack-seo-settings__preview-label">
-						<FacebookIcon />
-						{ __( 'Facebook', 'jetpack-seo' ) }
-					</h3>
-					<LinkCardPreview site={ site } description={ description } />
-				</div>
-				<div className="jetpack-seo-settings__preview-group">
-					<h3 className="jetpack-seo-settings__preview-label">
-						<XIcon />
-						{ __( 'X (Twitter)', 'jetpack-seo' ) }
-					</h3>
-					<LinkCardPreview site={ site } description={ description } />
+				<div className="jetpack-seo-settings__preview-list">
+					{ /* Each block: a platform heading above its preview. The border is on
+					   the preview itself (not a group box around heading + preview). */ }
+					<div>
+						<h3 className="jetpack-seo-settings__preview-label">
+							<GoogleIcon />
+							{ __( 'Google search result', 'jetpack-seo' ) }
+						</h3>
+						<GooglePreview site={ site } description={ description } />
+					</div>
+					<div>
+						<h3 className="jetpack-seo-settings__preview-label">
+							<FacebookIcon />
+							{ __( 'Facebook', 'jetpack-seo' ) }
+						</h3>
+						<LinkCardPreview site={ site } description={ description } />
+					</div>
+					<div>
+						<h3 className="jetpack-seo-settings__preview-label">
+							<XIcon />
+							{ __( 'X (Twitter)', 'jetpack-seo' ) }
+						</h3>
+						<LinkCardPreview site={ site } description={ description } />
+					</div>
 				</div>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>

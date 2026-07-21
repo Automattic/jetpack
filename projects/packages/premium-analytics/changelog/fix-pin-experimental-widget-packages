@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pin @wordpress/widget-dashboard and @wordpress/widget-primitives to an exact version instead of the floating next tag

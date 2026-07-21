@@ -1,0 +1,7 @@
+{
+	"name": "jpa/bookings-revenue-by-customer-type",
+	"title": "Bookings revenue by customer type",
+	"description": "Revenue breakdown from new customers vs returning customers for bookings over the selected time period.",
+	"category": "bookings",
+	"presentation": "framed"
+}

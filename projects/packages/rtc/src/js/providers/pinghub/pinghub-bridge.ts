@@ -617,8 +617,9 @@ export class PingHubBridge {
 	/**
 	 * Send binary data to peers in the given room.
 	 *
-	 * The payload is tagged with the room name before chunking and sending,
-	 * so all peers on the shared channel can demultiplex by room.
+	 * Small messages are sent as a single room-tagged frame. Larger messages
+	 * are split into chunks, with each chunk individually room-tagged so the
+	 * receiver can demultiplex every chunk independently before reassembly.
 	 *
 	 * @param room - Room name.
 	 * @param data - Payload to send.
@@ -636,15 +637,21 @@ export class PingHubBridge {
 			return;
 		}
 
+		// Each chunk is demultiplexed independently on receive by reading its
+		// room tag, so every chunk must carry one. Chunk the RAW payload and
+		// re-tag each slice as room\0<slice>; tagging once and slicing the
+		// tagged buffer would leave later chunks without a room prefix, so the
+		// receiver would drop them and the message would never reassemble.
+		const roomTagLength = textEncoder.encode( room ).length + 1; // room bytes + separator
+		const chunkSize = MAX_PAYLOAD_BEFORE_CHUNK - CHUNK_HEADER_LEN - roomTagLength;
 		// eslint-disable-next-line no-bitwise
 		const msgId = this.chunkMsgId & 0xffff;
 		this.chunkMsgId++;
-		const chunkSize = MAX_PAYLOAD_BEFORE_CHUNK - CHUNK_HEADER_LEN;
-		const totalChunks = Math.ceil( tagged.length / chunkSize );
+		const totalChunks = Math.ceil( data.length / chunkSize );
 		for ( let i = 0; i < totalChunks; i++ ) {
 			const start = i * chunkSize;
-			const payload = tagged.subarray( start, Math.min( start + chunkSize, tagged.length ) );
-			sendOne( buildChunk( msgId, totalChunks, i, payload ) );
+			const slice = data.subarray( start, Math.min( start + chunkSize, data.length ) );
+			sendOne( buildChunk( msgId, totalChunks, i, tagPayload( room, slice ) ) );
 		}
 	}
 }

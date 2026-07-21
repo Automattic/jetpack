@@ -1,0 +1,7 @@
+{
+	"name": "jpa/sales-by-utm-source",
+	"title": "Sales by UTM source",
+	"description": "Shows the top UTM sources by order revenue over the selected time period.",
+	"category": "store",
+	"presentation": "framed"
+}

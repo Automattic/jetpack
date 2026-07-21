@@ -123,18 +123,22 @@ Apply custom styles using the `className` or `style` props:
 
 ## Theming Integration
 
-The component uses CSS custom properties for colors, making it easy to customize:
+By default the trend colors resolve to accessible WordPress Design System
+tokens. The component also exposes CSS custom properties so you can override
+them:
 
 <Source
 	language="css"
 	code={`:root {
-	--charts-trend-up-color: #1a8917;    /* Green for positive */
-	--charts-trend-down-color: #d63638;  /* Red for negative */
-	--charts-trend-neutral-color: #646970; /* Gray for neutral */
+	/* Defaults shown — these resolve to the WPDS tokens below: */
+	--charts-trend-up-color: var(--wpds-color-foreground-content-success-weak, #008030);
+	--charts-trend-down-color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+	--charts-trend-neutral-color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }`}
 />
 
-Override these variables in your stylesheet to match your design system.
+Override these variables to match your design system. Make sure any custom
+colors meet contrast requirements.
 
 ## Common Use Cases
 

@@ -20,6 +20,7 @@ import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
+import { printTimingSummary, buildTimingJson } from '../helpers/timing-summary.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -69,7 +70,22 @@ export function builder( yargs ) {
 		} )
 		.option( 'timing', {
 			type: 'boolean',
-			description: 'Output timing information.',
+			description: 'Output per-line/per-task timing information during the build.',
+		} )
+		.option( 'timing-summary', {
+			type: 'boolean',
+			description: 'Print an aggregated phase-level timing summary table at the end of the build.',
+		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
+		.option( 'no-use-uncommitted-composer-lock', {
+			type: 'boolean',
+			description: "Don't use uncommitted composer.lock files.",
+		} )
+		.option( 'timing-output', {
+			type: 'string',
+			normalize: true,
+			description:
+				'Write machine-readable timing data (JSON) to the given file. Implies --timing-summary.',
 		} );
 }
 
@@ -86,6 +102,13 @@ export async function handler( argv ) {
 	} catch ( e ) {
 		console.error( e.message );
 		process.exit( 1 );
+	}
+
+	argv.useUncommittedComposerLock = argv.useUncommittedComposerLock !== false;
+
+	// `--timing-output` writes JSON, which requires the timing data to be collected.
+	if ( argv.timingOutput ) {
+		argv.timingSummary = true;
 	}
 
 	let dependencies = await getDependencies( process.cwd(), 'build' );
@@ -215,15 +238,35 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
+		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
+		timings: argv.timingSummary ? { overallStart: Date.now(), entries: [], buildOrder } : null,
 	};
 	await listr
 		.run( ctx )
-		.finally( () => {
+		.finally( async () => {
 			if ( missing.size ) {
 				console.error( '' );
 				const wrap = argv.v ? v => v : chalk.red;
 				for ( const project of missing ) {
 					console.error( wrap( `Project ${ project } was ignored as it does not exist.` ) );
+				}
+			}
+
+			// Print the timing summary (and optionally dump JSON) on both success and failure.
+			// This runs before the `.catch` below, which may call `process.exit()`.
+			if ( ctx.timings ) {
+				printTimingSummary( ctx, argv );
+				if ( argv.timingOutput ) {
+					try {
+						await fs.writeFile(
+							argv.timingOutput,
+							JSON.stringify( buildTimingJson( ctx, argv ), null, 2 ) + '\n',
+							'utf8'
+						);
+						console.log( `Timing data written to ${ argv.timingOutput }` );
+					} catch ( e ) {
+						console.error( `Failed to write timing output: ${ e.message }` );
+					}
 				}
 			}
 		} )
@@ -379,16 +422,61 @@ function createBuildTask( project, argv, title, build ) {
 						return p;
 					};
 
+					// Time a named build phase, recording its duration into ctx.timings (if enabled).
+					// Returns the wrapped function's value, and records even when it throws.
+					t.time = async ( phase, fn ) => {
+						// No-op passthrough when timing is disabled, so the normal build path is untouched.
+						if ( ! ctx.timings ) {
+							return fn();
+						}
+						const start = Date.now();
+						const record = ok => {
+							const end = Date.now();
+							ctx.timings.entries.push( {
+								project,
+								phase,
+								start,
+								end,
+								duration: end - start,
+								ok,
+							} );
+						};
+						try {
+							const result = await fn();
+							record( true );
+							return result;
+						} catch ( e ) {
+							record( false );
+							throw e;
+						}
+					};
+
 					// Build!
 					const t0 = Date.now();
 					buildStarted = true;
+					let taskOk = true;
 					try {
 						await build( t );
 					} catch ( e ) {
+						// Record the failure so the `_task` total below (and the JSON `ok` field) reflect it,
+						// even when the failure happens outside a `t.time()`-wrapped phase (e.g. mirroring).
+						taskOk = false;
 						await t.output( `\nBuild failed: ${ e.stack }\n` );
 						throw e;
 					} finally {
-						await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
+						const dur = Date.now() - t0;
+						if ( ctx.timings ) {
+							// The authoritative per-task total (also covers the shared pnpm/changelogger tasks).
+							ctx.timings.entries.push( {
+								project,
+								phase: '_task',
+								start: t0,
+								end: t0 + dur,
+								duration: dur,
+								ok: taskOk,
+							} );
+						}
+						await t.setStatus( argv.timing ? formatDuration( dur ) + 's' : 'complete' );
 					}
 				} );
 			} )().then(
@@ -710,7 +798,11 @@ async function buildProject( t ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
 		const idx = composerJson.repositories?.findIndex( r => r.options?.monorepo );
 		if ( typeof idx === 'number' && idx >= 0 ) {
-			// Extract only the versions this project actually depends on, in a consistent order,
+			t.output(
+				`\n=== Munging composer.json to fetch built packages and remove test-only deps ===\n\n`
+			);
+
+			// Point to the built copies of all (known) dependencies, in a consistent order,
 			// to avoid vendor/composer/installed.json changing randomly every build.
 			const deps = new Set( t.ctx.dependencies.get( t.project ) );
 			for ( const dep of deps ) {
@@ -718,51 +810,60 @@ async function buildProject( t ) {
 					deps.add( d );
 				}
 			}
-			const versions = {};
+			const versionedPkgs = [];
+			const allPkgs = [];
 			for ( const dep of [ ...deps ].sort() ) {
 				if ( t.ctx.versions[ dep ] ) {
-					versions[ t.ctx.versions[ dep ].name ] = t.ctx.versions[ dep ].runversion;
+					allPkgs.push( t.ctx.versions[ dep ].name );
+					if ( t.ctx.versions[ dep ].runversion === null ) {
+						delete composerJson[ 'require-dev' ]?.[ t.ctx.versions[ dep ].name ];
+					} else {
+						versionedPkgs.push( {
+							type: 'path',
+							url: t.ctx.versions[ dep ].path,
+							options: {
+								monorepo: true,
+								versions: {
+									[ t.ctx.versions[ dep ].name ]: t.ctx.versions[ dep ].runversion,
+								},
+							},
+						} );
+					}
+				}
+			}
+			if ( versionedPkgs.length > 0 ) {
+				composerJson.repositories.splice( idx, 0, ...versionedPkgs );
+			}
+
+			// Remove test-only deps. No need to install or publish them.
+			if ( composerJson.extra?.dependencies?.[ 'test-only' ]?.length > 0 ) {
+				for ( const dep of composerJson.extra.dependencies[ 'test-only' ] ) {
+					const depName = JSON.parse(
+						await fs.readFile( `projects/${ dep }/composer.json`, { encoding: 'utf8' } )
+					).name;
+					delete composerJson[ 'require-dev' ]?.[ depName ];
 				}
 			}
 
-			if (
-				Object.keys( versions ).length > 0 ||
-				composerJson.extra?.dependencies?.[ 'test-only' ]?.length > 0
-			) {
-				t.output(
-					`\n=== Munging composer.json to fetch built packages and/or remove test-only deps ===\n\n`
-				);
-				if ( Object.keys( versions ).length > 0 ) {
-					composerJson.repositories.splice( idx, 0, {
-						type: 'path',
-						url: t.argv.forMirrors + '/*/*',
-						options: {
-							monorepo: true,
-							versions,
-						},
-					} );
-				}
-				if ( composerJson.extra?.dependencies?.[ 'test-only' ]?.length > 0 ) {
-					for ( const dep of composerJson.extra.dependencies[ 'test-only' ] ) {
-						const depName = JSON.parse(
-							await fs.readFile( `projects/${ dep }/composer.json`, { encoding: 'utf8' } )
-						).name;
-						delete composerJson[ 'require-dev' ]?.[ depName ];
-					}
-				}
-				await writeFileAtomic(
-					`${ t.cwd }/composer.json`,
-					JSON.stringify( composerJson, null, '\t' ) + '\n',
-					{ encoding: 'utf8' }
-				);
-				// Update composer.lock too, if any and if we're installing.
-				if ( ! skipInstall && ( await fsExists( `${ t.cwd }/composer.lock` ) ) ) {
-					await t.execa( 'composer', [ 'update', '--no-install', ...Object.keys( versions ) ], {
-						cwd: t.cwd,
-						stdio: [ 'ignore', 'inherit', 'inherit' ],
-						buffer: false,
-					} );
-				}
+			// Remove the fallback to the unbuilt monorepo packages. Everything *should* already be handled above.
+			// Unknown indirect deps via a third-party package (e.g. automattic/woocommerce-analytics) will get
+			// resolved from Packagist.
+			composerJson.repositories = composerJson.repositories.filter(
+				r => ! r.options?.monorepo || r.options?.versions
+			);
+
+			await writeFileAtomic(
+				`${ t.cwd }/composer.json`,
+				JSON.stringify( composerJson, null, '\t' ) + '\n',
+				{ encoding: 'utf8' }
+			);
+			// Update composer.lock too, if any and if we're installing.
+			if ( ! skipInstall && allPkgs.length && ( await fsExists( `${ t.cwd }/composer.lock` ) ) ) {
+				await t.execa( 'composer', [ 'update', '--no-install', ...allPkgs ], {
+					cwd: t.cwd,
+					stdio: [ 'ignore', 'inherit', 'inherit' ],
+					buffer: false,
+				} );
 			}
 		}
 	}
@@ -771,11 +872,13 @@ async function buildProject( t ) {
 	if ( skipInstall ) {
 		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
 	} else {
-		await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-			cwd: t.cwd,
-			stdio: [ 'ignore', 'inherit', 'inherit' ],
-			buffer: false,
-		} );
+		await t.time( 'install', async () =>
+			t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
+				cwd: t.cwd,
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
+				buffer: false,
+			} )
+		);
 	}
 
 	// Build.
@@ -783,11 +886,13 @@ async function buildProject( t ) {
 	if ( script === null ) {
 		await t.output( `No build scripts are defined for ${ t.project }\n` );
 	} else {
-		await t.execa( 'composer', [ 'run', '--timeout=0', script ], {
-			cwd: t.cwd,
-			stdio: [ 'ignore', 'inherit', 'inherit' ],
-			buffer: false,
-		} );
+		await t.time( 'build', async () =>
+			t.execa( 'composer', [ 'run', '--timeout=0', script ], {
+				cwd: t.cwd,
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
+				buffer: false,
+			} )
+		);
 	}
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
@@ -800,6 +905,13 @@ async function buildProject( t ) {
 	const gitSlug = composerJson.extra?.[ 'mirror-repo' ];
 	if ( typeof gitSlug !== 'string' || gitSlug === '' ) {
 		t.output( `No mirror repo is configured for ${ t.project }\n` );
+		t.ctx.versions[ t.project ] = {
+			name: composerJson.name,
+			jsName: undefined,
+			path: null,
+			version: null,
+			runversion: null,
+		};
 		return;
 	}
 	t.output( `Repo name: ${ gitSlug }\n` );
@@ -900,29 +1012,35 @@ async function buildProject( t ) {
 	}
 
 	// Remove monorepo repos from composer.json.
-	if ( composerJson.repositories && composerJson.repositories.some( r => r.options?.monorepo ) ) {
-		composerJson.repositories = composerJson.repositories.filter( r => ! r.options?.monorepo );
-		if ( composerJson.repositories.length === 0 ) {
-			delete composerJson.repositories;
-		}
+	if ( composerJson.repositories ) {
+		if ( composerJson.repositories.some( r => r.options?.monorepo ) ) {
+			composerJson.repositories = composerJson.repositories.filter( r => ! r.options?.monorepo );
 
-		// Update '@dev' dependency version numbers in composer.json.
-		const composerDepTyes = [ 'require', 'require-dev' ];
-		for ( const key of composerDepTyes ) {
-			if ( composerJson[ key ] ) {
-				for ( const [ pkg, ver ] of Object.entries( composerJson[ key ] ) ) {
-					if ( ver === '@dev' ) {
-						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
-							if ( ctxPkg.name === pkg ) {
-								let massagedVer = ctxPkg.version;
-								massagedVer = `^${ massagedVer }`;
-								composerJson[ key ][ pkg ] = massagedVer;
-								break;
+			// Update '@dev' dependency version numbers in composer.json.
+			const composerDepTyes = [ 'require', 'require-dev' ];
+			for ( const key of composerDepTyes ) {
+				if ( composerJson[ key ] ) {
+					for ( const [ pkg, ver ] of Object.entries( composerJson[ key ] ) ) {
+						if ( ver === '@dev' ) {
+							for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+								if ( ctxPkg.name === pkg ) {
+									if ( key === 'require-dev' && ctxPkg.version === null ) {
+										delete composerJson[ key ][ pkg ];
+									} else {
+										let massagedVer = ctxPkg.version;
+										massagedVer = `^${ massagedVer }`;
+										composerJson[ key ][ pkg ] = massagedVer;
+									}
+									break;
+								}
 							}
 						}
 					}
 				}
 			}
+		}
+		if ( composerJson.repositories.length === 0 ) {
+			delete composerJson.repositories;
 		}
 
 		await writeFileAtomic(
@@ -1086,6 +1204,7 @@ async function buildProject( t ) {
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
 		jsName: packageJson?.name,
+		path: buildDir,
 		version: projectVersionNumber,
 		runversion: projectRunVersionNumber,
 	};

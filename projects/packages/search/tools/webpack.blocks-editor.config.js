@@ -14,7 +14,7 @@ module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
-		'register-blocks': path.join( __dirname, '../src/search-blocks/editor/register-blocks.js' ),
+		'register-blocks': path.join( __dirname, '../src/search-blocks/editor/register-blocks.jsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

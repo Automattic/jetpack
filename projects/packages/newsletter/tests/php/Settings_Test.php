@@ -26,6 +26,9 @@ class Settings_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// Reset the in-process Host platform cache so per-test constants take effect.
+		\Automattic\Jetpack\Status\Cache::clear();
+
 		// Reset the static initialized flag between tests.
 		$reflection = new \ReflectionClass( Settings::class );
 		$property   = $reflection->getProperty( 'initialized' );
@@ -165,14 +168,14 @@ class Settings_Test extends BaseTestCase {
 
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
-	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — must be false; the feature switch lands in a
-	 * separate PR that flips the default on.
+	 * `add_wp_admin_menu`, and `load_admin_scripts`. The staged rollout is complete:
+	 * the modernized experience now defaults on for every site, so the value
+	 * `apply_filters` receives must be true.
 	 */
-	public function test_is_modernized_defaults_to_false() {
-		$this->assertFalse(
+	public function test_is_modernized_defaults_to_true() {
+		$this->assertTrue(
 			self::call_private_static_is_modernized(),
-			'Modernization gate must default to false until the flag-flip PR lands.'
+			'Modernization gate must default to true now that the rollout is at 100%.'
 		);
 	}
 

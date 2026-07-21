@@ -9,6 +9,8 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use Automattic\Jetpack\VideoPress\Utils;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -105,7 +107,7 @@ class Initializer_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'allowfullscreen', $html );
 		$this->assertStringContainsString( 'data-resize-to-parent="true"', $html );
-		$this->assertStringContainsString( 'allow="clipboard-write"', $html );
+		$this->assertStringContainsString( 'allow="clipboard-write; presentation"', $html );
 		$this->assertStringContainsString( 'width="640"', $html );
 		$this->assertStringContainsString( 'height="360"', $html );
 	}
@@ -180,5 +182,64 @@ class Initializer_Test extends BaseTestCase {
 		$html = $this->render();
 
 		$this->assertStringContainsString( '<iframe', $html );
+	}
+
+	/**
+	 * The REST API endpoint classes are no longer constructed at init time; their construction is
+	 * deferred to priority-0 `rest_api_init` callbacks. Initializer::init() has two such blocks:
+	 * the always-run WPCOM v2 endpoints in unconditional_initialization(), and the active-module
+	 * endpoints in active_initialization(). Guard both: firing the hook must still register the
+	 * routes — each priority-0 callback constructs/inits the endpoints, which add their own
+	 * default-priority callbacks that register the routes within the same firing. A regression to
+	 * that re-entrancy (e.g. bumping a deferred priority off 0) would silently drop the routes.
+	 *
+	 * Runs in a separate process: driving the real Initializer autoloads VideoPress classes
+	 * (e.g. Jwt_Token_Bridge) that other tests in this suite replace with alias mocks, which
+	 * require the class to be unloaded. The isolated process also lets us force the module-active
+	 * path via a standalone-plugin class stub without leaking it into the rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_rest_endpoints_register_lazily_on_rest_api_init() {
+		/*
+		 * Force Status::is_active() true so active_initialization() runs and its deferral block is
+		 * exercised too. is_standalone_plugin_active() only checks for the standalone plugin class;
+		 * the stub fixture defines it. Safe because this test runs in an isolated process.
+		 */
+		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		VideoPress_Initializer::init();
+
+		$routes_before = $wp_rest_server->get_routes();
+		$this->assertArrayNotHasKey(
+			'/wpcom/v2/videopress/meta',
+			$routes_before,
+			'WPCOM v2 VideoPress route should not register before rest_api_init fires.'
+		);
+		$this->assertArrayNotHasKey(
+			'/videopress/v1/features',
+			$routes_before,
+			'Active-module VideoPress route should not register before rest_api_init fires.'
+		);
+
+		do_action( 'rest_api_init' );
+
+		$routes_after = $wp_rest_server->get_routes();
+		$this->assertArrayHasKey(
+			'/wpcom/v2/videopress/meta',
+			$routes_after,
+			'WPCOM v2 VideoPress route should register on rest_api_init via the unconditional deferral block.'
+		);
+		$this->assertArrayHasKey(
+			'/videopress/v1/features',
+			$routes_after,
+			'Active-module VideoPress route should register on rest_api_init via the active_initialization deferral block.'
+		);
 	}
 }

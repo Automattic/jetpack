@@ -1,0 +1,7 @@
+{
+	"name": "jpa/traffic-chart",
+	"title": "Traffic",
+	"description": "Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.",
+	"category": "traffic",
+	"presentation": "framed"
+}

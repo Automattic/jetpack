@@ -60,8 +60,10 @@ const store = createReduxStore( STORE_NAME, {
 			return {
 				coverage: {
 					...state.coverage,
-					with_description: state.coverage.with_description + action.delta.description,
 					with_schema: state.coverage.with_schema + action.delta.schema,
+					with_title: state.coverage.with_title + action.delta.title,
+					with_description: state.coverage.with_description + action.delta.description,
+					with_search_visible: state.coverage.with_search_visible + action.delta.search_visible,
 				},
 			};
 		}

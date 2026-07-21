@@ -192,6 +192,56 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Contributors can submit a post for review without the "was ever published" meta
+	 * blocking the save. Regression test for NL-706 / CM-232: the meta is included in
+	 * the editor save payload, and its auth_callback previously required publish_posts,
+	 * which Contributors lack — failing the first "Submit for Review" save.
+	 */
+	public function test_first_published_status_meta_auth_callback_allows_contributor() {
+		$subscriptions  = Jetpack_Subscriptions::init();
+		$contributor_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
+
+		wp_set_current_user( $contributor_id );
+		$this->assertFalse(
+			current_user_can( 'publish_posts' ),
+			'Contributors should not be able to publish posts (test precondition).'
+		);
+		$this->assertTrue(
+			$subscriptions->first_published_status_meta_auth_callback(),
+			'Contributors must be authorized to save the "was ever published" meta.'
+		);
+	}
+
+	/**
+	 * A logged-out visitor cannot edit the "was ever published" meta, and the
+	 * jetpack_subscriptions_post_was_ever_published_capability filter is still honored.
+	 */
+	public function test_first_published_status_meta_auth_callback_respects_filter_and_denies_anonymous() {
+		$subscriptions = Jetpack_Subscriptions::init();
+
+		wp_set_current_user( 0 );
+		$this->assertFalse(
+			$subscriptions->first_published_status_meta_auth_callback(),
+			'Logged-out users must not be authorized to edit the meta.'
+		);
+
+		$contributor_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		wp_set_current_user( $contributor_id );
+
+		add_filter(
+			'jetpack_subscriptions_post_was_ever_published_capability',
+			function () {
+				return 'publish_posts';
+			}
+		);
+		$this->assertFalse(
+			$subscriptions->first_published_status_meta_auth_callback(),
+			'The capability filter should still be able to restrict access.'
+		);
+		remove_all_filters( 'jetpack_subscriptions_post_was_ever_published_capability' );
+	}
+
+	/**
 	 * Test that wpcom_newsletter_send_default option defaults to true.
 	 */
 	public function test_newsletter_send_default_option_defaults_to_true() {
@@ -271,7 +321,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	public static function matrix_access() {
-		$time_outdated = time() - HOUR_IN_SECONDS;
+		// A prior-day timestamp. Paid Content grants access through the end of the
+		// end_date day (UTC), so an "expired" fixture must be before that day to
+		// actually read as expired.
+		$time_outdated = time() - 2 * DAY_IN_SECONDS;
 
 		return array(
 			// The follow use cases are mainly yot be thourough and probably duplicates some former use cases
@@ -791,9 +844,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
-		// Let's make sure date is taken into account
+		// Let's make sure date is taken into account (a fully-past day, since access
+		// lasts through the end of the end_date day).
 		$subscription_service = $this->set_returned_token(
-			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $gold_tier_annual_plan_id )
+			$this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS, null, $gold_tier_annual_plan_id )
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
@@ -849,9 +903,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
-		// Expired comp should NOT bypass the tier gate.
+		// Expired comp should NOT bypass the tier gate (a fully-past day, since access
+		// lasts through the end of the end_date day).
 		$subscription_service = $this->set_returned_token(
-			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $bronze_tier_plan_id, true )
+			$this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS, null, $bronze_tier_plan_id, true )
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 

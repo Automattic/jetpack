@@ -80,7 +80,7 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 			<Button
 				size="small"
 				variant="tertiary"
-				icon={ icon }
+				icon={ icon as JSX.Element }
 				onMouseEnter={ () => setIsHovering( true ) }
 				onMouseLeave={ () => setIsHovering( false ) }
 				onFocus={ () => setIsFocused( true ) }

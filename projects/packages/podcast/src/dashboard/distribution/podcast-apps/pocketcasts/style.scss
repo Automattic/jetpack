@@ -23,6 +23,11 @@
 // State-driven submit button. Override the primary fill for pending/active so
 // the colour matches the verdict; idle keeps the default theme primary.
 .podcast__pocketcasts-button {
+	text-align: center;
+
+	&.components-button.has-icon {
+		justify-content: center;
+	}
 
 	&--pending {
 
@@ -55,4 +60,3 @@
 		}
 	}
 }
-

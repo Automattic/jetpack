@@ -1,7 +1,6 @@
 import { DonutMeter } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Button, Card } from '@wordpress/ui';
 import type { ContentCoverage } from '../../data/overview-types';
 import type { FC } from 'react';
 
@@ -55,7 +54,7 @@ const CoverageRing: FC< RingProps > = ( { label, segment, total } ) => (
 );
 
 const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
-	const { total, with_description, with_schema } = data;
+	const { total, with_schema, with_title, with_description, with_search_visible } = data;
 
 	return (
 		<Card.Root>
@@ -68,19 +67,29 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
 				) : (
 					<div className="jetpack-seo-overview__coverage-rings">
 						<CoverageRing
-							label={ __( 'Meta description', 'jetpack-seo' ) }
+							label={ __( 'Schema applied', 'jetpack-seo' ) }
+							segment={ with_schema }
+							total={ total }
+						/>
+						<CoverageRing
+							label={ __( 'SEO title set', 'jetpack-seo' ) }
+							segment={ with_title }
+							total={ total }
+						/>
+						<CoverageRing
+							label={ __( 'Meta description added', 'jetpack-seo' ) }
 							segment={ with_description }
 							total={ total }
 						/>
 						<CoverageRing
-							label={ __( 'Schema type', 'jetpack-seo' ) }
-							segment={ with_schema }
+							label={ __( 'Visible to search engines', 'jetpack-seo' ) }
+							segment={ with_search_visible }
 							total={ total }
 						/>
 					</div>
 				) }
 				<div className="jetpack-seo-overview__card-footer">
-					<Button variant="secondary" onClick={ onManage }>
+					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage content', 'jetpack-seo' ) }
 					</Button>
 				</div>

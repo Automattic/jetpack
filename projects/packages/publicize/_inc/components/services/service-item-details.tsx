@@ -1,5 +1,5 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
 import { useIsModernized } from '../../hooks/use-is-modernized';
@@ -28,7 +28,7 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 	const ServiceConnectionInfoVariant = isModernized
 		? ModernServiceConnectionInfo
 		: ServiceConnectionInfo;
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const { deletingConnections, updatingConnections } = useSelect( select => {
 		const { getDeletingConnections, getUpdatingConnections } = select( socialStore );

@@ -4,8 +4,8 @@ import {
 	DiffViewer,
 	MarkedLines,
 	DetailsViewer,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -186,7 +186,7 @@ const ThreatAccordionItem = ( {
 };
 
 const PaidList = ( { list, hideAutoFixColumn = false } ) => {
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
 		<>

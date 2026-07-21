@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: generate fuller, better-tailored task lists — offer the tailoring AI only the tasks that will actually render on the site and goal (rescuing the About-page task the visibility gate wrongly hid during the REST request) and are not already complete, back-fill a short list toward six as a floor, and drop the "Personalize newsletter" task, which was born-completed and offered nothing to do.

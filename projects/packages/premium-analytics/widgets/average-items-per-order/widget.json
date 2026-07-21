@@ -1,0 +1,7 @@
+{
+	"name": "jpa/average-items-per-order",
+	"title": "Average items per order",
+	"description": "Show the average number of products per order over a set period of time.",
+	"category": "orders",
+	"presentation": "framed"
+}

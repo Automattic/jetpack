@@ -4,16 +4,15 @@
 import { ConversionFunnelChart } from '@automattic/charts';
 import { FilterCondition, useReportConversionRate } from '@jetpack-premium-analytics/data';
 import { goal } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { Icon, Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { MetricWithComparison, ChartEmptyState } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { MetricWithComparison, WidgetState } from '../../components';
 import { useWidgetRootContext } from '../../components/widget-root';
 import { BOOKINGS_FILTER } from '../../helpers';
-import { useWidgetError } from '../../hooks';
 import styles from './conversion-rate-widget.module.scss';
 
 /**
@@ -34,23 +33,11 @@ export function ConversionRateWidget( {
 } ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportConversionRate( {
-		...reportParams,
-		filters,
-	} );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportConversionRate( {
+			...reportParams,
+			filters,
+		} );
 
 	const { data: conversionData } = primary;
 	const { data: comparisonData } = comparison;
@@ -74,30 +61,31 @@ export function ConversionRateWidget( {
 		};
 	}, [ conversionData, comparisonData, hasComparison ] );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	// Don't render if no steps data
-	if ( steps.length === 0 ) {
-		return (
-			<>
-				<ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />
-				{ isRefetching && <WidgetLoadingOverlay /> }
-			</>
-		);
-	}
-
 	// Convert to percentage for ConversionFunnelChart (expects 0-100 scale)
 	const overallRatePercent = overallRate * 100;
 
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading && ! hasData }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ steps.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load conversion data. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: emptyStateIcon,
+				description:
+					emptyStateText ?? __( 'No conversion data in this period.', 'jetpack-premium-analytics' ),
+			} }
+		>
 			<Stack direction="column" gap="lg" className={ styles.container }>
 				<MetricWithComparison
 					value={ overallRate }
@@ -115,8 +103,7 @@ export function ConversionRateWidget( {
 					className={ styles.conversionFunnelChart }
 				/>
 			</Stack>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }
 

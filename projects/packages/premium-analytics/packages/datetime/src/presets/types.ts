@@ -3,6 +3,7 @@
  */
 export const PRESET_TODAY = 'today' as const;
 export const PRESET_YESTERDAY = 'yesterday' as const;
+export const PRESET_LAST_24_HOURS = 'last-24-hours' as const;
 export const PRESET_LAST_7_DAYS = 'last-7-days' as const;
 export const PRESET_LAST_30_DAYS = 'last-30-days' as const;
 export const PRESET_LAST_90_DAYS = 'last-90-days' as const;
@@ -17,6 +18,7 @@ export const PRESET_LAST_YEAR = 'last-year' as const;
 export const SELECTABLE_PRESETS = [
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
@@ -27,7 +29,17 @@ export const SELECTABLE_PRESETS = [
 ] as const;
 
 /**
- * Union of the 9 selectable preset identifiers.
+ * Quick presets shown as surface pills in the date-range filter.
+ */
+export const QUICK_SURFACE_PRESETS = [
+	PRESET_LAST_24_HOURS,
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_12_MONTHS,
+] as const;
+
+/**
+ * Union of the selectable preset identifiers.
  */
 export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
 
@@ -37,7 +49,7 @@ export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
 export const PRESET_CUSTOM = 'custom' as const;
 
 /**
- * Primary preset: one of the 9 selectable presets, or 'custom'.
+ * Primary preset: one of the selectable presets, or 'custom'.
  */
 export type PrimaryPresetId = SelectablePresetId | typeof PRESET_CUSTOM;
 

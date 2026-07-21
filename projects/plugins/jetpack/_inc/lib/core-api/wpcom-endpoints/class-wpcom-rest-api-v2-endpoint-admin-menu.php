@@ -809,6 +809,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$item = array_merge( $item, $parsed_item );
 		}
 
+		// Additive: authoritative top-level total from the central menu-badges
+		// registry, when the package is loaded. Overlays any count parsed from
+		// title markup above.
+		if ( 'jetpack' === $menu_item[2] && class_exists( '\Automattic\Jetpack\Menu_Badges\Notification_Counts' ) ) {
+			$registry_total = \Automattic\Jetpack\Menu_Badges\Notification_Counts::get_total();
+			if ( $registry_total > 0 ) {
+				$item['count'] = $registry_total;
+			}
+		}
+
 		// Additive: classifier-derived `group_id` + `signal` for the redesigned
 		// sidebar. Match key is the raw menu slug (`$menu_item[2]`), which is
 		// what the public plugin's `Sidebar_Classifier` keys nav items by.
@@ -846,6 +856,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		$parsed_item = $this->parse_menu_item( $item['title'] );
 		if ( ! empty( $parsed_item ) ) {
 			$item = array_merge( $item, $parsed_item );
+		}
+
+		// Additive: authoritative count from the central menu-badges registry,
+		// when the package is loaded. Overlays any count parsed from title
+		// markup above.
+		if ( class_exists( '\Automattic\Jetpack\Menu_Badges\Notification_Counts' ) ) {
+			$registry_count = \Automattic\Jetpack\Menu_Badges\Notification_Counts::get_for_menu( $submenu_item[2] );
+			if ( $registry_count > 0 ) {
+				$item['count'] = $registry_count;
+			}
 		}
 
 		// Additive: classifier-derived fields. Same lookup contract as the

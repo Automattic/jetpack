@@ -1,12 +1,30 @@
 /**
  * External dependencies
  */
-import { differenceInHours } from 'date-fns';
+import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { localTZDate } from './date';
 import type { IntervalType } from './search';
+
+export function getDaysBetweenInclusive( from: string, to: string ): number {
+	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
+	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
+	// getters reflect the machine's local timezone, not UTC. Left unanchored,
+	// a negative-offset machine can read a UTC midnight instant as the
+	// previous local calendar day, shifting the day count.
+	const fromDate = localTZDate( `${ from }T00:00:00Z`, '+00:00' );
+	const toDate = localTZDate( `${ to }T00:00:00Z`, '+00:00' );
+	const days = differenceInCalendarDays( toDate, fromDate );
+
+	if ( Number.isNaN( days ) || days < 0 ) {
+		// Keep range-based requests bounded even when callers pass an invalid range.
+		return 1;
+	}
+
+	return days + 1;
+}
 
 function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
 	// Use hours instead of days to handle ranges that are 1 second short of a full day.
@@ -46,6 +64,7 @@ function getAllowedIntervalsForPeriod(
 	switch ( period ) {
 		case 'today':
 		case 'yesterday':
+		case 'last-24-hours':
 			return [ 'hour', 'day' ];
 		case 'last-7-days':
 			return [ 'day' ];

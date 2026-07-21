@@ -407,11 +407,15 @@ class Launchpad_Task_Lists {
 	 * Allows a function to be called to determine if a task should be visible.
 	 * For instance: we don't even want to show the verify_email task if it's already done.
 	 *
+	 * Public so callers that build their own task lists from the catalog (e.g. the
+	 * AI Launchpad REST controller) can apply the same visibility gate as build(),
+	 * mirroring the public load_calypso_path().
+	 *
 	 * @param Task        $task_definition A task definition.
 	 * @param string|null $launchpad_context Optional. Screen in which launchpad is loading.
 	 * @return boolean True if task is visible, false if not.
 	 */
-	protected function is_visible( $task_definition, $launchpad_context = null ) {
+	public function is_visible( $task_definition, $launchpad_context = null ) {
 		if ( empty( $task_definition ) ) {
 			return false;
 		}

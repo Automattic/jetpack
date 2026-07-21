@@ -164,6 +164,9 @@ class Callables extends Module {
 		// gets fired when new code gets installed, updates etc.
 		add_action( 'upgrader_process_complete', array( $this, 'unlock_plugin_action_link_and_callables' ) );
 		add_action( 'update_option_active_plugins', array( $this, 'unlock_plugin_action_link_and_callables' ) );
+		// Deleting an inactive plugin fires neither of the above, so without this the synced
+		// get_plugins callable stays stale until the periodic re-check happens to run.
+		add_action( 'deleted_plugin', array( $this, 'unlock_plugin_action_link_and_callables' ) );
 	}
 
 	/**

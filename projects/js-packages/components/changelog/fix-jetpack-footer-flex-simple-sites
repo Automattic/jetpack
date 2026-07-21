@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Footer: add explicit `display: flex` so the footer lays out horizontally on WordPress.com Simple sites instead of stacking vertically.

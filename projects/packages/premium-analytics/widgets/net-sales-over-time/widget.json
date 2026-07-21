@@ -1,0 +1,7 @@
+{
+	"name": "jpa/net-sales-over-time",
+	"title": "Net sales over time",
+	"description": "Monitor your total revenue after discounts, returns, or adjustments over a set period of time.",
+	"category": "orders",
+	"presentation": "framed"
+}
