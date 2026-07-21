@@ -175,6 +175,7 @@ class Dashboard {
 				// Only our own modules use the 'jetpack-forms' text domain; core
 				// modules ('@wordpress/*') use 'default' and resolve automatically.
 				if ( strpos( $dependency['id'], 'jetpack-forms' ) === 0 ) {
+					// @phan-suppress-next-line PhanUndeclaredFunction -- WP 7.0+ only; guarded by the function_exists() check above.
 					wp_set_script_module_translations( $dependency['id'], 'jetpack-forms' );
 				}
 			}
