@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Initializer: add per-subsystem init methods (plugins action links, admin UI, REST API, licensing, Speed Score, ExPlat, JITM, Jetpack Manage) so consumers can initialize parts of My Jetpack individually. The my_jetpack_init action still fires only from init().
+Initializer: add per-subsystem init methods (plugins action links, admin UI, REST API, licensing, Speed Score, ExPlat, JITM, Jetpack Manage) so consumers can initialize parts of My Jetpack individually. The my_jetpack_init action still fires only from init(), and Speed Score is set up at most once per request however the init methods are combined.

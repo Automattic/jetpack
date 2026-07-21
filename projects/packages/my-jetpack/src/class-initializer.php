@@ -78,13 +78,21 @@ class Initializer {
 	private static $initialized_subsystems = array();
 
 	/**
+	 * The Speed Score instance set up for My Jetpack, kept so it is only built once.
+	 *
+	 * @var Speed_Score|null
+	 */
+	private static $speed_score;
+
+	/**
 	 * Initialize My Jetpack
 	 *
-	 * Makes one `should_initialize()` decision, sets up every subsystem, and fires
-	 * the `my_jetpack_init` action. That action only fires from here; the individual
-	 * `init_*` methods never fire it. This path does not consume the one-shot marks
-	 * used by the individual `init_*` methods, so re-running `init()` (guarded only
-	 * by `did_action`) behaves exactly as it did before the subsystem split.
+	 * Checks eligibility once on entry (licensing keeps its own historical re-check),
+	 * sets up every subsystem, and fires the `my_jetpack_init` action. That action only
+	 * fires from here; the individual `init_*` methods never fire it. This path does not
+	 * consume the one-shot marks used by the individual `init_*` methods, so re-running
+	 * `init()` (guarded only by `did_action`) behaves exactly as it did before the
+	 * subsystem split.
 	 *
 	 * @return void
 	 */
@@ -284,10 +292,17 @@ class Initializer {
 	/**
 	 * Set up the Boost Speed Score subsystem.
 	 *
+	 * Speed Score registers instance-bound hooks, which WordPress keys by object, so a
+	 * second instance would double up its REST routes and cache clearing. Keep the one
+	 * instance, since `init()` and `init_speed_score()` track their runs separately and
+	 * a consumer can reach this from both.
+	 *
 	 * @return void
 	 */
 	private static function load_speed_score() {
-		new Speed_Score( array(), 'jetpack-my-jetpack' );
+		if ( null === self::$speed_score ) {
+			self::$speed_score = new Speed_Score( array(), 'jetpack-my-jetpack' );
+		}
 	}
 
 	/**
