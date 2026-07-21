@@ -13,7 +13,7 @@ import './view.scss';
  *
  * @return {void}
  */
-function previewOnHoverEffect(): void {
+export function previewOnHoverEffect(): void {
 	/*
 	 * Pick all VideoPress video block intances,
 	 * based on the class name.
@@ -74,7 +74,8 @@ function previewOnHoverEffect(): void {
 						playPauseAnimation: false,
 						controlBar: false,
 						shareButton: false,
-						posterImage: true,
+						showPoster: true,
+						title: false,
 					} );
 				}
 			} );
@@ -116,6 +117,8 @@ function previewOnHoverEffect(): void {
 					playPauseAnimation: true,
 					controlBar: true,
 					shareButton: true,
+					showPoster: false,
+					title: true,
 				} );
 
 				iframeApi.controls.seek( 0 );
@@ -123,12 +126,20 @@ function previewOnHoverEffect(): void {
 		}
 
 		overlay.addEventListener( 'mouseenter', () => {
-			iframeApi.customize?.set( { playPauseAnimation: false, posterImage: false } );
+			iframeApi.customize?.set( {
+				playPauseAnimation: false,
+				showPoster: false,
+				title: false,
+			} );
 			iframeApi.controls.play();
 		} );
 
 		overlay.addEventListener( 'mouseleave', () => {
-			iframeApi.customize?.set( { playPauseAnimation: false, posterImage: true } );
+			iframeApi.customize?.set( {
+				playPauseAnimation: false,
+				showPoster: true,
+				title: false,
+			} );
 			iframeApi.controls.pause();
 		} );
 	} );

@@ -33,7 +33,8 @@ declare global {
 					playPauseAnimation?: boolean;
 					controlBar?: boolean;
 					shareButton?: boolean;
-					posterImage?: boolean;
+					showPoster?: boolean;
+					title?: boolean;
 				} ) => void;
 			};
 		};
