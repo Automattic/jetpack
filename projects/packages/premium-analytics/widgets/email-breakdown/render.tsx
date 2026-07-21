@@ -86,12 +86,11 @@ function buildLeaderboardData(
 	const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
 
 	return rows.map( row => {
-		const imageUrl = row.countryCode ? flagUrl( row.countryCode ) : null;
 		const media: LeaderboardRowMedia =
 			view === 'countries'
 				? {
 						kind: 'flag',
-						url: imageUrl ?? undefined,
+						url: row.countryCode ? flagUrl( row.countryCode ) ?? undefined : undefined,
 						country: row.countryFull ?? row.label,
 				  }
 				: { kind: 'none' };

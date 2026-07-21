@@ -1,4 +1,4 @@
-Significance: patch
-Type: fixed
+Significance: minor
+Type: changed
 
-Standardize leaderboard row sizing, media, and link accessibility.
+Standardize leaderboard row spacing, text and media sizing, and link and drill-down behavior.

@@ -7,9 +7,14 @@ export type {
 
 export { LeaderboardLabel } from './leaderboard-label';
 export type { LeaderboardLabelProps, LeaderboardRowMedia } from './leaderboard-label';
-export { buildLeaderboardRow, LeaderboardRow } from './leaderboard-row';
+export {
+	buildLeaderboardRow,
+	LeaderboardRow,
+	resolveLeaderboardRowAction,
+} from './leaderboard-row';
 export type {
 	LeaderboardRowAction,
+	LeaderboardRowActionOptions,
 	LeaderboardRowChartProps,
 	LeaderboardRowProps,
 } from './leaderboard-row';

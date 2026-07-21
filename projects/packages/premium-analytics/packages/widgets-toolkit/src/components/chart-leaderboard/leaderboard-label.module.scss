@@ -35,6 +35,9 @@
 	--jpa-leaderboard-image-fit: cover;
 }
 
+/* The dashboard boot shell applies img { height: auto } at higher specificity.
+ * Keep width as the sizing constraint so flags remain consistent there as
+ * well as in Storybook, while preserving each flag's aspect ratio. */
 .flag {
 	--jpa-leaderboard-image-width: 28px;
 	--jpa-leaderboard-image-height: auto;

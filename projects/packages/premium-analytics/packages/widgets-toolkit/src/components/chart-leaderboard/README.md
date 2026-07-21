@@ -93,6 +93,45 @@ const row = {
 };
 ```
 
+For a drill-down row, pass the chart-level action to the builder. Its result includes the
+`onClick` and `ariaLabel` fields expected by `LeaderboardChart`:
+
+```tsx
+const row = {
+	id: 'group',
+	...buildLeaderboardRow( {
+		label: 'Example group',
+		media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+		action: {
+			kind: 'drillDown',
+			onClick: () => selectGroup( 'group' ),
+			ariaLabel: 'View items in Example group',
+		},
+	} ),
+	currentValue: 100,
+	currentShare: 100,
+};
+```
+
+An explicit drill-down `ariaLabel` replaces the accessible name otherwise computed from both
+the media alt text and visible label, which can cause a screen reader to announce the label
+twice.
+
+`LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
+fallback, and default alt-text policy:
+
+| Kind        | Size      | Missing or failed image behavior |
+| ----------- | --------- | -------------------------------- |
+| `avatar`    | 20 × 20px | Placeholder                      |
+| `favicon`   | 16 × 16px | Hidden; always decorative        |
+| `flag`      | 28px wide | Placeholder; proportional height |
+| `thumbnail` | 28 × 28px | Placeholder                      |
+| `none`      | No media  | Renders text only                |
+
+Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
+It applies the shared precedence: drill-down for rows with children, external links for
+childless rows, and static content otherwise.
+
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
 DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
 
@@ -118,6 +157,8 @@ DataViews table cell. It deliberately does not add the chart row's 36px minimum 
 type LeaderboardChartData = Array< {
 	id: string;
 	label: string | ReactElement;
+	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	ariaLabel?: string;
 	currentValue: number;
 	previousValue: number;
 	currentShare: number; // Percentage (0-100)

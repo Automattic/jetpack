@@ -14,9 +14,22 @@ export type LeaderboardRowAction =
 	| {
 			kind: 'drillDown';
 			onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+			/**
+			 * Replaces the button name computed from its image alt and visible label.
+			 * Without this, screen readers can announce the row label twice.
+			 */
 			ariaLabel: string;
 	  }
 	| { kind: 'static' };
+
+export type LeaderboardRowActionOptions = {
+	/** An external destination used only when the row has no children. */
+	href?: string;
+	/** Whether selecting the row should take the user to a child leaderboard. */
+	hasChildren: boolean;
+	/** Drill-down behavior supplied by widgets that support child rows. */
+	drillDown?: Omit< Extract< LeaderboardRowAction, { kind: 'drillDown' } >, 'kind' >;
+};
 
 export type LeaderboardRowProps = {
 	/** Label text. */
@@ -34,6 +47,30 @@ export type LeaderboardRowChartProps =
 			ariaLabel: string;
 	  }
 	| { label: ReactElement; onClick?: never; ariaLabel?: never };
+
+/**
+ * Resolve raw row navigation facts into one mutually exclusive action.
+ *
+ * Child rows take precedence over an external URL because chart rows cannot
+ * be buttons and contain interactive link content at the same time. A URL is
+ * therefore used only for a childless row; otherwise the row stays static.
+ *
+ * @param options - Row navigation facts and optional drill-down behavior.
+ * @return The single action that the leaderboard row should expose.
+ */
+export function resolveLeaderboardRowAction(
+	options: LeaderboardRowActionOptions
+): LeaderboardRowAction {
+	if ( options.hasChildren && options.drillDown ) {
+		return { kind: 'drillDown', ...options.drillDown };
+	}
+
+	if ( ! options.hasChildren && options.href ) {
+		return { kind: 'link', href: options.href };
+	}
+
+	return { kind: 'static' };
+}
 
 /**
  * Render the shared leaderboard row chrome around a label.

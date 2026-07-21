@@ -18,11 +18,11 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	calculateDelta,
+	resolveLeaderboardRowAction,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
-	type LeaderboardRowAction,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
@@ -153,28 +153,26 @@ function buildLeaderboardData(
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		let action: LeaderboardRowAction = { kind: 'static' };
-
-		if ( hasChildren && onDrillDown ) {
-			action = {
-				kind: 'drillDown',
-				onClick: () => onDrillDown( row ),
-				ariaLabel: sprintf(
-					/* translators: %s is the clicked link or domain label. */
-					__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
-					row.label
-				),
-			};
-		} else if ( row.href && ! hasChildren ) {
-			action = { kind: 'link', href: row.href };
-		}
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
 			...buildLeaderboardRow( {
 				label: row.label,
 				media: { kind: 'favicon', url: row.icon ?? undefined },
-				action,
+				action: resolveLeaderboardRowAction( {
+					href: row.href,
+					hasChildren,
+					drillDown: onDrillDown
+						? {
+								onClick: () => onDrillDown( row ),
+								ariaLabel: sprintf(
+									/* translators: %s is the clicked link or domain label. */
+									__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
+									row.label
+								),
+						  }
+						: undefined,
+				} ),
 			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxCurrentClicks ),
