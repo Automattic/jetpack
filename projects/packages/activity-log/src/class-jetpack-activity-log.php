@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Activity_Log\Initial_State as Activity_Log_Initial_State;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -22,9 +21,12 @@ use function add_filter;
 use function current_user_can;
 use function did_action;
 use function do_action;
+use function is_admin;
 use function is_multisite;
 use function sanitize_text_field;
 use function wp_add_inline_script;
+use function wp_enqueue_script;
+use function wp_register_script;
 use function wp_unslash;
 use function wp_verify_nonce;
 
@@ -44,11 +46,26 @@ class Jetpack_Activity_Log {
 	const PAGE_SLUG = 'jetpack-activity-log';
 
 	/**
-	 * Script handle for the admin bundle.
+	 * Page slug for the wp-build dashboard. Distinct from the wp-admin menu
+	 * slug (`PAGE_SLUG`) so the user-facing URL stays `admin.php?page=jetpack-activity-log`;
+	 * we alias the current screen id to this value so wp-build's
+	 * screen-match enqueue callback fires. Must match the `page` in
+	 * `routes/dashboard/package.json` and the `wpPlugin.pages` entry.
 	 *
 	 * @var string
 	 */
-	const SCRIPT_HANDLE = 'jetpack-activity-log';
+	const WP_BUILD_PAGE_SLUG = 'jetpack-activity-log-dashboard';
+
+	/**
+	 * Handle for the classic script that carries the React initial state.
+	 * The dashboard is a wp-build script module, so there is no classic
+	 * bundle handle to attach inline data to — this empty handle exists
+	 * purely to print `JPACTIVITYLOG_INITIAL_STATE` and the Connection
+	 * initial state before boot runs.
+	 *
+	 * @var string
+	 */
+	const DATA_SCRIPT_HANDLE = 'jetpack-activity-log-data';
 
 	/**
 	 * Nonce action for refreshing the access flag after a checkout
@@ -93,13 +110,28 @@ class Jetpack_Activity_Log {
 			return null;
 		}
 
+		// Load wp-build only on the Activity Log request so its generated
+		// render function exists before the menu callback runs, and its
+		// enqueue pipeline/polyfills stay off every other admin page.
+		if ( self::is_activity_log_admin_request() ) {
+			self::load_wp_build();
+		}
+
+		// The menu item must appear on every admin page, but the generated
+		// render function is only loaded on the Activity Log request (above).
+		// The callback is only ever invoked while rendering our page — where
+		// the function is loaded — so the fallback is purely defensive.
+		$render_callback = function_exists( 'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_page' )
+			? 'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_page'
+			: array( __CLASS__, 'render_fallback' );
+
 		$page_suffix = Admin_Menu::add_menu(
 			/** "Activity Log" is a product name, do not translate. */
 			'Activity Log',
 			'Activity Log',
 			'manage_options',
 			self::PAGE_SLUG,
-			array( __CLASS__, 'render_page' ),
+			$render_callback,
 			12
 		);
 
@@ -147,13 +179,32 @@ class Jetpack_Activity_Log {
 			}
 		}
 
-		// The admin bundle depends on `@wordpress/*` handles (e.g. `wp-theme`,
-		// pulled in via `@wordpress/ui`) that Core does not register on older
-		// WordPress versions. Without them, WP_Scripts silently drops the
-		// bundle and the page renders as an empty root node. Register the
-		// polyfills here so this only runs on the Activity Log screen — the
-		// register() call can force-replace Core handles, so it must stay
-		// page-scoped rather than firing on every admin request.
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_initial_state' ) );
+	}
+
+	/**
+	 * Require the generated wp-build entry and register the script/module
+	 * polyfills the boot bundle depends on.
+	 *
+	 * The boot bundle depends on `@wordpress/*` handles (e.g. `wp-theme`,
+	 * pulled in via `@wordpress/ui`) that Core does not register on older
+	 * WordPress versions. Without them WP_Scripts silently drops the bundle
+	 * and the page renders blank, so register the polyfills here. Scoped to
+	 * the Activity Log request by the sole caller, since the register() call
+	 * can force-replace Core handles and must not fire on every admin page.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
 		WP_Build_Polyfills::register(
 			'jetpack-activity-log',
 			array_merge(
@@ -161,36 +212,69 @@ class Jetpack_Activity_Log {
 				WP_Build_Polyfills::MODULE_IDS
 			)
 		);
-
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
-	 * Enqueue the admin bundle and seed initial state.
+	 * Alias the current screen id to the wp-build page slug.
+	 *
+	 * The wp-build-generated enqueue callback only fires when the screen id
+	 * equals the wp-build page slug. Our menu slug stays `jetpack-activity-log`,
+	 * so alias the screen id in place to make the check pass without changing
+	 * the user-facing URL. Hooked only from `load-{$page_suffix}`, so this
+	 * never affects any other screen.
+	 *
+	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @return void
 	 */
-	public static function enqueue_admin_scripts() {
-		Assets::register_script(
-			self::SCRIPT_HANDLE,
-			'../build/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-activity-log',
-			)
-		);
-		Assets::enqueue_script( self::SCRIPT_HANDLE );
-
-		wp_add_inline_script( self::SCRIPT_HANDLE, ( new Activity_Log_Initial_State() )->render(), 'before' );
-		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+	public static function alias_screen_id_for_wp_build( $screen ) {
+		if ( is_object( $screen ) ) {
+			$screen->id = self::WP_BUILD_PAGE_SLUG;
+		}
 	}
 
 	/**
-	 * Render the admin page root node. React mounts into this element.
+	 * Print the React initial state and the Connection initial state.
+	 *
+	 * Attached to a dedicated empty classic handle because the dashboard is a
+	 * wp-build script module — there is no classic bundle handle to hang the
+	 * inline data on. Boot defers its own execution to `DOMContentLoaded`, so
+	 * this inline data is always set on `window` first.
+	 *
+	 * @return void
 	 */
-	public static function render_page() {
-		?>
-			<div id="jetpack-activity-log-root"></div>
-		<?php
+	public static function enqueue_initial_state() {
+		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package_Version::PACKAGE_VERSION, true );
+		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
+
+		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, ( new Activity_Log_Initial_State() )->render(), 'before' );
+		Connection_Initial_State::render_script( self::DATA_SCRIPT_HANDLE );
+	}
+
+	/**
+	 * Fallback page body if the generated wp-build render function is
+	 * unavailable (e.g. assets not built). Keeps the menu from fataling and
+	 * still gives boot its mount container.
+	 *
+	 * @return void
+	 */
+	public static function render_fallback() {
+		echo '<div class="wrap"><div id="jetpack-activity-log-dashboard-wp-admin-app"></div></div>';
+	}
+
+	/**
+	 * Whether the current request targets the Activity Log admin page.
+	 *
+	 * The `$_GET['page']` value is populated by wp-admin/admin.php before any
+	 * of our hooks fire, so this check is reliable from `admin_menu` onwards.
+	 *
+	 * @return bool
+	 */
+	private static function is_activity_log_admin_request() {
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**
