@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
@@ -20,6 +21,8 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		StatusCache::clear();
+		unset( $_GET['step'] );
 	}
 
 	/**
@@ -36,6 +39,19 @@ class Initializer_Test extends BaseTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		$this->assertFalse( Initializer::is_onboarding_available() );
+	}
+
+	/**
+	 * Onboarding stays available on WordPress.com Atomic (WoA) sites: only
+	 * Simple sites are excluded, not the whole WordPress.com platform.
+	 */
+	public function test_onboarding_is_available_on_woa() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		StatusCache::clear();
+
+		$this->assertTrue( Initializer::is_onboarding_available() );
 	}
 
 	/**
@@ -76,5 +92,35 @@ class Initializer_Test extends BaseTestCase {
 	#[DataProvider( 'provide_onboarding_redirect_cases' )]
 	public function test_get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $expected ) {
 		$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) );
+	}
+
+	/**
+	 * The admin page marks the container with the onboarding route when
+	 * onboarding is requested and available.
+	 */
+	public function test_admin_page_renders_onboarding_route_when_available() {
+		$_GET['step'] = 'onboarding';
+
+		ob_start();
+		Initializer::admin_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-route="onboarding"', $output );
+	}
+
+	/**
+	 * The admin page never marks the container with the onboarding route on
+	 * WordPress.com Simple sites, even when the redirect did not run.
+	 */
+	public function test_admin_page_does_not_render_onboarding_route_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$_GET['step'] = 'onboarding';
+
+		ob_start();
+		Initializer::admin_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'id="my-jetpack-container"', $output );
+		$this->assertStringNotContainsString( 'data-route', $output );
 	}
 }

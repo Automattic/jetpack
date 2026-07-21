@@ -221,6 +221,8 @@ class Initializer {
 	 * connection through My Jetpack, so the onboarding flow (which asks the user to
 	 * connect) never applies there.
 	 *
+	 * @internal Not part of the package's public API.
+	 *
 	 * @return bool
 	 */
 	public static function is_onboarding_available() {
@@ -229,6 +231,8 @@ class Initializer {
 
 	/**
 	 * Decide whether the current My Jetpack request should redirect, and where to.
+	 *
+	 * @internal Not part of the package's public API.
 	 *
 	 * @param string $step                 The current `step` query param.
 	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
@@ -569,7 +573,9 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// No connection check needed here: admin_init() has already redirected connected users away from onboarding.
 		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
 
 		// Add data attribute for onboarding, otherwise render normal container
