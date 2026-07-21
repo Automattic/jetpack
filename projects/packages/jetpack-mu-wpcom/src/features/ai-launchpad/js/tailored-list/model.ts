@@ -41,6 +41,8 @@ export interface SiteData {
 	description?: string;
 	// The appearance-editor URL (Site Editor on block themes, Customizer on classic).
 	edit_url?: string | null;
+	// The site's content language (WP locale, e.g. "it_IT"); the AI output language.
+	language?: string;
 }
 
 /** The slice of the `GET /ai-launchpad/` response the tailored list renders from. */
@@ -295,8 +297,11 @@ export function tasksFromFixture( output: TailoredOutput ): EnrichedTask[] {
 }
 
 /**
- * Turn a snake_case catalog ID into a Title Case label, for dev-mode rendering
- * where the server-provided title is unavailable.
+ * Turn a snake_case catalog ID into a Title Case label, for the degraded render
+ * path where the server-provided title is unavailable. Intentionally untranslated:
+ * the label is computed from the ID at runtime, so `__()` cannot extract it, and
+ * duplicating the catalog's ~50 localized titles client-side would drift. The
+ * next successful read replaces these with the catalog's translated titles.
  *
  * @param id - The catalog task ID.
  * @return A humanized label.

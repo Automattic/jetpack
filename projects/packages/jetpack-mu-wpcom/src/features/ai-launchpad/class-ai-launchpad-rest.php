@@ -371,13 +371,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
-			// Site context the client needs for the launch-task CTA, the preview thumbnail/title, and wizard prefill.
+			// Site context the client needs for the launch-task CTA, the preview thumbnail/title,
+			// wizard prefill, and the AI output language.
 			'site'               => array(
 				'url'         => home_url(),
 				'title'       => get_bloginfo( 'name' ),
 				'description' => get_bloginfo( 'description' ),
 				// Block themes open the Site Editor; classic themes fall back to the Customizer.
 				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
+				// The site's content language; the AI writes its output in this language.
+				'language'    => get_locale(),
 			),
 		);
 	}

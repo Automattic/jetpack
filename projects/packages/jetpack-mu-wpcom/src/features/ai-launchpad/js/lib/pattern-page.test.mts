@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pickPattern, selectGalleryPage, type PtkPattern } from './pattern-page.ts';
+import { pickPattern, ptkLocaleSlugs, selectGalleryPage, type PtkPattern } from './pattern-page.ts';
 import type { TailoredInferred } from './types.ts';
 
 const inferred: TailoredInferred = {
@@ -162,5 +162,22 @@ describe( 'selectGalleryPage', () => {
 		// "art" must not match "Smart": the pick falls back rather than reporting a match.
 		assert.equal( result.log.picked_score, 0 );
 		assert.equal( result.log.fallback, 'first_usable' );
+	} );
+} );
+
+describe( 'ptkLocaleSlugs', () => {
+	it( 'tries most-specific first and always ends in en', () => {
+		assert.deepEqual( ptkLocaleSlugs( 'it_IT' ), [ 'it-it', 'it', 'en' ] );
+		assert.deepEqual( ptkLocaleSlugs( 'pt_BR' ), [ 'pt-br', 'pt', 'en' ] );
+	} );
+
+	it( 'deduplicates bare language codes and English', () => {
+		assert.deepEqual( ptkLocaleSlugs( 'it' ), [ 'it', 'en' ] );
+		assert.deepEqual( ptkLocaleSlugs( 'en_US' ), [ 'en-us', 'en' ] );
+		assert.deepEqual( ptkLocaleSlugs( 'en' ), [ 'en' ] );
+	} );
+
+	it( 'degrades to plain en for an empty locale', () => {
+		assert.deepEqual( ptkLocaleSlugs( '' ), [ 'en' ] );
 	} );
 } );

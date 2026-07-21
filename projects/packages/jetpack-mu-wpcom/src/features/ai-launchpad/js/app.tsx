@@ -71,6 +71,7 @@ export function App() {
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
 				siteUrl={ initialData?.site?.url }
+				locale={ initialData?.site?.language }
 				onComplete={ ( input, tailoring ) => {
 					setPendingTailor( () => tailoring );
 					setGoal( input.goal );

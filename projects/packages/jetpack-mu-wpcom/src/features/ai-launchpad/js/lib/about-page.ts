@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { _x } from '@wordpress/i18n';
 import { paragraphsToBlocks } from './paragraph-blocks.ts';
 import type { AboutPageDraft } from './types.ts';
 
@@ -19,8 +20,8 @@ export async function createAboutPage(
 	draft: AboutPageDraft | undefined,
 	fetcher: ( options: Parameters< typeof apiFetch >[ 0 ] ) => Promise< unknown > = apiFetch
 ): Promise< { page_id: number; edit_url: string } > {
-	// Untranslated placeholder title (like core's "Auto Draft"); the AI draft normally supplies it.
-	const title = draft?.title ?? 'About';
+	// Fallback title in the admin language; the AI draft normally supplies it in the site language.
+	const title = draft?.title ?? _x( 'About', 'page title', 'jetpack-mu-wpcom' );
 	const content = draft ? paragraphsToBlocks( draft.paragraphs ) : '';
 
 	const page = ( await fetcher( {
