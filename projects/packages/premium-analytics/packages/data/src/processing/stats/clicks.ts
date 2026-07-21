@@ -2,10 +2,9 @@ import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
 	getStatsReportItems,
-	limitStatsRows,
 	mapNestedItems,
 	mapStatsReportDataPoints,
-	mergeStatsComparisonRows,
+	mergeStatsTreeComparisonRows,
 	normalizeStatsReportSummary,
 } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
@@ -48,59 +47,42 @@ function sortStatsClicksComparisonItems(
 	return [ ...items ].sort( ( a, b ) => b.views - a.views );
 }
 
-function mergeStatsClicksComparisonItems(
-	items: StatsClicksItem[],
-	comparisonItems: StatsClicksItem[],
-	parent?: ClickParentContext
-): { rows: StatsClicksComparisonItem[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsComparisonRows<
-		StatsClicksItem,
-		StatsClicksItem,
-		StatsClicksComparisonItem
-	>( {
-		primaryRows: items,
-		comparisonRows: comparisonItems,
-		getPrimaryKey: item => getStatsClicksItemKey( item, parent?.label ),
-		getComparisonKey: item => getStatsClicksItemKey( item, parent?.label ),
-		getComparisonValue: item => item.views,
-		mapRow: ( item, { previousValue, comparisonItem } ) => {
-			const label = getStatsClicksItemLabel( item, parent?.label );
-			const { rows: children, hasComparison: childrenHaveComparison } =
-				mergeStatsClicksComparisonItems( item.children ?? [], comparisonItem?.children ?? [], {
-					label,
-					icon: item.icon ?? parent?.icon,
-				} );
-
-			return {
-				...item,
-				label,
-				icon: item.icon ?? parent?.icon ?? null,
-				previousValue,
-				children: children.length ? children : null,
-				childrenHaveComparison,
-			};
-		},
-	} );
-
-	return { rows: sortStatsClicksComparisonItems( rows ), hasComparison };
-}
-
 export function mergeStatsClicksComparisonRows(
 	primaryReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	maxRows?: number
 ): { rows: StatsClicksComparisonItem[]; hasComparison: boolean } {
-	const { rows } = mergeStatsClicksComparisonItems(
-		getStatsReportItems( primaryReport ),
-		getStatsReportItems( comparisonReport )
-	);
-
-	const visibleRows = limitStatsRows( rows, maxRows );
-
-	return {
-		rows: visibleRows,
-		hasComparison: visibleRows.some( row => row.previousValue !== undefined ),
-	};
+	return mergeStatsTreeComparisonRows<
+		StatsClicksItem,
+		StatsClicksItem,
+		StatsClicksComparisonItem,
+		ClickParentContext
+	>( {
+		primaryRows: getStatsReportItems( primaryReport ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		maxRows,
+		getPrimaryKey: ( item, parent ) => getStatsClicksItemKey( item, parent?.label ),
+		getComparisonKey: ( item, parent ) => getStatsClicksItemKey( item, parent?.label ),
+		getComparisonValue: item => item.views,
+		getPrimaryChildren: item => item.children,
+		getComparisonChildren: item => item.children,
+		mapRow: ( item, { previousValue }, parent ) => ( {
+			...item,
+			label: getStatsClicksItemLabel( item, parent?.label ),
+			icon: item.icon ?? parent?.icon ?? null,
+			previousValue,
+		} ),
+		setChildren: ( item, children, childrenHaveComparison ) => ( {
+			...item,
+			children: children.length ? children : null,
+			childrenHaveComparison,
+		} ),
+		getChildContext: item => ( {
+			label: typeof item.label === 'string' ? item.label : '',
+			icon: item.icon,
+		} ),
+		sortRows: sortStatsClicksComparisonItems,
+	} );
 }
 
 export function sanitizeStatsClicksResponse(

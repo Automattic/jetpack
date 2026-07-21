@@ -13,6 +13,10 @@ type UploadStatusResponse = {
 	// Returned for the `uploaded` (already-on-VideoPress) terminal status.
 	uploaded_post_id?: number | string;
 	uploaded_video_guid?: string;
+	// Chunk-progress fields present on `new` / `resume` / `uploading` /
+	// `complete` responses (`bytes_uploaded` is -1 on `error`).
+	bytes_uploaded?: number;
+	file_size?: number;
 };
 
 export type UploadFromLibraryResult = {
@@ -25,6 +29,8 @@ export type UploadFromLibraryOptions = {
 	delayMs?: number;
 	/** Maximum total attempts before giving up. */
 	maxAttempts?: number;
+	/** Called with the upload percentage (0–100) after each chunk response. */
+	onProgress?: ( percent: number ) => void;
 };
 
 const DEFAULT_DELAY_MS = 500;
@@ -77,6 +83,21 @@ export async function uploadFromLibrary(
 			continue;
 		}
 
+		// Each POST pushes one chunk server-side and reports the running
+		// offset; surface it so callers can render real upload progress.
+		// `bytes_uploaded` is -1 on `error` responses, hence the >= 0 guard.
+		if (
+			options.onProgress &&
+			typeof result.bytes_uploaded === 'number' &&
+			typeof result.file_size === 'number' &&
+			result.bytes_uploaded >= 0 &&
+			result.file_size > 0
+		) {
+			options.onProgress(
+				Math.min( 100, Math.round( ( result.bytes_uploaded / result.file_size ) * 100 ) )
+			);
+		}
+
 		if ( result.status === 'complete' && result.uploaded_details ) {
 			return {
 				guid: result.uploaded_details.guid,
@@ -107,6 +128,13 @@ export async function uploadFromLibrary(
 	throw new Error( 'Upload from library timed out.' );
 }
 
+export type UploadFromLibraryVariables = {
+	/** The numeric or string WordPress attachment ID. */
+	id: string | number;
+	/** Called with the upload percentage (0–100) after each chunk response. */
+	onProgress?: ( percent: number ) => void;
+};
+
 /**
  * Promote an existing local WordPress media attachment to a
  * VideoPress-hosted video by walking the chunked upload endpoint.
@@ -118,8 +146,8 @@ export async function uploadFromLibrary(
  */
 export function useUploadFromLibrary() {
 	const client = useQueryClient();
-	return useMutation< UploadFromLibraryResult, Error, string | number >( {
-		mutationFn: id => uploadFromLibrary( id ),
+	return useMutation< UploadFromLibraryResult, Error, UploadFromLibraryVariables >( {
+		mutationFn: ( { id, onProgress } ) => uploadFromLibrary( id, { onProgress } ),
 		onSuccess: () => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		},

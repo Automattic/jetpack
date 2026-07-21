@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add a comment that new polyfills should probably also adjust the renovate config.
+
+

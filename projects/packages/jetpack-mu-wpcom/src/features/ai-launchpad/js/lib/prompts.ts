@@ -110,7 +110,9 @@ First, read the description closely and infer the site's context. You will use t
 - "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. Same six values. Diagnostic only - it must NOT influence your task choices or anything else you produce.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
-- "theme_keyword": ONE lowercase word used to search for matching site designs. Pick the single most significant word for what the site is about, preferring the subject or site type over incidental modifiers: for "my weekend hiking trips" it is "hiking" (never "weekend"); for a handmade-ceramics shop it is "ceramics".
+- "theme_category": the theme-showcase category that best matches what the site is about, used to suggest matching site designs. MUST be exactly one of these slugs (format: slug = human name):
+  blog = Blog; portfolio = Portfolio; business = Business; store = Store; art-design = Art & Design; about = About; real-estate = Real Estate; health-wellness = Health & Wellness; authors-writers = Authors & Writers; newsletter = Newsletter; education = Education; magazine = Magazine; music = Music; restaurant = Restaurant; travel-lifestyle = Travel & Lifestyle; fashion-beauty = Fashion & Beauty; community-non-profit = Community & Non-Profit; podcast = Podcast; entertainment = Entertainment.
+  Prefer the specific subject over the generic goal bucket when one fits: a bakery blog is "restaurant" (not "blog"), a hiking diary is "travel-lifestyle", a novelist's site is "authors-writers". Fall back to the goal bucket ("blog", "business", "store", "portfolio", "newsletter") only when no subject category matches. Always include this field.
 - "vibe": aesthetic hint if implied (e.g. "minimal and editorial", "warm and personal"). Omit if neutral.
 - "audience": who the site is for, if implied (e.g. "home cooks", "small-business owners").
 - "tagline": a polished site tagline drafted from the description. Max 200 characters. Noun phrase or third person, not first-person.
@@ -157,7 +159,7 @@ ${ menu.map( id => '- ' + id ).join( '\n' ) }
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }

@@ -21,7 +21,7 @@ export type WizardStepName = 'goal' | 'site_details';
 export interface TracksContext {
 	goal: string | null;
 	niche: string | null;
-	theme_keyword: string | null;
+	theme_category: string | null;
 	vibe: string | null;
 	audience: string | null;
 	// JSON-stringified array of rendered task ids, in render order.
@@ -33,7 +33,7 @@ export interface TracksContext {
 const EMPTY_CONTEXT: TracksContext = {
 	goal: null,
 	niche: null,
-	theme_keyword: null,
+	theme_category: null,
 	vibe: null,
 	audience: null,
 	rendered_list: null,
@@ -76,7 +76,7 @@ export function contextFromInferred(
 	return {
 		goal: inferred?.goal ?? null,
 		niche: inferred?.niche ?? null,
-		theme_keyword: inferred?.theme_keyword ?? null,
+		theme_category: inferred?.theme_category ?? null,
 		vibe: inferred?.vibe ?? null,
 		audience: inferred?.audience ?? null,
 		inferred_goal: inferred?.inferred_goal ?? null,
