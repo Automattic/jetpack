@@ -237,12 +237,19 @@ class Jetpack_Activity_Log {
 	}
 
 	/**
-	 * Print the React initial state and the Connection initial state.
+	 * Print the React initial state and the Connection initial state, and load
+	 * the Tracks transport.
 	 *
-	 * Attached to a dedicated empty classic handle because the dashboard is a
-	 * wp-build script module — there is no classic bundle handle to hang the
-	 * inline data on. Boot defers its own execution to `DOMContentLoaded`, so
-	 * this inline data is always set on `window` first.
+	 * The initial state is attached to a dedicated empty classic handle because
+	 * the dashboard is a wp-build script module — there is no classic bundle
+	 * handle to hang the inline data on. Boot defers its own execution to
+	 * `DOMContentLoaded`, so this inline data is always set on `window` first.
+	 *
+	 * `jp-tracks` (stats.wp.com/w.js) is required for analytics: the dashboard's
+	 * `@automattic/jetpack-analytics` events only queue into `window._tkq`
+	 * (the package's own w.js loader is disabled), so without this handle no
+	 * `jetpack_activity_log_*` event ever flushes. Mirrors Newsletter's
+	 * `Settings::load_admin_scripts()`.
 	 *
 	 * @return void
 	 */
@@ -252,6 +259,8 @@ class Jetpack_Activity_Log {
 
 		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, ( new Activity_Log_Initial_State() )->render(), 'before' );
 		Connection_Initial_State::render_script( self::DATA_SCRIPT_HANDLE );
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
