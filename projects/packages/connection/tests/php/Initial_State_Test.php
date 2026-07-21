@@ -24,19 +24,16 @@ class Initial_State_Test extends TestCase {
 	}
 
 	/**
-	 * Invokes the private static Initial_State::get_data() method.
+	 * Extracts the initial state data from the public render() output.
 	 *
 	 * @return array The initial state data.
 	 */
 	private static function get_data() {
-		$method = new \ReflectionMethod( Initial_State::class, 'get_data' );
-		try {
-			return $method->invoke( null );
-		} catch ( \ReflectionException $e ) { // PHP <8.1: private methods need setAccessible.
-			// @phan-suppress-next-line PhanDeprecatedFunctionInternal -- Only reached on PHP <8.1, where it is not deprecated.
-			$method->setAccessible( true );
-			return $method->invoke( null );
-		}
+		$rendered = Initial_State::render();
+
+		self::assertSame( 1, preg_match( '/JP_CONNECTION_INITIAL_STATE = (\{.*\})\);window\.jpTracksContext/', $rendered, $matches ), 'The initial state JSON must be extractable from the render() output.' );
+
+		return json_decode( $matches[1], true );
 	}
 
 	/**
