@@ -190,9 +190,9 @@ export default function App() {
 			apiNonce={ apiNonce }
 		>
 			{ ! isSubView && (
-				<div className="jp-admin-page-tabs">
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 					<Tabs.Root value={ view } onValueChange={ navigateToView }>
-						<Tabs.List aria-label={ __( 'AI sections', 'jetpack' ) }>
+						<Tabs.List variant="minimal" aria-label={ __( 'AI sections', 'jetpack' ) }>
 							{ TAB_VIEWS.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
