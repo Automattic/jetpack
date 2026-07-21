@@ -94,8 +94,15 @@ class Dashboard {
 		?>
 		<?php if ( ( new Status() )->is_offline_mode() ) : ?>
 			<style>
-				.jp-stats-local-dev-badge-row { display: flex; justify-content: flex-end; padding: 8px 20px 0 2px; }
+				/* Positioned absolutely (not a row in normal flow) so it overlays the
+				 * Odyssey app's own header instead of pushing its whole layout --
+				 * including its internal Traffic/Insights tab menu -- down a row. */
+				.jp-stats-local-dev-badge-wrap { position: relative; }
 				.jp-stats-local-dev-badge {
+					position: absolute;
+					top: 8px;
+					right: 20px;
+					z-index: 10;
 					display: inline-flex;
 					align-items: center;
 					height: 20px;
@@ -110,10 +117,17 @@ class Dashboard {
 					text-transform: uppercase;
 					white-space: nowrap;
 				}
+				.jp-stats-local-dev-badge:link,
+				.jp-stats-local-dev-badge:visited,
 				.jp-stats-local-dev-badge:hover,
-				.jp-stats-local-dev-badge:focus { background: #057f07; color: #fff; }
+				.jp-stats-local-dev-badge:focus,
+				.jp-stats-local-dev-badge:active { color: #fff; }
+				.jp-stats-local-dev-badge:hover,
+				.jp-stats-local-dev-badge:focus { background: #057f07; }
 			</style>
-			<div class="jp-stats-local-dev-badge-row">
+		<?php endif; ?>
+		<div class="jp-stats-local-dev-badge-wrap">
+			<?php if ( ( new Status() )->is_offline_mode() ) : ?>
 				<a
 					class="jp-stats-local-dev-badge"
 					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/dashboard' ) ); ?>"
@@ -121,8 +135,7 @@ class Dashboard {
 				>
 					<?php esc_html_e( 'Sample data', 'jetpack-stats-admin' ); ?>
 				</a>
-			</div>
-		<?php endif; ?>
+			<?php endif; ?>
 		<div id="wpcom" class="jp-stats-dashboard" style="min-height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
 			<div class="hide-if-no-js" style="height: 100%">
@@ -136,7 +149,8 @@ class Dashboard {
 				/>
 			</div>
 		</div>
-		<script>
+	</div>
+	<script>
 			jQuery(document).ready(function($) {
 				// Load SVG sprite.
 				$.get("https://widgets.wp.com/odyssey-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {

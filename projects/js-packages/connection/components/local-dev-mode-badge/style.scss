@@ -14,9 +14,19 @@
 	text-transform: uppercase;
 	white-space: nowrap;
 
+	// `a:visited` combines an element and a pseudo-class, which outranks a
+	// plain single-class selector, so a visited badge fell back to the
+	// browser's default (blue-ish) visited-link color without these.
+	&:link,
+	&:visited,
+	&:hover,
+	&:focus,
+	&:active {
+		color: #fff;
+	}
+
 	&:hover,
 	&:focus {
 		background: var(--jp-green-60, #057f07);
-		color: #fff;
 	}
 }

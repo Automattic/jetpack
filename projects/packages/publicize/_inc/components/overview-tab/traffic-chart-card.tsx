@@ -217,13 +217,20 @@ export default function TrafficChartCard(): JSX.Element {
 						</div>
 						{ isLocked && (
 							<div className="jetpack-social-overview__chart-overlay">
-								<Notice.Root intent="info" className="jetpack-social-overview__upgrade-notice">
+								<Notice.Root
+									intent="info"
+									className={
+										isOfflineMode
+											? 'jetpack-social-overview__upgrade-notice jetpack-social-overview__upgrade-notice--offline'
+											: 'jetpack-social-overview__upgrade-notice'
+									}
+								>
 									{ isOfflineMode ? (
 										<>
-											<Notice.Title>
+											<Notice.Title className="jetpack-social-overview__upgrade-notice-text">
 												{ __( 'Sample traffic data', 'jetpack-publicize-pkg' ) }
 											</Notice.Title>
-											<Notice.Description>
+											<Notice.Description className="jetpack-social-overview__upgrade-notice-text">
 												{ __(
 													"This site is in local development mode, so the chart above uses sample data. This traffic data comes from WordPress.com, but we can't reach this site right now.",
 													'jetpack-publicize-pkg'

@@ -59,7 +59,12 @@
 		}
 	}
 
-	&__studio--slim {
+	// `&.dops-card` (not just `&`) so this beats the base `.dops-card` rule's
+	// `align-items: flex-start` above -- both are single-class selectors under
+	// `.jp-offline-mode`, so without the extra `.dops-card` qualifier here,
+	// source order alone decided the winner and the icon sat too high next to
+	// wrapped paragraph text.
+	&__studio--slim.dops-card {
 		align-items: center;
 		padding-top: 12px;
 		padding-bottom: 12px;

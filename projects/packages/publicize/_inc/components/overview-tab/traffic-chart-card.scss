@@ -87,6 +87,21 @@
 	pointer-events: auto;
 }
 
+// Local development mode's variant: a solid dark surface with white text,
+// matching the "Sample data" badges used everywhere else on the page,
+// rather than the default light "info" Notice styling -- there's nothing to
+// upgrade to here, so it shouldn't look like the paid upsell Notice below.
+.jetpack-social-overview__upgrade-notice--offline {
+	background: var(--jp-gray-90, #101517);
+	// Covers the intent icon, which inherits via `currentColor`; the title and
+	// description spans set their own explicit color and need the override below.
+	color: #fff;
+
+	.jetpack-social-overview__upgrade-notice-text {
+		color: #fff;
+	}
+}
+
 // Clamp the error Notice so it doesn't stretch to the full card width on
 // wide viewports, matching the upgrade-notice treatment.
 .jetpack-social-overview__chart-error-notice {
