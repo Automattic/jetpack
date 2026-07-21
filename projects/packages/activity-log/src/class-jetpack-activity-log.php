@@ -112,9 +112,14 @@ class Jetpack_Activity_Log {
 
 		// Load wp-build only on the Activity Log request so its generated
 		// render function exists before the menu callback runs, and its
-		// enqueue pipeline/polyfills stay off every other admin page.
+		// enqueue pipeline/polyfills stay off every other admin page. Alias
+		// the screen id here too — `current_screen` fires before the
+		// `load-{$page_suffix}` hook that runs admin_init(), so registering
+		// the alias from admin_init() would be too late for wp-build's
+		// screen-matched enqueue callback.
 		if ( self::is_activity_log_admin_request() ) {
 			self::load_wp_build();
+			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		}
 
 		// The menu item must appear on every admin page, but the generated
@@ -179,7 +184,6 @@ class Jetpack_Activity_Log {
 			}
 		}
 
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_initial_state' ) );
 	}
 
