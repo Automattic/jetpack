@@ -576,6 +576,8 @@ class Initializer {
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// No connection check needed here: admin_init() has already redirected connected users away from onboarding.
+		// Availability IS re-checked on purpose: this render can run even when that redirect did not,
+		// and the check below is what keeps the onboarding route off WordPress.com Simple sites.
 		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
 
 		// Add data attribute for onboarding, otherwise render normal container

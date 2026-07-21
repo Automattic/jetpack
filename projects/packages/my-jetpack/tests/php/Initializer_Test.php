@@ -17,6 +17,18 @@ use WorDBless\BaseTestCase;
  */
 class Initializer_Test extends BaseTestCase {
 	/**
+	 * Set up before each test.
+	 *
+	 * Mirrors tear_down() so every test starts from a clean slate even if an
+	 * earlier test in the run leaked state.
+	 */
+	public function set_up() {
+		Constants::clear_constants();
+		StatusCache::clear();
+		unset( $_GET['step'] );
+	}
+
+	/**
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
@@ -44,6 +56,12 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * Onboarding stays available on WordPress.com Atomic (WoA) sites: only
 	 * Simple sites are excluded, not the whole WordPress.com platform.
+	 *
+	 * The constants below make Host::is_woa_site() true, which no other test
+	 * sets up, so this is the only test that would catch a broadening of the
+	 * exclusion from is_wpcom_simple() to is_wpcom_platform(). Don't delete it
+	 * as a duplicate of the by-default test: that one sets no constants and
+	 * can't tell the two classifiers apart.
 	 */
 	public function test_onboarding_is_available_on_woa() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
@@ -122,5 +140,61 @@ class Initializer_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'id="my-jetpack-container"', $output );
 		$this->assertStringNotContainsString( 'data-route', $output );
+	}
+
+	/**
+	 * A disconnected site with no step is funneled into onboarding by admin_init().
+	 *
+	 * Calls admin_init() itself (not the extracted helper) so the call-site
+	 * wiring is covered: the argument order passed to
+	 * get_onboarding_redirect_args() and the redirect performed on its result.
+	 */
+	public function test_admin_init_redirects_disconnected_site_to_onboarding() {
+		$location = $this->capture_admin_init_redirect();
+
+		$this->assertNotNull( $location, 'Expected admin_init() to redirect.' );
+		$this->assertStringContainsString( 'page=my-jetpack', $location );
+		$this->assertStringContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * An onboarding request on a WordPress.com Simple site is redirected home
+	 * by admin_init() instead of letting the onboarding screen load.
+	 */
+	public function test_admin_init_redirects_onboarding_request_home_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$_GET['step'] = 'onboarding';
+
+		$location = $this->capture_admin_init_redirect();
+
+		$this->assertNotNull( $location, 'Expected admin_init() to redirect away from onboarding.' );
+		$this->assertStringContainsString( 'page=my-jetpack', $location );
+		$this->assertStringNotContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * Run Initializer::admin_init() and capture the redirect it attempts.
+	 *
+	 * The wp_redirect filter throws so the exit() that follows the redirect
+	 * call never runs; the location is captured before the throw.
+	 *
+	 * @return string|null The redirect location, or null when no redirect happened.
+	 */
+	private function capture_admin_init_redirect() {
+		$location = null;
+		$capture  = function ( $redirect_location ) use ( &$location ) {
+			$location = $redirect_location;
+			throw new \Exception( 'Intercepted redirect to skip exit().' );
+		};
+
+		add_filter( 'wp_redirect', $capture );
+		try {
+			Initializer::admin_init();
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Expected: thrown by the capture filter above.
+		} finally {
+			remove_filter( 'wp_redirect', $capture );
+		}
+
+		return $location;
 	}
 }
