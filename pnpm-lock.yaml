@@ -1743,7 +1743,7 @@ importers:
         version: 2.3.0(webpack@5.107.2)
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: 0.6.2
-        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)
       '@wordpress/browserslist-config':
         specifier: 6.51.0
         version: 6.51.0
@@ -1795,10 +1795,10 @@ importers:
         version: 5.107.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
       webpack-dev-server:
-        specifier: 5.2.5
-        version: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+        specifier: 5.2.6
+        version: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   projects/packages/account-protection: {}
 
@@ -3396,10 +3396,10 @@ importers:
         version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
       webpack-dev-server:
-        specifier: 5.2.5
-        version: 5.2.5(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2)
+        specifier: 5.2.6
+        version: 5.2.6(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2)
 
   projects/packages/newsletter:
     dependencies:
@@ -4347,10 +4347,10 @@ importers:
         version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
       webpack-dev-server:
-        specifier: 5.2.5
-        version: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+        specifier: 5.2.6
+        version: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   projects/packages/rtc:
     dependencies:
@@ -18296,8 +18296,8 @@ packages:
       webpack:
         optional: true
 
-  webpack-dev-server@5.2.5:
-    resolution: {integrity: sha512-4wZtCquSuv9CKX8oybo+mqxtxZqWz47uM1Ch94lxowBztOhWCbhqvRbfC/mODOwxgV2brY+JGZpHq58/SuVFYg==}
+  webpack-dev-server@5.2.6:
+    resolution: {integrity: sha512-HNLRmamRvVavZQ+avceZifmv8hmdUjg43t6MI4SqJDwFdW7RPQwH5vzGhDRZSX59SgfbeHhLnq3g+uooWo7pVw==}
     engines: {node: '>= 18.12.0'}
     hasBin: true
     peerDependencies:
@@ -21499,7 +21499,7 @@ snapshots:
     dependencies:
       playwright: 1.60.0
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.5)(webpack@5.107.2)':
+  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)':
     dependencies:
       anser: 2.3.5
       core-js-pure: 3.49.0
@@ -21510,7 +21510,7 @@ snapshots:
       source-map: 0.7.4
       webpack: 5.107.2(webpack-cli@6.0.1)
     optionalDependencies:
-      webpack-dev-server: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+      webpack-dev-server: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -23454,12 +23454,12 @@ snapshots:
       webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.5)(webpack@5.107.2)':
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.6)(webpack@5.107.2)':
     dependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
     optionalDependencies:
-      webpack-dev-server: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+      webpack-dev-server: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
@@ -37914,12 +37914,12 @@ snapshots:
 
   webidl-conversions@8.0.1: {}
 
-  webpack-cli@6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2):
+  webpack-cli@6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
       '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)
       '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.6)(webpack@5.107.2)
       colorette: 2.0.20
       commander: 12.1.0
       cross-spawn: 7.0.6
@@ -37931,7 +37931,7 @@ snapshots:
       webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
     optionalDependencies:
-      webpack-dev-server: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+      webpack-dev-server: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   webpack-cli@6.0.1(webpack@5.107.2):
     dependencies:
@@ -37961,7 +37961,7 @@ snapshots:
     optionalDependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
 
-  webpack-dev-server@5.2.5(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2):
+  webpack-dev-server@5.2.6(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -37993,14 +37993,14 @@ snapshots:
       ws: 8.21.0
     optionalDependencies:
       webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
       - supports-color
       - utf-8-validate
 
-  webpack-dev-server@5.2.5(webpack-cli@6.0.1)(webpack@5.107.2):
+  webpack-dev-server@5.2.6(webpack-cli@6.0.1)(webpack@5.107.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -38032,7 +38032,7 @@ snapshots:
       ws: 8.21.0
     optionalDependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
