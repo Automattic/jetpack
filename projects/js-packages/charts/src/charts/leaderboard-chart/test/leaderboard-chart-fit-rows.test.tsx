@@ -20,9 +20,13 @@ const makeData = ( count: number ): LeaderboardEntry[] =>
  * component measures has to be supplied here.
  *
  * @param contentHeight - Visible height of the chart's content container.
+ * @param getRowBottom  - Returns the bottom edge for a row index.
  * @return Cleanup function restoring the original getBoundingClientRect.
  */
-const mockLayout = ( contentHeight: number ) => {
+const mockLayout = (
+	contentHeight: number,
+	getRowBottom: ( rowIndex: number ) => number = rowIndex => ( rowIndex + 1 ) * ROW_HEIGHT
+) => {
 	const original = Element.prototype.getBoundingClientRect;
 
 	Element.prototype.getBoundingClientRect = function () {
@@ -32,8 +36,8 @@ const mockLayout = ( contentHeight: number ) => {
 
 		const rowIndex = this.getAttribute?.( 'data-row-index' );
 		if ( rowIndex !== null && rowIndex !== undefined ) {
-			const top = Number( rowIndex ) * ROW_HEIGHT;
-			return { top, bottom: top + ROW_HEIGHT, height: ROW_HEIGHT } as DOMRect;
+			const bottom = getRowBottom( Number( rowIndex ) );
+			return { top: bottom - ROW_HEIGHT, bottom, height: ROW_HEIGHT } as DOMRect;
 		}
 
 		return original.call( this );
@@ -122,6 +126,41 @@ describe( 'LeaderboardChart fitRows', () => {
 
 		expect( screen.getByText( 'Row 0' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Row 2' ) ).toBeInTheDocument();
+	} );
+
+	it( 'remeasures when row geometry changes without changing the row count or grid size', () => {
+		let rowBottoms = [ 40, 80, 120 ];
+		restoreLayout = mockLayout( 100, rowIndex => rowBottoms[ rowIndex ] );
+
+		const { rerender } = render( <LeaderboardChart data={ makeData( 3 ) } fitRows /> );
+
+		expect( screen.getByText( 'Row 1' ) ).toBeVisible();
+
+		// Simulate a same-length data update where the second row grows while a
+		// later row shrinks, leaving the grid's overall height unchanged.
+		rowBottoms = [ 40, 110, 120 ];
+		rerender( <LeaderboardChart data={ makeData( 3 ) } fitRows /> );
+
+		expect( screen.getByText( 'Row 0' ) ).toBeVisible();
+		expect( screen.getByText( 'Row 1' ) ).not.toBeVisible();
+	} );
+
+	it( 'resets an existing scroll offset when fitting is enabled', () => {
+		restoreLayout = mockLayout( 100, rowIndex => {
+			const content = screen.getByTestId( 'leaderboard-chart-content' );
+			return ( rowIndex + 1 ) * ROW_HEIGHT - content.scrollTop;
+		} );
+
+		const data = makeData( 5 );
+		const { rerender } = render( <LeaderboardChart data={ data } /> );
+		const content = screen.getByTestId( 'leaderboard-chart-content' );
+		content.scrollTop = 80;
+
+		rerender( <LeaderboardChart data={ data } fitRows /> );
+
+		expect( content.scrollTop ).toBe( 0 );
+		expect( screen.getByText( 'Row 1' ) ).toBeVisible();
+		expect( screen.getByText( 'Row 2' ) ).not.toBeVisible();
 	} );
 
 	it( 'remeasures rows when an interactive legend restores a hidden series', async () => {

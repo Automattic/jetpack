@@ -20,9 +20,10 @@ const SUBPIXEL_TOLERANCE = 0.5;
  *
  * @param enabled  - Whether to measure at all. When false every row fits.
  * @param rowCount - Total number of rows rendered.
+ * @param data     - Rendered row data, whose geometry may change without changing the count.
  * @return Ref for the content container and the number of leading rows that fit.
  */
-export function useFittedRowCount( enabled: boolean, rowCount: number ) {
+export function useFittedRowCount( enabled: boolean, rowCount: number, data: unknown ) {
 	const contentRef = useRef< HTMLDivElement | null >( null );
 	const [ fittedCount, setFittedCount ] = useState( rowCount );
 
@@ -31,6 +32,11 @@ export function useFittedRowCount( enabled: boolean, rowCount: number ) {
 		if ( ! content ) {
 			return;
 		}
+
+		// Switching from the default scrollable mode can leave the content at a
+		// non-zero scroll offset. Fitting always starts with the leading rows, and
+		// the viewport-relative measurements below must reflect that position.
+		content.scrollTop = 0;
 
 		// content > grid > rows. Selecting the grid's direct children matters:
 		// an interactive row's cells are nested inside its button and carry the
@@ -58,6 +64,9 @@ export function useFittedRowCount( enabled: boolean, rowCount: number ) {
 		setFittedCount( current => ( current === fits ? current : fits ) );
 	}, [] );
 
+	// Measure after row data changes so geometry updates are caught even when the
+	// row count and the grid's overall size stay the same (for example, one label
+	// wraps while another unwraps after a same-length data update).
 	useLayoutEffect( () => {
 		if ( ! enabled ) {
 			setFittedCount( rowCount );
@@ -65,6 +74,12 @@ export function useFittedRowCount( enabled: boolean, rowCount: number ) {
 		}
 
 		measure();
+	}, [ enabled, rowCount, data, measure ] );
+
+	useLayoutEffect( () => {
+		if ( ! enabled ) {
+			return;
+		}
 
 		const content = contentRef.current;
 		if ( ! content ) {
@@ -75,8 +90,9 @@ export function useFittedRowCount( enabled: boolean, rowCount: number ) {
 		// The container catches tile resizing; the grid catches font, image,
 		// theme, or label changes that alter row geometry on an unchanged tile.
 		observer.observe( content );
-		if ( content.firstElementChild ) {
-			observer.observe( content.firstElementChild );
+		const grid = content.querySelector< HTMLElement >( ':scope > [data-leaderboard-grid]' );
+		if ( grid ) {
+			observer.observe( grid );
 		}
 
 		return () => observer.disconnect();

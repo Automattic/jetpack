@@ -276,7 +276,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// again, re-runs the effect against the newly mounted grid.
 	const { contentRef, fittedCount } = useFittedRowCount(
 		fitRows && ! allSeriesHidden,
-		data?.length ?? 0
+		data?.length ?? 0,
+		data
 	);
 
 	// Handle empty or undefined data
@@ -350,6 +351,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			>
 				<div
 					ref={ contentRef }
+					data-testid="leaderboard-chart-content"
 					className={ clsx( styles.leaderboardChart__content, {
 						[ styles[ 'leaderboardChart__content--fit' ] ]: fitRows,
 					} ) }
@@ -368,7 +370,12 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
 						</div>
 					) : (
-						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
+						<Grid
+							templateColumns="minmax(0, 1fr) auto"
+							rowGap={ rowGap }
+							columnGap={ columnGap }
+							data-leaderboard-grid
+						>
 							{ data.map( ( entry, rowIndex ) => {
 								// Hidden rows keep their geometry so the next measurement sees the
 								// same layout and growing the container can reveal them again.
