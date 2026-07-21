@@ -198,8 +198,7 @@ describe( 'LeaderboardChart fitRows', () => {
 	} );
 
 	it( 'counts rows the same way whether or not they are interactive', () => {
-		// An interactive row is one button in the grid; a non-interactive row is
-		// two bare grid cells. Both shapes must resolve to a single row each.
+		// Both row types use one grid-child wrapper; only its element type differs.
 		layout = mockLayout( 100 );
 
 		const data = makeData( 5 ).map( ( entry, index ) =>
@@ -304,6 +303,7 @@ describe( 'LeaderboardChart fitRows', () => {
 
 		expect( screen.getByText( 'Row 4' ) ).toBeVisible();
 		expect( screen.queryByText( 'Not enough space to display data' ) ).not.toBeInTheDocument();
+		expect( content ).not.toHaveClass( 'leaderboardChart__content--fit' );
 	} );
 
 	it( 'remeasures rows when an interactive legend restores a hidden series', async () => {

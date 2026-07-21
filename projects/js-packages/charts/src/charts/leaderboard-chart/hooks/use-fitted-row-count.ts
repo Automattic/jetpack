@@ -16,10 +16,8 @@ export const SUBPIXEL_TOLERANCE = 0.5;
  * depends on the theme's row gap, label wrapping, and whatever a caller renders
  * as a label, so any restated number would drift.
  *
- * A row's cells are marked with `data-row-index`. An interactive row is a single
- * button carrying the index, a non-interactive row is two bare grid cells
- * sharing it, so cells are grouped by index and the group's lowest edge is taken
- * as the row's bottom.
+ * Every row is a direct grid child marked with `data-row-index`; interactive rows
+ * use a button wrapper and non-interactive rows use a div wrapper.
  *
  * @param enabled  - Whether to measure at all. When false every row fits.
  * @param rowCount - Total number of rows rendered.
@@ -29,6 +27,7 @@ export const SUBPIXEL_TOLERANCE = 0.5;
 export function useFittedRowCount( enabled: boolean, rowCount: number, data: unknown ) {
 	const contentRef = useRef< HTMLDivElement | null >( null );
 	const [ fittedCount, setFittedCount ] = useState( rowCount );
+	const [ isMeasurable, setIsMeasurable ] = useState( true );
 
 	const measure = useCallback( () => {
 		const content = contentRef.current;
@@ -40,19 +39,19 @@ export function useFittedRowCount( enabled: boolean, rowCount: number, data: unk
 		// non-zero scroll offset, which would shift every measurement below.
 		content.scrollTop = 0;
 
-		// Grid's direct children only: an interactive row's cells are nested
-		// inside its button and repeat the same index.
-		const cells = content.querySelectorAll< HTMLElement >( ':scope > * > [data-row-index]' );
+		const rows = content.querySelectorAll< HTMLElement >(
+			':scope > [data-leaderboard-grid] > [data-row-index]'
+		);
 
 		const rowBottoms: number[] = [];
-		cells.forEach( cell => {
-			const index = Number( cell.getAttribute( 'data-row-index' ) );
+		rows.forEach( row => {
+			const index = Number( row.getAttribute( 'data-row-index' ) );
 			// An unparseable index would write a non-numeric key, leaving a hole
 			// that silently truncates the scan below at the preceding row.
 			if ( ! Number.isInteger( index ) || index < 0 || index >= rowCount ) {
 				return;
 			}
-			const { bottom } = cell.getBoundingClientRect();
+			const { bottom } = row.getBoundingClientRect();
 			rowBottoms[ index ] = Math.max( rowBottoms[ index ] ?? -Infinity, bottom );
 		} );
 
@@ -60,9 +59,11 @@ export function useFittedRowCount( enabled: boolean, rowCount: number, data: unk
 		// a detached container — falling back to the scrollable default keeps the
 		// data reachable, where hiding every row reads as a broken tile.
 		if ( rowBottoms.length === 0 ) {
+			setIsMeasurable( false );
 			setFittedCount( rowCount );
 			return;
 		}
+		setIsMeasurable( true );
 
 		const contentBottom = content.getBoundingClientRect().bottom + SUBPIXEL_TOLERANCE;
 
@@ -110,5 +111,5 @@ export function useFittedRowCount( enabled: boolean, rowCount: number, data: unk
 		return () => observer.disconnect();
 	}, [ enabled, rowCount, measure ] );
 
-	return { contentRef, fittedCount: enabled ? fittedCount : rowCount };
+	return { contentRef, fittedCount: enabled ? fittedCount : rowCount, isMeasurable };
 }

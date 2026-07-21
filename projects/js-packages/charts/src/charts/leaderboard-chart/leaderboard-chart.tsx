@@ -274,11 +274,12 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// There are no rows to measure while an interactive legend has hidden every
 	// series. Pausing fitting restores the full row count and, when a series is shown
 	// again, re-runs the effect against the newly mounted grid.
-	const { contentRef, fittedCount } = useFittedRowCount(
+	const { contentRef, fittedCount, isMeasurable } = useFittedRowCount(
 		fitRows && ! allSeriesHidden,
 		data?.length ?? 0,
 		data
 	);
+	const shouldFitRows = fitRows && isMeasurable;
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -353,10 +354,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					ref={ contentRef }
 					data-testid="leaderboard-chart-content"
 					className={ clsx( styles.leaderboardChart__content, {
-						[ styles[ 'leaderboardChart__content--fit' ] ]: fitRows,
+						[ styles[ 'leaderboardChart__content--fit' ] ]: shouldFitRows,
 					} ) }
 				>
-					{ fitRows && fittedCount === 0 && ! allSeriesHidden && (
+					{ shouldFitRows && fittedCount === 0 && ! allSeriesHidden && (
 						// Overlaid, not swapped in: the rows must stay laid out to stay measurable.
 						<div className={ clsx( styles.emptyState, styles.fitEmptyState ) }>
 							{ __( 'Not enough space to display data', 'jetpack-charts' ) }
@@ -378,7 +379,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 								// taller container can reveal them) but leave hit testing, focus,
 								// and the accessibility tree.
 								const rowStyle =
-									fitRows && rowIndex >= fittedCount
+									shouldFitRows && rowIndex >= fittedCount
 										? ( { visibility: 'hidden' } as const )
 										: undefined;
 								const showComparisonColumn = withComparison && isComparisonVisible;
