@@ -51,20 +51,10 @@ export interface LeaderboardChartProps
 	loading?: boolean;
 
 	/**
-	 * Show only the rows that fit the chart's height instead of scrolling.
+	 * Show only complete rows that fit the chart height instead of scrolling.
 	 *
-	 * Off by default, so a standalone chart keeps its scrollable row list. Turn
-	 * it on inside a fixed-height container — such as a dashboard tile — where an
-	 * inner scrollbar is unexpected. Rows that do not fit stay measurable and
-	 * reappear as soon as the container grows, but are hidden from painting, hit
-	 * testing, focus order, and the accessibility tree.
-	 *
-	 * Use this with `LeaderboardChartUnresponsive` inside a container that has a
-	 * definite height, which is how the Premium Analytics widgets consume it.
-	 * Combined with the responsive default export, the row count was observed not
-	 * to recover when the container grew back: the responsive wrapper supplies a
-	 * measured pixel height instead of letting the chart fill its parent, and a
-	 * `width`/`height` prop also turns off the chart's own fill styling.
+	 * Use with `LeaderboardChartUnresponsive` inside a fixed-height container.
+	 * @default false
 	 */
 	fitRows?: boolean;
 

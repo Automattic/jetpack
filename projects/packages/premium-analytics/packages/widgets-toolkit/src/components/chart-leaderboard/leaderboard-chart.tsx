@@ -94,13 +94,10 @@ export type LeaderboardChartProps = {
 	};
 
 	/**
-	 * Show only the rows that fit the widget's height instead of scrolling.
+	 * Show only complete rows that fit the widget height instead of scrolling.
 	 *
-	 * On by default: these charts sit in fixed-height dashboard tiles, where a
-	 * scrollbar inside the tile is unexpected. Rows that do not fit are hidden
-	 * rather than dropped, so widening or heightening the tile reveals them
-	 * immediately without refetching. Pass `false` for a widget that genuinely
-	 * wants a scrollable list.
+	 * Pass `false` to keep the list scrollable.
+	 * @default true
 	 */
 	fitRows?: boolean;
 };
