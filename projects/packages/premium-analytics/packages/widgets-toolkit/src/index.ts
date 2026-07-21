@@ -70,6 +70,9 @@ export {
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,
 	type RowsCsvDownloadButtonProps,
+	useReportCsvExport,
+	type UseReportCsvExportOptions,
+	type UseReportCsvExportResult,
 } from './components';
 
 /**

@@ -294,15 +294,15 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	// client-side "Download CSV" (bounded to the rows already in the browser).
 	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
 		const base: CsvColumn< TopPostRow >[] = [
-			{ key: 'label', label: __( 'Title', 'jetpack-premium-analytics' ) },
-			{ key: 'value', label: __( 'Views', 'jetpack-premium-analytics' ) },
-			{ key: 'type', label: __( 'Type', 'jetpack-premium-analytics' ) },
-			{ key: 'href', label: __( 'URL', 'jetpack-premium-analytics' ) },
+			{ label: __( 'Title', 'jetpack-premium-analytics' ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.value },
+			{ label: __( 'Type', 'jetpack-premium-analytics' ), getValue: row => row.type },
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.href },
 		];
 		if ( withComparison ) {
 			base.splice( 2, 0, {
-				key: 'previousValue',
 				label: __( 'Previous views', 'jetpack-premium-analytics' ),
+				getValue: row => row.previousValue,
 			} );
 		}
 		return base;
