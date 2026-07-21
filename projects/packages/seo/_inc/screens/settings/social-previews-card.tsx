@@ -1,7 +1,7 @@
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
 import { __ } from '@wordpress/i18n';
-import { Card, CollapsibleCard } from '@wordpress/ui';
+import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import getSite from '../../data/get-site';
 import type { SiteData } from '../../data/get-site';
 import type { FC } from 'react';
@@ -68,14 +68,22 @@ const XIcon: FC = () => (
 
 /** How the home page appears as a Google search result. */
 const GooglePreview: FC< PreviewProps > = ( { site, description } ) => (
-	<div className="jetpack-seo-preview jetpack-seo-preview--google">
-		<div className="jetpack-seo-preview__google-site">
+	<Stack direction="column" gap="xs" className="jetpack-seo-preview jetpack-seo-preview--google">
+		<Stack direction="row" align="center" gap="sm">
 			{ site.icon && <img className="jetpack-seo-preview__favicon" src={ site.icon } alt="" /> }
-			<div className="jetpack-seo-preview__google-url">{ hostname( site.url ) }</div>
-		</div>
-		<div className="jetpack-seo-preview__google-title">{ site.title }</div>
-		{ description && <div className="jetpack-seo-preview__desc">{ description }</div> }
-	</div>
+			<Text variant="body-sm" className="jetpack-seo-preview__muted">
+				{ hostname( site.url ) }
+			</Text>
+		</Stack>
+		<Text variant="body-xl" className="jetpack-seo-preview__google-title">
+			{ site.title }
+		</Text>
+		{ description && (
+			<Text variant="body-md" className="jetpack-seo-preview__muted">
+				{ description }
+			</Text>
+		) }
+	</Stack>
 );
 
 /**
@@ -91,11 +99,17 @@ const LinkCardPreview: FC< PreviewProps > = ( { site, description } ) => (
 				style={ { backgroundImage: `url(${ site.image })` } }
 			/>
 		) }
-		<div className="jetpack-seo-preview__card-body">
-			<div className="jetpack-seo-preview__card-domain">{ hostname( site.url ) }</div>
-			<div className="jetpack-seo-preview__card-title">{ site.title }</div>
-			{ description && <div className="jetpack-seo-preview__desc">{ description }</div> }
-		</div>
+		<Stack direction="column" gap="xs" className="jetpack-seo-preview__card-body">
+			<Text variant="body-sm" className="jetpack-seo-preview__card-domain">
+				{ hostname( site.url ) }
+			</Text>
+			<Text variant="heading-md">{ site.title }</Text>
+			{ description && (
+				<Text variant="body-md" className="jetpack-seo-preview__muted">
+					{ description }
+				</Text>
+			) }
+		</Stack>
 	</div>
 );
 
@@ -132,37 +146,45 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 				<Card.Title>{ __( 'Search & social previews', 'jetpack-seo' ) }</Card.Title>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<p className="jetpack-seo-settings__preview-intro">
-					{ __(
-						'A preview of how your home page looks in search results and when shared on social media. It updates as you edit the front-page description above.',
-						'jetpack-seo'
-					) }
-				</p>
-				<div className="jetpack-seo-settings__preview-list">
-					{ /* Each block: a platform heading above its preview. The border is on
+				<Stack direction="column" gap="xl">
+					<Text variant="body-md" render={ <p /> }>
+						{ __(
+							'A preview of how your home page looks in search results and when shared on social media. It updates as you edit the front-page description above.',
+							'jetpack-seo'
+						) }
+					</Text>
+					<Stack direction="column" gap="2xl">
+						{ /* Each block: a platform heading above its preview. The border is on
 					   the preview itself (not a group box around heading + preview). */ }
-					<div>
-						<h3 className="jetpack-seo-settings__preview-label">
-							<GoogleIcon />
-							{ __( 'Google search result', 'jetpack-seo' ) }
-						</h3>
-						<GooglePreview site={ site } description={ description } />
-					</div>
-					<div>
-						<h3 className="jetpack-seo-settings__preview-label">
-							<FacebookIcon />
-							{ __( 'Facebook', 'jetpack-seo' ) }
-						</h3>
-						<LinkCardPreview site={ site } description={ description } />
-					</div>
-					<div>
-						<h3 className="jetpack-seo-settings__preview-label">
-							<XIcon />
-							{ __( 'X (Twitter)', 'jetpack-seo' ) }
-						</h3>
-						<LinkCardPreview site={ site } description={ description } />
-					</div>
-				</div>
+						<Stack direction="column" gap="md">
+							<Text variant="heading-lg" render={ <h3 /> }>
+								<Stack render={ <span /> } direction="row" align="center" gap="sm">
+									<GoogleIcon />
+									{ __( 'Google search result', 'jetpack-seo' ) }
+								</Stack>
+							</Text>
+							<GooglePreview site={ site } description={ description } />
+						</Stack>
+						<Stack direction="column" gap="md">
+							<Text variant="heading-lg" render={ <h3 /> }>
+								<Stack render={ <span /> } direction="row" align="center" gap="sm">
+									<FacebookIcon />
+									{ __( 'Facebook', 'jetpack-seo' ) }
+								</Stack>
+							</Text>
+							<LinkCardPreview site={ site } description={ description } />
+						</Stack>
+						<Stack direction="column" gap="md">
+							<Text variant="heading-lg" render={ <h3 /> }>
+								<Stack render={ <span /> } direction="row" align="center" gap="sm">
+									<XIcon />
+									{ __( 'X (Twitter)', 'jetpack-seo' ) }
+								</Stack>
+							</Text>
+							<LinkCardPreview site={ site } description={ description } />
+						</Stack>
+					</Stack>
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

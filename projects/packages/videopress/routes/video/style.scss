@@ -92,13 +92,6 @@
 // "Processing" panel shown in place of the player while the VideoPress
 // backend is still transcoding the upload; keeps the player's 16:9 slot so
 // the page doesn't jump when playback becomes available.
-.vp-video-details__player-processing {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: #f0f0f0;
-	color: #1e1e1e;
-}
 
 // The action buttons row should size to its content, not stretch across
 // the column flex parent.

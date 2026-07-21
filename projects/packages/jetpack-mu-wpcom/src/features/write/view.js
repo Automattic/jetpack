@@ -6179,6 +6179,14 @@ function showPostPickerModal() {
 
 // Report a save that has neither resolved nor rejected within this window.
 const SAVE_STALL_THRESHOLD_MS = 30000;
+// Hard timeout for a save request. If it is still outstanding this long after
+// the stall threshold, abort it so the UI recovers — Publish/Save re-enable and
+// an error is shown — instead of staying greyed out forever (RSM-4323). Set
+// beyond the stall threshold so a genuinely slow-but-succeeding save still
+// completes, and so telemetry ordering stays readable: `save_stalled` fires
+// first as the diagnostic, then the abort surfaces as a recoverable
+// `save_failed` with error_code 'AbortError'.
+const SAVE_REQUEST_TIMEOUT_MS = SAVE_STALL_THRESHOLD_MS + 15000;
 // Cap free-text error strings so a pathological message can't bloat the payload.
 const MAX_ERROR_MESSAGE_LENGTH = 200;
 
@@ -6197,8 +6205,12 @@ function describeSaveError( err ) {
 		const raw = err === undefined ? '' : String( err );
 		return { code: 'unknown', status: null, message: raw.slice( 0, MAX_ERROR_MESSAGE_LENGTH ) };
 	}
-	// Prefer the specific REST `code`; fall back to `name` ('AbortError', 'TypeError', …).
-	const code = err.code || err.name || 'unknown';
+	// Prefer the specific REST `code` (always a string, e.g. 'rest_cannot_edit');
+	// fall back to `name` ('AbortError', 'TypeError', …). Guard on a string code
+	// because a DOMException carries a numeric `.code` (AbortError is 20), which
+	// would otherwise shadow the 'AbortError' name and break the timeout message
+	// and telemetry error_code.
+	const code = ( typeof err.code === 'string' && err.code ) || err.name || 'unknown';
 	const status = err.data && typeof err.data.status === 'number' ? err.data.status : null;
 	const message = String( err.message || '' ).slice( 0, MAX_ERROR_MESSAGE_LENGTH );
 	return { code: String( code ), status, message };
@@ -6263,12 +6275,35 @@ function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, phase
 }
 
 /**
+ * Run window.wp.apiFetch with a hard timeout.
+ *
+ * If the request neither resolves nor rejects within `timeoutMs`, abort it so
+ * the caller's catch runs and the UI recovers, rather than hanging forever on a
+ * connection held open by a proxy, VPN, or ad blocker — the stall failure mode
+ * seen in RSM-4323. apiFetch passes `signal` through to window.fetch, so the
+ * aborted request rejects with an AbortError, which describeSaveError reports as
+ * error_code 'AbortError'.
+ *
+ * @param {object} options   - apiFetch options (path, method, data, …).
+ * @param {number} timeoutMs - Abort the request after this many milliseconds.
+ * @return {Promise<*>} Resolves with the apiFetch result, or rejects (including on abort).
+ */
+function apiFetchWithTimeout( options, timeoutMs ) {
+	const controller = new AbortController();
+	const timer = setTimeout( () => controller.abort(), timeoutMs );
+	return window.wp
+		.apiFetch( { ...options, signal: controller.signal } )
+		.finally( () => clearTimeout( timer ) );
+}
+
+/**
  * Save or publish the current post via the REST API.
  *
  * Thin wrapper around performSave() that reports any throw during content
  * preparation or tag resolution — code that runs before the save request's own
- * try/catch and today surfaces as a silent unhandled rejection. It re-throws to
- * preserve current behavior; this is an observability-only change (RSM-4323).
+ * try/catch and today surfaces as a silent unhandled rejection. On such a throw
+ * it now also recovers the UI (resets the saving flag, surfaces a retryable
+ * error) instead of leaving Publish/Save greyed out (RSM-4323).
  *
  * @param {string}  postStatus - The desired post status ('publish' or 'draft').
  * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
@@ -6282,8 +6317,7 @@ async function savePost( postStatus, isAutosave = false ) {
 		await performSave( postStatus, isAutosave, saveCtx );
 	} catch ( err ) {
 		// Save-request failures are handled inside performSave; anything caught
-		// here threw during content prep / tag resolution. Report, then re-throw
-		// so behavior is unchanged.
+		// here threw during content prep / tag resolution.
 		clearTimeout( saveCtx.stallWatchdog );
 		recordSaveFailed( err, {
 			postStatus,
@@ -6292,7 +6326,21 @@ async function savePost( postStatus, isAutosave = false ) {
 			isEditing: state.editPostId > 0,
 			phase: 'prepare',
 		} );
-		throw err;
+		// Recover the UI. performSave sets state.isSaving = true before any of
+		// the prep work that can throw, so a prep-stage throw previously
+		// surfaced as a silent unhandled rejection with the saving flag stuck
+		// true — Publish/Save greyed out with no message (RSM-4323). Reset it,
+		// and for user-initiated saves surface a retryable error.
+		state.isSaving = false;
+		if ( ! isAutosave ) {
+			state.message = ( i18n.error || 'Error: %s' ).replace(
+				'%s',
+				i18n.couldNotSave || 'Could not save. Please try again.'
+			);
+			setTimeout( () => {
+				state.message = '';
+			}, 4000 );
+		}
 	}
 }
 
@@ -6451,9 +6499,13 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 	if ( tagNames.length ) {
 		const newTagIds = await Promise.all(
 			tagNames.map( name =>
-				window.wp
-					.apiFetch( { path: '/wp/v2/tags', method: 'POST', data: { name } } )
+				apiFetchWithTimeout(
+					{ path: '/wp/v2/tags', method: 'POST', data: { name } },
+					SAVE_REQUEST_TIMEOUT_MS
+				)
 					.then( tag => tag.id )
+					// A duplicate returns term_id; a hung/aborted or failed tag
+					// request drops just that tag (null) so the save proceeds.
 					.catch( err => err?.data?.term_id ?? null )
 			)
 		).then( ids => ids.filter( Boolean ) );
@@ -6467,19 +6519,22 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 	stallPhase = 'save_request';
 
 	try {
-		const post = await window.wp.apiFetch( {
-			path,
-			method: 'POST',
-			data: {
-				title: state.title,
-				content: blockMarkup,
-				status: postStatus,
-				categories: selectedCats,
-				...tagData,
-				featured_media: state.featuredMediaId || 0,
-				wpcom_write_editor_used: true,
+		const post = await apiFetchWithTimeout(
+			{
+				path,
+				method: 'POST',
+				data: {
+					title: state.title,
+					content: blockMarkup,
+					status: postStatus,
+					categories: selectedCats,
+					...tagData,
+					featured_media: state.featuredMediaId || 0,
+					wpcom_write_editor_used: true,
+				},
 			},
-		} );
+			SAVE_REQUEST_TIMEOUT_MS
+		);
 		clearTimeout( stallWatchdog );
 
 		// Store the post ID so subsequent saves update the same post.
@@ -6563,7 +6618,17 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 		recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, phase: 'save_request' } );
 		state.isSaving = false;
 		if ( ! isAutosave ) {
-			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
+			const { code, message } = describeSaveError( err );
+			// A timed-out/aborted request or a dropped connection carries no
+			// useful server message (the dominant failure in RSM-4323 was a
+			// network-layer reject with no HTTP status). Show a plain retry
+			// prompt instead of an empty or opaque "Error: ". `message` is
+			// already capped at MAX_ERROR_MESSAGE_LENGTH by describeSaveError.
+			const detail =
+				code === 'AbortError' || ! message
+					? i18n.saveTimedOut || 'Saving timed out. Please check your connection and try again.'
+					: message;
+			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', detail );
 			setTimeout( () => {
 				state.message = '';
 			}, 4000 );

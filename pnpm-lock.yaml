@@ -100,8 +100,8 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       js-yaml:
-        specifier: 4.2.0
-        version: 4.2.0
+        specifier: 4.3.0
+        version: 4.3.0
       picomatch:
         specifier: 4.0.4
         version: 4.0.4
@@ -1743,7 +1743,7 @@ importers:
         version: 2.3.0(webpack@5.107.2)
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: 0.6.2
-        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)
       '@wordpress/browserslist-config':
         specifier: 6.51.0
         version: 6.51.0
@@ -1795,10 +1795,10 @@ importers:
         version: 5.107.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
       webpack-dev-server:
-        specifier: 5.2.5
-        version: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+        specifier: 5.2.6
+        version: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   projects/packages/account-protection: {}
 
@@ -3396,10 +3396,10 @@ importers:
         version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
       webpack-dev-server:
-        specifier: 5.2.5
-        version: 5.2.5(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2)
+        specifier: 5.2.6
+        version: 5.2.6(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2)
 
   projects/packages/newsletter:
     dependencies:
@@ -4149,9 +4149,6 @@ importers:
       '@wordpress/admin-ui':
         specifier: 2.5.0
         version: 2.5.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/annotations':
-        specifier: 3.51.0
-        version: 3.51.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.51.0
         version: 7.51.0
@@ -4161,9 +4158,6 @@ importers:
       '@wordpress/block-editor':
         specifier: 16.0.0
         version: 16.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/blocks':
-        specifier: 15.24.0
-        version: 15.24.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/components':
         specifier: 37.0.0
         version: 37.0.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4182,9 +4176,6 @@ importers:
       '@wordpress/date':
         specifier: 5.51.0
         version: 5.51.0
-      '@wordpress/edit-post':
-        specifier: 8.51.0
-        version: 8.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/editor':
         specifier: 14.51.0
         version: 14.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4206,9 +4197,6 @@ importers:
       '@wordpress/interface':
         specifier: 9.35.0
         version: 9.35.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/media-utils':
-        specifier: 5.51.0
-        version: 5.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/notices':
         specifier: 5.51.0
         version: 5.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4236,9 +4224,6 @@ importers:
       jquery:
         specifier: 3.7.1
         version: 3.7.1
-      prop-types:
-        specifier: 15.8.1
-        version: 15.8.1
       social-logos:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
@@ -4246,12 +4231,6 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
-      '@automattic/calypso-color-schemes':
-        specifier: 4.0.0
-        version: 4.0.0
-      '@automattic/color-studio':
-        specifier: 4.1.0
-        version: 4.1.0
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -4267,9 +4246,6 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.14)
       '@storybook/react':
         specifier: 10.4.6
         version: 10.4.6(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(typescript@6.0.3)
@@ -4318,9 +4294,6 @@ importers:
       postcss:
         specifier: 8.5.14
         version: 8.5.14
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.14)
       postcss-loader:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.14)(typescript@6.0.3)(webpack@5.107.2)
@@ -4347,10 +4320,10 @@ importers:
         version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+        version: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
       webpack-dev-server:
-        specifier: 5.2.5
-        version: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+        specifier: 5.2.6
+        version: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   projects/packages/rtc:
     dependencies:
@@ -5013,6 +4986,9 @@ importers:
       react-router:
         specifier: 7.15.1
         version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      socket.io-client:
+        specifier: 4.8.3
+        version: 4.8.3
       tus-js-client:
         specifier: 4.2.3
         version: 4.2.3
@@ -6602,8 +6578,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       js-yaml:
-        specifier: 4.2.0
-        version: 4.2.0
+        specifier: 4.3.0
+        version: 4.3.0
       listr:
         specifier: 0.14.3
         version: 0.14.3
@@ -9904,6 +9880,9 @@ packages:
   '@so-ric/colorspace@1.1.6':
     resolution: {integrity: sha512-/KiKkpHNOBgkFJwu9sh48LkHSMYGyuTcSFK/qMBdnOAlrRJzRSXAOFB5qwzaVQuDl8wAvHVMkaASQDReTahxuw==}
 
+  '@socket.io/component-emitter@3.1.2':
+    resolution: {integrity: sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==}
+
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -11026,12 +11005,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  '@wordpress/annotations@3.51.0':
-    resolution: {integrity: sha512-0P+X8sPSPK53zyCqBFV6NUzw9/HPRxPIdVy9Xsamv4uag3HT582IQJ0Q+SBJ7qO55Z3/8UXALR5mwzwUVzJZUw==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18 || ^19
 
   '@wordpress/api-fetch@7.51.0':
     resolution: {integrity: sha512-kSgBvrGr8eMTcQTA1fIsChg56FKPTdcmkQrpEQjL9uzbmGwPKrru4BdkBFqLSql/PH5fEOjNcY3OSA61+WrJ8g==}
@@ -13221,6 +13194,13 @@ packages:
   encoding@0.1.13:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
 
+  engine.io-client@6.6.6:
+    resolution: {integrity: sha512-iY6QdftLQ9pyiPoX082bpf/u1UewnOaJrtJIF9T0++QB34lZrj0uP+Q/bj8AlUsAxqhnkTV2BS8SBZSxOmoV5Q==}
+
+  engine.io-parser@5.2.3:
+    resolution: {integrity: sha512-HqD3yTBfnBxIrbnM1DoD6Pcq8NECnh8d4As1Qgh0z5Gg3jRRIqijury0CL3ghu/edArpUYiYqQiDUQBIs4np3Q==}
+    engines: {node: '>=10.0.0'}
+
   enhanced-resolve@5.24.2:
     resolution: {integrity: sha512-rpsZEGT1jFuve6QlpyRp9ckQ+kN61hvF9BzCPyMdaKTm8UJce96KBn3sorXOFXlzjPrs3Vc4T1NsSroZ3PxlFw==}
     engines: {node: '>=10.13.0'}
@@ -14817,8 +14797,8 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@4.2.0:
-    resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
+  js-yaml@4.3.0:
+    resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
     hasBin: true
 
   jsdoc-type-pratt-parser@7.2.0:
@@ -17173,6 +17153,14 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
+  socket.io-client@4.8.3:
+    resolution: {integrity: sha512-uP0bpjWrjQmUt5DTHq9RuoCBdFJF10cdX9X+a368j/Ft0wmaVgxlrjvK3kjvgCODOMMOz9lcaRzxmso0bTWZ/g==}
+    engines: {node: '>=10.0.0'}
+
+  socket.io-parser@4.2.7:
+    resolution: {integrity: sha512-IH/iSeO9T6gz1KkFleGDWkG9N3dl4jXVYUtMhIqH10Md0ttMer8nUNWiP1DKuNrybD2xBrixLJdCC9J6ECoYkg==}
+    engines: {node: '>=10.0.0'}
+
   sockjs@0.3.24:
     resolution: {integrity: sha512-GJgLTZ7vYb/JtPSSZ10hsOYIvEYsjbNU+zPdIHcUaWVNUEPivzxku31865sSSud0Da0W4lEeOPlmw93zLQchuQ==}
 
@@ -18275,8 +18263,8 @@ packages:
       webpack:
         optional: true
 
-  webpack-dev-server@5.2.5:
-    resolution: {integrity: sha512-4wZtCquSuv9CKX8oybo+mqxtxZqWz47uM1Ch94lxowBztOhWCbhqvRbfC/mODOwxgV2brY+JGZpHq58/SuVFYg==}
+  webpack-dev-server@5.2.6:
+    resolution: {integrity: sha512-HNLRmamRvVavZQ+avceZifmv8hmdUjg43t6MI4SqJDwFdW7RPQwH5vzGhDRZSX59SgfbeHhLnq3g+uooWo7pVw==}
     engines: {node: '>= 18.12.0'}
     hasBin: true
     peerDependencies:
@@ -18464,6 +18452,10 @@ packages:
 
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
+
+  xmlhttprequest-ssl@2.1.2:
+    resolution: {integrity: sha512-TEU+nJVUUnA4CYJFLvK5X9AOeH4KvDvhIfm0vV1GaQRtchnG0hgK5p8hw/xjv8cunWYCsiPCSDzObPyhEwq3KQ==}
+    engines: {node: '>=0.4.0'}
 
   y-protocols@1.0.7:
     resolution: {integrity: sha512-YSVsLoXxO67J6eE/nV4AtFtT3QEotZf5sK5BHxFBXso7VDUT3Tx07IfA6hsu5Q5OmBdMkQVmFZ9QOA7fikWvnw==}
@@ -20646,7 +20638,7 @@ snapshots:
       camelcase: 5.3.1
       find-up: 4.1.0
       get-package-type: 0.1.0
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       resolve-from: 5.0.0
 
   '@istanbuljs/schema@0.1.6': {}
@@ -21474,7 +21466,7 @@ snapshots:
     dependencies:
       playwright: 1.60.0
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.5)(webpack@5.107.2)':
+  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)':
     dependencies:
       anser: 2.3.5
       core-js-pure: 3.49.0
@@ -21485,7 +21477,7 @@ snapshots:
       source-map: 0.7.4
       webpack: 5.107.2(webpack-cli@6.0.1)
     optionalDependencies:
-      webpack-dev-server: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+      webpack-dev-server: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -22051,6 +22043,8 @@ snapshots:
     dependencies:
       color: 5.0.3
       text-hex: 1.0.0
+
+  '@socket.io/component-emitter@3.1.2': {}
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -23427,12 +23421,12 @@ snapshots:
       webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.107.2)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.5)(webpack@5.107.2)':
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.6)(webpack@5.107.2)':
     dependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
     optionalDependencies:
-      webpack-dev-server: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+      webpack-dev-server: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)':
     dependencies:
@@ -23635,17 +23629,6 @@ snapshots:
       - stylelint
       - supports-color
       - vite
-
-  '@wordpress/annotations@3.51.0(@types/react@18.3.28)(react@18.3.1)':
-    dependencies:
-      '@wordpress/data': 10.51.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/hooks': 4.51.0
-      '@wordpress/i18n': 6.24.0
-      '@wordpress/rich-text': 7.51.0(@types/react@18.3.28)(react@18.3.1)
-      react: 18.3.1
-      uuid: 14.0.1
-    transitivePeerDependencies:
-      - '@types/react'
 
   '@wordpress/api-fetch@7.51.0':
     dependencies:
@@ -28135,37 +28118,6 @@ snapshots:
       - supports-color
       - vite
 
-  '@wordpress/media-fields@0.16.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@wordpress/base-styles': 11.0.0
-      '@wordpress/components': 37.0.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 8.4.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/core-data': 7.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data': 10.51.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/dataviews': 17.2.0(@types/react@18.3.28)(postcss@8.5.14)(react@18.3.1)
-      '@wordpress/date': 5.51.0
-      '@wordpress/element': 8.3.0
-      '@wordpress/i18n': 6.24.0
-      '@wordpress/icons': 15.2.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/primitives': 4.51.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/ui': 0.18.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/url': 4.51.0
-      clsx: 2.1.1
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 18.3.28
-    transitivePeerDependencies:
-      - '@date-fns/tz'
-      - '@emotion/is-prop-valid'
-      - '@types/react-dom'
-      - date-fns
-      - esbuild
-      - postcss
-      - react-dom
-      - stylelint
-      - supports-color
-      - vite
-
   '@wordpress/media-fields@0.16.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/base-styles': 11.0.0
@@ -28346,39 +28298,6 @@ snapshots:
       '@wordpress/private-apis': 1.51.0
       '@wordpress/ui': 0.18.0(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/views': 1.18.0(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      clsx: 2.1.1
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 18.3.28
-    transitivePeerDependencies:
-      - '@date-fns/tz'
-      - '@emotion/is-prop-valid'
-      - '@types/react-dom'
-      - date-fns
-      - esbuild
-      - postcss
-      - react-dom
-      - stylelint
-      - supports-color
-      - vite
-
-  '@wordpress/media-utils@5.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@wordpress/api-fetch': 7.51.0
-      '@wordpress/base-styles': 11.0.0
-      '@wordpress/blob': 4.51.0
-      '@wordpress/components': 37.0.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/core-data': 7.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data': 10.51.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/dataviews': 17.2.0(@types/react@18.3.28)(postcss@8.5.14)(react@18.3.1)
-      '@wordpress/element': 8.3.0
-      '@wordpress/i18n': 6.24.0
-      '@wordpress/icons': 15.2.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/media-fields': 0.16.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/notices': 5.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/private-apis': 1.51.0
-      '@wordpress/ui': 0.18.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/views': 1.18.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx: 2.1.1
       react: 18.3.1
     optionalDependencies:
@@ -30431,29 +30350,6 @@ snapshots:
       - supports-color
       - vite
 
-  '@wordpress/views@1.18.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@wordpress/core-data': 7.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data': 10.51.0(@types/react@18.3.28)(react@18.3.1)
-      '@wordpress/dataviews': 17.2.0(@types/react@18.3.28)(postcss@8.5.14)(react@18.3.1)
-      '@wordpress/element': 8.3.0
-      '@wordpress/preferences': 4.51.0(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/private-apis': 1.51.0
-      dequal: 2.0.3
-    transitivePeerDependencies:
-      - '@date-fns/tz'
-      - '@emotion/is-prop-valid'
-      - '@types/react'
-      - '@types/react-dom'
-      - date-fns
-      - esbuild
-      - postcss
-      - react
-      - react-dom
-      - stylelint
-      - supports-color
-      - vite
-
   '@wordpress/views@1.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/core-data': 7.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -31568,14 +31464,14 @@ snapshots:
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       parse-json: 5.2.0
 
   cosmiconfig@9.0.2(typescript@6.0.3):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 6.0.3
@@ -32033,6 +31929,20 @@ snapshots:
   encoding@0.1.13:
     dependencies:
       iconv-lite: 0.6.3
+
+  engine.io-client@6.6.6:
+    dependencies:
+      '@socket.io/component-emitter': 3.1.2
+      debug: 4.4.3
+      engine.io-parser: 5.2.3
+      ws: 8.21.0
+      xmlhttprequest-ssl: 2.1.2
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
+  engine.io-parser@5.2.3: {}
 
   enhanced-resolve@5.24.2:
     dependencies:
@@ -34045,7 +33955,7 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@4.2.0:
+  js-yaml@4.3.0:
     dependencies:
       argparse: 2.0.1
 
@@ -36682,6 +36592,24 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  socket.io-client@4.8.3:
+    dependencies:
+      '@socket.io/component-emitter': 3.1.2
+      debug: 4.4.3
+      engine.io-client: 6.6.6
+      socket.io-parser: 4.2.7
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
+  socket.io-parser@4.2.7:
+    dependencies:
+      '@socket.io/component-emitter': 3.1.2
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
+
   sockjs@0.3.24:
     dependencies:
       faye-websocket: 0.11.4
@@ -37855,12 +37783,12 @@ snapshots:
 
   webidl-conversions@8.0.1: {}
 
-  webpack-cli@6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2):
+  webpack-cli@6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
       '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)
       '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.107.2)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.6)(webpack@5.107.2)
       colorette: 2.0.20
       commander: 12.1.0
       cross-spawn: 7.0.6
@@ -37872,7 +37800,7 @@ snapshots:
       webpack: 5.107.2(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
     optionalDependencies:
-      webpack-dev-server: 5.2.5(webpack-cli@6.0.1)(webpack@5.107.2)
+      webpack-dev-server: 5.2.6(webpack-cli@6.0.1)(webpack@5.107.2)
 
   webpack-cli@6.0.1(webpack@5.107.2):
     dependencies:
@@ -37902,7 +37830,7 @@ snapshots:
     optionalDependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
 
-  webpack-dev-server@5.2.5(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2):
+  webpack-dev-server@5.2.6(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.107.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -37934,14 +37862,14 @@ snapshots:
       ws: 8.21.0
     optionalDependencies:
       webpack: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
       - supports-color
       - utf-8-validate
 
-  webpack-dev-server@5.2.5(webpack-cli@6.0.1)(webpack@5.107.2):
+  webpack-dev-server@5.2.6(webpack-cli@6.0.1)(webpack@5.107.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -37973,7 +37901,7 @@ snapshots:
       ws: 8.21.0
     optionalDependencies:
       webpack: 5.107.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.5)(webpack@5.107.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.6)(webpack@5.107.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -38286,6 +38214,8 @@ snapshots:
   xmlbuilder@11.0.1: {}
 
   xmlchars@2.2.0: {}
+
+  xmlhttprequest-ssl@2.1.2: {}
 
   y-protocols@1.0.7(yjs@13.6.29):
     dependencies:

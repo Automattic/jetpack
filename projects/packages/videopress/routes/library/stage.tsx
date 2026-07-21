@@ -66,11 +66,14 @@ const StageInner = () => {
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
-	// Local IDs currently being promoted from local-storage to VideoPress.
-	// The upload-from-library endpoint doesn't report progress, so we just
-	// need to know which rows to overlay with an "Uploading…" state.
-	const [ promotingIds, setPromotingIds ] = useState< Set< string > >( () => new Set() );
-	// IDs currently being deleted. Same overlay technique as promotingIds:
+	// Local IDs currently being promoted from local-storage to VideoPress,
+	// mapped to the last upload percentage (0–100) reported by the chunked
+	// upload-from-library endpoint, so their rows can show the same live
+	// progress as a regular upload.
+	const [ promotingProgress, setPromotingProgress ] = useState< Map< string, number > >(
+		() => new Map()
+	);
+	// IDs currently being deleted. Same overlay technique as promotingProgress:
 	// rows get a "Deleting…" state (thumbnail overlay in grid, title pill in
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
@@ -188,38 +191,48 @@ const StageInner = () => {
 
 	const promoteLocal = useCallback(
 		( id: string ) => {
-			setPromotingIds( prev => {
-				const next = new Set( prev );
-				next.add( id );
-				return next;
-			} );
-			uploadFromLibrary( id, {
-				onSuccess: () => {
-					createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
+			setPromotingProgress( prev => new Map( prev ).set( id, 0 ) );
+			uploadFromLibrary(
+				{
+					id,
+					onProgress: ( percent: number ) => {
+						setPromotingProgress( prev => {
+							// Ignore a straggler progress report after settle.
+							if ( ! prev.has( id ) ) {
+								return prev;
+							}
+							return new Map( prev ).set( id, percent );
+						} );
+					},
 				},
-				onError: ( error: Error ) => {
-					const reason = error?.message?.trim();
-					createErrorNotice(
-						reason
-							? sprintf(
-									/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
-									__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
-									reason
-							  )
-							: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
-					);
-				},
-				onSettled: () => {
-					setPromotingIds( prev => {
-						if ( ! prev.has( id ) ) {
-							return prev;
-						}
-						const next = new Set( prev );
-						next.delete( id );
-						return next;
-					} );
-				},
-			} );
+				{
+					onSuccess: () => {
+						createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
+					},
+					onError: ( error: Error ) => {
+						const reason = error?.message?.trim();
+						createErrorNotice(
+							reason
+								? sprintf(
+										/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
+										__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
+										reason
+								  )
+								: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
+						);
+					},
+					onSettled: () => {
+						setPromotingProgress( prev => {
+							if ( ! prev.has( id ) ) {
+								return prev;
+							}
+							const next = new Map( prev );
+							next.delete( id );
+							return next;
+						} );
+					},
+				}
+			);
 		},
 		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
 	);
@@ -406,8 +419,9 @@ const StageInner = () => {
 		// pill and the thumbnail overlay reflect the operation without
 		// needing a parallel signal at every render site.
 		const overlaid = items.map( item => {
-			if ( promotingIds.has( item.id ) ) {
-				return { ...item, upload: { status: 'promoting' as const, progress: 0 } };
+			const promoting = promotingProgress.get( item.id );
+			if ( promoting !== undefined ) {
+				return { ...item, upload: { status: 'promoting' as const, progress: promoting } };
 			}
 			if ( deletingIds.has( item.id ) ) {
 				return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
@@ -415,7 +429,7 @@ const StageInner = () => {
 			return item;
 		} );
 		return [ ...inFlight, ...overlaid ];
-	}, [ uploadQueue, items, promotingIds, deletingIds ] );
+	}, [ uploadQueue, items, promotingProgress, deletingIds ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
