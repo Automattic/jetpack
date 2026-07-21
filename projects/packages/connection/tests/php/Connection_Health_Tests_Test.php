@@ -52,6 +52,8 @@ class Connection_Health_Tests_Test extends TestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_debugger_run_self_test' );
+		remove_all_filters( 'jetpack_connection_reconnect_url' );
+		remove_all_filters( 'jetpack_connection_support_url' );
 		remove_all_actions( 'jetpack_connection_tests_loaded' );
 	}
 
@@ -528,6 +530,116 @@ class Connection_Health_Tests_Test extends TestCase {
 	public function test_wpcom_connection_test_skipped_when_not_connected() {
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
 		$this->assertEquals( 'skipped', $result['pass'] );
+	}
+
+	/**
+	 * Evaluate a decoded WP.com test-connection response via the protected helper.
+	 *
+	 * Avoids performing a signed remote request, which can't be mocked in a unit test.
+	 *
+	 * @param array      $response_body Decoded response body.
+	 * @param int|string $status_code   HTTP status code of the WP.com response.
+	 * @return array Test result.
+	 */
+	private function evaluate_response( array $response_body, $status_code = 200 ) {
+		return $this->tests->evaluate_wpcom_connection_result( 'test__wpcom_connection_test', (object) $response_body, $status_code );
+	}
+
+	/**
+	 * Test wpcom_connection_test passes when WP.com reports the site as connected.
+	 */
+	public function test_wpcom_connection_test_passes_when_connected() {
+		$result = $this->evaluate_response( array( 'connected' => true ) );
+		$this->assertTrue( $result['pass'] );
+	}
+
+	/**
+	 * Test wpcom_connection_test does not offer a reconnect when the site itself
+	 * is blocking WordPress.com (error_code = xmlrpc_request_blocked).
+	 */
+	public function test_wpcom_connection_test_blocked_does_not_offer_reconnect() {
+		add_filter(
+			'jetpack_connection_reconnect_url',
+			static function () {
+				return 'https://example.com/reconnect';
+			}
+		);
+		add_filter(
+			'jetpack_connection_support_url',
+			static function () {
+				return 'https://example.com/support';
+			}
+		);
+
+		$result = $this->evaluate_response(
+			array(
+				'connected'        => false,
+				'message'          => 'XML-RPC request was blocked.',
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertStringContainsString( '403', $result['short_description'] );
+		// The action points to support, not the reconnect URL.
+		$this->assertSame( 'https://example.com/support', $result['action'] );
+		$this->assertNotSame( 'https://example.com/reconnect', $result['action'] );
+	}
+
+	/**
+	 * Test the blocked-request result omits the HTTP status when it is unknown.
+	 */
+	public function test_wpcom_connection_test_blocked_without_status_code() {
+		$result = $this->evaluate_response(
+			array(
+				'connected'  => false,
+				'message'    => 'XML-RPC request was blocked.',
+				'error_code' => 'xmlrpc_request_blocked',
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertStringContainsString( 'blocked', $result['short_description'] );
+	}
+
+	/**
+	 * Test wpcom_connection_test still offers a reconnect when the connection itself
+	 * is invalid (no blocking error_code present).
+	 */
+	public function test_wpcom_connection_test_offers_reconnect_when_connection_invalid() {
+		add_filter(
+			'jetpack_connection_reconnect_url',
+			static function () {
+				return 'https://example.com/reconnect';
+			}
+		);
+
+		$result = $this->evaluate_response(
+			array(
+				'connected' => false,
+				'message'   => 'Invalid token.',
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertSame( 'https://example.com/reconnect', $result['action'] );
+		// WP.com's message is preserved and the status code is appended in a labeled form.
+		$this->assertStringContainsString( 'Invalid token.', $result['short_description'] );
+		$this->assertStringContainsString( '(status code: 200)', $result['short_description'] );
+	}
+
+	/**
+	 * Test wpcom_connection_test produces a readable message when WP.com returns
+	 * no message alongside a non-connected response.
+	 */
+	public function test_wpcom_connection_test_handles_missing_message() {
+		$result = $this->evaluate_response( array( 'connected' => false ), 500 );
+
+		$this->assertFalse( $result['pass'] );
+		// The message should not start with a stray colon when no message is present.
+		$this->assertStringStartsNotWith( ':', $result['short_description'] );
+		$this->assertStringContainsString( '(status code: 500)', $result['short_description'] );
 	}
 
 	// -------------------------------------------------------------------------

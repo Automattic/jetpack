@@ -16,9 +16,13 @@ export interface TailoredInferred {
 	goal: GoalSlug;
 	brand_name?: string;
 	niche?: string;
+	theme_keyword?: string;
 	vibe?: string;
 	audience?: string;
 	tagline?: string;
+	// The goal the AI infers from the site name and description alone. Analytics
+	// only: never consumed by tailoring or read-side logic.
+	inferred_goal?: GoalSlug;
 }
 
 export interface FirstPostDraft {
@@ -27,15 +31,21 @@ export interface FirstPostDraft {
 	paragraphs: string[];
 }
 
+export interface AboutPageDraft {
+	title: string;
+	paragraphs: string[];
+}
+
 /**
- * Mirrors contracts/agent-output-schema.json. Length and content constraints
- * (exactly 6 tasks, subtitle <= 200 chars, exactly 2 paragraphs, ...) are
- * enforced by Ajv validation, not by the type system.
+ * Mirrors contracts/agent-output-schema.json. Length and content constraints are
+ * enforced by validation, not by the type system.
  */
 export interface TailoredOutput {
 	tasks: TailoredTask[];
 	inferred: TailoredInferred;
 	first_post_draft: FirstPostDraft;
+	// Schema-required for new outputs; optional here because older persisted outputs lack it.
+	about_page_draft?: AboutPageDraft;
 }
 
 export type TailorSource = 'ai' | 'fallback';
@@ -45,4 +55,4 @@ export interface TailorResult {
 	output: TailoredOutput;
 }
 
-export type TrackEventProps = Record< string, string | number | boolean >;
+export type TrackEventProps = Record< string, string | number | boolean | null >;

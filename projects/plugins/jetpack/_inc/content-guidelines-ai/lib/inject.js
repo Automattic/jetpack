@@ -3,6 +3,7 @@ import { createRoot, createElement } from '@wordpress/element';
 import BlockSuggestionActions from '../components/block-suggestion-actions';
 import BlockSuggestionButtons from '../components/block-suggestion-buttons';
 import EmptyStateBanner from '../components/empty-state-banner';
+import ReadMoreLink from '../components/read-more-link';
 import SectionGenerateButton from '../components/section-generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
 import SuggestionActions from '../components/suggestion-actions';
@@ -18,6 +19,7 @@ import { VALID_SECTIONS } from '../constants';
 
 const slots = {
 	header: { container: null, root: null },
+	'read-more': { container: null, root: null },
 	'upgrade-notice': { container: null, root: null },
 	banner: { container: null, root: null },
 };
@@ -125,14 +127,37 @@ function getBlockNameFromModal( modal ) {
 	return null;
 }
 
+/**
+ * Locate the wp-admin Page header title row — the space-between flex row
+ * containing the page <h1>. All header classes are hashed CSS-module names,
+ * so we walk up from the heading structurally.
+ *
+ * @return {HTMLElement|null} The row element, or null when not found.
+ */
+function findHeaderRow() {
+	const region = document.querySelector( '.admin-ui-navigable-region' );
+	const heading = region?.querySelector( 'h1' );
+	let row = heading?.parentElement;
+	while ( row && row !== region ) {
+		const style = window.getComputedStyle( row );
+		if (
+			style.display === 'flex' &&
+			style.flexDirection === 'row' &&
+			style.justifyContent.includes( 'between' )
+		) {
+			break;
+		}
+		row = row.parentElement;
+	}
+	return row && row !== region ? row : null;
+}
+
 function runAll() {
 	// Header button — right-aligned in the wp-admin Page header, where the
 	// native header actions would render. The gutenberg page passes no
-	// `actions` to <Page>, so that slot is never created; instead we target the
-	// header-content row (flex, justify: space-between) that holds the title and
-	// append the button as its second child so space-between pushes it to the
-	// right. All header classes are hashed CSS-module names, so we locate the
-	// row structurally: the space-between flex row containing the page <h1>.
+	// `actions` to <Page>, so that slot is never created; instead we append
+	// the button as the title row's second child so space-between pushes it
+	// to the right.
 	inject(
 		'header',
 		() => {
@@ -144,21 +169,8 @@ function runAll() {
 				return null;
 			}
 
-			const region = document.querySelector( '.admin-ui-navigable-region' );
-			const heading = region?.querySelector( 'h1' );
-			let row = heading?.parentElement;
-			while ( row && row !== region ) {
-				const style = window.getComputedStyle( row );
-				if (
-					style.display === 'flex' &&
-					style.flexDirection === 'row' &&
-					style.justifyContent.includes( 'between' )
-				) {
-					break;
-				}
-				row = row.parentElement;
-			}
-			return row && row !== region
+			const row = findHeaderRow();
+			return row
 				? {
 						parent: row,
 						className: 'jetpack-content-guidelines-ai__header-container',
@@ -166,6 +178,30 @@ function runAll() {
 				: null;
 		},
 		SuggestAllButton
+	);
+
+	// "Read more" support link — inline at the end of the header subtitle,
+	// the description <p> that follows the title row (its class is a hashed
+	// CSS-module name, so it's located structurally). Unlike the header
+	// button, there is no store data to wait for, so don't gate on
+	// `.guidelines__list` (which only exists after the async guidelines
+	// fetch) — inject as soon as the header renders so the link paints
+	// together with the description instead of popping in seconds later.
+	// The revision-history screen needs no explicit exclusion: it renders
+	// no Page header, so findHeaderRow() finds nothing there.
+	inject(
+		'read-more',
+		() => {
+			const subtitle = findHeaderRow()?.nextElementSibling;
+			return subtitle?.tagName === 'P'
+				? {
+						parent: subtitle,
+						className: 'jetpack-content-guidelines-ai__read-more-container',
+						tag: 'span',
+				  }
+				: null;
+		},
+		ReadMoreLink
 	);
 
 	// Upgrade notice — shown above the guideline list when AI is unavailable.
@@ -223,15 +259,26 @@ function runAll() {
 			continue;
 		}
 
-		// Badge in the accordion header (the section's heading element).
+		// Badge in the accordion header, to the left of the chevron.
+		//
+		// CollapsibleCard.Header renders the heading wrapping a flex trigger row
+		// whose children are the title/description block and, last, the chevron's
+		// positioner. Appending to the row puts the badge to the right of the
+		// chevron, which pushes the chevron leftward only on sections that have a
+		// badge — so chevrons no longer line up across sections. Insert the badge
+		// before the chevron instead: the chevron stays the last child (flush to
+		// the right and aligned across every section) and the badge sits just to
+		// its left.
 		inject(
 			`badge-${ slug }`,
 			() => {
 				const heading = item.querySelector( 'h1, h2, h3, h4, h5, h6' );
-				const titleStack = heading?.firstElementChild ?? heading;
-				return titleStack
+				const trigger = heading?.firstElementChild ?? heading;
+				const chevron = trigger?.lastElementChild;
+				return trigger
 					? {
-							parent: titleStack,
+							parent: trigger,
+							before: chevron,
 							className: 'jetpack-content-guidelines-ai__badge-container',
 							tag: 'span',
 					  }

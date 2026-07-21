@@ -1,0 +1,7 @@
+{
+	"name": "jpa/new-vs-returning-customer",
+	"title": "New vs returning customer",
+	"description": "Unique customer counts broken down by new vs returning customers over the selected time period.",
+	"category": "store",
+	"presentation": "framed"
+}

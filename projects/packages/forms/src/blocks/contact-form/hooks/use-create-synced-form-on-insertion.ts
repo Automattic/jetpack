@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../util/create-synced-form.ts';
-import variations from '../variations.js';
+import variations from '../variations.jsx';
 
 interface UseCreateSyncedFormOnInsertionProps {
 	clientId: string;

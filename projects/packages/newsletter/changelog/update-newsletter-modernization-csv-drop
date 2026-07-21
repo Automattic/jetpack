@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Subscribers dashboard (Newsletter modernization, behind a feature flag): replace the Add subscribers CSV file selector with a clickable drag-and-drop upload area.
-
-

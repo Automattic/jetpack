@@ -15,6 +15,15 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 class Feedback_Source {
 
 	/**
+	 * Source types whose forms can only be placed by a user with the administrator-tier
+	 * `edit_theme_options` capability. Destinations declared in these surfaces are trusted
+	 * even though they have no numeric post author to check.
+	 *
+	 * @var string[]
+	 */
+	const ADMIN_TIER_SOURCE_TYPES = array( 'block_template', 'block_template_part', 'widget' );
+
+	/**
 	 * The ID of the post or page that the feedback was created on.
 	 *
 	 * @var string
@@ -184,17 +193,23 @@ class Feedback_Source {
 		// at submission time to branch the response into the test pipeline.
 		$is_test = Form_Preview::is_preview_mode();
 
+		// The widget context is resolved server-side in Contact_Form::parse() (it overwrites the
+		// widget attribute before the form is built), so the value seen here is trustworthy.
 		if ( isset( $attributes['widget'] ) && ! empty( $attributes['widget'] ) ) {
 			return new self( $attributes['widget'], self::get_source_title(), 1, 'widget', $current_url, $is_test );
 		}
 
-		if ( isset( $attributes['block_template'] ) && ! empty( $attributes['block_template'] ) ) {
-			global $_wp_current_template_id;
-			return new self( $_wp_current_template_id, self::get_source_title(), $page, 'block_template', $current_url, $is_test );
+		// Block template part and block template sources are determined from render-scoped
+		// globals that are set only while the actual template part / template renders — never
+		// from a content attribute. A content attribute can be supplied by a post author (who
+		// need not hold edit_theme_options), so trusting it would let post-content forms
+		// masquerade as admin-authored template sources. See Util for the globals' lifecycle.
+		if ( ! empty( $GLOBALS['grunion_block_template_part_id'] ) ) {
+			return new self( $GLOBALS['grunion_block_template_part_id'], self::get_source_title(), $page, 'block_template_part', $current_url, $is_test );
 		}
 
-		if ( isset( $attributes['block_template_part'] ) && ! empty( $attributes['block_template_part'] ) ) {
-			return new self( $attributes['block_template_part'], self::get_source_title(), $page, 'block_template_part', $current_url, $is_test );
+		if ( ! empty( $GLOBALS['grunion_block_template_id'] ) ) {
+			return new self( $GLOBALS['grunion_block_template_id'], self::get_source_title(), $page, 'block_template', $current_url, $is_test );
 		}
 
 		return new Feedback_Source( \get_the_ID(), \get_the_title(), $page, 'single', $current_url, $is_test );
@@ -296,6 +311,17 @@ class Feedback_Source {
 	 */
 	public function get_id() {
 		return $this->id;
+	}
+
+	/**
+	 * Get the source type of the feedback entry.
+	 *
+	 * Possible values: single, widget, block_template, block_template_part.
+	 *
+	 * @return string The source type.
+	 */
+	public function get_source_type() {
+		return $this->source_type;
 	}
 
 	/**

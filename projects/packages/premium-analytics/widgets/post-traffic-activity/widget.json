@@ -1,0 +1,7 @@
+{
+	"name": "jpa/post-traffic-activity",
+	"title": "Traffic activity",
+	"description": "Daily views for the post or page being viewed, as a calendar heatmap.",
+	"category": "stats",
+	"presentation": "framed"
+}

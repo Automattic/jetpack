@@ -1,0 +1,7 @@
+{
+	"name": "jpa/stats-top-posts",
+	"title": "Most viewed",
+	"description": "Your most viewed posts, pages, and archives.",
+	"category": "stats",
+	"presentation": "framed"
+}

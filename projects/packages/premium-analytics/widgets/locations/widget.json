@@ -1,0 +1,7 @@
+{
+	"name": "jpa/locations",
+	"title": "Locations",
+	"description": "Where your visitors are viewing from — by country, region, or city.",
+	"category": "stats",
+	"presentation": "framed"
+}

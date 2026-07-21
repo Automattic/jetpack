@@ -64,11 +64,11 @@ function MediaCell( { item }: { item: ActivityItem } ) {
 function DescriptionCell( { item }: { item: ActivityItem } ) {
 	return (
 		<Stack direction="row" align="center" gap="xs">
-			<Text size="small" variant="muted" className="jpb-activity-list__date">
+			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
 			</Text>
 			{ item.summary && (
-				<Text size="small" variant="muted" className="jpb-activity-list__summary">
+				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary">
 					{ item.summary }
 				</Text>
 			) }

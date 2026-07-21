@@ -64,10 +64,17 @@ export const ModernManageConnectionsModal = () => {
 				 * disclosure row expands — pinning it makes the row scroll inside
 				 * the popup instead. The short confirmation view keeps its natural
 				 * height, and `full` already fills the viewport on mobile.
+				 *
+				 * Both non-`full` views also carry the admin-menu workaround so they
+				 * don't tuck under the wp-admin sidebar: `services-list` (its
+				 * horizontal half) and `menu-aware` (the confirmation view). See the
+				 * workaround section in style-modern.module.scss.
 				 */ }
 				<Dialog.Popup
 					size={ isSmall ? 'full' : 'large' }
-					className={ ! hasKeyringResult && ! isSmall ? styles[ 'services-list' ] : undefined }
+					className={
+						isSmall ? undefined : styles[ hasKeyringResult ? 'menu-aware' : 'services-list' ]
+					}
 				>
 					<Dialog.Header className={ styles[ 'modal-header' ] }>
 						<Dialog.Title>{ title }</Dialog.Title>

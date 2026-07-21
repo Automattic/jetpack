@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import edit from './edit.js';
+import edit from './edit.jsx';
 import StepIcon from './icon.jsx';
-import save from './save.js';
+import save from './save.jsx';
 
 export const name = 'form-step';
 

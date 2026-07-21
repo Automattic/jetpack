@@ -33,19 +33,6 @@ function check_invalid_chars {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (130_stop_executables)
-function check_executable {
-	local FILE="$1"
-	local line old_mode new_mode
-	line=$( git diff --cached --raw "${FILE}" )
-	old_mode="$(echo "$line" | cut -d' ' -f1 | cut -c2-)"
-	new_mode="$(echo "$line" | cut -d' ' -f2)"
-	if [[ "100755" == "$new_mode" && "100755" != "$old_mode" ]]; then
-		echo '  ❌ File cannot be executable!'
-		failed "$SLUG: File \`$FILE\` may not be executable"
-	fi
-}
-
 # Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (160_stop_symlinks)
 function check_symlink {
 	local FILE="$1"
@@ -78,7 +65,6 @@ function failed {
 # Adapted from projects/github-actions/push-to-mirrors/push-to-mirrors.sh
 echo "::group::Fetching commits for Upstream-Ref matching"
 cd "$GITHUB_WORKSPACE/commit"
-git -c protocol.version=2 fetch --unshallow --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 # GitHub may not have an up-to-date git
 UPSTREAM_REF_SINCE=2024-04-10
 ARGS=()
@@ -165,7 +151,6 @@ while IFS=$'\t' read -r _ MIRROR SLUG; do
 		echo "- $FILE"
 		check_underscores "$FILE"
 		check_invalid_chars "$FILE"
-		check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=A )
 
@@ -173,7 +158,6 @@ while IFS=$'\t' read -r _ MIRROR SLUG; do
 	echo 'Modified files:'
 	while IFS= read -r FILE; do
 		echo "- $FILE"
-		check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=MT )
 

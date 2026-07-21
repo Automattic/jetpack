@@ -7,5 +7,4 @@ build/**          production-include
 # Remember to end all directories with `/**` to properly tag every file.
 /_inc/**           production-exclude
 /jest-globals.js   production-exclude
-/postcss.config.js production-exclude
 routes/**          production-exclude

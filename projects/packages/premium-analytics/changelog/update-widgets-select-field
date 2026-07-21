@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Use SelectField for text attributes with elements across Stats and email widgets.

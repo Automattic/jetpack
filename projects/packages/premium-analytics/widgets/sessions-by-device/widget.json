@@ -1,0 +1,7 @@
+{
+	"name": "jpa/sessions-by-device",
+	"title": "Sessions by device",
+	"description": "Shows the sessions breakdown by device type over the selected time period.",
+	"category": "store",
+	"presentation": "framed"
+}

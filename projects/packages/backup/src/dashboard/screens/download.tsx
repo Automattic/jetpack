@@ -35,12 +35,12 @@ export default function DownloadScreen() {
 				<Card.Root className="jpb-download__card">
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ cloud } />
-						<Stack direction="column" gap="2xs">
+						<Stack direction="column" gap="xs">
 							<Text variant="heading-md" render={ <h3 /> }>
 								{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 							</Text>
 							{ downloadPoint && (
-								<Text size="small" variant="muted">
+								<Text variant="body-sm" className="jpb-text-muted">
 									{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
 									{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
 								</Text>
@@ -58,7 +58,7 @@ export default function DownloadScreen() {
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
 							<Button
 								className="jpb-download__confirm"
-								variant="primary"
+								variant="solid"
 								disabled={ state.phase === 'submitting' }
 								onClick={ submit }
 							>
@@ -92,7 +92,7 @@ export default function DownloadScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button className="jpb-download__confirm" variant="secondary" onClick={ reset }>
+							<Button className="jpb-download__confirm" variant="outline" onClick={ reset }>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>

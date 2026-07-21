@@ -1,0 +1,7 @@
+{
+	"name": "jpa/orders-fulfillment",
+	"title": "Orders fulfillment",
+	"description": "Shows the breakdown of fulfilled vs unfulfilled order counts over the selected time period.",
+	"category": "store",
+	"presentation": "framed"
+}

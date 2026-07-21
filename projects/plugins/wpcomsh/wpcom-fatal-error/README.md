@@ -43,6 +43,25 @@ re-implement core's recovery-mode email, locale resolution, and styling. The
 any of that. Trade-off: we can't replace core's outer `<body>` chrome, only
 the inner message.
 
+### Not OOMing while rendering the screen
+
+Building the screen allocates — CSS read, output buffer, plugin-header reads,
+user bootstrap. When the request is already near its memory ceiling, that
+allocation itself exhausts memory and throws a *second* fatal, which masks the
+real error: the log ends up pointing at `fatal-error-screen.php` (e.g. the CSS
+`file_get_contents`) instead of whatever actually broke. The original error
+need not be an OOM — any fatal on a request that's near the limit hits this.
+
+So `wpcomsh_customize_fatal_error_message()` first calls
+`wpcomsh_fatal_ensure_render_memory()`, which checks the free headroom
+(`memory_limit` − `memory_get_usage()`) and, if it's short, raises the limit
+enough to render. The decision is based on *available memory*, not the error
+type. If the platform refuses the raise (some hosts cap `ini_set`), it returns
+core's lighter default screen (PHP still logs the real fatal) rather than
+re-fataling. A direct `ini_set` is used rather than `wp_raise_memory_limit()`,
+which runs filters in the fatal path and no-ops when the limit is already high
+(as on Atomic).
+
 ### Why helpers bootstrap WP manually
 
 The fatal handler can fire before `wp-settings.php` finishes. At that point

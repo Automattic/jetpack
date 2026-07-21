@@ -134,7 +134,7 @@ describe( 'useDashboardVideos', () => {
 		mockUseVideos.mockReturnValue( { ...baseVideosState, page: 3 } );
 		rerender();
 
-		expect( setParam ).toHaveBeenCalledWith( 'page', 3 );
+		expect( setParam ).toHaveBeenCalledWith( 'page', '3' );
 		expect( update ).toHaveBeenCalledTimes( 1 );
 	} );
 
@@ -167,10 +167,10 @@ describe( 'useDashboardVideos', () => {
 		setupSearchParams( '2', '' );
 
 		const { result, rerender } = renderHook( () => useDashboardVideos() );
-		const firstIds = result.current.videos.map( v => v.id );
+		const firstIds = result.current.videos.map( ( v: { id: unknown } ) => v.id );
 
 		rerender();
-		const secondIds = result.current.videos.map( v => v.id );
+		const secondIds = result.current.videos.map( ( v: { id: unknown } ) => v.id );
 
 		expect( firstIds.length ).toBeGreaterThan( 0 );
 		expect( secondIds ).toEqual( firstIds );

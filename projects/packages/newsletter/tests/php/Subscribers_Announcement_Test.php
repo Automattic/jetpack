@@ -68,13 +68,13 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Confirms is_enabled() defaults to false and follows the modernization filter.
+	 * Confirms is_enabled() defaults to true and follows the modernization filter.
 	 */
 	public function test_is_enabled_follows_modernization_filter() {
-		$this->assertFalse( Subscribers_Announcement::is_enabled() );
-
-		add_filter( Settings::MODERNIZATION_FILTER, '__return_true' );
 		$this->assertTrue( Subscribers_Announcement::is_enabled() );
+
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+		$this->assertFalse( Subscribers_Announcement::is_enabled() );
 	}
 
 	/**
@@ -204,6 +204,7 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 	 * Confirms maybe_load_wp_build() does nothing when the feature is disabled.
 	 */
 	public function test_maybe_load_wp_build_noop_when_disabled() {
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
 		$_GET['page'] = Subscribers_Announcement::PAGE_SLUG;
 
 		Subscribers_Announcement::maybe_load_wp_build();
@@ -329,7 +330,8 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 	 * Confirms handle_toggle_menu() rejects the request when the feature is disabled.
 	 */
 	public function test_handle_toggle_menu_rejects_when_disabled() {
-		// Feature off (default) — even an admin with a valid nonce is rejected.
+		// Feature explicitly off — even an admin with a valid nonce is rejected.
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
 		$this->login_as_admin();
 
 		$_POST['removed']        = '1';

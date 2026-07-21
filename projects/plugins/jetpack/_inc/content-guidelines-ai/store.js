@@ -1,20 +1,20 @@
+import apiFetch from '@wordpress/api-fetch';
 import { createReduxStore, register } from '@wordpress/data';
 
-const DISMISS_KEY = 'jetpack_content_guidelines_banner_dismissed';
-
-function isStorageDismissed() {
-	try {
-		return localStorage.getItem( DISMISS_KEY ) === '1';
-	} catch {
-		return false;
-	}
-}
+// Per-user dismissed flag, persisted server-side so it follows the user across
+// devices/browsers. The initial value is preloaded into the page by PHP (see
+// _inc/content-guidelines-ai.php); dismissal is written via this REST route.
+const DISMISS_PATH = '/wpcom/v2/jetpack-ai/guidelines-banner-dismissed';
 
 const DEFAULT_STATE = {
 	loading: false,
 	loadingSections: {},
 	suggestions: {},
-	bannerDismissed: isStorageDismissed(),
+	bannerDismissed: !! window.jetpackContentGuidelinesAi?.bannerDismissed,
+	// Session-only: set when a Generate click happens without an AI plan, so
+	// the upgrade notice resurfaces even after the persisted dismissal — the
+	// click is a fresh intent signal that bypasses the dismissed flag.
+	upgradeNoticeForced: false,
 };
 
 const actions = {
@@ -36,13 +36,27 @@ const actions = {
 	stopSectionLoading( slug ) {
 		return { type: 'STOP_SECTION_LOADING', slug };
 	},
+	showUpgradeNotice() {
+		return { type: 'SHOW_UPGRADE_NOTICE' };
+	},
+	hideUpgradeNotice() {
+		return { type: 'HIDE_UPGRADE_NOTICE' };
+	},
 	dismissBanner() {
-		try {
-			localStorage.setItem( DISMISS_KEY, '1' );
-		} catch {
-			// Ignore storage access failures.
-		}
-		return { type: 'DISMISS_BANNER' };
+		return ( { select, dispatch } ) => {
+			// One-way flag — skip the write if already dismissed.
+			if ( select.isBannerDismissed() ) {
+				return;
+			}
+			// Optimistic: update state now, persist per-user in the background.
+			// A failed write is ignored — re-syncs from the preloaded value on
+			// the next page load.
+			dispatch( { type: 'DISMISS_BANNER' } );
+			apiFetch( {
+				method: 'PUT',
+				path: DISMISS_PATH,
+			} ).catch( () => {} );
+		};
 	},
 };
 
@@ -63,7 +77,11 @@ function reducer( state = DEFAULT_STATE, action ) {
 			return { ...state, suggestions };
 		}
 		case 'DISMISS_BANNER':
-			return { ...state, bannerDismissed: true };
+			return { ...state, bannerDismissed: true, upgradeNoticeForced: false };
+		case 'SHOW_UPGRADE_NOTICE':
+			return { ...state, upgradeNoticeForced: true };
+		case 'HIDE_UPGRADE_NOTICE':
+			return { ...state, upgradeNoticeForced: false };
 		case 'START_SECTION_LOADING':
 			return {
 				...state,
@@ -94,6 +112,9 @@ const selectors = {
 	},
 	isBannerDismissed( state ) {
 		return state.bannerDismissed;
+	},
+	isUpgradeNoticeForced( state ) {
+		return state.upgradeNoticeForced;
 	},
 };
 

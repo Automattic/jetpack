@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improve Jetpack Boost page-cache hit rates by excluding Cookie Consent geolocation cookies from the cache key and ensuring geolocation lookups aren’t cached.

@@ -34,6 +34,12 @@ export type MetricValueProps = {
 	className?: string;
 
 	/**
+	 * `title` tooltip on the value, e.g. the exact count behind a shortened
+	 * display value (`18K` → `18,432`).
+	 */
+	title?: string;
+
+	/**
 	 * Font size token from the WordPress Design System.
 	 * Maps directly to `--wpds-typography-font-size-{value}`.
 	 * @default 'lg'
@@ -52,6 +58,7 @@ export function MetricValue( {
 	dataFormat = { type: 'number' },
 	currencyCode,
 	className,
+	title,
 	fontSize = 'lg',
 	color = 'neutral',
 }: MetricValueProps ) {
@@ -74,6 +81,7 @@ export function MetricValue( {
 	return (
 		<span
 			style={ style }
+			title={ title }
 			className={ clsx( styles.metricValue, styles[ `color--${ color }` ], className ) }
 		>
 			{ displayValue }

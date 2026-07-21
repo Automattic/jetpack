@@ -164,6 +164,7 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 				timerRef.current = setTimeout( () => {
 					navigate( {
 						replace: true, // do not pollute history while interacting
+						viewTransition: false,
 						search: prev => ( {
 							...prev,
 							...( bufferRef.current as Partial< TSearch > ),
@@ -223,6 +224,7 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 
 			navigate( {
 				replace: commitOpts?.replace ?? false, // explicit commits push into history
+				viewTransition: false,
 				search: prev => ( {
 					...prev,
 					...( finalPatch as Partial< TSearch > ),

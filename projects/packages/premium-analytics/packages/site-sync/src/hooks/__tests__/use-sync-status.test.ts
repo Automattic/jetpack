@@ -37,9 +37,9 @@ function rawStatus( overrides: Partial< SyncStatusApiResponse > = {} ): SyncStat
 
 beforeEach( () => {
 	jest.useFakeTimers();
-	// Default: milestone not set.
+	// Default: store site (WooCommerce active), milestone not set.
 	mockScriptData.mockReturnValue( {
-		premium_analytics: { initial_full_sync_finished: 0 },
+		premium_analytics: { initial_full_sync_finished: 0, has_store_data: true },
 	} as ReturnType< typeof getScriptData > );
 	mockFetch.mockResolvedValue( rawStatus() );
 	mockTrigger.mockResolvedValue( undefined );
@@ -111,13 +111,50 @@ describe( 'useSyncStatus', () => {
 
 	it( 'starts complete and skips polling when the milestone is set', async () => {
 		mockScriptData.mockReturnValue( {
-			premium_analytics: { initial_full_sync_finished: 1_700_000_000 },
+			premium_analytics: { initial_full_sync_finished: 1_700_000_000, has_store_data: true },
 		} as ReturnType< typeof getScriptData > );
 
 		const { result } = renderHook( () => useSyncStatus() );
 
 		await waitFor( () => expect( result.current.isComplete ).toBe( true ) );
 		expect( mockFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'without an analytics backend, gates on the generic full sync', async () => {
+		// has_store_data = false: no woocommerce_analytics bucket; progress is
+		// summed across the generic full sync's modules instead.
+		mockScriptData.mockReturnValue( {
+			premium_analytics: { initial_full_sync_finished: 0, has_store_data: false },
+		} as ReturnType< typeof getScriptData > );
+		mockFetch.mockResolvedValue( {
+			started: true,
+			finished: false,
+			progress: { options: { sent: 1, total: 2 }, posts: { sent: 1, total: 2 } },
+		} );
+
+		const { result } = renderHook( () => useSyncStatus() );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( result.current.data?.hasStoreData ).toBe( false );
+		expect( result.current.data?.isRunning ).toBe( true );
+		expect( result.current.data?.percentage ).toBe( 50 );
+		expect( result.current.isComplete ).toBe( false );
+	} );
+
+	it( 'without an analytics backend, completes when the generic full sync milestone is set', async () => {
+		mockScriptData.mockReturnValue( {
+			premium_analytics: { initial_full_sync_finished: 0, has_store_data: false },
+		} as ReturnType< typeof getScriptData > );
+		mockFetch.mockResolvedValue( {
+			started: true,
+			finished: true,
+			progress: { options: { sent: 2, total: 2 } },
+			initial_full_sync_finished: 1_700_000_000,
+		} );
+
+		const { result } = renderHook( () => useSyncStatus() );
+
+		await waitFor( () => expect( result.current.isComplete ).toBe( true ) );
 	} );
 
 	it( 'keeps polling on each interval while the sync is still running', async () => {

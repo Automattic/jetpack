@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: make calendar heatmaps render ragged edges by default, with out-of-range days skipped by hover and keyboard navigation.

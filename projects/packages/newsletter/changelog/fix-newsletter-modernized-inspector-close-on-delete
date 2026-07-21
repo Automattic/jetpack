@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Newsletter: close the subscriber detail panel when its subscriber is removed instead of leaving it open with stale data

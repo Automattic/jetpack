@@ -48,12 +48,12 @@ test.describe( 'Concatenate JS and CSS', () => {
 		await expect(
 			page.locator( '#e2e-script-one-js' ).first(),
 			'JS concatenation shouldn`t occur when the module is inactive'
-		).toBeAttached( { timeout: 20000 } );
+		).toBeAttached();
 		// This style is enqueued via a helper plugin.
 		await expect(
 			page.locator( '#e2e-style-one-css' ).first(),
 			'CSS concatenation shouldn`t occur when the module is inactive'
-		).toBeAttached( { timeout: 20000 } );
+		).toBeAttached();
 	} );
 
 	test( 'Meta information should be visible when the modules are active', async ( {
@@ -86,14 +86,14 @@ test.describe( 'Concatenate JS and CSS', () => {
 		await expect(
 			page.locator( '[data-handles*="e2e-script-one"][data-handles*="e2e-script-two"]' ).first(),
 			'JS Concatenation occurs when module is active'
-		).toBeAttached( { timeout: 20000 } );
+		).toBeAttached();
 
 		// e2e-style-one and e2e-style-two are enqueued by a helper plugin. When concatenation is enabled,
 		// they should be concatenated into a single style.
 		await expect(
 			page.locator( '[data-handles*="e2e-style-one"][data-handles*="e2e-style-two"]' ).first(),
 			'CSS Concatenation occurs when module is active'
-		).toBeAttached( { timeout: 20000 } );
+		).toBeAttached();
 	} );
 
 	test( 'Assets that are excluded by default shouldn`t be concatenated', async ( {
@@ -112,12 +112,12 @@ test.describe( 'Concatenate JS and CSS', () => {
 		await expect(
 			page.locator( '#jquery-core-js' ).first(),
 			'jQuery should not be concatenated'
-		).toBeAttached( { timeout: 20000 } );
+		).toBeAttached();
 
 		// Admin bar stylesheet is enqueued by default when logged-in.
 		await expect(
 			page.locator( '#admin-bar-css' ).first(),
 			'Admin bar stylesheet should not be concatenated'
-		).toBeAttached( { timeout: 20000 } );
+		).toBeAttached();
 	} );
 } );

@@ -1,0 +1,22 @@
+.root {
+	container-type: inline-size;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+/* Fill the WidgetState ready area so the highlight stays centered. */
+.highlight {
+	height: 100%;
+}
+
+.caption {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

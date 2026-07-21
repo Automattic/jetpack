@@ -1,0 +1,7 @@
+{
+	"name": "jpa/all-time-stats",
+	"title": "All-time stats",
+	"description": "Lifetime totals for your site — views, visitors, posts, and comments.",
+	"category": "stats",
+	"presentation": "framed"
+}

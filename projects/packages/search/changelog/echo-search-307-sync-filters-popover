@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search overlay/embedded templates: keep the Collapsible Filters panel in sync with the sidebar Filters block, so editing filter labels or adding/removing filters in the sidebar always shows up in the panel too. When both blocks coexist, the panel is locked read-only in the editor since it now mirrors the sidebar; it stays fully editable when used standalone.

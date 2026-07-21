@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fields: Add a chevron to the ArrayCheckboxField compact trigger to match SelectControl.

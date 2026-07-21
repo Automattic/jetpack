@@ -228,16 +228,13 @@ class RTC {
 	}
 
 	/**
-	 * When the option is NOT stored yet, default it to disabled (0).
+	 * When RTC is allowed and the option is NOT stored yet,
+	 * default the option to enabled (1), unless the old option
+	 * has a stored value to migrate from.
 	 *
-	 * RTC is no longer enabled by default on WP.com sites while it remains
-	 * in development; sites can still opt in through the existing setting.
-	 *
-	 * The old option is still migrated to the new one to preserve the choice
-	 * of sites that had explicitly opted in before the Gutenberg rename: e.g.
-	 * a site on 22.7 stored wp_enable_real_time_collaboration, then upgraded to
-	 * 22.8 which reads wp_collaboration_enabled — the new option inherits the
-	 * old stored value.
+	 * This handles the Gutenberg upgrade path: e.g. a site on 22.7 stored
+	 * wp_enable_real_time_collaboration, then upgraded to 22.8 which reads
+	 * wp_collaboration_enabled — the new option inherits the old value.
 	 *
 	 * @param mixed  $default The default value.
 	 * @param string $option  The option name.
@@ -248,13 +245,13 @@ class RTC {
 		if ( ! self::is_allowed() ) {
 			return '0';
 		}
-		// When the new option is not stored yet, migrate from the old option's
-		// stored value so sites that previously opted in keep their setting.
+		// RTC allowed and option is not stored yet
 		if ( $option === self::OPTION_NEW ) {
+			// If the old option is set, use that.
 			return get_option( self::OPTION_OLD );
 		}
-		// Default to disabled.
-		return '0';
+		// Default to enabled.
+		return '1';
 	}
 
 	/**
@@ -276,7 +273,7 @@ class RTC {
 	}
 
 	/**
-	 * Override the default for the Gutenberg RTC setting so it defaults to disabled in the UI.
+	 * Override the default for the Gutenberg RTC setting so it defaults to enabled in the UI.
 	 *
 	 * @return void
 	 */
@@ -304,7 +301,7 @@ class RTC {
 					'type'              => 'boolean',
 					'description'       => __( 'Enable Real-Time Collaboration', 'jetpack-rtc' ),
 					'sanitize_callback' => 'rest_sanitize_boolean',
-					'default'           => false,
+					'default'           => true,
 					'show_in_rest'      => true,
 				)
 			);

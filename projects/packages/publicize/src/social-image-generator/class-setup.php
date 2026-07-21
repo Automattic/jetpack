@@ -26,11 +26,11 @@ class Setup {
 		// of 10 we make sure that our code runs before Sync processes the post.
 		add_action( 'wp_after_insert_post', array( $this, 'generate_token_on_save' ), 10, 3 );
 		add_action( 'jetpack_social_sig_warm_image', array( $this, 'warm_social_image' ) );
-		add_action( 'rest_api_init', array( new REST_Token_Controller(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( REST_Token_Controller::class, 'register' ) );
 
 		// Flagged to be removed after deprecation.
 		// @deprecated 0.38.3
-		add_action( 'rest_api_init', array( new REST_Settings_Controller(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( REST_Settings_Controller::class, 'register' ) );
 	}
 
 	/**

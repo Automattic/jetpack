@@ -64,8 +64,8 @@ class Admin_Post_List_Column {
 	public function stats_load_admin_css() {
 		?>
 		<style type="text/css">
-			.fixed .column-stats {
-				width: 5em;
+			.wp-list-table.fixed .column-stats {
+				width: 9em;
 				white-space: nowrap;
 			}
 		</style>
@@ -213,13 +213,13 @@ class Admin_Post_List_Column {
 		// If comments position is 0, then prepend the element at the beginning of the array.
 		if ( 0 === $pos ) {
 			return array_merge(
-				array( 'stats' => esc_html__( 'Stats', 'jetpack-stats-admin' ) ),
+				array( 'stats' => esc_html__( 'Views: 30 days', 'jetpack-stats-admin' ) ),
 				$columns
 			);
 		}
 
 		$chunks             = array_chunk( $columns, $pos, true );
-		$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack-stats-admin' );
+		$chunks[0]['stats'] = esc_html__( 'Views: 30 days', 'jetpack-stats-admin' );
 
 		return call_user_func_array( 'array_merge', $chunks );
 	}

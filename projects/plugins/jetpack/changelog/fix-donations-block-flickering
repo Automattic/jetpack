@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Donations Form: don't render the first-time modal, lock post saving, or fetch Stripe status when the block is shown as an inserter preview, which caused the editor to flicker on hover.

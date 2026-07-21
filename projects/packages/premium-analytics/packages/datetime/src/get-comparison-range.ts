@@ -3,7 +3,9 @@
  */
 import {
 	differenceInDays,
+	differenceInMilliseconds,
 	subDays,
+	subMilliseconds,
 	subWeeks,
 	subMonths,
 	subYears,
@@ -51,8 +53,12 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  * and a given preset.
  *
  * - This function is pure and has no side effects.
- * - It does not apply any timezone adjustments. The caller is responsible for
- *   normalizing dates to the desired local day boundaries before passing them in.
+ * - It does not apply any timezone adjustments; day boundaries are resolved in
+ *   the frame of the incoming dates (pass TZDate instances for site-local math).
+ * - Day-aligned references (midnight to end of day) produce day-aligned
+ *   comparison ranges. Sub-day references (rolling windows like the last 24
+ *   hours) mirror the exact window instead, so the comparison always covers
+ *   the same amount of time as the primary range.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -68,6 +74,35 @@ export function getComparisonRangeFromPreset(
 
 	const refFrom = reference.from;
 	const refTo = reference.to;
+
+	const isDayAligned =
+		refFrom.getTime() === startOfDay( refFrom ).getTime() &&
+		refTo.getTime() === endOfDay( refTo ).getTime();
+
+	// Sub-day windows shift only their end, then rebuild `from` from the
+	// original duration: calendar shifts clamp day-of-month (Mar 31 - 1 month
+	// = Feb 28) and would otherwise shrink or collapse the window.
+	if ( ! isDayAligned ) {
+		const windowMs = differenceInMilliseconds( refTo, refFrom );
+		let to: Date;
+
+		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
+			to = subMilliseconds( refTo, windowMs );
+		} else if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
+			to = subWeeks( refTo, 1 );
+		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
+			to = subMonths( refTo, 1 );
+		} else if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
+			to = subYears( refTo, 1 );
+		} else {
+			return undefined;
+		}
+
+		return {
+			from: subMilliseconds( to, windowMs ),
+			to,
+		};
+	}
 
 	const clampDayBound = ( date: Date, bound: 0 | 1 ) =>
 		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );

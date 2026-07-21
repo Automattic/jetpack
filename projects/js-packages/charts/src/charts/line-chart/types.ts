@@ -5,8 +5,8 @@ import type {
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
+import type { RenderTooltipParams } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { ReactNode, SVGProps, FC } from 'react';
 
 export type LineChartAnnotationProps = {

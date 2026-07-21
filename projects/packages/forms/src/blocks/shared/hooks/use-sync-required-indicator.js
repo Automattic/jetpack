@@ -1,7 +1,7 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { useSyncedAttributes } from './use-synced-attributes.js';
+import { useSyncedAttributes } from './use-synced-attributes.jsx';
 
 /**
  * Syncs `requiredIndicator` verticall between parent field and nested label,

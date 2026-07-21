@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove no-longer-necessary stylelint disables. Should be no change to functionality.
+
+

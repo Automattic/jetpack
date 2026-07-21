@@ -8,19 +8,21 @@ import type { PodcastStatsAppRow } from '../types';
 type StatsByAppProps = {
 	rows?: PodcastStatsAppRow[];
 	isLoading?: boolean;
+	scopeLabel?: string;
 };
 
-const StatsByApp = ( { rows = [], isLoading = false }: StatsByAppProps ) => {
+const StatsByApp = ( { rows = [], isLoading = false, scopeLabel }: StatsByAppProps ) => {
 	const title = __( 'By app', 'jetpack-podcast' );
 
 	if ( isLoading ) {
-		return <SectionCard title={ title } isLoading />;
+		return <SectionCard title={ title } metric={ scopeLabel } isLoading />;
 	}
 
 	if ( rows.length === 0 ) {
 		return (
 			<SectionCard
 				title={ title }
+				metric={ scopeLabel }
 				isEmpty
 				emptyMessage={ __( 'No app data in this period.', 'jetpack-podcast' ) }
 			>
@@ -48,7 +50,7 @@ const StatsByApp = ( { rows = [], isLoading = false }: StatsByAppProps ) => {
 	} );
 
 	return (
-		<SectionCard title={ title }>
+		<SectionCard title={ title } metric={ scopeLabel }>
 			<HorizontalBarList rows={ data } />
 		</SectionCard>
 	);

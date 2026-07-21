@@ -1,0 +1,7 @@
+{
+	"name": "jpa/sales-by-utm-campaign",
+	"title": "Sales by UTM campaign",
+	"description": "Shows the top UTM campaigns by order revenue over the selected time period.",
+	"category": "store",
+	"presentation": "framed"
+}

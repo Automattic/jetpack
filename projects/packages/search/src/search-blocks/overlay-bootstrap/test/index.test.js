@@ -65,14 +65,32 @@ function setReadyState( value ) {
 	} );
 }
 
+// Queue rAF callbacks rather than running them, so a test can observe the
+// pre-frame state (the open is deferred) and then advance the frame explicitly.
+// jsdom's real rAF fires on a ~16ms timer the `setTimeout(0)` flush doesn't
+// await, and a stray late callback would leak into the next test.
+let rafQueue = [];
+
 /**
- * Import the bootstrap fresh and let the fire-and-forget `openOverlay` settle.
+ * Run and clear every queued animation-frame callback.
+ */
+function flushAnimationFrames() {
+	const callbacks = rafQueue;
+	rafQueue = [];
+	callbacks.forEach( cb => cb( 0 ) );
+}
+
+/**
+ * Import the bootstrap fresh, run the deferred initial-load open, and let the
+ * fire-and-forget `openOverlay` settle.
  */
 async function loadBootstrap() {
 	jest.resetModules();
 	await import( '../index.js' );
-	// `handlePopState` → `openOverlay` awaits hydration before toggling `hidden`;
-	// flush the microtask queue so the attribute change has landed.
+	// The initial-load open is queued on `requestAnimationFrame`; run it, then
+	// flush the microtask queue so `openOverlay`'s post-hydration `hidden`
+	// toggle has landed.
+	flushAnimationFrames();
 	await new Promise( resolve => setTimeout( resolve, 0 ) );
 }
 
@@ -85,7 +103,18 @@ const isOpen = () => ! document.getElementById( OVERLAY_ID ).hasAttribute( 'hidd
 // `expect( console ).toHaveErrored()` as evidence the call fired — that doubles
 // as the declaration that satisfies the jest-console strict guard.
 
+let rafSpy;
+beforeEach( () => {
+	rafQueue = [];
+	rafSpy = jest.spyOn( window, 'requestAnimationFrame' ).mockImplementation( cb => {
+		rafQueue.push( cb );
+		return rafQueue.length;
+	} );
+} );
+
 afterEach( () => {
+	rafSpy.mockRestore();
+	rafQueue = [];
 	setReadyState( 'complete' );
 	setUrl( '/' );
 	document.body.innerHTML = '';
@@ -122,6 +151,20 @@ describe( 'overlay-bootstrap initial-load URL trigger', () => {
 		expect( isOpen() ).toBe( false );
 	} );
 
+	it( 'opens immediately when the document is interactive (DOMContentLoaded already fired)', async () => {
+		// readyState stays `interactive` from DOMContentLoaded until `load`, so a
+		// late-evaluating module can land here after DCL has already fired —
+		// waiting on a fresh DOMContentLoaded would hang. The non-loading branch
+		// must open without depending on another DOMContentLoaded.
+		setReadyState( 'interactive' );
+		renderOverlayShell();
+		setUrl( '/?s=hello' );
+
+		await loadBootstrap();
+
+		expect( isOpen() ).toBe( true );
+	} );
+
 	it( 'waits for DOMContentLoaded when the document is still loading', async () => {
 		setReadyState( 'loading' );
 		renderOverlayShell();
@@ -132,6 +175,30 @@ describe( 'overlay-bootstrap initial-load URL trigger', () => {
 		expect( isOpen() ).toBe( false );
 
 		document.dispatchEvent( new Event( 'DOMContentLoaded' ) );
+		flushAnimationFrames();
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( isOpen() ).toBe( true );
+	} );
+
+	it( 'defers the initial-load open to an animation frame rather than opening synchronously', async () => {
+		// The deferral is the fix: it keeps the cloned overlay regions out of the
+		// Interactivity runtime's DOMContentLoaded hydration walk (a synchronous
+		// open double-hydrates them and detaches the result/filter bindings). So
+		// after the module evaluates the overlay must still be closed — it only
+		// opens once the queued animation frame runs.
+		setReadyState( 'complete' );
+		renderOverlayShell();
+		setUrl( '/?s=hello' );
+
+		jest.resetModules();
+		await import( '../index.js' );
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( window.requestAnimationFrame ).toHaveBeenCalled();
+		expect( isOpen() ).toBe( false );
+
+		flushAnimationFrames();
 		await new Promise( resolve => setTimeout( resolve, 0 ) );
 
 		expect( isOpen() ).toBe( true );

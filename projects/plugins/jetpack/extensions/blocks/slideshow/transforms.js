@@ -6,7 +6,7 @@ import { createBlock } from '@wordpress/blocks';
  * @param {Array} images - Array of image objects
  * @return {Array} Array of image objects which have id and url
  */
-function getValidImages( images ) {
+function getValidImages( images = [] ) {
 	return images.filter( ( { id, url } ) => id && url );
 }
 
@@ -33,7 +33,18 @@ const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'core/gallery', 'jetpack/tiled-gallery' ],
-			transform: ( { images } ) => {
+			transform: ( { images = [] }, innerBlocks ) => {
+				if ( ! images.length && innerBlocks?.length ) {
+					images = innerBlocks
+						.filter( b => b.name === 'core/image' && b.attributes?.url )
+						.map( ( { attributes } ) => ( {
+							id: attributes.id,
+							url: attributes.url,
+							link: attributes.href,
+							alt: attributes.alt,
+							caption: attributes.caption,
+						} ) );
+				}
 				const validImages = getValidImages( images );
 				if ( validImages.length > 0 ) {
 					return createBlock( 'jetpack/slideshow', {

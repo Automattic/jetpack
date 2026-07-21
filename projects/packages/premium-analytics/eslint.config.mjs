@@ -105,5 +105,43 @@ export default defineConfig(
 			'@wordpress/no-unsafe-wp-apis': 'off',
 			'@wordpress/no-unknown-ds-tokens': 'off',
 		},
+	},
+	{
+		// Ported widget wrappers and stories keep the upstream JSDoc style, and
+		// import internal link packages whose deps are declared on the parent
+		// manifest.
+		files: [ 'widgets/**', 'projects/packages/premium-analytics/widgets/**' ],
+		rules: {
+			'import/order': 'off',
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/require-description': 'off',
+			'jsdoc/require-param': 'off',
+			'jsdoc/require-param-description': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+			'jsdoc/escape-inline-tags': 'off',
+			'import/no-extraneous-dependencies': 'off',
+		},
+	},
+	{
+		// Widgets must reach chart components through the widgets-toolkit
+		// shared script module: a direct `@automattic/charts` import gets
+		// silently inlined into that widget's render bundle, dragging the
+		// whole charting stack (charts, visx, react-spring) along with it.
+		files: [ 'widgets/**', 'projects/packages/premium-analytics/widgets/**' ],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: [ '@automattic/charts', '@automattic/charts/*' ],
+							message:
+								'Import chart components from @jetpack-premium-analytics/widgets-toolkit instead: it is a shared script module, so charts is bundled once for the whole dashboard. Missing a component? Re-export it from the toolkit "Charts passthrough" section.',
+						},
+					],
+				},
+			],
+		},
 	}
 );
