@@ -244,25 +244,8 @@ class Mode {
 			'dashicons-admin-settings',
 			5
 		);
-		// Prefer the mu-wpcom Write editor when its feature is loaded (WP.com
-		// Simple/Atomic); fall back to the block editor on standalone Jetpack,
-		// where that page isn't registered.
-		if ( function_exists( 'wpcom_write_url' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists(); wpcom_write_url() is provided by jetpack-mu-wpcom on WP.com Simple/Atomic.
-			$write_url = add_query_arg( 'source', 'newsletter', wpcom_write_url() );
-		} else {
-			$write_url = admin_url( 'post-new.php' );
-		}
-
-		add_menu_page(
-			__( 'Write & send', 'jetpack-newsletter' ),
-			__( 'Write & send', 'jetpack-newsletter' ),
-			'edit_posts',
-			$write_url,
-			'',
-			'dashicons-edit',
-			6
-		);
+		// "Write" is a prominent button injected at the top of the menu (see
+		// maybe_render_mode_header), not a list item.
 		add_menu_page(
 			__( 'Paid', 'jetpack-newsletter' ),
 			__( 'Paid', 'jetpack-newsletter' ),
@@ -270,8 +253,24 @@ class Mode {
 			'admin.php?page=' . self::PAGE_PAID,
 			'',
 			'dashicons-money-alt',
-			7
+			6
 		);
+	}
+
+	/**
+	 * Resolve the "Write" URL — the mu-wpcom Write editor (returning to the
+	 * Newsletter page via source=newsletter) when its feature is loaded, else the
+	 * block editor on standalone Jetpack.
+	 *
+	 * @return string
+	 */
+	private static function get_write_url() {
+		if ( function_exists( 'wpcom_write_url' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists(); wpcom_write_url() is provided by jetpack-mu-wpcom on WP.com Simple/Atomic.
+			return add_query_arg( 'source', 'newsletter', wpcom_write_url() );
+		}
+
+		return admin_url( 'post-new.php' );
 	}
 
 	/**
@@ -419,6 +418,57 @@ class Mode {
 					display: none;
 				}
 			}
+			/* Prominent "Write" button at the top of the nav (below the header). */
+			#adminmenu .jetpack-newsletter-mode-write {
+				margin: 0;
+				padding: 4px 12px 12px;
+			}
+			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
+				background: #fff;
+				color: #1e1e1e;
+				font-size: 15px;
+				font-weight: 600;
+				line-height: 1.4;
+				padding: 12px 16px;
+				border-radius: 6px;
+				text-decoration: none;
+			}
+			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn:hover,
+			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn:focus {
+				background: #f0f0f1;
+				color: #000;
+			}
+			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn svg {
+				display: none;
+				width: 20px;
+				height: 20px;
+				fill: currentColor;
+			}
+			/* Collapsed menu: compact icon-only button (text hidden). */
+			body.folded #adminmenu .jetpack-newsletter-mode-write {
+				padding: 4px 6px 8px;
+			}
+			body.folded #adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn {
+				padding: 8px;
+			}
+			body.folded #adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn span {
+				display: none;
+			}
+			body.folded #adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn svg {
+				display: block;
+			}
+			@media only screen and ( min-width: 783px ) and ( max-width: 960px ) {
+				.auto-fold #adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn span {
+					display: none;
+				}
+				.auto-fold #adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn svg {
+					display: block;
+				}
+			}
 			/* Subscribers/Settings live in the left nav in mode, so hide the
 			   in-page tab bar (the tab content stays; only the bar is hidden). */
 			.jp-admin-page-tabs {
@@ -468,7 +518,7 @@ class Mode {
 			return;
 		}
 
-		$markup = sprintf(
+		$header_markup = sprintf(
 			'<a href="%1$s" class="jetpack-newsletter-mode-exit" aria-label="%2$s"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z"></path></svg></a><h3>%3$s</h3>',
 			esc_url( admin_url() ),
 			esc_attr__( 'Exit Newsletter Mode', 'jetpack-newsletter' ),
@@ -476,17 +526,30 @@ class Mode {
 			'Newsletters'
 		);
 
+		$write_markup = sprintf(
+			'<a href="%1$s" class="jetpack-newsletter-mode-write-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M20.1 5.1L16.9 2 6.2 12.7l-1.3 4.4 4.5-1.3L20.1 5.1zM4 20.8h8v-1.5H4v1.5z"></path></svg><span>%2$s</span></a>',
+			esc_url( self::get_write_url() ),
+			esc_html__( 'Write', 'jetpack-newsletter' )
+		);
+
+		// Inject the Write button first, then the header above it, so the final
+		// order is: header, Write button, then the existing menu items.
 		wp_print_inline_script_tag(
 			sprintf(
 				'( function () {' .
 					'var menu = document.getElementById( "adminmenu" );' .
 					'if ( ! menu ) { return; }' .
-					'var li = document.createElement( "li" );' .
-					'li.className = "jetpack-newsletter-mode-header";' .
-					'li.innerHTML = %s;' .
-					'menu.insertBefore( li, menu.firstChild );' .
+					'var write = document.createElement( "li" );' .
+					'write.className = "jetpack-newsletter-mode-write";' .
+					'write.innerHTML = %1$s;' .
+					'menu.insertBefore( write, menu.firstChild );' .
+					'var header = document.createElement( "li" );' .
+					'header.className = "jetpack-newsletter-mode-header";' .
+					'header.innerHTML = %2$s;' .
+					'menu.insertBefore( header, menu.firstChild );' .
 				'}() );',
-				wp_json_encode( $markup, JSON_HEX_TAG | JSON_HEX_AMP )
+				wp_json_encode( $write_markup, JSON_HEX_TAG | JSON_HEX_AMP ),
+				wp_json_encode( $header_markup, JSON_HEX_TAG | JSON_HEX_AMP )
 			)
 		);
 	}
