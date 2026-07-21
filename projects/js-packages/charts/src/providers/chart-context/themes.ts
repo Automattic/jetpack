@@ -8,8 +8,8 @@ const defaultTheme: CompleteChartTheme = {
 		'var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff))',
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
 	// White label text sits on top of arbitrary series colors, so it has no WPDS
-	// content-foreground equivalent and stays hardcoded (tokenization outlier).
-	labelTextColor: '#FFFFFF',
+	// content-foreground equivalent; the role carries the hardcoded value as its fallback.
+	labelTextColor: 'var(--a8c-charts-color-label-on-fill, #FFFFFF)',
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: 'var(--a8c-charts-color-grid, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
@@ -19,11 +19,11 @@ const defaultTheme: CompleteChartTheme = {
 	gridColor: '',
 	gridColorDark: '',
 	xTickLineStyles: {
-		stroke: 'var(--a8c-charts-color-grid, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
+		stroke: 'var(--a8c-charts-color-tick, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
 		strokeWidth: 1,
 	},
 	xAxisLineStyles: {
-		stroke: 'var(--a8c-charts-color-grid, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
+		stroke: 'var(--a8c-charts-color-axis, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
 		strokeWidth: 1,
 	},
 	legend: {
@@ -48,17 +48,17 @@ const defaultTheme: CompleteChartTheme = {
 	annotationStyles: {
 		label: {
 			anchorLineStroke:
-				'var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
+				'var(--a8c-charts-color-annotation, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
 			backgroundFill:
 				'var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff))',
 		},
 		connector: {
 			stroke:
-				'var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
+				'var(--a8c-charts-color-annotation, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
 		},
 		circleSubject: {
 			stroke: 'transparent',
-			fill: 'var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
+			fill: 'var(--a8c-charts-color-annotation, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
 			radius: 5,
 		},
 	},

@@ -22,16 +22,26 @@ mapped `--wpds-*` token wins; otherwise the spec-value hex wins. Setting any
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
 | `--a8c-charts-color-grid` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
+| `--a8c-charts-color-axis` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
+| `--a8c-charts-color-tick` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
 | `--a8c-charts-color-label` | `--wpds-color-foreground-content-neutral` | `#1e1e1e` |
 | `--a8c-charts-color-label-secondary` | `--wpds-color-foreground-content-neutral-weak` | `#707070` |
 | `--a8c-charts-color-label-inverse` | `--wpds-color-foreground-interactive-neutral-strong` | `#f0f0f0` |
+| `--a8c-charts-color-label-on-fill` | _(none — white-on-series-fill, no WPDS fit)_ | `#FFFFFF` |
+| `--a8c-charts-color-annotation` | `--wpds-color-foreground-content-neutral` | `#1e1e1e` |
 | `--a8c-charts-color-trend-up` | `--wpds-color-foreground-content-success-weak` | `#008030` |
 | `--a8c-charts-color-trend-down` | `--wpds-color-foreground-content-error-weak` | `#cc1818` |
 | `--a8c-charts-color-trend-neutral` | `--wpds-color-foreground-content-neutral-weak` | `#707070` |
 | `--a8c-charts-color-background` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
 | `--a8c-charts-color-surface-secondary` | `--wpds-color-background-surface-neutral-weak` | `#f4f4f4` |
 | `--a8c-charts-color-track` | `--wpds-color-background-track-neutral-weak` | `#f0f0f0` |
+| `--a8c-charts-color-tooltip-surface` | _(none — translucent dark surface, no WPDS fit)_ | `rgba(0,0,0,0.85)` |
 | `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` | `#3858e9` |
+
+`--a8c-charts-color-axis` (axis line) and `--a8c-charts-color-tick` (tick marks)
+resolve to the same value as `--a8c-charts-color-grid` by default. They are kept as
+distinct roles so axis, tick marks, and gridlines can be themed independently; each
+maps directly to its own `--wpds-*` token rather than chaining through `grid`.
 
 ## Tier 2 — component-specific variables
 
