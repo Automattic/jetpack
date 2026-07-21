@@ -117,8 +117,6 @@ export default function usePlatformViews( {
 		// refetch failure doesn't replace populated rows with the error state.
 		isError: rows.length === 0 && isError,
 		errorReason,
-		// The data layer's combined refetch: memoized, awaits both queries, and
-		// skips the comparison query when comparison is disabled.
 		refetch,
 	};
 }
