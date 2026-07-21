@@ -89,7 +89,9 @@ describe( 'createPromoteLocal', () => {
 		createPromoteLocal( deps )( '9' );
 		await flush();
 
-		expect( deps.createErrorNotice ).toHaveBeenCalledWith( 'Failed to upload video to VideoPress.' );
+		expect( deps.createErrorNotice ).toHaveBeenCalledWith(
+			'Failed to upload video to VideoPress.'
+		);
 		// The overlay still tears down on failure.
 		expect( snapshots ).toEqual( [ [ [ '9', 0 ] ], [] ] );
 	} );
@@ -128,7 +130,10 @@ describe( 'createPromoteLocal', () => {
 		expect( deps.createErrorNotice ).toHaveBeenCalledTimes( 1 );
 		expect( snapshots ).toEqual( [
 			[ [ 'a', 0 ] ],
-			[ [ 'a', 0 ], [ 'b', 0 ] ],
+			[
+				[ 'a', 0 ],
+				[ 'b', 0 ],
+			],
 			[ [ 'b', 0 ] ],
 		] );
 

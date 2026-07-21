@@ -208,7 +208,7 @@ describe( 'useUploadFromLibrary', () => {
 
 		let outcome;
 		await act( async () => {
-			outcome = await result.current.mutateAsync( 3 );
+			outcome = await result.current.mutateAsync( { id: 3 } );
 		} );
 
 		expect( outcome ).toEqual( { guid: 'g1234567', mediaId: 3 } );
@@ -229,7 +229,7 @@ describe( 'useUploadFromLibrary', () => {
 		const { result } = renderHook( () => useUploadFromLibrary(), { wrapper } );
 
 		await act( async () => {
-			await result.current.mutateAsync( 3 );
+			await result.current.mutateAsync( { id: 3 } );
 		} );
 
 		expect( paths ).toEqual( [ '/videopress/v1/upload/3' ] );
