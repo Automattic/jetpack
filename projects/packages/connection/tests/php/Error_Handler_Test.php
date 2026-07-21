@@ -457,12 +457,14 @@ class Error_Handler_Test extends BaseTestCase {
 			'Invalid connection owner',
 			array(
 				'user_id'           => 42,
+				'has_user_token'    => false,
 				'error_type'        => 'connection',
 				'signature_details' => array( 'token' => '' ),
 			)
 		);
 		$result = $this->error_handler->wp_error_to_array( $error );
 		$this->assertSame( '42', $result['user_id'] );
+		$this->assertFalse( $result['error_data']['has_user_token'], 'has_user_token from the WP_Error data is preserved into the stored error_data.' );
 
 		// Parseable token + conflicting explicit user_id: the token wins.
 		$error  = new \WP_Error(
@@ -476,6 +478,7 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 		$result = $this->error_handler->wp_error_to_array( $error );
 		$this->assertSame( '7', $result['user_id'] );
+		$this->assertArrayNotHasKey( 'has_user_token', $result['error_data'], 'has_user_token is only stored when the reporter provided it.' );
 
 		// Unparseable token + no explicit user_id: stays unattributable.
 		$error  = new \WP_Error(
@@ -1763,7 +1766,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
 		$this->assertSame( 'owner', $displayed['audience'] );
-		$this->assertSame( 'reconnect', $displayed['error_data']['action'], 'Transferable ownership keeps the reconnect CTA.' );
+		$this->assertArrayNotHasKey( 'action', $displayed['error_data'], 'No explicit action is emitted for the default behavior: readers fall back to the reconnect CTA.' );
 		$this->assertStringContainsString( 'broken', $displayed['error_message'] );
 	}
 
@@ -1831,6 +1834,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertSame( 'owner', $displayed['audience'], 'An error stored under the master_user ID is owner-scoped.' );
 		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
 		$this->assertStringContainsString( 'Owner Person', $displayed['error_message'], 'The informational notice names the local connection owner.' );
+		$this->assertFalse( $displayed['error_data']['has_user_token'], 'has_user_token is preserved so display code can distinguish a missing token from a deleted owner user.' );
 	}
 
 	/**

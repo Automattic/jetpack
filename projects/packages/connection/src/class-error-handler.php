@@ -102,29 +102,34 @@ class Error_Handler {
 	 * @var array
 	 */
 	public $known_errors = array(
-		'malformed_token',
-		'malformed_user_id',
-		'unknown_user',
-		'no_user_tokens',
-		'empty_master_user_option',
-		'no_token_for_user',
-		'token_malformed',
-		'user_id_mismatch',
-		'no_possible_tokens',
-		'no_valid_user_token',
-		'no_valid_blog_token',
-		'unknown_token',
-		'could_not_sign',
-		'invalid_scheme',
-		'invalid_secret',
-		'invalid_token',
-		'token_mismatch',
-		'invalid_body',
-		'invalid_signature',
-		'invalid_body_hash',
-		'invalid_nonce',
-		'signature_mismatch',
-		'invalid_connection_owner',
+		// Incoming request token problems (Manager::internal_verify_xml_rpc_signature).
+		'malformed_token',           // Token in the request is empty/garbled, or its API version doesn't match ours.
+		'malformed_user_id',         // The user_id segment of the request token is not numeric.
+		'unknown_user',              // The request token's user does not exist on this site.
+		// Locally stored token problems (Tokens::get_access_token).
+		'no_user_tokens',            // The user_tokens option is empty; no user tokens exist at all.
+		'empty_master_user_option',  // The owner's token was requested but the master_user option is empty.
+		'no_token_for_user',         // No stored token for the requested user.
+		'token_malformed',           // The stored token for the requested user is corrupt (missing chunks).
+		'user_id_mismatch',          // The requested user ID doesn't match the user_id segment of their stored token.
+		'no_possible_tokens',        // No stored blog token.
+		'no_valid_user_token',       // The stored user token doesn't match the key the request was signed with.
+		'no_valid_blog_token',       // The stored blog token doesn't match the key the request was signed with.
+		'unknown_token',             // No stored token matches the request token's key.
+		// Signature verification problems (Jetpack_Signature), or errors WPCOM returned
+		// for an outbound request (Error_Handler::check_api_response_for_errors).
+		'could_not_sign',            // Signing the request failed for an unknown reason.
+		'invalid_scheme',            // Invalid URL scheme when signing.
+		'invalid_secret',            // The stored token secret is invalid.
+		'invalid_token',             // No token available when signing; from WPCOM: the token used was rejected.
+		'token_mismatch',            // The request token doesn't match the token we hold.
+		'invalid_body',              // The request body is malformed.
+		'invalid_signature',         // A signature parameter is malformed, or the timestamp is off (clock skew).
+		'invalid_body_hash',         // The body hash doesn't match the request body.
+		'invalid_nonce',             // The request nonce could not be added (likely a reuse/replay).
+		'signature_mismatch',        // Computed signature differs: wrong secret, or URL/body drift (domain change, proxy).
+		// Connection state problems (Manager::get_connection_owner).
+		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
 	);
 
 	/**
@@ -175,6 +180,10 @@ class Error_Handler {
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
+	 * error_data.action is only set when it deviates from the default behavior
+	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
+	 * to offering the reconnect CTA.
+	 *
 	 * @since 6.13.10
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
@@ -185,7 +194,8 @@ class Error_Handler {
 	 *                     'error_code' => 'invalid_token',
 	 *                     'user_id' => '123',
 	 *                     'error_message' => 'Your connection with WordPress.com seems to be broken...',
-	 *                     'error_data' => ['action' => 'reconnect'],
+	 *                     'audience' => 'user',
+	 *                     'error_data' => [...],
 	 *                     'timestamp' => 1234567890,
 	 *                     'nonce' => 'abc123def',
 	 *                     'error_type' => 'xmlrpc'
@@ -251,7 +261,7 @@ class Error_Handler {
 				$audience = $this->classify_error_audience( $user_id, $owner_id );
 
 				$message = $generic_message;
-				$action  = 'reconnect';
+				$action  = null;
 
 				// A secondary admin looking at the connection owner's token error, on a
 				// site where ownership is locked (a consumer declared it non-transferable).
@@ -277,13 +287,15 @@ class Error_Handler {
 				$error['audience']      = $audience;
 				$error['error_message'] = $message;
 
-				// Set error_data.action without discarding any pre-existing custom data.
-				// A pre-existing action is only overridden to explicitly suppress the CTA.
-				$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
-				if ( 'none' === $action || ! isset( $error_data['action'] ) ) {
+				// Only emit error_data.action when it deviates from the default. Readers
+				// already fall back to the reconnect CTA when no action is set, and
+				// injecting an explicit 'reconnect' could trip consumer code paths
+				// reserved for custom actions.
+				if ( null !== $action ) {
+					$error_data           = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
 					$error_data['action'] = $action;
+					$error['error_data']  = $error_data;
 				}
-				$error['error_data'] = $error_data;
 
 				if ( ! isset( $displayable_errors[ $error_code ] ) ) {
 					$displayable_errors[ $error_code ] = array();
@@ -714,10 +726,19 @@ class Error_Handler {
 			$user_id = (string) (int) $data['user_id'];
 		}
 
+		$error_data = $signature_details;
+
+		// For invalid_connection_owner, has_user_token distinguishes a missing owner
+		// token from a deleted owner WP user. Keep it so display code can tell the
+		// two flavors apart.
+		if ( isset( $data['has_user_token'] ) ) {
+			$error_data['has_user_token'] = (bool) $data['has_user_token'];
+		}
+
 		return $this->build_error_array(
 			$error->get_error_code(),
 			$error->get_error_message(),
-			$signature_details,
+			$error_data,
 			$user_id,
 			empty( $data['error_type'] ) ? '' : $data['error_type']
 		);

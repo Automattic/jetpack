@@ -13,6 +13,33 @@ use PHPUnit\Framework\TestCase;
 class Initial_State_Test extends TestCase {
 
 	/**
+	 * Cleans up the test environment after each test.
+	 */
+	protected function tearDown(): void {
+		parent::tearDown();
+
+		\Jetpack_Options::delete_option( 'master_user' );
+		wp_set_current_user( 0 );
+		Error_Handler::get_instance()->delete_all_errors();
+	}
+
+	/**
+	 * Invokes the private static Initial_State::get_data() method.
+	 *
+	 * @return array The initial state data.
+	 */
+	private static function get_data() {
+		$method = new \ReflectionMethod( Initial_State::class, 'get_data' );
+		try {
+			return $method->invoke( null );
+		} catch ( \ReflectionException $e ) { // PHP <8.1: private methods need setAccessible.
+			// @phan-suppress-next-line PhanDeprecatedFunctionInternal -- Only reached on PHP <8.1, where it is not deprecated.
+			$method->setAccessible( true );
+			return $method->invoke( null );
+		}
+	}
+
+	/**
 	 * Ensures that all of the expected fields and no other fields are returned by get_data().
 	 */
 	public function test_render() {
@@ -36,9 +63,8 @@ class Initial_State_Test extends TestCase {
 
 		$_GET['calypso_env'] = 'wpcalypso';
 
-		$manager  = new Manager();
-		$owner    = $manager->get_connection_owner();
-		$owner_id = $manager->get_connection_owner_id();
+		// Known state: no connection owner is set.
+		\Jetpack_Options::delete_option( 'master_user' );
 
 		$expected_state = array(
 			'apiRoot'                      => esc_url_raw( rest_url() ),
@@ -49,18 +75,13 @@ class Initial_State_Test extends TestCase {
 			'connectedPlugins'             => REST_Connector::get_connection_plugins( false ),
 			'wpVersion'                    => $wp_version,
 			'siteSuffix'                   => ( new Status() )->get_site_suffix(),
-			'connectionErrors'             => Error_Handler::get_instance()->get_verified_errors(),
+			'connectionErrors'             => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'                => ( new Status() )->is_offline_mode(),
 			'calypsoEnv'                   => 'wpcalypso',
 			'currentUserId'                => get_current_user_id(),
-			'isCurrentUserConnectionOwner' => $manager->is_connection_owner(),
-			'isOwnershipTransferable'      => $manager->is_ownership_transferable(),
-			'connectionOwner'              => $owner instanceof \WP_User
-				? array(
-					'id'          => $owner_id,
-					'displayName' => $owner->display_name,
-				)
-				: null,
+			'isCurrentUserConnectionOwner' => false,
+			'isOwnershipTransferable'      => ( new Manager() )->is_ownership_transferable(),
+			'connectionOwner'              => null,
 		);
 		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( $expected_state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );
@@ -70,5 +91,64 @@ class Initial_State_Test extends TestCase {
 		unset( $_GET['calypso_env'] );
 
 		$this->assertEquals( $expected_value, $actual_value );
+	}
+
+	/**
+	 * The owner fields must be derived from the master_user option and local user data,
+	 * not from the token-dependent Manager::get_connection_owner(). That method returns
+	 * false exactly when the owner's token is broken, which is the scenario the
+	 * connection-error UIs need this data for.
+	 */
+	public function test_get_data_derives_owner_from_master_user_without_token() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'initial_state_owner',
+				'user_pass'    => 'password',
+				'display_name' => 'Connection Owner',
+			)
+		);
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		// No user token exists for the owner, so the token-dependent derivation
+		// (Manager::get_connection_owner()) would yield no owner here.
+		$this->assertFalse( ( new Manager() )->get_connection_owner() );
+
+		$data = self::get_data();
+
+		$this->assertSame(
+			array(
+				'id'          => $owner_id,
+				'displayName' => 'Connection Owner',
+			),
+			$data['connectionOwner']
+		);
+		$this->assertFalse( $data['isCurrentUserConnectionOwner'] );
+
+		wp_set_current_user( $owner_id );
+		$data = self::get_data();
+
+		$this->assertTrue( $data['isCurrentUserConnectionOwner'] );
+		$this->assertSame( $owner_id, $data['currentUserId'] );
+	}
+
+	/**
+	 * With no master_user option, or with a dangling one pointing at a deleted
+	 * WP user, connectionOwner must be null.
+	 */
+	public function test_get_data_owner_is_null_when_unresolvable() {
+		\Jetpack_Options::delete_option( 'master_user' );
+
+		$data = self::get_data();
+
+		$this->assertNull( $data['connectionOwner'] );
+		$this->assertFalse( $data['isCurrentUserConnectionOwner'] );
+
+		// A dangling master_user option pointing at a user that no longer exists.
+		\Jetpack_Options::update_option( 'master_user', 987654 );
+
+		$data = self::get_data();
+
+		$this->assertNull( $data['connectionOwner'] );
+		$this->assertFalse( $data['isCurrentUserConnectionOwner'] );
 	}
 }

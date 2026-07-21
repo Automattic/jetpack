@@ -25,8 +25,12 @@ class Initial_State {
 		$status  = new Status();
 		$manager = new Manager();
 
-		$owner    = $manager->get_connection_owner();
-		$owner_id = $manager->get_connection_owner_id();
+		// Derive the owner from the master_user option rather than the token-dependent
+		// Manager::get_connection_owner(): that method returns false exactly when the
+		// owner's token is broken, which is the scenario connection-error UIs need this
+		// data for (and it re-reports invalid_connection_owner as a side effect).
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+		$owner    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
 
 		return array(
 			'apiRoot'                      => esc_url_raw( rest_url() ),
@@ -41,7 +45,7 @@ class Initial_State {
 			'isOfflineMode'                => $status->is_offline_mode(),
 			'calypsoEnv'                   => ( new Status\Host() )->get_calypso_env(),
 			'currentUserId'                => get_current_user_id(),
-			'isCurrentUserConnectionOwner' => $manager->is_connection_owner(),
+			'isCurrentUserConnectionOwner' => $owner_id > 0 && get_current_user_id() === $owner_id,
 			'isOwnershipTransferable'      => $manager->is_ownership_transferable(),
 			'connectionOwner'              => $owner instanceof \WP_User
 				? array(

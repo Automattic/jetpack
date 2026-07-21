@@ -52,4 +52,12 @@ export type ConnectionScriptData = {
 	wpVersion: string;
 	siteSuffix: string;
 	connectionErrors: Array< string | object >;
+	isOfflineMode: boolean;
+	currentUserId: number;
+	isCurrentUserConnectionOwner: boolean;
+	isOwnershipTransferable: boolean;
+	connectionOwner: {
+		id: number;
+		displayName: string;
+	} | null;
 };
