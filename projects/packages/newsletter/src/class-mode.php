@@ -220,7 +220,7 @@ class Mode {
 			'manage_options',
 			'admin.php?page=' . self::PAGE_DASHBOARD,
 			'',
-			'dashicons-dashboard',
+			'none',
 			3
 		);
 		add_menu_page(
@@ -229,7 +229,7 @@ class Mode {
 			'manage_options',
 			$newsletter_url,
 			'',
-			'dashicons-groups',
+			'none',
 			4
 		);
 		add_menu_page(
@@ -241,8 +241,8 @@ class Mode {
 			// separate query args.
 			$newsletter_url . '&p=' . rawurlencode( '/?tab=settings' ),
 			'',
-			'dashicons-admin-settings',
-			5
+			'none',
+			6
 		);
 		// "Write" is a prominent button injected at the top of the menu (see
 		// maybe_render_mode_header), not a list item.
@@ -252,8 +252,8 @@ class Mode {
 			'manage_options',
 			'admin.php?page=' . self::PAGE_PAID,
 			'',
-			'dashicons-money-alt',
-			6
+			'none',
+			5
 		);
 	}
 
@@ -488,6 +488,9 @@ class Mode {
 			}'
 		);
 
+		// Scheme-aware custom SVG icons for the menu items (masked + currentColor).
+		wp_add_inline_style( $handle, self::get_menu_icon_css() );
+
 		// On WP.com Simple/Atomic the platform menu is 272px wide (set by the
 		// masterbar package). That rule doesn't apply in mode, so re-assert it so
 		// the focused nav matches the platform. Desktop only — leave the folded /
@@ -508,6 +511,48 @@ class Mode {
 				}'
 			);
 		}
+	}
+
+	/**
+	 * Build scheme-aware CSS for the custom menu-item icons.
+	 *
+	 * Each SVG is applied as a CSS mask on the item's `.wp-menu-image` box with
+	 * `background-color: currentColor`, so it recolors to match the active admin
+	 * color scheme (resting / hover / current) — the way native dashicons do.
+	 * Items are targeted by href so the selectors stay stable.
+	 *
+	 * @return string
+	 */
+	private static function get_menu_icon_css() {
+		$icons = array(
+			// Dashboard.
+			'a[href*="jetpack-newsletter-dashboard"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16 2c1.1046 0 2 .89543 2 2v12c0 1.1046-.8954 2-2 2h-12c-1.10457 0-2-.8954-2-2v-12c0-1.10457.89543-2 2-2zm-10.25 9v3h1.5v-3zm3.5 3h1.5v-5h-1.5zm3.5 0h1.5v-8h-1.5z" fill="#fff"/></svg>',
+			// Subscribers (the bare Newsletter page URL).
+			'a[href$="page=jetpack-newsletter"]'      => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m10 1.6665c-4.60287 0-8.33333 3.73098-8.33333 8.33334 0 2.41416 1.02539 4.58856 2.66601 6.11046 1.48764 1.3795 3.47982 2.2229 5.66732 2.2229s4.1797-.8434 5.6673-2.2229c1.6406-1.5219 2.666-3.6963 2.666-6.11046 0-4.60236-3.7305-8.33334-8.3333-8.33334zm-5.01953 13.3307c1.10351-1.519 2.86133-2.4974 5.01953-2.4974s3.916.9784 5.0195 2.4974c-1.2825 1.2885-3.0566 2.086-5.0195 2.086-1.96289 0-3.73698-.7975-5.01953-2.086zm5.01953-9.37236c-1.49742 0-2.70833 1.21256-2.70833 2.70833 0 1.49575 1.21091 2.70833 2.70833 2.70833 1.4974 0 2.7083-1.21258 2.7083-2.70833 0-1.49577-1.2109-2.70833-2.7083-2.70833z" fill="#fff" fill-rule="evenodd"/></svg>',
+			// Settings (carries the tab param).
+			'a[href*="jetpack-newsletter"][href*="settings"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m1.45833 3.75016c0-1.26565 1.02602-2.29166 2.29167-2.29166h12.5c1.2657 0 2.2917 1.02601 2.2917 2.29166v12.50004c0 1.2656-1.026 2.2916-2.2917 2.2916h-12.5c-1.26565 0-2.29167-1.026-2.29167-2.2916zm6.45834 2.5c0-.46023-.3731-.83333-.83334-.83333-.46023 0-.83333.3731-.83333.83333v4.85204c-.60239.1793-1.04167.7373-1.04167 1.398v.8333c0 .8054.65292 1.4583 1.45834 1.4583h.83333c.80542 0 1.45833-.6529 1.45833-1.4583v-.8333c0-.6607-.43925-1.2187-1.04166-1.398zm3.12503.41667c0-.80542.6529-1.45833 1.4583-1.45833h.8333c.8054 0 1.4584.65291 1.4584 1.45833v.83333c0 .66064-.4393 1.21867-1.0417 1.39792v4.85212c0 .4602-.3731.8333-.8333.8333-.4603 0-.8334-.3731-.8334-.8333v-4.85212c-.6024-.17925-1.0416-.73728-1.0416-1.39792z" fill="#fff" fill-rule="evenodd"/></svg>',
+			// Paid.
+			'a[href*="jetpack-newsletter-paid"]'      => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m18.3301 15.2051c0 .8053-.6528 1.4588-1.458 1.459h-13.7471c-.80542 0-1.45801-.6536-1.45801-1.459v-6.2051h16.66311zm-7.3301-2.2051v1.5h5v-1.5zm7.3291-5.5h-16.66211v-2.70605c.00018-.80527.6527-1.45801 1.45801-1.45801h13.7461c.8035.00012 1.4567.65062 1.458 1.45508.0016.90316.0001 1.80638 0 2.70898z" fill="#fff"/></svg>',
+		);
+
+		$css = '';
+		foreach ( $icons as $selector => $svg ) {
+			$uri  = 'data:image/svg+xml,' . rawurlencode( $svg );
+			$css .= sprintf(
+				'#adminmenu %1$s .wp-menu-image{' .
+					'background-image:none;' .
+					'background-color:currentColor;' .
+					'-webkit-mask-image:url("%2$s");mask-image:url("%2$s");' .
+					'-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;' .
+					'-webkit-mask-position:center;mask-position:center;' .
+					'-webkit-mask-size:20px auto;mask-size:20px auto;' .
+				'}',
+				$selector,
+				$uri
+			);
+		}
+
+		return $css;
 	}
 
 	/**
