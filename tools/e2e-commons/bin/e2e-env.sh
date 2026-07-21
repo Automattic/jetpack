@@ -35,6 +35,12 @@ start_env() {
 # 'latest' is what we already have, and update-core would re-download it for nothing.
 select_wp_version() {
 	[[ -n "$WP_VERSION" && "$WP_VERSION" != 'latest' ]] || return 0
+
+	# `auto_update_core_major` defaults to enabled, so wp-cron will happily pull the site back up to
+	# the current major in the background and the suite would silently test the wrong version. Turn
+	# the updater off before downgrading, so cron can't race the switch.
+	$BASE_CMD wp -- config set AUTOMATIC_UPDATER_DISABLED true --raw --type=constant
+
 	$BASE_CMD update-core "$WP_VERSION"
 }
 
