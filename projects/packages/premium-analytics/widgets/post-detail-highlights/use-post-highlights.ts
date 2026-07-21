@@ -6,6 +6,7 @@ import {
 	type ReportParams,
 	type StatsPostDay,
 } from '@jetpack-premium-analytics/data';
+import { toDay } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -31,20 +32,6 @@ export interface PostHighlightsState {
 	isError: boolean;
 	hasData: boolean;
 	refetch: () => void;
-}
-
-/**
- * Extract a shape-validated `YYYY-MM-DD` day from an ISO report param. The
- * params originate from URL search params; days are only compared as strings
- * here, so shape validation is sufficient (a malformed bound simply matches
- * no history days).
- *
- * @param value - The ISO date-time string.
- * @return The date-only day, or undefined when missing/malformed.
- */
-function toDay( value?: string ): string | undefined {
-	const day = value?.slice( 0, 10 );
-	return day && /^\d{4}-\d{2}-\d{2}$/.test( day ) ? day : undefined;
 }
 
 /**
