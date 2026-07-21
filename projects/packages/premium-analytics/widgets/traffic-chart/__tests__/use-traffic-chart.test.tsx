@@ -171,9 +171,11 @@ describe( 'useTrafficChart', () => {
 	// previous period", not as a previous total of 0 (which would render a
 	// -100% delta against a real current value).
 	it( 'omits the previous period when the comparison request returns no rows', async () => {
+		// Shared between the views/visitors and likes/comments requests below, so
+		// `fields` names neither pair specifically; `data: []` means it's never read.
 		const empty = {
 			unit: 'month',
-			fields: [ 'period', 'views', 'visitors' ],
+			fields: [ 'period' ],
 			data: [],
 		};
 		routeRequests( { viewsVisitors: empty, likesComments: empty } );

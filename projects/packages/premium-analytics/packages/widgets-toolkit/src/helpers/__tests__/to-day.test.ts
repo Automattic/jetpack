@@ -26,9 +26,13 @@ describe( 'toDay', () => {
 		expect( toDay( 'not-a-date' ) ).toBeUndefined();
 	} );
 
-	// The reason the stricter of the two former copies is the one hoisted:
-	// callers feed the result to parseISO/eachDayOfInterval, which throw on a
-	// well-shaped but non-existent calendar day.
+	// The reason the stricter of the two former copies is the one hoisted: it
+	// protects two callers for two different reasons. `post-traffic-activity`
+	// feeds the result to parseISO/eachDayOfInterval, which throw on a
+	// well-shaped but non-existent day. `post-detail-highlights` only compares
+	// days as strings, so it wouldn't throw — but the loose check let a bad
+	// `from` still lexically match real days, producing a plausible-looking
+	// windowed sum instead of the documented all-time fallback.
 	it( 'returns undefined for a well-shaped but impossible calendar date', () => {
 		expect( toDay( '2026-02-31' ) ).toBeUndefined();
 		expect( toDay( '2026-13-01' ) ).toBeUndefined();
