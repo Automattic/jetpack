@@ -97,8 +97,31 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
-		expect( screen.getByText( '-' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows an unavailable delta when a known previous value is zero', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 0,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 

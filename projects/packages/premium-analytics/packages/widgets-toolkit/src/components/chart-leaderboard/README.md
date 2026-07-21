@@ -97,10 +97,10 @@ type LeaderboardChartData = Array< {
 	id: string;
 	label: string;
 	currentValue: number;
-	previousValue: number;
+	previousValue?: number;
 	currentShare: number; // Percentage (0-100)
-	previousShare: number; // Percentage (0-100)
-	delta: number; // Percentage change
+	previousShare?: number; // Percentage (0-100)
+	delta?: number; // Percentage change; omit when unavailable
 } >;
 ```
 
