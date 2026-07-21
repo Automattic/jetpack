@@ -1728,7 +1728,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
 			function ( $data ) {
-				$data['reviewMediatorEnabled'] = true;
+				$data['customFeatureEnabled'] = true;
 				return $data;
 			}
 		);
@@ -1739,7 +1739,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $inline_script );
+		$this->assertStringContainsString( '"customFeatureEnabled":true', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
