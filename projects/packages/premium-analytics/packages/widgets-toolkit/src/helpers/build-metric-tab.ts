@@ -34,7 +34,8 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 
 /**
  * Read a field's total from a report's summary. Reports carry dynamic WPCOM
- * keys, so the field is looked up rather than typed.
+ * keys, so the field is looked up rather than typed. Deliberately does not use
+ * `summaryCount`: a chart headline needs a number to render, not an absence.
  *
  * @param report - The normalized report, or undefined while loading.
  * @param field  - The metric field to read.
