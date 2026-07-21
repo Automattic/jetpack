@@ -430,19 +430,24 @@ class Mode {
 				align-items: center;
 				justify-content: center;
 				gap: 6px;
-				background: var( --wp-admin-theme-color, #2271b1 );
-				color: #fff;
+				/* Neutral surface button (not the accent/primary color). */
+				background: var( --color-surface, #fff );
+				color: var( --color-text, #1e1e1e );
 				font-size: 15px;
-				font-weight: 600;
+				font-weight: 400;
 				line-height: 1.4;
-				padding: 12px 16px;
-				border-radius: 6px;
+				padding: 8px 16px;
+				max-height: 40px;
+				box-sizing: border-box;
+				border-radius: 4px;
 				text-decoration: none;
+				box-shadow: none;
 			}
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn:hover,
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn:focus {
-				background: var( --wp-admin-theme-color-darker-10, #135e96 );
-				color: #fff;
+				background: var( --color-neutral-5, #f0f0f1 );
+				color: var( --color-text, #1e1e1e );
+				box-shadow: none;
 			}
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn svg {
 				display: none;
