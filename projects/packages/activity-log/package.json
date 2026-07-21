@@ -13,14 +13,15 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
+		"build": "pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
 		"build:wp-build": "wp-build",
-		"build-client": "webpack",
-		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod && pnpm run validate",
 		"clean": "rm -rf build/",
 		"typecheck": "tsgo --noEmit",
-		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && webpack watch"
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "wp-build --watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -61,25 +62,14 @@
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
-		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/runtime": "7.29.7",
 		"@types/react": "18.3.28",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.51.0",
 		"@wordpress/build": "0.18.0",
 		"@wordpress/theme": "0.17.0",
-		"autoprefixer": "10.4.20",
-		"browserslist": "^4.24.0",
-		"concurrently": "10.0.3",
-		"postcss": "8.5.21",
-		"postcss-loader": "8.2.0",
-		"sass-embedded": "1.97.3",
-		"sass-loader": "16.0.5",
-		"webpack": "5.107.2",
-		"webpack-cli": "7.2.1"
+		"browserslist": "^4.24.0"
 	}
 }
