@@ -122,7 +122,7 @@
 		"typescript": "6.0.3",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1",
-		"webpack-dev-server": "5.2.5"
+		"webpack-dev-server": "5.2.6"
 	},
 	"wpPlugin": {
 		"name": "jetpack_social",
