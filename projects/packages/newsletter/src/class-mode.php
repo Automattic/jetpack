@@ -376,12 +376,13 @@ class Mode {
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
-				color: rgba( 240, 246, 252, 0.7 );
+				/* No color set: inherit the active color scheme #adminmenu link color. */
+				opacity: 0.7;
 				text-decoration: none;
 			}
 			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit:hover,
 			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit:focus {
-				color: #72aee6;
+				opacity: 1;
 			}
 			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit svg {
 				display: block;
@@ -392,7 +393,8 @@ class Mode {
 			#adminmenu .jetpack-newsletter-mode-header h3 {
 				margin: 0;
 				padding: 0;
-				color: #fff;
+				/* Menu text color: wpcom sidebar-text var, light fallback for core schemes. */
+				color: var( --color-sidebar-text, #fff );
 				font-size: 15px;
 				font-weight: 600;
 				line-height: 1.4;
@@ -428,8 +430,8 @@ class Mode {
 				align-items: center;
 				justify-content: center;
 				gap: 6px;
-				background: #fff;
-				color: #1e1e1e;
+				background: var( --wp-admin-theme-color, #2271b1 );
+				color: #fff;
 				font-size: 15px;
 				font-weight: 600;
 				line-height: 1.4;
@@ -439,8 +441,8 @@ class Mode {
 			}
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn:hover,
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn:focus {
-				background: #f0f0f1;
-				color: #000;
+				background: var( --wp-admin-theme-color-darker-10, #135e96 );
+				color: #fff;
 			}
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn svg {
 				display: none;
