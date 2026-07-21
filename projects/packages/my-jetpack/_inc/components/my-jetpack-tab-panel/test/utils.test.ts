@@ -22,6 +22,7 @@ const mockCurrentUserCan = currentUserCan as jest.Mock;
 const mockIsSimpleSite = isSimpleSite as jest.Mock;
 
 beforeEach( () => {
+	jest.clearAllMocks();
 	mockCurrentUserCan.mockReturnValue( true );
 	mockIsSimpleSite.mockReturnValue( false );
 } );
