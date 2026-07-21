@@ -133,6 +133,7 @@ export {
 	toMaxRows,
 	summaryCount,
 	toDay,
+	defaultPeriodForInterval,
 } from './helpers';
 
 /**

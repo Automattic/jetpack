@@ -52,3 +52,4 @@ export { getVideoKey, getVideoLabel } from './video-plays';
 export { toMaxRows } from './to-max-rows';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
+export { defaultPeriodForInterval } from './default-period-for-interval';
