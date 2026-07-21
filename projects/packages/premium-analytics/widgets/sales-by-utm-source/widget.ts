@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type SalesByUtmSourceAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/sales-by-utm-source',
-	title: __( 'Sales by UTM source', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'See which referral sources are driving sales in your store.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

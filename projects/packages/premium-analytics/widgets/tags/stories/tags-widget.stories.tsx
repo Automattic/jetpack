@@ -6,6 +6,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -13,6 +14,7 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import TagsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -21,14 +23,9 @@ registerReportMocks();
 
 const TAGS_RENDER_MODULE = 'storybook/tags';
 
-// Pick only the fields that StoryWidgetMetadata accepts; the attribute schema
-// and example arrays are typed differently in WidgetType and cause a type error.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+// Build the story widget type from its manifest and module. `presentation`
+// comes from widget.json ( 'framed' ), so the host frames the widget.
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 function renderTags() {
 	return <TagsRender attributes={ { max: 10, reportParams: getDefaultQueryParams() } } />;

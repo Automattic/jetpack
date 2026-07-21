@@ -42,14 +42,6 @@ export type EmailsAttributes = {
  * there is no date range or comparison period.
  */
 export default {
-	name: 'jpa/stats-emails',
-	title: __( 'Emails', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Your most recently sent emails, including their open and click rates.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: envelope,
 	attributes: [
 		{

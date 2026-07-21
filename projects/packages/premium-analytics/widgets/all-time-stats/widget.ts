@@ -58,14 +58,6 @@ export const DEFAULT_ALL_TIME_STATS_METRICS: AllTimeStatsMetricId[] = ALL_TIME_S
  * doubles as the defaults applied to new instances: every metric enabled.
  */
 export default {
-	name: 'jpa/all-time-stats',
-	title: __( 'All-time stats', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Lifetime totals for your site — views, visitors, posts, and comments.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: trendingUp,
 	attributes: [
 		{
