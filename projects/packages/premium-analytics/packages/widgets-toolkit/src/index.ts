@@ -131,6 +131,7 @@ export {
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	summaryCount,
 } from './helpers';
 
 /**
