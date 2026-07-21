@@ -180,6 +180,48 @@ describe( 'useFeatureSettings', () => {
 		expect( result.current.error ).toBeNull();
 	} );
 
+	// The same row toggled twice quickly: the row must stay disabled until
+	// the LAST queued save for that key settles, not just the first.
+	test( 'the same key stays marked saving while its queued save is in flight', async () => {
+		apiFetch.mockResolvedValueOnce( SETTINGS );
+		const { result } = renderHook( () => useFeatureSettings() );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		const off = {
+			...SETTINGS,
+			features: { ...SETTINGS.features, image_editor: { enabled: false } },
+		};
+		let resolveFirst, resolveSecond;
+		apiFetch
+			.mockReturnValueOnce( new Promise( resolve => ( resolveFirst = resolve ) ) )
+			.mockReturnValueOnce( new Promise( resolve => ( resolveSecond = resolve ) ) );
+
+		let first, second;
+		await act( async () => {
+			// Double-click the SAME toggle: on, then straight back off.
+			first = result.current.updateSettings( { features: { image_editor: true } } );
+			second = result.current.updateSettings( { features: { image_editor: false } } );
+		} );
+
+		expect( result.current.savingKeys.has( 'image_editor' ) ).toBe( true );
+
+		// The first POST lands; the second is now dispatched off the queue.
+		await act( async () => {
+			resolveFirst( SETTINGS );
+			await first;
+		} );
+
+		// The second POST is still on the wire, so the row is still saving.
+		expect( apiFetch ).toHaveBeenCalledTimes( 3 );
+		expect( result.current.savingKeys.has( 'image_editor' ) ).toBe( true );
+
+		await act( async () => {
+			resolveSecond( off );
+			await second;
+		} );
+		expect( result.current.savingKeys.size ).toBe( 0 );
+	} );
+
 	test( 'a master switch update is tracked under the __master__ key', async () => {
 		apiFetch.mockResolvedValueOnce( SETTINGS );
 		const { result } = renderHook( () => useFeatureSettings() );

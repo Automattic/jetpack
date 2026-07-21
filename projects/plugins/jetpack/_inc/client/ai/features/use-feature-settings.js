@@ -26,6 +26,9 @@ export function useFeatureSettings() {
 	const [ error, setError ] = useState( null );
 	// Saves queue behind this promise so only one POST is ever in flight.
 	const saveQueue = useRef( Promise.resolve() );
+	// Multiple queued saves can touch the same key; a bare Set would re-enable
+	// the row when the FIRST save settles while a later one is still queued.
+	const pendingKeyCounts = useRef( new Map() );
 
 	useEffect( () => {
 		let cancelled = false;
@@ -67,6 +70,11 @@ export function useFeatureSettings() {
 			keys.push( '__master__' );
 		}
 
+		keys.forEach( key => {
+			const counts = pendingKeyCounts.current;
+			counts.set( key, ( counts.get( key ) ?? 0 ) + 1 );
+		} );
+
 		setSavingKeys( prev => {
 			const next = new Set( prev );
 			keys.forEach( key => next.add( key ) );
@@ -102,11 +110,23 @@ export function useFeatureSettings() {
 				// save-error notice. Setting the hook-level `error` here would read
 				// as a load failure and unmount the whole Features view.
 				.finally( () => {
-					setSavingKeys( prev => {
-						const next = new Set( prev );
-						keys.forEach( key => next.delete( key ) );
-						return next;
+					const counts = pendingKeyCounts.current;
+					const released = keys.filter( key => {
+						const remaining = ( counts.get( key ) ?? 1 ) - 1;
+						if ( remaining > 0 ) {
+							counts.set( key, remaining );
+							return false;
+						}
+						counts.delete( key );
+						return true;
 					} );
+					if ( released.length ) {
+						setSavingKeys( prev => {
+							const next = new Set( prev );
+							released.forEach( key => next.delete( key ) );
+							return next;
+						} );
+					}
 				} )
 		);
 	}, [] );

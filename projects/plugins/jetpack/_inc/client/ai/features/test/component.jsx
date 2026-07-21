@@ -92,6 +92,32 @@ describe( 'AiFeatures rendering', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	// Gated toggles must be inert, not merely styled disabled.
+	test.each( [
+		[ 'not connected', { is_connected: false } ],
+		[ 'master off', { master_enabled: false } ],
+	] )( '%s fires no save and no Tracks event', async ( _label, overrides ) => {
+		analytics.tracks.recordEvent.mockClear();
+		const onUpdate = jest.fn().mockResolvedValue( true );
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					is_connected: true,
+					features: { writing_assistant: { enabled: true } },
+					...overrides,
+				} }
+				savingKeys={ new Set() }
+				onUpdate={ onUpdate }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
+
+		expect( onUpdate ).not.toHaveBeenCalled();
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
+	} );
+
 	test( 'toggling a row sends a partial update for just that key', async () => {
 		analytics.tracks.recordEvent.mockClear();
 		const onUpdate = jest.fn().mockResolvedValue( true );
