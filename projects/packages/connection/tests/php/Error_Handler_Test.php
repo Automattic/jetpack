@@ -445,6 +445,52 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test wp_error_to_array user attribution precedence: the token identifies the failed
+	 * credential and always wins; an explicit user_id in the error data is only used as a
+	 * fallback when the token yields no user (e.g. non-signature errors reported with an
+	 * empty token, such as invalid_connection_owner).
+	 */
+	public function test_wp_error_to_array_user_id_fallback() {
+		// Empty token + explicit user_id: the fallback applies.
+		$error  = new \WP_Error(
+			'invalid_connection_owner',
+			'Invalid connection owner',
+			array(
+				'user_id'           => 42,
+				'error_type'        => 'connection',
+				'signature_details' => array( 'token' => '' ),
+			)
+		);
+		$result = $this->error_handler->wp_error_to_array( $error );
+		$this->assertSame( '42', $result['user_id'] );
+
+		// Parseable token + conflicting explicit user_id: the token wins.
+		$error  = new \WP_Error(
+			'invalid_token',
+			'An error was triggered',
+			array(
+				'user_id'           => 42,
+				'error_type'        => 'xmlrpc',
+				'signature_details' => array( 'token' => 'dhj938djh938d:1:7' ),
+			)
+		);
+		$result = $this->error_handler->wp_error_to_array( $error );
+		$this->assertSame( '7', $result['user_id'] );
+
+		// Unparseable token + no explicit user_id: stays unattributable.
+		$error  = new \WP_Error(
+			'malformed_token',
+			'Malformed token in request',
+			array(
+				'error_type'        => 'xmlrpc',
+				'signature_details' => array( 'token' => 'garbage' ),
+			)
+		);
+		$result = $this->error_handler->wp_error_to_array( $error );
+		$this->assertSame( 'invalid', $result['user_id'] );
+	}
+
+	/**
 	 * Test wp_error_to_array with invalid error (missing token)
 	 */
 	public function test_wp_error_to_array_missing_token() {
@@ -1585,7 +1631,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$verified_errors = array(
 			'invalid_token'       => array( '0' => $make_error( 'invalid_token', 0 ) ),
 			'no_valid_user_token' => array( '7' => $make_error( 'no_valid_user_token', 7 ) ),
-			'no_valid_blog_token' => array( '3' => $make_error( 'no_valid_blog_token', 3 ) ),
+			'no_token_for_user'   => array( '3' => $make_error( 'no_token_for_user', 3 ) ),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
@@ -1593,15 +1639,16 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertSame( 'site', $result['invalid_token']['0']['audience'], 'A blog-token error (user 0) is site-wide.' );
 		$this->assertSame( 'owner', $result['no_valid_user_token']['7']['audience'], "The connection owner's token error is owner-scoped." );
-		$this->assertSame( 'user', $result['no_valid_blog_token']['3']['audience'], "A non-owner user's token error is user-scoped." );
+		$this->assertSame( 'user', $result['no_token_for_user']['3']['audience'], "A non-owner user's token error is user-scoped." );
 	}
 
 	/**
-	 * Test that a malformed-token error is classified as site-wide.
+	 * Test that an error that cannot be attributed to the blog token or any user's token
+	 * (user_id 'invalid') is not displayed at all.
 	 */
-	public function test_get_displayable_errors_classifies_invalid_user_as_site() {
+	public function test_get_displayable_errors_skips_unattributable_errors() {
 		$error = array(
-			'error_code'    => 'invalid_token',
+			'error_code'    => 'malformed_token',
 			'user_id'       => 'invalid',
 			'error_message' => 'Test message',
 			'error_data'    => array(),
@@ -1609,11 +1656,33 @@ class Error_Handler_Test extends BaseTestCase {
 			'nonce'         => 'nonce_invalid',
 			'error_type'    => 'xmlrpc',
 		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'invalid_token' => array( 'invalid' => $error ) ) );
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'malformed_token' => array( 'invalid' => $error ) ) );
 
 		$result = $this->error_handler->get_displayable_errors();
 
-		$this->assertSame( 'site', $result['invalid_token']['invalid']['audience'] );
+		$this->assertArrayNotHasKey( 'malformed_token', $result, 'Unattributable errors belong to no audience and must not be displayed.' );
+	}
+
+	/**
+	 * Test that `no_user_tokens` is not displayable: with an empty user_tokens option the
+	 * site already presents as site-only connected and the connection UI prompts users to
+	 * connect, so the notice adds nothing actionable.
+	 */
+	public function test_get_displayable_errors_excludes_no_user_tokens() {
+		$error = array(
+			'error_code'    => 'no_user_tokens',
+			'user_id'       => '5',
+			'error_message' => 'No user tokens found',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_5',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_user_tokens' => array( '5' => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayNotHasKey( 'no_user_tokens', $result );
 	}
 
 	/**
@@ -1699,11 +1768,15 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that an `invalid_connection_owner` error (stored with an empty token, so its
-	 * user_id is 'invalid') is classified as owner-scoped and, on a locked site, shows a
-	 * secondary admin an informational notice with no reconnect CTA.
+	 * Test that an `invalid_connection_owner` error, reported with an empty token but an
+	 * explicit `user_id` in its error data (as Manager::get_connection_owner() reports it),
+	 * is stored under the owner's real user ID via the wp_error_to_array() fallback and is
+	 * classified as owner-scoped, showing a secondary admin on a locked site an
+	 * informational notice with no reconnect CTA.
 	 */
 	public function test_get_displayable_errors_invalid_connection_owner_is_owner_scoped() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
 		$owner_id = wp_insert_user(
 			array(
 				'user_login'   => 'connection_owner',
@@ -1730,6 +1803,43 @@ class Error_Handler_Test extends BaseTestCase {
 		// Lock ownership.
 		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
 
+		// Report the error exactly the way Manager::get_connection_owner() does:
+		// empty token, explicit user_id in the error data, locally verified.
+		$this->error_handler->report_error(
+			new \WP_Error(
+				'invalid_connection_owner',
+				'Invalid connection owner',
+				array(
+					'user_id'           => $owner_id,
+					'has_user_token'    => false,
+					'error_type'        => 'connection',
+					'signature_details' => array(
+						'token' => '',
+					),
+				)
+			),
+			false,
+			true
+		);
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'invalid_connection_owner', $result );
+		$this->assertArrayHasKey( (string) $owner_id, $result['invalid_connection_owner'], 'The error must be attributed to the owner via the error-data user_id fallback.' );
+
+		$displayed = $result['invalid_connection_owner'][ (string) $owner_id ];
+		$this->assertSame( 'owner', $displayed['audience'], 'An error stored under the master_user ID is owner-scoped.' );
+		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
+		$this->assertStringContainsString( 'Owner Person', $displayed['error_message'], 'The informational notice names the local connection owner.' );
+	}
+
+	/**
+	 * Test that a legacy `invalid_connection_owner` entry still stored under the 'invalid'
+	 * key (written before user attribution was fixed) is skipped from display rather than
+	 * shown with a misleading site-wide reconnect message. It expires via the garbage
+	 * collector within ERROR_LIFE_TIME.
+	 */
+	public function test_get_displayable_errors_skips_legacy_invalid_connection_owner_entry() {
 		$error = array(
 			'error_code'    => 'invalid_connection_owner',
 			'user_id'       => 'invalid',
@@ -1743,10 +1853,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$result = $this->error_handler->get_displayable_errors();
 
-		$displayed = $result['invalid_connection_owner']['invalid'];
-		$this->assertSame( 'owner', $displayed['audience'], 'invalid_connection_owner is inherently owner-scoped.' );
-		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
-		$this->assertStringContainsString( 'Owner Person', $displayed['error_message'], 'The informational notice names the local connection owner.' );
+		$this->assertArrayNotHasKey( 'invalid_connection_owner', $result );
 	}
 
 	/**

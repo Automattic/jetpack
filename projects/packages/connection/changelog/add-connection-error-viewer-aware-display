@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Connection: Make connection error notices owner-aware so that, on sites where connection ownership is locked, non-owner admins see who needs to reconnect instead of a reconnect button. Errors injected via the jetpack_connection_get_verified_errors filter continue to take precedence and are left untouched.
+Make connection error notices owner-aware: on sites where connection ownership is locked, non-owner admins see who needs to reconnect instead of a reconnect button. Attribute errors to the affected user via error data when the token cannot identify one, and stop displaying errors that cannot be attributed to anyone. Errors injected via the jetpack_connection_get_verified_errors filter continue to take precedence and are left untouched.

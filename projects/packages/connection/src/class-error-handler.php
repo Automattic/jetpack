@@ -208,7 +208,10 @@ class Error_Handler {
 		$verified_errors    = $this->get_verified_errors();
 		$displayable_errors = array();
 
-		// Only process error codes that are meant to be displayed to users
+		// Only process error codes that are meant to be displayed to users.
+		// `no_user_tokens` is deliberately excluded: with an empty user_tokens option the
+		// site already behaves as site-only connected, and the connection UI prompts users
+		// to connect their accounts. The owner flavor is covered by `invalid_connection_owner`.
 		$displayable_error_codes = array(
 			'malformed_token',
 			'token_malformed',
@@ -221,7 +224,6 @@ class Error_Handler {
 			'token_mismatch',
 			'invalid_signature',
 			'signature_mismatch',
-			'no_user_tokens',
 			'no_token_for_user',
 			'invalid_connection_owner',
 		);
@@ -240,7 +242,13 @@ class Error_Handler {
 			}
 
 			foreach ( $users as $user_id => $error ) {
-				$audience = $this->classify_error_audience( $error_code, $user_id, $owner_id );
+				// An error that cannot be attributed to the blog token or to any user's
+				// token belongs to no audience and is not actionable by any viewer.
+				if ( 'invalid' === $user_id ) {
+					continue;
+				}
+
+				$audience = $this->classify_error_audience( $user_id, $owner_id );
 
 				$message = $generic_message;
 				$action  = 'reconnect';
@@ -321,29 +329,20 @@ class Error_Handler {
 	 *
 	 * The audience determines who a connection error is relevant to and, in turn,
 	 * how it should be surfaced:
-	 * - `site`  : blog-token / site-wide errors (user ID `0` or a malformed token).
+	 * - `site`  : blog-token / site-wide errors (user ID `0`).
 	 * - `owner` : errors tied to the connection owner's user token.
 	 * - `user`  : errors tied to a specific (non-owner) user's token.
 	 *
+	 * Unattributable errors (user ID 'invalid') are skipped by the display pipeline
+	 * before classification, so this method only receives numeric user IDs.
+	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string     $error_code The error code being classified.
-	 * @param string|int $user_id    The user ID associated with the error (`0`, a positive integer, or 'invalid').
-	 * @param int        $owner_id   The local user ID of the connection owner, or 0 if there is none.
+	 * @param string|int $user_id  The user ID associated with the error (`0` or a positive integer).
+	 * @param int        $owner_id The local user ID of the connection owner, or 0 if there is none.
 	 * @return string One of 'site', 'owner', or 'user'.
 	 */
-	private function classify_error_audience( $error_code, $user_id, $owner_id ) {
-		// `invalid_connection_owner` is inherently about the connection owner: it is
-		// reported with an empty token (so its user_id resolves to 'invalid'), but it
-		// always concerns whoever owns the connection.
-		if ( 'invalid_connection_owner' === $error_code && $owner_id > 0 ) {
-			return 'owner';
-		}
-
-		if ( 'invalid' === $user_id ) {
-			return 'site';
-		}
-
+	private function classify_error_audience( $user_id, $owner_id ) {
 		$user_id = (int) $user_id;
 
 		if ( 0 === $user_id ) {
@@ -685,6 +684,11 @@ class Error_Handler {
 	/**
 	 * Converts a WP_Error object in the array representation we store in the database
 	 *
+	 * The user attribution comes from the token in `signature_details`, which identifies
+	 * the exact credential that failed. An explicit `user_id` in the error data is only
+	 * consulted as a fallback when the token yields no user (e.g. non-signature errors
+	 * such as `invalid_connection_owner`, which are reported with an empty token).
+	 *
 	 * @since 1.14.2
 	 *
 	 * @param \WP_Error $error the error object.
@@ -705,6 +709,10 @@ class Error_Handler {
 		}
 
 		$user_id = $this->get_user_id_from_token( $signature_details['token'] );
+
+		if ( 'invalid' === $user_id && isset( $data['user_id'] ) && is_numeric( $data['user_id'] ) ) {
+			$user_id = (string) (int) $data['user_id'];
+		}
 
 		return $this->build_error_array(
 			$error->get_error_code(),
