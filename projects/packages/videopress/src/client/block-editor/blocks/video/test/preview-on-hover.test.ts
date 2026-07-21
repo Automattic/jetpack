@@ -1,6 +1,4 @@
-import { previewOnHoverEffect } from '../view';
-
-jest.mock( '@wordpress/dom-ready', () => jest.fn() );
+import { previewOnHoverEffect } from '../preview-on-hover';
 
 describe( 'previewOnHoverEffect', () => {
 	const customizeSet = jest.fn();
@@ -25,19 +23,10 @@ describe( 'previewOnHoverEffect', () => {
 		`;
 
 		const iframeApi = {
-			info: {
-				guid: jest.fn(),
-				title: jest.fn(),
-				duration: jest.fn(),
-				poster: jest.fn(),
-				privacy: jest.fn(),
-				onInfoUpdated: jest.fn(),
-			},
 			status: {
 				onPlayerStatusChanged: jest.fn( callback => {
 					onPlayerStatusChanged = callback;
 				} ),
-				onPlaybackTimeUpdated: jest.fn(),
 				onTimeUpdate: jest.fn(),
 			},
 			controls: { play, pause, seek },
