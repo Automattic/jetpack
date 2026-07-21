@@ -5,22 +5,22 @@ import { toPostId } from '@jetpack-premium-analytics/data';
 import {
 	GeoChart,
 	LeaderboardChart,
-	LeaderboardLabel,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	flagUrl,
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
+	type LeaderboardRowMedia,
 	type GeoData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
 import { useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -86,55 +86,26 @@ function buildLeaderboardData(
 	const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
 
 	return rows.map( row => {
-		let label;
-
-		if ( view === 'countries' ) {
-			const imageUrl = row.countryCode ? flagUrl( row.countryCode ) : null;
-			label = (
-				<div className={ styles.label }>
-					<LeaderboardLabel
-						label={ row.label }
-						imageUrl={ imageUrl ?? undefined }
-						imageAlt={ sprintf(
-							/* translators: %s is the country name. */
-							__( 'Flag of %s', 'jetpack-premium-analytics' ),
-							row.countryFull ?? row.label
-						) }
-						imageClassName={ styles.flag }
-					/>
-				</div>
-			);
-		} else if ( view === 'links' ) {
-			// Link rows come from remote data, so only render an anchor for safe
-			// http(s) URLs; anything else (including internal link-type rows with no
-			// URL) falls back to a plain-text label.
-			const safeUrl = safeHttpUrl( row.link );
-			label = safeUrl ? (
-				<Link
-					className={ styles.labelLink }
-					href={ safeUrl }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</span>
-			);
-		} else {
-			label = (
-				<span className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</span>
-			);
-		}
+		const imageUrl = row.countryCode ? flagUrl( row.countryCode ) : null;
+		const media: LeaderboardRowMedia =
+			view === 'countries'
+				? {
+						kind: 'flag',
+						url: imageUrl ?? undefined,
+						country: row.countryFull ?? row.label,
+				  }
+				: { kind: 'none' };
+		// Link rows come from remote data, so only render an anchor for safe
+		// http(s) URLs. Other link-type rows fall back to static text.
+		const safeUrl = view === 'links' ? safeHttpUrl( row.link ) : null;
 
 		return {
 			id: String( row.id ),
-			label,
+			...buildLeaderboardRow( {
+				label: row.label,
+				media,
+				action: safeUrl ? { kind: 'link', href: safeUrl } : { kind: 'static' },
+			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 			previousValue: 0,

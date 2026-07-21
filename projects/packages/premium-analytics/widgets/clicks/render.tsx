@@ -11,23 +11,23 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	LeaderboardLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
+	type LeaderboardRowAction,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { link } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -153,34 +153,29 @@ function buildLeaderboardData(
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! hasChildren;
-		const label = (
-			<LeaderboardLabel
-				label={ row.label }
-				imageUrl={ row.icon ?? undefined }
-				imageAlt=""
-				imageFallback="hidden"
-				imageClassName={ styles.labelIcon }
-			/>
-		);
+		let action: LeaderboardRowAction = { kind: 'static' };
+
+		if ( hasChildren && onDrillDown ) {
+			action = {
+				kind: 'drillDown',
+				onClick: () => onDrillDown( row ),
+				ariaLabel: sprintf(
+					/* translators: %s is the clicked link or domain label. */
+					__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
+					row.label
+				),
+			};
+		} else if ( row.href && ! hasChildren ) {
+			action = { kind: 'link', href: row.href };
+		}
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: shouldRenderLink ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ label }
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'favicon', url: row.icon ?? undefined },
+				action,
+			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxCurrentClicks ),
 			previousValue,
@@ -192,15 +187,6 @@ function buildLeaderboardData(
 				withComparison && previousValue !== undefined
 					? calculateDelta( row.value, previousValue )
 					: undefined,
-			...( hasChildren &&
-				onDrillDown && {
-					onClick: () => onDrillDown( row ),
-					ariaLabel: sprintf(
-						/* translators: %s is the clicked link or domain label. */
-						__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
-						row.label
-					),
-				} ),
 		};
 	} );
 }

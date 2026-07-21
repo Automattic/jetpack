@@ -28,7 +28,7 @@ import { GlobalChartsProvider } from '@automattic/charts';
 ## Usage
 
 ```tsx
-import { LeaderboardChart } from '@jetpack-premium-analytics/widgets-toolkit';
+import { buildLeaderboardRow, LeaderboardChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const data = [
 	{
@@ -74,6 +74,28 @@ const data = [
 />;
 ```
 
+### Row labels
+
+Use `buildLeaderboardRow` for chart rows that need media, links, or drill-down actions. It
+returns one `ReactElement` label plus the chart-level button props for drill-down rows, so links
+and row buttons cannot be combined.
+
+```tsx
+const row = {
+	id: 'example',
+	...buildLeaderboardRow( {
+		label: 'Example',
+		media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+		action: { kind: 'link', href: 'https://example.com' },
+	} ),
+	currentValue: 100,
+	currentShare: 100,
+};
+```
+
+Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
+DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
+
 ## Props
 
 | Prop               | Type                   | Default                                                                | Description                                                       |
@@ -95,7 +117,7 @@ const data = [
 ```tsx
 type LeaderboardChartData = Array< {
 	id: string;
-	label: string;
+	label: string | ReactElement;
 	currentValue: number;
 	previousValue: number;
 	currentShare: number; // Percentage (0-100)

@@ -1,0 +1,81 @@
+/**
+ * External dependencies
+ */
+import { fireEvent, render, screen } from '@testing-library/react';
+/**
+ * Internal dependencies
+ */
+import { LeaderboardLabel } from '../leaderboard-label';
+import { buildLeaderboardRow } from '../leaderboard-row';
+
+describe( 'LeaderboardLabel', () => {
+	it( 'renders media and text without adding row actions', () => {
+		render(
+			<LeaderboardLabel
+				label="France"
+				media={ { kind: 'flag', url: 'https://example.com/fr.png', country: 'France' } }
+			/>
+		);
+
+		expect( screen.getByText( 'France' ) ).toBeInTheDocument();
+		expect( screen.getByAltText( 'Flag of France' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'supports a first-class no-media label', () => {
+		render( <LeaderboardLabel label="Desktop" media={ { kind: 'none' } } /> );
+
+		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'buildLeaderboardRow', () => {
+	it( 'wraps links and makes their media decorative', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Alice',
+			media: { kind: 'avatar', url: 'https://example.com/alice.png', name: 'Alice' },
+			action: { kind: 'link', href: 'https://example.com/alice' },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: /Alice/ } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/alice'
+		);
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
+		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
+	it( 'returns chart button props for a drill-down without nesting an action', () => {
+		const onClick = jest.fn();
+		const row = buildLeaderboardRow( {
+			label: 'Alice',
+			media: { kind: 'avatar', url: 'https://example.com/alice.png', name: 'Alice' },
+			action: { kind: 'drillDown', onClick, ariaLabel: 'View posts by Alice' },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByAltText( 'Avatar of Alice' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( row ).toMatchObject( { onClick, ariaLabel: 'View posts by Alice' } );
+	} );
+
+	it( 'hides a favicon when it fails to load', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Example',
+			media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+			action: { kind: 'static' },
+		} );
+
+		render( row.label );
+		const image = screen.getByAltText( 'Example' );
+		fireEvent.error( image );
+
+		expect( image ).not.toBeVisible();
+	} );
+} );
