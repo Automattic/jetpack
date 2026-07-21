@@ -14,18 +14,25 @@ if ( ! function_exists( 'wpcom_ai_launchpad_remap_task_id' ) ) {
 	 * the guided setup was skipped; `post_sharing_enabled` is born completed (the sharing module is
 	 * active by default on wpcom); `design_selected` is born completed and `design_completed` has no
 	 * wp-admin completion path, so both consolidate onto the actionable `site_theme_selected` task.
-	 * The prompt no longer offers these ids, so this only catches stray AI emissions and outputs
-	 * persisted before the replacement.
+	 * Catalog `id_map` twins are the same underlying task under two names, so each pair collapses
+	 * onto the one the menu still offers. The prompt no longer offers any of these ids, so this only
+	 * catches stray AI emissions and outputs persisted before the replacement.
 	 *
 	 * @param string $task_id A task id from the persisted AI output.
 	 * @return string The task id to render (and listen/skip) instead.
 	 */
 	function wpcom_ai_launchpad_remap_task_id( $task_id ) {
 		$remap = array(
-			'woo_launch_site'      => 'site_launched',
-			'post_sharing_enabled' => 'connect_social_media',
-			'design_selected'      => 'site_theme_selected',
-			'design_completed'     => 'site_theme_selected',
+			'woo_launch_site'                 => 'site_launched',
+			'post_sharing_enabled'            => 'connect_social_media',
+			'design_selected'                 => 'site_theme_selected',
+			'design_completed'                => 'site_theme_selected',
+			// id_map twins, keyed dropped => kept.
+			'drive_traffic'                   => 'connect_social_media',
+			'first_post_published_newsletter' => 'first_post_published',
+			'link_in_bio_launched'            => 'site_launched',
+			'videopress_launched'             => 'site_launched',
+			'subscribers_added'               => 'import_subscribers',
 		);
 
 		return $remap[ $task_id ] ?? $task_id;
