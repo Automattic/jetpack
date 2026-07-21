@@ -80,69 +80,16 @@ Consuming packages should add `@automattic/jetpack-wp-build-polyfills` as a devD
 
 ## Safety checks
 
-This package ships a **matched set** of `@wordpress/*` packages that call each other's exports at
-runtime (e.g. `@wordpress/boot` imports `ThemeProvider` from `@wordpress/theme`). If the versions
-drift out of sync, an imported symbol can resolve to `undefined` at runtime — a blank dashboard with
-**no build error and no obvious console message**. That is what shipped in Jetpack 16.0.
+Two checks run after `webpack` (see the `build` script) so version skew in the bundled `@wordpress/*`
+set fails the build instead of silently blanking a dashboard at runtime (as in Jetpack 16.0):
 
-Two build-time checks run automatically after `webpack` (see the `build` script) to catch that class
-of failure before it ships:
-
-### 1. Boot asset handle check (`validate-boot-asset.js`)
-
-Verifies every dependency **handle** in the boot module's `.asset.php` is a known WordPress Core or
-polyfill handle. Catches the *missing/unknown-handle* failure (WordPress silently drops a script
-whose dependency isn't registered).
-
-### 2. Export-contract check (`validate-export-contract.js`)
-
-Verifies that every symbol a consumer package (`@wordpress/boot`, …) **imports** from a polyfilled
-provider (`@wordpress/theme`, `@wordpress/notices`, `@wordpress/private-apis`, `@wordpress/views`)
-actually exists in that provider's shipped public API. This is the direct detector of the 16.0
-`ThemeProvider is undefined` failure — it compares the `import { … }` statements in the consumer's
-published ESM against the `export { … }` surface of the provider version this package ships.
-
-> Scope: v1 checks the **classic-script** providers (the `window.wp.<pkg>` globals), which is where a
-> missing export silently becomes `undefined`. The ESM module providers (`@wordpress/route`,
-> `@wordpress/a11y`) resolve via the browser import map and are a documented follow-up.
-
-Run it on its own:
-
-```bash
-pnpm run check-contracts
-```
-
-### Simulating a violation
-
-To confirm the guard actually stops a broken build (locally, and — in a PR — as a red CI check),
-you can reproduce a skew two ways:
-
-**A. Env-var simulation (fast, no reinstall).** Drop a symbol from a provider's exports without
-touching the lockfile:
-
-```bash
-# Reproduces the 16.0 skew: boot needs ThemeProvider, pretend theme no longer exports it.
-pnpm run simulate:skew
-# → exits non-zero with the export-contract error (this is what CI would see).
-
-# Any package:symbol pair works, comma-separated:
-WP_BUILD_POLYFILLS_SIMULATE_MISSING="@wordpress/notices:SnackbarNotices" pnpm run check-contracts
-```
-
-**B. Real version pin (authentic end-to-end).** Pin a provider to a version that genuinely lacks the
-export, install, and build:
-
-```bash
-# @wordpress/theme < 0.16 only exposed ThemeProvider privately (the real 16.0 cause).
-# Edit package.json:  "@wordpress/theme": "0.15.1"
-pnpm install
-pnpm run build   # → fails at validate-export-contract.js
-# Revert the pin + `pnpm install` when done.
-```
-
-Both are also encoded as automated tests in `tests/js/validate-export-contract.test.js` (see the
-`FAILS on the 16.0 shape …` and `detects a simulated skew …` cases), so the guard itself is
-regression-tested.
+- **`validate-boot-asset.js`** — every dependency handle in the boot module's `.asset.php` is a known
+  Core or polyfill handle (catches a script silently dropped for an unregistered dependency).
+- **`validate-export-contract.js`** — every symbol a consumer (`@wordpress/boot`, …) imports from a
+  polyfilled classic-script provider (`@wordpress/theme`, `notices`, `private-apis`, `views`) exists
+  in that provider's shipped public API (catches the 16.0 `wp.theme.ThemeProvider is undefined`
+  case). Run standalone with `pnpm run check-contracts`. The ESM module providers (`route`, `a11y`)
+  are a follow-up. Regression-tested in `tests/js/validate-export-contract.test.js`.
 
 ## Development
 

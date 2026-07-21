@@ -1,56 +1,16 @@
-/* global __dirname, process */
+/* global __dirname */
 /**
- * Shared logic for the export-contract validator.
- *
- * Used by both the post-build CLI script and the test suite.
- *
- * WHY THIS EXISTS
- * ---------------
- * This package ships a *matched set* of `@wordpress/*` packages. Some of them
- * import symbols from others at runtime — most importantly `@wordpress/boot`
- * imports `ThemeProvider` from `@wordpress/theme`, `SnackbarNotices` from
- * `@wordpress/notices`, and so on. Those imported packages are shipped as
- * classic scripts that expose a `window.wp.<pkg>` global.
- *
- * If the versions get out of sync (e.g. boot expects a public `ThemeProvider`
- * export but the shipped `@wordpress/theme` only exposes it privately), the
- * symbol resolves to `undefined` at runtime → React error #130 → blank
- * dashboard, with NO build error and NO obvious console message. That is
- * exactly what shipped in Jetpack 16.0.
- *
- * The existing `validate-boot-asset` check verifies that dependency *handle
- * names* are known. It does NOT verify that the *symbols* one package imports
- * from another actually exist in the shipped version. This check closes that
- * gap: for every symbol a consumer package imports from a polyfilled provider
- * package, assert the provider's shipped public API actually exports it.
- *
- * Both sides are read from the packages' published ESM source
- * (`build-module/*.mjs`) — NOT from the webpack-built bundle — because the
- * built bundle mangles import identifiers under minification, while the source
- * `import { X } from '@wordpress/y'` / `export { X }` statements are stable.
+ * Export-contract validation: assert every symbol a consumer package imports from
+ * a polyfilled provider actually exists in the shipped provider's public exports.
+ * A missing symbol resolves to `undefined` at runtime (blank dashboard, no build
+ * error) — the Jetpack 16.0 failure mode. Shared by the post-build CLI and tests.
  */
 
 const { readFileSync, readdirSync, existsSync } = require( 'fs' );
 const path = require( 'path' );
 
-// The shipped package set has a single source of truth: the class constants in
-// src/class-wp-build-polyfills.php (SCRIPT_HANDLES + MODULE_IDS), which is also
-// what registers them at runtime. We derive the validator's provider/consumer
-// lists from there rather than maintaining a second copy (see getShippedPackages).
-//
-// - Providers (whose exports we verify) = SCRIPT_HANDLES, the CLASSIC-SCRIPT
-//   polyfills (`window.wp.<pkg>` globals) — the surface where a missing export
-//   silently resolves to `undefined` at runtime (the 16.0 failure mode).
-// - Consumers (whose imports we scan) = MODULE_IDS, the ESM module polyfills
-//   that compose the providers.
-//
-// NOTE: the ESM module polyfills are only scanned as consumers, not verified as
-// providers — they resolve via the browser import map rather than a window
-// global, a different failure mode. Verifying them is a documented follow-up
-// (see README "Safety checks").
-
 /**
- * Map a classic-script handle to its npm package name (e.g. `wp-theme` → `@wordpress/theme`).
+ * Map a classic-script handle to its npm package name (`wp-theme` → `@wordpress/theme`).
  *
  * @param {string} handle - A `wp-*` script handle.
  * @return {string} The `@wordpress/*` package name.
@@ -60,28 +20,27 @@ function handleToPackage( handle ) {
 }
 
 /**
- * Extract a `const NAME = array( 'a', 'b' );` PHP class-constant array's string values.
+ * Extract the string values of a `const NAME = array( 'a', 'b' );` PHP class constant.
  *
  * @param {string} phpSource - PHP file contents.
- * @param {string} constName - Constant name (e.g. 'SCRIPT_HANDLES').
- * @return {string[]} The array's string literal values, or [] if not found.
+ * @param {string} constName - Constant name.
+ * @return {string[]} The array's string values, or [] if not found.
  */
 function parsePhpConstArray( phpSource, constName ) {
 	const match = phpSource.match(
 		new RegExp( `const\\s+${ constName }\\s*=\\s*array\\(([^)]*)\\)` )
 	);
-	if ( ! match ) {
-		return [];
-	}
-	return match[ 1 ].match( /'([^']+)'/g )?.map( s => s.replace( /'/g, '' ) ) ?? [];
+	return match ? match[ 1 ].match( /'([^']+)'/g )?.map( s => s.replace( /'/g, '' ) ) ?? [] : [];
 }
 
 /**
- * Derive the shipped provider/consumer package lists from the PHP class constants
- * (the single source of truth).
+ * Derive the shipped provider/consumer lists from the class constants in
+ * class-wp-build-polyfills.php (SCRIPT_HANDLES + MODULE_IDS) — the single source of
+ * truth that also registers them at runtime. Providers are the classic-script globals
+ * whose exports we verify; consumers are the ESM modules that import them.
  *
  * @param {string} packageRoot - Polyfill package root.
- * @return {{ providers: string[], consumers: string[] }} Classic-script providers and module consumers.
+ * @return {{ providers: string[], consumers: string[] }} Providers and consumers.
  */
 function getShippedPackages( packageRoot ) {
 	const php = readFileSync(
@@ -90,26 +49,21 @@ function getShippedPackages( packageRoot ) {
 	);
 	return {
 		providers: parsePhpConstArray( php, 'SCRIPT_HANDLES' ).map( handleToPackage ),
-		consumers: parsePhpConstArray( php, 'MODULE_IDS' ), // Already `@wordpress/*` names.
+		consumers: parsePhpConstArray( php, 'MODULE_IDS' ),
 	};
 }
 
 /**
- * Extract the ORIGINAL names of the symbols named-imported from a specific
- * provider package in a chunk of ESM source.
- *
- * Handles `import { A, B as C } from '@wordpress/x'` (the imported name is the
- * token BEFORE `as`), across single- and multi-line import statements, single
- * or double quotes. Namespace (`import * as ns`) and default imports are
- * intentionally ignored: they cannot fail as a "missing named export".
+ * Original names of the symbols named-imported from a provider in ESM source.
+ * Handles `import { A, B as C } from '@wordpress/x'` (imported name is before `as`);
+ * ignores namespace/default imports, which can't be a missing named export.
  *
  * @param {string} source      - ESM source text.
  * @param {string} providerPkg - e.g. '@wordpress/theme'.
- * @return {string[]} Sorted, de-duplicated original imported symbol names.
+ * @return {string[]} Sorted, de-duplicated imported symbol names.
  */
 function parseNamedImports( source, providerPkg ) {
 	const found = new Set();
-	// Match `import { ... } from '<providerPkg>'` — the `{ ... }` may span lines.
 	const escaped = providerPkg.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
 	const re = new RegExp( `import\\s*\\{([^}]*)\\}\\s*from\\s*['"]${ escaped }['"]`, 'g' );
 	let match;
@@ -128,13 +82,9 @@ function parseNamedImports( source, providerPkg ) {
 }
 
 /**
- * Extract the PUBLIC export names from a provider package's built ESM index.
- *
- * Handles consolidated `export { A, default2 as B, store }` blocks and
- * re-export `export { A as B } from './x'` forms (the public name is the token
- * AFTER `as`). If the index uses a wildcard `export *`, the public surface
- * cannot be statically enumerated — the result is flagged `opaque` so callers
- * can skip (warn) rather than emit a false "missing export".
+ * Public export names from a provider's built ESM index. Handles `export { A, B as C }`
+ * (public name is after `as`); flags wildcard `export *` as opaque so callers skip it
+ * rather than emit a false "missing export".
  *
  * @param {string} indexSource - Contents of the package's `module`/`main` entry.
  * @return {{ names: string[], opaque: boolean }} Public export names + opacity flag.
@@ -142,7 +92,6 @@ function parseNamedImports( source, providerPkg ) {
 function parsePublicExports( indexSource ) {
 	const names = new Set();
 	const opaque = /export\s*\*/.test( indexSource );
-
 	const re = /export\s*\{([^}]*)\}/g;
 	let match;
 	while ( ( match = re.exec( indexSource ) ) !== null ) {
@@ -151,7 +100,6 @@ function parsePublicExports( indexSource ) {
 			if ( ! trimmed ) {
 				continue;
 			}
-			// `A as B` → public name is `B`; plain `A` → `A`.
 			const parts = trimmed.split( /\s+as\s+/ );
 			const name = parts[ parts.length - 1 ].trim();
 			if ( name ) {
@@ -163,15 +111,15 @@ function parsePublicExports( indexSource ) {
 }
 
 /**
- * Pure contract check for one (consumer → provider) pair.
+ * Contract check for one (consumer → provider) pair.
  *
- * @param {object}   args          - The (consumer, provider) pair and its symbols.
- * @param {string}   args.consumer - Consumer package name (for messages).
- * @param {string}   args.provider - Provider package name (for messages).
- * @param {string[]} args.imported - Symbols the consumer imports from the provider.
- * @param {string[]} args.exported - Public export names of the provider.
+ * @param {object}   args          - The pair and its symbols.
+ * @param {string}   args.consumer - Consumer package name.
+ * @param {string}   args.provider - Provider package name.
+ * @param {string[]} args.imported - Symbols the consumer imports.
+ * @param {string[]} args.exported - Provider's public export names.
  * @param {boolean}  [args.opaque] - True when the provider's exports can't be enumerated.
- * @return {{ ok: boolean, consumer: string, provider: string, missing: string[], skipped?: boolean }} The contract result.
+ * @return {{ ok: boolean, consumer: string, provider: string, missing: string[], skipped?: boolean }} Result.
  */
 function checkContract( { consumer, provider, imported, exported, opaque = false } ) {
 	if ( opaque ) {
@@ -183,25 +131,22 @@ function checkContract( { consumer, provider, imported, exported, opaque = false
 }
 
 /**
- * Resolve a package's directory from a given base directory, honouring the
- * pnpm/monorepo resolution the webpack build itself uses.
+ * Resolve a package's directory from a base dir (same resolution the build uses).
  *
  * @param {string} pkgName - e.g. '@wordpress/theme'.
- * @param {string} fromDir - Directory to resolve from (the polyfill package root).
+ * @param {string} fromDir - Directory to resolve from.
  * @return {string|null} Absolute package directory, or null if unresolvable.
  */
 function resolvePackageDir( pkgName, fromDir ) {
 	try {
-		const pkgJson = require.resolve( `${ pkgName }/package.json`, { paths: [ fromDir ] } );
-		return path.dirname( pkgJson );
+		return path.dirname( require.resolve( `${ pkgName }/package.json`, { paths: [ fromDir ] } ) );
 	} catch {
 		return null;
 	}
 }
 
 /**
- * Read the concatenated ESM source of every `*.mjs` file under a package's
- * `build-module` directory (used to scan a consumer's imports).
+ * Concatenated ESM source of every `*.mjs` under a package's `build-module` dir.
  *
  * @param {string} pkgDir - Absolute package directory.
  * @return {string} Concatenated source, or '' if no build-module dir.
@@ -227,7 +172,7 @@ function readBuildModuleSource( pkgDir ) {
 }
 
 /**
- * Read a provider package's public export names from its ESM entry point.
+ * Read a provider's public export names from its ESM entry point.
  *
  * @param {string} pkgDir - Absolute package directory.
  * @return {{ names: string[], opaque: boolean } | null} Exports, or null if unreadable.
@@ -239,47 +184,69 @@ function readPackageExports( pkgDir ) {
 		return null;
 	}
 	const entryPath = path.join( pkgDir, entry );
-	if ( ! existsSync( entryPath ) ) {
-		return null;
-	}
-	return parsePublicExports( readFileSync( entryPath, 'utf8' ) );
+	return existsSync( entryPath ) ? parsePublicExports( readFileSync( entryPath, 'utf8' ) ) : null;
 }
 
 /**
- * Run the export-contract validation across the shipped package set.
+ * Format an actionable error message for failed contracts.
  *
- * Reads the shipped versions from the polyfill package's own resolution
- * context (same as the webpack build), so the check reflects exactly what the
- * package ships.
+ * @param {object[]} failures - Failed contract results.
+ * @param {string[]} errors   - Non-contract errors (unreadable packages).
+ * @return {string} Formatted message.
+ */
+function formatError( failures, errors ) {
+	const lines = [];
+	if ( failures.length ) {
+		lines.push(
+			'Export-contract violation: a polyfilled package imports symbols the shipped',
+			'version of another polyfilled package does not export — this resolves to',
+			'`undefined` at runtime (blank dashboard, no build error; the Jetpack 16.0',
+			'failure mode). Bump the provider so its public API matches, keeping the',
+			'`@wordpress/*` set version-aligned.',
+			''
+		);
+		for ( const f of failures ) {
+			lines.push(
+				`   ${ f.consumer } imports from ${ f.provider }: [ ${ f.missing.join(
+					', '
+				) } ] — not exported.`
+			);
+		}
+	}
+	if ( errors.length ) {
+		lines.push( '', ...errors );
+	}
+	return lines.join( '\n' );
+}
+
+/**
+ * Validate the export contracts across the shipped package set. Reads the shipped
+ * versions from the polyfill's own resolution context (same as the build).
  *
- * @param {object}   [options]                 - Validation options.
+ * @param {object}   [options]                 - Options.
  * @param {string}   [options.packageRoot]     - Polyfill package root. Defaults to this package.
  * @param {string[]} [options.providers]       - Override provider list (tests).
  * @param {string[]} [options.consumers]       - Override consumer list (tests).
- * @param {object}   [options.simulateMissing] - Map of providerPkg → symbol[] to drop from its exports, to simulate a skew (see WP_BUILD_POLYFILLS_SIMULATE_MISSING).
- * @return {{ ok: boolean, results: object[], errors: string[], error?: string }} The aggregate validation result.
+ * @param {object}   [options.simulateMissing] - Map of providerPkg → symbol[] to drop, to simulate a skew (tests).
+ * @return {{ ok: boolean, results: object[], errors: string[], error?: string }} Aggregate result.
  */
 function validateExportContracts( options = {} ) {
 	const packageRoot = options.packageRoot || path.join( __dirname, '..' );
 	const shipped = getShippedPackages( packageRoot );
 	const providers = options.providers || shipped.providers;
 	const consumers = options.consumers || shipped.consumers;
-	const simulateMissing =
-		options.simulateMissing || parseSimulateEnv( process.env.WP_BUILD_POLYFILLS_SIMULATE_MISSING );
+	const simulateMissing = options.simulateMissing || {};
 
 	const errors = [];
-
-	// Resolve each provider's shipped public exports once.
 	const providerExports = {};
 	for ( const provider of providers ) {
 		const dir = resolvePackageDir( provider, packageRoot );
 		if ( ! dir ) {
-			// A provider that isn't installed simply isn't shipped — skip it.
-			continue;
+			continue; // Not installed → not shipped.
 		}
 		const exp = readPackageExports( dir );
 		if ( ! exp ) {
-			errors.push( `Could not read exports for ${ provider } (no readable module entry).` );
+			errors.push( `Could not read exports for ${ provider }.` );
 			continue;
 		}
 		const dropped = simulateMissing[ provider ] || [];
@@ -301,105 +268,31 @@ function validateExportContracts( options = {} ) {
 		}
 		for ( const provider of Object.keys( providerExports ) ) {
 			const imported = parseNamedImports( source, provider );
-			if ( imported.length === 0 ) {
-				continue;
+			if ( imported.length ) {
+				results.push(
+					checkContract( {
+						consumer,
+						provider,
+						imported,
+						exported: providerExports[ provider ].names,
+						opaque: providerExports[ provider ].opaque,
+					} )
+				);
 			}
-			results.push(
-				checkContract( {
-					consumer,
-					provider,
-					imported,
-					exported: providerExports[ provider ].names,
-					opaque: providerExports[ provider ].opaque,
-				} )
-			);
 		}
 	}
 
 	const failures = results.filter( r => ! r.ok );
 	const ok = failures.length === 0 && errors.length === 0;
-
-	let error;
-	if ( ! ok ) {
-		error = formatError( failures, errors );
-	}
-	return { ok, results, errors, error };
-}
-
-/**
- * Parse the WP_BUILD_POLYFILLS_SIMULATE_MISSING env var into a drop-map.
- *
- * Format: comma-separated `@wordpress/pkg:Symbol` pairs, e.g. `@wordpress/theme:ThemeProvider`.
- *
- * @param {string|undefined} raw - Raw env value.
- * @return {object} Map of provider package → symbol[] to drop.
- */
-function parseSimulateEnv( raw ) {
-	const map = {};
-	if ( ! raw ) {
-		return map;
-	}
-	for ( const pair of raw.split( ',' ) ) {
-		const idx = pair.lastIndexOf( ':' );
-		if ( idx === -1 ) {
-			continue;
-		}
-		const pkg = pair.slice( 0, idx ).trim();
-		const symbol = pair.slice( idx + 1 ).trim();
-		if ( ! pkg || ! symbol ) {
-			continue;
-		}
-		( map[ pkg ] = map[ pkg ] || [] ).push( symbol );
-	}
-	return map;
-}
-
-/**
- * Build a human-readable, actionable error message.
- *
- * @param {object[]} failures - Failed contract results.
- * @param {string[]} errors   - Non-contract errors (unreadable packages, etc.).
- * @return {string} Formatted message.
- */
-function formatError( failures, errors ) {
-	const lines = [];
-	if ( failures.length > 0 ) {
-		lines.push(
-			'Export-contract violation: a polyfilled package imports symbols that the',
-			'shipped version of another polyfilled package does NOT export.',
-			'',
-			'This resolves to `undefined` at runtime → blank dashboard, no build error',
-			'(this is the Jetpack 16.0 failure mode).',
-			''
-		);
-		for ( const f of failures ) {
-			lines.push(
-				`   ${ f.consumer } imports from ${ f.provider }: [ ${ f.missing.join(
-					', '
-				) } ] — NOT exported.`
-			);
-		}
-		lines.push(
-			'',
-			'Fix: bump the provider package so its shipped public API matches what the',
-			'consumer expects, and keep the whole `@wordpress/*` set version-aligned',
-			'(they are a co-released matched set). See package.json devDependencies.'
-		);
-	}
-	if ( errors.length > 0 ) {
-		lines.push( '', 'Additional problems:', ...errors.map( e => `   - ${ e }` ) );
-	}
-	return lines.join( '\n' );
+	return { ok, results, errors, error: ok ? undefined : formatError( failures, errors ) };
 }
 
 module.exports = {
+	handleToPackage,
+	parsePhpConstArray,
+	getShippedPackages,
 	parseNamedImports,
 	parsePublicExports,
 	checkContract,
 	validateExportContracts,
-	parseSimulateEnv,
-	formatError,
-	handleToPackage,
-	parsePhpConstArray,
-	getShippedPackages,
 };

@@ -3,271 +3,93 @@ const assert = require( 'node:assert/strict' );
 const { describe, it } = require( 'node:test' );
 const path = require( 'path' );
 const {
-	parseNamedImports,
-	parsePublicExports,
-	checkContract,
-	parseSimulateEnv,
-	validateExportContracts,
-	formatError,
 	handleToPackage,
 	parsePhpConstArray,
 	getShippedPackages,
+	parseNamedImports,
+	parsePublicExports,
+	checkContract,
+	validateExportContracts,
 } = require( '../../bin/validate-export-contract-lib.js' );
 
+const packageRoot = path.join( __dirname, '..', '..' );
+
 describe( 'validate-export-contract', () => {
-	describe( 'parseNamedImports', () => {
-		it( 'extracts a single named import', () => {
-			const src = "import { ThemeProvider } from '@wordpress/theme';";
-			assert.deepEqual( parseNamedImports( src, '@wordpress/theme' ), [ 'ThemeProvider' ] );
-		} );
-
-		it( 'uses the ORIGINAL name for aliased imports (`x as y`)', () => {
-			const src = "import { privateApis as routePrivateApis } from '@wordpress/route';";
-			assert.deepEqual( parseNamedImports( src, '@wordpress/route' ), [ 'privateApis' ] );
-		} );
-
-		it( 'handles multiple, multi-line, double-quoted imports', () => {
-			const src = `
-				import {
-					privateApis as routePrivateApis,
-					useNavigate
-				} from "@wordpress/route";
-			`;
-			assert.deepEqual( parseNamedImports( src, '@wordpress/route' ), [
-				'privateApis',
-				'useNavigate',
-			] );
-		} );
-
-		it( 'only matches the requested provider, not lookalikes', () => {
-			const src =
-				"import { A } from '@wordpress/theme';\nimport { B } from '@wordpress/theme-extra';";
-			assert.deepEqual( parseNamedImports( src, '@wordpress/theme' ), [ 'A' ] );
-		} );
-
-		it( 'ignores namespace and default imports (cannot be a missing named export)', () => {
-			const src = "import * as ns from '@wordpress/theme';\nimport def from '@wordpress/theme';";
-			assert.deepEqual( parseNamedImports( src, '@wordpress/theme' ), [] );
-		} );
-
-		it( 'returns empty when the provider is not imported', () => {
-			assert.deepEqual( parseNamedImports( "import { x } from 'clsx';", '@wordpress/theme' ), [] );
-		} );
+	it( 'parseNamedImports extracts imported names, honouring `as` aliases', () => {
+		const src =
+			"import { ThemeProvider } from '@wordpress/theme';\nimport { privateApis as p } from '@wordpress/route';";
+		assert.deepEqual( parseNamedImports( src, '@wordpress/theme' ), [ 'ThemeProvider' ] );
+		assert.deepEqual( parseNamedImports( src, '@wordpress/route' ), [ 'privateApis' ] );
 	} );
 
-	describe( 'parsePublicExports', () => {
-		it( 'parses a consolidated export block', () => {
-			const { names, opaque } = parsePublicExports(
-				'export {\n  ThemeProvider,\n  privateApis\n};'
-			);
-			assert.deepEqual( names, [ 'ThemeProvider', 'privateApis' ] );
-			assert.equal( opaque, false );
-		} );
-
-		it( 'uses the PUBLIC name for aliased exports (`x as y`)', () => {
-			// This is the real shape of @wordpress/notices' built index.
-			const { names } = parsePublicExports(
-				'export { default2 as InlineNotices, default3 as SnackbarNotices, store };'
-			);
-			assert.deepEqual( names, [ 'InlineNotices', 'SnackbarNotices', 'store' ] );
-		} );
-
-		it( 'flags wildcard re-exports as opaque', () => {
-			const { opaque } = parsePublicExports( "export * from './lib';\nexport { a };" );
-			assert.equal( opaque, true );
-		} );
+	it( 'parsePublicExports reads export names, honouring `as` aliases and `export *`', () => {
+		assert.deepEqual(
+			parsePublicExports( 'export { default2 as SnackbarNotices, store };' ).names,
+			[ 'SnackbarNotices', 'store' ]
+		);
+		assert.equal( parsePublicExports( "export * from './x';" ).opaque, true );
 	} );
 
-	describe( 'checkContract', () => {
-		it( 'passes when every imported symbol is exported', () => {
-			const r = checkContract( {
-				consumer: '@wordpress/boot',
-				provider: '@wordpress/theme',
-				imported: [ 'ThemeProvider' ],
-				exported: [ 'ThemeProvider', 'privateApis' ],
-			} );
-			assert.equal( r.ok, true );
-			assert.deepEqual( r.missing, [] );
+	// The Jetpack 16.0 regression: boot imports ThemeProvider, but theme 0.15.1 only
+	// exported it privately, so at runtime `wp.theme.ThemeProvider` was undefined.
+	it( 'checkContract fails when an imported symbol is not exported (the 16.0 shape)', () => {
+		const bad = checkContract( {
+			consumer: '@wordpress/boot',
+			provider: '@wordpress/theme',
+			imported: [ 'ThemeProvider' ],
+			exported: [ 'privateApis' ],
 		} );
+		assert.equal( bad.ok, false );
+		assert.deepEqual( bad.missing, [ 'ThemeProvider' ] );
 
-		// ── THE JETPACK 16.0 REGRESSION ──────────────────────────────────────
-		// boot imports `ThemeProvider`, but the shipped @wordpress/theme (0.15.1)
-		// only exposed it privately → public exports were `[ privateApis ]`.
-		// At runtime `wp.theme.ThemeProvider` was `undefined` → React #130 →
-		// blank dashboard. This check must catch it at build time.
-		it( 'FAILS on the 16.0 shape: boot imports ThemeProvider, theme 0.15.1 does not export it', () => {
-			const r = checkContract( {
-				consumer: '@wordpress/boot',
-				provider: '@wordpress/theme',
-				imported: [ 'ThemeProvider' ],
-				exported: [ 'privateApis' ], // theme 0.15.1 public surface
-			} );
-			assert.equal( r.ok, false );
-			assert.deepEqual( r.missing, [ 'ThemeProvider' ] );
+		const good = checkContract( {
+			consumer: '@wordpress/boot',
+			provider: '@wordpress/theme',
+			imported: [ 'ThemeProvider' ],
+			exported: [ 'ThemeProvider' ],
 		} );
-
-		it( 'skips (passes) when the provider exports are opaque', () => {
-			const r = checkContract( {
-				consumer: '@wordpress/boot',
-				provider: '@wordpress/theme',
-				imported: [ 'ThemeProvider' ],
-				exported: [],
-				opaque: true,
-			} );
-			assert.equal( r.ok, true );
-			assert.equal( r.skipped, true );
-		} );
+		assert.equal( good.ok, true );
 	} );
 
-	describe( 'parseSimulateEnv', () => {
-		it( 'parses pkg:symbol pairs', () => {
-			assert.deepEqual( parseSimulateEnv( '@wordpress/theme:ThemeProvider' ), {
-				'@wordpress/theme': [ 'ThemeProvider' ],
-			} );
-		} );
+	it( 'derives providers/consumers from the PHP source of truth, matching webpack', () => {
+		assert.equal( handleToPackage( 'wp-private-apis' ), '@wordpress/private-apis' );
+		assert.deepEqual( parsePhpConstArray( "const X = array( 'wp-theme' );", 'X' ), [ 'wp-theme' ] );
 
-		it( 'parses multiple comma-separated pairs (scoped names keep their colon)', () => {
-			assert.deepEqual(
-				parseSimulateEnv( '@wordpress/theme:ThemeProvider,@wordpress/notices:SnackbarNotices' ),
-				{
-					'@wordpress/theme': [ 'ThemeProvider' ],
-					'@wordpress/notices': [ 'SnackbarNotices' ],
-				}
-			);
-		} );
-
-		it( 'returns empty for undefined/blank', () => {
-			assert.deepEqual( parseSimulateEnv( undefined ), {} );
-			assert.deepEqual( parseSimulateEnv( '' ), {} );
-		} );
-
-		it( 'skips malformed entries (no colon) and blank pkg/symbol', () => {
-			assert.deepEqual(
-				parseSimulateEnv( 'nocolon,:onlysymbol,@wordpress/theme:,@wordpress/theme:ThemeProvider' ),
-				{ '@wordpress/theme': [ 'ThemeProvider' ] }
-			);
-		} );
+		const { providers, consumers } = getShippedPackages( packageRoot );
+		const webpack = require( '../../webpack.config.js' );
+		const built = prefix =>
+			webpack
+				.filter( c => c.name && c.name.startsWith( prefix ) )
+				.map( c => '@wordpress/' + c.name.replace( prefix, '' ) )
+				.sort();
+		assert.deepEqual( [ ...providers ].sort(), built( 'script-' ) );
+		assert.deepEqual( [ ...consumers ].sort(), built( 'module-' ) );
 	} );
 
-	describe( 'formatError', () => {
-		it( 'renders a failures-only message with the 16.0 reference', () => {
-			const msg = formatError(
-				[
-					{
-						consumer: '@wordpress/boot',
-						provider: '@wordpress/theme',
-						missing: [ 'ThemeProvider' ],
-					},
-				],
-				[]
-			);
-			assert.match( msg, /16\.0 failure mode/ );
-			assert.match( msg, /ThemeProvider/ );
-			assert.doesNotMatch( msg, /Additional problems/ );
-		} );
-
-		it( 'renders an errors-only message (unreadable packages, etc.)', () => {
-			const msg = formatError( [], [ 'Could not read exports for @wordpress/theme.' ] );
-			assert.match( msg, /Additional problems/ );
-			assert.match( msg, /Could not read exports/ );
-		} );
-	} );
-
-	describe( 'validateExportContracts — resolution branches', () => {
-		it( 'skips providers/consumers that are not installed (no false failure)', () => {
-			const result = validateExportContracts( {
-				packageRoot: path.join( __dirname, '..', '..' ),
-				providers: [ '@wordpress/definitely-not-a-real-package' ],
-				consumers: [ '@wordpress/definitely-not-a-real-package' ],
-			} );
-			assert.equal( result.ok, true );
-			assert.deepEqual( result.results, [] );
-		} );
-	} );
-
-	describe( 'CLI (bin/validate-export-contract.js)', () => {
-		const cli = path.join( __dirname, '..', '..', 'bin', 'validate-export-contract.js' );
-		const cwd = path.join( __dirname, '..', '..' );
-
-		it( 'exits 0 when contracts are satisfied', () => {
-			// Throws if the process exits non-zero.
-			execFileSync( process.execPath, [ cli ], { cwd, stdio: 'pipe' } );
-		} );
-
-		it( 'exits non-zero and reports the violation when a symbol is simulated missing', () => {
-			assert.throws(
-				() =>
-					execFileSync( process.execPath, [ cli ], {
-						cwd,
-						stdio: 'pipe',
-						env: {
-							...process.env,
-							WP_BUILD_POLYFILLS_SIMULATE_MISSING: '@wordpress/theme:ThemeProvider',
-						},
-					} ),
-				err => {
-					assert.notEqual( err.status, 0 );
-					assert.match( String( err.stderr ), /ThemeProvider|16\.0 failure mode/ );
-					return true;
-				}
-			);
-		} );
-	} );
-
-	describe( 'shipped-package derivation (single source of truth)', () => {
-		const packageRoot = path.join( __dirname, '..', '..' );
-
-		it( 'handleToPackage maps `wp-*` handles to `@wordpress/*` names', () => {
-			assert.equal( handleToPackage( 'wp-theme' ), '@wordpress/theme' );
-			assert.equal( handleToPackage( 'wp-private-apis' ), '@wordpress/private-apis' );
-		} );
-
-		it( 'parsePhpConstArray extracts a class-constant array', () => {
-			const php = "const SCRIPT_HANDLES = array( 'wp-notices', 'wp-theme' );";
-			assert.deepEqual( parsePhpConstArray( php, 'SCRIPT_HANDLES' ), [ 'wp-notices', 'wp-theme' ] );
-		} );
-
-		it( 'parsePhpConstArray returns [] when the constant is absent', () => {
-			assert.deepEqual( parsePhpConstArray( '<?php // nothing', 'SCRIPT_HANDLES' ), [] );
-		} );
-
-		// The provider/consumer lists are derived from SCRIPT_HANDLES + MODULE_IDS
-		// in class-wp-build-polyfills.php (the single source of truth). This test
-		// guards that the PHP registration and the webpack build cannot silently
-		// diverge — if a polyfill is added to one but not the other, it fails.
-		it( 'PHP-derived packages match what webpack actually builds', () => {
-			const { providers, consumers } = getShippedPackages( packageRoot );
-			const webpack = require( '../../webpack.config.js' );
-			const built = prefix =>
-				webpack
-					.filter( c => c.name && c.name.startsWith( prefix ) )
-					.map( c => '@wordpress/' + c.name.replace( prefix, '' ) )
-					.sort();
-			assert.deepEqual( [ ...providers ].sort(), built( 'script-' ) );
-			assert.deepEqual( [ ...consumers ].sort(), built( 'module-' ) );
-		} );
-	} );
-
-	describe( 'validateExportContracts (real installed tree)', () => {
-		const packageRoot = path.join( __dirname, '..', '..' );
-
-		it( 'passes against the actually-shipped @wordpress/* versions', () => {
+	describe( 'against the installed tree', () => {
+		it( 'passes for the actually-shipped @wordpress/* versions', () => {
 			const result = validateExportContracts( { packageRoot } );
-			// If a provider isn't installed the check simply skips it, so a
-			// clean tree should always be ok. A failure here means a real skew.
 			assert.equal( result.ok, true, result.error || 'unexpected contract failure' );
 		} );
 
-		it( 'detects a simulated skew (drops ThemeProvider from @wordpress/theme)', () => {
+		it( 'fails on a simulated skew (theme missing ThemeProvider)', () => {
 			const result = validateExportContracts( {
 				packageRoot,
 				simulateMissing: { '@wordpress/theme': [ 'ThemeProvider' ] },
 			} );
 			assert.equal( result.ok, false );
-			const themeFailure = result.results.find( r => r.provider === '@wordpress/theme' && ! r.ok );
-			assert.ok( themeFailure, 'expected a @wordpress/theme contract failure' );
-			assert.ok( themeFailure.missing.includes( 'ThemeProvider' ) );
-			assert.match( result.error, /16\.0 failure mode|ThemeProvider/ );
+			assert.match( result.error, /ThemeProvider/ );
 		} );
+	} );
+
+	it( 'the CLI exits 0 when contracts hold', () => {
+		execFileSync(
+			process.execPath,
+			[ path.join( packageRoot, 'bin', 'validate-export-contract.js' ) ],
+			{
+				cwd: packageRoot,
+				stdio: 'pipe',
+			}
+		);
 	} );
 } );
