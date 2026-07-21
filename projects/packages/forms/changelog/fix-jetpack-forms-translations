@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Responses dashboard: register script-module translations so the wp-build UI strings are translated instead of falling back to English.
