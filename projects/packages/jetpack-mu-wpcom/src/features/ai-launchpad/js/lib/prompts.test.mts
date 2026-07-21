@@ -88,11 +88,15 @@ describe( 'buildTailorPrompt', () => {
 		);
 	} );
 
-	it( 'asks for a theme_keyword naming the core subject, not an incidental word', () => {
+	it( 'asks for a theme_category chosen from the showcase subject slugs', () => {
 		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		assert.ok( prompt.includes( '"theme_keyword"' ), 'theme_keyword missing from prompt' );
-		// The instruction must steer the model toward the subject ("hiking") over
-		// incidental modifiers ("weekend"), which is the whole point of the field.
-		assert.ok( /weekend hiking/i.test( prompt ), 'guiding example missing from prompt' );
+		assert.ok( prompt.includes( '"theme_category"' ), 'theme_category missing from prompt' );
+		// The full slug menu must be in the prompt, and the instruction must steer the
+		// model toward the specific subject over the generic goal bucket.
+		assert.ok(
+			prompt.includes( 'travel-lifestyle' ) && prompt.includes( 'community-non-profit' ),
+			'category slugs missing from prompt'
+		);
+		assert.ok( /specific subject/i.test( prompt ), 'subject-over-bucket guidance missing' );
 	} );
 } );
