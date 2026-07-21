@@ -30,10 +30,12 @@ export const emailFieldlessCountriesFixture = {
 	},
 };
 
+// `Other` outranks `Gmail` by value so the fixture proves the catch-all bucket is
+// pinned last rather than merely landing last by value.
 export const emailFieldlessClientsFixture = {
 	clients: {
 		data: [
-			[ 'Other', '1' ],
+			[ 'Other', '9' ],
 			[ 'Apple Mail', '10' ],
 			[ 'Gmail', '8' ],
 		],

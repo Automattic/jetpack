@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Email breakdown: localize row labels and pin the aggregated row by flag instead of its label
