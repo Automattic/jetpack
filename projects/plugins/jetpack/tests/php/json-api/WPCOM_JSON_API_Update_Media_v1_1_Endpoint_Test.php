@@ -165,4 +165,20 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint_Test extends WP_UnitTestCase { /
 			'Requests without ai_generated must not set the provenance postmeta.'
 		);
 	}
+
+	/**
+	 * A falsy `ai_generated` flag leaves the AI provenance postmeta untouched.
+	 */
+	public function test_falsy_flag_leaves_postmeta_unset() {
+		global $blog_id;
+
+		$this->set_input( array( 'ai_generated' => false ) );
+		$response = $this->get_endpoint()->callback( '', $blog_id, self::$attachment_id );
+
+		$this->assertNotWPError( $response );
+		$this->assertEmpty(
+			get_post_meta( self::$attachment_id, self::AI_GENERATED_META_KEY, true ),
+			'A falsy ai_generated flag must not set the provenance postmeta.'
+		);
+	}
 }

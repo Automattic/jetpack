@@ -133,8 +133,11 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			update_post_meta( $media_id, '_wp_attachment_image_alt', $alt );
 		}
 
-		// Runs on the site that owns the attachment, so the flag reaches the real
-		// attachment on Atomic and self-hosted Jetpack sites, not the shadow row.
+		// AI provenance. The `ai_generated` field and this meta key are the
+		// contract with wpcom's Jetpack_Client_Action::build_ai_generated_request();
+		// keep them in sync. This runs on the site that owns the attachment, so
+		// the flag reaches the real attachment on Atomic and self-hosted Jetpack
+		// sites, not the shadow row.
 		if ( isset( $input['ai_generated'] ) && $input['ai_generated'] ) {
 			update_post_meta( $media_id, '_wpcom_image_studio_ai_generated', true );
 		}
