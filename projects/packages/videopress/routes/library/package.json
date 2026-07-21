@@ -14,7 +14,7 @@
 		"@wordpress/ui": "0.17.0"
 	},
 	"route": {
-		"path": "/library",
+		"path": "/",
 		"page": "jetpack-videopress-dashboard"
 	}
 }
