@@ -13,7 +13,6 @@
 
 namespace Automattic\Jetpack\Newsletter;
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -41,6 +40,20 @@ class Mode {
 	 * @var string
 	 */
 	const REST_NAMESPACE = 'jetpack-newsletter/v1';
+
+	/**
+	 * Slug of the mode-only Dashboard page (first item in the focused nav).
+	 *
+	 * @var string
+	 */
+	const PAGE_DASHBOARD = 'jetpack-newsletter-dashboard';
+
+	/**
+	 * Slug of the mode-only Paid page (last item in the focused nav).
+	 *
+	 * @var string
+	 */
+	const PAGE_PAID = 'jetpack-newsletter-paid';
 
 	/**
 	 * Whether init() has already wired up hooks.
@@ -127,6 +140,26 @@ class Mode {
 			'dashicons-email',
 			3.9
 		);
+
+		// Register the mode-only stub pages as hidden pages (empty parent =
+		// reachable by URL, absent from the normal menu). The curated nav in
+		// maybe_declutter_menu links to them; they only exist while the mode is on.
+		add_submenu_page(
+			'',
+			__( 'Dashboard', 'jetpack-newsletter' ),
+			__( 'Dashboard', 'jetpack-newsletter' ),
+			'manage_options',
+			self::PAGE_DASHBOARD,
+			array( self::class, 'render_dashboard_page' )
+		);
+		add_submenu_page(
+			'',
+			__( 'Paid', 'jetpack-newsletter' ),
+			__( 'Paid', 'jetpack-newsletter' ),
+			'manage_options',
+			self::PAGE_PAID,
+			array( self::class, 'render_paid_page' )
+		);
 	}
 
 	/**
@@ -142,7 +175,7 @@ class Mode {
 	 * @return void
 	 */
 	public static function maybe_declutter_menu() {
-		if ( ! self::is_active_for_request() ) {
+		if ( ! self::is_mode_surface() ) {
 			return;
 		}
 
@@ -163,6 +196,15 @@ class Mode {
 
 		// The exit affordance is the chevron in the injected "Newsletters" header
 		// (see maybe_render_mode_header), not a menu item.
+		add_menu_page(
+			__( 'Dashboard', 'jetpack-newsletter' ),
+			__( 'Dashboard', 'jetpack-newsletter' ),
+			'manage_options',
+			'admin.php?page=' . self::PAGE_DASHBOARD,
+			'',
+			'dashicons-dashboard',
+			3
+		);
 		add_menu_page(
 			__( 'Subscribers', 'jetpack-newsletter' ),
 			__( 'Subscribers', 'jetpack-newsletter' ),
@@ -204,10 +246,10 @@ class Mode {
 			6
 		);
 		add_menu_page(
-			__( 'Payments', 'jetpack-newsletter' ),
-			__( 'Payments', 'jetpack-newsletter' ),
+			__( 'Paid', 'jetpack-newsletter' ),
+			__( 'Paid', 'jetpack-newsletter' ),
 			'manage_options',
-			self::get_payments_url(),
+			'admin.php?page=' . self::PAGE_PAID,
 			'',
 			'dashicons-money-alt',
 			7
@@ -215,38 +257,64 @@ class Mode {
 	}
 
 	/**
-	 * Resolve the "Payments" surface URL — the existing monetization page, not a
-	 * reimplementation. WordPress.com sites use the Calypso Earn page; Jetpack
-	 * sites use the Jetpack Cloud monetize page.
+	 * Render the mode-only Dashboard stub page.
 	 *
-	 * @return string
+	 * @return void
 	 */
-	private static function get_payments_url() {
-		$suffix = ( new Status() )->get_site_suffix();
-		$base   = ( new Host() )->is_wpcom_platform()
-			? 'https://wordpress.com/earn/'
-			: 'https://cloud.jetpack.com/monetize/payments/';
-
-		return $base . $suffix;
+	public static function render_dashboard_page() {
+		self::render_stub( __( 'Dashboard', 'jetpack-newsletter' ) );
 	}
 
 	/**
-	 * Give the Newsletter page a proper browser-tab title while the mode is
-	 * active. When the mode hides the "Jetpack → Newsletter" submenu the page
-	 * becomes a hidden (empty-parent) page whose title get_admin_page_title()
-	 * can't resolve, so the tab would otherwise show only the site name.
+	 * Render the mode-only Paid stub page.
+	 *
+	 * @return void
+	 */
+	public static function render_paid_page() {
+		self::render_stub( __( 'Paid', 'jetpack-newsletter' ) );
+	}
+
+	/**
+	 * Render a placeholder screen for a mode-only page. Intentionally empty for
+	 * now — real UIs (e.g. a custom payments screen) get built on top later.
+	 *
+	 * @param string $heading The page heading.
+	 * @return void
+	 */
+	private static function render_stub( $heading ) {
+		printf(
+			'<div class="wrap"><h1>%1$s</h1><p>%2$s</p></div>',
+			esc_html( $heading ),
+			esc_html__( 'Coming soon.', 'jetpack-newsletter' )
+		);
+	}
+
+	/**
+	 * Give each mode surface a proper browser-tab title. Mode pages are hidden
+	 * (empty-parent) pages whose title get_admin_page_title() can't resolve, so
+	 * the tab would otherwise show only the site name.
 	 *
 	 * @param string $admin_title The full <title> text WordPress computed.
 	 * @param string $title       The page-title portion (empty for hidden pages).
 	 * @return string
 	 */
 	public static function maybe_filter_admin_title( $admin_title, $title ) {
-		if ( '' === $title && self::is_active_for_request() ) {
-			/** "Newsletter" is a product name, do not translate. */
-			return 'Newsletter' . $admin_title;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing.
+		if ( '' !== $title || ! self::is_mode_surface() || ! isset( $_GET['page'] ) ) {
+			return $admin_title;
 		}
 
-		return $admin_title;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing; guarded by isset above.
+		$page   = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		$labels = array(
+			self::PAGE_DASHBOARD => __( 'Dashboard', 'jetpack-newsletter' ),
+			self::PAGE_PAID      => __( 'Paid', 'jetpack-newsletter' ),
+		);
+
+		// "Newsletter" is a product name; used for the unified page and as fallback.
+		$label = isset( $labels[ $page ] ) ? $labels[ $page ] : 'Newsletter';
+
+		return $label . $admin_title;
 	}
 
 	/**
@@ -271,7 +339,7 @@ class Mode {
 	 * @return void
 	 */
 	public static function maybe_enqueue_mode_assets() {
-		if ( ! self::is_active_for_request() ) {
+		if ( ! self::is_mode_surface() ) {
 			return;
 		}
 
@@ -373,7 +441,7 @@ class Mode {
 	 * @return void
 	 */
 	public static function maybe_render_mode_header() {
-		if ( ! self::is_active_for_request() ) {
+		if ( ! self::is_mode_surface() ) {
 			return;
 		}
 
@@ -454,6 +522,31 @@ class Mode {
 		}
 
 		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === Settings::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Whether the current request is a Newsletter Mode surface — one of the
+	 * wp-admin pages that make up the mode: the unified Newsletter page plus the
+	 * mode-only Dashboard and Paid pages. Drives the decluttered nav, injected
+	 * header, and mode styles (which apply on every surface — unlike the body
+	 * class fix, which is specific to the wp-build Newsletter page and stays on
+	 * is_active_for_request()).
+	 *
+	 * @return bool
+	 */
+	public static function is_mode_surface() {
+		if ( ! self::is_enabled() || ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+
+		return in_array(
+			$page,
+			array( Settings::ADMIN_PAGE_SLUG, self::PAGE_DASHBOARD, self::PAGE_PAID ),
+			true
+		);
 	}
 
 	/**
