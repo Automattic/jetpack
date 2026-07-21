@@ -15,6 +15,53 @@
 add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 
+// Ignore the Gutenberg plugin on beta builds of WordPress so the core-bundled block editor is used.
+add_filter( 'option_active_plugins', 'wpcomsh_ignore_gutenberg_plugin_on_wp_beta' );
+
+/**
+ * Whether the site is running a pre-release (beta/RC/nightly) build of WordPress core.
+ *
+ * Development builds carry an `-alpha`, `-beta`, or `-RC` suffix (e.g. `6.9-beta2`,
+ * `6.9-RC1-59400`), whereas stable releases do not (e.g. `6.6.1`). WordPress.com
+ * surfaces the pre-release track as the site's "beta" WP version.
+ *
+ * @return bool
+ */
+function wpcomsh_is_wp_beta_version() {
+	global $wp_version;
+
+	if ( ! is_string( $wp_version ) || '' === $wp_version ) {
+		return false;
+	}
+
+	return (bool) preg_match( '/-(alpha|beta|RC)/i', $wp_version );
+}
+
+/**
+ * Ignore the Gutenberg plugin on sites running a beta build of WordPress core.
+ *
+ * Beta/RC builds already bundle a matching block editor, so keeping the Gutenberg
+ * plugin active on top can shadow core with an older or incompatible editor. Removing
+ * it from the active plugins list at load time embraces core's bundled version without
+ * touching the stored option, so the plugin returns once the site leaves the beta track.
+ *
+ * @param mixed $plugins Value of the active_plugins option.
+ * @return mixed
+ */
+function wpcomsh_ignore_gutenberg_plugin_on_wp_beta( $plugins ) {
+	if ( ! is_array( $plugins ) || ! wpcomsh_is_wp_beta_version() ) {
+		return $plugins;
+	}
+
+	$key = array_search( 'gutenberg/gutenberg.php', $plugins, true );
+	if ( false !== $key ) {
+		unset( $plugins[ $key ] );
+		$plugins = array_values( $plugins );
+	}
+
+	return $plugins;
+}
+
 /**
  * Disable all Gutenberg experiments except explicitly allowed ones.
  *

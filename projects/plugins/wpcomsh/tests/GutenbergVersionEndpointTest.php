@@ -21,18 +21,23 @@ class GutenbergVersionEndpointTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the callback returns a WP_REST_Response with a version key.
+	 * Tests that the callback reports the plugin version and `plugin` source when the plugin is active.
 	 */
 	public function test_callback_returns_version_payload() {
 		if ( ! defined( 'GUTENBERG_VERSION' ) ) {
 			define( 'GUTENBERG_VERSION', '99.9.9-test' );
 		}
 
+		global $wp_version;
+
 		$response = wpcomsh_rest_api_gutenberg_version();
+		$data     = $response->get_data();
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( array( 'version' => GUTENBERG_VERSION ), $response->get_data() );
+		$this->assertSame( GUTENBERG_VERSION, $data['version'] );
+		$this->assertSame( 'plugin', $data['source'] );
+		$this->assertSame( $wp_version, $data['wp_version'] );
 	}
 
 	/**
