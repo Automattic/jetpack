@@ -1110,7 +1110,12 @@
 				return false;
 			}
 
-			var ul = carousel.info.querySelector( '.jp-carousel-image-meta ul.jp-carousel-image-exif' );
+			// Locate the parent container for the metadata.
+			var metaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			if ( ! metaContainer ) {
+				return false;
+			}
+
 			var html = '';
 
 			for ( var key in meta ) {
@@ -1136,8 +1141,22 @@
 				html += '<li><h5>' + jetpackCarouselStrings[ key ] + '</h5>' + val + '</li>';
 			}
 
-			ul.innerHTML = html;
-			ul.style.removeProperty( 'display' );
+			// Handle the UL element dynamically to ensure valid markup.
+			var ul = metaContainer.querySelector( 'ul.jp-carousel-image-exif' );
+
+			if ( html !== '' ) {
+				// If there is data to display and the UL doesn't exist, create it.
+				if ( ! ul ) {
+					ul = document.createElement( 'ul' );
+					ul.className = 'jp-carousel-image-exif';
+					metaContainer.appendChild( ul );
+				}
+				ul.innerHTML = html;
+				ul.style.removeProperty( 'display' );
+			} else if ( ul ) {
+				// If the data is empty but the UL exists in the DOM, remove it.
+				ul.parentNode.removeChild( ul );
+			}
 		}
 
 		// Update the contents of the jp-carousel-image-download link
