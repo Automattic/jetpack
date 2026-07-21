@@ -202,6 +202,11 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * DOMContentLoaded (and re-run on the `wp_consent_type_defined` readiness event) so a
 	 * late-loading consent plugin is still honored. The check is idempotent.
 	 *
+	 * `_jpStatsFire.done` is set before the pushes, not after, so the gate is at-most-once even
+	 * if a push throws. Retrying can't recover: the stats sender assigns the beacon `src` before
+	 * any of its fallible DOM work, so a later exception means the view was already counted and
+	 * a replay would double-count it.
+	 *
 	 * @access private
 	 * @param string $pushes    The `_stq.push(...)` statements to gate.
 	 * @param bool   $fail_open Whether to fire when the client-side WP Consent API is unavailable.
