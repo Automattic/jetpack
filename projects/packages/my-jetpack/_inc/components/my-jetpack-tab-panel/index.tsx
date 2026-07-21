@@ -34,7 +34,14 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	}, [ params.section ] );
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
-			if ( tabName !== params.section ) {
+			// Compare against the resolved `currentTab`, not the raw URL param. On mount
+			// TabPanel calls onSelect with the tab it settled on, which is always
+			// `currentTab`; treating that as a click records a synthetic
+			// `jetpack_myjetpack_tab_click` and pushes a history entry. Gating on
+			// `currentTab` fires only on a genuine tab change and also covers
+			// invalid/stale hashes (e.g. `#/overview` on a Simple site that resolves to
+			// Products) without emitting a phantom event.
+			if ( tabName !== currentTab ) {
 				// Mark this as an internal navigation (user clicked a tab)
 				lastNavigationSourceRef.current = 'internal';
 
@@ -44,7 +51,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				// Record tab click event
 				recordEvent( 'jetpack_myjetpack_tab_click', {
 					tab_name: tabName,
-					previous_tab: params.section || getDefaultMyJetpackSection(),
+					previous_tab: currentTab,
 					session_duration: sessionDuration,
 					user_type: isNewUser ? 'new' : 'returning',
 				} );
@@ -55,7 +62,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				navigate( `/${ tabName }` );
 			}
 		},
-		[ navigate, params.section, recordEvent, isNewUser ]
+		[ navigate, currentTab, recordEvent, isNewUser ]
 	);
 
 	const tabRenderer = useCallback(
