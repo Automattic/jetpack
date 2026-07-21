@@ -10,11 +10,16 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
+// Defines the Image Studio environment predicate the feature_clip availability
+// reads. The endpoint falls back to available when it is absent, so it has to be
+// loaded here for these assertions to exercise the predicate at all.
+require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test
@@ -25,6 +30,17 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_TestCase {
 
 	const ROUTE = '/wpcom/v2/jetpack-ai/feature-settings';
+
+	/**
+	 * Filter used to pin the active plan for the plan-gate tests.
+	 */
+	const PLAN_FILTER = 'pre_option_' . Current_Plan::PLAN_OPTION;
+
+	/**
+	 * Priority for PLAN_FILTER. Later than the default so it wins over any
+	 * plan pin an environment already registered at priority 10.
+	 */
+	const PLAN_FILTER_PRIORITY = 20;
 
 	/**
 	 * Admin user id.
@@ -67,7 +83,222 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
 		( new Connection_Manager( 'jetpack' ) )->reset_connection_status();
 
+		remove_all_filters( 'ai_seo_enhancer_enabled' );
+		remove_all_filters( 'jetpack_active_modules' );
+		// Only our own priority, so an environment's plan pin survives.
+		remove_all_filters( self::PLAN_FILTER, self::PLAN_FILTER_PRIORITY );
+		self::reset_active_plan_cache();
+
 		parent::tear_down();
+	}
+
+	/**
+	 * `Current_Plan::get()` memoizes for the request, so option writes leak
+	 * between tests unless the cache is cleared.
+	 */
+	private static function reset_active_plan_cache() {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
+	}
+
+	/**
+	 * Put the site on a plan whose tier grants `ai-seo-enhancer`.
+	 *
+	 * `Current_Plan::get_class_and_features()` accumulates each tier's features
+	 * as it walks PLAN_DATA, so `jetpack_business` is the *minimum* plan that
+	 * grants the feature and every higher tier inherits it.
+	 *
+	 * Filtered rather than written with `update_option()`: a local dev
+	 * environment may already short-circuit `pre_option_jetpack_active_plan`
+	 * (tools/docker/mu-plugins can pin a plan for manual testing), which makes
+	 * an option write invisible to `Current_Plan::get()`. Registering at a
+	 * later priority overrides any such pin without disturbing it.
+	 *
+	 * @param string $product_slug Plan product slug.
+	 */
+	private static function set_plan( $product_slug ) {
+		remove_all_filters( self::PLAN_FILTER, self::PLAN_FILTER_PRIORITY );
+		add_filter(
+			self::PLAN_FILTER,
+			static function () use ( $product_slug ) {
+				return array( 'product_slug' => $product_slug );
+			},
+			self::PLAN_FILTER_PRIORITY
+		);
+		self::reset_active_plan_cache();
+	}
+
+	/**
+	 * Force the seo-tools module on or off.
+	 *
+	 * Filtering is what `Modules::get_active()` applies last — after it
+	 * intersects the stored option with the available modules — so this
+	 * controls the input regardless of which modules the test build ships.
+	 *
+	 * @param bool $active Whether seo-tools should report active.
+	 */
+	private static function set_seo_tools_active( $active ) {
+		remove_all_filters( 'jetpack_active_modules' );
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) use ( $active ) {
+				$modules = array_diff( (array) $modules, array( 'seo-tools' ) );
+				if ( $active ) {
+					$modules[] = 'seo-tools';
+				}
+				return array_values( $modules );
+			}
+		);
+	}
+
+	/**
+	 * Read `features.seo_enhancer.available` off a fresh GET.
+	 *
+	 * @return bool
+	 */
+	private function get_seo_enhancer_available() {
+		return $this->dispatch( 'GET' )->get_data()['features']['seo_enhancer']['available'];
+	}
+
+	/**
+	 * The availability gate ANDs three independent inputs; with all three
+	 * satisfied the row is available.
+	 *
+	 * Positive-entitlement is asserted on the self-hosted flavor only. On
+	 * WordPress.com Atomic (wpcomsh) `ai-seo-enhancer` is a registered wpcom
+	 * feature, so Current_Plan::supports() resolves it through the real
+	 * wpcom_site_has_feature() purchase lookup rather than the
+	 * `jetpack_active_plan` filter set here; forcing a matching purchase would
+	 * couple this test to wpcomsh's purchase schema. The three unavailable
+	 * cases below still run on both flavors, and the unentitled path — the one
+	 * a self-hosted site without the feature actually hits — is covered by
+	 * test_seo_enhancer_unavailable_when_plan_lacks_feature everywhere.
+	 */
+	public function test_seo_enhancer_available_when_all_inputs_true() {
+		if ( getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->markTestSkipped( 'Entitlement resolves through the wpcom purchase gate on Atomic; the positive case is covered on the self-hosted flavor.' );
+		}
+
+		wp_set_current_user( self::$admin_id );
+
+		// 1. `ai_seo_enhancer_enabled` defaults to true — left unfiltered.
+		self::set_seo_tools_active( true );   // 2.
+		self::set_plan( 'jetpack_business' ); // 3.
+
+		$this->assertTrue( $this->get_seo_enhancer_available() );
+	}
+
+	/**
+	 * Input 1 falsified alone: the `ai_seo_enhancer_enabled` kill switch is off.
+	 */
+	public function test_seo_enhancer_unavailable_when_filter_off() {
+		wp_set_current_user( self::$admin_id );
+
+		self::set_seo_tools_active( true );
+		self::set_plan( 'jetpack_business' );
+		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+
+		$this->assertFalse( $this->get_seo_enhancer_available() );
+	}
+
+	/**
+	 * Input 2 falsified alone: the seo-tools module is inactive.
+	 *
+	 * This input cannot be falsified on WordPress.com Simple —
+	 * `Modules::is_active()` returns true unconditionally when `IS_WPCOM` is
+	 * defined, so there the gate reduces to inputs 1 AND 3. The assertion below
+	 * therefore covers the self-hosted and Atomic paths only; it is not a claim
+	 * about Simple.
+	 */
+	public function test_seo_enhancer_unavailable_when_module_inactive() {
+		wp_set_current_user( self::$admin_id );
+
+		self::set_seo_tools_active( false );
+		self::set_plan( 'jetpack_business' );
+
+		$this->assertFalse( $this->get_seo_enhancer_available() );
+	}
+
+	/**
+	 * Input 3 falsified alone: the plan does not grant `ai-seo-enhancer`.
+	 *
+	 * This is the branch a free site lands on, and the one that hides the row
+	 * on an unentitled site with SEO tools switched on.
+	 */
+	public function test_seo_enhancer_unavailable_when_plan_lacks_feature() {
+		wp_set_current_user( self::$admin_id );
+
+		self::set_seo_tools_active( true );
+		self::set_plan( 'jetpack_free' );
+
+		$this->assertFalse( $this->get_seo_enhancer_available() );
+	}
+
+	/**
+	 * Simulate a connected owner, which is what the Image Studio environment
+	 * predicate requires off WordPress.com Simple.
+	 */
+	private static function connect_owner() {
+		\Jetpack_Options::update_option( 'master_user', self::$admin_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( self::$admin_id => 'token.secret.' . self::$admin_id ) );
+		( new Connection_Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Read `features.feature_clip.available` off a fresh GET.
+	 *
+	 * @return bool
+	 */
+	private function get_feature_clip_available() {
+		return $this->dispatch( 'GET' )->get_data()['features']['feature_clip']['available'];
+	}
+
+	/**
+	 * A normal environment — connected owner, master switch on — offers Feature
+	 * Clip, so the row is available.
+	 */
+	public function test_feature_clip_available_in_normal_environment() {
+		wp_set_current_user( self::$admin_id );
+		self::connect_owner();
+
+		$this->assertTrue( $this->get_feature_clip_available() );
+	}
+
+	/**
+	 * The master switch is the first check inside the Image Studio environment
+	 * predicate: with it off nothing about Image Studio loads, so the row is
+	 * unavailable.
+	 */
+	public function test_feature_clip_unavailable_when_environment_gate_fails() {
+		wp_set_current_user( self::$admin_id );
+		self::connect_owner();
+
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, false );
+
+		$this->assertFalse( $this->get_feature_clip_available() );
+	}
+
+	/**
+	 * Availability reports the shared Image Studio *environment* only. Feature
+	 * Clip and the image editor toggle independently by contract, so turning the
+	 * image editor off must leave the clip row available — it only turns the
+	 * image surfaces off, not clip generation.
+	 */
+	public function test_feature_clip_available_is_independent_of_image_editor_toggle() {
+		wp_set_current_user( self::$admin_id );
+		self::connect_owner();
+
+		update_option( Jetpack_AI_Settings::FEATURE_OPTIONS['image_editor'], false );
+
+		$data = $this->dispatch( 'GET' )->get_data();
+
+		$this->assertFalse( $data['features']['image_editor']['enabled'] );
+		$this->assertTrue( $data['features']['feature_clip']['available'] );
 	}
 
 	/**
