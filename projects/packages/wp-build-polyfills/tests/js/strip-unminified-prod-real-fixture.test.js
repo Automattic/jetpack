@@ -26,6 +26,7 @@ const path = require( 'path' );
 const {
 	strip,
 	hasUnpatchedFallback,
+	keepPatternToRegExp,
 	PHP_TARGETS,
 } = require( '../../bin/strip-unminified-prod-lib.js' );
 
@@ -155,7 +156,112 @@ describe(
 
 		it( 'is idempotent on real output — a second pass changes nothing', () => {
 			const result = strip( FIXTURE_BUILD );
-			assert.deepEqual( result, { deletedFiles: 0, patchedFiles: 0, skipped: false } );
+			assert.deepEqual( result, {
+				deletedFiles: 0,
+				keptFiles: 0,
+				patchedFiles: 0,
+				skipped: false,
+			} );
+		} );
+	}
+);
+
+describe( 'keepPatternToRegExp', () => {
+	it( 'matches ** across path segments and * within one', () => {
+		assert.equal(
+			keepPatternToRegExp( 'routes/**/*.js' ).test( 'routes/dashboard/content.js' ),
+			true
+		);
+		assert.equal(
+			keepPatternToRegExp( 'routes/**/content.js' ).test( 'routes/a/b/content.js' ),
+			true
+		);
+		assert.equal(
+			keepPatternToRegExp( 'routes/*.js' ).test( 'routes/dashboard/content.js' ),
+			false
+		);
+	} );
+
+	it( 'treats regex metacharacters as literals and anchors the match', () => {
+		assert.equal( keepPatternToRegExp( 'routes/a.js' ).test( 'routes/aXjs' ), false );
+		assert.equal( keepPatternToRegExp( 'routes/content.js' ).test( 'xroutes/content.js' ), false );
+		assert.equal(
+			keepPatternToRegExp( 'routes/content.js' ).test( 'routes/content.js.map' ),
+			false
+		);
+	} );
+} );
+
+describe(
+	'strip-unminified-prod --keep against real wp-build output',
+	{ skip: ! wpBuildAvailable },
+	() => {
+		before( () => {
+			rmSync( FIXTURE_BUILD, { recursive: true, force: true } );
+			const result = spawnSync( WP_BUILD_BIN, [], {
+				cwd: FIXTURE_DIR,
+				encoding: 'utf8',
+			} );
+			if ( result.status !== 0 ) {
+				throw new Error(
+					`wp-build failed (exit ${ result.status }):\n` +
+						`stdout: ${ result.stdout }\nstderr: ${ result.stderr }`
+				);
+			}
+		} );
+
+		after( () => {
+			rmSync( FIXTURE_BUILD, { recursive: true, force: true } );
+			rmSync( path.join( FIXTURE_DIR, 'packages', 'css-test', 'build' ), {
+				recursive: true,
+				force: true,
+			} );
+		} );
+
+		it( 'retains keep-matched unminified files while stripping the rest', () => {
+			const result = strip( FIXTURE_BUILD, { keep: [ 'routes/**/content.js' ] } );
+			assert.equal( result.skipped, false );
+			// One of the six paired bundles (routes/dashboard/content.js) is kept.
+			assert.equal( result.deletedFiles, 5 );
+			assert.equal( result.keptFiles, 1 );
+			assert.equal( result.patchedFiles, 5 );
+
+			assert.equal(
+				existsSync( path.join( FIXTURE_BUILD, 'routes/dashboard/content.js' ) ),
+				true,
+				'keep-matched content.js should survive'
+			);
+			assert.equal(
+				existsSync( path.join( FIXTURE_BUILD, 'routes/dashboard/content.min.js' ) ),
+				true,
+				'its minified sibling is untouched'
+			);
+			assert.equal(
+				existsSync( path.join( FIXTURE_BUILD, 'routes/dashboard/route.js' ) ),
+				false,
+				'non-matching route.js is still stripped'
+			);
+
+			// Keeping a file must not stop the loaders collapsing to .min —
+			// the kept copy is for string extraction, never for serving.
+			for ( const name of PHP_TARGETS ) {
+				const src = readFileSync( path.join( FIXTURE_BUILD, name ), 'utf8' );
+				assert.equal(
+					hasUnpatchedFallback( src ),
+					false,
+					`${ name } still has a SCRIPT_DEBUG fallback after stripping with keep`
+				);
+			}
+		} );
+
+		it( 'is idempotent with keep — the kept file is re-counted, nothing else changes', () => {
+			const result = strip( FIXTURE_BUILD, { keep: [ 'routes/**/content.js' ] } );
+			assert.deepEqual( result, {
+				deletedFiles: 0,
+				keptFiles: 1,
+				patchedFiles: 0,
+				skipped: false,
+			} );
 		} );
 	}
 );

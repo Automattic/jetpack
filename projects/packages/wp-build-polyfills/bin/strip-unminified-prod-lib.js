@@ -96,6 +96,27 @@ function walk( dir, visit ) {
 }
 
 /**
+ * The path of the `.min` sibling that pairs with an unminified candidate,
+ * or `null` when the file is already minified, orphaned (no `.min`
+ * counterpart on disk), or of an unrelated extension.
+ *
+ * @param {string} filePath - Absolute path to the candidate file.
+ * @return {string|null} The existing `.min` sibling path, or `null`.
+ */
+function pairedMinPath( filePath ) {
+	for ( const ext of STRIPPABLE_EXTS ) {
+		if ( filePath.endsWith( '.min' + ext ) ) {
+			return null;
+		}
+		if ( filePath.endsWith( ext ) ) {
+			const minPath = filePath.slice( 0, -ext.length ) + '.min' + ext;
+			return existsSync( minPath ) ? minPath : null;
+		}
+	}
+	return null;
+}
+
+/**
  * Delete a file if it is the unminified sibling of an existing
  * `.min.js`/`.min.css` counterpart. Also drops any sibling source map.
  * Files that are already minified, orphaned (no `.min` counterpart), or of
@@ -105,24 +126,31 @@ function walk( dir, visit ) {
  * @return {boolean} `true` if the file was deleted, `false` otherwise.
  */
 function stripIfPaired( filePath ) {
-	for ( const ext of STRIPPABLE_EXTS ) {
-		if ( filePath.endsWith( '.min' + ext ) ) {
-			return false;
-		}
-		if ( filePath.endsWith( ext ) ) {
-			const minPath = filePath.slice( 0, -ext.length ) + '.min' + ext;
-			if ( ! existsSync( minPath ) ) {
-				return false;
-			}
-			unlinkSync( filePath );
-			const mapPath = filePath + '.map';
-			if ( existsSync( mapPath ) ) {
-				unlinkSync( mapPath );
-			}
-			return true;
-		}
+	if ( pairedMinPath( filePath ) === null ) {
+		return false;
 	}
-	return false;
+	unlinkSync( filePath );
+	const mapPath = filePath + '.map';
+	if ( existsSync( mapPath ) ) {
+		unlinkSync( mapPath );
+	}
+	return true;
+}
+
+/**
+ * Compile a keep glob into an anchored RegExp over a build-relative POSIX
+ * path. `**` matches across path segments, `*` within one segment; all
+ * other characters are literal.
+ *
+ * @param {string} pattern - Keep glob, relative to the build/ directory (e.g. `routes/**\/*.js`).
+ * @return {RegExp} The compiled matcher.
+ */
+function keepPatternToRegExp( pattern ) {
+	const body = pattern
+		.split( '**' )
+		.map( part => part.replace( /[.+^${}()|[\]\\]/g, '\\$&' ).replace( /\*/g, '[^/]*' ) )
+		.join( '.*' );
+	return new RegExp( '^' + body + '$' );
 }
 
 /**
@@ -156,19 +184,37 @@ function hasUnpatchedFallback( source ) {
  * Strip unminified JS/CSS siblings from a wp-build output tree and rewrite
  * the generated PHP loaders. See module docstring for context.
  *
- * @param {string} buildDir - Absolute path to the package's build/ directory.
- * @return {{deletedFiles: number, patchedFiles: number, skipped: boolean}} Summary of what changed. `skipped: true` if `buildDir` doesn't exist.
+ * `keep` globs exempt matching unminified files from deletion. The kept
+ * copies are never served — the loaders are still collapsed to `.min` —
+ * they exist so downstream string extraction (`wp i18n make-pot`, which
+ * skips `*.min.js` by filename) can see the bundle's translation calls and
+ * translator comments. See the language-pack pipeline notes in the
+ * consuming package.
+ *
+ * @param {string}   buildDir       - Absolute path to the package's build/ directory.
+ * @param {object}   [options]      - Options.
+ * @param {string[]} [options.keep] - Keep globs relative to `buildDir` (POSIX separators; `**` crosses segments, `*` doesn't).
+ * @return {{deletedFiles: number, keptFiles: number, patchedFiles: number, skipped: boolean}} Summary of what changed. `skipped: true` if `buildDir` doesn't exist.
  */
-function strip( buildDir ) {
+function strip( buildDir, { keep = [] } = {} ) {
 	if ( ! existsSync( buildDir ) ) {
-		return { deletedFiles: 0, patchedFiles: 0, skipped: true };
+		return { deletedFiles: 0, keptFiles: 0, patchedFiles: 0, skipped: true };
 	}
 
+	const keepMatchers = keep.map( keepPatternToRegExp );
 	let deletedFiles = 0;
+	let keptFiles = 0;
 	let patchedFiles = 0;
 
 	for ( const sub of TARGET_SUBDIRS ) {
 		walk( path.join( buildDir, sub ), filePath => {
+			const rel = path.relative( buildDir, filePath ).split( path.sep ).join( '/' );
+			if ( keepMatchers.some( re => re.test( rel ) ) ) {
+				if ( pairedMinPath( filePath ) !== null ) {
+					keptFiles++;
+				}
+				return;
+			}
 			if ( stripIfPaired( filePath ) ) {
 				deletedFiles++;
 			}
@@ -204,12 +250,14 @@ function strip( buildDir ) {
 		patchedFiles++;
 	}
 
-	return { deletedFiles, patchedFiles, skipped: false };
+	return { deletedFiles, keptFiles, patchedFiles, skipped: false };
 }
 
 module.exports = {
 	strip,
 	stripIfPaired,
+	pairedMinPath,
+	keepPatternToRegExp,
 	patchPhpSource,
 	hasUnpatchedFallback,
 	walk,

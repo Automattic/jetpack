@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+strip-unminified-prod: add a --keep option to retain unminified bundles for i18n string extraction.

@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "echo 'Not implemented.'",
 		"build:boot-asset": "provide-boot-asset-file",
-		"build:strip-unminified-prod": "strip-unminified-prod",
+		"build:strip-unminified-prod": "strip-unminified-prod '--keep=routes/**/*.js'",
 		"build:wp-build": "wp-build",
 		"build-js": "pnpm clean && webpack && pnpm run build:wp-build && pnpm run build:boot-asset",
 		"build-production": "echo 'Not implemented.'",

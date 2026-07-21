@@ -184,6 +184,14 @@ class AI_Launchpad {
 				'wpcomBlogId' => get_wpcom_blog_id(),
 			)
 		);
+
+		// wp-build route modules have no core translation-loading path, so the
+		// language-pack JED for the app bundle is inlined here: the prerequisites
+		// script depends on wp-i18n, and the boot module runs after it.
+		$translations = wpcom_ai_launchpad_script_translations_inline( determine_locale() );
+		if ( null !== $translations ) {
+			wp_add_inline_script( $handle, $translations );
+		}
 	}
 
 	/**
