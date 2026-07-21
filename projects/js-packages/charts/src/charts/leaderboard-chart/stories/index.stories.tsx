@@ -180,6 +180,41 @@ export const WithOverlayLabel: Story = {
 	},
 };
 
+const zeroChangeData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
+	index === 0
+		? {
+				...entry,
+				currentValue: 0,
+				previousValue: 0,
+				currentShare: 0,
+				previousShare: 0,
+				delta: 0,
+		  }
+		: entry
+);
+
+export const ZeroChange: Story = {
+	args: {
+		data: zeroChangeData,
+		withComparison: true,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The first row is `0` in both periods, so its genuine zero change renders as a neutral `0%` rather than an unavailable-delta placeholder.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		await expect( canvas.getByText( '0%' ) ).toBeInTheDocument();
+		await expect( canvas.queryByText( 'Percentage change unavailable' ) ).not.toBeInTheDocument();
+	},
+};
+
 const unavailableDeltaData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
 	index === 0
 		? {
@@ -238,6 +273,12 @@ export const MissingComparisonRows: Story = {
 					'Rows without a matching comparison-period value ("Social Media" and "Referral" here) omit `previousValue`/`previousShare`/`delta`. Those rows render no comparison bar and show a placeholder in the delta column instead of a fabricated value.',
 			},
 		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		await expect( canvas.getAllByText( '—' ) ).toHaveLength( 2 );
+		await expect( canvas.getAllByText( 'No comparison data' ) ).toHaveLength( 2 );
 	},
 };
 
