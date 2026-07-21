@@ -191,20 +191,9 @@ class Initializer {
 		}
 
 		// Handle onboarding redirects based on connection status
-		$should_redirect      = false;
-		$redirect_args        = array( 'page' => 'my-jetpack' );
-		$onboarding_available = self::is_onboarding_available();
+		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
 
-		if ( $onboarding_available && ! $connection->is_connected() && $step !== 'onboarding' ) {
-			// Redirect to onboarding if not connected
-			$redirect_args['step'] = 'onboarding';
-			$should_redirect       = true;
-		} elseif ( $step === 'onboarding' && ( ! $onboarding_available || $connection->is_connected() ) ) {
-			// Redirect away from onboarding if already connected or onboarding is not available on this site
-			$should_redirect = true;
-		}
-
-		if ( $should_redirect ) {
+		if ( null !== $redirect_args ) {
 			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
 			$location   = wp_sanitize_redirect( $admin_page );
 
@@ -236,6 +225,31 @@ class Initializer {
 	 */
 	public static function is_onboarding_available() {
 		return ! ( new Status_Host() )->is_wpcom_simple();
+	}
+
+	/**
+	 * Decide whether the current My Jetpack request should redirect, and where to.
+	 *
+	 * @param string $step                 The current `step` query param.
+	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
+	 * @param bool   $onboarding_available Whether the onboarding flow is available on this site.
+	 * @return array|null Query args for the redirect, or null to stay on the current page.
+	 */
+	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) {
+		if ( $onboarding_available && ! $is_connected && $step !== 'onboarding' ) {
+			// Redirect to onboarding if not connected
+			return array(
+				'page' => 'my-jetpack',
+				'step' => 'onboarding',
+			);
+		}
+
+		if ( $step === 'onboarding' && ( ! $onboarding_available || $is_connected ) ) {
+			// Redirect away from onboarding if already connected or onboarding is not available on this site
+			return array( 'page' => 'my-jetpack' );
+		}
+
+		return null;
 	}
 
 	/**
@@ -556,7 +570,7 @@ class Initializer {
 	 */
 	public static function admin_page() {
 		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_onboarding = $step === 'onboarding';
+		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
 
 		// Add data attribute for onboarding, otherwise render normal container
 		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
