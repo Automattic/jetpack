@@ -1,6 +1,6 @@
 import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
-import { expect } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -177,6 +177,40 @@ export const WithOverlayLabel: Story = {
 	args: {
 		data: sampleData,
 		withOverlayLabel: true,
+	},
+};
+
+const unavailableDeltaData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
+	index === 0
+		? {
+				...entry,
+				previousValue: 0,
+				previousShare: 0,
+				delta: undefined,
+		  }
+		: entry
+);
+
+export const UnavailableDelta: Story = {
+	args: {
+		data: unavailableDeltaData,
+		withComparison: true,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The first row has a known previous value of `0`, so its comparison data remains available while its mathematically undefined percentage change renders as an em dash instead of `+100%`.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		await expect( canvas.getByText( '—' ) ).toBeInTheDocument();
+		await expect( canvas.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		await expect( canvas.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	},
 };
 
