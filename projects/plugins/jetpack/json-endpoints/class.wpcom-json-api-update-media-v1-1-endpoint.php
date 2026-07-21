@@ -35,6 +35,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint(
 			'privacy_setting' => '(int) Video only. The privacy level for the video.',
 			'artist'          => '(string) Audio Only. Artist metadata for the audio track.',
 			'album'           => '(string) Audio Only. Album metadata for the audio track.',
+			'ai_generated'    => '(bool) Flag the attachment as AI-generated.',
 		),
 
 		'response_format'      => array(
@@ -130,6 +131,12 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		if ( isset( $input['alt'] ) ) {
 			$alt = wp_strip_all_tags( $input['alt'], true );
 			update_post_meta( $media_id, '_wp_attachment_image_alt', $alt );
+		}
+
+		// Runs on the site that owns the attachment, so the flag reaches the real
+		// attachment on Atomic and self-hosted Jetpack sites, not the shadow row.
+		if ( isset( $input['ai_generated'] ) && $input['ai_generated'] ) {
+			update_post_meta( $media_id, '_wpcom_image_studio_ai_generated', true );
 		}
 
 		// audio only artist/album info.
