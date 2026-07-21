@@ -177,4 +177,29 @@ describe( 'AiFeatures rendering', () => {
 
 		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 	} );
+
+	test( 'docs links open a new tab; wp-admin action links stay same-tab', () => {
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					is_connected: true,
+					features: {
+						writing_assistant: { enabled: false },
+						image_editor: { enabled: true },
+					},
+				} }
+				savingKeys={ new Set() }
+				onUpdate={ jest.fn() }
+			/>
+		);
+
+		// Writing Assistant is off → its action is the external "Learn more" docs link.
+		const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
+		expect( learnMore ).toHaveAttribute( 'target', '_blank' );
+
+		// Image Editor is on → its action is the internal "Try it out" wp-admin link.
+		const tryIt = screen.getByRole( 'link', { name: /Try it out/ } );
+		expect( tryIt ).not.toHaveAttribute( 'target' );
+	} );
 } );
