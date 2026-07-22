@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a stamp-textdomains post-build tool and a shared loadI18nCatalogs helper for translating wp-build dashboard JavaScript.
