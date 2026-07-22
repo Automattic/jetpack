@@ -108,6 +108,6 @@
 		"size-limit": "12.1.0",
 		"storybook": "10.4.6",
 		"webpack": "5.107.2",
-		"webpack-cli": "6.0.1"
+		"webpack-cli": "7.2.1"
 	}
 }
