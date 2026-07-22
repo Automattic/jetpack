@@ -13,6 +13,9 @@ import {
 	ReportPageLayout,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -81,6 +84,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortReferrerCsvRows = ( a: ReferrerRecord, b: ReferrerRecord ) => b.views - a.views;
+
 /**
  * Premium Analytics Referrers report page component.
  *
@@ -98,6 +103,23 @@ function ReferrersReport(): JSX.Element {
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useReferrersReportRecords( reportParams, chartPeriod );
 	const fields = useMemo( () => getReferrerFields(), [] );
+	const csvColumns = useMemo< CsvColumn< ReferrerRecord >[] >(
+		() => [
+			{ label: __( 'Referrer', 'jetpack-premium-analytics' ), getValue: row => row.label },
+			{ label: __( 'Group', 'jetpack-premium-analytics' ), getValue: row => row.group },
+			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: 'referrers',
+		range: reportParams,
+		status: records,
+		sort: sortReferrerCsvRows,
+	} );
 	const chartMetrics = useMemo(
 		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
 		[]
@@ -143,6 +165,16 @@ function ReferrersReport(): JSX.Element {
 						{ label: __( 'Referrers', 'jetpack-premium-analytics' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
 			}
 			className={ styles.page }
 		>

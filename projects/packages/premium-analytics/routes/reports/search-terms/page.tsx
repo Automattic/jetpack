@@ -13,6 +13,9 @@ import {
 	ReportPageLayout,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -82,6 +85,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortSearchTermCsvRows = ( a: SearchTermRow, b: SearchTermRow ) => b.views - a.views;
+
 /**
  * Premium Analytics Search terms report page.
  *
@@ -98,6 +103,21 @@ export default function SearchTermsReportPage(): JSX.Element {
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useSearchTermsReportRecords( reportParams, chartPeriod );
 	const fields = useMemo( () => getSearchTermsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< SearchTermRow >[] >(
+		() => [
+			{ label: __( 'Search term', 'jetpack-premium-analytics' ), getValue: row => row.term },
+			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.table.rows,
+		filenamePrefix: 'search-terms',
+		range: reportParams,
+		status: records.table,
+		sort: sortSearchTermCsvRows,
+	} );
 	const chartMetrics = useMemo(
 		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
 		[]
@@ -132,6 +152,16 @@ export default function SearchTermsReportPage(): JSX.Element {
 						{ label: __( 'Search terms', 'jetpack-premium-analytics' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
 			}
 			className={ styles.page }
 		>

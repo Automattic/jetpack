@@ -13,6 +13,9 @@ import {
 	ReportPageLayout,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -81,6 +84,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortClickCsvRows = ( a: ClickRow, b: ClickRow ) => b.clicks - a.clicks;
+
 /**
  * Premium Analytics Clicks report page component.
  *
@@ -98,6 +103,25 @@ function ClicksReport(): JSX.Element {
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useClicksReportRecords( reportParams, chartPeriod );
 	const fields = useMemo( () => getClicksFields(), [] );
+	const csvColumns = useMemo< CsvColumn< ClickRow >[] >(
+		() => [
+			{
+				label: __( 'Clicked URL', 'jetpack-premium-analytics' ),
+				getValue: row => row.clickedUrl,
+			},
+			{ label: __( 'Group', 'jetpack-premium-analytics' ), getValue: row => row.group },
+			{ label: __( 'Clicks', 'jetpack-premium-analytics' ), getValue: row => row.clicks },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: 'clicks',
+		range: reportParams,
+		status: records,
+		sort: sortClickCsvRows,
+	} );
 	const chartMetrics = useMemo(
 		() => [ { key: 'clicks', label: __( 'Clicks', 'jetpack-premium-analytics' ) } ],
 		[]
@@ -143,6 +167,16 @@ function ClicksReport(): JSX.Element {
 						{ label: __( 'Clicks', 'jetpack-premium-analytics' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
 			}
 			className={ styles.page }
 		>

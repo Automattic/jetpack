@@ -66,6 +66,8 @@ export function useSearchTermsReportRecords(
 		table: {
 			rows,
 			isLoading: report.isLoading,
+			isFetching: report.isFetching,
+			isError: report.isError,
 		},
 	};
 }

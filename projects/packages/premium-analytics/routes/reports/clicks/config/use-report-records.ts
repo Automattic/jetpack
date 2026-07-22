@@ -55,5 +55,7 @@ export function useClicksReportRecords(
 		},
 		rows,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
+		isError: report.isError,
 	};
 }

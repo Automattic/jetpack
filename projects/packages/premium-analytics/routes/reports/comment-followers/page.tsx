@@ -8,6 +8,9 @@ import {
 	ReportPageLayout,
 	ReportPageSection,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
@@ -34,6 +37,9 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortCommentFollowerCsvRows = ( a: StatsCommentFollowersItem, b: StatsCommentFollowersItem ) =>
+	b.followers - a.followers;
+
 /**
  * Stable row id for the records table.
  *
@@ -56,6 +62,27 @@ function getCommentFollowerRowId( item: StatsCommentFollowersItem ): string {
 function CommentFollowersReport(): JSX.Element {
 	const records = useCommentFollowersReportRecords();
 	const fields = useMemo( () => getCommentFollowersFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsCommentFollowersItem >[] >(
+		() => [
+			{
+				label: __( 'Post', 'jetpack-premium-analytics' ),
+				getValue: row => String( row.label ?? '' ),
+			},
+			{
+				label: __( 'Subscribers', 'jetpack-premium-analytics' ),
+				getValue: row => row.followers,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: 'comment-subscribers',
+		status: records,
+		sort: sortCommentFollowerCsvRows,
+	} );
 	const { refetch } = records;
 	const retry = useCallback( () => {
 		void refetch();
@@ -73,6 +100,16 @@ function CommentFollowersReport(): JSX.Element {
 						{ label: __( 'Comments Subscribers', 'jetpack-premium-analytics' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
 			}
 			className={ styles.page }
 		>

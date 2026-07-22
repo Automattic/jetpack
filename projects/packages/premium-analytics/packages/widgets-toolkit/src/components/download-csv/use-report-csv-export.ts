@@ -6,7 +6,6 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { buildCsvDateRangeFilename, type CsvColumn } from '../../helpers/build-csv';
-import { isCsvExportEnabled } from './is-csv-export-enabled';
 import type { RowsCsvDownloadButtonProps } from './rows-csv-download-button';
 
 type ReportCsvExportRange = {
@@ -30,8 +29,8 @@ export type UseReportCsvExportOptions< Row > = {
 	/** Report-specific prefix for the date-stamped filename. */
 	filenamePrefix: string;
 
-	/** Active report date range. */
-	range: ReportCsvExportRange;
+	/** Active report date range. Omit for reports that cover all time. */
+	range?: ReportCsvExportRange;
 
 	/** Active report request state. */
 	status: ReportCsvExportStatus;
@@ -69,13 +68,9 @@ export function useReportCsvExport< Row >( {
 	sort,
 }: UseReportCsvExportOptions< Row > ): UseReportCsvExportResult< Row > {
 	const exportRows = useMemo( () => ( sort ? [ ...rows ].sort( sort ) : rows ), [ rows, sort ] );
-	const filename = buildCsvDateRangeFilename( filenamePrefix, range );
+	const filename = range ? buildCsvDateRangeFilename( filenamePrefix, range ) : filenamePrefix;
 	const canExport =
-		isCsvExportEnabled() &&
-		exportRows.length > 0 &&
-		! status.isLoading &&
-		! status.isFetching &&
-		! status.isError;
+		exportRows.length > 0 && ! status.isLoading && ! status.isFetching && ! status.isError;
 
 	return {
 		canExport,

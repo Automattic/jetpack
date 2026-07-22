@@ -3,7 +3,6 @@
  */
 import { buildCsv, saveCsv, type CsvColumn } from '../../helpers/build-csv';
 import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-button';
-import { isCsvExportEnabled } from './is-csv-export-enabled';
 
 export type RowsCsvDownloadButtonProps< Row > = Omit< CsvDownloadButtonProps, 'onDownload' > & {
 	/**
@@ -37,7 +36,7 @@ export function RowsCsvDownloadButton< Row >( {
 	filename,
 	...buttonProps
 }: RowsCsvDownloadButtonProps< Row > ) {
-	if ( ! isCsvExportEnabled() || rows.length === 0 ) {
+	if ( rows.length === 0 ) {
 		return null;
 	}
 

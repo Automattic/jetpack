@@ -61,5 +61,7 @@ export function useReferrersReportRecords(
 		},
 		rows,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
+		isError: report.isError,
 	};
 }

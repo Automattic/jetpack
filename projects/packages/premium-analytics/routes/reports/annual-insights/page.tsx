@@ -6,6 +6,9 @@ import {
 	ReportPageLayout,
 	ReportPageSection,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -34,6 +37,9 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortAnnualInsightsCsvRows = ( a: StatsInsightsYear, b: StatsInsightsYear ) =>
+	Number( b.year ) - Number( a.year );
+
 /**
  * Get the DataViews row id for an Annual insights row.
  *
@@ -52,6 +58,38 @@ function getAnnualInsightRowId( item: StatsInsightsYear ): string {
 function AnnualInsightsReport(): JSX.Element {
 	const records = useAnnualInsightsReportRecords();
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsInsightsYear >[] >(
+		() => [
+			{ label: __( 'Year', 'jetpack-premium-analytics' ), getValue: row => row.year },
+			{ label: __( 'Total posts', 'jetpack-premium-analytics' ), getValue: row => row.total_posts },
+			{
+				label: __( 'Total comments', 'jetpack-premium-analytics' ),
+				getValue: row => row.total_comments,
+			},
+			{
+				label: __( 'Avg comments per post', 'jetpack-premium-analytics' ),
+				getValue: row => row.avg_comments,
+			},
+			{ label: __( 'Total likes', 'jetpack-premium-analytics' ), getValue: row => row.total_likes },
+			{
+				label: __( 'Avg likes per post', 'jetpack-premium-analytics' ),
+				getValue: row => row.avg_likes,
+			},
+			{ label: __( 'Total words', 'jetpack-premium-analytics' ), getValue: row => row.total_words },
+			{
+				label: __( 'Avg words per post', 'jetpack-premium-analytics' ),
+				getValue: row => row.avg_words,
+			},
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: 'annual-insights',
+		status: records,
+		sort: sortAnnualInsightsCsvRows,
+	} );
 	const { refetch } = records;
 	const retry = useCallback( () => {
 		void refetch();
@@ -72,6 +110,16 @@ function AnnualInsightsReport(): JSX.Element {
 				'Year-by-year publishing and engagement totals.',
 				'jetpack-premium-analytics'
 			) }
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

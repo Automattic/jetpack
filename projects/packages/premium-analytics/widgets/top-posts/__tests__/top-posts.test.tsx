@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
@@ -11,16 +10,12 @@ import type { ReactNode } from 'react';
  */
 import TopPostsWidget from '../render';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
-} ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-const mockGetScriptData = getScriptData as jest.Mock;
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
@@ -73,9 +68,6 @@ describe( 'TopPostsWidget', () => {
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: true },
-		} );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
@@ -260,20 +252,6 @@ describe( 'TopPostsWidget', () => {
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
 	} );
-
-	it( 'hides the CSV export when the server flag is disabled', async () => {
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: false },
-		} );
-
-		render( <TopPostsWidget attributes={ { num: 10 } } /> );
-
-		await expect(
-			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'hides the export while a new date range is still fetching, then restores it', async () => {
 		// Hold the second range's fetch open so we can observe the in-flight
 		// window. During it the stats query keeps the prior period's rows as

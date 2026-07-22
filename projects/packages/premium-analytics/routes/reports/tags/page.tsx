@@ -6,6 +6,9 @@ import {
 	ReportPageLayout,
 	ReportPageSection,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -32,6 +35,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.value;
+
 /**
  * Premium Analytics Tags & categories report page component.
  *
@@ -45,6 +50,24 @@ const RECORDS_VIEW = {
 function TagsReport(): JSX.Element {
 	const records = useTagsReportRecords();
 	const fields = useMemo( () => getTagsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsTagsItem >[] >(
+		() => [
+			{
+				label: __( 'Tag or category', 'jetpack-premium-analytics' ),
+				getValue: row => row.labelText,
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.value },
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: 'tags-and-categories',
+		status: records,
+		sort: sortTagCsvRows,
+	} );
 	const { refetch } = records;
 	const retry = useCallback( () => {
 		void refetch();
@@ -64,6 +87,16 @@ function TagsReport(): JSX.Element {
 				/>
 			}
 			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ) }
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

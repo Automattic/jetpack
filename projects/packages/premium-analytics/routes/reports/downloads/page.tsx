@@ -14,6 +14,9 @@ import {
 	ReportPageLayout,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -83,6 +86,9 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortDownloadCsvRows = ( a: StatsFileDownloadsItem, b: StatsFileDownloadsItem ) =>
+	b.downloads - a.downloads;
+
 /**
  * File downloads report page.
  *
@@ -99,6 +105,28 @@ function DownloadsReport(): JSX.Element {
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useDownloadsReportRecords( reportParams, chartPeriod );
 	const fields = useMemo( () => getDownloadsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsFileDownloadsItem >[] >(
+		() => [
+			{
+				label: __( 'File', 'jetpack-premium-analytics' ),
+				getValue: row => row.shortLabel ?? String( row.label ?? '' ),
+			},
+			{
+				label: __( 'Downloads', 'jetpack-premium-analytics' ),
+				getValue: row => row.downloads,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: 'file-downloads',
+		range: reportParams,
+		status: records,
+		sort: sortDownloadCsvRows,
+	} );
 	const chartMetrics = useMemo(
 		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics' ) } ],
 		[]
@@ -135,6 +163,16 @@ function DownloadsReport(): JSX.Element {
 						{ label: __( 'File downloads', 'jetpack-premium-analytics' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
 			}
 			className={ styles.page }
 		>

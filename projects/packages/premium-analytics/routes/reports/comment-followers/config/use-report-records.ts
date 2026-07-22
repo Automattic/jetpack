@@ -34,6 +34,7 @@ export function useCommentFollowersReportRecords() {
 		rows,
 		allPostsFollowers: allPosts?.followers,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
 		isError: report.isError,
 		refetch: report.refetch,
 	};

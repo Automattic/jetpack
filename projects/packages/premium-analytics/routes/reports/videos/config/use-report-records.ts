@@ -90,5 +90,7 @@ export function useVideosReportRecords(
 		},
 		rows,
 		isLoading: summary.isLoading,
+		isFetching: summary.isFetching,
+		isError: summary.isError,
 	};
 }

@@ -7,6 +7,9 @@ import {
 	ReportPageSection,
 	ReportPageTabs,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -37,6 +40,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortCommentsCsvRows = ( a: CommentReportRow, b: CommentReportRow ) => b.value - a.value;
+
 /**
  * Get the DataViews row id for a Comments report row.
  *
@@ -57,6 +62,21 @@ function CommentsReport(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
 	const fields = useMemo( () => getCommentsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< CommentReportRow >[] >(
+		() => [
+			{ label: __( 'Name', 'jetpack-premium-analytics' ), getValue: row => row.label },
+			{ label: __( 'Comments', 'jetpack-premium-analytics' ), getValue: row => row.value },
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: `comments-${ activeTab }`,
+		status: records,
+		sort: sortCommentsCsvRows,
+	} );
 	const { refetch } = records;
 	const retry = useCallback( () => {
 		void refetch();
@@ -77,6 +97,16 @@ function CommentsReport(): JSX.Element {
 				'Learn about the comments your site receives by authors, posts, and pages.',
 				'jetpack-premium-analytics'
 			) }
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

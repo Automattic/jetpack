@@ -14,6 +14,9 @@ import {
 	ReportPageLayout,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -74,6 +77,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortVideoCsvRows = ( a: StatsVideoPlaysItem, b: StatsVideoPlaysItem ) => b.plays - a.plays;
+
 /**
  * Premium Analytics Videos report page.
  *
@@ -90,6 +95,32 @@ function VideosReport(): JSX.Element {
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useVideosReportRecords( reportParams, chartPeriod );
 	const fields = useMemo( () => getVideosFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
+		() => [
+			{
+				label: __( 'Video', 'jetpack-premium-analytics' ),
+				getValue: row =>
+					typeof row.label === 'string' && row.label
+						? row.label
+						: __( 'Untitled video', 'jetpack-premium-analytics' ),
+			},
+			{ label: __( 'Plays', 'jetpack-premium-analytics' ), getValue: row => row.plays },
+			{
+				label: __( 'Impressions', 'jetpack-premium-analytics' ),
+				getValue: row => row.impressions,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const { canExport, buttonProps } = useReportCsvExport( {
+		columns: csvColumns,
+		rows: records.rows,
+		filenamePrefix: 'videos',
+		range: reportParams,
+		status: records,
+		sort: sortVideoCsvRows,
+	} );
 	const chartMetrics = useMemo(
 		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics' ) } ],
 		[]
@@ -131,6 +162,16 @@ function VideosReport(): JSX.Element {
 				/>
 			}
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics' ) }
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						{ ...buttonProps }
+					/>
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -9,28 +8,17 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { buildCsv, saveCsv } from '../../../helpers/build-csv';
 import { RowsCsvDownloadButton } from '../rows-csv-download-button';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
-} ) );
 jest.mock( '../../../helpers/build-csv', () => ( {
 	buildCsv: jest.fn( () => '"Title"\n"Hello"' ),
 	saveCsv: jest.fn(),
 } ) );
 
-const mockGetScriptData = getScriptData as jest.Mock;
 const mockBuildCsv = jest.mocked( buildCsv );
 const mockSaveCsv = jest.mocked( saveCsv );
 
 describe( 'RowsCsvDownloadButton', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: {
-				initial_full_sync_finished: 1,
-				has_store_data: false,
-				csv_exports_enabled: true,
-			},
-		} );
 	} );
 
 	it( 'builds and saves rows after committing the loading state', async () => {
@@ -56,26 +44,6 @@ describe( 'RowsCsvDownloadButton', () => {
 			<RowsCsvDownloadButton
 				columns={ [ { label: 'Title', getValue: row => row.title } ] }
 				rows={ [] }
-				filename="top-posts"
-			/>
-		);
-
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'stays hidden while the feature flag is disabled', () => {
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: {
-				initial_full_sync_finished: 1,
-				has_store_data: false,
-				csv_exports_enabled: false,
-			},
-		} );
-
-		render(
-			<RowsCsvDownloadButton
-				columns={ [ { label: 'Title', getValue: row => row.title } ] }
-				rows={ [ { title: 'Hello' } ] }
 				filename="top-posts"
 			/>
 		);
