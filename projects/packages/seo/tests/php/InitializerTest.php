@@ -812,52 +812,64 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Self-hosted Jetpack is never plan-gated: SEO stays free there regardless of
-	 * what the plan lookup reports, so the gate short-circuits on the host check.
+	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
+	 *
+	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are
+	 * cumulative, so the plan data alone can never report it unsupported. On
+	 * WordPress.com `Current_Plan::supports()` hijacks to the platform's own feature
+	 * check instead, and that hijack is the only thing that can gate the dashboard —
+	 * so that is what these tests drive.
+	 *
+	 * @param bool $entitled Whether the site is entitled to `advanced-seo`.
 	 */
-	public function test_is_gated_is_false_on_self_hosted() {
-		$original = \Automattic\Jetpack\Current_Plan::$supported;
-		// Even with the plan reporting no `advanced-seo`, self-hosted is not gated.
-		\Automattic\Jetpack\Current_Plan::$supported = array();
+	private function simulate_wpcom_site( $entitled ) {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
 
-		try {
-			$this->assertFalse( $this->read_is_gated() );
-		} finally {
-			\Automattic\Jetpack\Current_Plan::$supported = $original;
-		}
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = $entitled ? array( 'advanced-seo' ) : array();
 	}
 
 	/**
-	 * On WordPress.com, a site whose plan lacks `advanced-seo` (below Premium after
+	 * Undo {@see self::simulate_wpcom_site()}.
+	 */
+	private function reset_wpcom_site() {
+		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		\Wpcom_Test_Features::reset();
+	}
+
+	/**
+	 * Self-hosted Jetpack is never plan-gated: SEO stays free there, so the gate
+	 * short-circuits on the host check before any plan lookup happens.
+	 */
+	public function test_is_gated_is_false_on_self_hosted() {
+		$this->assertFalse( $this->read_is_gated() );
+	}
+
+	/**
+	 * On WordPress.com, a site not entitled to `advanced-seo` (below Premium after
 	 * the March 2026 rebundling) is gated.
 	 */
 	public function test_is_gated_is_true_on_wpcom_without_advanced_seo() {
-		$original = \Automattic\Jetpack\Current_Plan::$supported;
-		\Automattic\Jetpack\Current_Plan::$supported = array();
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		$this->simulate_wpcom_site( false );
 
 		try {
 			$this->assertTrue( $this->read_is_gated() );
 		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-			\Automattic\Jetpack\Current_Plan::$supported = $original;
+			$this->reset_wpcom_site();
 		}
 	}
 
 	/**
-	 * On WordPress.com, a site whose plan includes `advanced-seo` (Premium and above)
-	 * gets the full dashboard — the upsell must never show to someone already paying.
+	 * On WordPress.com, a site entitled to `advanced-seo` (Premium and above) keeps
+	 * the full dashboard — the upsell must never show to someone already paying.
 	 */
 	public function test_is_gated_is_false_on_wpcom_with_advanced_seo() {
-		$original = \Automattic\Jetpack\Current_Plan::$supported;
-		\Automattic\Jetpack\Current_Plan::$supported = array( 'advanced-seo' );
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		$this->simulate_wpcom_site( true );
 
 		try {
 			$this->assertFalse( $this->read_is_gated() );
 		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-			\Automattic\Jetpack\Current_Plan::$supported = $original;
+			$this->reset_wpcom_site();
 		}
 	}
 
@@ -877,7 +889,7 @@ class InitializerTest extends TestCase {
 	 * Run `init()` with the surface visible and the `seo-tools` module active, and
 	 * report whether the two GEO-tab front-end services hooked themselves.
 	 *
-	 * Mirrors test_init_registers_schema_and_hooks_when_enabled()'s setup: the module
+	 * Mirrors test_init_registers_schema_and_hooks_when_enabled()'s setup: module
 	 * state is driven through `jetpack_active_modules` (the package test context has
 	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
 	 * `$initialized` guard is reset so the body runs.
@@ -923,28 +935,19 @@ class InitializerTest extends TestCase {
 	 * and the AI-crawler robots.txt directives are appended.
 	 */
 	public function test_init_registers_geo_services_when_not_gated() {
-		$original = \Automattic\Jetpack\Current_Plan::$supported;
-		\Automattic\Jetpack\Current_Plan::$supported = array( 'advanced-seo' );
+		$hooked = $this->init_and_check_geo_services();
 
-		try {
-			$hooked = $this->init_and_check_geo_services();
-
-			$this->assertTrue( $hooked['llms_txt'] );
-			$this->assertTrue( $hooked['ai_crawlers'] );
-		} finally {
-			\Automattic\Jetpack\Current_Plan::$supported = $original;
-		}
+		$this->assertTrue( $hooked['llms_txt'] );
+		$this->assertTrue( $hooked['ai_crawlers'] );
 	}
 
 	/**
 	 * A plan-gated WordPress.com site must not merely hide the GEO tab — it must stop
 	 * running the services behind it, or it would keep serving /llms.txt and emitting
-	 * AI-crawler robots.txt directives it doesn't qualify for.
+	 * AI-crawler robots.txt directives it isn't entitled to.
 	 */
 	public function test_init_skips_geo_services_when_gated() {
-		$original = \Automattic\Jetpack\Current_Plan::$supported;
-		\Automattic\Jetpack\Current_Plan::$supported = array();
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		$this->simulate_wpcom_site( false );
 
 		try {
 			$hooked = $this->init_and_check_geo_services();
@@ -952,8 +955,7 @@ class InitializerTest extends TestCase {
 			$this->assertFalse( $hooked['llms_txt'] );
 			$this->assertFalse( $hooked['ai_crawlers'] );
 		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-			\Automattic\Jetpack\Current_Plan::$supported = $original;
+			$this->reset_wpcom_site();
 		}
 	}
 
@@ -962,9 +964,7 @@ class InitializerTest extends TestCase {
 	 * surface still register, so a gated site keeps the free subset of the dashboard.
 	 */
 	public function test_init_still_registers_schema_and_menu_when_gated() {
-		$original = \Automattic\Jetpack\Current_Plan::$supported;
-		\Automattic\Jetpack\Current_Plan::$supported = array();
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		$this->simulate_wpcom_site( false );
 
 		try {
 			$this->init_and_check_geo_services();
@@ -974,8 +974,7 @@ class InitializerTest extends TestCase {
 				has_action( 'admin_menu', array( Initializer::class, 'maybe_load_wp_build' ) )
 			);
 		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-			\Automattic\Jetpack\Current_Plan::$supported = $original;
+			$this->reset_wpcom_site();
 		}
 	}
 }

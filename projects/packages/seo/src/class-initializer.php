@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -386,22 +387,11 @@ class Initializer {
 	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
 	 * Enhancer's plan check in {@see self::get_ai_data()}.
 	 *
-	 * `Current_Plan` comes from the `automattic/jetpack-plans` package, which this
-	 * package doesn't depend on — it's present when the host plugin bundles it. It's
-	 * guarded with `method_exists` rather than `class_exists` so an older bundled
-	 * snapshot that predates the method can't fatal here.
-	 *
-	 * When the plan state can't be determined (no `Current_Plan`), the site is treated
-	 * as UNGATED: a paying customer must never be shown a reduced dashboard because a
-	 * lookup was unavailable.
-	 *
 	 * @return bool
 	 */
 	private static function is_gated() {
 		return ( new Host() )->is_wpcom_platform()
-			&& method_exists( 'Automattic\\Jetpack\\Current_Plan', 'supports' )
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by method_exists; the jetpack-plans package provides the class.
-			&& ! \Automattic\Jetpack\Current_Plan::supports( 'advanced-seo' );
+			&& ! Current_Plan::supports( 'advanced-seo' );
 	}
 
 	/**
@@ -1158,11 +1148,7 @@ class Initializer {
 	public static function get_ai_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
 
-		// Current_Plan is provided by the host Jetpack plugin, not a package
-		// dependency — guard like the Jetpack_SEO_* helpers above.
-		$plan_supports = class_exists( 'Automattic\\Jetpack\\Current_Plan' )
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
-			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
+		$plan_supports = Current_Plan::supports( 'ai-seo-enhancer' );
 
 		return array(
 			'enhancer' => array(

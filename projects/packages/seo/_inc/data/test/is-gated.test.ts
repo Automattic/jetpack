@@ -59,7 +59,9 @@ describe( 'getUpsellUrl', () => {
 
 	it( 'returns the bootstrapped checkout URL', () => {
 		getScriptData.mockReturnValue( {
-			seo: { gating: { is_gated: true, upsell_url: 'https://wordpress.com/checkout/x/value_bundle' } },
+			seo: {
+				gating: { is_gated: true, upsell_url: 'https://wordpress.com/checkout/x/value_bundle' },
+			},
 		} );
 
 		expect( getUpsellUrl() ).toBe( 'https://wordpress.com/checkout/x/value_bundle' );
