@@ -1,38 +1,56 @@
 .card {
 	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: var(--wpds-dimension-gap-lg);
-	border:
-		var(--wpds-border-width-xs) solid
-		var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-md);
-	padding: var(--wpds-dimension-padding-2xl);
+	align-items: center;
+	gap: 20px;
+	min-inline-size: 0;
 }
 
 .details {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs);
+	// The text block matches the thumbnail height: title against its top,
+	// subtitle against its bottom.
+	justify-content: space-between;
+	block-size: 72px;
+	flex: 1 1 auto;
 	min-inline-size: 0;
 }
 
-.type {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
-	color: var(--wpds-color-foreground-content-neutral-weak);
+// Outranks the Text heading variant's `:is(h1,…).__heading` font-size rule
+// ((0,1,1)) without touching its private custom properties.
+.details h1.title {
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 1.2;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.published {
+.subtitle {
 	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: 13px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.image {
+.image,
+.imagePlaceholder {
 	flex: 0 0 auto;
 	inline-size: 72px;
 	block-size: 72px;
+	border-radius: 8px;
+}
+
+.image {
 	object-fit: cover;
-	border-radius: var(--wpds-border-radius-sm);
+}
+
+.imagePlaceholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--wpds-color-background-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }

@@ -137,7 +137,7 @@ class AI_Launchpad {
 			self::MENU_SLUG,
 			$callback,
 			'data:image/svg+xml;base64,' . base64_encode( $icon ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Encoding an inline SVG for the menu icon data URI.
-			2.01
+			1 // Above Dashboard (position 2): setup is the site's primary surface until it's done.
 		);
 	}
 

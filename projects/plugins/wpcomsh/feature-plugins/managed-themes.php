@@ -234,6 +234,11 @@ function wpcomsh_load_theme_compat_file() {
 add_action( 'after_setup_theme', 'wpcomsh_load_theme_compat_file', 0 ); // Hook early so that after_setup_theme can still be used at default priority.
 
 /**
+ * The default site icon served when a site doesn't have a custom one.
+ */
+const WPCOMSH_DEFAULT_SITE_ICON_URL = 'https://s0.wp.com/i/webclip.png';
+
+/**
  * Provides a favicon fallback in case it's undefined.
  *
  * @param string $url Site Icon URL.
@@ -241,9 +246,26 @@ add_action( 'after_setup_theme', 'wpcomsh_load_theme_compat_file', 0 ); // Hook 
  */
 function wpcomsh_site_icon_url( $url ) {
 	if ( empty( $url ) ) {
-		$url = 'https://s0.wp.com/i/webclip.png';
+		$url = WPCOMSH_DEFAULT_SITE_ICON_URL;
 	}
 
 	return $url;
 }
 add_filter( 'get_site_icon_url', 'wpcomsh_site_icon_url' );
+
+/**
+ * Hides the site icon in the admin bar when the site has no custom site icon.
+ *
+ * This effectively ignores the favicon fallback provided by the
+ * `wpcomsh_site_icon_url()` function above.
+ *
+ * @param bool $show Whether to show site icons in the admin bar.
+ * @return bool Whether to show site icons in the admin bar.
+ */
+function wpcomsh_admin_bar_hide_default_site_icon( $show ) {
+	if ( $show && WPCOMSH_DEFAULT_SITE_ICON_URL === get_site_icon_url() ) {
+		return false;
+	}
+	return $show;
+}
+add_filter( 'wp_admin_bar_show_site_icons', 'wpcomsh_admin_bar_hide_default_site_icon' );

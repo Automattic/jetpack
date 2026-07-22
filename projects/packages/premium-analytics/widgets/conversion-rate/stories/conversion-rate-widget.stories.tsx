@@ -7,11 +7,15 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import ConversionRateRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -89,12 +93,6 @@ interface ConversionRateDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		ConversionRateStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 function getConversionRateAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
@@ -141,6 +139,11 @@ function renderConversionRate( { withComparison, preset }: ConversionRateStoryCo
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderConversionRateOnPreset( preset: SelectablePresetId ) {
+	return <ConversionRateRender attributes={ getConversionRateAttributes( false, preset ) } />;
+}
+
 function ConversionRateDashboardStory( {
 	withComparison,
 	preset,
@@ -149,7 +152,7 @@ function ConversionRateDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ CONVERSION_RATE_RENDER_MODULE }
 			renderComponent={ ConversionRateRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getConversionRateAttributes( withComparison, preset ) }
@@ -228,6 +231,56 @@ export const WithComparison: Story = {
 				) => getConversionRateSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ *
+ * The story's own conversion-rate mock middleware (registered above) would
+ * otherwise shadow `setReportMockState` — it always answers
+ * `sessions/by-conversion-rate` with canned data and never falls through.
+ * `forceStatsMockState` re-registers its shared override when this story sets a
+ * forced state, keeping it ahead of story-local middleware even if Storybook
+ * lazy-loads another story module later.
+ */
+export const Loading: Story = {
+	render: () => renderConversionRateOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'sessions/by-conversion-rate', 'loading' );
+		return () => forceStatsMockState( 'sessions/by-conversion-rate', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderConversionRateOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'sessions/by-conversion-rate', 'error' );
+		return () => forceStatsMockState( 'sessions/by-conversion-rate', null );
+	},
+};
+
+/**
+ * Resolved with no active sessions: the widget shows its empty state ("No
+ * conversion data in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderConversionRateOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'sessions/by-conversion-rate', 'empty' );
+		return () => forceStatsMockState( 'sessions/by-conversion-rate', null );
 	},
 };
 

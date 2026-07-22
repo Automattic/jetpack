@@ -410,6 +410,7 @@ export default function PricingInterstitial( { slug } ) {
 						items={ config.features }
 						showIntroOfferDisclaimer={ false }
 						headerLogo={ config.logo ? <config.logo height={ 32 } /> : null }
+						breakpoint="xlarge"
 					>
 						{ config.tiers.free && (
 							<PricingTableColumn className={ styles[ 'pricing-column' ] }>

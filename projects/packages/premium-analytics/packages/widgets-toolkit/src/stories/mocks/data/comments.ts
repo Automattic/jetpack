@@ -15,43 +15,45 @@ export const mockCommentsData = {
 		{
 			name: 'Alex Rivera',
 			comments: 128,
-			link: 'https://example.com/author/alex-rivera',
+			link: '?s=alex.rivera@example.com',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a01?s=96',
 		},
 		{
 			name: 'Priya Nair',
 			comments: 97,
-			link: 'https://example.com/author/priya-nair',
+			link: '?s=priya.nair@example.com',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a02?s=96',
 		},
 		{
 			name: 'Marcus Chen',
 			comments: 74,
-			link: 'https://example.com/author/marcus-chen',
+			link: '?s=marcus.chen@example.com',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a03?s=96',
 		},
 		{
 			name: 'Sofia Almeida',
 			comments: 61,
-			link: 'https://example.com/author/sofia-almeida',
+			link: '?s=sofia.almeida@example.com',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a04?s=96',
 		},
 		{
 			name: 'Daniel Okoro',
 			comments: 45,
-			link: 'https://example.com/author/daniel-okoro',
+			link: '?s=daniel.okoro@example.com',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a05?s=96',
 		},
 		{
 			name: 'Hannah Weber',
 			comments: 33,
-			link: 'https://example.com/author/hannah-weber',
+			link: '?s=hannah.weber@example.com',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a06?s=96',
 		},
 		{
 			name: 'Leah Kim',
 			comments: 22,
-			link: 'https://example.com/author/leah-kim',
+			// WordPress.com-user rows use `?user_id=` and intentionally remain
+			// unlinked because wp-admin has no equivalent author search URL.
+			link: '?user_id=1662656',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a07?s=96',
 		},
 	],

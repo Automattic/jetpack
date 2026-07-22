@@ -74,6 +74,9 @@ export { mockStatsInsightsData } from './insights';
 
 export { mockStatsPostData } from './stats-post';
 
+export { mockPostLikesData } from './post-likes';
+export { mockPostCommentsData } from './post-comments';
+
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
@@ -81,6 +84,8 @@ export { mockStatsSubscribersCountsData } from './subscriber-counts';
 export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
 
 export { buildEmailRateResponse } from './email-rate';
+
+export { buildEmailTimelineResponse } from './email-timeline';
 
 export {
 	mockEmailCountryBreakdown,

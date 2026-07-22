@@ -8,20 +8,22 @@
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/formatters": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
 		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
-		"@wordpress/admin-ui": "2.1.0",
-		"@wordpress/components": "36.1.0",
+		"@wordpress/admin-ui": "2.5.0",
+		"@wordpress/components": "37.0.0",
 		"@wordpress/dataviews": "14.3.0",
-		"@wordpress/element": "8.2.0",
+		"@wordpress/element": "8.3.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/route": "0.16.0",
+		"@wordpress/route": "0.17.0",
 		"@wordpress/ui": "0.17.0",
 		"react": "18.3.1"
 	},
 	"devDependencies": {
-		"@testing-library/react": "16.3.2"
+		"@testing-library/react": "16.3.2",
+		"@testing-library/user-event": "14.6.1"
 	}
 }

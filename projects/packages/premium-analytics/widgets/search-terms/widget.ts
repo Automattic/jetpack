@@ -22,14 +22,6 @@ export type SearchTermsAttributes = {
  * Date range comes from WidgetRoot's reportParams (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/search-terms',
-	title: __( 'Search Terms', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Learn about popular terms visitors use to find your site content on search engines.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: search,
 	attributes: [
 		{

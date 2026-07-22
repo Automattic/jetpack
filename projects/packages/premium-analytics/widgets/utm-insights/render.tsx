@@ -7,14 +7,18 @@ import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -30,6 +34,13 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
+type UtmReportSection =
+	| 'source-medium'
+	| 'campaign-source-medium'
+	| 'source'
+	| 'medium'
+	| 'campaign';
+
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
@@ -44,6 +55,22 @@ type UtmInsightsInnerProps = {
 	 */
 	max: number;
 };
+
+/** Map a widget dimension to a section supported by the UTM report. */
+function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
+	switch ( utmDimension ) {
+		case 'utm_source,utm_medium':
+			return 'source-medium';
+		case 'utm_campaign,utm_source,utm_medium':
+			return 'campaign-source-medium';
+		case 'utm_source':
+			return 'source';
+		case 'utm_medium':
+			return 'medium';
+		case 'utm_campaign':
+			return 'campaign';
+	}
+}
 
 /**
  * Inner component — rendered inside WidgetRoot.
@@ -65,13 +92,12 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		clearSelectedUtm();
 	}, [ clearSelectedUtm, utmDimension ] );
 
-	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
+	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
 		max,
 	} );
 
-	const showLoading = isLoading || ( isFetching && hasData );
 	const selectedUtm = useMemo(
 		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
 		[ data, selectedUtmLabel ]
@@ -110,11 +136,11 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					</Stack>
 				),
 				currentValue: item.value,
-				currentShare: ( item.value / maxValue ) * 100,
+				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
 				previousShare:
 					withComparison && previousValue !== undefined
-						? ( previousValue / maxPreviousValue ) * 100
+						? sharePercentage( previousValue, maxPreviousValue )
 						: undefined,
 				delta:
 					withComparison && previousValue !== undefined
@@ -142,40 +168,39 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 			className={ styles.backLink }
 		/>
 	) : null;
-
-	if ( isError ) {
-		return (
-			<>
-				{ backLink }
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<>
-				{ backLink }
-				<WidgetLoadingOverlay />
-			</>
-		);
-	}
-
 	return (
 		<>
 			{ backLink }
-			<LeaderboardChart
-				data={ leaderboardData }
-				loading={ showLoading }
-				withComparison={ withComparison }
-				withOverlayLabel
-				showLegend={ false }
-				emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
-				dataFormat={ DATA_FORMAT }
-				className={ styles.leaderboard }
-			/>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load UTM data. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: megaphone,
+						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ withComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+			</WidgetFooter>
 		</>
 	);
 }

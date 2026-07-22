@@ -8,11 +8,14 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
+	resolveLeaderboardRowAction,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -22,7 +25,6 @@ import {
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -111,48 +113,32 @@ function buildLeaderboardData(
 		const previousValue = row.previousValue;
 		const hasPrevious = withComparison && previousValue !== undefined;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! hasChildren;
-		const label = (
-			<LeaderboardLabel
-				label={ row.label }
-				imageUrl={ row.icon ?? undefined }
-				imageAlt=""
-				imageFallback="hidden"
-				imageClassName={ styles.labelIcon }
-			/>
-		);
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: shouldRenderLink ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ label }
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'favicon', url: row.icon ?? undefined },
+				action: resolveLeaderboardRowAction( {
+					href: row.href,
+					hasChildren,
+					drillDown: onDrillDown
+						? {
+								onClick: () => onDrillDown( row ),
+								ariaLabel: sprintf(
+									/* translators: %s is the referrer group or domain label. */
+									__( 'View referrers for %s', 'jetpack-premium-analytics' ),
+									row.label
+								),
+						  }
+						: undefined,
+				} ),
+			} ),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentViews ),
 			previousValue,
 			previousShare: hasPrevious ? sharePercentage( previousValue, maxPreviousViews ) : undefined,
 			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
-			...( hasChildren &&
-				onDrillDown && {
-					onClick: () => onDrillDown( row ),
-					ariaLabel: sprintf(
-						/* translators: %s is the referrer group or domain label. */
-						__( 'View referrers for %s', 'jetpack-premium-analytics' ),
-						row.label
-					),
-				} ),
 		};
 	} );
 }
@@ -307,7 +293,11 @@ function ReferrersInner( { max }: { max: number } ) {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
 				isEmpty={ rows.length === 0 }
 				error={ {
 					description: __(
@@ -351,6 +341,9 @@ export default function ReferrersWidget( {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ReferrersInner max={ max } />
+				<WidgetFooter>
+					<ReportLink report="referrers" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

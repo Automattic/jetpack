@@ -1,12 +1,28 @@
 export {
 	combineStatsNormalizedReports,
+	flattenStatsLeaves,
+	getStatsReportItems,
 	mergeStatsComparisonRows,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
 } from './utils';
-export type { StatsComparisonRowContext } from './utils';
+export type {
+	FlattenStatsLeavesContext,
+	FlattenStatsLeavesOptions,
+	StatsComparisonRowContext,
+} from './utils';
+export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
+export type { StatsChartBucketPeriod } from './chart-buckets';
+export { aggregateStatsDrilldownRows } from './drilldown-rows';
+export type {
+	StatsDrilldownRow,
+	StatsDrilldownSourceItem,
+	StatsDrilldownSourceReport,
+} from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
+export { sanitizeStatsPostCommentsResponse } from './post-comments';
+export { sanitizeStatsPostLikesResponse } from './post-likes';
 export { mergeStatsReferrersComparisonRows, sanitizeStatsReferrersResponse } from './referrers';
 export { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from './clicks';
 export {
@@ -62,6 +78,8 @@ export type {
 	StatsPostWeekDay,
 	StatsPostYear,
 } from './post';
+export type { StatsPostComment, StatsPostCommentsResponse } from './post-comments';
+export type { StatsPostLike, StatsPostLikesResponse } from './post-likes';
 export type { StatsReferrersComparisonItem, StatsReferrersItem } from './referrers';
 export type { StatsClicksComparisonItem, StatsClicksItem } from './clicks';
 export type { StatsSearchTermsComparisonItem, StatsSearchTermsItem } from './search-terms';
@@ -163,6 +181,7 @@ export type {
 export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
+	StatsSingleVideoPost,
 	StatsSingleVideoReport,
 } from './single-video';
 export type {

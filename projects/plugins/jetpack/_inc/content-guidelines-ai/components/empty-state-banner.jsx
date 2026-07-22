@@ -14,14 +14,6 @@ export default function EmptyStateBanner() {
 
 	const dismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
 
-	// The plans store defaults hasFeature to true until its fetch resolves, so
-	// rendering before resolution would flash the banner on no-plan sites and
-	// then swap it for the upgrade notice. Wait for the real answer instead.
-	const featureResolved = useSelect(
-		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
-		[]
-	);
-
 	const handleDismiss = useCallback( () => {
 		dismissBanner();
 	}, [ dismissBanner ] );
@@ -31,7 +23,7 @@ export default function EmptyStateBanner() {
 		generate();
 	}, [ dismissBanner, generate ] );
 
-	if ( ! featureResolved || dismissed || ! hasFeature ) {
+	if ( dismissed || ! hasFeature ) {
 		return null;
 	}
 

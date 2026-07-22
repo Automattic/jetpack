@@ -42,7 +42,9 @@ const EpisodeStats = ( { postId, title, onBack, initialSelection }: EpisodeStats
 					>
 						{ title }
 					</h2>
-					<p className="podcast-stats__section-description">{ getPeriodHeading( selection ) }</p>
+					<p className="podcast-stats__section-description">
+						{ getPeriodHeading( selection, 'episode' ) }
+					</p>
 				</header>
 				<PeriodControl value={ selection } onChange={ setSelection } />
 			</div>

@@ -17,23 +17,11 @@ export const getUpgradeProductSlug = (): string =>
 export const getUpgradePlanName = (): string =>
 	getScriptData()?.podcast?.upgrade?.plan_name ?? 'Premium';
 
-/**
- * Append the post-checkout marker to a return URL so the server re-reads the
- * site's plan on arrival and unlocks the paid surfaces without waiting on cache.
- *
- * The `podcast_purchased` literal must match `Admin_Page::PURCHASE_RETURN_QUERY_VAR`.
- *
- * @param {string} url - The checkout return URL; an empty string is passed through.
- * @return {string} The URL carrying the purchase-return marker.
- */
-export const withPurchaseReturnMarker = ( url: string ): string => {
-	if ( ! url ) {
-		return url;
-	}
-	const next = new URL( url );
-	next.searchParams.set( 'podcast_purchased', '1' );
-	return next.toString();
-};
+// Generic, site-agnostic checkout for the injected upgrade product (e.g.
+// `jetpack_growth` on self-hosted, `premium` on wpcom). Used as the fallback
+// when there's no site slug to build a per-site checkout from.
+export const getUpgradeProductCheckoutUrl = (): string =>
+	`https://wordpress.com/checkout/${ getUpgradeProductSlug() }`;
 
 interface UpgradeCheckoutUrlArgs {
 	/** Calypso site fragment (`site.suffix`); empty falls back to `noSiteSlugUrl`. */
@@ -42,25 +30,25 @@ interface UpgradeCheckoutUrlArgs {
 	returnUrl: string;
 	/** Extra query params to set on the checkout URL (e.g. `source`, `cancel_to`). */
 	params?: Record< string, string >;
-	/** URL to use when there's no site slug to build a per-site checkout from. */
-	noSiteSlugUrl: string;
+	/** URL to use when there's no site slug; defaults to the generic product checkout. */
+	noSiteSlugUrl?: string;
 }
 
 /**
  * Build the podcast upsell checkout URL for the injected upgrade product.
  *
- * @param {UpgradeCheckoutUrlArgs} args               - Checkout URL arguments.
- * @param {string}                 args.siteSlug      - Calypso site fragment; empty falls back to `noSiteSlugUrl`.
- * @param {string}                 args.returnUrl     - Where checkout returns after purchase (`redirect_to`).
- * @param {object}                 [args.params]      - Extra query params to set on the checkout URL.
- * @param {string}                 args.noSiteSlugUrl - URL to use when there's no site slug.
+ * @param {UpgradeCheckoutUrlArgs} args                 - Checkout URL arguments.
+ * @param {string}                 args.siteSlug        - Calypso site fragment; empty falls back to `noSiteSlugUrl`.
+ * @param {string}                 args.returnUrl       - Where checkout returns after purchase (`redirect_to`).
+ * @param {object}                 [args.params]        - Extra query params to set on the checkout URL.
+ * @param {string}                 [args.noSiteSlugUrl] - URL to use when there's no site slug; defaults to the generic product checkout.
  * @return {string} The checkout URL for the injected upgrade product.
  */
 export const buildUpgradeCheckoutUrl = ( {
 	siteSlug,
 	returnUrl,
 	params,
-	noSiteSlugUrl,
+	noSiteSlugUrl = getUpgradeProductCheckoutUrl(),
 }: UpgradeCheckoutUrlArgs ): string => {
 	if ( ! siteSlug ) {
 		return noSiteSlugUrl;

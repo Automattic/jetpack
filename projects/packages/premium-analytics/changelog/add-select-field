@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Fields: Add SelectField, a DataForm edit control for text fields with elements that renders a SelectControl instead of the native select.

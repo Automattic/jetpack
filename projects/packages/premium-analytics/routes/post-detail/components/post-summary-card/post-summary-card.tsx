@@ -13,7 +13,15 @@ import type { PostSummary } from '../../hooks';
 
 type PostSummaryCardProps = {
 	summary: PostSummary;
+	/**
+	 * The committed report date range, rendered as the performance window
+	 * ("Performance from … to …") so the header states what period every
+	 * widget below reflects.
+	 */
+	performanceRange?: { from: Date | undefined; to: Date | undefined };
 };
+
+const DATE_FORMAT = 'MMM d, yyyy';
 
 /**
  * Get the display label for a post type slug.
@@ -28,43 +36,64 @@ function getTypeLabel( type?: string ): string {
 }
 
 /**
- * The header card summarizing the post/page being viewed: type badge, title,
- * published date, and featured image.
+ * The page-header summary of the post/page being viewed: featured-image
+ * thumbnail (or a type-icon placeholder), title, and one line stating the
+ * publish date and the applied performance window.
  *
- * @param props         - Component props.
- * @param props.summary - The resolved post summary.
- * @return The summary card element.
+ * @param props                  - Component props.
+ * @param props.summary          - The resolved post summary.
+ * @param props.performanceRange - The committed report date range.
+ * @return The summary header element.
  */
-export function PostSummaryCard( { summary }: PostSummaryCardProps ) {
+export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardProps ) {
 	const { title, type, publishedDate, imageUrl } = summary;
 
 	const publishedDateObject = publishedDate ? new Date( publishedDate ) : undefined;
-	const publishedLabel =
+	const publishedSentence =
 		publishedDateObject && isValid( publishedDateObject )
 			? sprintf(
-					/* translators: %s: the date a post was published, e.g. "Aug 19, 2025". */
-					__( 'Published %s', 'jetpack-premium-analytics' ),
-					format( publishedDateObject, 'MMM d, yyyy' )
+					/* translators: %1$s: "Post" or "Page". %2$s: the publish date, e.g. "Aug 19, 2025". */
+					__( '%1$s published on %2$s.', 'jetpack-premium-analytics' ),
+					getTypeLabel( type ),
+					format( publishedDateObject, DATE_FORMAT )
 			  )
 			: undefined;
 
+	const { from, to } = performanceRange ?? {};
+	const performanceSentence =
+		from && to && isValid( from ) && isValid( to )
+			? sprintf(
+					/* translators: %1$s and %2$s: the report range bounds, e.g. "Jul 9, 2026". */
+					__( 'Performance from %1$s to %2$s', 'jetpack-premium-analytics' ),
+					format( from, DATE_FORMAT ),
+					format( to, DATE_FORMAT )
+			  )
+			: undefined;
+	const subtitle = [ publishedSentence, performanceSentence ].filter( Boolean ).join( ' ' );
+
 	return (
 		<div className={ styles.card }>
-			<div className={ styles.details }>
-				<div className={ styles.type }>
-					<Icon icon={ type === 'page' ? pageIcon : postIcon } size={ 20 } />
-					<Text variant="body-sm">{ getTypeLabel( type ) }</Text>
+			{ imageUrl ? (
+				<img className={ styles.image } src={ imageUrl } alt="" />
+			) : (
+				// The placeholder carries the type glyph, so the type still
+				// reads at a glance without its own badge row.
+				<div className={ styles.imagePlaceholder } aria-hidden="true">
+					<Icon icon={ type === 'page' ? pageIcon : postIcon } size={ 28 } />
 				</div>
-				<Text variant="heading-xl" render={ <h1 /> }>
+			) }
+			<div className={ styles.details }>
+				{ /* The heading ellipsizes to one line; `title` keeps the full text
+				     reachable on hover. */ }
+				<Text variant="heading-xl" render={ <h1 title={ title } /> } className={ styles.title }>
 					{ title }
 				</Text>
-				{ publishedLabel ? (
-					<Text variant="body-sm" className={ styles.published }>
-						{ publishedLabel }
+				{ subtitle ? (
+					<Text variant="body-sm" className={ styles.subtitle }>
+						{ subtitle }
 					</Text>
 				) : null }
 			</div>
-			{ imageUrl ? <img className={ styles.image } src={ imageUrl } alt="" /> : null }
 		</div>
 	);
 }

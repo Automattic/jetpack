@@ -13,9 +13,9 @@ const WidgetCard = ( { title, children }: { title: string; children: React.React
 		style={ {
 			width: '360px',
 			height: '320px',
-			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0)',
-			borderRadius: 'var(--wpds-border-radius-md, 8px)',
-			background: 'var(--wpds-color-background-surface-neutral, #fff)',
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
+			borderRadius: 'var(--wpds-border-radius-md)',
+			background: 'var(--wpds-color-background-surface-neutral)',
 			display: 'flex',
 			flexDirection: 'column',
 			overflow: 'hidden',
@@ -23,11 +23,11 @@ const WidgetCard = ( { title, children }: { title: string; children: React.React
 	>
 		<div
 			style={ {
-				padding: 'var(--wpds-dimension-gap-lg, 16px)',
-				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0)',
+				padding: 'var(--wpds-dimension-gap-lg)',
+				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
 				fontWeight: 600,
-				fontSize: 'var(--wpds-typography-font-size-sm, 14px)',
-				color: 'var(--wpds-color-foreground-content-neutral, #1e1e1e)',
+				fontSize: 'var(--wpds-typography-font-size-sm)',
+				color: 'var(--wpds-color-foreground-content-neutral)',
 			} }
 		>
 			{ title }
@@ -90,7 +90,7 @@ const MockChart = () => (
 			width: '100%',
 			height: '100%',
 			boxSizing: 'border-box',
-			padding: 'var(--wpds-dimension-gap-lg, 16px)',
+			padding: 'var(--wpds-dimension-gap-lg)',
 		} }
 	>
 		<BarChart chartData={ CHART_DATA } dataFormat={ { type: 'number' } } styles={ CHART_STYLES } />
