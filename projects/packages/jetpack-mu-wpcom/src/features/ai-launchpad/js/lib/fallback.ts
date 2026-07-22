@@ -6,7 +6,6 @@ import type { GoalSlug, TailoredOutput, TailoredTask, WizardInput } from './type
  */
 const TASK_SUBTITLES: Record< string, string > = {
 	first_post_published: 'Write and publish your first post.',
-	first_post_published_newsletter: 'Send your first newsletter to subscribers.',
 	woo_products: 'Add your first product to the store.',
 	woo_customize_store: 'Customize how your store looks.',
 	set_up_payments: 'Set up a way to get paid.',
@@ -17,10 +16,8 @@ const TASK_SUBTITLES: Record< string, string > = {
 	complete_profile: 'Complete your public profile.',
 	verify_email: 'Confirm your email address.',
 	connect_social_media: 'Connect your social accounts.',
-	drive_traffic: 'Help people find your site.',
 	site_launched: 'Launch your site for the world to see.',
 	blog_launched: 'Launch your blog for the world to see.',
-	link_in_bio_launched: 'Launch your link-in-bio page.',
 };
 
 const GENERIC_SUBTITLE = 'Get this set up.';
@@ -34,7 +31,7 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'site_theme_selected',
 		'add_about_page',
 		'complete_profile',
-		'drive_traffic',
+		'connect_social_media',
 		'site_launched',
 	],
 	build: [
@@ -42,7 +39,7 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'site_theme_selected',
 		'design_edited',
 		'complete_profile',
-		'drive_traffic',
+		'connect_social_media',
 		'site_launched',
 	],
 	sell: [
@@ -54,7 +51,7 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'site_launched',
 	],
 	newsletter: [
-		'first_post_published_newsletter',
+		'first_post_published',
 		'add_10_email_subscribers',
 		'add_about_page',
 		'site_theme_selected',
@@ -66,7 +63,7 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'add_about_page',
 		'site_theme_selected',
 		'complete_profile',
-		'drive_traffic',
+		'connect_social_media',
 		'site_launched',
 	],
 	portfolio: [

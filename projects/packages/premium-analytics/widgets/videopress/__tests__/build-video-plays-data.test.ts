@@ -63,6 +63,7 @@ describe( 'toVideoPlaysRows', () => {
 		);
 
 		expect( rows[ 0 ] ).toEqual( {
+			id: 107,
 			key: '107',
 			label: 'Untitled video',
 			link: 'https://example.com/video/107/',

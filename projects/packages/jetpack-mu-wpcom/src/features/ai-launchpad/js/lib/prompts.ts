@@ -3,10 +3,14 @@ import type { WizardInput } from './types.ts';
 /**
  * Allowed task IDs the model may pick from, drawn from the catalog. A PHP test
  * guards this list against catalog drift.
+ *
+ * Catalog `id_map` twins are the same underlying task, so only one of each pair
+ * is offered; the dropped twin remaps onto the kept one on read (see
+ * wpcom_ai_launchpad_remap_task_id). Dropped: first_post_published_newsletter,
+ * link_in_bio_launched, subscribers_added, drive_traffic.
  */
 export const TASK_MENU: readonly string[] = [
 	'first_post_published',
-	'first_post_published_newsletter',
 	'site_theme_selected',
 	'add_about_page',
 	'add_new_page',
@@ -22,7 +26,6 @@ export const TASK_MENU: readonly string[] = [
 	'setup_general',
 	'site_launched',
 	'blog_launched',
-	'link_in_bio_launched',
 	'set_up_payments',
 	'stripe_connected',
 	'paid_offer_created',
@@ -33,7 +36,6 @@ export const TASK_MENU: readonly string[] = [
 	'woo_marketing',
 	'woo_add_domain',
 	'add_10_email_subscribers',
-	'subscribers_added',
 	'import_subscribers',
 	'newsletter_plan_created',
 	'customize_welcome_message',
@@ -50,7 +52,6 @@ export const TASK_MENU: readonly string[] = [
 	'mobile_app_installed',
 	'share_site',
 	'front_page_updated',
-	'drive_traffic',
 	'start_building_your_audience',
 ];
 
@@ -110,7 +111,9 @@ First, read the description closely and infer the site's context. You will use t
 - "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. Same six values. Diagnostic only - it must NOT influence your task choices or anything else you produce.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
-- "theme_keyword": ONE lowercase word used to search for matching site designs. Pick the single most significant word for what the site is about, preferring the subject or site type over incidental modifiers: for "my weekend hiking trips" it is "hiking" (never "weekend"); for a handmade-ceramics shop it is "ceramics".
+- "theme_category": the theme-showcase category that best matches what the site is about, used to suggest matching site designs. MUST be exactly one of these slugs (format: slug = human name):
+  blog = Blog; portfolio = Portfolio; business = Business; store = Store; art-design = Art & Design; about = About; real-estate = Real Estate; health-wellness = Health & Wellness; authors-writers = Authors & Writers; newsletter = Newsletter; education = Education; magazine = Magazine; music = Music; restaurant = Restaurant; travel-lifestyle = Travel & Lifestyle; fashion-beauty = Fashion & Beauty; community-non-profit = Community & Non-Profit; podcast = Podcast; entertainment = Entertainment.
+  Prefer the specific subject over the generic goal bucket when one fits: a bakery blog is "restaurant" (not "blog"), a hiking diary is "travel-lifestyle", a novelist's site is "authors-writers". Fall back to the goal bucket ("blog", "business", "store", "portfolio", "newsletter") only when no subject category matches. Always include this field.
 - "vibe": aesthetic hint if implied (e.g. "minimal and editorial", "warm and personal"). Omit if neutral.
 - "audience": who the site is for, if implied (e.g. "home cooks", "small-business owners").
 - "tagline": a polished site tagline drafted from the description. Max 200 characters. Noun phrase or third person, not first-person.
@@ -123,17 +126,17 @@ For each chosen task write a "subtitle" (max 200 characters) that is specific an
 GOOD vs BAD subtitles (illustrations - adapt to the user's own niche, do not copy):
 - For a handmade-ceramics studio, "add_about_page" -> GOOD: "Share the story behind your studio and what makes each handmade piece one of a kind." BAD: "Tell visitors who you are."
 - For a handmade-ceramics studio, "site_theme_selected" -> GOOD: "Pick a clean, gallery-style theme that lets your ceramics photos take center stage." BAD: "Choose a theme."
-- For a weekly cycling newsletter, "first_post_published_newsletter" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."
+- For a weekly cycling newsletter, "first_post_published" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."
 
 HARD RULES (do not break - the server rejects output that violates these):
 - Every "id" MUST come from the menu below, verbatim. Never invent IDs. Drop any task you cannot map to a menu ID.
 - Return exactly 6 tasks.
-- At least one task must create content (e.g. "first_post_published", "first_post_published_newsletter", "woo_products", or "add_about_page").
-- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", or "link_in_bio_launched".
+- At least one task must create content (e.g. "first_post_published", "woo_products", or "add_about_page").
+- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".
 - Only include "woo_products", "woo_customize_store", "set_up_payments", "stripe_connected", or "woo_woocommerce_payments" if the goal is sell OR the user explicitly mentions selling, products, store, shop, or commerce.
 - For the sell goal, order the commerce tasks store-first: "woo_customize_store", then "woo_products", then "set_up_payments", keeping the launch task last. Installing WooCommerce is added automatically as the first step, so do not include a task for it.
-- Only include "add_10_email_subscribers", "subscribers_added", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
-- For the social tasks "connect_social_media" and "drive_traffic", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
+- Only include "add_10_email_subscribers", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
+- For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].
 
 ============ STEP 3 - first_post_draft ============
@@ -157,7 +160,7 @@ ${ menu.map( id => '- ' + id ).join( '\n' ) }
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }

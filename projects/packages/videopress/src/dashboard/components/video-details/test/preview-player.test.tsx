@@ -71,11 +71,14 @@ describe( 'PreviewPlayer', () => {
 		);
 	} );
 
-	it( 'shows the processing panel instead of a player while transcoding', () => {
+	it( 'embeds the player while transcoding, whose converting screen reports progress', () => {
 		render( <PreviewPlayer video={ { ...baseVideo, isProcessing: true } } /> );
 
-		expect( screen.getByText( 'Processing' ) ).toBeInTheDocument();
-		expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+		expect( screen.getByTitle( 'Video preview' ) ).toHaveAttribute(
+			'src',
+			expect.stringContaining( 'https://videopress.com/embed/abc123' )
+		);
+		expect( screen.queryByText( 'Processing' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'plays local items without a GUID through a native video element', () => {

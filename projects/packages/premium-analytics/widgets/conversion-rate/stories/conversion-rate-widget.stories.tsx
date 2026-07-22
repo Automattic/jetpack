@@ -7,11 +7,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import ConversionRateRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -150,7 +152,7 @@ function ConversionRateDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ CONVERSION_RATE_RENDER_MODULE }
 			renderComponent={ ConversionRateRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getConversionRateAttributes( withComparison, preset ) }

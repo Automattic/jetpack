@@ -2,6 +2,9 @@
 	"name": "jpa/email-breakdown",
 	"title": "Email breakdown",
 	"description": "Breaks a sent email down by countries, devices, email clients, or clicked links.",
+	"help": {
+		"content": "Breaks a sent email down by countries, devices, email clients, or clicked links."
+	},
 	"category": "stats",
 	"presentation": "framed"
 }

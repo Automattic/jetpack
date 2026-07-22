@@ -21,20 +21,6 @@ export type ReferrersAttributes = {
  * dashboard date range via the PA proxy at `stats/referrers`.
  */
 export default {
-	name: 'jpa/referrers',
-	title: __( 'Referrers', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The sources that sent the most visitors to your site, sorted by clicks.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: globe,
 	attributes: [
 		{

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -21,14 +20,6 @@ export type WordAdsSponsoredContentHistoryAttributes = Record< never, never >;
  * site.
  */
 export default {
-	name: 'jpa/wordads-sponsored-content-history',
-	title: __( 'Sponsored Content History', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 	attributes: [] as WidgetAttributeField< WordAdsSponsoredContentHistoryAttributes >[],
 	example: {

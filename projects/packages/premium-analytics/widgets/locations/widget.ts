@@ -32,20 +32,6 @@ export type LocationsAttributes = {
  * highlighting the country on the world map.
  */
 export default {
-	name: 'jpa/locations',
-	title: __( 'Locations', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The countries, regions, and cities where your visitors came from, sorted by views.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: mapMarker,
 	attributes: [
 		{

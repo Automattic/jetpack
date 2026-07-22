@@ -7,7 +7,11 @@ import type { UseStatsOptions } from './use-stats-report';
 import type { StatsSingleVideoReport } from '../processing/stats';
 import type { StatsSingleVideoParams } from '../queries/stats-single-video-query';
 
-export type { StatsSingleVideoDataPoint, StatsSingleVideoPage } from '../processing/stats';
+export type {
+	StatsSingleVideoDataPoint,
+	StatsSingleVideoPage,
+	StatsSingleVideoPost,
+} from '../processing/stats';
 export type { StatsSingleVideoParams } from '../queries/stats-single-video-query';
 
 export type StatsSingleVideoResponse = StatsSingleVideoReport;
