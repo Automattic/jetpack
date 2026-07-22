@@ -70,6 +70,25 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 			);
 		}
 
+		if ( type === 'page-navigated' ) {
+			return meta?.finalUrl
+				? createInterpolateElement(
+						sprintf(
+							/* translators: %s is the URL the page redirected to */
+							__(
+								'This page redirected to <b>%s</b> during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
+								'jetpack-boost'
+							),
+							meta.finalUrl
+						),
+						{ b: <strong /> }
+				  )
+				: __(
+						'This page redirected during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
+						'jetpack-boost'
+				  );
+		}
+
 		return sprintf(
 			/* translators: %s is the error type */
 			__(
