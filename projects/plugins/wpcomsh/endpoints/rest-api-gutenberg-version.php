@@ -10,10 +10,7 @@
  */
 
 /**
- * Returns the active Gutenberg plugin version, or null if the plugin is not active.
- *
- * When the Gutenberg plugin is ignored in favor of the core-bundled Gutenberg, which
- * carries no version constant, null is returned.
+ * Returns the active Gutenberg plugin version, or null if the plugin is inactive or ignored.
  *
  * @return WP_REST_Response
  */

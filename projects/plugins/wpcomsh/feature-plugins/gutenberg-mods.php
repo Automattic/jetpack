@@ -15,18 +15,13 @@
 add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 
-// Ignore the Gutenberg plugin when it is older than the Gutenberg version bundled in core,
-// so the site uses core's newer bundled Gutenberg instead of an outdated plugin.
+// Ignore the Gutenberg plugin when it is older than the version bundled in core.
 add_filter( 'option_active_plugins', 'wpcomsh_ignore_outdated_gutenberg_plugin' );
 
 /**
  * Minimum Gutenberg version bundled in each WordPress major release.
  *
- * Core exposes no Gutenberg version of its own, and the mapping lives outside core
- * (https://developer.wordpress.org/block-editor/contributors/versions-in-wordpress/),
- * so it is hard-coded here. Values are a minimum: beta, RC, and point releases cherry-pick
- * fixes from later Gutenberg versions, so the true bundled version may be a little higher.
- * Extend this list as new WordPress majors ship.
+ * @see https://developer.wordpress.org/block-editor/contributors/versions-in-wordpress/
  */
 const WPCOMSH_CORE_BUNDLED_GUTENBERG_VERSIONS = array(
 	'7.1' => '23.6',
@@ -48,10 +43,9 @@ function wpcomsh_get_core_bundled_gutenberg_version() {
 }
 
 /**
- * Returns the version of the installed Gutenberg plugin, or null if it can't be read.
+ * Returns the installed Gutenberg plugin version, or null if it can't be read.
  *
- * Reads the plugin header rather than the GUTENBERG_VERSION constant because this runs at
- * the `option_active_plugins` filter, before the Gutenberg plugin is loaded.
+ * Reads the plugin header, as this runs before the plugin (and GUTENBERG_VERSION) loads.
  *
  * @return string|null
  */
@@ -68,10 +62,7 @@ function wpcomsh_get_installed_gutenberg_plugin_version() {
 }
 
 /**
- * Whether the installed Gutenberg plugin should be ignored in favor of core's bundled Gutenberg.
- *
- * Only ignores the plugin when both versions are known and the plugin is older than the
- * version bundled in core; when either version is unknown the plugin is left active.
+ * Whether the plugin version is older than the version bundled in core (both must be known).
  *
  * @param string|null $plugin_version      Installed Gutenberg plugin version.
  * @param string|null $min_bundled_version Minimum Gutenberg version bundled in the running core.
@@ -98,11 +89,9 @@ function wpcomsh_is_gutenberg_plugin_ignored() {
 }
 
 /**
- * Ignore the Gutenberg plugin when it is older than the Gutenberg version bundled in core.
+ * Drop the Gutenberg plugin from the active plugins list when it is older than core's bundle.
  *
- * Removing it from the active plugins list at load time embraces the core-bundled Gutenberg
- * without touching the stored option, so the plugin returns once it is updated past the bundle
- * or the site moves to a WordPress version that bundles an older Gutenberg.
+ * The stored option is left untouched, so the plugin returns once it is updated past the bundle.
  *
  * @param mixed $plugins Value of the active_plugins option.
  * @return mixed
