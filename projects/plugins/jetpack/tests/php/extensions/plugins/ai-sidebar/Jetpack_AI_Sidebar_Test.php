@@ -17,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-s
  */
 class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	/**
 	 * Saved wp_scripts global.
@@ -64,6 +65,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch; activate it so the
+		// AI-features gate behind these surfaces reads on.
+		$this->activate_ai_module_for_test();
 		// Enable the sidebar by default via the override filter so the behaviour
 		// tests exercise the downstream wiring. has_ai_features() stays on the
 		// self-hosted connection path. The wpcom/Big Sky gating itself is covered
@@ -75,6 +79,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		$this->deactivate_ai_module_for_test();
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
 		$this->reset_sidebar_hooks();
 		remove_all_filters( 'pre_http_request' );

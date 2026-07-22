@@ -14,6 +14,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/block-notes/block-notes.
  */
 class Block_Notes_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	/**
 	 * Saved current screen for restoration in tear_down.
@@ -39,6 +40,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_scripts']  = new WP_Scripts();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch; activate it so
+		// has_jetpack_ai_features() sees the master on.
+		$this->activate_ai_module_for_test();
 		$this->simulate_paid_ai_plan();
 		// Re-enable Block Notes for tests (production is temporarily disabled via the
 		// jetpack_block_notes_enabled filter defaulting to false).
@@ -53,6 +57,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		$this->deactivate_ai_module_for_test();
 		delete_transient( BlockNotes\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_block_notes_enabled' );
 		remove_all_filters( 'agents_manager_use_unified_experience' );

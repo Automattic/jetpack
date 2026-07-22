@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+AI: Make the Jetpack AI module the site-wide master switch on self-hosted and Atomic, preserving explicit opt-outs.
