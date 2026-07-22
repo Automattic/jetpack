@@ -11,7 +11,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Badge, Card, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
@@ -276,6 +276,26 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	// gates a missing field degrades to "entitled" so an incomplete response
 	// never locks the page, and the connection ask still comes first.
 	const planSupportsAi = settings?.plan?.supports_ai !== false;
+	// The badge tooltip names the remedy for the gated Search section. A site
+	// with a paid Search plan is pointed at Search setup; one with no Search
+	// entitlement — or only the free tier, which reports supports_search but
+	// cannot run AI Search — is asked to upgrade instead. Unlike the gates
+	// above this defaults to the upgrade copy: pointing an unentitled site at
+	// setup would send it down the wrong path, and the badge cannot render
+	// before the payload (which carries `plan`) has arrived anyway.
+	// NOTE: the badge itself is generic (any section whose features report
+	// requires_upgrade), but this copy is Search-specific — ai_search is the
+	// only feature the endpoint gates today. A second gated feature needs its
+	// own copy here, not a silent reuse of this one.
+	const hasPaidSearchPlan =
+		settings?.plan?.supports_search === true && settings?.plan?.is_free_search_plan !== true;
+	const upgradeBadgeTooltip = hasPaidSearchPlan
+		? __( 'Set up Jetpack Search to enable this feature', 'jetpack' )
+		: __(
+				'Requires Jetpack Search or Complete plans',
+				'jetpack',
+				/* dummy arg to avoid bad minification */ 0
+		  );
 
 	const sections = visibleSections( SECTIONS, features );
 
@@ -372,7 +392,17 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 								{ isConnected &&
 									planSupportsAi &&
 									section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
-										<Badge intent="informational">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
+										<Tooltip.Root>
+											<Tooltip.Trigger
+												className="jetpack-ai-features__upgrade-badge"
+												aria-label={ upgradeBadgeTooltip }
+											>
+												<Badge intent="informational">
+													{ __( 'Requires upgrade', 'jetpack' ) }
+												</Badge>
+											</Tooltip.Trigger>
+											<Tooltip.Popup>{ upgradeBadgeTooltip }</Tooltip.Popup>
+										</Tooltip.Root>
 									) }
 							</div>
 							{ section.features.map( feature => (
