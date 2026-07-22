@@ -208,31 +208,22 @@
 		}
 	}
 
-	// NOTE: `.fields-item` intentionally carries no layout here. Until the two
-	// stylesheets were collapsed, `connect-form.tsx` took its classes from the
-	// legacy sheet while `custom-inputs.tsx` took `.fields-item` from the
-	// dashboard one, so the descendant selector never matched and the fields
-	// have been unstyled on both surfaces. Merging the files would silently
-	// switch that on, so the layout is restored in its own commit instead.
-
-	// Carried over from the legacy sheet, where these applied to every surface
-	// via the shared `connect-form.tsx`. Removed alongside the `.fields-item`
-	// restoration.
-	label {
-		font-weight: 600;
-	}
-
-	input {
+	.fields-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		flex-basis: 100%;
 		min-width: 220px;
-		height: auto;
-		font-size: var(--font-body);
-		line-height: 22px;
-		padding: var(--spacing-base) calc(var(--spacing-base) * 3); // To make the inputs of the same size as the Connect button
 
-		// Override the default input styles for small screens
-		@media (max-width: #{ (gb.$break-medium) }) {
-			padding: 0 8px;
-			font-size: 14px;
+		@include gb.break-medium {
+			flex-basis: 50%;
+		}
+
+		@include gb.break-small {
+
+			button {
+				align-self: start;
+			}
 		}
 	}
 }
