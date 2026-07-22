@@ -3,7 +3,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Dialog, Link, Text, Tooltip } from '@wordpress/ui';
+import { Dialog, getWpCompatOverlaySlot, Link, Text, Tooltip } from '@wordpress/ui';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
@@ -70,7 +70,21 @@ export const ManageConnectionsModal = () => {
 				 * horizontal half) and `menu-aware` (the confirmation view). See the
 				 * workaround section in style-dashboard.module.scss.
 				 */ }
+				{ /*
+				 * WPDS routes its overlays through a body-level compat slot
+				 * (z-index 1000000003) so they stack above `@wordpress/components`
+				 * overlays, but `Dialog` is not wired to it yet upstream — only
+				 * Tooltip, Popover, Select, Combobox and Autocomplete are. Left on
+				 * the default `document.body` container the popup carries no
+				 * z-index and only clears the editor chrome by accident, because
+				 * `.interface-interface-skeleton` is `position: fixed` and so traps
+				 * its sidebar's own `z-index: 100000`. Pass the slot explicitly —
+				 * the same thing `Tooltip.Portal` does internally — and the
+				 * stacking is guaranteed rather than incidental. Remove this once
+				 * WordPress/gutenberg#76135 wires `Dialog` up.
+				 */ }
 				<Dialog.Popup
+					portal={ <Dialog.Portal container={ getWpCompatOverlaySlot() } /> }
 					size={ isSmall ? 'full' : 'large' }
 					className={
 						isSmall ? undefined : styles[ hasKeyringResult ? 'menu-aware' : 'services-list' ]
