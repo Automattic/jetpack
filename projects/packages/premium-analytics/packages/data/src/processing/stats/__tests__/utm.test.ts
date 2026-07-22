@@ -230,4 +230,39 @@ describe( 'Stats UTM normalizer', () => {
 			],
 		} );
 	} );
+
+	it( 'matches comparison rows by the raw UTM tuple when display labels collide', () => {
+		const primary = makeReport( [
+			{
+				label: 'a / b / c',
+				value: 10,
+				paramValues: '["a / b","c"]',
+				children: null,
+			},
+			{
+				label: 'a / b / c',
+				value: 20,
+				paramValues: '["a","b / c"]',
+				children: null,
+			},
+		] );
+		const comparison = makeReport( [
+			{
+				label: 'a / b / c',
+				value: 8,
+				paramValues: '["a / b","c"]',
+				children: null,
+			},
+			{
+				label: 'a / b / c',
+				value: 2,
+				paramValues: '["a","b / c"]',
+				children: null,
+			},
+		] );
+
+		expect(
+			mergeStatsUtmComparisonRows( primary, comparison ).rows.map( row => row.previousValue )
+		).toEqual( [ 8, 2 ] );
+	} );
 } );

@@ -1,115 +1,105 @@
 import { aggregateUtmRows } from './aggregate';
-import type { StatsNormalizedReport, StatsUtmItem } from '@jetpack-premium-analytics/data';
+import type {
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
+} from '@jetpack-premium-analytics/data';
+
+/**
+ * Build a nested post fixture.
+ *
+ * @param overrides - Post properties to override.
+ * @return The post fixture.
+ */
+function makePost(
+	overrides: Partial< StatsUtmComparisonTopPostItem > = {}
+): StatsUtmComparisonTopPostItem {
+	return {
+		id: 41,
+		label: 'Landing page',
+		value: 12,
+		href: 'https://example.com/landing/',
+		page: '/stats/post/41',
+		actions: [],
+		children: null,
+		...overrides,
+	};
+}
+
+/**
+ * Build a UTM comparison-row fixture.
+ *
+ * @param overrides - UTM properties to override.
+ * @return The UTM fixture.
+ */
+function makeUtmItem( overrides: Partial< StatsUtmComparisonItem > = {} ): StatsUtmComparisonItem {
+	return {
+		label: 'newsletter / email',
+		value: 18,
+		paramValues: '["newsletter","email"]',
+		children: [ makePost() ],
+		...overrides,
+	};
+}
 
 describe( 'UTM report aggregate', () => {
-	it( 'maps UTM values to report rows', () => {
-		const report: StatsNormalizedReport< StatsUtmItem > = {
-			summary: { total: 15 },
-			data: [
-				{
-					time_interval: '2026-06-01:2026-06-07',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-07T23:59:59+00:00',
-					items: [
-						{ label: 'newsletter', value: 10, paramValues: 'newsletter', children: null },
-						{ label: 'social', value: 5, paramValues: 'social', children: null },
-					],
-				},
-			],
-		};
+	it( 'groups posts under their UTM parent', () => {
+		const rows = aggregateUtmRows( [ makeUtmItem() ] );
+		const [ parent, post ] = rows;
 
-		expect( aggregateUtmRows( report ) ).toEqual( [
-			{ id: 'newsletter', label: 'newsletter', views: 10 },
-			{ id: 'social', label: 'social', views: 5 },
-		] );
+		expect( parent ).toEqual( {
+			id: JSON.stringify( [ 'utm', '["newsletter","email"]' ] ),
+			label: 'newsletter / email',
+			views: 18,
+			previousViews: undefined,
+			isGroup: true,
+		} );
+		expect( post ).toEqual(
+			expect.objectContaining( {
+				parentId: parent.id,
+				label: 'Landing page',
+				groupLabel: 'newsletter / email',
+				postId: 41,
+				views: 12,
+			} )
+		);
 	} );
 
-	it( 'sums matching values without mutating the report', () => {
-		const item = {
-			label: 'newsletter',
-			value: 7,
-			paramValues: 'newsletter',
-			children: null,
-		} satisfies StatsUtmItem;
-		const report: StatsNormalizedReport< StatsUtmItem > = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-01',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-01T23:59:59+00:00',
-					items: [ item ],
-				},
-				{
-					time_interval: '2026-06-02',
-					date_start: '2026-06-02T00:00:00+00:00',
-					date_end: '2026-06-02T23:59:59+00:00',
-					items: [ { label: 'newsletter', value: 8, paramValues: 'newsletter', children: null } ],
-				},
-			],
-		};
-
-		expect( aggregateUtmRows( report ) ).toEqual( [
-			{ id: 'newsletter', label: 'newsletter', views: 15 },
+	it( 'preserves comparison values for UTM parents and posts', () => {
+		const rows = aggregateUtmRows( [
+			makeUtmItem( {
+				previousValue: 10,
+				children: [ makePost( { previousValue: 8 } ) ],
+			} ),
 		] );
-		expect( item.value ).toBe( 7 );
+
+		expect( rows.map( row => row.previousViews ) ).toEqual( [ 10, 8 ] );
 	} );
 
-	it( 'preserves normalized combined-dimension labels', () => {
-		const report: StatsNormalizedReport< StatsUtmItem > = {
-			summary: { total: 10 },
-			data: [
-				{
-					time_interval: '2026-06-01',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-01T23:59:59+00:00',
-					items: [
-						{ label: 'google / cpc', value: 10, paramValues: '["google","cpc"]', children: null },
-					],
-				},
-			],
-		};
-
-		expect( aggregateUtmRows( report ) ).toEqual( [
-			{ id: '["google","cpc"]', label: 'google / cpc', views: 10 },
+	it( 'keeps distinct UTM tuples separate when their labels collide', () => {
+		const rows = aggregateUtmRows( [
+			makeUtmItem( {
+				label: 'a / b / c',
+				paramValues: '["a / b","c"]',
+				children: null,
+			} ),
+			makeUtmItem( {
+				label: 'a / b / c',
+				paramValues: '["a","b / c"]',
+				children: null,
+			} ),
 		] );
+
+		expect( rows ).toHaveLength( 2 );
+		expect( rows[ 0 ].id ).not.toBe( rows[ 1 ].id );
 	} );
 
-	it( 'keeps distinct UTM tuples separate even when their labels collide', () => {
-		const report: StatsNormalizedReport< StatsUtmItem > = {
-			summary: { total: 9 },
-			data: [
-				{
-					time_interval: '2026-06-01',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-01T23:59:59+00:00',
-					items: [
-						{ label: 'a / b / c', value: 6, paramValues: '["a / b","c"]', children: null },
-						{ label: 'a / b / c', value: 3, paramValues: '["a","b / c"]', children: null },
-					],
-				},
-			],
-		};
-
-		expect( aggregateUtmRows( report ) ).toEqual( [
-			{ id: '["a / b","c"]', label: 'a / b / c', views: 6 },
-			{ id: '["a","b / c"]', label: 'a / b / c', views: 3 },
+	it( 'keeps UTM parents that have no posts', () => {
+		expect( aggregateUtmRows( [ makeUtmItem( { children: null } ) ] ) ).toEqual( [
+			expect.objectContaining( {
+				label: 'newsletter / email',
+				views: 18,
+				isGroup: true,
+			} ),
 		] );
-	} );
-
-	it( 'falls back to the label when param values are missing', () => {
-		const report: StatsNormalizedReport< StatsUtmItem > = {
-			summary: { total: 4 },
-			data: [
-				{
-					time_interval: '2026-06-01',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-01T23:59:59+00:00',
-					items: [ { label: 'direct', value: 4, children: null } ],
-				},
-			],
-		};
-
-		expect( aggregateUtmRows( report ) ).toEqual( [ { id: 'direct', label: 'direct', views: 4 } ] );
 	} );
 } );
