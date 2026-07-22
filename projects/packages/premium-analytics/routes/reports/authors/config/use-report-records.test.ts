@@ -74,7 +74,9 @@ describe( 'useAuthorsReportRecords', () => {
 			comparisonRows: { rows: mergedRows, hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
-		} as ReturnType< typeof useStatsTopAuthors > );
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsTopAuthors > );
 	} );
 
 	it( 'uses the top-authors request from the Jetpack Stats Authors report', () => {
@@ -97,6 +99,7 @@ describe( 'useAuthorsReportRecords', () => {
 			} ),
 		] );
 		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.isError ).toBe( false );
 		expect( result.current.hasComparison ).toBe( false );
 	} );
 
@@ -125,7 +128,9 @@ describe( 'useAuthorsReportRecords', () => {
 			},
 			hasComparison: true,
 			isLoading: false,
-		} as ReturnType< typeof useStatsTopAuthors > );
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsTopAuthors > );
 		const params: ReportParams = {
 			from: '2026-07-09',
 			to: '2026-07-10',
@@ -149,5 +154,28 @@ describe( 'useAuthorsReportRecords', () => {
 			} ),
 		] );
 		expect( result.current.hasComparison ).toBe( true );
+	} );
+
+	it( 'surfaces error and refetch from the report', () => {
+		const refetch = jest.fn();
+		mockUseStatsTopAuthors.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: undefined },
+			comparisonRows: { rows: mergedRows, hasComparison: false },
+			hasComparison: false,
+			isLoading: false,
+			isError: true,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsTopAuthors > );
+		const params: ReportParams = {
+			from: '2026-07-09',
+			to: '2026-07-10',
+			interval: 'day',
+		};
+
+		const { result } = renderHook( () => useAuthorsReportRecords( params ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.refetch ).toBe( refetch );
 	} );
 } );

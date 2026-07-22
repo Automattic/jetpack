@@ -4,7 +4,12 @@
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { ReportDrilldownTable, ReportPageLayout } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	ReportDrilldownTable,
+	ReportErrorState,
+	ReportPageLayout,
+	useReportRetry,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -61,6 +66,7 @@ function AuthorsReport(): JSX.Element {
 	);
 
 	const records = useAuthorsReportRecords( reportParams );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() => getAuthorsFields( records.hasComparison ),
 		[ records.hasComparison ]
@@ -90,16 +96,28 @@ function AuthorsReport(): JSX.Element {
 						</div>
 					}
 				>
-					<ReportDrilldownTable< AuthorRow >
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getAuthorRowId }
-						getItemParentId={ getAuthorRowParentId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
-						hideLevelMarkers
-					/>
+					{ /*
+					 * Replace the row-count-based table state when either request fails,
+					 * so cached rows are not shown as current and an initial failure does
+					 * not look like a legitimate empty report.
+					 */ }
+					{ records.isError ? (
+						<ReportErrorState
+							title={ __( 'Unable to load authors', 'jetpack-premium-analytics' ) }
+							onRetry={ retry }
+						/>
+					) : (
+						<ReportDrilldownTable< AuthorRow >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getAuthorRowId }
+							getItemParentId={ getAuthorRowParentId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
+							hideLevelMarkers
+						/>
+					) }
 				</ReportPageLayout>
 			</div>
 		</Page>

@@ -40,6 +40,8 @@ export function useAuthorsReportRecords( reportParams: ReportParams ) {
 	);
 
 	return {
+		isError: authors.isError,
+		refetch: authors.refetch,
 		rows,
 		hasComparison: authors.hasComparison,
 		isLoading: authors.isLoading,
