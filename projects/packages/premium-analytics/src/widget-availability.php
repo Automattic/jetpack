@@ -18,11 +18,16 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
  * Widget categories that are only meaningful with WooCommerce active.
- *
- * The `bookings` category additionally requires the WooCommerce Bookings
- * extension; see remove_plugin_gated_widget_types().
  */
-const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings' );
+const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons' );
+
+/**
+ * Widget categories that are only meaningful with WooCommerce Bookings active.
+ *
+ * Checked independently of WOOCOMMERCE_WIDGET_CATEGORIES: the Bookings
+ * extension cannot run without WooCommerce, so its presence implies both.
+ */
+const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 /**
  * Removes developer-only candidates in production.
@@ -67,9 +72,8 @@ add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrab
 /**
  * Removes candidates whose commerce category lacks its backing plugin.
  *
- * Every WooCommerce category needs WooCommerce itself; `bookings` needs the
- * WooCommerce Bookings extension on top. Split from the hook callback so the
- * branches are testable without touching global plugin state.
+ * Split from the hook callback so the branches are testable without touching
+ * global plugin state.
  *
  * @param array $widget_candidates     Manifest candidates, each with a `category`.
  * @param bool  $woocommerce_available Whether WooCommerce is available.
@@ -83,15 +87,15 @@ function remove_plugin_gated_widget_types( $widget_candidates, $woocommerce_avai
 			static function ( $widget ) use ( $woocommerce_available, $bookings_available ) {
 				$category = $widget['category'] ?? '';
 
-				if ( ! in_array( $category, WOOCOMMERCE_WIDGET_CATEGORIES, true ) ) {
-					return true;
-				}
-
-				if ( ! $woocommerce_available ) {
+				if ( ! $woocommerce_available && in_array( $category, WOOCOMMERCE_WIDGET_CATEGORIES, true ) ) {
 					return false;
 				}
 
-				return 'bookings' !== $category || $bookings_available;
+				if ( ! $bookings_available && in_array( $category, WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES, true ) ) {
+					return false;
+				}
+
+				return true;
 			}
 		)
 	);

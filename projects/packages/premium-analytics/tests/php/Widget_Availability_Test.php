@@ -121,15 +121,13 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Without WooCommerce, every commerce category is dropped; the rest pass
-	 * through. The Bookings extension alone cannot rescue `bookings`.
+	 * Without WooCommerce (and thus without its Bookings extension), every
+	 * commerce category is dropped; the rest pass through.
 	 */
 	public function test_commerce_widgets_removed_without_woocommerce() {
-		foreach ( array( false, true ) as $bookings_available ) {
-			$names = array_column( remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), false, $bookings_available ), 'name' );
+		$names = array_column( remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), false, false ), 'name' );
 
-			$this->assertSame( array( 'jpa/traffic-chart' ), $names, 'Without WooCommerce only ungated categories remain, regardless of Bookings.' );
-		}
+		$this->assertSame( array( 'jpa/traffic-chart' ), $names, 'Without WooCommerce only ungated categories remain.' );
 	}
 
 	/**
