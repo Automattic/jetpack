@@ -97,8 +97,6 @@ export default function useUtmInsights( {
 		// range refetch should not replace populated rows with the error state.
 		isError: rows.length === 0 && isError,
 		error,
-		// The data layer's combined refetch: memoized, awaits both queries, and
-		// skips the comparison query when comparison is disabled.
 		refetch,
 	};
 }
