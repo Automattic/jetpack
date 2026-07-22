@@ -138,7 +138,11 @@ class LlmsTxtTest extends TestCase {
 	 */
 	private function link_list( array $posts ): string {
 		$method = new ReflectionMethod( Llms_Txt::class, 'link_list' );
-		$method->setAccessible( true );
+		// setAccessible() is required before PHP 8.1 but a no-op after, and is
+		// deprecated in 8.5 — only call it where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return (string) $method->invoke( null, $posts );
 	}
 
@@ -166,7 +170,12 @@ class LlmsTxtTest extends TestCase {
 		// renders as `- [(untitled)]()`), but presence/absence is what matters.
 		$mixed = $this->link_list(
 			array(
-				$this->make_post( array( 'ID' => 1, 'post_title' => 'Public Post' ) ),
+				$this->make_post(
+					array(
+						'ID'         => 1,
+						'post_title' => 'Public Post',
+					)
+				),
 				$password,
 			)
 		);
