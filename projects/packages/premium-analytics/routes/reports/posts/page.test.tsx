@@ -75,10 +75,10 @@ jest.mock( '@wordpress/route', () => ( {
 
 const useRecordsMock = jest.mocked( usePostsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
+const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPerformanceChartMock = jest.mocked( ReportPerformanceChart );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
-const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const rowsCsvDownloadButtonMock = jest.mocked( RowsCsvDownloadButton );
 
 /**
