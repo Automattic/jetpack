@@ -20,6 +20,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { createPromoteLocal } from './promote-local';
 import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -89,7 +90,7 @@ const StageInner = () => {
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
-	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
+	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
@@ -189,52 +190,22 @@ const StageInner = () => {
 		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
 	);
 
-	const promoteLocal = useCallback(
-		( id: string ) => {
-			setPromotingProgress( prev => new Map( prev ).set( id, 0 ) );
-			uploadFromLibrary(
-				{
-					id,
-					onProgress: ( percent: number ) => {
-						setPromotingProgress( prev => {
-							// Ignore a straggler progress report after settle.
-							if ( ! prev.has( id ) ) {
-								return prev;
-							}
-							return new Map( prev ).set( id, percent );
-						} );
-					},
-				},
-				{
-					onSuccess: () => {
-						createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
-					},
-					onError: ( error: Error ) => {
-						const reason = error?.message?.trim();
-						createErrorNotice(
-							reason
-								? sprintf(
-										/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
-										__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
-										reason
-								  )
-								: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
-						);
-					},
-					onSettled: () => {
-						setPromotingProgress( prev => {
-							if ( ! prev.has( id ) ) {
-								return prev;
-							}
-							const next = new Map( prev );
-							next.delete( id );
-							return next;
-						} );
-					},
-				}
-			);
-		},
-		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
+	// The factory owns the in-flight progress map (re-entry guard + overlay
+	// snapshots, chunk progress folded in) and reacts via the mutateAsync
+	// promise; see promote-local.ts for why.
+	// Deliberately created ONCE per stage instance: useGlobalNotices() returns
+	// fresh wrapper closures every render, so a dep-keyed useMemo would rebuild
+	// the factory (emptying its in-flight state) on each render — including the
+	// renders its own publishes trigger. All captured deps are stable: the
+	// notice wrappers forward to registry-bound dispatchers, mutateAsync is
+	// referentially stable in TanStack v5, and state setters never change.
+	const [ promoteLocal ] = useState( () =>
+		createPromoteLocal( {
+			promote: uploadFromLibrary,
+			createSuccessNotice,
+			createErrorNotice,
+			onPromotingChange: setPromotingProgress,
+		} )
 	);
 
 	const actions = useMemo(

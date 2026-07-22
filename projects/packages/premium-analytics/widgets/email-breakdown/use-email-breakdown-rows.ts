@@ -44,6 +44,12 @@ export type EmailBreakdownRow = {
 	 * External URL, present only for clicked user-content links (`links` view).
 	 */
 	link?: string;
+	/**
+	 * Marks the aggregated catch-all row. Must be carried through from the data
+	 * layer: `compareEmailBreakdownItems` pins the row by this flag, and the label
+	 * is localized, so dropping it silently unpins the row.
+	 */
+	isOther?: boolean;
 };
 
 /**
@@ -76,6 +82,7 @@ function toRows( report: StatsEmailBreakdown | undefined ): Omit< EmailBreakdown
 		countryCode: item.countryCode,
 		countryFull: item.countryFull ? String( item.countryFull ) : undefined,
 		link: item.link,
+		isOther: item.isOther,
 	} ) );
 }
 

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Consolidate internal Stats list hook and comparison tree helpers. No user-facing change.

@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ModernizationProvider } from '../../../../hooks/use-is-modernized';
+import { DashboardProvider } from '../../../../hooks/use-is-dashboard';
 import { setup } from '../../../../utils/test-factory';
 import { clearMockedScriptData, mockScriptData } from '../../../../utils/test-utils';
 import { ConnectionTemplateEditor } from '../../connection-template';
@@ -18,9 +18,9 @@ const setupFeatures = ( ...active ) => {
 	} );
 };
 
-// Renders inside the chassis modernization context, where the gated upsell
+// Renders inside the Social dashboard context, where the gated upsell
 // variant is shown.
-const renderModernized = ui => render( <ModernizationProvider>{ ui }</ModernizationProvider> );
+const renderInDashboard = ui => render( <DashboardProvider>{ ui }</DashboardProvider> );
 
 describe( 'ConnectionTemplateEditor', () => {
 	afterEach( () => {
@@ -88,14 +88,14 @@ describe( 'ConnectionTemplateEditor', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	describe( 'modernized chassis (gated upsell)', () => {
+	describe( 'Social dashboard (gated upsell)', () => {
 		test( 'renders nothing when the message-templates engine is off, even with the paid plan', () => {
 			// The engine is a rollout sticker, not a plan feature, so an "upgrade
 			// your plan" upsell would be misleading — hide the whole area instead.
 			setupFeatures( 'social-enhanced-publishing' );
 			setup();
 
-			const { container } = renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
+			const { container } = renderInDashboard( <ConnectionTemplateEditor connection={ FB } /> );
 
 			expect( container ).toBeEmptyDOMElement();
 		} );
@@ -104,7 +104,7 @@ describe( 'ConnectionTemplateEditor', () => {
 			setupFeatures( 'social-message-templates' );
 			setup();
 
-			renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
+			renderInDashboard( <ConnectionTemplateEditor connection={ FB } /> );
 
 			const textarea = screen.getByRole( 'textbox', {
 				name: /Custom message for this connection/i,
@@ -121,7 +121,7 @@ describe( 'ConnectionTemplateEditor', () => {
 			} );
 			setup();
 
-			renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
+			renderInDashboard( <ConnectionTemplateEditor connection={ FB } /> );
 
 			expect(
 				screen.getByRole( 'textbox', { name: /Custom message for this connection/i } )
@@ -135,7 +135,7 @@ describe( 'ConnectionTemplateEditor', () => {
 			} );
 			setup();
 
-			const { container } = renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
+			const { container } = renderInDashboard( <ConnectionTemplateEditor connection={ FB } /> );
 
 			expect( container ).toBeEmptyDOMElement();
 		} );

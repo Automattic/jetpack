@@ -97,29 +97,6 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 />
 ```
 
-## Component `ConnectUser`
-This component encapsulates the user connecting functionality.
-
-Upon the first rendering, it initiates the user connection flow, redirecting the user to Calypso.
-
-### Properties
-
-- *connectUrl* - string, the authorization URL (the no-iframe version). Fetched automatically if omitted.
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow. May be omitted if `connectUrl` is provided.
-- *from* - string, indicates where the connection request is coming from.
-- *redirectFunc* - function, the redirect function (`window.location.assign()` by default).
-
-## Usage
-```jsx
-import { ConnectUser } from '@automattic/jetpack-connection';
-
-<ConnectUser
-	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
-	redirectUri="tools.php?page=wpcom-connection-manager"
-	from="my-jetpack"
-/>
-```
-
 ## Component `DisconnectDialog`
 The `DisconnectDialog` component displays a 'Disconnect' button that, upon clicking, will open a Dialog that presents the user the option to Disconnect their site.
 Upon confirming, both site and user are disconnected and the user is presented with a success message along with a "Return to WordPress" button that closes the dialog.
