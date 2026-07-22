@@ -37,7 +37,9 @@ export const LcpErrorDetailsSchema = z
 	} )
 	// Isolate a single malformed error entry: fall back to a benign `unknown` error rather
 	// than throwing, so the page (with its real key/url/status) and all sibling pages survive.
-	.catch( { type: 'unknown' } );
+	// `meta: {}` is required because dropping `.optional()` above makes `meta` a present key in the
+	// inferred type, so the fallback object must supply it to satisfy the schema's output contract.
+	.catch( { type: 'unknown', meta: {} } );
 
 export const PageSchema = z
 	.object( {

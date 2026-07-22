@@ -119,10 +119,28 @@ describe( 'LcpStateSchema', () => {
 		const result = LcpStateSchema.parse( state );
 
 		expect( result.pages ).toHaveLength( 2 );
-		// The page keeps its real identity; only the bad error degrades to `unknown`.
+		// The page keeps its real identity; only the bad error degrades to the full `unknown`
+		// fallback (both `type` and `meta`, matching the schema's inferred output contract).
 		const badPage = result.pages.find( page => page.key === 'bad-error' );
 		expect( badPage?.url ).toBe( 'https://example.com/bad-error' );
-		expect( badPage?.errors?.[ 0 ].type ).toBe( 'unknown' );
+		expect( badPage?.errors?.[ 0 ] ).toEqual( { type: 'unknown', meta: {} } );
+	} );
+
+	it( 'normalizes an error object with no meta key to an empty meta', () => {
+		// Dropping `.optional()` on `meta` means an absent key must still resolve to `{}` via
+		// `.catch({})` rather than staying undefined; guards that behavior against a future zod change.
+		const state = analyzedState( [
+			{
+				key: 'home',
+				url: 'https://example.com/',
+				status: 'error',
+				errors: [ { type: 'unknown' } ],
+			},
+		] );
+
+		const result = LcpStateSchema.parse( state );
+
+		expect( result.pages[ 0 ].errors?.[ 0 ].meta ).toEqual( {} );
 	} );
 
 	it( 'isolates a malformed page instead of collapsing the array', () => {
