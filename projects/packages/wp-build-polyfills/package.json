@@ -13,6 +13,7 @@
 	"author": "Automattic",
 	"bin": {
 		"provide-boot-asset-file": "bin/provide-boot-asset-file.js",
+		"stamp-textdomains": "bin/stamp-textdomains.js",
 		"strip-unminified-prod": "bin/strip-unminified-prod.js"
 	},
 	"scripts": {
@@ -24,7 +25,6 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.7",
 		"@types/react": "18.3.28",
 		"@wordpress/a11y": "^4.40.0",
 		"@wordpress/admin-ui": "2.5.0",
@@ -48,6 +48,8 @@
 		"react-dom": "18.3.1"
 	},
 	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@babel/core": "7.29.7",
 		"@wordpress/views": "~1.17.0"
 	}
 }
