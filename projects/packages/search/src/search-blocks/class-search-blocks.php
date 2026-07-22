@@ -2188,12 +2188,12 @@ HTML;
 		$is_wpcom                  = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
 		$site_id                   = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && \Jetpack::is_module_active( 'photon' );
-		$search_query       = static::parse_url_search_query();
-		$active_filters     = static::parse_url_filters();
-		$filter_logic       = static::parse_url_filter_logic( $active_filters );
-		$price_range        = static::parse_url_price_range();
-		$is_initial_loading = static::is_initial_loading();
-		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
+		$search_query              = static::parse_url_search_query();
+		$active_filters            = static::parse_url_filters();
+		$filter_logic              = static::parse_url_filter_logic( $active_filters );
+		$price_range               = static::parse_url_price_range();
+		$is_initial_loading        = static::is_initial_loading();
+		$searching_text            = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
 		return array(
 			// Connection / routing config.

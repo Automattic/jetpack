@@ -358,14 +358,19 @@ export function deriveMatchHint( highlight, titlePieces ) {
 /**
  * Normalize a v1.3 result into the flat shape IA templates consume.
  *
- * @param {object}  raw              - Raw result from the API.
- * @param {string}  [locale]         - BCP47 locale for date formatting.
- * @param {string}  [searchQuery]    - Empty → suppress match-hint badge ("Matches
- *                                  content" reads wrong on filter-only browse).
+ * @param {object}  raw               - Raw result from the API.
+ * @param {string}  [locale]          - BCP47 locale for date formatting.
+ * @param {string}  [searchQuery]     - Empty → suppress match-hint badge ("Matches
+ *                                    content" reads wrong on filter-only browse).
  * @param {boolean} [isPhotonEnabled] - When true, image URLs are resized via Photon.
  * @return {object} Flat result.
  */
-export function normalizeResult( raw, locale = 'en-US', searchQuery = '', isPhotonEnabled = false ) {
+export function normalizeResult(
+	raw,
+	locale = 'en-US',
+	searchQuery = '',
+	isPhotonEnabled = false
+) {
 	const fields = raw?.fields ?? {};
 	const highlight = raw?.highlight ?? {};
 	const permalink = toSafeUrl( fields[ 'permalink.url.raw' ] );
