@@ -136,8 +136,9 @@ class Initializer {
 	 * Extend the action links of Jetpack plugins on the Plugins screen.
 	 *
 	 * Like all `init_*` methods, this is a no-op when `should_initialize()` is false
-	 * and on any call after the first. The `my_jetpack_init` action is not fired by
-	 * the individual `init_*` methods; only `init()` fires it.
+	 * and after the first eligible call. An ineligible call does not consume the
+	 * one-shot mark, so a later eligible call still runs. The `my_jetpack_init`
+	 * action is not fired by the individual `init_*` methods; only `init()` fires it.
 	 *
 	 * @since $$next-version$$
 	 *
