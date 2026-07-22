@@ -1,4 +1,4 @@
-/* global plupload, pluploadL10n, ajaxurl, wpUploaderInit, uploadSuccess, wpFileError */
+/* global plupload, pluploadL10n, ajaxurl, wpUploaderInit, uploadSuccess, wpFileError, wpQueueError, videoPressMediaNew */
 
 /**
  * Routes video uploads from wp-admin/media-new.php to VideoPress.
@@ -16,6 +16,66 @@
 	}
 
 	var originalOptions = {};
+
+	// Videos accepted for VideoPress upload since the page loaded, used to
+	// enforce the free plan's single-video limit within an upload session.
+	var acceptedVideoCount = 0;
+
+	/**
+	 * Returns the upload limit data localized by the module.
+	 *
+	 * @return {object} The limit data.
+	 */
+	function getUploadLimits() {
+		return typeof videoPressMediaNew !== 'undefined' ? videoPressMediaNew : {};
+	}
+
+	/**
+	 * Shows the free-plan upgrade notice above the upload queue.
+	 *
+	 * The message is pre-escaped HTML built server-side, containing the link
+	 * to the upgrade path. wpQueueError renders it inside the stock
+	 * media-upload-error notice, like other queue-level upload errors.
+	 *
+	 * @param {string} message The notice HTML.
+	 */
+	function showUpgradeNotice( message ) {
+		if ( typeof wpQueueError === 'function' && message ) {
+			wpQueueError( message );
+		}
+	}
+
+	/**
+	 * Free-plan gate for a video file: the free plan includes a single video
+	 * upload, so reject every video once the site already has a VideoPress
+	 * video, and allow only one video per upload session otherwise.
+	 *
+	 * @param {plupload.File} file The video file being queued.
+	 * @param {Function}      cb   The file filter continuation callback.
+	 * @return {boolean} Whether the file was rejected.
+	 */
+	function rejectedByFreePlanLimits( file, cb ) {
+		var limits = getUploadLimits();
+		var strings = limits.strings || {};
+
+		if ( limits.hasVideoPressPurchase ) {
+			return false;
+		}
+
+		if ( limits.hasUsedVideo ) {
+			showUpgradeNotice( strings.usedVideoUpload );
+			cb( false );
+			return true;
+		}
+
+		if ( acceptedVideoCount >= 1 ) {
+			showUpgradeNotice( strings.multipleVideos );
+			cb( false );
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Restores the stock upload settings saved before a VideoPress upload.
@@ -61,6 +121,10 @@
 		}
 
 		if ( file.type && file.type.split( '/' )[ 0 ] === 'video' ) {
+			if ( rejectedByFreePlanLimits( file, cb ) ) {
+				return;
+			}
+
 			$.post( ajaxurl, { action: 'videopress-get-upload-token', filename: file.name } )
 				.done( function ( response ) {
 					if (
@@ -74,6 +138,7 @@
 					}
 
 					file.videopress = response.data;
+					acceptedVideoCount++;
 					cb( true );
 				} )
 				.fail( function () {

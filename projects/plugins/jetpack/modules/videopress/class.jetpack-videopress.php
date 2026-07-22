@@ -1,6 +1,8 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\VideoPress\Attachment_Handler;
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
@@ -103,7 +105,76 @@ class Jetpack_VideoPress {
 			true
 		);
 
+		wp_localize_script( 'videopress-media-new', 'videoPressMediaNew', $this->get_media_new_upload_limits() );
+
 		add_filter( 'plupload_init', array( $this, 'videopress_pluploder_config' ) );
+	}
+
+	/**
+	 * Returns the free-plan upload limit data used by the media-new.php script.
+	 *
+	 * The free plan includes a single video upload, so the script needs to know
+	 * whether the site has a paid VideoPress plan, whether the free upload has
+	 * already been used, and where to send the user to upgrade. Mirrors the
+	 * checks behind the VideoPress dashboard's upgrade notice: the paid check
+	 * matches Admin_UI::initial_state()'s paidFeatures, and the used check
+	 * matches the dashboard's VideoPress video count (video/videopress
+	 * attachments).
+	 *
+	 * @return array
+	 */
+	public function get_media_new_upload_limits() {
+		$has_videopress_purchase = Current_Plan::supports( 'videopress-1tb-storage' )
+			|| Current_Plan::supports( 'videopress-unlimited-storage' )
+			|| ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'videopress' ) );
+
+		$has_used_video = false;
+		if ( ! $has_videopress_purchase ) {
+			$videopress_videos = get_posts(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'inherit',
+					'post_mime_type' => 'video/videopress',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				)
+			);
+
+			$has_used_video = count( $videopress_videos ) > 0;
+		}
+
+		$upgrade_url = sprintf(
+			'https://wordpress.com/checkout/%s/jetpack_videopress?redirect_to=%s',
+			rawurlencode( ( new Status() )->get_site_suffix() ),
+			rawurlencode( admin_url( 'media-new.php' ) )
+		);
+
+		$allowed_html = array(
+			'a' => array( 'href' => array() ),
+		);
+
+		return array(
+			'hasVideoPressPurchase' => $has_videopress_purchase,
+			'hasUsedVideo'          => $has_used_video,
+			'strings'               => array(
+				'usedVideoUpload' => sprintf(
+					wp_kses(
+						/* translators: %s is the url to upgrade the VideoPress plan */
+						__( 'You have used your free video upload. The free plan includes one video upload. <a href="%s">Upgrade now</a> to unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
+						$allowed_html
+					),
+					esc_url( $upgrade_url )
+				),
+				'multipleVideos'  => sprintf(
+					wp_kses(
+						/* translators: %s is the url to upgrade the VideoPress plan */
+						__( 'The free plan includes one video upload. <a href="%s">Upgrade now</a> to upload more videos and unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
+						$allowed_html
+					),
+					esc_url( $upgrade_url )
+				),
+			),
+		);
 	}
 
 	/**

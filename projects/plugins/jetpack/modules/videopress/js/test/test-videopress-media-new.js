@@ -119,10 +119,42 @@ describe( 'videopress-media-new', () => {
 		delete global.ajaxurl;
 		delete global.pluploadL10n;
 		delete global.wpUploaderInit;
+		delete global.videoPressMediaNew;
 		delete window.uploader;
 		delete window.uploadSuccess;
 		delete window.wpFileError;
+		delete window.wpQueueError;
 	} );
+
+	/**
+	 * Sets the localized upload limit data and a spied wpQueueError global.
+	 *
+	 * @param {object} limits - The videoPressMediaNew payload.
+	 */
+	function setUploadLimits( limits ) {
+		global.videoPressMediaNew = {
+			strings: {
+				usedVideoUpload: 'Free video upload used. <a href="checkout">Upgrade now</a>',
+				multipleVideos: 'One video on the free plan. <a href="checkout">Upgrade now</a>',
+			},
+			...limits,
+		};
+		window.wpQueueError = () => {};
+		jest.spyOn( window, 'wpQueueError' ).mockImplementation();
+	}
+
+	/**
+	 * Accepts a video file through the filter, resolving the token request.
+	 *
+	 * @param {object} file - The plupload file object.
+	 * @return {Function} The filter continuation callback mock.
+	 */
+	function acceptVideoThroughFilter( file ) {
+		const cb = jest.fn();
+		fileFilter.call( { trigger: jest.fn() }, '100b', file, cb );
+		postMock.resolve( { success: true, data: { upload_action_url: 'url', upload_token: 't' } } );
+		return cb;
+	}
 
 	it( 'bails when plupload is not on the page', () => {
 		delete global.plupload;
@@ -224,6 +256,87 @@ describe( 'videopress-media-new', () => {
 
 			expect( cb ).toHaveBeenCalledWith( true );
 			expect( global.jQuery.post ).not.toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'free plan upload limits', () => {
+		it( 'rejects videos with the upgrade notice when the free video upload was used', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: true } );
+
+			const cb = jest.fn();
+			fileFilter.call( { trigger: jest.fn() }, '100b', { name: 'a.mp4', type: 'video/mp4' }, cb );
+
+			expect( cb ).toHaveBeenCalledWith( false );
+			expect( window.wpQueueError ).toHaveBeenCalledWith(
+				'Free video upload used. <a href="checkout">Upgrade now</a>'
+			);
+			expect( global.jQuery.post ).not.toHaveBeenCalled();
+		} );
+
+		it( 'allows a single video and rejects the rest of the batch with the upgrade notice', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
+
+			const firstCb = acceptVideoThroughFilter( { name: 'a.mp4', type: 'video/mp4' } );
+			expect( firstCb ).toHaveBeenCalledWith( true );
+			expect( window.wpQueueError ).not.toHaveBeenCalled();
+
+			const secondCb = jest.fn();
+			fileFilter.call(
+				{ trigger: jest.fn() },
+				'100b',
+				{ name: 'b.mp4', type: 'video/mp4' },
+				secondCb
+			);
+
+			expect( secondCb ).toHaveBeenCalledWith( false );
+			expect( window.wpQueueError ).toHaveBeenCalledWith(
+				'One video on the free plan. <a href="checkout">Upgrade now</a>'
+			);
+			expect( global.jQuery.post ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'does not consume the free video slot when the token request fails', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
+
+			const failedCb = jest.fn();
+			fileFilter.call(
+				{ trigger: jest.fn() },
+				'100b',
+				{ name: 'a.mp4', type: 'video/mp4' },
+				failedCb
+			);
+			postMock.reject();
+			expect( failedCb ).toHaveBeenCalledWith( false );
+
+			const retryCb = acceptVideoThroughFilter( { name: 'a.mp4', type: 'video/mp4' } );
+			expect( retryCb ).toHaveBeenCalledWith( true );
+			expect( window.wpQueueError ).not.toHaveBeenCalled();
+		} );
+
+		it( 'allows multiple videos with a VideoPress purchase', () => {
+			setUploadLimits( { hasVideoPressPurchase: true, hasUsedVideo: true } );
+
+			const firstCb = acceptVideoThroughFilter( { name: 'a.mp4', type: 'video/mp4' } );
+			const secondCb = acceptVideoThroughFilter( { name: 'b.mp4', type: 'video/mp4' } );
+
+			expect( firstCb ).toHaveBeenCalledWith( true );
+			expect( secondCb ).toHaveBeenCalledWith( true );
+			expect( window.wpQueueError ).not.toHaveBeenCalled();
+		} );
+
+		it( 'does not restrict non-video files on the free plan', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: true } );
+
+			const cb = jest.fn();
+			fileFilter.call(
+				{ trigger: jest.fn() },
+				'100b',
+				{ name: 'image.jpg', type: 'image/jpeg', size: 50 },
+				cb
+			);
+
+			expect( cb ).toHaveBeenCalledWith( true );
+			expect( window.wpQueueError ).not.toHaveBeenCalled();
 		} );
 	} );
 
