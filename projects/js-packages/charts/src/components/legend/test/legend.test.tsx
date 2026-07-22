@@ -684,5 +684,73 @@ describe( 'BaseLegend', () => {
 			expect( screen.getByTestId( 'visitors' ) ).toHaveTextContent( 'true' );
 			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
 		} );
+
+		it( 'converges a desynced group to a uniform state in one click', async () => {
+			const user = userEvent.setup();
+
+			const groupedItems = [
+				{ label: 'Views', color: '#0000ff', seriesLabels: [ 'Views', 'Views — previous' ] },
+			];
+
+			const DesyncProbe = () => {
+				const { isSeriesVisible, toggleSeriesVisibility } = useGlobalChartsContext();
+				return (
+					<div>
+						<button
+							data-testid="hide-previous"
+							onClick={ () => toggleSeriesVisibility( 'test-chart', 'Views — previous' ) }
+						>
+							hide previous
+						</button>
+						<span data-testid="views">{ String( isSeriesVisible( 'test-chart', 'Views' ) ) }</span>
+						<span data-testid="views-prev">
+							{ String( isSeriesVisible( 'test-chart', 'Views — previous' ) ) }
+						</span>
+					</div>
+				);
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ groupedItems } interactive={ true } chartId="test-chart" />
+					<DesyncProbe />
+				</GlobalChartsProvider>
+			);
+
+			// Desync the group: hide only the comparison series programmatically.
+			await user.click( screen.getByTestId( 'hide-previous' ) );
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'true' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'false' );
+
+			// Clicking the grouped item hides the whole group, not inverts each member.
+			const legendButton = screen.getAllByRole( 'button' )[ 0 ];
+			await user.click( legendButton );
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'false' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'false' );
+
+			// And the next click shows the whole group again.
+			await user.click( legendButton );
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'true' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'true' );
+		} );
+
+		it( 'falls back to the item label when seriesLabels is an empty array', async () => {
+			const user = userEvent.setup();
+
+			const items = [ { label: 'Views', color: '#0000ff', seriesLabels: [] as string[] } ];
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ items } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendButton = screen.getByRole( 'button' );
+			expect( legendButton ).toHaveAttribute( 'aria-pressed', 'true' );
+
+			await user.click( legendButton );
+
+			expect( legendButton ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
 	} );
 } );

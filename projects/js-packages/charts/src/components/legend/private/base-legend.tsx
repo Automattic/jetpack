@@ -118,8 +118,15 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const handleLegendClick = useCallback(
 			( seriesLabels: string[] ) => {
 				if ( interactive && chartId && context ) {
-					// Toggle every series the item controls so a grouped item hides/shows the whole group.
-					seriesLabels.forEach( label => context.toggleSeriesVisibility( chartId, label ) );
+					// Converge the whole group on the representative's next state: only toggle series that
+					// currently match it, so a desynced group (e.g. one member hidden programmatically)
+					// ends up uniformly hidden/shown after one click.
+					const representativeVisible = context.isSeriesVisible( chartId, seriesLabels[ 0 ] );
+					seriesLabels.forEach( label => {
+						if ( context.isSeriesVisible( chartId, label ) === representativeVisible ) {
+							context.toggleSeriesVisibility( chartId, label );
+						}
+					} );
 				}
 			},
 			[ interactive, chartId, context ]
@@ -188,7 +195,9 @@ export const BaseLegend: ForwardRefExoticComponent<
 						{ labels.map( ( label, i ) => {
 							const matchedItem = items[ i ];
 							// A grouped item toggles/reads every series it controls; a plain item just its own.
-							const seriesLabels = matchedItem?.seriesLabels ?? [ label.text ];
+							const seriesLabels = matchedItem?.seriesLabels?.length
+								? matchedItem.seriesLabels
+								: [ label.text ];
 							const visible = isSeriesVisible( seriesLabels[ 0 ] );
 							const handleClick = createClickHandler( seriesLabels );
 							const handleKeyDown = createKeyDownHandler( seriesLabels );
