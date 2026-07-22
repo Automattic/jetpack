@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
+	describeError,
 	LeaderboardChart,
 	sharePercentage,
 	WidgetRoot,
@@ -55,11 +56,13 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, hasComparison, isLoading, isFetching, isError, refetch } = usePlatformViews( {
-		reportParams,
-		max,
-		deviceProperty: platformDimension,
-	} );
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
+		{
+			reportParams,
+			max,
+			deviceProperty: platformDimension,
+		}
+	);
 
 	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
 	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
@@ -95,13 +98,10 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load platform data. Please try again in a moment.",
-						'jetpack-premium-analytics'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
+				error={ describeError( error, {
+					subject: __( 'platform data', 'jetpack-premium-analytics' ),
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: device,
 					description: __( 'No platform data in this period.', 'jetpack-premium-analytics' ),

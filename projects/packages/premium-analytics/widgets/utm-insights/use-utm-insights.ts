@@ -45,6 +45,7 @@ interface UtmInsightsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	refetch: () => void;
 }
 
@@ -83,10 +84,8 @@ export default function useUtmInsights( {
 	max,
 }: UseUtmInsightsArgs ): UtmInsightsState {
 	const params = { ...reportParams, utmParam, max } as Parameters< typeof useStatsUtm >[ 0 ];
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsUtm(
-		params,
-		{ maxRows: max }
-	);
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+		useStatsUtm( params, { maxRows: max } );
 	const rows = ( comparisonRows?.rows ?? [] ).map( toUtmRow );
 
 	return {
@@ -97,6 +96,7 @@ export default function useUtmInsights( {
 		// Stats queries keep previous data via `placeholderData`, so a failed
 		// range refetch should not replace populated rows with the error state.
 		isError: rows.length === 0 && isError,
+		error,
 		refetch,
 	};
 }

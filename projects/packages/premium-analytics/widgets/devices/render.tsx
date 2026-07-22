@@ -9,6 +9,7 @@ import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import {
 	Legend,
+	describeError,
 	SemiCircleChart,
 	WidgetRoot,
 	WidgetState,
@@ -56,7 +57,7 @@ type DevicesInnerProps = {
  */
 function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useDeviceViews( {
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
 		reportParams,
 		max,
 		deviceProperty: 'screensize',
@@ -94,13 +95,10 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load device data. Please try again in a moment.",
-						'jetpack-premium-analytics'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
+				error={ describeError( error, {
+					subject: __( 'device data', 'jetpack-premium-analytics' ),
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: device,
 					description: __( 'No device data in this period.', 'jetpack-premium-analytics' ),

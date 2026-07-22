@@ -37,6 +37,7 @@ interface PlatformViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	refetch: () => void;
 }
 
@@ -99,7 +100,7 @@ export default function usePlatformViews( {
 		deviceProperty,
 	};
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
 
 	const rows = ( comparisonRows?.rows ?? [] ).map( item => toPlatformView( item, deviceProperty ) );
@@ -114,6 +115,7 @@ export default function usePlatformViews( {
 		// flips true. Only surface the error when there's nothing to show, so a transient
 		// refetch failure doesn't replace populated rows with the error state.
 		isError: rows.length === 0 && isError,
+		error,
 		refetch,
 	};
 }

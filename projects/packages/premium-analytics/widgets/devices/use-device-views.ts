@@ -41,6 +41,7 @@ interface DeviceViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	refetch: () => void;
 }
 
@@ -88,7 +89,7 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
 
 	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
@@ -103,6 +104,7 @@ export default function useDeviceViews( {
 		// flips true. Only surface the error when there's nothing to show, so a transient
 		// refetch failure doesn't replace populated rows with the error state.
 		isError: items.length === 0 && isError,
+		error,
 		refetch,
 	};
 }
