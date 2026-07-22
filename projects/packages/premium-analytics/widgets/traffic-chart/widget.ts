@@ -68,14 +68,6 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	name: 'jpa/traffic-chart',
-	title: __( 'Traffic', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			"A summary of your site's views, visitors, likes, and comments, with the previous period overlaid for comparison.",
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 	attributes: [
 		{

@@ -57,15 +57,7 @@ export type EmailTopRowAttributes = {
  * ignores the dashboard date range and never shows period-over-period deltas.
  */
 export default {
-	name: 'jpa/email-top-row',
-	title: __( 'Email highlights', 'jetpack-premium-analytics' ),
 	icon: envelope,
-	help: {
-		content: __(
-			'Headline stats for a single email. The Opens view shows total sends, unique opens, total opens, and open rate; the Clicks view shows total sends, unique opens, total clicks, and click rate. Rates are measured against total sends. Figures are all-time and are not affected by the dashboard date range.',
-			'jetpack-premium-analytics'
-		),
-	},
 	attributes: [
 		{
 			id: 'metric',

@@ -62,8 +62,10 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Set up payments', 'jetpack-mu-wpcom' );
 		case 'connect_social_media':
 			return __( 'Connect socials', 'jetpack-mu-wpcom' );
-		// Both the AI-selectable id and the deterministic fallback id, so the label
-		// holds on the fallback path too.
+		// The subscriber tasks all share this label: the menu id (import_subscribers), the
+		// deterministic-fallback id (add_10_email_subscribers), and the pre-remap alias
+		// (subscribers_added), which can still surface via the in-memory fixture fallback.
+		case 'import_subscribers':
 		case 'subscribers_added':
 		case 'add_10_email_subscribers':
 			return __( 'Add subscribers', 'jetpack-mu-wpcom' );

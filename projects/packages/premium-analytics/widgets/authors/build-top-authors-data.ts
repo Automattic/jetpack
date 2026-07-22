@@ -32,7 +32,7 @@ export interface AuthorPost {
 
 /**
  * A normalized author row for the leaderboard. Carries the display name and
- * avatar so the render layer can compose the `LeaderboardLabel`, plus the
+ * avatar so the render layer can compose the `LeaderboardRow`, plus the
  * author's `posts` so a row click can drill down without another fetch.
  * Comparison fields are `undefined` when the author has no match in the
  * comparison period.

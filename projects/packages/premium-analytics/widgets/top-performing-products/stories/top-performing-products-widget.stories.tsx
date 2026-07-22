@@ -8,10 +8,12 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TopPerformingProductsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -221,7 +223,7 @@ function TopPerformingProductsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ TOP_PERFORMING_PRODUCTS_RENDER_MODULE }
 			renderComponent={
 				TopPerformingProductsRender as ComponentType< WidgetRenderProps< unknown > >

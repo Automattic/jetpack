@@ -14,6 +14,9 @@ usage() {
 	echo "  clean                                             Completely resets the environment (remove docker volumes, MySql and WordPress data and logs)"
 	echo "  new [--activate-plugins plugin1 plugin2 ...]      Completely resets the running environment and starts a new fresh one"
 	echo "  -h | usage                                        Output this message"
+	echo
+	echo "environment:"
+	echo "  WP_VERSION    WordPress core version to run against, e.g. 6.9. Defaults to the latest release."
 	exit 1
 }
 
@@ -23,7 +26,22 @@ start_env() {
 	export_e2e_config
 	$BASE_CMD up -d
 	$BASE_CMD install || true
+	select_wp_version
 	configure_wp_env "$@"
+}
+
+# The container downloads whatever WordPress is current at start-up. If $WP_VERSION is set,
+# switch core to it instead, so the suite can run against e.g. the minimum supported version.
+# 'latest' is what we already have, and update-core would re-download it for nothing.
+select_wp_version() {
+	[[ -n "$WP_VERSION" && "$WP_VERSION" != 'latest' ]] || return 0
+
+	# `auto_update_core_major` defaults to enabled, so wp-cron will happily pull the site back up to
+	# the current major in the background and the suite would silently test the wrong version. Turn
+	# the updater off before downgrading, so cron can't race the switch.
+	$BASE_CMD wp -- config set AUTOMATIC_UPDATER_DISABLED true --raw --type=constant
+
+	$BASE_CMD update-core "$WP_VERSION"
 }
 
 stop_env() {
