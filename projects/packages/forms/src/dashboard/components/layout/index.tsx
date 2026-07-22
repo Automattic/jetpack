@@ -2,7 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { JetpackAdminNotices } from '@automattic/jetpack-components';
+import JetpackAdminNotices from '@automattic/jetpack-components/jetpack-admin-notices';
 import { useViewportMatch } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
 import { Outlet, useLocation } from 'react-router';

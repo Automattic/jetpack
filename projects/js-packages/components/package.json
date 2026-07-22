@@ -43,6 +43,11 @@
 			"types": "./build/components/gravatar/index.d.ts",
 			"default": "./build/components/gravatar/index.js"
 		},
+		"./jetpack-admin-notices": {
+			"jetpack:src": "./components/jetpack-admin-notices/index.tsx",
+			"types": "./build/components/jetpack-admin-notices/index.d.ts",
+			"default": "./build/components/jetpack-admin-notices/index.js"
+		},
 		"./jetpack-footer": {
 			"jetpack:src": "./components/jetpack-footer/index.tsx",
 			"types": "./build/components/jetpack-footer/index.d.ts",
