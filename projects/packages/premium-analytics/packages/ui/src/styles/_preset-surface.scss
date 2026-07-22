@@ -1,0 +1,49 @@
+// Shared look of the date preset surfaces: a segmented group of flush pills
+// framed as a single control. Included by every surface (rolling presets,
+// all-time and years) so they stay one visual system instead of drifting apart.
+
+// Composite group presented as one control. The frame copies the
+// @wordpress/ui input-layout tokens (same stroke and radius) so the group
+// reads as a sibling of the comparison select.
+@mixin group {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0;
+	width: fit-content;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+
+	// Hairline dividers between the flush items.
+	> * + * {
+		border-inline-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// Raise the focused item above its flush siblings, whose fill or divider
+	// would otherwise paint over the focus ring. No z-index token exists in
+	// WPDS; flex items honor z-index without a position. `:focus-within`
+	// (rather than `:focus-visible`) also matches a dropdown trigger, which
+	// is wrapped in the Dropdown container.
+	> :focus-within {
+		z-index: 1;
+	}
+}
+
+@mixin pill {
+	// Hovered/focused pill: same brand-tinted highlight the select-control
+	// popup gives its items.
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
+
+	white-space: nowrap;
+
+	// Selected pill: soft fill instead of the stock pressed-minimal strong
+	// mapping. Override the button custom-prop API (instead of the painted
+	// properties) so hover, focus, and the bg-colored border follow the fill.
+	&[aria-pressed="true"] {
+		--wp-ui-button-background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
+		--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
+		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
+		outline-offset: 1px;
+	}
+}
