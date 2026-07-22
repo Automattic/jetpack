@@ -12,6 +12,10 @@ export interface TitleFormatToken {
 
 export interface SettingsResponse {
 	front_page_description: string;
+	// True when the site kept a front-page description from the era it was free for
+	// all WordPress.com Simple sites. Such sites keep editing that one field even
+	// when otherwise plan-gated (the value stays live). Read-only, never sent back.
+	has_legacy_front_page_meta: boolean;
 	title_formats: Record< string, TitleFormatToken[] >;
 	verification: {
 		google: string;

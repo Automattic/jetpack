@@ -874,15 +874,33 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The upsell URL points at Premium (`value_bundle`) checkout for this site.
+	 * The upsell URL points at Premium (`value_bundle`) checkout for this site. It's
+	 * only built when the site is actually gated (the ungated case is asserted empty
+	 * below), so this drives a gated wpcom site.
 	 */
 	public function test_upsell_url_targets_premium_checkout() {
-		$data       = Initializer::inject_script_data( array() );
-		$upsell_url = $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'];
+		$this->simulate_wpcom_site( false );
 
-		$this->assertIsString( $upsell_url );
-		$this->assertStringStartsWith( 'https://wordpress.com/checkout/', $upsell_url );
-		$this->assertStringEndsWith( '/value_bundle', $upsell_url );
+		try {
+			$data       = Initializer::inject_script_data( array() );
+			$upsell_url = $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'];
+
+			$this->assertIsString( $upsell_url );
+			$this->assertStringStartsWith( 'https://wordpress.com/checkout/', $upsell_url );
+			$this->assertStringEndsWith( '/value_bundle', $upsell_url );
+		} finally {
+			$this->reset_wpcom_site();
+		}
+	}
+
+	/**
+	 * An ungated site carries no upsell URL — it's never shown, so the site-suffix
+	 * lookup that builds it is skipped.
+	 */
+	public function test_upsell_url_is_empty_when_not_gated() {
+		$data = Initializer::inject_script_data( array() );
+
+		$this->assertSame( '', $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'] );
 	}
 
 	/**

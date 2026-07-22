@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-no-bind -- a component-scope handler recreated per render is fine for a single banner. */
+
 import { UpsellBanner as BaseUpsellBanner } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';

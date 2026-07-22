@@ -114,9 +114,44 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
 	// the two always-valid sections (site visibility + verification, both backed by
 	// core WordPress options) topped with the upsell banner. Schema, author profile,
-	// canonical URLs, title structure, front-page description and social previews are
-	// paid surfaces, hidden here.
+	// canonical URLs, title structure and social previews are paid surfaces, hidden
+	// here. The front-page description is the one exception: a site that set it back
+	// when it was free for all WordPress.com Simple sites keeps editing it even when
+	// gated (the value stays live), so its card is shown below in that case too.
 	const gated = isGated();
+
+	const frontPageDescriptionCard = (
+		<CollapsibleCard.Root defaultOpen={ false }>
+			<CollapsibleCard.Header>
+				<Stack direction="row" justify="space-between" align="center" gap="sm">
+					<Card.Title>{ __( 'Front-page description', 'jetpack-seo' ) }</Card.Title>
+					<Badge intent={ local.front_page_description ? 'stable' : 'draft' }>
+						{ local.front_page_description ? setLabel : notSetLabel }
+					</Badge>
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<Stack direction="column" gap="md">
+					<TextareaControl
+						label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
+						value={ local.front_page_description }
+						onChange={ next => setField( { front_page_description: next } ) }
+						rows={ 3 }
+						disabled={ isSaving }
+						__nextHasNoMarginBottom
+					/>
+					<div className="jetpack-seo-settings__save">
+						<Button
+							onClick={ () => commitFields( [ 'front_page_description' ] ) }
+							disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
+						>
+							{ saveLabel }
+						</Button>
+					</div>
+				</Stack>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
+	);
 
 	return (
 		<div className="jetpack-seo-settings">
@@ -241,39 +276,19 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						disabled={ isSaving }
 					/>
 
-					<CollapsibleCard.Root defaultOpen={ false }>
-						<CollapsibleCard.Header>
-							<Stack direction="row" justify="space-between" align="center" gap="sm">
-								<Card.Title>{ __( 'Front-page description', 'jetpack-seo' ) }</Card.Title>
-								<Badge intent={ local.front_page_description ? 'stable' : 'draft' }>
-									{ local.front_page_description ? setLabel : notSetLabel }
-								</Badge>
-							</Stack>
-						</CollapsibleCard.Header>
-						<CollapsibleCard.Content>
-							<Stack direction="column" gap="md">
-								<TextareaControl
-									label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
-									value={ local.front_page_description }
-									onChange={ next => setField( { front_page_description: next } ) }
-									rows={ 3 }
-									disabled={ isSaving }
-									__nextHasNoMarginBottom
-								/>
-								<div className="jetpack-seo-settings__save">
-									<Button
-										onClick={ () => commitFields( [ 'front_page_description' ] ) }
-										disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
-									>
-										{ saveLabel }
-									</Button>
-								</div>
-							</Stack>
-						</CollapsibleCard.Content>
-					</CollapsibleCard.Root>
+					{ frontPageDescriptionCard }
 
 					<SocialPreviewsCard description={ local.front_page_description } />
 				</>
+			) }
+
+			{ /* Grandfathered exception: a gated site that kept a front-page description
+			   from the era it was free for all Simple sites keeps editing that one
+			   field — the value is still live, and the platform still reads/writes it. */ }
+			{ gated && local.has_legacy_front_page_meta && (
+				<div id="front-page-description" className="jetpack-seo-settings__section">
+					{ frontPageDescriptionCard }
+				</div>
 			) }
 		</div>
 	);

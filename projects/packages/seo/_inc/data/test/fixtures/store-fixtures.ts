@@ -25,6 +25,7 @@ export const SEEDED_SCHEMA = makeSchemaSettings();
 
 export const SEEDED_SETTINGS: SettingsResponse = {
 	front_page_description: 'Welcome to the site.',
+	has_legacy_front_page_meta: false,
 	title_formats: {},
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,

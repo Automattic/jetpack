@@ -372,7 +372,7 @@ class Initializer {
 		// is never gated (see self::is_gated()). The upsell URL is only meaningful when
 		// gated, so it's built only then — every ungated and self-hosted admin load
 		// otherwise pays for a site-suffix lookup it never uses.
-		$is_gated                               = self::is_gated();
+		$is_gated                                = self::is_gated();
 		$data[ self::SCRIPT_DATA_KEY ]['gating'] = array(
 			'is_gated'   => $is_gated,
 			'upsell_url' => $is_gated ? self::get_upsell_url() : '',
@@ -1068,6 +1068,13 @@ class Initializer {
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$front_page_desc = class_exists( 'Jetpack_SEO_Utils' ) ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
+		// A site that set a front-page description back when it was free for all
+		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
+		// the value stays live and `Jetpack_SEO_Utils` still reads/writes it via the
+		// legacy option. The gated Settings uses this to keep that one field editable.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+		$has_legacy_front_page_meta = class_exists( 'Jetpack_SEO_Utils' ) && (bool) Jetpack_SEO_Utils::has_legacy_front_page_meta();
+
 		$codes = get_option( 'verification_services_codes', array() );
 		if ( ! is_array( $codes ) ) {
 			$codes = array();
@@ -1076,27 +1083,28 @@ class Initializer {
 		$sitemap_active = self::is_sitemap_enabled( $modules );
 
 		return array(
-			'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
+			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
 			// Read the durable SEO option (seeded/synced from the `sitemaps` module
 			// by the Jetpack plugin) so the state survives the module's removal.
-			'sitemap_active'         => $sitemap_active,
+			'sitemap_active'             => $sitemap_active,
 			// Empty until the sitemap is genuinely reachable, so the Settings tab can
 			// link to it only once it won't 404 (it's built by cron after activation).
-			'sitemap_url'            => self::get_reachable_sitemap_url( $sitemap_active ),
+			'sitemap_url'                => self::get_reachable_sitemap_url( $sitemap_active ),
 			// Read the durable SEO option (seeded/synced from the `canonical-urls` module
 			// by the Jetpack plugin) so the state survives the module's removal.
-			'canonical_active'       => self::is_canonical_enabled( $modules ),
+			'canonical_active'           => self::is_canonical_enabled( $modules ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
-			'title_formats'          => (object) $title_formats,
-			'front_page_description' => (string) $front_page_desc,
-			'verification'           => array(
+			'title_formats'              => (object) $title_formats,
+			'front_page_description'     => (string) $front_page_desc,
+			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
+			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',
 				'pinterest' => isset( $codes['pinterest'] ) ? (string) $codes['pinterest'] : '',
 				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
 				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
 			),
-			'schema'                 => Schema_Settings::get_editable(),
+			'schema'                     => Schema_Settings::get_editable(),
 		);
 	}
 
