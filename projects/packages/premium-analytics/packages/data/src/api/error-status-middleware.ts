@@ -35,6 +35,34 @@ function isPlainErrorBody( body: unknown ): body is Record< string, unknown > {
 	return typeof body === 'object' && body !== null && ! Array.isArray( body );
 }
 
+/**
+ * Turn a rejected error `Response` into the thrown error the caller expects,
+ * with the HTTP status attached.
+ *
+ * The body of a gateway failure (502/503/504) is often HTML or plain text, so
+ * parsing can itself fail. Either way the status must survive: it is what the
+ * server-error UI and the retry guard key off. On a parse failure we keep
+ * apiFetch's own `invalid_json` shape and still attach the status.
+ */
+async function normalizeErrorResponse( response: Response ): Promise< unknown > {
+	const { status } = response;
+
+	let body: unknown;
+	try {
+		body = await parseJsonAndNormalizeError( response );
+	} catch ( parseError ) {
+		body = parseError;
+	}
+
+	// Our own `WP_Error` responses carry `data.status`; adding a top-level
+	// `status` is fine, but never overwrite one the body already provides.
+	if ( isPlainErrorBody( body ) && ! ( 'status' in body ) ) {
+		return { ...body, status };
+	}
+
+	return body;
+}
+
 function containsUnboundedQuery( options: { path?: string; url?: string } ): boolean {
 	return !! options.path?.includes( 'per_page=-1' ) || !! options.url?.includes( 'per_page=-1' );
 }
@@ -55,25 +83,27 @@ export const apiErrorStatusMiddleware: APIFetchMiddleware = async ( options, nex
 		return next( options );
 	}
 
-	const result = await next( { ...options, parse: false } );
-
-	// Load-bearing, not defensive padding: a middleware registered outside this
-	// one can short-circuit and resolve with already-parsed data instead of a
-	// `Response` — Storybook's report mocks do exactly that.
-	if ( ! ( result instanceof Response ) ) {
-		return result;
+	let result: unknown;
+	try {
+		result = await next( { ...options, parse: false } );
+	} catch ( thrown ) {
+		// With `parse: false`, apiFetch throws the raw `Response` for a non-2xx
+		// reply rather than returning it (see `parseAndThrowError`). This catch
+		// is where every real API error lands. Anything that is not a
+		// `Response` — an offline/fetch error, an `AbortError`, a mock's own
+		// rejection — has no HTTP status to add, so rethrow it untouched.
+		if ( thrown instanceof Response ) {
+			throw await normalizeErrorResponse( thrown );
+		}
+		throw thrown;
 	}
 
-	if ( ! result.ok ) {
-		const body = await parseJsonAndNormalizeError( result );
-
-		// Our own `WP_Error` responses carry `data.status`; adding a top-level
-		// `status` is fine, but never overwrite one the body already provides.
-		if ( isPlainErrorBody( body ) && ! ( 'status' in body ) ) {
-			throw { ...body, status: result.status };
-		}
-
-		throw body;
+	// A resolved value that is not a `Response` means a middleware outside this
+	// one short-circuited with already-parsed data — Storybook's report mocks
+	// do exactly that. A resolved `Response` is always 2xx: apiFetch only
+	// throws (never resolves) a non-ok one.
+	if ( ! ( result instanceof Response ) ) {
+		return result;
 	}
 
 	if ( result.status === 204 ) {

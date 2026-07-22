@@ -17,14 +17,35 @@ function jsonResponse( body: unknown, status: number ): Response {
 	} );
 }
 
-function run( response: unknown, options: Record< string, unknown > = {} ) {
-	const next = jest.fn().mockResolvedValue( response );
+/**
+ * A `next` that behaves like apiFetch's own chain under `parse: false`: it
+ * resolves the raw `Response` for a 2xx and rejects with the raw `Response`
+ * for a non-2xx (see `parseAndThrowError` in `@wordpress/api-fetch`). Error
+ * tests that resolve a failed response instead would exercise a branch the
+ * real chain never reaches.
+ */
+function runResponse( response: Response, options: Record< string, unknown > = {} ) {
+	const next = jest.fn( () =>
+		response.ok ? Promise.resolve( response ) : Promise.reject( response )
+	);
+	return { next, result: apiErrorStatusMiddleware( { path: '/x', ...options }, next ) };
+}
+
+function runResolved( value: unknown, options: Record< string, unknown > = {} ) {
+	const next = jest.fn().mockResolvedValue( value );
+	return { next, result: apiErrorStatusMiddleware( { path: '/x', ...options }, next ) };
+}
+
+function runRejected( value: unknown, options: Record< string, unknown > = {} ) {
+	const next = jest.fn().mockRejectedValue( value );
 	return { next, result: apiErrorStatusMiddleware( { path: '/x', ...options }, next ) };
 }
 
 describe( 'apiErrorStatusMiddleware', () => {
-	it( 'attaches the HTTP status to a non-2xx error body', async () => {
-		const { result } = run( jsonResponse( { error: 'unauthorized', message: 'Nope.' }, 401 ) );
+	it( 'attaches the HTTP status to a rejected non-2xx error body', async () => {
+		const { result } = runResponse(
+			jsonResponse( { error: 'unauthorized', message: 'Nope.' }, 401 )
+		);
 
 		await expect( result ).rejects.toEqual( {
 			error: 'unauthorized',
@@ -34,19 +55,35 @@ describe( 'apiErrorStatusMiddleware', () => {
 	} );
 
 	it.each( [ 502, 503, 504 ] )( 'attaches a %d server status', async status => {
-		const { result } = run( jsonResponse( { error: 'api_error', message: 'Upstream.' }, status ) );
+		const { result } = runResponse(
+			jsonResponse( { error: 'api_error', message: 'Upstream.' }, status )
+		);
 
 		await expect( result ).rejects.toMatchObject( { status } );
 	} );
 
+	it( 'keeps the status when a non-2xx body is not JSON (gateway HTML/text)', async () => {
+		// A 502/503/504 page is commonly HTML; parsing throws invalid_json, but
+		// the status must still reach the server-error UI and the retry guard.
+		const { result } = runResponse(
+			new Response( '<html>502 Bad Gateway</html>', { status: 502 } )
+		);
+
+		await expect( result ).rejects.toEqual( {
+			code: 'invalid_json',
+			message: 'The response is not a valid JSON response.',
+			status: 502,
+		} );
+	} );
+
 	it( 'does not overwrite a status the body already provides at the top level', async () => {
-		const { result } = run( jsonResponse( { code: 'rest_forbidden', status: 403 }, 500 ) );
+		const { result } = runResponse( jsonResponse( { code: 'rest_forbidden', status: 403 }, 500 ) );
 
 		await expect( result ).rejects.toEqual( { code: 'rest_forbidden', status: 403 } );
 	} );
 
 	it( 'leaves a WP_Error data.status alone while adding the top-level status', async () => {
-		const { result } = run(
+		const { result } = runResponse(
 			jsonResponse( { code: 'rest_forbidden', message: 'Sorry.', data: { status: 403 } }, 403 )
 		);
 
@@ -58,29 +95,29 @@ describe( 'apiErrorStatusMiddleware', () => {
 		} );
 	} );
 
+	it( 'rethrows a non-Response rejection untouched (offline / fetch / abort)', async () => {
+		// apiFetch rejects offline and network failures with a bare
+		// `{ code, message }` and no Response; there is no status to add.
+		const offline = { code: 'offline_error', message: 'Unable to connect.' };
+		const { result } = runRejected( offline );
+
+		await expect( result ).rejects.toBe( offline );
+	} );
+
 	it( 'returns null for a 204 response', async () => {
-		const { result } = run( new Response( null, { status: 204 } ) );
+		const { result } = runResponse( new Response( null, { status: 204 } ) );
 
 		await expect( result ).resolves.toBeNull();
 	} );
 
 	it( 'parses a successful JSON response', async () => {
-		const { result } = run( jsonResponse( { ok: true }, 200 ) );
+		const { result } = runResponse( jsonResponse( { ok: true }, 200 ) );
 
 		await expect( result ).resolves.toEqual( { ok: true } );
 	} );
 
 	it( 'throws the invalid_json shape when a successful body is not JSON', async () => {
-		const { result } = run( new Response( 'not json', { status: 200 } ) );
-
-		await expect( result ).rejects.toEqual( {
-			code: 'invalid_json',
-			message: 'The response is not a valid JSON response.',
-		} );
-	} );
-
-	it( 'throws the invalid_json shape when an error body is not JSON', async () => {
-		const { result } = run( new Response( '<html>500</html>', { status: 500 } ) );
+		const { result } = runResponse( new Response( 'not json', { status: 200 } ) );
 
 		await expect( result ).rejects.toEqual( {
 			code: 'invalid_json',
@@ -90,7 +127,7 @@ describe( 'apiErrorStatusMiddleware', () => {
 
 	it( 'passes the raw Response through untouched when the caller set parse: false', async () => {
 		const response = jsonResponse( { error: 'nope' }, 500 );
-		const { next, result } = run( response, { parse: false } );
+		const { next, result } = runResolved( response, { parse: false } );
 
 		await expect( result ).resolves.toBe( response );
 		expect( next ).toHaveBeenCalledWith( { path: '/x', parse: false } );
@@ -98,21 +135,21 @@ describe( 'apiErrorStatusMiddleware', () => {
 
 	it( 'returns a non-Response value from next() unchanged', async () => {
 		const mocked = { data: [ 1, 2, 3 ] };
-		const { result } = run( mocked );
+		const { result } = runResolved( mocked );
 
 		await expect( result ).resolves.toBe( mocked );
 	} );
 
 	it( 'leaves unbounded per_page=-1 queries to apiFetch so fetchAllMiddleware still paginates', async () => {
 		const mocked = [ { id: 1 } ];
-		const { next, result } = run( mocked, { path: '/wp/v2/thing?per_page=-1' } );
+		const { next, result } = runResolved( mocked, { path: '/wp/v2/thing?per_page=-1' } );
 
 		await expect( result ).resolves.toBe( mocked );
 		expect( next ).toHaveBeenCalledWith( { path: '/wp/v2/thing?per_page=-1' } );
 	} );
 
 	it( 'forces parse: false on the request it forwards', async () => {
-		const { next } = run( jsonResponse( { ok: true }, 200 ), { method: 'POST' } );
+		const { next } = runResponse( jsonResponse( { ok: true }, 200 ), { method: 'POST' } );
 
 		await Promise.resolve();
 		expect( next ).toHaveBeenCalledWith( { path: '/x', method: 'POST', parse: false } );
