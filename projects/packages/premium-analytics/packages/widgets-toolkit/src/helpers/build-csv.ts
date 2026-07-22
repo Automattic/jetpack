@@ -30,6 +30,14 @@ export type CsvColumn< Row > = {
 };
 
 /**
+ * Date range used to label a CSV export.
+ */
+export type CsvDateRange = {
+	from: string | number;
+	to: string | number;
+};
+
+/**
  * Quote and escape a single field for CSV output.
  *
  * Every field is wrapped in double quotes and any embedded quote is doubled,
@@ -86,10 +94,7 @@ export function buildCsv< Row >( columns: CsvColumn< Row >[], rows: Row[] ): str
  * @param range.to   - End of the report date range.
  * @return The filename without its `.csv` extension.
  */
-export function buildCsvDateRangeFilename(
-	prefix: string,
-	range: { from: string | number; to: string | number }
-): string {
+export function buildCsvDateRangeFilename( prefix: string, range: CsvDateRange ): string {
 	const from = getDatePart( range.from ) ?? String( range.from );
 	const to = getDatePart( range.to ) ?? String( range.to );
 	return `${ prefix }-${ from }_${ to }`;

@@ -5,14 +5,13 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildCsvDateRangeFilename, type CsvColumn } from '../../helpers/build-csv';
+import {
+	buildCsvDateRangeFilename,
+	type CsvColumn,
+	type CsvDateRange,
+} from '../../helpers/build-csv';
 import { isCsvExportEnabled } from './is-csv-export-enabled';
 import type { RowsCsvDownloadButtonProps } from './rows-csv-download-button';
-
-type ReportCsvExportRange = {
-	from: string | number;
-	to: string | number;
-};
 
 type ReportCsvExportStatus = {
 	isLoading: boolean;
@@ -31,7 +30,7 @@ export type UseReportCsvExportOptions< Row > = {
 	filenamePrefix: string;
 
 	/** Active report date range. */
-	range: ReportCsvExportRange;
+	range: CsvDateRange;
 
 	/** Active report request state. */
 	status: ReportCsvExportStatus;
