@@ -1,8 +1,8 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import * as WPElement from '@wordpress/element';
-import ActivityLog from './components/ActivityLog';
-import './style.scss';
+import ActivityLog from '../../src/js/components/ActivityLog';
+import '../../src/js/style.scss';
+import './route.scss';
 
 // The activity log is append-only: new events land upstream while this
 // page stays open, so a cached snapshot goes stale within seconds.
@@ -19,23 +19,16 @@ const queryClient = new QueryClient( {
 } );
 
 /**
- * Initial render function.
+ * wp-build stage: boot mounts this into the page's app container.
+ *
+ * @return The Activity Log dashboard tree.
  */
-function render() {
-	const container = document.getElementById( 'jetpack-activity-log-root' );
+const Stage = () => (
+	<QueryClientProvider client={ queryClient }>
+		<ThemeProvider>
+			<ActivityLog />
+		</ThemeProvider>
+	</QueryClientProvider>
+);
 
-	if ( null === container ) {
-		return;
-	}
-
-	const component = (
-		<QueryClientProvider client={ queryClient }>
-			<ThemeProvider>
-				<ActivityLog />
-			</ThemeProvider>
-		</QueryClientProvider>
-	);
-	WPElement.createRoot( container ).render( component );
-}
-
-render();
+export { Stage as stage };
