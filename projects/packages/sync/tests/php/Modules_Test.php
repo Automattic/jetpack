@@ -111,12 +111,12 @@ class Modules_Test extends BaseTestCase {
 	public static function duplicate_name_module_order_provider() {
 		return array(
 			'first then second' => array(
-				array( First_Duplicate_Name_Module::class, Second_Duplicate_Name_Module::class ),
-				Second_Duplicate_Name_Module::class,
+				array( 'Automattic\\Jetpack\\Sync\\First_Duplicate_Name_Module', 'Automattic\\Jetpack\\Sync\\Second_Duplicate_Name_Module' ),
+				'Automattic\\Jetpack\\Sync\\Second_Duplicate_Name_Module',
 			),
 			'second then first' => array(
-				array( Second_Duplicate_Name_Module::class, First_Duplicate_Name_Module::class ),
-				First_Duplicate_Name_Module::class,
+				array( 'Automattic\\Jetpack\\Sync\\Second_Duplicate_Name_Module', 'Automattic\\Jetpack\\Sync\\First_Duplicate_Name_Module' ),
+				'Automattic\\Jetpack\\Sync\\First_Duplicate_Name_Module',
 			),
 		);
 	}
