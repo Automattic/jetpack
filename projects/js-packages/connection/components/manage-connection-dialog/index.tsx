@@ -5,7 +5,6 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
-import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Text } from '@wordpress/ui';
 import { useCallback, useState, useMemo } from 'react';
@@ -16,6 +15,7 @@ import useRestApiInit from '../../hooks/use-rest-api-init';
 import ConnectionErrorNotice from '../connection-error-notice';
 import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
+import ConnectionDialog, { ConnectionDialogTitle } from '../shared/connection-dialog';
 import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import type { MouseEvent } from 'react';
@@ -202,95 +202,85 @@ const ManageConnectionDialog = ( {
 	}, [ setIsOwnerDisconnectDialogOpen ] );
 
 	return (
-		<>
-			{ isOpen && (
-				<>
-					<Modal
-						title=""
-						contentLabel={ title }
-						aria={ {
-							labelledby: 'jp-connection__manage-dialog__heading',
-						} }
-						onRequestClose={ onClose }
-						shouldCloseOnClickOutside={ false }
-						shouldCloseOnEsc={ false }
-						isDismissible={ false }
-						className={ 'jp-connection__manage-dialog' }
-					>
-						<div className="jp-connection__manage-dialog__content">
-							<h1 id="jp-connection__manage-dialog__heading">{ title }</h1>
-							<Text className="jp-connection__manage-dialog__large-text">
-								{ __(
-									'At least one user must be connected for your Jetpack products to work properly.',
-									'jetpack-connection-js'
-								) }
-							</Text>
-							{ isCurrentUserAdmin &&
-								connectedUser.currentUser?.isConnected &&
-								connectedUser.currentUser?.isMaster && (
-									<ManageConnectionActionCard
-										title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
-										link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-											site: getScriptData()?.site?.suffix,
-										} ) }
-										isExternal={ true }
-										key="transfer"
-										action="transfer"
-										disabled={ isControlsDisabled }
-									/>
-								) }
-							{ connectedUser.currentUser?.isConnected && (
-								<>
-									{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
-									<ManageConnectionActionCard
-										title={
-											isDisconnectingUser
-												? disconnectingText
-												: __( 'Disconnect my user account', 'jetpack-connection-js' )
-										}
-										onClick={ handleDisconnectUser }
-										key="unlink"
-										action="unlink"
-										disabled={ isControlsDisabled }
-									/>
-								</>
-							) }
-							{ isCurrentUserAdmin && ! isWoASite() && (
-								<ManageConnectionActionCard
-									title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
-									onClick={ openDisconnectDialog }
-									key="disconnect"
-									action="disconnect"
-									disabled={ isControlsDisabled }
-								/>
-							) }
-						</div>
-						<HelpFooter onClose={ onClose } disabled={ isControlsDisabled } />
-
-						<DisconnectDialog
-							apiRoot={ apiRoot }
-							apiNonce={ apiNonce }
-							onDisconnected={ onDisconnected }
-							connectedPlugins={ connectedPlugins }
-							connectedSiteId={ connectedSiteId }
-							connectedUser={ disconnectDialogUser }
-							isOpen={ isDisconnectDialogOpen }
-							onClose={ closeDisconnectDialog }
-							context={ context }
+		<ConnectionDialog
+			isOpen={ isOpen }
+			onClose={ onClose }
+			hasOwnTitle
+			className="jp-connection__manage-dialog"
+		>
+			<div className="jp-connection__manage-dialog__content">
+				<ConnectionDialogTitle id="jp-connection__manage-dialog__heading">
+					{ title }
+				</ConnectionDialogTitle>
+				<Text className="jp-connection__manage-dialog__large-text">
+					{ __(
+						'At least one user must be connected for your Jetpack products to work properly.',
+						'jetpack-connection-js'
+					) }
+				</Text>
+				{ isCurrentUserAdmin &&
+					connectedUser.currentUser?.isConnected &&
+					connectedUser.currentUser?.isMaster && (
+						<ManageConnectionActionCard
+							title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
+							link={ getRedirectUrl( 'calypso-settings-manage-connection', {
+								site: getScriptData()?.site?.suffix,
+							} ) }
+							isExternal={ true }
+							key="transfer"
+							action="transfer"
+							disabled={ isControlsDisabled }
 						/>
-
-						<OwnerDisconnectDialog
-							isOpen={ isOwnerDisconnectDialogOpen }
-							onClose={ handleCloseOwnerDialog }
-							apiRoot={ apiRoot }
-							apiNonce={ apiNonce }
-							onDisconnected={ onDisconnected }
-							onUnlinked={ onUnlinked }
+					) }
+				{ connectedUser.currentUser?.isConnected && (
+					<>
+						{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
+						<ManageConnectionActionCard
+							title={
+								isDisconnectingUser
+									? disconnectingText
+									: __( 'Disconnect my user account', 'jetpack-connection-js' )
+							}
+							onClick={ handleDisconnectUser }
+							key="unlink"
+							action="unlink"
+							disabled={ isControlsDisabled }
 						/>
-					</Modal>
-				</>
-			) }
-		</>
+					</>
+				) }
+				{ isCurrentUserAdmin && ! isWoASite() && (
+					<ManageConnectionActionCard
+						title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
+						onClick={ openDisconnectDialog }
+						key="disconnect"
+						action="disconnect"
+						disabled={ isControlsDisabled }
+					/>
+				) }
+			</div>
+			<HelpFooter onClose={ onClose } disabled={ isControlsDisabled } />
+
+			<DisconnectDialog
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
+				onDisconnected={ onDisconnected }
+				connectedPlugins={ connectedPlugins }
+				connectedSiteId={ connectedSiteId }
+				connectedUser={ disconnectDialogUser }
+				isOpen={ isDisconnectDialogOpen }
+				onClose={ closeDisconnectDialog }
+				context={ context }
+			/>
+
+			<OwnerDisconnectDialog
+				isOpen={ isOwnerDisconnectDialogOpen }
+				onClose={ handleCloseOwnerDialog }
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
+				onDisconnected={ onDisconnected }
+				onUnlinked={ onUnlinked }
+			/>
+		</ConnectionDialog>
 	);
 };
 

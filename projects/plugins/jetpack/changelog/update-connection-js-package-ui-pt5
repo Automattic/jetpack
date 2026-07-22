@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Owner disconnect dialog: namespace its styles to the plugin so it no longer inherits the connection package's dialog stylesheet.

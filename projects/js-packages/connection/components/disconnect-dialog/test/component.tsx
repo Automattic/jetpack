@@ -38,7 +38,7 @@ describe( 'DisconnectDialog', () => {
 	} );
 
 	describe( 'Initially', () => {
-		it( 'renders the Modal', () => {
+		it( 'renders the Dialog', () => {
 			render( <DisconnectDialog { ...testProps } /> );
 			expect(
 				screen.getByRole( 'dialog', { name: 'Are you sure you want to disconnect?' } )
@@ -47,10 +47,12 @@ describe( 'DisconnectDialog', () => {
 
 		it( 'renders the "StepDisconnect" step', () => {
 			render( <DisconnectDialog { ...testProps } /> );
+			// The dialog's accessible name comes from a visually hidden Dialog.Title,
+			// so scope the assertion to the step's own visible <h1>.
 			expect(
 				within(
 					screen.getByRole( 'dialog', { name: 'Are you sure you want to disconnect?' } )
-				).getByRole( 'heading' )
+				).getByRole( 'heading', { level: 1 } )
 			).toHaveTextContent( 'Are you sure you want to disconnect?' );
 		} );
 	} );

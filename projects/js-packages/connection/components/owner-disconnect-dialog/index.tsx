@@ -5,10 +5,11 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
+import ConnectionDialog, { ConnectionDialogTitle } from '../shared/connection-dialog';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import './style.scss';
@@ -94,50 +95,46 @@ const OwnerDisconnectDialog = ( {
 	}, [ onDisconnected, onUnlinked ] );
 
 	return (
-		isOpen && (
-			<Modal
-				title=""
-				contentLabel={ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
-				aria={ {
-					labelledby: 'jp-connection__owner-disconnect-dialog__heading',
-				} }
-				onRequestClose={ handleStayConnected }
-				className="jp-connection__disconnect-dialog"
-			>
-				<div className="jp-connection__disconnect-dialog__content">
-					<h1 id="jp-connection__owner-disconnect-dialog__heading">
-						{ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
-					</h1>
-					<p className="jp-connection__disconnect-dialog__large-text">
-						{ __(
-							'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
-							'jetpack-connection-js'
-						) }
-					</p>
-					<ManageConnectionActionCard
-						title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
-						link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-							site: getScriptData()?.site?.suffix,
-						} ) }
-						isExternal={ true }
-						action="transfer"
-					/>
-					<ManageConnectionActionCard
-						title={ __( 'View other connected accounts', 'jetpack-connection-js' ) }
-						link="users.php"
-						action="check-users"
-					/>
-				</div>
-				<DisconnectActionFooter
-					stayLabel={ __( 'Stay connected', 'jetpack-connection-js' ) }
-					onStay={ handleStayConnected }
-					disconnectLabel={ isDisconnecting ? disconnectingText : disconnectText }
-					disconnectDisabled={ isDisconnecting }
-					onDisconnect={ handleDisconnectAnyway }
-					error={ disconnectError }
+		<ConnectionDialog
+			isOpen={ isOpen }
+			onClose={ handleStayConnected }
+			hasOwnTitle
+			dismissOnEscape
+			className="jp-connection__disconnect-dialog"
+		>
+			<div className="jp-connection__disconnect-dialog__content">
+				<ConnectionDialogTitle id="jp-connection__owner-disconnect-dialog__heading">
+					{ __( 'Disconnect Owner Account', 'jetpack-connection-js' ) }
+				</ConnectionDialogTitle>
+				<Text className="jp-connection__disconnect-dialog__large-text">
+					{ __(
+						'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
+						'jetpack-connection-js'
+					) }
+				</Text>
+				<ManageConnectionActionCard
+					title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
+					link={ getRedirectUrl( 'calypso-settings-manage-connection', {
+						site: getScriptData()?.site?.suffix,
+					} ) }
+					isExternal={ true }
+					action="transfer"
 				/>
-			</Modal>
-		)
+				<ManageConnectionActionCard
+					title={ __( 'View other connected accounts', 'jetpack-connection-js' ) }
+					link="users.php"
+					action="check-users"
+				/>
+			</div>
+			<DisconnectActionFooter
+				stayLabel={ __( 'Stay connected', 'jetpack-connection-js' ) }
+				onStay={ handleStayConnected }
+				disconnectLabel={ isDisconnecting ? disconnectingText : disconnectText }
+				disconnectDisabled={ isDisconnecting }
+				onDisconnect={ handleDisconnectAnyway }
+				error={ disconnectError }
+			/>
+		</ConnectionDialog>
 	);
 };
 

@@ -1,10 +1,10 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
-import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useEffect, useCallback, useState } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
+import ConnectionDialog from '../shared/connection-dialog';
 import './style.scss';
 import StepDisconnect from './steps/step-disconnect';
 import StepDisconnectConfirm from './steps/step-disconnect-confirm';
@@ -425,27 +425,17 @@ const DisconnectDialog = ( {
 	};
 
 	return (
-		<>
-			{ isOpen && (
-				<Modal
-					title=""
-					contentLabel={ title }
-					aria={ {
-						labelledby: 'jp-connection__disconnect-dialog__heading',
-					} }
-					onRequestClose={ onClose }
-					shouldCloseOnClickOutside={ false }
-					shouldCloseOnEsc={ false }
-					isDismissible={ false }
-					className={
-						'jp-connection__disconnect-dialog' +
-						( isDisconnected ? ' jp-connection__disconnect-dialog__success' : '' )
-					}
-				>
-					{ getCurrentStep() }
-				</Modal>
-			) }
-		</>
+		<ConnectionDialog
+			isOpen={ isOpen }
+			onClose={ onClose }
+			title={ title }
+			className={
+				'jp-connection__disconnect-dialog' +
+				( isDisconnected ? ' jp-connection__disconnect-dialog__success' : '' )
+			}
+		>
+			{ getCurrentStep() }
+		</ConnectionDialog>
 	);
 };
 

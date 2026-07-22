@@ -3,8 +3,11 @@
 .jp-connection__manage-dialog {
 	--spacing-base: 8px;
 	margin: auto;
-	width: 1200px;
 	border-radius: 3px;
+	--viewport-inset: 3rem;
+
+	padding: 0;
+	overflow-y: auto;
 
 	&__content {
 		background: var(--jp-white-off);
@@ -16,6 +19,11 @@
 		align-items: center;
 
 		h1 {
+			--_gcd-heading-font-size: var(--font-title-large);
+			--_gcd-heading-font-weight: 700;
+			--_gcd-heading-margin: 0;
+			--_gcd-heading-color: inherit;
+
 			margin: 0;
 			font-size: var(--font-title-large);
 			font-weight: 700;
@@ -119,16 +127,11 @@
 		margin: var(--spacing-base) auto;
 		text-align: left;
 	}
+}
 
-	.components-modal {
+@media (min-width: 960px) {
 
-		&__header {
-			display: none;
-		}
-
-		&__content {
-			margin: 0;
-			padding: 0;
-		}
+	.jp-connection__manage-dialog {
+		width: 1200px;
 	}
 }

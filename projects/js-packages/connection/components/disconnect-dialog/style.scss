@@ -1,15 +1,28 @@
 @use "@automattic/jetpack-base-styles/style";
 
 .jp-connection__disconnect-dialog {
+	--viewport-inset: 3rem;
+
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	overflow-y: auto;
 
 	h1 {
-		margin-top: 0;
+		--_gcd-heading-font-size: var(--font-title-small);
+		--_gcd-heading-font-weight: 600;
+		--_gcd-heading-margin: 0 0 0.67em;
+
+		margin: 0 0 0.67em;
 		line-height: 1.2;
 		font-size: var(--font-title-small);
 		font-weight: 600;
 	}
 
 	h2 {
+		--_gcd-heading-font-size: var(--font-title-small);
+		--_gcd-heading-font-weight: 400;
+
 		margin: 0;
 		line-height: 1.2;
 		font-size: var(--font-title-small);
@@ -17,13 +30,26 @@
 	}
 
 	p {
+		--_gcd-p-font-size: var(--font-body);
+
 		margin-top: 0;
 		font-size: var(--font-body);
 	}
 
+	// `Text`'s own stylesheet sets `margin: 0` (layered), which for a `<p>`
+	// falls back to that default anyway, but for a bare `Text` (renders as a
+	// `<span>`, e.g. `OwnerDisconnectDialog`'s copy) leaves no gap before the
+	// next element, since a `<span>` has no UA margin of its own to restore.
+	// Same story for `line-height`: wp-admin's global `common.css` sets a bare
+	// `p { line-height: 1.5 }` that the raw `<p>` steps pick up for free, but a
+	// `<span>` never matches that selector, so it's restored explicitly here.
 	&__large-text,
 	p.jp-connection__disconnect-dialog__large-text {
+		--_gcd-p-font-size: 1.25rem;
+
+		margin: 0 0 1em;
 		font-size: 1.25rem;
+		line-height: 1.5;
 	}
 
 	&__link,
@@ -52,25 +78,6 @@
 		height: 40px;
 		font-size: var(--font-body-small);
 		border-radius: 4px;
-	}
-
-	.components-modal {
-
-		&__content {
-			padding: 0;
-			display: flex;
-			flex-direction: column;
-			flex-grow: 1;
-			margin: 0;
-
-			&::before {
-				display: none;
-			}
-		}
-
-		&__header {
-			display: none;
-		}
 	}
 
 	// The help message grows to fill the row; the button pair keeps its natural
@@ -113,6 +120,23 @@
 
 	&__btn-disconnect {
 		background: var(--jp-red) !important;
+	}
+
+	// Moved here from the owner dialog's stylesheet, which no longer renders
+	// these buttons — `DisconnectActionFooter` supplies its own footer actions.
+	// The @wordpress/ui Button emits no `.components-button` class, so the
+	// shared reset that wp-admin would otherwise apply is restored on the
+	// class itself.
+	&__btn-dismiss,
+	&__btn-disconnect {
+		border: 0;
+		border-radius: 4px;
+		color: var(--wp-components-color-accent-inverted, #fff);
+		font-size: var(--font-body-small);
+		height: 40px;
+		text-decoration: none;
+		text-shadow: none;
+		white-space: nowrap;
 	}
 
 	&__btn-back-to-wp {
@@ -181,8 +205,7 @@
 
 @media (min-width: 600px) {
 
-	.jp-connection__disconnect-dialog,
-	.jp-connection__disconnect-dialog.components-modal__frame {
+	.jp-connection__disconnect-dialog {
 		width: 100%;
 		max-width: calc(100% - 32px);
 	}
@@ -202,8 +225,7 @@
 
 @media (min-width: 960px) {
 
-	.jp-connection__disconnect-dialog,
-	.jp-connection__disconnect-dialog.components-modal__frame {
+	.jp-connection__disconnect-dialog {
 		width: 1200px;
 		height: 900px;
 		display: flex;
@@ -213,11 +235,15 @@
 	.jp-connection__disconnect-dialog {
 
 		h1 {
+			--_gcd-heading-font-size: var(--font-title-large);
+
 			font-size: var(--font-title-large);
 		}
 
 		&__large-text,
 		p.jp-connection__disconnect-dialog__large-text {
+			--_gcd-p-font-size: 1.5rem;
+
 			font-size: 1.5rem;
 		}
 

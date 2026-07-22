@@ -46,12 +46,15 @@ describe( 'OwnerDisconnectDialog', () => {
 	} );
 
 	describe( 'when open', () => {
-		it( 'renders the labelled Modal', () => {
+		it( 'renders the labelled dialog', () => {
 			render( <OwnerDisconnectDialog { ...testProps } /> );
-			// Modal aria.labelledby points at the heading; assert both resolve to the same label.
+			// The accessible name comes from a visually hidden Dialog.Title, so
+			// scope the heading assertion to the visible <h1>.
 			expect( screen.getByRole( 'dialog', { name: dialogName } ) ).toBeInTheDocument();
 			expect(
-				within( screen.getByRole( 'dialog', { name: dialogName } ) ).getByRole( 'heading' )
+				within( screen.getByRole( 'dialog', { name: dialogName } ) ).getByRole( 'heading', {
+					level: 1,
+				} )
 			).toHaveTextContent( dialogName );
 		} );
 
@@ -107,7 +110,9 @@ describe( 'OwnerDisconnectDialog', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
 			await expect(
-				screen.findByText( /There was a problem disconnecting your account/ )
+				within( screen.getByRole( 'dialog', { name: dialogName } ) ).findByText(
+					/There was a problem disconnecting your account/
+				)
 			).resolves.toBeInTheDocument();
 			// Button re-enabled after failure so the user can retry.
 			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeEnabled();

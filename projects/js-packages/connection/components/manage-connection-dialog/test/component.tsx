@@ -64,7 +64,7 @@ describe( 'ManageConnectionDialog', () => {
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the labelled Modal when open', () => {
+	it( 'renders the labelled Dialog when open', () => {
 		render( <ManageConnectionDialog { ...testProps } /> );
 		expect(
 			screen.getByRole( 'dialog', { name: 'Manage your Jetpack connection' } )
