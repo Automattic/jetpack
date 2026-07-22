@@ -67,9 +67,9 @@ const OverviewScreen: FC = () => {
 	// content-coverage cards and the disable control are paid surfaces, hidden here.
 	if ( isGated() ) {
 		return (
-			<div className="jetpack-seo-overview">
+			<div className={ styles.root }>
 				<UpsellBanner />
-				<div className="jetpack-seo-overview__grid">
+				<div className={ styles.grid }>
 					<SiteVisibilityCard
 						data={ {
 							...data.site_visibility,

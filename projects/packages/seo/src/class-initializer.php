@@ -234,6 +234,7 @@ class Initializer {
 				// `robots_txt` filter, so it stays inert off the front end.
 				Ai_Crawlers::init();
 			}
+
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
