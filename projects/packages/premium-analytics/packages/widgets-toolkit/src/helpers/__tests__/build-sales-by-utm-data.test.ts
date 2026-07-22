@@ -1,11 +1,8 @@
 /**
- * External dependencies
+ * Internal dependencies
  */
 import { buildSalesByUtmData } from '../build-sales-by-utm-data';
 import type { ReportDataMap } from '@jetpack-premium-analytics/data';
-/**
- * Internal dependencies
- */
 
 const report: ReportDataMap[ 'order-attribution' ] = {
 	view: 'source',
