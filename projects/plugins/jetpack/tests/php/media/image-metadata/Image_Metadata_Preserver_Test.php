@@ -207,6 +207,98 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'trainedAlgorithmicMedia', file_get_contents( $scaled ) );
 	}
 
+	public function test_skips_when_payload_exceeds_cap() {
+		$original = $this->dir . 'oversized.png';
+		$deriv    = $this->dir . 'oversized-150x150.png';
+
+		$oversized_xmp   = 'XML:com.adobe.xmp' . "\0\0\0\0\0" . str_repeat( 'x', Metadata_Preserver::DEFAULT_MAX_PAYLOAD_BYTES + 1024 );
+		$oversized_chunk = Image_Metadata_Fixtures::png_chunk( 'iTXt', $oversized_xmp );
+
+		$bare            = Image_Metadata_Fixtures::bare_png();
+		$iend_length_pos = strpos( $bare, 'IEND' ) - 4;
+		$oversized_png   = substr( $bare, 0, $iend_length_pos ) . $oversized_chunk . substr( $bare, $iend_length_pos );
+
+		file_put_contents( $original, $oversized_png );
+		file_put_contents( $deriv, $bare );
+
+		$id = $this->factory->attachment->create_object(
+			array(
+				'file'           => $original,
+				'post_mime_type' => 'image/png',
+			)
+		);
+		update_post_meta( $id, '_wp_attached_file', 'oversized.png' );
+		$this->assertSame( $original, wp_get_original_image_path( $id ) );
+
+		$metadata = array(
+			'file'  => 'oversized.png',
+			'sizes' => array( 'thumbnail' => array( 'file' => 'oversized-150x150.png' ) ),
+		);
+
+		// `Metadata_Preserver::warn()` deliberately calls `trigger_error()` with
+		// E_USER_WARNING when the cap is exceeded, so capture it with a
+		// narrowly-scoped error handler rather than letting this repo's
+		// `failOnWarning="true"` PHPUnit config turn it into a test failure.
+		$caught = null;
+		set_error_handler(
+			function ( $errno, $errstr ) use ( &$caught ) {
+				$caught = $errstr;
+				return true;
+			},
+			E_USER_WARNING
+		);
+		try {
+			Metadata_Preserver::preserve( $metadata, $id );
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertNotNull( $caught, 'expected a warning when the payload exceeds the cap' );
+		$this->assertStringContainsString( 'exceeds cap', $caught );
+
+		$this->assertSame( $bare, file_get_contents( $deriv ), 'derivative must be untouched when the payload exceeds the cap' );
+	}
+
+	public function test_cap_filter_can_raise_limit() {
+		$original = $this->dir . 'uncapped.png';
+		$deriv    = $this->dir . 'uncapped-150x150.png';
+
+		// The cap check only counts bytes; PNG extraction is keyword-based (see
+		// PNG_Transplanter::is_provenance_chunk()), so padding after the real XMP
+		// packet both pushes this chunk over the cap and keeps the
+		// DigitalSourceType marker the assertion below looks for.
+		$oversized_xmp   = 'XML:com.adobe.xmp' . "\0\0\0\0\0" . Image_Metadata_Fixtures::xmp_packet()
+			. str_repeat( 'x', Metadata_Preserver::DEFAULT_MAX_PAYLOAD_BYTES + 1024 );
+		$oversized_chunk = Image_Metadata_Fixtures::png_chunk( 'iTXt', $oversized_xmp );
+
+		$bare            = Image_Metadata_Fixtures::bare_png();
+		$iend_length_pos = strpos( $bare, 'IEND' ) - 4;
+		$oversized_png   = substr( $bare, 0, $iend_length_pos ) . $oversized_chunk . substr( $bare, $iend_length_pos );
+
+		file_put_contents( $original, $oversized_png );
+		file_put_contents( $deriv, $bare );
+
+		$id = $this->factory->attachment->create_object(
+			array(
+				'file'           => $original,
+				'post_mime_type' => 'image/png',
+			)
+		);
+		update_post_meta( $id, '_wp_attached_file', 'uncapped.png' );
+		$this->assertSame( $original, wp_get_original_image_path( $id ) );
+
+		$metadata = array(
+			'file'  => 'uncapped.png',
+			'sizes' => array( 'thumbnail' => array( 'file' => 'uncapped-150x150.png' ) ),
+		);
+
+		// 0 disables the cap (treated as unbounded).
+		add_filter( 'jetpack_preserve_image_provenance_max_bytes', '__return_zero' );
+		Metadata_Preserver::preserve( $metadata, $id );
+
+		$this->assertStringContainsString( 'trainedAlgorithmicMedia', file_get_contents( $deriv ) );
+	}
+
 	public function test_corrupt_original_leaves_derivative_intact() {
 		$original = $this->dir . 'broken.png';
 		$deriv    = $this->dir . 'broken-150x150.png';

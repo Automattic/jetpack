@@ -15,6 +15,16 @@ namespace Automattic\Jetpack\Plugin\Image_Metadata;
 final class Metadata_Preserver {
 
 	/**
+	 * Default cap, in bytes, on the total size of a provenance payload (the sum
+	 * of every extracted chunk/segment). Bounds disk/memory amplification, since
+	 * the payload is copied verbatim into every derivative; XMP/IPTC provenance
+	 * is far smaller than this (C2PA manifests are out of scope in v1).
+	 *
+	 * @var int
+	 */
+	const DEFAULT_MAX_PAYLOAD_BYTES = 4194304; // 4 MB.
+
+	/**
 	 * WordPress filter callback. Always returns `$metadata` unchanged — only file
 	 * bytes are rewritten. Wrapped so a failure never breaks an upload.
 	 *
@@ -35,8 +45,8 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * Run the four gates and, if all pass, transplant provenance into every
-	 * output derivative that is missing it.
+	 * Run the gates and, if all pass, transplant provenance into every output
+	 * derivative that is missing it.
 	 *
 	 * @param array $metadata      Attachment metadata.
 	 * @param int   $attachment_id Attachment post ID.
@@ -78,6 +88,20 @@ final class Metadata_Preserver {
 		$payload = $transplanter->extract( $original );
 		if ( null === $payload || $payload->is_empty() ) {
 			return; // No provenance to copy — the "image lacks it" case, deferred.
+		}
+
+		// Gate 5 — bound disk/memory amplification. The payload is copied
+		// verbatim into every derivative, so an oversized payload multiplies
+		// across every registered size; skip the whole attachment (leaving all
+		// derivatives untouched) rather than injecting a partial set.
+		$total = 0;
+		foreach ( $payload->get_segments() as $segment ) {
+			$total += strlen( $segment );
+		}
+		$max = (int) apply_filters( 'jetpack_preserve_image_provenance_max_bytes', self::DEFAULT_MAX_PAYLOAD_BYTES, $attachment_id, $mime );
+		if ( $max > 0 && $total > $max ) {
+			self::warn( sprintf( 'skipping attachment %d: provenance payload %d bytes exceeds cap %d', $attachment_id, $total, $max ) );
+			return;
 		}
 
 		$dir = trailingslashit( dirname( $original ) );
@@ -175,8 +199,13 @@ final class Metadata_Preserver {
 	 */
 	private static function warn( $message ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-			trigger_error( 'Jetpack Image Metadata: ' . esc_html( $message ), E_USER_WARNING );
+			try {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				trigger_error( 'Jetpack Image Metadata: ' . esc_html( $message ), E_USER_WARNING );
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- never let logging break an upload.
+				// A custom error handler on a strict dev/staging host may convert
+				// E_USER_WARNING into an exception; it must not escape this method.
+			}
 		}
 	}
 }
