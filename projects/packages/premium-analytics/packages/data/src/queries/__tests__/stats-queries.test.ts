@@ -34,6 +34,7 @@ import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
+import { statsReferrersQuery } from '../stats-referrers-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import {
@@ -60,6 +61,34 @@ describe( 'Stats query factories', () => {
 
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'matches the Calypso referrers range request', () => {
+		const query = statsReferrersQuery( {
+			from: '2026-07-01',
+			to: '2026-07-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'referrers',
+			'1.1',
+			'stats/referrers',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				date: '2026-07-07',
+				start_date: '2026-07-01',
+			},
+			undefined,
+			'referrers',
+		] );
 	} );
 
 	it( 'builds post stats query keys with fields', () => {

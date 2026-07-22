@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { LeaderboardLabel } from '@jetpack-premium-analytics/widgets-toolkit';
+import { LeaderboardLabel, MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -10,15 +10,17 @@ import styles from './fields.module.css';
 import type { Field } from '@wordpress/dataviews';
 
 /**
- * A flattened referrer leaf shown in the records table.
+ * A flattened referrer group, source, or domain shown in the records table.
  */
 export type ReferrerRecord = {
 	id: string;
+	parentId?: string;
 	label: string;
-	group: string;
 	views: number;
+	previousValue?: number;
 	link?: string;
 	icon?: string;
+	hasChildren?: boolean;
 };
 
 /**
@@ -54,7 +56,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				const label = (
+				const labelContent = (
 					<LeaderboardLabel
 						label={ item.label }
 						imageUrl={ item.icon }
@@ -63,9 +65,16 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 						imageClassName={ styles.referrerIcon }
 					/>
 				);
+				const label = item.hasChildren ? (
+					<div className={ styles.groupLabel }>{ labelContent }</div>
+				) : (
+					labelContent
+				);
 				const safeUrl = safeHttpUrl( item.link );
 
-				if ( ! safeUrl ) {
+				// Match the widget's hierarchy: group/source rows represent child
+				// collections and are never outbound links; only leaves link away.
+				if ( item.hasChildren || ! safeUrl ) {
 					return label;
 				}
 
@@ -77,16 +86,20 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			},
 		},
 		{
-			id: 'group',
-			label: __( 'Group', 'jetpack-premium-analytics' ),
-			enableGlobalSearch: true,
-			getValue: ( { item } ) => item.group,
-		},
-		{
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ item.previousValue }
+					dataFormat={ {
+						type: 'number',
+						options: { decimals: 0, useMultipliers: false },
+					} }
+					fontSize="md"
+				/>
+			),
 		},
 	];
 }

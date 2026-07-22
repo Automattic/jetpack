@@ -19,12 +19,29 @@ function renderReferrerField( item: ReferrerRecord ) {
 	return render( <ReferrerField item={ item } field={ field as never } /> );
 }
 
+/**
+ * Mount the views field's render component for a table row.
+ *
+ * @param item - The referrer row to render.
+ * @return The Testing Library render result.
+ */
+function renderViewsField( item: ReferrerRecord ) {
+	const field = getReferrerFields().find( candidate => candidate.id === 'views' );
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` is the DataViews field render component.
+	const ViewsField = field?.render;
+
+	if ( ! field || ! ViewsField ) {
+		throw new Error( 'Views field render callback is unavailable' );
+	}
+
+	return render( <ViewsField item={ item } field={ field as never } /> );
+}
+
 describe( 'referrer field', () => {
 	it( 'renders URL-backed referrers as safe external links', () => {
 		renderReferrerField( {
 			id: 'search|google.com|https://www.google.com/',
 			label: 'google.com',
-			group: 'Search Engines',
 			views: 10,
 			link: 'https://www.google.com/',
 		} );
@@ -39,7 +56,6 @@ describe( 'referrer field', () => {
 		renderReferrerField( {
 			id: '|Unknown|',
 			label: 'Unknown',
-			group: '',
 			views: 2,
 		} );
 
@@ -47,11 +63,23 @@ describe( 'referrer field', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'renders parent referrers as group labels instead of outbound links', () => {
+		renderReferrerField( {
+			id: '["Search Engines"]',
+			label: 'Search Engines',
+			views: 10,
+			link: 'https://example.com/search-engines',
+			hasChildren: true,
+		} );
+
+		expect( screen.getByText( 'Search Engines' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders referrers with unsafe URL schemes as plain text', () => {
 		renderReferrerField( {
 			id: '|Evil|javascript:alert(1)',
 			label: 'Evil',
-			group: '',
 			views: 1,
 
 			link: 'javascript:alert(1)',
@@ -65,7 +93,6 @@ describe( 'referrer field', () => {
 		renderReferrerField( {
 			id: 'search|google.com|https://www.google.com/',
 			label: 'google.com',
-			group: 'Search Engines',
 			views: 10,
 			link: 'https://www.google.com/',
 			icon: 'https://icons.example/google.png',
@@ -82,10 +109,32 @@ describe( 'referrer field', () => {
 		renderReferrerField( {
 			id: '|Unknown|',
 			label: 'Unknown',
-			group: '',
 			views: 2,
 		} );
 
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the views delta when a comparison value is available', () => {
+		renderViewsField( {
+			id: '["example.com"]',
+			label: 'example.com',
+			views: 10,
+			previousValue: 8,
+		} );
+
+		expect( screen.getByText( '10' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders only the views count when comparison is disabled', () => {
+		renderViewsField( {
+			id: '["example.com"]',
+			label: 'example.com',
+			views: 10,
+		} );
+
+		expect( screen.getByText( '10' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -50,7 +50,7 @@ describe( 'processHierarchyLevels', () => {
 	} );
 
 	it( 'resolves each row depth for getItemLevel', () => {
-		const { levelByItem } = processHierarchyLevels( rows, getItemId, getItemParentId );
+		const { levelByItem, levelById } = processHierarchyLevels( rows, getItemId, getItemParentId );
 
 		expect( levelByItem.get( rows[ 0 ] ) ).toBe( 0 ); // search
 		expect( levelByItem.get( rows[ 1 ] ) ).toBe( 1 ); // google
@@ -58,6 +58,12 @@ describe( 'processHierarchyLevels', () => {
 		expect( levelByItem.get( rows[ 3 ] ) ).toBe( 1 ); // bing
 		expect( levelByItem.get( rows[ 4 ] ) ).toBe( 0 ); // social
 		expect( levelByItem.get( rows[ 5 ] ) ).toBe( 1 ); // facebook
+
+		// DataViews may normalize rows into new objects before rendering. The
+		// stable id lookup must preserve their hierarchy levels.
+		const clonedGoogleSearch = { ...rows[ 2 ] };
+		expect( levelByItem.get( clonedGoogleSearch ) ).toBeUndefined();
+		expect( levelById.get( getItemId( clonedGoogleSearch ) ) ).toBe( 2 );
 	} );
 
 	it( 'treats rows with an absent parent as roots', () => {

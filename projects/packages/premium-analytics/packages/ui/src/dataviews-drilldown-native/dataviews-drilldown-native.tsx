@@ -114,7 +114,7 @@ export function DataViewsDrilldownNative< Item >( {
 	// Keep the hierarchy legible instead of the flat `filterSortAndPaginate`
 	// semantics: match, re-attach ancestors, re-emit in hierarchy order, then
 	// paginate. Runs over the in-memory rows, so the extra passes are cheap.
-	const { pageData, levelByItem, paginationInfo } = useMemo( () => {
+	const { pageData, levelById, paginationInfo } = useMemo( () => {
 		// 1. Match: apply the view's search + filters only (no sort, one page).
 		const matches = filterSortAndPaginate(
 			data,
@@ -138,7 +138,7 @@ export function DataViewsDrilldownNative< Item >( {
 			{ ...view, search: '', filters: [], page: 1, perPage: Math.max( subset.length, 1 ) },
 			fields
 		).data;
-		const { data: orderedData, levelByItem: levels } = processHierarchyLevels(
+		const { data: orderedData, levelById: levels } = processHierarchyLevels(
 			sorted,
 			getItemId,
 			getItemParentId
@@ -151,7 +151,7 @@ export function DataViewsDrilldownNative< Item >( {
 
 		return {
 			pageData: orderedData.slice( start, start + perPage ),
-			levelByItem: levels,
+			levelById: levels,
 			paginationInfo: {
 				totalItems: orderedData.length,
 				totalPages: Math.max( 1, Math.ceil( orderedData.length / perPage ) ),
@@ -160,8 +160,8 @@ export function DataViewsDrilldownNative< Item >( {
 	}, [ data, view, fields, getItemId, getItemParentId ] );
 
 	const getItemLevel = useCallback(
-		( item: Item ) => levelByItem.get( item ) ?? 0,
-		[ levelByItem ]
+		( item: Item ) => levelById.get( getItemId( item ) ) ?? 0,
+		[ getItemId, levelById ]
 	);
 
 	// DataViews' appearance panel force-sets `showLevels: false` when you sort

@@ -3,3 +3,7 @@
 	--jpa-leaderboard-image-height: 16px;
 	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
 }
+
+.groupLabel {
+	font-weight: 600;
+}
