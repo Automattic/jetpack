@@ -71,7 +71,7 @@ describe( 'ConnectionManagement', () => {
 				// Disconnect
 				await facebookPanel.disconnect();
 
-				const confirmationModal = screen.getByRole( 'dialog' );
+				const confirmationModal = screen.getByRole( 'alertdialog' );
 				expect(
 					within( confirmationModal ).getByText( /Are you sure you want to disconnect/ )
 				).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe( 'ConnectionManagement', () => {
 				await userEvent.click(
 					within( confirmationModal ).getByRole( 'button', { name: 'Cancel' } )
 				);
-				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Disconnect' ) ).toBeInTheDocument();
 			} );
 
