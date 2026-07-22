@@ -1,7 +1,16 @@
 import '@testing-library/jest-dom';
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import AiScreen from '../index';
 import type { AiForm } from '../../../data/use-ai';
+
+// True ESM (--experimental-vm-modules): mock @wordpress/route before importing
+// AiScreen, which calls useNavigate for the "open site visibility" link — the
+// same pattern as the sibling dashboard-nav test.
+jest.unstable_mockModule( '@wordpress/route', () => ( {
+	useNavigate: () => jest.fn(),
+} ) );
+
+const { default: AiScreen } = await import( '../index' );
 
 /**
  * Build a GEO-tab form whose llms.txt slice has the given serving state. The tab
