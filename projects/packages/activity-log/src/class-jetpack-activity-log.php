@@ -209,6 +209,17 @@ class Jetpack_Activity_Log {
 
 		require_once $build_index;
 
+		// The generated `modules.php` registers standalone script modules (the
+		// `@jetpack-activity-log/init` i18n bootstrap) on `wp_default_scripts`.
+		// We load wp-build lazily on `admin_menu`, which can run after that
+		// action has already fired — so the hook may be added too late and the
+		// init module never registers, leaving it out of the import map and
+		// breaking boot. Register directly here (mirroring the polyfills call
+		// below); the generated function guards against double-registration.
+		if ( function_exists( 'jetpack_activity_log_register_script_modules' ) ) {
+			jetpack_activity_log_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		WP_Build_Polyfills::register(
 			'jetpack-activity-log',
 			array_merge(
@@ -261,6 +272,17 @@ class Jetpack_Activity_Log {
 		Connection_Initial_State::render_script( self::DATA_SCRIPT_HANDLE );
 
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
+		// The dashboard is a wp-build script module: it externalizes
+		// `@wordpress/i18n` to the shared `wp.i18n` global but has no
+		// `wp_set_script_translations()` equivalent to load its JS catalog.
+		// Enqueue Jetpack's i18n loader (`wp.jpI18nLoader`, from jetpack-assets,
+		// registered on `wp_default_scripts`) so the `@jetpack-activity-log/init`
+		// boot module can fetch and install the translation catalog before the
+		// app renders. Without this the UI ships in English on non-English sites.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 	}
 
 	/**

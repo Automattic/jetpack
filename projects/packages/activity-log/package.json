@@ -32,7 +32,12 @@
 		"packageNamespace": "jetpack-activity-log",
 		"handlePrefix": "jetpack-activity-log",
 		"pages": [
-			"jetpack-activity-log-dashboard"
+			{
+				"id": "jetpack-activity-log-dashboard",
+				"init": [
+					"@jetpack-activity-log/init"
+				]
+			}
 		]
 	},
 	"dependencies": {
@@ -40,6 +45,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/ui": "1.0.2",
+		"@jetpack-activity-log/init": "link:packages/init",
 		"@tanstack/react-query": "^5.90.8",
 		"@wordpress/admin-ui": "2.5.0",
 		"@wordpress/api-fetch": "7.51.0",
