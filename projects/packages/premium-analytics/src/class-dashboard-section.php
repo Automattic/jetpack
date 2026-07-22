@@ -126,10 +126,11 @@ final class Dashboard_Section {
 	 */
 	public function to_array() {
 		return array(
-			'id'    => $this->id,
-			'slug'  => $this->slug,
-			'label' => $this->label,
-			'order' => (int) $this->order,
+			'id'             => $this->id,
+			'slug'           => $this->slug,
+			'label'          => $this->label,
+			'order'          => (int) $this->order,
+			'default_layout' => $this->get_default_layout(),
 		);
 	}
 
