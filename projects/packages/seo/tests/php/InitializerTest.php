@@ -798,4 +798,184 @@ class InitializerTest extends TestCase {
 		$overview = Initializer::get_overview_data();
 		$this->assertArrayNotHasKey( 'sitemap_url', $overview['site_visibility'] );
 	}
+
+	/**
+	 * Read the `is_gated` flag the way the dashboard does — off the injected script
+	 * data — so the private gate is exercised through its public surface.
+	 *
+	 * @return bool
+	 */
+	private function read_is_gated() {
+		$data = Initializer::inject_script_data( array() );
+
+		return $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'];
+	}
+
+	/**
+	 * Self-hosted Jetpack is never plan-gated: SEO stays free there regardless of
+	 * what the plan lookup reports, so the gate short-circuits on the host check.
+	 */
+	public function test_is_gated_is_false_on_self_hosted() {
+		$original = \Automattic\Jetpack\Current_Plan::$supported;
+		// Even with the plan reporting no `advanced-seo`, self-hosted is not gated.
+		\Automattic\Jetpack\Current_Plan::$supported = array();
+
+		try {
+			$this->assertFalse( $this->read_is_gated() );
+		} finally {
+			\Automattic\Jetpack\Current_Plan::$supported = $original;
+		}
+	}
+
+	/**
+	 * On WordPress.com, a site whose plan lacks `advanced-seo` (below Premium after
+	 * the March 2026 rebundling) is gated.
+	 */
+	public function test_is_gated_is_true_on_wpcom_without_advanced_seo() {
+		$original = \Automattic\Jetpack\Current_Plan::$supported;
+		\Automattic\Jetpack\Current_Plan::$supported = array();
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertTrue( $this->read_is_gated() );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+			\Automattic\Jetpack\Current_Plan::$supported = $original;
+		}
+	}
+
+	/**
+	 * On WordPress.com, a site whose plan includes `advanced-seo` (Premium and above)
+	 * gets the full dashboard — the upsell must never show to someone already paying.
+	 */
+	public function test_is_gated_is_false_on_wpcom_with_advanced_seo() {
+		$original = \Automattic\Jetpack\Current_Plan::$supported;
+		\Automattic\Jetpack\Current_Plan::$supported = array( 'advanced-seo' );
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertFalse( $this->read_is_gated() );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+			\Automattic\Jetpack\Current_Plan::$supported = $original;
+		}
+	}
+
+	/**
+	 * The upsell URL points at Premium (`value_bundle`) checkout for this site.
+	 */
+	public function test_upsell_url_targets_premium_checkout() {
+		$data       = Initializer::inject_script_data( array() );
+		$upsell_url = $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'];
+
+		$this->assertIsString( $upsell_url );
+		$this->assertStringStartsWith( 'https://wordpress.com/checkout/', $upsell_url );
+		$this->assertStringEndsWith( '/value_bundle', $upsell_url );
+	}
+
+	/**
+	 * Run `init()` with the surface visible and the `seo-tools` module active, and
+	 * report whether the two GEO-tab front-end services hooked themselves.
+	 *
+	 * Mirrors test_init_registers_schema_and_hooks_when_enabled()'s setup: the module
+	 * state is driven through `jetpack_active_modules` (the package test context has
+	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
+	 * `$initialized` guard is reset so the body runs.
+	 *
+	 * @return array{llms_txt: bool, ai_crawlers: bool}
+	 */
+	private function init_and_check_geo_services() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		$enable_module = static function () {
+			return array( 'seo-tools' );
+		};
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		add_filter( 'jetpack_active_modules', $enable_module );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+
+		// Both services self-hook on init(), so a stale registration from an earlier
+		// test would mask a missing one here.
+		remove_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) );
+		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+
+		try {
+			Initializer::init();
+
+			return array(
+				'llms_txt'    => false !== has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ),
+				'ai_crawlers' => false !== has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) ),
+			);
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			remove_filter( 'jetpack_active_modules', $enable_module );
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * An ungated site registers both GEO-tab front-end services: /llms.txt is served
+	 * and the AI-crawler robots.txt directives are appended.
+	 */
+	public function test_init_registers_geo_services_when_not_gated() {
+		$original = \Automattic\Jetpack\Current_Plan::$supported;
+		\Automattic\Jetpack\Current_Plan::$supported = array( 'advanced-seo' );
+
+		try {
+			$hooked = $this->init_and_check_geo_services();
+
+			$this->assertTrue( $hooked['llms_txt'] );
+			$this->assertTrue( $hooked['ai_crawlers'] );
+		} finally {
+			\Automattic\Jetpack\Current_Plan::$supported = $original;
+		}
+	}
+
+	/**
+	 * A plan-gated WordPress.com site must not merely hide the GEO tab — it must stop
+	 * running the services behind it, or it would keep serving /llms.txt and emitting
+	 * AI-crawler robots.txt directives it doesn't qualify for.
+	 */
+	public function test_init_skips_geo_services_when_gated() {
+		$original = \Automattic\Jetpack\Current_Plan::$supported;
+		\Automattic\Jetpack\Current_Plan::$supported = array();
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$hooked = $this->init_and_check_geo_services();
+
+			$this->assertFalse( $hooked['llms_txt'] );
+			$this->assertFalse( $hooked['ai_crawlers'] );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+			\Automattic\Jetpack\Current_Plan::$supported = $original;
+		}
+	}
+
+	/**
+	 * Gating only suppresses the GEO-tab services — the schema output and the admin
+	 * surface still register, so a gated site keeps the free subset of the dashboard.
+	 */
+	public function test_init_still_registers_schema_and_menu_when_gated() {
+		$original = \Automattic\Jetpack\Current_Plan::$supported;
+		\Automattic\Jetpack\Current_Plan::$supported = array();
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->init_and_check_geo_services();
+
+			$this->assertNotFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
+			$this->assertNotFalse(
+				has_action( 'admin_menu', array( Initializer::class, 'maybe_load_wp_build' ) )
+			);
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+			\Automattic\Jetpack\Current_Plan::$supported = $original;
+		}
+	}
 }

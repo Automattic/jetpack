@@ -220,13 +220,20 @@ class Initializer {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			Schema_Builder::init();
 			Author_Schema_Node::init();
-			// GEO tab front-end behavior: the /llms.txt handler. Self-hooks a front-end
-			// action, so it no-ops off the front end and stays behind the same gates as
-			// the schema above.
-			Llms_Txt::init();
-			// AI tab front-end behavior: robots.txt directives for blocked AI crawlers.
-			// Self-hooks the `robots_txt` filter, so it stays inert off the front end.
-			Ai_Crawlers::init();
+
+			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
+			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
+			// keep emitting their front-end output either — otherwise it would still
+			// serve /llms.txt and AI-crawler robots.txt directives it doesn't qualify
+			// for. Self-hosted is never gated, so it always registers both.
+			if ( ! self::is_gated() ) {
+				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
+				// the front end and stays behind the same gates as the schema above.
+				Llms_Txt::init();
+				// robots.txt directives for blocked AI crawlers. Self-hooks the
+				// `robots_txt` filter, so it stays inert off the front end.
+				Ai_Crawlers::init();
+			}
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
@@ -378,15 +385,21 @@ class Initializer {
 	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
 	 * Enhancer's plan check in {@see self::get_ai_data()}.
 	 *
-	 * `Current_Plan` is provided by the host Jetpack plugin, not a package dependency,
-	 * so it's guarded with `class_exists` like the other host-plugin helpers here.
+	 * `Current_Plan` comes from the `automattic/jetpack-plans` package, which this
+	 * package doesn't depend on — it's present when the host plugin bundles it. It's
+	 * guarded with `method_exists` rather than `class_exists` so an older bundled
+	 * snapshot that predates the method can't fatal here.
+	 *
+	 * When the plan state can't be determined (no `Current_Plan`), the site is treated
+	 * as UNGATED: a paying customer must never be shown a reduced dashboard because a
+	 * lookup was unavailable.
 	 *
 	 * @return bool
 	 */
 	private static function is_gated() {
 		return ( new Host() )->is_wpcom_platform()
-			&& class_exists( 'Automattic\\Jetpack\\Current_Plan' )
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
+			&& method_exists( 'Automattic\\Jetpack\\Current_Plan', 'supports' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by method_exists; the jetpack-plans package provides the class.
 			&& ! \Automattic\Jetpack\Current_Plan::supports( 'advanced-seo' );
 	}
 
