@@ -215,6 +215,13 @@ class Analytics {
 					WP_Build_Polyfills::MODULE_IDS
 				)
 			);
+
+			// Enqueue the i18n loader so the init module can download its JS
+			// translation catalogs. admin_enqueue_scripts covers the wp-admin
+			// integrated variant; the full-page interceptor variant does not fire
+			// it (see ensure_script_data()), so also hook the page init action.
+			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
+			add_action( 'jetpack-premium-analytics_init', array( static::class, 'enqueue_i18n_loader' ) );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
@@ -315,6 +322,19 @@ class Analytics {
 		$script_data = 'Automattic\Jetpack\Assets\Script_Data';
 		if ( is_callable( array( $script_data, 'render_script_data' ) ) ) {
 			$script_data::render_script_data();
+		}
+	}
+
+	/**
+	 * Enqueue the i18n loader so the wp-build init module can download its JS
+	 * translation catalogs. It's registered on every admin page by jetpack-assets
+	 * but only enqueued when depended on; the esbuild bundles don't pull it in.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 	}
 }
