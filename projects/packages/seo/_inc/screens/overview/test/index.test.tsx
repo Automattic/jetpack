@@ -27,12 +27,30 @@ const { default: OverviewScreen } = await import( '../index' );
 const OFF_RAMP_TEXT = 'Using a different SEO solution?';
 
 /**
- * Build an Overview payload with SEO tools active, varying only `is_simple`.
+ * Flip the dashboard into WordPress.com Simple mode by seeding the
+ * `JetpackScriptData` global that `isSimpleSite()` reads. Mirrors VideoPress's
+ * `setSimpleSite()` test util — seeding the real global rather than mocking the
+ * module keeps `isSimpleSite()` itself in the code path under test.
+ */
+const setSimpleSite = () => {
+	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+		site: { host: 'wpcom' },
+	};
+};
+
+/**
+ * Remove the script-data global so the test runs in self-hosted mode.
+ */
+const unsetSimpleSite = () => {
+	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+};
+
+/**
+ * Build an Overview payload with SEO tools active.
  *
- * @param isSimple - Value for the payload's `is_simple` flag.
  * @return The Overview payload.
  */
-const buildOverview = ( isSimple: boolean ): OverviewResponse => ( {
+const buildOverview = (): OverviewResponse => ( {
 	site_visibility: {
 		search_engines_visible: true,
 		sitemap_active: true,
@@ -55,24 +73,26 @@ const buildOverview = ( isSimple: boolean ): OverviewResponse => ( {
 	plan: {
 		seo_enabled_for_site: true,
 	},
-	is_simple: isSimple,
 } );
 
 describe( 'OverviewScreen — disable-SEO off-ramp', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		getOverview.mockReturnValue( buildOverview() );
+	} );
+
+	afterEach( () => {
+		unsetSimpleSite();
 	} );
 
 	it( 'renders the off-ramp when the site is not WordPress.com Simple', () => {
-		getOverview.mockReturnValue( buildOverview( false ) );
-
 		render( <OverviewScreen /> );
 
 		expect( screen.getByText( OFF_RAMP_TEXT ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides the off-ramp on WordPress.com Simple, where SEO tools cannot be disabled', () => {
-		getOverview.mockReturnValue( buildOverview( true ) );
+		setSimpleSite();
 
 		render( <OverviewScreen /> );
 
@@ -80,7 +100,7 @@ describe( 'OverviewScreen — disable-SEO off-ramp', () => {
 	} );
 
 	it( 'still renders the rest of the Overview on Simple', () => {
-		getOverview.mockReturnValue( buildOverview( true ) );
+		setSimpleSite();
 
 		render( <OverviewScreen /> );
 

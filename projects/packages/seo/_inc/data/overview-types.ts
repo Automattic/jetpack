@@ -31,7 +31,4 @@ export interface OverviewResponse {
 	plan: {
 		seo_enabled_for_site: boolean;
 	};
-	// True on WordPress.com Simple, where SEO tools are always active and can't be
-	// disabled — used to hide the Overview's "Disable SEO tools" off-ramp there.
-	is_simple: boolean;
 }

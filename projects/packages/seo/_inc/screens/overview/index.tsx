@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -91,9 +92,10 @@ const OverviewScreen: FC = () => {
 			<div className={ styles.contentCard }>
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
 			</div>
-			{ /* Hidden on WordPress.com Simple, where SEO tools are always active and
-			     can't be disabled — the off-ramp would appear to do nothing there. */ }
-			{ ! data.is_simple && <DisableSeoTools /> }
+			{ /* Hidden on WordPress.com Simple, where `Modules::is_active()` reports
+			     every module active regardless of stored state, so SEO tools can't
+			     actually be turned off — the off-ramp would appear to do nothing. */ }
+			{ ! isSimpleSite() && <DisableSeoTools /> }
 		</div>
 	);
 };

@@ -460,9 +460,6 @@ class InitializerTest extends TestCase {
 
 		$this->assertArrayHasKey( 'seo_enabled_for_site', $overview['plan'] );
 		$this->assertIsBool( $overview['plan']['seo_enabled_for_site'] );
-
-		$this->assertArrayHasKey( 'is_simple', $overview );
-		$this->assertIsBool( $overview['is_simple'] );
 	}
 
 	/**
