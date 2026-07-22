@@ -62,6 +62,27 @@ describe( 'ConnectScreenRequiredPlan', () => {
 		expect( screen.getByText( 'An error occurred. Please try again.' ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows error-code-specific message', () => {
+		render(
+			<ConnectScreenRequiredPlan
+				{ ...requiredProps }
+				displayButtonError
+				errorCode="connection_disabled"
+			/>
+		);
+		expect( screen.getByText( 'This site has been suspended.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows offline mode message', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } isOfflineMode /> );
+		expect(
+			screen.getByText(
+				( content, { textContent } ) =>
+					content !== '' && textContent === 'Unavailable in Offline Mode'
+			)
+		).toBeInTheDocument();
+	} );
+
 	// we have an acessibility breach into our loading state
 	it.todo( 'shows loading into button' );
 

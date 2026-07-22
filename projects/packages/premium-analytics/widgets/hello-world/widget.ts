@@ -16,8 +16,6 @@ export type HelloWorldAttributes = {
  * Widget type definition.
  */
 export default {
-	name: 'jpa/hello-world',
-	title: __( 'Hello World', 'jetpack-premium-analytics' ),
 	icon: wordpress,
 	attributes: [
 		{

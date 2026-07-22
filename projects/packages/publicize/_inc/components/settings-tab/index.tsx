@@ -14,7 +14,7 @@ import { useTurnOnSocial } from './turn-on-social-context';
 import './style.scss';
 
 /**
- * Settings tab — sits inside the modernized Social chassis (`SocialPage`
+ * Settings tab — sits inside the Social dashboard (`SocialPage`
  * → `Tabs.Panel value="settings"`). Composes four WPDS `Card` groups
  * that mirror the design's section grouping:
  *

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { starEmpty } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -23,14 +22,6 @@ export type PostLikesAttributes = Record< never, never >;
  * shown. The list is a lifetime roster and is not date-scoped.
  */
 export default {
-	name: 'jpa/post-likes',
-	title: __( 'Latest likes', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The people who liked the post or page being viewed.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: starEmpty,
 	attributes: [] as WidgetAttributeField< PostLikesAttributes >[],
 	example: {

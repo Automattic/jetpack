@@ -23,7 +23,6 @@ const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
 const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
-const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 
 /**
  * Whether the editor is running on a logged-out page that opts into the
@@ -6096,11 +6095,6 @@ const { state } = store( 'wpcom-write', {
 			state.showRecoveryBanner = false;
 		},
 
-		dismissDisclaimer() {
-			localStorage.setItem( DISCLAIMER_STORAGE_KEY, '1' );
-			state.showDisclaimer = false;
-		},
-
 		// --- Unsupported content warning ---
 		goBack() {
 			const sameOrigin =
@@ -6671,17 +6665,6 @@ const autosaveReady = setInterval( () => {
 	autosaveTimer = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
-
-	// Show the beta disclaimer unless previously dismissed. Anon visitors
-	// skip this entirely — not just because the banner is irrelevant, but
-	// because the layout's sibling selectors (`.bw-disclaimer-banner:not(
-	// [hidden]) ~ .bw-toolbar`) push the toolbar down based on the `hidden`
-	// attribute, which the Interactivity API only sets when the state is
-	// false. Leaving state true would shift the toolbar down by 44px even
-	// though our anon CSS hides the banner itself.
-	if ( ! isAnon() && ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
-		state.showDisclaimer = true;
-	}
 
 	// Check for a recoverable autosaved draft (only for new posts).
 	if ( isAnon() ) {

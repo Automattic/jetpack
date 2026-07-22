@@ -2,6 +2,9 @@
 	"name": "jpa/sales-by-coupon",
 	"title": "Sales by coupon",
 	"description": "Shows the top coupon codes by order revenue over the selected time period.",
+	"help": {
+		"content": "Revenue from physical product sales using coupons over the selected time period."
+	},
 	"category": "store",
 	"presentation": "framed"
 }
