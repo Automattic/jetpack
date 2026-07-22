@@ -917,7 +917,12 @@
 				return args.origFile;
 			}
 
-			if ( typeof args.largeFile === 'undefined' ) {
+			// When there's no large file to fall back on (e.g. images that weren't enriched with
+			// Jetpack's data-large-file attribute), use the original file. A missing attribute is
+			// read as an empty string, so we can't only guard against `undefined` here: otherwise a
+			// narrow (portrait, mobile) viewport would return that empty string as the image source,
+			// leaving the carousel with a blank slide.
+			if ( ! args.largeFile ) {
 				return args.origFile;
 			}
 

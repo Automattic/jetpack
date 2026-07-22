@@ -23,8 +23,6 @@ export type DevicesAttributes = {
  * reportParams (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/devices',
-	title: __( 'Devices', 'jetpack-premium-analytics' ),
 	icon: desktop,
 	attributes: [
 		{

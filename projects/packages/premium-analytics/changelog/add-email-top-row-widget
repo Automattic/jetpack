@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the Email top row Stats widget: per-email Opens and Clicks headline totals, read from the per-post rate breakdown, with a help note and loading/error/empty states.

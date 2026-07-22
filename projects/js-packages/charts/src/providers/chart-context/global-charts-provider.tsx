@@ -186,6 +186,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ colorCache, groupToColorMap ]
 	);
 
+	const resolveThemeColor = useCallback< GlobalChartsContextValue[ 'resolveThemeColor' ] >(
+		value => ( value ? normalizeColorToHex( value, wrapperRef.current, resolveCssVariable ) : '' ),
+		[]
+	);
+
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
 		( { data, index, overrideColor, legendShape } ) => {
 			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
@@ -264,6 +269,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			theme: providerTheme,
 			getElementStyles,
+			resolveThemeColor,
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
@@ -276,6 +282,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			providerTheme,
 			getElementStyles,
+			resolveThemeColor,
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,

@@ -72,6 +72,7 @@ class Contact_Form_Block {
 							'width'  => true,
 						),
 					),
+					'listView'             => true,
 				),
 				'style_handles'         => array( 'jetpack-forms-layout' ),
 			)

@@ -33,11 +33,11 @@
 		"@babel/core": "^7.29.0",
 		"@octokit/webhooks-types": "7.6.1",
 		"@types/node": "^24.12.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"babel-jest": "30.4.1",
 		"jest": "30.4.2",
 		"rollup-plugin-license": "3.7.1",
 		"tsdown": "0.22.2",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3"
 	}
 }

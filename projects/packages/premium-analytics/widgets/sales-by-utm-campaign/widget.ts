@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type SalesByUtmCampaignAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/sales-by-utm-campaign',
-	title: __( 'Sales by UTM campaign', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top UTM campaigns by order revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

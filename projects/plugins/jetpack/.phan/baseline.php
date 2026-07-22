@@ -181,7 +181,7 @@ return [
         'json-endpoints/class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'json-endpoints/class.wpcom-json-api-get-post-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
-        'json-endpoints/class.wpcom-json-api-get-site-endpoint.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchReturn'],
+        'json-endpoints/class.wpcom-json-api-get-site-endpoint.php' => ['PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-get-taxonomies-endpoint.php' => ['PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-get-taxonomy-endpoint.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable'],
         'json-endpoints/class.wpcom-json-api-get-term-endpoint.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable'],

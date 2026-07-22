@@ -119,11 +119,7 @@ class Configuration {
 		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'add_order_stats_to_checksum' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 
-		$config = new Config();
-		$config->ensure( 'sync', $this->get_jetpack_sync_config() );
-
-		// Register as a connected plugin so WPCom provisions the WC Analytics tables. (WOOA7S-1643)
-		$config->ensure( 'connection', $this->get_jetpack_connection_config() );
+		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
 	}
 
 	/**
@@ -177,21 +173,6 @@ class Configuration {
 					'JETPACK_PREMIUM_ANALYTICS__VERSION',
 				),
 			)
-		);
-	}
-
-	/**
-	 * Jetpack Connection configuration.
-	 *
-	 * Registers Premium Analytics as a connected plugin so WPCom provisions the WC Analytics tables.
-	 * The slug must match the WPCom gate (is_premium_analytics_active). (WOOA7S-1643)
-	 *
-	 * @return array Jetpack Connection config array.
-	 */
-	private function get_jetpack_connection_config(): array {
-		return array(
-			'slug' => defined( 'JETPACK_PREMIUM_ANALYTICS_SLUG' ) ? JETPACK_PREMIUM_ANALYTICS_SLUG : 'jetpack-premium-analytics',
-			'name' => defined( 'JETPACK_PREMIUM_ANALYTICS_NAME' ) ? JETPACK_PREMIUM_ANALYTICS_NAME : 'Premium Analytics',
 		);
 	}
 

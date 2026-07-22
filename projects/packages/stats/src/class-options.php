@@ -170,6 +170,7 @@ class Options {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'honor_cookie_consent'     => false,
 		);
 	}
 }

@@ -465,10 +465,34 @@ async function postToCodeVitals( resultsPath, config ) {
 
 		const measurement = results.measurements[ scenario.key ];
 		// A missing/errored measurement, or one with no summary object, has no usable
-		// data — skip it (rather than crash on summary.median). If skipping leaves
-		// nothing to post, the no-metrics guard below fails closed.
+		// data. For an OPTIONAL scenario — or one ABSENT from the results (measure-lcp
+		// writes every SELECTED scenario's key, success or error, so absent means the
+		// scenario wasn't in the run set) — that is a skip: warn and post the survivors;
+		// if skipping leaves nothing to post, the no-metrics guard below fails closed.
+		// A REQUIRED scenario that was measured and failed is different: that results
+		// file comes from a red run, and a red run must post nothing (retry-safety on
+		// the append-only, dedup-off store), so fail closed before anything accumulates.
+		// The runner never reaches this path (it exits before posting on a required
+		// failure), but the direct `pnpm report` entrypoint does.
 		if ( ! measurement || measurement.error || ! measurement.summary ) {
-			console.warn( `Warning: No measurement data for ${ scenario.name }` );
+			if ( measurement && ! scenario.optional ) {
+				throw new ValidationError(
+					`Required scenario "${ scenario.name }" has no usable measurement (${
+						measurement.error ? `error: ${ measurement.error }` : 'no summary'
+					}); this results file comes from a failed run, which must post nothing`
+				);
+			}
+			// Two distinct skip cases, and the log must not conflate them: an ABSENT scenario
+			// was never in the run set (normal for a targeted SCENARIO run — nothing went
+			// wrong), while a PRESENT-but-unusable one (only ever optional here; required
+			// throws above) is a real measurement failure.
+			console.warn(
+				measurement
+					? `Warning: ${ scenario.name } measurement failed (${
+							measurement.error ? `error: ${ measurement.error }` : 'no summary'
+					  }; optional scenario — its keys skip this build)`
+					: `Warning: ${ scenario.name } not in this results file (not part of the run set; its keys skip this build)`
+			);
 			continue;
 		}
 

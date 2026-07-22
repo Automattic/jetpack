@@ -1,8 +1,10 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
+	getStatsReportItems,
 	mapNestedItems,
 	mapStatsReportDataPoints,
+	mergeStatsTreeComparisonRows,
 	normalizeStatsReportSummary,
 } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
@@ -13,6 +15,74 @@ export interface StatsClicksItem extends StatsNormalizedItemBase< StatsClicksIte
 	link: string | null;
 	icon: string | null;
 	labelIcon: string | null;
+}
+
+export interface StatsClicksComparisonItem extends Omit< StatsClicksItem, 'children' > {
+	previousValue?: number;
+	children?: StatsClicksComparisonItem[] | null;
+	childrenHaveComparison?: boolean;
+}
+
+type ClickParentContext = {
+	label: string;
+	icon?: string | null;
+};
+
+function getStatsClicksItemLabel( item: StatsClicksItem, parentLabel?: string ): string {
+	if ( typeof item.label === 'string' && item.label ) {
+		return item.label;
+	}
+
+	return item.link ?? parentLabel ?? '';
+}
+
+function getStatsClicksItemKey( item: StatsClicksItem, parentLabel?: string ): string {
+	const label = getStatsClicksItemLabel( item, parentLabel );
+	return item.link ?? label;
+}
+
+function sortStatsClicksComparisonItems(
+	items: StatsClicksComparisonItem[]
+): StatsClicksComparisonItem[] {
+	return [ ...items ].sort( ( a, b ) => b.views - a.views );
+}
+
+export function mergeStatsClicksComparisonRows(
+	primaryReport: StatsNormalizedReport< StatsClicksItem > | undefined,
+	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
+	maxRows?: number
+): { rows: StatsClicksComparisonItem[]; hasComparison: boolean } {
+	return mergeStatsTreeComparisonRows<
+		StatsClicksItem,
+		StatsClicksItem,
+		StatsClicksComparisonItem,
+		ClickParentContext
+	>( {
+		primaryRows: getStatsReportItems( primaryReport ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		maxRows,
+		getPrimaryKey: ( item, parent ) => getStatsClicksItemKey( item, parent?.label ),
+		getComparisonKey: ( item, parent ) => getStatsClicksItemKey( item, parent?.label ),
+		getComparisonValue: item => item.views,
+		getPrimaryChildren: item => item.children,
+		getComparisonChildren: item => item.children,
+		mapRow: ( item, { previousValue }, parent ) => ( {
+			...item,
+			label: getStatsClicksItemLabel( item, parent?.label ),
+			icon: item.icon ?? parent?.icon ?? null,
+			previousValue,
+		} ),
+		setChildren: ( item, children, childrenHaveComparison ) => ( {
+			...item,
+			children: children.length ? children : null,
+			childrenHaveComparison,
+		} ),
+		getChildContext: item => ( {
+			label: typeof item.label === 'string' ? item.label : '',
+			icon: item.icon,
+		} ),
+		sortRows: sortStatsClicksComparisonItems,
+	} );
 }
 
 export function sanitizeStatsClicksResponse(

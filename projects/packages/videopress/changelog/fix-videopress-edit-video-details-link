@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location.

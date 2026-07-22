@@ -33,8 +33,8 @@
 	flex-wrap: wrap;
 
 	&__link {
-		font-size: var(--wpds-typography-font-size-lg, 15px);
-		line-height: var(--wpds-typography-line-height-md, 24px);
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
 	}
 
 	&__sep {
@@ -45,12 +45,12 @@
 
 	&__current {
 		margin: 0;
-		font-family: var(--wpds-typography-font-family-heading, -apple-system, system-ui, "Segoe UI", "Roboto", sans-serif);
-		font-size: var(--wpds-typography-font-size-lg, 15px);
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
-		line-height: var(--wpds-typography-line-height-sm, 20px);
+		font-family: var(--wpds-typography-font-family-heading);
+		font-size: var(--wpds-typography-font-size-lg);
+		font-weight: var(--wpds-typography-font-weight-medium);
+		line-height: var(--wpds-typography-line-height-sm);
 		// Match the page-title color used on the other dashboard headers.
-		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 }
 

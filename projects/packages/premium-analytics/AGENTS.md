@@ -75,6 +75,7 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `jetpack-stats-dashboard`                                         | `view_stats`       | whole prefix (busts read cache) |
 | `commercial-classification`                                       | `view_stats`       | exact path                      |
 | `upgrades` (not under `/sites/`)                                  | `view_stats`       | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`       | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
@@ -99,6 +100,62 @@ Re-point a screen's data layer at the proxy instead of re-implementing old route
 routes (`jetpack/v4/stats-app/*`) → `stats` / `jetpack-stats` / `subscribers` / `wordads`
 prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dashboard UI lives in
 `routes/` here, not in Calypso. Frontend helpers go under `packages/data/src/api/`.
+
+## WordPress.com Simple
+
+Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
+and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
+`Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
+
+### Route guards must use the shared site-readiness helpers
+
+Every route's `beforeLoad` that checks connection or sync state must call
+`isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
+`routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
+or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
+connection, so a direct read silently evaluates to "not connected" there.
+
+That's more than one broken route: it's a redirect loop. `/connect` and `/syncing` already go
+through the shared helpers and treat Simple as connected and synced, so if a route added later
+skips the helpers, Simple hits that route, gets redirected to `/connect`, and `/connect` — seeing
+Simple as already connected — immediately redirects back to `/`. From the user's side this looks
+like "the page just bounces to the dashboard," with nothing in the console pointing at the cause.
+This shipped once (Automattic/jetpack#50266): the `/reports/$report` route was left reading script
+data directly when the other four routes were migrated to the shared helpers, so it fell out of
+sync with `/connect`'s guard and the two routes bounced traffic between each other on Simple.
+
+Adding a new route with a connection/sync guard: grep `routes/` for
+`isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
+script data.
+
+### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
+
+The dashboard support routes (widget modules, default layout, sections) used to live under
+`jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
+recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
+routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
+treats as site-specific by default for plain function-callback routes: registering under it is
+enough for WPCOM to rewrite and expose the route as `/wpcom/v2/sites/<blog_id>/...` through
+public-api, with no separate dotcom-side registration and no `wpcom_rest_api_v2_load_plugin()`
+class shim required. That's why the rename happened (Automattic/jetpack#50266), and it's why
+`Dashboard_Support_Routes::register()` exists as a standalone entry point WPCOM can call.
+
+### Choosing a REST namespace for new endpoints
+
+**Any future Premium Analytics REST endpoint that needs to work on both connected Jetpack sites
+and WPCOM Simple must register under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in
+`src/rest-namespace.php`), not `jetpack/v4` or a plugin-specific namespace — those only reach
+connected sites. An endpoint that's intentionally connected-site-only (e.g. the local data proxy,
+notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls it.
+
+**WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
+(`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
+(widget modules, default layout, sections) standalone. The WPCOM-side caller is
+`wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
+repo — it `require_once`s this exact file and calls `::register()` by name.
+
+**Renaming, moving, or changing this method's signature requires a matching WPCOM-side update.**
+See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Pitfalls
 
@@ -140,16 +197,16 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, title, description, category)
-├── widget.ts                               # runtime widget type definition (icon + translatable strings)
+├── widget.json                             # declarative metadata (name, title, description, help, category, presentation)
+├── widget.ts                               # runtime-only definition (icon, attributes, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
 
 Notes:
 
-- `name` in both `widget.json` and `widget.ts` MUST use the `jpa/` prefix
-  (e.g. `jpa/<widget-name>`).
+- `name` lives in `widget.json` and MUST use the `jpa/` prefix
+  (e.g. `jpa/<widget-name>`). `widget.ts` no longer declares it.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -216,8 +273,9 @@ not be merged.
    shared `WidgetDashboardWithWidget` helper from `widgets/stories/widget-dashboard-with-widget.tsx`.
    It mounts the real `WidgetDashboard` with this single widget and exposes the standard
    dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
-   actually renders in product. The `Default` / `WithComparison` close-up stories use the
-   simpler canvas decorator from the template below — but never ship _only_ a bare-div story.
+   actually renders in product. The `Default` and, when applicable, `WithComparison` close-up
+   stories use the shared `withWidgetCanvas` decorator from the template below — but never ship
+   _only_ a close-up story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
    - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
@@ -234,18 +292,21 @@ not be merged.
 
 ### Story template
 
-Every widget ships three stories: a **Default** close-up, a **WithComparison** close-up, and a
-**WidgetDashboardWithWidget** story that mounts the real dashboard. This template is
-self-contained — copy it as the base rather than an existing widget's story file, which may
-have drifted. `meta.component` is the widget's render component; widget-specific args
-(comparison toggles, view selectors, …) are wired as Storybook controls.
+Every widget ships a **Default** close-up and a **WidgetDashboardWithWidget** story that mounts
+the real dashboard. Add a **WithComparison** close-up only when the widget's data hook populates
+`comparisonRows` — in practice, when it passes `mergeComparisonRows` to `useStatsReport` (see
+`packages/data/src/hooks/use-stats-clicks.ts`). `rg -l mergeComparisonRows packages/data/src/hooks`
+lists the comparison-capable hooks; a widget whose hook is not in that list omits the story.
+`hasComparison` alone does not qualify — `useReport` returns it for any params carrying `compare_*`,
+whether or not the module has comparison data to show. This template is self-contained — copy it as
+the base rather than an existing widget's story file, which may have drifted. `meta.component` is
+the widget's render component; widget-specific args (view selectors, metric toggles, …) are wired
+as Storybook controls.
 
-`WithComparison` tests the date range picker's comparison parameters, not only visible delta
-UI. Some Stats endpoints accept `compare_*` params but return no comparison rows. Those widgets
-must still render gracefully when `reportParams` contains comparison dates; in that case keep
-the chart's comparison UI disabled or empty rather than inventing `previousValue`/`delta`
-values, and add a short story docs note explaining that the module has no comparison data to
-display.
+`WithComparison` tests the date range picker's comparison parameters and the visible comparison
+UI. Widgets without mapped comparison rows omit the story and the `withComparison` control. Their
+`WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
+widget is covered against crashing or inventing deltas when the host supplies comparison dates.
 
 The shared imports, helpers, and `meta`:
 
@@ -257,10 +318,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -268,7 +332,77 @@ registerReportMocks();
 
 const MY_WIDGET_RENDER_MODULE = 'storybook/<widget-name>';
 
-// Widget-specific controls — add view selectors, metric toggles, etc. here.
+function renderMyWidget() {
+	return <MyWidgetRender attributes={ { reportParams: getDefaultQueryParams() } } />;
+}
+
+// Close-up canvas: `withWidgetCanvas` from `widgets/stories/with-widget-canvas` frames the
+// story in a white, widget-sized card so each state reads as a real dashboard widget. Import
+// the shared decorator — do not redefine a local bare-div canvas.
+
+const meta = {
+	title: 'Packages/Premium Analytics/Widgets/MyWidget',
+	component: MyWidgetRender,
+	tags: [ 'autodocs' ],
+	parameters: {
+		docs: {
+			description: {
+				component: 'Brief description of what this widget shows and when to use it.',
+			},
+		},
+	},
+} satisfies Meta< typeof MyWidgetRender >;
+
+export default meta;
+
+// Always parameterize the alias: bare `StoryObj` defaults to `Args = { [name: string]: any }`,
+// which silently accepts any `args` key and degrades `render`'s parameter to `{}`.
+type Story = StoryObj< typeof meta >;
+```
+
+**1. `Default`** — the widget on its own, current period only:
+
+```tsx
+export const Default: Story = {
+	render: renderMyWidget,
+	decorators: [ withWidgetCanvas ],
+};
+```
+
+**2. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
+exactly as it does in product, inheriting the size / edit-mode / host-environment controls. It
+passes comparison params unconditionally, so the widget stays covered against crashing or
+inventing deltas when the host supplies comparison dates:
+
+```tsx
+function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			renderModule={ MY_WIDGET_RENDER_MODULE }
+			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <MyWidgetDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+```
+
+**3. `WithComparison` — only when the widget's hook populates `comparisonRows`** (see the
+criterion above). Add a `withComparison` control, thread it through the render helper, and add
+the second close-up. It should show the period-over-period values the render path consumes:
+
+```tsx
 interface MyWidgetStoryControls {
 	withComparison: boolean;
 }
@@ -279,52 +413,24 @@ function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
 	);
 }
 
-// Close-up canvas so the chart fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
+// The story args are the widget-specific controls, but `component` is the render component
+// (host `WidgetRenderProps`). Intersect the two so `component` type-checks against the meta
+// while the controls still drive `argTypes`/`args`.
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/MyWidget',
-	component: MyWidgetRender,
-	tags: [ 'autodocs' ],
+	// …as above, plus:
 	argTypes: {
 		withComparison: { control: 'boolean' },
 	},
-	parameters: {
-		docs: {
-			description: {
-				component: 'Brief description of what this widget shows and when to use it.',
-			},
-		},
-	},
-	// The story args are the widget-specific controls, but `component` is the render
-	// component (host `WidgetRenderProps`). Intersect the two so `component` type-checks
-	// against the meta while the controls still drive `argTypes`/`args`.
 } satisfies Meta< ComponentProps< typeof MyWidgetRender > & MyWidgetStoryControls >;
 
-export default meta;
-
 type Story = StoryObj< MyWidgetStoryControls >;
-```
 
-**1. `Default`** — the widget on its own, current period only:
-
-```tsx
 export const Default: Story = {
 	render: renderMyWidget,
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
-```
 
-**2. `WithComparison`** — same close-up with comparison `reportParams` from the date range
-picker. Widgets with comparison data should show period-over-period values; widgets without
-comparison data should still render normally without fake deltas:
-
-```tsx
 export const WithComparison: Story = {
 	render: renderMyWidget,
 	args: { withComparison: true },
@@ -332,46 +438,19 @@ export const WithComparison: Story = {
 };
 ```
 
-**3. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
-exactly as it does in product, inheriting the size / edit-mode / host-environment controls:
-
-```tsx
-interface MyWidgetDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		MyWidgetStoryControls {}
-
-function MyWidgetDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: MyWidgetDashboardStoryProps ) {
-	return (
-		<WidgetDashboardWithWidgetStory
-			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
-			renderModule={ MY_WIDGET_RENDER_MODULE }
-			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
-}
-
-export const WidgetDashboardWithWidget: StoryObj< MyWidgetDashboardStoryProps > = {
-	render: args => <MyWidgetDashboardStory { ...args } />,
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
-	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
-	},
-};
-```
-
 Expose additional widget-specific props (e.g. a `view: 'source' | 'channel' | 'campaign'`
-selector) as extra fields on the controls interface plus matching `args` and `argTypes`. The
-shared dashboard helper already provides container width / edit-mode / host-environment
-controls, so there's no need to add custom size decorators per widget.
+selector) as fields on a `MyWidgetStoryControls` interface plus matching `args` and `argTypes`,
+switching the alias to `StoryObj< MyWidgetStoryControls >` and the `meta` to the intersection
+form shown above. Where the dashboard story also needs those controls, have its props interface
+extend both: `interface MyWidgetDashboardStoryProps extends WidgetDashboardWithWidgetControls,
+MyWidgetStoryControls {}`. The shared dashboard helper already provides container width /
+edit-mode / host-environment controls, so there's no need to add custom size decorators per
+widget.
+
+Helpers that compose a story's `reportParams` (e.g. to add a `post_id` scope) should keep
+comparison as a parameter — `getMyWidgetAttributes( controls, withComparison = false )` — so the
+dashboard story can call them with `true` instead of rebuilding the params and duplicating the
+scoping rule.
 
 If a story exposes `withComparison`, both the close-up story and the dashboard story must pass
 `reportParams: getDefaultQueryParams( withComparison )` into the render component, and the render
@@ -382,9 +461,16 @@ Report mocks should exercise the shapes reviewers need to validate, not only the
 populated primary data for every widget; comparison data when the widget maps comparison rows;
 parent rows plus child rows for drill-down widgets; leaf rows with external links when a
 leaderboard can render non-drill-down links; and known unsupported/error responses when the
-module has a special failure mode. Prefer adding those shapes to the existing Default,
-WithComparison, or WidgetDashboardWithWidget stories over creating one-off state stories unless
-the state needs direct review.
+module has a special failure mode. Prefer adding those shapes to the widget's existing stories
+over creating one-off state stories unless the state needs direct review.
+
+To review a widget's loading / error / empty state directly, force it with
+`setReportMockState( '<endpoint>', 'loading' | 'error' | 'empty' )` in the story's `beforeEach`,
+clearing it in the returned cleanup. Keep such stories off the shared autodocs page
+(`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise force the
+sibling stories into the same state) and give each one a date preset distinct from the other
+stories so it hits the mock fresh instead of reading their cached success. See
+`widgets/search-terms/stories/` for the reference.
 
 ### Widget pitfalls
 
@@ -392,8 +478,10 @@ the state needs direct review.
   legacy widgets that haven't been migrated yet.
 - Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
   real `WidgetDashboard` through the shared story helper instead.
-- Declaring `presentation` in `widget.ts` — `widget.json` is the source of truth for that
-  field; omit it from `widget.ts` entirely.
+- Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
+  `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
+  `widget.ts` default export carries only `icon`, `attributes`, and `example`. Stories read
+  those declarative fields from `widget.json` via `createStoryWidgetType()`.
 - Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
   and imported in `render.tsx`; render-only types may compose that imported shape with host
   fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
@@ -428,7 +516,7 @@ before writing any Stats widget — many mistakes here are silent at build time.
 `useStatsSearchTerms`, `useStatsLocations`, `useStatsDevices`, …). Look there first —
 do not call `fetchStatsProxy` or `apiFetch` directly from a widget.
 
-Each hook returns `{ primary, comparison, isLoading, isError, … }`. For the standard
+Each hook returns `{ primary, comparison, comparisonRows, isLoading, isError, … }`. For the standard
 leaderboard/list widgets, reach data through:
 
 ```ts
@@ -444,36 +532,69 @@ the query factory — do not do it in the widget or the view hook.
 `max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
 `slice( 0, max )` (the latter returns an empty array when `max` is 0).
 
-**Loading and stale data**
+**Loading / error / empty state**
 
-Show `<WidgetLoadingOverlay />` only when there is no data yet:
-`isLoading && data.length === 0`. When stale data exists, pass `loading={ isLoading }`
-to the chart component so an in-place spinner appears without hiding the rows.
+Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
+rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
+data/view hook's result to its four signals and pass generic descriptors:
 
-Loading, empty, and error states should live in the same body/content wrapper as the normal
-widget content so padding and sizing stay consistent. If the widget has interactive body chrome
-such as a dropdown, view selector, or drill-down back link, keep that chrome available and
-replace only the content area with the state message. Composite widgets may use a custom
-placeholder instead of `LeaderboardChart`'s `emptyStateText`, but the state should still be
-centered inside the content area.
+```tsx
+<WidgetState
+	isLoading={ isLoading }            // first load, no data yet
+	isError={ isError }
+	isEmpty={ data.length === 0 }
+	// isFetching is optional: a background refetch shows a non-blocking busy overlay
+	// over the existing rows instead of hiding them.
+	error={ {
+		description: __( "We couldn't load this data. Please try again in a moment.", 'jetpack-premium-analytics' ),
+		actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+	} }
+	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ) } }
+>
+	<LeaderboardChart … />
+</WidgetState>
+```
+
+`<WidgetState>` derives one state (error → loading → empty → ready, plus a busy overlay while
+`isFetching` and data are shown) and swaps only the content area. Notes:
+
+- Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
+- Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
+  `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
+  a caution glyph: empty is not an error.
+- Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
+  of `<WidgetState>`, not inside it, so it stays available in every state.
+- `<WidgetState>` covers only a widget's own data state; the host still owns the crash error
+  boundary and the module-load `<Suspense>`.
+
+> Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
+> `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
+> migrated to `<WidgetState>` — follow the contract above, not those widgets.
+> `widgets/search-terms/render.tsx` is the reference. (A `describeError` mapper and a
+> `ReportWidget` wrapper that remove the per-widget error/retry boilerplate are planned follow-ups.)
 
 **Comparison data**
 
-Stats hooks built on `useStatsReport()` return `{ primary, comparison, hasComparison, ... }`.
-When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`, the data layer fetches
-the comparison period automatically.
+Stats hooks built on `useStatsReport()` return `{ primary, comparison, comparisonRows,
+hasComparison, ... }`. When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`,
+the data layer fetches the comparison period automatically.
 
-Widgets still need to map comparison rows into chart data explicitly. For leaderboard/list
-widgets, build a lookup from `comparison.data?.[ 0 ]?.items` using the same stable key used for
-the primary row (post ID/URL, country code, search term, device key, etc.), then set
-`previousValue`, `previousShare`, and `delta` from the matched comparison row. Do not assume
-primary and comparison arrays have the same order or the same rows.
+For leaderboard/list Stats widgets, row matching belongs in the data layer. Add or update the
+module-specific `mergeStats*ComparisonRows()` helper in `packages/data/src/processing/stats/`,
+then pass it to `useStatsReport()` from the corresponding `useStats*` hook. If the hook captures
+options such as `maxRows`, wrap that mapper with `useCallback()` so the `useStatsReport()`
+comparison memo stays stable across renders.
 
-If comparison params are present but the endpoint returns no comparable rows, the widget should
-fall back to a non-comparison view. Using `previousValue: 0` and `delta: 0` as placeholders is
-only acceptable when the chart comparison UI is disabled (`withComparison={ false }` or omitted)
-or when the story explicitly documents that the module has no comparison data to display. Do not
-render a visible delta/sparkline from placeholder values.
+The merge helper should compare primary and comparison rows with the module's stable row key
+(post ID/URL, country code, search term, device key, etc.), preserve missing comparison values
+as `undefined`, and treat `0` as a valid previous value. Return `hasComparison: true` only when
+at least one primary row has a matching comparison row.
+
+Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`; do not call
+`mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
+Widget-level mapping may still add presentation-only fields such as labels, icons, links,
+shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
+`undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
 
 **Drill-down leaderboards**
 
@@ -507,6 +628,6 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
   line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
   or typography does not naturally produce that height.
-- Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
-  `data.length === 0` render branch in the widget, unless the widget has a composite layout
-  that needs to preserve body chrome or replace a non-leaderboard chart area.
+- Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
+  state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
+  branch. Empty uses a neutral glyph distinct from the error icon.

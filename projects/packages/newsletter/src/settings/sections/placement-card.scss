@@ -8,8 +8,8 @@
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	// Tighter horizontal gap between the two columns; more breathing room
 	// between rows so the second row reads as a separate band.
-	column-gap: var(--wpds-dimension-gap-md, 16px);
-	row-gap: var(--wpds-dimension-gap-2xl, 32px);
+	column-gap: var(--wpds-dimension-gap-md);
+	row-gap: var(--wpds-dimension-gap-2xl);
 
 	@media (max-width: 720px) {
 		grid-template-columns: minmax(0, 1fr);
@@ -26,14 +26,14 @@
 	}
 
 	&:hover:not([data-checked="true"]) {
-		border-color: var(--wpds-color-stroke-surface-neutral-strong, #b0b0b0);
+		border-color: var(--wpds-color-stroke-surface-neutral-strong);
 	}
 
 	// Focus ring on the card itself (not the checkbox input), using the
 	// canonical brand focus token.
 	&:has(input:focus-visible) {
 		outline:
-			var(--wpds-border-width-focus, 2px) solid
+			var(--wpds-border-width-focus) solid
 			var(--wpds-color-stroke-focus);
 		outline-offset: 2px;
 	}
@@ -47,14 +47,14 @@
 
 .jetpack-newsletter-placement__surface {
 	display: block;
-	cursor: var(--wpds-cursor-control, pointer);
+	cursor: var(--wpds-cursor-control);
 }
 
 .jetpack-newsletter-placement__illustration {
 	// Match the v2 SVG's intrinsic 294×192 aspect so the wireframe
 	// fills the card surface edge-to-edge.
 	aspect-ratio: 294 / 192;
-	background: var(--wpds-color-background-surface-neutral-weak, #f7f7f7);
+	background: var(--wpds-color-background-surface-neutral-weak);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -69,8 +69,8 @@
 
 .jetpack-newsletter-placement__checkbox {
 	position: absolute;
-	inset-block-start: var(--wpds-dimension-padding-md, 12px);
-	inset-inline-start: var(--wpds-dimension-padding-md, 12px);
+	inset-block-start: var(--wpds-dimension-padding-md);
+	inset-inline-start: var(--wpds-dimension-padding-md);
 
 	// CheckboxControl from `@wordpress/components` wraps the native input in
 	// BaseControl chrome (margin/padding from `__field` + `__input-container`).

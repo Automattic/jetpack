@@ -55,6 +55,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
+		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+
+		wp_set_current_user( 0 );
 
 		parent::tear_down();
 	}
@@ -101,6 +104,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( $section, $registry->get_registered( 'example_dashboard', 'example/traffic' ) );
 		$this->assertSame( 'example_dashboard', $section->dashboard_name );
 		$this->assertSame( 'example/traffic', $section->id );
+		$this->assertSame( 'traffic', $section->slug );
 		$this->assertSame( 'Traffic', $section->label );
 		$this->assertSame( 15, $section->order );
 		$this->assertSame( $layout, $section->get_default_layout() );
@@ -162,6 +166,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Slugs are derived from the section ID segment after the namespace.
+	 */
+	public function test_section_slug_is_derived_from_id() {
+		register_default_dashboard_sections();
+
+		$expected = array(
+			'analytics/traffic'     => 'traffic',
+			'analytics/insights'    => 'insights',
+			'analytics/subscribers' => 'subscribers',
+			'woocommerce/store'     => 'store',
+		);
+
+		foreach ( $expected as $id => $slug ) {
+			$section = get_registered_dashboard_section( DASHBOARD_NAME, $id );
+
+			$this->assertInstanceOf( Dashboard_Section::class, $section );
+			$this->assertSame( $slug, $section->slug );
+		}
+	}
+
+	/**
 	 * The built-in traffic section resolves its layout from the dashboard default.
 	 */
 	public function test_traffic_section_default_layout_uses_dashboard_default() {
@@ -175,6 +200,29 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$traffic->get_default_layout()
 		);
 		$this->assertNotEmpty( $traffic->get_default_layout() );
+	}
+
+	/**
+	 * The built-in insights and subscribers sections resolve their tab defaults.
+	 */
+	public function test_non_traffic_section_default_layouts_use_tab_defaults() {
+		register_default_dashboard_sections();
+
+		$insights    = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/insights' );
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $insights );
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'analytics/insights' ),
+			$insights->get_default_layout()
+		);
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'analytics/subscribers' ),
+			$subscribers->get_default_layout()
+		);
+		$this->assertNotEmpty( $insights->get_default_layout() );
+		$this->assertNotEmpty( $subscribers->get_default_layout() );
 	}
 
 	/**
@@ -196,7 +244,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/analytics/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/analytics/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -204,6 +252,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array(
 				array(
 					'id'    => 'analytics/traffic',
+					'slug'  => 'traffic',
 					'label' => 'Traffic',
 					'order' => 10,
 				),
@@ -219,7 +268,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/unregistered_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/unregistered_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -309,22 +358,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Built-in Premium Analytics sections are registered in the expected order.
 	 */
 	public function test_registers_built_in_dashboard_sections() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
 		register_default_dashboard_sections();
 
 		$this->assertSame(
 			array(
 				array(
 					'id'    => 'analytics/traffic',
+					'slug'  => 'traffic',
 					'label' => 'Traffic',
 					'order' => 10,
 				),
 				array(
 					'id'    => 'analytics/insights',
+					'slug'  => 'insights',
 					'label' => 'Insights',
 					'order' => 20,
 				),
 				array(
 					'id'    => 'analytics/subscribers',
+					'slug'  => 'subscribers',
 					'label' => 'Subscribers',
 					'order' => 30,
 				),
@@ -332,6 +386,67 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array_map(
 				static function ( Dashboard_Section $section ) {
 					return $section->to_array();
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+	}
+
+	/**
+	 * The WooCommerce section is registered when WooCommerce is available.
+	 */
+	public function test_registers_woocommerce_dashboard_section_when_available() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
+		$this->assertTrue( $woocommerce->is_available() );
+		$this->assertSame( 'Store', $woocommerce->label );
+		$this->assertSame( 40, $woocommerce->order );
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+				'woocommerce/store',
+			),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'woocommerce/store' ),
+			$woocommerce->get_default_layout()
+		);
+	}
+
+	/**
+	 * The WooCommerce section is omitted from available sections when WooCommerce is unavailable.
+	 */
+	public function test_omits_woocommerce_dashboard_section_when_unavailable() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
+		$this->assertFalse( $woocommerce->is_available() );
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+			),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
 				},
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
@@ -385,7 +500,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_sections_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -393,13 +508,88 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array(
 				array(
 					'id'    => 'example/first',
+					'slug'  => 'first',
 					'label' => 'First',
 					'order' => 10,
 				),
 				array(
 					'id'    => 'example/later',
+					'slug'  => 'later',
 					'label' => 'Later',
 					'order' => 20,
+				),
+			),
+			$response->get_data()
+		);
+	}
+
+	/**
+	 * Sections route includes the store section only when WooCommerce is detected.
+	 */
+	public function test_sections_route_reflects_woocommerce_availability() {
+		register_default_dashboard_sections();
+
+		$this->set_admin_user();
+
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			array_column( $response->get_data(), 'slug' )
+		);
+
+		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers', 'store' ),
+			array_column( $response->get_data(), 'slug' )
+		);
+	}
+
+	/**
+	 * Sections route responses carry definition fields only.
+	 */
+	public function test_sections_route_returns_lean_section_shape() {
+		register_dashboard_section(
+			'route_sections_dashboard',
+			'analytics/traffic',
+			array(
+				'label'          => 'Traffic',
+				'order'          => 10,
+				'default_layout' => array(
+					array(
+						'uuid' => 'default-route-widget',
+						'type' => 'example/widget',
+					),
+				),
+			)
+		);
+
+		$this->set_admin_user();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				array(
+					'id'    => 'analytics/traffic',
+					'slug'  => 'traffic',
+					'label' => 'Traffic',
+					'order' => 10,
 				),
 			),
 			$response->get_data()
@@ -413,7 +603,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_sections_dashboard/sections' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
 		);
 
 		$this->assertSame( 401, $response->get_status() );
@@ -445,7 +635,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/default-layout' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/default-layout' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -459,7 +649,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/missing/default-layout' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/missing/default-layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );
@@ -483,7 +673,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_unavailable_dashboard/sections/analytics/insights/default-layout' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_unavailable_dashboard/sections/analytics/insights/default-layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );
@@ -491,9 +681,45 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Retired section-layout write routes are no longer registered.
+	 */
+	public function test_retired_layout_write_routes_are_not_registered() {
+		register_dashboard_section(
+			'route_layout_dashboard',
+			'analytics/traffic',
+			array(
+				'label' => 'Traffic',
+				'order' => 10,
+			)
+		);
+
+		$this->set_admin_user();
+
+		$retired_requests = array(
+			'PUT section layout'    => array( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' ),
+			'DELETE section layout' => array( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' ),
+			'DELETE all sections'   => array( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' ),
+		);
+
+		foreach ( $retired_requests as $case => $retired_request ) {
+			list( $method, $route ) = $retired_request;
+
+			$request = new WP_REST_Request( $method, $route );
+			if ( 'PUT' === $method ) {
+				$request->set_param( 'layout', array() );
+			}
+
+			$response = rest_get_server()->dispatch( $request );
+
+			$this->assertSame( 404, $response->get_status(), $case );
+			$this->assertSame( 'rest_no_route', $response->as_error()->get_error_code(), $case );
+		}
+	}
+
+	/**
 	 * Set current user to an administrator.
 	 *
-	 * @return void
+	 * @return int User ID.
 	 */
 	private function set_admin_user() {
 		++self::$user_count;
@@ -507,5 +733,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		wp_set_current_user( $admin_id );
+
+		return $admin_id;
 	}
 }

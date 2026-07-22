@@ -25,9 +25,19 @@ const toDate = ( point: DataPointDate ): Date | null => {
 
 export const buildCalendarHeatmapData = (
 	series: DataPointDate[],
-	options: { weekStartsOn?: 0 | 1 } = {}
+	options: {
+		weekStartsOn?: 0 | 1;
+		/**
+		 * Mark the days completing the first/last week outside the series'
+		 * date span as hidden cells (empty grid slots) instead of blank
+		 * cells, giving the calendar ragged edges. Days inside the span stay
+		 * blank cells even when the series has no entry for them.
+		 */
+		hideOutOfRangeDays?: boolean;
+	} = {}
 ): CalendarHeatmapResult => {
 	const weekStartsOn = options.weekStartsOn ?? 1;
+	const hideOutOfRangeDays = options.hideOutOfRangeDays ?? true;
 
 	const entries = series
 		.map( point => ( { date: toDate( point ), value: point.value } ) )
@@ -53,26 +63,51 @@ export const buildCalendarHeatmapData = (
 	const gridStart = startOfWeek( minDate, { weekStartsOn } );
 	const weekCount = differenceInCalendarWeeks( maxDate, gridStart, { weekStartsOn } ) + 1;
 
+	// Day-key bounds for the ragged-edge option: calendar-day comparison, so
+	// entries carrying a time of day can't shift the span.
+	const minDayKey = format( minDate, 'yyyy-MM-dd' );
+	const maxDayKey = format( maxDate, 'yyyy-MM-dd' );
+
 	const rowLabels = Array.from( { length: 7 }, ( _, row ) =>
 		LABELLED_ROWS.includes( row ) ? format( addDays( gridStart, row ), 'EEE' ) : ''
 	);
+
+	// Hide short partial first-month labels when a later month follows; compact
+	// cells make adjacent labels collide. Keep the label for single-month ranges.
+	const MIN_FIRST_MONTH_WEEKS = 2;
+	const firstMonth = gridStart.getMonth();
+	let firstMonthWeeks = 0;
+	while (
+		firstMonthWeeks < weekCount &&
+		addDays( gridStart, firstMonthWeeks * 7 ).getMonth() === firstMonth
+	) {
+		firstMonthWeeks++;
+	}
+	const spansLaterMonth = firstMonthWeeks < weekCount;
+	const showFirstMonthLabel = ! spansLaterMonth || firstMonthWeeks >= MIN_FIRST_MONTH_WEEKS;
 
 	const data: HeatmapColumn[] = [];
 	let previousMonth = -1;
 	for ( let week = 0; week < weekCount; week++ ) {
 		const columnStart = addDays( gridStart, week * 7 );
 		const month = columnStart.getMonth();
-		const label = month !== previousMonth ? format( columnStart, 'MMM' ) : '';
+		const isNewMonth = month !== previousMonth;
+		const label =
+			isNewMonth && ( week !== 0 || showFirstMonthLabel ) ? format( columnStart, 'MMM' ) : '';
 		previousMonth = month;
 
 		const cells: HeatmapCell[] = [];
 		for ( let row = 0; row < 7; row++ ) {
 			const day = addDays( gridStart, week * 7 + row );
 			const key = format( day, 'yyyy-MM-dd' );
-			cells.push( {
+			const cell: HeatmapCell = {
 				label: format( day, 'EEE, MMM d, yyyy' ),
 				value: valueByDay.has( key ) ? ( valueByDay.get( key ) as number | null ) : null,
-			} );
+			};
+			if ( hideOutOfRangeDays && ( key < minDayKey || key > maxDayKey ) ) {
+				cell.hidden = true;
+			}
+			cells.push( cell );
 		}
 		data.push( { label, data: cells } );
 	}

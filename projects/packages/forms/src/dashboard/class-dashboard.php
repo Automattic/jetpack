@@ -280,23 +280,36 @@ class Dashboard {
 			return;
 		}
 
-		Assets::register_script(
-			self::SCRIPT_HANDLE,
-			'../../dist/dashboard/jetpack-forms-dashboard.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
-			)
-		);
+		// The wp-build (script-module) dashboard renders its own UI from build/pages/…,
+		// so the legacy SPA bundle is dead weight there. Only enqueue it on the legacy
+		// dashboard. The shared inline data below (connection initial state + REST
+		// preload) is instead attached to the always-present wp-api-fetch handle so the
+		// wp-build app still receives it.
+		if ( self::is_wp_build_dashboard_page() ) {
+			$inline_handle    = 'wp-api-fetch';
+			$preload_position = 'after';
+		} else {
+			$inline_handle    = self::SCRIPT_HANDLE;
+			$preload_position = 'before';
+
+			Assets::register_script(
+				self::SCRIPT_HANDLE,
+				'../../dist/dashboard/jetpack-forms-dashboard.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'textdomain' => 'jetpack-forms',
+					'enqueue'    => true,
+				)
+			);
+		}
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
 		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+		Connection_Initial_State::render_script( $inline_handle );
 
 		// Preload Forms endpoints needed in dashboard context.
 		// Pre-fetch the first inbox page so the UI renders instantly on first load.
@@ -364,13 +377,28 @@ class Dashboard {
 		}
 
 		wp_add_inline_script(
-			self::SCRIPT_HANDLE,
+			$inline_handle,
 			sprintf(
 				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
 				wp_json_encode( $preload_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			),
-			'before'
+			$preload_position
 		);
+	}
+
+	/**
+	 * Whether the current request targets the wp-build (script-module) Forms dashboard,
+	 * as opposed to the legacy SPA dashboard.
+	 *
+	 * When true, the legacy dashboard bundle should not be enqueued: the wp-build page
+	 * (build/pages/jetpack-forms-responses/…) provides its own UI and asset loading.
+	 *
+	 * @return bool
+	 */
+	public static function is_wp_build_dashboard_page() {
+		/** This filter is documented in class-dashboard.php::init */
+		return apply_filters( 'jetpack_forms_alpha', true )
+			&& self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**

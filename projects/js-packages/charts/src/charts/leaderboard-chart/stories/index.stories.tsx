@@ -1,5 +1,6 @@
 import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
+import { expect } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -179,6 +180,53 @@ export const WithOverlayLabel: Story = {
 	},
 };
 
+const missingComparisonData: LeaderboardEntry[] = sampleData.map( entry =>
+	entry.id === 'social' || entry.id === 'referral'
+		? {
+				id: entry.id,
+				label: entry.label,
+				currentValue: entry.currentValue,
+				currentShare: entry.currentShare,
+		  }
+		: entry
+);
+
+export const MissingComparisonRows: Story = {
+	args: {
+		data: missingComparisonData,
+		withComparison: true,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Rows without a matching comparison-period value ("Social Media" and "Referral" here) omit `previousValue`/`previousShare`/`delta`. Those rows render no comparison bar and show a placeholder in the delta column instead of a fabricated value.',
+			},
+		},
+	},
+};
+
+export const MissingComparisonRowsWithOverlayLabel: Story = {
+	args: {
+		data: missingComparisonData,
+		withComparison: true,
+		withOverlayLabel: true,
+		loading: false,
+		style: {
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Missing comparison rows in the overlay-label variant, as used by the Premium Analytics Stats widgets. The delta column still shows a placeholder for rows without comparison data.',
+			},
+		},
+	},
+};
+
 export const Loading: Story = {
 	args: {
 		data: sampleData,
@@ -222,6 +270,50 @@ export const Interactive: Story = {
 					'Rows with an `onClick` become interactive: the whole row is clickable and keyboard-focusable (Enter/Space), with a chevron revealed on hover/focus. The consumer supplies the action (e.g. drill-down).',
 			},
 		},
+	},
+};
+
+export const MixedInteractivity: Story = {
+	args: {
+		...sharedThemeArgs,
+		data: sampleData.map( ( entry, index ) =>
+			index % 2 === 0 ? { ...entry, onClick: () => onLeaderboardItemClick( entry.id ) } : entry
+		),
+		withComparison: true,
+		withOverlayLabel: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive and non-interactive rows with the overlay-label presentation used by Jetpack Stats. Being clickable is a visual affordance only — it must not change a row height or column alignment, otherwise a drill-down that swaps clickable parent rows for non-clickable child rows visibly shifts the list.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const grid = canvasElement.querySelector( '[class*="leaderboardChart__content"] > *' );
+
+		// Every entry uses the same row wrapper; only the interactive rows are buttons.
+		const rows = grid.querySelectorAll( ':scope > [class*="row"]' );
+		expect( rows ).toHaveLength( sampleData.length );
+
+		// The story must actually mix both row types for the rest to mean anything.
+		const interactiveRows = grid.querySelectorAll( ':scope > button[class*="row"]' ).length;
+		expect( interactiveRows ).toBeGreaterThan( 0 );
+		expect( interactiveRows ).toBeLessThan( sampleData.length );
+
+		// Both wrapper types must have the same height.
+		const heights = new Set( [ ...rows ].map( row => row.getBoundingClientRect().height ) );
+		expect( heights.size ).toBe( 1 );
+
+		// Column edges are read off the cells themselves — the button wrapper spans
+		// the full row even when its padding insets the cells inside it.
+		const edge = ( selector: string, side: 'left' | 'right' ) =>
+			new Set(
+				[ ...grid.querySelectorAll( selector ) ].map( cell => cell.getBoundingClientRect()[ side ] )
+			);
+		expect( edge( '[class*="barWithLabelContainer"]', 'left' ).size ).toBe( 1 );
+		expect( edge( '[class*="valueContainer"]', 'right' ).size ).toBe( 1 );
 	},
 };
 

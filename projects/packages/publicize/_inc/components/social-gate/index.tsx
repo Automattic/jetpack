@@ -4,7 +4,7 @@ import type { SocialGateType } from './use-social-gate';
 import type { ReactNode } from 'react';
 
 /**
- * Presentational gate switch for the modernization chassis. The decision lives in
+ * Presentational gate switch for the Social dashboard. The decision lives in
  * `useSocialGate()` (owned by `SocialPage`); this component just renders the matching
  * gate, or the children (the Overview/Settings tabs) on the happy path.
  *

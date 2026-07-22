@@ -278,6 +278,19 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	/*
+	 * Edge case – chart period is preserved from search.
+	 */
+	it( 'preserves period from search', () => {
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			period: 'week',
+		} );
+
+		expect( result.period ).toBe( 'week' );
+	} );
+
+	/*
 	 * Edge case – date_type defaults to "created".
 	 */
 	it( 'defaults date_type to created', () => {

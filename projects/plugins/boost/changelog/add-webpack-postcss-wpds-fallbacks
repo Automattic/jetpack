@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Inject WPDS design-token fallbacks during Boost admin CSS builds.

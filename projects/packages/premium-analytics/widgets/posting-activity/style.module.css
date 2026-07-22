@@ -6,31 +6,22 @@
 	overflow: hidden;
 }
 
+/* Measured tile area (the ref lives here): its size is the space the heatmap
+   works with, and it centers the heatmap so a grid smaller than the tile sits
+   in centered whitespace, not a corner. No scroll — columns trim to fit. */
 .content {
 	position: relative;
 	display: flex;
-	flex-direction: column;
 	flex: 1 1 0;
+	min-width: 0;
 	min-height: 0;
-	padding: var(--wpds-dimension-padding-lg);
-
-	/* The compact heatmap sizes to its content; let a wide 12-month grid scroll
-	   inside a narrow card instead of clipping months. */
-	overflow-x: auto;
+	align-items: center;
 }
 
-/* Center the fixed-size grid + legend group in a taller-than-content card so it
-   doesn't hug the top; horizontal start keeps overflow scrolling reachable. */
+/* Center the grid within the chart. Expanded is already sized to its rectangle;
+   compact fills the width with fixed squares, so this keeps that grid centered
+   rather than hugging the start edge. */
 .heatmap {
 	min-width: 0;
 	justify-content: center;
-}
-
-.placeholder {
-	flex: 1 1 0;
-	min-block-size: 0;
-	inline-size: 100%;
-	min-height: 180px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
 }

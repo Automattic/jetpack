@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+DataViewsDrilldownNative: inline the DataViews stylesheet through meta.load-css instead of a passthrough @import that 404'd at runtime.

@@ -22,7 +22,7 @@ use WP_Error;
 /**
  * Connection Manager functionality testing.
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class ManagerTest extends TestCase {
 
 	/**
@@ -207,11 +207,15 @@ class ManagerTest extends TestCase {
 
 		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
 		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
 
 		$stats = $manager->add_stats_to_heartbeat( array() );
 
 		$this->assertArrayHasKey( 'missing-owner', $stats );
 		$this->assertTrue( $stats['missing-owner'] );
+		// Site environment stats are merged in from the Connection Heartbeat.
+		$this->assertArrayHasKey( 'wp-version', $stats );
 	}
 
 	/**
@@ -238,6 +242,8 @@ class ManagerTest extends TestCase {
 
 		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
 		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
 
 		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
 

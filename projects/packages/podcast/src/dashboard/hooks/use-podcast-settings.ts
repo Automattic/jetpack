@@ -52,6 +52,7 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_email',
 	'podcasting_show_urls',
 	'podcasting_show_states',
+	'podcasting_feed_url',
 ];
 
 // Ids from the injected map, plus the record's own keys, so a missing map never

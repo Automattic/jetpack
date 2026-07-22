@@ -4,12 +4,16 @@
 import {
 	calculateDelta,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
@@ -33,65 +37,75 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
+	const { data, isLoading, isFetching, isError, hasComparison, refetch } = useSearchTermViews( {
+		reportParams,
+		max,
+	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
-		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ), 0 );
+		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ?? 0 ), 0 );
 
-		return data.map( ( term, index ) => ( {
-			id: `${ index }-${ term.label }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ term.label }</Text>
-				</Stack>
-			),
-			currentValue: term.views,
-			previousValue: term.previousViews,
-			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
-			previousShare: prevMaxValue > 0 ? ( term.previousViews / prevMaxValue ) * 100 : 0,
-			delta: hasComparison ? calculateDelta( term.views, term.previousViews ) : 0,
-		} ) );
-	}, [ data, hasComparison ] );
+		return data.map( ( term, index ) => {
+			const previousViews = term.previousViews;
 
-	if ( isError ) {
-		return (
-			<Stack className={ styles.root }>
-				<div className={ styles.content }>
-					<Stack align="center" justify="center" className={ styles.placeholder }>
-						<Text>{ __( 'Could not load search terms data.', 'jetpack-premium-analytics' ) }</Text>
+			return {
+				id: `${ index }-${ term.label }`,
+				label: (
+					<Stack align="center" className={ styles.itemLabel }>
+						<Text className={ styles.itemLabelText }>{ term.label }</Text>
 					</Stack>
-				</div>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<Stack className={ styles.root }>
-				<div className={ styles.content }>
-					<WidgetLoadingOverlay />
-				</div>
-			</Stack>
-		);
-	}
+				),
+				currentValue: term.views,
+				previousValue: previousViews,
+				currentShare: sharePercentage( term.views, maxValue ),
+				previousShare:
+					hasComparison && previousViews !== undefined
+						? sharePercentage( previousViews, prevMaxValue )
+						: undefined,
+				delta:
+					hasComparison && previousViews !== undefined
+						? calculateDelta( term.views, previousViews )
+						: undefined,
+			};
+		} );
+	}, [ data, hasComparison ] );
 
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
-				<LeaderboardChart
-					data={ leaderboardData }
-					loading={ isLoading }
-					withComparison={ hasComparison }
-					withOverlayLabel
-					showLegend={ false }
-					emptyStateText={ __( 'No search terms in this period.', 'jetpack-premium-analytics' ) }
-					dataFormat={ {
-						type: 'number',
-						options: { useMultipliers: true, decimals: 0 },
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load search terms. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 					} }
-				/>
+					empty={ {
+						icon: search,
+						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ hasComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ {
+							type: 'number',
+							options: { useMultipliers: true, decimals: 0 },
+						} }
+					/>
+				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="search-terms" />
+			</WidgetFooter>
 		</Stack>
 	);
 }

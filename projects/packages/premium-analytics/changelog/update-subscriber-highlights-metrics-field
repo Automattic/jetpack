@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Subscriber highlights: Replace per-metric boolean settings with a single metrics array attribute and inline header control.

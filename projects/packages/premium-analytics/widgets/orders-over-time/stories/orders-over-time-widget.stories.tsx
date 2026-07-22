@@ -6,11 +6,17 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import OrdersOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -35,12 +41,6 @@ type OrdersOverTimeStoryProps = OrdersOverTimeWidgetProps & OrdersOverTimeStoryC
 interface OrdersOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		OrdersOverTimeStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getOrdersOverTimeAttributes(
 	withComparison = false,
@@ -87,6 +87,13 @@ function renderOrdersOverTime( { withComparison, preset }: OrdersOverTimeStoryCo
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderOrdersOverTimeOnPreset( preset: SelectablePresetId ) {
+	ensureLineChartComposition();
+
+	return <OrdersOverTimeRender attributes={ getOrdersOverTimeAttributes( false, preset ) } />;
+}
+
 function OrdersOverTimeDashboardStory( {
 	withComparison,
 	preset,
@@ -97,7 +104,7 @@ function OrdersOverTimeDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ ORDERS_OVER_TIME_RENDER_MODULE }
 			renderComponent={ OrdersOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getOrdersOverTimeAttributes( withComparison, preset ) }
@@ -175,6 +182,49 @@ export const WithComparison: Story = {
 				) => getOrdersOverTimeSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderOrdersOverTimeOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'loading' );
+		return () => setReportMockState( 'orders/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderOrdersOverTimeOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'error' );
+		return () => setReportMockState( 'orders/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no order data: the widget shows its empty state ("No orders in
+ * this period.").
+ */
+export const Empty: Story = {
+	render: () => renderOrdersOverTimeOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'orders/by-date', 'empty' );
+		return () => setReportMockState( 'orders/by-date', null );
 	},
 };
 

@@ -232,6 +232,56 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The wp-build dashboard page is detected when the alpha flag is on and the
+	 * wp-build slug is requested (so the legacy SPA bundle is skipped there).
+	 */
+	public function test_is_wp_build_dashboard_page_true_on_wpbuild_slug() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+
+		$this->assertTrue( Dashboard::is_wp_build_dashboard_page() );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * The legacy SPA bundle must still load when the alpha flag is off, even on the
+	 * wp-build slug (the cross-variant redirect sends the user to the legacy page).
+	 */
+	public function test_is_wp_build_dashboard_page_false_when_alpha_off() {
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+
+		$this->assertFalse( Dashboard::is_wp_build_dashboard_page() );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+	}
+
+	/**
+	 * The legacy dashboard slug is not treated as the wp-build page.
+	 */
+	public function test_is_wp_build_dashboard_page_false_on_legacy_slug() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+		$_GET['page'] = Dashboard::ADMIN_SLUG;
+
+		$this->assertFalse( Dashboard::is_wp_build_dashboard_page() );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * With no page requested, this is not the wp-build dashboard page.
+	 */
+	public function test_is_wp_build_dashboard_page_false_without_page() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+		unset( $_GET['page'] );
+
+		$this->assertFalse( Dashboard::is_wp_build_dashboard_page() );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
 	 * Test is_jetpack_forms_admin_page when get_current_screen is not available
 	 */
 	public function test_is_jetpack_forms_admin_page_no_get_current_screen() {

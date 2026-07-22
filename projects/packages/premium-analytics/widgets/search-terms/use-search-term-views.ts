@@ -2,16 +2,12 @@
  * Internal dependencies
  */
 import { useStatsSearchTerms } from '@jetpack-premium-analytics/data';
-import type {
-	ReportParams,
-	StatsNormalizedReport,
-	StatsSearchTermsItem,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsSearchTermsComparisonItem } from '@jetpack-premium-analytics/data';
 
 export interface SearchTermView {
 	label: string;
 	views: number;
-	previousViews: number;
+	previousViews?: number;
 }
 
 interface UseSearchTermViewsArgs {
@@ -28,12 +24,10 @@ interface UseSearchTermViewsArgs {
 interface SearchTermViewsState {
 	data: SearchTermView[];
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
 	hasComparison: boolean;
-}
-
-function itemLabel( item: StatsSearchTermsItem ): string {
-	return typeof item.label === 'string' ? item.label : String( item.label );
+	refetch: () => void;
 }
 
 /**
@@ -50,31 +44,35 @@ export default function useSearchTermViews( {
 	reportParams,
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
-	const { primary, comparison, hasComparison } = useStatsSearchTerms(
-		reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ]
-	);
+	const {
+		comparisonRows,
+		comparison,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError: hasError,
+		refetch,
+	} = useStatsSearchTerms( reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ], {
+		maxRows: max,
+	} );
 
-	const primaryReport = primary.data as StatsNormalizedReport< StatsSearchTermsItem > | undefined;
-	const rawItems = primaryReport?.data?.[ 0 ]?.items ?? [];
-
-	const comparisonReport = comparison.data as
-		| StatsNormalizedReport< StatsSearchTermsItem >
-		| undefined;
-	const comparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonByLabel = new Map( comparisonItems.map( i => [ itemLabel( i ), i.views ] ) );
-
-	const items = rawItems
-		.map( item => ( {
-			label: itemLabel( item ),
-			views: item.views,
-			previousViews: hasComparison ? comparisonByLabel.get( itemLabel( item ) ) ?? 0 : 0,
-		} ) )
-		.slice( 0, max > 0 ? max : undefined );
+	const comparisonUsable = hasComparison && ! comparison.isError;
+	const items = ( comparisonRows?.rows ?? [] ).map( ( item: StatsSearchTermsComparisonItem ) => ( {
+		label: typeof item.label === 'string' ? item.label : String( item.label ),
+		views: item.views,
+		previousViews: comparisonUsable ? item.previousViews : undefined,
+	} ) );
 
 	return {
 		data: items,
-		isLoading: primary.isLoading || ( hasComparison && comparison.isLoading ),
-		isError: primary.isError || ( hasComparison && comparison.isError ),
-		hasComparison,
+		isLoading,
+		isFetching,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && hasError,
+		hasComparison: comparisonUsable,
+		refetch,
 	};
 }
