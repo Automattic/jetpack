@@ -46,7 +46,7 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 	const wrapperProps = prePublish
 		? {}
 		: {
-				title: __( 'Share to social media', 'jetpack-publicize-pkg' ),
+				title: __( 'Share to social media (test edit)', 'jetpack-publicize-pkg' ),
 				className: styles.panel,
 		  };
 

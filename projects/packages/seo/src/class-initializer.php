@@ -250,7 +250,7 @@ class Initializer {
 
 		Admin_Menu::add_menu(
 			'SEO',
-			'SEO',
+			'SEO (test edit)',
 			'manage_options',
 			self::MENU_SLUG,
 			$callback,

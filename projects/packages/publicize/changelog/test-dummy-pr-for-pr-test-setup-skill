@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Test edit: append "(test edit)" to the block-editor "Share to social media" panel title so the jetpack-pr-test-setup testing steps have a visible marker.
