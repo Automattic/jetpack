@@ -12,6 +12,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -97,6 +98,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
+		\Jetpack_Options::update_option( 'active_modules', array() );
 		// Only our own priority, so an environment's plan pin survives.
 		remove_all_filters( self::PLAN_FILTER, self::PLAN_FILTER_PRIORITY );
 		self::reset_active_plan_cache();
@@ -162,6 +164,30 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 				$modules = array_diff( (array) $modules, array( 'seo-tools' ) );
 				if ( $active ) {
 					$modules[] = 'seo-tools';
+				}
+				return array_values( $modules );
+			}
+		);
+	}
+
+	/**
+	 * Force the `ai` module — the site-wide master switch off WordPress.com
+	 * Simple — on or off.
+	 *
+	 * Off-Simple the master lives in the `ai` module, not the
+	 * `jetpack_ai_enabled` option, so tests drive it here. Filtering is applied
+	 * last in `Modules::get_active()` (after the availability intersection), so
+	 * it controls the master regardless of which modules the build ships.
+	 *
+	 * @param bool $active Whether the master (the `ai` module) should be on.
+	 */
+	private static function set_ai_module_active( $active ) {
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) use ( $active ) {
+				$modules = array_diff( (array) $modules, array( 'ai' ) );
+				if ( $active ) {
+					$modules[] = 'ai';
 				}
 				return array_values( $modules );
 			}
@@ -277,6 +303,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	public function test_feature_clip_available_in_normal_environment() {
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
+		self::set_ai_module_active( true );
 
 		$this->assertTrue( $this->get_feature_clip_available() );
 	}
@@ -290,7 +317,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
 
-		update_option( Jetpack_AI_Settings::MASTER_OPTION, false );
+		// Off-Simple the master is the `ai` module; turn it off.
+		self::set_ai_module_active( false );
 
 		$this->assertFalse( $this->get_feature_clip_available() );
 	}
@@ -303,6 +331,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	public function test_feature_clip_unavailable_when_image_editor_off() {
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
+		self::set_ai_module_active( true );
 
 		update_option( Jetpack_AI_Settings::FEATURE_OPTIONS['image_editor'], false );
 
@@ -379,6 +408,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 */
 	public function test_get_returns_gate_state_and_defaults() {
 		wp_set_current_user( self::$admin_id );
+		// Off-Simple the master is the `ai` module; turn it on for the default shape.
+		self::set_ai_module_active( true );
 
 		$response = $this->dispatch( 'GET' );
 		$data     = $response->get_data();
@@ -552,9 +583,15 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	public function test_post_master_switch() {
 		wp_set_current_user( self::$admin_id );
 
+		// Off-Simple the master is the `ai` module; start it active so the write
+		// actually flips state and we exercise the setter's module routing.
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'Precondition: the master is on.' );
+
 		$data = $this->dispatch( 'POST', array( 'master_enabled' => false ) )->get_data();
 
 		$this->assertFalse( $data['master_enabled'] );
+		$this->assertFalse( ( new Modules() )->is_active( 'ai' ), 'The setter routed the write to the ai module.' );
 		$this->assertFalse( apply_filters( 'jetpack_ai_enabled', true ) );
 	}
 
