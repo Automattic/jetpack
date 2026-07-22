@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,23 +19,33 @@ use WorDBless\BaseTestCase;
 class Initializer_Test extends BaseTestCase {
 	/**
 	 * Set up before each test.
-	 *
-	 * Mirrors tear_down() so every test starts from a clean slate even if an
-	 * earlier test in the run leaked state.
 	 */
 	public function set_up() {
-		Constants::clear_constants();
-		StatusCache::clear();
-		unset( $_GET['step'] );
+		$this->reset_state();
 	}
 
 	/**
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		$this->reset_state();
+	}
+
+	/**
+	 * Reset every piece of global state these tests touch, so each test starts
+	 * from a clean slate regardless of what ran before it in the shared process.
+	 *
+	 * Runs from both set_up() and tear_down() so the two can't drift.
+	 */
+	private function reset_state() {
 		Constants::clear_constants();
 		StatusCache::clear();
-		unset( $_GET['step'] );
+		unset( $_GET['step'], $_GET['showCouponRedemption'] );
+
+		// Connection_Manager memoizes is_connected() in a process-wide static that
+		// WorDBless teardown does not reset. Clear it so a sibling test leaving the
+		// site "connected" can't flip the disconnected admin_init redirect test.
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -182,10 +193,12 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	private function capture_admin_init_redirect() {
 		$location = null;
-		$capture  = function ( $redirect_location ) use ( &$location ) {
-			$location = $redirect_location;
-			throw new \Exception( 'Intercepted redirect to skip exit().' );
-		};
+		$capture  =
+			/** @return never */
+			function ( $redirect_location ) use ( &$location ) {
+				$location = $redirect_location;
+				throw new \Exception( 'Intercepted redirect to skip exit().' );
+			};
 
 		add_filter( 'wp_redirect', $capture );
 		try {
