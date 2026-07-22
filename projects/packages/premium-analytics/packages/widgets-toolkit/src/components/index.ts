@@ -31,6 +31,14 @@ export {
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
+	LeaderboardRow,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	type LeaderboardRowAction,
+	type LeaderboardRowActionOptions,
+	type LeaderboardRowChartProps,
+	type LeaderboardRowMedia,
+	type LeaderboardRowProps,
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
@@ -44,22 +52,30 @@ export {
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
 export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
+export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
 } from './subscriber-list';
 export {
+	ReportDrilldownTable,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
+	ReportPageShell,
 	ReportPageTabPanel,
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportDrilldownTableProps,
+	type ReportErrorStateProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
+	type ReportPageShellProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
@@ -75,3 +91,10 @@ export {
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
 } from './download-csv';
+export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
+export {
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
+} from './wordads-earnings-history';

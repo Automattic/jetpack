@@ -36,14 +36,6 @@ export type PostViewsAttributes = {
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size.
  */
 export default {
-	name: 'jpa/post-views',
-	title: __( 'Post views', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The view trend of the post or page being viewed over the selected period.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 	attributes: [
 		{

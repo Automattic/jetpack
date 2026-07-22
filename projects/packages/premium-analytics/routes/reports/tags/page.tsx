@@ -3,17 +3,17 @@
  */
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
 import {
+	ReportErrorState,
 	ReportPageLayout,
-	ReportPageSection,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
 	useReportCsvExport,
+	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, EmptyState } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -68,10 +68,7 @@ function TagsReport(): JSX.Element {
 		status: records,
 		sort: sortTagCsvRows,
 	} );
-	const { refetch } = records;
-	const retry = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
+	const retry = useReportRetry( records.refetch );
 
 	// Preserve the shared report window when returning to the dashboard.
 	const dashboardLink = useDashboardLink();
@@ -108,22 +105,10 @@ function TagsReport(): JSX.Element {
 					 * stale data on screen with no notice and no way to retry.
 					 */ }
 					{ records.isError ? (
-						<ReportPageSection>
-							<EmptyState.Root>
-								<EmptyState.Title>
-									{ __( 'Unable to load tags and categories', 'jetpack-premium-analytics' ) }
-								</EmptyState.Title>
-								<EmptyState.Description>
-									{ __(
-										"We couldn't load this data. Please try again in a moment.",
-										'jetpack-premium-analytics'
-									) }
-								</EmptyState.Description>
-								<EmptyState.Actions>
-									<Button onClick={ retry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
-								</EmptyState.Actions>
-							</EmptyState.Root>
-						</ReportPageSection>
+						<ReportErrorState
+							title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics' ) }
+							onRetry={ retry }
+						/>
 					) : (
 						<ReportRecordsTable< StatsTagsItem >
 							data={ records.rows }

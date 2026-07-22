@@ -8,6 +8,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -141,7 +142,7 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					</Stack>
 				),
 				currentValue: row.value,
-				currentShare: maxValue > 0 ? ( row.value / maxValue ) * 100 : 0,
+				currentShare: sharePercentage( row.value, maxValue ),
 				// Grouped rows have no single archive URL, so a click drills into
 				// their members instead. Single tag/category rows link out directly.
 				...( isGroup && {

@@ -56,10 +56,30 @@
 					"type": "string",
 					"maxLength": 120
 				},
-				"theme_keyword": {
+				"theme_category": {
 					"type": "string",
-					"maxLength": 40,
-					"description": "The single word that best captures the site's subject, used to pre-filter the theme showcase. The prompt steers it toward the core topic (\"hiking\") over incidental modifiers (\"weekend\")."
+					"enum": [
+						"blog",
+						"portfolio",
+						"business",
+						"store",
+						"art-design",
+						"about",
+						"real-estate",
+						"health-wellness",
+						"authors-writers",
+						"newsletter",
+						"education",
+						"magazine",
+						"music",
+						"restaurant",
+						"travel-lifestyle",
+						"fashion-beauty",
+						"community-non-profit",
+						"podcast",
+						"entertainment"
+					],
+					"description": "The theme-showcase subject category that best matches the site, used to pre-filter the showcase to a category (every category carries free themes, unlike free-text search which surfaces mostly paid results). Slugs mirror the showcase's `subject` taxonomy from /rest/v1.2/theme-filters."
 				},
 				"vibe": {
 					"type": "string",

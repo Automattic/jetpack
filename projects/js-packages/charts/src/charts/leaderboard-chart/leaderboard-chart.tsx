@@ -1,6 +1,5 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
@@ -404,7 +403,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										<button
 											key={ entry.id }
 											type="button"
-											className={ styles.interactiveRow }
+											className={ clsx( styles.row, styles.interactiveRow ) }
 											onClick={ entry.onClick }
 											aria-label={ entry.ariaLabel }
 										>
@@ -414,7 +413,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									);
 								}
 
-								return <Fragment key={ entry.id }>{ rowCells }</Fragment>;
+								return (
+									<div key={ entry.id } className={ styles.row }>
+										{ rowCells }
+									</div>
+								);
 							} ) }
 						</Grid>
 					) }

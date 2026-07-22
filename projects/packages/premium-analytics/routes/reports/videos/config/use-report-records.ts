@@ -8,7 +8,7 @@ import {
 	type StatsChartBucketPeriod,
 	type StatsVideoPlaysItem,
 } from '@jetpack-premium-analytics/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -75,14 +75,21 @@ export function useVideosReportRecords(
 		[ primaryData, chartPeriod ]
 	);
 	const chartComparison = useMemo( () => {
-		if ( ! videos.hasComparison ) {
+		if ( ! reportParams.compare_from || ! reportParams.compare_to || ! comparisonData ) {
 			return undefined;
 		}
 
 		return videosToTimeSeries( comparisonData, chartPeriod );
-	}, [ videos.hasComparison, comparisonData, chartPeriod ] );
+	}, [ reportParams.compare_from, reportParams.compare_to, comparisonData, chartPeriod ] );
+	const videosRefetch = videos.refetch;
+	const summaryRefetch = summary.refetch;
+	const refetch = useCallback( async () => {
+		await Promise.all( [ videosRefetch(), summaryRefetch() ] );
+	}, [ videosRefetch, summaryRefetch ] );
 
 	return {
+		isError: videos.isError || summary.isError,
+		refetch,
 		chart: {
 			primary: chartPrimary,
 			comparison: chartComparison,
@@ -91,6 +98,5 @@ export function useVideosReportRecords(
 		rows,
 		isLoading: summary.isLoading,
 		isFetching: summary.isFetching,
-		isError: summary.isError,
 	};
 }

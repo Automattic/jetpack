@@ -17,6 +17,7 @@ import {
 	calculateDelta,
 	LeaderboardChart,
 	ReportLink,
+	sharePercentage,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
@@ -177,11 +178,11 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxValue ) * 100,
+			currentShare: sharePercentage( row.value, maxValue ),
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousValue ) * 100
+					? sharePercentage( previousValue, maxPreviousValue )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined

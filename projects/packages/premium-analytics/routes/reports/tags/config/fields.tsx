@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { category, tag as tagGlyph } from '@wordpress/icons';
 import { Icon, Link } from '@wordpress/ui';
@@ -64,7 +65,9 @@ export function getTagsFields(): Field< StatsTagsItem >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.value,
-			render: ( { item } ) => <>{ item.value.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.value, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }

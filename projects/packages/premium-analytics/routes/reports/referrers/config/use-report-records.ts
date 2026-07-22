@@ -54,6 +54,8 @@ export function useReferrersReportRecords(
 	);
 
 	return {
+		isError: report.isError,
+		refetch: report.refetch,
 		chart: {
 			primary: chartPrimary,
 			comparison: report.comparison.data ? chartComparison : undefined,
@@ -62,6 +64,5 @@ export function useReferrersReportRecords(
 		rows,
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
-		isError: report.isError,
 	};
 }

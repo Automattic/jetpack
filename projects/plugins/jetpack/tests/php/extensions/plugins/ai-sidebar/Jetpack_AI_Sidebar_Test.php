@@ -541,6 +541,34 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the toolbar button is exposed by default in internal testing environments,
+	 * without needing the preview feature filter.
+	 */
+	public function test_toolbar_button_enabled_by_default_in_internal_testing() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
+	}
+
+	/**
+	 * Test that a host filter can still force the toolbar button off inside internal testing.
+	 */
+	public function test_toolbar_button_filter_can_force_off_in_internal_testing() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			static function ( $features ) {
+				$features['blockToolbarButton'] = false;
+				return $features;
+			}
+		);
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
+	}
+
+	/**
 	 * Test that the preview feature flag activates the toolbar button.
 	 */
 	public function test_toolbar_button_enabled_by_preview_feature_flag() {
@@ -776,11 +804,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 		// A8C_PROXIED_REQUEST marks an internal testing environment, which is the same gate that
 		// emits this payload at all, so the in-development Generate Feedback, Optimize Title,
-		// and Excerpt suggestions are exposed here. SEO suggestions stay off because the
-		// seo-tools module and plan gate are not satisfied in this test.
+		// Excerpt, and block toolbar button features are exposed here. SEO suggestions stay off
+		// because the seo-tools module and plan gate are not satisfied in this test.
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
@@ -997,7 +1025,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
+		// A8C_PROXIED_REQUEST marks an internal testing environment, so the in-development block
+		// toolbar button feature is exposed here even though AI Editorial Review is filtered off.
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 	}
 
 	/**

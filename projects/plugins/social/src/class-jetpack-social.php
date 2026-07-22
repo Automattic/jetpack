@@ -187,15 +187,6 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Main plugin settings page.
-	 */
-	public function plugin_settings_page() {
-		?>
-			<div id="jetpack-social-root"></div>
-		<?php
-	}
-
-	/**
 	 * Activate the Publicize module on plugin activation.
 	 *
 	 * @static

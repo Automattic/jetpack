@@ -3,18 +3,18 @@
  */
 import { useDashboardLink, useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
+	ReportErrorState,
 	ReportPageLayout,
-	ReportPageSection,
 	ReportPageTabs,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
 	useReportCsvExport,
+	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, EmptyState } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -77,10 +77,7 @@ function CommentsReport(): JSX.Element {
 		status: records,
 		sort: sortCommentsCsvRows,
 	} );
-	const { refetch } = records;
-	const retry = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
+	const retry = useReportRetry( records.refetch );
 	const dashboardLink = useDashboardLink();
 
 	return (
@@ -119,22 +116,10 @@ function CommentsReport(): JSX.Element {
 					 * request would otherwise look like a legitimate empty report.
 					 */ }
 					{ records.isError ? (
-						<ReportPageSection>
-							<EmptyState.Root>
-								<EmptyState.Title>
-									{ __( 'Unable to load comments', 'jetpack-premium-analytics' ) }
-								</EmptyState.Title>
-								<EmptyState.Description>
-									{ __(
-										"We couldn't load this data. Please try again in a moment.",
-										'jetpack-premium-analytics'
-									) }
-								</EmptyState.Description>
-								<EmptyState.Actions>
-									<Button onClick={ retry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
-								</EmptyState.Actions>
-							</EmptyState.Root>
-						</ReportPageSection>
+						<ReportErrorState
+							title={ __( 'Unable to load comments', 'jetpack-premium-analytics' ) }
+							onRetry={ retry }
+						/>
 					) : (
 						<ReportRecordsTable< CommentReportRow >
 							key={ activeTab }

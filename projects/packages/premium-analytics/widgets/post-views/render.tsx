@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
@@ -60,7 +61,7 @@ type PostViewsInnerProps = {
  */
 function PostViewsInner( { granularity }: PostViewsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const postId = Number( reportParams.post_id ) || 0;
+	const postId = toPostId( reportParams.post_id );
 
 	const { current, previous, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
 		postId,

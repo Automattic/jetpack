@@ -363,6 +363,17 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for the block toolbar button that replaces the legacy AI toolbar.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 *
+	 * @return bool
+	 */
+	private static function is_block_toolbar_button_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
 	 * Whether the site's plan includes the Jetpack SEO feature.
 	 *
 	 * Same predicate the SEO editor panel uses to decide between the SEO fields and
@@ -455,7 +466,7 @@ class Jetpack_AI_Sidebar {
 			'generateFeedback'        => self::is_generate_feedback_enabled(),
 			'proofreadContent'        => self::is_proofread_content_enabled(),
 			'blockTransformations'    => true,
-			'blockToolbarButton'      => false,
+			'blockToolbarButton'      => self::is_block_toolbar_button_enabled(),
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
 			'excerptSuggestion'       => self::is_excerpt_suggestion_enabled(),
@@ -476,6 +487,7 @@ class Jetpack_AI_Sidebar {
 		$features['generateFeedback']        = self::is_generate_feedback_enabled();
 		$features['proofreadContent']        = self::is_proofread_content_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
+		$features['blockToolbarButton']      = (bool) $features['blockToolbarButton'] && self::is_block_toolbar_button_enabled();
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
 		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && self::is_excerpt_suggestion_enabled();
 

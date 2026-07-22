@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats widgets: Share the summary-count and date-only helpers across widgets.

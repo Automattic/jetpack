@@ -69,5 +69,6 @@ export function useUtmReportRecords( activeTab: UtmReportTabId, reportParams: Re
 		isLoading: activeReport.isLoading,
 		isFetching: activeReport.isFetching,
 		isError: activeReport.isError,
+		refetch: activeReport.refetch,
 	};
 }

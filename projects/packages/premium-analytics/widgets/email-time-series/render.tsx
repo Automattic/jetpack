@@ -4,6 +4,7 @@
 import {
 	bucketStatsTimeSeries,
 	getStatsChartBucketKey,
+	toPostId,
 	useStatsEmailClicksTimeSeries,
 	useStatsEmailOpensTimeSeries,
 	type StatsEmailTimeSeriesDataPoint,
@@ -57,19 +58,6 @@ function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
 		? __( 'Total clicks', 'jetpack-premium-analytics' )
 		: __( 'Total opens', 'jetpack-premium-analytics' );
-}
-
-/**
- * Resolves the email's post ID from the host-composed report params. `post_id`
- * is the shared single-resource "detail page" param.
- *
- * @param postId - The `post_id` report param.
- * @return The parsed post ID, or 0 when there is no usable selection.
- */
-function toPostId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : 0;
 }
 
 type EmailTimeSeriesReportProps = {

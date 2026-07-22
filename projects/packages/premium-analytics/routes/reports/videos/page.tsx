@@ -11,14 +11,17 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
+	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
 	useReportCsvExport,
+	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -27,7 +30,6 @@ import { useNavigate, useSearch } from '@wordpress/route';
  */
 import { route } from '../package.json';
 import { getVideoRowId, getVideosFields, useVideosReportRecords } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 const REPORT_PARAMS = { report: 'videos' };
@@ -94,6 +96,7 @@ function VideosReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = useVideosReportRecords( reportParams, chartPeriod );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getVideosFields(), [] );
 	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
 		() => [
@@ -149,7 +152,7 @@ function VideosReport(): JSX.Element {
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<Page
+		<ReportPageShell
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
@@ -172,36 +175,42 @@ function VideosReport(): JSX.Element {
 					/>
 				) : undefined
 			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					filters={
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-					}
-				>
-					<ReportPerformanceChart
-						primary={ records.chart.primary }
-						comparison={ records.chart.comparison }
-						isLoading={ records.chart.isLoading }
-						metrics={ chartMetrics }
-						interval={ chartPeriod }
-						onIntervalChange={ handleIntervalChange }
-						legendLabels={ chartLegendLabels }
+			<ReportPageLayout
+				filters={
+					<div ref={ setContainerElement }>
+						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+					</div>
+				}
+			>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load videos', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
 					/>
-					<ReportRecordsTable< StatsVideoPlaysItem >
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getVideoRowId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics' ) }
-					/>
-				</ReportPageLayout>
-			</div>
-		</Page>
+				) : (
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
+						/>
+						<ReportRecordsTable< StatsVideoPlaysItem >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getVideoRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search videos', 'jetpack-premium-analytics' ) }
+						/>
+					</>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

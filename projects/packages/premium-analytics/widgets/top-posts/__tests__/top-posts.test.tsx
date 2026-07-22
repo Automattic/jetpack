@@ -10,6 +10,9 @@ import type { ReactNode } from 'react';
  */
 import TopPostsWidget from '../render';
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: jest.fn().mockReturnValue( false ),
+} ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
