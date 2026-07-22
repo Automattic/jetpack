@@ -101,7 +101,7 @@
 		"concurrently": "10.0.3",
 		"copy-webpack-plugin": "14.0.0",
 		"jest": "30.4.2",
-		"postcss": "8.5.14",
+		"postcss": "8.5.21",
 		"postcss-loader": "8.2.0",
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.97.3",
