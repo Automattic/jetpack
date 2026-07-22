@@ -31,10 +31,10 @@ class WooCommerce_Analytics_Settings {
 	/**
 	 * FQCN of the Analytics sync module shipped by the standalone
 	 * `woocommerce-analytics` plugin. Both that class and the package module return
-	 * `name() === 'woocommerce_analytics'`, but Jetpack Sync dedupes the module
-	 * list by class name (not module name), so both would otherwise survive and
-	 * every sync event would fire twice. When the standalone plugin has already
-	 * contributed its module we stand down.
+	 * `name() === 'woocommerce_analytics'`. Jetpack Sync deduplicates initialized
+	 * modules by that public name, keeping the last contribution. When the
+	 * standalone plugin has already contributed its module we stand down so the
+	 * legacy implementation remains authoritative during migration.
 	 *
 	 * Kept as a string literal (rather than `::class`) so this file can be reasoned
 	 * about without the standalone plugin being loaded.
