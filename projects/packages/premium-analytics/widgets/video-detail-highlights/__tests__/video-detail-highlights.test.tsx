@@ -94,15 +94,13 @@ describe( 'VideoDetailHighlightsWidget', () => {
 		expect( tiles[ 1 ] ).toHaveTextContent( 'Impressions456' );
 		expect( tiles[ 2 ] ).toHaveTextContent( 'Hours watched18.9' );
 
-		const requestedPaths = mockApiFetch.mock.calls
-			.map( call => call[ 0 ].path as string )
-			.filter( path => path.includes( 'stats/video/105' ) );
+		const allPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		const requestedPaths = allPaths.filter( path => path.includes( 'stats/video/105' ) );
 		expect( requestedPaths ).toHaveLength( 3 );
-		expect( requestedPaths.every( path => path.includes( 'stats/video/105' ) ) ).toBe( true );
 		expect( requestedPaths.every( path => path.includes( 'period=month' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'statType=impressions' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'statType=watch_time' ) ) ).toBe( true );
-		expect( requestedPaths.some( path => path.includes( 'stats/video-plays' ) ) ).toBe( false );
+		expect( allPaths.some( path => path.includes( 'stats/video-plays' ) ) ).toBe( false );
 	} );
 
 	it( 'does not issue extra requests for comparison report params the endpoint cannot use', async () => {
