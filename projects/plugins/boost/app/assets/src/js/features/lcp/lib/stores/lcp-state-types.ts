@@ -24,23 +24,16 @@ export const LcpErrorMetaSchema = z.object( {
 	finalUrl: z.string().optional(),
 } );
 
-/**
- * The server stores an empty error meta as an empty PHP array, which JSON-encodes as `[]`
- * (older/edge payloads may also send `null`). A bare `z.object()` rejects `[]`/`null`, so
- * normalize those empty encodings to `{}` before validating the known meta keys. This keeps
- * a `page-navigated` (or any empty-meta) error from failing its page and, in turn, collapsing
- * every analyzed page to the not_analyzed fallback UI.
- */
-const LcpErrorMetaField = z.preprocess(
-	value => ( value == null || Array.isArray( value ) ? {} : value ),
-	LcpErrorMetaSchema
-);
-
 export const LcpErrorDetailsSchema = z
 	.object( {
 		// Adding a generic string type to handle the case where the error type is not in the enum, so the schema is still valid.
 		type: z.union( [ LcpErrorTypeSchema, z.string() ] ),
-		meta: LcpErrorMetaField.optional(),
+		// The server stores empty error meta as an empty PHP array (`[]`), and older payloads may
+		// send `null`; a bare object schema rejects both. `.catch({})` degrades any unparseable
+		// meta (empty array, null, or a malformed known key) to `{}` while preserving the error's
+		// real `type`, so a `page-navigated` (or any empty-meta) error can't fail its page and, in
+		// turn, collapse every analyzed page to the not_analyzed fallback.
+		meta: LcpErrorMetaSchema.catch( {} ).optional(),
 	} )
 	// Isolate a single malformed error entry: fall back to a benign `unknown` error rather
 	// than throwing, so the page (with its real key/url/status) and all sibling pages survive.
@@ -61,16 +54,20 @@ export const PageSchema = z
 	// keeps one bad entry from collapsing nine good results into the not_analyzed fallback.
 	.catch( { key: '', url: '', status: 'error', errors: [] } );
 
-// No whole-state `.catch()`: resilience now lives at the page and error level (above), so one
-// bad page or error entry degrades in place instead of wiping every analyzed result. The server
-// schema guarantees the top-level shape and a valid `status`.
-export const LcpStateSchema = z.object( {
-	// Pages to optimize
-	pages: z.array( PageSchema ),
-	status: z.enum( [ 'not_analyzed', 'pending', 'analyzed', 'error' ] ),
-	created: z.coerce.number().optional(),
-	updated: z.coerce.number().optional(),
-} );
+// Resilience against a single bad entry lives at the page and error level (above), so one bad
+// page or error degrades in place instead of wiping every analyzed result. The top-level `.catch()`
+// only fires for a malformed top-level shape, e.g. the disabled-module optimize response
+// `{ success: false, state: [] }` where `state` is `[]`: it keeps that from throwing a ZodError
+// before the action's own `success: false` handler can map it to the LCP error state.
+export const LcpStateSchema = z
+	.object( {
+		// Pages to optimize
+		pages: z.array( PageSchema ),
+		status: z.enum( [ 'not_analyzed', 'pending', 'analyzed', 'error' ] ),
+		created: z.coerce.number().optional(),
+		updated: z.coerce.number().optional(),
+	} )
+	.catch( { pages: [], status: 'not_analyzed' } );
 
 /**
  * Infer Zod Types

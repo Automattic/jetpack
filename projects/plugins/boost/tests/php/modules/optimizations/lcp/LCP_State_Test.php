@@ -77,14 +77,18 @@ class LCP_State_Test extends TestCase {
 			->set_pending_pages( $pages )
 			->save();
 
-		$this->assertIsArray( $this->stored, 'save() must persist a state array.' );
+		$stored = $this->stored;
+		$this->assertIsArray( $stored, 'save() must persist a state array.' );
+		if ( ! is_array( $stored ) ) {
+			return; // Unreachable after assertIsArray; narrows the type for static analysis.
+		}
 
 		// The state is NOT the not_analyzed fallback: pending pages are preserved.
-		$this->assertSame( 'pending', $this->stored['status'] );
-		$this->assertCount( 3, $this->stored['pages'] );
+		$this->assertSame( 'pending', $stored['status'] );
+		$this->assertCount( 3, $stored['pages'] );
 
 		// Every page carries a status, including the duplicate that set_pending_pages() skips.
-		foreach ( $this->stored['pages'] as $page ) {
+		foreach ( $stored['pages'] as $page ) {
 			$this->assertArrayHasKey( 'status', $page, 'Every page must have a status or the schema rejects the write.' );
 			$this->assertSame( 'pending', $page['status'] );
 		}

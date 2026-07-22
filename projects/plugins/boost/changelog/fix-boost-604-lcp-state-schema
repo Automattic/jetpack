@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-LCP: stop silently discarding analysis results when an error meta has an empty or page-navigated shape, or when the homepage appears in the custom cornerstone list.
+LCP: Preserve analysis results when a page reports an error or when the homepage is also configured as a cornerstone page.

@@ -116,6 +116,17 @@ describe( 'LcpStateSchema', () => {
 		expect( result.pages[ 2 ].key ).toBe( 'b' );
 	} );
 
+	it( 'degrades a malformed top-level state to the not_analyzed fallback instead of throwing', () => {
+		// The disabled-module optimize response is `{ success: false, state: [] }`; the action
+		// schema parses `state` through LcpStateSchema before the `success: false` handler runs, so
+		// `[]` (and any other malformed top-level shape) must degrade rather than throw a ZodError.
+		expect( LcpStateSchema.parse( [] ) ).toEqual( { pages: [], status: 'not_analyzed' } );
+		expect( LcpStateSchema.parse( { status: 'bogus', pages: [] } ) ).toEqual( {
+			pages: [],
+			status: 'not_analyzed',
+		} );
+	} );
+
 	it( 'parses a normal analyzed state unchanged', () => {
 		const state = analyzedState( [ okPage( 'a' ), okPage( 'b' ) ] );
 
