@@ -24,8 +24,6 @@ export type SubscribersListAttributes = {
  * six most recent subscribers.
  */
 export default {
-	name: 'jpa/subscribers-list',
-	title: __( 'Latest Subscribers', 'jetpack-premium-analytics' ),
 	icon: people,
 	attributes: [
 		{

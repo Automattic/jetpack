@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 
 /**
@@ -19,7 +18,5 @@ export type PostingActivityAttributes = Record< never, never >;
  * `stats/streak` endpoint has no comparison period, so no delta is shown.
  */
 export default {
-	name: 'jpa/posting-activity',
-	title: __( 'Posting activity', 'jetpack-premium-analytics' ),
 	icon: calendar,
 };

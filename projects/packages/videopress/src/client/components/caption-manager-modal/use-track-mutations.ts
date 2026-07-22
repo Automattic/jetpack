@@ -24,7 +24,6 @@ import {
 /**
  * Types
  */
-import type { NoticeState } from './track-helpers';
 import type { CaptionTrack, SavedCaptionTrack } from '../../lib/video-tracks/caption-tracks';
 import type { UploadTrackDataProps, VideoTextTrack } from '../../lib/video-tracks/types';
 import type { Dispatch, SetStateAction } from 'react';
@@ -38,7 +37,7 @@ type UseTrackMutationsArgs = {
 	setManagedTracks: Dispatch< SetStateAction< VideoTextTrack[] > >;
 	setCaptionTracks: Dispatch< SetStateAction< SavedCaptionTrack[] > >;
 	onTracksChange: ( tracks: VideoTextTrack[] ) => void;
-	setNotice: ( notice: NoticeState ) => void;
+	notify: ( content: string ) => void;
 };
 
 type UploadAndReconcileArgs = {
@@ -68,7 +67,7 @@ export type UploadOutcome = 'uploaded' | 'cleanup-failed' | 'failed';
  * @param args.setManagedTracks - Managed track list setter.
  * @param args.setCaptionTracks - Caption track (draft) list setter.
  * @param args.onTracksChange   - Host callback for managed track changes.
- * @param args.setNotice        - Modal notice setter.
+ * @param args.notify           - Adds a snackbar notice.
  * @return Mutation callbacks and busy state.
  */
 export function useTrackMutations( {
@@ -78,7 +77,7 @@ export function useTrackMutations( {
 	setManagedTracks,
 	setCaptionTracks,
 	onTracksChange,
-	setNotice,
+	notify,
 }: UseTrackMutationsArgs ) {
 	const [ isSavingUpload, setIsSavingUpload ] = useState( false );
 	const [ isSavingCaptionTrack, setIsSavingCaptionTrack ] = useState( false );
@@ -118,14 +117,13 @@ export function useTrackMutations( {
 			const response = await uploadTrackForGuid( trackToUpload, guid );
 
 			if ( hasTrackApiError( response ) ) {
-				setNotice( {
-					status: 'error',
-					message: sprintf(
+				notify(
+					sprintf(
 						/* translators: %s: VideoPress API error. */
 						__( 'Track error: %s', 'jetpack-videopress-pkg' ),
 						getTrackApiErrorMessage( response, apiErrorFallback )
-					),
-				} );
+					)
+				);
 				return null;
 			}
 
@@ -170,7 +168,7 @@ export function useTrackMutations( {
 			applyTracksChange( updatedTracks );
 			return { track: uploadedTrack, cleanupFailed };
 		},
-		[ applyTracksChange, guid, managedTracks, setNotice ]
+		[ applyTracksChange, guid, managedTracks, notify ]
 	);
 
 	/**
@@ -187,7 +185,6 @@ export function useTrackMutations( {
 			{ announce = true }: { announce?: boolean } = {}
 		): Promise< SavedCaptionTrack | null > => {
 			setIsSavingCaptionTrack( true );
-			setNotice( null );
 
 			try {
 				const savedCaptionTrack = await saveCaptionTrack( payload );
@@ -203,29 +200,24 @@ export function useTrackMutations( {
 					return next;
 				} );
 				if ( announce ) {
-					setNotice( {
-						status: 'success',
-						message:
-							payload.status === 'publish'
-								? __( 'Subtitle track published.', 'jetpack-videopress-pkg' )
-								: __( 'Subtitle track draft saved.', 'jetpack-videopress-pkg' ),
-					} );
+					notify(
+						payload.status === 'publish'
+							? __( 'Subtitle track published.', 'jetpack-videopress-pkg' )
+							: __( 'Subtitle track draft saved.', 'jetpack-videopress-pkg' )
+					);
 				}
 				return savedCaptionTrack;
 			} catch ( error ) {
 				debug( 'save caption track error', error );
 				if ( announce ) {
-					setNotice( {
-						status: 'error',
-						message: __( 'Unable to save subtitle track.', 'jetpack-videopress-pkg' ),
-					} );
+					notify( __( 'Unable to save subtitle track.', 'jetpack-videopress-pkg' ) );
 				}
 				return null;
 			} finally {
 				setIsSavingCaptionTrack( false );
 			}
 		},
-		[ setCaptionTracks, setNotice ]
+		[ notify, setCaptionTracks ]
 	);
 
 	/**
@@ -239,7 +231,6 @@ export function useTrackMutations( {
 			args: Omit< UploadAndReconcileArgs, 'apiErrorFallback' >
 		): Promise< UploadOutcome > => {
 			setIsSavingUpload( true );
-			setNotice( null );
 
 			try {
 				const result = await uploadAndReconcileTrack( {
@@ -252,23 +243,22 @@ export function useTrackMutations( {
 				return result.cleanupFailed ? 'cleanup-failed' : 'uploaded';
 			} catch ( uploadError ) {
 				debug( 'upload track error', uploadError );
-				setNotice( {
-					status: 'error',
-					message: sprintf(
+				notify(
+					sprintf(
 						/* translators: %s: VideoPress API error. */
 						__( 'Track error: %s', 'jetpack-videopress-pkg' ),
 						getTrackApiErrorMessage(
 							uploadError,
 							__( 'Unable to upload track.', 'jetpack-videopress-pkg' )
 						)
-					),
-				} );
+					)
+				);
 				return 'failed';
 			} finally {
 				setIsSavingUpload( false );
 			}
 		},
-		[ setNotice, uploadAndReconcileTrack ]
+		[ notify, uploadAndReconcileTrack ]
 	);
 
 	/**
@@ -290,7 +280,6 @@ export function useTrackMutations( {
 			captionTrackPayload: CaptionTrack;
 		} ): Promise< PublishOutcome > => {
 			setIsPublishing( true );
-			setNotice( null );
 
 			try {
 				const result = await uploadAndReconcileTrack( {
@@ -311,29 +300,25 @@ export function useTrackMutations( {
 					 * The VTT is already live on the video; only the local editable copy
 					 * failed to save. Say so instead of implying nothing was published.
 					 */
-					setNotice( {
-						status: 'error',
-						message: __(
+					notify(
+						__(
 							'Subtitles were published to the video, but saving the editable copy failed. Reopen the track to keep editing.',
 							'jetpack-videopress-pkg'
-						),
-					} );
+						)
+					);
 					return 'save-failed';
 				}
 
 				return result.cleanupFailed ? 'cleanup-failed' : 'published';
 			} catch ( error ) {
 				debug( 'publish manual caption track error', error );
-				setNotice( {
-					status: 'error',
-					message: __( 'Unable to publish subtitles.', 'jetpack-videopress-pkg' ),
-				} );
+				notify( __( 'Unable to publish subtitles.', 'jetpack-videopress-pkg' ) );
 				return 'failed';
 			} finally {
 				setIsPublishing( false );
 			}
 		},
-		[ saveCaptionTrackRecord, setNotice, uploadAndReconcileTrack ]
+		[ notify, saveCaptionTrackRecord, uploadAndReconcileTrack ]
 	);
 
 	/**
@@ -345,21 +330,19 @@ export function useTrackMutations( {
 		async ( track: VideoTextTrack ) => {
 			const key = getTrackKey( track );
 			setDeletingTrackKey( key );
-			setNotice( null );
 
 			// API error envelopes and thrown transport errors get the same notice.
 			const notifyDeleteError = ( source: unknown ) =>
-				setNotice( {
-					status: 'error',
-					message: sprintf(
+				notify(
+					sprintf(
 						/* translators: %s: VideoPress API error. */
 						__( 'Track error: %s', 'jetpack-videopress-pkg' ),
 						getTrackApiErrorMessage(
 							source,
 							__( 'Unable to delete track.', 'jetpack-videopress-pkg' )
 						)
-					),
-				} );
+					)
+				);
 
 			try {
 				const response = await deleteTrackForGuid( track, guid );
@@ -376,7 +359,7 @@ export function useTrackMutations( {
 				setDeletingTrackKey( null );
 			}
 		},
-		[ applyTracksChange, guid, managedTracks, setNotice ]
+		[ applyTracksChange, guid, managedTracks, notify ]
 	);
 
 	/**
@@ -387,22 +370,18 @@ export function useTrackMutations( {
 	const deleteDraftTrack = useCallback(
 		async ( captionTrack: SavedCaptionTrack ) => {
 			setDeletingTrackKey( getStoredCaptionTrackKey( captionTrack ) );
-			setNotice( null );
 
 			try {
 				await deleteCaptionTrack( captionTrack.id );
 				setCaptionTracks( current => current.filter( item => item.id !== captionTrack.id ) );
 			} catch ( deleteError ) {
 				debug( 'delete caption draft error', deleteError );
-				setNotice( {
-					status: 'error',
-					message: __( 'Unable to delete the subtitle draft.', 'jetpack-videopress-pkg' ),
-				} );
+				notify( __( 'Unable to delete the subtitle draft.', 'jetpack-videopress-pkg' ) );
 			} finally {
 				setDeletingTrackKey( null );
 			}
 		},
-		[ setCaptionTracks, setNotice ]
+		[ notify, setCaptionTracks ]
 	);
 
 	/**
@@ -414,15 +393,11 @@ export function useTrackMutations( {
 		async ( track: VideoTextTrack ) => {
 			const key = getTrackKey( track );
 			setDownloadingTrackKey( key );
-			setNotice( null );
 
 			try {
 				const content = await fetchTrackContentForGuid( track, guid, isPrivate );
 				if ( ! content ) {
-					setNotice( {
-						status: 'error',
-						message: __( 'Unable to download track content.', 'jetpack-videopress-pkg' ),
-					} );
+					notify( __( 'Unable to download track content.', 'jetpack-videopress-pkg' ) );
 					return;
 				}
 
@@ -440,15 +415,12 @@ export function useTrackMutations( {
 				setTimeout( () => window.URL.revokeObjectURL( url ), 0 );
 			} catch ( downloadError ) {
 				debug( 'download track error', downloadError );
-				setNotice( {
-					status: 'error',
-					message: __( 'Unable to download track content.', 'jetpack-videopress-pkg' ),
-				} );
+				notify( __( 'Unable to download track content.', 'jetpack-videopress-pkg' ) );
 			} finally {
 				setDownloadingTrackKey( null );
 			}
 		},
-		[ guid, isPrivate, setNotice ]
+		[ guid, isPrivate, notify ]
 	);
 
 	return {

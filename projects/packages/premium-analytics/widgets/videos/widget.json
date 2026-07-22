@@ -1,7 +1,0 @@
-{
-	"name": "jpa/videos",
-	"title": "Videos",
-	"description": "Most played videos, sourced from Jetpack Stats.",
-	"category": "stats",
-	"presentation": "framed"
-}

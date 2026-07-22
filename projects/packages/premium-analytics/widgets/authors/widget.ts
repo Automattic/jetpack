@@ -21,8 +21,6 @@ export type AuthorsAttributes = {
  * Widget type definition.
  */
 export default {
-	name: 'jpa/authors',
-	title: __( 'Authors', 'jetpack-premium-analytics' ),
 	icon: postAuthor,
 	attributes: [
 		{

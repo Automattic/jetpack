@@ -505,6 +505,7 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
  * @param {object|null} [opts.priceRange]             - `{ min, max }` against `wc.price`.
  * @param {object|null} [opts.staticPostTypes]        - `{include, exclude}` page-level scope from search-results.
  * @param {object}      [opts.staticFilterSelections] - { [filterKey]: string } static-filter values.
+ * @param {number}      [opts.size]                   - Results per page, resolved server-side from `search-results`' `resultsPerPage`.
  * @return {string} Full URL.
  */
 export function buildSearchUrl( {
@@ -521,13 +522,14 @@ export function buildSearchUrl( {
 	priceRange = null,
 	staticPostTypes = null,
 	staticFilterSelections = {},
+	size = 10,
 } ) {
 	// `qss.encode()` encodes every value, so we pass the raw query. The
 	// overlay double-encodes; v1.3 tolerates it today but breaks on `&`/`+`/non-ASCII.
 	const params = {
 		query: searchQuery || '',
 		sort: mapSortToApiValue( sortOrder ),
-		size: 10,
+		size,
 		fields: SEARCH_FIELDS,
 		highlight_fields: HIGHLIGHT_FIELDS,
 	};

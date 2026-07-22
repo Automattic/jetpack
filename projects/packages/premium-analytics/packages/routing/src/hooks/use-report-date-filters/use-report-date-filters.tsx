@@ -1,34 +1,22 @@
 /**
  * External dependencies
  */
-import {
-	getSiteTimezone,
-	localTZDate,
-	type ReportQueryParams,
-} from '@jetpack-premium-analytics/data';
-import {
-	type ComparisonPresetId,
-	type DateRange,
-	type PrimaryPresetId,
-} from '@jetpack-premium-analytics/datetime';
+import { getSiteTimezone, localTZDate } from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { endOfDay, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../../search/comparison';
 import { encodeDateToSearchParam } from '../../search/date-range';
 import { useStagedSearch } from '../use-staged-search';
-
-type ReportQuerySearchParams = Partial<
-	ReportQueryParams & {
-		preset?: PrimaryPresetId;
-		compare_preset?: ComparisonPresetId;
-		comp?: '1';
-	}
->;
+import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
+import type {
+	ComparisonPresetId,
+	DateRange,
+	PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`, minus the
@@ -109,38 +97,10 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 
 	const onChange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			if ( ! nextRange && ! nextPresetId ) {
-				return;
-			}
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
 
-			if ( nextRange && nextRange.from && nextRange.to ) {
-				/*
-				 * Stage `from` and `to` as ISO strings. The `to` date is adjusted
-				 * to the end of the day, since the date picker core component sets
-				 * the time to 00:00:00.
-				 */
-				const rangeFrom = encodeDateToSearchParam( nextRange.from );
-				const rangeTo = encodeDateToSearchParam( endOfDay( nextRange.to ) );
-				const patch: ReportQuerySearchParams = { from: rangeFrom, to: rangeTo };
-
-				/*
-				 * When comparison is enabled, re-derive the comparison window from
-				 * the new primary range so widgets compare against the matching
-				 * previous period instead of the stale dates.
-				 */
-				if ( effective.comp === '1' ) {
-					const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
-					if ( derived ) {
-						patch.compare_from = derived.compare_from;
-						patch.compare_to = derived.compare_to;
-					}
-				}
-
+			if ( patch ) {
 				stage( patch );
-			}
-
-			if ( nextPresetId ) {
-				stage( { preset: nextPresetId } );
 			}
 		},
 		[ stage, effective ]

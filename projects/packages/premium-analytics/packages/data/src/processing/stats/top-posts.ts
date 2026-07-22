@@ -31,7 +31,6 @@ export interface StatsTopPostsItem extends StatsNormalizedItemBase< StatsTopPost
 }
 
 export type StatsTopPostsComparisonItem = StatsTopPostsItem & {
-	link: string;
 	previousViews?: number;
 };
 
@@ -40,15 +39,19 @@ type StatsTopPostsComparisonRowsOptions = {
 	postTypes?: string[] | null;
 };
 
+// URL-less rows are kept: with `skip_archives=1` the API returns the
+// homepage-as-latest-posts entry without a link, and it belongs in the list.
 function filterStatsTopPostItems(
 	items: StatsTopPostsItem[],
 	postTypes?: string[] | null
-): Array< StatsTopPostsItem & { link: string } > {
-	return items
-		.filter(
-			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
-		)
-		.filter( item => ! postTypes || postTypes.includes( String( item.type ?? '' ) ) );
+): StatsTopPostsItem[] {
+	return items.filter( item => ! postTypes || postTypes.includes( String( item.type ?? '' ) ) );
+}
+
+// Rows match across periods by URL; the URL-less homepage entry falls back to
+// its label.
+function getStatsTopPostKey( item: StatsTopPostsItem ): string | null {
+	return item.link ?? ( typeof item.label === 'string' ? item.label : null );
 }
 
 function getStatsTopPostLink( item: StatsRecord ): string | null {
@@ -106,18 +109,21 @@ export function mergeStatsTopPostsComparisonRows(
 ) {
 	const { maxRows, postTypes } = options;
 
+	// Rank before limiting: the API caps `postviews` at `max` but appends the
+	// homepage entry on top of it, so the visible-row cap must re-rank first.
+	const rankedPrimaryRows = [
+		...filterStatsTopPostItems( getStatsReportItems( primaryReport ), postTypes ),
+	].sort( ( a, b ) => b.views - a.views );
+
 	return mergeStatsComparisonRows<
-		StatsTopPostsItem & { link: string },
-		StatsTopPostsItem & { link: string },
-		StatsTopPostsComparisonItem & { link: string }
+		StatsTopPostsItem,
+		StatsTopPostsItem,
+		StatsTopPostsComparisonItem
 	>( {
-		primaryRows: limitStatsRows(
-			filterStatsTopPostItems( getStatsReportItems( primaryReport ), postTypes ),
-			maxRows
-		),
+		primaryRows: limitStatsRows( rankedPrimaryRows, maxRows ),
 		comparisonRows: filterStatsTopPostItems( getStatsReportItems( comparisonReport ), postTypes ),
-		getPrimaryKey: item => item.link,
-		getComparisonKey: item => item.link,
+		getPrimaryKey: getStatsTopPostKey,
+		getComparisonKey: getStatsTopPostKey,
 		getComparisonValue: item => item.views,
 		mapRow: ( item, { previousValue } ) => ( {
 			...item,

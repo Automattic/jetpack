@@ -54,8 +54,6 @@ export const DEFAULT_SUBSCRIBER_METRICS: SubscriberMetricId[] = SUBSCRIBER_METRI
  * metric enabled.
  */
 export default {
-	name: 'jpa/subscriber-highlights',
-	title: __( 'Subscriber highlights', 'jetpack-premium-analytics' ),
 	icon: people,
 	attributes: [
 		{

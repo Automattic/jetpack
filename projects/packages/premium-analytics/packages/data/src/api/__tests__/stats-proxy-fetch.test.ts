@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { fetchStatsProxy, getStatsProxyPath } from '../stats-proxy-fetch';
+import { fetchReport, fetchStatsProxy, getStatsProxyPath } from '../stats-proxy-fetch';
 
 jest.mock( '@wordpress/api-fetch' );
 
@@ -17,7 +17,22 @@ beforeEach( () => {
 
 afterEach( () => {
 	jest.clearAllMocks();
+	delete window.JetpackScriptData;
 } );
+
+function setSimpleScriptData( blogId = 191664832 ) {
+	Object.defineProperty( window, 'JetpackScriptData', {
+		configurable: true,
+		value: {
+			site: {
+				host: 'wpcom',
+				wpcom: {
+					blog_id: blogId,
+				},
+			},
+		},
+	} );
+}
 
 describe( 'getStatsProxyPath', () => {
 	it( 'builds a v1.1 stats proxy path', () => {
@@ -61,6 +76,81 @@ describe( 'getStatsProxyPath', () => {
 			} )
 		).toBe( '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits?period=day' );
 	} );
+
+	it( 'builds Simple v1.1 stats paths for the WPCOM apiFetch bridge', () => {
+		setSimpleScriptData();
+
+		expect(
+			getStatsProxyPath( {
+				version: '1.1',
+				endpoint: 'stats/location-views/country',
+				params: { max: 10, period: 'day' },
+			} )
+		).toBe( '/rest/v1.1/stats/location-views/country?max=10&period=day' );
+	} );
+
+	it( 'builds Simple v2 paths for the WPCOM apiFetch bridge', () => {
+		setSimpleScriptData();
+
+		expect(
+			getStatsProxyPath( {
+				version: '2',
+				endpoint: 'analytics/reports/sessions/by-date',
+				params: { interval: 'day' },
+			} )
+		).toBe( '/wpcom/v2/analytics/reports/sessions/by-date?interval=day' );
+	} );
+
+	it( 'adds the current Simple site query for global requests', () => {
+		setSimpleScriptData( 67890 );
+
+		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } ) ).toBe(
+			'/rest/v1.2/upgrades?site=67890'
+		);
+	} );
+
+	it( 'does not overwrite an explicit site query on Simple global requests', () => {
+		setSimpleScriptData( 67890 );
+
+		expect(
+			getStatsProxyPath( {
+				version: '1.2',
+				endpoint: '/upgrades',
+				params: { site: 41 },
+				global: true,
+			} )
+		).toBe( '/rest/v1.2/upgrades?site=41' );
+	} );
+
+	it( 'does not scope a request as global on Simple without opting in', () => {
+		setSimpleScriptData( 67890 );
+
+		// No `global: true` — treated as an ordinary site-scoped request even
+		// though the endpoint name is `upgrades`, since the resolver no longer
+		// infers `global` from the endpoint string.
+		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades' } ) ).toBe(
+			'/rest/v1.2/upgrades'
+		);
+	} );
+
+	it( 'throws for a Simple global request with no site to scope to', () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { site: { host: 'wpcom' } },
+		} );
+
+		expect( () =>
+			getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } )
+		).toThrow( /has no site to scope to/ );
+	} );
+
+	it( 'does not require a site for a non-Simple global request', () => {
+		// Local proxy path is unaffected by `global` — the flag only changes
+		// Simple's public-api dispatch, so a missing blog id shouldn't throw here.
+		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } ) ).toBe(
+			'/jetpack-premium-analytics/v1/proxy/v1.2/upgrades'
+		);
+	} );
 } );
 
 describe( 'fetchStatsProxy', () => {
@@ -91,6 +181,74 @@ describe( 'fetchStatsProxy', () => {
 			path: '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats-dashboard/modules',
 			method: 'POST',
 			data: body,
+		} );
+	} );
+
+	it( 'uses WPCOM Simple paths directly before apiFetch middleware runs', async () => {
+		setSimpleScriptData();
+
+		await fetchStatsProxy( {
+			version: '1.1',
+			endpoint: 'stats/location-views/country',
+			params: { max: 10, period: 'day' },
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/rest/v1.1/stats/location-views/country?max=10&period=day',
+			method: 'GET',
+		} );
+	} );
+
+	it( 'builds report paths through the local proxy by default', async () => {
+		await fetchReport( 'orders/by-date', {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			interval: 'day',
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders/by-date?from=2026-06-01&to=2026-06-30&interval=day',
+			method: 'GET',
+		} );
+	} );
+
+	it( 'builds Simple report paths for the WPCOM apiFetch bridge', async () => {
+		setSimpleScriptData();
+
+		await fetchReport( 'sessions/by-device', { from: '2026-06-01', to: '2026-06-30' } );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/analytics/reports/sessions/by-device?from=2026-06-01&to=2026-06-30',
+			method: 'GET',
+		} );
+	} );
+
+	it( 'serializes nested report filters into query args', async () => {
+		await fetchReport( 'coupons/by-date', {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			filters: [ { key: 'product', compare: 'IN', value: '42' } ],
+		} );
+
+		const path = ( mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string } ).path;
+		expect( decodeURIComponent( path ) ).toBe(
+			'/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coupons/by-date?from=2026-06-01&to=2026-06-30&filters[0][key]=product&filters[0][compare]=IN&filters[0][value]=42'
+		);
+	} );
+
+	it( 'marks WPCOM Simple upgrades requests as global when opted in', async () => {
+		setSimpleScriptData( 67890 );
+
+		await fetchStatsProxy( {
+			version: '1.2',
+			endpoint: 'upgrades',
+			global: true,
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/rest/v1.2/upgrades?site=67890',
+			method: 'GET',
+			global: true,
 		} );
 	} );
 } );

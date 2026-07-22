@@ -39,12 +39,6 @@ export type StorePerformanceAttributes = {
  * instances: every metric enabled.
  */
 export default {
-	name: 'jpa/store-performance',
-	title: __( 'Store performance', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows key store performance metrics at a glance.',
-		'jetpack-premium-analytics'
-	),
 	icon: store,
 	attributes: [
 		{

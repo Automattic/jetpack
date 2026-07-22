@@ -7,8 +7,8 @@
  *
  * To mock report data we register an `apiFetch` middleware that intercepts the
  * proxy report paths and returns generated mock data. The data package fetches
- * every report through `apiFetch( { path } )` using the same base path
- * (`reportsPath`), so a single middleware covers all widget stories.
+ * every report through `fetchReport()`, which builds the same base path, so a
+ * single middleware covers all widget stories.
  *
  * The middleware is registered exactly once (guarded by a module-level flag) and
  * is triggered automatically when `with-widget-root.tsx` is imported.
@@ -16,6 +16,7 @@
 /**
  * External dependencies
  */
+import { queryClient } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
 /**
@@ -45,18 +46,24 @@ import {
 	mockCustomersComparisonData,
 	mockCustomersByDateData,
 	mockCustomersByDateComparisonData,
+	mockCommentsData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
+	mockTagsData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsPostData,
+	mockPostCommentsData,
+	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
 	mockPlanUsageData,
 	buildEmailRateResponse,
+	buildEmailTimelineResponse,
 	mockEmailCountryBreakdown,
 	mockEmailDeviceBreakdown,
 	mockEmailClientBreakdown,
@@ -67,8 +74,8 @@ import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
- * Base path for Woo analytics report requests. Matches `reportsPath` in the data
- * package (`@jetpack-premium-analytics/data`).
+ * Base path for Woo analytics report requests. Matches the non-Simple path
+ * built by `fetchReport()` in the data package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
@@ -83,6 +90,14 @@ const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/v
 // own path branch rather than a `routeStatsReport()` case.
 const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
+const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings';
+// Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
+// matched with its own pattern rather than through routeStatsReport().
+const POST_LIKES_PATH_PATTERN =
+	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.2\/posts\/\d+\/likes(?:\?|$)/;
+// Post comments use the public `posts/{id}/replies` v1.1 endpoint.
+const POST_COMMENTS_PATH_PATTERN =
+	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/replies(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -165,6 +180,33 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	} else {
 		mockStateOverrides.set( pathFragment, state );
 	}
+}
+
+/**
+ * Story `beforeEach` that forces the shared `wordads/earnings` request into a
+ * loading, error, or empty state and drops its cached query on both enter and
+ * cleanup. Shared by every WordAds earnings widget story (highlights and the
+ * three history tables) so the cache-reset cannot drift between them.
+ *
+ * The earnings endpoint takes no params, so its query key is static and every
+ * WordAds story shares one cache entry (a distinct date preset can't separate
+ * them). Resetting on both edges gives each forced-state story a fresh fetch and
+ * clears a never-settling `loading` fetch before the next story reuses the key.
+ * Because the override is keyed by path, keep such stories off the shared
+ * autodocs page (`tags: [ '!autodocs' ]`).
+ *
+ * @param state - The forced mock state.
+ * @return A Storybook `beforeEach` implementation returning its cleanup.
+ */
+export function forceWordAdsEarningsState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'wordads/earnings', state );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+		return () => {
+			setReportMockState( 'wordads/earnings', null );
+			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+		};
+	};
 }
 
 const mockResponseOverrides = new Map< string, unknown >();
@@ -937,6 +979,12 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string ): unknown {
+	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
+	// shared fixture so post-scoped widgets render real values.
+	if ( subPath.startsWith( '/post/' ) ) {
+		return mockStatsPostData;
+	}
+
 	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
 		return mockSingleVideoData;
@@ -968,6 +1016,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/summary' )
 				? mockStatsSummaryComparisonData
 				: mockStatsSummaryData;
+		case '/comments':
+			// All-time report with no comparison period; the same body serves
+			// both the primary and comparison requests.
+			return mockCommentsData;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
@@ -976,6 +1028,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		case '/tags':
+			// The Stats `tags` endpoint has no comparison period, so the same
+			// primary fixture is returned for every request.
+			return mockTagsData;
 		case '/insights':
 			return mockStatsInsightsData;
 		default:
@@ -1029,8 +1085,8 @@ function playsFactorForWindow( endDate: string | undefined ): number {
  * Builds a mock Stats "video-plays" response so the Videos widget renders a
  * populated leaderboard in Storybook. The shape matches what
  * `sanitizeStatsVideoPlaysResponse` reads (`days.<date>.plays[]`), and play
- * counts scale by how recent the requested window is so the comparison period
- * reads lower than the primary one.
+ * metrics scale by how recent the requested window is so the comparison period
+ * reads lower than the primary one, including complete-stats highlight rows.
  *
  * @param requestPath - The request path, used to read the window's end date.
  * @return Raw video-plays response.
@@ -1040,13 +1096,13 @@ function buildVideoPlaysResponse( requestPath: string ) {
 	const date = endDate ?? new Date().toISOString().slice( 0, 10 );
 	const factor = playsFactorForWindow( endDate );
 	const videos = [
-		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820 },
-		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640 },
-		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980 },
-		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410 },
-		{ post_id: 105, title: 'Behind the Scenes', plays: 980 },
-		{ post_id: 106, title: 'Weekly Recap', plays: 540 },
-		{ post_id: 107, title: '', plays: 320 },
+		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820, hours: 72.4 },
+		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640, hours: 51.8 },
+		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980, hours: 38.2 },
+		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410, hours: 27.6 },
+		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9 },
+		{ post_id: 106, title: 'Weekly Recap', plays: 540, hours: 10.7 },
+		{ post_id: 107, title: '', plays: 320, hours: 6.1 },
 	];
 	const rows = videos.map( video => ( {
 		post_id: video.post_id,
@@ -1054,9 +1110,22 @@ function buildVideoPlaysResponse( requestPath: string ) {
 		url: `https://example.com/video/${ video.post_id }/`,
 		plays: Math.round( video.plays * factor ),
 		impressions: Math.round( video.plays * factor * 1.8 ),
-		watch_time: Math.round( video.plays * factor * 12 ),
-		retention_rate: 60,
+		watch_time: Number( ( video.hours * factor ).toFixed( 1 ) ),
+		retention_rate: Number( ( 67.6 * factor ).toFixed( 1 ) ),
 	} ) );
+	const completeStats = getQueryParam( requestPath, 'complete_stats' ) === '1';
+
+	if ( completeStats ) {
+		return {
+			date,
+			period: 'day',
+			days: {
+				summary: {
+					data: rows.map( ( { plays, ...row } ) => ( { ...row, views: plays } ) ),
+				},
+			},
+		};
+	}
 
 	// `summary.plays` feeds the summarized path (multi-day ranges set
 	// `summarize=1`); `days.<date>.plays` covers the single-day path.
@@ -1124,6 +1193,43 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 		unit,
 		fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
 		data: rows,
+	};
+}
+
+/**
+ * Builds the wordads/earnings response for the WordAds earnings widgets.
+ *
+ * The earnings module reports all-time totals (not period-scoped), so this
+ * returns a fixed raw WPCOM payload: `total_earnings` and `total_amount_owed`
+ * feed the widget's Earnings / Paid / Outstanding cards (paid = earnings −
+ * owed). All three per-period breakdowns are populated so the three history
+ * widgets render their primary table state by default. Together the rows cover
+ * every known payment status for visual review.
+ *
+ * @return Raw wordads/earnings response in the WPCOM shape.
+ */
+function buildWordAdsEarningsResponse() {
+	return {
+		earnings: {
+			total_earnings: 1284.57,
+			total_amount_owed: 342.19,
+			wordads: {
+				'2026-02': { amount: '96.80', pageviews: 71178, status: 1 },
+				'2026-03': { amount: '79.51', pageviews: 64642, status: 1 },
+				'2026-04': { amount: '75.67', pageviews: 62021, status: 1 },
+				'2026-05': { amount: '129.24', pageviews: 84470, status: 1 },
+				'2026-06': { amount: '75.99', pageviews: 59367, status: 0 },
+				'2026-07': { amount: '90.31', pageviews: 65921, status: 0 },
+			},
+			sponsored: {
+				'2026-07': { amount: '44.14', pageviews: 14332, status: 3 },
+				'2026-06': { amount: '28.23', pageviews: 8580, status: 4 },
+			},
+			adjustment: {
+				'2026-04': { amount: '2.47', pageviews: 0, status: 2 },
+				'2026-02': { amount: '3.32', pageviews: 0, status: 1 },
+			},
+		},
 	};
 }
 
@@ -1196,6 +1302,14 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		return mockPlanUsageData;
 	}
 
+	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {
+		return mockPostLikesData;
+	}
+
+	if ( POST_COMMENTS_PATH_PATTERN.test( requestPath ) ) {
+		return mockPostCommentsData;
+	}
+
 	if ( requestPath.startsWith( STATS_WORDADS_STATS_PATH ) ) {
 		const queryIndex = requestPath.indexOf( '?' );
 		return buildWordAdsStatsResponse(
@@ -1203,8 +1317,21 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		);
 	}
 
+	if ( requestPath.startsWith( STATS_WORDADS_EARNINGS_PATH ) ) {
+		return buildWordAdsEarningsResponse();
+	}
+
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {
 		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
+
+		// Per-post email timelines — `/opens|clicks/emails/<postId>` with
+		// `stats_fields=timeline`. Matched here rather than in routeStatsReport()
+		// because the generated buckets read period/quantity/date off the query.
+		const emailTimeline = subPath.match( /^\/(opens|clicks)\/emails\/\d+$/ );
+		if ( emailTimeline && getQueryParam( requestPath, 'stats_fields' ) === 'timeline' ) {
+			return buildEmailTimelineResponse( emailTimeline[ 1 ] as 'opens' | 'clicks', requestPath );
+		}
+
 		const response = routeStatsReport( subPath );
 
 		if ( response !== null ) {

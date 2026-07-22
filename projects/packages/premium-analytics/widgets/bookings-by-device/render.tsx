@@ -7,6 +7,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -27,7 +28,16 @@ type BookingsByDeviceWidgetProps = WidgetRenderProps< BookingsByDeviceRenderAttr
 };
 
 function BookingsByDeviceWidget() {
-	return <SalesByDeviceWidget filter={ BOOKINGS_FILTER } />;
+	return (
+		<SalesByDeviceWidget
+			filter={ BOOKINGS_FILTER }
+			emptyStateText={ __( 'No booking data in this period.', 'jetpack-premium-analytics' ) }
+			errorText={ __(
+				"We couldn't load booking data by device. Please try again in a moment.",
+				'jetpack-premium-analytics'
+			) }
+		/>
+	);
 }
 
 /**

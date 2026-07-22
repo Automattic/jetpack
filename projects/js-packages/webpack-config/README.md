@@ -207,8 +207,6 @@ plugins: {
 
 Note that I18nCheckPlugin, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
 
-Note that ForkTSCheckerPlugin must be explicitly enabled by passing an options object.
-
 ##### `DefinePlugin( defines )`
 
 This provides an instance of Webpack's `DefinePlugin`, configured by default with the following defines:
@@ -234,18 +232,6 @@ One additional option is recognized:
 ##### `DuplicatePackageCheckerPlugin( options )`
 
 This provides an instance of [@cerner/duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/@cerner/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
-
-##### `ForkTSCheckerPlugin( options )`
-
-This provides an instance of [fork-ts-checker-webpack-plugin](https://www.npmjs.com/package/fork-ts-checker-webpack-plugin) configured for use alongside `@babel/preset-typescript`. The `options` are passed to the plugin.
-
-The default configuration sets the following:
-
-- `typescript.mode` to "write-dts".
-- `typescript.diagnosticOptions.semantic` to true.
-- `typescript.diagnosticOptions.syntactic` to true.
-
-Note that the optional peer dependency on `typescript` must be satisfied for this plugin to work.
 
 ##### `I18nCheckPlugin( options )`
 

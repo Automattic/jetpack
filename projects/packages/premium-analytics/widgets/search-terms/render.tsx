@@ -4,6 +4,8 @@
 import {
 	calculateDelta,
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	sharePercentage,
@@ -56,7 +58,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 				),
 				currentValue: term.views,
 				previousValue: previousViews,
-				currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
+				currentShare: sharePercentage( term.views, maxValue ),
 				previousShare:
 					hasComparison && previousViews !== undefined
 						? sharePercentage( previousViews, prevMaxValue )
@@ -101,6 +103,9 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					/>
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="search-terms" />
+			</WidgetFooter>
 		</Stack>
 	);
 }

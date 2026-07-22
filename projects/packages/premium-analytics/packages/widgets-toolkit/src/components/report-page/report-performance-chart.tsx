@@ -186,11 +186,13 @@ export function ReportPerformanceChart( {
 			</div>
 			{ ! isChartHidden && (
 				<div className={ styles.chart }>
-					<ComparativeLineChart
-						series={ series }
-						styles={ seriesStyles }
-						dataFormat={ dataFormat }
-					/>
+					{ ( ! isLoading || series.length > 0 ) && (
+						<ComparativeLineChart
+							series={ series }
+							styles={ seriesStyles }
+							dataFormat={ dataFormat }
+						/>
+					) }
 					{ isLoading && <WidgetLoadingOverlay /> }
 				</div>
 			) }

@@ -1,12 +1,11 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
 import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DashboardSections } from './components';
@@ -106,14 +105,14 @@ function Dashboard(): JSX.Element {
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
 						{ sections.map( section => (
-							<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
+							<SectionTabPanel key={ section.id } value={ section.id } className={ styles.content }>
 								{ activeSection === section.id ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
 										<WidgetDashboard.Widgets />
 									</>
 								) : null }
-							</Tabs.Panel>
+							</SectionTabPanel>
 						) ) }
 					</DashboardSections>
 

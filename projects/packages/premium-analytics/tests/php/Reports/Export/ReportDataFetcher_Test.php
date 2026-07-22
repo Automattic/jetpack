@@ -1,19 +1,21 @@
 <?php
 /**
- * Tests for the CSV export Report_Data_Fetcher pure helpers (merge/normalize logic).
+ * Tests for the CSV export Report_Data_Fetcher helpers.
  *
- * The network methods fetch()/make_proxy_request() are exercised against the live site
- * (they call the WPCom proxy); these tests cover the data-shaping methods that need no network.
+ * The proxy error path is intercepted at the local REST layer, so it needs no external request.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Error;
+use WP_REST_Response;
+use WP_REST_Server;
 
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 
@@ -110,5 +112,186 @@ class ReportDataFetcher_Test extends TestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'proxy_response_encode_failed', $result->get_error_code() );
+	}
+
+	public function test_build_external_api_error_preserves_external_message() {
+		$response = new WP_REST_Response(
+			(object) array(
+				'code'    => 'woocommerce_analytics_bookings_error',
+				'message' => 'Failed to retrieve bookings data. Please try again later.',
+				'data'    => (object) array(
+					'status' => 500,
+				),
+			),
+			500
+		);
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame( 'External API error', $result->get_error_message() );
+		$this->assertSame(
+			array(
+				'status'        => 500,
+				'message'       => 'Failed to retrieve bookings data. Please try again later.',
+				'external_code' => 'woocommerce_analytics_bookings_error',
+			),
+			$result->get_error_data()
+		);
+	}
+
+	public function test_build_external_api_error_preserves_invalid_fields_metadata_for_retry() {
+		$response = new WP_REST_Response(
+			(object) array(
+				'code'    => 'rest_invalid_param',
+				'message' => 'Invalid parameter(s): fields',
+				'data'    => (object) array(
+					'status' => 400,
+					'params' => (object) array(
+						'fields' => 'fields is not one of the allowed values.',
+					),
+				),
+			),
+			400
+		);
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 400,
+				'message'       => 'Invalid parameter(s): fields',
+				'external_code' => 'rest_invalid_param',
+				'params'        => array(
+					'fields' => 'fields is not one of the allowed values.',
+				),
+			),
+			$result->get_error_data()
+		);
+		$this->assertTrue( $this->invoke( 'is_invalid_fields_error', array( $result ) ) );
+	}
+
+	public function test_build_external_api_error_uses_fallback_status_without_external_details() {
+		$response = new WP_REST_Response( array(), 0 );
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status' => 500,
+			),
+			$result->get_error_data()
+		);
+	}
+
+	public function test_build_external_api_error_keeps_http_status_and_empty_external_message() {
+		$response = new WP_REST_Response(
+			(object) array(
+				'code'    => 500,
+				'message' => '',
+				'data'    => (object) array(
+					'status' => 502,
+				),
+			),
+			500
+		);
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 500,
+				'message'       => '',
+				'external_code' => '500',
+			),
+			$result->get_error_data()
+		);
+	}
+
+	/**
+	 * External proxy failures retain their upstream details when the export fetcher makes the
+	 * internal REST request.
+	 */
+	public function test_make_proxy_request_normalizes_external_api_errors() {
+		global $wp_rest_server;
+
+		$previous_server  = $wp_rest_server;
+		$wp_rest_server   = new WP_REST_Server();
+		$proxy_controller = new Api_Proxy_Controller();
+		$register_routes  = array( $proxy_controller, 'register_routes' );
+		$error_route      = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coverage-test-error';
+		$embedded_route   = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/coverage-test-embedded-error';
+		$pre_dispatch     = static function ( $result, $server, $request ) use ( $error_route, $embedded_route ) {
+			if ( $error_route === $request->get_route() ) {
+				return new WP_REST_Response(
+					(object) array(
+						'code'    => 'woocommerce_analytics_bookings_error',
+						'message' => 'Failed to retrieve bookings data. Please try again later.',
+						'data'    => (object) array(
+							'status' => 500,
+						),
+					),
+					500
+				);
+			}
+
+			if ( $embedded_route === $request->get_route() ) {
+				return new WP_REST_Response(
+					(object) array(
+						'code'    => 'embedded_analytics_error',
+						'message' => 'The API embedded an error in a successful response.',
+						'data'    => (object) array(
+							'status' => 502,
+						),
+					),
+					200
+				);
+			}
+
+			return $result;
+		};
+
+		add_action( 'rest_api_init', $register_routes );
+		add_filter( 'rest_pre_dispatch', $pre_dispatch, 10, 3 );
+
+		try {
+			// Routes must be registered on the `rest_api_init` action.
+			do_action( 'rest_api_init' );
+			$result          = $this->invoke( 'make_proxy_request', array( 'reports/coverage-test-error', array() ) );
+			$embedded_result = $this->invoke( 'make_proxy_request', array( 'reports/coverage-test-embedded-error', array() ) );
+		} finally {
+			remove_action( 'rest_api_init', $register_routes );
+			remove_filter( 'rest_pre_dispatch', $pre_dispatch, 10 );
+			$wp_rest_server = $previous_server;
+		}
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 500,
+				'message'       => 'Failed to retrieve bookings data. Please try again later.',
+				'external_code' => 'woocommerce_analytics_bookings_error',
+			),
+			$result->get_error_data()
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $embedded_result );
+		$this->assertSame( 'external_api_error', $embedded_result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 502,
+				'message'       => 'The API embedded an error in a successful response.',
+				'external_code' => 'embedded_analytics_error',
+			),
+			$embedded_result->get_error_data()
+		);
 	}
 }

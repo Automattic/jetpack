@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write editor: fix logged-out topbar title crowding on mobile and block publishing an empty post

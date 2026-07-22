@@ -6,10 +6,7 @@
  * `WidgetDashboardWithWidget` mounts the real dashboard so it renders exactly
  * as it does in product.
  *
- * The breakdown is scoped to a single email via a mocked `reportParams.post_id`. These
- * endpoints report over the whole lifetime of the email and return no comparison period, so
- * the `WithComparison` story still renders without deltas — it only verifies the
- * widget stays graceful when the date picker injects comparison `reportParams`.
+ * The breakdown is scoped to a single email via a mocked `reportParams.post_id`.
  */
 /**
  * External dependencies
@@ -29,10 +26,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailBreakdownRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { EmailBreakdownMetric, EmailBreakdownView } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -64,22 +64,23 @@ const METRIC_OPTIONS: EmailBreakdownMetric[] =
 	attributeElementValues< EmailBreakdownMetric >( 'metric' );
 
 /**
- * Widget-specific controls: the comparison toggle, the breakdown view, and the
- * opens/clicks metric for the dimension views.
+ * Widget-specific controls: the breakdown view and opens/clicks metric for the
+ * dimension views.
  */
 interface EmailBreakdownStoryControls {
-	withComparison: boolean;
 	view: EmailBreakdownView;
 	metric: EmailBreakdownMetric;
+	showMap: boolean;
 }
 
-function renderEmailBreakdown( { withComparison, view, metric }: EmailBreakdownStoryControls ) {
+function renderEmailBreakdown( { view, metric, showMap }: EmailBreakdownStoryControls ) {
 	return (
 		<EmailBreakdownRender
 			attributes={ {
-				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
+				reportParams: { ...getDefaultQueryParams(), post_id: MOCK_EMAIL_ID },
 				view,
 				metric,
+				showMap,
 			} }
 		/>
 	);
@@ -102,27 +103,20 @@ function renderEmailBreakdownForState( postId: number ) {
 	);
 }
 
-// Close-up canvas so the chart fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '320px' } }>
-		<Story />
-	</div>
-);
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/EmailBreakdown',
 	component: EmailBreakdownRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: { control: 'boolean' },
 		view: { control: 'select', options: VIEW_OPTIONS },
 		metric: { control: 'select', options: METRIC_OPTIONS },
+		showMap: { control: 'boolean' },
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. The `view` attribute (`relevance: \'high\'`) is exposed as a control by the widget host; the `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `reportParams.post_id`. These endpoints have no comparison period, so the widget renders without deltas even when the date picker injects comparison params.',
+					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. The `view` attribute (`relevance: \'high\'`) is exposed as a control by the widget host; the `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `reportParams.post_id`. The email breakdown endpoints have no comparison period, so the widget renders without deltas.',
 			},
 		},
 	},
@@ -138,17 +132,16 @@ type Story = StoryObj< EmailBreakdownStoryControls >;
  */
 export const Default: Story = {
 	render: renderEmailBreakdown,
-	args: { withComparison: false, view: 'countries', metric: 'opens' },
+	args: { view: 'countries', metric: 'opens', showMap: false },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Comparison `reportParams` from the date picker. The breakdown endpoints return
- * no comparison rows, so the widget renders normally without deltas.
+ * The wide Location clicks card used by the fixed Email clicks composition.
  */
-export const WithComparison: Story = {
+export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,
-	args: { withComparison: true, view: 'countries', metric: 'opens' },
+	args: { view: 'countries', metric: 'clicks', showMap: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -158,8 +151,7 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderEmailBreakdownForState( 5601 ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -214,21 +206,22 @@ interface EmailBreakdownDashboardStoryProps
 		EmailBreakdownStoryControls {}
 
 function EmailBreakdownDashboardStory( {
-	withComparison,
 	view,
 	metric,
+	showMap,
 	...dashboardArgs
 }: EmailBreakdownDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAIL_BREAKDOWN_RENDER_MODULE }
 			renderComponent={ EmailBreakdownRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
+				reportParams: { ...getDefaultQueryParams( true ), post_id: MOCK_EMAIL_ID },
 				view,
 				metric,
+				showMap,
 			} }
 		/>
 	);
@@ -238,14 +231,14 @@ export const WidgetDashboardWithWidget: StoryObj< EmailBreakdownDashboardStoryPr
 	render: args => <EmailBreakdownDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 		view: 'countries',
 		metric: 'opens',
+		showMap: false,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 		view: { control: 'select', options: VIEW_OPTIONS },
 		metric: { control: 'select', options: METRIC_OPTIONS },
+		showMap: { control: 'boolean' },
 	},
 };

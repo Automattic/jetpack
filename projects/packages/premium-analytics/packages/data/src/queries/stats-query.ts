@@ -24,6 +24,8 @@ import {
 	sanitizeStatsEmailBreakdownResponse,
 	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPostCommentsResponse,
+	sanitizeStatsPostLikesResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
@@ -57,6 +59,8 @@ type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQuer
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
 	post: sanitizeStatsPostResponse,
+	postComments: sanitizeStatsPostCommentsResponse,
+	postLikes: sanitizeStatsPostLikesResponse,
 	site: sanitizeStatsSiteResponse,
 	topPosts: sanitizeStatsTopPostsResponse,
 	referrers: sanitizeStatsReferrersResponse,
@@ -172,6 +176,12 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
+		// List reports are day-bucketed: `days` counts calendar days and the
+		// summarized window is `period` × `days`, so the dashboard's chart
+		// interval must not leak in as the period (e.g. `period=week` with
+		// `days=189` would cover 189 weeks). Callers can still force a period
+		// explicitly via `params.period`.
+		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
 		typeof statsParams.days === 'number' &&

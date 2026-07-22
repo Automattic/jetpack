@@ -46,6 +46,11 @@ export {
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
 export { formatDisplayLabel } from './format-display-label';
+export { buildCsv, buildCsvDateRangeFilename, saveCsv, type CsvColumn } from './build-csv';
 export { sharePercentage } from './share-percentage';
-export { getVideoKey, getVideoLabel, toVideoItems } from './video-plays';
+export { getVideoKey, getVideoLabel } from './video-plays';
 export { toMaxRows } from './to-max-rows';
+export { summaryCount } from './summary-count';
+export { toDay } from './to-day';
+export { defaultPeriodForInterval } from './default-period-for-interval';
+export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type SessionsByDeviceAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/sessions-by-device',
-	title: __( 'Sessions by device', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the sessions breakdown by device type over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

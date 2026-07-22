@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-classic-theme-helper",
-	"version": "0.14.35",
+	"version": "0.14.37",
 	"private": true,
 	"description": "Features used with classic themes",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/classic-theme-helper/#readme",
@@ -23,12 +23,15 @@
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@csstools/postcss-global-data": "4.0.0",
-		"@wordpress/browserslist-config": "6.50.0",
+		"@wordpress/browserslist-config": "6.51.0",
 		"autoprefixer": "10.4.20",
 		"glob": "13.0.6",
 		"postcss": "8.5.14",

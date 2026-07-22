@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
-use Automattic\Jetpack\Config;
-use Automattic\Jetpack\Connection\Plugin_Storage;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -34,13 +32,16 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * The connection config must use the 'jetpack-premium-analytics' slug the WPCom gate matches.
+	 * WooCommerce-specific Sync hooks remain disabled without WooCommerce.
 	 */
-	public function test_connection_config_uses_expected_slug() {
-		$config = $this->call_private( 'get_jetpack_connection_config' );
+	public function test_configure_sync_without_woocommerce_is_a_no_op() {
+		$this->assertFalse( class_exists( 'WooCommerce' ) );
+		$this->assertFalse( function_exists( 'WC' ) );
 
-		$this->assertSame( 'jetpack-premium-analytics', $config['slug'] );
-		$this->assertNotEmpty( $config['name'] );
+		$configuration = new Configuration();
+		$configuration->configure_sync();
+
+		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
 	}
 
 	/**
@@ -52,17 +53,5 @@ class Configuration_Test extends TestCase {
 		$this->assertContains( 'JETPACK_PREMIUM_ANALYTICS__VERSION', $config['jetpack_sync_constants_whitelist'] );
 		// WC_ANALYTICS_VERSION is the standalone plugin's constant; PA must not whitelist it.
 		$this->assertNotContains( 'WC_ANALYTICS_VERSION', $config['jetpack_sync_constants_whitelist'] );
-	}
-
-	/**
-	 * Ensuring the connection feature with the PA config lands the slug in the connection
-	 * registry (the jetpack_connection_active_plugins option WPCom's provisioning gate reads).
-	 * This is the exact path configure_sync() drives when WooCommerce is active.
-	 */
-	public function test_connection_config_registers_slug_in_plugin_storage() {
-		( new Config() )->ensure( 'connection', $this->call_private( 'get_jetpack_connection_config' ) );
-
-		Plugin_Storage::configure();
-		$this->assertArrayHasKey( 'jetpack-premium-analytics', (array) Plugin_Storage::get_all() );
 	}
 }

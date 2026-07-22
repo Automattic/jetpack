@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
 import {
 	DEFAULT_WORDADS_CHART_METRICS,
 	WORDADS_CHART_METRICS,
@@ -51,18 +51,13 @@ export type WordAdsChartTabsAttributes = {
  * site.
  */
 export default {
-	name: 'jpa/wordads-chart-tabs',
-	title: __( 'WordAds', 'jetpack-premium-analytics' ),
-	description: __(
-		'Compare ads served, average CPM, and revenue over the selected period, with the previous period overlaid for comparison.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 	attributes: [
 		{
 			id: 'granularity',
 			label: __( 'Group by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Auto', 'jetpack-premium-analytics' ),

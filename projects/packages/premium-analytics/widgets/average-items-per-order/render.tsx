@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -42,7 +43,14 @@ export default function AverageItemsPerOrderRender( {
 }: AverageItemsPerOrderWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<OrderMetricWidget metricKey="avg_items" />
+			<OrderMetricWidget
+				metricKey="avg_items"
+				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
+				errorText={ __(
+					"We couldn't load average items per order. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				) }
+			/>
 		</WidgetRoot>
 	);
 }

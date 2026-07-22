@@ -23,8 +23,6 @@ export type FileDownloadsAttributes = {
  * (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/file-downloads',
-	title: __( 'File downloads', 'jetpack-premium-analytics' ),
 	icon: download,
 	attributes: [
 		{

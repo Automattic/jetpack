@@ -40,8 +40,6 @@ export const DEFAULT_HIGHLIGHT_METRICS: AnnualHighlightMetric[] = [
  * metric enabled.
  */
 export default {
-	name: 'jpa/annual-highlights',
-	title: __( 'Annual highlights', 'jetpack-premium-analytics' ),
 	icon: calendar,
 	attributes: [
 		{

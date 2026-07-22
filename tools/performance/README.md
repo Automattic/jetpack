@@ -43,6 +43,8 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 
 `admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox`, measured on the same simulated-connection instance as the Dashboard. The `p` route is pinned to the responses inbox: a bare page URL server-redirects to the default tab (`/forms`, the forms list, under Central Form Management), so the scenario asserts the final URL to avoid measuring the wrong page.
 
+Readiness (FORMS-729): this scenario is the one that does **not** use `networkidle` — the page's `canUser` OPTIONS probe to `/wp/v2/settings` can stay pending forever in the local fixture, which would black-hole every navigation. It sets `loadState: 'load'` and readiness is carried by the visible `.boot-layout` selector, the hydration wait, and an **in-flight-aware resource settle**: the completed-resource count must hold steady while an in-flight-request ledger (which excludes only that one known-stuck probe) reads zero — `networkidle`'s own quiet + nothing-in-flight guarantee, minus the request that breaks it. If either signal is still active at the settle's deadline the iteration fails closed. The settle proves quiescence, and shares `networkidle`'s inherent blind spot for a gap before the page issues its next resource wave; in that gap the working defense is the settle's ~1s-quiet requirement (double `networkidle`'s 500ms), with `minResourceCount` catching captures below its floor (the wide `decodedBytesKB` sanity range cannot catch an undercount). See the comments on the scenario in `scenarios.js` for the full mechanics.
+
 | CodeVitals key                                          | Field            | Type             | Description                                               |
 | ------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
 | `forms-responses-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | Forms responses LCP                                       |
@@ -65,12 +67,12 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 
 The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">` and `createRoot` renders `MyJetpackScreen` into it. The scenario waits for `#my-jetpack-container .jp-admin-page` (a non-hashed class from `@automattic/jetpack-components` `AdminPage`, present only after React renders) and for the container to hydrate before measuring, so LCP and the resource payload reflect the rendered page, not the empty shell.
 
-| CodeVitals key                                         | Field            | Type             | Description                                               |
-| ------------------------------------------------------ | ---------------- | ---------------- | --------------------------------------------------------- |
-| `my-jetpack-connection-sim-largestContentfulPaint`     | `lcp`            | `lcp`            | My Jetpack LCP                                            |
-| `my-jetpack-connection-sim-timeToFirstByte`            | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
-| `my-jetpack-connection-sim-firstContentfulPaint`       | `fcp`            | `fcp`            | My Jetpack FCP                                            |
-| `my-jetpack-connection-sim-decodedBytesKB`             | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| CodeVitals key                                     | Field            | Type             | Description                                               |
+| -------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `my-jetpack-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | My Jetpack LCP                                            |
+| `my-jetpack-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
+| `my-jetpack-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | My Jetpack FCP                                            |
+| `my-jetpack-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
 
 These four post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
 
@@ -85,7 +87,7 @@ Two conditions must hold for My Jetpack to render in the fixture:
 
 This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because one WordPress install serves every scenario, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
 
-The `forms-responses-*` trends could not be measured before/after locally: in the local fixture the Forms responses page's `GET /wp/v2/settings` REST request hangs server-side (>60 s, `networkidle` never settles), so every iteration times out (re-verified 2026-07-10 on mirror commit `9ef44a8`). This is a pre-existing local-fixture issue, independent of the offline flip (it hangs with offline on or off) and unrelated to this change — the Forms scenario shipped in a prior PR. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
+The `forms-responses-*` trends could not be measured before/after locally at the time this landed: the Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalls in the local headless-Chromium fixture (later tracing for FORMS-729 showed the server answers in milliseconds — a browser-side delivery stall, local-only, with offline on or off), so under the scenario's original `networkidle` gate every iteration timed out. FORMS-729 has since moved the Forms scenario to `loadState: 'load'` plus a fail-closed resource-count settle (see `scenarios.js`), which measures cleanly despite the stall. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
 
 ### Known fixture behavior on the My Jetpack page
 
@@ -148,7 +150,30 @@ Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByt
 A scenario that measures a specific admin page (a `path` + `waitForSelector`, like `formsResponses`) can declare two optional guards so a mis-captured page never reaches its permanent keys. Both fail the iteration closed — a failed capture posts nothing rather than a wrong number.
 
 - **`expectUrlIncludes`** — a substring the page's final URL must contain after every redirect settles. It defends the concrete redirect threat: `class-dashboard.php` sends a bare page URL to the forms LIST, which strips the pinned `p=/responses/inbox`, so the guard fires. It does not prove the SPA client-rendered the target route — a client-side divergence that keeps the URL would pass. That is deliberate: a guessed DOM-selector assertion would throw on every iteration if the markup shifts, blackholing the whole series on the append-only store, so the URL check is the safer defense for the redirect it targets.
-- **`minResourceCount`** — an iteration whose capture returns fewer resources than a healthy load (40 for `formsResponses`, against a real ~80) is dropped from the sample; if every iteration falls short the run posts nothing. This is a **count** floor, not an "editor asset is present" check: the bundle-size metric is meant to fall when the editor lazy-loads, which removes a few large files rather than the bulk of the count, so a count floor catches a truncated capture without clipping the legitimate improvement.
+- **`minResourceCount`** — an iteration whose capture returns fewer resources than a healthy load is dropped from the sample; if every iteration falls short the run posts nothing. The current values live in `scenarios.js` (the single source of truth — as of FORMS-729, 64 for `formsResponses` and `myJetpack`, ~70% of each page's real load) rather than being restated here where they would drift. This is a **count** floor, not an "editor asset is present" check: the bundle-size metric is meant to fall when the editor lazy-loads, which removes a few large files rather than the bulk of the count, so a count floor catches a truncated capture without clipping the legitimate improvement. Scope: the floor catches captures *below* its value; a capture between the floor and the real count relies on the readiness settle (see the `formsResponses` readiness note above) and `SANITY_RANGES`.
+
+### Per-scenario failure isolation
+
+Every scenario in `scenarios.js` declares an `optional` flag, read by `computeRunOutcome()` in `measure-lcp.js`. The posting policy lives once, in the measure step's exit code — exit 0 means "every required scenario measured; safe to post":
+
+| Run outcome                                               | measure-lcp exit          | Posting step                                            | Build                            |
+| --------------------------------------------------------- | ------------------------- | ------------------------------------------------------- | -------------------------------- |
+| All scenarios measured                                    | 0                         | posts everything                                        | green                            |
+| Optional scenario(s) failed, all required OK              | 0, with warnings          | posts survivors (the poster skips errored measurements) | green + TeamCity WARNING message |
+| Any required scenario failed                              | 1                         | never reached                                           | red, nothing posted              |
+| ALL scenarios in the run set failed                       | 1                         | never reached                                           | red, nothing posted              |
+| `SCENARIO` value matches no scenario                      | 1, before any measurement | never reached                                           | red                              |
+| Any scenario measured, but a value fails its sanity range | 0                         | atomic sanity gate refuses the whole POST (exit 2)      | red, nothing posted              |
+
+The last row is the flag's deliberate scope boundary: `optional` isolates **measurement failures** — a scenario that throws, produces no summary, or produces a partial one (a posted field dropped for lack of a strict majority of finite samples across iterations; `measure-lcp.js` converts that into a scenario error, so the optional/required policy applies to it like any other failure). A scenario that measures successfully but yields an out-of-range value — even an optional one — is a data-integrity event, and the pre-existing all-or-nothing sanity gate (see Sanity-range assertions above) still suppresses the entire post and reds the build so a human looks at the anomalous data. The poster also enforces the required side itself: a results file recording a **required** scenario's measurement failure makes `post-to-codevitals.js` fail closed (exit 2) even via the direct `pnpm report` entrypoint, so a red run's saved artifact cannot post its optional survivors and set up retry duplicates.
+
+Why a required failure suppresses **all** posting (retry-safety invariant): a red build has posted nothing, so re-running it cannot append duplicate points to the append-only, dedup-off store. Posting the survivors first and then failing would turn every retry into duplicate trend points. The converse is why an optional-only failure must exit 0: green builds don't get retried. (Re-running a green partial build duplicates its survivor points — the same pre-existing hazard as re-running any green build today.)
+
+The all-failed row keeps targeted runs honest: `SCENARIO=forms-responses` with a failing formsResponses still exits 1 even though the scenario is optional, so a single-scenario local run fails loudly instead of green-exiting with nothing measured.
+
+Classifying a scenario: default NEW scenarios to `optional: true` — a new page's teething failures shouldn't blank the established trends. Promoting a scenario to `optional: false` (required) is a deliberate act; `jetpackConnected` (the wp-admin Dashboard baseline) is the required one.
+
+A green build can therefore carry a skipped scenario. Where to look: the TeamCity WARNING message on the build page, the per-scenario `FAILED (optional — build continues…)` summary line in the build log, and — once live — the FORMS-723 staleness alert as the systemic detector for a series that has quietly gone dark.
 
 ### If bad data lands anyway
 

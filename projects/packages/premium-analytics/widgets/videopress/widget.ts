@@ -28,8 +28,6 @@ export type VideoPressAttributes = {
  * Widget type definition.
  */
 export default {
-	name: 'jpa/videopress',
-	title: __( 'VideoPress', 'jetpack-premium-analytics' ),
 	icon: video,
 	attributes: [
 		{

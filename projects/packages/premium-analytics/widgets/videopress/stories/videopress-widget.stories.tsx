@@ -15,9 +15,13 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoPressRender from '../render';
 import widgetDefinition, { DEFAULT_MAX } from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -49,10 +53,7 @@ function renderVideoPress( { withComparison }: VideoPressStoryControls ) {
 	);
 }
 
-// Renders the widget on a preset distinct from the other stories. The query key
-// derives from the date range, so a unique preset gives the forced-state stories
-// their own cache entry and they hit the mock fresh instead of reading another
-// story's cached success from the shared query client.
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderVideoPressOnPreset( preset: PresetType ) {
 	return (
 		<VideoPressRender
@@ -60,13 +61,6 @@ function renderVideoPressOnPreset( preset: PresetType ) {
 		/>
 	);
 }
-
-// Close-up canvas so the leaderboard fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '360px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/VideoPress',
@@ -79,7 +73,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"Dashboard widget showing the site's most played VideoPress videos as a leaderboard, sourced from the Jetpack Stats `video-plays` module via `useStatsVideoPlays`, with optional period-over-period comparison. In Storybook the data is served by `registerReportMocks`.",
+					"Dashboard widget showing the site's most played VideoPress videos as a leaderboard, with internal video-detail links and optional period-over-period comparison. It is sourced from the Jetpack Stats `video-plays` module via `useStatsVideoPlays`; in Storybook the data is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -95,7 +89,7 @@ type Story = StoryObj< VideoPressStoryControls >;
 export const Default: Story = {
 	render: renderVideoPress,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -105,7 +99,7 @@ export const Default: Story = {
 export const WithComparison: Story = {
 	render: renderVideoPress,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -114,10 +108,9 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderVideoPressOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/video-plays', 'loading' );
 		return () => setReportMockState( 'stats/video-plays', null );
@@ -131,7 +124,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderVideoPressOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/video-plays', 'error' );
 		return () => setReportMockState( 'stats/video-plays', null );
@@ -145,7 +138,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderVideoPressOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/video-plays', 'empty' );
 		return () => setReportMockState( 'stats/video-plays', null );
@@ -171,7 +164,7 @@ function VideoPressDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ VIDEOPRESS_RENDER_MODULE }
 			renderComponent={ VideoPressRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { max: DEFAULT_MAX, reportParams: getDefaultQueryParams( withComparison ) } }

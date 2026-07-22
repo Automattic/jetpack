@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 import { buildCorePayload, buildJetpackPayload } from '../build-payload';
+import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
 
 const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsResponse => ( {
@@ -12,10 +13,7 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
-	schema: {
-		organization: { name: '', description: '', sameAs: [], email: '' },
-		defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
-	},
+	schema: makeSchemaSettings(),
 	...overrides,
 } );
 

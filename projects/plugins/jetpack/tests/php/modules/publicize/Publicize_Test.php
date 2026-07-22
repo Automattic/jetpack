@@ -24,7 +24,7 @@ if ( ! function_exists( 'publicize_init' ) ) {
 /**
  * @group publicize
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 #[Group( 'publicize' )]
 class Publicize_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;

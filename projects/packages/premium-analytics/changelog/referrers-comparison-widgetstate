@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Referrers: move comparison matching into the data layer's merge helper and render loading/error/empty through WidgetState.

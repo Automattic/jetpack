@@ -238,7 +238,8 @@ class Sync_Status_Tracker {
 	 * @return array
 	 */
 	public static function inject_script_data( array $data ): array {
-		$has_store_data            = Configuration::is_woocommerce_active();
+		$has_store_data = Configuration::is_woocommerce_active();
+
 		$data['premium_analytics'] = array(
 			'initial_full_sync_finished' => self::gating_milestone( $has_store_data ),
 			'has_store_data'             => $has_store_data,

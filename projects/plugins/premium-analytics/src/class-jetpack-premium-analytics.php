@@ -26,6 +26,9 @@ class Jetpack_Premium_Analytics {
 	 */
 	public function __construct() {
 		Analytics::init( array( 'menu_title' => 'Analytics' ) );
-		Cookie_Consent::init();
+
+		// Ships disabled: the banner is planned for a later release. The package stays wired up
+		// so the `jetpack_cookie_consent_config` filter can switch it back on for development.
+		Cookie_Consent::init( array( 'enabled' => false ) );
 	}
 }
