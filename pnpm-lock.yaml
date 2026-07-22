@@ -5083,6 +5083,12 @@ importers:
 
   projects/packages/wp-build-polyfills:
     dependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
       '@wordpress/views':
         specifier: ~1.17.0
         version: 1.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5090,9 +5096,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
-      '@babel/core':
-        specifier: 7.29.7
-        version: 7.29.7
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
