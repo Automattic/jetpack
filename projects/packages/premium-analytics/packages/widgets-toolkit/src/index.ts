@@ -28,6 +28,14 @@ export {
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
+	LeaderboardRow,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	type LeaderboardRowAction,
+	type LeaderboardRowActionOptions,
+	type LeaderboardRowChartProps,
+	type LeaderboardRowMedia,
+	type LeaderboardRowProps,
 	BarChart,
 	type BarChartProps,
 	type BarChartData,
@@ -123,6 +131,10 @@ export {
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	summaryCount,
+	toDay,
+	defaultPeriodForInterval,
+	buildMetricTab,
 } from './helpers';
 
 /**

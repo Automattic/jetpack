@@ -31,6 +31,14 @@ export {
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
+	LeaderboardRow,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	type LeaderboardRowAction,
+	type LeaderboardRowActionOptions,
+	type LeaderboardRowChartProps,
+	type LeaderboardRowMedia,
+	type LeaderboardRowProps,
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';

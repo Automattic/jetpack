@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.1] - 2026-07-22
+### Changed
+- Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset. [#50652]
+- Overlay/embedded templates: Keep the Collapsible Filters panel in sync with the sidebar Filters block, locking it read-only in the editor when both coexist. [#50653]
+- Overlay/embedded templates: Mark where a new filter belongs when adding it to the Filters (or Product Filters) block in the editor. [#50655]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
 ## [7.0.0] - 2026-06-10
 ### Added
 - Search 7.0: build full search pages from native blocks — a Search Input block with search-as-you-type, Filters blocks (checkbox, date, custom taxonomy) with sidebar or collapsible-popover layouts, and Results blocks with selectable layouts, sorting, and load-more — all theme-aware on both block and classic themes. [#48563]
@@ -318,6 +327,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
+[7.0.1]: https://github.com/Automattic/jetpack-search-plugin/compare/7.0.0...7.0.1
 [7.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/6.0.0...7.0.0
 [6.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/5.2.2...6.0.0
 [5.2.2]: https://github.com/Automattic/jetpack-search-plugin/compare/5.2.0...5.2.2

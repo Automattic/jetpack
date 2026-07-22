@@ -103,8 +103,6 @@ export default function useDeviceViews( {
 		// flips true. Only surface the error when there's nothing to show, so a transient
 		// refetch failure doesn't replace populated rows with the error state.
 		isError: items.length === 0 && isError,
-		// The data layer's combined refetch: memoized, awaits both queries, and
-		// skips the comparison query when comparison is disabled.
 		refetch,
 	};
 }

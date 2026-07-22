@@ -181,4 +181,68 @@ describe( 'Mosaic layout-width anchoring', () => {
 		expect( mosaic.getFlexContainer() ).toBeNull();
 		expect( mosaic.getLayoutWidth() ).toBe( 620 );
 	} );
+
+	it( 'stops at the block-canvas root and never lays out against editor chrome (JETPACK-1900)', () => {
+		// chrome(flex, 1244) > rootContainer(.is-root-container) > item > wrapper > gallery
+		// In a non-iframed editor the only flex ancestor is emotion-styled editor
+		// chrome outside the canvas. The walk must stop at the canvas root and fall
+		// back to the gallery's own width; laying out against chrome divides its
+		// width by its many children and collapses every item to ~105px.
+		const chrome = document.createElement( 'div' );
+		const rootContainer = document.createElement( 'div' );
+		rootContainer.className = 'is-root-container';
+		const item = document.createElement( 'div' );
+		const wrapper = document.createElement( 'div' );
+		const gallery = document.createElement( 'div' );
+		chrome.appendChild( rootContainer );
+		rootContainer.appendChild( item );
+		item.appendChild( wrapper );
+		wrapper.appendChild( gallery );
+		// The classless chrome div holds mostly non-item children (style tags).
+		for ( let i = 0; i < 8; i++ ) {
+			chrome.appendChild( document.createElement( 'style' ) );
+		}
+
+		defineClientWidth( chrome, 1244 );
+		defineClientWidth( gallery, 620 );
+
+		mockFlex( chrome );
+
+		const mosaic = instanceFor( gallery );
+		expect( mosaic.getFlexContainer() ).toBeNull();
+		expect( mosaic.getLayoutWidth() ).toBe( 620 );
+	} );
+
+	it( 'counts only real flex items, ignoring <style> tags and out-of-flow slots (JETPACK-1900)', () => {
+		// container(flex, 800, 20px gap) > [itemA > galleryA, itemB > galleryB, slot(absolute), 8x <style>]
+		// Only the two galleries are real flex items, so each gets (800 - 20) / 2 = 390.
+		// The style tags and absolutely-positioned popover slot must not inflate the divisor.
+		const container = document.createElement( 'div' );
+		const itemA = document.createElement( 'div' );
+		const itemB = document.createElement( 'div' );
+		const galleryA = document.createElement( 'div' );
+		const galleryB = document.createElement( 'div' );
+		const slot = document.createElement( 'div' );
+		container.appendChild( itemA );
+		container.appendChild( itemB );
+		container.appendChild( slot );
+		itemA.appendChild( galleryA );
+		itemB.appendChild( galleryB );
+		for ( let i = 0; i < 8; i++ ) {
+			container.appendChild( document.createElement( 'style' ) );
+		}
+
+		defineClientWidth( container, 800 );
+
+		// container is flex (20px gap); the popover slot is taken out of flow.
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => ( {
+			display: el === container ? 'flex' : 'block',
+			columnGap: el === container ? '20px' : 'normal',
+			position: el === slot ? 'absolute' : 'static',
+		} ) );
+
+		const mosaic = instanceFor( galleryA );
+		expect( mosaic.getFlexContainer() ).toBe( container );
+		expect( mosaic.getLayoutWidth() ).toBe( 390 );
+	} );
 } );
