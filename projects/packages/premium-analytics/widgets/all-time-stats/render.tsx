@@ -4,6 +4,7 @@
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	summaryCount,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -62,21 +63,6 @@ type AllTimeStatsTile = {
 };
 
 /**
- * Reads a numeric summary field, returning `undefined` when the key is absent
- * or not a finite number, so tiles for missing fields can be skipped.
- *
- * @param summary - The normalized all-time summary.
- * @param key     - The summary field to read.
- * @return The numeric value, or undefined when unavailable.
- */
-function readCount( summary: StatsSummary | undefined, key: string ): number | undefined {
-	const value = summary?.[ key ];
-	const parsed = typeof value === 'string' ? Number( value ) : value;
-
-	return typeof parsed === 'number' && Number.isFinite( parsed ) ? parsed : undefined;
-}
-
-/**
  * Fetches the all-time site summary through the designated `useStatsSite` hook
  * and renders the lifetime totals as a grid of metric tiles. Which tiles
  * appear is controlled by the `metrics` attribute; fields absent from the
@@ -107,7 +93,7 @@ function AllTimeStatsReport( {
 	const tiles = useMemo(
 		() =>
 			enabledMetrics.flatMap( ( { id, label } ): AllTimeStatsTile[] => {
-				const value = readCount( summary, id );
+				const value = summaryCount( summary, id );
 				return value === undefined
 					? []
 					: [ { key: id, label, icon: TILE_CONFIG[ id ].icon, value } ];

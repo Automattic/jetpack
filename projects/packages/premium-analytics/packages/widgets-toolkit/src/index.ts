@@ -131,6 +131,8 @@ export {
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	summaryCount,
+	toDay,
 } from './helpers';
 
 /**

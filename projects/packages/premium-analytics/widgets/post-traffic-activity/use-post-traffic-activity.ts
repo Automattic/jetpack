@@ -12,7 +12,7 @@ import {
 	startOfWeek,
 	subDays,
 } from 'date-fns';
-import type { DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
+import { toDay, type DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Normalized activity state: one point per calendar day of the visible page
@@ -34,21 +34,6 @@ export interface PostTrafficActivityState {
 	isError: boolean;
 	hasData: boolean;
 	refetch: () => void;
-}
-
-/**
- * Extract a shape-validated `YYYY-MM-DD` day from an ISO report param. The
- * params originate from URL search params; a malformed bound disables the
- * window rather than reaching `parseISO`/`eachDayOfInterval` (which throw).
- *
- * @param value - The ISO date-time string.
- * @return The date-only day, or undefined when missing/malformed.
- */
-function toDay( value?: string ): string | undefined {
-	const day = value?.slice( 0, 10 );
-	return day && /^\d{4}-\d{2}-\d{2}$/.test( day ) && ! Number.isNaN( parseISO( day ).getTime() )
-		? day
-		: undefined;
 }
 
 /**
