@@ -583,30 +583,17 @@ export const WithCompositionLegend: Story = {
 	},
 };
 export const FitRows: Story = {
-	render: args => (
-		// Stands in for a resizable dashboard tile. The chart fills this box, so
-		// dragging its bottom edge changes the height the rows are fitted to.
-		<div
-			data-testid="fit-rows-tile"
-			style={ {
-				height: 180,
-				width: 360,
-				resize: 'vertical',
-				// `resize` is ignored unless overflow is something other than visible.
-				overflow: 'hidden',
-				border: '1px dashed #ccc',
-			} }
-		>
-			<LeaderboardChartUnresponsive { ...args } fitRows />
-		</div>
-	),
+	render: args => <LeaderboardChartUnresponsive { ...args } fitRows />,
 	args: {
 		data: sampleData,
 		loading: false,
-		// The shared decorator is resizable by default. Two nested resize handles
-		// read as one control, and dragging the outer one leaves the chart's height
-		// untouched — so turn it off and leave the box above as the only handle.
-		resize: 'none',
+		// The decorator's box stands in for a fixed-height dashboard tile. The
+		// chart fills it, so dragging its resize handle changes the height the
+		// rows are fitted to. No padding, so the tile height is the chart height.
+		containerWidth: '360px',
+		containerHeight: '180px',
+		withPadding: false,
+		resize: 'vertical',
 	},
 	parameters: {
 		docs: {
@@ -655,9 +642,10 @@ export const FitRows: Story = {
 		wholeRowsOnly();
 
 		// Assert the round trip: a pinned pixel height passes the first render and
-		// silently breaks re-growth.
-		// Select by test id — the shared decorator renders its own resizable box first.
-		const box = canvasElement.querySelector< HTMLElement >( '[data-testid="fit-rows-tile"]' );
+		// silently breaks re-growth. The decorator's box is the resize target.
+		const box = canvasElement.querySelector< HTMLElement >(
+			'[data-testid="chart-story-container"]'
+		);
 		// Poll for the effect rather than sleeping a fixed amount: ResizeObserver
 		// delivery is tied to the rendering pipeline, and a loaded CI runner can
 		// miss a flat deadline.
