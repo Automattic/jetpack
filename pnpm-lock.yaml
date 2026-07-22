@@ -1629,7 +1629,7 @@ importers:
         version: 10.4.6(@types/react@18.3.28)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(vite@8.0.16(sass-embedded@1.97.3))
       '@storybook/addon-vitest':
         specifier: 10.4.6
-        version: 10.4.6(@vitest/browser-playwright@4.1.9)(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(vitest@4.1.9)
+        version: 10.4.6(@vitest/browser-playwright@4.1.10)(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(vitest@4.1.10)
       '@storybook/react-vite':
         specifier: 10.4.6
         version: 10.4.6(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(typescript@6.0.3)(vite@8.0.16(sass-embedded@1.97.3))
@@ -1643,8 +1643,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(vite@8.0.16(sass-embedded@1.97.3))
       '@vitest/browser-playwright':
-        specifier: 4.1.9
-        version: 4.1.9(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.9)
+        specifier: 4.1.10
+        version: 4.1.10(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.10)
       '@wordpress/base-styles':
         specifier: 11.0.0
         version: 11.0.0
@@ -1694,8 +1694,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(sass-embedded@1.97.3)
       vitest:
-        specifier: 4.1.9
-        version: 4.1.9(@vitest/browser-playwright@4.1.9)(vite@8.0.16(sass-embedded@1.97.3))
+        specifier: 4.1.10
+        version: 4.1.10(@vitest/browser-playwright@4.1.10)(vite@8.0.16(sass-embedded@1.97.3))
 
   projects/js-packages/webpack-config:
     dependencies:
@@ -2954,6 +2954,9 @@ importers:
         specifier: 8.3.0
         version: 8.3.0
       '@wordpress/hooks':
+        specifier: 4.51.0
+        version: 4.51.0
+      '@wordpress/html-entities':
         specifier: 4.51.0
         version: 4.51.0
       '@wordpress/i18n':
@@ -6720,7 +6723,7 @@ importers:
         version: 22.0.1
       '@stylistic/stylelint-plugin':
         specifier: 5.2.1
-        version: 5.2.1(stylelint@17.14.0(typescript@6.0.3))
+        version: 5.2.1(stylelint@17.14.1(typescript@6.0.3))
       '@tanstack/eslint-plugin-query':
         specifier: 5.101.2
         version: 5.101.2(eslint@10.6.0)(typescript@6.0.3)
@@ -6735,16 +6738,16 @@ importers:
         version: 7.0.0-dev.20260707.2
       '@wordpress/eslint-plugin':
         specifier: 25.7.0
-        version: 25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)
+        version: 25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)
       '@wordpress/jest-console':
         specifier: 8.51.0
         version: 8.51.0(jest@30.4.2)
       '@wordpress/stylelint-config':
         specifier: 24.0.0
-        version: 24.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.0(typescript@6.0.3)))(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint@17.14.0(typescript@6.0.3))
+        version: 24.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))
       '@wordpress/theme':
         specifier: 0.17.0
-        version: 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))
+        version: 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3))
       babel-jest:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.7)
@@ -6863,17 +6866,17 @@ importers:
         specifier: 10.4.6
         version: 10.4.6(@testing-library/dom@10.4.1)(react@18.3.1)(wp-prettier@3.0.3)
       stylelint:
-        specifier: 17.14.0
-        version: 17.14.0(typescript@6.0.3)
+        specifier: 17.14.1
+        version: 17.14.1(typescript@6.0.3)
       stylelint-config-recommended:
         specifier: 18.0.0
-        version: 18.0.0(stylelint@17.14.0(typescript@6.0.3))
+        version: 18.0.0(stylelint@17.14.1(typescript@6.0.3))
       stylelint-config-recommended-scss:
         specifier: 17.0.1
-        version: 17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3))
+        version: 17.0.1(postcss@8.5.14)(stylelint@17.14.1(typescript@6.0.3))
       stylelint-scss:
         specifier: 7.2.0
-        version: 7.2.0(stylelint@17.14.0(typescript@6.0.3))
+        version: 7.2.0(stylelint@17.14.1(typescript@6.0.3))
       svelte:
         specifier: 5.55.7
         version: 5.55.7
@@ -10896,25 +10899,25 @@ packages:
       babel-plugin-react-compiler:
         optional: true
 
-  '@vitest/browser-playwright@4.1.9':
-    resolution: {integrity: sha512-Bq1rOGf9waevzG3EOkO/dene6bvKTUsZMVg8S1i+WH3JcMjuXEjiahP9rAqZRELUqjBySOJsvvSWqK/B3wjKQw==}
+  '@vitest/browser-playwright@4.1.10':
+    resolution: {integrity: sha512-nMoXGEiRpT7m3W7NsbvrM2aKNwiNHZf+zEpUCvMteGjZFvfT96Q9fh7QyB98dvDWXiKvrLxA7bJ1mCOOv+JQPw==}
     peerDependencies:
       playwright: '*'
-      vitest: 4.1.9
+      vitest: 4.1.10
 
-  '@vitest/browser@4.1.9':
-    resolution: {integrity: sha512-j1BKtWmPcqpMhmx/L9EPLgAJpCb0zKfwoWLmqBbxaogCXHjOwHFSEoHCBfnGtx93xKQwilZ26m+UOsHqHMkRNg==}
+  '@vitest/browser@4.1.10':
+    resolution: {integrity: sha512-UDwuWGwXj646CBx/bQHOaJSX7np0I8JL/UKQYa1e4QrVHH8VdWtx8eaOuf8sy0ShwDgR6NjJAsp5eF6vjF6qng==}
     peerDependencies:
-      vitest: 4.1.9
+      vitest: 4.1.10
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
 
-  '@vitest/expect@4.1.9':
-    resolution: {integrity: sha512-vl/rYsUKcBr3SnQn166+XR5ZQcgMx3DQhFWdfli/cWpLnLUmbxZvyrJZotLFUryib+LtArYMSTJ5RbQ57ZqrlA==}
+  '@vitest/expect@4.1.10':
+    resolution: {integrity: sha512-YsCn+qAk1GWjQOWFEsEcL2gNQ0zmVmQu3T03qP6UyjhtmdtwtbuI+DASn/7iQB3HGTXkdBwGddzxPlmiql5vlA==}
 
-  '@vitest/mocker@4.1.9':
-    resolution: {integrity: sha512-EVkXzBjrPGM+cK8/ANWgBrkUCfJfb38/EfTSO8h7pWvKkyPkpWxvR7BkD2MyItMF62C97zAEoqdpUixwR/e+Rw==}
+  '@vitest/mocker@4.1.10':
+    resolution: {integrity: sha512-v0xaezt+DKEmKfaxg133ldzADrwLGd7Ze1MfQQTYfvs8OqZIwbxyxaYURivwV7sWy5fqn3rH5uOrSp07bp44Ow==}
     peerDependencies:
       msw: ^2.4.9
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -10927,26 +10930,26 @@ packages:
   '@vitest/pretty-format@3.2.4':
     resolution: {integrity: sha512-IVNZik8IVRJRTr9fxlitMKeJeXFFFN0JaB9PHPGQ8NKQbGpfjlTx9zO4RefN8gp7eqjNy8nyK3NZmBzOPeIxtA==}
 
-  '@vitest/pretty-format@4.1.9':
-    resolution: {integrity: sha512-s0iufns3iIFitdgm+YR7g1whCAaGtXz459VS9/PqyKDEEFgYIhsHOQmXgIgDuYCt7DeQmiZT0Qe2OA2p4ZPu5A==}
+  '@vitest/pretty-format@4.1.10':
+    resolution: {integrity: sha512-W1HsjSH4MXQ9YfmmhLAoIYf1HRfekQCGngeIgcei6MP5QQGWUe0gkopdZQaVCFO+JDJMrAJGwa5pRpNpvy4P8Q==}
 
-  '@vitest/runner@4.1.9':
-    resolution: {integrity: sha512-KXLMDtc7oe70+3mJfGrPUWPesswH+3sTxAMAMl8DG7I8IUQT4XW718dY5ID3vPUcmlu27CcKfY4P3h3I29SLJg==}
+  '@vitest/runner@4.1.10':
+    resolution: {integrity: sha512-IKI6kpIH+LmpROplyLwBBaCfMgOZOMsygVa6BARD6ahA04VRuJSa6OaVG7kRvSEMD870Vd91rSSw0eegtWyLGg==}
 
-  '@vitest/snapshot@4.1.9':
-    resolution: {integrity: sha512-Jc7RKGNBo8Z28WYIm0Niej4xdSPByRf6mU58VpHQkd6Zh05rlnA+twjbK5HyeIGHxrzsc3mJgS43uM0CZKzaIA==}
+  '@vitest/snapshot@4.1.10':
+    resolution: {integrity: sha512-xRkfOT1qpTAi/Ti4Y1LtfRc3kEuqxGw59eN2jN9pRWMtS/XDevekhcFSqvQqjUNGksfjMJu3Y+oJ+4Ypn2OaJw==}
 
   '@vitest/spy@3.2.4':
     resolution: {integrity: sha512-vAfasCOe6AIK70iP5UD11Ac4siNUNJ9i/9PZ3NKx07sG6sUxeag1LWdNrMWeKKYBLlzuK+Gn65Yd5nyL6ds+nw==}
 
-  '@vitest/spy@4.1.9':
-    resolution: {integrity: sha512-fHpsS6mIi+PiEW+vcRVOMkX1oSaPKne3VOclSFICPcGOmfKgXPU5iAah+wcNcj2xPrCCmfq99IDGf+EojhhvhA==}
+  '@vitest/spy@4.1.10':
+    resolution: {integrity: sha512-PLf/Ugvoq5wO/b4rwYCR1h2PSIdXz7wnkQFMiUpLdtM7l6pqVFcQIBEHyT1+l+cj7mNwAfZHzqXqDyjvOuwbDw==}
 
   '@vitest/utils@3.2.4':
     resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
 
-  '@vitest/utils@4.1.9':
-    resolution: {integrity: sha512-A51o8ymO5PpqlWNnBP9ZHPXDIpuMtTLlGSjN7la4US+LJzoUMyhwjA5QXlm39JexgwHKW4Xjs8Z2d3dLCXOeuA==}
+  '@vitest/utils@4.1.10':
+    resolution: {integrity: sha512-fy9am/HWxbaGt/Sawrp90vt6Y6jQwf1RX77cz3uwoJwJVMli/e1IEwRPnMNJ7vKfPTwo0diXifkpPvwH9v7nGA==}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -13768,8 +13771,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-uri@3.1.3:
-    resolution: {integrity: sha512-i70LwGWUduXqzicKXWshooq+sWL1K3WUU5rKZNG/0i3a1OSoX3HqhH5WbWwTmqWfor4urUakGPiRQcleRZTwOg==}
+  fast-uri@3.1.4:
+    resolution: {integrity: sha512-8JnbkQ4juDyvYs4mgFGQqg4yCYtFDtUtmp2QIQq11ZZe5CFQ5wcqm1rqDgAh/QdMySuBnPzMUiJUNZG5N/AiQw==}
 
   fastest-levenshtein@1.0.16:
     resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
@@ -17465,8 +17468,8 @@ packages:
     peerDependencies:
       stylelint: ^16.8.2 || ^17.0.0
 
-  stylelint@17.14.0:
-    resolution: {integrity: sha512-8xkHPpdqYryeIsOgfsYTmr6cIeC4nLYWk5S8BPxpodq8mIuepggkMljsHewWfuAjj/+qpRKou2QerhjMH3iasg==}
+  stylelint@17.14.1:
+    resolution: {integrity: sha512-xVQwyiuxALUBNB2fBe0tmNemg9KqLtdj3T64mioFDar79B2cU8LIyz+3KL6LdiHs9NkeNfwxpKSaIVOY8f112g==}
     engines: {node: '>=20.19.0'}
     hasBin: true
 
@@ -18178,20 +18181,20 @@ packages:
       yaml:
         optional: true
 
-  vitest@4.1.9:
-    resolution: {integrity: sha512-nE3/LEyc0z87uHYLZebqCUOaJr2hdtuPp7BQ4BosVFnfltxgAvMG08NyrSGlPpOUWvR27c5flSmYFTNr78L9GQ==}
+  vitest@4.1.10:
+    resolution: {integrity: sha512-R9jUTe5S4Qb0HCd4TNqpC7oGcrMssMRGXLW80ubjWsW9VH5GF8y1Y0SFLY9AbqSk6nt0PnOx4H4WNJYZ13GUPw==}
     engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@opentelemetry/api': ^1.9.0
       '@types/node': ^20.0.0 || ^22.0.0 || >=24.0.0
-      '@vitest/browser-playwright': 4.1.9
-      '@vitest/browser-preview': 4.1.9
-      '@vitest/browser-webdriverio': 4.1.9
-      '@vitest/coverage-istanbul': 4.1.9
-      '@vitest/coverage-v8': 4.1.9
-      '@vitest/ui': 4.1.9
+      '@vitest/browser-playwright': 4.1.10
+      '@vitest/browser-preview': 4.1.10
+      '@vitest/browser-webdriverio': 4.1.10
+      '@vitest/coverage-istanbul': 4.1.10
+      '@vitest/coverage-v8': 4.1.10
+      '@vitest/ui': 4.1.10
       happy-dom: '*'
       jsdom: '*'
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -22200,14 +22203,14 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-vitest@10.4.6(@vitest/browser-playwright@4.1.9)(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(vitest@4.1.9)':
+  '@storybook/addon-vitest@10.4.6(@vitest/browser-playwright@4.1.10)(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1))(vitest@4.1.10)':
     dependencies:
       '@storybook/global': 5.0.0
       '@storybook/icons': 2.1.0(react@18.3.1)
       storybook: 10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.28)(react@18.3.1)
     optionalDependencies:
-      '@vitest/browser-playwright': 4.1.9(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.9)
-      vitest: 4.1.9(@vitest/browser-playwright@4.1.9)(vite@8.0.16(sass-embedded@1.97.3))
+      '@vitest/browser-playwright': 4.1.10(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.10)
+      vitest: 4.1.10(@vitest/browser-playwright@4.1.10)(vite@8.0.16(sass-embedded@1.97.3))
     transitivePeerDependencies:
       - react
 
@@ -22319,7 +22322,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.0(typescript@6.0.3))':
+  '@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3))':
     dependencies:
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
@@ -22328,7 +22331,7 @@ snapshots:
       postcss-selector-parser: 7.1.4
       postcss-value-parser: 4.2.0
       style-search: 0.1.0
-      stylelint: 17.14.0(typescript@6.0.3)
+      stylelint: 17.14.1(typescript@6.0.3)
 
   '@sveltejs/acorn-typescript@1.0.11(acorn@8.17.0)':
     dependencies:
@@ -23287,29 +23290,29 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.7
       vite: 8.0.16(sass-embedded@1.97.3)
 
-  '@vitest/browser-playwright@4.1.9(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.9)':
+  '@vitest/browser-playwright@4.1.10(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.10)':
     dependencies:
-      '@vitest/browser': 4.1.9(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.9)
-      '@vitest/mocker': 4.1.9(vite@8.0.16(sass-embedded@1.97.3))
+      '@vitest/browser': 4.1.10(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.10)
+      '@vitest/mocker': 4.1.10(vite@8.0.16(sass-embedded@1.97.3))
       playwright: 1.60.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.9(@vitest/browser-playwright@4.1.9)(vite@8.0.16(sass-embedded@1.97.3))
+      vitest: 4.1.10(@vitest/browser-playwright@4.1.10)(vite@8.0.16(sass-embedded@1.97.3))
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
 
-  '@vitest/browser@4.1.9(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.9)':
+  '@vitest/browser@4.1.10(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.10)':
     dependencies:
       '@blazediff/core': 1.9.1
-      '@vitest/mocker': 4.1.9(vite@8.0.16(sass-embedded@1.97.3))
-      '@vitest/utils': 4.1.9
+      '@vitest/mocker': 4.1.10(vite@8.0.16(sass-embedded@1.97.3))
+      '@vitest/utils': 4.1.10
       magic-string: 0.30.21
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.9(@vitest/browser-playwright@4.1.9)(vite@8.0.16(sass-embedded@1.97.3))
+      vitest: 4.1.10(@vitest/browser-playwright@4.1.10)(vite@8.0.16(sass-embedded@1.97.3))
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -23325,18 +23328,18 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/expect@4.1.9':
+  '@vitest/expect@4.1.10':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@types/chai': 5.2.3
-      '@vitest/spy': 4.1.9
-      '@vitest/utils': 4.1.9
+      '@vitest/spy': 4.1.10
+      '@vitest/utils': 4.1.10
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.9(vite@8.0.16(sass-embedded@1.97.3))':
+  '@vitest/mocker@4.1.10(vite@8.0.16(sass-embedded@1.97.3))':
     dependencies:
-      '@vitest/spy': 4.1.9
+      '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
@@ -23346,19 +23349,19 @@ snapshots:
     dependencies:
       tinyrainbow: 2.0.0
 
-  '@vitest/pretty-format@4.1.9':
+  '@vitest/pretty-format@4.1.10':
     dependencies:
       tinyrainbow: 3.1.0
 
-  '@vitest/runner@4.1.9':
+  '@vitest/runner@4.1.10':
     dependencies:
-      '@vitest/utils': 4.1.9
+      '@vitest/utils': 4.1.10
       pathe: 2.0.3
 
-  '@vitest/snapshot@4.1.9':
+  '@vitest/snapshot@4.1.10':
     dependencies:
-      '@vitest/pretty-format': 4.1.9
-      '@vitest/utils': 4.1.9
+      '@vitest/pretty-format': 4.1.10
+      '@vitest/utils': 4.1.10
       magic-string: 0.30.21
       pathe: 2.0.3
 
@@ -23366,7 +23369,7 @@ snapshots:
     dependencies:
       tinyspy: 4.0.4
 
-  '@vitest/spy@4.1.9': {}
+  '@vitest/spy@4.1.10': {}
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -23374,9 +23377,9 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  '@vitest/utils@4.1.9':
+  '@vitest/utils@4.1.10':
     dependencies:
-      '@vitest/pretty-format': 4.1.9
+      '@vitest/pretty-format': 4.1.10
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
@@ -26931,7 +26934,7 @@ snapshots:
 
   '@wordpress/escape-html@3.51.0': {}
 
-  '@wordpress/eslint-plugin@25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)':
+  '@wordpress/eslint-plugin@25.7.0(@babel/core@7.29.7)(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.0.12(eslint@10.6.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.6.0))(eslint-plugin-playwright@2.10.5(eslint@10.6.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.6.0))(eslint@10.6.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.6.0))(eslint-plugin-react@7.37.5(eslint@10.6.0))(eslint@10.6.0)(typescript@6.0.3)(wp-prettier@3.0.3)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/eslint-parser': 7.29.7(@babel/core@7.29.7)(eslint@10.6.0)
@@ -26939,7 +26942,7 @@ snapshots:
       '@eslint/compat': 2.1.0(eslint@10.6.0)
       '@wordpress/babel-preset-default': 8.51.0
       '@wordpress/prettier-config': 4.51.0(wp-prettier@3.0.3)
-      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))
+      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3))
       cosmiconfig: 7.1.0
       eslint: 10.6.0
       eslint-config-prettier: 10.1.8(eslint@10.6.0)
@@ -29481,14 +29484,14 @@ snapshots:
 
   '@wordpress/style-runtime@0.7.0': {}
 
-  '@wordpress/stylelint-config@24.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.0(typescript@6.0.3)))(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.0(typescript@6.0.3)))(stylelint@17.14.0(typescript@6.0.3))':
+  '@wordpress/stylelint-config@24.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))':
     dependencies:
-      '@stylistic/stylelint-plugin': 5.2.1(stylelint@17.14.0(typescript@6.0.3))
-      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))
-      stylelint: 17.14.0(typescript@6.0.3)
-      stylelint-config-recommended: 18.0.0(stylelint@17.14.0(typescript@6.0.3))
-      stylelint-config-recommended-scss: 17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3))
-      stylelint-scss: 7.2.0(stylelint@17.14.0(typescript@6.0.3))
+      '@stylistic/stylelint-plugin': 5.2.1(stylelint@17.14.1(typescript@6.0.3))
+      '@wordpress/theme': 0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3))
+      stylelint: 17.14.1(typescript@6.0.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.14.1(typescript@6.0.3))
+      stylelint-config-recommended-scss: 17.0.1(postcss@8.5.14)(stylelint@17.14.1(typescript@6.0.3))
+      stylelint-scss: 7.2.0(stylelint@17.14.1(typescript@6.0.3))
 
   '@wordpress/sync@1.51.0':
     dependencies:
@@ -29546,7 +29549,7 @@ snapshots:
       '@types/react': 18.3.28
       vite: 8.0.16(sass-embedded@1.97.3)
 
-  '@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.0(typescript@6.0.3))':
+  '@wordpress/theme@0.17.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3))':
     dependencies:
       '@wordpress/compose': 8.4.0(react@18.3.1)
       '@wordpress/deprecated': 4.51.0
@@ -29559,7 +29562,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     optionalDependencies:
       postcss: 8.5.14
-      stylelint: 17.14.0(typescript@6.0.3)
+      stylelint: 17.14.1(typescript@6.0.3)
 
   '@wordpress/theme@0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -30625,7 +30628,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.3
+      fast-uri: 3.1.4
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -32700,7 +32703,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-uri@3.1.3: {}
+  fast-uri@3.1.4: {}
 
   fastest-levenshtein@1.0.16: {}
 
@@ -36982,20 +36985,20 @@ snapshots:
       postcss: 8.5.14
       postcss-selector-parser: 7.1.4
 
-  stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.0(typescript@6.0.3)):
+  stylelint-config-recommended-scss@17.0.1(postcss@8.5.14)(stylelint@17.14.1(typescript@6.0.3)):
     dependencies:
       postcss-scss: 4.0.9(postcss@8.5.14)
-      stylelint: 17.14.0(typescript@6.0.3)
-      stylelint-config-recommended: 18.0.0(stylelint@17.14.0(typescript@6.0.3))
-      stylelint-scss: 7.2.0(stylelint@17.14.0(typescript@6.0.3))
+      stylelint: 17.14.1(typescript@6.0.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.14.1(typescript@6.0.3))
+      stylelint-scss: 7.2.0(stylelint@17.14.1(typescript@6.0.3))
     optionalDependencies:
       postcss: 8.5.14
 
-  stylelint-config-recommended@18.0.0(stylelint@17.14.0(typescript@6.0.3)):
+  stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)):
     dependencies:
-      stylelint: 17.14.0(typescript@6.0.3)
+      stylelint: 17.14.1(typescript@6.0.3)
 
-  stylelint-scss@7.2.0(stylelint@17.14.0(typescript@6.0.3)):
+  stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)):
     dependencies:
       '@csstools/css-calc': 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -37008,9 +37011,9 @@ snapshots:
       postcss-resolve-nested-selector: 0.1.6
       postcss-selector-parser: 7.1.4
       postcss-value-parser: 4.2.0
-      stylelint: 17.14.0(typescript@6.0.3)
+      stylelint: 17.14.1(typescript@6.0.3)
 
-  stylelint@17.14.0(typescript@6.0.3):
+  stylelint@17.14.1(typescript@6.0.3):
     dependencies:
       '@csstools/css-calc': 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -37747,15 +37750,15 @@ snapshots:
       fsevents: 2.3.3
       sass-embedded: 1.97.3
 
-  vitest@4.1.9(@vitest/browser-playwright@4.1.9)(vite@8.0.16(sass-embedded@1.97.3)):
+  vitest@4.1.10(@vitest/browser-playwright@4.1.10)(vite@8.0.16(sass-embedded@1.97.3)):
     dependencies:
-      '@vitest/expect': 4.1.9
-      '@vitest/mocker': 4.1.9(vite@8.0.16(sass-embedded@1.97.3))
-      '@vitest/pretty-format': 4.1.9
-      '@vitest/runner': 4.1.9
-      '@vitest/snapshot': 4.1.9
-      '@vitest/spy': 4.1.9
-      '@vitest/utils': 4.1.9
+      '@vitest/expect': 4.1.10
+      '@vitest/mocker': 4.1.10(vite@8.0.16(sass-embedded@1.97.3))
+      '@vitest/pretty-format': 4.1.10
+      '@vitest/runner': 4.1.10
+      '@vitest/snapshot': 4.1.10
+      '@vitest/spy': 4.1.10
+      '@vitest/utils': 4.1.10
       es-module-lexer: 2.3.1
       expect-type: 1.4.0
       magic-string: 0.30.21
@@ -37770,7 +37773,7 @@ snapshots:
       vite: 8.0.16(sass-embedded@1.97.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@vitest/browser-playwright': 4.1.9(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.9)
+      '@vitest/browser-playwright': 4.1.10(playwright@1.60.0)(vite@8.0.16(sass-embedded@1.97.3))(vitest@4.1.10)
     transitivePeerDependencies:
       - msw
 

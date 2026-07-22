@@ -130,7 +130,34 @@ const projects = [
 	},
 ];
 
+/**
+ * Read the minimum supported WordPress version from .github/versions.sh.
+ *
+ * @return {string} The version, e.g. '6.9'.
+ */
+function minWpVersion() {
+	const versions = fs.readFileSync( '.github/versions.sh', 'utf8' );
+	const match = versions.match( /^MIN_WP_VERSION=(\S+)$/m );
+	if ( ! match ) {
+		throw new Error( 'Could not find MIN_WP_VERSION in .github/versions.sh' );
+	}
+	return match[ 1 ];
+}
+
 const matrix = [];
+
+/**
+ * Queue a project against both the latest WordPress release and the oldest one we still support,
+ * so a change that only breaks the minimum version is caught while it's still in review.
+ *
+ * @param {object} project - The project entry to expand.
+ * @param {object} extra   - Additional properties to merge into each entry.
+ */
+function pushBothVersions( project, extra = {} ) {
+	for ( const wpVersion of [ 'latest', minWpVersion() ] ) {
+		matrix.push( { ...project, ...extra, wpVersion } );
+	}
+}
 
 switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'pull_request':
@@ -144,7 +171,7 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		for ( const project of projects ) {
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
-				matrix.push( project );
+				pushBothVersions( project );
 				continue;
 			}
 
@@ -155,8 +182,31 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				.split( '\n' );
 
 			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
-				matrix.push( project );
+				pushBothVersions( project );
 			}
+		}
+		break;
+	}
+	case 'workflow_dispatch': {
+		// There's no diff to narrow things down to, so run everything against the single version
+		// asked for, defaulting to the oldest one we claim to support. Unlike the other events this
+		// doesn't also run 'latest': the point of a manual dispatch is to target one version.
+		const wpVersion = process.env.WP_VERSION || minWpVersion();
+
+		// Reject it here, rather than let every job discover it after standing up docker. This also
+		// keeps the value safe to echo into $GITHUB_OUTPUT. Pre-releases are allowed so we can test
+		// ahead of a stable release: '7.1-beta2' and '7.1-RC1', plus the revision-suffixed builds the
+		// .org development channel serves, e.g. '7.1-beta2-62798'.
+		if (
+			! /^(?:latest|nightly|\d+\.\d+(?:\.\d+)?(?:-[A-Za-z]+\d*(?:-\d+)?)?)$/.test( wpVersion )
+		) {
+			throw new Error(
+				`Invalid WordPress version '${ wpVersion }'. Expected something like '6.9', '7.1-RC1', 'latest' or 'nightly'.`
+			);
+		}
+
+		for ( const project of projects ) {
+			matrix.push( { ...project, wpVersion, suite: `wp-${ wpVersion }` } );
 		}
 		break;
 	}
@@ -178,10 +228,8 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 					suiteName = `${ suiteName }-rc`;
 				}
 
-				project.suite = suiteName;
-
 				if ( packageJson?.ci?.mirrorName === repoName ) {
-					matrix.push( project );
+					pushBothVersions( project, { suite: suiteName } );
 				}
 			}
 		} else {

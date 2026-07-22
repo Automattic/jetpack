@@ -98,7 +98,6 @@ Defined as constants/properties on `Publicize_Base`:
 ### Entry Points (via `webpack.config.js`)
 
 Webpack entry points (defined in `webpack.config.js`), bundled into `build/`:
-- **`social-admin-page.tsx`** — Standalone Social admin dashboard
 - **`block-editor-social.tsx`** — Block editor sidebar panel (Social plugin context)
 - **`block-editor-jetpack.tsx`** — Block editor sidebar panel (Jetpack plugin context)
 - **`classic-editor.js`** — Classic editor integration
