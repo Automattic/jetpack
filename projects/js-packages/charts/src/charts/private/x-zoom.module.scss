@@ -20,5 +20,13 @@
 		right: var(--wpds-dimension-gap-sm, 8px);
 		z-index: 2;
 		box-shadow: var(--wpds-elevation-xs, 0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003);
+
+		// WPDS outline-neutral is transparent-bodied at rest; give this
+		// floating control an opaque body so chart content doesn't show
+		// through it. Scoped to the rest state so the WPDS
+		// hover/active/focus backgrounds still apply.
+		&:not(:hover, :active, :focus) {
+			background-color: var(--wpds-color-background-surface-neutral-strong, #fff);
+		}
 	}
 }
