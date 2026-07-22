@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
@@ -16,6 +17,10 @@ import type { SyntheticEvent } from 'react';
 const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
 const DEFAULT_AVATAR_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><circle cx="25" cy="25" r="25" fill="%23e5e7eb"/></svg>';
+const VIEWS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 /**
  * Replace an unavailable author avatar with the neutral fallback.
@@ -43,9 +48,10 @@ function getAuthorName( name: string ): string {
 /**
  * DataViews field config for the Authors records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getAuthorsFields(): Field< AuthorRow >[] {
+export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[] {
 	return [
 		{
 			id: 'author',
@@ -93,7 +99,14 @@ export function getAuthorsFields(): Field< AuthorRow >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
+			),
 		},
 	];
 }

@@ -6,17 +6,24 @@ import {
 	type StatsDrilldownItemContext,
 	type StatsDrilldownRow,
 	type StatsDrilldownRowContext,
-	type StatsNormalizedReport,
+	type StatsDrilldownSourceReport,
+	type StatsTopAuthorsComparisonItem,
 	type StatsTopAuthorsItem,
+	type StatsTopAuthorsPostComparisonItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
 
-type AuthorDrilldownItem = StatsTopAuthorsItem | StatsTopPostsItem;
+type AuthorDrilldownItem =
+	| StatsTopAuthorsItem
+	| StatsTopAuthorsComparisonItem
+	| StatsTopPostsItem
+	| StatsTopAuthorsPostComparisonItem;
 
 type AuthorDrilldownMetadata = {
 	parentName?: string;
 	avatarUrl: string | null;
 	postId?: string;
+	previousViews?: number;
 };
 
 /** One author or nested post row in the report table. */
@@ -89,9 +96,15 @@ function getAuthorDrilldownMetadata(
 	item: AuthorDrilldownItem,
 	context: StatsDrilldownRowContext< AuthorDrilldownItem >
 ): AuthorDrilldownMetadata {
+	const previousViews =
+		'previousViews' in item && item.previousViews !== undefined
+			? { previousViews: item.previousViews }
+			: {};
+
 	if ( context.depth === 0 ) {
 		return {
 			avatarUrl: ( item as StatsTopAuthorsItem ).icon,
+			...previousViews,
 		};
 	}
 
@@ -101,6 +114,7 @@ function getAuthorDrilldownMetadata(
 		avatarUrl: null,
 		parentName: String( context.parentItem?.label ?? '' ),
 		postId: post.id != null ? String( post.id ) : undefined,
+		...previousViews,
 	};
 }
 
@@ -112,7 +126,7 @@ function getAuthorDrilldownMetadata(
  * @return The aggregate author rows.
  */
 export function aggregateAuthorRows(
-	report: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
+	report: StatsDrilldownSourceReport< AuthorDrilldownItem > | undefined
 ): AuthorRow[] {
 	return aggregateStatsDrilldownRows< AuthorDrilldownItem, AuthorDrilldownMetadata >( report, {
 		getChildren: item => item.children,

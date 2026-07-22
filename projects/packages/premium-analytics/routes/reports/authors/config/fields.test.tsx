@@ -44,12 +44,13 @@ jest.mock( '@wordpress/route', () => ( {
 /**
  * Mount an Authors table field's render component.
  *
- * @param fieldId - The field to render.
- * @param item    - The author row.
+ * @param fieldId        - The field to render.
+ * @param item           - The author row.
+ * @param withComparison - Whether comparison deltas are enabled.
  * @return The Testing Library render result.
  */
-function renderField( fieldId: 'author' | 'views', item: AuthorRow ) {
-	const field = getAuthorsFields().find( candidate => candidate.id === fieldId );
+function renderField( fieldId: 'author' | 'views', item: AuthorRow, withComparison = false ) {
+	const field = getAuthorsFields( withComparison ).find( candidate => candidate.id === fieldId );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` is the DataViews field render component.
 	const FieldComponent = field?.render;
 
@@ -104,5 +105,18 @@ describe( 'authors fields', () => {
 	it( 'formats the views field for display', () => {
 		renderField( 'views', author );
 		expect( screen.getByText( author.views.toLocaleString() ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the views delta when a comparison row is available', () => {
+		renderField( 'views', { ...post, previousViews: 200 }, true );
+
+		expect( screen.getByText( '321' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+61%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the views delta when comparison is disabled', () => {
+		renderField( 'views', { ...post, previousViews: 200 } );
+
+		expect( screen.queryByText( '+61%' ) ).not.toBeInTheDocument();
 	} );
 } );

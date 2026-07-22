@@ -61,7 +61,10 @@ function AuthorsReport(): JSX.Element {
 	);
 
 	const records = useAuthorsReportRecords( reportParams );
-	const fields = useMemo( () => getAuthorsFields(), [] );
+	const fields = useMemo(
+		() => getAuthorsFields( records.hasComparison ),
+		[ records.hasComparison ]
+	);
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();

@@ -1,5 +1,10 @@
 import { aggregateAuthorRows } from './aggregate';
-import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
+import type {
+	StatsDrilldownSourceReport,
+	StatsNormalizedReport,
+	StatsTopAuthorsComparisonItem,
+	StatsTopAuthorsItem,
+} from '@jetpack-premium-analytics/data';
 
 const report: StatsNormalizedReport< StatsTopAuthorsItem > = {
 	summary: {},
@@ -71,6 +76,41 @@ const report: StatsNormalizedReport< StatsTopAuthorsItem > = {
 	],
 };
 
+const comparisonReport: StatsDrilldownSourceReport< StatsTopAuthorsComparisonItem > = {
+	data: [
+		{
+			items: [
+				{
+					key: '42',
+					id: 42,
+					label: 'Ada Lovelace',
+					views: 10,
+					previousViews: 8,
+					icon: 'https://example.com/ada.png',
+					children: [
+						{
+							id: 1,
+							label: 'Analytical Engine',
+							views: 6,
+							previousViews: 4,
+							link: 'https://example.com/analytical-engine/',
+							children: null,
+						},
+						{
+							id: 4,
+							label: 'Earlier post',
+							views: 0,
+							previousViews: 3,
+							link: null,
+							children: null,
+						},
+					],
+				},
+			],
+		},
+	],
+};
+
 describe( 'report authors aggregate', () => {
 	it( 'aggregates authors and nests their posts in descending views order', () => {
 		expect( aggregateAuthorRows( report ) ).toEqual( [
@@ -120,5 +160,38 @@ describe( 'report authors aggregate', () => {
 
 	it( 'returns no rows before the report loads', () => {
 		expect( aggregateAuthorRows( undefined ) ).toEqual( [] );
+	} );
+
+	it( 'preserves comparison views for authors and nested posts', () => {
+		expect( aggregateAuthorRows( comparisonReport ) ).toEqual( [
+			{
+				id: 'id:42',
+				label: 'Ada Lovelace',
+				avatarUrl: 'https://example.com/ada.png',
+				isGroup: true,
+				views: 10,
+				previousViews: 8,
+			},
+			{
+				id: 'id:42|post:id:1',
+				parentId: 'id:42',
+				parentName: 'Ada Lovelace',
+				label: 'Analytical Engine',
+				avatarUrl: null,
+				postId: '1',
+				views: 6,
+				previousViews: 4,
+			},
+			{
+				id: 'id:42|post:id:4',
+				parentId: 'id:42',
+				parentName: 'Ada Lovelace',
+				label: 'Earlier post',
+				avatarUrl: null,
+				postId: '4',
+				views: 0,
+				previousViews: 3,
+			},
+		] );
 	} );
 } );

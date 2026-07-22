@@ -13,14 +13,15 @@ import { aggregateAuthorRows } from './aggregate';
  * table's nested author and post rows.
  *
  * @param reportParams - The shared report-window parameters.
- * @return The author table rows and request state.
+ * @return The author table rows, comparison availability, and request state.
  */
 export function useAuthorsReportRecords( reportParams: ReportParams ) {
 	/*
 	 * Calypso's Jetpack Stats Authors report sends `max: 0` to
 	 * `stats/top-authors`. With no chart requiring daily buckets, let the shared
-	 * Stats query use its summarized range request and render that hierarchy
-	 * directly in the client-side table.
+	 * Stats query use its summarized range request. The hook's shared comparison
+	 * mapper aligns authors and posts across periods before the hierarchy is
+	 * flattened for the client-side table.
 	 */
 	const recordsParams = useMemo(
 		() => ( {
@@ -31,12 +32,16 @@ export function useAuthorsReportRecords( reportParams: ReportParams ) {
 	);
 	const authors = useStatsTopAuthors( recordsParams );
 	const rows = useMemo(
-		() => aggregateAuthorRows( authors.primary.data ),
-		[ authors.primary.data ]
+		() =>
+			aggregateAuthorRows(
+				authors.comparisonRows ? { data: [ { items: authors.comparisonRows.rows } ] } : undefined
+			),
+		[ authors.comparisonRows ]
 	);
 
 	return {
 		rows,
+		hasComparison: authors.hasComparison,
 		isLoading: authors.isLoading,
 	};
 }
