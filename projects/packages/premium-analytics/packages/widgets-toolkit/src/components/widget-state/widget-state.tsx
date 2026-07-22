@@ -73,15 +73,11 @@ export function WidgetState( {
 	children,
 }: WidgetStateProps ) {
 	if ( isError ) {
+		// Vertical centering lives in the stylesheet (`safe center`), not the
+		// `justify` prop: the prop's inline style would beat the class rule and
+		// reintroduce the unreachable-top overflow on short tiles.
 		return (
-			<Stack
-				className={ styles.state }
-				direction="column"
-				gap="lg"
-				align="center"
-				justify="center"
-				role="alert"
-			>
+			<Stack className={ styles.state } direction="column" gap="lg" align="center" role="alert">
 				<Icon size={ 40 } icon={ errorStateIcon } />
 				{ error?.title && <div className={ styles.title }>{ error.title }</div> }
 				<div className={ styles.description }>

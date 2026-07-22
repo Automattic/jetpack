@@ -2,6 +2,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+
+	// On short tiles the icon + text can outgrow the widget body; scroll the
+	// overflow instead of painting over the widget footer, with `safe`
+	// centering falling back to flex-start so the top stays reachable.
+	justify-content: safe center;
+	overflow-y: auto;
 	height: 100%;
 	width: 100%;
 	margin-inline: auto;

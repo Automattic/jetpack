@@ -1,6 +1,16 @@
 .state {
 	block-size: 100%;
-	min-block-size: 120px;
+
+	// No fixed floor: on short tiles (height 1) the widget body gets less than
+	// 120px, and a hard minimum would push the state past the body and paint it
+	// over the widget footer. Overflowing content scrolls instead, and `safe`
+	// centering falls back to flex-start so the top stays reachable. (Vertical
+	// centering lives here rather than on the Stack's `justify` prop, whose
+	// inline style would win over these rules.)
+	min-block-size: 0;
+	overflow-y: auto;
+	justify-content: center;
+	justify-content: safe center;
 	padding: var(--wpds-dimension-padding-md);
 	text-align: center;
 }
@@ -19,7 +29,10 @@
 .loading {
 	position: relative;
 	block-size: 100%;
-	min-block-size: 120px;
+
+	// Same rationale as `.state`: no floor, so a short tile's loading box stays
+	// inside the widget body instead of underlapping the footer.
+	min-block-size: 0;
 }
 
 .ready {

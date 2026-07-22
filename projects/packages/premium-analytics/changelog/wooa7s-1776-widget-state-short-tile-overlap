@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widget error, empty, and loading states no longer overlap the widget footer on short (height 1) tiles; overflowing state content scrolls instead.
