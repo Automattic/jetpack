@@ -28,7 +28,8 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
 		DASHBOARD_NAME,
-		activeSection
+		activeSection,
+		sections
 	);
 	const [ gridSettings ] = useDashboardGridSettings();
 
