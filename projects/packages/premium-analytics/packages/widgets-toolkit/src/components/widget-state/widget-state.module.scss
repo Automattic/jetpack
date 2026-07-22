@@ -3,16 +3,48 @@
 
 	// No fixed floor: on short tiles (height 1) the widget body gets less than
 	// 120px, and a hard minimum would push the state past the body and paint it
-	// over the widget footer. Overflowing content scrolls instead, and `safe`
-	// centering falls back to flex-start so the top stays reachable. (Vertical
-	// centering lives here rather than on the Stack's `justify` prop, whose
-	// inline style would win over these rules.)
+	// over the widget footer. Overflowing content scrolls instead.
 	min-block-size: 0;
 	overflow-y: auto;
-	justify-content: center;
-	justify-content: safe center;
+
+	// Size container so the icon can hide on short tiles (see the query below).
+	// Safe here: the state always sits in a definite-height body (grid tile or
+	// story canvas), so size containment cannot collapse it.
+	container-type: size;
 	padding: var(--wpds-dimension-padding-md);
 	text-align: center;
+}
+
+// On short tiles the icon steals the room the text needs, and a state showing
+// icon + text next to one that fits text-only reads as misaligned. Below the
+// threshold drop the glyph so every state degrades the same way: text only,
+// vertically centered. 140px keeps height-1 tiles (≈100px body) icon-free and
+// height-2 tiles (≈300px) untouched.
+@container (max-block-size: 140px) {
+
+	.stateIcon {
+		display: none;
+	}
+}
+
+// Keep the icon and text at their intrinsic size: flex children default to
+// `flex-shrink: 1`, so a too-short tile would squash them (a visibly shrunken
+// icon) before the container ever scrolls.
+.state > * {
+	flex-shrink: 0;
+}
+
+// Overflow-safe vertical centering (in place of the Stack's `justify` prop,
+// whose inline style would win over class rules): auto margins center the
+// content when there is room and collapse to zero when there is not, so the
+// state top-anchors and stays fully scrollable. `justify-content: center`
+// would push the overflow past the top edge where it cannot be scrolled to.
+.state > :first-child {
+	margin-block-start: auto;
+}
+
+.state > :last-child {
+	margin-block-end: auto;
 }
 
 .title {

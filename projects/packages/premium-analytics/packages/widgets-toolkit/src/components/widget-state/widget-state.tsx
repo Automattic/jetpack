@@ -78,7 +78,7 @@ export function WidgetState( {
 		// reintroduce the unreachable-top overflow on short tiles.
 		return (
 			<Stack className={ styles.state } direction="column" gap="lg" align="center" role="alert">
-				<Icon size={ 40 } icon={ errorStateIcon } />
+				<Icon size={ 40 } className={ styles.stateIcon } icon={ errorStateIcon } />
 				{ error?.title && <div className={ styles.title }>{ error.title }</div> }
 				<div className={ styles.description }>
 					{ error?.description ??
