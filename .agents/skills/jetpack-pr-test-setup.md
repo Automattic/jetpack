@@ -24,8 +24,10 @@ defaults false, the paid plan the feature needs — and then telling you exactly
 click.
 
 The delivery mechanism here is deliberately **Beta Tester, not build+rsync**: it activates
-the PR's published branch build with no SSH/SFTP dance and no worktree. Rsync stays only as
-a fallback for PRs that have no beta build.
+the PR's *published* branch build, so there's no local build and no SFTP upload of your
+worktree — just a few `wp jetpack-beta` calls over SSH. Rsync stays only as a fallback for
+PRs that have no beta build. All WP-CLI runs over the password-auth transport in step 1b
+(JN hosts reject SSH keys, so key auth is a dead end — see there).
 
 ## Composition
 
@@ -95,6 +97,51 @@ essentials:
 A brand-new install matters: it makes gates like `jetpack_seo_surface_visible` seed to `true`
 (see step 4), so the flag alone is usually enough.
 
+### 1b. Establish the WP-CLI transport (password auth — no keys, no proxy)
+
+Every later step runs `wp` on the JN site over SSH. **Do not use SSH key auth.** Jurassic
+Ninja hosts don't trust your personal/a8c key — you'll get `Permission denied
+(publickey,password)` — and routing through the a8c proxy needs an interactive yubikey
+touch, so neither is portable to whoever else runs this skill. The one credential *every*
+JN site issues is its **per-site password**; authenticate with that, non-interactively,
+with keys and the proxy switched off. Set the transport up once here and reuse it everywhere
+below.
+
+```bash
+# 1) Host: prefer the one in provision-site's returned `ssh_command`; else ssh.atomicsites.net.
+JN_HOST='<domain>@ssh.atomicsites.net'
+
+# 2) Site password — JN MCP: list-sites (domain: <domain>, include_passwords: true).
+JN_PW='<password from list-sites>'
+
+# 3) Askpass feeder — supplies the password with zero interaction, no sshpass dependency.
+ASKPASS="$(mktemp)"; printf '#!/bin/sh\necho "$JN_PW"\n' >"$ASKPASS"; chmod +x "$ASKPASS"
+CM="$(mktemp -u)"
+
+# 4) One reusable, non-interactive transport used by every step below:
+#    - keys OFF  → JN rejects them anyway, and this stops the yubikey from ever engaging
+#    - proxy OFF → JN hosts are directly reachable; also what makes it work for a teammate
+#                  who has no a8c proxy config at all
+#    - password via askpass, connection multiplexed so the whole run authenticates once
+jnwp() {
+  JN_PW="$JN_PW" SSH_ASKPASS="$ASKPASS" SSH_ASKPASS_REQUIRE=force \
+  ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password \
+      -o ProxyJump=none -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+      -o ControlMaster=auto -o ControlPath="$CM" -o ControlPersist=5m \
+      "$JN_HOST" "cd /srv/htdocs && $*"
+}
+
+# 5) Prove the transport end to end before doing anything else.
+jnwp 'wp --version'
+```
+
+Needs OpenSSH ≥ 8.4 (for `SSH_ASKPASS_REQUIRE=force`, which makes ssh read the password from
+the askpass helper even with a tty attached). If that's unavailable, swap the body for
+`sshpass -p "$JN_PW" ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password
+-o ProxyJump=none "$JN_HOST" "cd /srv/htdocs && $*"`. If `jnwp 'wp --version'` still fails
+(password rejected, host unreachable), stop and report it — that is the one case the
+browser-driven Beta Tester UI exists to cover.
+
 ### 2. Activate the PR branch with Jetpack Beta Tester
 
 **Map the PR to a Beta Tester plugin target** (same logic as `jn-pr-review` step 3):
@@ -107,35 +154,33 @@ A brand-new install matters: it makes gates like `jetpack_seo_surface_visible` s
 - More than one plugin affected, or a package that plausibly belongs to a non-`jetpack`
   plugin → **ask** which to activate.
 
-**Ensure the Beta plugin is present, then activate** (WP-CLI over the JN site's SSH; the JN
-skill has the SSH host — `<domain>@ssh.atomicsites.net`):
+**Ensure the Beta plugin is present, then activate** — every call via the `jnwp` transport
+from step 1b:
 
 ```bash
-ssh <domain>@ssh.atomicsites.net 'cd /srv/htdocs && \
-  wp plugin is-installed jetpack-beta || wp plugin install jetpack-beta --activate; \
-  wp plugin activate jetpack-beta; \
-  wp jetpack-beta list <plugin>'                      # confirm the PR branch appears
+jnwp 'wp plugin is-installed jetpack-beta || wp plugin install jetpack-beta --activate'
+jnwp 'wp plugin activate jetpack-beta'
+jnwp 'wp jetpack-beta list <plugin>'                 # confirm the PR branch appears
 ```
 
 Then activate the PR's branch (the CLI's `install_and_activate` downloads the branch build
 and switches to it in one call — `<branch>` is `headRefName`, treated as a PR source):
 
 ```bash
-ssh <domain>@ssh.atomicsites.net 'cd /srv/htdocs && \
-  wp jetpack-beta activate <plugin> "<headRefName>"'
+jnwp 'wp jetpack-beta activate <plugin> "<headRefName>"'
 ```
 
-Verify it took: `wp jetpack-beta list <plugin>` should mark `<headRefName>` active (`*`), and
-`wp plugin list --status=active` should show the plugin.
+Verify it took: `jnwp 'wp jetpack-beta list <plugin>'` should mark `<headRefName>` active
+(`*`), and `jnwp 'wp plugin list --status=active'` should show the plugin.
 
 **Fallbacks, in order:**
 1. `wp jetpack-beta list <plugin>` doesn't include the branch, or `activate` errors that the
    branch/build isn't found → **no beta build exists for this PR.** Fall back to
    `jn-pr-review`'s build + rsync path to get the code onto the site, then return here for
    step 3.
-2. No SSH key access to the JN host → drive the Beta Tester UI in the browser instead
-   (**wp-admin → Jetpack → Beta**, pick the plugin, find the PR, click **Activate**), or use the
-   rsync fallback. Never fetch/print the site password just to run Beta Tester.
+2. The `jnwp` transport itself won't connect (password rejected / host unreachable, per
+   step 1b) → drive the Beta Tester UI in the browser instead (**wp-admin → Jetpack → Beta**,
+   pick the plugin, find the PR, click **Activate**), or use the rsync fallback.
 
 ### 3. Turn the Testing Instructions into a setup plan
 
@@ -160,8 +205,7 @@ Write a **mu-plugin** (auto-loads, no activation step, and — critically — lo
 late and silently no-ops):
 
 ```bash
-ssh <domain>@ssh.atomicsites.net 'mkdir -p /srv/htdocs/wp-content/mu-plugins && \
-  cat > /srv/htdocs/wp-content/mu-plugins/0-pr-test-setup.php <<PHP
+jnwp 'mkdir -p wp-content/mu-plugins && cat > wp-content/mu-plugins/0-pr-test-setup.php <<PHP
 <?php
 // Feature-state setup for PR <PR> — added by jetpack-pr-test-setup.
 add_filter( "<flag>", "__return_true" );
@@ -170,7 +214,7 @@ PHP'
 
 Add any `update_option` the instructions call for as a separate line
 (`wp option update <name> <value>`) **only when needed** — don't set options unconditionally;
-check the default first.
+check the default first. Run every `wp …` in this step (and steps 5–6) through `jnwp`.
 
 **Worked example — the `rsm_jetpack_seo` SEO surface** (the recurring case):
 
@@ -201,8 +245,7 @@ strictly:
 2. **Verify the current plan/feature state** on the site first, so you don't set a sticker
    that's already effective:
    ```bash
-   ssh <domain>@ssh.atomicsites.net 'cd /srv/htdocs && \
-     wp eval "var_export( Automattic\\Jetpack\\Current_Plan::supports( \"<feature>\" ) );"'
+   jnwp 'wp eval "var_export( Automattic\\Jetpack\\Current_Plan::supports( \"<feature>\" ) );"'
    ```
 3. **Present the exact command and blog ID for explicit approval** — do not run it yourself
    from here; the sticker is set from the user's authorized WPCOM sandbox session:
@@ -242,7 +285,10 @@ Concise final report:
 
 ## Notes
 
-- Never print the JN site password, even when a fallback used it.
+- SSH key auth does not work on JN hosts — always authenticate WP-CLI with the per-site
+  password via the step-1b `jnwp` transport (keys off, proxy off). Never `BatchMode=yes` a
+  key probe; it just wastes a round trip on a method that can't succeed here.
+- Never print the JN site password back to the user, even though the transport uses it.
 - Prefer Beta Tester; reach for rsync only when no branch build exists.
 - Don't set `jetpack_seo_surface_visible` (or any option) unconditionally — check the default
   first; fresh installs usually already satisfy the second gate.
