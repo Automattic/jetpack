@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.2] - 2026-07-20
+### Added
+- Add HeatmapChart min/max cell size bounds and floor an all-zero heatmap at the scale bottom instead of full intensity. [#50517]
+
+### Changed
+- Make calendar heatmaps render ragged edges by default, with out-of-range days skipped by hover and keyboard navigation. [#50520]
+- Update package dependencies. [#50510] [#50529]
+
+### Fixed
+- Keep aspectRatio charts within their parent on both axes so a height-constrained container no longer overflows vertically. [#50468]
+
 ## [1.10.1] - 2026-07-13
 ### Changed
 - HeatmapChart: Fix the grid's ARIA structure, shrink to fit short containers instead of scrolling, hide the colliding partial first-month calendar label, and keep in-cell text legible on themed and dark backgrounds. [#50136]
@@ -920,6 +931,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.10.2]: https://github.com/Automattic/charts/compare/v1.10.1...v1.10.2
 [1.10.1]: https://github.com/Automattic/charts/compare/v1.10.0...v1.10.1
 [1.10.0]: https://github.com/Automattic/charts/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/Automattic/charts/compare/v1.8.1...v1.9.0
