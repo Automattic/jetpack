@@ -14,9 +14,12 @@ import type { AiForm } from '../../../data/use-ai';
 const formWith = ( canServe: boolean ): AiForm => ( {
 	enhancer: { available: false, enabled: false },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe },
+	crawlers: null,
 	isSaving: false,
 	setEnhancerEnabled: () => {},
 	setLlmsTxtEnabled: () => {},
+	setCrawlerBlocked: () => {},
+	setCrawlerGroupBlocked: () => {},
 } );
 
 describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
