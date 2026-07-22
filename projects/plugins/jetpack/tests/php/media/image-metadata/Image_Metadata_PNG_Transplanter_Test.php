@@ -98,4 +98,24 @@ class Image_Metadata_PNG_Transplanter_Test extends WP_UnitTestCase {
 	public function test_extract_returns_null_for_non_png() {
 		$this->assertNull( ( new PNG_Transplanter() )->extract( $this->temp_file( 'not a png' ) ) );
 	}
+
+	public function test_walk_stops_gracefully_on_truncated_chunk() {
+		// Start from a valid PNG, then drop its trailing IEND chunk (the last
+		// 12 bytes: a 4-byte length, the 4-byte type, and a 4-byte CRC) so the
+		// file has no valid terminator chunk at all.
+		$png_without_iend = substr( Image_Metadata_Fixtures::bare_png(), 0, -12 );
+
+		// Append a hand-crafted chunk whose declared length (0xFFFF bytes) is
+		// far larger than the handful of bytes that actually follow it. This
+		// is the corrupt/truncated chunk the walker's guard must catch.
+		$truncated_chunk = pack( 'N', 0xFFFF ) . 'zTXtab';
+
+		$path = $this->temp_file( $png_without_iend . $truncated_chunk );
+
+		$this->assertFalse( ( new PNG_Transplanter() )->has_payload( $path ) );
+
+		$payload = ( new PNG_Transplanter() )->extract( $path );
+		$this->assertNotNull( $payload );
+		$this->assertTrue( $payload->is_empty() );
+	}
 }
