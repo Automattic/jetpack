@@ -100,6 +100,7 @@ export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-forms', 'videopre
  */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
+	'ai',
 	'blaze',
 	'blocks',
 	'canonical-urls',

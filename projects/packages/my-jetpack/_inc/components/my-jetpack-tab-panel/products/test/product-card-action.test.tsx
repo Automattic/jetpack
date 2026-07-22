@@ -59,6 +59,37 @@ describe( 'ProductCardAction', () => {
 		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders the activation toggle for AI even when inactive, instead of a Learn more link', () => {
+		// AI is the site-wide master switch: the card must show an inline on/off toggle
+		// in both states rather than the "Learn more" upsell that routes to the pricing
+		// interstitial. An inactive product with no paid plan would otherwise fall through
+		// to the UpgradeAction ("Learn more") path.
+		render(
+			<ProductCardAction
+				product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'inactive' } ) }
+				module={ formsModule }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button', { name: /learn more/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
+	} );
+
+	it( 'reflects the AI module active state, not product.status (free tier reports can_upgrade)', () => {
+		// Jetpack AI on a free site reports status "can_upgrade" even when its module
+		// is active. The toggle must follow the module's activated state, or it reads
+		// "off" while AI is actually running.
+		const activeModule = { available: true, activated: true } as unknown as MyJetpackModule;
+		render(
+			<ProductCardAction
+				product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'can_upgrade' } ) }
+				module={ activeModule }
+			/>
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+	} );
+
 	it( 'disables the toggle when the Forms module is unavailable', () => {
 		const unavailableModule = { available: false, activated: false } as unknown as MyJetpackModule;
 		render(
@@ -85,10 +116,12 @@ describe( 'ProductCardAction', () => {
 	} );
 
 	it( 'reloads the page after activating Forms so the admin sidebar updates', async () => {
+		// Toggle starts off (module inactive), so clicking it activates.
+		const inactiveModule = { available: true, activated: false } as unknown as MyJetpackModule;
 		render(
 			<ProductCardAction
 				product={ buildProduct( { status: 'inactive' } ) }
-				module={ formsModule }
+				module={ inactiveModule }
 			/>
 		);
 
