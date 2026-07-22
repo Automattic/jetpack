@@ -7,10 +7,10 @@ import {
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
 import { WidgetState } from '../../components';
-import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
+import { buildLeaderboardRow, LeaderboardChart } from '../../components/chart-leaderboard';
 /**
  * Internal dependencies
  */
@@ -44,25 +44,19 @@ export function VisitorsByLocationWidget() {
 			leaderboardData.map( item => {
 				const imageUrl = flagUrl( region === 'US' ? 'us' : item.id );
 				const labelText = typeof item.label === 'string' ? item.label : '';
-				const imageAlt =
-					region === 'US'
-						? __( 'United States flag', 'jetpack-premium-analytics' )
-						: sprintf(
-								/* translators: %s is the country name */
-								__( 'Flag of %s', 'jetpack-premium-analytics' ),
-								labelText
-						  );
 
 				return {
 					...item,
-					label: (
-						<LeaderboardLabel
-							label={ labelText }
-							imageAlt={ imageAlt }
-							imageClassName={ styles.leaderboardImage }
-							{ ...( imageUrl ? { imageUrl } : {} ) }
-						/>
-					),
+					...buildLeaderboardRow( {
+						label: labelText,
+						media: {
+							kind: 'flag',
+							url: imageUrl ?? undefined,
+							country:
+								region === 'US' ? __( 'United States', 'jetpack-premium-analytics' ) : labelText,
+						},
+						action: { kind: 'static' },
+					} ),
 				};
 			} ),
 		[ leaderboardData, region ]

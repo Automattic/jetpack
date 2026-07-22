@@ -493,6 +493,7 @@ class WPCOM_Features {
 	public const SFTP                              = 'sftp';
 	public const SIMPLE_PAYMENTS                   = 'simple-payments';
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
+	public const SOCIAL_ADMIN_UI_V2                = 'social-admin-ui-v2';
 	public const SOCIAL_IMAGE_FOCAL_POINT          = 'social-image-focal-point';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
 	public const SOCIAL_MESSAGE_TEMPLATES          = 'social-message-templates';
@@ -1368,6 +1369,13 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		self::SOCIAL_ADMIN_UI_V2                => array(
+			// For now, this is controlled via a blog sticker in Store_Product_List.
+			array(
+				'before' => '2004-12-12',
+				self::WPCOM_ALL_SITES,
+			),
 		),
 		self::SOCIAL_IMAGE_FOCAL_POINT          => array(
 			// For now, this is controlled via a blog sticker in Store_Product_List.

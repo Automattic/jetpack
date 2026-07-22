@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-LeaderboardChart: Keep row spacing and column alignment identical whether or not a row is interactive.

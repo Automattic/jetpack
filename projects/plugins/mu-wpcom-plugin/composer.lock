@@ -353,7 +353,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "66186f7bc5595357512833c76816e8496b6a6c0b"
+                "reference": "7a7c6fc7ef68f3388c0c43dd402c7b31126fa587"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -382,7 +382,7 @@
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.27.x-dev"
+                    "dev-trunk": "0.28.x-dev"
                 },
                 "textdomain": "jetpack-blaze",
                 "version-constants": {
@@ -911,7 +911,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "104841325e090f4137640ab5b09373de64d6ead9"
+                "reference": "99f2996bbbebf82f41575664aa47d5847ec1c5a8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -928,7 +928,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"
@@ -1975,7 +1975,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "353dcc22a8de746e21bd2c6334d1ca7206fea704"
+                "reference": "0ebd3991d1a99f1843f5071fdda658e0ca77abc6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2003,7 +2003,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },

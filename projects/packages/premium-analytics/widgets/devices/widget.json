@@ -2,6 +2,15 @@
 	"name": "jpa/devices",
 	"title": "Devices",
 	"description": "Top device types and screen sizes for your visitors.",
+	"help": {
+		"content": "A breakdown of the device types your visitors used, sorted by views.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
 	"category": "traffic",
 	"presentation": "framed"
 }

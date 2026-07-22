@@ -21,20 +21,6 @@ export type AuthorsAttributes = {
  * Widget type definition.
  */
 export default {
-	name: 'jpa/authors',
-	title: __( 'Authors', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The authors whose content received the most views.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: postAuthor,
 	attributes: [
 		{

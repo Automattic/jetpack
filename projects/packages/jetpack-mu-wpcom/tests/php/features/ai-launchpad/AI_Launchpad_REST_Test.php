@@ -274,10 +274,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that an unpublished AI-created first-post draft puts the newsletter first-post task "in progress": it's
-	 * detected through the first-post marker meta (not any latest draft), gets the drafts-aware "Continue writing"
-	 * title override, and reopens that draft. The marker query is short-circuited via `posts_pre_query` (WorDBless
-	 * can't run WP_Query).
+	 * Test that an unpublished AI-created first-post draft puts the first-post task "in progress": it's detected
+	 * through the first-post marker meta (not any latest draft), gets the drafts-aware "Continue" title override,
+	 * and reopens that draft. Seeds the `first_post_published_newsletter` id_map twin, which must render as the
+	 * canonical `first_post_published` with the in-progress treatment intact. The marker query is short-circuited
+	 * via `posts_pre_query` (WorDBless can't run WP_Query).
 	 */
 	public function test_get_marks_first_post_in_progress_with_marked_draft() {
 		wp_set_current_user( $this->admin_id );
@@ -286,7 +287,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$get_first_post = function () {
 			foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
-				if ( 'first_post_published_newsletter' === $task['id'] ) {
+				if ( 'first_post_published' === $task['id'] ) {
 					return $task;
 				}
 			}
@@ -315,7 +316,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$after = $get_first_post();
 		$this->assertNotNull( $after );
 		$this->assertTrue( $after['in_progress'] );
-		$this->assertSame( 'Continue writing your first post', $after['title'] );
+		$this->assertSame( 'Continue to write your first post', $after['title'] );
 		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $after['calypso_path'] );
 	}
 
@@ -1505,8 +1506,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the Jetpack Social tasks are hidden on a private site, where wpcom
-	 * doesn't load the Social admin page their CTA points to.
+	 * Test that the Jetpack Social task is hidden on a private site, where wpcom
+	 * doesn't load the Social admin page its CTA points to. A persisted
+	 * `drive_traffic` (the id_map twin) folds into the same single card first.
 	 */
 	public function test_get_hides_social_tasks_on_private_site() {
 		wp_set_current_user( $this->admin_id );
@@ -1518,17 +1520,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			return array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		};
 
-		// Public site: the Social tasks show.
+		// Public site: one social card — the drive_traffic twin collapses into connect_social_media.
 		update_option( 'blog_public', '1' );
 		$public_ids = $ids();
 		$this->assertContains( 'connect_social_media', $public_ids );
-		$this->assertContains( 'drive_traffic', $public_ids );
+		$this->assertNotContains( 'drive_traffic', $public_ids );
 
-		// Private site: the Social tasks are gone, the rest remain.
+		// Private site: the Social task is gone, the rest remain.
 		update_option( 'blog_public', '-1' );
 		$private_ids = $ids();
 		$this->assertNotContains( 'connect_social_media', $private_ids );
-		$this->assertNotContains( 'drive_traffic', $private_ids );
 		$this->assertContains( 'first_post_published', $private_ids );
 
 		update_option( 'blog_public', '1' );
@@ -1550,6 +1551,26 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotContains( 'post_sharing_enabled', $ids );
 		$this->assertSame( 1, array_count_values( $ids )['connect_social_media'] );
+	}
+
+	/**
+	 * Test that persisted id_map twins render as the id the menu still offers:
+	 * `subscribers_added` as `import_subscribers` and `link_in_bio_launched` as
+	 * `site_launched`. A payload holding a twin and its target collapses to one card.
+	 */
+	public function test_get_remaps_id_map_twins_to_kept_ids() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks(
+			array( 'subscribers_added', 'first_post_published', 'link_in_bio_launched', 'videopress_launched', 'site_launched' )
+		);
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertNotContains( 'subscribers_added', $ids );
+		$this->assertContains( 'import_subscribers', $ids );
+		$this->assertNotContains( 'link_in_bio_launched', $ids );
+		$this->assertNotContains( 'videopress_launched', $ids );
+		$this->assertSame( 1, array_count_values( $ids )['site_launched'] );
 	}
 
 	/**

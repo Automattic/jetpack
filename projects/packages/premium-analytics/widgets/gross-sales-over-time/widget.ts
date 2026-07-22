@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type GrossSalesOverTimeAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/gross-sales-over-time',
-	title: __( 'Gross sales over time', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Monitor your total revenue — before any discounts, returns, or adjustments — over a set period of time.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

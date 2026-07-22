@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -24,14 +23,6 @@ export type PostTrafficActivityAttributes = Record< never, never >;
  * traffic stay blank cells, per the design, while the grid stays complete.
  */
 export default {
-	name: 'jpa/post-traffic-activity',
-	title: __( 'Traffic activity', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Daily views for the post or page being viewed, as a calendar heatmap.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: calendar,
 	attributes: [] as WidgetAttributeField< PostTrafficActivityAttributes >[],
 	example: {
