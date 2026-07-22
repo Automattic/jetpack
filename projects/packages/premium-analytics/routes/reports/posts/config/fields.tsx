@@ -2,13 +2,13 @@
  * External dependencies
  */
 import {
-	flattenStatsLeaves,
 	useSiteHomeUrl,
+	type StatsArchivesComparisonItem,
 	type StatsArchivesItem,
-	type StatsTopPostsItem,
+	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
@@ -17,6 +17,11 @@ import { Link } from '@wordpress/route';
  */
 import styles from './fields.module.css';
 import type { Field } from '@wordpress/dataviews';
+
+const VIEWS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 /**
  * Render the homepage title using the URL from core site settings.
@@ -47,9 +52,10 @@ function HomepageTitle( { title }: { title: string } ) {
  * i18n locale data has loaded, mirroring the tab/section definitions on the
  * other routes.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getPostsFields(): Field< StatsTopPostsItem >[] {
+export function getPostsFields( withComparison = false ): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
 			id: 'title',
@@ -83,7 +89,12 @@ export function getPostsFields(): Field< StatsTopPostsItem >[] {
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];
@@ -98,6 +109,7 @@ export type ArchiveRow = {
 	id: string;
 	label: string;
 	views: number;
+	previousViews?: number;
 	link?: string;
 };
 
@@ -129,6 +141,48 @@ function getArchiveFallbackLabel( parts: string[] ): string {
 }
 
 /**
+ * Flatten one normalized archive item to leaf table rows.
+ *
+ * @param item - The normalized archive item.
+ * @param path - Parent archive labels.
+ * @param id   - Stable ID prefix for the item.
+ * @return Leaf archive rows for the table.
+ */
+function flattenArchiveEntry(
+	item: StatsArchivesItem | StatsArchivesComparisonItem,
+	path: string[],
+	id: string
+): ArchiveRow[] {
+	const label = String( item.label ?? '' );
+	const nextPath = label ? [ ...path, label ] : path;
+	const children = item.children ?? [];
+
+	if ( children.length ) {
+		return children.flatMap( ( child, index ) =>
+			flattenArchiveEntry( child, nextPath, `${ id }-${ index }` )
+		);
+	}
+
+	const link = typeof item.link === 'string' ? item.link : undefined;
+	const previousViews =
+		'previousValue' in item && item.previousValue !== undefined
+			? { previousViews: item.previousValue }
+			: {};
+
+	return [
+		{
+			id,
+			label: link
+				? getArchiveLinkLabel( link ) ?? getArchiveFallbackLabel( nextPath )
+				: getArchiveFallbackLabel( nextPath ),
+			views: item.value,
+			...previousViews,
+			link,
+		},
+	];
+}
+
+/**
  * Flatten the archives report groups into table rows. The backend groups
  * archive entries by type/taxonomy; DataViews does not show nested rows yet,
  * so the table shows only the leaf archive entries and labels them by URL
@@ -137,32 +191,21 @@ function getArchiveFallbackLabel( parts: string[] ): string {
  * @param items - The top-level archive groups.
  * @return The flat rows.
  */
-export function flattenArchiveRows( items: StatsArchivesItem[] ): ArchiveRow[] {
-	return flattenStatsLeaves< StatsArchivesItem, ArchiveRow >( items, {
-		getChildren: item => item.children,
-		mapLeaf: ( item, { ancestors, indexPath } ) => {
-			const link = typeof item.link === 'string' ? item.link : undefined;
-			const pathLabels = [ ...ancestors, item ].map( entry => String( entry.label ?? '' ) );
-			const rootLabel = String( ( ancestors[ 0 ] ?? item ).label ?? '' );
-
-			return {
-				id: [ rootLabel, ...indexPath ].join( '-' ),
-				label: link
-					? getArchiveLinkLabel( link ) ?? getArchiveFallbackLabel( pathLabels )
-					: getArchiveFallbackLabel( pathLabels ),
-				views: item.value,
-				link,
-			};
-		},
-	} );
+export function flattenArchiveRows(
+	items: Array< StatsArchivesItem | StatsArchivesComparisonItem >
+): ArchiveRow[] {
+	return items.flatMap( ( group, groupIndex ) =>
+		flattenArchiveEntry( group, [], `${ String( group.label ) }-${ groupIndex }` )
+	);
 }
 
 /**
  * DataViews field config for the Archives records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getArchivesFields(): Field< ArchiveRow >[] {
+export function getArchivesFields( withComparison = false ): Field< ArchiveRow >[] {
 	return [
 		{
 			id: 'title',
@@ -189,7 +232,12 @@ export function getArchivesFields(): Field< ArchiveRow >[] {
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

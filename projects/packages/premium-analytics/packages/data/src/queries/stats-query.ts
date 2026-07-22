@@ -53,7 +53,14 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 // Including `StatsProxyParams` confuses TypeScript because it brings in a string index signature,
 // which conflicts with `ReportParams.filters`. Endpoint-specific extras reach the proxy through
 // `statsReportQuery`'s `extraParams`, not this index signature.
-export type StatsReportParams = ReportParams & StatsQueryParamFields;
+export type StatsReportParams = ReportParams &
+	StatsQueryParamFields & {
+		/**
+		 * Omit the derived `days` API parameter when an endpoint uses
+		 * `start_date` + `date` as the complete range, matching legacy Stats.
+		 */
+		omitDerivedDays?: boolean;
+	};
 type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
 const statsSanitizers = {
@@ -173,7 +180,11 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	// reportParamsToStatsQueryParams allow-list (e.g. filter_by_country).
 	extraParams?: StatsProxyParams
 ): StatsReportQueryOptions< TSanitizer > {
-	const statsParams = reportParamsToStatsQueryParams( params );
+	const normalizedStatsParams = reportParamsToStatsQueryParams( params );
+	const statsParams = { ...normalizedStatsParams };
+	if ( params.omitDerivedDays ) {
+		delete statsParams.days;
+	}
 	const reportParams = {
 		...statsParams,
 		// List reports are day-bucketed: `days` counts calendar days and the

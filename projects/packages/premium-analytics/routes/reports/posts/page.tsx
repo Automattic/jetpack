@@ -3,9 +3,7 @@
  */
 import {
 	normalizeReportParams,
-	type IntervalType,
-	type StatsPeriod,
-	type StatsTopPostsItem,
+	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
 	useDashboardLink,
@@ -14,12 +12,10 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
-	formatLegendLabels,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
-	ReportPerformanceChart,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
 	useReportCsvExport,
@@ -27,9 +23,9 @@ import {
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
+import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -47,41 +43,10 @@ import {
 // from the shared `/reports/$report` path and navigations target it with the
 // `posts` param.
 const ROUTE_FROM = route.path;
-const REPORT_PARAMS = { report: 'posts' };
-const CHART_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly StatsPeriod[];
-type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
 
-type ReportCsvRow = StatsTopPostsItem | ArchiveRow;
+type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
 
 const sortReportCsvRows = ( a: ReportCsvRow, b: ReportCsvRow ) => b.views - a.views;
-
-/**
- * Check whether a URL value is a supported chart period.
- *
- * @param value - The URL search value.
- * @return Whether the value is a chart period.
- */
-function isChartPeriod( value: unknown ): value is ChartPeriod {
-	return CHART_PERIODS.includes( value as ChartPeriod );
-}
-
-/**
- * Choose the chart bucket period for a report interval.
- *
- * @param interval - The report date interval.
- * @return The default chart bucket period.
- */
-function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
-	if ( interval === 'week' ) {
-		return 'week';
-	}
-
-	if ( interval === 'month' || interval === 'quarter' || interval === 'year' ) {
-		return 'month';
-	}
-
-	return 'day';
-}
 
 /**
  * Stable row id for the records table — the post ID, or the label for rows
@@ -90,7 +55,7 @@ function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
  * @param item - The post row.
  * @return The row id.
  */
-function getPostRowId( item: StatsTopPostsItem ): string {
+function getPostRowId( item: StatsTopPostsComparisonItem ): string {
 	return String( item.id ?? item.label );
 }
 
@@ -126,10 +91,8 @@ const RECORDS_VIEW = {
  * The second-level "view all" report for the Posts & Pages traffic module,
  * composed on the shared report-page framework: breadcrumb header, internal
  * Posts & Pages / Archives tabs, the shared date-range + comparison picker,
- * the performance chart, and a Core DataViews table of the active tab's
- * records by views for the selected range. Chart and table derive from the
- * same bucketed report, so the chart shows exactly the records listed below
- * it. Post titles drill into the post/page detail route.
+ * and a Core DataViews table of the active tab's records by views for the
+ * selected range. Post titles drill into the post/page detail route.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */
@@ -146,20 +109,17 @@ function PostsReport(): JSX.Element {
 	const tabs = useMemo( () => getReportPostsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 
-	const chartPeriod = isChartPeriod( search.period )
-		? search.period
-		: getDefaultChartPeriod( reportParams.interval );
-	const records = usePostsReportRecords( activeTab, reportParams, chartPeriod );
+	const records = usePostsReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
 
-	const postsFields = useMemo( () => getPostsFields(), [] );
-	const archivesFields = useMemo( () => getArchivesFields(), [] );
-
-	const chartMetrics = useMemo(
-		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
-		[]
+	const postsFields = useMemo(
+		() => getPostsFields( records.posts.hasComparison ),
+		[ records.posts.hasComparison ]
 	);
-	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
+	const archivesFields = useMemo(
+		() => getArchivesFields( records.archives.hasComparison ),
+		[ records.archives.hasComparison ]
+	);
 
 	const csvColumns = useMemo< CsvColumn< ReportCsvRow >[] >(
 		() => [
@@ -184,31 +144,6 @@ function PostsReport(): JSX.Element {
 		status: activeRecords,
 		sort: sortReportCsvRows,
 	} );
-
-	// The chart period is written to the URL and applied to the daily report
-	// data client-side rather than living in component state.
-	const navigate = useNavigate();
-	const handleIntervalChange = useCallback(
-		( interval: IntervalType ) => {
-			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
-			navigate( {
-				to: ROUTE_FROM,
-				/*
-				 * The router is built dynamically, so `/reports/$report` has no
-				 * statically-typed params/search schema (tanstack widens them to
-				 * `never`). Cast the same way the routing package does when it
-				 * writes the URL.
-				 */
-				params: REPORT_PARAMS as unknown as never,
-				replace: true,
-				search: ( ( current: Record< string, unknown > ) => ( {
-					...current,
-					period,
-				} ) ) as unknown as never,
-			} );
-		},
-		[ navigate ]
-	);
 
 	// Date-range state lives in the URL search params, staged and committed by
 	// the shared date-filter controller — same model as the dashboard.
@@ -260,42 +195,31 @@ function PostsReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<>
-						<ReportPerformanceChart
-							primary={ records.chart.primary }
-							comparison={ records.chart.comparison }
-							isLoading={ records.chart.isLoading }
-							metrics={ chartMetrics }
-							interval={ chartPeriod }
-							onIntervalChange={ handleIntervalChange }
-							legendLabels={ chartLegendLabels }
+					/*
+					 * Keyed by tab so the table's internal view state (sort,
+					 * search, page) resets when the records set changes.
+					 */
+					activeTab === 'posts-pages' ? (
+						<ReportRecordsTable< StatsTopPostsComparisonItem >
+							key="posts-pages"
+							data={ records.posts.rows }
+							fields={ postsFields }
+							getItemId={ getPostRowId }
+							isLoading={ records.posts.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
 						/>
-						{ /*
-						 * Keyed by tab so the table's internal view state (sort,
-						 * search, page) resets when the records set changes.
-						 */ }
-						{ activeTab === 'posts-pages' ? (
-							<ReportRecordsTable< StatsTopPostsItem >
-								key="posts-pages"
-								data={ records.posts.rows }
-								fields={ postsFields }
-								getItemId={ getPostRowId }
-								isLoading={ records.posts.isLoading }
-								initialView={ RECORDS_VIEW }
-								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
-							/>
-						) : (
-							<ReportRecordsTable
-								key="archives"
-								data={ records.archives.rows }
-								fields={ archivesFields }
-								getItemId={ getArchiveRowId }
-								isLoading={ records.archives.isLoading }
-								initialView={ RECORDS_VIEW }
-								searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
-							/>
-						) }
-					</>
+					) : (
+						<ReportRecordsTable
+							key="archives"
+							data={ records.archives.rows }
+							fields={ archivesFields }
+							getItemId={ getArchiveRowId }
+							isLoading={ records.archives.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
+						/>
+					)
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

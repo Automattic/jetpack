@@ -4,7 +4,6 @@
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportErrorState,
-	ReportPerformanceChart,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
 	useReportCsvExport,
@@ -50,7 +49,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportPageTabs: () => null,
-	ReportPerformanceChart: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
 	RowsCsvDownloadButton: jest.fn( ( { label }: { label: string } ) => <button>{ label }</button> ),
 	useReportCsvExport: jest.fn(),
@@ -77,7 +75,6 @@ const useRecordsMock = jest.mocked( usePostsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
-const reportPerformanceChartMock = jest.mocked( ReportPerformanceChart );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const rowsCsvDownloadButtonMock = jest.mocked( RowsCsvDownloadButton );
 
@@ -102,11 +99,6 @@ function buildRecords( {
 	return {
 		isError,
 		refetch: jest.fn(),
-		chart: {
-			primary: undefined,
-			comparison: undefined,
-			isLoading: false,
-		},
 		posts: {
 			rows: [
 				{
@@ -116,12 +108,14 @@ function buildRecords( {
 					link: 'https://example.com/hello-world',
 				},
 			],
+			hasComparison: false,
 			isLoading,
 			isFetching,
 			isError,
 		},
 		archives: {
 			rows: [],
+			hasComparison: false,
 			isLoading: false,
 			isFetching: false,
 			isError: false,
@@ -219,7 +213,7 @@ describe( 'PostsReportPage', () => {
 		] );
 	} );
 
-	it( 'renders the error state instead of the chart and records table', () => {
+	it( 'renders the error state instead of the records table', () => {
 		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
 
 		render( <PostsReportPage /> );
@@ -228,7 +222,6 @@ describe( 'PostsReportPage', () => {
 			'Unable to load posts'
 		);
 		expect( reportErrorStateMock ).toHaveBeenCalled();
-		expect( reportPerformanceChartMock ).not.toHaveBeenCalled();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 

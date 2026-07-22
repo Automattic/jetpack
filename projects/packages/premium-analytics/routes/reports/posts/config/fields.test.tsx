@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useSiteHomeUrl, type StatsTopPostsItem } from '@jetpack-premium-analytics/data';
+import { useSiteHomeUrl, type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -14,7 +14,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 
-const homepage: StatsTopPostsItem = {
+const homepage: StatsTopPostsComparisonItem = {
 	id: 0,
 	label: 'Homepage (Latest posts)',
 	views: 12,
@@ -28,7 +28,7 @@ const homepage: StatsTopPostsItem = {
  * @param item - The top-posts row to render the title cell for.
  * @return The Testing Library render result.
  */
-function renderTitleField( item: StatsTopPostsItem ) {
+function renderTitleField( item: StatsTopPostsComparisonItem ) {
 	const field = getPostsFields().find( candidate => candidate.id === 'title' );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const TitleField = field?.render;
@@ -58,6 +58,44 @@ function renderArchiveTitleField( item: ArchiveRow ) {
 	return render( <TitleField item={ item } field={ field as never } /> );
 }
 
+/**
+ * Mount the posts Views field for a table row.
+ *
+ * @param item           - The top-posts row to render.
+ * @param withComparison - Whether comparison deltas are enabled.
+ * @return The Testing Library render result.
+ */
+function renderPostViewsField( item: StatsTopPostsComparisonItem, withComparison = false ) {
+	const field = getPostsFields( withComparison ).find( candidate => candidate.id === 'views' );
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+	const ViewsField = field?.render;
+
+	if ( ! field || ! ViewsField ) {
+		throw new Error( 'Posts views field render callback is unavailable' );
+	}
+
+	return render( <ViewsField item={ item } field={ field as never } /> );
+}
+
+/**
+ * Mount the archives Views field for a table row.
+ *
+ * @param item           - The archive row to render.
+ * @param withComparison - Whether comparison deltas are enabled.
+ * @return The Testing Library render result.
+ */
+function renderArchiveViewsField( item: ArchiveRow, withComparison = false ) {
+	const field = getArchivesFields( withComparison ).find( candidate => candidate.id === 'views' );
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+	const ViewsField = field?.render;
+
+	if ( ! field || ! ViewsField ) {
+		throw new Error( 'Archives views field render callback is unavailable' );
+	}
+
+	return render( <ViewsField item={ item } field={ field as never } /> );
+}
+
 describe( 'posts title field', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
@@ -83,6 +121,34 @@ describe( 'posts title field', () => {
 
 		expect( screen.getByText( 'Homepage (Latest posts)' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the posts views delta when comparison is enabled', () => {
+		renderPostViewsField( { ...homepage, views: 321, previousViews: 200 }, true );
+
+		expect( screen.getByText( '321' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+61%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the posts views delta when comparison is disabled', () => {
+		renderPostViewsField( { ...homepage, views: 321, previousViews: 200 } );
+
+		expect( screen.queryByText( '+61%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the archives views delta when comparison is enabled', () => {
+		renderArchiveViewsField(
+			{
+				id: 'category-news',
+				label: '/category/news',
+				views: 30,
+				previousViews: 20,
+			},
+			true
+		);
+
+		expect( screen.getByText( '30' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
 	} );
 } );
 

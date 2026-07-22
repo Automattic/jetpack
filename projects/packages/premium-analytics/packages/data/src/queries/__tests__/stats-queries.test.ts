@@ -320,6 +320,28 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	it( 'matches the Calypso Posts report request without a derived days parameter', () => {
+		const query = statsTopPostsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+			skip_archives: 1,
+			omitDerivedDays: true,
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			max: 0,
+			summarize: 1,
+			skip_archives: 1,
+			start_date: '2026-06-01',
+			date: '2026-06-07',
+		} );
+	} );
+
 	it( 'keeps the complete video summary mode out of the request params', () => {
 		const query = statsVideoPlaysSummaryQuery( {
 			from: '2026-07-09',
