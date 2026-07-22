@@ -11,8 +11,8 @@
  * path rather than registering a rewrite rule, so it needs no rewrite flush and
  * works under any permalink structure. The tradeoff — it matches a root-level
  * request only, and like robots.txt won't apply on a multisite subdirectory or
- * a site fronted by a static file. A proper rewrite rule is worth weighing for
- * the production feature (Phase 1: llms.txt Generation).
+ * a site fronted by a static file. Hardening the serving path (a rewrite rule,
+ * caching) is tracked separately in JETPACK-1830.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -152,6 +152,7 @@ class Llms_Txt {
 				array(
 					'post_type'      => 'page',
 					'post_status'    => 'publish',
+					'has_password'   => false,
 					'posts_per_page' => self::MAX_PAGES,
 					'orderby'        => 'menu_order title',
 					'order'          => 'ASC',
@@ -167,6 +168,7 @@ class Llms_Txt {
 				array(
 					'post_type'      => 'post',
 					'post_status'    => 'publish',
+					'has_password'   => false,
 					'posts_per_page' => self::MAX_POSTS,
 					'orderby'        => 'date',
 					'order'          => 'DESC',
