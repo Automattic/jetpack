@@ -268,6 +268,7 @@ export function generateApiQueryString( {
 	additionalBlogIds = [],
 	highlightFields = [ 'title', 'content', 'comments' ],
 	highlightPhraseOnly = false,
+	highlightFilterStopwords = [],
 	customResults = [],
 } ) {
 	if ( query === null ) {
@@ -335,6 +336,10 @@ export function generateApiQueryString( {
 	// Only highlight spans that match the full query phrase (not individual terms).
 	if ( highlightPhraseOnly ) {
 		params.highlight_phrase_only = true;
+	}
+
+	if ( Array.isArray( highlightFilterStopwords ) && highlightFilterStopwords.length > 0 ) {
+		params.highlight_filter_stopwords = highlightFilterStopwords;
 	}
 
 	// Support search through multiple blogs.

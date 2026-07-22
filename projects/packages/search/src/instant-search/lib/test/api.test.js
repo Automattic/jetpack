@@ -168,4 +168,30 @@ describe( 'generateApiQueryString', () => {
 
 		expect( queryString ).not.toContain( 'highlight_phrase_only' );
 	} );
+
+	test( 'includes highlight_filter_stopwords when highlightFilterStopwords is set', () => {
+		const queryString = generateApiQueryString( {
+			aggregations: {},
+			filter: {},
+			query: 'the search',
+			sort: 'relevance',
+			highlightFilterStopwords: [ 'the', 'a' ],
+		} );
+
+		expect( queryString ).toContain( 'highlight_filter_stopwords' );
+		expect( queryString ).toContain( 'the' );
+		expect( queryString ).toContain( 'a' );
+	} );
+
+	test( 'omits highlight_filter_stopwords when highlightFilterStopwords is empty', () => {
+		const queryString = generateApiQueryString( {
+			aggregations: {},
+			filter: {},
+			query: 'the search',
+			sort: 'relevance',
+			highlightFilterStopwords: [],
+		} );
+
+		expect( queryString ).not.toContain( 'highlight_filter_stopwords' );
+	} );
 } );
