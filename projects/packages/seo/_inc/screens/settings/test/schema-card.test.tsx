@@ -44,7 +44,7 @@ jest.unstable_mockModule( '../../../data/use-schema-settings', () => ( {
 } ) );
 
 jest.unstable_mockModule( '../schema-settings/style.module.scss', () => ( {
-	default: { pairedFields: 'schema-paired-fields' },
+	default: { pairedFields: 'schema-paired-fields', pairError: 'schema-pair-error' },
 } ) );
 
 const { default: schemaStyles } = await import( '../schema-settings/style.module.scss' );
@@ -223,6 +223,7 @@ describe( 'SchemaCard', () => {
 		expandLocalBusiness();
 
 		const error = screen.getByText( 'Enter both latitude and longitude, or leave both blank.' );
+		expect( error ).toHaveClass( schemaStyles.pairError );
 		expect( screen.getByRole( 'textbox', { name: 'Latitude' } ) ).toHaveAttribute(
 			'aria-describedby',
 			error.id
@@ -311,6 +312,7 @@ describe( 'SchemaCard', () => {
 
 		expect( screen.getByLabelText( missingField ) ).toHaveAttribute( 'aria-invalid', 'true' );
 		const error = screen.getByText( 'Enter both opening and closing times, or leave both blank.' );
+		expect( error ).toHaveClass( schemaStyles.pairError );
 		expect( screen.getByLabelText( 'Monday opens' ) ).toHaveAttribute(
 			'aria-describedby',
 			error.id
