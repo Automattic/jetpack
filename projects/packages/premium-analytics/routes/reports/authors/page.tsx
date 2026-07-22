@@ -1,23 +1,14 @@
 /**
  * External dependencies
  */
-import {
-	normalizeReportParams,
-	type IntervalType,
-	type StatsChartBucketPeriod,
-} from '@jetpack-premium-analytics/data';
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import {
-	formatLegendLabels,
-	ReportDrilldownTable,
-	ReportPageLayout,
-	ReportPerformanceChart,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { ReportDrilldownTable, ReportPageLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
+import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -26,41 +17,6 @@ import { getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './con
 import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
-const REPORT_PARAMS = { report: 'authors' };
-const CHART_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
-
-/**
- * Check whether a URL value is a supported chart period.
- *
- * @param value - The URL search value.
- * @return Whether the value is a chart period.
- */
-function isChartPeriod( value: unknown ): value is ChartPeriod {
-	return CHART_PERIODS.includes( value as ChartPeriod );
-}
-
-/**
- * Choose the chart bucket period for a report interval.
- *
- * @param interval - The report date interval.
- * @return The default chart bucket period.
- */
-function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
-	if ( interval === 'week' ) {
-		return 'week';
-	}
-
-	if ( interval === 'month' || interval === 'quarter' || interval === 'year' ) {
-		return 'month';
-	}
-
-	return 'day';
-}
 
 /**
  * Return the stable id generated while aggregating an author or post row.
@@ -104,39 +60,8 @@ function AuthorsReport(): JSX.Element {
 		[ search ]
 	);
 
-	const chartPeriod = isChartPeriod( search.period )
-		? search.period
-		: getDefaultChartPeriod( reportParams.interval );
-	const records = useAuthorsReportRecords( reportParams, chartPeriod );
+	const records = useAuthorsReportRecords( reportParams );
 	const fields = useMemo( () => getAuthorsFields(), [] );
-	const chartMetrics = useMemo(
-		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
-		[]
-	);
-	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
-	const navigate = useNavigate();
-	const handleIntervalChange = useCallback(
-		( interval: IntervalType ) => {
-			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
-			navigate( {
-				to: ROUTE_FROM,
-				/*
-				 * The router is built dynamically, so `/reports/$report` has no
-				 * statically-typed params/search schema (tanstack widens them to
-				 * `never`). Cast the same way the routing package does when it
-				 * writes the URL.
-				 */
-				params: REPORT_PARAMS as unknown as never,
-				replace: true,
-				search: ( ( current: Record< string, unknown > ) => ( {
-					...current,
-					period,
-				} ) ) as unknown as never,
-			} );
-		},
-		[ navigate ]
-	);
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -162,23 +87,14 @@ function AuthorsReport(): JSX.Element {
 						</div>
 					}
 				>
-					<ReportPerformanceChart
-						primary={ records.chart.primary }
-						comparison={ records.chart.comparison }
-						isLoading={ records.chart.isLoading }
-						metrics={ chartMetrics }
-						interval={ chartPeriod }
-						onIntervalChange={ handleIntervalChange }
-						legendLabels={ chartLegendLabels }
-					/>
 					<ReportDrilldownTable< AuthorRow >
-						data={ records.authors.rows }
+						data={ records.rows }
 						fields={ fields }
 						getItemId={ getAuthorRowId }
 						getItemParentId={ getAuthorRowParentId }
-						isLoading={ records.authors.isLoading }
+						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search authors and posts', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
 						hideLevelMarkers
 					/>
 				</ReportPageLayout>

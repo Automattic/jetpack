@@ -1,4 +1,4 @@
-import { aggregateAuthorRows, authorsToTimeSeries } from './aggregate';
+import { aggregateAuthorRows } from './aggregate';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 const report: StatsNormalizedReport< StatsTopAuthorsItem > = {
@@ -72,36 +72,6 @@ const report: StatsNormalizedReport< StatsTopAuthorsItem > = {
 };
 
 describe( 'report authors aggregate', () => {
-	it( 'builds the chart series by summing every author in each bucket', () => {
-		const series = authorsToTimeSeries( report );
-
-		expect( series.summary ).toEqual( {
-			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-02T23:59:59+00:00',
-		} );
-		expect( series.data.map( point => point.time_interval ) ).toEqual( [
-			'2026-06-01',
-			'2026-06-02',
-		] );
-		expect( series.data.map( point => point.views ) ).toEqual( [ 13, 17 ] );
-	} );
-
-	it.each( [
-		[ 'week', '2026-06-01' ],
-		[ 'month', '2026-06-01' ],
-	] as const )( 'groups daily totals by %s for the chart', ( period, bucketKey ) => {
-		const series = authorsToTimeSeries( report, period );
-
-		expect( series.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: bucketKey,
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-02T23:59:59+00:00',
-				views: 30,
-			} ),
-		] );
-	} );
-
 	it( 'aggregates authors and nests their posts in descending views order', () => {
 		expect( aggregateAuthorRows( report ) ).toEqual( [
 			{
@@ -148,8 +118,7 @@ describe( 'report authors aggregate', () => {
 		] );
 	} );
 
-	it( 'returns empty chart and table data before the report loads', () => {
-		expect( authorsToTimeSeries( undefined ) ).toEqual( { summary: {}, data: [] } );
+	it( 'returns no rows before the report loads', () => {
 		expect( aggregateAuthorRows( undefined ) ).toEqual( [] );
 	} );
 } );

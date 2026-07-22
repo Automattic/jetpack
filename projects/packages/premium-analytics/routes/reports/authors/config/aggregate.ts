@@ -3,13 +3,10 @@
  */
 import {
 	aggregateStatsDrilldownRows,
-	bucketStatsTimeSeries,
-	type StatsChartBucketPeriod,
 	type StatsDrilldownItemContext,
 	type StatsDrilldownRow,
 	type StatsDrilldownRowContext,
 	type StatsNormalizedReport,
-	type StatsTimeSeriesReport,
 	type StatsTopAuthorsItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
@@ -108,30 +105,10 @@ function getAuthorDrilldownMetadata(
 }
 
 /**
- * Convert a daily top-authors report into the views-per-bucket series used by
- * the performance chart.
+ * Convert the top-authors report into author parent rows and nested post rows.
+ * Authors and their sibling posts are ordered independently by descending views.
  *
- * @param report - The bucketed top-authors report.
- * @param period - The chart bucket period.
- * @return The chart-ready views time series.
- */
-export function authorsToTimeSeries(
-	report: StatsNormalizedReport< StatsTopAuthorsItem > | undefined,
-	period: StatsChartBucketPeriod = 'day'
-): StatsTimeSeriesReport {
-	return bucketStatsTimeSeries( report, period, point => {
-		const views = point.items.reduce( ( total, author ) => total + author.views, 0 );
-
-		return { value: views, views };
-	} );
-}
-
-/**
- * Aggregate a bucketed top-authors report into author parent rows and nested
- * post rows, summing views across all buckets. Authors and their sibling posts
- * are ordered independently by descending views.
- *
- * @param report - The bucketed top-authors report.
+ * @param report - The normalized top-authors report.
  * @return The aggregate author rows.
  */
 export function aggregateAuthorRows(

@@ -1,72 +1,42 @@
 /**
  * External dependencies
  */
-import {
-	useStatsTopAuthors,
-	type ReportParams,
-	type StatsChartBucketPeriod,
-} from '@jetpack-premium-analytics/data';
+import { useStatsTopAuthors, type ReportParams } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { aggregateAuthorRows, authorsToTimeSeries } from './aggregate';
+import { aggregateAuthorRows } from './aggregate';
 
 /**
- * Fetch and derive the Authors chart and table from one bucketed report.
+ * Fetch the same top-authors report used by Jetpack Stats and derive the
+ * table's nested author and post rows.
  *
  * @param reportParams - The shared report-window parameters.
- * @param chartPeriod  - The chart's bucket period.
- * @return Chart data and aggregate author table rows.
+ * @return The author table rows and request state.
  */
-export function useAuthorsReportRecords(
-	reportParams: ReportParams,
-	chartPeriod: StatsChartBucketPeriod
-) {
+export function useAuthorsReportRecords( reportParams: ReportParams ) {
 	/*
-	 * `summarize: 0` keeps the interval buckets needed by the chart, while
-	 * `max: 20` explicitly requests the Stats endpoint's maximum number of
-	 * authors per daily bucket. This is a top-authors report rather than a
-	 * complete author census. Search, sorting, and pagination run client-side
-	 * across the returned aggregate, and the same hook result feeds both
-	 * sections.
+	 * Calypso's Jetpack Stats Authors report sends `max: 0` to
+	 * `stats/top-authors`. With no chart requiring daily buckets, let the shared
+	 * Stats query use its summarized range request and render that hierarchy
+	 * directly in the client-side table.
 	 */
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,
-			max: 20,
-			summarize: 0,
-			period: 'day',
+			max: 0,
 		} ),
 		[ reportParams ]
 	);
 	const authors = useStatsTopAuthors( recordsParams );
-
-	const chartPrimary = useMemo(
-		() => authorsToTimeSeries( authors.primary.data, chartPeriod ),
-		[ authors.primary.data, chartPeriod ]
-	);
-	const chartComparison = useMemo( () => {
-		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
-			return undefined;
-		}
-
-		return authorsToTimeSeries( authors.comparison.data, chartPeriod );
-	}, [ reportParams, authors.comparison.data, chartPeriod ] );
 	const rows = useMemo(
 		() => aggregateAuthorRows( authors.primary.data ),
 		[ authors.primary.data ]
 	);
 
 	return {
-		chart: {
-			primary: chartPrimary,
-			comparison: authors.hasComparison ? chartComparison : undefined,
-			isLoading: authors.isLoading,
-		},
-		authors: {
-			rows,
-			isLoading: authors.isLoading,
-		},
+		rows,
+		isLoading: authors.isLoading,
 	};
 }

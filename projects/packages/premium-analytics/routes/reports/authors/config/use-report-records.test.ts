@@ -65,33 +65,25 @@ describe( 'useAuthorsReportRecords', () => {
 		} as ReturnType< typeof useStatsTopAuthors > );
 	} );
 
-	it( 'keeps the request day-bucketed while grouping only the chart by week', () => {
+	it( 'uses the top-authors request from the Jetpack Stats Authors report', () => {
 		const params: ReportParams = {
 			from: '2026-07-09',
 			to: '2026-07-10',
 			interval: 'day',
 		};
-		const { result: dayResult } = renderHook( () => useAuthorsReportRecords( params, 'day' ) );
-		const { result: weekResult } = renderHook( () => useAuthorsReportRecords( params, 'week' ) );
+		const { result } = renderHook( () => useAuthorsReportRecords( params ) );
 
 		expect( mockUseStatsTopAuthors ).toHaveBeenLastCalledWith( {
 			...params,
-			max: 20,
-			summarize: 0,
-			period: 'day',
+			max: 0,
 		} );
-		expect( weekResult.current.chart.primary.data ).toEqual( [
+		expect( result.current.rows ).toEqual( [
 			expect.objectContaining( {
-				time_interval: '2026-07-06',
-				date_start: '2026-07-06T00:00:00+00:00',
-				date_end: '2026-07-10T23:59:59+00:00',
+				id: 'id:42',
+				label: 'Ada Lovelace',
 				views: 13,
 			} ),
 		] );
-		expect( weekResult.current.chart.primary.summary ).toEqual( {
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-		} );
-		expect( weekResult.current.authors.rows ).toEqual( dayResult.current.authors.rows );
+		expect( result.current.isLoading ).toBe( false );
 	} );
 } );
