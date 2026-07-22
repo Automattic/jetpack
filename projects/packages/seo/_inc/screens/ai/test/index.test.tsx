@@ -30,7 +30,9 @@ describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'shows an honest notice and hides the view link when it cannot serve', () => {
 		render( <AiScreen form={ formWith( false ) } /> );
 
-		expect( screen.getByText( /can't publish llms\.txt/i ) ).toBeInTheDocument();
+		// The @wordpress/ui Notice renders its text in more than one node, so match
+		// with getAllByText (see schema-card.test.tsx) rather than getByText.
+		expect( screen.getAllByText( /can't publish llms\.txt/i ).length ).toBeGreaterThan( 0 );
 		expect(
 			screen.queryByRole( 'link', { name: /view your llms\.txt/i } )
 		).not.toBeInTheDocument();
