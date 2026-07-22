@@ -170,11 +170,7 @@ function VideosReport(): JSX.Element {
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics' ) }
 			actions={
 				canExport ? (
-					<ReportCsvAction
-						columns={ csvColumns }
-						rows={ csvRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>

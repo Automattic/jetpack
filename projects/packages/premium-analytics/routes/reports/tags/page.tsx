@@ -89,11 +89,7 @@ function TagsReport(): JSX.Element {
 			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ) }
 			actions={
 				canExport ? (
-					<ReportCsvAction
-						columns={ csvColumns }
-						rows={ csvRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 			className={ styles.page }

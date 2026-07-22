@@ -235,11 +235,7 @@ function PostsReport(): JSX.Element {
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
 			actions={
 				canExport ? (
-					<ReportCsvAction
-						columns={ csvColumns }
-						rows={ csvRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>

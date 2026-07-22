@@ -111,11 +111,7 @@ function UtmReport(): JSX.Element {
 			}
 			actions={
 				canExport ? (
-					<ReportCsvAction
-						columns={ csvColumns }
-						rows={ csvRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>

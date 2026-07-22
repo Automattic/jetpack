@@ -199,11 +199,7 @@ function ClicksReport(): JSX.Element {
 			}
 			actions={
 				canExport ? (
-					<ReportCsvAction
-						columns={ csvColumns }
-						rows={ exportRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ exportRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
