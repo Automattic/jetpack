@@ -122,36 +122,14 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 7.0.0 - 2026-06-10
-#### Added
-- Search 7.0: build full search pages from native blocks — a Search Input block with search-as-you-type, Filters blocks (checkbox, date, custom taxonomy) with sidebar or collapsible-popover layouts, and Results blocks with selectable layouts, sorting, and load-more — all theme-aware on both block and classic themes.
-- Search 7.0: new Embedded search experience — a full-page search rendered inline in the theme at a real, bookmarkable URL with search-as-you-type, filters, sort, and load-more on the same page.
-- Search 7.0: new blocks-powered Overlay experience (Beta) — the same search blocks delivered in a modal that opens over the current page, keeping visitors in context.
-- Search 7.0 for WooCommerce: product search support — Filter by Product Attribute, Price, Rating, and Stock Status blocks, a Product Filters container, Product Category/Tag/Brand checkbox variations, a product results layout (image, title, price, rating), and Price/Rating sort options.
-- Search: add fallback image capability in expanded search
-- Search: Adding auto-complete search query feature
-- Search Blocks Overlay: render product results and product filters from a dedicated product overlay template on WooCommerce product searches.
-
+### 7.0.1 - 2026-07-22
 #### Changed
-- General: Update minimum WordPress version to 6.9.
-- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
-- Remove unneeded development and documentation files from the published plugin.
-- Search 7.0: result cards now honor the site's date_format option (F j, Y, Y-m-d, etc.) instead of a fixed Intl shape.
-- Search Blocks: default the checkbox-filter Custom Taxonomy label to the taxonomy's display name instead of leaving it empty.
-- Search Blocks: the product-search edit link now follows the active experience — "Edit the product Search overlay" for Overlay (blocks), "Edit the product search template" otherwise — and pairs with a Restore default that acts on the matching template. The product-search toggle and the Embedded experience are now marked Beta.
-- Search Blocks: unify the three search-results templates' responsive layout under a shared `.jetpack-search-layout__*` class namespace, collapsing the duplicate sidebar-collapse rules from `block_template_overlay_inline_css()` and `search_page_inline_css()` into a single `search_layout_inline_css()` helper. Pure refactor — no behavior change.
-- Search Blocks Overlay: collapse the filter sidebar below 992px and dock a `filters-popover` trigger next to Sort By, matching the legacy Instant Search overlay UX.
-- Search Blocks Overlay: separate the modal card from the dim scrim on dark themes by tinting the resolved surface and painting a token-aware hairline border, so the card visibly layers above the page behind it.
-- Tested up to WordPress 7.0.
-- Update composer.lock files.
-- Updated package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
+- Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset.
+- Overlay/embedded templates: Keep the Collapsible Filters panel in sync with the sidebar Filters block, locking it read-only in the editor when both coexist.
+- Overlay/embedded templates: Mark where a new filter belongs when adding it to the Filters (or Product Filters) block in the editor.
 
 #### Fixed
-- Fix mobile overflow on the upsell/pricing page so cards no longer get clipped.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
 
 == Testimonials ==
 
