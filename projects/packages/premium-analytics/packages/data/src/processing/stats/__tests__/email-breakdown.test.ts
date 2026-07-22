@@ -5,6 +5,7 @@ import {
 	emailFieldlessClientsFixture,
 	emailFieldlessCountriesFixture,
 	emailFieldlessLinksFixture,
+	emailMatrixClientsFixture,
 } from '../__fixtures__/email-breakdown';
 
 describe( 'Stats email breakdown normalizer', () => {
@@ -72,6 +73,16 @@ describe( 'Stats email breakdown normalizer', () => {
 			expect.objectContaining( { label: 'Apple Mail', value: 10 } ),
 			expect.objectContaining( { label: 'Gmail', value: 8 } ),
 			expect.objectContaining( { label: 'Other', value: 9, isOther: true } ),
+		] );
+	} );
+
+	it( 'normalizes matrix email clients and keeps Other last', () => {
+		expect(
+			sanitizeStatsEmailBreakdownResponse( emailMatrixClientsFixture ).data[ 0 ].items
+		).toEqual( [
+			expect.objectContaining( { label: 'Apple Mail', value: 200 } ),
+			expect.objectContaining( { label: 'Thunderbird', value: 180 } ),
+			expect.objectContaining( { label: 'Other', value: 265, isOther: true } ),
 		] );
 	} );
 

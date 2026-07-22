@@ -287,7 +287,7 @@ function parseStatsEmailBreakdownRows( response: unknown ): {
 		};
 	} );
 
-	return { items, metricKey };
+	return { items: sortEmailBreakdownItems( items ), metricKey };
 }
 
 export function sanitizeStatsEmailBreakdownResponse(

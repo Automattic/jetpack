@@ -42,6 +42,20 @@ export const emailFieldlessClientsFixture = {
 	},
 };
 
+// Matrix (fields-based) counterpart of the clients breakdown. `Other` outranks
+// every named client by value, so the fixture proves the matrix path pins the
+// catch-all bucket last rather than returning rows in raw API order.
+export const emailMatrixClientsFixture = {
+	clients: {
+		fields: [ 'client', 'opens_count' ],
+		data: [
+			[ 'Other', '265' ],
+			[ 'Apple Mail', '200' ],
+			[ 'Thunderbird', '180' ],
+		],
+	},
+};
+
 export const emailFieldlessLinksFixture = {
 	links: {
 		data: [
