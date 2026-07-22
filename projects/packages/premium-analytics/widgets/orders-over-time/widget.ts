@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type OrdersOverTimeAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/orders-over-time',
-	title: __( 'Orders over time', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'See a breakdown of when orders are placed to identify peak selling periods.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

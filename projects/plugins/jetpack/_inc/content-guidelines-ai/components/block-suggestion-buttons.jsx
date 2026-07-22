@@ -17,14 +17,6 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 		useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
 
-	// The plans store defaults hasFeature to true until its fetch resolves, so
-	// rendering before resolution would flash the button and then remove it on
-	// no-plan sites. Wait for the real answer instead.
-	const featureResolved = useSelect(
-		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
-		[]
-	);
-
 	const blockLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
 		[ blockName ]
@@ -82,10 +74,6 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 		recordGuidelinesEvent( 'dismiss', { type: 'block', slug: blockName } );
 		clearSuggestion( blockName );
 	}, [ blockName, clearSuggestion ] );
-
-	if ( ! featureResolved ) {
-		return null;
-	}
 
 	if ( suggestion ) {
 		return (

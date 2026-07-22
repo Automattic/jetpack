@@ -19,7 +19,7 @@ export type ChartEmptyStateProps = {
 
 	/**
 	 * Text to display in the empty state.
-	 * @default "No data found for this date range."
+	 * @default "No data in this period."
 	 */
 	text?: string;
 };
@@ -46,7 +46,7 @@ export type ChartEmptyStateProps = {
  */
 export function ChartEmptyState( {
 	icon = cautionFilled,
-	text = __( 'No data found for this date range.', 'jetpack-premium-analytics' ),
+	text = __( 'No data in this period.', 'jetpack-premium-analytics' ),
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>

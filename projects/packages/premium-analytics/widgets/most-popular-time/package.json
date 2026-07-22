@@ -12,6 +12,6 @@
 		"@wordpress/widget-primitives": "0.2.0"
 	},
 	"devDependencies": {
-		"@wordpress/api-fetch": "7.50.0"
+		"@wordpress/api-fetch": "7.51.0"
 	}
 }

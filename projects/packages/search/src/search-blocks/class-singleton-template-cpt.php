@@ -128,6 +128,30 @@ abstract class Singleton_Template_Cpt {
 		// `before_delete_post` fires for force-delete too, so it catches every
 		// delete path: AJAX reset, REST DELETE, post.php trash-then-delete.
 		add_action( 'before_delete_post', array( static::class, 'maybe_cleanup_on_singleton_delete' ) );
+		// The block editor loads this singleton via core's post REST route
+		// directly, bypassing get_customized_content() entirely, so the
+		// filters-popover sync there wouldn't reach the editor canvas without
+		// this — see sync_filters_popover_in_rest_response().
+		add_filter( 'rest_prepare_' . static::POST_TYPE, array( static::class, 'sync_filters_popover_in_rest_response' ) );
+	}
+
+	/**
+	 * Mirror `Search_Blocks::sync_filters_popover_content()` onto this
+	 * singleton's REST response so the Site Editor opens with the popover
+	 * already matching the sidebar Filters block, instead of showing stale
+	 * content until the next save/reload. Only `content.raw` (what the editor
+	 * hydrates from) needs this — `content.rendered` is post-`the_content`
+	 * HTML with block comments already replaced by their output, so the
+	 * block-name guard in `sync_filters_popover_content()` never matches it.
+	 *
+	 * @param \WP_REST_Response $response REST response for the singleton post.
+	 * @return \WP_REST_Response
+	 */
+	public static function sync_filters_popover_in_rest_response( $response ) {
+		if ( isset( $response->data['content']['raw'] ) ) {
+			$response->data['content']['raw'] = Search_Blocks::sync_filters_popover_content( $response->data['content']['raw'] );
+		}
+		return $response;
 	}
 
 	/**
@@ -218,7 +242,7 @@ abstract class Singleton_Template_Cpt {
 		}
 		// Empty content = admin saved a blank canvas. Honor it explicitly so
 		// the editor doesn't loop with the bundled content on every save.
-		self::$caches[ static::class ] = (string) $post->post_content;
+		self::$caches[ static::class ] = Search_Blocks::sync_filters_popover_content( (string) $post->post_content );
 		return self::$caches[ static::class ];
 	}
 

@@ -1,34 +1,7 @@
-.date-comparison-dropdown {
+.date-comparison-dropdown__select {
+	min-width: 12rem;
 
-	&__button {
-		background-color: var(--wpds-color-background-surface-neutral-strong);
+	button[data-can-disable-input-layout] {
+		padding-inline: var(--wpds-dimension-padding-sm);
 	}
-}
-
-.date-filters-panel-button {
-	background-color: var(--wpds-color-background-surface-neutral-strong);
-}
-
-.date-comparison-dropdown__popover {
-	width: 235px;
-}
-
-/* disable animation for the date range popover */
-@media not ( prefers-reduced-motion: reduce ) {
-
-	.date-comparison-dropdown__popover {
-		view-transition-name: jp-premium-analytics--date-comparison-dropdown;
-		transition: none !important;
-	}
-}
-
-/* ensure it's above the canvas/stage during the transition */
-::view-transition-group(jp-premium-analytics--date-comparison-dropdown) {
-	z-index: 3000;
-}
-
-/* no animation for the snapshot (avoid "flashing") */
-::view-transition-new(jp-premium-analytics--date-comparison-dropdown),
-::view-transition-old(jp-premium-analytics--date-comparison-dropdown) {
-	animation: none;
 }

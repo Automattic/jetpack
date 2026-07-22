@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { calculateDelta } from '@jetpack-premium-analytics/widgets-toolkit';
+import { calculateDelta, sharePercentage } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type {
 	StatsTopAuthorsComparisonItem,
@@ -32,7 +32,7 @@ export interface AuthorPost {
 
 /**
  * A normalized author row for the leaderboard. Carries the display name and
- * avatar so the render layer can compose the `LeaderboardLabel`, plus the
+ * avatar so the render layer can compose the `LeaderboardRow`, plus the
  * author's `posts` so a row click can drill down without another fetch.
  * Comparison fields are `undefined` when the author has no match in the
  * comparison period.
@@ -91,8 +91,9 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
 			link: post.link ?? null,
 			currentValue: post.views,
 			previousValue,
-			currentShare: ( post.views / maxValue ) * 100,
-			previousShare: previousValue !== undefined ? ( previousValue / maxValue ) * 100 : undefined,
+			currentShare: sharePercentage( post.views, maxValue ),
+			previousShare:
+				previousValue !== undefined ? sharePercentage( previousValue, maxValue ) : undefined,
 			delta: previousValue !== undefined ? calculateDelta( post.views, previousValue ) : undefined,
 		};
 	} );
@@ -134,8 +135,9 @@ export function buildTopAuthorsData(
 			avatarUrl: author.icon ?? null,
 			currentValue: author.views,
 			previousValue,
-			currentShare: ( author.views / maxValue ) * 100,
-			previousShare: previousValue !== undefined ? ( previousValue / maxValue ) * 100 : undefined,
+			currentShare: sharePercentage( author.views, maxValue ),
+			previousShare:
+				previousValue !== undefined ? sharePercentage( previousValue, maxValue ) : undefined,
 			delta:
 				previousValue !== undefined ? calculateDelta( author.views, previousValue ) : undefined,
 			posts: toAuthorPostRows( author.children ?? [] ),

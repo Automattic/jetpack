@@ -205,7 +205,37 @@ class Settings {
 			'podcasting_email'       => (string) get_option( 'podcasting_email', '' ),
 			'podcasting_show_urls'   => array_merge( $empty_map, array_intersect_key( $show_urls, $empty_map ) ),
 			'podcasting_show_states' => array_merge( $empty_map, array_intersect_key( $show_states, $empty_map ) ),
+			'podcasting_feed_url'    => self::feed_url(),
 		);
+	}
+
+	/**
+	 * Canonical RSS feed URL for the configured podcast category. Derived
+	 * read-only field on the settings payload — not a stored option.
+	 *
+	 * Built with WordPress's own {@see get_term_feed_link()} so it stays correct
+	 * across every permalink structure (pretty, plain `?cat=N`, no trailing
+	 * slash) and is identical on WPCOM and self-hosted. This is the URL the
+	 * category feed is actually served at — the SPA must not reconstruct it by
+	 * string-appending `feed/` to the archive link.
+	 *
+	 * @return string Feed URL, or '' when no valid category is configured.
+	 */
+	public static function feed_url(): string {
+		$category_id = (int) get_option( 'podcasting_category_id', 0 );
+		if ( $category_id <= 0 ) {
+			return '';
+		}
+		$link = get_term_feed_link( $category_id, 'category' );
+		if ( false === $link ) {
+			return '';
+		}
+		// get_term_feed_link() HTML-escapes the query separator (`&amp;`) in the
+		// plain-permalink form because core builds it for HTML attributes. The
+		// dashboard copies this straight into a directory submission field, so
+		// decode it back to a literal URL — otherwise `?feed=rss2&amp;cat=N` loses
+		// the `cat` filter and serves the whole-site feed instead of the category.
+		return html_entity_decode( $link, ENT_QUOTES );
 	}
 
 	/**

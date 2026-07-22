@@ -192,7 +192,10 @@ function PlanUsageReport() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			isError={ isError }
+			// The query keeps prior data via `placeholderData`, so a transient refetch
+			// failure keeps the usage bar visible; only surface the error when there is
+			// nothing to show.
+			isError={ ! data && isError }
 			isEmpty={ ! hasLimit }
 			error={ {
 				description: __(

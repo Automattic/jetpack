@@ -5,7 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -13,42 +13,13 @@ import TopPostsWidget from '../render';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: jest.fn(),
+	isSimpleSite: jest.fn().mockReturnValue( false ),
 } ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( { to, params, search, children, ...props }: MockRouteLinkProps ) => {
-		// Interpolate `$name` path segments from `params`, mirroring the router,
-		// so a param route like `/reports/$report` resolves to `/reports/posts`.
-		const path = Object.entries( params ?? {} ).reduce(
-			( acc, [ key, value ] ) => acc.replace( `$${ key }`, String( value ) ),
-			to
-		);
-		const query = new URLSearchParams();
-		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-			if ( value !== undefined && value !== null ) {
-				query.set( key, String( value ) );
-			}
-		} );
-		const queryString = query.toString();
-
-		return (
-			<a href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-				{ children }
-			</a>
-		);
-	},
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockGetScriptData = getScriptData as jest.Mock;
 const mockApiFetch = apiFetch as unknown as jest.Mock;
@@ -104,7 +75,7 @@ describe( 'TopPostsWidget', () => {
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { client_side_csv_exports_enabled: true },
+			premium_analytics: { csv_exports_enabled: true },
 		} );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
@@ -123,6 +94,9 @@ describe( 'TopPostsWidget', () => {
 			name: /open hello world post in a new tab/i,
 		} );
 		expect( externalLink ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
+		expect( externalLink ).toHaveAttribute( 'target', '_blank' );
+		expect( externalLink ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		expect( screen.queryByLabelText( '(opens in a new tab)' ) ).not.toBeInTheDocument();
 
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );
@@ -266,7 +240,7 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exposes the CSV export in the widget content once the fetched rows are on screen', async () => {
+	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget attributes={ { num: 10 } } />
@@ -281,12 +255,16 @@ describe( 'TopPostsWidget', () => {
 		expect(
 			within( toolbar ).queryByRole( 'button', { name: /Download CSV/ } )
 		).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		const downloadButton = screen.getByRole( 'button', { name: /Download CSV/ } );
+		const reportLink = screen.getByRole( 'link', { name: 'See report' } );
+		// The shared parent is the footer layout contract under test.
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
 	} );
 
 	it( 'hides the CSV export when the server flag is disabled', async () => {
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { client_side_csv_exports_enabled: false },
+			premium_analytics: { csv_exports_enabled: false },
 		} );
 
 		render( <TopPostsWidget attributes={ { num: 10 } } /> );

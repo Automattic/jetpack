@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
 
 /**
@@ -24,19 +23,5 @@ export type VideoDetailEmbedsAttributes = Record< never, never >;
  * than a widget attribute.
  */
 export default {
-	name: 'jpa/video-detail-embeds',
-	title: __( 'Video embeds', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Lists every page on your site where the selected video is embedded, so you can see where it is being watched.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: video,
 };

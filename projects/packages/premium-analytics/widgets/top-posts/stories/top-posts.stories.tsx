@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -13,11 +13,15 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TopPostsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -25,16 +29,10 @@ registerStatsMocks();
 
 const TOP_POSTS_RENDER_MODULE = 'storybook/top-posts';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	// Attribute metadata drives the host-rendered chrome: the high-relevance
-	// `contentView` control in the framed header and the settings fields.
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-	presentation: 'framed' as const,
-};
+// Attribute metadata flows through from the module to drive the host-rendered
+// chrome: the high-relevance `contentView` control in the framed header and the
+// settings fields. `presentation` comes from widget.json ( 'framed' ).
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface TopPostsStoryControls {
 	withComparison: boolean;
@@ -45,7 +43,7 @@ interface TopPostsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		TopPostsStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
+const withTopPostsCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '340px' } }>
 		<Story />
 	</div>
@@ -117,19 +115,19 @@ type DashboardStory = StoryObj< TopPostsDashboardStoryProps >;
 export const Default: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: false, contentView: 'posts' },
-	decorators: [ withWidgetCanvas, withStoryRouter ],
+	decorators: [ withTopPostsCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'posts' },
-	decorators: [ withWidgetCanvas, withStoryRouter ],
+	decorators: [ withTopPostsCanvas, withStoryRouter ],
 };
 
 export const Archives: Story = {
 	render: renderTopPostsWidget,
 	args: { withComparison: true, contentView: 'archives' },
-	decorators: [ withWidgetCanvas, withStoryRouter ],
+	decorators: [ withTopPostsCanvas, withStoryRouter ],
 	parameters: {
 		docs: {
 			description: {
@@ -153,5 +151,61 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params and deltas.',
 		},
+	},
+};
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderTopPostsOnPreset( preset: PresetType ) {
+	return (
+		<TopPostsRender
+			attributes={ {
+				num: 10,
+				contentView: 'posts',
+				reportParams: getDefaultQueryParams( false, preset ),
+			} }
+		/>
+	);
+}
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderTopPostsOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/top-posts', 'loading' );
+		return () => forceStatsMockState( 'stats/top-posts', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderTopPostsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/top-posts', 'error' );
+		return () => forceStatsMockState( 'stats/top-posts', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral chart
+ * glyph and "No views in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderTopPostsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/top-posts', 'empty' );
+		return () => forceStatsMockState( 'stats/top-posts', null );
 	},
 };

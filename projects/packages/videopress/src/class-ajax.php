@@ -220,6 +220,36 @@ class AJAX {
 
 		$video_blog_id = $this->get_videopress_blog_id();
 
+		// On WordPress.com the classic `sites/{id}/media/token` (rest/v1.1) endpoint
+		// isn't reachable in-process (WPCOM_API_Direct only dispatches WP-REST routes),
+		// so mint the token via VideoPressToken, which has its own IS_WPCOM branch that
+		// mints locally. `get_videopress_blog_id()` is the current blog on Simple, matching
+		// the minted token. The self-hosted remote path below is left unchanged.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			try {
+				$upload_token = VideoPressToken::videopress_onetime_upload_token();
+			} catch ( Upload_Exception $e ) {
+				// Explicit 200: identical to the null default (admin-ajax errors
+				// ride the success:false envelope), but typed as the phpdoc wants.
+				wp_send_json_error( array( 'message' => $e->getMessage() ), 200, JSON_UNESCAPED_SLASHES );
+				return;
+			}
+
+			// `upload_action_url` (from `videopress_make_media_upload_path()`) is omitted:
+			// that helper isn't loaded in the Simple admin-ajax context, and only the
+			// legacy upload-form flow reads it — the track/poster consumers use the token
+			// and blog id, not the URL.
+			wp_send_json_success(
+				array(
+					'upload_token'   => $upload_token,
+					'upload_blog_id' => $video_blog_id,
+				),
+				200,
+				JSON_UNESCAPED_SLASHES
+			);
+			return;
+		}
+
 		$args = array(
 			'method' => 'POST',
 		);

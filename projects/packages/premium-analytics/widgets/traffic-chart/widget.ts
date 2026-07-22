@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
@@ -68,20 +68,13 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	name: 'jpa/traffic-chart',
-	title: __( 'Traffic', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 	attributes: [
 		{
 			id: 'granularity',
 			label: __( 'Group by', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Auto', 'jetpack-premium-analytics' ),

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -22,13 +21,5 @@ export type StoreConversionRateBookingsAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/store-conversion-rate-bookings',
-	title: __( 'Store conversion rate - Bookings', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Track your booking conversion funnel from sessions to completed bookings over the selected time period.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

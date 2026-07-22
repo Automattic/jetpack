@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: write AI-drafted content on the About page instead of a library pattern, and log the gallery pattern selection to Logstash from the client.

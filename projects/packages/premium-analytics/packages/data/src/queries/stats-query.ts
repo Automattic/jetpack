@@ -24,6 +24,8 @@ import {
 	sanitizeStatsEmailBreakdownResponse,
 	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPostCommentsResponse,
+	sanitizeStatsPostLikesResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
@@ -57,6 +59,8 @@ type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQuer
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
 	post: sanitizeStatsPostResponse,
+	postComments: sanitizeStatsPostCommentsResponse,
+	postLikes: sanitizeStatsPostLikesResponse,
 	site: sanitizeStatsSiteResponse,
 	topPosts: sanitizeStatsTopPostsResponse,
 	referrers: sanitizeStatsReferrersResponse,

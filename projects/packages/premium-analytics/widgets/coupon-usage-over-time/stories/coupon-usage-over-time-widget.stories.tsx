@@ -6,10 +6,16 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import CouponUsageOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -32,12 +38,6 @@ type CouponUsageOverTimeStoryProps = CouponUsageOverTimeWidgetProps &
 interface CouponUsageOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		CouponUsageOverTimeStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getCouponUsageOverTimeAttributes(
 	withComparison = false,
@@ -84,6 +84,13 @@ function renderCouponUsageOverTime( { withComparison, preset }: CouponUsageOverT
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderCouponUsageOverTimeOnPreset( preset: SelectablePresetId ) {
+	return (
+		<CouponUsageOverTimeRender attributes={ getCouponUsageOverTimeAttributes( false, preset ) } />
+	);
+}
+
 function CouponUsageOverTimeDashboardStory( {
 	withComparison,
 	preset,
@@ -92,7 +99,7 @@ function CouponUsageOverTimeDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ COUPON_USAGE_OVER_TIME_RENDER_MODULE }
 			renderComponent={ CouponUsageOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getCouponUsageOverTimeAttributes( withComparison, preset ) }
@@ -165,6 +172,51 @@ export const WithComparison: Story = {
 				) => getCouponUsageOverTimeSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the coupons-by-date report is in flight, so the widget shows its
+ * loading state. The mock is forced to never resolve for the duration of this
+ * story.
+ */
+export const Loading: Story = {
+	render: () => renderCouponUsageOverTimeOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/by-date', 'loading' );
+		return () => setReportMockState( 'coupons/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action
+ * (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderCouponUsageOverTimeOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/by-date', 'error' );
+		return () => setReportMockState( 'coupons/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no coupon usage: the widget shows its empty state ("No coupon
+ * usage in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderCouponUsageOverTimeOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'coupons/by-date', 'empty' );
+		return () => setReportMockState( 'coupons/by-date', null );
 	},
 };
 

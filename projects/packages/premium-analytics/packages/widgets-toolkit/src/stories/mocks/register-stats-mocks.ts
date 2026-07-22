@@ -1134,14 +1134,14 @@ function buildStatsLocationViewsResponse(
 	};
 }
 
-function getStatsMock( path: string ): unknown | null {
+export function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
 	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
 	const isComparison = isComparisonRequest( path );
 
-	if ( subPath.startsWith( '/clicks' ) ) {
+	if ( subPath === '/clicks' ) {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
 	}
 

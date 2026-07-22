@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: Decode HTML entities in video titles so they no longer display as raw entities (e.g. `&#8217;`) in the dashboard library and video details header.

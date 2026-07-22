@@ -5,6 +5,7 @@ import {
 	LeaderboardChart,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -44,7 +45,7 @@ function SharesInner( { max = 10 }: SharesAttributes ) {
 				</Stack>
 			),
 			currentValue: service.value,
-			currentShare: maxValue > 0 ? ( service.value / maxValue ) * 100 : 0,
+			currentShare: sharePercentage( service.value, maxValue ),
 		} ) );
 	}, [ data ] );
 

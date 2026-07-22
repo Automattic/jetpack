@@ -2,6 +2,64 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1-a.3 - 2026-07-20
+### Enhancements
+- AI Sidebar: Add Jetpack AI abilities in the page and site editors. [#49979]
+- Content Guidelines: Add a Read more support link to the page description. [#50574]
+- Content Guidelines AI: Show AI buttons in the correct locked/unlocked state on first paint, omitting the AI UI for that load when the plan lookup fails. [#50494]
+- Content Guidelines AI: Show the Generate/Improve buttons in a locked state for sites without an AI plan, and open the upgrade notice when clicked (even after dismissal). Prevent the AI buttons from briefly appearing unlocked while the feature check resolves. [#50224]
+- Podcast: Release Podcast to self-hosted sites, enabled by default on new installations and available but disabled on existing installations. [#50447]
+
+### Bug fixes
+- Content Guidelines AI: Read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites. [#50223]
+- Likes: Restore the per-post Likes toggle in the block editor, which failed to register when withSelect returned a memo object. [#50495]
+- Normalize the size, weight, centering, and alignment of block inserter icons across Jetpack monetize blocks (Donations, Tips, Payment Button, Paid Content, Tock, WhatsApp Button, and others) so they render consistently. [#50528]
+- Paid Content: Expire subscription access at the end of the `end_date` day (UTC) rather than the exact purchase timestamp, so a same-day auto-renewal completes before access is cut. [#50460]
+- Related Posts: Enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run. [#50420]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blaze: Point the settings card link to the new Blaze Ads menu location under admin.php. [#49584]
+- Connection: Ensure Jetpack dashboard connection components styles do not conflict with Connection package styles. [#50370]
+- Heartbeat: Site environment stats are now provided by the Connection package. [#50006]
+- JSON API: Support path-parameter endpoints over the REST transport, so single-item and action routes can migrate off XML-RPC. [#50400]
+- Update package dependencies. [#50510] [#50529]
+
+## 16.1-a.1 - 2026-07-13
+### Enhancements
+- Account Protection: Add additional context to Verify your identity page to reduce user confusion. [#50338]
+- Admin menu: Surface notification counts from the central menu-badges registry in the admin-menu REST endpoint. [#50190]
+- Expose the AI Launchpad state options (enabled, dismissed, completed) in the /sites endpoint options. [#50455]
+- Newsletter: Enable the modernized wp-admin dashboard and subscriber management for all sites by default. [#50091]
+- Site endpoint: Return `hosting_provider_guess` and `environment_type` from the single-site endpoint when explicitly requested via the `fields` parameter, matching `/me/sites`. [#50226]
+- Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on in environments where Jetpack Settings is unreachable. [#50376]
+- Stats: Add a link to the site-name admin bar menu. [#50264]
+- Update the license activation screen to use @wordpress/ui components. [#50348]
+
+### Bug fixes
+- Bundle @wordpress/theme and @wordpress/private-apis into the admin build so the Jetpack dashboard script still loads on WordPress versions that do not register those script handles. [#50348]
+- Carousel: Fix images not rendering in portrait orientation on mobile when a gallery image has no data-large-file attribute. [#50415]
+- Carousel: Fix inconsistent behavior between keyboard and mouse for images linked to an attachment page. [#50220]
+- Forms: Prevent duplicate field Name/IDs (from duplicating or copy/pasting a field) from collapsing into one another, which dropped fields from stored responses and email notifications. [#50247]
+- Paid content: Preserve non-ASCII characters (emoji, Chinese, etc.) in the post URL when a subscriber logs in via "Already a paid subscriber?", so they are redirected back to the correct post instead of a 404. [#50244]
+- Sharing: Guide block-theme users from legacy sharing buttons to the Sharing Buttons block. [#50355]
+- Subscriptions: Fix `wp_maybe_inline_styles` notice for the `jetpack-subscriptions` stylesheet by registering a filesystem path instead of a URL. [#47988]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Sidebar: Add an internal Proofreader (spelling and grammar) feature flag, gated to internal testing environments. [#49825]
+- Don't load the editor's AI image and media tools for users who have not connected their WordPress.com account, so they are no longer offered tools that would only error out. [#50079]
+- Podcast: Make the module active-state the single load gate, so the podcast feed keeps serving even while disconnected. [#50242]
+- Prefix --color-* variables into --jetpack-social-logo-color-* CSS variables to avoid name collisions. [#50413]
+- Update package dependencies. [#50248] [#49272] [#49864] [#50407] [#50436]
+- Update react-redux to 9.3.0, redux to 5.0.1, and redux-thunk to 3.1.0. [#50246]
+- Update the @react-spring/web dependency to v10 for React 19 compatibility. [#50288]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## 16.0.1 - 2026-07-15
+### Bug fixes
+- Fix the Forms and VideoPress admin dashboards rendering a blank "Something went wrong!" error on WordPress 6.9. [#50515]
+- My Jetpack: Fix route changes in Chrome when scroll APIs return promises. [#50465]
+- Poll shortcode: Require HTTPS and an exact script path when loading the poll script.
+
 ## 16.0 - 2026-07-07
 ### Enhancements
 - Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page. [#47959]

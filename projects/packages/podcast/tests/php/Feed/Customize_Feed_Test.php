@@ -515,6 +515,41 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_post_meta( 100, 'enclosure' );
 	}
 
+	public function test_constrain_feed_query_leaves_where_untouched_for_non_podcast_query() {
+		$where = ' AND 1=1';
+		$query = $this->build_podcast_feed_query_mock( 17, array( 'is_feed' => false ) );
+
+		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
+	}
+
+	public function test_constrain_feed_query_leaves_where_untouched_when_queried_term_does_not_match() {
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+
+		$where = ' AND 1=1';
+		$query = $this->build_podcast_feed_query_mock( 999 );
+
+		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
+	}
+
+	public function test_constrain_feed_query_appends_enclosure_exists_subquery_for_podcast_feed() {
+		global $wpdb;
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+
+		$query  = $this->build_podcast_feed_query_mock( 17 );
+		$result = Customize_Feed::constrain_feed_query( ' AND 1=1', $query );
+
+		// Constraint is a correlated EXISTS semi-join, so an episode with
+		// several `enclosure` rows still yields exactly one post row — no
+		// LIMIT-breaking duplicates.
+		$this->assertStringContainsString(
+			"EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = 'enclosure' )",
+			$result
+		);
+		$this->assertStringStartsWith( ' AND 1=1', $result );
+	}
+
 	/**
 	 * Build a `WP_Query` mock pre-stubbed for the podcast-feed happy path,
 	 * with optional per-method overrides.
