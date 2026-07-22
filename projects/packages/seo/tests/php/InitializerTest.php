@@ -931,14 +931,54 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * An ungated site registers both GEO-tab front-end services: /llms.txt is served
-	 * and the AI-crawler robots.txt directives are appended.
+	 * A self-hosted (never-gated) site registers both GEO-tab front-end services:
+	 * /llms.txt is served and the AI-crawler robots.txt directives are appended.
 	 */
 	public function test_init_registers_geo_services_when_not_gated() {
 		$hooked = $this->init_and_check_geo_services();
 
 		$this->assertTrue( $hooked['llms_txt'] );
 		$this->assertTrue( $hooked['ai_crawlers'] );
+	}
+
+	/**
+	 * A WordPress.com site entitled to `advanced-seo` (Premium and above) is not
+	 * gated, so it too registers both GEO services — gating keys off entitlement,
+	 * not merely off being on WordPress.com.
+	 */
+	public function test_init_registers_geo_services_on_entitled_wpcom_site() {
+		$this->simulate_wpcom_site( true );
+
+		try {
+			$hooked = $this->init_and_check_geo_services();
+
+			$this->assertTrue( $hooked['llms_txt'] );
+			$this->assertTrue( $hooked['ai_crawlers'] );
+		} finally {
+			$this->reset_wpcom_site();
+		}
+	}
+
+	/**
+	 * The gate's load-bearing assumption: `advanced-seo` sits in the FREE plan's
+	 * supports list and plan classes are cumulative, so plan data alone can never
+	 * report it unsupported — only the WordPress.com feature hijack can gate. If
+	 * `advanced-seo` were ever dropped from the wpcom feature registry (so
+	 * `wpcom_feature_exists()` returns false), the hijack no longer fires and the
+	 * site falls through to plan data: ungated. This pins that fail-open direction —
+	 * a lookup that can't answer must never hide a paid feature.
+	 */
+	public function test_is_not_gated_when_wpcom_does_not_register_advanced_seo() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		// Platform present, but it doesn't gate `advanced-seo` at all.
+		\Wpcom_Test_Features::$known    = array();
+		\Wpcom_Test_Features::$entitled = array();
+
+		try {
+			$this->assertFalse( $this->read_is_gated() );
+		} finally {
+			$this->reset_wpcom_site();
+		}
 	}
 
 	/**

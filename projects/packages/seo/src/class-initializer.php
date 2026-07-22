@@ -369,10 +369,13 @@ class Initializer {
 
 		// Plan-gating signal for below-Premium WordPress.com sites: when gated, the
 		// dashboard reduces to a free subset and surfaces the upsell banner. Self-hosted
-		// is never gated (see self::is_gated()).
+		// is never gated (see self::is_gated()). The upsell URL is only meaningful when
+		// gated, so it's built only then — every ungated and self-hosted admin load
+		// otherwise pays for a site-suffix lookup it never uses.
+		$is_gated                               = self::is_gated();
 		$data[ self::SCRIPT_DATA_KEY ]['gating'] = array(
-			'is_gated'   => self::is_gated(),
-			'upsell_url' => self::get_upsell_url(),
+			'is_gated'   => $is_gated,
+			'upsell_url' => $is_gated ? self::get_upsell_url() : '',
 		);
 
 		return $data;
