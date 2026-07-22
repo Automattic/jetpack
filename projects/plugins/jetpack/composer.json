@@ -108,6 +108,9 @@
 	"autoload": {
 		"classmap": [
 			"src"
+		],
+		"exclude-from-classmap": [
+			"vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/"
 		]
 	},
 	"minimum-stability": "dev",
