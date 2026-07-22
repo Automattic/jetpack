@@ -57,7 +57,7 @@ function render_block_implementation( $attr, $content, $block ) {
 	 * the post.
 	 */
 	$post = get_post( $post_id );
-	if ( $post && ! empty( $post->post_password ) ) {
+	if ( $post instanceof \WP_Post && ! empty( $post->post_password ) ) {
 		return;
 	}
 
