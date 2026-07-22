@@ -5,23 +5,115 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { toFiniteNumber } from '../lib/subscriber-helpers';
 import { IMPORT_IN_PROGRESS_NOTICE_ID, isJobInProgress, useImportJobs } from './use-import-jobs';
+import type { ImportJob } from './types';
+
+type OutcomeNotice = { status: 'success' | 'error'; message: string };
 
 /**
- * Refreshes the subscribers list when a running import finishes, and resolves the "Importing…"
- * snackbar into a final status.
+ * Map a finished import job to the snackbar it should show, or null when it shouldn't show one
+ * (e.g. a user-cancelled reset). WP.com returns no human-readable failure reason on the job — only
+ * outcome counts — so the copy is built from those counts and points at the import confirmation
+ * email for the per-address detail. Note that "already subscribed" is a successful no-op on WP.com's
+ * side (status `imported`, not `failed`), so it gets its own success message rather than an error.
+ *
+ * @param job - The import job that just reached a terminal state.
+ * @return The notice to show, or null for no notice.
+ */
+export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
+	if ( job.status === 'failed' ) {
+		return {
+			status: 'error',
+			message: __(
+				'We couldn’t import your subscribers. Check your import confirmation email for details, then try again.',
+				'jetpack-newsletter'
+			),
+		};
+	}
+
+	// Only `imported` carries a reportable outcome; `cancelled` (and any unexpected terminal state)
+	// is silent.
+	if ( job.status !== 'imported' ) {
+		return null;
+	}
+
+	const subscribed = toFiniteNumber( job.subscribed_count ) ?? 0;
+	const already = toFiniteNumber( job.already_subscribed_count ) ?? 0;
+	const failed = toFiniteNumber( job.failed_subscribed_count ) ?? 0;
+
+	if ( failed > 0 ) {
+		// Some addresses were rejected (bounced, blocked, invalid). Most succeeded, so keep it a
+		// success notice but surface the shortfall.
+		return {
+			status: 'success',
+			message: sprintf(
+				// translators: %1$d: subscribers imported. %2$d: addresses that couldn't be added.
+				_n(
+					'Imported %1$d subscriber. %2$d address couldn’t be added — check your import confirmation email for details.',
+					'Imported %1$d subscribers. %2$d addresses couldn’t be added — check your import confirmation email for details.',
+					subscribed,
+					'jetpack-newsletter'
+				),
+				subscribed,
+				failed
+			),
+		};
+	}
+
+	if ( subscribed > 0 ) {
+		return {
+			status: 'success',
+			message: sprintf(
+				// translators: %d: number of subscribers imported.
+				_n(
+					'%d subscriber imported.',
+					'%d subscribers imported.',
+					subscribed,
+					'jetpack-newsletter'
+				),
+				subscribed
+			),
+		};
+	}
+
+	if ( already > 0 ) {
+		return {
+			status: 'success',
+			message: sprintf(
+				// translators: %d: number of addresses that were already subscribed.
+				_n(
+					'%d address was already subscribed.',
+					'%d addresses were already subscribed.',
+					already,
+					'jetpack-newsletter'
+				),
+				already
+			),
+		};
+	}
+
+	return {
+		status: 'success',
+		message: __( 'Your subscribers have been imported.', 'jetpack-newsletter' ),
+	};
+}
+
+/**
+ * Refreshes the subscribers list when an import finishes, and resolves the "Importing…" snackbar
+ * into a final status.
  *
  * Adding subscribers starts an async WP.com import job. The add mutation invalidates the list
  * immediately, but the job usually hasn't processed the emails yet, so that first refetch returns
  * the pre-import list — and the "Add subscribers" modal closes right after submitting, which would
  * otherwise stop the import-jobs poll before the job lands. This watcher keeps that poll alive at
- * the dashboard level and, on the in-progress → done transition, invalidates the `subscribers`
- * cache (so freshly imported subscribers appear without a manual reload) and swaps the stale
+ * the dashboard level, and announces each import as it reaches a terminal state: it refreshes the
+ * `subscribers` cache (so imported subscribers appear without a manual reload) and swaps the stale
  * "Importing…" notice for a success / failure snackbar.
  *
- * The completion snackbar is built from the job's outcome counts because WP.com does not return a
- * human-readable failure reason on the import job — the per-email reasons only reach the user via
- * the import confirmation email — so counts (imported vs. couldn't-be-added) are the most specific
- * feedback the dashboard can give. Mount once, near the top of the subscribers dashboard.
+ * Announcements are keyed by job id, not by watching for an in-progress → done transition — a small
+ * or already-subscribed import can finish before any poll observes it running, and id-based
+ * detection still catches those. Jobs already finished when the dashboard loads are recorded as
+ * "already announced" so old imports aren't re-announced on every visit. Mount once, near the top of
+ * the subscribers dashboard.
  */
 export function useImportCompletionRefresh(): void {
 	const queryClient = useQueryClient();
@@ -30,72 +122,47 @@ export function useImportCompletionRefresh(): void {
 	// `useImportJobs( isOpen )` — React Query dedupes both to a single query by key). The query only
 	// polls the network while a job is actually in progress, so an idle dashboard makes one request.
 	const { data } = useImportJobs( true );
-	const wasInProgress = useRef( false );
 
-	// Newest first, so `jobs[ 0 ]` is the import that just finished on the falling edge. Memoized so
-	// the effect below doesn't re-run on every render off a fresh `[]` fallback.
+	const announced = useRef< Set< number > >( new Set() );
+	const seeded = useRef( false );
+
 	const jobs = useMemo( () => data ?? [], [ data ] );
-	const inProgress = jobs.some( isJobInProgress );
 
 	useEffect( () => {
-		// Falling edge only: a job we saw running is no longer running. Invalidating on mount or
-		// while still running would refetch needlessly (and the mutation already invalidates once
-		// up front for imports fast enough to land on the first refetch).
-		if ( wasInProgress.current && ! inProgress ) {
-			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
-
-			// Replace the fire-and-forget "Importing…" snackbar with the real outcome. `cancelled`
-			// is a user-initiated reset, not a failure, so it gets no notice.
-			removeNotice( IMPORT_IN_PROGRESS_NOTICE_ID );
-			const finished = jobs[ 0 ];
-			const status = finished?.status;
-			const subscribed = toFiniteNumber( finished?.subscribed_count ) ?? 0;
-			const failed = toFiniteNumber( finished?.failed_subscribed_count ) ?? 0;
-
-			if ( status === 'imported' && failed > 0 ) {
-				// Partial import — most succeeded, so keep it a success notice, but surface the
-				// shortfall. The job carries only the count, not which addresses or why, so point
-				// at the confirmation email.
-				createSuccessNotice(
-					sprintf(
-						// translators: %1$d: subscribers imported. %2$d: addresses that couldn't be added.
-						_n(
-							'Imported %1$d subscriber. %2$d address couldn’t be added — check your import confirmation email for details.',
-							'Imported %1$d subscribers. %2$d addresses couldn’t be added — check your import confirmation email for details.',
-							subscribed,
-							'jetpack-newsletter'
-						),
-						subscribed,
-						failed
-					),
-					{ type: 'snackbar' }
-				);
-			} else if ( status === 'imported' ) {
-				createSuccessNotice(
-					subscribed > 0
-						? sprintf(
-								// translators: %d: number of subscribers imported.
-								_n(
-									'%d subscriber imported.',
-									'%d subscribers imported.',
-									subscribed,
-									'jetpack-newsletter'
-								),
-								subscribed
-						  )
-						: __( 'Your subscribers have been imported.', 'jetpack-newsletter' ),
-					{ type: 'snackbar' }
-				);
-			} else if ( status === 'failed' ) {
-				createErrorNotice(
-					__(
-						'We couldn’t import your subscribers. Check your import confirmation email for details, then try again.',
-						'jetpack-newsletter'
-					),
-					{ type: 'snackbar' }
-				);
-			}
+		// Wait for the first real payload before seeding — `undefined` is the initial loading state.
+		if ( data === undefined ) {
+			return;
 		}
-		wasInProgress.current = inProgress;
-	}, [ inProgress, jobs, queryClient, createSuccessNotice, createErrorNotice, removeNotice ] );
+
+		// Seed once: anything already finished when the dashboard loaded predates this session, so
+		// mark it announced and don't surface it. Jobs still running at load time are left unseeded
+		// so we announce them when they finish.
+		if ( ! seeded.current ) {
+			seeded.current = true;
+			for ( const job of jobs ) {
+				if ( ! isJobInProgress( job ) ) {
+					announced.current.add( job.id );
+				}
+			}
+			return;
+		}
+
+		// One import runs per site at a time, so the newest job is the one to report. Announce it
+		// once it reaches a terminal state we haven't reported yet.
+		const newest = jobs[ 0 ];
+		if ( ! newest || isJobInProgress( newest ) || announced.current.has( newest.id ) ) {
+			return;
+		}
+		announced.current.add( newest.id );
+
+		queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
+		removeNotice( IMPORT_IN_PROGRESS_NOTICE_ID );
+
+		const outcome = describeImportOutcome( newest );
+		if ( outcome?.status === 'success' ) {
+			createSuccessNotice( outcome.message, { type: 'snackbar' } );
+		} else if ( outcome?.status === 'error' ) {
+			createErrorNotice( outcome.message, { type: 'snackbar' } );
+		}
+	}, [ data, jobs, queryClient, createSuccessNotice, createErrorNotice, removeNotice ] );
 }

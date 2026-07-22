@@ -1,6 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import { useImportCompletionRefresh } from '../_inc/subscribers/data/use-import-completion-refresh';
+import {
+	describeImportOutcome,
+	useImportCompletionRefresh,
+} from '../_inc/subscribers/data/use-import-completion-refresh';
 import { IMPORT_IN_PROGRESS_NOTICE_ID } from '../_inc/subscribers/data/use-import-jobs';
 import type { ImportJob, ImportJobStatus } from '../_inc/subscribers/data/types';
 
@@ -59,64 +62,115 @@ beforeEach( () => {
 	mockRemoveNotice.mockReset();
 } );
 
-describe( 'useImportCompletionRefresh', () => {
-	it( 'refreshes the list and shows a success notice when an import finishes', () => {
-		mockJobs = [ job( 'importing' ) ];
-		const { rerender, invalidateSpy } = renderWatcher();
-		// Still running: nothing to refresh yet.
-		expect( invalidateSpy ).not.toHaveBeenCalled();
+describe( 'describeImportOutcome', () => {
+	it( 'reports a failed job as an error pointing at the confirmation email', () => {
+		const outcome = describeImportOutcome( job( 'failed' ) );
+		expect( outcome?.status ).toBe( 'error' );
+		expect( outcome?.message ).toContain( 'confirmation email' );
+	} );
 
-		// Next poll: the job completed.
-		mockJobs = [ job( 'imported' ) ];
+	it( 'reports the imported count on a clean success', () => {
+		const outcome = describeImportOutcome( job( 'imported', { subscribed_count: 3 } ) );
+		expect( outcome?.status ).toBe( 'success' );
+		expect( outcome?.message ).toContain( '3' );
+	} );
+
+	it( 'reports both counts as a success caveat on a partial import', () => {
+		const outcome = describeImportOutcome(
+			job( 'imported', { subscribed_count: 8, failed_subscribed_count: 2 } )
+		);
+		expect( outcome?.status ).toBe( 'success' );
+		expect( outcome?.message ).toContain( '8' );
+		expect( outcome?.message ).toContain( '2' );
+		expect( outcome?.message ).toContain( 'couldn’t be added' );
+	} );
+
+	it( 'distinguishes an already-subscribed no-op from a real import', () => {
+		const outcome = describeImportOutcome(
+			job( 'imported', { subscribed_count: 0, already_subscribed_count: 2 } )
+		);
+		expect( outcome?.status ).toBe( 'success' );
+		expect( outcome?.message ).toContain( 'already subscribed' );
+		expect( outcome?.message ).toContain( '2' );
+	} );
+
+	it( 'coerces WP.com numeric-string counts', () => {
+		const outcome = describeImportOutcome( job( 'imported', { subscribed_count: '4' } ) );
+		expect( outcome?.message ).toContain( '4' );
+	} );
+
+	it( 'falls back to a generic success when no counts are present', () => {
+		const outcome = describeImportOutcome( job( 'imported' ) );
+		expect( outcome?.status ).toBe( 'success' );
+		expect( outcome?.message ).toContain( 'imported' );
+	} );
+
+	it( 'stays silent for cancelled and still-running jobs', () => {
+		expect( describeImportOutcome( job( 'cancelled' ) ) ).toBeNull();
+		expect( describeImportOutcome( job( 'pending' ) ) ).toBeNull();
+	} );
+} );
+
+describe( 'useImportCompletionRefresh', () => {
+	it( 'announces an import that finishes after being seen in progress', () => {
+		mockJobs = [];
+		const { rerender, invalidateSpy } = renderWatcher();
+
+		mockJobs = [ job( 'importing', { id: 2 } ) ];
+		rerender();
+		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
+
+		mockJobs = [ job( 'imported', { id: 2, subscribed_count: 1 } ) ];
 		rerender();
 
 		expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: [ 'subscribers' ] } );
 		expect( mockRemoveNotice ).toHaveBeenCalledWith( IMPORT_IN_PROGRESS_NOTICE_ID );
 		expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 );
-		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'reports the imported count in the success notice when the job carries one', () => {
-		mockJobs = [ job( 'importing' ) ];
-		const { rerender } = renderWatcher();
-		mockJobs = [ job( 'imported', { subscribed_count: 3, failed_subscribed_count: 0 } ) ];
-		rerender();
-
-		expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 );
-		expect( mockCreateSuccessNotice.mock.calls[ 0 ][ 0 ] ).toContain( '3' );
-		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
-	} );
-
-	it( 'surfaces the shortfall in a success notice when an import only partially succeeds', () => {
-		mockJobs = [ job( 'importing' ) ];
-		const { rerender } = renderWatcher();
-		// WP.com sends counts as numeric strings; the watcher must coerce them.
-		mockJobs = [ job( 'imported', { subscribed_count: '8', failed_subscribed_count: '2' } ) ];
-		rerender();
-
-		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
-		expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 );
-		const message = mockCreateSuccessNotice.mock.calls[ 0 ][ 0 ];
-		expect( message ).toContain( '8' );
-		expect( message ).toContain( '2' );
-	} );
-
-	it( 'shows an error notice when the import job ends in failure', () => {
-		mockJobs = [ job( 'pending' ) ];
+	it( 'announces an instant import that was never observed running', () => {
+		// The bug this fixes: a tiny / already-subscribed import can finish before any poll sees it
+		// "in progress", so a transition-based watcher would never fire. Id-based detection does.
+		mockJobs = [];
 		const { rerender, invalidateSpy } = renderWatcher();
-		mockJobs = [ job( 'failed' ) ];
+
+		mockJobs = [ job( 'imported', { id: 7, subscribed_count: 1 } ) ];
 		rerender();
 
 		expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: [ 'subscribers' ] } );
+		expect( mockRemoveNotice ).toHaveBeenCalledWith( IMPORT_IN_PROGRESS_NOTICE_ID );
+		expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'reports an already-subscribed instant import', () => {
+		mockJobs = [];
+		const { rerender } = renderWatcher();
+
+		mockJobs = [ job( 'imported', { id: 8, subscribed_count: 0, already_subscribed_count: 1 } ) ];
+		rerender();
+
+		expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 );
+		expect( mockCreateSuccessNotice.mock.calls[ 0 ][ 0 ] ).toContain( 'already subscribed' );
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows an error notice when the import job ends in failure', () => {
+		mockJobs = [];
+		const { rerender } = renderWatcher();
+
+		mockJobs = [ job( 'failed', { id: 9 } ) ];
+		rerender();
+
 		expect( mockRemoveNotice ).toHaveBeenCalledWith( IMPORT_IN_PROGRESS_NOTICE_ID );
 		expect( mockCreateErrorNotice ).toHaveBeenCalledTimes( 1 );
 		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
 	} );
 
 	it( 'clears the notice but reports nothing when a stuck import is cancelled', () => {
-		mockJobs = [ job( 'importing' ) ];
+		mockJobs = [];
 		const { rerender } = renderWatcher();
-		mockJobs = [ job( 'cancelled' ) ];
+
+		mockJobs = [ job( 'cancelled', { id: 10 } ) ];
 		rerender();
 
 		expect( mockRemoveNotice ).toHaveBeenCalledWith( IMPORT_IN_PROGRESS_NOTICE_ID );
@@ -124,9 +178,10 @@ describe( 'useImportCompletionRefresh', () => {
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'does nothing on mount when a prior import is already finished', () => {
-		mockJobs = [ job( 'imported' ) ];
-		const { invalidateSpy } = renderWatcher();
+	it( 'does not re-announce imports that were already finished when the dashboard loaded', () => {
+		mockJobs = [ job( 'imported', { id: 1, subscribed_count: 5 } ) ];
+		const { rerender, invalidateSpy } = renderWatcher();
+		rerender();
 
 		expect( invalidateSpy ).not.toHaveBeenCalled();
 		expect( mockRemoveNotice ).not.toHaveBeenCalled();
@@ -134,9 +189,10 @@ describe( 'useImportCompletionRefresh', () => {
 	} );
 
 	it( 'does nothing while an import is still in progress', () => {
-		mockJobs = [ job( 'importing' ) ];
+		mockJobs = [];
 		const { rerender, invalidateSpy } = renderWatcher();
-		mockJobs = [ job( 'importing' ) ];
+
+		mockJobs = [ job( 'importing', { id: 3 } ) ];
 		rerender();
 
 		expect( invalidateSpy ).not.toHaveBeenCalled();
