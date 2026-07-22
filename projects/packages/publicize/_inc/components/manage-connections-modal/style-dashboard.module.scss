@@ -92,6 +92,26 @@
 		--jetpack-social-admin-menu-width: 0px;
 	}
 }
+
+// The block editor. Gutenberg's fullscreen mode — the editor default — hides
+// the admin menu outright (`body.js.is-fullscreen-mode #adminmenumain
+// { display: none }`) and pins its own chrome to `left: 0`, so there is no
+// sidebar to offset against and the rules above would push the modal ~80px
+// (~136px under nav-unification) off-centre. Out of fullscreen the menu is
+// really there and the matrix above applies to the editor unchanged.
+// The `folded` / `auto-fold` / `is-nav-unification` combinations are spelled
+// out because those rules are more specific than a lone `.is-fullscreen-mode`
+// and would otherwise keep winning on a body carrying both classes.
+:global(body.is-fullscreen-mode) .services-list,
+:global(body.is-fullscreen-mode) .menu-aware,
+:global(body.is-fullscreen-mode.folded) .services-list,
+:global(body.is-fullscreen-mode.folded) .menu-aware,
+:global(body.is-fullscreen-mode.auto-fold) .services-list,
+:global(body.is-fullscreen-mode.auto-fold) .menu-aware,
+:global(body.is-fullscreen-mode.is-nav-unification:not(.folded)) .services-list,
+:global(body.is-fullscreen-mode.is-nav-unification:not(.folded)) .menu-aware {
+	--jetpack-social-admin-menu-width: 0px;
+}
 // ===== END admin-menu workaround =====================================
 
 // `Dialog.Content` owns the scroll, but `Dialog.Header` stays a shrinkable
