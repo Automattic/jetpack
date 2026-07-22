@@ -1,8 +1,10 @@
 import { Button, ToggleControl } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import { settingsStore } from '../../data/settings-store';
 import './style.scss';
 import type { AiCrawler } from '../../data/ai-types';
 import type { AiForm } from '../../data/use-ai';
@@ -181,6 +183,13 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		[ navigate ]
 	);
 
+	// Site-visibility lives on the Settings tab, so read it from the settings store
+	// (updated on each save) and overlay it on the one-time crawler bootstrap —
+	// otherwise flipping visibility on Settings and returning here without a reload
+	// would leave this tab disagreeing with the Overview card, which overlays the
+	// same live value.
+	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
+
 	if ( ! enhancer ) {
 		return (
 			<Notice.Root intent="error">
@@ -202,6 +211,8 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		if ( ! crawlers ) {
 			return null;
 		}
+
+		const searchEnginesVisible = settings?.search_engines_visible ?? crawlers.searchEnginesVisible;
 
 		// Staging subdomain blocks all crawling at the platform level, so even an
 		// indexable site can't apply these — explain and stop.
@@ -227,7 +238,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 
 		// Search engines (and therefore AI crawlers) are blocked site-wide — point
 		// the user at the setting that turns indexing back on.
-		if ( ! crawlers.searchEnginesVisible ) {
+		if ( ! searchEnginesVisible ) {
 			return (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header>

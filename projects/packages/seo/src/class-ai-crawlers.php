@@ -166,8 +166,10 @@ class Ai_Crawlers {
 				continue;
 			}
 			$blocked = (bool) $blocked;
-			// Only keep entries that actually deviate from the default policy.
-			if ( $blocked === self::is_blocked_by_default( $slug ) ) {
+			// Only keep entries that actually deviate from the default policy
+			// (training blocked, answer allowed) — resolved from the catalog we
+			// already hold rather than re-fetching it per slug.
+			if ( $blocked === ( 'training' === $catalog[ $slug ]['type'] ) ) {
 				continue;
 			}
 			$overrides[ $slug ] = $blocked;
@@ -196,9 +198,16 @@ class Ai_Crawlers {
 	 * @return string[]
 	 */
 	public static function get_blocked_slugs() {
-		$blocked = array();
-		foreach ( array_keys( self::get_catalog() ) as $slug ) {
-			if ( self::is_blocked( $slug ) ) {
+		// Resolve the override map and catalog once, then fold in the per-type
+		// default — rather than calling is_blocked() per slug (which would re-read
+		// the option and rebuild the catalog on every robots.txt render).
+		$overrides = self::get_overrides();
+		$blocked   = array();
+		foreach ( self::get_catalog() as $slug => $info ) {
+			$is_blocked = array_key_exists( $slug, $overrides )
+				? $overrides[ $slug ]
+				: ( 'training' === $info['type'] );
+			if ( $is_blocked ) {
 				$blocked[] = $slug;
 			}
 		}
