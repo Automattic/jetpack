@@ -57,6 +57,19 @@ class Set_Module_Translations_Test extends BaseTestCase {
 	const CORE_MODULE = '@wordpress/boot';
 
 	/**
+	 * Read a registered script module's text domain via the WP 7.0 registry.
+	 *
+	 * @param string $id Script module id.
+	 * @return string The registered text domain, or 'default' when unset.
+	 */
+	private function get_module_textdomain( $id ) {
+		// @phan-suppress-next-line PhanUndeclaredMethod -- WP_Script_Modules::get_registered() is WP 7.0+; these tests are skipped on older versions in set_up().
+		$module = wp_script_modules()->get_registered( $id );
+
+		return is_array( $module ) ? ( $module['textdomain'] ?? 'default' ) : 'default';
+	}
+
+	/**
 	 * Skip on WordPress versions without the script-module translations API (< 7.0).
 	 */
 	public function set_up() {
@@ -141,19 +154,15 @@ class Set_Module_Translations_Test extends BaseTestCase {
 			)
 		);
 
-		$modules = wp_script_modules();
-
-		$forms_module = $modules->get_registered( self::FORMS_MODULE );
 		$this->assertSame(
 			'jetpack-forms',
-			$forms_module['textdomain'] ?? 'default',
+			$this->get_module_textdomain( self::FORMS_MODULE ),
 			'Forms modules should be registered under the jetpack-forms text domain.'
 		);
 
-		$core_module = $modules->get_registered( self::CORE_MODULE );
 		$this->assertNotSame(
 			'jetpack-forms',
-			$core_module['textdomain'] ?? 'default',
+			$this->get_module_textdomain( self::CORE_MODULE ),
 			'Core modules should keep the default text domain.'
 		);
 	}
@@ -190,7 +199,6 @@ class Set_Module_Translations_Test extends BaseTestCase {
 			)
 		);
 
-		$forms_module = wp_script_modules()->get_registered( self::FORMS_MODULE );
-		$this->assertSame( 'jetpack-forms', $forms_module['textdomain'] ?? 'default' );
+		$this->assertSame( 'jetpack-forms', $this->get_module_textdomain( self::FORMS_MODULE ) );
 	}
 }
