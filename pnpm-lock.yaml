@@ -2956,6 +2956,9 @@ importers:
       '@wordpress/hooks':
         specifier: 4.51.0
         version: 4.51.0
+      '@wordpress/html-entities':
+        specifier: 4.51.0
+        version: 4.51.0
       '@wordpress/i18n':
         specifier: 6.24.0
         version: 6.24.0
