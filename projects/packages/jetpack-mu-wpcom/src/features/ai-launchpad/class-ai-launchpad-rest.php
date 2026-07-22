@@ -21,8 +21,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	const MIN_VALID_TASKS = 4;
 
-	// `woo_launch_site` stays a valid launch task so a stray AI emission passes PUT validation and is normalized to
-	// `site_launched` on read (see build_tasks), rather than failing the whole list into the deterministic fallback.
+	// `woo_launch_site`, `link_in_bio_launched`, and `videopress_launched` stay valid launch tasks so a stray AI
+	// emission passes PUT validation and is normalized to `site_launched` on read (see build_tasks), rather than
+	// failing the whole list into the deterministic fallback.
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
@@ -91,10 +92,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Jetpack Social tasks, hidden on private sites where wpcom does not load Publicize (so their CTA page would 404).
+	 * `drive_traffic` needs no entry: it remaps onto `connect_social_media` before this gate runs.
 	 */
 	const SOCIAL_PAGE_TASK_IDS = array(
 		'connect_social_media',
-		'drive_traffic',
 	);
 
 	/**
@@ -102,10 +103,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 *
 	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
 	 * unrelated pre-existing draft never counts. Paired with `add_about_page`, which has its own marker meta.
+	 * `first_post_published_newsletter` needs no entry: it remaps onto `first_post_published` before this runs.
 	 */
 	const IN_PROGRESS_FIRST_POST_TASK_IDS = array(
 		'first_post_published',
-		'first_post_published_newsletter',
 	);
 
 	/**
@@ -265,11 +266,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_tailored' ),
 					'permission_callback' => array( $this, 'can_write' ),
 					'args'                => array(
-						'source' => array(
+						'source'      => array(
 							'description' => 'Whether the payload came from the AI or the deterministic fallback. Query parameter; the JSON body must match the agent output schema exactly.',
 							'type'        => 'string',
 							'enum'        => array( 'ai', 'fallback' ),
 							'default'     => 'ai',
+						),
+						'duration_ms' => array(
+							'description' => 'Client-measured tailoring duration in milliseconds, for the tailored Logstash record.',
+							'type'        => 'integer',
+							'minimum'     => 0,
+						),
+						'attempts'    => array(
+							'description' => 'How many jetpack-ai-query attempts the client made, for the tailored Logstash record.',
+							'type'        => 'integer',
+							'minimum'     => 0,
 						),
 					),
 				),
@@ -330,6 +341,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	public function get_data( $request = null ) {
 		$wizard    = get_option( self::OPTION_WIZARD );
 		$ai_output = get_option( self::OPTION_AI_OUTPUT );
+		if ( is_array( $ai_output ) ) {
+			// Internal analytics bookkeeping (see report_task_completions), not part of the client contract.
+			unset( $ai_output['tracked_completed'] );
+		}
 
 		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
 		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
@@ -381,17 +396,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			? $ai_output['payload']
 			: array();
 		// Validate `inferred` as an array before reading from it, since a partial write could leave it non-array.
-		$inferred = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
-		$niche    = isset( $inferred['niche'] ) && is_string( $inferred['niche'] )
-			? trim( $inferred['niche'] )
+		$inferred       = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
+		$theme_category = isset( $inferred['theme_category'] ) && is_string( $inferred['theme_category'] )
+			? $inferred['theme_category']
 			: '';
-
-		// The AI's dedicated theme-search word beats the first-word-of-niche heuristic; outputs
-		// persisted before the field existed fall back to the niche.
-		$theme_keyword = isset( $inferred['theme_keyword'] ) && is_string( $inferred['theme_keyword'] )
-			? trim( $inferred['theme_keyword'] )
-			: '';
-		$theme_search  = '' !== $theme_keyword ? $theme_keyword : $niche;
 
 		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
 
@@ -404,7 +412,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// roadmap instead of dropping them (which would collapse the list to almost nothing).
 		$disable_hidden_woo = 'sell' === $goal && ! $woo_active;
 
-		$theme_cta = $this->get_themes_showcase_path( $goal, $theme_search );
+		$theme_cta = $this->get_themes_showcase_path( $goal, $theme_category );
 
 		$ai_tasks = isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ? $payload['tasks'] : array();
 
@@ -443,9 +451,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * The catalog visibility gate in build_tasks() drops any task it hides on this site (e.g. add_about_page needs a
 	 * page-template meta key that is absent during a REST request) with no replacement, so a gate-heavy AI pick can
 	 * collapse the list to two or three cards. This backfills from a small pool of broadly-useful tasks and keeps the
-	 * launch task last. The pool is run through build_tasks() in one pass, which gates and dedups it, so a pool task
-	 * the site hides simply does not appear. Backfilled cards are skippable (see skip_task); a fuller, AI-ranked
-	 * overflow pool is the eventual replacement.
+	 * launch task last. Candidates are built one at a time, stopping at the target, so the tail of the pool is only
+	 * evaluated when the earlier fillers were not enough — mobile_app_installed's completion check does a remote
+	 * lookup while incomplete, which the common short-by-one list never has to pay for. Backfilled cards are
+	 * skippable (see skip_task); a fuller, AI-ranked overflow pool is the eventual replacement.
 	 *
 	 * @param array  $tasks              The rendered task list, already gated, launch task last.
 	 * @param string $theme_cta          Pre-resolved themes-showcase CTA passed through to build_tasks().
@@ -458,25 +467,35 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return $tasks;
 		}
 
-		$present    = array_column( $tasks, 'id' );
-		$candidates = array();
 		foreach ( $this->backfill_pool() as $id => $subtitle ) {
-			if ( ! in_array( $id, $present, true ) ) {
-				$candidates[] = array(
-					'id'       => $id,
-					'subtitle' => $subtitle,
-				);
-			}
-		}
-
-		// One build over every candidate: build_tasks() drops the gated ones and dedups, preserving pool order.
-		$built = $this->build_tasks( $candidates, false, $theme_cta, $disable_hidden_woo );
-		foreach ( $built as $task ) {
 			if ( count( $tasks ) >= $target ) {
 				break;
 			}
-			// A filler card that is already complete offers nothing to do; better a shorter list.
-			if ( ! empty( $task['completed'] ) ) {
+			$present = array_column( $tasks, 'id' );
+			if ( in_array( $id, $present, true ) ) {
+				continue;
+			}
+
+			// build_tasks() applies the same gating and remap the AI list gets, so a pool task the site
+			// hides simply does not appear.
+			$built = $this->build_tasks(
+				array(
+					array(
+						'id'       => $id,
+						'subtitle' => $subtitle,
+					),
+				),
+				false,
+				$theme_cta,
+				$disable_hidden_woo
+			);
+			if ( empty( $built ) ) {
+				continue;
+			}
+			$task = $built[0];
+			// A filler card that is already complete offers nothing to do; better a shorter list. The remap
+			// inside build_tasks() can also land the card on an id already present — skip that too.
+			if ( ! empty( $task['completed'] ) || in_array( $task['id'], $present, true ) ) {
 				continue;
 			}
 			$tasks = $this->insert_before_launch_task( $tasks, $task );
@@ -499,12 +518,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'design_edited'        => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
 			'add_new_page'         => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
 			'connect_social_media' => __( 'Connect your social accounts to reach more people.', 'jetpack-mu-wpcom' ),
-			'drive_traffic'        => __( 'Help people discover your site.', 'jetpack-mu-wpcom' ),
+			'mobile_app_installed' => __( 'Manage your site from anywhere with the Jetpack app.', 'jetpack-mu-wpcom' ),
 		);
 	}
 
 	/**
-	 * Latches OPTION_COMPLETED the first time the list is fully done. Called on every path that can finish the last
+	 * Runs the completion pass: reports newly-completed tasks to Tracks, then latches OPTION_COMPLETED (and records
+	 * the all-tasks-completed event) the first time the list is fully done. Called on every path that can finish a
 	 * task (read, skip, complete-on-click); the already-set check skips the rebuild once latched.
 	 *
 	 * @return void
@@ -514,35 +534,89 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return;
 		}
 
-		if ( $this->compute_tasklist_complete() ) {
-			update_option( self::OPTION_COMPLETED, true, true );
-		}
-	}
-
-	/**
-	 * Whether every task on the tailored list is completed or skipped. An empty/absent list is not "complete" — the
-	 * wizard still needs to run.
-	 *
-	 * @return bool
-	 */
-	private function compute_tasklist_complete() {
+		// No AI output means the wizard hasn't produced a list yet: nothing to report or latch.
 		if ( ! get_option( self::OPTION_AI_OUTPUT ) ) {
-			return false;
+			return;
 		}
 
 		$tasks = $this->get_current_tasks();
+		// An empty list is not "complete" — the wizard still needs to run.
 		if ( empty( $tasks ) ) {
-			return false;
+			return;
 		}
+
+		$this->report_task_completions( $tasks );
 
 		foreach ( $tasks as $task ) {
 			// A skip coerces `completed` true; a disabled preview task stays incomplete until its prerequisite is met.
 			if ( empty( $task['completed'] ) ) {
-				return false;
+				return;
 			}
 		}
 
-		return true;
+		update_option( self::OPTION_COMPLETED, true, true );
+		// After the per-task reports above, so any task_completed reports precede it (a list finished
+		// purely by skips or born-completed tasks latches with none).
+		wpcom_ai_launchpad_record_tracks_event(
+			'jetpack_ai_launchpad_all_tasks_completed',
+			array(),
+			array_column( $tasks, 'id' )
+		);
+	}
+
+	/**
+	 * Records a `task_completed` Tracks event for every rendered task that newly reads as completed, whatever
+	 * completed it (client click, PHP listener, or live recomputation à la Woo/domains/memberships) — the only
+	 * uniform signal is the rendered list itself, so completions are diffed on read.
+	 *
+	 * The already-reported ids are embedded in the existing AI-output envelope (`tracked_completed`) rather than a
+	 * new option; a re-tailor rewrites the envelope, which re-baselines the set at the same moment the skip/completed
+	 * options reset. PUT /tailored seeds the key with the born-completed tasks, so a pass here only ever reports
+	 * user-triggered completions; an envelope persisted before the key existed gets the same silent baseline on its
+	 * first pass. Skipped tasks render as completed but already emit `task_skipped`, so they are excluded (and never
+	 * reported later).
+	 *
+	 * @param array $tasks The current rendered tasks.
+	 * @return void
+	 */
+	private function report_task_completions( $tasks ) {
+		$ai_output = get_option( self::OPTION_AI_OUTPUT );
+		if ( ! is_array( $ai_output ) ) {
+			return;
+		}
+
+		$skipped   = $this->get_skipped_task_ids();
+		$completed = array();
+		foreach ( $tasks as $task ) {
+			if ( ! empty( $task['completed'] ) && ! in_array( $task['id'], $skipped, true ) ) {
+				$completed[] = $task['id'];
+			}
+		}
+
+		// null = no key yet, i.e. the baseline pass right after tailoring. Remapped like the skip overlay: a
+		// baseline recorded under a since-remapped id must keep covering the id its card renders as now, or the
+		// same completion would be re-reported once under the new id.
+		$reported = isset( $ai_output['tracked_completed'] ) && is_array( $ai_output['tracked_completed'] )
+			? array_values( array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $ai_output['tracked_completed'] ) ) )
+			: null;
+		$newly    = array_values( array_diff( $completed, $reported ?? array() ) );
+
+		if ( null !== $reported ) {
+			if ( empty( $newly ) ) {
+				return;
+			}
+			$rendered_ids = array_column( $tasks, 'id' );
+			foreach ( $newly as $task_id ) {
+				wpcom_ai_launchpad_record_tracks_event(
+					'jetpack_ai_launchpad_task_completed',
+					array( 'task_id' => $task_id ),
+					$rendered_ids
+				);
+			}
+		}
+
+		$ai_output['tracked_completed'] = array_merge( $reported ?? array(), $newly );
+		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 	}
 
 	/**
@@ -644,8 +718,23 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		delete_option( self::OPTION_SKIPPED );
 		delete_option( self::OPTION_COMPLETED );
 
+		// Baseline the born-completed tasks now (needs the fresh options above), so completion
+		// reporting only ever emits for completions the user actually triggers afterwards.
+		$rendered_tasks = $this->get_current_tasks();
+		$baseline       = array();
+		foreach ( $rendered_tasks as $task ) {
+			if ( ! empty( $task['completed'] ) ) {
+				$baseline[] = $task['id'];
+			}
+		}
+		$ai_output['tracked_completed'] = $baseline;
+		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
+
 		// After the writes, so the observed rendered list is the fresh one.
-		$this->log_tailoring( $ai_output, $raw_task_ids );
+		$this->log_tailoring( $ai_output, $raw_task_ids, $request['duration_ms'], $request['attempts'], array_column( $rendered_tasks, 'id' ) );
+
+		// The analytics bookkeeping stays out of responses, mirroring get_data().
+		unset( $ai_output['tracked_completed'] );
 
 		return array( 'ai_output' => $ai_output );
 	}
@@ -655,11 +744,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * (the public-api logstash endpoint whitelists features by their `atomic_` prefix — a bare feature name is
 	 * rejected with a 400 on the Atomic HTTP dispatch path). Best-effort: logging must never fail the tailoring write.
 	 *
-	 * @param array    $ai_output    The persisted AI output envelope.
-	 * @param string[] $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param array         $ai_output    The persisted AI output envelope.
+	 * @param string[]      $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param int|null      $duration_ms  Client-measured tailoring duration, or null when not sent.
+	 * @param int|null      $attempts     Client-reported jetpack-ai-query attempt count, or null when not sent.
+	 * @param string[]|null $rendered_ids The rendered task ids, when the caller already computed them.
 	 * @return void
 	 */
-	private function log_tailoring( $ai_output, $raw_task_ids ) {
+	private function log_tailoring( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
 		try {
 			/**
 			 * Gates the tailoring observation event sent to Logstash. Checked before the event
@@ -674,7 +766,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
 				'atomic_ai_launchpad',
 				'tailored',
-				$this->tailoring_log_extra( $ai_output, $raw_task_ids )
+				$this->tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms, $attempts, $rendered_ids )
 			);
 		} catch ( \Throwable $e ) {
 			unset( $e );
@@ -691,19 +783,22 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * never included, and the inferred fields that can echo the user's own words near-verbatim are stripped:
 	 * `brand_name` restates the title and `tagline` is drafted from the description.
 	 *
-	 * @param array    $ai_output    The persisted AI output envelope.
-	 * @param string[] $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param array         $ai_output    The persisted AI output envelope.
+	 * @param string[]      $raw_task_ids The AI's selected ids before the unknown-id filter.
+	 * @param int|null      $duration_ms  Client-measured tailoring duration, or null when not sent.
+	 * @param int|null      $attempts     Client-reported jetpack-ai-query attempt count, or null when not sent.
+	 * @param string[]|null $rendered_ids The rendered task ids, when the caller already computed them.
 	 * @return array
 	 */
-	private function tailoring_log_extra( $ai_output, $raw_task_ids ) {
+	private function tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
 		// Schema-validated on the write path, so `inferred` is always present here.
 		$inferred = $ai_output['payload']['inferred'];
 		unset( $inferred['brand_name'], $inferred['tagline'] );
 
-		$rendered = array_column( $this->get_current_tasks(), 'id' );
+		$rendered = $rendered_ids ?? array_column( $this->get_current_tasks(), 'id' );
 		$remapped = array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $raw_task_ids ) );
 
-		return array(
+		$extra = array(
 			'source'   => $ai_output['source'],
 			'inferred' => $inferred,
 			'selected' => $raw_task_ids,
@@ -711,6 +806,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'dropped'  => array_values( array_diff( $remapped, $rendered ) ),
 			'added'    => array_values( array_diff( $rendered, $remapped ) ),
 		);
+
+		// Client-measured timing, replacing the retired ai_response_received Tracks event.
+		if ( null !== $duration_ms ) {
+			$extra['duration_ms'] = (int) $duration_ms;
+		}
+		if ( null !== $attempts ) {
+			$extra['attempts'] = (int) $attempts;
+		}
+
+		return $extra;
 	}
 
 	/**
@@ -1050,7 +1155,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
 				// The theme-picker task points at the showcase pre-filtered for the site (Store category on sell,
-				// the AI's theme keyword elsewhere) instead of plain themes.php. The legacy design_selected/
+				// the AI's inferred category elsewhere) instead of plain themes.php. The legacy design_selected/
 				// design_completed ids consolidate onto site_theme_selected via wpcom_ai_launchpad_remap_task_id().
 				$theme_showcase_path = 'site_theme_selected' === $task['id'] ? $theme_cta : null;
 				$cta_override        = $this->get_cta_override( $task['id'] );
@@ -1145,27 +1250,54 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * The theme-showcase subject-category slugs (the `subject` taxonomy from /rest/v1.2/theme-filters).
+	 * Every category carries free themes, unlike free-text search, which surfaces mostly paid results.
+	 */
+	const THEME_CATEGORIES = array(
+		'blog',
+		'portfolio',
+		'business',
+		'store',
+		'art-design',
+		'about',
+		'real-estate',
+		'health-wellness',
+		'authors-writers',
+		'newsletter',
+		'education',
+		'magazine',
+		'music',
+		'restaurant',
+		'travel-lifestyle',
+		'fashion-beauty',
+		'community-non-profit',
+		'podcast',
+		'entertainment',
+	);
+
+	/**
 	 * The wordpress.com themes-showcase path the theme-picker tasks should point at.
 	 *
 	 * Sell sites always land on the showcase's Store category so shop-ready templates lead; other goals get the
-	 * showcase pre-filtered by the AI's theme search term (as the free-text `?s=`), and null when nothing was
-	 * inferred to search by, so the caller falls back to the task's default CTA. The client's `toNavigableUrl`
-	 * resolves the relative path against wordpress.com.
+	 * showcase pre-filtered by the AI's inferred category, re-checked against the allowlist since the envelope is
+	 * stored data. Without a valid category the plain showcase is returned (never null: the catalog CTA can resolve
+	 * to wp-admin's themes.php, which skips the showcase). The client's `toNavigableUrl` resolves the relative path
+	 * against wordpress.com.
 	 *
-	 * @param string $goal   The inferred goal.
-	 * @param string $search The AI's theme_keyword, or the inferred niche as fallback.
-	 * @return string|null
+	 * @param string $goal     The inferred goal.
+	 * @param string $category The AI's inferred theme_category slug.
+	 * @return string
 	 */
-	private function get_themes_showcase_path( $goal, $search ) {
+	private function get_themes_showcase_path( $goal, $category ) {
 		if ( 'sell' === $goal ) {
-			return '/themes/filter/store/' . rawurlencode( wpcom_get_site_slug() );
+			$category = 'store';
 		}
 
-		if ( '' === $search ) {
-			return null;
+		if ( ! in_array( $category, self::THEME_CATEGORIES, true ) ) {
+			return '/themes/' . rawurlencode( wpcom_get_site_slug() );
 		}
 
-		return '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $search ) );
+		return '/themes/filter/' . $category . '/' . rawurlencode( wpcom_get_site_slug() );
 	}
 
 	/**
@@ -1214,29 +1346,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		array_splice( $tasks, $to + 1, 0, $moved );
 
 		return $tasks;
-	}
-
-	/**
-	 * Reduces a possibly multi-word niche to a single keyword for the themes-showcase search.
-	 *
-	 * The showcase ANDs its search terms, so a phrase like "ceramics and pottery" matches no theme even
-	 * though "ceramics" and "pottery" each do. Connective/filler words are dropped and the first remaining
-	 * keyword is kept. Falls back to the trimmed niche when nothing survives filtering.
-	 *
-	 * @param string $niche The AI-inferred niche.
-	 * @return string
-	 */
-	private function niche_to_search_term( $niche ) {
-		$stop_words = array( 'and', 'or', 'the', 'a', 'an', 'of', 'for', 'with', 'in', 'on', 'to', 'your', 'my' );
-		$words      = preg_split( '/[\s,&]+/', strtolower( $niche ), -1, PREG_SPLIT_NO_EMPTY );
-
-		foreach ( $words as $word ) {
-			if ( ! in_array( $word, $stop_words, true ) ) {
-				return $word;
-			}
-		}
-
-		return trim( $niche );
 	}
 
 	/**
@@ -1471,8 +1580,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				return $in_progress
 					? __( 'Continue to write your first post', 'jetpack-mu-wpcom' )
 					: __( 'Write your first post', 'jetpack-mu-wpcom' );
-			case 'first_post_published_newsletter':
-				return $in_progress ? __( 'Continue writing your first post', 'jetpack-mu-wpcom' ) : $default;
 			default:
 				return $default;
 		}

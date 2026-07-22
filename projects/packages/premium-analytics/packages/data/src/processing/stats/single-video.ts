@@ -1,5 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
-import { coerceStatsArray, coerceStatsRecord } from './utils';
+import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
 export type StatsSingleVideoDataPoint = {
 	period: string;
@@ -11,10 +11,37 @@ export type StatsSingleVideoPage = {
 	link: string;
 };
 
+export type StatsSingleVideoPost = {
+	id?: number;
+	title?: string;
+	date?: string;
+	mimeType?: string;
+};
+
 export type StatsSingleVideoReport = {
 	data: StatsSingleVideoDataPoint[];
 	pages: StatsSingleVideoPage[];
+	post: StatsSingleVideoPost | null;
 };
+
+function sanitizeSingleVideoPost( value: unknown ): StatsSingleVideoPost | null {
+	if ( ! isStatsRecord( value ) ) {
+		return null;
+	}
+
+	const id = Number( value.ID );
+
+	return {
+		...( ( typeof value.ID === 'number' || typeof value.ID === 'string' ) &&
+		Number.isInteger( id ) &&
+		id > 0
+			? { id }
+			: {} ),
+		...( typeof value.post_title === 'string' ? { title: value.post_title } : {} ),
+		...( typeof value.post_date === 'string' ? { date: value.post_date } : {} ),
+		...( typeof value.post_mime_type === 'string' ? { mimeType: value.post_mime_type } : {} ),
+	};
+}
 
 export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSingleVideoReport {
 	const payload = coerceStatsRecord( response );
@@ -30,6 +57,7 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 	const pages = coerceStatsArray< unknown >( payload.pages )
 		.filter( ( page ): page is string => typeof page === 'string' )
 		.map( page => ( { label: page, link: page } ) );
+	const post = sanitizeSingleVideoPost( payload.post );
 
-	return { data, pages };
+	return { data, pages, post };
 }

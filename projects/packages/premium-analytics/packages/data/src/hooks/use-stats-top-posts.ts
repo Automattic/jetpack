@@ -1,13 +1,9 @@
 /**
- * External dependencies
- */
-import { useCallback } from 'react';
-/**
  * Internal dependencies
  */
 import { mergeStatsTopPostsComparisonRows } from '../processing/stats';
 import { statsTopPostsQuery } from '../queries/stats-top-posts-query';
-import { useStatsReport } from './use-stats-report';
+import { createStatsListReportHook } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsNormalizedReport,
@@ -21,22 +17,20 @@ type StatsTopPostsOptions = UseStatsOptions & {
 	postTypes?: string[] | null;
 };
 
-export function useStatsTopPosts( params: StatsReportParams, options?: StatsTopPostsOptions ) {
-	const { maxRows, postTypes, ...queryOptions } = options ?? {};
-	const mergeComparisonRows = useCallback(
-		(
-			primary?: StatsNormalizedReport< StatsTopPostsItem >,
-			comparison?: StatsNormalizedReport< StatsTopPostsItem >
-		) => mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows, postTypes } ),
-		[ maxRows, postTypes ]
-	);
+export const useStatsTopPosts = createStatsListReportHook<
+	StatsReportParams,
+	StatsNormalizedReport< StatsTopPostsItem >,
+	StatsTopPostsComparisonItem,
+	StatsTopPostsOptions,
+	string[] | null | undefined
+>( {
+	queryFactory: statsTopPostsQuery,
+	reportSlug: 'top-posts',
+	mergeComparisonRows: ( primary, comparison, maxRows, postTypes ) =>
+		mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows, postTypes } ),
+	getOptions: options => {
+		const { maxRows, postTypes, ...queryOptions } = options ?? {};
 
-	return useStatsReport<
-		StatsReportParams,
-		StatsNormalizedReport< StatsTopPostsItem >,
-		StatsTopPostsComparisonItem
-	>( statsTopPostsQuery, params, 'top-posts', {
-		...queryOptions,
-		mergeComparisonRows,
-	} );
-}
+		return { queryOptions, maxRows, mergeOption: postTypes };
+	},
+} );

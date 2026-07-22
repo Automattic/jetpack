@@ -2,6 +2,15 @@
 	"name": "jpa/file-downloads",
 	"title": "File downloads",
 	"description": "Most downloaded files on your site.",
+	"help": {
+		"content": "The files your visitors downloaded most often, sorted by number of downloads.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
 	"category": "stats",
 	"presentation": "framed"
 }

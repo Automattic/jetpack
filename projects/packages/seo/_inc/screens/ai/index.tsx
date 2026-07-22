@@ -49,7 +49,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 	}
 
 	return (
-		<div className="jetpack-seo-ai">
+		<div>
 			<CollapsibleCard.Root defaultOpen>
 				<CollapsibleCard.Header>
 					<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>

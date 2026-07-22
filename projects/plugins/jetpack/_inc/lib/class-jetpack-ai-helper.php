@@ -19,6 +19,21 @@ use Automattic\Jetpack\Status\Visitor;
  */
 class Jetpack_AI_Helper {
 	/**
+	 * User meta key storing whether the user dismissed the Content Guidelines
+	 * AI empty-state banner. Written by the guidelines-banner-dismissed REST
+	 * endpoint and read by the Content Guidelines admin-page preload.
+	 *
+	 * Lives here rather than on the endpoint class because on WordPress.com
+	 * Simple the wpcom-endpoints classes are only loaded in REST requests,
+	 * while the preload needs the key during admin page loads.
+	 *
+	 * @since 16.1
+	 *
+	 * @var string
+	 */
+	const GUIDELINES_BANNER_DISMISSED_META_KEY = 'jetpack_content_guidelines_ai_banner_dismissed';
+
+	/**
 	 * Allow new completion every X seconds. Will return cached result otherwise.
 	 *
 	 * @var int
@@ -106,6 +121,18 @@ class Jetpack_AI_Helper {
 		 * @param bool $default Are AI features enabled? Defaults to false.
 		 */
 		return apply_filters( 'jetpack_ai_enabled', $default );
+	}
+
+	/**
+	 * Whether the current user has dismissed the Content Guidelines AI
+	 * empty-state banner.
+	 *
+	 * @since 16.1
+	 *
+	 * @return bool
+	 */
+	public static function is_guidelines_banner_dismissed() {
+		return (bool) get_user_meta( get_current_user_id(), self::GUIDELINES_BANNER_DISMISSED_META_KEY, true );
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-My Jetpack: fix route changes in Chrome when scroll APIs return promises.

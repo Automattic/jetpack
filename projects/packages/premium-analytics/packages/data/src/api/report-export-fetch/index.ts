@@ -1,2 +1,7 @@
-export { exportReport } from './report-export-fetch';
-export type { ExportReportParams, ExportReportResponse } from './report-export-fetch';
+export { downloadReport, exportReport } from './report-export-fetch';
+export type {
+	DownloadReportParams,
+	DownloadReportResponse,
+	ExportReportParams,
+	ExportReportResponse,
+} from './report-export-fetch';

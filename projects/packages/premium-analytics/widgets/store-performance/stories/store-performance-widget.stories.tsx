@@ -1,18 +1,24 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { DEFAULT_STORE_PERFORMANCE_METRICS, type StorePerformanceMetricId } from '../metrics';
 import StorePerformanceRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -25,17 +31,9 @@ const ensureLineChartComposition = () => LineChart.Legend;
 
 // Carry the widget's metadata, including the metric-visibility attribute schema
 // so the dashboard story's settings drawer renders the real checkboxes.
-// Presentation is left unset so the host frames the widget and renders its
-// identity (title + icon), matching widget.json. The attribute schema is typed
-// loosely on the widget definition, so it is cast to the WidgetType shape.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	help: widgetDefinition.help,
-	icon: widgetDefinition.icon,
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-};
+// Presentation is left unset in widget.json, so the host frames the widget and
+// renders its identity (title + icon).
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 type StorePerformanceRenderProps = ComponentProps< typeof StorePerformanceRender >;
 
@@ -58,12 +56,6 @@ type StorePerformanceStoryProps = StorePerformanceRenderProps & StorePerformance
 interface StorePerformanceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		StorePerformanceStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '420px' } }>
-		<Story />
-	</div>
-);
 
 function getStorePerformanceAttributes( {
 	withComparison = false,
@@ -123,6 +115,35 @@ function renderStorePerformance( {
 			attributes={ getStorePerformanceAttributes( { withComparison, preset, metrics } ) }
 		/>
 	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderStorePerformanceOnPreset(
+	preset: SelectablePresetId,
+	metrics: StorePerformanceMetricId[] = DEFAULT_STORE_PERFORMANCE_METRICS
+) {
+	ensureLineChartComposition();
+
+	return (
+		<StorePerformanceRender
+			attributes={ getStorePerformanceAttributes( { withComparison: false, preset, metrics } ) }
+		/>
+	);
+}
+
+// Every report endpoint behind the widget's default metrics (net sales/orders,
+// bookings, visitors, conversion rate, customers). State stories force all of
+// them so no metric report resolves with data.
+const STORE_PERFORMANCE_ENDPOINTS = [
+	'orders/by-date',
+	'orders-by-product-type/by-date',
+	'sessions/by-date',
+	'sessions/by-conversion-rate',
+	'customers/by-date',
+] as const;
+
+function setAllReportMockStates( state: 'loading' | 'error' | null ) {
+	STORE_PERFORMANCE_ENDPOINTS.forEach( endpoint => setReportMockState( endpoint, state ) );
 }
 
 function StorePerformanceDashboardStory( {
@@ -219,6 +240,46 @@ export const WithComparison: Story = {
 			},
 		},
 	},
+};
+
+/**
+ * First load: every metric report is in flight, so the widget shows its loading
+ * state. The mocks are forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderStorePerformanceOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setAllReportMockStates( 'loading' );
+		return () => setAllReportMockStates( null );
+	},
+};
+
+/**
+ * Every metric report failed: the widget shows its error state with a Retry
+ * action (which re-runs all queries — still mocked as failing while this story
+ * is active).
+ */
+export const Error: Story = {
+	render: () => renderStorePerformanceOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setAllReportMockStates( 'error' );
+		return () => setAllReportMockStates( null );
+	},
+};
+
+/**
+ * No metrics selected: the widget has no tabs to show, so it renders its empty
+ * state before fetching reports.
+ */
+export const Empty: Story = {
+	render: () => renderStorePerformanceOnPreset( 'last-365-days', [] ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
 };
 
 /**

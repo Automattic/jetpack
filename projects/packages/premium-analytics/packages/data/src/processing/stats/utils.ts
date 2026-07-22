@@ -35,6 +35,37 @@ export type MergeStatsComparisonRowsOptions< TPrimary, TComparison, TMapped > = 
 	mapRow: ( row: TPrimary, context: StatsComparisonRowContext< TComparison > ) => TMapped;
 };
 
+export type MergeStatsTreeComparisonRowsOptions<
+	TPrimary,
+	TComparison,
+	TMapped extends { previousValue?: number },
+	TParentContext,
+> = Omit<
+	MergeStatsComparisonRowsOptions< TPrimary, TComparison, TMapped >,
+	'mapRow' | 'getPrimaryKey' | 'getComparisonKey'
+> & {
+	maxRows?: number;
+	parentContext?: TParentContext;
+	getPrimaryKey: (
+		row: TPrimary,
+		parentContext: TParentContext | undefined
+	) => StatsComparisonKey | null | undefined;
+	getComparisonKey: (
+		row: TComparison,
+		parentContext: TParentContext | undefined
+	) => StatsComparisonKey | null | undefined;
+	getPrimaryChildren: ( row: TPrimary ) => TPrimary[] | null | undefined;
+	getComparisonChildren: ( row: TComparison ) => TComparison[] | null | undefined;
+	mapRow: (
+		row: TPrimary,
+		context: StatsComparisonRowContext< TComparison >,
+		parentContext: TParentContext | undefined
+	) => TMapped;
+	setChildren: ( row: TMapped, children: TMapped[], hasComparison: boolean ) => TMapped;
+	getChildContext?: ( row: TMapped, parentContext: TParentContext | undefined ) => TParentContext;
+	sortRows?: ( rows: TMapped[] ) => TMapped[];
+};
+
 export function isStatsRecord( value: unknown ): value is StatsRecord {
 	return typeof value === 'object' && value !== null && ! Array.isArray( value );
 }
@@ -123,6 +154,124 @@ export function mergeStatsComparisonRows< TPrimary, TComparison = TPrimary, TMap
 	} );
 
 	return { rows, hasComparison };
+}
+
+export type FlattenStatsLeavesContext< TItem > = {
+	/**
+	 * Ancestor items from the report root down to the leaf's parent.
+	 */
+	ancestors: TItem[];
+	/**
+	 * The item's index at each level, from the root list down to the leaf.
+	 */
+	indexPath: number[];
+};
+
+export type FlattenStatsLeavesOptions< TItem, TRow > = {
+	/**
+	 * Read an item's child items.
+	 */
+	getChildren: ( item: TItem ) => readonly TItem[] | null | undefined;
+	/**
+	 * Map a leaf item to a table row.
+	 */
+	mapLeaf: ( item: TItem, context: FlattenStatsLeavesContext< TItem > ) => TRow;
+};
+
+/**
+ * Flatten a nested report hierarchy into one row per leaf, depth-first.
+ *
+ * DataViews tables do not support nested rows yet, so report tables show only
+ * the hierarchy leaves. Each leaf's ancestor chain and index path are passed
+ * to `mapLeaf` so callers can derive group labels, inherited icons, or stable
+ * row ids.
+ *
+ * @param items               - The top-level report items.
+ * @param options             - The traversal callbacks.
+ * @param options.getChildren - Read an item's child items.
+ * @param options.mapLeaf     - Map a leaf item to a table row.
+ * @return One mapped row per hierarchy leaf.
+ */
+export function flattenStatsLeaves< TItem, TRow >(
+	items: readonly TItem[],
+	{ getChildren, mapLeaf }: FlattenStatsLeavesOptions< TItem, TRow >
+): TRow[] {
+	const walk = ( item: TItem, ancestors: TItem[], indexPath: number[] ): TRow[] => {
+		const children = getChildren( item ) ?? [];
+
+		if ( children.length ) {
+			return children.flatMap( ( child, index ) =>
+				walk( child, [ ...ancestors, item ], [ ...indexPath, index ] )
+			);
+		}
+
+		return [ mapLeaf( item, { ancestors, indexPath } ) ];
+	};
+
+	return items.flatMap( ( item, index ) => walk( item, [], [ index ] ) );
+}
+
+export function mergeStatsTreeComparisonRows<
+	TPrimary,
+	TComparison = TPrimary,
+	TMapped extends { previousValue?: number } = TPrimary & { previousValue?: number },
+	TParentContext = never,
+>( {
+	primaryRows,
+	comparisonRows = [],
+	maxRows,
+	parentContext,
+	getPrimaryKey,
+	getComparisonKey,
+	getComparisonValue,
+	getPrimaryChildren,
+	getComparisonChildren,
+	mapRow,
+	setChildren,
+	getChildContext,
+	sortRows,
+}: MergeStatsTreeComparisonRowsOptions< TPrimary, TComparison, TMapped, TParentContext > ): {
+	rows: TMapped[];
+	hasComparison: boolean;
+} {
+	const mergeLevel = (
+		levelPrimaryRows: TPrimary[],
+		levelComparisonRows: TComparison[],
+		levelParentContext: TParentContext | undefined
+	): { rows: TMapped[]; hasComparison: boolean } => {
+		const { rows, hasComparison } = mergeStatsComparisonRows< TPrimary, TComparison, TMapped >( {
+			primaryRows: levelPrimaryRows,
+			comparisonRows: levelComparisonRows,
+			getPrimaryKey: row => getPrimaryKey( row, levelParentContext ),
+			getComparisonKey: row => getComparisonKey( row, levelParentContext ),
+			getComparisonValue,
+			mapRow: ( row, context ) => {
+				const mappedRow = mapRow( row, context, levelParentContext );
+				const childContext = getChildContext?.( mappedRow, levelParentContext );
+				const children = mergeLevel(
+					getPrimaryChildren( row ) ?? [],
+					context.comparisonItem ? getComparisonChildren( context.comparisonItem ) ?? [] : [],
+					childContext
+				);
+
+				return setChildren( mappedRow, children.rows, children.hasComparison );
+			},
+		} );
+
+		return { rows: sortRows?.( rows ) ?? rows, hasComparison };
+	};
+
+	const { rows } = mergeLevel( primaryRows, comparisonRows, parentContext );
+
+	// The overlap gate is computed on the visible rows so an off-screen match
+	// cannot switch the comparison UI on (see AGENTS.md). Keep the limit ahead of
+	// the gate below — swapping the two silently changes that behavior.
+	const visibleRows = limitStatsRows( rows, maxRows );
+
+	return {
+		rows: visibleRows,
+		hasComparison: visibleRows.some( row => row.previousValue !== undefined ),
+	};
 }
 
 function isStatsNumericSummaryValue( value: unknown ): boolean {

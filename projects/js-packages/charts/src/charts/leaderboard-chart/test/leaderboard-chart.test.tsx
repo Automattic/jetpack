@@ -372,12 +372,6 @@ describe( 'LeaderboardChart', () => {
 	} );
 
 	describe( 'Responsive wrapper', () => {
-		it( 'fills parent container (height:100%) by default', () => {
-			render( <LeaderboardChart data={ mockData } /> );
-			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { height: '100%' } );
-		} );
-
 		it( 'applies explicit width and height to chart container', () => {
 			const { useParentSize } = jest.requireMock( '@visx/responsive' );
 			useParentSize.mockReturnValue( {

@@ -1,4 +1,5 @@
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
+import { setSimpleSite, unsetSimpleSite } from '../../../test-utils/simple-site';
 import { buildLibraryActions } from '../actions';
 
 jest.mock( '@wordpress/i18n', () => ( {
@@ -52,5 +53,38 @@ describe( 'buildLibraryActions', () => {
 		expect( actions.find( a => a.id === 'delete' )?.isEligible?.( idle ) ).toBe( true );
 		expect( actions.find( a => a.id === 'edit-details' )?.isEligible?.( idle ) ).toBe( true );
 		expect( actions.find( a => a.id === 'manage-captions' )?.isEligible?.( idle ) ).toBe( true );
+	} );
+
+	it( 'offers Upload to VideoPress for idle local items on every host', () => {
+		const local = item( { type: 'local' } );
+		const eligible = ( actions: ReturnType< typeof buildLibraryActions > ) =>
+			actions.find( a => a.id === 'upload-to-vp' )?.isEligible?.( local );
+
+		expect( eligible( buildLibraryActions( makeApi() ) ) ).toBe( true );
+
+		// On WordPress.com Simple the promote mutation routes through the
+		// in-process wpcom/v2/videopress/promote endpoint, so the action is
+		// offered there too (it used to be hidden while only the unreachable
+		// videopress/v1 walker existed).
+		setSimpleSite();
+		try {
+			expect( eligible( buildLibraryActions( makeApi() ) ) ).toBe( true );
+		} finally {
+			unsetSimpleSite();
+		}
+	} );
+
+	it( 'makes a local row with any operation in flight ineligible for Upload to VideoPress', () => {
+		const action = buildLibraryActions( makeApi() ).find( a => a.id === 'upload-to-vp' );
+
+		// 'promoting' is the overlay the stage applies while a promote is in
+		// flight — the action must not double-fire it.
+		for ( const status of [ 'promoting', 'deleting', 'uploading', 'failed' ] as const ) {
+			const row = item( { type: 'local', upload: { status, progress: 0 } } );
+			expect( { status, eligible: action?.isEligible?.( row ) } ).toEqual( {
+				status,
+				eligible: false,
+			} );
+		}
 	} );
 } );

@@ -10,9 +10,9 @@ import styles from './style.module.scss';
 export type DisconnectProps = {
 	connection: Connection;
 	variant?: 'outline' | 'minimal' | 'link';
-	/** Button size. Defaults to "small"; the modernized chassis passes "compact". */
+	/** Button size. Defaults to "small"; the Social dashboard passes "compact". */
 	size?: 'small' | 'compact';
-	/** Button tone. Defaults to the WPDS default; the modernized chassis passes "neutral". */
+	/** Button tone. Defaults to the WPDS default; the Social dashboard passes "neutral". */
 	tone?: 'neutral';
 };
 /**

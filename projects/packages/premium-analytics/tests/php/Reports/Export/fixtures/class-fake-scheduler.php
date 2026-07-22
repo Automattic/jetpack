@@ -44,6 +44,7 @@ class Fake_Scheduler extends Csv_Export_Scheduler {
 	public function schedule_export( string $report_type, array $params, int $user_id, string $user_email ) {
 		$this->calls[] = array(
 			'report_type' => $report_type,
+			'params'      => $params,
 			'user_id'     => $user_id,
 			'user_email'  => $user_email,
 		);

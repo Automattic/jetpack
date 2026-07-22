@@ -1,5 +1,9 @@
-import type { PatternVariant } from '../lib/pattern-page.ts';
-import type { TailoredInferred, TailoredOutput, FirstPostDraft } from '../lib/types.ts';
+import type {
+	AboutPageDraft,
+	TailoredInferred,
+	TailoredOutput,
+	FirstPostDraft,
+} from '../lib/types.ts';
 
 /**
  * A single enriched task: AI subtitle merged with the catalog's title,
@@ -46,13 +50,16 @@ export interface LaunchpadData {
 		payload: TailoredOutput;
 	} | null;
 	site?: SiteData;
+	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
+	wizard?: { goal?: string } | null;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
-export type CtaKind = 'first_post' | 'pattern_page' | 'launch' | 'deeplink';
+export type CtaKind = 'first_post' | 'about_page' | 'gallery_page' | 'launch' | 'deeplink';
 
 const FIRST_POST_TASK_IDS = [ 'first_post_published', 'first_post_published_newsletter' ];
-const PATTERN_PAGE_TASK_IDS = [ 'add_about_page', 'add_gallery_page' ];
+// Create-content kinds are actionable only when the AI output is present.
+const CREATE_CONTENT_KINDS: CtaKind[] = [ 'first_post', 'about_page', 'gallery_page' ];
 // Launch tasks with no catalog deeplink: they open the wordpress.com launch flow.
 const LAUNCH_TASK_IDS = [
 	'site_launched',
@@ -63,8 +70,9 @@ const LAUNCH_TASK_IDS = [
 
 /**
  * Resolve how a task's "Get started" CTA behaves: first-creation tasks draft a
- * post, page-creating tasks build a pattern page, launch tasks open the launch
- * flow, everything else deeplinks to the catalog's `calypso_path`.
+ * post, the About task writes the AI-drafted page, the gallery task builds a
+ * pattern page, launch tasks open the launch flow, everything else deeplinks to
+ * the catalog's `calypso_path`.
  *
  * @param taskId - The catalog task ID.
  * @return The CTA kind.
@@ -73,8 +81,11 @@ export function ctaKind( taskId: string ): CtaKind {
 	if ( FIRST_POST_TASK_IDS.includes( taskId ) ) {
 		return 'first_post';
 	}
-	if ( PATTERN_PAGE_TASK_IDS.includes( taskId ) ) {
-		return 'pattern_page';
+	if ( 'add_about_page' === taskId ) {
+		return 'about_page';
+	}
+	if ( 'add_gallery_page' === taskId ) {
+		return 'gallery_page';
 	}
 	if ( LAUNCH_TASK_IDS.includes( taskId ) ) {
 		return 'launch';
@@ -135,13 +146,15 @@ export function launchSiteUrl( siteUrl: string ): string | null {
  * be unit-tested without pulling `@wordpress/*` into the test runner.
  */
 export interface CtaHandlers {
-	trackTaskClicked: ( props: { task_id: string } ) => void;
+	trackTaskCtaClicked: ( props: { task_id: string } ) => void;
 	createFirstPostDraft: (
 		draft: FirstPostDraft
 	) => Promise< { post_id: number; edit_url: string } >;
-	createPatternPage: (
-		inferred: TailoredInferred,
-		variant?: PatternVariant
+	createAboutPage: (
+		draft: AboutPageDraft | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
+	createGalleryPage: (
+		inferred: TailoredInferred
 	) => Promise< { page_id: number; edit_url: string } >;
 }
 
@@ -183,7 +196,7 @@ export async function resolveCtaUrl(
 	handlers: CtaHandlers,
 	siteUrl: string | null = null
 ): Promise< string | null > {
-	handlers.trackTaskClicked( { task_id: task.id } );
+	handlers.trackTaskCtaClicked( { task_id: task.id } );
 
 	const kind = ctaKind( task.id );
 	let url: string | null;
@@ -192,9 +205,10 @@ export async function resolveCtaUrl(
 		url = task.calypso_path;
 	} else if ( kind === 'first_post' && output ) {
 		url = ( await handlers.createFirstPostDraft( output.first_post_draft ) ).edit_url;
-	} else if ( kind === 'pattern_page' && output ) {
-		const variant: PatternVariant = task.id === 'add_gallery_page' ? 'gallery' : 'about';
-		url = ( await handlers.createPatternPage( output.inferred, variant ) ).edit_url;
+	} else if ( kind === 'about_page' && output ) {
+		url = ( await handlers.createAboutPage( output.about_page_draft ) ).edit_url;
+	} else if ( kind === 'gallery_page' && output ) {
+		url = ( await handlers.createGalleryPage( output.inferred ) ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {
@@ -228,7 +242,7 @@ export function isTaskActionable(
 		return true;
 	}
 	const kind = ctaKind( task.id );
-	if ( ( kind === 'first_post' || kind === 'pattern_page' ) && output ) {
+	if ( CREATE_CONTENT_KINDS.includes( kind ) && output ) {
 		return true;
 	}
 	if ( kind === 'launch' ) {

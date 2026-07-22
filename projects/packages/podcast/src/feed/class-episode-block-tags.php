@@ -61,6 +61,9 @@ class Episode_Block_Tags {
 	 * First-wins: a post containing multiple `jetpack/podcast-episode` blocks
 	 * is semantically odd (one item = one episode) so we don't try to merge.
 	 *
+	 * The block can be nested inside layout blocks (Group, Columns, …), so we
+	 * search the full tree depth-first rather than only top-level results.
+	 *
 	 * @param WP_Post $post Episode post.
 	 * @return array<string, mixed>
 	 */
@@ -71,12 +74,33 @@ class Episode_Block_Tags {
 		if ( false === strpos( $post->post_content, '<!-- wp:jetpack/podcast-episode' ) ) {
 			return array();
 		}
-		foreach ( parse_blocks( $post->post_content ) as $block ) {
+		$block = self::find_episode_block( parse_blocks( $post->post_content ) );
+		if ( null === $block ) {
+			return array();
+		}
+		return isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+	}
+
+	/**
+	 * Depth-first search for the first `jetpack/podcast-episode` block, descending
+	 * into `innerBlocks` so nesting inside Group/Columns/etc. doesn't hide it.
+	 *
+	 * @param array $blocks Parsed blocks (from parse_blocks() or an innerBlocks array).
+	 * @return array<string, mixed>|null The matching block, or null if none found.
+	 */
+	private static function find_episode_block( array $blocks ): ?array {
+		foreach ( $blocks as $block ) {
 			if ( isset( $block['blockName'] ) && 'jetpack/podcast-episode' === $block['blockName'] ) {
-				return isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+				return $block;
+			}
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				$found = self::find_episode_block( $block['innerBlocks'] );
+				if ( null !== $found ) {
+					return $found;
+				}
 			}
 		}
-		return array();
+		return null;
 	}
 
 	/**
@@ -301,6 +325,18 @@ class Episode_Block_Tags {
 			} elseif ( ! empty( $alt['url'] ) ) {
 				$sources[] = (string) $alt['url'];
 			}
+
+			// Drop empty/malformed URIs so we never emit a blank <podcast:source>.
+			// Match the emit-side esc_url() rather than wp_http_validate_url(), which
+			// resolves DNS — we're printing a URI for clients, not fetching it.
+			$sources = array_values(
+				array_filter(
+					$sources,
+					static function ( $uri ) {
+						return '' !== esc_url_raw( (string) $uri );
+					}
+				)
+			);
 			if ( empty( $sources ) ) {
 				continue;
 			}

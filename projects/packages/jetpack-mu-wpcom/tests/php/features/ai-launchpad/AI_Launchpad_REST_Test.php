@@ -27,7 +27,6 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 add_filter( 'wpcom_ai_launchpad_tailoring_log_enabled', '__return_false' );
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WpOrg\Requests\Requests;
@@ -131,6 +130,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			'first_post_draft' => array(
 				'title'      => 'First steps on the trail',
 				'paragraphs' => array( 'First paragraph.', 'Second paragraph.' ),
+			),
+			'about_page_draft' => array(
+				'title'      => 'About',
+				'paragraphs' => array( 'Who writes this journal.', 'What readers will find here.' ),
 			),
 		);
 	}
@@ -271,10 +274,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that an unpublished AI-created first-post draft puts the newsletter first-post task "in progress": it's
-	 * detected through the first-post marker meta (not any latest draft), gets the drafts-aware "Continue writing"
-	 * title override, and reopens that draft. The marker query is short-circuited via `posts_pre_query` (WorDBless
-	 * can't run WP_Query).
+	 * Test that an unpublished AI-created first-post draft puts the first-post task "in progress": it's detected
+	 * through the first-post marker meta (not any latest draft), gets the drafts-aware "Continue" title override,
+	 * and reopens that draft. Seeds the `first_post_published_newsletter` id_map twin, which must render as the
+	 * canonical `first_post_published` with the in-progress treatment intact. The marker query is short-circuited
+	 * via `posts_pre_query` (WorDBless can't run WP_Query).
 	 */
 	public function test_get_marks_first_post_in_progress_with_marked_draft() {
 		wp_set_current_user( $this->admin_id );
@@ -283,7 +287,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$get_first_post = function () {
 			foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
-				if ( 'first_post_published_newsletter' === $task['id'] ) {
+				if ( 'first_post_published' === $task['id'] ) {
 					return $task;
 				}
 			}
@@ -312,7 +316,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$after = $get_first_post();
 		$this->assertNotNull( $after );
 		$this->assertTrue( $after['in_progress'] );
-		$this->assertSame( 'Continue writing your first post', $after['title'] );
+		$this->assertSame( 'Continue to write your first post', $after['title'] );
 		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $after['calypso_path'] );
 	}
 
@@ -380,9 +384,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A backfilled filler card must be skippable so it can never strand the launchpad, and GET must stay a read: it
-	 * must not rewrite the persisted AI output. The skip route accepts a backfilled id (via the pool allowlist), and
-	 * the persisted payload is untouched by the read.
+	 * A backfilled filler card must be skippable so it can never strand the launchpad, and GET must never rewrite
+	 * the persisted AI payload. (The read does add the `tracked_completed` analytics bookkeeping key to the
+	 * envelope — that's the completion-reporting baseline, not a payload mutation.) The skip route accepts a
+	 * backfilled id (via the pool allowlist).
 	 */
 	public function test_backfilled_task_is_skippable_and_get_does_not_mutate_ai_output() {
 		wp_set_current_user( $this->admin_id );
@@ -392,8 +397,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$rendered = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		$this->assertCount( 6, $rendered, 'the short list is backfilled to six' );
 
-		// GET is a pure read: the persisted AI output is unchanged.
-		$this->assertSame( $before, get_option( 'wpcom_ai_launchpad_ai_output' ) );
+		// The read must not rewrite the AI payload; only the analytics baseline key may appear.
+		$after = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertArrayHasKey( 'tracked_completed', $after );
+		unset( $after['tracked_completed'] );
+		$this->assertSame( $before, $after );
 
 		// A backfilled filler card (one not in the seeded AI list) can be skipped.
 		$backfilled = array_values( array_diff( $rendered, array( 'first_post_published', 'site_launched' ) ) );
@@ -554,6 +562,354 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Seeds a persisted wizard + AI output (Alpine Notes, write goal) so GET renders the six-task list.
+	 *
+	 * @param array $inferred_overrides Extra/overriding `inferred` fields for the payload.
+	 * @return void
+	 */
+	private function seed_tailored_site( $inferred_overrides = array() ) {
+		update_option(
+			'wpcom_ai_launchpad_wizard',
+			array(
+				'version'      => 1,
+				'goal'         => 'write',
+				'site_name'    => 'Alpine Notes',
+				'description'  => 'Personal blog about long-distance hiking in the Alps.',
+				'locale'       => 'en',
+				'generated_at' => 1717000000,
+			),
+			false
+		);
+
+		$payload             = self::valid_payload();
+		$payload['inferred'] = array_merge( $payload['inferred'], $inferred_overrides );
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => $payload,
+			),
+			false
+		);
+	}
+
+	/**
+	 * The captured event at an index. Exists so static analysis sees a typed read:
+	 * the capture array is filled by reference from a hook closure, which Phan
+	 * cannot track (it otherwise infers the array stays empty).
+	 *
+	 * @param array $events The captured events.
+	 * @param int   $index  The event index.
+	 * @return array{0: string, 1: array} The `[ name, props ]` pair.
+	 */
+	private static function captured_event( $events, $index = 0 ) {
+		return $events[ $index ];
+	}
+
+	/**
+	 * Starts capturing server-side analytics events via the observation action.
+	 *
+	 * @param array $events Reference to the array capture appends `[ name, props ]` pairs to.
+	 * @return callable The hooked callback, for `remove_action`.
+	 */
+	private function capture_tracks_events( &$events ) {
+		$callback = static function ( $name, $props ) use ( &$events ) {
+			$events[] = array( $name, $props );
+		};
+		add_action( 'wpcom_ai_launchpad_tracks_event', $callback, 10, 2 );
+		return $callback;
+	}
+
+	/**
+	 * Test that task completions are reported by diffing the rendered list on read: the first read baselines
+	 * born-completed tasks silently, a task that completes later is reported exactly once (with the shared
+	 * context props), and repeat reads report nothing new.
+	 */
+	public function test_task_completed_is_reported_once_via_diff_on_read() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site( array( 'niche' => 'hiking' ) );
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		// First read: no tracked_completed key yet, so it only baselines (nothing is completed here anyway).
+		$this->call_api( Requests::GET );
+		$this->assertSame( array(), $events );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( array(), $envelope['tracked_completed'] );
+
+		// A listener-style completion lands between reads.
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+		list( $name, $props ) = self::captured_event( $events );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', $name );
+		$this->assertSame( 'first_post_published', $props['task_id'] );
+		// The shared context rides along, populated from the persisted options.
+		$this->assertSame( 'write', $props['goal'] );
+		$this->assertSame( 'hiking', $props['niche'] );
+		// Null context values are omitted from the recorded event, never "null" strings.
+		$this->assertArrayNotHasKey( 'inferred_goal', $props );
+		$this->assertJson( $props['rendered_list'] );
+		$this->assertContains( 'first_post_published', json_decode( $props['rendered_list'], true ) );
+
+		// Reported ids persist inside the existing envelope — no new option.
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( array( 'first_post_published' ), $envelope['tracked_completed'] );
+
+		// A repeat read reports nothing new.
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that tasks completed before the first read are baselined silently: the user never triggered them,
+	 * so only completions that happen after the baseline are reported.
+	 */
+	public function test_born_completed_tasks_are_baselined_not_reported() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site();
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		$this->call_api( Requests::GET );
+		$this->assertSame( array(), $events );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( array( 'first_post_published' ), $envelope['tracked_completed'] );
+
+		update_option(
+			'launchpad_checklist_tasks_statuses',
+			array(
+				'first_post_published' => true,
+				'site_title'           => true,
+			)
+		);
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', self::captured_event( $events )[0] );
+		$this->assertSame( 'site_title', self::captured_event( $events )[1]['task_id'] );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that a skipped task renders as completed but is never reported as a completion — it already
+	 * emitted `task_skipped` client-side.
+	 */
+	public function test_skipped_tasks_are_never_reported_as_completed() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site();
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		$this->call_api( Requests::GET );
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_title' ) );
+		$this->assertSame( 200, $result->get_status() );
+		$this->call_api( Requests::GET );
+
+		$this->assertSame( array(), $events );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that finishing the list records all_tasks_completed exactly once, at the latch, after the final
+	 * task_completed report — and that skips count toward completion.
+	 */
+	public function test_all_tasks_completed_fires_once_at_the_latch() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_tailored_site();
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		// Baseline read, then skip everything except the first task.
+		$this->call_api( Requests::GET );
+		foreach ( array( 'design_edited', 'site_title', 'setup_free', 'site_theme_selected', 'site_launched' ) as $task_id ) {
+			$this->assertSame( 200, $this->call_api( 'POST', '/skip-task', array( 'task_id' => $task_id ) )->get_status() );
+		}
+		$this->assertSame( array(), $events );
+
+		// The last real completion finishes the list.
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+		$this->call_api( Requests::GET );
+
+		$names = array_column( $events, 0 );
+		$this->assertSame(
+			array( 'jetpack_ai_launchpad_task_completed', 'jetpack_ai_launchpad_all_tasks_completed' ),
+			$names
+		);
+
+		// The latch prevents a re-fire on later reads.
+		$this->call_api( Requests::GET );
+		$this->assertCount( 2, $events );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that PUT /tailored seeds the reported set with the fresh list's born-completed tasks: a re-tailor
+	 * re-baselines (in lockstep with the skip/completed option resets), a still-complete task is not re-reported
+	 * afterwards, and — because the baseline exists from birth — a completion landing before any GET is still
+	 * reported instead of being swallowed as baseline.
+	 */
+	public function test_update_tailored_baselines_the_born_completed_tasks() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array( 'first_post_published' ),
+			get_option( 'wpcom_ai_launchpad_ai_output' )['tracked_completed']
+		);
+		// The bookkeeping key is persisted only — responses stay clean of it, like GET.
+		$this->assertArrayNotHasKey( 'tracked_completed', $result->get_data()['ai_output'] );
+
+		$events   = array();
+		$callback = $this->capture_tracks_events( $events );
+
+		// The born-completed task is never reported; a completion that lands before any GET is.
+		update_option(
+			'launchpad_checklist_tasks_statuses',
+			array(
+				'first_post_published' => true,
+				'site_title'           => true,
+			)
+		);
+		$this->call_api( Requests::GET );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_ai_launchpad_task_completed', self::captured_event( $events )[0] );
+		$this->assertSame( 'site_title', self::captured_event( $events )[1]['task_id'] );
+
+		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * Test that PUT /tailored accepts the client's timing telemetry as query params and the tailored
+	 * Logstash record carries it (replacing the retired ai_response_received Tracks event).
+	 */
+	public function test_update_tailored_carries_timing_telemetry_into_the_log() {
+		wp_set_current_user( $this->admin_id );
+
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array(
+				'source'      => 'ai',
+				'duration_ms' => 4200,
+				'attempts'    => 2,
+			)
+		);
+		$this->assertSame( 200, $result->get_status() );
+
+		$builder  = new \ReflectionMethod( AI_Launchpad_REST::class, 'tailoring_log_extra' );
+		$captured = $builder->invoke(
+			new AI_Launchpad_REST(),
+			get_option( 'wpcom_ai_launchpad_ai_output' ),
+			array(),
+			4200,
+			2
+		);
+		$this->assertSame( 4200, $captured['duration_ms'] );
+		$this->assertSame( 2, $captured['attempts'] );
+
+		// Without telemetry the record keeps its original shape.
+		$captured = $builder->invoke( new AI_Launchpad_REST(), get_option( 'wpcom_ai_launchpad_ai_output' ), array() );
+		$this->assertArrayNotHasKey( 'duration_ms', $captured );
+		$this->assertArrayNotHasKey( 'attempts', $captured );
+
+		// The route's arg schema rejects out-of-range telemetry before the callback runs.
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload(), array( 'duration_ms' => -1 ) );
+		$this->assertSame( 400, $result->get_status() );
+	}
+
+	/**
+	 * Test that the schema accepts the analytics-only inferred_goal (persisting it into the envelope, where
+	 * the Tracks context readers find it) and rejects an out-of-enum value.
+	 */
+	public function test_update_tailored_accepts_inferred_goal_and_rejects_bad_enum() {
+		wp_set_current_user( $this->admin_id );
+
+		$payload                              = self::valid_payload();
+		$payload['inferred']['inferred_goal'] = 'portfolio';
+		$result                               = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( 'portfolio', $envelope['payload']['inferred']['inferred_goal'] );
+
+		$payload['inferred']['inferred_goal'] = 'cook';
+		$result                               = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 422, $result->get_status() );
+	}
+
+	/**
+	 * Test that PUT /tailored enforces the theme_category enum: a showcase subject slug
+	 * persists, anything else is rejected, so the read side can trust the stored value.
+	 */
+	public function test_update_tailored_accepts_theme_category_and_rejects_bad_enum() {
+		wp_set_current_user( $this->admin_id );
+
+		$payload                               = self::valid_payload();
+		$payload['inferred']['theme_category'] = 'travel-lifestyle';
+		$result                                = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( 'travel-lifestyle', $envelope['payload']['inferred']['theme_category'] );
+
+		$payload['inferred']['theme_category'] = 'hiking';
+		$result                                = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 422, $result->get_status() );
+	}
+
+	/**
+	 * Test the shared server-side Tracks context: all-null with no persisted state, populated from the
+	 * options once they exist, with the wizard goal as the pre-tailoring fallback.
+	 */
+	public function test_tracks_context_reads_the_persisted_options() {
+		$this->assertSame(
+			array(
+				'goal'           => null,
+				'niche'          => null,
+				'theme_category' => null,
+				'vibe'           => null,
+				'audience'       => null,
+				'rendered_list'  => null,
+				'inferred_goal'  => null,
+			),
+			wpcom_ai_launchpad_tracks_context()
+		);
+
+		// Wizard persisted, tailoring not yet: the wizard goal fills in.
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'sell' ), false );
+		$this->assertSame( 'sell', wpcom_ai_launchpad_tracks_context()['goal'] );
+
+		$this->seed_tailored_site(
+			array(
+				'niche'          => 'hiking',
+				'theme_category' => 'travel-lifestyle',
+				'inferred_goal'  => 'portfolio',
+			)
+		);
+		$context = wpcom_ai_launchpad_tracks_context( array( 'a', 'b' ) );
+		$this->assertSame( 'write', $context['goal'] );
+		$this->assertSame( 'hiking', $context['niche'] );
+		$this->assertSame( 'travel-lifestyle', $context['theme_category'] );
+		$this->assertSame( 'portfolio', $context['inferred_goal'] );
+		$this->assertNull( $context['vibe'] );
+		$this->assertSame( '["a","b"]', $context['rendered_list'] );
+	}
+
+	/**
 	 * Test that GET keeps add_10_email_subscribers even though its catalog
 	 * visibility callback (wpcom_launchpad_are_newsletter_subscriber_counts_available)
 	 * is false off WordPress.com: the AI Launchpad retrieves the subscriber count
@@ -656,14 +1012,12 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test that GET points the theme task at the Calypso themes showcase pre-filtered
-	 * by the AI-inferred niche, so the theme list feels relevant to what the user is
-	 * building. This overrides the plain wp-admin themes.php target, which can only
-	 * filter already-installed themes.
-	 *
-	 * The showcase search ANDs its terms, so a multi-word niche is reduced to its first
-	 * keyword — 'ceramics and pottery' matches no theme, but 'ceramics' does.
+	 * by the AI-inferred category, so the theme list feels relevant to what the user
+	 * is building. A category filter (unlike the free-text search used previously)
+	 * always surfaces free themes, and it overrides the plain wp-admin themes.php
+	 * target, which can only filter already-installed themes.
 	 */
-	public function test_get_filters_theme_ctas_by_inferred_niche() {
+	public function test_get_filters_theme_ctas_by_inferred_category() {
 		wp_set_current_user( $this->admin_id );
 
 		update_option(
@@ -684,8 +1038,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 						),
 					),
 					'inferred' => array(
-						'goal'  => 'build',
-						'niche' => 'ceramics and pottery',
+						'goal'           => 'build',
+						'theme_category' => 'art-design',
 					),
 				),
 			),
@@ -697,18 +1051,17 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		$expected = '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=ceramics';
-		$this->assertSame( $expected, $paths['site_theme_selected'] );
-		// A non-theme task is untouched by the niche filter.
+		$this->assertSame( '/themes/filter/art-design/' . rawurlencode( wpcom_get_site_slug() ), $paths['site_theme_selected'] );
+		// A non-theme task is untouched by the category filter.
 		$this->assertNull( $paths['site_launched'] );
 	}
 
 	/**
-	 * Test that when the AI supplied a dedicated theme_keyword, the theme CTAs search
-	 * by it instead of the first-word niche heuristic — "weekend hiking trips" should
-	 * surface hiking themes, not "weekend" ones.
+	 * Test that a theme_category outside the showcase's subject taxonomy (the envelope is
+	 * stored data, so read-side re-checks the allowlist) falls back to the unfiltered
+	 * showcase — never to the catalog CTA, which can resolve to wp-admin's themes.php.
 	 */
-	public function test_get_prefers_inferred_theme_keyword_for_theme_ctas() {
+	public function test_get_falls_back_to_plain_showcase_for_invalid_category() {
 		wp_set_current_user( $this->admin_id );
 
 		update_option(
@@ -729,9 +1082,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 						),
 					),
 					'inferred' => array(
-						'goal'          => 'write',
-						'niche'         => 'weekend hiking trips',
-						'theme_keyword' => 'hiking',
+						'goal'           => 'write',
+						'theme_category' => 'space-tourism',
 					),
 				),
 			),
@@ -743,82 +1095,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		$this->assertSame( '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=hiking', $paths['site_theme_selected'] );
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ), $paths['site_theme_selected'] );
 	}
 
 	/**
-	 * Test that a multi-word niche is reduced to a single search keyword: connective
-	 * words are dropped and the first meaningful keyword is kept, so the showcase's
-	 * term-ANDing search still returns matching themes.
-	 *
-	 * @dataProvider provider_niche_search_terms
-	 *
-	 * @param string $niche    The inferred niche.
-	 * @param string $expected The expected `?s=` search term.
+	 * Test that without an inferred category the theme task still lands on the themes
+	 * showcase (unfiltered), not the catalog CTA.
 	 */
-	#[DataProvider( 'provider_niche_search_terms' )]
-	public function test_get_reduces_multiword_niche_to_single_keyword( $niche, $expected ) {
+	public function test_get_points_theme_ctas_at_plain_showcase_without_category() {
 		wp_set_current_user( $this->admin_id );
-
-		update_option(
-			'wpcom_ai_launchpad_ai_output',
-			array(
-				'version'      => 1,
-				'source'       => 'ai',
-				'generated_at' => 1717000000,
-				'payload'      => array(
-					'tasks'    => array(
-						array(
-							'id'       => 'site_theme_selected',
-							'subtitle' => 'Pick a theme.',
-						),
-						array(
-							'id'       => 'site_launched',
-							'subtitle' => 'Go live.',
-						),
-					),
-					'inferred' => array(
-						'goal'  => 'build',
-						'niche' => $niche,
-					),
-				),
-			),
-			false
-		);
-
-		$path = null;
-		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
-			if ( 'site_theme_selected' === $task['id'] ) {
-				$path = $task['calypso_path'];
-			}
-		}
-
-		$this->assertSame( '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $expected ), $path );
-	}
-
-	/**
-	 * Niche → single search keyword expectations.
-	 *
-	 * @return array
-	 */
-	public static function provider_niche_search_terms() {
-		return array(
-			'strips "and" connective'      => array( 'ceramics and pottery', 'ceramics' ),
-			'keeps first of two subjects'  => array( 'photography and travel', 'photography' ),
-			'drops leading adjective-only' => array( 'handmade ceramics', 'handmade' ),
-			'drops ampersand connective'   => array( 'arts & crafts', 'arts' ),
-			'single word is unchanged'     => array( 'cooking', 'cooking' ),
-			'skips leading stop word'      => array( 'the great outdoors', 'great' ),
-		);
-	}
-
-	/**
-	 * Test that without an inferred niche the theme task keeps its catalog target, so
-	 * the showcase filter is purely additive.
-	 */
-	public function test_get_leaves_theme_ctas_unfiltered_without_niche() {
-		wp_set_current_user( $this->admin_id );
-		// seed_ai_output_with_tasks writes no `inferred` block, so there is no niche.
+		// seed_ai_output_with_tasks writes no `inferred` block, so there is no category.
 		$this->seed_ai_output_with_tasks( array( 'site_theme_selected', 'site_launched' ) );
 
 		$paths = array();
@@ -826,8 +1112,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		// The load_calypso_path branch keeps the catalog's default theme path.
-		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '#theme-selected', $paths['site_theme_selected'] );
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ), $paths['site_theme_selected'] );
 	}
 
 	/**
@@ -1221,8 +1506,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the Jetpack Social tasks are hidden on a private site, where wpcom
-	 * doesn't load the Social admin page their CTA points to.
+	 * Test that the Jetpack Social task is hidden on a private site, where wpcom
+	 * doesn't load the Social admin page its CTA points to. A persisted
+	 * `drive_traffic` (the id_map twin) folds into the same single card first.
 	 */
 	public function test_get_hides_social_tasks_on_private_site() {
 		wp_set_current_user( $this->admin_id );
@@ -1234,17 +1520,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			return array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		};
 
-		// Public site: the Social tasks show.
+		// Public site: one social card — the drive_traffic twin collapses into connect_social_media.
 		update_option( 'blog_public', '1' );
 		$public_ids = $ids();
 		$this->assertContains( 'connect_social_media', $public_ids );
-		$this->assertContains( 'drive_traffic', $public_ids );
+		$this->assertNotContains( 'drive_traffic', $public_ids );
 
-		// Private site: the Social tasks are gone, the rest remain.
+		// Private site: the Social task is gone, the rest remain.
 		update_option( 'blog_public', '-1' );
 		$private_ids = $ids();
 		$this->assertNotContains( 'connect_social_media', $private_ids );
-		$this->assertNotContains( 'drive_traffic', $private_ids );
 		$this->assertContains( 'first_post_published', $private_ids );
 
 		update_option( 'blog_public', '1' );
@@ -1266,6 +1551,26 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotContains( 'post_sharing_enabled', $ids );
 		$this->assertSame( 1, array_count_values( $ids )['connect_social_media'] );
+	}
+
+	/**
+	 * Test that persisted id_map twins render as the id the menu still offers:
+	 * `subscribers_added` as `import_subscribers` and `link_in_bio_launched` as
+	 * `site_launched`. A payload holding a twin and its target collapses to one card.
+	 */
+	public function test_get_remaps_id_map_twins_to_kept_ids() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks(
+			array( 'subscribers_added', 'first_post_published', 'link_in_bio_launched', 'videopress_launched', 'site_launched' )
+		);
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertNotContains( 'subscribers_added', $ids );
+		$this->assertContains( 'import_subscribers', $ids );
+		$this->assertNotContains( 'link_in_bio_launched', $ids );
+		$this->assertNotContains( 'videopress_launched', $ids );
+		$this->assertSame( 1, array_count_values( $ids )['site_launched'] );
 	}
 
 	/**

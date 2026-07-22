@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsSingleVideo, type StatsSingleVideoPage } from '@jetpack-premium-analytics/data';
+import {
+	useStatsSingleVideo,
+	toPostId,
+	type StatsSingleVideoPage,
+} from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
 	WidgetRoot,
@@ -24,21 +28,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type VideoDetailEmbedsRenderAttributes = VideoDetailEmbedsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type VideoDetailEmbedsWidgetProps = WidgetRenderProps< VideoDetailEmbedsRenderAttributes >;
-
-/**
- * Resolves the VideoPress post ID from the host-composed report params. The
- * `post_id` report param is typed `string | number`, so it is defensively
- * coerced to a positive integer; anything else yields `NaN`, which signals
- * "no video selected".
- *
- * @param postId - The `post_id` report param.
- * @return The video's post ID, or `NaN` when none is set.
- */
-function toVideoId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : NaN;
-}
 
 type VideoEmbedsListProps = {
 	/**
@@ -85,7 +74,7 @@ function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
  */
 function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
-	const videoId = toVideoId( reportParams.post_id );
+	const videoId = toPostId( reportParams.post_id );
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
 		videoId,
@@ -94,7 +83,7 @@ function VideoDetailEmbedsReport() {
 
 	let body;
 
-	if ( ! Number.isInteger( videoId ) ) {
+	if ( videoId <= 0 ) {
 		body = (
 			<ChartEmptyState
 				icon={ video }
@@ -111,7 +100,10 @@ function VideoDetailEmbedsReport() {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the pages visible; only surface the error
+				// when there is nothing to show.
+				isError={ pages.length === 0 && isError }
 				isEmpty={ pages.length === 0 }
 				error={ {
 					description: __(

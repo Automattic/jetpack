@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 import type { ORDER_ATTRIBUTION_VIEWS } from '../report-order-attribution-summary-fetch/report-order-attribution-summary-fetch';
@@ -67,10 +62,8 @@ export async function fetchReportOrderAttributionByProduct(
 		queryParams.filters = filters;
 	}
 
-	const path = addQueryArgs(
-		`${ reportsPath }/order-attribution-by-product/${ view }/summary`,
+	return fetchReport< OrderAttributionByProductResponse >(
+		`order-attribution-by-product/${ view }/summary`,
 		queryParams
 	);
-
-	return apiFetch< OrderAttributionByProductResponse >( { path } );
 }

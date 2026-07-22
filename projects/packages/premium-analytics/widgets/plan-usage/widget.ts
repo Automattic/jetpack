@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { percent } from '@wordpress/icons';
 
 /**
@@ -25,21 +24,7 @@ export type PlanUsageAttributes = Record< never, never >;
  * how billable views are counted and when an upgrade is needed.
  */
 export default {
-	name: 'jpa/plan-usage',
-	title: __( 'Plan usage', 'jetpack-premium-analytics' ),
 	icon: percent,
-	help: {
-		content: __(
-			"Billable views are your total views minus your two highest-traffic days each billing cycle, so big spikes won't count against your limit. You'll only need to upgrade if you exceed your limit for three cycles in a row.",
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/free-or-paid/',
-			},
-		],
-	},
 	attributes: [],
 	example: {
 		attributes: {},

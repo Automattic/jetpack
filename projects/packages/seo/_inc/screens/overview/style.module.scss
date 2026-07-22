@@ -1,0 +1,61 @@
+// Centered content column. Wider than the Settings tab (which is a single 660px
+// form column) because the Overview lays cards out side-by-side — matches the
+// My Jetpack page's content width.
+.root {
+	max-inline-size: 1128px;
+	margin-inline: auto;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+	align-items: stretch;
+}
+
+// Let each status card's content fill the equal-height grid row so its action
+// stays pinned to the bottom.
+.cardContent {
+	flex: 1 1 auto;
+}
+
+// A status row in the Site verification card: indicator + label on the left,
+// "Verified"/"Not set" on the right.
+.statRow {
+	padding-block: var(--wpds-dimension-gap-xs);
+}
+
+// Card action row (Manage button), pinned to the bottom-right of the card.
+.footer {
+	margin-block-start: auto;
+	padding-block-start: var(--wpds-dimension-gap-md);
+}
+
+// Content SEO card: factual coverage rings. An auto-fit grid (matching the
+// Overview card grid above) so the rings flow into as many columns as fit
+// (up to four) and stack down to a single column as the screen narrows —
+// rather than shrinking to share a single row at every width.
+.rings {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.ring {
+	text-align: center;
+	// Let the cell shrink below its content width so long labels wrap inside
+	// the grid track instead of forcing the column wider.
+	min-inline-size: 0;
+}
+
+// The Content SEO card sits below the two status cards, spanning the full
+// width of its own row. Margin matches the grid gap above it.
+.contentCard {
+	margin-block-start: var(--wpds-dimension-gap-lg);
+}
+
+// Low-emphasis "disable SEO tools" off-ramp at the foot of the Overview.
+.disable {
+	margin-block-start: var(--wpds-dimension-gap-lg);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

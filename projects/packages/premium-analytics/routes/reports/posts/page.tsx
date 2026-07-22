@@ -14,13 +14,20 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
+	buildCsvDateRangeFilename,
 	formatLegendLabels,
+	isCsvExportEnabled,
+	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	RowsCsvDownloadButton,
+	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -36,7 +43,6 @@ import {
 	usePostsReportRecords,
 	type ArchiveRow,
 } from './config';
-import styles from './page.module.css';
 
 // Every report is served by the single dynamic route, so route-level hooks read
 // from the shared `/reports/$report` path and navigations target it with the
@@ -45,6 +51,12 @@ const ROUTE_FROM = route.path;
 const REPORT_PARAMS = { report: 'posts' };
 const CHART_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly StatsPeriod[];
 type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
+
+type ReportCsvRow = {
+	title: string;
+	views: number;
+	url: string;
+};
 
 /**
  * Check whether a URL value is a supported chart period.
@@ -141,6 +153,7 @@ function PostsReport(): JSX.Element {
 		? search.period
 		: getDefaultChartPeriod( reportParams.interval );
 	const records = usePostsReportRecords( activeTab, reportParams, chartPeriod );
+	const retry = useReportRetry( records.refetch );
 
 	const postsFields = useMemo( () => getPostsFields(), [] );
 	const archivesFields = useMemo( () => getArchivesFields(), [] );
@@ -151,8 +164,44 @@ function PostsReport(): JSX.Element {
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	// The chart period is part of the report query, so changing it writes the
-	// URL (and re-fetches) rather than living in component state.
+	const csvColumns = useMemo< CsvColumn< ReportCsvRow >[] >(
+		() => [
+			{ key: 'title', label: __( 'Title', 'jetpack-premium-analytics' ) },
+			{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
+			{ key: 'url', label: __( 'URL', 'jetpack-premium-analytics' ) },
+		],
+		[]
+	);
+	const csvRows = useMemo< ReportCsvRow[] >( () => {
+		const rows =
+			activeTab === 'posts-pages'
+				? records.posts.rows.map( item => ( {
+						title: String( item.label ?? '' ),
+						views: item.views,
+						url: item.link ?? '',
+				  } ) )
+				: records.archives.rows.map( item => ( {
+						title: item.label,
+						views: item.views,
+						url: item.link ?? '',
+				  } ) );
+
+		return rows.sort( ( a, b ) => b.views - a.views );
+	}, [ activeTab, records.posts.rows, records.archives.rows ] );
+	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
+	const canExport =
+		isCsvExportEnabled() &&
+		csvRows.length > 0 &&
+		! activeRecords.isLoading &&
+		! activeRecords.isFetching &&
+		! activeRecords.isError;
+	const csvFilename = buildCsvDateRangeFilename(
+		activeTab === 'posts-pages' ? 'top-posts' : 'archives',
+		reportParams
+	);
+
+	// The chart period is written to the URL and applied to the daily report
+	// data client-side rather than living in component state.
 	const navigate = useNavigate();
 	const handleIntervalChange = useCallback(
 		( interval: IntervalType ) => {
@@ -188,7 +237,8 @@ function PostsReport(): JSX.Element {
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<Page
+		<ReportPageShell
+			tabbed
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
@@ -198,54 +248,72 @@ function PostsReport(): JSX.Element {
 				/>
 			}
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
-			className={ styles.page }
-		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-					filters={
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-					}
-				>
-					<ReportPerformanceChart
-						primary={ records.chart.primary }
-						comparison={ records.chart.comparison }
-						isLoading={ records.chart.isLoading }
-						metrics={ chartMetrics }
-						interval={ chartPeriod }
-						onIntervalChange={ handleIntervalChange }
-						legendLabels={ chartLegendLabels }
+			actions={
+				canExport ? (
+					<RowsCsvDownloadButton
+						label={ __( 'Download', 'jetpack-premium-analytics' ) }
+						variant="solid"
+						showIcon={ false }
+						columns={ csvColumns }
+						rows={ csvRows }
+						filename={ csvFilename }
 					/>
-					{ /*
-					 * Keyed by tab so the table's internal view state (sort,
-					 * search, page) resets when the records set changes.
-					 */ }
-					{ activeTab === 'posts-pages' ? (
-						<ReportRecordsTable< StatsTopPostsItem >
-							key="posts-pages"
-							data={ records.posts.rows }
-							fields={ postsFields }
-							getItemId={ getPostRowId }
-							isLoading={ records.posts.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+				) : undefined
+			}
+		>
+			<ReportPageLayout
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+				filters={
+					<div ref={ setContainerElement }>
+						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+					</div>
+				}
+			>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load posts', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<>
+						<ReportPerformanceChart
+							primary={ records.chart.primary }
+							comparison={ records.chart.comparison }
+							isLoading={ records.chart.isLoading }
+							metrics={ chartMetrics }
+							interval={ chartPeriod }
+							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
 						/>
-					) : (
-						<ReportRecordsTable
-							key="archives"
-							data={ records.archives.rows }
-							fields={ archivesFields }
-							getItemId={ getArchiveRowId }
-							isLoading={ records.archives.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
-						/>
-					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+						{ /*
+						 * Keyed by tab so the table's internal view state (sort,
+						 * search, page) resets when the records set changes.
+						 */ }
+						{ activeTab === 'posts-pages' ? (
+							<ReportRecordsTable< StatsTopPostsItem >
+								key="posts-pages"
+								data={ records.posts.rows }
+								fields={ postsFields }
+								getItemId={ getPostRowId }
+								isLoading={ records.posts.isLoading }
+								initialView={ RECORDS_VIEW }
+								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+							/>
+						) : (
+							<ReportRecordsTable
+								key="archives"
+								data={ records.archives.rows }
+								fields={ archivesFields }
+								getItemId={ getArchiveRowId }
+								isLoading={ records.archives.isLoading }
+								initialView={ RECORDS_VIEW }
+								searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
+							/>
+						) }
+					</>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 
