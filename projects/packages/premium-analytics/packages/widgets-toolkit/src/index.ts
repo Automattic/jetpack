@@ -123,6 +123,7 @@ export {
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	describeError,
 } from './helpers';
 
 /**

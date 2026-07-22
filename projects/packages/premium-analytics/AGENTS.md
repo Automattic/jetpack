@@ -532,7 +532,9 @@ the query factory — do not do it in the widget or the view hook.
 
 Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
-data/view hook's result to its four signals and pass generic descriptors:
+data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
+shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
+while other failures offer Retry:
 
 ```tsx
 <WidgetState
@@ -541,10 +543,10 @@ data/view hook's result to its four signals and pass generic descriptors:
 	isEmpty={ data.length === 0 }
 	// isFetching is optional: a background refetch shows a non-blocking busy overlay
 	// over the existing rows instead of hiding them.
-	error={ {
-		description: __( "We couldn't load this data. Please try again in a moment.", 'jetpack-premium-analytics' ),
-		actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-	} }
+	error={ describeError( error, {
+		subject: __( 'search term data', 'jetpack-premium-analytics' ),
+		onRetry: refetch,
+	} ) }
 	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ) } }
 >
 	<LeaderboardChart … />
@@ -566,8 +568,8 @@ data/view hook's result to its four signals and pass generic descriptors:
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
 > migrated to `<WidgetState>` — follow the contract above, not those widgets.
-> `widgets/search-terms/render.tsx` is the reference. (A `describeError` mapper and a
-> `ReportWidget` wrapper that remove the per-widget error/retry boilerplate are planned follow-ups.)
+> `widgets/search-terms/render.tsx` is the reference. (A `ReportWidget` wrapper that removes the
+> remaining per-widget state boilerplate is a planned follow-up.)
 
 **Comparison data**
 
