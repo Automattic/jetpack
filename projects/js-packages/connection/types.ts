@@ -53,9 +53,8 @@ export type ConnectionScriptData = {
 	siteSuffix: string;
 	connectionErrors: Array< string | object >;
 	isOfflineMode: boolean;
-	currentUserId: number;
-	isCurrentUserConnectionOwner: boolean;
 	isOwnershipTransferable: boolean;
+	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
 	connectionOwner: {
 		id: number;
 		displayName: string;

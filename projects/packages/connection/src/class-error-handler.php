@@ -218,89 +218,97 @@ class Error_Handler {
 		$verified_errors    = $this->get_verified_errors();
 		$displayable_errors = array();
 
-		// Only process error codes that are meant to be displayed to users.
-		// `no_user_tokens` is deliberately excluded: with an empty user_tokens option the
-		// site already behaves as site-only connected, and the connection UI prompts users
-		// to connect their accounts. The owner flavor is covered by `invalid_connection_owner`.
-		$displayable_error_codes = array(
-			'malformed_token',
-			'token_malformed',
-			'no_possible_tokens',
-			'no_valid_user_token',
-			'no_valid_blog_token',
-			'unknown_token',
-			'could_not_sign',
-			'invalid_token',
-			'token_mismatch',
-			'invalid_signature',
-			'signature_mismatch',
-			'no_token_for_user',
-			'invalid_connection_owner',
-		);
+		// The common case is zero verified errors: skip the owner/transferability
+		// lookups entirely then. The external filter below still runs so consumers
+		// (e.g. wpcomsh) can inject errors into an empty set.
+		if ( ! empty( $verified_errors ) ) {
+			// Only process error codes that are meant to be displayed to users.
+			// `no_user_tokens` is deliberately excluded: with an empty user_tokens option the
+			// site already behaves as site-only connected, and the connection UI prompts users
+			// to connect their accounts. The owner flavor is covered by `invalid_connection_owner`.
+			$displayable_error_codes = array(
+				'malformed_token',
+				'token_malformed',
+				'no_possible_tokens',
+				'no_valid_user_token',
+				'no_valid_blog_token',
+				'unknown_token',
+				'could_not_sign',
+				'invalid_token',
+				'token_mismatch',
+				'invalid_signature',
+				'signature_mismatch',
+				'no_token_for_user',
+				'invalid_connection_owner',
+			);
 
-		$manager         = new Manager();
-		$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
-		$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
-		$is_transferable = $manager->is_ownership_transferable();
+			$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
+			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
+			$is_transferable = ( new Manager() )->is_ownership_transferable();
 
-		$generic_message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
-
-		foreach ( $verified_errors as $error_code => $users ) {
-			// Skip error codes that are not meant to be displayed
-			if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
-				continue;
-			}
-
-			foreach ( $users as $user_id => $error ) {
-				// An error that cannot be attributed to the blog token or to any user's
-				// token belongs to no audience and is not actionable by any viewer.
-				if ( 'invalid' === $user_id ) {
+			foreach ( $verified_errors as $error_code => $users ) {
+				// Skip error codes that are not meant to be displayed
+				if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
 					continue;
 				}
 
-				$audience = $this->classify_error_audience( $user_id, $owner_id );
+				foreach ( $users as $user_id => $error ) {
+					// An error that cannot be attributed to the blog token or to any user's
+					// token belongs to no audience and is not actionable by any viewer.
+					if ( 'invalid' === $user_id ) {
+						continue;
+					}
 
-				$message = $generic_message;
-				$action  = null;
+					$audience = $this->classify_error_audience( $user_id, $owner_id );
 
-				// A secondary admin looking at the connection owner's token error, on a
-				// site where ownership is locked (a consumer declared it non-transferable).
-				// This admin cannot resolve the error themselves, so surface an
-				// informational notice naming the owner and offer no reconnect CTA.
-				if ( 'owner' === $audience && ! $viewer_is_owner && ! $is_transferable ) {
-					// Resolve the owner's name from the local user so we avoid calling
-					// get_connection_owner() (which re-reports the error) and still get a
-					// name when the owner's WordPress.com account cannot be resolved.
-					$owner      = $owner_id > 0 ? get_userdata( $owner_id ) : false;
-					$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
+					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
+					$action  = null;
 
-					$message = $owner_name
-						? sprintf(
-							/* translators: %s is the display name of the Jetpack connection owner. */
-							__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
-							$owner_name
-						)
-						: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
-					$action = 'none';
+					// A secondary admin looking at the connection owner's token error, on a
+					// site where ownership is locked (a consumer declared it non-transferable).
+					// This admin cannot resolve the error themselves, so surface an
+					// informational notice naming the owner and offer no reconnect CTA.
+					if ( 'owner' === $audience && ! $viewer_is_owner && ! $is_transferable ) {
+						// Only name the owner for viewers who can act on connection issues:
+						// this output is also printed into the initial state for
+						// lower-capability users (e.g. contributors in the editor), who
+						// shouldn't learn who owns the connection. The name is resolved from
+						// the local user rather than get_connection_owner(), which
+						// re-reports the error and fails exactly when the token is broken.
+						$owner_name = '';
+						if ( current_user_can( 'jetpack_connect' ) ) {
+							$owner      = get_userdata( $owner_id );
+							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
+						}
+
+						$message = $owner_name
+							? sprintf(
+								/* translators: %s is the display name of the Jetpack connection owner. */
+								__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
+								$owner_name
+							)
+							: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+						$action = 'none';
+					}
+
+					$error['audience']      = $audience;
+					$error['error_message'] = $message;
+
+					// Only emit error_data.action when it deviates from the default. Readers
+					// already fall back to the reconnect CTA when no action is set, and
+					// injecting an explicit 'reconnect' could trip consumer code paths
+					// reserved for custom actions.
+					if ( null !== $action ) {
+						$error_data           = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
+						$error_data['action'] = $action;
+						$error['error_data']  = $error_data;
+					}
+
+					if ( ! isset( $displayable_errors[ $error_code ] ) ) {
+						$displayable_errors[ $error_code ] = array();
+					}
+					$displayable_errors[ $error_code ][ $user_id ] = $error;
 				}
-
-				$error['audience']      = $audience;
-				$error['error_message'] = $message;
-
-				// Only emit error_data.action when it deviates from the default. Readers
-				// already fall back to the reconnect CTA when no action is set, and
-				// injecting an explicit 'reconnect' could trip consumer code paths
-				// reserved for custom actions.
-				if ( null !== $action ) {
-					$error_data           = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
-					$error_data['action'] = $action;
-					$error['error_data']  = $error_data;
-				}
-
-				if ( ! isset( $displayable_errors[ $error_code ] ) ) {
-					$displayable_errors[ $error_code ] = array();
-				}
-				$displayable_errors[ $error_code ][ $user_id ] = $error;
 			}
 		}
 

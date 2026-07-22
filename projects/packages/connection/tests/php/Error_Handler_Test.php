@@ -1792,7 +1792,9 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertIsInt( $owner_id );
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
 
-		// Act as a secondary admin (a different user than the owner).
+		// Act as a secondary admin (a different user than the owner) who can act on
+		// connection issues (the mapped jetpack_connect capability is not set up in
+		// tests, so grant it directly).
 		$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'secondary_admin',
@@ -1801,6 +1803,7 @@ class Error_Handler_Test extends BaseTestCase {
 				'role'       => 'administrator',
 			)
 		);
+		get_user_by( 'id', $admin_id )->add_cap( 'jetpack_connect' );
 		wp_set_current_user( $admin_id );
 
 		// Lock ownership.
@@ -1835,6 +1838,56 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
 		$this->assertStringContainsString( 'Owner Person', $displayed['error_message'], 'The informational notice names the local connection owner.' );
 		$this->assertFalse( $displayed['error_data']['has_user_token'], 'has_user_token is preserved so display code can distinguish a missing token from a deleted owner user.' );
+	}
+
+	/**
+	 * Test that the owner's display name is not exposed to viewers who cannot act on
+	 * connection issues (no jetpack_connect capability): displayable errors are printed
+	 * into the initial state for any logged-in user loading connection scripts.
+	 */
+	public function test_get_displayable_errors_hides_owner_name_without_capability() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connection_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'connection_owner@example.org',
+				'display_name' => 'Owner Person',
+				'role'         => 'administrator',
+			)
+		);
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		// Act as a viewer without the jetpack_connect capability (e.g. a contributor).
+		$contributor_id = wp_insert_user(
+			array(
+				'user_login' => 'contributor_viewer',
+				'user_pass'  => 'password',
+				'user_email' => 'contributor_viewer@example.org',
+				'role'       => 'contributor',
+			)
+		);
+		wp_set_current_user( $contributor_id );
+
+		// Lock ownership so the informational branch (the only one naming the owner) runs.
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		$error = array(
+			'error_code'    => 'no_valid_user_token',
+			'user_id'       => (string) $owner_id,
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_owner',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
+		$this->assertSame( 'none', $displayed['error_data']['action'] );
+		$this->assertStringNotContainsString( 'Owner Person', $displayed['error_message'], 'The owner name must not be exposed to low-capability viewers.' );
+		$this->assertStringContainsString( 'reconnect their WordPress.com account', $displayed['error_message'], 'The nameless informational variant is used instead.' );
 	}
 
 	/**
