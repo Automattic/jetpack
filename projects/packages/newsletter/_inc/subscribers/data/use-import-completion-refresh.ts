@@ -46,10 +46,10 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
 		return {
 			status: 'success',
 			message: sprintf(
-				// translators: %1$d: subscribers imported. %2$d: addresses that couldn't be added.
+				// translators: %1$d: subscribers imported. %2$d: email addresses that couldn't be added.
 				_n(
-					'Imported %1$d subscriber. %2$d address couldn’t be added — check your import confirmation email for details.',
-					'Imported %1$d subscribers. %2$d addresses couldn’t be added — check your import confirmation email for details.',
+					'Imported %1$d subscriber. %2$d email address couldn’t be added — check your import confirmation email for details.',
+					'Imported %1$d subscribers. %2$d email addresses couldn’t be added — check your import confirmation email for details.',
 					subscribed,
 					'jetpack-newsletter'
 				),
@@ -79,10 +79,10 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
 		return {
 			status: 'success',
 			message: sprintf(
-				// translators: %d: number of addresses that were already subscribed.
+				// translators: %d: number of email addresses that were already subscribed.
 				_n(
-					'%d address was already subscribed.',
-					'%d addresses were already subscribed.',
+					'%d email address is already subscribed.',
+					'%d email addresses are already subscribed.',
 					already,
 					'jetpack-newsletter'
 				),
