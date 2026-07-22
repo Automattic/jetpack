@@ -32,18 +32,20 @@ PRs that have no beta build. All WP-CLI runs over the password-auth transport in
 ## Composition
 
 ```
-jetpack-test-jurassic-ninja (provision-only)   → fresh connected JN site
+jetpack-test-jurassic-ninja (provision-only, +jetpack-beta)   → fresh connected JN site
       ↓
 this skill: wp jetpack-beta activate <plugin> <PR-branch>   (rsync fallback if no build)
       ↓
 this skill: apply feature-state setup from the Testing Instructions
-            · flags / options  → mu-plugin        [AUTONOMOUS — reversible, throwaway site]
-            · plan / product   → WPCOM blog sticker [CONFIRM-FIRST — mutates real WPCOM by blog ID]
+            · flags / options  → mu-plugin                   [AUTONOMOUS — throwaway site]
+            · plan / product    → local jetpack_active_plan override  [AUTONOMOUS — default]
+                                  ↳ real WPCOM blog sticker   [CONFIRM-FIRST — only if server-enforced]
       ↓
 this skill: locate the UI entry point → hand off to jetpack-screenshot
 ```
 
-**v1 scope:** feature flags/options and plan-via-blog-sticker only. **Out of scope for v1:**
+**v1 scope:** feature flags/options and plan/product state (local override, or real sticker).
+**Out of scope for v1:**
 establishing a required social/OAuth *connection* (e.g. a Publicize account link), and
 pointing the JN site's API traffic at a WPCOM sandbox. If the Testing Instructions require
 either, apply everything else, then report the remaining precondition as a clearly-labelled
@@ -90,9 +92,17 @@ Run `jetpack-test-jurassic-ninja` in **`provision-only`** mode — a fresh, Jetp
 site is all we need; there's nothing to rsync. Follow that skill for the MCP calls; the
 essentials:
 
-- `jurassic-ninja / provision-site` with `features: {"jetpack": "true"}`.
+- `jurassic-ninja / provision-site` with the **Jetpack Beta feature enabled**, so the site
+  comes up with the Jetpack Beta Tester plugin already installed — no installing it from a
+  GitHub zip later (it isn't on WP.org). Pass `features: {"jetpack": "true", "jetpack-beta":
+  "true"}`. (`jetpack-beta` is the JN "Jetpack Beta" advanced option; confirm the exact key
+  against the provider's `provision-site` schema if it errors. `jetpack-social` is available
+  the same way when a PR wants the Social plugin specifically.)
 - Poll `list-sites` (`include_config:false`) until `status == 2` (cap ~3 min).
-- `connect-jetpack` (domain). **Capture the `blog_id`** — the blog-sticker step needs it.
+- `connect-jetpack` (domain). **Capture the `blog_id`** and the **admin credentials**
+  (`list-sites` with `include_config:true, include_passwords:true` returns the wp-admin
+  user + password) — the report in step 7 must hand these back so the user can reach
+  `/wp-admin`.
 
 A brand-new install matters: it makes gates like `jetpack_seo_surface_visible` seed to `true`
 (see step 4), so the flag alone is usually enough.
@@ -155,11 +165,14 @@ browser-driven Beta Tester UI exists to cover.
   plugin → **ask** which to activate.
 
 **Ensure the Beta plugin is present, then activate** — every call via the `jnwp` transport
-from step 1b:
+from step 1b. If step 1 provisioned with `jetpack-beta`, the plugin is already installed and
+this is just an activate + confirm; the `wp plugin install` is a fallback for sites that
+weren't provisioned with the feature (it pulls the GitHub release zip, since jetpack-beta
+isn't on WP.org):
 
 ```bash
-jnwp 'wp plugin is-installed jetpack-beta || wp plugin install jetpack-beta --activate'
-jnwp 'wp plugin activate jetpack-beta'
+jnwp 'wp plugin is-active jetpack-beta || wp plugin activate jetpack-beta 2>/dev/null || \
+      wp plugin install https://github.com/Automattic/jetpack-beta/releases/latest/download/jetpack-beta.zip --activate'
 jnwp 'wp jetpack-beta list <plugin>'                 # confirm the PR branch appears
 ```
 
@@ -229,33 +242,66 @@ check the default first. Run every `wp …` in this step (and steps 5–6) throu
 After applying, confirm the target surface is reachable (e.g. `wp option get …`, or reload the
 autologin URL and check the menu/route the PR touches).
 
-### 5. Apply plan / product state via a WPCOM blog sticker — CONFIRM-FIRST
+### 5. Apply plan / product state
 
 Some features gate on a paid plan or a rollout sticker (e.g. Social message templates), not on
-a self-hosted flag. These are granted by setting a **blog sticker on the site's blog ID**,
-which runs against **live WPCOM** and needs a WPCOM sandbox shell — the JN site can't set its
-own sticker.
+a self-hosted flag. There are two ways to grant them; **default to 5a** — it's autonomous,
+needs nothing outside the JN site, and is enough for reviewing the UI, which is what most PR
+testing is. Fall back to 5b only when you need server-enforced behavior.
 
-Because this mutates real infrastructure keyed by blog ID, follow the confirm-first rule
-strictly:
+#### 5a. Local plan override on the JN site — AUTONOMOUS (default)
 
-1. **Determine the exact sticker name** for the feature — do not guess it. Sticker names live
-   in wpcom, not this repo. Find it via `context-a8c` (search wpcom/GitHub for the feature and
-   its sticker), or from the PR's own instructions if they name it.
-2. **Verify the current plan/feature state** on the site first, so you don't set a sticker
-   that's already effective:
-   ```bash
-   jnwp 'wp eval "var_export( Automattic\\Jetpack\\Current_Plan::supports( \"<feature>\" ) );"'
-   ```
-3. **Present the exact command and blog ID for explicit approval** — do not run it yourself
-   from here; the sticker is set from the user's authorized WPCOM sandbox session:
+Plan gates resolve locally against the **`jetpack_active_plan` option**: `Current_Plan::get()`
+reads it, `Current_Plan::supports( $feature )` checks `$plan['features']['active']`, and the
+editor's `siteHasFeature( … )` reads the very same array (it's injected verbatim into script
+data). So adding the feature slug to that option's `features.active` on the site itself flips
+every client-side gate — no WPCOM sandbox, no sticker, no blog ID. Do it with a mu-plugin so a
+later plan refresh can't clobber it:
+
+```bash
+jnwp 'cat > wp-content/mu-plugins/0-pr-test-plan.php <<PHP
+<?php
+// Local plan override for PR <PR> — added by jetpack-pr-test-setup.
+add_filter( "option_jetpack_active_plan", function ( \$plan ) {
+    if ( ! is_array( \$plan ) ) { \$plan = array(); }
+    if ( empty( \$plan["features"]["active"] ) || ! is_array( \$plan["features"]["active"] ) ) {
+        \$plan["features"]["active"] = array();
+    }
+    foreach ( array( "<feature-slug>" ) as \$f ) {           // e.g. social-message-templates
+        if ( ! in_array( \$f, \$plan["features"]["active"], true ) ) {
+            \$plan["features"]["active"][] = \$f;
+        }
+    }
+    return \$plan;
+} );
+PHP'
+```
+
+Verify: `jnwp 'wp eval "var_export( Automattic\\Jetpack\\Current_Plan::supports( \"<feature-slug>\" ) );"'`
+should print `true`. Find the exact slug from the PR (the gate reads `social-<feature>` in
+places, e.g. `social-message-templates`).
+
+**Limit:** this only convinces *this site's client code* it has the feature. Actions that call
+WPCOM and are enforced server-side (actually rendering/sending a templated message) may still
+require the real sticker — use 5b for those.
+
+#### 5b. Real WPCOM blog sticker — CONFIRM-FIRST (only when 5a isn't enough)
+
+The sticker lives on **WPCOM**, not the site — `wp blog-stickers` is a WPCOM-only command that
+writes to WPCOM's blog table, so it **cannot** run from the JN site's own SSH (its wp-cli has no
+such command and no access). It has to be set from an authorized **WPCOM sandbox** session, and
+it mutates live infrastructure keyed by blog ID, so:
+
+1. **Determine the exact sticker name** — don't guess it. Find it via `context-a8c` (search
+   wpcom/GitHub for the feature) or from the PR's instructions.
+2. **Present the exact command + blog ID for explicit approval** — you run nothing here:
 
    > On your WPCOM sandbox, grant the sticker for **blog ID `<blog_id>`**:
-   > `<the exact add-blog-sticker invocation, with <blog_id> filled in>`
-   > Confirm this is the right blog ID before running — stickers are set by ID against real WPCOM.
+   > `wp blog-stickers add --sticker=<sticker> --blog_id=<blog_id> --who=<your-wpcom-username>`
+   > (`--who` is required for the audit log; if the sandbox rejects the write, run
+   > `bin/allow-sandbox-production-writes` first.) Double-check the blog ID before running.
 
-4. After the user confirms it's set, re-check `Current_Plan::supports( … )` to confirm the
-   feature is now active before moving on.
+3. After the user confirms, re-check `Current_Plan::supports( … )` (with a refresh) to confirm.
 
 ### 6. Locate the UI entry point and hand off
 
@@ -276,11 +322,18 @@ Concise final report:
 - JN domain, `blog_id`, Jetpack connection status.
 - How the code was delivered: **Beta Tester `<plugin>@<branch>`** (or "rsync fallback — no beta
   build").
-- Setup applied: each flag/option set (✓), and the sticker status (set / **awaiting your
-  confirmation** / not needed).
+- Setup applied: each flag/option set (✓), and the plan state (local override applied / real
+  sticker **awaiting your confirmation** / not needed).
 - Any **out-of-v1-scope precondition** left for the user (a required connection, or sandbox
   pointing), clearly labelled as manual.
-- **The autologin link: `https://<domain>/?auto_login`** and the exact page/route to review.
+- **How to reach the site — always include all three, testing happens in wp-admin:**
+  - Autologin link: `https://<domain>/?auto_login` (one-shot; may not work in a browser other
+    than the one that opened it).
+  - **wp-admin credentials** so the user can log in directly regardless:
+    `https://<domain>/wp-admin/` — user **`<wp_user>`**, password **`<wp_password>`** (the pair
+    captured from `list-sites` in step 1). Print them; without wp-admin access the whole setup
+    is useless.
+  - The exact page/route the PR surfaces.
 - JN sites expire after 7 days of inactivity.
 
 ## Notes
@@ -288,9 +341,12 @@ Concise final report:
 - SSH key auth does not work on JN hosts — always authenticate WP-CLI with the per-site
   password via the step-1b `jnwp` transport (keys off, proxy off). Never `BatchMode=yes` a
   key probe; it just wastes a round trip on a method that can't succeed here.
-- Never print the JN site password back to the user, even though the transport uses it.
+- **Do** hand the user the site's wp-admin user + password in the final report — it's a
+  disposable, self-owned test site and admin access is the point of the whole run. (Still
+  don't paste it into anything external or shared.)
 - Prefer Beta Tester; reach for rsync only when no branch build exists.
 - Don't set `jetpack_seo_surface_visible` (or any option) unconditionally — check the default
   first; fresh installs usually already satisfy the second gate.
-- A blog sticker is the one step that leaves the throwaway site and touches real WPCOM — it is
-  always confirm-first, never autonomous.
+- Plan/product gates: prefer the local `jetpack_active_plan` override (5a, autonomous) for UI
+  testing; the real WPCOM blog sticker (5b) is confirm-first and only for server-enforced
+  behavior — it's the one step that leaves the throwaway site and touches real WPCOM.
