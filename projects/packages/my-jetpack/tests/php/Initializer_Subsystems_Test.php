@@ -12,6 +12,7 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\ExPlat\REST_Controller as ExPlat_REST_Controller;
 use Automattic\Jetpack\Licensing;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -274,26 +275,15 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Each of the five thin gate-and-delegate wrappers must wire its own subsystem and
-	 * nothing else. init() calls the private load_*() bodies directly, so the public
-	 * wrapper-to-loader mapping for these five is otherwise never exercised: a copy/paste
-	 * bug such as init_explat() delegating to load_jitm() would pass the whole suite.
+	 * Each subsystem the five thin gate-and-delegate wrappers own, keyed by the wrapper's
+	 * subsystem key. The `init` callable is the public wrapper; the `check` closure returns
+	 * the has_action()/has_filter() result for that subsystem's distinctive hook. Shared by
+	 * the mapping test and its data provider so the two never drift.
 	 *
-	 * Runs in a separate process so a prior test class's Initializer::init() cannot make
-	 * the "hook absent before the call" precondition flaky. That aggregate call leaks a
-	 * priority-20 plugin_action_links filter and trips the ExPlat/JITM did_action() guards
-	 * into process-wide state that reset_initializer_state() cannot clean, which is why an
-	 * in-process version of this test failed under reverse/random ordering. A fresh process
-	 * starts from a pristine hook table and unfired action guards, so the mapping assertions
-	 * are order-independent.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * @return array<string, array{init: callable, check: callable}>
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_thin_wrappers_each_wire_only_their_own_subsystem() {
-		$cases = array(
+	private static function thin_wrapper_cases() {
+		return array(
 			'plugins_action_links' => array(
 				'init'  => array( Initializer::class, 'init_plugins_action_links' ),
 				'check' => static function () {
@@ -325,12 +315,67 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 				},
 			),
 		);
+	}
 
-		foreach ( $cases as $subsystem => $case ) {
-			$this->assertFalse( $case['check'](), "init_$subsystem: hook was present before the call." );
-			call_user_func( $case['init'] );
-			$this->assertNotFalse( $case['check'](), "init_$subsystem: did not wire its subsystem." );
-			$this->assertSame( 0, did_action( 'my_jetpack_init' ), "init_$subsystem: must not fire my_jetpack_init." );
+	/**
+	 * One serializable subsystem key per thin wrapper. Data-provider values must be
+	 * serializable, so this yields the keys only; the test rebuilds the callables from
+	 * thin_wrapper_cases().
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function thin_wrapper_provider() {
+		$data = array();
+		foreach ( array_keys( self::thin_wrapper_cases() ) as $subsystem ) {
+			$data[ $subsystem ] = array( $subsystem );
 		}
+		return $data;
+	}
+
+	/**
+	 * Each of the five thin gate-and-delegate wrappers must wire its own subsystem and
+	 * nothing else. init() calls the private load_*() bodies directly, so the public
+	 * wrapper-to-loader mapping for these five is otherwise never exercised: a copy/paste
+	 * bug such as init_explat() delegating to load_jitm() would pass the whole suite.
+	 *
+	 * Runs one fresh process per case (data provider + separate process) for two reasons.
+	 * First, isolation from other classes: a prior test class's Initializer::init() leaks a
+	 * priority-20 plugin_action_links filter and trips the ExPlat/JITM did_action() guards
+	 * into process-wide state that reset_initializer_state() cannot clean, which is why an
+	 * in-process version of this test failed under reverse/random ordering. Second, isolation
+	 * between cases: because each wrapper runs alone in a pristine process, the test can assert
+	 * that every *other* subsystem's hook stays absent -- catching a wrapper that wires its own
+	 * subsystem plus an extra one (e.g. init_jetpack_manage() also calling load_explat()), which
+	 * a single shared process cannot detect once an earlier case has registered that hook.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider thin_wrapper_provider
+	 *
+	 * @param string $subsystem Subsystem key under test.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'thin_wrapper_provider' )]
+	public function test_thin_wrapper_wires_only_its_own_subsystem( $subsystem ) {
+		$cases = self::thin_wrapper_cases();
+
+		// Fresh process: every subsystem hook starts absent.
+		foreach ( $cases as $name => $case ) {
+			$this->assertFalse( $case['check'](), "init_$subsystem: the $name hook was present before any wrapper ran." );
+		}
+
+		call_user_func( $cases[ $subsystem ]['init'] );
+
+		// Exactly the target subsystem is wired; every other one stays absent.
+		foreach ( $cases as $name => $case ) {
+			if ( $name === $subsystem ) {
+				$this->assertNotFalse( $case['check'](), "init_$subsystem: did not wire its own subsystem." );
+			} else {
+				$this->assertFalse( $case['check'](), "init_$subsystem: must not wire the $name subsystem." );
+			}
+		}
+
+		$this->assertSame( 0, did_action( 'my_jetpack_init' ), "init_$subsystem: must not fire my_jetpack_init." );
 	}
 }
