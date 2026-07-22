@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Export mapAiFeatureResponseToAiFeatureProps from the package barrel so consumers can hydrate the wordpress-com/plans store from a server-side preload of the ai-assistant-feature payload.

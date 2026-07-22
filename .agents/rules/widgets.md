@@ -4,8 +4,8 @@ A registered dashboard widget is a folder under `widgets/`, auto-discovered by c
 (no registration):
 
 - `package.json` — workspace package for the lazy-loaded render bundle.
-- `widget.json` — static metadata (name, title, description, category, presentation).
-- `widget.ts` — live metadata (default export: title, icon, attributes, example).
+- `widget.json` — static metadata (name, title, description, help, category, presentation).
+- `widget.ts` — live, non-serializable metadata (default export: icon, attributes, example).
 - `render.tsx` — default-export React component.
 - `style.module.css` — optional; CSS Modules, tokens from `@wordpress/theme` (`--wpds-*`).
 

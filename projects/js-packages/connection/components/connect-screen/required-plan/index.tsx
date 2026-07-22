@@ -60,6 +60,7 @@ function ConnectScreenRequiredPlan( {
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
+	const errorCode = registrationError ? registrationError.response?.code : undefined;
 
 	return (
 		<ConnectScreenRequiredPlanVisual
@@ -72,6 +73,7 @@ function ConnectScreenRequiredPlan( {
 			pricingCurrencyCode={ pricingCurrencyCode }
 			handleButtonClick={ handleButtonClick }
 			displayButtonError={ displayButtonError }
+			errorCode={ errorCode }
 			buttonIsLoading={ buttonIsLoading }
 			logo={ logo }
 			isOfflineMode={ isOfflineMode }

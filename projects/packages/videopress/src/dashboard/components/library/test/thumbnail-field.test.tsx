@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useProcessingProgress } from '../../../hooks/use-processing-progress';
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
+import { setSimpleSite, unsetSimpleSite } from '../../../test-utils/simple-site';
 import { libraryFields } from '../fields';
 import ThumbnailField from '../thumbnail-field';
 import { UploadActionsProvider, type UploadActions } from '../upload-actions-context';
@@ -51,14 +52,29 @@ describe( 'ThumbnailField — grid Details access', () => {
 		expect( screen.getByText( '01:15' ) ).toBeInTheDocument();
 	} );
 
-	it( 'does not render the open-details button for a local video, and offers Upload instead', async () => {
+	it( 'does not render the open-details button for a local video, and offers Upload on every host', async () => {
 		const actions = makeActions();
-		renderField( <ThumbnailField item={ item( { id: '9', type: 'local' } ) } />, actions );
+		const { unmount } = renderField(
+			<ThumbnailField item={ item( { id: '9', type: 'local' } ) } />,
+			actions
+		);
 
 		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Upload to VideoPress' } ) );
 		expect( actions.promoteLocal ).toHaveBeenCalledWith( '9' );
+		unmount();
+
+		// On WordPress.com Simple too: the button used to be gated off there
+		// while only the unreachable videopress/v1 walker existed (VIDP-300).
+		setSimpleSite();
+		try {
+			renderField( <ThumbnailField item={ item( { id: '9', type: 'local' } ) } />, actions );
+			await userEvent.click( screen.getByRole( 'button', { name: 'Upload to VideoPress' } ) );
+			expect( actions.promoteLocal ).toHaveBeenCalledTimes( 2 );
+		} finally {
+			unsetSimpleSite();
+		}
 	} );
 
 	it( 'offers Retry for a failed upload', async () => {
