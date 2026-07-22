@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { useXZoom, ZoomResetButton } from '../x-zoom';
 import type { SingleChartRef } from '../single-chart-context';
 import type { EventHandlerParams } from '@visx/xychart';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 // A fake scale that lets the hook convert pixel positions to data values.
 // The hook only uses `.invert()`; everything else can be stubbed.
@@ -142,6 +143,9 @@ describe( 'useXZoom', () => {
 	} );
 } );
 
+const preventDefaultKeydown = ( event: ReactKeyboardEvent< HTMLDivElement > ) =>
+	event.preventDefault();
+
 describe( 'ZoomResetButton', () => {
 	test( 'renders a button with an accessible label from IconButton, not a title attribute', () => {
 		const noop = jest.fn();
@@ -160,5 +164,21 @@ describe( 'ZoomResetButton', () => {
 		render( <ZoomResetButton onClick={ onClick } /> );
 		await userEvent.click( screen.getByTestId( 'chart-zoom-reset' ) );
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'keyboard activation survives the chart wrapper keydown handler', async () => {
+		const onClick = jest.fn();
+		// Mirrors the chart's grid wrapper, whose keyboard-navigation handler
+		// calls preventDefault() on bubbled keydowns — which would cancel the
+		// native Enter/Space button activation.
+		render(
+			<div role="grid" tabIndex={ 0 } onKeyDown={ preventDefaultKeydown }>
+				<ZoomResetButton onClick={ onClick } />
+			</div>
+		);
+		act( () => screen.getByTestId( 'chart-zoom-reset' ).focus() );
+		await userEvent.keyboard( '{Enter}' );
+		await userEvent.keyboard( ' ' );
+		expect( onClick ).toHaveBeenCalledTimes( 2 );
 	} );
 } );

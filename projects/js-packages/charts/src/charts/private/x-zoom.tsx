@@ -6,7 +6,7 @@ import styles from './x-zoom.module.scss';
 import type { SingleChartRef } from './single-chart-context';
 import type { AxisScale } from '@visx/axis';
 import type { EventHandlerParams } from '@visx/xychart';
-import type { ReactNode, RefObject } from 'react';
+import type { KeyboardEvent, ReactNode, RefObject } from 'react';
 
 const MIN_DRAG_PIXELS = 6;
 
@@ -181,9 +181,18 @@ export function ZoomClip( {
  * @return JSX element.
  */
 export function ZoomResetButton( { onClick }: { onClick: () => void } ) {
+	// The chart's keyboard-navigation wrapper calls preventDefault() on
+	// bubbled keydowns, which would cancel the native Enter/Space button
+	// activation. Keep activation keys out of its reach.
+	const stopActivationKeys = useCallback( ( event: KeyboardEvent< HTMLButtonElement > ) => {
+		if ( event.key === 'Enter' || event.key === ' ' ) {
+			event.stopPropagation();
+		}
+	}, [] );
 	return (
 		<IconButton
 			className={ styles[ 'x-zoom__reset' ] }
+			onKeyDown={ stopActivationKeys }
 			icon={
 				<svg
 					viewBox="0 0 24 24"
