@@ -12,6 +12,8 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\ExPlat\REST_Controller as ExPlat_REST_Controller;
 use Automattic\Jetpack\Licensing;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -269,5 +271,66 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 			}
 		}
 		$this->assertTrue( $found, 'Deferred init() did not register the my-jetpack/v1 routes.' );
+	}
+
+	/**
+	 * Each of the five thin gate-and-delegate wrappers must wire its own subsystem and
+	 * nothing else. init() calls the private load_*() bodies directly, so the public
+	 * wrapper-to-loader mapping for these five is otherwise never exercised: a copy/paste
+	 * bug such as init_explat() delegating to load_jitm() would pass the whole suite.
+	 *
+	 * Runs in a separate process so a prior test class's Initializer::init() cannot make
+	 * the "hook absent before the call" precondition flaky. That aggregate call leaks a
+	 * priority-20 plugin_action_links filter and trips the ExPlat/JITM did_action() guards
+	 * into process-wide state that reset_initializer_state() cannot clean, which is why an
+	 * in-process version of this test failed under reverse/random ordering. A fresh process
+	 * starts from a pristine hook table and unfired action guards, so the mapping assertions
+	 * are order-independent.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_thin_wrappers_each_wire_only_their_own_subsystem() {
+		$cases = array(
+			'plugins_action_links' => array(
+				'init'  => array( Initializer::class, 'init_plugins_action_links' ),
+				'check' => static function () {
+					return has_filter( 'plugin_action_links_jetpack/jetpack.php', array( Product::class, 'get_plugin_actions_links' ) );
+				},
+			),
+			'licensing'            => array(
+				'init'  => array( Initializer::class, 'init_licensing' ),
+				'check' => static function () {
+					return has_action( 'jetpack_authorize_ending_authorized', array( Licensing::instance(), 'attach_stored_licenses_on_connection' ) );
+				},
+			),
+			'explat'               => array(
+				'init'  => array( Initializer::class, 'init_explat' ),
+				'check' => static function () {
+					return has_action( 'rest_api_init', array( ExPlat_REST_Controller::class, 'register' ) );
+				},
+			),
+			'jitm'                 => array(
+				'init'  => array( Initializer::class, 'init_jitm' ),
+				'check' => static function () {
+					return has_action( 'rest_api_init', array( 'Automattic\Jetpack\JITMS\Rest_Api_Endpoints', 'register_endpoints' ) );
+				},
+			),
+			'jetpack_manage'       => array(
+				'init'  => array( Initializer::class, 'init_jetpack_manage' ),
+				'check' => static function () {
+					return has_action( 'admin_menu', array( Jetpack_Manage::class, 'add_submenu_jetpack' ) );
+				},
+			),
+		);
+
+		foreach ( $cases as $subsystem => $case ) {
+			$this->assertFalse( $case['check'](), "init_$subsystem: hook was present before the call." );
+			call_user_func( $case['init'] );
+			$this->assertNotFalse( $case['check'](), "init_$subsystem: did not wire its subsystem." );
+			$this->assertSame( 0, did_action( 'my_jetpack_init' ), "init_$subsystem: must not fire my_jetpack_init." );
+		}
 	}
 }
