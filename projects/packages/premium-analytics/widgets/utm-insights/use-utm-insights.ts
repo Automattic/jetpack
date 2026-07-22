@@ -88,15 +88,18 @@ export default function useUtmInsights( {
 		useStatsUtm( params, { maxRows: max } );
 	const rows = ( comparisonRows?.rows ?? [] ).map( toUtmRow );
 
+	// Stats queries keep previous data via `placeholderData`, so a failed
+	// range refetch should not replace populated rows with the error state.
+	// `error` is gated by the same predicate so it is populated iff `isError` is true.
+	const showError = rows.length === 0 && isError;
+
 	return {
 		data: rows,
 		hasComparison,
 		isLoading,
 		isFetching,
-		// Stats queries keep previous data via `placeholderData`, so a failed
-		// range refetch should not replace populated rows with the error state.
-		isError: rows.length === 0 && isError,
-		error,
+		isError: showError,
+		error: showError ? error : null,
 		refetch,
 	};
 }

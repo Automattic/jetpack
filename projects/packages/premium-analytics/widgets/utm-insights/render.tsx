@@ -179,7 +179,10 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					isError={ isError }
 					isEmpty={ data.length === 0 }
 					error={ describeError( error, {
-						subject: __( 'UTM data', 'jetpack-premium-analytics' ),
+						retryDescription: __(
+							"We couldn't load UTM data. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
 						onRetry: refetch,
 					} ) }
 					empty={ {

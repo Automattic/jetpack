@@ -534,7 +534,9 @@ Render these states through `<WidgetState>` from `@jetpack-premium-analytics/wid
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
 shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
-while other failures offer Retry:
+while other failures — including the proxy's `no_connection` 403, which can heal after
+reconnecting — offer Retry. Pass the retryable copy as a full sentence (not a fragment
+interpolated into a shared frame) so translators see the whole sentence:
 
 ```tsx
 <WidgetState
@@ -544,7 +546,7 @@ while other failures offer Retry:
 	// isFetching is optional: a background refetch shows a non-blocking busy overlay
 	// over the existing rows instead of hiding them.
 	error={ describeError( error, {
-		subject: __( 'search term data', 'jetpack-premium-analytics' ),
+		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics' ),
 		onRetry: refetch,
 	} ) }
 	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ) } }
@@ -557,6 +559,9 @@ while other failures offer Retry:
 `isFetching` and data are shown) and swaps only the content area. Notes:
 
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
+- When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
+  rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
+  fields can't disagree.
 - Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
   `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
   a caution glyph: empty is not an error.

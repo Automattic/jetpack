@@ -99,7 +99,10 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				isError={ isError }
 				isEmpty={ data.length === 0 }
 				error={ describeError( error, {
-					subject: __( 'platform data', 'jetpack-premium-analytics' ),
+					retryDescription: __(
+						"We couldn't load platform data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
 					onRetry: refetch,
 				} ) }
 				empty={ {

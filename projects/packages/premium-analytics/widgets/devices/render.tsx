@@ -96,7 +96,10 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 				isError={ isError }
 				isEmpty={ data.length === 0 }
 				error={ describeError( error, {
-					subject: __( 'device data', 'jetpack-premium-analytics' ),
+					retryDescription: __(
+						"We couldn't load device data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
 					onRetry: refetch,
 				} ) }
 				empty={ {
