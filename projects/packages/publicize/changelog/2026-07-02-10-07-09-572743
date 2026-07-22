@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent previews from showing raw message-template placeholders while rendering is pending

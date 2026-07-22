@@ -5,14 +5,16 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TopPlatformsRender from '../render';
 import widgetDefinition, { type TopPlatformsAttributes } from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -20,16 +22,10 @@ registerStatsMocks();
 
 const TOP_PLATFORMS_RENDER_MODULE = 'storybook/top-platforms';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	// attributes/example let the dashboard host render the real "View by"
-	// toolbar control for the `relevance: 'high'` attribute, as in Locations.
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-	presentation: 'framed' as const,
-};
+// attributes/example flow through from the module so the dashboard host renders
+// the real "View by" toolbar control for the `relevance: 'high'` attribute, as
+// in Locations. `presentation` comes from widget.json ( 'framed' ).
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface TopPlatformsStoryControls {
 	withComparison: boolean;
