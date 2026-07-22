@@ -84,6 +84,26 @@ describe( 'LcpStateSchema', () => {
 		expect( result.pages[ 0 ].errors?.[ 0 ].meta ).toEqual( {} );
 	} );
 
+	it( 'preserves the error type when a non-empty meta is malformed', () => {
+		const state = analyzedState( [
+			{
+				key: 'home',
+				url: 'https://example.com/',
+				status: 'error',
+				// `code` must be a number; a malformed non-empty meta degrades to `{}` but must not
+				// drag the whole error down to the generic `unknown` type (the reason `meta.catch({})`
+				// replaced the previous outer preprocess).
+				errors: [ { type: 'http-error', meta: { code: 'not-a-number' } } ],
+			},
+		] );
+
+		const result = LcpStateSchema.parse( state );
+
+		const error = result.pages[ 0 ].errors?.[ 0 ];
+		expect( error?.type ).toBe( 'http-error' );
+		expect( error?.meta ).toEqual( {} );
+	} );
+
 	it( 'isolates a malformed error entry instead of failing its page', () => {
 		const state = analyzedState( [
 			okPage( 'good' ),
@@ -116,15 +136,28 @@ describe( 'LcpStateSchema', () => {
 		expect( result.pages[ 2 ].key ).toBe( 'b' );
 	} );
 
-	it( 'degrades a malformed top-level state to the not_analyzed fallback instead of throwing', () => {
+	it( 'degrades a non-object top-level state to the not_analyzed fallback instead of throwing', () => {
 		// The disabled-module optimize response is `{ success: false, state: [] }`; the action
 		// schema parses `state` through LcpStateSchema before the `success: false` handler runs, so
-		// `[]` (and any other malformed top-level shape) must degrade rather than throw a ZodError.
-		expect( LcpStateSchema.parse( [] ) ).toEqual( { pages: [], status: 'not_analyzed' } );
-		expect( LcpStateSchema.parse( { status: 'bogus', pages: [] } ) ).toEqual( {
+		// `[]` (a non-object top-level shape) must degrade rather than throw a ZodError.
+		expect( LcpStateSchema.parse( [] ) ).toEqual( {
 			pages: [],
 			status: 'not_analyzed',
+			created: 0,
+			updated: 0,
 		} );
+	} );
+
+	it( 'degrades an invalid top-level status in place without wiping valid pages', () => {
+		const result = LcpStateSchema.parse( {
+			status: 'bogus',
+			pages: [ okPage( 'a' ), okPage( 'b' ) ],
+		} );
+
+		// The status field catches to `not_analyzed`; the two valid pages survive rather than being
+		// collapsed to an empty array by the outer `.catch()`.
+		expect( result.status ).toBe( 'not_analyzed' );
+		expect( result.pages ).toHaveLength( 2 );
 	} );
 
 	it( 'parses a normal analyzed state unchanged', () => {

@@ -73,15 +73,15 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 		if ( type === 'page-navigated' ) {
 			return meta?.finalUrl
 				? createInterpolateElement(
-						sprintf(
-							/* translators: %s is the URL the page redirected to */
-							__(
-								'This page redirected to <b>%s</b> during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
-								'jetpack-boost'
-							),
-							meta.finalUrl
+						/* translators: <url /> is replaced with the URL the page redirected to. */
+						__(
+							'This page redirected to <url /> during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
+							'jetpack-boost'
 						),
-						{ b: <strong /> }
+						// Pass finalUrl as a React text child, not interpolated into the markup string,
+						// so a redirect target containing `<`/`>` renders as inert text instead of
+						// corrupting the createInterpolateElement token structure.
+						{ url: <strong>{ meta.finalUrl }</strong> }
 				  )
 				: __(
 						'This page redirected during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',

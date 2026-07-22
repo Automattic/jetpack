@@ -80,12 +80,19 @@ class Update_LCP implements Endpoint {
 			}
 
 			if ( is_wp_error( $result ) ) {
-				$update_errors[] = $entry['key'] . ': ' . $result->get_error_message();
-			} else {
-				++$applied;
+				// Strip CR/LF from the cloud-controlled key so a malicious signed payload can't
+				// forge extra log lines (CWE-117).
+				$safe_key        = str_replace( array( "\r", "\n" ), ' ', (string) $entry['key'] );
+				$update_errors[] = $safe_key . ': ' . $result->get_error_message();
+				continue;
 			}
 
-			// Store the LCP data for this page.
+			++$applied;
+
+			// Persist the raw LCP reports only for a key that actually applied to the state. Storing
+			// a rejected key (a page removed from the cornerstone list, or a late/duplicate callback
+			// after a reset) would orphan reports in jb_store_lcp that the render path later serves
+			// with no matching lcp_state entry to gate them.
 			$storage->store_lcp( $entry['key'], $entry['reports'] );
 
 			// Failures must have an array of urls.
@@ -98,10 +105,9 @@ class Update_LCP implements Endpoint {
 			);
 		}
 
-		// Only persist when at least one result was actually applied. If every update failed
-		// (e.g. the stored state was reset to the not_analyzed fallback and has no pages),
-		// saving would just re-persist that empty state and shadow the good data already
-		// written to jb_store_lcp storage above.
+		// Only persist the aggregate state when at least one result actually applied. If every
+		// update failed (e.g. the stored state was reset to the not_analyzed fallback and has no
+		// matching pages), saving would just re-persist that empty state over the good data.
 		if ( $applied > 0 ) {
 			$state->save();
 		}

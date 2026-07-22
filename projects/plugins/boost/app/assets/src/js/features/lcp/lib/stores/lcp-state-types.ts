@@ -30,10 +30,10 @@ export const LcpErrorDetailsSchema = z
 		type: z.union( [ LcpErrorTypeSchema, z.string() ] ),
 		// The server stores empty error meta as an empty PHP array (`[]`), and older payloads may
 		// send `null`; a bare object schema rejects both. `.catch({})` degrades any unparseable
-		// meta (empty array, null, or a malformed known key) to `{}` while preserving the error's
-		// real `type`, so a `page-navigated` (or any empty-meta) error can't fail its page and, in
-		// turn, collapse every analyzed page to the not_analyzed fallback.
-		meta: LcpErrorMetaSchema.catch( {} ).optional(),
+		// meta (empty array, null, absent, or a malformed known key) to `{}` while preserving the
+		// error's real `type`, so a `page-navigated` (or any empty-meta) error can't fail its page
+		// and, in turn, collapse every analyzed page to the not_analyzed fallback.
+		meta: LcpErrorMetaSchema.catch( {} ),
 	} )
 	// Isolate a single malformed error entry: fall back to a benign `unknown` error rather
 	// than throwing, so the page (with its real key/url/status) and all sibling pages survive.
@@ -63,11 +63,14 @@ export const LcpStateSchema = z
 	.object( {
 		// Pages to optimize
 		pages: z.array( PageSchema ),
-		status: z.enum( [ 'not_analyzed', 'pending', 'analyzed', 'error' ] ),
+		// `.catch()` on the enum so an invalid top-level status degrades in place (mirroring
+		// PageSchema.status and the server's own `->fallback('not_analyzed')`) instead of failing
+		// the whole object and wiping otherwise-valid pages via the outer `.catch()` below.
+		status: z.enum( [ 'not_analyzed', 'pending', 'analyzed', 'error' ] ).catch( 'not_analyzed' ),
 		created: z.coerce.number().optional(),
 		updated: z.coerce.number().optional(),
 	} )
-	.catch( { pages: [], status: 'not_analyzed' } );
+	.catch( { pages: [], status: 'not_analyzed', created: 0, updated: 0 } );
 
 /**
  * Infer Zod Types
