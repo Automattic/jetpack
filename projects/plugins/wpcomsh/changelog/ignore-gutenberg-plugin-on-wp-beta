@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
 
 Ignore the Gutenberg plugin when it is older than the Gutenberg version bundled in the running WordPress core, so the site uses the newer core-bundled Gutenberg.
