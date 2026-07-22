@@ -181,7 +181,7 @@ class Heartbeat {
 	 * rather than the Jetpack plugin itself, so they live in the Connection package and are
 	 * reported for every connected site, including standalone-connection installs.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.9
 	 *
 	 * @return array The environment stats array, keyed by unprefixed stat name.
 	 */
@@ -241,7 +241,7 @@ class Heartbeat {
 	 * from the reason code. This avoids duplicate network checks and keeps translated strings out
 	 * of the package.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.9
 	 *
 	 * @param bool $force_recheck Force the SSL recheck instead of using the cached result.
 	 * @return bool Whether the site can connect to WordPress.com over SSL.
@@ -296,7 +296,7 @@ class Heartbeat {
 	 * Consumers can map the returned reason code to a localized message. The `detail` value
 	 * carries any additional context (e.g. the unexpected response body for `bad_response`).
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.9
 	 *
 	 * @return array {
 	 *     The last SSL test error.
@@ -326,7 +326,7 @@ class Heartbeat {
 	 * the Connection package. This is the canonical implementation; the Jetpack plugin's
 	 * `Jetpack::get_active_plugins()` delegates to it.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.9
 	 *
 	 * @return array
 	 */
