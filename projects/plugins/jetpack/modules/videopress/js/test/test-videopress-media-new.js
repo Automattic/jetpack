@@ -32,6 +32,7 @@ describe( 'videopress-media-new', () => {
 	let postMock;
 	let uploader;
 	let stockUploadSuccess;
+	let stockAddFileMock;
 
 	/**
 	 * Loads the script fresh with mocked globals and captures the plupload
@@ -76,6 +77,7 @@ describe( 'videopress-media-new', () => {
 		global.wpUploaderInit = {};
 
 		uploader = {
+			addFile: jest.fn(),
 			bind: jest.fn(),
 			getOption: jest.fn(
 				option =>
@@ -87,6 +89,7 @@ describe( 'videopress-media-new', () => {
 			),
 			setOption: jest.fn(),
 		};
+		stockAddFileMock = uploader.addFile;
 		window.uploader = uploader;
 
 		stockUploadSuccess = jest.fn();
@@ -136,6 +139,8 @@ describe( 'videopress-media-new', () => {
 			strings: {
 				usedVideoUpload: 'Free video upload used. <a href="checkout">Upgrade now</a>',
 				multipleVideos: 'One video on the free plan. <a href="checkout">Upgrade now</a>',
+				multipleVideosSelected:
+					'Multiple videos need a paid plan. <a href="checkout">Upgrade now</a>',
 			},
 			...limits,
 		};
@@ -273,7 +278,80 @@ describe( 'videopress-media-new', () => {
 			expect( global.jQuery.post ).not.toHaveBeenCalled();
 		} );
 
-		it( 'allows a single video and rejects the rest of the batch with the upgrade notice', () => {
+		it( 'blocks every video of a multi-video selection with the upgrade notice', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
+			runReadyCallback();
+
+			const videoA = { name: 'a.mp4', type: 'video/mp4' };
+			const videoB = { name: 'b.mp4', type: 'video/mp4' };
+			window.uploader.addFile( [ videoA, videoB ] );
+
+			expect( stockAddFileMock ).toHaveBeenCalledWith( [ videoA, videoB ], undefined );
+
+			const firstCb = jest.fn();
+			const secondCb = jest.fn();
+			fileFilter.call( { trigger: jest.fn() }, '100b', videoA, firstCb );
+			fileFilter.call( { trigger: jest.fn() }, '100b', videoB, secondCb );
+
+			expect( firstCb ).toHaveBeenCalledWith( false );
+			expect( secondCb ).toHaveBeenCalledWith( false );
+			expect( window.wpQueueError ).toHaveBeenCalledWith(
+				'Multiple videos need a paid plan. <a href="checkout">Upgrade now</a>'
+			);
+			expect( global.jQuery.post ).not.toHaveBeenCalled();
+		} );
+
+		it( 'still allows a single-video selection after a blocked multi-video selection', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
+			runReadyCallback();
+
+			window.uploader.addFile( [
+				{ name: 'a.mp4', type: 'video/mp4' },
+				{ name: 'b.mp4', type: 'video/mp4' },
+			] );
+
+			const single = { name: 'c.mp4', type: 'video/mp4' };
+			window.uploader.addFile( [ single ] );
+
+			const cb = acceptVideoThroughFilter( single );
+
+			expect( cb ).toHaveBeenCalledWith( true );
+		} );
+
+		it( 'lets non-videos of a multi-video selection through', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
+			runReadyCallback();
+
+			const image = { name: 'image.jpg', type: 'image/jpeg', size: 50 };
+			window.uploader.addFile( [
+				image,
+				{ name: 'a.mp4', type: 'video/mp4' },
+				{ name: 'b.mp4', type: 'video/mp4' },
+			] );
+
+			const cb = jest.fn();
+			fileFilter.call( { trigger: jest.fn() }, '100b', image, cb );
+
+			expect( cb ).toHaveBeenCalledWith( true );
+		} );
+
+		it( 'allows multi-video selections with a VideoPress purchase', () => {
+			setUploadLimits( { hasVideoPressPurchase: true, hasUsedVideo: false } );
+			runReadyCallback();
+
+			const videoA = { name: 'a.mp4', type: 'video/mp4' };
+			const videoB = { name: 'b.mp4', type: 'video/mp4' };
+			window.uploader.addFile( [ videoA, videoB ] );
+
+			const firstCb = acceptVideoThroughFilter( videoA );
+			const secondCb = acceptVideoThroughFilter( videoB );
+
+			expect( firstCb ).toHaveBeenCalledWith( true );
+			expect( secondCb ).toHaveBeenCalledWith( true );
+			expect( window.wpQueueError ).not.toHaveBeenCalled();
+		} );
+
+		it( 'allows a single video and rejects a subsequent video selection with the upgrade notice', () => {
 			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
 
 			const firstCb = acceptVideoThroughFilter( { name: 'a.mp4', type: 'video/mp4' } );

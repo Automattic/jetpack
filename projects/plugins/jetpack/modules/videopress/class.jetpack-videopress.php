@@ -157,7 +157,7 @@ class Jetpack_VideoPress {
 			'hasVideoPressPurchase' => $has_videopress_purchase,
 			'hasUsedVideo'          => $has_used_video,
 			'strings'               => array(
-				'usedVideoUpload' => sprintf(
+				'usedVideoUpload'        => sprintf(
 					wp_kses(
 						/* translators: %s is the url to upgrade the VideoPress plan */
 						__( 'You have used your free video upload. The free plan includes one video upload. <a href="%s">Upgrade now</a> to unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
@@ -165,10 +165,18 @@ class Jetpack_VideoPress {
 					),
 					esc_url( $upgrade_url )
 				),
-				'multipleVideos'  => sprintf(
+				'multipleVideos'         => sprintf(
 					wp_kses(
 						/* translators: %s is the url to upgrade the VideoPress plan */
 						__( 'The free plan includes one video upload. <a href="%s">Upgrade now</a> to upload more videos and unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
+						$allowed_html
+					),
+					esc_url( $upgrade_url )
+				),
+				'multipleVideosSelected' => sprintf(
+					wp_kses(
+						/* translators: %s is the url to upgrade the VideoPress plan */
+						__( 'Uploading multiple videos requires a paid plan. The free plan includes one video upload. <a href="%s">Upgrade now</a> to unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
 						$allowed_html
 					),
 					esc_url( $upgrade_url )

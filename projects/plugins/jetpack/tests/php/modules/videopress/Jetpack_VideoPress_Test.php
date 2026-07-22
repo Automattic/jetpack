@@ -201,6 +201,7 @@ class Jetpack_VideoPress_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'https://wordpress.com/checkout/', $limits['strings']['usedVideoUpload'] );
 		$this->assertStringContainsString( 'jetpack_videopress', $limits['strings']['usedVideoUpload'] );
 		$this->assertStringContainsString( 'jetpack_videopress', $limits['strings']['multipleVideos'] );
+		$this->assertStringContainsString( 'jetpack_videopress', $limits['strings']['multipleVideosSelected'] );
 	}
 
 	/**

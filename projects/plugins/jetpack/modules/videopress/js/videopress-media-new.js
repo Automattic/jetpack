@@ -21,6 +21,33 @@
 	// enforce the free plan's single-video limit within an upload session.
 	var acceptedVideoCount = 0;
 
+	// Video files in the selection currently being added to the uploader,
+	// recorded before the file filters run so the free-plan gate can block a
+	// multi-video selection before any upload starts.
+	var pendingBatchVideoCount = 0;
+
+	/**
+	 * Counts the video files in an addFile() argument.
+	 *
+	 * @param {Array|FileList|object} file What was passed to addFile: a single
+	 *                                     file or an array-like of files.
+	 * @return {number} How many of them are videos.
+	 */
+	function countVideoFiles( file ) {
+		var files = file && typeof file.length === 'number' ? file : [ file ];
+		var count = 0;
+
+		for ( var i = 0; i < files.length; i++ ) {
+			var type = files[ i ] && files[ i ].type;
+
+			if ( type && type.split( '/' )[ 0 ] === 'video' ) {
+				count++;
+			}
+		}
+
+		return count;
+	}
+
 	/**
 	 * Returns the upload limit data localized by the module.
 	 *
@@ -64,6 +91,14 @@
 
 		if ( limits.hasUsedVideo ) {
 			showUpgradeNotice( strings.usedVideoUpload );
+			cb( false );
+			return true;
+		}
+
+		// A selection with more than one video is blocked entirely — including
+		// its first video — so no upload starts until the user upgrades.
+		if ( pendingBatchVideoCount > 1 ) {
+			showUpgradeNotice( strings.multipleVideosSelected );
 			cb( false );
 			return true;
 		}
@@ -178,6 +213,19 @@
 		}
 
 		var uploader = window.uploader;
+
+		/**
+		 * Record how many videos each selection contains before plupload runs
+		 * the file filters, so the free-plan gate can reject every video of a
+		 * multi-video selection. Both the file selector and drag-and-drop
+		 * funnel their whole selection through a single addFile() call.
+		 */
+		var stockAddFile = uploader.addFile;
+
+		uploader.addFile = function ( file, fileName ) {
+			pendingBatchVideoCount = countVideoFiles( file );
+			return stockAddFile.call( this, file, fileName );
+		};
 
 		/**
 		 * Re-target VideoPress files right before each upload starts and
