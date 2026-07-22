@@ -1,15 +1,13 @@
 /**
  * The Video highlights widget is the video detail page's highlights card: the
- * selected video's views, impressions, hours watched, and retention rate as
+ * selected video's views, impressions, and hours watched as
  * metric tiles. The video scope arrives through `reportParams.post_id` (seeded
  * from the detail page URL in product); the `hasVideoScope` control toggles it
- * to exercise the scopeless empty state. All four tiles are period-scoped and
- * carry deltas when comparison is on; when the selected video has no
- * comparison row, the tiles keep the comparison layout without inventing a
- * vs-zero delta.
+ * to exercise the scopeless empty state. The tiles cover the trailing 30 days,
+ * matching the existing Calypso video-detail summary.
  *
- * Data comes from the proxied `stats/video-plays` complete-stats range
- * summary, covered by the shared report mocks' video-plays fixture.
+ * Data comes from three proxied `stats/video/{id}` metric series, covered by
+ * the shared single-video report mock.
  */
 /**
  * External dependencies
@@ -36,14 +34,11 @@ import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
-// Matches a video row in the shared video-plays complete-stats fixture so the
-// scoped tiles resolve to real mock values.
 const MOCK_VIDEO_ID = 105;
 
 const VIDEO_DETAIL_HIGHLIGHTS_RENDER_MODULE = 'storybook/video-detail-highlights';
 
 interface VideoDetailHighlightsStoryControls {
-	withComparison: boolean;
 	hasVideoScope: boolean;
 }
 
@@ -55,14 +50,13 @@ interface VideoDetailHighlightsStoryControls {
  * @return The widget attributes.
  */
 function getVideoDetailHighlightsAttributes( {
-	withComparison,
 	hasVideoScope,
 }: VideoDetailHighlightsStoryControls ): ComponentProps<
 	typeof VideoDetailHighlightsRender
 >[ 'attributes' ] {
 	return {
 		reportParams: {
-			...getDefaultQueryParams( withComparison ),
+			...getDefaultQueryParams( false ),
 			...( hasVideoScope ? { post_id: MOCK_VIDEO_ID } : {} ),
 		},
 	};
@@ -85,10 +79,6 @@ const meta = {
 	component: VideoDetailHighlightsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: {
-			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
-		},
 		hasVideoScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the video detail page seeds from its URL.',
@@ -98,7 +88,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Video highlights" widget: the selected video\'s views, impressions, hours watched, and retention rate as metric tiles — the video detail page\'s highlights card. It uses the complete `stats/video-plays` range summary and shows period-over-period deltas when comparison is enabled. If the selected video has no comparison row, the tiles keep the comparison layout without inventing a vs-zero delta. Without a video scope the widget renders a scopeless empty state.',
+					'The "Video highlights" widget: the selected video\'s trailing-30-day views, impressions, and hours watched as metric tiles. It uses the per-video `stats/video/{id}` endpoint, matching Calypso without downloading stats for every active video. Without a video scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
@@ -111,22 +101,11 @@ export default meta;
 type Story = StoryObj< VideoDetailHighlightsStoryControls >;
 
 /**
- * Default — the selected video's highlights for the primary period only; the
- * tiles show no deltas.
+ * Default — the selected video's trailing-30-day highlights.
  */
 export const Default: Story = {
 	render: renderVideoDetailHighlights,
-	args: { withComparison: false, hasVideoScope: true },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * WithComparison — the previous-period comparison from the date range picker;
- * each tile carries a delta computed from the selected video's comparison row.
- */
-export const WithComparison: Story = {
-	render: renderVideoDetailHighlights,
-	args: { withComparison: true, hasVideoScope: true },
+	args: { hasVideoScope: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -137,7 +116,7 @@ export const WithComparison: Story = {
  */
 export const NoVideoScope: Story = {
 	render: renderVideoDetailHighlights,
-	args: { withComparison: false, hasVideoScope: false },
+	args: { hasVideoScope: false },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -153,7 +132,6 @@ interface VideoDetailHighlightsDashboardStoryProps
  * @return The widget mounted inside the real dashboard.
  */
 function VideoDetailHighlightsDashboardStory( {
-	withComparison,
 	hasVideoScope,
 	...dashboardArgs
 }: VideoDetailHighlightsDashboardStoryProps ) {
@@ -165,7 +143,7 @@ function VideoDetailHighlightsDashboardStory( {
 			renderComponent={
 				VideoDetailHighlightsRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ getVideoDetailHighlightsAttributes( { withComparison, hasVideoScope } ) }
+			attributes={ getVideoDetailHighlightsAttributes( { hasVideoScope } ) }
 		/>
 	);
 }
@@ -176,15 +154,10 @@ export const WidgetDashboardWithWidget: StoryObj< VideoDetailHighlightsDashboard
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 4,
 		widgetHeight: 1,
-		withComparison: true,
 		hasVideoScope: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: {
-			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
-		},
 		hasVideoScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the video detail page seeds from its URL.',

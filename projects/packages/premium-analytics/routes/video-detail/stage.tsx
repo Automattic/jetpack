@@ -2,16 +2,10 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import {
-	pickReportDateParams,
-	useDashboardLink,
-	useReportDateFilters,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
@@ -66,16 +60,9 @@ function VideoDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
 
-	// The single resource, date range, and comparison all live in the URL search
-	// params, staged and committed by the shared date-filter controller.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
-
 	const dashboardLink = useDashboardLink();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
-
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	// Error and not-found responses have no trustworthy title, so only resolved
 	// videos add the title crumb or render the heading.
@@ -84,6 +71,38 @@ function VideoDetail(): JSX.Element {
 			? undefined
 			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
 	const resolvedSummary = { ...summary, title };
+	let summaryContent: JSX.Element;
+
+	if ( summary.isError ) {
+		summaryContent = (
+			<Stack direction="column" align="flex-start" gap="sm">
+				<Text>
+					{ __(
+						"We couldn't load this video. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					) }
+				</Text>
+				<Button variant="outline" onClick={ summary.refetch }>
+					{ __( 'Retry', 'jetpack-premium-analytics' ) }
+				</Button>
+			</Stack>
+		);
+	} else if ( summary.isNotFound ) {
+		summaryContent = (
+			<Stack direction="column" align="flex-start" gap="sm">
+				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics' ) }</Text>
+				<Link
+					to="/reports/$report"
+					params={ { report: 'videos' } as unknown as never }
+					search={ reportSearch as unknown as never }
+				>
+					{ __( 'Back to Videos', 'jetpack-premium-analytics' ) }
+				</Link>
+			</Stack>
+		);
+	} else {
+		summaryContent = <VideoSummaryCard summary={ resolvedSummary } />;
+	}
 
 	return (
 		<WidgetDashboard
@@ -104,43 +123,8 @@ function VideoDetail(): JSX.Element {
 				}
 				className={ styles.page }
 			>
-				<div ref={ setContainerElement } className={ styles.header }>
-					<div className={ styles.summary }>
-						{ summary.isError ? (
-							<Stack direction="column" align="flex-start" gap="sm">
-								<Text>
-									{ __(
-										"We couldn't load this video. Please try again in a moment.",
-										'jetpack-premium-analytics'
-									) }
-								</Text>
-								<Button variant="outline" onClick={ summary.refetch }>
-									{ __( 'Retry', 'jetpack-premium-analytics' ) }
-								</Button>
-							</Stack>
-						) : summary.isNotFound ? (
-							<Stack direction="column" align="flex-start" gap="sm">
-								<Text>
-									{ __( "We couldn't find this video.", 'jetpack-premium-analytics' ) }
-								</Text>
-								<Link
-									to="/reports/$report"
-									params={ { report: 'videos' } as unknown as never }
-									search={ reportSearch as unknown as never }
-								>
-									{ __( 'Back to Videos', 'jetpack-premium-analytics' ) }
-								</Link>
-							</Stack>
-						) : (
-							<VideoSummaryCard
-								summary={ resolvedSummary }
-								performanceRange={ dateFilters.appliedRange }
-							/>
-						) }
-					</div>
-					<div className={ styles.dateFilters }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
+				<div className={ styles.header }>
+					<div className={ styles.summary }>{ summaryContent }</div>
 				</div>
 				<div className={ styles.content }>
 					<WidgetDashboard.Widgets />
