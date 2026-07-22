@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -159,7 +161,20 @@ class Initializer_Test extends BaseTestCase {
 	 * Calls admin_init() itself (not the extracted helper) so the call-site
 	 * wiring is covered: the argument order passed to
 	 * get_onboarding_redirect_args() and the redirect performed on its result.
+	 *
+	 * Runs in a separate process. admin_init() makes a real is_connected() call,
+	 * which registers Connection_Manager's memo-invalidation hooks once per
+	 * process and sets a process-wide "added" flag. WorDBless teardown restores
+	 * the hook table but cannot reset that private flag, so a later test in the
+	 * same process would find the flag set but the hooks gone and never
+	 * reinstall them, leaving its own token writes unable to clear the connection
+	 * memo. Isolation keeps that mutation out of the shared process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_admin_init_redirects_disconnected_site_to_onboarding() {
 		$location = $this->capture_admin_init_redirect();
 
@@ -171,7 +186,16 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * An onboarding request on a WordPress.com Simple site is redirected home
 	 * by admin_init() instead of letting the onboarding screen load.
+	 *
+	 * Separate process for the same reason as the disconnected test above:
+	 * admin_init()'s real is_connected() call leaks Connection_Manager's
+	 * invalidation-hook registration flag across tests in a shared process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_admin_init_redirects_onboarding_request_home_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$_GET['step'] = 'onboarding';
