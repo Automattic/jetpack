@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -314,6 +315,19 @@ class Wpcom_Products {
 
 		if ( $purchases !== null ) {
 			return $purchases;
+		}
+
+		// On WordPress.com Simple the purchases are held in-process; there is no blog token to sign
+		// a request to WordPress.com with, so serve them directly. This is a hard function call
+		// rather than a filter on purpose: a site cannot silently divert the lookup, so bypassing it
+		// requires editing the wpcom mu-plugin that defines the function. A null return means "not
+		// handled here", so we fall through to the normal fetch.
+		if ( ( new Status_Host() )->is_wpcom_simple() && function_exists( '\Automattic\WPCOM\My_Jetpack\get_site_purchases' ) ) {
+			$local_purchases = \Automattic\WPCOM\My_Jetpack\get_site_purchases();
+			if ( null !== $local_purchases ) {
+				$purchases = $local_purchases;
+				return $purchases;
+			}
 		}
 
 		// Check for a cached value before doing lookup

@@ -73,9 +73,9 @@ class REST_Purchases {
 	/**
 	 * Site purchases endpoint.
 	 *
-	 * Delegates to Wpcom_Products so every caller shares one code path. That helper is where the
-	 * `my_jetpack_site_purchases` filter lives, which is how a platform holding the data locally
-	 * (WordPress.com Simple) serves it without a request to WordPress.com.
+	 * Delegates to Wpcom_Products so every caller shares one code path. That helper is what serves
+	 * the data locally on WordPress.com Simple - where there is no blog token to sign a request to
+	 * WordPress.com with - instead of fetching it.
 	 *
 	 * @return \WP_REST_Response|WP_Error of site purchases.
 	 */

@@ -301,6 +301,98 @@ class Purchases_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * A platform that provides the purchases locally serves them without any HTTP request.
+	 *
+	 * This is the WordPress.com Simple path: My Jetpack calls
+	 * \Automattic\WPCOM\My_Jetpack\get_site_purchases() directly when it exists, ahead of both the
+	 * cache and the request. There is no blog token to sign a request with, so a fetch would fail
+	 * outright - the point is that none is attempted.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_local_purchases_are_served_without_fetching() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$local                                = array( (object) array( 'product_slug' => 'jetpack_backup_t1_monthly' ) );
+		$GLOBALS['__mj_test_local_purchases'] = $local;
+		require_once __DIR__ . '/stubs/wpcom-my-jetpack-purchases.php';
+
+		// Left in place deliberately: if the direct call fails to short-circuit, this would answer
+		// the request and the empty-URL assertion below is what catches it.
+		add_filter( 'pre_http_request', array( $this, 'mock_purchases_success' ), 10, 3 );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', self::PORTABLE_ROUTE ) );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals(
+			wp_json_encode( $local, JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertSame( array(), $this->requested_urls, 'Expected no request to WordPress.com.' );
+
+		unset( $GLOBALS['__mj_test_local_purchases'] );
+	}
+
+	/**
+	 * When the local provider returns null - e.g. Atomic, where the signed request works - My
+	 * Jetpack must fall through to the normal WordPress.com fetch rather than treat null as an
+	 * answer.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_null_from_local_provider_falls_through_to_fetch() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['__mj_test_local_purchases'] = null;
+		require_once __DIR__ . '/stubs/wpcom-my-jetpack-purchases.php';
+
+		add_filter( 'pre_http_request', array( $this, 'mock_purchases_success' ), 10, 3 );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', self::PORTABLE_ROUTE ) );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals(
+			wp_json_encode( $this->sample_purchases(), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertNotEmpty( $this->requested_urls, 'Expected a fallback request to WordPress.com.' );
+
+		unset( $GLOBALS['__mj_test_local_purchases'] );
+	}
+
+	/**
+	 * The local provider must not be consulted off WordPress.com Simple, even when the function
+	 * happens to exist. A non-Simple site fetches from WordPress.com as usual.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_local_provider_not_called_when_not_simple() {
+		// IS_WPCOM intentionally not set: this is not a Simple site.
+		$GLOBALS['__mj_test_local_purchases'] = array( (object) array( 'product_slug' => 'should_not_be_used' ) );
+		require_once __DIR__ . '/stubs/wpcom-my-jetpack-purchases.php';
+
+		add_filter( 'pre_http_request', array( $this, 'mock_purchases_success' ), 10, 3 );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', self::PORTABLE_ROUTE ) );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals(
+			wp_json_encode( $this->sample_purchases(), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertNotEmpty( $this->requested_urls, 'Expected the normal WordPress.com fetch off Simple.' );
+
+		unset( $GLOBALS['__mj_test_local_purchases'] );
+	}
+
+	/**
 	 * `edit_posts` is the bar, so an editor is allowed through.
 	 */
 	public function test_editor_can_read_purchases() {
