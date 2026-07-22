@@ -2,7 +2,7 @@
 
 `@automattic/charts` exposes its themeable values as CSS custom properties under a
 single convention: `--a8c-charts-{category}-{name}`. `{category}` mirrors the WPDS
-token type (`color`, `dimension`, `border-radius`, `border-width`).
+token type (`color`, `dimension`, `border-radius`).
 
 ## How it resolves today
 
