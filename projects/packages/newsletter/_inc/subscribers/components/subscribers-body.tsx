@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
@@ -42,6 +43,11 @@ export default function SubscribersBody( {
 	children: ( props: RenderProps ) => ReactNode;
 } ): JSX.Element {
 	const blogId = useMemo( () => getBlogId(), [] );
+
+	// Refresh the list when an async import job finishes — the poll lives here (not in the modal)
+	// so it survives the Add Subscribers modal closing right after a submit.
+	useImportCompletionRefresh();
+
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => setAddOpen( true ), [] );
 	const closeAdd = useCallback( () => setAddOpen( false ), [] );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers dashboard: refresh the subscriber list automatically once an import finishes, instead of requiring a manual page reload.
