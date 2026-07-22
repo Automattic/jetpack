@@ -8,15 +8,11 @@
 }
 
 /*
- * DataViews' own `.dataviews-title-field a` paints title links as neutral,
- * undecorated blocks. The drilldown stylesheet scopes that selector beneath
- * its root class, so this selector includes the link's `href` attribute to
- * deterministically outweigh it while covering external and router links.
+ * DataViews' scoped title-link selector makes composed links blocks. Include
+ * the link's `href` attribute here to win only the layout properties while
+ * leaving its color to the report table's standard link treatment.
  */
 span.leaf a[href] {
 	display: inline-flex;
 	align-items: center;
-	max-inline-size: 100%;
-	color: var(--wpds-color-foreground-interactive-brand);
-	text-decoration: underline;
 }
