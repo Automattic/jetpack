@@ -1,5 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
+import { IconButton } from '@wordpress/ui';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import styles from './x-zoom.module.scss';
 import type { SingleChartRef } from './single-chart-context';
@@ -170,40 +171,41 @@ export function ZoomClip( {
 }
 
 /**
- * Visible icon-only reset button rendered as an HTML overlay on top of
- * the chart container. The host should wrap its SVG in a `position: relative`
- * container so the button anchors correctly.
+ * Visible icon-only reset control rendered as an HTML overlay on top of the
+ * chart container, using the WPDS `IconButton` (built-in accessible tooltip).
+ * The host should wrap its SVG in a `position: relative` container so the
+ * button anchors correctly.
  *
  * @param props         - Props.
  * @param props.onClick - Click handler. Typically the `reset` from `useXZoom`.
  * @return JSX element.
  */
 export function ZoomResetButton( { onClick }: { onClick: () => void } ) {
-	const label = __( 'Reset zoom', 'jetpack-charts' );
 	return (
-		<button
-			type="button"
+		<IconButton
 			className={ styles[ 'x-zoom__reset' ] }
+			icon={
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<circle cx="10" cy="10" r="6" />
+					<line x1="15" y1="15" x2="20" y2="20" />
+					<line x1="7" y1="10" x2="13" y2="10" />
+				</svg>
+			}
+			label={ __( 'Reset zoom', 'jetpack-charts' ) }
+			variant="outline"
+			tone="neutral"
+			size="small"
 			onClick={ onClick }
-			aria-label={ label }
-			title={ label }
 			data-testid="chart-zoom-reset"
-		>
-			<svg
-				className={ styles[ 'x-zoom__reset-icon' ] }
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				aria-hidden="true"
-				focusable="false"
-			>
-				<circle cx="10" cy="10" r="6" />
-				<line x1="15" y1="15" x2="20" y2="20" />
-				<line x1="7" y1="10" x2="13" y2="10" />
-			</svg>
-		</button>
+		/>
 	);
 }

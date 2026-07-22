@@ -1,6 +1,7 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useRef } from 'react';
-import { useXZoom } from '../x-zoom';
+import { useXZoom, ZoomResetButton } from '../x-zoom';
 import type { SingleChartRef } from '../single-chart-context';
 import type { EventHandlerParams } from '@visx/xychart';
 
@@ -138,5 +139,26 @@ describe( 'useXZoom', () => {
 		act( () => result.current.handlers.onPointerUp( makeParams( 200 ) ) );
 
 		expect( result.current.domain ).toBeNull();
+	} );
+} );
+
+describe( 'ZoomResetButton', () => {
+	test( 'renders a button with an accessible label from IconButton, not a title attribute', () => {
+		const noop = jest.fn();
+		render( <ZoomResetButton onClick={ noop } /> );
+		const button = screen.getByTestId( 'chart-zoom-reset' );
+		expect( button.tagName ).toBe( 'BUTTON' );
+		expect( button ).toHaveClass( 'x-zoom__reset' );
+		expect( button ).toHaveAccessibleName( 'Reset zoom' );
+		// The label is exposed via the IconButton tooltip/aria-label; the old
+		// hand-rolled button used a title attribute instead.
+		expect( button ).not.toHaveAttribute( 'title' );
+	} );
+
+	test( 'fires onClick when activated', async () => {
+		const onClick = jest.fn();
+		render( <ZoomResetButton onClick={ onClick } /> );
+		await userEvent.click( screen.getByTestId( 'chart-zoom-reset' ) );
+		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
