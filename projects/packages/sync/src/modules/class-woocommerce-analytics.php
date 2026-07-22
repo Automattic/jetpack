@@ -34,6 +34,10 @@ use WC_Order;
 use WC_Order_Factory;
 use WC_Tax;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * WooCommerce Analytics Module class.
  */

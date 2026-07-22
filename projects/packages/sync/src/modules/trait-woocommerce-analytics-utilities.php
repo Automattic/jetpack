@@ -14,6 +14,10 @@ use Automattic\WooCommerce\Internal\Features\FeaturesController;
 use DateTimeZone;
 use WC_DateTime;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Trait WooCommerce_Analytics_Utilities.
  *
