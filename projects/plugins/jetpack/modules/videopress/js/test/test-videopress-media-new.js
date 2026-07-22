@@ -117,6 +117,7 @@ describe( 'videopress-media-new', () => {
 	} );
 
 	afterEach( () => {
+		document.body.innerHTML = '';
 		delete global.plupload;
 		delete global.jQuery;
 		delete global.ajaxurl;
@@ -335,6 +336,52 @@ describe( 'videopress-media-new', () => {
 			expect( cb ).toHaveBeenCalledWith( true );
 		} );
 
+		it( 'renders the notice outside the error area the stock uploader clears', () => {
+			document.body.innerHTML =
+				'<div class="media-upload-form"><div id="media-upload-error"></div></div>';
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
+			runReadyCallback();
+
+			const videoA = { name: 'a.mp4', type: 'video/mp4' };
+			const videoB = { name: 'b.mp4', type: 'video/mp4' };
+			window.uploader.addFile( [ videoA, videoB ] );
+			fileFilter.call( { trigger: jest.fn() }, '100b', videoA, jest.fn() );
+
+			const notice = document.querySelector( '.videopress-media-new-notice' );
+			expect( notice ).not.toBeNull();
+			expect( notice ).toHaveTextContent( 'Multiple videos need a paid plan' );
+			expect( notice.querySelector( 'a' ) ).not.toBeNull();
+			expect( window.wpQueueError ).not.toHaveBeenCalled();
+
+			// The stock FilesAdded handler empties #media-upload-error when
+			// part of a selection is accepted; the notice must survive that.
+			document.getElementById( 'media-upload-error' ).innerHTML = '';
+			expect( document.querySelector( '.videopress-media-new-notice' ) ).not.toBeNull();
+		} );
+
+		it( 'clears the previous notice when a new selection starts', () => {
+			document.body.innerHTML =
+				'<div class="media-upload-form"><div id="media-upload-error"></div></div>';
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: false } );
+			runReadyCallback();
+
+			window.uploader.addFile( [
+				{ name: 'a.mp4', type: 'video/mp4' },
+				{ name: 'b.mp4', type: 'video/mp4' },
+			] );
+			fileFilter.call(
+				{ trigger: jest.fn() },
+				'100b',
+				{ name: 'a.mp4', type: 'video/mp4' },
+				jest.fn()
+			);
+			expect( document.querySelector( '.videopress-media-new-notice' ) ).not.toBeNull();
+
+			window.uploader.addFile( [ { name: 'c.mp4', type: 'video/mp4' } ] );
+
+			expect( document.querySelector( '.videopress-media-new-notice' ) ).toBeNull();
+		} );
+
 		it( 'allows multi-video selections with a VideoPress purchase', () => {
 			setUploadLimits( { hasVideoPressPurchase: true, hasUsedVideo: false } );
 			runReadyCallback();
@@ -400,6 +447,17 @@ describe( 'videopress-media-new', () => {
 			expect( firstCb ).toHaveBeenCalledWith( true );
 			expect( secondCb ).toHaveBeenCalledWith( true );
 			expect( window.wpQueueError ).not.toHaveBeenCalled();
+		} );
+
+		it( 'still rejects the video when the notice strings are missing', () => {
+			setUploadLimits( { hasVideoPressPurchase: false, hasUsedVideo: true, strings: {} } );
+
+			const cb = jest.fn();
+			fileFilter.call( { trigger: jest.fn() }, '100b', { name: 'a.mp4', type: 'video/mp4' }, cb );
+
+			expect( cb ).toHaveBeenCalledWith( false );
+			expect( window.wpQueueError ).not.toHaveBeenCalled();
+			expect( document.querySelector( '.videopress-media-new-notice' ) ).toBeNull();
 		} );
 
 		it( 'does not restrict non-video files on the free plan', () => {

@@ -57,19 +57,59 @@
 		return typeof videoPressMediaNew !== 'undefined' ? videoPressMediaNew : {};
 	}
 
+	// Class of the container the upgrade notice renders in.
+	var NOTICE_CLASS = 'videopress-media-new-notice';
+
+	/**
+	 * Removes any previously rendered upgrade notice.
+	 */
+	function removeUpgradeNotice() {
+		var notices = document.querySelectorAll( '.' + NOTICE_CLASS );
+
+		for ( var i = 0; i < notices.length; i++ ) {
+			notices[ i ].parentNode.removeChild( notices[ i ] );
+		}
+	}
+
 	/**
 	 * Shows the free-plan upgrade notice above the upload queue.
 	 *
 	 * The message is pre-escaped HTML built server-side, containing the link
-	 * to the upgrade path. wpQueueError renders it inside the stock
-	 * media-upload-error notice, like other queue-level upload errors.
+	 * to the upgrade path. It renders in a container of its own next to the
+	 * stock #media-upload-error area rather than inside it: the stock
+	 * FilesAdded handler empties #media-upload-error as soon as any file of
+	 * the selection is accepted, which would wipe a notice rendered there
+	 * before the user could read it.
 	 *
 	 * @param {string} message The notice HTML.
 	 */
 	function showUpgradeNotice( message ) {
-		if ( typeof wpQueueError === 'function' && message ) {
-			wpQueueError( message );
+		if ( ! message ) {
+			return;
 		}
+
+		var anchor = document.getElementById( 'media-upload-error' );
+
+		if ( ! anchor || ! anchor.parentNode ) {
+			// The stock error area is better than no notice at all.
+			if ( typeof wpQueueError === 'function' ) {
+				wpQueueError( message );
+			}
+			return;
+		}
+
+		removeUpgradeNotice();
+
+		var notice = document.createElement( 'div' );
+		notice.className = 'notice notice-warning ' + NOTICE_CLASS;
+
+		var paragraph = document.createElement( 'p' );
+		// The message is localized server-side and passed through wp_kses;
+		// it only contains the upgrade link markup.
+		paragraph.innerHTML = message;
+
+		notice.appendChild( paragraph );
+		anchor.parentNode.insertBefore( notice, anchor.nextSibling );
 	}
 
 	/**
@@ -223,6 +263,9 @@
 		var stockAddFile = uploader.addFile;
 
 		uploader.addFile = function ( file, fileName ) {
+			// Each selection starts clean: a notice about a previous
+			// selection no longer applies to this one.
+			removeUpgradeNotice();
 			pendingBatchVideoCount = countVideoFiles( file );
 			return stockAddFile.call( this, file, fileName );
 		};
