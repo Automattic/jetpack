@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search: add highlightPhraseOnly Instant Search option to request phrase-only highlights from the API.

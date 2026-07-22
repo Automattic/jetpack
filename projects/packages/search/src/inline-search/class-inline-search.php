@@ -478,6 +478,10 @@ class Inline_Search extends Classic_Search {
 			);
 		}
 
+		if ( ! empty( $options['highlightPhraseOnly'] ) ) {
+			$api_query_args['highlight_phrase_only'] = true;
+		}
+
 		return $api_query_args;
 	}
 
