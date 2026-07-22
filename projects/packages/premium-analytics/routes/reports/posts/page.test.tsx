@@ -6,7 +6,7 @@ import {
 	ReportErrorState,
 	ReportPerformanceChart,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen, within } from '@testing-library/react';
@@ -52,7 +52,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportPageTabs: () => null,
 	ReportPerformanceChart: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
-	RowsCsvDownloadButton: jest.fn( ( { label }: { label: string } ) => <button>{ label }</button> ),
+	ReportCsvAction: jest.fn( () => <button>Download</button> ),
 	useReportCsvExport: jest.fn(),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
@@ -79,7 +79,7 @@ const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPerformanceChartMock = jest.mocked( ReportPerformanceChart );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
-const rowsCsvDownloadButtonMock = jest.mocked( RowsCsvDownloadButton );
+const reportCsvActionMock = jest.mocked( ReportCsvAction );
 
 /**
  * Build the report records used by the page tests.
@@ -167,11 +167,8 @@ describe( 'PostsReportPage', () => {
 			12,
 			'https://example.com/hello-world',
 		] );
-		expect( rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
-				label: 'Download',
-				variant: 'solid',
-				showIcon: false,
 				filename: 'top-posts-2026-06-01_2026-06-30',
 				rows: records.posts.rows,
 			} )
@@ -188,7 +185,7 @@ describe( 'PostsReportPage', () => {
 		render( <PostsReportPage /> );
 
 		expect( screen.queryByTestId( 'page-actions' ) ).not.toBeInTheDocument();
-		expect( rowsCsvDownloadButtonMock ).not.toHaveBeenCalled();
+		expect( reportCsvActionMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'configures the active Archives tab with its own rows and filename', () => {

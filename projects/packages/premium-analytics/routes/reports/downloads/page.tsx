@@ -16,7 +16,7 @@ import {
 	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -167,16 +167,7 @@ function DownloadsReport(): JSX.Element {
 					] }
 				/>
 			}
-			actions={
-				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics' ) }
-						variant="solid"
-						showIcon={ false }
-						{ ...buttonProps }
-					/>
-				) : undefined
-			}
+			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
 		>
 			<ReportPageLayout
 				filters={

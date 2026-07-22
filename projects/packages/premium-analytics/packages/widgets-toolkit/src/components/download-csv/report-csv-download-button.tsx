@@ -8,6 +8,7 @@ import { useContext } from 'react';
  */
 import { WidgetRootContext } from '../widget-root';
 import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-button';
+import { isCsvExportEnabled } from './is-csv-export-enabled';
 import { toDownloadReportParams } from './to-download-report-params';
 
 export type ReportCsvDownloadButtonProps = Omit< CsvDownloadButtonProps, 'onDownload' > & {
@@ -36,6 +37,10 @@ export function ReportCsvDownloadButton( {
 	...buttonProps
 }: ReportCsvDownloadButtonProps ) {
 	const context = useContext( WidgetRootContext );
+
+	if ( ! isCsvExportEnabled() ) {
+		return null;
+	}
 
 	const resolvedReportParams = reportParams ?? context?.reportParams;
 	if ( ! resolvedReportParams ) {

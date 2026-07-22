@@ -10,7 +10,7 @@ import {
 	ReportPageSection,
 	ReportPageShell,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -101,16 +101,7 @@ function CommentFollowersReport(): JSX.Element {
 					] }
 				/>
 			}
-			actions={
-				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics' ) }
-						variant="solid"
-						showIcon={ false }
-						{ ...buttonProps }
-					/>
-				) : undefined
-			}
+			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
 			className={ styles.page }
 		>
 			<ReportPageLayout>

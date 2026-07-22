@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { downloadReport } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 /**
@@ -9,16 +10,21 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { WidgetRootContext } from '../../widget-root';
 import { ReportCsvDownloadButton } from '../report-csv-download-button';
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: jest.fn(),
+} ) );
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	downloadReport: jest.fn(),
 } ) );
 
 const mockDownloadReport = jest.mocked( downloadReport );
+const mockGetScriptData = jest.mocked( getScriptData );
 
 describe( 'ReportCsvDownloadButton', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockGetScriptData.mockReturnValue( undefined );
 		mockDownloadReport.mockResolvedValue( { filename: 'orders-over-time.csv' } );
 	} );
 
@@ -75,6 +81,30 @@ describe( 'ReportCsvDownloadButton', () => {
 
 		await waitFor( () => expect( mockDownloadReport ).toHaveBeenCalledTimes( 1 ) );
 	} );
+
+	it( 'stays hidden when the server disables CSV exports', () => {
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				has_store_data: false,
+				csv_exports_enabled: false,
+			},
+		} as ReturnType< typeof getScriptData > );
+
+		render(
+			<ReportCsvDownloadButton
+				reportType="ordersovertime"
+				reportParams={ {
+					from: '2026-06-01T00:00:00+02:00',
+					to: '2026-06-30T23:59:59+02:00',
+					interval: 'day',
+				} }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'fails gracefully when report parameters are unavailable', () => {
 		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 

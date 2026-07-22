@@ -16,7 +16,7 @@ import {
 	ReportPageShell,
 	ReportPerformanceChart,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -165,16 +165,7 @@ function VideosReport(): JSX.Element {
 				/>
 			}
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics' ) }
-			actions={
-				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics' ) }
-						variant="solid"
-						showIcon={ false }
-						{ ...buttonProps }
-					/>
-				) : undefined
-			}
+			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
 		>
 			<ReportPageLayout
 				filters={

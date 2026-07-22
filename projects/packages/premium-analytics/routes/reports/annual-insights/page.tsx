@@ -6,7 +6,7 @@ import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -107,16 +107,7 @@ function AnnualInsightsReport(): JSX.Element {
 				'Year-by-year publishing and engagement totals.',
 				'jetpack-premium-analytics'
 			) }
-			actions={
-				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics' ) }
-						variant="solid"
-						showIcon={ false }
-						{ ...buttonProps }
-					/>
-				) : undefined
-			}
+			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

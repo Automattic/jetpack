@@ -82,6 +82,8 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	ReportCsvAction,
+	type ReportCsvActionProps,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,

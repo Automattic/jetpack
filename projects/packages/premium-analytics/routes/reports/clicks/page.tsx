@@ -15,7 +15,7 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPerformanceChart,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -28,7 +28,7 @@ import { useNavigate, useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
-import { getClicksFields, useClicksReportRecords, type ClickRow } from './config';
+import { getClickCsvGroup, getClicksFields, useClicksReportRecords, type ClickRow } from './config';
 
 const ROUTE_FROM = route.path;
 const REPORT_PARAMS = { report: 'clicks' };
@@ -101,26 +101,6 @@ const RECORDS_VIEW = {
 };
 
 type ClickCsvRow = ClickRow & { group: string };
-
-/**
- * Recover the source group encoded in a flat click row's id.
- *
- * Nested leaf rows expose the group directly as their parent id. A group with
- * only one URL stays flat, so its id retains the original `group|url` key.
- *
- * @param row - The click row to export.
- * @return The source click group.
- */
-function getClickCsvGroup( row: ClickRow ): string {
-	if ( row.parentId ) {
-		return row.parentId;
-	}
-
-	const urlSuffix = row.href ? `|${ row.href }` : '';
-	return urlSuffix && row.id.endsWith( urlSuffix )
-		? row.id.slice( 0, -urlSuffix.length )
-		: '';
-}
 
 const sortClickCsvRows = ( a: ClickCsvRow, b: ClickCsvRow ) => b.clicks - a.clicks;
 
@@ -214,16 +194,7 @@ function ClicksReport(): JSX.Element {
 					] }
 				/>
 			}
-			actions={
-				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics' ) }
-						variant="solid"
-						showIcon={ false }
-						{ ...buttonProps }
-					/>
-				) : undefined
-			}
+			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
 		>
 			<ReportPageLayout
 				filters={

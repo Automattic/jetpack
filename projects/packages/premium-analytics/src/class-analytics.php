@@ -163,6 +163,10 @@ class Analytics {
 
 		// Dashboard sections and their default layout seeding.
 		require_once __DIR__ . '/dashboard-sections.php';
+
+		// Default-on CSV export settings and server-side disable filter.
+		require_once __DIR__ . '/csv-exports.php';
+		configure_csv_exports();
 	}
 
 	/**

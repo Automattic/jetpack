@@ -5,7 +5,14 @@ import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { isCsvExportEnabled } from '../is-csv-export-enabled';
 import { useReportCsvExport } from '../use-report-csv-export';
+
+jest.mock( '../is-csv-export-enabled', () => ( {
+	isCsvExportEnabled: jest.fn(),
+} ) );
+
+const mockIsCsvExportEnabled = jest.mocked( isCsvExportEnabled );
 const columns = [
 	{ label: 'Title', getValue: ( row: { title: string; views: number } ) => row.title },
 	{ label: 'Views', getValue: ( row: { title: string; views: number } ) => row.views },
@@ -13,6 +20,10 @@ const columns = [
 const readyStatus = { isLoading: false, isFetching: false, isError: false };
 
 describe( 'useReportCsvExport', () => {
+	beforeEach( () => {
+		mockIsCsvExportEnabled.mockReturnValue( true );
+	} );
+
 	it( 'builds button props and sorts a copy of the rows', () => {
 		const rows = [
 			{ title: 'Lower', views: 4 },
@@ -57,19 +68,29 @@ describe( 'useReportCsvExport', () => {
 	} );
 
 	it.each( [
-		[ 'there are no rows', readyStatus, [] ],
+		[ 'the server disables CSV exports', false, readyStatus, [ { title: 'Post', views: 1 } ] ],
+		[ 'there are no rows', true, readyStatus, [] ],
 		[
 			'the report is loading',
+			true,
 			{ ...readyStatus, isLoading: true },
 			[ { title: 'Post', views: 1 } ],
 		],
 		[
 			'the report is fetching',
+			true,
 			{ ...readyStatus, isFetching: true },
 			[ { title: 'Post', views: 1 } ],
 		],
-		[ 'the report failed', { ...readyStatus, isError: true }, [ { title: 'Post', views: 1 } ] ],
-	] )( 'disables export when %s', ( _label, status, rows ) => {
+		[
+			'the report failed',
+			true,
+			{ ...readyStatus, isError: true },
+			[ { title: 'Post', views: 1 } ],
+		],
+	] )( 'disables export when %s', ( _label, enabled, status, rows ) => {
+		mockIsCsvExportEnabled.mockReturnValue( enabled );
+
 		const { result } = renderHook( () =>
 			useReportCsvExport( {
 				columns,

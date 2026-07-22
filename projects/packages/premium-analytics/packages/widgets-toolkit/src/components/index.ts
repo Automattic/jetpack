@@ -83,6 +83,8 @@ export {
 	type ReportRecordsTableProps,
 } from './report-page';
 export {
+	ReportCsvAction,
+	type ReportCsvActionProps,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,

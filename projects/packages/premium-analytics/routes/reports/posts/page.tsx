@@ -21,7 +21,7 @@ import {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -230,16 +230,7 @@ function PostsReport(): JSX.Element {
 				/>
 			}
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
-			actions={
-				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics' ) }
-						variant="solid"
-						showIcon={ false }
-						{ ...buttonProps }
-					/>
-				) : undefined
-			}
+			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
 		>
 			<ReportPageLayout
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
