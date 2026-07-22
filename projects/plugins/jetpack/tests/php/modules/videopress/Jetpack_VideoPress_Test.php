@@ -71,9 +71,17 @@ class Jetpack_VideoPress_Test extends WP_UnitTestCase {
 	private function reset_plan_and_options_caches() {
 		VideoPress_Options::delete_options();
 
-		$cache = new ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
-		$cache->setAccessible( true );
-		$cache->setValue( null, null );
+		// Clear Current_Plan::$active_plan_cache. A bound closure works on
+		// every supported PHP version, unlike ReflectionProperty::setAccessible
+		// (required before PHP 8.1, deprecated as of PHP 8.5).
+		$reset_plan_cache = Closure::bind(
+			static function () {
+				self::$active_plan_cache = null;
+			},
+			null,
+			Current_Plan::class
+		);
+		$reset_plan_cache();
 	}
 
 	/**
@@ -82,6 +90,22 @@ class Jetpack_VideoPress_Test extends WP_UnitTestCase {
 	private function connect_site() {
 		Jetpack_Options::update_option( 'id', 1234 );
 		$this->reset_plan_and_options_caches();
+	}
+
+	/**
+	 * Skips the current test when the suite runs with wpcomsh active.
+	 *
+	 * With wpcomsh loaded, wpcom_feature_exists()/wpcom_site_has_feature()
+	 * exist, so Current_Plan::supports() resolves plan features through WPCOM
+	 * feature gating instead of the jetpack_active_plan option. Purchases come
+	 * from Atomic_Persistent_Data, which is a null stub in the wpcomsh repo
+	 * (the real implementation lives on the Atomic platform), so plan states
+	 * cannot be simulated in that environment.
+	 */
+	private function skip_when_wpcomsh_is_active() {
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			self::markTestSkipped( 'Plan features resolve through WPCOM feature gating when wpcomsh is active and cannot be simulated.' );
+		}
 	}
 
 	/**
@@ -149,6 +173,7 @@ class Jetpack_VideoPress_Test extends WP_UnitTestCase {
 	 * plupload filter when VideoPress is enabled.
 	 */
 	public function test_media_new_script_enqueued_with_limits_and_filter() {
+		$this->skip_when_wpcomsh_is_active();
 		$this->connect_site();
 
 		$this->instance->enqueue_media_new_scripts( 'media-new.php' );
@@ -210,6 +235,7 @@ class Jetpack_VideoPress_Test extends WP_UnitTestCase {
 	 * A site with a paid VideoPress plan is not limited.
 	 */
 	public function test_upload_limits_with_videopress_purchase() {
+		$this->skip_when_wpcomsh_is_active();
 		$this->connect_site();
 		$this->add_videopress_purchase();
 		$this->create_videopress_attachment();
