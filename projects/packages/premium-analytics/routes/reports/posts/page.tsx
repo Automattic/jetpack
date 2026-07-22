@@ -156,6 +156,33 @@ function PostsReport(): JSX.Element {
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
+	/*
+	 * Keyed by tab so the table's internal view state (sort, search, page)
+	 * resets when the records set changes.
+	 */
+	const recordsTable =
+		activeTab === 'posts-pages' ? (
+			<ReportRecordsTable< StatsTopPostsComparisonItem >
+				key="posts-pages"
+				data={ records.posts.rows }
+				fields={ postsFields }
+				getItemId={ getPostRowId }
+				isLoading={ records.posts.isLoading }
+				initialView={ RECORDS_VIEW }
+				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+			/>
+		) : (
+			<ReportRecordsTable
+				key="archives"
+				data={ records.archives.rows }
+				fields={ archivesFields }
+				getItemId={ getArchiveRowId }
+				isLoading={ records.archives.isLoading }
+				initialView={ RECORDS_VIEW }
+				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
+			/>
+		);
+
 	return (
 		<ReportPageShell
 			tabbed
@@ -195,31 +222,7 @@ function PostsReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					/*
-					 * Keyed by tab so the table's internal view state (sort,
-					 * search, page) resets when the records set changes.
-					 */
-					activeTab === 'posts-pages' ? (
-						<ReportRecordsTable< StatsTopPostsComparisonItem >
-							key="posts-pages"
-							data={ records.posts.rows }
-							fields={ postsFields }
-							getItemId={ getPostRowId }
-							isLoading={ records.posts.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
-						/>
-					) : (
-						<ReportRecordsTable
-							key="archives"
-							data={ records.archives.rows }
-							fields={ archivesFields }
-							getItemId={ getArchiveRowId }
-							isLoading={ records.archives.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
-						/>
-					)
+					recordsTable
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>
@@ -229,9 +232,9 @@ function PostsReport(): JSX.Element {
 /**
  * Posts & Pages report page (default export for the report registry).
  *
- * React Query, global errors, and the chart theme are provided by the
- * `/reports/$report` stage, which renders this lazily via the registry's
- * `load` — the page mounts no providers of its own.
+ * React Query and global errors are provided by the `/reports/$report` stage,
+ * which renders this lazily via the registry's `load` — the page mounts no
+ * providers of its own.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */
