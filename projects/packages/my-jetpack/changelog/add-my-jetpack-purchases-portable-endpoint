@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+My Jetpack: serve site purchases from a cross-platform `wpcom/v2/my-jetpack/purchases` route so the UI calls one path on Simple, Atomic and self-hosted Jetpack sites. The `my-jetpack/v1/site/purchases` route is retained and now returns the same data.
