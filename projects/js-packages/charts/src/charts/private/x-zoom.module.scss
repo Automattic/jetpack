@@ -1,11 +1,12 @@
 .x-zoom {
 
-	// The selection's translucent colours are inlined, not exposed as
-	// --a8c-charts-color-zoom-* override vars — the zoom UI is deliberately
-	// not a public theming surface.
+	// The selection's translucency lives in the SVG opacity properties so
+	// the colors themselves can come straight from WPDS tokens.
 	&__selection {
-		fill: rgba(56, 88, 233, 0.16);
-		stroke: rgba(56, 88, 233, 0.65);
+		fill: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+		fill-opacity: 0.16;
+		stroke: var(--wpds-color-stroke-interactive-brand, #3858e9);
+		stroke-opacity: 0.65;
 		stroke-width: var(--wpds-border-width-xs, 1px);
 		pointer-events: none;
 	}
