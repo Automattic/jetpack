@@ -2,10 +2,15 @@
  * External dependencies
  */
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { LeaderboardLabel, MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Stack } from '@wordpress/ui';
+/**
+ * Internal dependencies
+ */
+import styles from './fields.module.css';
 import type { Field } from '@wordpress/dataviews';
+import type { SyntheticEvent } from 'react';
 
 /**
  * A flattened referrer group, source, or domain shown in the records table.
@@ -23,6 +28,15 @@ export type ReferrerRecord = {
 };
 
 /**
+ * Hide an unavailable referrer favicon without replacing it with a broken-image indicator.
+ *
+ * @param event - The favicon image error event.
+ */
+function handleFaviconError( event: SyntheticEvent< HTMLImageElement > ): void {
+	event.currentTarget.hidden = true;
+}
+
+/**
  * DataViews field config for the Referrers records table.
  *
  * @return The field config.
@@ -38,11 +52,17 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			render: ( { item } ) => {
 				const safeUrl = safeHttpUrl( item.link );
 				const label = (
-					<LeaderboardLabel
-						label={ item.label }
-						media={ { kind: 'favicon', url: item.icon } }
-						decorativeMedia={ Boolean( safeUrl ) }
-					/>
+					<Stack direction="row" gap="sm" align="center">
+						{ item.icon && (
+							<img
+								src={ item.icon }
+								onError={ handleFaviconError }
+								alt=""
+								className={ styles.favicon }
+							/>
+						) }
+						<span>{ item.label }</span>
+					</Stack>
 				);
 
 				// Group/source rows keep DataViews' title treatment and never link

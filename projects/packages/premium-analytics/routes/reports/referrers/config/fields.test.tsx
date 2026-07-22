@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { getReferrerFields, type ReferrerRecord } from './fields';
 
 /**
@@ -120,6 +120,21 @@ describe( 'referrer field', () => {
 			'src',
 			'https://icons.example/google.png'
 		);
+	} );
+
+	it( 'hides a referrer favicon when the image cannot be loaded', () => {
+		renderReferrerField( {
+			id: 'search|google.com|https://www.google.com/',
+			label: 'google.com',
+			views: 10,
+			link: 'https://www.google.com/',
+			icon: 'https://icons.example/missing.png',
+		} );
+
+		const favicon = screen.getByRole( 'presentation' );
+		fireEvent.error( favicon );
+
+		expect( favicon ).not.toBeVisible();
 	} );
 
 	it( 'renders no favicon image when the row has no icon', () => {
