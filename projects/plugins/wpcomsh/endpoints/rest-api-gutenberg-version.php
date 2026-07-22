@@ -12,13 +12,13 @@
 /**
  * Returns the active Gutenberg plugin version, or null if the plugin is not active.
  *
- * On WordPress beta builds the Gutenberg plugin is ignored in favor of the
- * core-bundled Gutenberg, which carries no version constant, so null is returned.
+ * When the Gutenberg plugin is ignored in favor of the core-bundled Gutenberg, which
+ * carries no version constant, null is returned.
  *
  * @return WP_REST_Response
  */
 function wpcomsh_rest_api_gutenberg_version() {
-	$version = ( ! wpcomsh_is_wp_beta_version() && defined( 'GUTENBERG_VERSION' ) ) ? GUTENBERG_VERSION : null;
+	$version = ( ! wpcomsh_is_gutenberg_plugin_ignored() && defined( 'GUTENBERG_VERSION' ) ) ? GUTENBERG_VERSION : null;
 
 	return new WP_REST_Response(
 		array(

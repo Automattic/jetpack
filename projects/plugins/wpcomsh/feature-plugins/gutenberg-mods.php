@@ -15,51 +15,111 @@
 add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 
-// Ignore the Gutenberg plugin on beta builds of WordPress so the core-bundled Gutenberg is used.
-add_filter( 'option_active_plugins', 'wpcomsh_ignore_gutenberg_plugin_on_wp_beta' );
+// Ignore the Gutenberg plugin when it is older than the Gutenberg version bundled in core,
+// so the site uses core's newer bundled Gutenberg instead of an outdated plugin.
+add_filter( 'option_active_plugins', 'wpcomsh_ignore_outdated_gutenberg_plugin' );
 
 /**
- * Whether the site is running a pre-release (beta/RC/nightly) build of WordPress core.
+ * Minimum Gutenberg version bundled in each WordPress major release.
  *
- * Development builds carry an `-alpha`, `-beta`, or `-RC` suffix (e.g. `6.9-beta2`,
- * `6.9-RC1-59400`), whereas stable releases do not (e.g. `6.6.1`). WordPress.com
- * surfaces the pre-release track as the site's "beta" WP version.
- *
- * @return bool
+ * Core exposes no Gutenberg version of its own, and the mapping lives outside core
+ * (https://developer.wordpress.org/block-editor/contributors/versions-in-wordpress/),
+ * so it is hard-coded here. Values are a minimum: beta, RC, and point releases cherry-pick
+ * fixes from later Gutenberg versions, so the true bundled version may be a little higher.
+ * Extend this list as new WordPress majors ship.
  */
-function wpcomsh_is_wp_beta_version() {
+const WPCOMSH_CORE_BUNDLED_GUTENBERG_VERSIONS = array(
+	'7.1' => '23.6',
+);
+
+/**
+ * Returns the minimum Gutenberg version bundled in the running WordPress core, or null if unknown.
+ *
+ * @return string|null
+ */
+function wpcomsh_get_core_bundled_gutenberg_version() {
 	global $wp_version;
 
-	if ( ! is_string( $wp_version ) || '' === $wp_version ) {
-		return false;
+	if ( ! is_string( $wp_version ) || ! preg_match( '/^(\d+\.\d+)/', $wp_version, $matches ) ) {
+		return null;
 	}
 
-	return (bool) preg_match( '/-(alpha|beta|RC)/i', $wp_version );
+	return WPCOMSH_CORE_BUNDLED_GUTENBERG_VERSIONS[ $matches[1] ] ?? null;
 }
 
 /**
- * Ignore the Gutenberg plugin on sites running a beta build of WordPress core.
+ * Returns the version of the installed Gutenberg plugin, or null if it can't be read.
  *
- * Beta/RC builds already bundle a matching Gutenberg, so keeping the Gutenberg
- * plugin active on top can shadow core with an older or incompatible version. Removing
- * it from the active plugins list at load time embraces the core-bundled Gutenberg without
- * touching the stored option, so the plugin returns once the site leaves the beta track.
+ * Reads the plugin header rather than the GUTENBERG_VERSION constant because this runs at
+ * the `option_active_plugins` filter, before the Gutenberg plugin is loaded.
+ *
+ * @return string|null
+ */
+function wpcomsh_get_installed_gutenberg_plugin_version() {
+	$plugin_file = WP_PLUGIN_DIR . '/gutenberg/gutenberg.php';
+
+	if ( ! is_readable( $plugin_file ) ) {
+		return null;
+	}
+
+	$data = get_file_data( $plugin_file, array( 'Version' => 'Version' ) );
+
+	return empty( $data['Version'] ) ? null : $data['Version'];
+}
+
+/**
+ * Whether the installed Gutenberg plugin should be ignored in favor of core's bundled Gutenberg.
+ *
+ * Only ignores the plugin when both versions are known and the plugin is older than the
+ * version bundled in core; when either version is unknown the plugin is left active.
+ *
+ * @param string|null $plugin_version      Installed Gutenberg plugin version.
+ * @param string|null $min_bundled_version Minimum Gutenberg version bundled in the running core.
+ * @return bool
+ */
+function wpcomsh_should_ignore_gutenberg_plugin( $plugin_version, $min_bundled_version ) {
+	if ( null === $plugin_version || null === $min_bundled_version ) {
+		return false;
+	}
+
+	return version_compare( $plugin_version, $min_bundled_version, '<' );
+}
+
+/**
+ * Whether the installed Gutenberg plugin is being ignored in favor of core's bundled Gutenberg.
+ *
+ * @return bool
+ */
+function wpcomsh_is_gutenberg_plugin_ignored() {
+	return wpcomsh_should_ignore_gutenberg_plugin(
+		wpcomsh_get_installed_gutenberg_plugin_version(),
+		wpcomsh_get_core_bundled_gutenberg_version()
+	);
+}
+
+/**
+ * Ignore the Gutenberg plugin when it is older than the Gutenberg version bundled in core.
+ *
+ * Removing it from the active plugins list at load time embraces the core-bundled Gutenberg
+ * without touching the stored option, so the plugin returns once it is updated past the bundle
+ * or the site moves to a WordPress version that bundles an older Gutenberg.
  *
  * @param mixed $plugins Value of the active_plugins option.
  * @return mixed
  */
-function wpcomsh_ignore_gutenberg_plugin_on_wp_beta( $plugins ) {
-	if ( ! is_array( $plugins ) || ! wpcomsh_is_wp_beta_version() ) {
+function wpcomsh_ignore_outdated_gutenberg_plugin( $plugins ) {
+	if ( ! is_array( $plugins ) ) {
 		return $plugins;
 	}
 
 	$key = array_search( 'gutenberg/gutenberg.php', $plugins, true );
-	if ( false !== $key ) {
-		unset( $plugins[ $key ] );
-		$plugins = array_values( $plugins );
+	if ( false === $key || ! wpcomsh_is_gutenberg_plugin_ignored() ) {
+		return $plugins;
 	}
 
-	return $plugins;
+	unset( $plugins[ $key ] );
+
+	return array_values( $plugins );
 }
 
 /**

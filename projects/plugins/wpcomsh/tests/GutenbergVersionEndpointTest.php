@@ -21,43 +21,21 @@ class GutenbergVersionEndpointTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the callback returns the Gutenberg plugin version on a stable WordPress build.
+	 * Tests that the callback returns the Gutenberg plugin version when the plugin is active and not ignored.
+	 *
+	 * The Gutenberg plugin isn't installed in the test environment, so it is never ignored in favor
+	 * of the core bundle, and the defined GUTENBERG_VERSION is returned.
 	 */
 	public function test_callback_returns_version_payload() {
 		if ( ! defined( 'GUTENBERG_VERSION' ) ) {
 			define( 'GUTENBERG_VERSION', '99.9.9-test' );
 		}
 
-		global $wp_version;
-		$original   = $wp_version;
-		$wp_version = '6.6.1';
-
 		$response = wpcomsh_rest_api_gutenberg_version();
-
-		$wp_version = $original;
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( array( 'version' => GUTENBERG_VERSION ), $response->get_data() );
-	}
-
-	/**
-	 * Tests that the callback returns a null version on a beta build, where the Gutenberg plugin is ignored.
-	 */
-	public function test_callback_returns_null_version_on_beta() {
-		if ( ! defined( 'GUTENBERG_VERSION' ) ) {
-			define( 'GUTENBERG_VERSION', '99.9.9-test' );
-		}
-
-		global $wp_version;
-		$original   = $wp_version;
-		$wp_version = '6.9-beta1';
-
-		$response = wpcomsh_rest_api_gutenberg_version();
-
-		$wp_version = $original;
-
-		$this->assertSame( array( 'version' => null ), $response->get_data() );
 	}
 
 	/**
