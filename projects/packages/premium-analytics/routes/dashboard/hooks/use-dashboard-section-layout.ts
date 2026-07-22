@@ -5,7 +5,6 @@ import { isDashboardSectionLayouts } from '../config';
 import { DASHBOARD_PREFERENCES_SCOPE } from './constants';
 import { useDashboardLayout } from './use-dashboard-layout';
 import type { DashboardSection, DashboardSectionId, DashboardSectionLayouts } from '../config';
-import type { DashboardName } from './use-dashboard-layout';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const PREFERENCES_KEY = 'dashboardSectionLayouts';
@@ -22,17 +21,15 @@ type PreferencesActions = {
  * section keeps its own layout. Reset restores the section's `default_layout`
  * from the `dashboardSection` record: a local store write, no request.
  *
- * @param dashboardName   - Dashboard registration name for the base layout.
  * @param activeSectionId - Currently active section slug.
  * @param sections        - The available sections, carrying their defaults.
  * @return Active section layout, setter, and reset action.
  */
 export function useDashboardSectionLayout(
-	dashboardName: DashboardName,
 	activeSectionId: DashboardSectionId,
 	sections: DashboardSection[]
 ): [ DashboardWidget[], ( layout: DashboardWidget[] ) => void, () => void ] {
-	const [ defaultLayout ] = useDashboardLayout( dashboardName );
+	const defaultLayout = useDashboardLayout();
 
 	const sectionLayouts = useSelect( select => {
 		const value = (

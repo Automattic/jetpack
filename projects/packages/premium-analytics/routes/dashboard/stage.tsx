@@ -10,7 +10,6 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DashboardSections } from './components';
 import {
-	DASHBOARD_NAME,
 	useActiveSection,
 	useDashboardGridSettings,
 	useDashboardSectionLayout,
@@ -26,11 +25,7 @@ import styles from './stage.module.scss';
 function Dashboard(): JSX.Element {
 	const sections = useDashboardSections();
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
-		DASHBOARD_NAME,
-		activeSection,
-		sections
-	);
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(

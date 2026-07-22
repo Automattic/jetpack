@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: drop the unused dashboard-wide layout reset and its apiFetch; useDashboardLayout is now a read-only selector.
