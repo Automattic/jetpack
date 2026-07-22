@@ -221,6 +221,11 @@ describe( 'LeaderboardChart fitRows', () => {
 		const rows = screen.getAllByRole( 'button', { hidden: true } );
 		expect( rows[ 1 ] ).toBeVisible();
 		expect( rows[ 2 ] ).not.toBeVisible();
+
+		// The default role query runs the accessibility-tree computation, which
+		// treats `visibility: hidden` as inaccessible — so this asserts the rows
+		// that do not fit are absent from the a11y tree, not merely styled.
+		expect( screen.getAllByRole( 'button' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'keeps hidden rows measurable so a taller container can reveal them', () => {

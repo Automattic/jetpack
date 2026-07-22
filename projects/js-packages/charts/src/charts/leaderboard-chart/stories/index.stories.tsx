@@ -1,6 +1,6 @@
 import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
-import { expect, waitFor } from 'storybook/test';
+import { expect, userEvent, waitFor } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -662,5 +662,55 @@ export const FitRows: Story = {
 		await resizeTo( 280, count => expect( count ).toBeGreaterThan( whenShort ) );
 		await resizeTo( 100, count => expect( count ).toBe( whenShort ) );
 		await resizeTo( 180, count => expect( count ).toBe( atStart ) );
+	},
+};
+
+export const FitRowsInteractive: Story = {
+	render: args => <LeaderboardChartUnresponsive { ...args } fitRows />,
+	args: {
+		data: sampleData.map( entry => ( {
+			...entry,
+			onClick: () => onLeaderboardItemClick( entry.id ),
+		} ) ),
+		loading: false,
+		containerWidth: '360px',
+		containerHeight: '180px',
+		withPadding: false,
+		resize: 'vertical',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`fitRows` with interactive rows: the rows that do not fit are hidden with `visibility: hidden`, which also removes them from the tab order and the accessibility tree. Tab through the chart to verify focus only ever lands on a fully visible row.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		await document.fonts.ready;
+
+		const rows = [ ...canvasElement.querySelectorAll< HTMLElement >( '[data-row-index]' ) ];
+		const isHidden = ( row: HTMLElement ) => getComputedStyle( row ).visibility === 'hidden';
+
+		// The focus walk only means something if the height actually forces a cut.
+		let visible: HTMLElement[] = [];
+		await waitFor( () => {
+			visible = rows.filter( row => ! isHidden( row ) );
+			expect( visible.length ).toBeGreaterThan( 0 );
+			expect( visible.length ).toBeLessThan( rows.length );
+		} );
+
+		// Tab lands on each fitted row in order…
+		visible[ 0 ].focus();
+		expect( visible[ 0 ] ).toHaveFocus();
+		for ( const row of visible.slice( 1 ) ) {
+			await userEvent.tab();
+			expect( row ).toHaveFocus();
+		}
+
+		// …then leaves the chart: no hidden row ever takes focus.
+		await userEvent.tab();
+		const hidden = rows.filter( isHidden );
+		expect( hidden ).not.toContain( canvasElement.ownerDocument.activeElement );
 	},
 };
