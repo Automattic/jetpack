@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Number Slider: remove the NumberSlider component. It wrapped the unmaintained react-slider dependency (which blocked React 19) and had a single consumer; use the WordPress RangeControl component from @wordpress/components directly instead.

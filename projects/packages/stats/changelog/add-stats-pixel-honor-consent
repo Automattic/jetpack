@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a per-site setting to make the Stats tracking pixel honor the WP Consent API statistics category.

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.7.10] - 2026-07-22
+### Changed
+- Update dependencies. [#50674]
+
 ## [8.7.9] - 2026-07-20
 ### Changed
 - Heartbeat: Report the site environment stats (WordPress/PHP versions, site configuration, etc.) for all connected sites. [#50006]
@@ -1949,6 +1953,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.7.10]: https://github.com/Automattic/jetpack-connection/compare/v8.7.9...v8.7.10
 [8.7.9]: https://github.com/Automattic/jetpack-connection/compare/v8.7.8...v8.7.9
 [8.7.8]: https://github.com/Automattic/jetpack-connection/compare/v8.7.7...v8.7.8
 [8.7.7]: https://github.com/Automattic/jetpack-connection/compare/v8.7.6...v8.7.7
