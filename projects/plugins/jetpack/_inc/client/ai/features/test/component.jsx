@@ -92,6 +92,56 @@ describe( 'AiFeatures rendering', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	test( 'plan unsupported: plan notice shown, rows keep saved values but disable, links hidden', () => {
+		renderFeatures( { is_connected: true, plan: { supports_ai: false } } );
+
+		expect(
+			screen.getByText( "This site's plan doesn't include Jetpack AI." )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Upgrade to get Jetpack AI' } ) ).toBeInTheDocument();
+
+		// Rows still render with their saved values — they are not hidden.
+		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeDisabled();
+
+		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'disconnected AND plan unsupported: the connection notice wins, no upgrade nudge', () => {
+		renderFeatures( { is_connected: false, plan: { supports_ai: false } } );
+
+		// The connection ask comes before any upgrade messaging.
+		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( "This site's plan doesn't include Jetpack AI." )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Upgrade to get Jetpack AI' } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'plan unsupported AND master off: the plan notice wins (it is the outer gate)', () => {
+		renderFeatures( { is_connected: true, plan: { supports_ai: false }, master_enabled: false } );
+
+		expect(
+			screen.getByText( "This site's plan doesn't include Jetpack AI." )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Jetpack AI is turned off for this site.' )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'plan unsupported: the "Requires upgrade" badge is not shown, even on ai_search', () => {
+		renderFeatures( { is_connected: true, plan: { supports_ai: false } } );
+
+		// A site-level "no AI plan" notice plus a per-feature upgrade badge would
+		// be two competing upsells — the badge is suppressed.
+		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: /AI Search/ } ) ).toBeInTheDocument();
+	} );
+
 	// Gated toggles must be inert, not merely styled disabled.
 	test.each( [
 		[ 'not connected', { is_connected: false } ],

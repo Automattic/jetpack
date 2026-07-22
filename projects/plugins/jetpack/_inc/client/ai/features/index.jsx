@@ -154,14 +154,15 @@ export function visibleSections( sections, features ) {
 /**
  * A single feature row: toggle + description + optional action link.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.feature       - Entry from SECTIONS[].features.
- * @param {object}   props.reported      - This feature's object from the settings response.
- * @param {boolean}  props.checked       - Whether the feature is enabled.
- * @param {boolean}  props.isSaving      - Whether this toggle is being saved.
- * @param {boolean}  props.masterEnabled - Whether the site-wide AI master switch is on.
- * @param {boolean}  props.isConnected   - Whether the AI connection gate passes (connected owner, not offline).
- * @param {Function} props.onChange      - Called with (key, enabled) on toggle.
+ * @param {object}   props                - Component props.
+ * @param {object}   props.feature        - Entry from SECTIONS[].features.
+ * @param {object}   props.reported       - This feature's object from the settings response.
+ * @param {boolean}  props.checked        - Whether the feature is enabled.
+ * @param {boolean}  props.isSaving       - Whether this toggle is being saved.
+ * @param {boolean}  props.masterEnabled  - Whether the site-wide AI master switch is on.
+ * @param {boolean}  props.isConnected    - Whether the AI connection gate passes (connected owner, not offline).
+ * @param {boolean}  props.planSupportsAi - Whether the site's plan includes Jetpack AI.
+ * @param {Function} props.onChange       - Called with (key, enabled) on toggle.
  * @return {object} Component markup.
  */
 function FeatureRow( {
@@ -171,6 +172,7 @@ function FeatureRow( {
 	isSaving,
 	masterEnabled,
 	isConnected,
+	planSupportsAi,
 	onChange,
 } ) {
 	const handleChange = useCallback(
@@ -180,10 +182,16 @@ function FeatureRow( {
 
 	const action = checked ? feature.enabledAction : feature.disabledAction;
 	// The toggle keeps showing the SAVED value but can't be used while the
-	// connection gate fails (no feature can load without it), while the
-	// master switch is off (the saved choice returns when master does), or
-	// while the plan doesn't include the feature.
-	const isDisabled = isSaving || ! isConnected || ! masterEnabled || !! reported?.requires_upgrade;
+	// connection gate fails (no feature can load without it), while the site's
+	// plan doesn't include Jetpack AI, while the master switch is off (the saved
+	// choice returns when master does), or while the plan doesn't include the
+	// individual feature.
+	const isDisabled =
+		isSaving ||
+		! isConnected ||
+		! planSupportsAi ||
+		! masterEnabled ||
+		!! reported?.requires_upgrade;
 
 	return (
 		<Stack direction="column" gap="xs" className="jetpack-ai-features__row">
@@ -195,7 +203,7 @@ function FeatureRow( {
 				help={ feature.description }
 				onChange={ handleChange }
 			/>
-			{ action && masterEnabled && isConnected && (
+			{ action && masterEnabled && isConnected && planSupportsAi && (
 				<Link
 					className="jetpack-ai-features__action"
 					href={ action.href }
@@ -228,6 +236,11 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	// case no AI feature can load. Saved values stay visible but inert, and
 	// the connection ask comes before any upgrade messaging.
 	const isConnected = settings?.is_connected !== false;
+	// The plan-entitlement gate sits between connection and master: a connected
+	// site whose plan lacks Jetpack AI can't run any feature. Like the other
+	// gates a missing field degrades to "entitled" so an incomplete response
+	// never locks the page, and the connection ask still comes first.
+	const planSupportsAi = settings?.plan?.supports_ai !== false;
 
 	const sections = visibleSections( SECTIONS, features );
 
@@ -264,7 +277,23 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			{ isConnected && ! masterEnabled && (
+			{ isConnected && ! planSupportsAi && (
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( "This site's plan doesn't include Jetpack AI.", 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'Your feature settings are saved and will apply once Jetpack AI is part of your plan.',
+							'jetpack'
+						) }{ ' ' }
+						<Link href={ getRedirectUrl( 'jetpack-ai-upgrade-url-for-jetpack-sites' ) }>
+							{ __( 'Upgrade to get Jetpack AI', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
+			) }
+			{ isConnected && planSupportsAi && ! masterEnabled && (
 				<Notice.Root intent="warning">
 					<Notice.Title>
 						{ __( 'Jetpack AI is turned off for this site.', 'jetpack' ) }
@@ -289,6 +318,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 									{ section.title }
 								</Text>
 								{ isConnected &&
+									planSupportsAi &&
 									section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
 										<Badge intent="informational">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
 									) }
@@ -302,6 +332,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 									isSaving={ savingKeys.has( feature.key ) }
 									masterEnabled={ masterEnabled }
 									isConnected={ isConnected }
+									planSupportsAi={ planSupportsAi }
 									onChange={ handleToggle }
 								/>
 							) ) }

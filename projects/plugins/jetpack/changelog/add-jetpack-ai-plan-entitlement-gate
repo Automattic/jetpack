@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI settings: Hide feature controls when the site plan does not include Jetpack AI.
