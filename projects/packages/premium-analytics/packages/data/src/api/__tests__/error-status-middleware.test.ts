@@ -6,9 +6,16 @@
  */
 
 /**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+/**
  * Internal dependencies
  */
-import { apiErrorStatusMiddleware } from '../error-status-middleware';
+import {
+	apiErrorStatusMiddleware,
+	registerApiErrorStatusMiddleware,
+} from '../error-status-middleware';
 
 function jsonResponse( body: unknown, status: number ): Response {
 	return new Response( JSON.stringify( body ), {
@@ -95,6 +102,20 @@ describe( 'apiErrorStatusMiddleware', () => {
 		} );
 	} );
 
+	it( 'throws a non-object JSON error body as-is without attaching status', async () => {
+		// `isPlainErrorBody` exists so `status` is never spread into arrays,
+		// strings, or null — spreading an array would mangle it into an object.
+		const { result } = runResponse( jsonResponse( [ 'boom' ], 500 ) );
+
+		await expect( result ).rejects.toEqual( [ 'boom' ] );
+	} );
+
+	it( 'throws a JSON string error body as-is', async () => {
+		const { result } = runResponse( jsonResponse( 'boom', 502 ) );
+
+		await expect( result ).rejects.toBe( 'boom' );
+	} );
+
 	it( 'rethrows a non-Response rejection untouched (offline / fetch / abort)', async () => {
 		// apiFetch rejects offline and network failures with a bare
 		// `{ code, message }` and no Response; there is no status to add.
@@ -148,10 +169,35 @@ describe( 'apiErrorStatusMiddleware', () => {
 		expect( next ).toHaveBeenCalledWith( { path: '/wp/v2/thing?per_page=-1' } );
 	} );
 
+	it( 'leaves unbounded per_page=-1 url-based queries to apiFetch as well', async () => {
+		const url = 'https://example.com/wp-json/wp/v2/thing?per_page=-1';
+		const mocked = [ { id: 1 } ];
+		const { next, result } = runResolved( mocked, { url } );
+
+		await expect( result ).resolves.toBe( mocked );
+		expect( next ).toHaveBeenCalledWith( { path: '/x', url } );
+	} );
+
 	it( 'forces parse: false on the request it forwards', async () => {
 		const { next } = runResponse( jsonResponse( { ok: true }, 200 ), { method: 'POST' } );
 
 		await Promise.resolve();
 		expect( next ).toHaveBeenCalledWith( { path: '/x', method: 'POST', parse: false } );
+	} );
+} );
+
+describe( 'registerApiErrorStatusMiddleware', () => {
+	it( 'registers with apiFetch only once across repeated calls', () => {
+		const use = jest.spyOn( apiFetch, 'use' ).mockImplementation( () => {} );
+
+		try {
+			registerApiErrorStatusMiddleware();
+			registerApiErrorStatusMiddleware();
+
+			expect( use ).toHaveBeenCalledTimes( 1 );
+			expect( use ).toHaveBeenCalledWith( apiErrorStatusMiddleware );
+		} finally {
+			use.mockRestore();
+		}
 	} );
 } );
