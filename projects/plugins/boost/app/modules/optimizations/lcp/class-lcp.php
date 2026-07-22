@@ -156,10 +156,18 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 									Schema::as_assoc_array(
 										array(
 											'type' => Schema::as_string(),
+											// `meta` is nullable so an empty (`[]`/`{}`) or otherwise
+											// unrecognized shape parses to null instead of throwing and
+											// collapsing the whole lcp_state to its not_analyzed fallback.
+											// Unknown keys are dropped; every declared key is optional.
 											'meta' => Schema::as_assoc_array(
 												array(
 													'code' => Schema::as_number()->nullable(),
 													'selector' => Schema::as_string()->nullable(),
+													// `page-navigated` errors from boost-cloud (BOOST-597) carry
+													// the redirect target here. Without this key it was stripped
+													// and stored as an empty `[]`, which broke the client parse.
+													'finalUrl' => Schema::as_string()->nullable(),
 												)
 											)->nullable(),
 										)

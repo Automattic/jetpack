@@ -63,9 +63,11 @@ class Update_LCP implements Endpoint {
 			return $api_successful;
 		}
 
+		$update_errors = array();
+		$applied       = 0;
 		foreach ( $pages as $entry ) {
 			if ( $entry['success'] ) {
-				$state->set_page_success( $entry['key'] );
+				$result = $state->set_page_success( $entry['key'] );
 			} else {
 				$errors = array();
 				foreach ( $entry['reports'] as $report ) {
@@ -74,7 +76,13 @@ class Update_LCP implements Endpoint {
 					}
 				}
 
-				$state->set_page_errors( $entry['key'], $errors );
+				$result = $state->set_page_errors( $entry['key'], $errors );
+			}
+
+			if ( is_wp_error( $result ) ) {
+				$update_errors[] = $entry['key'] . ': ' . $result->get_error_message();
+			} else {
+				++$applied;
 			}
 
 			// Store the LCP data for this page.
@@ -84,8 +92,19 @@ class Update_LCP implements Endpoint {
 			// @TODO: figure out what to do with failures.
 		}
 
-		// Save the state changes.
-		$state->save();
+		if ( ! empty( $update_errors ) ) {
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				'Jetpack Boost: LCP update could not apply results to the stored state: ' . implode( '; ', $update_errors )
+			);
+		}
+
+		// Only persist when at least one result was actually applied. If every update failed
+		// (e.g. the stored state was reset to the not_analyzed fallback and has no pages),
+		// saving would just re-persist that empty state and shadow the good data already
+		// written to jb_store_lcp storage above.
+		if ( $applied > 0 ) {
+			$state->save();
+		}
 
 		return $api_successful;
 	}
