@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use WP_Post;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Llms_Txt
@@ -98,5 +100,102 @@ class LlmsTxtTest extends TestCase {
 		remove_filter( 'jetpack_seo_llms_txt_can_serve', '__return_false' );
 
 		$this->assertTrue( Llms_Txt::can_serve() );
+	}
+
+	/**
+	 * Build a WP_Post fixture with sensible published defaults. The package test
+	 * environment can't query inserted posts, so the content paths are exercised by
+	 * handing built posts straight to `link_list` (the same reason {@see
+	 * SchemaBuilderTest} builds posts directly).
+	 *
+	 * @param array $fields Field overrides.
+	 * @return WP_Post
+	 */
+	private function make_post( array $fields = array() ): WP_Post {
+		return new WP_Post(
+			(object) array_merge(
+				array(
+					'ID'            => 1,
+					'post_type'     => 'post',
+					'post_status'   => 'publish',
+					'post_title'    => 'Test post',
+					'post_content'  => '',
+					'post_password' => '',
+					'post_date'     => '2026-01-01 00:00:00',
+					'post_date_gmt' => '2026-01-01 00:00:00',
+					'post_author'   => 0,
+				),
+				$fields
+			)
+		);
+	}
+
+	/**
+	 * Invoke the private `link_list` with a set of posts.
+	 *
+	 * @param WP_Post[] $posts Posts to render.
+	 * @return string
+	 */
+	private function link_list( array $posts ): string {
+		$method = new ReflectionMethod( Llms_Txt::class, 'link_list' );
+		$method->setAccessible( true );
+		return (string) $method->invoke( null, $posts );
+	}
+
+	/**
+	 * Password-protected posts are `publish` status but their content is
+	 * intentionally gated, so they're excluded from the public llms.txt entirely.
+	 *
+	 * @return void
+	 */
+	public function test_link_list_excludes_password_protected_posts() {
+		$output = $this->link_list(
+			array(
+				$this->make_post(
+					array(
+						'ID'         => 1,
+						'post_title' => 'Public Post',
+					)
+				),
+				$this->make_post(
+					array(
+						'ID'            => 2,
+						'post_title'    => 'Secret Post',
+						'post_password' => 'hunter2',
+					)
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Public Post', $output );
+		$this->assertStringNotContainsString( 'Secret Post', $output );
+	}
+
+	/**
+	 * Brackets in a title are escaped so they can't break the `[title](url)`
+	 * Markdown link syntax.
+	 *
+	 * @return void
+	 */
+	public function test_link_list_escapes_brackets_in_titles() {
+		$output = $this->link_list(
+			array( $this->make_post( array( 'post_title' => 'Foo [bar]' ) ) )
+		);
+
+		$this->assertStringContainsString( 'Foo \[bar\]', $output );
+	}
+
+	/**
+	 * Whitespace (including newlines) in a title is collapsed so each entry stays
+	 * on a single line.
+	 *
+	 * @return void
+	 */
+	public function test_link_list_collapses_whitespace_in_titles() {
+		$output = $this->link_list(
+			array( $this->make_post( array( 'post_title' => "Multi\nline   title" ) ) )
+		);
+
+		$this->assertStringContainsString( 'Multi line title', $output );
 	}
 }

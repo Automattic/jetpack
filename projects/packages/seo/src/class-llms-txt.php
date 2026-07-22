@@ -113,6 +113,14 @@ class Llms_Txt {
 			return;
 		}
 
+		// Respect the site's "discourage search engines" setting. When indexing is
+		// discouraged, WordPress emits `Disallow: /` in robots.txt — serving an AI
+		// content map would contradict that signal, and would expose a content map
+		// on staging/private sites, so we don't serve it.
+		if ( ! get_option( 'blog_public' ) ) {
+			return;
+		}
+
 		nocache_headers();
 		status_header( 200 );
 		header( 'Content-Type: text/plain; charset=utf-8' );
@@ -182,12 +190,21 @@ class Llms_Txt {
 	private static function link_list( $posts ) {
 		$lines = array();
 		foreach ( $posts as $post ) {
-			$title = wp_strip_all_tags( get_the_title( $post ) );
+			// Password-protected posts are `publish` status but their content is
+			// intentionally gated; keep them out of the public llms.txt entirely.
+			if ( ! empty( $post->post_password ) ) {
+				continue;
+			}
+
+			// Collapse whitespace (incl. newlines) so each entry stays on one line.
+			$title = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( get_the_title( $post ) ) ) );
 			if ( '' === $title ) {
 				$title = __( '(untitled)', 'jetpack-seo' );
 			}
-			$url  = get_permalink( $post );
-			$line = '- [' . $title . '](' . $url . ')';
+			// Escape brackets so a title can't break the `[title](url)` link syntax.
+			$title = str_replace( array( '[', ']' ), array( '\[', '\]' ), $title );
+			$url   = esc_url_raw( (string) get_permalink( $post ) );
+			$line  = '- [' . $title . '](' . $url . ')';
 
 			$summary = self::summary( $post );
 			if ( '' !== $summary ) {
