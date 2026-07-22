@@ -6,7 +6,9 @@
  * @param currentValues  - Values from the primary period.
  * @param previousValues - Matching values from the comparison period. Missing
  *                       matches should remain undefined.
- * @return The largest non-negative value across both periods.
+ * @return The largest value across both periods, clamped to a minimum of 0
+ *         (empty or entirely negative input yields 0; sharePercentage maps a
+ *         0 max to 0% shares).
  */
 export function getCombinedPeriodMax(
 	currentValues: readonly number[],

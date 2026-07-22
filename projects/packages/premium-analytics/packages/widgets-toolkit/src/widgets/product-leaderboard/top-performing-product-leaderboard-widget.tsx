@@ -176,10 +176,11 @@ export function TopPerformingProductLeaderboardWidget( {
 						action: { kind: 'static' },
 					} ),
 					currentValue,
-					currentShare: sharePercentage( currentValue, maxValue ),
-					previousValue,
 					// Net revenue can be negative once refunds outweigh sales; a
-					// negative share would render an invalid bar width.
+					// negative share would render an invalid bar width, so clamp
+					// both periods' shares to zero-width bars.
+					currentShare: sharePercentage( Math.max( currentValue, 0 ), maxValue ),
+					previousValue,
 					previousShare: hasComparisonValue
 						? sharePercentage( Math.max( previousValue, 0 ), maxValue )
 						: undefined,

@@ -12,6 +12,11 @@ describe( 'getCombinedPeriodMax', () => {
 		expect( getCombinedPeriodMax( [ 100, 50 ], [ undefined, 75 ] ) ).toBe( 100 );
 	} );
 
+	it( 'uses only the current period when comparison values are absent', () => {
+		expect( getCombinedPeriodMax( [ 100, 50 ], [] ) ).toBe( 100 );
+		expect( getCombinedPeriodMax( [ 100, 50 ] ) ).toBe( 100 );
+	} );
+
 	it( 'returns zero for empty or entirely negative data', () => {
 		expect( getCombinedPeriodMax( [], [] ) ).toBe( 0 );
 		expect( getCombinedPeriodMax( [ -10 ], [ -5 ] ) ).toBe( 0 );

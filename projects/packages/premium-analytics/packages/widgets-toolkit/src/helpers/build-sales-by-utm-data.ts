@@ -30,15 +30,17 @@ export function buildSalesByUtmData(
 
 	const data = orderAttribution.data.slice( 0, maxEntries );
 
+	// The order-attribution summary reports both periods for every row (see
+	// SanitizedOrderAttributionSummaryItem), so unlike the row-matched stats
+	// leaderboards there is no missing-comparison case to keep undefined here.
 	const maxValue = getCombinedPeriodMax(
 		data.map( item => item.current_period.value || 0 ),
-		data.map( item => item.previous_period?.value )
+		data.map( item => item.previous_period.value || 0 )
 	);
 
 	return data.map( ( item, idx ) => {
 		const currentValue = item.current_period.value || 0;
-		const previousValue = item.previous_period?.value ?? 0;
-		const delta = calculateDelta( currentValue, previousValue );
+		const previousValue = item.previous_period.value || 0;
 
 		return {
 			id: item.item ? String( item.item ) : String( idx ),
@@ -47,7 +49,7 @@ export function buildSalesByUtmData(
 			previousValue,
 			currentShare: sharePercentage( currentValue, maxValue ),
 			previousShare: sharePercentage( previousValue, maxValue ),
-			delta,
+			delta: calculateDelta( currentValue, previousValue ),
 		};
 	} );
 }

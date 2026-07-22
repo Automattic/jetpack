@@ -67,7 +67,6 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 		data.map( item => item.views ),
 		hasComparison ? data.map( item => item.previousViews ) : []
 	);
-	const withComparison = hasComparison;
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
 		const previousValue = item.previousViews;
 
@@ -82,11 +81,11 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 			currentShare: sharePercentage( item.views, maxViews ),
 			previousValue,
 			previousShare:
-				withComparison && previousValue !== undefined
+				hasComparison && previousValue !== undefined
 					? sharePercentage( previousValue, maxViews )
 					: undefined,
 			delta:
-				withComparison && previousValue !== undefined
+				hasComparison && previousValue !== undefined
 					? calculateDelta( item.views, previousValue )
 					: undefined,
 		};
