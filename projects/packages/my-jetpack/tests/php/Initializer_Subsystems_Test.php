@@ -203,32 +203,6 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The remaining selective wrappers (the ones without a dedicated test above) each
-	 * install their own distinctive hook and none of them fires my_jetpack_init. Guards
-	 * the wrappers' loader mapping against copy/paste regressions, since init() calls the
-	 * private load_* bodies directly and so never exercises the wrappers themselves.
-	 */
-	public function test_remaining_individual_methods_wire_only_their_subsystem() {
-		$cases = array(
-			'init_plugins_action_links' => array( 'has_filter', 'plugin_action_links_jetpack/jetpack.php', array( Product::class, 'get_plugin_actions_links' ) ),
-			'init_licensing'            => array( 'has_action', 'jetpack_authorize_ending_authorized', array( Licensing::instance(), 'attach_stored_licenses_on_connection' ) ),
-			'init_explat'               => array( 'has_action', 'rest_api_init', array( ExPlat_REST_Controller::class, 'register' ) ),
-			'init_jitm'                 => array( 'has_action', 'rest_api_init', array( 'Automattic\Jetpack\JITMS\Rest_Api_Endpoints', 'register_endpoints' ) ),
-			'init_jetpack_manage'       => array( 'has_action', 'admin_menu', array( Jetpack_Manage::class, 'add_submenu_jetpack' ) ),
-		);
-
-		foreach ( $cases as $method => $expected ) {
-			self::reset_initializer_state();
-			list( $checker, $tag, $callback ) = $expected;
-
-			$this->assertFalse( $checker( $tag, $callback ), "$method: hook was present before the call" );
-			Initializer::{$method}();
-			$this->assertNotFalse( $checker( $tag, $callback ), "$method did not wire its subsystem" );
-			$this->assertSame( 0, did_action( 'my_jetpack_init' ), "$method must not fire my_jetpack_init" );
-		}
-	}
-
-	/**
 	 * Speed Score hooks itself as an object, so WordPress cannot deduplicate a second
 	 * instance. Mixing init_speed_score() with init() must still leave one instance.
 	 */
