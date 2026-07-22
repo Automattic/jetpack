@@ -64,6 +64,8 @@ abstract class Abstract_Transplanter implements Transplanter {
 		$tmp = $target_path . '.' . uniqid( 'jpprov', true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( false === @file_put_contents( $tmp, $injected ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			@unlink( $tmp );
 			return false;
 		}
 
