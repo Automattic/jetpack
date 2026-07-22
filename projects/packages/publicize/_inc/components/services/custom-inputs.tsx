@@ -7,7 +7,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { store } from '../../social-store';
-import styles from './style-dashboard.module.scss';
+import styles from './style.module.scss';
 import { SupportedService } from './types';
 
 type CustomInputsProps = {

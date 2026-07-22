@@ -4,7 +4,7 @@ import { Card } from '@wordpress/ui';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceItem } from './service-item';
-import styles from './style-dashboard.module.scss';
+import styles from './style.module.scss';
 import { useSupportedServices } from './use-supported-services';
 
 /**

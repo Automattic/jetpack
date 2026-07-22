@@ -8,7 +8,7 @@ import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connec
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
-import styles from './style-dashboard.module.scss';
+import styles from './style.module.scss';
 
 export const ManageConnectionsModal = () => {
 	const { keyringResult } = useSelect( select => {
@@ -68,7 +68,7 @@ export const ManageConnectionsModal = () => {
 				 * Both non-`full` views also carry the admin-menu workaround so they
 				 * don't tuck under the wp-admin sidebar: `services-list` (its
 				 * horizontal half) and `menu-aware` (the confirmation view). See the
-				 * workaround section in style-dashboard.module.scss.
+				 * workaround section in style.module.scss.
 				 */ }
 				{ /*
 				 * WPDS routes its overlays through a body-level compat slot

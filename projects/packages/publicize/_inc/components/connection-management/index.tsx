@@ -8,7 +8,7 @@ import { store } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
-import listStyles from './style-dashboard.module.scss';
+import listStyles from './style.module.scss';
 
 const ConnectionManagement = ( {
 	className = null,

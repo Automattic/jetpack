@@ -8,7 +8,7 @@ import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
 import { ServiceStatus } from './service-status';
-import styles from './style-dashboard.module.scss';
+import styles from './style.module.scss';
 import type { SyntheticEvent } from 'react';
 
 export type ServicesItemProps = ServicesItemDetailsProps & {

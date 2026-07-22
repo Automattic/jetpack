@@ -11,7 +11,7 @@ import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
 import { ConnectionTemplateEditor } from './connection-template';
 import { Disconnect } from './disconnect';
 import { MarkAsShared } from './mark-as-shared';
-import styles from './style-dashboard.module.scss';
+import styles from './style.module.scss';
 
 type ConnectionInfoProps = ConnectionStatusProps & {
 	canMarkAsShared: boolean;
