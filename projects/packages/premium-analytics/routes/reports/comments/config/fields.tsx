@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Link as RouteLink } from '@wordpress/route';
 import { Link as UiLink } from '@wordpress/ui';
@@ -77,7 +78,9 @@ export function getCommentsFields(): Field< CommentReportRow >[] {
 			id: 'comments',
 			label: __( 'Comments', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.value,
-			render: ( { item } ) => <>{ item.value.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.value, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }

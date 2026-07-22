@@ -28,3 +28,18 @@
 .root :global(.dataviews-layout__container) {
 	flex: 1 1 auto;
 }
+
+/* Per the report-table design, row links rest as neutral text and only take
+ * the interactive color and underline on hover/keyboard focus. Scoped to the
+ * DataViews table body so custom empty states or other table chrome can keep
+ * their own link treatment. */
+.root :global(.dataviews-view-table tbody a:any-link) {
+	color: var(--wpds-color-foreground-content-neutral);
+	text-decoration: none;
+}
+
+.root :global(.dataviews-view-table tbody a:any-link:hover),
+.root :global(.dataviews-view-table tbody a:any-link:focus-visible) {
+	color: var(--wpds-color-foreground-interactive-brand);
+	text-decoration: underline;
+}

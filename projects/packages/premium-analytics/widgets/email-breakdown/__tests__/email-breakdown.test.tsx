@@ -56,11 +56,14 @@ const COUNTRY_RESPONSE = {
 	},
 };
 
+// `some-other-internal` aggregates into the catch-all row and outranks every other
+// row by value, so the fixture proves that row is pinned last across the merge
+// rather than just landing there.
 const INTERNAL_LINKS_RESPONSE = {
 	links: {
 		data: [
 			[ 'post-url', 640 ],
-			[ 'some-other-internal', 22 ],
+			[ 'some-other-internal', 900 ],
 		],
 	},
 };
@@ -195,7 +198,13 @@ describe( 'EmailBreakdownWidget', () => {
 		// Known internal link types are mapped to display labels; unknown ones are
 		// aggregated into "Other".
 		expect( screen.getByText( 'Post URL' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Other' ) ).toBeInTheDocument();
+		const otherRow = screen.getByText( 'Other' );
+		expect( otherRow ).toBeInTheDocument();
+
+		// The catch-all row stays pinned last after the two breakdowns are merged
+		// and re-sorted, even though it holds the highest value. The two nodes sit in
+		// separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
+		expect( otherRow.compareDocumentPosition( link ) ).toBe( Node.DOCUMENT_POSITION_PRECEDING );
 
 		// The links view fetches both clicks breakdowns, matching Calypso.
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );

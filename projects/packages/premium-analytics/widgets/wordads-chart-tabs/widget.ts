@@ -51,14 +51,6 @@ export type WordAdsChartTabsAttributes = {
  * site.
  */
 export default {
-	name: 'jpa/wordads-chart-tabs',
-	title: __( 'WordAds', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Compare ads served, average CPM, and revenue over the selected period, with the previous period overlaid for comparison.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 	attributes: [
 		{

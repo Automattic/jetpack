@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	getStatsReportItems,
 	useStatsFollowers,
 	type StatsFollowersItem,
 	type StatsNormalizedReport,
@@ -34,7 +35,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
 ): SubscriberListItem[] {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
+	const items = getStatsReportItems( report );
 
 	return items.map( ( item, index ) => ( {
 		// Subscription id is the stable key; fall back to the row index so two

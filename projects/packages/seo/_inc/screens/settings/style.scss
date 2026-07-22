@@ -50,7 +50,7 @@
 // spaced between adjacent rows.
 .jetpack-seo-settings__title-row + .jetpack-seo-settings__title-row {
 	padding-block-start: var(--wpds-dimension-gap-lg);
-	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 }
 
 // The insert-placeholder buttons and their caption, grouped tight under the
@@ -173,31 +173,6 @@
 	min-block-size: 40px;
 }
 
-// Intro copy above the preview list.
-.jetpack-seo-settings__preview-intro {
-	margin: 0 0 var(--wpds-dimension-gap-xl);
-}
-
-// The previews stack with generous separation between them. Each preview is
-// bordered individually (below); there's no bordered group wrapping a heading
-// together with its preview, which avoids the box-in-box look.
-.jetpack-seo-settings__preview-list {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-2xl);
-}
-
-// Platform label above each preview: brand icon + name, prominent enough to
-// scan, with clear space before the card it describes.
-.jetpack-seo-settings__preview-label {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin: 0 0 var(--wpds-dimension-gap-md);
-	font-size: 15px;
-	font-weight: 600;
-}
-
 .jetpack-seo-preview__platform-icon {
 	inline-size: 18px;
 	block-size: 18px;
@@ -208,11 +183,9 @@
 // the look of each platform with plain markup.
 .jetpack-seo-preview {
 	max-inline-size: 500px;
-	font-size: 14px;
-	line-height: 1.4;
 }
 
-.jetpack-seo-preview__desc {
+.jetpack-seo-preview__muted {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
@@ -220,36 +193,19 @@
 // otherwise), set off as a result beneath its heading.
 .jetpack-seo-preview--google {
 	padding: var(--wpds-dimension-padding-md);
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-md);
-
-	.jetpack-seo-preview__google-site {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
 
 	.jetpack-seo-preview__favicon {
 		inline-size: 26px;
 		block-size: 26px;
 		border-radius: 50%;
-		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 		object-fit: cover;
 	}
 
-	.jetpack-seo-preview__google-url {
-		font-size: 12px;
-		color: #4d5156;
-	}
-
 	.jetpack-seo-preview__google-title {
-		margin-block-start: 4px;
-		font-size: 20px;
-		color: #1a0dab;
-	}
-
-	.jetpack-seo-preview__desc {
-		margin-block-start: 4px;
+		color: var(--wpds-color-foreground-interactive-brand);
 	}
 }
 
@@ -258,7 +214,7 @@
 // its heading.
 .jetpack-seo-preview--card {
 	overflow: hidden;
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-md);
 
 	.jetpack-seo-preview__image {
@@ -279,17 +235,7 @@
 	}
 
 	.jetpack-seo-preview__card-domain {
-		font-size: 12px;
 		text-transform: uppercase;
 		color: var(--wpds-color-foreground-content-neutral-weak);
-	}
-
-	.jetpack-seo-preview__card-title {
-		margin-block-start: 2px;
-		font-weight: 600;
-	}
-
-	.jetpack-seo-preview__desc {
-		margin-block-start: 2px;
 	}
 }

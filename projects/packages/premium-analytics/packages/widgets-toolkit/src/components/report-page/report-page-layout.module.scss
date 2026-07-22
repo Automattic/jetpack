@@ -39,6 +39,15 @@
 	gap: var(--wpds-dimension-gap-sm);
 }
 
+/*
+ * The slot content (e.g. the date-filters measurement wrapper) spans the full
+ * row so DateFiltersPanel can measure its real container width; controls
+ * inside it still flow inline.
+ */
+.filtersContent {
+	inline-size: 100%;
+}
+
 .sections {
 	display: flex;
 	flex-direction: column;

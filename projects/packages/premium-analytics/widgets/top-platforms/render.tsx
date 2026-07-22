@@ -76,7 +76,7 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				</Stack>
 			),
 			currentValue: item.views,
-			currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
+			currentShare: sharePercentage( item.views, maxViews ),
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined

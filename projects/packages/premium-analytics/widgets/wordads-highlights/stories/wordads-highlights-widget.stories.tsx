@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -11,18 +11,20 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
+	forceWordAdsEarningsState,
 	registerReportMocks,
-	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import WordAdsHighlightsRender from '../render';
 import widgetDefinition, {
 	DEFAULT_WORDADS_EARNINGS_METRICS,
 	type WordAdsEarningsMetricId,
 } from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -31,16 +33,9 @@ const WORDADS_HIGHLIGHTS_RENDER_MODULE = 'storybook/wordads-highlights';
 
 // Carry the widget's metadata, including the metric-visibility attribute schema
 // so the dashboard story's settings drawer renders the real checkboxes.
-// Presentation is left unset so the host frames the widget and renders its
-// identity (title + icon), matching widget.json.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	help: widgetDefinition.help,
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-};
+// `presentation` comes from widget.json ( 'framed' ), so the host frames the
+// widget and renders its identity (title + icon).
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface WordAdsHighlightsStoryControls {
 	/**
@@ -109,15 +104,6 @@ export const Default: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-// The earnings endpoint takes no params, so its query key is static and every
-// story in this file shares one cache entry (a distinct date preset can't
-// separate them — the query does not key on report params). Dropping the query
-// on story enter and exit gives each forced-state story a fresh fetch, and
-// clears a never-settling `loading` fetch before the other stories reuse the key.
-function resetWordAdsEarningsQuery() {
-	queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
-}
-
 /**
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
@@ -125,17 +111,10 @@ function resetWordAdsEarningsQuery() {
 export const Loading: Story = {
 	render: renderWordAdsHighlights,
 	args: { ...ALL_METRICS_ARGS },
-	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	// Off the shared autodocs page — path-keyed override; see forceWordAdsEarningsState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		resetWordAdsEarningsQuery();
-		setReportMockState( 'wordads/earnings', 'loading' );
-		return () => {
-			setReportMockState( 'wordads/earnings', null );
-			resetWordAdsEarningsQuery();
-		};
-	},
+	beforeEach: forceWordAdsEarningsState( 'loading' ),
 };
 
 /**
@@ -147,14 +126,7 @@ export const Error: Story = {
 	args: { ...ALL_METRICS_ARGS },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		resetWordAdsEarningsQuery();
-		setReportMockState( 'wordads/earnings', 'error' );
-		return () => {
-			setReportMockState( 'wordads/earnings', null );
-			resetWordAdsEarningsQuery();
-		};
-	},
+	beforeEach: forceWordAdsEarningsState( 'error' ),
 };
 
 /**

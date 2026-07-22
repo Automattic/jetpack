@@ -8,6 +8,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -77,7 +78,7 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 			// `LeaderboardChart` formats the value as a percentage, so the rate
 			// is expressed as a fraction here.
 			currentValue: rate / 100,
-			currentShare: maxRate > 0 ? ( rate / maxRate ) * 100 : 0,
+			currentShare: sharePercentage( rate, maxRate ),
 			previousValue: 0,
 			previousShare: 0,
 			delta: 0,

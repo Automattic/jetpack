@@ -17,7 +17,7 @@
 		"@wordpress/url": "4.51.0"
 	},
 	"route": {
-		"path": "/",
+		"path": "/stats",
 		"page": "jetpack-videopress-dashboard"
 	}
 }

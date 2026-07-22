@@ -2779,7 +2779,7 @@ class Manager {
 	 *
 	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
 	 * @since 8.7.4 Add the missing connection owner and XML-RPC error stats to the heartbeat.
-	 * @since $$next-version$$ Add the site environment stats (WordPress/PHP versions, etc.) to the heartbeat.
+	 * @since 8.7.9 Add the site environment stats (WordPress/PHP versions, etc.) to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats

@@ -31,6 +31,13 @@ final class Dashboard_Section {
 	public $id;
 
 	/**
+	 * URL-facing section slug, derived from the identifier.
+	 *
+	 * @var string
+	 */
+	public $slug;
+
+	/**
 	 * Display label.
 	 *
 	 * @var string
@@ -68,9 +75,22 @@ final class Dashboard_Section {
 	public function __construct( $dashboard_name, $id, $args = array() ) {
 		$this->dashboard_name = $dashboard_name;
 		$this->id             = $id;
+		$this->slug           = self::derive_slug( $id );
 		$this->label          = $id;
 
 		$this->set_props( $args );
+	}
+
+	/**
+	 * Derives the URL-facing slug from a namespaced section identifier.
+	 *
+	 * @param string $id Section identifier, e.g. `analytics/traffic`.
+	 * @return string The segment after the namespace, e.g. `traffic`.
+	 */
+	private static function derive_slug( $id ) {
+		$separator = strpos( (string) $id, '/' );
+
+		return false === $separator ? (string) $id : substr( $id, $separator + 1 );
 	}
 
 	/**
@@ -107,6 +127,7 @@ final class Dashboard_Section {
 	public function to_array() {
 		return array(
 			'id'    => $this->id,
+			'slug'  => $this->slug,
 			'label' => $this->label,
 			'order' => (int) $this->order,
 		);

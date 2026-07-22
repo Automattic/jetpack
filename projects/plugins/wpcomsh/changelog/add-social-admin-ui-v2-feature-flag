@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync the `SOCIAL_ADMIN_UI_V2` feature flag.
