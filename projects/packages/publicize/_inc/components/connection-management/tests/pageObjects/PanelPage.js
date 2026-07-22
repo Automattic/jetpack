@@ -14,12 +14,14 @@ export class Panel {
 		return within( this.container ).queryByRole( 'button', { name: 'Disconnect' } );
 	}
 
-	get closeButton() {
-		return within( this.container ).getByRole( 'button', { name: 'Close panel' } );
-	}
-
-	get openButton() {
-		return within( this.container ).getByRole( 'button', { name: 'Open panel' } );
+	/*
+	 * WPDS `Collapsible` exposes a single trigger that both opens and closes,
+	 * labelled per connection ("Toggle details for <account> on <network>"),
+	 * where the legacy `PanelBody` had separate "Open panel"/"Close panel"
+	 * buttons. `open()`/`close()` below keep the old two-verb API.
+	 */
+	get toggleButton() {
+		return within( this.container ).getByRole( 'button', { name: /^Toggle details for/ } );
 	}
 
 	get markAsSharedToggle() {
@@ -29,15 +31,17 @@ export class Panel {
 	}
 
 	isOpen() {
-		return this.container.querySelector( '.is-opened' ) !== null;
+		// Base UI stamps `data-panel-open` on the trigger while the disclosure
+		// is expanded; the legacy panel used an `.is-opened` class.
+		return this.container.querySelector( '[data-panel-open]' ) !== null;
 	}
 
 	async open() {
-		await userEvent.click( this.openButton );
+		await userEvent.click( this.toggleButton );
 	}
 
 	async close() {
-		await userEvent.click( this.closeButton );
+		await userEvent.click( this.toggleButton );
 	}
 
 	async disconnect() {
