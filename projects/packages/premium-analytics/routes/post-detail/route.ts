@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
@@ -11,6 +10,10 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { DASHBOARD_REST_NAMESPACE } from '../dashboard/hooks/constants';
+import {
+	isPremiumAnalyticsInitialSyncFinished,
+	isPremiumAnalyticsSiteConnected,
+} from '../site-readiness';
 import { resolveTabId } from './config';
 
 type PostDetailParams = { postId?: string };
@@ -41,14 +44,11 @@ export const route = {
 		params,
 		search,
 	}: { params?: PostDetailParams; search?: PostDetailSearch } = {} ) => {
-		const connectionStatus = getScriptData()?.connection?.connectionStatus;
-
-		if ( ! connectionStatus?.isRegistered ) {
+		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
 		}
 
-		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
-		if ( ! syncFinished ) {
+		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
 			throw redirect( { to: '/syncing' } );
 		}
 

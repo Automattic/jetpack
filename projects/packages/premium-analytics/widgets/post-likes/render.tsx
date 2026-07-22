@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsPostLikes } from '@jetpack-premium-analytics/data';
+import { useStatsPostLikes, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
@@ -41,8 +41,7 @@ const LIKES_SHOWN = 10;
  */
 function PostLikesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const parsedPostId = Number( reportParams.post_id );
-	const postId = Number.isInteger( parsedPostId ) && parsedPostId > 0 ? parsedPostId : 0;
+	const postId = toPostId( reportParams.post_id );
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPostLikes( {
 		postId,

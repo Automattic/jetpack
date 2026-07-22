@@ -4,7 +4,7 @@ import { store as socialStore } from '../../social-store';
 
 /**
  * Read the Social (Publicize) module state and toggle it from within the
- * modernized dashboard. Used by the Settings tab's master on/off card, which
+ * Social dashboard. Used by the Settings tab's master on/off card, which
  * only renders while the module is active — so in practice this turns it *off*;
  * the enable-and-reload flow lives in the page shell (`stage.tsx`). Restores an
  * in-product path to toggle the module for hosts where the wp-admin

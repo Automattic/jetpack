@@ -35,6 +35,13 @@ minimumReleaseAgeExclude:
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
+  - 'i18n-calypso'
+  # Renovate security update: webpack-dev-server@5.2.6
+  - webpack-dev-server@5.2.6
+  # Renovate security update: js-yaml@4.3.0
+  - js-yaml@4.3.0
+  # Renovate security update: sharp@0.35.0
+  - sharp@0.35.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

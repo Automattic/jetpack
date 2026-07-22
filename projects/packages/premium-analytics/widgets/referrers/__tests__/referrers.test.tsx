@@ -12,9 +12,7 @@ import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/da
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -205,6 +203,17 @@ describe( 'ReferrersWidget', () => {
 		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
 		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'links to the full Referrers report', () => {
+		render(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'See report' } );
+		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/referrers' ) );
 	} );
 } );
 

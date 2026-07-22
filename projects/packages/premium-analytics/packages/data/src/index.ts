@@ -110,10 +110,15 @@ export {
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
 export {
+	aggregateStatsDrilldownRows,
 	bucketStatsTimeSeries,
+	flattenStatsLeaves,
 	getStatsChartBucketKey,
+	getStatsReportItems,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
+export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
+export type { StatsDrilldownRow, StatsDrilldownSourceItem } from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -177,10 +182,12 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './hooks/use-stats-email-summary';
+export type { StatsEmailSummaryItem } from './processing/stats';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
 	type StatsSingleVideoPage,
+	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
 } from './hooks/use-stats-single-video';
@@ -229,7 +236,9 @@ export {
 	getApiErrorCode,
 	getApiErrorStatus,
 	getStatsPlanErrorReason,
+	saveBlob,
 	shouldRetryApiError,
+	toPostId,
 	useSiteHomeUrl,
 } from './utils';
 export type { StatsPlanErrorReason } from './utils';
@@ -240,8 +249,10 @@ export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
+	DownloadReportParams,
+	DownloadReportResponse,
 	ExportReportParams,
 	ExportReportResponse,
 	StatsProxyFetchParams,

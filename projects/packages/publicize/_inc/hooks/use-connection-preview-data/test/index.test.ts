@@ -388,6 +388,39 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.isLoading ).toBe( true );
 	} );
 
+	it( 'never falls back to the raw template while the render request is pending', () => {
+		mockSelectCalls( { rendered: null, isLoadingRendered: true } );
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'New post: {title} {excerpt}',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.message ).toBe( '' );
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'keeps the previous rendered message while a new render is pending', () => {
+		mockSiteHasFeature.mockReturnValue( true );
+		mockSelectCalls( { rendered: 'Rendered: Hello' } );
+
+		const connection = createMockConnection();
+		const { result, rerender } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.message ).toBe( 'Rendered: Hello' );
+
+		// A title/excerpt edit committed — the new cache key has no rendered value yet.
+		mockSelectCalls( { rendered: null, isLoadingRendered: true } );
+		rerender();
+
+		expect( result.current.message ).toBe( 'Rendered: Hello' );
+		expect( result.current.isLoading ).toBe( false );
+	} );
+
 	it( 'ignores rendered message when MESSAGE_TEMPLATES feature is off', () => {
 		mockSelectCalls( { rendered: 'Should not be used', isLoadingRendered: true } );
 		mockSiteHasFeature.mockImplementation(

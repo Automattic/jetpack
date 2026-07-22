@@ -1,8 +1,8 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
+import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
 import type { LibraryItem } from '../../types/library';
@@ -27,10 +27,15 @@ type Props = { item: LibraryItem };
  */
 export default function ThumbnailField( { item }: Props ) {
 	const { promoteLocal, retryUpload, openVideoDetails } = useUploadActions();
-	const { type, upload, durationSeconds, id, title, isProcessing } = item;
+	const { type, upload, durationSeconds, id, guid, title, isPrivate, isProcessing } = item;
 	const posterUrl = usePosterUrl( item );
 
 	const isVideoPressIdle = type === 'videopress' && upload.status === 'idle';
+	const processingProgress = useProcessingProgress(
+		guid,
+		isPrivate,
+		isVideoPressIdle && isProcessing
+	);
 
 	return (
 		<div className="vp-library__thumbnail">
@@ -41,11 +46,24 @@ export default function ThumbnailField( { item }: Props ) {
 			{ isVideoPressIdle && isProcessing ? (
 				<Stack
 					direction="column"
+					gap="sm"
 					align="center"
 					justify="center"
 					className="vp-library__processing"
 				>
-					<Text>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+					<Text>
+						{ processingProgress !== null
+							? sprintf(
+									/* translators: %d: transcoding progress percentage */
+									__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
+									processingProgress
+							  )
+							: __( 'Processing', 'jetpack-videopress-pkg' ) }
+					</Text>
+					<ProgressBar
+						className="vp-library__progress-bar"
+						value={ processingProgress ?? undefined }
+					/>
 				</Stack>
 			) : null }
 
@@ -88,25 +106,20 @@ export default function ThumbnailField( { item }: Props ) {
 					>
 						<Text>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</Text>
 					</Stack>
-					{ /* The promote flow walks /videopress/v1/upload/{id}, which never
-					     reaches the REST dispatcher on WordPress.com Simple — don't
-					     offer a button that can only fail there. */ }
-					{ ! isSimpleSite() && (
-						<Stack
-							direction="row"
-							align="center"
-							justify="center"
-							className="vp-library__hover-action"
-						>
-							<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
-								{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</Stack>
-					) }
+					<Stack
+						direction="row"
+						align="center"
+						justify="center"
+						className="vp-library__hover-action"
+					>
+						<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
+							{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+						</Button>
+					</Stack>
 				</>
 			) : null }
 
-			{ upload.status === 'uploading' ? (
+			{ upload.status === 'uploading' || upload.status === 'promoting' ? (
 				<Stack
 					direction="column"
 					gap="sm"
@@ -119,7 +132,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</Stack>
 			) : null }
 
-			{ upload.status === 'promoting' || upload.status === 'deleting' ? (
+			{ upload.status === 'deleting' ? (
 				<Stack
 					direction="column"
 					gap="sm"
@@ -127,11 +140,7 @@ export default function ThumbnailField( { item }: Props ) {
 					justify="center"
 					className="vp-library__progress"
 				>
-					<Text>
-						{ upload.status === 'deleting'
-							? __( 'Deleting…', 'jetpack-videopress-pkg' )
-							: __( 'Uploading…', 'jetpack-videopress-pkg' ) }
-					</Text>
+					<Text>{ __( 'Deleting…', 'jetpack-videopress-pkg' ) }</Text>
 					<ProgressBar className="vp-library__progress-bar" />
 				</Stack>
 			) : null }

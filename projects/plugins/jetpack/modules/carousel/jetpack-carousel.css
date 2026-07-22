@@ -411,7 +411,8 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-photo-description p a,
 .jp-carousel-comments p a,
-.jp-carousel-info h2 a {
+.jp-carousel-info .jp-carousel-photo-caption a,
+.jp-carousel-info .jp-carousel-caption a {
 	color: var(--jp-carousel-primary-color) !important;
 	border: none !important;
 	text-decoration: underline !important;
@@ -433,7 +434,8 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-photo-description p a:hover,
 .jp-carousel-comments p a:hover,
-.jp-carousel-info h2 a:hover {
+.jp-carousel-info .jp-carousel-photo-caption a:hover,
+.jp-carousel-info .jp-carousel-caption a:hover {
 	color: var(--jp-carousel-primary-subtle-color) !important;
 }
 

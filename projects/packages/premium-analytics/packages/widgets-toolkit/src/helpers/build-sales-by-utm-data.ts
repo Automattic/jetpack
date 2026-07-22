@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { calculateDelta } from './calculate-delta';
+import { sharePercentage } from './share-percentage';
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
 import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
@@ -45,8 +46,8 @@ export function buildSalesByUtmData(
 			label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
 			currentValue,
 			previousValue,
-			currentShare: ( currentValue / maxValue ) * 100,
-			previousShare: ( previousValue / maxValue ) * 100,
+			currentShare: sharePercentage( currentValue, maxValue ),
+			previousShare: sharePercentage( previousValue, maxValue ),
 			delta,
 		};
 	} );

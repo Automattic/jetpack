@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	useStatsArchives,
 	useStatsTopPosts,
@@ -11,14 +10,16 @@ import {
 import { reports } from '@jetpack-premium-analytics/icons';
 import { Icon, external } from '@wordpress/icons';
 import {
-	DownloadCsvButton,
 	LeaderboardChart,
 	ReportLink,
+	RowsCsvDownloadButton,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildCsvDateRangeFilename,
 	calculateDelta,
+	sharePercentage,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -83,10 +84,6 @@ type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = { num: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-
-function areClientSideCsvExportsEnabled(): boolean {
-	return getScriptData()?.premium_analytics?.client_side_csv_exports_enabled === true;
-}
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -160,13 +157,13 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentViews ),
 			// Rows without a comparison-period match keep `undefined` so the chart
 			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousViews ) * 100
+					? sharePercentage( previousValue, maxPreviousViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
@@ -312,50 +309,47 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 		return base;
 	}, [ withComparison ] );
 
-	// Date-stamp the download so exports of different periods don't collide.
-	// `from`/`to` are coerced because the router JSON-parses search params, so a
-	// hand-edited numeric `?from=123` would otherwise throw on `.slice`.
-	const csvFilename = `top-posts-${ String( reportParams.from ).slice( 0, 10 ) }_${ String(
-		reportParams.to
-	).slice( 0, 10 ) }`;
+	const csvFilename = buildCsvDateRangeFilename( 'top-posts', reportParams );
 
 	// Only expose the export once the query has settled on data for the current
 	// params. Stats queries keep the previous period's rows as placeholder data
 	// while a refetch is in flight, so exporting mid-fetch (or after an error)
 	// could hand the user stale rows under the new-period `csvFilename`.
-	const canExport =
-		areClientSideCsvExportsEnabled() && rows.length > 0 && ! isFetching && ! isError;
+	const canExport = rows.length > 0 && ! isFetching && ! isError;
 
 	return (
-		<div className={ styles.content }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData`, so a failed range change
-				// keeps the prior period's rows visible; only surface the error when
-				// there is nothing to show.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ rows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load posts and pages. Please try again in a moment.",
-						'jetpack-premium-analytics'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
-				} }
-			>
-				<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
-			</WidgetState>
-			{ canExport && (
-				<div className={ styles.contentExport }>
-					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
-				</div>
-			) }
-		</div>
+		<>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load posts and pages. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
+					empty={ {
+						icon: reports,
+						description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+					} }
+				>
+					<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="posts-pages" />
+				{ canExport && (
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+				) }
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -599,16 +593,15 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
-					<ArchivesReport num={ num } />
+					<>
+						<ArchivesReport num={ num } />
+						<WidgetFooter>
+							<ReportLink report="posts" section="archives" />
+						</WidgetFooter>
+					</>
 				) : (
 					<TopPostsReport num={ num } />
 				) }
-				<WidgetFooter>
-					<ReportLink
-						report="posts"
-						section={ contentView === 'archives' ? 'archives' : 'posts-pages' }
-					/>
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

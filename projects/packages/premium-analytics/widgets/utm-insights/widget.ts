@@ -8,6 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
+import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Widget attributes shape.
@@ -30,20 +31,13 @@ export type UtmInsightsAttributes = {
  * shared dashboard date picker).
  */
 export default {
-	name: 'jpa/utm-insights',
-	title: __( 'UTM Insights', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Track your campaign UTM performance data. Generate URL codes with our builder.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: trendingUp,
 	attributes: [
 		{
 			id: 'utmDimension',
 			label: __( 'UTM parameter', 'jetpack-premium-analytics' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
 					label: __( 'Source / Medium', 'jetpack-premium-analytics' ),

@@ -213,6 +213,57 @@ describe( 'HeatmapChart', () => {
 		expect( grid ).not.toHaveAttribute( 'aria-activedescendant' );
 	} );
 
+	// Calendar ragged edges: hidden cells keep their grid slot but paint
+	// nothing and take no interaction.
+	const raggedData: HeatmapColumn[] = [
+		{ label: 'W1', data: [ { value: null, hidden: true }, { value: 1 }, { value: 2 } ] },
+		{ label: 'W2', data: [ { value: 3 }, { value: null, hidden: true }, { value: 4 } ] },
+		{ label: 'W3', data: [ { value: 5 }, { value: 6 }, { value: null, hidden: true } ] },
+	];
+
+	test( 'hidden cells render as empty slots outside the accessibility tree', () => {
+		renderChart( { data: raggedData } );
+		expect( screen.getAllByTestId( 'heatmap-cell' ) ).toHaveLength( 6 );
+		expect( screen.getAllByTestId( 'heatmap-cell-hidden' ) ).toHaveLength( 3 );
+		expect( screen.getAllByRole( 'gridcell' ) ).toHaveLength( 6 );
+	} );
+
+	test( 'keyboard navigation skips hidden cells and never lands on them', async () => {
+		renderChart( { data: raggedData, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		// The initial selection starts past the hidden leading slot (0,0).
+		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-1$/ )
+		);
+
+		// ArrowRight steps over the hidden (1,1) to (2,1).
+		await user.keyboard( '{ArrowRight}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-2-1$/ )
+		);
+
+		// Only a hidden slot (2,2) lies below — the selection stays put.
+		await user.keyboard( '{ArrowDown}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-2-1$/ )
+		);
+
+		// ArrowLeft steps back over the hidden (1,1) to (0,1); ArrowUp has
+		// only the hidden (0,0) above, so the selection stays again.
+		await user.keyboard( '{ArrowLeft}{ArrowUp}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-1$/ )
+		);
+	} );
+
 	test( 'rows contain gridcell children in the ARIA hierarchy', () => {
 		renderChart();
 		const rows = screen.getAllByRole( 'row' );
