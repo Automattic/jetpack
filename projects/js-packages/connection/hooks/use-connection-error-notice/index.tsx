@@ -10,7 +10,12 @@ import type {
 } from './types';
 import type { ReactElement } from 'react';
 
-export type { ConnectionErrorData, ConnectionErrorMap, ConnectionErrorObject } from './types';
+export type {
+	ConnectionErrorAudience,
+	ConnectionErrorData,
+	ConnectionErrorMap,
+	ConnectionErrorObject,
+} from './types';
 
 /**
  * Connection error notice hook.

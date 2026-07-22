@@ -651,18 +651,19 @@ class REST_Connector {
 
 		$current_user = wp_get_current_user();
 
-		// Derive the owner from the master_user option and local user data rather than
-		// the token-dependent Manager::get_connection_owner(): that method returns false
-		// exactly when the owner's token is broken (when connection UIs still need the
-		// owner context), and re-reports invalid_connection_owner as a side effect of
-		// what should be a read operation.
-		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
-		$owner    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
+		// Token-dependent on purpose: connectionOwner and isMaster describe the
+		// *connected* owner and go null/false when the owner's token is broken. Status
+		// UIs (e.g. My Jetpack's connection card) rely on that meaning. Record-based
+		// ownership identity (who holds the connection per the master_user option,
+		// token or not) is exposed separately via Initial_State's connectionOwner, and
+		// owner token health via connectionStatus.hasConnectedOwner. Do not consolidate
+		// the two derivations: they answer different questions.
+		$connection_owner = $connection->get_connection_owner();
 
-		$owner_display_name = $owner instanceof \WP_User ? $owner->display_name : null;
+		$owner_display_name = false === $connection_owner ? null : $connection_owner->display_name;
 
 		$is_user_connected = $connection->is_user_connected();
-		$is_master_user    = $owner_id > 0 && $current_user->ID === $owner_id;
+		$is_master_user    = false === $connection_owner ? false : ( $current_user->ID === $connection_owner->ID );
 		$wpcom_user_data   = $connection->get_connected_user_data();
 
 		// Add connected user gravatar to the returned wpcom_user_data.
