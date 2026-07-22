@@ -74,7 +74,12 @@ export function ConnectionInfo( { connection, service, canMarkAsShared }: Connec
 					size="medium"
 				/>
 				<Stack direction="column" gap="xs" className={ styles[ 'connection-name-wrapper' ] }>
-					<Text variant="body-lg" className={ styles[ 'connection-item-name' ] }>
+					{ /*
+					 * Rendered as a `<div>`: `Text` defaults to a `<span>`, and
+					 * `ConnectionName`'s root is a `<div>`, which is not valid inside
+					 * one.
+					 */ }
+					<Text variant="body-lg" render={ <div className={ styles[ 'connection-item-name' ] } /> }>
 						<ConnectionName connection={ connection } tone="neutral" />
 					</Text>
 					{ hasStatus ? (
