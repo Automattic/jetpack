@@ -9,9 +9,36 @@ namespace Automattic\Jetpack\Plugin\Image_Metadata;
 
 /**
  * Provides the atomic, validated, permission-preserving write shared by every
- * format's transplanter.
+ * format's transplanter. Concrete subclasses copy provenance-bearing container
+ * chunks/segments verbatim between two files of the same image format, without
+ * parsing or understanding their contents.
  */
-abstract class Abstract_Transplanter implements Transplanter {
+abstract class Abstract_Transplanter {
+
+	/**
+	 * Check whether this transplanter handles a given MIME type.
+	 *
+	 * @param string $mime A MIME type such as `image/png`.
+	 * @return bool True when this transplanter handles that format.
+	 */
+	abstract public function supports( $mime );
+
+	/**
+	 * Read the provenance segments from a source file.
+	 *
+	 * @param string $source_path Absolute path to the source image.
+	 * @return Payload|null Payload (possibly empty) on a readable file of this
+	 *                      format, or null when the file cannot be read/parsed.
+	 */
+	abstract public function extract( $source_path );
+
+	/**
+	 * Check whether a derivative already carries provenance segments.
+	 *
+	 * @param string $target_path Absolute path to a candidate derivative.
+	 * @return bool True when the derivative already carries provenance segments.
+	 */
+	abstract public function has_payload( $target_path );
 
 	/**
 	 * Build the new file bytes with the payload spliced in at the correct

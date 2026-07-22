@@ -79,8 +79,7 @@ final class Metadata_Preserver {
 			return;
 		}
 
-		$factory      = new Transplanter_Factory();
-		$transplanter = $factory->for_mime( $mime );
+		$transplanter = $this->transplanter_for( $mime );
 		if ( null === $transplanter ) {
 			return; // Unsupported source format (v1: PNG + JPEG only).
 		}
@@ -106,22 +105,21 @@ final class Metadata_Preserver {
 
 		$dir = trailingslashit( dirname( $original ) );
 		foreach ( $this->output_files( $metadata, $original ) as $file ) {
-			$this->preserve_one( $dir . $file, $file, $payload, $factory, $original, $attachment_id );
+			$this->preserve_one( $dir . $file, $file, $payload, $original, $attachment_id );
 		}
 	}
 
 	/**
 	 * Transplant into a single derivative, honouring the idempotent skip.
 	 *
-	 * @param string               $path          Absolute derivative path.
-	 * @param string               $file          Derivative basename (for logging).
-	 * @param Payload              $payload       Extracted provenance.
-	 * @param Transplanter_Factory $factory       Transplanter selector.
-	 * @param string               $original      Absolute original path (never rewritten).
-	 * @param int                  $attachment_id Attachment post ID (for logging).
+	 * @param string  $path          Absolute derivative path.
+	 * @param string  $file          Derivative basename (for logging).
+	 * @param Payload $payload       Extracted provenance.
+	 * @param string  $original      Absolute original path (never rewritten).
+	 * @param int     $attachment_id Attachment post ID (for logging).
 	 * @return void
 	 */
-	private function preserve_one( $path, $file, Payload $payload, Transplanter_Factory $factory, $original, $attachment_id ) {
+	private function preserve_one( $path, $file, Payload $payload, $original, $attachment_id ) {
 		if ( $path === $original || ! file_exists( $path ) ) {
 			return; // Never touch the original; skip missing sizes.
 		}
@@ -132,7 +130,7 @@ final class Metadata_Preserver {
 
 		$check        = wp_check_filetype( $path );
 		$deriv_mime   = isset( $check['type'] ) ? $check['type'] : false;
-		$transplanter = $deriv_mime ? $factory->for_mime( $deriv_mime ) : null;
+		$transplanter = $deriv_mime ? $this->transplanter_for( $deriv_mime ) : null;
 
 		// A derivative can differ from the source format; only copy when the
 		// derivative's transplanter handles the payload's source format.
@@ -178,6 +176,23 @@ final class Metadata_Preserver {
 		}
 
 		return array_values( array_unique( $files ) );
+	}
+
+	/**
+	 * Select the transplanter for a MIME type, or null when unsupported (v1: PNG + JPEG only).
+	 *
+	 * @param string $mime MIME type such as `image/png`.
+	 * @return Abstract_Transplanter|null
+	 */
+	private function transplanter_for( $mime ) {
+		switch ( $mime ) {
+			case 'image/png':
+				return new PNG_Transplanter();
+			case 'image/jpeg':
+				return new JPEG_Transplanter();
+			default:
+				return null;
+		}
 	}
 
 	/**
