@@ -32,7 +32,7 @@ class Admin_UI_Test extends BaseTestCase {
 	 * @return array
 	 */
 	private function get_admin_menu_items() {
-		return ( new \ReflectionProperty( Admin_Menu::class, 'menu_items' ) )->getValue();
+		return $this->admin_menu_items_property()->getValue();
 	}
 
 	/**
@@ -41,7 +41,21 @@ class Admin_UI_Test extends BaseTestCase {
 	 * @param array $items The items to set.
 	 */
 	private function set_admin_menu_items( $items ) {
-		( new \ReflectionProperty( Admin_Menu::class, 'menu_items' ) )->setValue( null, $items );
+		$this->admin_menu_items_property()->setValue( null, $items );
+	}
+
+	/**
+	 * Get an accessible reflection of Admin_Menu::$menu_items.
+	 *
+	 * @return \ReflectionProperty
+	 */
+	private function admin_menu_items_property() {
+		$property = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			// Required to access private members before PHP 8.1; deprecated no-op since PHP 8.5.
+			$property->setAccessible( true );
+		}
+		return $property;
 	}
 
 	/**
