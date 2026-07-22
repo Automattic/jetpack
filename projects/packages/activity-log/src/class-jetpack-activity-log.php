@@ -224,8 +224,8 @@ class Jetpack_Activity_Log {
 	 * The wp-build-generated enqueue callback only fires when the screen id
 	 * equals the wp-build page slug. Our menu slug stays `jetpack-activity-log`,
 	 * so alias the screen id in place to make the check pass without changing
-	 * the user-facing URL. Hooked only from `load-{$page_suffix}`, so this
-	 * never affects any other screen.
+	 * the user-facing URL. Hooked on `current_screen` only for the Activity Log
+	 * request, so this never affects any other screen.
 	 *
 	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
 	 * @return void
