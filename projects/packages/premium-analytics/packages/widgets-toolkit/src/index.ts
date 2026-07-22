@@ -133,6 +133,8 @@ export {
 	toMaxRows,
 	summaryCount,
 	toDay,
+	defaultPeriodForInterval,
+	buildMetricTab,
 } from './helpers';
 
 /**
