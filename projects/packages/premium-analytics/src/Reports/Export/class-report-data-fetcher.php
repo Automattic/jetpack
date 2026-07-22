@@ -509,17 +509,17 @@ class Report_Data_Fetcher {
 		}
 
 		$response_status = (int) $response->get_status();
+		$status          = $response_status >= 400 ? $response_status : 500;
 		if ( is_wp_error( $data ) ) {
 			return new WP_Error(
 				'external_api_error',
 				__( 'External API error', 'jetpack-premium-analytics' ),
 				array(
-					'status' => $response_status >= 400 ? $response_status : 500,
+					'status' => $status,
 				)
 			);
 		}
 
-		$status           = $response_status >= 400 ? $response_status : 500;
 		$external_code    = null;
 		$external_message = null;
 		$external_params  = null;
