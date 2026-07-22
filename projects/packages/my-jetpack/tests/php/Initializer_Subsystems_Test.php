@@ -43,11 +43,15 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 	 */
 	private static function reset_initializer_state() {
 		$reflection = new \ReflectionProperty( Initializer::class, 'initialized_subsystems' );
-		$reflection->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
 		$reflection->setValue( null, array() );
 
 		$speed_score = new \ReflectionProperty( Initializer::class, 'speed_score' );
-		$speed_score->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$speed_score->setAccessible( true );
+		}
 		$instance = $speed_score->getValue();
 		if ( $instance instanceof Speed_Score ) {
 			remove_action( 'rest_api_init', array( $instance, 'register_rest_routes' ) );
@@ -56,7 +60,9 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 		$speed_score->setValue( null, null );
 
 		$auth_instance = new \ReflectionProperty( Connection_Rest_Authentication::class, 'instance' );
-		$auth_instance->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$auth_instance->setAccessible( true );
+		}
 		$auth_instance->setValue( null, null );
 
 		unset( $GLOBALS['wp_actions']['my_jetpack_init'] );
@@ -74,7 +80,9 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 	 */
 	private static function get_rest_authentication_instance() {
 		$reflection = new \ReflectionProperty( Connection_Rest_Authentication::class, 'instance' );
-		$reflection->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
 		return $reflection->getValue();
 	}
 
