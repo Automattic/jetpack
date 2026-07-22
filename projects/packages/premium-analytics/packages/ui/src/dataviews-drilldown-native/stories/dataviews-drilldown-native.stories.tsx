@@ -401,8 +401,9 @@ const archiveLayoutStyles = {
 };
 
 /*
- * No default sort: DataViews' native hierarchy has no tree-aware sorting, so
- * hierarchy order only holds while the view is unsorted.
+ * No default sort: the sample rows are pre-ordered, and the unsorted view
+ * preserves that order. Sorting a field reorders rows within each hierarchy
+ * level.
  */
 const initialView = {
 	fields: [ 'referrer', 'views' ],

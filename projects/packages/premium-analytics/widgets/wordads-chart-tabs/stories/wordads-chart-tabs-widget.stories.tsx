@@ -12,10 +12,12 @@ import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { DEFAULT_WORDADS_CHART_METRICS, type WordAdsChartMetricId } from '../metrics';
 import WordAdsChartTabsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -155,7 +157,7 @@ function WordAdsChartTabsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ WORDADS_CHART_TABS_RENDER_MODULE }
 			renderComponent={ WordAdsChartTabsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }

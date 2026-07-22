@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
+
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
  * Jetpack_Mu_Wpcom main class.
@@ -64,6 +66,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
@@ -772,6 +775,41 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
 		require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
+	}
+
+	/**
+	 * Whether Premium Analytics should be loaded on WordPress.com Simple.
+	 *
+	 * @return bool True when the Simple rollout gate is enabled.
+	 */
+	public static function should_load_wpcom_simple_premium_analytics() {
+		$blog_id = (int) get_wpcom_blog_id();
+		$enabled = $blog_id > 0 && wpcom_has_blog_sticker( 'jetpack-premium-analytics', $blog_id );
+
+		/**
+		 * Filters whether Premium Analytics loads on WordPress.com Simple.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether the Simple rollout gate is enabled.
+		 * @param int  $blog_id WPCOM blog ID.
+		 */
+		return (bool) apply_filters( 'jetpack_premium_analytics_wpcom_simple_enabled', $enabled, $blog_id );
+	}
+
+	/**
+	 * Load Premium Analytics on WordPress.com Simple sites behind the rollout gate.
+	 */
+	public static function load_wpcom_simple_premium_analytics() {
+		if ( ! self::should_load_wpcom_simple_premium_analytics() ) {
+			return;
+		}
+
+		Premium_Analytics::init_wpcom_simple(
+			array(
+				'menu_title' => 'Premium Analytics',
+			)
+		);
 	}
 
 	/**

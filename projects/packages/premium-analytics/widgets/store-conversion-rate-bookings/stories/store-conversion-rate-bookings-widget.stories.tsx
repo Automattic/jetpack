@@ -8,10 +8,12 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import StoreConversionRateBookingsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -182,7 +184,7 @@ function StoreConversionRateBookingsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ STORE_CONVERSION_RATE_BOOKINGS_RENDER_MODULE }
 			renderComponent={
 				StoreConversionRateBookingsRender as ComponentType< WidgetRenderProps< unknown > >

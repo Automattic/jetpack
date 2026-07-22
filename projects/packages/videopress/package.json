@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.41.0",
+	"version": "0.42.0",
 	"private": true,
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
@@ -73,6 +73,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"react-router": "7.15.1",
+		"socket.io-client": "4.8.3",
 		"tus-js-client": "4.2.3"
 	},
 	"devDependencies": {

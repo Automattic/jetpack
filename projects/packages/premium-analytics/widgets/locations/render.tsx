@@ -4,10 +4,10 @@
 import {
 	GeoChart,
 	LeaderboardChart,
-	LeaderboardLabel,
 	WidgetBackLink,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	flagUrl,
 	sharePercentage,
@@ -260,26 +260,37 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
 			const previousValue = location.previousValue;
+			const countryCode = location.countryCode;
 
 			return {
 				id: location.key,
-				label: (
-					<div className={ styles.leaderboardLabel }>
-						<LeaderboardLabel
-							label={ location.label }
-							imageUrl={ imageUrl ?? undefined }
-							imageAlt={ sprintf(
-								/* translators: %s is the country name */
-								__( 'Flag of %s', 'jetpack-premium-analytics' ),
-								location.countryFull
-							) }
-							imageClassName={ styles.leaderboardImage }
-						/>
-					</div>
-				),
+				...buildLeaderboardRow( {
+					label: location.label,
+					media: {
+						kind: 'flag',
+						url: imageUrl ?? undefined,
+						country: location.countryFull,
+					},
+					action:
+						renderGeoMode === 'country' && countryCode
+							? {
+									kind: 'drillDown',
+									onClick: () =>
+										selectCountry( {
+											code: countryCode,
+											name: location.countryFull,
+										} ),
+									ariaLabel: sprintf(
+										/* translators: %s is the country name */
+										__( 'View regions in %s', 'jetpack-premium-analytics' ),
+										location.countryFull
+									),
+							  }
+							: { kind: 'static' },
+				} ),
 				currentValue: location.value,
 				previousValue,
-				currentShare: maxValue > 0 ? ( location.value / maxValue ) * 100 : 0,
+				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
 					hasComparison && previousValue !== undefined
 						? sharePercentage( previousValue, maxComparisonValue )
@@ -288,25 +299,6 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 					hasComparison && previousValue !== undefined
 						? calculateDelta( location.value, previousValue )
 						: undefined,
-				// Country mode: click to drill into regions.
-				// Region/city mode: rows are not interactive.
-				...( renderGeoMode === 'country' &&
-					location.countryCode && {
-						onClick: () =>
-							selectCountry( {
-								code: location.countryCode,
-								name: location.countryFull,
-							} ),
-						// Without ariaLabel the button's accessible name is computed from
-						// its children: "Flag of X" (image alt) + "X" (visible label) ->
-						// screen readers announce the country name twice. Provide a concise
-						// action label that replaces the computed name.
-						ariaLabel: sprintf(
-							/* translators: %s is the country name */
-							__( 'View regions in %s', 'jetpack-premium-analytics' ),
-							location.countryFull
-						),
-					} ),
 			};
 		} ) as LeaderboardChartData;
 	}, [ data, renderGeoMode, hasComparison, selectCountry ] );

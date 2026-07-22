@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { postList } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -22,14 +21,6 @@ export type LatestPostAttributes = Record< never, never >;
  * period.
  */
 export default {
-	name: 'jpa/latest-post',
-	title: __( 'Latest post', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Your most recently published post with its views, likes, and comments.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: postList,
 	attributes: [] as WidgetAttributeField< LatestPostAttributes >[],
 	example: {

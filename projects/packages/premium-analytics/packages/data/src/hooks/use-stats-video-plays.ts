@@ -1,13 +1,10 @@
 /**
- * External dependencies
- */
-import { useCallback } from 'react';
-/**
  * Internal dependencies
  */
 import { mergeStatsVideoPlaysComparisonRows } from '../processing/stats';
 import { statsVideoPlaysQuery } from '../queries/stats-video-plays-query';
-import { useStatsReport } from './use-stats-report';
+import { statsVideoPlaysSummaryQuery } from '../queries/stats-video-plays-summary-query';
+import { createStatsListReportHook, splitStatsListOptions } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsNormalizedReport,
@@ -20,22 +17,19 @@ type StatsVideoPlaysOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
-export function useStatsVideoPlays( params: StatsReportParams, options?: StatsVideoPlaysOptions ) {
-	const { maxRows, ...queryOptions } = options ?? {};
-	const mergeComparisonRows = useCallback(
-		(
-			primary?: StatsNormalizedReport< StatsVideoPlaysItem >,
-			comparison?: StatsNormalizedReport< StatsVideoPlaysItem >
-		) => mergeStatsVideoPlaysComparisonRows( primary, comparison, maxRows ),
-		[ maxRows ]
-	);
-
-	return useStatsReport<
-		StatsReportParams,
-		StatsNormalizedReport< StatsVideoPlaysItem >,
-		StatsVideoPlaysComparisonItem
-	>( statsVideoPlaysQuery, params, 'video-plays', {
-		...queryOptions,
-		mergeComparisonRows,
-	} );
-}
+export const useStatsVideoPlays = createStatsListReportHook<
+	StatsReportParams,
+	StatsNormalizedReport< StatsVideoPlaysItem >,
+	StatsVideoPlaysComparisonItem,
+	StatsVideoPlaysOptions
+>( {
+	// Complete-stats summaries use the same endpoint and normalized response,
+	// but the API request must omit the sanitizer-only `summarize` switch.
+	queryFactory: params =>
+		params.complete_stats && params.summarize
+			? statsVideoPlaysSummaryQuery( params )
+			: statsVideoPlaysQuery( params ),
+	reportSlug: 'video-plays',
+	mergeComparisonRows: mergeStatsVideoPlaysComparisonRows,
+	getOptions: splitStatsListOptions,
+} );

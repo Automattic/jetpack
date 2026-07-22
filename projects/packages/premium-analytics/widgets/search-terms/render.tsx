@@ -58,7 +58,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 				),
 				currentValue: term.views,
 				previousValue: previousViews,
-				currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
+				currentShare: sharePercentage( term.views, maxValue ),
 				previousShare:
 					hasComparison && previousViews !== undefined
 						? sharePercentage( previousViews, prevMaxValue )

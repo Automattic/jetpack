@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Connection: Ensure Jetpack dashboard connection components styles do not conflict with Connection package styles.

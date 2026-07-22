@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	getStatsReportItems,
 	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersItem,
 } from '@jetpack-premium-analytics/data';
@@ -19,7 +20,7 @@ export function useCommentFollowersReportRecords() {
 	const report = useStatsCommentFollowersAllPages();
 
 	const allRows = useMemo< StatsCommentFollowersItem[] >(
-		() => report.data?.flatMap( page => page.data.flatMap( point => point.items ) ) ?? [],
+		() => report.data?.flatMap( page => getStatsReportItems( page ) ) ?? [],
 		[ report.data ]
 	);
 	const { allPosts, rows } = useMemo(

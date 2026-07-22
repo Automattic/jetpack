@@ -20,6 +20,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-grammar.php';
+require_once __DIR__ . '/rest-namespace.php';
 
 /**
  * Preferences scope under which the dashboard layout is stored. Mirrors the
@@ -43,11 +44,6 @@ const DASHBOARD_SECTION_LAYOUTS_KEY = 'dashboardSectionLayouts';
  * `{name}` segment of the REST route and as the seed filter's target.
  */
 const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
-
-/**
- * REST namespace that exposes the dashboard's default layout.
- */
-const DASHBOARD_REST_NAMESPACE = 'jetpack/v4';
 
 /**
  * Filter through which the default layout for a dashboard is resolved.
@@ -204,7 +200,6 @@ function register_dashboard_default_layout_route() {
 		)
 	);
 }
-add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
 
 /**
  * Builds a widget instance for bundled dashboard defaults.

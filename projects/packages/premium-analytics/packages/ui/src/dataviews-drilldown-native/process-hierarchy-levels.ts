@@ -9,8 +9,13 @@ interface HierarchyRow< Item > {
 type ProcessedHierarchyLevels< Item > = {
 	/** The items re-emitted in depth-first hierarchy order. */
 	data: Item[];
-	/** Depth per item, for DataViews' `getItemLevel`. */
-	levelByItem: ReadonlyMap< Item, number >;
+	/**
+	 * Depth per item id, for DataViews' `getItemLevel`. Keyed by id rather
+	 * than item identity because DataViews clones each record internally (for
+	 * position tracking), so the objects reaching `getItemLevel` are never the
+	 * ones this walk saw.
+	 */
+	levelById: ReadonlyMap< string, number >;
 };
 
 /**
@@ -61,7 +66,7 @@ export function processHierarchyLevels< Item >(
 	}
 
 	const orderedData: Item[] = [];
-	const levelByItem = new Map< Item, number >();
+	const levelById = new Map< string, number >();
 	const visited = new Set< HierarchyRow< Item > >();
 	const appendRows = ( pending: HierarchyRow< Item >[], level: number ) => {
 		for ( const row of pending ) {
@@ -70,7 +75,7 @@ export function processHierarchyLevels< Item >(
 			}
 
 			visited.add( row );
-			levelByItem.set( row.item, level );
+			levelById.set( row.id, level );
 			orderedData.push( row.item );
 			appendRows( childrenByParentId.get( row.id ) ?? [], level + 1 );
 		}
@@ -86,7 +91,7 @@ export function processHierarchyLevels< Item >(
 		}
 	}
 
-	return { data: orderedData, levelByItem };
+	return { data: orderedData, levelById };
 }
 
 /**

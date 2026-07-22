@@ -51,7 +51,7 @@ const StageInner = () => {
 
 	return (
 		<DashboardLayout
-			activeTab="overview"
+			activeTab="stats"
 			actions={ <DateRangeSelector value={ dateRange } onChange={ setDateRange } /> }
 		>
 			<div className="vp-overview">

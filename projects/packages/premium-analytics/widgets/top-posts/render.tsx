@@ -19,6 +19,7 @@ import {
 	WidgetState,
 	buildCsvDateRangeFilename,
 	calculateDelta,
+	sharePercentage,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -156,13 +157,13 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentViews ),
 			// Rows without a comparison-period match keep `undefined` so the chart
 			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousViews ) * 100
+					? sharePercentage( previousValue, maxPreviousViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined

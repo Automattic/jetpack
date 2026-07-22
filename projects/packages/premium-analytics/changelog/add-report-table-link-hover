@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reports: Display table row links as neutral text, applying the interactive color and underline on hover or focus.

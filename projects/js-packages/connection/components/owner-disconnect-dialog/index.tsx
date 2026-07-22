@@ -4,6 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
@@ -116,8 +117,7 @@ const OwnerDisconnectDialog = ( {
 					<ManageConnectionActionCard
 						title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
 						link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-							site: ( window as Window & { myJetpackInitialState?: { siteSuffix?: string } } )
-								?.myJetpackInitialState?.siteSuffix,
+							site: getScriptData()?.site?.suffix,
 						} ) }
 						isExternal={ true }
 						action="transfer"
