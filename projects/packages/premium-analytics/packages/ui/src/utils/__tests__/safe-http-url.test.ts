@@ -44,13 +44,18 @@ describe( 'safeHttpUrl', () => {
 			}
 		);
 
-		// `\` normalizes to `/` in special schemes, so these resolve cross-origin despite the
-		// single-slash prefix: `new URL( '/\\evil.example/x', 'https://site.example/' )` is
-		// `https://evil.example/x`.
+		// URL parsing strips tab/newline and normalizes `\` to `/`, so these resolve
+		// cross-origin despite the single-slash prefix: `new URL( '/\\evil.example/x',
+		// 'https://site.example/' )` is `https://evil.example/x`, and so is
+		// `new URL( '/\t/evil.example/x', … )`.
 		it.each( [
 			[ 'backslash authority', '/\\evil.example/x' ],
 			[ 'slash-backslash authority', '/\\/evil.example' ],
 			[ 'protocol-relative URL', '//evil.example/x' ],
+			[ 'tab-masked protocol-relative URL', '/\t/evil.example/x' ],
+			[ 'newline-masked protocol-relative URL', '/\n/evil.example/x' ],
+			[ 'CRLF-masked protocol-relative URL', '/\r\n/evil.example/x' ],
+			[ 'tab-masked backslash authority', '/\t\\evil.example/x' ],
 		] )( 'rejects %s even with allowRelative', ( _label, url ) => {
 			expect( safeHttpUrl( url, { allowRelative: true } ) ).toBeNull();
 		} );

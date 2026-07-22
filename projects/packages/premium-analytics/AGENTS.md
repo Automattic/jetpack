@@ -603,9 +603,7 @@ only; render a plain-text fallback when it returns `null`:
 ```tsx
 const href = safeHttpUrl( item.link );
 // …
-{
-	href ? <Link href={ href }>{ label }</Link> : <span>{ label }</span>;
-}
+return href ? <Link href={ href }>{ label }</Link> : <span>{ label }</span>;
 ```
 
 Pass `{ allowRelative: true }` only where the endpoint is known to return a root-relative path

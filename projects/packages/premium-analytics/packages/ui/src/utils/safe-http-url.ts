@@ -16,10 +16,16 @@ export function safeHttpUrl(
 		return null;
 	}
 
-	// `\` normalizes to `/` in special schemes, so `/\host` resolves to another origin just
-	// as `//host` does. Neither is root-relative.
-	if ( allowRelative && url.startsWith( '/' ) && ! /^\/[/\\]/.test( url ) ) {
-		return url;
+	// URL parsing strips tab/newline and normalizes `\` to `/`, so inputs like `/\host` or
+	// `/\t/host` resolve to another origin just as `//host` does. Resolve against a sentinel
+	// base and only accept the path when it stays on that origin.
+	if ( allowRelative && url.startsWith( '/' ) ) {
+		try {
+			const base = 'https://relative.invalid';
+			return new URL( url, base ).origin === base ? url : null;
+		} catch {
+			return null;
+		}
 	}
 
 	try {
