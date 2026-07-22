@@ -35,6 +35,10 @@ class Initializer {
 
 			if ( Status::is_active() ) {
 				self::active_initialization();
+			} elseif ( self::should_initialize_admin_ui() ) {
+				// Keep "Jetpack > VideoPress" in the menu when the module is not
+				// active, linking to the My Jetpack interstitial to activate it.
+				Admin_UI::init_inactive_menu();
 			}
 		}
 

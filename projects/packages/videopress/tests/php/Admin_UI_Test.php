@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use WorDBless\BaseTestCase;
 
 /**
@@ -20,6 +21,27 @@ class Admin_UI_Test extends BaseTestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		remove_all_filters( Admin_UI::MODERNIZATION_FILTER );
+		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+		remove_action( 'admin_menu', array( Admin_UI::class, 'enable_inactive_menu' ), 1 );
+		$this->set_admin_menu_items( array() );
+	}
+
+	/**
+	 * Read the Admin_Menu package's queued menu items.
+	 *
+	 * @return array
+	 */
+	private function get_admin_menu_items() {
+		return ( new \ReflectionProperty( Admin_Menu::class, 'menu_items' ) )->getValue();
+	}
+
+	/**
+	 * Overwrite the Admin_Menu package's queued menu items.
+	 *
+	 * @param array $items The items to set.
+	 */
+	private function set_admin_menu_items( $items ) {
+		( new \ReflectionProperty( Admin_Menu::class, 'menu_items' ) )->setValue( null, $items );
 	}
 
 	/**
@@ -48,5 +70,44 @@ class Admin_UI_Test extends BaseTestCase {
 		// The early return must fire before add_submenu_page() — with the flag
 		// off, no submenu entry (and no load- hook) may exist.
 		$this->assertSame( array(), $submenu );
+	}
+
+	/**
+	 * Test that init_inactive_menu() hooks the inactive menu registration on admin_menu.
+	 */
+	public function test_init_inactive_menu_hooks_admin_menu() {
+		Admin_UI::init_inactive_menu();
+
+		$this->assertSame( 1, has_action( 'admin_menu', array( Admin_UI::class, 'enable_inactive_menu' ) ) );
+	}
+
+	/**
+	 * Test that the inactive-state menu item is queued as a plain link to the
+	 * My Jetpack "add VideoPress" interstitial.
+	 */
+	public function test_enable_inactive_menu_queues_my_jetpack_link() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		Admin_UI::enable_inactive_menu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Admin_UI::MY_JETPACK_ADD_VIDEOPRESS_URI, $items[0]['menu_slug'] );
+		$this->assertSame( 'VideoPress', $items[0]['menu_title'] );
+		$this->assertSame( 'manage_options', $items[0]['capability'] );
+		// No render callback: WordPress renders an unregistered slug as a direct link.
+		$this->assertNull( $items[0]['function'] );
+	}
+
+	/**
+	 * Test that no menu item is queued when My Jetpack is not initialized,
+	 * since the link would point to an unregistered page.
+	 */
+	public function test_enable_inactive_menu_bails_without_my_jetpack() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		Admin_UI::enable_inactive_menu();
+
+		$this->assertSame( array(), $this->get_admin_menu_items() );
 	}
 }

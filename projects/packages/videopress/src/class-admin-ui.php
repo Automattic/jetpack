@@ -12,6 +12,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -26,6 +27,14 @@ class Admin_UI {
 	const JETPACK_VIDEOPRESS_PKG_NAMESPACE = 'jetpack-videopress-pkg';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
+
+	/**
+	 * The My Jetpack interstitial where VideoPress can be activated, relative to wp-admin.
+	 *
+	 * Used as the target of the "Jetpack > VideoPress" menu item when VideoPress
+	 * is not active.
+	 */
+	const MY_JETPACK_ADD_VIDEOPRESS_URI = 'admin.php?page=my-jetpack#/add-videopress';
 
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
@@ -127,6 +136,52 @@ class Admin_UI {
 			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Initializes the "Jetpack > VideoPress" menu item shown when VideoPress is not active.
+	 *
+	 * This method is called by the Initializer class instead of init() when the
+	 * VideoPress module is not active. Instead of the dashboard, the menu item is a
+	 * plain link to the My Jetpack interstitial where VideoPress can be activated.
+	 *
+	 * @return void
+	 */
+	public static function init_inactive_menu() {
+		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used;
+		// the Jetpack menu is fully managed by wpcom-admin-menu.php. See init().
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		add_action( 'admin_menu', array( __CLASS__, 'enable_inactive_menu' ), 1 );
+	}
+
+	/**
+	 * Register the inactive-state menu item: a direct link to the My Jetpack
+	 * "add VideoPress" interstitial.
+	 *
+	 * A slug that is not a registered page makes WordPress render the item as a
+	 * plain link to that URI (same mechanism as the "Upgrade Jetpack" menu item).
+	 *
+	 * @return void
+	 */
+	public static function enable_inactive_menu() {
+		// The link targets My Jetpack; don't render a dead link when that page
+		// is not registered (e.g. offline mode).
+		if ( ! My_Jetpack_Initializer::should_initialize() ) {
+			return;
+		}
+
+		Admin_Menu::add_menu(
+			// "VideoPress" is a product name, do not translate.
+			'Jetpack VideoPress',
+			'VideoPress',
+			'manage_options',
+			self::MY_JETPACK_ADD_VIDEOPRESS_URI,
+			null,
+			3
+		);
 	}
 
 	/**
