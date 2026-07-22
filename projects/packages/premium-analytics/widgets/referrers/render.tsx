@@ -15,6 +15,7 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	calculateDelta,
+	getCombinedPeriodMax,
 	resolveLeaderboardRowAction,
 	sharePercentage,
 	useWidgetDrillDown,
@@ -106,8 +107,10 @@ function buildLeaderboardData(
 	withComparison: boolean,
 	onDrillDown?: ( row: ReferrerRow ) => void
 ): LeaderboardChartData {
-	const maxCurrentViews = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxViews = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
@@ -135,9 +138,9 @@ function buildLeaderboardData(
 				} ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxCurrentViews ),
+			currentShare: sharePercentage( row.value, maxViews ),
 			previousValue,
-			previousShare: hasPrevious ? sharePercentage( previousValue, maxPreviousViews ) : undefined,
+			previousShare: hasPrevious ? sharePercentage( previousValue, maxViews ) : undefined,
 			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
 		};
 	} );

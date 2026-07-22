@@ -6,6 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
+	getCombinedPeriodMax,
 	LeaderboardChart,
 	ReportLink,
 	WidgetBackLink,
@@ -122,8 +123,10 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
-		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ?? 0 ), 1 );
+		const maxValue = getCombinedPeriodMax(
+			activeData.map( item => item.value ),
+			withComparison ? activeData.map( item => item.previousValue ) : []
+		);
 
 		return activeData.map( ( item, index ) => {
 			const previousValue = item.previousValue;
@@ -140,7 +143,7 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 				previousValue,
 				previousShare:
 					withComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxPreviousValue )
+						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
 					withComparison && previousValue !== undefined

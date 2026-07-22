@@ -127,6 +127,7 @@ export {
 	buildCsvDateRangeFilename,
 	saveCsv,
 	type CsvColumn,
+	getCombinedPeriodMax,
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,

@@ -10,6 +10,7 @@ import {
 	buildLeaderboardRow,
 	calculateDelta,
 	flagUrl,
+	getCombinedPeriodMax,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -254,8 +255,10 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	] );
 
 	const leaderboardData = useMemo( () => {
-		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
-		const maxComparisonValue = Math.max( ...data.map( l => l.previousValue ?? 0 ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( location => location.value ),
+			hasComparison ? data.map( location => location.previousValue ) : []
+		);
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
@@ -293,7 +296,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
 					hasComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxComparisonValue )
+						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
 					hasComparison && previousValue !== undefined

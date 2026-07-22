@@ -37,6 +37,22 @@ describe( 'buildVisitorsByLocationData', () => {
 		expect( tw.delta ).toBe( 0 );
 	} );
 
+	it( 'scales both periods against their combined maximum', () => {
+		const { leaderboardData } = buildVisitorsByLocationData( {
+			primaryData,
+			comparisonData: [
+				{ id: 'US', label: 'United States', value: 8 },
+				{ id: 'TW', label: 'Taiwan', value: 2 },
+			],
+			region: 'world',
+		} );
+
+		const [ us ] = leaderboardData;
+
+		expect( us.currentShare ).toBe( 50 );
+		expect( us.previousShare ).toBe( 100 );
+	} );
+
 	it( 'leaves comparison fields undefined for a location absent from the comparison period', () => {
 		const { leaderboardData } = buildVisitorsByLocationData( {
 			primaryData,

@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
+	getCombinedPeriodMax,
 	LeaderboardChart,
 	sharePercentage,
 	WidgetRoot,
@@ -62,8 +63,10 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 			deviceProperty: platformDimension,
 		} );
 
-	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
-	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
+	const maxViews = getCombinedPeriodMax(
+		data.map( item => item.views ),
+		hasComparison ? data.map( item => item.previousViews ) : []
+	);
 	const withComparison = hasComparison;
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
 		const previousValue = item.previousViews;
@@ -80,7 +83,7 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxComparisonViews )
+					? sharePercentage( previousValue, maxViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined

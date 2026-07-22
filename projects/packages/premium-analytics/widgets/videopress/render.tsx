@@ -9,6 +9,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	getCombinedPeriodMax,
 	sharePercentage,
 	toMaxRows,
 	useWidgetRootContext,
@@ -51,8 +52,10 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
  * @return The leaderboard chart data.
  */
 function buildLeaderboardData( rows: VideoPlaysRow[] ): LeaderboardChartData {
-	// `1` guards against division by zero when every value is 0.
-	const maxPlays = Math.max( ...rows.flatMap( row => [ row.plays, row.previousPlays ?? 0 ] ), 1 );
+	const maxPlays = getCombinedPeriodMax(
+		rows.map( row => row.plays ),
+		rows.map( row => row.previousPlays )
+	);
 
 	return rows.map( row => ( {
 		id: row.key,

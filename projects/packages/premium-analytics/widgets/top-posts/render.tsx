@@ -19,6 +19,7 @@ import {
 	WidgetState,
 	buildCsvDateRangeFilename,
 	calculateDelta,
+	getCombinedPeriodMax,
 	sharePercentage,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
@@ -109,9 +110,10 @@ function buildLeaderboardData(
 	withComparison: boolean,
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardChartData {
-	// `1` guards against division by zero when every value is 0.
-	const maxCurrentViews = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxViews = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
@@ -157,13 +159,13 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxCurrentViews ),
+			currentShare: sharePercentage( row.value, maxViews ),
 			// Rows without a comparison-period match keep `undefined` so the chart
 			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxPreviousViews )
+					? sharePercentage( previousValue, maxViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined

@@ -592,6 +592,12 @@ Widget-level mapping may still add presentation-only fields such as labels, icon
 shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
 `undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
 
+For comparison leaderboards, calculate one denominator from the largest value represented in
+either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
+`previousShare`; separate per-period maxima make equal-width bars represent different values and
+can contradict the displayed delta. Only include visible primary rows and their matched comparison
+values in the denominator. Missing comparison values remain `undefined` and are ignored.
+
 **Drill-down leaderboards**
 
 Rows with children may be interactive and drill into a second-level leaderboard. Rows without

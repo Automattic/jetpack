@@ -16,7 +16,12 @@ import { WidgetState } from '../../components/widget-state';
 /**
  * Internal dependencies
  */
-import { formatLegendLabels, calculateDelta, sharePercentage } from '../../helpers';
+import {
+	calculateDelta,
+	formatLegendLabels,
+	getCombinedPeriodMax,
+	sharePercentage,
+} from '../../helpers';
 
 export type TopPerformingProductLeaderboardWidgetProps = {
 	/**
@@ -126,21 +131,19 @@ export function TopPerformingProductLeaderboardWidget( {
 	} );
 
 	const chartData = useMemo( () => {
+		const primaryItems = data?.data || [];
 		const comparisonItems = comparisonData?.data || [];
 
 		// Create a map of product_id to comparison data for efficient lookup
 		const comparisonMap = new Map( comparisonItems.map( item => [ item.product_id, item ] ) );
 
-		// Calculate maxValue once outside the map
-		const maxCurrentValue = Math.max(
-			...( data?.data?.map( p => p.product_net_revenue ?? 0 ) || [] ),
-			1 // Prevent division by zero
-		);
-
-		// Calculate max previous value once outside the map
-		const maxPreviousValue = Math.max(
-			...comparisonItems.map( p => p.product_net_revenue ?? 0 ),
-			1 // Prevent division by zero
+		const maxValue = getCombinedPeriodMax(
+			primaryItems.map( product => product.product_net_revenue ?? 0 ),
+			hasComparison
+				? primaryItems.map(
+						product => comparisonMap.get( product.product_id )?.product_net_revenue
+				  )
+				: []
 		);
 
 		return (
@@ -173,18 +176,18 @@ export function TopPerformingProductLeaderboardWidget( {
 						action: { kind: 'static' },
 					} ),
 					currentValue,
-					currentShare: sharePercentage( currentValue, maxCurrentValue ),
+					currentShare: sharePercentage( currentValue, maxValue ),
 					previousValue,
 					// Net revenue can be negative once refunds outweigh sales; a
 					// negative share would render an invalid bar width.
 					previousShare: hasComparisonValue
-						? sharePercentage( Math.max( previousValue, 0 ), maxPreviousValue )
+						? sharePercentage( Math.max( previousValue, 0 ), maxValue )
 						: undefined,
 					delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
 				};
 			} ) || []
 		);
-	}, [ data?.data, comparisonData?.data, productImages ] );
+	}, [ data?.data, comparisonData?.data, hasComparison, productImages ] );
 
 	// `hasComparison` only tracks the date range. When none of the visible
 	// products carry over from the comparison period, comparison mode would draw

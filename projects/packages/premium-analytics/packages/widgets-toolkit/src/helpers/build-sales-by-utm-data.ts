@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { calculateDelta } from './calculate-delta';
+import { getCombinedPeriodMax } from './get-combined-period-max';
 import { sharePercentage } from './share-percentage';
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
 import type { ReportDataMap } from '@jetpack-premium-analytics/data';
@@ -27,16 +28,14 @@ export function buildSalesByUtmData(
 		return [];
 	}
 
-	const { data } = orderAttribution;
+	const data = orderAttribution.data.slice( 0, maxEntries );
 
-	const maxValue = Math.max(
-		...data.map( item =>
-			Math.max( item.current_period.value || 0, item.previous_period?.value || 0 )
-		),
-		1
+	const maxValue = getCombinedPeriodMax(
+		data.map( item => item.current_period.value || 0 ),
+		data.map( item => item.previous_period?.value )
 	);
 
-	return data.slice( 0, maxEntries ).map( ( item, idx ) => {
+	return data.map( ( item, idx ) => {
 		const currentValue = item.current_period.value || 0;
 		const previousValue = item.previous_period?.value ?? 0;
 		const delta = calculateDelta( currentValue, previousValue );
