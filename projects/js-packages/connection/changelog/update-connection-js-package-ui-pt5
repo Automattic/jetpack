@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Connection UI: migrate the disconnect, manage-connection and owner-disconnect modals from the @wordpress/components Modal to the @wordpress/ui Dialog.
+Connection UI: Migrate the disconnect, manage-connection and owner-disconnect modals from the @wordpress/components Modal to the @wordpress/ui Dialog.

@@ -26,7 +26,7 @@ const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepS
 				{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }
 			</ConnectionDialogTitle>
 			<p className="jp-connection__disconnect-dialog__large-text">
-				{ __( 'Let us know what didn‘t work for you', 'jetpack-connection-js' ) }
+				{ __( "Let us know what didn't work for you", 'jetpack-connection-js' ) }
 			</p>
 			<DisconnectSurvey
 				onSubmit={ onFeedBackProvided }
