@@ -204,9 +204,16 @@ export function ZoomResetButton( { onClick }: { onClick: () => void } ) {
 					aria-hidden="true"
 					focusable="false"
 				>
-					<circle cx="10" cy="10" r="6" />
-					<line x1="15" y1="15" x2="20" y2="20" />
-					<line x1="7" y1="10" x2="13" y2="10" />
+					{ /*
+						IconButton renders icons edge-to-edge at 24px, so inset the
+						glyph the way @wordpress/icons glyphs do (drawn within
+						roughly 4-20 of the viewBox, ~1.5px effective stroke).
+					*/ }
+					<g transform="translate(2.4 2.4) scale(0.8)">
+						<circle cx="10" cy="10" r="6" />
+						<line x1="15" y1="15" x2="20" y2="20" />
+						<line x1="7" y1="10" x2="13" y2="10" />
+					</g>
 				</svg>
 			}
 			label={ __( 'Reset zoom', 'jetpack-charts' ) }
