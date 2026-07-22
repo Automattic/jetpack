@@ -45,10 +45,10 @@ class GutenbergModsTest extends WP_UnitTestCase {
 	 */
 	public static function provide_wp_versions() {
 		return array(
-			'mapped major'         => array( '7.1', '23.6' ),
-			'mapped with point'    => array( '7.1.2', '23.6' ),
-			'mapped beta'          => array( '7.1-beta2', '23.6' ),
-			'mapped rc with build' => array( '7.1-RC1-59400', '23.6' ),
+			'mapped major'         => array( '7.1', '23.6.0' ),
+			'mapped with point'    => array( '7.1.2', '23.6.0' ),
+			'mapped beta'          => array( '7.1-beta2', '23.6.0' ),
+			'mapped rc with build' => array( '7.1-RC1-59400', '23.6.0' ),
 			'unmapped newer'       => array( '7.2', null ),
 			'unmapped older'       => array( '6.6.1', null ),
 			'empty'                => array( '', null ),
@@ -78,11 +78,11 @@ class GutenbergModsTest extends WP_UnitTestCase {
 	 */
 	public static function provide_ignore_decisions() {
 		return array(
-			'plugin older than bundle' => array( '23.0', '23.6', true ),
-			'plugin much older'        => array( '19.5', '23.6', true ),
-			'plugin equal to bundle'   => array( '23.6', '23.6', false ),
-			'plugin newer than bundle' => array( '24.0', '23.6', false ),
-			'unknown plugin version'   => array( null, '23.6', false ),
+			'plugin older than bundle' => array( '23.0', '23.6.0', true ),
+			'plugin much older'        => array( '19.5', '23.6.0', true ),
+			'plugin equal to bundle'   => array( '23.6.0', '23.6.0', false ),
+			'plugin newer than bundle' => array( '24.0', '23.6.0', false ),
+			'unknown plugin version'   => array( null, '23.6.0', false ),
 			'unknown bundled version'  => array( '23.0', null, false ),
 			'both unknown'             => array( null, null, false ),
 		);
@@ -114,7 +114,7 @@ class GutenbergModsTest extends WP_UnitTestCase {
 		global $wp_version;
 		$wp_version = '7.1';
 
-		$this->assertFalse( wpcomsh_should_ignore_gutenberg_plugin( '23.0', '23.6' ) );
+		$this->assertFalse( wpcomsh_should_ignore_gutenberg_plugin( '23.0', '23.6.0' ) );
 	}
 
 	/**

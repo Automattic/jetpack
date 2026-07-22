@@ -24,7 +24,7 @@ add_action( 'muplugins_loaded', 'wpcomsh_register_ignore_outdated_gutenberg_plug
  * @see https://developer.wordpress.org/block-editor/contributors/versions-in-wordpress/
  */
 const WPCOMSH_CORE_BUNDLED_GUTENBERG_VERSIONS = array(
-	'7.1' => '23.6',
+	'7.1' => '23.6.0',
 );
 
 /**
