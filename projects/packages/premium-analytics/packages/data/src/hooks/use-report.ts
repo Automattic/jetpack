@@ -120,8 +120,9 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		Boolean( ( comparison.data as any )?.data?.length ) ||
 		Boolean( ( comparison.data as any )?.steps?.length );
 
-	// Combined refetch function that refetches both queries.
-	// If both primary and comparison queries fail, clicking "Retry" should refetch both.
+	// Combined refetch: memoized, awaits both queries, and skips the comparison
+	// query when comparison is disabled. If both queries fail, one "Retry" must
+	// refetch both — so widgets can surface this directly as their retry action.
 	const primaryRefetch = primary.refetch;
 	const comparisonRefetch = comparison.refetch;
 	const refetch = useCallback( async () => {

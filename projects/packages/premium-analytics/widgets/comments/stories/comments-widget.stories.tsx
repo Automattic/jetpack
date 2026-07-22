@@ -6,6 +6,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -13,25 +14,19 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import CommentsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { CommentsView } from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const COMMENTS_RENDER_MODULE = 'storybook/comments';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	// attributes/example let the dashboard host render the real "View by" header
-	// control for the `relevance: 'high'` attribute, as in Top Platforms.
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-	presentation: 'framed' as const,
-};
+// attributes/example let the dashboard host render the real "View by" header
+// control for the `relevance: 'high'` attribute, as in Top Platforms.
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 const VIEW_CONTROL = {
 	control: 'inline-radio' as const,

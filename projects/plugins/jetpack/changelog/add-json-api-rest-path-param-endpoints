@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-JSON API: support path-parameter endpoints over the REST transport, so single-item and action routes can migrate off XML-RPC.

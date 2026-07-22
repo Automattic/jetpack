@@ -4913,7 +4913,7 @@ endif;
 	 * The Connection package's canonical SSL check stores a neutral reason code; this maps it to
 	 * a translated, `jetpack`-domain message for display in the admin notice and AJAX recheck.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @return string The localized message, or an empty string when there is no failure.
 	 */

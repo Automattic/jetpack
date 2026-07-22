@@ -25,9 +25,11 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import WordAdsEarningsHistoryRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
@@ -94,7 +96,7 @@ function WordAdsEarningsHistoryDashboardStory( dashboardArgs: WidgetDashboardWit
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ { ...widgetDefinition, presentation: 'content-bleed' } }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ RENDER_MODULE }
 			renderComponent={
 				WordAdsEarningsHistoryRender as ComponentType< WidgetRenderProps< unknown > >

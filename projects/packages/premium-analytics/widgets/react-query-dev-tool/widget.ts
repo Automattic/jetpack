@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { bug } from '@wordpress/icons';
 
 /**
@@ -19,7 +18,5 @@ export type ReactQueryDevToolAttributes = Record< never, never >;
  * dashboard's widget picker.
  */
 export default {
-	name: 'jpa/react-query-dev-tool',
-	title: __( 'React Query Devtools', 'jetpack-premium-analytics' ),
 	icon: bug,
 };

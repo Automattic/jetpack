@@ -1,5 +1,6 @@
 .labelLink,
-.labelText {
+.labelText,
+.internalLink {
 	display: block;
 
 	/* Vertical padding sets the overlay bar height — the bar fills the row,
@@ -18,7 +19,9 @@
 }
 
 .labelLink:hover,
-.labelLink:focus {
+.labelLink:focus,
+.internalLink:hover,
+.internalLink:focus {
 	text-decoration: underline;
 }
 

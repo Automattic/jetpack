@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Hide the Modules footer link and the Help tab's Useful links section (All Jetpack modules, Debug information) on WordPress.com Simple sites, where the target admin pages do not exist.
