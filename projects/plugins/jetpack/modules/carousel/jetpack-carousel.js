@@ -1149,7 +1149,14 @@
 				if ( ! ul ) {
 					ul = document.createElement( 'ul' );
 					ul.className = 'jp-carousel-image-exif';
-					metaContainer.appendChild( ul );
+
+					// Insert right after the title/caption container if it exists, otherwise prepend
+					var titleAndCaption = metaContainer.querySelector( '.jp-carousel-title-and-caption' );
+					if ( titleAndCaption && titleAndCaption.nextSibling ) {
+						metaContainer.insertBefore( ul, titleAndCaption.nextSibling );
+					} else {
+						metaContainer.insertBefore( ul, metaContainer.firstChild );
+					}
 				}
 				ul.innerHTML = html;
 				ul.style.removeProperty( 'display' );
