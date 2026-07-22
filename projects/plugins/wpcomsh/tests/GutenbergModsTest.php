@@ -47,7 +47,7 @@ class GutenbergModsTest extends WP_UnitTestCase {
 		return array(
 			'mapped major'         => array( '7.1', '23.6' ),
 			'mapped with point'    => array( '7.1.2', '23.6' ),
-			'mapped beta'          => array( '7.1-beta1', '23.6' ),
+			'mapped beta'          => array( '7.1-beta2', '23.6' ),
 			'mapped rc with build' => array( '7.1-RC1-59400', '23.6' ),
 			'unmapped newer'       => array( '7.2', null ),
 			'unmapped older'       => array( '6.6.1', null ),
