@@ -487,7 +487,31 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
 				/New Source.*100.*No comparison data/
 			);
-			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /-/ );
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
+		} );
+
+		it( 'does not include the unavailable delta dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'zero-prev',
+							label: 'Zero Prev',
+							currentValue: 100,
+							previousValue: 0,
+							currentShare: 1,
+							previousShare: 0,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/Zero Prev.*100.*Percentage change unavailable/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
 		} );
 
 		it( 'derives the accessible name from an image label via its alt text', () => {

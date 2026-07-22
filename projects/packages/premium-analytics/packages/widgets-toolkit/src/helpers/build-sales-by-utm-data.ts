@@ -39,13 +39,11 @@ export function buildSalesByUtmData(
 	return data.slice( 0, maxEntries ).map( ( item, idx ) => {
 		const currentValue = item.current_period.value || 0;
 
-		// A source absent from the comparison period has an unknown previous
-		// value, not a real 0, so leave the comparison fields undefined and let
-		// the chart show a missing-data placeholder. A source present with 0
-		// sales keeps its known comparison value while its unavailable delta
-		// renders separately.
-		const previousValue = item.previous_period?.value;
-		const hasComparisonValue = previousValue !== undefined;
+		// The attribution summary aggregates every order, so it always reports a
+		// previous_period: a source with no sales in the comparison period is a
+		// real 0, not missing data, and its unavailable delta renders as the
+		// placeholder.
+		const previousValue = item.previous_period.value || 0;
 
 		return {
 			id: item.item ? String( item.item ) : String( idx ),
@@ -53,8 +51,8 @@ export function buildSalesByUtmData(
 			currentValue,
 			previousValue,
 			currentShare: sharePercentage( currentValue, maxValue ),
-			previousShare: hasComparisonValue ? sharePercentage( previousValue, maxValue ) : undefined,
-			delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
+			previousShare: sharePercentage( previousValue, maxValue ),
+			delta: calculateDelta( currentValue, previousValue ),
 		};
 	} );
 }
