@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Build wp-build-polyfills in the Boost E2E environment so the admin app loads on WordPress 6.9.
