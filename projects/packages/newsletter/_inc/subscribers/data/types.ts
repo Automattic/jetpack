@@ -104,13 +104,26 @@ export type AddSubscribersResponse = {
 	[ key: string ]: unknown;
 };
 
-export type ImportJobStatus = 'pending' | 'importing' | 'imported' | 'failed' | 'cancelled';
+export type ImportJobStatus =
+	| 'pending'
+	| 'awaiting'
+	| 'importing'
+	| 'imported'
+	| 'failed'
+	| 'cancelled';
 
 export type ImportJob = {
 	id: number;
 	status: ImportJobStatus;
 	// WP.com sends counts as numeric strings (e.g. `"1"`).
 	email_count?: number | string;
+	// Per-outcome counts, populated once the job reaches a terminal state. Same numeric-string
+	// quirk as email_count. WP.com does not return a human-readable failure reason on the job — the
+	// per-email reasons only go to the import confirmation email — so these counts are all the
+	// dashboard has to describe the outcome.
+	subscribed_count?: number | string;
+	already_subscribed_count?: number | string;
+	failed_subscribed_count?: number | string;
 	scheduled_at?: string;
 	[ key: string ]: unknown;
 };
