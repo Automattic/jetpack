@@ -288,6 +288,14 @@ class Dashboard {
 		if ( self::is_wp_build_dashboard_page() ) {
 			$inline_handle    = 'wp-api-fetch';
 			$preload_position = 'after';
+
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			// Enqueue it so the wp-build dashboard's init module can download its JS
+			// translation catalogs.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
 		} else {
 			$inline_handle    = self::SCRIPT_HANDLE;
 			$preload_position = 'before';
