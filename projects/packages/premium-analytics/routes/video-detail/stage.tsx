@@ -71,9 +71,12 @@ function VideoDetail(): JSX.Element {
 			? undefined
 			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
 	const resolvedSummary = { ...summary, title };
-	let summaryContent: JSX.Element;
+	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
+	let summaryContent: JSX.Element | null;
 
-	if ( summary.isError ) {
+	if ( summary.isLoading ) {
+		summaryContent = null;
+	} else if ( summary.isError ) {
 		summaryContent = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>
@@ -123,11 +126,17 @@ function VideoDetail(): JSX.Element {
 				}
 				className={ styles.page }
 			>
-				<div className={ styles.header }>
-					<div className={ styles.summary }>{ summaryContent }</div>
-				</div>
-				<div className={ styles.content }>
-					<WidgetDashboard.Widgets />
+				<div className={ styles.scrollArea }>
+					{ summaryContent ? (
+						<div className={ styles.header }>
+							<div className={ styles.summary }>{ summaryContent }</div>
+						</div>
+					) : null }
+					{ canRenderWidgets ? (
+						<div className={ styles.content }>
+							<WidgetDashboard.Widgets />
+						</div>
+					) : null }
 				</div>
 			</Page>
 		</WidgetDashboard>

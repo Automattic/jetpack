@@ -2,10 +2,13 @@
 	min-block-size: 0;
 }
 
-.content {
+.scrollArea {
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
+}
+
+.content {
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	padding-block-end: 24px;
