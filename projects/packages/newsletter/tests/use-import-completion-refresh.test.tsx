@@ -87,16 +87,16 @@ describe( 'useImportCompletionRefresh', () => {
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'warns about the shortfall when an import only partially succeeds', () => {
+	it( 'surfaces the shortfall in a success notice when an import only partially succeeds', () => {
 		mockJobs = [ job( 'importing' ) ];
 		const { rerender } = renderWatcher();
 		// WP.com sends counts as numeric strings; the watcher must coerce them.
 		mockJobs = [ job( 'imported', { subscribed_count: '8', failed_subscribed_count: '2' } ) ];
 		rerender();
 
-		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
-		expect( mockCreateErrorNotice ).toHaveBeenCalledTimes( 1 );
-		const message = mockCreateErrorNotice.mock.calls[ 0 ][ 0 ];
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+		expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 );
+		const message = mockCreateSuccessNotice.mock.calls[ 0 ][ 0 ];
 		expect( message ).toContain( '8' );
 		expect( message ).toContain( '2' );
 	} );

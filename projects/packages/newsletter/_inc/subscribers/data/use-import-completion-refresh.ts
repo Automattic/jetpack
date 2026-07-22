@@ -53,9 +53,10 @@ export function useImportCompletionRefresh(): void {
 			const failed = toFiniteNumber( finished?.failed_subscribed_count ) ?? 0;
 
 			if ( status === 'imported' && failed > 0 ) {
-				// Partial import — some addresses were rejected (bounced, blocked, invalid). The
-				// job carries only the count, not which ones or why, so point at the email.
-				createErrorNotice(
+				// Partial import — most succeeded, so keep it a success notice, but surface the
+				// shortfall. The job carries only the count, not which addresses or why, so point
+				// at the confirmation email.
+				createSuccessNotice(
 					sprintf(
 						// translators: %1$d: subscribers imported. %2$d: addresses that couldn't be added.
 						_n(
