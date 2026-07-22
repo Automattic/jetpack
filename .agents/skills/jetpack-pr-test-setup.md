@@ -99,10 +99,13 @@ essentials:
   against the provider's `provision-site` schema if it errors. `jetpack-social` is available
   the same way when a PR wants the Social plugin specifically.)
 - Poll `list-sites` (`include_config:false`) until `status == 2` (cap ~3 min).
-- `connect-jetpack` (domain). **Capture the `blog_id`** and the **admin credentials**
-  (`list-sites` with `include_config:true, include_passwords:true` returns the wp-admin
-  user + password) — the report in step 7 must hand these back so the user can reach
-  `/wp-admin`.
+- `connect-jetpack` (domain). **Capture the `blog_id`** and the **admin credentials** — the
+  report in step 7 must hand these back so the user can reach `/wp-admin`. Note what
+  `list-sites` actually returns: `include_config:true, include_passwords:true` gives you the
+  site's `JN_PASSWORD` (the SSH/SFTP password), **not** a separate `admin_pass` field. The
+  wp-admin password *is* that same `JN_PASSWORD`; the wp-admin **user** is `demo`, which you
+  confirm once the transport is up (step 1b) with `wp user list --role=administrator
+  --fields=user_login,user_email` — don't assume a field that isn't in the config.
 
 A brand-new install matters: it makes gates like `jetpack_seo_surface_visible` seed to `true`
 (see step 4), so the flag alone is usually enough.
@@ -184,7 +187,12 @@ jnwp 'wp jetpack-beta activate <plugin> "<headRefName>"'
 ```
 
 Verify it took: `jnwp 'wp jetpack-beta list <plugin>'` should mark `<headRefName>` active
-(`*`), and `jnwp 'wp plugin list --status=active'` should show the plugin.
+(`*`). **Heads-up on `wp plugin list --status=active` for `jetpack`:** Beta Tester runs the
+branch build as a *separate* plugin named **`jetpack-dev`** (you'll see `jetpack-dev`,
+`jetpack-production`, and `jetpack-beta` all active — the JN provisioner installs
+`jetpack-production` and activates a beta branch by default). So don't grep for a literal
+`jetpack` line and read its absence as a failure — the `*` marker in `jetpack-beta list` plus
+an active `jetpack-dev` is what "it took" looks like.
 
 **Fallbacks, in order:**
 1. `wp jetpack-beta list <plugin>` doesn't include the branch, or `activate` errors that the
@@ -256,24 +264,37 @@ reads it, `Current_Plan::supports( $feature )` checks `$plan['features']['active
 editor's `siteHasFeature( … )` reads the very same array (it's injected verbatim into script
 data). So adding the feature slug to that option's `features.active` on the site itself flips
 every client-side gate — no WPCOM sandbox, no sticker, no blog ID. Do it with a mu-plugin so a
-later plan refresh can't clobber it:
+later plan refresh can't clobber it.
+
+**Hook both `option_` *and* `default_option_`.** `Current_Plan::get()` reads the plan with
+`get_option( 'jetpack_active_plan', array() )`, and on a **fresh JN site that option row does
+not exist yet** — so `get_option()` returns through the `default_option_jetpack_active_plan`
+filter, and the `option_jetpack_active_plan` filter *never fires*. Hooking only `option_`
+(the obvious choice) silently no-ops: `supports()` keeps returning `false` with no error, and
+you waste time thinking the override "didn't work." Register the same closure on both filters
+so it applies whether or not the row exists:
 
 ```bash
-jnwp 'cat > wp-content/mu-plugins/0-pr-test-plan.php <<PHP
+# The heredoc delimiter is single-quoted (<<'PHP'), so the REMOTE shell leaves every $
+# literal — no \$ escaping through the local→jnwp→ssh layers. The '"'"' dance only escapes
+# the single quotes inside jnwp's own single-quoted argument.
+jnwp 'cat > wp-content/mu-plugins/0-pr-test-plan.php <<'"'"'PHP'"'"'
 <?php
 // Local plan override for PR <PR> — added by jetpack-pr-test-setup.
-add_filter( "option_jetpack_active_plan", function ( \$plan ) {
-    if ( ! is_array( \$plan ) ) { \$plan = array(); }
-    if ( empty( \$plan["features"]["active"] ) || ! is_array( \$plan["features"]["active"] ) ) {
-        \$plan["features"]["active"] = array();
+$jp_pr_plan_override = function ( $plan ) {
+    if ( ! is_array( $plan ) ) { $plan = array(); }
+    if ( empty( $plan["features"]["active"] ) || ! is_array( $plan["features"]["active"] ) ) {
+        $plan["features"]["active"] = array();
     }
-    foreach ( array( "<feature-slug>" ) as \$f ) {           // e.g. social-message-templates
-        if ( ! in_array( \$f, \$plan["features"]["active"], true ) ) {
-            \$plan["features"]["active"][] = \$f;
+    foreach ( array( "<feature-slug>" ) as $f ) {           // e.g. social-message-templates
+        if ( ! in_array( $f, $plan["features"]["active"], true ) ) {
+            $plan["features"]["active"][] = $f;
         }
     }
-    return \$plan;
-} );
+    return $plan;
+};
+add_filter( "option_jetpack_active_plan", $jp_pr_plan_override );          // option row exists
+add_filter( "default_option_jetpack_active_plan", $jp_pr_plan_override );  // fresh site, no row
 PHP'
 ```
 
@@ -330,9 +351,10 @@ Concise final report:
   - Autologin link: `https://<domain>/?auto_login` (one-shot; may not work in a browser other
     than the one that opened it).
   - **wp-admin credentials** so the user can log in directly regardless:
-    `https://<domain>/wp-admin/` — user **`<wp_user>`**, password **`<wp_password>`** (the pair
-    captured from `list-sites` in step 1). Print them; without wp-admin access the whole setup
-    is useless.
+    `https://<domain>/wp-admin/` — user **`demo`** (confirm via `wp user list
+    --role=administrator`), password **`<JN_PASSWORD>`** (the site password from `list-sites`
+    in step 1 — there is no separate `admin_pass` field; it's the same credential). Print them;
+    without wp-admin access the whole setup is useless.
   - The exact page/route the PR surfaces.
 - JN sites expire after 7 days of inactivity.
 
