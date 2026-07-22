@@ -9,12 +9,9 @@ import { useSelect } from '@wordpress/data';
 import type { DashboardSection } from '../config';
 
 /**
- * Get the ordered list of dashboard sections from the server-side registry.
- *
- * Reads the `dashboardSection` core-data entity (registered in the route's
- * `beforeLoad`), which resolves from `GET /sections`. The section set is
- * server-driven, so conditional sections (e.g. the store section, present only
- * when WooCommerce is active) never render a dead tab.
+ * Get the ordered list of dashboard sections. Reads the `dashboardSection`
+ * core-data entity (registered in the route's `beforeLoad`), which resolves
+ * from `GET /sections`.
  *
  * @return The ordered list of dashboard sections.
  */

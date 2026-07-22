@@ -4,12 +4,9 @@
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
- * A dashboard section definition, served by `GET /dashboards/{name}/sections`
- * and read through the `dashboardSection` core-data entity.
- *
- * The server-side section registry is the single source of truth for which
- * sections exist, in what order, and with which labels. The WooCommerce
- * section, for example, is only present when WooCommerce is active.
+ * A dashboard section, served by `GET /dashboards/{name}/sections` and read
+ * through the `dashboardSection` core-data entity. The server-side registry is
+ * the source of truth for which sections exist, their order, and labels.
  */
 export type DashboardSection = {
 	/**
@@ -41,17 +38,15 @@ export type DashboardSection = {
 };
 
 /**
- * Dashboard section identifier as used by the frontend: the URL-facing `slug`
- * of a `DashboardSection`. Server-driven, so no longer a static union.
+ * Dashboard section identifier: the URL-facing `slug` of a `DashboardSection`.
+ * Server-driven, so an open string.
  */
 export type DashboardSectionId = string;
 
 /**
- * Narrow an arbitrary string to an available section slug, falling back to the
- * first section by order.
- *
- * A miss covers both stale slugs (an old bookmark) and currently unavailable
- * sections (`?section=store` with WooCommerce off).
+ * Narrow a candidate slug to an available section, falling back to the first
+ * section by order. A miss is a stale slug or a section unavailable now
+ * (`?section=store` with WooCommerce off).
  *
  * @param value    - The candidate section slug (e.g. from the URL).
  * @param sections - The available sections, in order.

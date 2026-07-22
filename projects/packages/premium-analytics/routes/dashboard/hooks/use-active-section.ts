@@ -20,17 +20,12 @@ type SectionSearch = {
 };
 
 /**
- * Read and update the active dashboard section via the `?section=` search param.
+ * Read and update the active dashboard section via the `?section=` search
+ * param, so sections are deep-linkable. Built on `useStagedSearch`: switching a
+ * section is an immediate stage + commit (one history entry per change).
  *
- * Keeping the active section in the URL makes sections deep-linkable and gives
- * the widget grid a single, stable place to read the current section from.
- * Built on the package's `useStagedSearch`, so switching a section is an
- * immediate stage + commit (one history entry per change).
- *
- * The raw `?section=` value is validated against the available sections: a miss
- * (a stale slug, or a currently unavailable section like `store` with
- * WooCommerce off) resolves to the first section by order, and the URL is
- * rewritten in place to the resolved slug.
+ * `?section=` is validated against the available sections. A miss resolves to
+ * the first section by order and the URL is rewritten to it.
  *
  * @param sections - The available sections, in order.
  * @return A tuple of the active section slug and a setter to change it.

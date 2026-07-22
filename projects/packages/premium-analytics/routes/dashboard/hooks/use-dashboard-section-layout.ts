@@ -16,14 +16,11 @@ type PreferencesActions = {
 };
 
 /**
- * Manage the customizable widget layout for the currently active dashboard section.
+ * Manage the customizable widget layout for the active dashboard section.
  *
- * The shared `useDashboardLayout` hook stores one dashboard-wide layout. This
- * route layers a section map on top of that hook so each section can commit its
- * own customized layout, while reset restores the section's bundled default.
- *
- * The default comes from the active section's `default_layout`, carried on the
- * `dashboardSection` record, so reset is a local store write with no request.
+ * Layers a per-section map over the dashboard-wide `useDashboardLayout`, so each
+ * section keeps its own layout. Reset restores the section's `default_layout`
+ * from the `dashboardSection` record: a local store write, no request.
  *
  * @param dashboardName   - Dashboard registration name for the base layout.
  * @param activeSectionId - Currently active section slug.
