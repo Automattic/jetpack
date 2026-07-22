@@ -44,7 +44,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportRecordsTable: jest.fn( () => null ),
 	useReportCsvExport: () => ( {
 		canExport: false,
-		buttonProps: { columns: [], rows: [], filename: 'videos' },
+		rows: [],
+		filename: 'videos',
 	} ),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();

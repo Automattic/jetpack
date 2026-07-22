@@ -83,8 +83,11 @@ function AnnualInsightsReport(): JSX.Element {
 		],
 		[]
 	);
-	const { canExport, buttonProps } = useReportCsvExport( {
-		columns: csvColumns,
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
 		rows: records.rows,
 		filenamePrefix: 'annual-insights',
 		status: records,
@@ -107,7 +110,15 @@ function AnnualInsightsReport(): JSX.Element {
 				'Year-by-year publishing and engagement totals.',
 				'jetpack-premium-analytics'
 			) }
-			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
+			actions={
+				canExport ? (
+					<ReportCsvAction
+						columns={ csvColumns }
+						rows={ csvRows }
+						filename={ csvFilename }
+					/>
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

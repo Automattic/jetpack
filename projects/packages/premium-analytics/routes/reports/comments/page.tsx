@@ -70,8 +70,11 @@ function CommentsReport(): JSX.Element {
 		],
 		[]
 	);
-	const { canExport, buttonProps } = useReportCsvExport( {
-		columns: csvColumns,
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
 		rows: records.rows,
 		filenamePrefix: `comments-${ activeTab }`,
 		status: records,
@@ -94,7 +97,15 @@ function CommentsReport(): JSX.Element {
 				'Learn about the comments your site receives by authors, posts, and pages.',
 				'jetpack-premium-analytics'
 			) }
-			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
+			actions={
+				canExport ? (
+					<ReportCsvAction
+						columns={ csvColumns }
+						rows={ csvRows }
+						filename={ csvFilename }
+					/>
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

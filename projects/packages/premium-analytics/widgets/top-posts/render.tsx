@@ -17,10 +17,10 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	buildCsvDateRangeFilename,
 	calculateDelta,
 	sharePercentage,
 	usePostDetailHrefBuilder,
+	useReportCsvExport,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type CsvColumn,
@@ -309,13 +309,19 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 		return base;
 	}, [ withComparison ] );
 
-	const csvFilename = buildCsvDateRangeFilename( 'top-posts', reportParams );
-
-	// Only expose the export once the query has settled on data for the current
-	// params. Stats queries keep the previous period's rows as placeholder data
-	// while a refetch is in flight, so exporting mid-fetch (or after an error)
-	// could hand the user stale rows under the new-period `csvFilename`.
-	const canExport = rows.length > 0 && ! isFetching && ! isError;
+	// Stats queries keep the previous period's rows as placeholder data while a
+	// refetch is in flight. The shared hook keeps the export hidden until those
+	// rows belong to the active date range.
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows,
+		filenamePrefix: 'top-posts',
+		range: reportParams,
+		status: { isLoading, isFetching, isError },
+	} );
 
 	return (
 		<>
@@ -346,7 +352,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 			<WidgetFooter>
 				<ReportLink report="posts" section="posts-pages" />
 				{ canExport && (
-					<RowsCsvDownloadButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) }
 			</WidgetFooter>
 		</>

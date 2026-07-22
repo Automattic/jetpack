@@ -173,8 +173,11 @@ function PostsReport(): JSX.Element {
 		[]
 	);
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
-	const { canExport, buttonProps } = useReportCsvExport< ReportCsvRow >( {
-		columns: csvColumns,
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport< ReportCsvRow >( {
 		rows: activeRecords.rows,
 		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
 		range: reportParams,
@@ -230,7 +233,15 @@ function PostsReport(): JSX.Element {
 				/>
 			}
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
-			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
+			actions={
+				canExport ? (
+					<ReportCsvAction
+						columns={ csvColumns }
+						rows={ csvRows }
+						filename={ csvFilename }
+					/>
+				) : undefined
+			}
 		>
 			<ReportPageLayout
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }

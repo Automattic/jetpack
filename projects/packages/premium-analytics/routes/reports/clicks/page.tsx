@@ -140,8 +140,11 @@ function ClicksReport(): JSX.Element {
 		],
 		[]
 	);
-	const { canExport, buttonProps } = useReportCsvExport( {
-		columns: csvColumns,
+	const {
+		canExport,
+		rows: exportRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
 		rows: csvRows,
 		filenamePrefix: 'clicks',
 		range: reportParams,
@@ -194,7 +197,15 @@ function ClicksReport(): JSX.Element {
 					] }
 				/>
 			}
-			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
+			actions={
+				canExport ? (
+					<ReportCsvAction
+						columns={ csvColumns }
+						rows={ exportRows }
+						filename={ csvFilename }
+					/>
+				) : undefined
+			}
 		>
 			<ReportPageLayout
 				filters={

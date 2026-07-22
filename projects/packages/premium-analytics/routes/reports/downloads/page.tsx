@@ -122,8 +122,11 @@ function DownloadsReport(): JSX.Element {
 		],
 		[]
 	);
-	const { canExport, buttonProps } = useReportCsvExport( {
-		columns: csvColumns,
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
 		rows: records.rows,
 		filenamePrefix: 'file-downloads',
 		range: reportParams,
@@ -167,7 +170,15 @@ function DownloadsReport(): JSX.Element {
 					] }
 				/>
 			}
-			actions={ canExport ? <ReportCsvAction { ...buttonProps } /> : undefined }
+			actions={
+				canExport ? (
+					<ReportCsvAction
+						columns={ csvColumns }
+						rows={ csvRows }
+						filename={ csvFilename }
+					/>
+				) : undefined
+			}
 		>
 			<ReportPageLayout
 				filters={
