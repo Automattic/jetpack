@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { registerApiErrorStatusMiddleware } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
@@ -40,6 +41,9 @@ function setupApiFetch(): void {
  * Runs before routes render.
  */
 export async function init(): Promise< void > {
+	// Keeps the HTTP status on failed requests, which the data layer's error
+	// handling reads. Self-guarding against duplicate registration.
+	registerApiErrorStatusMiddleware();
 	setupApiFetch();
 
 	dispatch( bootStore ).updateMenuItem( 'dashboard', {

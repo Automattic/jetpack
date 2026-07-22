@@ -56,12 +56,11 @@ type DevicesInnerProps = {
  */
 function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
-		useDeviceViews( {
-			reportParams,
-			max,
-			deviceProperty: 'screensize',
-		} );
+	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useDeviceViews( {
+		reportParams,
+		max,
+		deviceProperty: 'screensize',
+	} );
 
 	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: item.displayLabel,
@@ -88,10 +87,6 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 		color: segmentStyles[ index ]?.color,
 	} ) );
 
-	// A plan error can't be fixed by retrying, so the Retry action is only
-	// offered for regular fetch failures.
-	const isPlanError = errorReason === 'upgrade-required';
-
 	return (
 		<div className={ styles.content }>
 			<WidgetState
@@ -100,18 +95,11 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 				isError={ isError }
 				isEmpty={ data.length === 0 }
 				error={ {
-					description: isPlanError
-						? __(
-								'Device stats are not included in your current plan.',
-								'jetpack-premium-analytics'
-						  )
-						: __(
-								"We couldn't load device data. Please try again in a moment.",
-								'jetpack-premium-analytics'
-						  ),
-					actions: isPlanError
-						? undefined
-						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					description: __(
+						"We couldn't load device data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: device,

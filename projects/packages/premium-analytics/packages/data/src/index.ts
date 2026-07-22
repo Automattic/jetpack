@@ -234,13 +234,11 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
-	getStatsPlanErrorReason,
 	saveBlob,
 	shouldRetryApiError,
 	toPostId,
 	useSiteHomeUrl,
 } from './utils';
-export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
@@ -248,7 +246,13 @@ export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export {
+	downloadReport,
+	exportReport,
+	fetchStatsProxy,
+	getStatsProxyPath,
+	registerApiErrorStatusMiddleware,
+} from './api';
 export type {
 	DownloadReportParams,
 	DownloadReportResponse,

@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import { useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
@@ -41,7 +41,6 @@ interface DeviceViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
-	errorReason: 'upgrade-required' | null;
 	refetch: () => void;
 }
 
@@ -89,9 +88,8 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
-	const errorReason = getStatsPlanErrorReason( error );
 
 	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
 
@@ -105,7 +103,6 @@ export default function useDeviceViews( {
 		// flips true. Only surface the error when there's nothing to show, so a transient
 		// refetch failure doesn't replace populated rows with the error state.
 		isError: items.length === 0 && isError,
-		errorReason,
 		// The data layer's combined refetch: memoized, awaits both queries, and
 		// skips the comparison query when comparison is disabled.
 		refetch,

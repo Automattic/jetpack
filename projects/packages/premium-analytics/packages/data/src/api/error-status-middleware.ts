@@ -1,0 +1,96 @@
+/**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
+import type { APIFetchMiddleware } from '@wordpress/api-fetch';
+
+/**
+ * apiFetch's own parse step throws the parsed JSON body and drops the `Response`,
+ * so the HTTP status is lost. Most Premium Analytics failures are WPCOM
+ * pass-throughs shaped `{ error, message }` with no status in the body, which
+ * leaves the data layer unable to tell a 401 from a 502. This middleware takes
+ * over parsing to keep the status on the thrown error.
+ *
+ * The parse semantics below intentionally mirror `parseResponseAndNormalizeError`
+ * / `parseAndThrowError` in `@wordpress/api-fetch`.
+ */
+
+async function parseJsonAndNormalizeError( response: Response ): Promise< unknown > {
+	try {
+		return await response.json();
+	} catch {
+		// Same shape apiFetch throws. The string is core's — translating it under
+		// this package's domain would hand non-English users a different message
+		// for the identical failure, so it stays on the `default` domain.
+		throw {
+			code: 'invalid_json',
+			// eslint-disable-next-line @wordpress/i18n-text-domain
+			message: __( 'The response is not a valid JSON response.', 'default' ),
+		};
+	}
+}
+
+function isPlainErrorBody( body: unknown ): body is Record< string, unknown > {
+	return typeof body === 'object' && body !== null && ! Array.isArray( body );
+}
+
+function containsUnboundedQuery( options: { path?: string; url?: string } ): boolean {
+	return !! options.path?.includes( 'per_page=-1' ) || !! options.url?.includes( 'per_page=-1' );
+}
+
+export const apiErrorStatusMiddleware: APIFetchMiddleware = async ( options, next ) => {
+	// The caller wants the raw `Response` (e.g. the CSV export download), so
+	// apiFetch's own pass-through behavior is already what they get.
+	if ( options.parse === false ) {
+		return next( options );
+	}
+
+	// apiFetch always keeps its built-in middlewares innermost, so this one
+	// necessarily wraps `fetchAllMiddleware` — and that middleware bails out on
+	// `parse: false`. Forcing parse off here would silently disable `per_page=-1`
+	// pagination (which the dashboard uses to enumerate widget modules), so leave
+	// unbounded queries to apiFetch's own handling.
+	if ( containsUnboundedQuery( options ) ) {
+		return next( options );
+	}
+
+	const result = await next( { ...options, parse: false } );
+
+	// Load-bearing, not defensive padding: a middleware registered outside this
+	// one can short-circuit and resolve with already-parsed data instead of a
+	// `Response` — Storybook's report mocks do exactly that.
+	if ( ! ( result instanceof Response ) ) {
+		return result;
+	}
+
+	if ( ! result.ok ) {
+		const body = await parseJsonAndNormalizeError( result );
+
+		// Our own `WP_Error` responses carry `data.status`; adding a top-level
+		// `status` is fine, but never overwrite one the body already provides.
+		if ( isPlainErrorBody( body ) && ! ( 'status' in body ) ) {
+			throw { ...body, status: result.status };
+		}
+
+		throw body;
+	}
+
+	if ( result.status === 204 ) {
+		return null;
+	}
+
+	return parseJsonAndNormalizeError( result );
+};
+
+// apiFetch middleware registers onto a shared, process-wide chain, so guard
+// against a second registration from a re-mount or HMR.
+let registered = false;
+
+export function registerApiErrorStatusMiddleware(): void {
+	if ( registered ) {
+		return;
+	}
+	registered = true;
+	apiFetch.use( apiErrorStatusMiddleware );
+}

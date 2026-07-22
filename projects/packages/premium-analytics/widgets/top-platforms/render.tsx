@@ -55,12 +55,11 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
-		usePlatformViews( {
-			reportParams,
-			max,
-			deviceProperty: platformDimension,
-		} );
+	const { data, hasComparison, isLoading, isFetching, isError, refetch } = usePlatformViews( {
+		reportParams,
+		max,
+		deviceProperty: platformDimension,
+	} );
 
 	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
 	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
@@ -89,10 +88,6 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 		};
 	} );
 
-	// A plan error can't be fixed by retrying, so the Retry action is only
-	// offered for regular fetch failures.
-	const isPlanError = errorReason === 'upgrade-required';
-
 	return (
 		<div className={ styles.content }>
 			<WidgetState
@@ -101,18 +96,11 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				isError={ isError }
 				isEmpty={ data.length === 0 }
 				error={ {
-					description: isPlanError
-						? __(
-								'Platform stats are not included in your current plan.',
-								'jetpack-premium-analytics'
-						  )
-						: __(
-								"We couldn't load platform data. Please try again in a moment.",
-								'jetpack-premium-analytics'
-						  ),
-					actions: isPlanError
-						? undefined
-						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					description: __(
+						"We couldn't load platform data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: device,
