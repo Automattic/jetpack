@@ -75,8 +75,10 @@ class Jetpack_VideoPress_Test extends WP_UnitTestCase {
 		// every supported PHP version, unlike ReflectionProperty::setAccessible
 		// (required before PHP 8.1, deprecated as of PHP 8.5).
 		$reset_plan_cache = Closure::bind(
+			/** @phan-closure-scope \Automattic\Jetpack\Current_Plan */
 			static function () {
-				self::$active_plan_cache = null;
+				// An empty array is a cache miss for Current_Plan::get().
+				self::$active_plan_cache = array();
 			},
 			null,
 			Current_Plan::class
