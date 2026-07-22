@@ -85,6 +85,17 @@ describe( 'describeImportOutcome', () => {
 		expect( outcome?.message ).toContain( 'couldn’t be added' );
 	} );
 
+	it( 'stays grammatical when the imported and failed counts differ in plurality', () => {
+		// 1 imported (singular) + 2 failed (plural): a single _n can only agree with one count, so
+		// the failed clause must not carry a count-sensitive noun.
+		const outcome = describeImportOutcome(
+			job( 'imported', { subscribed_count: 1, failed_subscribed_count: 2 } )
+		);
+		expect( outcome?.message ).toContain( 'Imported 1 subscriber.' );
+		expect( outcome?.message ).toContain( '2 couldn’t be added' );
+		expect( outcome?.message ).not.toContain( 'email address' );
+	} );
+
 	it( 'accounts for both counts on a mixed new + already-subscribed import', () => {
 		const outcome = describeImportOutcome(
 			job( 'imported', { subscribed_count: 3, already_subscribed_count: 2 } )

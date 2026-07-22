@@ -42,14 +42,16 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
 
 	if ( failed > 0 ) {
 		// Some addresses were rejected (bounced, blocked, invalid). Most succeeded, so keep it a
-		// success notice but surface the shortfall.
+		// success notice but surface the shortfall. The trailing clause is noun-free
+		// ("%2$d couldn't be added") so it reads correctly for any count — a single _n can only
+		// pluralize on one number, and that one is the imported count.
 		return {
 			status: 'success',
 			message: sprintf(
 				// translators: %1$d: subscribers imported. %2$d: email addresses that couldn't be added.
 				_n(
-					'Imported %1$d subscriber. %2$d email address couldn’t be added — check your import confirmation email for details.',
-					'Imported %1$d subscribers. %2$d email addresses couldn’t be added — check your import confirmation email for details.',
+					'Imported %1$d subscriber. %2$d couldn’t be added — check your import confirmation email for details.',
+					'Imported %1$d subscribers. %2$d couldn’t be added — check your import confirmation email for details.',
 					subscribed,
 					'jetpack-newsletter'
 				),
