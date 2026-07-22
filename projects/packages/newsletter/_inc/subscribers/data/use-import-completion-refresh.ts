@@ -59,6 +59,27 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
 		};
 	}
 
+	if ( subscribed > 0 && already > 0 ) {
+		// Mixed batch: some new, some already on the list. Already-subscribed isn't a failure, so
+		// this stays a success — it just also accounts for the skipped duplicates. The trailing
+		// clause is verb-free ("%2$d already subscribed") so it reads correctly for any count, since
+		// a single _n can only pluralize on one number.
+		return {
+			status: 'success',
+			message: sprintf(
+				// translators: %1$d: subscribers imported. %2$d: email addresses already subscribed.
+				_n(
+					'%1$d subscriber imported. %2$d already subscribed.',
+					'%1$d subscribers imported. %2$d already subscribed.',
+					subscribed,
+					'jetpack-newsletter'
+				),
+				subscribed,
+				already
+			),
+		};
+	}
+
 	if ( subscribed > 0 ) {
 		return {
 			status: 'success',

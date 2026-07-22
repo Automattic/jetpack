@@ -85,6 +85,16 @@ describe( 'describeImportOutcome', () => {
 		expect( outcome?.message ).toContain( 'couldn’t be added' );
 	} );
 
+	it( 'accounts for both counts on a mixed new + already-subscribed import', () => {
+		const outcome = describeImportOutcome(
+			job( 'imported', { subscribed_count: 3, already_subscribed_count: 2 } )
+		);
+		expect( outcome?.status ).toBe( 'success' );
+		expect( outcome?.message ).toContain( '3' );
+		expect( outcome?.message ).toContain( '2' );
+		expect( outcome?.message ).toContain( 'already subscribed' );
+	} );
+
 	it( 'distinguishes an already-subscribed no-op from a real import', () => {
 		const outcome = describeImportOutcome(
 			job( 'imported', { subscribed_count: 0, already_subscribed_count: 2 } )
