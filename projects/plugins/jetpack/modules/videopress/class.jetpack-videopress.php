@@ -91,6 +91,15 @@ class Jetpack_VideoPress {
 			return;
 		}
 
+		// Version with the served file's mtime so browsers and page caches pick
+		// up new builds even when JETPACK__VERSION has not changed (branch
+		// testing, beta builds).
+		$script_relative = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG
+			? 'modules/videopress/js/videopress-media-new.js'
+			: '_inc/build/videopress/js/videopress-media-new.min.js';
+		$script_path     = JETPACK__PLUGIN_DIR . $script_relative;
+		$script_version  = file_exists( $script_path ) ? (string) filemtime( $script_path ) : JETPACK__VERSION;
+
 		wp_enqueue_script(
 			'videopress-media-new',
 			Assets::get_file_url_for_environment(
@@ -101,7 +110,7 @@ class Jetpack_VideoPress {
 				'jquery',
 				'plupload-handlers',
 			),
-			JETPACK__VERSION,
+			$script_version,
 			true
 		);
 
