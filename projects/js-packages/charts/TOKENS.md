@@ -48,8 +48,8 @@ maps directly to its own `--wpds-*` token rather than chaining through `grid`.
 Instance styling knobs, on the same convention but not shared semantic roles:
 `--a8c-charts-border-radius-leaderboard-bar`,
 `--a8c-charts-dimension-leaderboard-bar-hover-inset`,
-`--a8c-charts-color-zoom-*`, `--a8c-charts-color-heatmap-*`,
-`--a8c-charts-dimension-heatmap-*`, `--a8c-charts-heatmap-cell-intensity`.
+`--a8c-charts-color-heatmap-*`, `--a8c-charts-dimension-heatmap-*`,
+`--a8c-charts-heatmap-cell-intensity`.
 
 `--a8c-charts-heatmap-cell-intensity` is the one variable without a `{category}`
 segment: it holds a unitless 0–1 scalar consumed inside `color-mix()`, not a colour.
