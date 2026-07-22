@@ -11,8 +11,8 @@
  * path rather than registering a rewrite rule, so it needs no rewrite flush and
  * works under any permalink structure. The tradeoff — it matches a root-level
  * request only, and like robots.txt won't apply on a multisite subdirectory or
- * a site fronted by a static file. A proper rewrite rule is worth weighing for
- * the production feature (Phase 1: llms.txt Generation).
+ * a site fronted by a static file. Hardening the serving path (a rewrite rule,
+ * caching) is tracked separately in JETPACK-1830.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -58,6 +58,37 @@ class Llms_Txt {
 	}
 
 	/**
+	 * Whether WordPress can actually serve the dynamic `/llms.txt` on this site.
+	 *
+	 * Two ways it can't, and the toggle then silently does nothing:
+	 *  - A physical `llms.txt` sits at the site root, so the web server delivers
+	 *    that file directly and WordPress never runs for the request. Detected
+	 *    here.
+	 *  - The host fronts WordPress for root-level paths (some managed hosts /
+	 *    static-file setups). PHP can't see that, so hosts can signal it via the
+	 *    `jetpack_seo_llms_txt_can_serve` filter.
+	 *
+	 * When this returns false the GEO tab shows an honest "can't take effect"
+	 * notice instead of letting the admin believe the file is live.
+	 *
+	 * @return bool
+	 */
+	public static function can_serve() {
+		$has_static_file = defined( 'ABSPATH' ) && file_exists( ABSPATH . 'llms.txt' );
+
+		/**
+		 * Filters whether WordPress can serve the dynamic `/llms.txt`. Hosts that
+		 * intercept root-level paths before WordPress runs can return false to
+		 * surface the honest "can't take effect" state in the SEO dashboard.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $can_serve Whether WordPress can serve `/llms.txt`.
+		 */
+		return (bool) apply_filters( 'jetpack_seo_llms_txt_can_serve', ! $has_static_file );
+	}
+
+	/**
 	 * The site-root-relative request path, normalized without surrounding
 	 * slashes (e.g. `llms.txt`).
 	 *
@@ -79,6 +110,14 @@ class Llms_Txt {
 	 */
 	public static function maybe_serve() {
 		if ( ! self::is_enabled() || 'llms.txt' !== self::request_path() ) {
+			return;
+		}
+
+		// Respect the site's "discourage search engines" setting. When indexing is
+		// discouraged, WordPress emits `Disallow: /` in robots.txt — serving an AI
+		// content map would contradict that signal, and would expose a content map
+		// on staging/private sites, so we don't serve it.
+		if ( ! get_option( 'blog_public' ) ) {
 			return;
 		}
 
@@ -113,6 +152,7 @@ class Llms_Txt {
 				array(
 					'post_type'      => 'page',
 					'post_status'    => 'publish',
+					'has_password'   => false,
 					'posts_per_page' => self::MAX_PAGES,
 					'orderby'        => 'menu_order title',
 					'order'          => 'ASC',
@@ -128,6 +168,7 @@ class Llms_Txt {
 				array(
 					'post_type'      => 'post',
 					'post_status'    => 'publish',
+					'has_password'   => false,
 					'posts_per_page' => self::MAX_POSTS,
 					'orderby'        => 'date',
 					'order'          => 'DESC',
@@ -151,12 +192,21 @@ class Llms_Txt {
 	private static function link_list( $posts ) {
 		$lines = array();
 		foreach ( $posts as $post ) {
-			$title = wp_strip_all_tags( get_the_title( $post ) );
+			// Password-protected posts are `publish` status but their content is
+			// intentionally gated; keep them out of the public llms.txt entirely.
+			if ( ! empty( $post->post_password ) ) {
+				continue;
+			}
+
+			// Collapse whitespace (incl. newlines) so each entry stays on one line.
+			$title = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( get_the_title( $post ) ) ) );
 			if ( '' === $title ) {
 				$title = __( '(untitled)', 'jetpack-seo' );
 			}
-			$url  = get_permalink( $post );
-			$line = '- [' . $title . '](' . $url . ')';
+			// Escape brackets so a title can't break the `[title](url)` link syntax.
+			$title = str_replace( array( '[', ']' ), array( '\[', '\]' ), $title );
+			$url   = esc_url_raw( (string) get_permalink( $post ) );
+			$line  = '- [' . $title . '](' . $url . ')';
 
 			$summary = self::summary( $post );
 			if ( '' !== $summary ) {

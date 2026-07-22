@@ -26,7 +26,7 @@ interface Props {
  * Shared chrome for every SEO dashboard route: the `AdminPage` page frame
  * (`@automattic/jetpack-components`) plus the route-based tab navigation. Each
  * route's `stage` wraps its screen in this so the header, tabs and footer are
- * identical across Overview / Settings / AI. The shell (nav included) is part of
+ * identical across Overview / Settings / Content / GEO. The shell (nav included) is part of
  * each route's stage, so it re-renders on navigation rather than persisting
  * beneath a swapped panel.
  *
