@@ -1,21 +1,33 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { getDashboardSections, type DashboardSection } from '../config';
+import type { DashboardSection } from '../config';
 
 /**
- * Get the ordered list of dashboard sections.
+ * Get the ordered list of dashboard sections from the server-side registry.
  *
- * Wraps the pure `getDashboardSections()` builder in `useMemo` so the section
- * list (and its translated labels) is built once per mount instead of on every
- * render. The section set is static, so an empty dependency array is correct.
+ * Reads the `dashboardSection` core-data entity (registered in the route's
+ * `beforeLoad`), which resolves from `GET /sections`. The section set is
+ * server-driven, so conditional sections (e.g. the store section, present only
+ * when WooCommerce is active) never render a dead tab.
  *
- * @return The ordered, memoized list of dashboard sections.
+ * @return The ordered list of dashboard sections.
  */
 export function useDashboardSections(): DashboardSection[] {
-	return useMemo( () => getDashboardSections(), [] );
+	return useSelect( select => {
+		const core = select( coreStore ) as unknown as {
+			getEntityRecords: (
+				kind: string,
+				name: string,
+				query?: Record< string, unknown >
+			) => DashboardSection[] | null;
+		};
+
+		return core.getEntityRecords( 'root', 'dashboardSection', { per_page: -1 } ) ?? [];
+	}, [] );
 }

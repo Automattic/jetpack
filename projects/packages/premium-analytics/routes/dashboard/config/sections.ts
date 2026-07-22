@@ -1,87 +1,69 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
- * Ordered list of the dashboard section IDs.
+ * A dashboard section definition, served by `GET /dashboards/{name}/sections`
+ * and read through the `dashboardSection` core-data entity.
  *
- * This is the single source of truth for which sections exist and in what order.
- * Each section is surfaced as a tab and renders the customizable widget grid,
- * so the IDs are kept stable and URL-friendly (they are persisted in the
- * `?section=` search param).
- */
-export const DASHBOARD_SECTION_IDS = [ 'traffic', 'insights', 'subscribers', 'store' ] as const;
-
-/**
- * Dashboard section identifier.
- * Derived from DASHBOARD_SECTION_IDS to keep the union in sync with the source list.
- */
-export type DashboardSectionId = ( typeof DASHBOARD_SECTION_IDS )[ number ];
-
-/**
- * Default section shown when the URL has no (or an unknown) `section` param.
- */
-export const DEFAULT_SECTION_ID: DashboardSectionId = 'traffic';
-
-/**
- * A dashboard section definition.
- *
- * For now a section is just an ID and a display label. This is the natural place
- * to attach per-section metadata such as the default widget layout.
+ * The server-side section registry is the single source of truth for which
+ * sections exist, in what order, and with which labels. The WooCommerce
+ * section, for example, is only present when WooCommerce is active.
  */
 export type DashboardSection = {
-	id: DashboardSectionId;
+	/**
+	 * Canonical namespaced identifier, e.g. `analytics/traffic`.
+	 */
+	id: string;
+
+	/**
+	 * URL-facing slug (the segment after the namespace), e.g. `traffic`.
+	 * Persisted in the `?section=` search param and as the section-layout
+	 * preference key.
+	 */
+	slug: string;
+
+	/**
+	 * Translated display label.
+	 */
 	label: string;
+
+	/**
+	 * Sort order (ascending).
+	 */
+	order: number;
+
+	/**
+	 * Bundled default widget layout, consumed by the reset action.
+	 */
+	default_layout: DashboardWidget[];
 };
 
 /**
- * Canonical section definitions with lazy label getters, in display order.
- *
- * Labels are defined once here, as getters resolved at call time, so translations
- * are applied after the i18n locale data has loaded. Mirrors the datetime
- * package's `PRESET_DEFINITIONS`.
+ * Dashboard section identifier as used by the frontend: the URL-facing `slug`
+ * of a `DashboardSection`. Server-driven, so no longer a static union.
  */
-const SECTION_DEFINITIONS: ReadonlyArray< {
-	id: DashboardSectionId;
-	getLabel: () => string;
-} > = [
-	{ id: 'traffic', getLabel: () => __( 'Traffic', 'jetpack-premium-analytics' ) },
-	{ id: 'insights', getLabel: () => __( 'Insights', 'jetpack-premium-analytics' ) },
-	{ id: 'subscribers', getLabel: () => __( 'Subscribers', 'jetpack-premium-analytics' ) },
-	{ id: 'store', getLabel: () => __( 'Store', 'jetpack-premium-analytics' ) },
-];
+export type DashboardSectionId = string;
 
 /**
- * Get the translated display label for a section.
+ * Narrow an arbitrary string to an available section slug, falling back to the
+ * first section by order.
  *
- * @param id - The section identifier.
- * @return Translated label for the section.
+ * A miss covers both stale slugs (an old bookmark) and currently unavailable
+ * sections (`?section=store` with WooCommerce off).
+ *
+ * @param value    - The candidate section slug (e.g. from the URL).
+ * @param sections - The available sections, in order.
+ * @return The resolved section slug, or an empty string when no sections exist.
  */
-export function getSectionLabel( id: DashboardSectionId ): string {
-	return SECTION_DEFINITIONS.find( section => section.id === id )?.getLabel() ?? id;
-}
+export function resolveSectionId(
+	value: string | undefined,
+	sections: DashboardSection[]
+): DashboardSectionId {
+	if ( value && sections.some( section => section.slug === value ) ) {
+		return value;
+	}
 
-/**
- * Build the ordered list of section definitions ({ id, label }).
- *
- * Labels are resolved lazily (at call time) so translations are applied after
- * the i18n locale data has loaded.
- *
- * @return Ordered list of section definitions.
- */
-export function getDashboardSections(): DashboardSection[] {
-	return SECTION_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel() } ) );
-}
-
-/**
- * Narrow an arbitrary string to a known section ID, falling back to the default.
- *
- * @param value - The candidate section ID (e.g. from the URL).
- * @return A valid section ID.
- */
-export function resolveSectionId( value: string | undefined ): DashboardSectionId {
-	return value && ( DASHBOARD_SECTION_IDS as readonly string[] ).includes( value )
-		? ( value as DashboardSectionId )
-		: DEFAULT_SECTION_ID;
+	return sections[ 0 ]?.slug ?? '';
 }
