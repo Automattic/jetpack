@@ -23,6 +23,7 @@ const { existsSync, readFileSync, rmSync } = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const { describe, it, before, after } = require( 'node:test' );
 const path = require( 'path' );
+const { isStub } = require( '../../bin/i18n-stub-lib.js' );
 const {
 	strip,
 	hasUnpatchedFallback,
@@ -117,16 +118,22 @@ describe(
 		it( 'strips paired unminified bundles and patches every PHP loader', () => {
 			const result = strip( FIXTURE_BUILD );
 			assert.equal( result.skipped, false );
-			// 2 routes paired + 1 wpScript paired + 1 CSS paired + 1 widget (2 paired) = 6 deletions.
-			assert.equal( result.deletedFiles, 6 );
+			// content.js carries a gettext call (from stage.ts) and becomes a stub;
+			// the other 5 paired bundles (route.js, wpScript js, CSS, 2 widget js)
+			// have no gettext calls and are deleted.
+			assert.equal( result.stubbedFiles, 1 );
+			assert.equal( result.deletedFiles, 5 );
 			assert.equal( result.patchedFiles, 5 );
 
-			// Paired bundles gone, minified siblings retained.
+			// Paired string-less bundles gone, minified siblings retained. The
+			// string-bearing content.js stays behind as an i18n stub so GlotPress /
+			// `wp i18n make-pot` still have something to extract from.
+			const STUBBED = 'routes/dashboard/content.js';
 			for ( const [ unminified, minified ] of PAIRED_BUNDLES ) {
 				assert.equal(
 					existsSync( path.join( FIXTURE_BUILD, unminified ) ),
-					false,
-					`${ unminified } should be removed`
+					unminified === STUBBED,
+					`${ unminified } should be ${ unminified === STUBBED ? 'stubbed in place' : 'removed' }`
 				);
 				assert.equal(
 					existsSync( path.join( FIXTURE_BUILD, minified ) ),
@@ -134,6 +141,17 @@ describe(
 					`${ minified } should be retained`
 				);
 			}
+
+			const stubSource = readFileSync( path.join( FIXTURE_BUILD, STUBBED ), 'utf8' );
+			assert.ok( isStub( stubSource ), 'content.js replaced by an i18n stub' );
+			assert.ok(
+				stubSource.includes( '__( "Hello from fixture", "jetpack-wp-build-polyfills" );' ),
+				'the gettext call from real wp-build output survives in the stub'
+			);
+			assert.ok(
+				! stubSource.includes( 'stage' ),
+				'application code does not survive in the stub'
+			);
 
 			// Paired `.js.map` sourcemaps for the deleted `.js` files are
 			// also dropped — they're not useful without the unminified bundle.
@@ -155,7 +173,12 @@ describe(
 
 		it( 'is idempotent on real output — a second pass changes nothing', () => {
 			const result = strip( FIXTURE_BUILD );
-			assert.deepEqual( result, { deletedFiles: 0, patchedFiles: 0, skipped: false } );
+			assert.deepEqual( result, {
+				deletedFiles: 0,
+				stubbedFiles: 0,
+				patchedFiles: 0,
+				skipped: false,
+			} );
 		} );
 	}
 );
