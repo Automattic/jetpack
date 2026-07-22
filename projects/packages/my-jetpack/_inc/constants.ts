@@ -91,6 +91,7 @@ export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'c
  */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
+	'ai',
 	'blaze',
 	'blocks',
 	'canonical-urls',

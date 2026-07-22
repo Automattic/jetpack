@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -60,6 +62,13 @@ class Jetpack_Ai_Product_Test extends TestCase {
 		WorDBless_Users::init()->clear_all_users();
 		// Remove all filters to avoid interference between tests.
 		remove_all_filters( 'jetpack_ai_enabled' );
+		// Reset the mock Jetpack module state so it doesn't leak between tests.
+		if ( class_exists( 'Jetpack' ) && property_exists( 'Jetpack', 'active_modules' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
+			\Jetpack::$active_modules = array();
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
+			\Jetpack::$return_false = false;
+		}
 	}
 
 	/**
@@ -68,6 +77,13 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	public function test_jetpack_ai_is_active_when_plugin_active() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		$this->assertTrue( Jetpack_Ai::is_plugin_active() );
+	}
+
+	/**
+	 * Tests that the product declares the 'ai' Jetpack module.
+	 */
+	public function test_jetpack_ai_module_name_is_ai() {
+		$this->assertSame( 'ai', Jetpack_Ai::$module_name );
 	}
 
 	/**
@@ -89,10 +105,51 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	public function test_jetpack_ai_respects_filter_when_enabled() {
 		activate_plugins( 'jetpack/jetpack.php' );
 
+		// Now that the product extends Module_Product, is_active() also requires the
+		// underlying 'ai' module to be active, so activate it for this scenario.
+		\Jetpack::activate_module( 'ai' );
+
 		// Add filter to enable AI (default behavior)
 		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
 
 		// Since AI has free offering and doesn't require a plan, is_active() should return true
 		$this->assertTrue( Jetpack_Ai::is_active() );
+	}
+
+	/**
+	 * Tests that is_active() stays false when the jetpack_ai_enabled filter is false
+	 * even if the underlying module is active. This proves the is_active() override
+	 * survived the switch to Module_Product as the base class.
+	 */
+	public function test_jetpack_ai_is_inactive_when_filter_off_even_if_module_active() {
+		activate_plugins( 'jetpack/jetpack.php' );
+
+		\Jetpack::activate_module( 'ai' );
+		$this->assertTrue( Jetpack_Ai::is_module_active() );
+
+		// The filter (host/master off) must override an otherwise-active module.
+		add_filter( 'jetpack_ai_enabled', '__return_false', 99 );
+
+		$this->assertFalse( Jetpack_Ai::is_active() );
+	}
+
+	/**
+	 * Tests that get_status() reports the module as disabled when the 'ai' module
+	 * is inactive, even with the plugin active and the site fully connected.
+	 */
+	public function test_jetpack_ai_status_is_module_disabled_when_module_inactive() {
+		// Mock a full connection so the module-disabled status is not masked by
+		// site/user connection errors in the parent get_status() flow.
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+
+		activate_plugins( 'jetpack/jetpack.php' );
+
+		// Make sure the 'ai' module is not active.
+		\Jetpack::deactivate_module( 'ai' );
+
+		$this->assertFalse( Jetpack_Ai::is_module_active() );
+		$this->assertSame( Products::STATUS_MODULE_DISABLED, Jetpack_Ai::get_status() );
 	}
 }

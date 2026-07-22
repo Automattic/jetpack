@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer;
-use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use WP_Post;
 
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class responsible for handling the Jetpack AI product
  */
-class Jetpack_Ai extends Product {
+class Jetpack_Ai extends Module_Product {
 
 	const CURRENT_TIER_SLUG  = 'free';
 	const UPGRADED_TIER_SLUG = 'upgraded';
@@ -31,6 +31,13 @@ class Jetpack_Ai extends Product {
 	 * @var string
 	 */
 	public static $slug = 'jetpack-ai';
+
+	/**
+	 * The Jetpack module name associated with this product
+	 *
+	 * @var string
+	 */
+	public static $module_name = 'ai';
 
 	/**
 	 * The category of the product
@@ -539,7 +546,10 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Checks whether the Product is active
 	 *
-	 * Overrides the parent method to respect the jetpack_ai_enabled filter.
+	 * Overrides Module_Product::is_active() to also respect the jetpack_ai_enabled
+	 * filter. The parent already checks that the Jetpack plugin and the 'ai' module
+	 * are active; this override layers the host/master-off signal on top so the
+	 * product card reflects it.
 	 *
 	 * @return boolean
 	 */

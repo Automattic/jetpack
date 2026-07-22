@@ -113,4 +113,5 @@ export const PRODUCT_MODULES: {
 	backup: 'vaultpress',
 	social: 'publicize',
 	'jetpack-forms': 'contact-form',
+	'jetpack-ai': 'ai',
 };
