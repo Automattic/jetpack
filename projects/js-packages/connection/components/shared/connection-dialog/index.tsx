@@ -25,11 +25,9 @@ interface ConnectionDialogBaseProps {
 /**
  * The title is set exactly one way, enforced by the type:
  *
- * `hasOwnTitle`: the body renders its own `ConnectionDialogTitle`, which
- * supplies the accessible name. `title` is then neither needed nor allowed.
- * Otherwise `title` is required, and rendered for assistive technology only,
- * so the dialog keeps a stable accessible name regardless of which step the
- * body is showing.
+ * `hasOwnTitle`: the body renders its own `ConnectionDialogTitle` (a
+ * `Dialog.Title`), which supplies the accessible name. `title` is then neither
+ * needed nor allowed.
  */
 export type ConnectionDialogProps = ConnectionDialogBaseProps &
 	( { hasOwnTitle: true; title?: never } | { hasOwnTitle?: false; title: string } );

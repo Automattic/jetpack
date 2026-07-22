@@ -270,7 +270,6 @@ const DisconnectDialog = ( {
 	const handleDisconnect = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
 			e && e.preventDefault();
-
 			setDisconnectError( false );
 			setIsDisconnecting( true );
 
@@ -428,7 +427,7 @@ const DisconnectDialog = ( {
 		<ConnectionDialog
 			isOpen={ isOpen }
 			onClose={ onClose }
-			title={ title }
+			hasOwnTitle
 			className={
 				'jp-connection__disconnect-dialog' +
 				( isDisconnected ? ' jp-connection__disconnect-dialog__success' : '' )

@@ -47,8 +47,8 @@ describe( 'DisconnectDialog', () => {
 
 		it( 'renders the "StepDisconnect" step', () => {
 			render( <DisconnectDialog { ...testProps } /> );
-			// The dialog's accessible name comes from a visually hidden Dialog.Title,
-			// so scope the assertion to the step's own visible <h1>.
+			// Each step renders its heading as the dialog's `Dialog.Title`, so the
+			// accessible name tracks the current step's own visible <h1>.
 			expect(
 				within(
 					screen.getByRole( 'dialog', { name: 'Are you sure you want to disconnect?' } )

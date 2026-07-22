@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Fragment, useCallback, useEffect } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
+import { ConnectionDialogTitle } from '../../shared/connection-dialog';
 import DisconnectActionFooter from '../../shared/disconnect-action-footer';
 import type { StepDisconnectProps } from './types';
 import type { MouseEvent } from 'react';
@@ -120,7 +121,7 @@ const StepDisconnect = ( {
 	return (
 		<Fragment>
 			<div className="jp-connection__disconnect-dialog__content">
-				<h1 id="jp-connection__disconnect-dialog__heading">{ title }</h1>
+				<ConnectionDialogTitle>{ title }</ConnectionDialogTitle>
 				<ConnectedPlugins
 					connectedPlugins={ connectedPlugins }
 					disconnectingPlugin={ disconnectingPlugin }

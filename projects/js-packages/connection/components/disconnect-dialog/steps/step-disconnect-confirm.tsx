@@ -2,6 +2,7 @@ import { DecorativeCard } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
+import { ConnectionDialogTitle } from '../../shared/connection-dialog';
 import disconnectImage from '../images/disconnect-confirm.jpg';
 import type { MouseEvent } from 'react';
 
@@ -31,14 +32,14 @@ const StepDisconnectConfirm = ( {
 			<DecorativeCard icon="unlink" imageUrl={ disconnectImage } />
 
 			<div className="jp-connection__disconnect-dialog__step-copy jp-connection__disconnect-dialog__step-copy--narrow">
-				<h1>
+				<ConnectionDialogTitle>
 					{ createInterpolateElement(
 						__( 'Jetpack has been <br/>successfully disconnected.', 'jetpack-connection-js' ),
 						{
 							br: <br />,
 						}
 					) }
-				</h1>
+				</ConnectionDialogTitle>
 
 				{ canProvideFeedback && (
 					<>

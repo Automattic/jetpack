@@ -48,8 +48,8 @@ describe( 'OwnerDisconnectDialog', () => {
 	describe( 'when open', () => {
 		it( 'renders the labelled dialog', () => {
 			render( <OwnerDisconnectDialog { ...testProps } /> );
-			// The accessible name comes from a visually hidden Dialog.Title, so
-			// scope the heading assertion to the visible <h1>.
+			// The body's `ConnectionDialogTitle` is the dialog's `Dialog.Title`, so
+			// its visible <h1> doubles as the accessible name.
 			expect( screen.getByRole( 'dialog', { name: dialogName } ) ).toBeInTheDocument();
 			expect(
 				within( screen.getByRole( 'dialog', { name: dialogName } ) ).getByRole( 'heading', {

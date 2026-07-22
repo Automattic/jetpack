@@ -101,7 +101,7 @@
 	&__btn-dismiss,
 	&__btn-dismiss.components-button { // override the components-button class
 		background: var(--jp-black) !important;
-		margin-right: 10px;
+		margin-inline-end: 10px;
 	}
 
 	&__btn-disconnect {

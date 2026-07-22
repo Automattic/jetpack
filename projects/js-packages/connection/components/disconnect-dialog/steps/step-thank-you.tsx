@@ -2,6 +2,7 @@ import { DecorativeCard } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
+import { ConnectionDialogTitle } from '../../shared/connection-dialog';
 import disconnectImage from '../images/disconnect-thanks.jpg';
 import type { MouseEvent } from 'react';
 
@@ -27,7 +28,9 @@ const StepThankYou = ( { onExit }: StepThankYouProps ) => {
 				align="center"
 				gap="md"
 			>
-				<h1>{ __( 'Thank you!', 'jetpack-connection-js' ) }</h1>
+				<ConnectionDialogTitle>
+					{ __( 'Thank you!', 'jetpack-connection-js' ) }
+				</ConnectionDialogTitle>
 				<p className="jp-connection__disconnect-dialog__large-text">
 					{ createInterpolateElement(
 						__(

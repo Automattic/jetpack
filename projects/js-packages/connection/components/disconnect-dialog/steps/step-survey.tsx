@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
+import { ConnectionDialogTitle } from '../../shared/connection-dialog';
 import type { MouseEvent } from 'react';
 
 interface StepSurveyProps {
@@ -21,7 +22,9 @@ interface StepSurveyProps {
 const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepSurveyProps ) => {
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }</h1>
+			<ConnectionDialogTitle>
+				{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }
+			</ConnectionDialogTitle>
 			<p className="jp-connection__disconnect-dialog__large-text">
 				{ __( 'Let us know what didn‘t work for you', 'jetpack-connection-js' ) }
 			</p>

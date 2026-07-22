@@ -1,7 +1,17 @@
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Dialog } from '@wordpress/ui';
 import StepThankYou from '../steps/step-thank-you';
+import type { ReactElement, ReactNode } from 'react';
+
+// The step renders its heading as a `Dialog.Title`, which needs a Dialog
+// context. In the app that's always `ConnectionDialog`; in isolation, supply a
+// minimal one so the heading can register.
+const DialogWrapper = ( { children }: { children: ReactNode } ) => (
+	<Dialog.Root open>{ children }</Dialog.Root>
+);
+const render = ( ui: ReactElement ) => rtlRender( ui, { wrapper: DialogWrapper } );
 
 describe( 'StepThankYou', () => {
 	const testProps = {
