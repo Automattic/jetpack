@@ -5,13 +5,8 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	buildCsvDateRangeFilename,
-	type CsvColumn,
-	type CsvDateRange,
-} from '../../helpers/build-csv';
+import { buildCsvDateRangeFilename, type CsvDateRange } from '../../helpers/build-csv';
 import { isCsvExportEnabled } from './is-csv-export-enabled';
-import type { RowsCsvDownloadButtonProps } from './rows-csv-download-button';
 
 type ReportCsvExportStatus = {
 	isLoading: boolean;
@@ -20,9 +15,6 @@ type ReportCsvExportStatus = {
 };
 
 export type UseReportCsvExportOptions< Row > = {
-	/** Column definitions driving the header and cell order. */
-	columns: CsvColumn< Row >[];
-
 	/** Rows already loaded in the browser to serialize. */
 	rows: Row[];
 
@@ -35,7 +27,10 @@ export type UseReportCsvExportOptions< Row > = {
 	/** Active report request state. */
 	status: ReportCsvExportStatus;
 
-	/** Optional export ordering. The source rows are never mutated. */
+	/**
+	 * Optional export ordering. The source rows are never mutated. Pass a stable
+	 * function reference to preserve memoization between renders.
+	 */
 	sort?: ( a: Row, b: Row ) => number;
 };
 
@@ -43,24 +38,25 @@ export type UseReportCsvExportResult< Row > = {
 	/** Whether the report action should be rendered. */
 	canExport: boolean;
 
-	/** Data props for RowsCsvDownloadButton. */
-	buttonProps: Pick< RowsCsvDownloadButtonProps< Row >, 'columns' | 'rows' | 'filename' >;
+	/** Rows to serialize, optionally sorted without mutating the source rows. */
+	rows: Row[];
+
+	/** Date-stamped filename without an extension. */
+	filename: string;
 };
 
 /**
  * Build a report CSV action from loaded rows and the active request state.
  *
  * @param options                - Report CSV export configuration.
- * @param options.columns        - CSV column definitions.
  * @param options.rows           - Loaded report rows.
  * @param options.filenamePrefix - Report-specific filename prefix.
  * @param options.range          - Active report date range.
  * @param options.status         - Active report request state.
- * @param options.sort           - Optional export ordering.
- * @return Export visibility and RowsCsvDownloadButton data props.
+ * @param options.sort           - Optional export ordering with a stable function reference.
+ * @return Export visibility, rows, and filename.
  */
 export function useReportCsvExport< Row >( {
-	columns,
 	rows,
 	filenamePrefix,
 	range,
@@ -78,10 +74,7 @@ export function useReportCsvExport< Row >( {
 
 	return {
 		canExport,
-		buttonProps: {
-			columns,
-			rows: exportRows,
-			filename,
-		},
+		rows: exportRows,
+		filename,
 	};
 }

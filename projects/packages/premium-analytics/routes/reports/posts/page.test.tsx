@@ -135,11 +135,8 @@ describe( 'PostsReportPage', () => {
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 		useReportCsvExportMock.mockImplementation( options => ( {
 			canExport: true,
-			buttonProps: {
-				columns: options.columns,
-				rows: options.rows,
-				filename: `${ options.filenamePrefix }-2026-06-01_2026-06-30`,
-			},
+			rows: options.rows,
+			filename: `${ options.filenamePrefix }-2026-06-01_2026-06-30`,
 		} ) );
 	} );
 
@@ -161,7 +158,7 @@ describe( 'PostsReportPage', () => {
 			} )
 		);
 
-		const { columns } = useReportCsvExportMock.mock.calls[ 0 ][ 0 ];
+		const { columns } = rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ];
 		expect( columns.map( column => column.getValue( records.posts.rows[ 0 ] ) ) ).toEqual( [
 			'Hello world',
 			12,
@@ -182,7 +179,8 @@ describe( 'PostsReportPage', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 		useReportCsvExportMock.mockReturnValue( {
 			canExport: false,
-			buttonProps: { columns: [], rows: [], filename: 'top-posts' },
+			rows: [],
+			filename: 'top-posts',
 		} );
 
 		render( <PostsReportPage /> );
@@ -213,7 +211,7 @@ describe( 'PostsReportPage', () => {
 				status: records.archives,
 			} )
 		);
-		const { columns } = useReportCsvExportMock.mock.calls[ 0 ][ 0 ];
+		const { columns } = rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ];
 		expect( columns.map( column => column.getValue( records.archives.rows[ 0 ] ) ) ).toEqual( [
 			'/category/news',
 			8,

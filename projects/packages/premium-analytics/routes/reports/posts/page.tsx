@@ -173,8 +173,11 @@ function PostsReport(): JSX.Element {
 		[]
 	);
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
-	const { canExport, buttonProps } = useReportCsvExport< ReportCsvRow >( {
-		columns: csvColumns,
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport< ReportCsvRow >( {
 		rows: activeRecords.rows,
 		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
 		range: reportParams,
@@ -236,7 +239,9 @@ function PostsReport(): JSX.Element {
 						label={ __( 'Download', 'jetpack-premium-analytics' ) }
 						variant="solid"
 						showIcon={ false }
-						{ ...buttonProps }
+						columns={ csvColumns }
+						rows={ csvRows }
+						filename={ csvFilename }
 					/>
 				) : undefined
 			}

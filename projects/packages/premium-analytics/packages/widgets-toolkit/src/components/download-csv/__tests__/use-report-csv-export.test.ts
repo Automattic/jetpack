@@ -13,10 +13,6 @@ jest.mock( '../is-csv-export-enabled', () => ( {
 } ) );
 
 const mockIsCsvExportEnabled = jest.mocked( isCsvExportEnabled );
-const columns = [
-	{ label: 'Title', getValue: ( row: { title: string; views: number } ) => row.title },
-	{ label: 'Views', getValue: ( row: { title: string; views: number } ) => row.views },
-];
 const readyStatus = { isLoading: false, isFetching: false, isError: false };
 
 describe( 'useReportCsvExport', () => {
@@ -24,7 +20,7 @@ describe( 'useReportCsvExport', () => {
 		mockIsCsvExportEnabled.mockReturnValue( true );
 	} );
 
-	it( 'builds button props and sorts a copy of the rows', () => {
+	it( 'builds export values and sorts a copy of the rows', () => {
 		const rows = [
 			{ title: 'Lower', views: 4 },
 			{ title: 'Higher', views: 12 },
@@ -33,7 +29,6 @@ describe( 'useReportCsvExport', () => {
 
 		const { result } = renderHook( () =>
 			useReportCsvExport( {
-				columns,
 				rows,
 				filenamePrefix: 'top-posts',
 				range: { from: '2026-06-01T00:00:00Z', to: '2026-06-30T23:59:59Z' },
@@ -44,11 +39,8 @@ describe( 'useReportCsvExport', () => {
 
 		expect( result.current ).toEqual( {
 			canExport: true,
-			buttonProps: {
-				columns,
-				rows: [ rows[ 1 ], rows[ 0 ] ],
-				filename: 'top-posts-2026-06-01_2026-06-30',
-			},
+			rows: [ rows[ 1 ], rows[ 0 ] ],
+			filename: 'top-posts-2026-06-01_2026-06-30',
 		} );
 		expect( rows ).toEqual( originalRows );
 	} );
@@ -79,7 +71,6 @@ describe( 'useReportCsvExport', () => {
 
 		const { result } = renderHook( () =>
 			useReportCsvExport( {
-				columns,
 				rows,
 				filenamePrefix: 'top-posts',
 				range: { from: '2026-06-01', to: '2026-06-30' },
