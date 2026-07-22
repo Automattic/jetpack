@@ -45,8 +45,11 @@ class Initializer_Test extends BaseTestCase {
 		unset( $_GET['step'], $_GET['showCouponRedemption'] );
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
-		// WorDBless teardown does not reset. Clear it so a sibling test leaving the
-		// site "connected" can't flip the disconnected admin_init redirect test.
+		// WorDBless teardown does not reset. The admin_init tests that depend on that
+		// memo run in their own process (see #[RunInSeparateProcess]), so isolation,
+		// not this line, is what keeps them from reading a sibling test's connection
+		// state. The reset is kept as defense-in-depth for any future shared-process
+		// test in this file that reads connection state.
 		( new Connection_Manager() )->reset_connection_status();
 	}
 
