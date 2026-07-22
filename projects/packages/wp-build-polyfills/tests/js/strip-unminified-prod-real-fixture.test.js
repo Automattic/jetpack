@@ -26,7 +26,9 @@ const path = require( 'path' );
 const {
 	strip,
 	hasUnpatchedFallback,
+	walk,
 	PHP_TARGETS,
+	TARGET_SUBDIRS,
 } = require( '../../bin/strip-unminified-prod-lib.js' );
 
 const POLYFILLS_DIR = path.join( __dirname, '..', '..' );
@@ -115,11 +117,39 @@ describe(
 		} );
 
 		it( 'strips paired unminified bundles and patches every PHP loader', () => {
+			// Collect the minified sourcemaps wp-build emitted, so we can
+			// assert each one is deleted and its asset's reference stripped.
+			const minMaps = [];
+			for ( const sub of TARGET_SUBDIRS ) {
+				walk( path.join( FIXTURE_BUILD, sub ), filePath => {
+					if ( filePath.endsWith( '.min.js.map' ) || filePath.endsWith( '.min.css.map' ) ) {
+						minMaps.push( filePath );
+					}
+				} );
+			}
+			// wp-build emits sourcemaps for package bundles (scripts/modules);
+			// if this goes to zero the sourcemap-stripping path is untested.
+			assert.ok(
+				minMaps.length > 0,
+				'wp-build should emit at least one .min sourcemap before stripping'
+			);
+
 			const result = strip( FIXTURE_BUILD );
 			assert.equal( result.skipped, false );
 			// 2 routes paired + 1 wpScript paired + 1 CSS paired + 1 widget (2 paired) = 6 deletions.
 			assert.equal( result.deletedFiles, 6 );
+			assert.equal( result.deletedMaps, minMaps.length );
 			assert.equal( result.patchedFiles, 5 );
+
+			// Minified sourcemaps gone, and their assets no longer reference them.
+			for ( const mapPath of minMaps ) {
+				assert.equal( existsSync( mapPath ), false, `${ mapPath } should be removed` );
+				const assetPath = mapPath.slice( 0, -'.map'.length );
+				assert.ok(
+					! readFileSync( assetPath, 'utf8' ).includes( 'sourceMappingURL' ),
+					`${ assetPath } should not reference its deleted sourcemap`
+				);
+			}
 
 			// Paired bundles gone, minified siblings retained.
 			for ( const [ unminified, minified ] of PAIRED_BUNDLES ) {
@@ -155,7 +185,12 @@ describe(
 
 		it( 'is idempotent on real output — a second pass changes nothing', () => {
 			const result = strip( FIXTURE_BUILD );
-			assert.deepEqual( result, { deletedFiles: 0, patchedFiles: 0, skipped: false } );
+			assert.deepEqual( result, {
+				deletedFiles: 0,
+				deletedMaps: 0,
+				patchedFiles: 0,
+				skipped: false,
+			} );
 		} );
 	}
 );

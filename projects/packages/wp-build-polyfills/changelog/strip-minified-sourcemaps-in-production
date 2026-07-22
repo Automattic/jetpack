@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+strip-unminified-prod: also remove `*.min.js.map` / `*.min.css.map` sourcemaps from production builds, stripping the `sourceMappingURL` reference from the minified assets.

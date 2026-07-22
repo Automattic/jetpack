@@ -19,12 +19,18 @@
  * fallback that none of its patches recognised (indicating the wp-build
  * PHP template changed shape and the patches need updating).
  *
+ * It also deletes the `*.min.js.map` / `*.min.css.map` sourcemaps that
+ * wp-build emits unconditionally for package bundles (build/modules/** and
+ * build/scripts/**), and strips the trailing `sourceMappingURL` comment
+ * from each minified asset so browsers don't request the now-missing map.
+ * The maps bundle the original sources and add ~11 MiB to every production
+ * mirror while only ever being fetched with devtools open.
+ *
  * Note about SCRIPT_DEBUG-on-production debugging: after this runs, a
  * deploy target with SCRIPT_DEBUG=true gets the minified bundle, not the
- * unminified one. Devtools sourcemaps still resolve names, but in-page
- * stack traces and `view-source` are no longer readable. This is a small
- * trade-off relative to the ~10 MiB of dead bytes the unminified copies
- * would otherwise add to every production mirror.
+ * unminified one, and devtools no longer resolve original sources. This is
+ * a trade-off relative to the ~20 MiB of dead bytes the unminified copies
+ * and sourcemaps would otherwise add to every production mirror.
  */
 
 const { readdirSync, existsSync, unlinkSync, readFileSync, writeFileSync } = require( 'fs' );
@@ -95,6 +101,42 @@ function walk( dir, visit ) {
 	}
 }
 
+// Trailing sourceMappingURL comments as emitted by esbuild: a `//#` line for
+// JS, a `/*# ... */` comment for CSS. Anchored to the end of the file so an
+// occurrence inside string content is never touched.
+const MAP_COMMENTS = {
+	'.js': /\n?\/\/# sourceMappingURL=\S+\s*$/,
+	'.css': /\n?\/\*# sourceMappingURL=\S+ \*\/\s*$/,
+};
+
+/**
+ * Delete a `*.min.js.map`/`*.min.css.map` sourcemap and strip the trailing
+ * `sourceMappingURL` comment from its minified sibling so browsers don't
+ * request the deleted map. Non-map files (and maps of unrelated extensions)
+ * are left alone.
+ *
+ * @param {string} filePath - Absolute path to the candidate file.
+ * @return {boolean} `true` if the file was deleted, `false` otherwise.
+ */
+function stripMinifiedMap( filePath ) {
+	for ( const ext of STRIPPABLE_EXTS ) {
+		if ( ! filePath.endsWith( '.min' + ext + '.map' ) ) {
+			continue;
+		}
+		unlinkSync( filePath );
+		const assetPath = filePath.slice( 0, -'.map'.length );
+		if ( existsSync( assetPath ) ) {
+			const source = readFileSync( assetPath, 'utf8' );
+			const next = source.replace( MAP_COMMENTS[ ext ], '\n' );
+			if ( next !== source ) {
+				writeFileSync( assetPath, next );
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
 /**
  * Delete a file if it is the unminified sibling of an existing
  * `.min.js`/`.min.css` counterpart. Also drops any sibling source map.
@@ -157,20 +199,23 @@ function hasUnpatchedFallback( source ) {
  * the generated PHP loaders. See module docstring for context.
  *
  * @param {string} buildDir - Absolute path to the package's build/ directory.
- * @return {{deletedFiles: number, patchedFiles: number, skipped: boolean}} Summary of what changed. `skipped: true` if `buildDir` doesn't exist.
+ * @return {{deletedFiles: number, deletedMaps: number, patchedFiles: number, skipped: boolean}} Summary of what changed. `skipped: true` if `buildDir` doesn't exist.
  */
 function strip( buildDir ) {
 	if ( ! existsSync( buildDir ) ) {
-		return { deletedFiles: 0, patchedFiles: 0, skipped: true };
+		return { deletedFiles: 0, deletedMaps: 0, patchedFiles: 0, skipped: true };
 	}
 
 	let deletedFiles = 0;
+	let deletedMaps = 0;
 	let patchedFiles = 0;
 
 	for ( const sub of TARGET_SUBDIRS ) {
 		walk( path.join( buildDir, sub ), filePath => {
 			if ( stripIfPaired( filePath ) ) {
 				deletedFiles++;
+			} else if ( stripMinifiedMap( filePath ) ) {
+				deletedMaps++;
 			}
 		} );
 	}
@@ -204,12 +249,13 @@ function strip( buildDir ) {
 		patchedFiles++;
 	}
 
-	return { deletedFiles, patchedFiles, skipped: false };
+	return { deletedFiles, deletedMaps, patchedFiles, skipped: false };
 }
 
 module.exports = {
 	strip,
 	stripIfPaired,
+	stripMinifiedMap,
 	patchPhpSource,
 	hasUnpatchedFallback,
 	walk,
