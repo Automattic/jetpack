@@ -9,6 +9,7 @@ use Automattic\Jetpack\Plugin\Image_Metadata\Metadata_Preserver;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once __DIR__ . '/class-image-metadata-fixtures.php';
+require_once __DIR__ . '/class-image-metadata-stream-probe.php';
 
 /**
  * @covers \Automattic\Jetpack\Plugin\Image_Metadata\Metadata_Preserver
@@ -46,6 +47,15 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		$uploads   = wp_upload_dir( null, true, true );
 		$this->dir = trailingslashit( $uploads['path'] );
 		wp_mkdir_p( $this->dir );
+	}
+
+	public function tear_down() {
+		if ( in_array( 'provprobe', stream_get_wrappers(), true ) ) {
+			stream_wrapper_unregister( 'provprobe' );
+		}
+		Image_Metadata_Stream_Probe::$opens = 0;
+
+		parent::tear_down();
 	}
 
 	/**
@@ -132,15 +142,69 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 
 	public function test_skips_stream_wrapper_original() {
 		list( $id, $metadata ) = $this->seed_png_attachment();
+
+		if ( in_array( 'provprobe', stream_get_wrappers(), true ) ) {
+			stream_wrapper_unregister( 'provprobe' );
+		}
+		Image_Metadata_Stream_Probe::$opens = 0;
+		stream_wrapper_register( 'provprobe', 'Image_Metadata_Stream_Probe' );
+
 		add_filter(
 			'wp_get_original_image_path',
 			function () {
-				return 's3://bucket/example.png';
+				return 'provprobe://vfs/example.png';
 			}
 		);
-		// Must not fatal and must return metadata unchanged; derivative untouched.
-		$this->assertSame( $metadata, Metadata_Preserver::preserve( $metadata, $id ) );
+
+		// Sanity-check that the condition gate 3 relies on is actually true here,
+		// so this test would fail loudly (rather than silently pass) if a future
+		// change made `wp_is_stream()` stop recognising this scheme.
+		$this->assertTrue( wp_is_stream( 'provprobe://vfs/example.png' ) );
+
+		// `Metadata_Preserver::warn()` deliberately calls `trigger_error()` with
+		// E_USER_WARNING when gate 3 skips, so this is the expected, intended
+		// behaviour of the code under test rather than an accident. Install a
+		// no-op error handler for the duration of the call so PHPUnit's own
+		// error handler (which would otherwise convert that warning into a test
+		// failure) never sees it; the assertions below are what actually verify
+		// the gate worked.
+		set_error_handler( '__return_true' );
+		try {
+			// Must not fatal and must return metadata unchanged; derivative untouched.
+			$this->assertSame( $metadata, Metadata_Preserver::preserve( $metadata, $id ) );
+		} finally {
+			restore_error_handler();
+		}
+
+		// The key assertion: if gate 3 were bypassed, extracting provenance from
+		// the "original" would call file_get_contents( 'provprobe://...' ), which
+		// PHP routes through Image_Metadata_Stream_Probe::stream_open(). A count
+		// of zero proves the gate stopped execution before any read was attempted.
+		$this->assertSame( 0, Image_Metadata_Stream_Probe::$opens, 'gate 3 must skip before extract() opens the original' );
+
 		$this->assertStringNotContainsString( 'trainedAlgorithmicMedia', file_get_contents( $this->dir . 'example-150x150.png' ) );
+	}
+
+	public function test_injects_into_scaled_main_derivative() {
+		list( $id ) = $this->seed_png_attachment();
+
+		// A bare (no-provenance) "-scaled" derivative, standing in for the case
+		// where WordPress downsizes an oversized upload and stores the resized
+		// copy as the attachment's main file while the untouched original stays
+		// on disk under its own name.
+		$scaled = $this->dir . 'example-scaled.png';
+		file_put_contents( $scaled, Image_Metadata_Fixtures::bare_png() );
+
+		// `wp_get_original_image_path()` still resolves to `example.png` (the
+		// real original seeded above), so this main file genuinely differs from
+		// the original and exercises the main-derivative branch of `output_files()`.
+		$metadata = array(
+			'file'  => 'example-scaled.png',
+			'sizes' => array(),
+		);
+		Metadata_Preserver::preserve( $metadata, $id );
+
+		$this->assertStringContainsString( 'trainedAlgorithmicMedia', file_get_contents( $scaled ) );
 	}
 
 	public function test_corrupt_original_leaves_derivative_intact() {

@@ -162,7 +162,7 @@ final class Metadata_Preserver {
 	 * @return bool True when Jetpack's Image CDN (Photon) is active this request.
 	 */
 	private function is_photon_active() {
-		return class_exists( '\Automattic\Jetpack\Image_CDN\Image_CDN' )
+		return class_exists( '\Automattic\Jetpack\Image_CDN\Image_CDN', false )
 			&& \Automattic\Jetpack\Image_CDN\Image_CDN::is_enabled();
 	}
 
