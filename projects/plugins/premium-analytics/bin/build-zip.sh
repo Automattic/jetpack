@@ -113,6 +113,12 @@ log "Staging production files via jetpack rsync..."
 mkdir -p "$PLUGIN_STAGE"
 jetpack rsync premium-analytics "$PLUGIN_STAGE/" --non-interactive
 
+# rsync can exit 0 while copying nothing (e.g. an unsupported rsync fork or a
+# filter mishap), and `zip` happily archives an empty directory. Verify the
+# stage contains the plugin bootstrap and the bundled packages before zipping.
+[[ -f "$PLUGIN_STAGE/jetpack-premium-analytics.php" ]] || error "Staged tree at $PLUGIN_STAGE is missing jetpack-premium-analytics.php; refusing to zip an incomplete stage."
+[[ -d "$PLUGIN_STAGE/jetpack_vendor" ]] || error "Staged tree at $PLUGIN_STAGE is missing jetpack_vendor/; refusing to zip an incomplete stage."
+
 log "Creating zip..."
 mkdir -p "$(dirname "$OUTPUT_PATH")"
 rm -f "$OUTPUT_PATH"
