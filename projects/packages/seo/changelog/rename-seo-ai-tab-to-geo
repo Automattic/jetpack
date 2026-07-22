@@ -1,3 +1,4 @@
 Significance: patch
 Type: changed
-Comment: SEO: rename the AI tab to GEO (Generative Engine Optimization). Pre-launch, gated behind the rsm_jetpack_seo flag.
+
+SEO: rename the AI dashboard tab to GEO (Generative Engine Optimization).

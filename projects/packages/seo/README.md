@@ -7,7 +7,7 @@ This package is built up across a stacked series of PRs (see #48154 for the spli
 - **Overview** — a dashboard with **Site visibility**, **Site verification**, and **Content SEO** cards. The visibility/verification cards deep-link into the matching Settings sections; Content SEO shows factual coverage rings (custom description, schema type set) with literal counts.
 - **Settings** — search-engine indexing, the XML sitemap (with a "View sitemap" link once it's generated; the toggle is disabled while indexing is blocked, since a sitemap can't be served then), canonical URLs, the title structure for all page types (front page, posts, pages, tags, archives), the front-page description, and site verification codes, plus read-only search & social previews of the home page (Google / Facebook / X).
 - **Content** — a DataViews list of published posts and pages showing each post's SEO state (schema type, meta description set, search visibility). Rows link to the Gutenberg editor and open a per-post **SEO inspector** (custom title, description, schema type, noindex, SERP preview) in the dashboard sidebar. Filters for post type, schema type, description state, and search visibility run client-side over the merged set. The Schema type control and SEO columns also appear in the block editor and `edit.php` post-list tables respectively. JSON-LD (Article / FAQ) is emitted on `wp_head`.
-- **AI** — the AI SEO Enhancer toggle.
+- **GEO** — the AI SEO Enhancer toggle. (Generative Engine Optimization; internal route/id `ai`.)
 
 (llms.txt and AI-crawler management land in separate Phase 1 projects.)
 
