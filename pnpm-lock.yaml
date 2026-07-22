@@ -2031,6 +2031,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@jetpack-backup/init':
+        specifier: link:packages/init
+        version: link:packages/init
       '@tanstack/react-query':
         specifier: 5.101.2
         version: 5.101.2(react@18.3.1)
