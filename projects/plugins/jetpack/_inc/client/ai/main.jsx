@@ -101,6 +101,9 @@ function Breadcrumbs( { view, onNavigate } ) {
 export default function App() {
 	const [ view, setView ] = useState( getViewFromHash );
 	const [ saveError, setSaveError ] = useState( null );
+	// A single slot, not a stack: the save queue can fire a burst of toggles,
+	// and each success replaces the last notice rather than piling them up.
+	const [ saveSuccess, setSaveSuccess ] = useState( null );
 	const mcpViewedRecorded = useRef( false );
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings();
@@ -146,11 +149,17 @@ export default function App() {
 
 	const handleAiSettingsUpdate = useCallback(
 		update => {
+			// Clear both notices on each attempt so only the latest outcome shows —
+			// one slot, never a stack, even under a burst of queued saves.
 			setSaveError( null );
+			setSaveSuccess( null );
 			// Resolve a boolean rather than letting the rejection escape: the
 			// Features view records analytics only for saves that landed.
 			return updateAiSettings( update ).then(
-				() => true,
+				() => {
+					setSaveSuccess( __( 'Your AI settings have been saved.', 'jetpack' ) );
+					return true;
+				},
 				() => {
 					setSaveError( __( 'Failed to save AI settings. Please try again.', 'jetpack' ) );
 					return false;
@@ -161,6 +170,8 @@ export default function App() {
 	);
 
 	const dismissSaveError = useCallback( () => setSaveError( null ), [] );
+
+	const dismissSaveSuccess = useCallback( () => setSaveSuccess( null ), [] );
 
 	const navigateToView = useCallback( newView => {
 		window.history.pushState( null, '', '#/' + newView );
@@ -207,6 +218,14 @@ export default function App() {
 					<Notice.Root intent="error">
 						<Notice.Description>{ saveError }</Notice.Description>
 						<Notice.CloseIcon label={ __( 'Dismiss', 'jetpack' ) } onClick={ dismissSaveError } />
+					</Notice.Root>
+				) }
+
+				{ /* Success is scoped to the Features tab: it only ever comes from an AI-settings save. */ }
+				{ view === 'features' && saveSuccess && (
+					<Notice.Root intent="success">
+						<Notice.Description>{ saveSuccess }</Notice.Description>
+						<Notice.CloseIcon label={ __( 'Dismiss', 'jetpack' ) } onClick={ dismissSaveSuccess } />
 					</Notice.Root>
 				) }
 
