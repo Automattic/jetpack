@@ -1,22 +1,25 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { LeaderboardLabel } from '@jetpack-premium-analytics/widgets-toolkit';
+import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { LeaderboardLabel, MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import type { Field } from '@wordpress/dataviews';
 
 /**
- * A flattened referrer leaf shown in the records table.
+ * A flattened referrer group, source, or domain shown in the records table.
  */
 export type ReferrerRecord = {
 	id: string;
+	parentId?: string;
+	parentLabel?: string;
 	label: string;
-	group: string;
 	views: number;
+	previousValue?: number;
 	link?: string;
 	icon?: string;
+	hasChildren?: boolean;
 };
 
 /**
@@ -42,29 +45,39 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 					/>
 				);
 
-				if ( ! safeUrl ) {
+				// Group/source rows keep DataViews' title treatment and never link
+				// away; only leaf referrers use the drilldown leaf treatment.
+				if ( item.hasChildren ) {
 					return label;
 				}
 
 				return (
-					<a href={ safeUrl } target="_blank" rel="noopener noreferrer">
-						{ label }
-					</a>
+					<DrilldownLeafCell groupLabel={ item.parentLabel }>
+						{ safeUrl ? (
+							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
+								{ label }
+							</Link>
+						) : (
+							label
+						) }
+					</DrilldownLeafCell>
 				);
 			},
-		},
-		{
-			id: 'group',
-			label: __( 'Group', 'jetpack-premium-analytics' ),
-			enableGlobalSearch: true,
-			getValue: ( { item } ) => item.group,
 		},
 		{
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ item.previousValue }
+					dataFormat={ {
+						type: 'number',
+						options: { decimals: 0, useMultipliers: false },
+					} }
+					fontSize="md"
+				/>
 			),
 		},
 	];
