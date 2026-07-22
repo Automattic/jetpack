@@ -570,7 +570,8 @@
 					if (
 						! window.open(
 							pressThisButton.getAttribute( 'href' ),
-							't',
+							// Unpredictable window name so another page can't hijack the popup.
+							'wp-press-this-' + Math.random().toString( 36 ).slice( 2 ),
 							'toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570'
 						)
 					) {

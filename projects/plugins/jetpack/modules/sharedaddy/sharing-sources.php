@@ -708,6 +708,14 @@ abstract class Sharing_Source {
 			'sharing-js',
 			"var windowOpen;
 			( function () {
+				/*
+				 * Randomize the popup's window name. A fixed, predictable name lets a malicious
+				 * page pre-register a same-named browsing context and hijack the share popup.
+				 * Generate it in JS (not PHP) so full-page HTML caching can't freeze it to a
+				 * single predictable value shared across all visitors.
+				 */
+				var shareWindowName = 'wpcom$name-' + Math.random().toString( 36 ).slice( 2 );
+
 				function matches( el, sel ) {
 					return !! (
 						el.matches && el.matches( sel ) ||
@@ -734,7 +742,7 @@ abstract class Sharing_Source {
 						if ( typeof windowOpen !== 'undefined' ) {
 							windowOpen.close();
 						}
-						windowOpen = window.open( el.getAttribute( 'href' ), 'wpcom$name', '$opts' );
+						windowOpen = window.open( el.getAttribute( 'href' ), shareWindowName, '$opts' );
 						return false;
 					}
 				} );

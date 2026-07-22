@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: use an unpredictable name for share and Press This popups so another page cannot pre-register the same window name.
