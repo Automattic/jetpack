@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import type { SettingsForm } from '../../../data/use-settings';
 import type { SettingsResponse } from '../../../data/settings-types';
+import type { SettingsForm } from '../../../data/use-settings';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
@@ -19,15 +19,21 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 
 // Heavy child cards are paid surfaces hidden when gated; stub them so the screen
 // renders in isolation and the presence of the front-page field is unambiguous.
-jest.unstable_mockModule( './author-profile-card', () => ( { default: () => <div>author</div> } ) );
-jest.unstable_mockModule( './schema-card', () => ( { default: () => <div>schema</div> } ) );
+jest.unstable_mockModule( './author-profile-card', () => ( {
+	default: () => <div>author</div>,
+} ) );
+jest.unstable_mockModule( './schema-card', () => ( {
+	default: () => <div>schema</div>,
+} ) );
 jest.unstable_mockModule( './social-previews-card', () => ( {
 	default: () => <div>social previews</div>,
 } ) );
 jest.unstable_mockModule( './title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
 } ) );
-jest.unstable_mockModule( './verification-card', () => ( { default: () => <div>verification</div> } ) );
+jest.unstable_mockModule( './verification-card', () => ( {
+	default: () => <div>verification</div>,
+} ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
