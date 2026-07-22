@@ -1122,7 +1122,6 @@ class Initializer {
 
 		$is_connected = false;
 		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Connection package is provided by the host plugin.
 			$is_connected = ( new \Automattic\Jetpack\Connection\Manager() )->is_user_connected();
 		}
 

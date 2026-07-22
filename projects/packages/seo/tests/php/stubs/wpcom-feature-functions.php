@@ -10,39 +10,10 @@
  * ever read as unsupported on WordPress.com.
  *
  * Defaults are inert: with no known features nothing hijacks, so the plan data path
- * runs exactly as it does off-WordPress.com. Tests opt in by setting the statics.
+ * runs exactly as it does off-WordPress.com. Tests opt in via Wpcom_Test_Features.
  *
  * @package automattic/jetpack-seo
  */
-
-/**
- * Controllable stand-in for the WordPress.com feature registry.
- */
-class Wpcom_Test_Features {
-
-	/**
-	 * Feature slugs the simulated platform knows about. A feature absent here is
-	 * not hijacked at all, so the plan's own feature list answers for it.
-	 *
-	 * @var string[]
-	 */
-	public static $known = array();
-
-	/**
-	 * Feature slugs the simulated site is actually entitled to.
-	 *
-	 * @var string[]
-	 */
-	public static $entitled = array();
-
-	/**
-	 * Restore the inert defaults.
-	 */
-	public static function reset() {
-		self::$known    = array();
-		self::$entitled = array();
-	}
-}
 
 if ( ! function_exists( 'wpcom_feature_exists' ) ) {
 	/**
