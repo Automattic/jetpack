@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
  * Internal dependencies
  */
 import { LeaderboardLabel } from '../leaderboard-label';
-import { buildLeaderboardRow } from '../leaderboard-row';
+import { buildLeaderboardRow, resolveLeaderboardRowAction } from '../leaderboard-row';
 
 describe( 'LeaderboardLabel', () => {
 	it( 'renders media and text without adding row actions', () => {
@@ -28,6 +28,47 @@ describe( 'LeaderboardLabel', () => {
 
 		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'resolveLeaderboardRowAction', () => {
+	const drillDown = { onClick: () => {}, ariaLabel: 'Drill' };
+
+	it( 'drills down when a row has children and a drill-down handler', () => {
+		expect( resolveLeaderboardRowAction( { hasChildren: true, drillDown } ) ).toMatchObject( {
+			kind: 'drillDown',
+			ariaLabel: 'Drill',
+		} );
+	} );
+
+	it( 'prefers drill-down over an href when both are present', () => {
+		expect(
+			resolveLeaderboardRowAction( { hasChildren: true, href: 'https://a.test', drillDown } )
+		).toMatchObject( { kind: 'drillDown' } );
+	} );
+
+	it( 'links a childless row with an href', () => {
+		expect( resolveLeaderboardRowAction( { hasChildren: false, href: 'https://a.test' } ) ).toEqual(
+			{ kind: 'link', href: 'https://a.test' }
+		);
+	} );
+
+	it( 'stays static when a row has children but no drill-down handler, ignoring href', () => {
+		expect( resolveLeaderboardRowAction( { hasChildren: true, href: 'https://a.test' } ) ).toEqual(
+			{
+				kind: 'static',
+			}
+		);
+	} );
+
+	it( 'ignores a drill-down handler on a childless row', () => {
+		expect( resolveLeaderboardRowAction( { hasChildren: false, drillDown } ) ).toEqual( {
+			kind: 'static',
+		} );
+	} );
+
+	it( 'stays static with neither children nor href', () => {
+		expect( resolveLeaderboardRowAction( { hasChildren: false } ) ).toEqual( { kind: 'static' } );
 	} );
 } );
 
