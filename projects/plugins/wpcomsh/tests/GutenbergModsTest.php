@@ -89,7 +89,8 @@ class GutenbergModsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the plugin is only ignored when it is known to be older than the core bundle.
+	 * Tests that, on the beta track, the plugin is only ignored when it is known to be older
+	 * than the core bundle.
 	 *
 	 * @dataProvider provide_ignore_decisions
 	 *
@@ -99,7 +100,53 @@ class GutenbergModsTest extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_ignore_decisions' )]
 	public function test_should_ignore_gutenberg_plugin( $plugin_version, $bundled_version, $expected ) {
+		global $wp_version;
+		$wp_version = '7.1-beta2';
+
 		$this->assertSame( $expected, wpcomsh_should_ignore_gutenberg_plugin( $plugin_version, $bundled_version ) );
+	}
+
+	/**
+	 * Tests that the plugin is never ignored on a stable (non-beta) WordPress build, even when
+	 * the installed plugin is older than the core bundle.
+	 */
+	public function test_stable_build_never_ignores_plugin() {
+		global $wp_version;
+		$wp_version = '7.1';
+
+		$this->assertFalse( wpcomsh_should_ignore_gutenberg_plugin( '23.0', '23.6' ) );
+	}
+
+	/**
+	 * Data provider for the beta-track check.
+	 *
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function provide_wp_beta_versions() {
+		return array(
+			'stable'        => array( '7.1', false ),
+			'stable point'  => array( '7.1.2', false ),
+			'beta'          => array( '7.1-beta2', true ),
+			'rc with build' => array( '7.1-RC1-59400', true ),
+			'alpha'         => array( '7.2-alpha-59500', true ),
+			'empty'         => array( '', false ),
+		);
+	}
+
+	/**
+	 * Tests that pre-release WordPress builds are detected as beta-track versions.
+	 *
+	 * @dataProvider provide_wp_beta_versions
+	 *
+	 * @param string $version  The WordPress version string.
+	 * @param bool   $expected Whether the version is on the beta track.
+	 */
+	#[DataProvider( 'provide_wp_beta_versions' )]
+	public function test_is_wp_beta_version( $version, $expected ) {
+		global $wp_version;
+		$wp_version = $version;
+
+		$this->assertSame( $expected, wpcomsh_is_wp_beta_version() );
 	}
 
 	/**
