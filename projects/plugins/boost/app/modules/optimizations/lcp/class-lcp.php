@@ -156,10 +156,12 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 									Schema::as_assoc_array(
 										array(
 											'type' => Schema::as_string(),
-											// `meta` is nullable so an empty (`[]`/`{}`) or otherwise
-											// unrecognized shape parses to null instead of throwing and
-											// collapsing the whole lcp_state to its not_analyzed fallback.
-											// Unknown keys are dropped; every declared key is optional.
+											// `meta` is nullable: a literal null (and, outside Schema
+											// debug mode, any non-assoc scalar) resolves through Type_Void
+											// instead of throwing and aborting the whole error item. An
+											// empty `[]`/`{}` parses to an empty assoc array, not null,
+											// since every declared key is optional and dropped when absent.
+											// The client tolerates both. Unknown keys are dropped.
 											'meta' => Schema::as_assoc_array(
 												array(
 													'code' => Schema::as_number()->nullable(),
