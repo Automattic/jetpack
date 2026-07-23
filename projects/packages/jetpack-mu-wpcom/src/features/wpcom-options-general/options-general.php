@@ -8,18 +8,32 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
+ * Normalize a site logo value to a positive attachment ID.
+ *
+ * The `site_logo` option and `custom_logo` theme mod may hold an attachment ID, a
+ * legacy `array( 'id' => ... )`, or a WP_Error (core's site-logo filter can surface the
+ * same error through either), so anything that is not a positive scalar resolves to 0.
+ *
+ * @param mixed $value The raw site_logo option or custom_logo theme mod value.
+ * @return int A positive attachment ID, or 0 when none is usable.
+ */
+function wpcom_normalize_site_logo_id( $value ) {
+	if ( is_array( $value ) && isset( $value['id'] ) ) {
+		$value = $value['id'];
+	}
+	return ( is_scalar( $value ) && (int) $value > 0 ) ? (int) $value : 0;
+}
+
+/**
  * The fiverr cta's DOM.
  */
 function wpcom_fiverr_cta() {
 	// The Site Logo can be set from the Site Editor's Identity section. Core keeps the
 	// `site_logo` option and the `custom_logo` theme mod in sync, so read either one.
-	// The option may hold an attachment ID, a legacy `array( 'id' => ... )`, or a
-	// WP_Error, so normalize to a positive ID before using it.
-	$logo_id = get_option( 'site_logo' );
-	if ( is_array( $logo_id ) && isset( $logo_id['id'] ) ) {
-		$logo_id = $logo_id['id'];
+	$logo_id = wpcom_normalize_site_logo_id( get_option( 'site_logo' ) );
+	if ( $logo_id < 1 ) {
+		$logo_id = wpcom_normalize_site_logo_id( get_theme_mod( 'custom_logo' ) );
 	}
-	$logo_id = ( is_scalar( $logo_id ) && (int) $logo_id > 0 ) ? (int) $logo_id : (int) get_theme_mod( 'custom_logo' );
 
 	$logo_img = '';
 	if ( $logo_id > 0 ) {
