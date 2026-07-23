@@ -13,23 +13,31 @@ describe( 'content-guidelines-ai store', () => {
 		apiFetch.mockResolvedValue( {} );
 	} );
 
-	// Runs first so bannerDismissed is still at its default (false): the store
-	// is registered once for the module and its state persists across tests.
-	it( 'dismissBanner is a one-way, idempotent, background write', async () => {
-		expect( aiSelect().isBannerDismissed() ).toBe( false );
+	// bannerDismissed is a one-way flag with no reset, so isolate a fresh store
+	// instance rather than relying on this test running before any other.
+	it( 'dismissBanner is a one-way, idempotent, background write', () => {
+		jest.isolateModules( () => {
+			const mod = require( '@wordpress/api-fetch' );
+			const freshApiFetch = mod.default || mod;
+			const { dispatch: d, select: s } = require( '@wordpress/data' );
+			const { AI_STORE_NAME: name } = require( '../store' );
+			freshApiFetch.mockResolvedValue( {} );
 
-		await aiDispatch().dismissBanner();
+			expect( s( name ).isBannerDismissed() ).toBe( false );
 
-		expect( aiSelect().isBannerDismissed() ).toBe( true );
-		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
-		expect( apiFetch ).toHaveBeenCalledWith( {
-			method: 'PUT',
-			path: '/wpcom/v2/jetpack-ai/guidelines-banner-dismissed',
+			d( name ).dismissBanner();
+
+			expect( s( name ).isBannerDismissed() ).toBe( true );
+			expect( freshApiFetch ).toHaveBeenCalledTimes( 1 );
+			expect( freshApiFetch ).toHaveBeenCalledWith( {
+				method: 'PUT',
+				path: '/wpcom/v2/jetpack-ai/guidelines-banner-dismissed',
+			} );
+
+			// Already dismissed: the thunk early-returns without a second write.
+			d( name ).dismissBanner();
+			expect( freshApiFetch ).toHaveBeenCalledTimes( 1 );
 		} );
-
-		// Already dismissed: the thunk early-returns without a second write.
-		await aiDispatch().dismissBanner();
-		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'sets and clears a section suggestion', () => {

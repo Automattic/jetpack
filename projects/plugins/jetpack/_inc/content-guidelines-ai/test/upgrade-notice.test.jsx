@@ -12,6 +12,8 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
+	// Mirror the real Button: an href renders an anchor (role "link"), otherwise
+	// a button. Keeps role-based queries faithful to the shipped component.
 	Button: ( {
 		children,
 		onClick,
@@ -21,20 +23,30 @@ jest.mock( '@wordpress/components', () => ( {
 		style,
 		label,
 		'aria-hidden': ariaHidden,
-	} ) => (
-		<button
-			type="button"
-			onClick={ onClick }
-			disabled={ disabled }
-			href={ href }
-			className={ className }
-			style={ style }
-			aria-hidden={ ariaHidden }
-			aria-label={ label }
-		>
-			{ children }
-		</button>
-	),
+	} ) =>
+		href ? (
+			<a
+				href={ href }
+				onClick={ onClick }
+				className={ className }
+				style={ style }
+				aria-label={ label }
+			>
+				{ children }
+			</a>
+		) : (
+			<button
+				type="button"
+				onClick={ onClick }
+				disabled={ disabled }
+				className={ className }
+				style={ style }
+				aria-hidden={ ariaHidden }
+				aria-label={ label }
+			>
+				{ children }
+			</button>
+		),
 	Tooltip: ( { children } ) => children,
 	Notice: ( { children, onRemove, isDismissible } ) => (
 		<div>
@@ -101,17 +113,23 @@ describe( 'UpgradeNotice', () => {
 	it( 'stays visible when dismissed but forced by a fresh Generate click', async () => {
 		setup( { dismissed: true, forced: true } );
 		render( <UpgradeNotice /> );
-		expect( screen.getByRole( 'button', { name: 'Upgrade' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'links Upgrade to the checkout URL and records the click', async () => {
 		setup( { checkoutUrl: 'https://wordpress.com/checkout/abc' } );
 		render( <UpgradeNotice /> );
 
-		const upgrade = screen.getByRole( 'button', { name: 'Upgrade' } );
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
 		expect( upgrade ).toHaveAttribute( 'href', 'https://wordpress.com/checkout/abc' );
 
+		// jsdom can't navigate; swallow the anchor default so the click only
+		// exercises the tracking handler.
+		const preventNav = event => event.preventDefault();
+		document.addEventListener( 'click', preventNav );
 		await user.click( upgrade );
+		document.removeEventListener( 'click', preventNav );
+
 		expect( recordAiEvent ).toHaveBeenCalledWith( 'jetpack_ai_upgrade_button', {
 			placement: 'content-guidelines',
 		} );
@@ -120,7 +138,7 @@ describe( 'UpgradeNotice', () => {
 	it( 'omits the Upgrade button when no checkout URL is available', async () => {
 		setup( { checkoutUrl: null } );
 		render( <UpgradeNotice /> );
-		expect( screen.queryByRole( 'button', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'scrolls into view when forced', async () => {
