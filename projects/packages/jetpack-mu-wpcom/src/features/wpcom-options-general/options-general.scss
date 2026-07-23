@@ -3,7 +3,7 @@
 	.wpcom-site-logo-preview {
 		inline-size: fit-content;
 		max-inline-size: 100%;
-		padding: 8px;
+		padding: 4px;
 		border: 1px solid #dcdcde;
 		border-radius: 2px;
 		// Transparency grid so white, dark, and transparent logos all stay
@@ -24,7 +24,7 @@
 			inline-size: auto;
 			block-size: auto;
 			max-inline-size: 160px;
-			max-block-size: 40px;
+			max-block-size: 30px;
 		}
 	}
 
@@ -42,7 +42,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 12px;
+		gap: 10px;
 
 		.button.wpcom-fiverr-cta-button {
 			margin-top: 0;
