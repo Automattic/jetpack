@@ -1,8 +1,8 @@
 import { act, render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRef } from 'react';
-import { useXZoom, ZoomResetButton } from '../x-zoom';
-import type { SingleChartRef } from '../single-chart-context';
+import { useXZoom, ZoomResetButton } from '../index';
+import type { SingleChartRef } from '../../single-chart-context';
 import type { EventHandlerParams } from '@visx/xychart';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
