@@ -50,7 +50,7 @@ const MISSING_CONNECTION_ERROR_CODE = 'rest_cannot_send_email_preview';
  * WordPress.com account isn't connected. Links to the connection flow so the
  * user can resolve it without leaving the editor guessing.
  *
- * @return {JSX.Element} The connection prompt.
+ * @return {Element} The connection prompt.
  */
 function MissingConnectionNotice() {
 	return (

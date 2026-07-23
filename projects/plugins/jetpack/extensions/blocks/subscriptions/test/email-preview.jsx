@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { NewsletterTestEmailModal, NewsletterPreviewModal } from '../email-preview';
@@ -62,19 +63,13 @@ describe( 'Email preview connection errors', () => {
 		} );
 	} );
 
-	// Unmount between tests so a pending request from one modal can't leak state
-	// into the next test's DOM.
-	afterEach( cleanup );
-
 	it( 'disables Send and prompts to connect on open when the user is not connected', () => {
 		mockIsUserConnected = false;
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
 		// The prompt is shown immediately, without any interaction…
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your account' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toBeInTheDocument();
 		// …the Send button is disabled…
 		expect( screen.getByRole( 'button', { name: /Send/ } ) ).toBeDisabled();
 		// …and no request is attempted.
@@ -91,24 +86,26 @@ describe( 'Email preview connection errors', () => {
 	} );
 
 	it( 'prompts the user to connect when sending a test email fails with a missing connection', async () => {
+		const user = userEvent.setup();
 		apiFetch.mockRejectedValue( MISSING_CONNECTION_ERROR );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /Send/ } ) );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
 
 		const connectLink = await screen.findByRole( 'link', { name: 'Connect your account' } );
 		expect( connectLink ).toHaveAttribute( 'href', 'https://example.com/connect' );
 	} );
 
 	it( 'surfaces the raw message for non-connection send errors', async () => {
+		const user = userEvent.setup();
 		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /Send/ } ) );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
 
-		expect( await screen.findByText( /Boom/ ) ).toBeInTheDocument();
+		await expect( screen.findByText( /Boom/ ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: 'Connect your account' } )
 		).not.toBeInTheDocument();
@@ -128,9 +125,9 @@ describe( 'Email preview connection errors', () => {
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 
-		expect(
-			await screen.findByRole( 'button', { name: 'Try again' } )
-		).toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'button', { name: 'Try again' } )
+		).resolves.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: 'Connect your account' } )
 		).not.toBeInTheDocument();
