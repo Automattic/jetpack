@@ -2,7 +2,7 @@ import { currentUserCan, siteHasFeature } from '@automattic/jetpack-script-data'
 import { render, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import SettingsTab from '..';
-import { getSocialScriptData } from '../../../utils';
+import { getSocialScriptData, hasSocialPaidFeatures } from '../../../utils';
 import { canToggleSocialModule } from '../../../utils/misc';
 import { useTurnOnSocial } from '../turn-on-social-context';
 
@@ -37,9 +37,9 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 jest.mock( '../../../utils', () => ( {
 	features: {
 		IMAGE_GENERATOR: 'social-image-generator',
-		MESSAGE_TEMPLATES: 'social-message-templates',
 	},
 	getSocialScriptData: jest.fn(),
+	hasSocialPaidFeatures: jest.fn(),
 } ) );
 
 jest.mock( '../../../utils/misc', () => ( { canToggleSocialModule: jest.fn() } ) );
@@ -47,6 +47,7 @@ jest.mock( '../../../utils/misc', () => ( { canToggleSocialModule: jest.fn() } )
 const mockUseSelect = useSelect as jest.Mock;
 const mockCurrentUserCan = currentUserCan as jest.Mock;
 const mockSiteHasFeature = siteHasFeature as jest.Mock;
+const mockHasSocialPaidFeatures = hasSocialPaidFeatures as jest.Mock;
 const mockGetSocialScriptData = getSocialScriptData as jest.Mock;
 const mockCanToggleSocialModule = canToggleSocialModule as jest.Mock;
 const mockUseTurnOnSocial = useTurnOnSocial as jest.Mock;
@@ -60,7 +61,8 @@ const mockUseTurnOnSocial = useTurnOnSocial as jest.Mock;
  * @param overrides.canToggle           - Whether the current user can toggle Social modules.
  * @param overrides.socialPluginVersion - The Social plugin version (null when the plugin is inactive).
  * @param overrides.manageOptions       - Whether the current user has the manage_options capability.
- * @param overrides.features            - Map of paid feature slugs to whether the site has them.
+ * @param overrides.features            - Map of feature slugs to whether the site has them.
+ * @param overrides.hasPaidFeatures     - Whether the site has social paid features.
  * @param overrides.isEnabling          - Whether Social is mid-way through being turned on.
  */
 function setupSite(
@@ -70,6 +72,7 @@ function setupSite(
 		socialPluginVersion?: string | null;
 		manageOptions?: boolean;
 		features?: Record< string, boolean >;
+		hasPaidFeatures?: boolean;
 		isEnabling?: boolean;
 	} = {}
 ) {
@@ -78,7 +81,8 @@ function setupSite(
 		canToggle = true,
 		socialPluginVersion = '1.0.0',
 		manageOptions = true,
-		features = { 'social-image-generator': true, 'social-message-templates': true },
+		features = { 'social-image-generator': true },
+		hasPaidFeatures = true,
 		isEnabling = false,
 	} = overrides;
 
@@ -96,6 +100,7 @@ function setupSite(
 		cap === 'manage_options' ? manageOptions : false
 	);
 	mockSiteHasFeature.mockImplementation( feature => features[ feature ] ?? false );
+	mockHasSocialPaidFeatures.mockReturnValue( hasPaidFeatures );
 	mockUseTurnOnSocial.mockReturnValue( { isEnabling, turnOn: jest.fn() } );
 }
 
@@ -158,13 +163,18 @@ describe( 'SettingsTab', () => {
 		expect( screen.getByTestId( 'customize-links-card' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the Default share message card only with the message-templates feature AND manage_options', () => {
-		setupSite( { features: { 'social-message-templates': true }, manageOptions: true } );
+	it( 'renders the Default share message card only with paid features AND manage_options', () => {
+		setupSite( { hasPaidFeatures: true, manageOptions: true } );
 		const { unmount } = render( <SettingsTab /> );
 		expect( screen.getByTestId( 'default-share-message-card' ) ).toBeInTheDocument();
 		unmount();
 
-		setupSite( { features: { 'social-message-templates': true }, manageOptions: false } );
+		setupSite( { hasPaidFeatures: true, manageOptions: false } );
+		const { unmount: unmount2 } = render( <SettingsTab /> );
+		expect( screen.queryByTestId( 'default-share-message-card' ) ).not.toBeInTheDocument();
+		unmount2();
+
+		setupSite( { hasPaidFeatures: false, manageOptions: true } );
 		render( <SettingsTab /> );
 		expect( screen.queryByTestId( 'default-share-message-card' ) ).not.toBeInTheDocument();
 	} );

@@ -47,6 +47,13 @@ describe( 'downloads fields', () => {
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
+	it( 'renders the filename as plain text when the asset URL is unsafe', () => {
+		renderField( 'file', { ...download, link: 'javascript:alert(1)' } );
+
+		expect( screen.getByText( 'report.pdf' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'marks the file field searchable and formats the download count', () => {
 		const fileField = getDownloadsFields().find( field => field.id === 'file' );
 		expect( fileField?.enableGlobalSearch ).toBe( true );

@@ -78,6 +78,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
 			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics' ),
 		load: () => import( './annual-insights/page' ),
 	},
+	authors: {
+		id: 'authors',
+		getTitle: () => __( 'Top authors', 'jetpack-premium-analytics' ),
+		load: () => import( './authors/page' ),
+	},
 	'comment-followers': {
 		id: 'comment-followers',
 		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics' ),

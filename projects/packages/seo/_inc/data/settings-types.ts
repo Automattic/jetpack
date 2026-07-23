@@ -1,5 +1,5 @@
 // Shape of the editable Settings state the server bootstraps onto
-// `window.JetpackScriptData.seo.settings` (see `Initializer::get_settings_data()`).
+// `window.JetpackScriptData.seo.settings` (see `Dashboard_Data::get_settings_data()`).
 // Most writes go through `/jetpack/v4/settings`; nested Schema writes use the
 // package-owned schema-settings route.
 

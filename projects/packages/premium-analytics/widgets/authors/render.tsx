@@ -4,11 +4,14 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
+	safeHttpUrl,
 	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -125,12 +128,16 @@ export function AuthorsLeaderboard( {
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => {
+				// Post permalinks come from report data, so validate the scheme
+				// before the row becomes a link.
+				const postHref = safeHttpUrl( post.link );
+
 				return {
 					id: post.id,
 					...buildLeaderboardRow( {
 						label: post.title,
 						media: { kind: 'none' },
-						action: post.link ? { kind: 'link', href: post.link } : { kind: 'static' },
+						action: postHref ? { kind: 'link', href: postHref } : { kind: 'static' },
 					} ),
 					currentValue: post.currentValue,
 					previousValue: post.previousValue,
@@ -261,19 +268,24 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
-		<AuthorsLeaderboard
-			rows={ rows }
-			isLoading={ isInitialLoading }
-			isFetching={ isFetching }
-			// The Stats queries carry `placeholderData: previousData => previousData`, so a
-			// failed range change keeps the prior period's rows while `isError` flips true.
-			// Only surface the error when there's nothing to show, so a transient refetch
-			// failure doesn't replace populated rows with the error state.
-			isError={ rows.length === 0 && isError }
-			refetch={ refetch }
-			withComparison={ hasComparison }
-			legendLabels={ legendLabels }
-		/>
+		<>
+			<AuthorsLeaderboard
+				rows={ rows }
+				isLoading={ isInitialLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				refetch={ refetch }
+				withComparison={ hasComparison }
+				legendLabels={ legendLabels }
+			/>
+			<WidgetFooter>
+				<ReportLink report="authors" />
+			</WidgetFooter>
+		</>
 	);
 }
 

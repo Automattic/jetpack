@@ -1,10 +1,7 @@
 import { Button, ToggleControl } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate } from '@wordpress/route';
-import { Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
-import { settingsStore } from '../../data/settings-store';
+import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import './style.scss';
 import type { AiCrawler } from '../../data/ai-types';
 import type { AiForm } from '../../data/use-ai';
@@ -12,11 +9,20 @@ import type { FC } from 'react';
 
 interface Props {
 	form: AiForm;
+	searchEnginesVisible: boolean;
+	onManageVisibility: () => void;
 }
+
+const llmsTxtHelp = __(
+	'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
+	'jetpack-seo'
+);
+const enabledLabel = __( 'Enabled', 'jetpack-seo' );
+const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 
 /**
  * Whether a crawler is currently blocked: an explicit override wins, otherwise
- * the per-type default (training crawlers blocked, answer engines allowed).
+ * the per-type default (training crawlers blocked, other crawlers allowed).
  *
  * @param crawler   - The crawler to resolve.
  * @param overrides - The sparse override map (`slug => blocked`).
@@ -88,7 +94,7 @@ interface CrawlerSectionProps {
  * @param props.title       - Section title.
  * @param props.intro       - One-line description of the group's purpose.
  * @param props.crawlers    - The crawlers in this group.
- * @param props.type        - The group's crawler type (`answer` or `training`).
+ * @param props.type        - The crawler group's type.
  * @param props.overrides   - The sparse override map (`slug => blocked`).
  * @param props.disabled    - Whether toggles are disabled (mid-save).
  * @param props.onToggle    - Called with `(slug, blocked)` on a single toggle.
@@ -152,20 +158,19 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
  * GEO (Generative Engine Optimization) tab — internal id/route still keyed `ai`.
  * Stacks (in a single centered column matching the Settings tab's width):
  * llms.txt, the plan-gated AI SEO Enhancer, then the AI-crawler controls — split
- * into "Answer engines" (allowed by default, so the site stays citable in AI
- * answers) and "Training crawlers" (blocked by default). When the site can't be
- * crawled at all — search-engine indexing off, or a `*.wpcomstaging.com` staging
- * address — the crawler controls are replaced by an explanation instead of
- * toggles that can't take effect.
+ * into answer, training, and mixed-use groups. When the controls can't take
+ * effect, they are replaced by an explanation instead of ineffective toggles.
  *
  * State + auto-save live in the `form` controller (passed from the page root so
  * it survives tab switches); this component is the presentation.
  *
- * @param props      - Component props.
- * @param props.form - The AI form controller from `useAiForm`.
+ * @param props                      - Component props.
+ * @param props.form                 - The AI form controller from `useAiForm`.
+ * @param props.searchEnginesVisible - Whether the site allows search-engine indexing.
+ * @param props.onManageVisibility   - Opens the Settings visibility controls.
  * @return The AI tab content.
  */
-const AiScreen: FC< Props > = ( { form } ) => {
+const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility } ) => {
 	const {
 		enhancer,
 		llmsTxt,
@@ -176,19 +181,6 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		setCrawlerBlocked,
 		setCrawlerGroupBlocked,
 	} = form;
-
-	const navigate = useNavigate();
-	const goToVisibility = useCallback(
-		() => navigate( { href: '/settings?focus=visibility' } ),
-		[ navigate ]
-	);
-
-	// Site-visibility lives on the Settings tab, so read it from the settings store
-	// (updated on each save) and overlay it on the one-time crawler bootstrap —
-	// otherwise flipping visibility on Settings and returning here without a reload
-	// would leave this tab disagreeing with the Overview card, which overlays the
-	// same live value.
-	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
 	if ( ! enhancer ) {
 		return (
@@ -201,9 +193,8 @@ const AiScreen: FC< Props > = ( { form } ) => {
 	}
 
 	/**
-	 * The AI-crawler portion of the tab: either the two control sections, or — when
-	 * the site can't be crawled, or its robots.txt is out of our reach — a single
-	 * card explaining why.
+	 * The AI-crawler portion of the tab: either the control sections or a card
+	 * explaining why site-level controls cannot take effect.
 	 *
 	 * @return The crawler cards, or null when there's no crawler bootstrap.
 	 */
@@ -212,7 +203,27 @@ const AiScreen: FC< Props > = ( { form } ) => {
 			return null;
 		}
 
-		const searchEnginesVisible = settings?.search_engines_visible ?? crawlers.searchEnginesVisible;
+		// Path-based multisite networks share one origin-level robots.txt, so a
+		// site-level setting cannot safely represent its scope.
+		if ( crawlers.pathBasedMultisite ) {
+			return (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Notice.Root intent="info">
+							<Notice.Description>
+								{ __(
+									'Per-site AI crawler controls are unavailable on this path-based multisite network because every site shares one robots.txt. Manage crawler access at the network level instead.',
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			);
+		}
 
 		// Staging subdomain blocks all crawling at the platform level, so even an
 		// indexable site can't apply these — explain and stop.
@@ -254,7 +265,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 									) }
 								</Notice.Description>
 							</Notice.Root>
-							<Button variant="link" onClick={ goToVisibility }>
+							<Button variant="link" onClick={ onManageVisibility }>
 								{ __( 'Open site visibility settings', 'jetpack-seo' ) }
 							</Button>
 						</Stack>
@@ -263,9 +274,30 @@ const AiScreen: FC< Props > = ( { form } ) => {
 			);
 		}
 
-		// A static or host-managed robots.txt sits in front of WordPress, so our
-		// virtual robots.txt (and these directives) never reach crawlers — the
-		// toggles would silently do nothing. Explain, and point to the host.
+		// WordPress.com's existing data-sharing policy runs after this feature and
+		// remains authoritative, so don't offer controls it can override.
+		if ( crawlers.dataSharingOptOut ) {
+			return (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Notice.Root intent="info">
+							<Notice.Description>
+								{ __(
+									"Individual crawler controls are unavailable while this site's data sharing opt-out is enabled. Turn it off in the site's privacy settings to manage crawlers individually.",
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			);
+		}
+
+		// A static robots.txt file in the WordPress installation is separate from
+		// the virtual output these settings change.
 		if ( crawlers.staticRobotsTxt ) {
 			return (
 				<CollapsibleCard.Root defaultOpen>
@@ -276,7 +308,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 						<Notice.Root intent="warning">
 							<Notice.Description>
 								{ __(
-									"These settings can't take effect because we can't access this site's robots.txt file. It's likely managed by your host — check with your hosting provider to control AI crawler access.",
+									"Jetpack detected a static robots.txt file in the WordPress installation directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
 									'jetpack-seo'
 								) }
 							</Notice.Description>
@@ -288,6 +320,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 
 		const answerCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'answer' );
 		const trainingCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'training' );
+		const mixedCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'mixed' );
 
 		return (
 			<>
@@ -307,7 +340,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 				<CrawlerSection
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
 					intro={ __(
-						"These crawlers collect your content to train AI models. Blocking them protects your content and doesn't affect whether you appear in AI answers.",
+						'These crawlers collect your content to train AI models. Block them to limit that use.',
 						'jetpack-seo'
 					) }
 					crawlers={ trainingCrawlers }
@@ -317,20 +350,41 @@ const AiScreen: FC< Props > = ( { form } ) => {
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
 				/>
+				<CrawlerSection
+					title={ __( 'AI answers and training', 'jetpack-seo' ) }
+					intro={ __(
+						'These crawlers can use your content both to improve AI models and to ground AI answers. Blocking them may reduce your visibility in AI answers.',
+						'jetpack-seo'
+					) }
+					crawlers={ mixedCrawlers }
+					type="mixed"
+					overrides={ crawlers.overrides }
+					disabled={ isSaving }
+					onToggle={ setCrawlerBlocked }
+					onToggleAll={ setCrawlerGroupBlocked }
+				/>
 			</>
 		);
 	};
+
+	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
+	const llmsTxtStatusLabel = llmsTxtEffectivelyOn ? enabledLabel : disabledLabel;
 
 	return (
 		<div className="jetpack-seo-ai">
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
+						<Stack direction="row" justify="space-between" align="center" gap="sm">
+							<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
+							<Badge intent={ llmsTxtEffectivelyOn ? 'stable' : 'draft' }>
+								{ llmsTxtStatusLabel }
+							</Badge>
+						</Stack>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
-							{ ! llmsTxt.canServe && (
+							{ searchEnginesVisible && ! llmsTxt.canServe && (
 								<Notice.Root intent="warning">
 									<Notice.Description>
 										{ __(
@@ -340,27 +394,41 @@ const AiScreen: FC< Props > = ( { form } ) => {
 									</Notice.Description>
 								</Notice.Root>
 							) }
-							<ToggleControl
-								label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
-								help={ __(
-									'Publishes a curated, AI-readable map of your content at /llms.txt to help AI assistants find and understand your pages and posts.',
-									'jetpack-seo'
+							<Stack direction="column" gap="xs">
+								<ToggleControl
+									label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
+									help={ llmsTxtHelp }
+									checked={ llmsTxtEffectivelyOn }
+									onChange={ setLlmsTxtEnabled }
+									disabled={ isSaving || ! searchEnginesVisible }
+									__nextHasNoMarginBottom
+								/>
+								{ ! searchEnginesVisible && (
+									<Notice.Root intent="info" className="jetpack-seo-ai__llms-notice">
+										<Notice.Description>
+											{ createInterpolateElement(
+												__(
+													'To enable, allow search engines to index this site under <link>Settings</link>.',
+													'jetpack-seo'
+												),
+												{
+													link: <Button variant="link" onClick={ onManageVisibility } />,
+												}
+											) }
+										</Notice.Description>
+									</Notice.Root>
 								) }
-								checked={ llmsTxt.enabled }
-								onChange={ setLlmsTxtEnabled }
-								disabled={ isSaving }
-								__nextHasNoMarginBottom
-							/>
-							{ llmsTxt.enabled && llmsTxt.canServe && (
-								<Link
-									className="jetpack-seo-ai__llms-link"
-									href={ llmsTxt.url }
-									openInNewTab
-									rel="noopener noreferrer"
-								>
-									{ __( 'View your llms.txt', 'jetpack-seo' ) }
-								</Link>
-							) }
+								{ llmsTxtEffectivelyOn && llmsTxt.canServe && (
+									<Link
+										className="jetpack-seo-ai__llms-link"
+										href={ llmsTxt.url }
+										openInNewTab
+										rel="noopener noreferrer"
+									>
+										{ __( 'View your llms.txt', 'jetpack-seo' ) }
+									</Link>
+								) }
+							</Stack>
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>

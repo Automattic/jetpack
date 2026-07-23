@@ -4,15 +4,15 @@ import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
 import UpsellBanner from '../../components/upsell-banner';
 import { isGated } from '../../data/is-gated';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
+import styles from './style.module.scss';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
-import './style.scss';
 import type { SettingsForm } from '../../data/use-settings';
 import type { FC } from 'react';
 
@@ -70,7 +70,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	} = form;
 
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
-	// section to its top. `scroll-margin-top` on the section (style.scss) clears
+	// section to its top. `scroll-margin-block-start` on the section's module clears
 	// the fixed header + sticky tabs so the section title stays visible.
 	// Bound to the Settings route id (`/settings`); the screen only renders there.
 	const search = useSearch( {
@@ -140,23 +140,23 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						disabled={ isSaving }
 						__nextHasNoMarginBottom
 					/>
-					<div className="jetpack-seo-settings__save">
+					<Stack direction="row" justify="flex-end">
 						<Button
 							onClick={ () => commitFields( [ 'front_page_description' ] ) }
 							disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
 						>
 							{ saveLabel }
 						</Button>
-					</div>
+					</Stack>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);
 
 	return (
-		<div className="jetpack-seo-settings">
+		<Stack direction="column" gap="lg" className={ styles.root }>
 			{ gated && <UpsellBanner /> }
-			<div id="visibility" className="jetpack-seo-settings__section">
+			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header>
 						<Stack direction="row" justify="space-between" align="center" gap="sm">
@@ -184,7 +184,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								disabled={ isSaving }
 								__nextHasNoMarginBottom
 							/>
-							<div className="jetpack-seo-settings__sitemap-field">
+							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
 									help={ local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp }
@@ -199,7 +199,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								{ sitemapEffectivelyOn &&
 									( local.sitemap_url ? (
 										<Link
-											className="jetpack-seo-settings__sitemap-link"
+											className={ styles.sitemapLink }
 											href={ local.sitemap_url }
 											openInNewTab
 											rel="noopener noreferrer"
@@ -207,17 +207,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 											{ sitemapViewLabel }
 										</Link>
 									) : (
-										<span className="jetpack-seo-settings__sitemap-hint">
+										<Text variant="body-sm" className={ styles.sitemapHint }>
 											{ sitemapGeneratingLabel }
-										</span>
+										</Text>
 									) ) }
-							</div>
+							</Stack>
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
 			</div>
 
-			<div id="verification" className="jetpack-seo-settings__section">
+			<div id="verification" className={ styles.section }>
 				<VerificationCard
 					value={ local.verification }
 					onChange={ setVerification }
@@ -231,14 +231,14 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			{ ! gated && (
 				<>
 					{ /* Container for the site-level schema controls delivered by later
-					   issues. Own `id` so it can be deep-linked like `#verification`. */ }
-					<div id="schema" className="jetpack-seo-settings__section">
+				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
+					<div id="schema" className={ styles.section }>
 						<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
 					</div>
 
 					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
-					   unlike the site-level Schema card above. */ }
-					<div id="author-profile" className="jetpack-seo-settings__section">
+				   unlike the site-level Schema card above. */ }
+					<div id="author-profile" className={ styles.section }>
 						<AuthorProfileCard />
 					</div>
 
@@ -286,11 +286,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			   from the era it was free for all Simple sites keeps editing that one
 			   field — the value is still live, and the platform still reads/writes it. */ }
 			{ gated && local.has_legacy_front_page_meta && (
-				<div id="front-page-description" className="jetpack-seo-settings__section">
+				<div id="front-page-description" className={ styles.section }>
 					{ frontPageDescriptionCard }
 				</div>
 			) }
-		</div>
+		</Stack>
 	);
 };
 

@@ -19,6 +19,7 @@ import {
 	WidgetState,
 	buildCsvDateRangeFilename,
 	calculateDelta,
+	safeHttpUrl,
 	sharePercentage,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
@@ -82,7 +83,7 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = { num: number };
+type TopPostsReportProps = { max: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
@@ -241,13 +242,14 @@ function toTopPostRows(
 ): TopPostRow[] {
 	return items.map( item => {
 		const postId = Number( item.id );
+		const href = safeHttpUrl( item.link );
 
 		return {
 			// A row without a title still needs a visible, clickable label.
 			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
 			value: item.views,
 			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			// The homepage entry (id 0) has no post-detail page.
 			...( Number.isFinite( postId ) && postId > 0
 				? { detailHref: buildDetailHref( postId ) }
@@ -271,18 +273,18 @@ function toTopPostRows(
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
-function TopPostsReport( { num }: TopPostsReportProps ) {
+function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
 	// date range is owned by the dashboard picker and carried in `reportParams`.
-	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
+	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but
 	// appends the homepage entry on top of it), and comparison-overlap gating
 	// all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsTopPosts( statsParams, { maxRows: num } );
+		useStatsTopPosts( statsParams, { maxRows: max } );
 
 	const buildDetailHref = usePostDetailHrefBuilder();
 	const rows = useMemo(
@@ -426,6 +428,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 	return items.map( item => {
 		const rawLabel = String( item.label ?? '' );
 		const children = item.children?.length ? toArchiveRows( item.children, false ) : undefined;
+		const href = safeHttpUrl( item.link );
 
 		let label = rawLabel;
 		if ( isTopLevel ) {
@@ -439,7 +442,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 			value: item.value,
 			type: 'archive',
 			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			...( children ? { children } : {} ),
 		};
 	} );
@@ -456,10 +459,10 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
  * comparison UI is gated on real row overlap between the two periods.
  *
  * @param props     - The component props.
- * @param props.num - Maximum number of top-level rows to display.
+ * @param props.max - Maximum number of top-level rows to display.
  * @return The widget content.
  */
-function ArchivesReport( { num }: { num: number } ) {
+function ArchivesReport( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
@@ -467,7 +470,7 @@ function ArchivesReport( { num }: { num: number } ) {
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsArchives( reportParams, { maxRows: num } );
+		useStatsArchives( reportParams, { maxRows: max } );
 
 	const rows = useMemo(
 		() =>
@@ -586,7 +589,7 @@ function ArchivesReport( { num }: { num: number } ) {
  * @return The rendered widget.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
-	const num = attributes.num ?? 10;
+	const max = attributes.max ?? 10;
 	const contentView = attributes.contentView ?? 'posts';
 
 	return (
@@ -594,13 +597,13 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
 					<>
-						<ArchivesReport num={ num } />
+						<ArchivesReport max={ max } />
 						<WidgetFooter>
 							<ReportLink report="posts" section="archives" />
 						</WidgetFooter>
 					</>
 				) : (
-					<TopPostsReport num={ num } />
+					<TopPostsReport max={ max } />
 				) }
 			</div>
 		</WidgetRoot>
