@@ -76,6 +76,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Write post', 'jetpack-mu-wpcom' );
 		case 'about_page':
 			return __( 'Add page', 'jetpack-mu-wpcom' );
+		case 'contact_page':
+			return __( 'Add contact page', 'jetpack-mu-wpcom' );
 		case 'launch':
 			return __( 'Launch site', 'jetpack-mu-wpcom' );
 		default:

@@ -150,6 +150,19 @@
 					}
 				}
 			}
+		},
+		"page_intros": {
+			"type": "object",
+			"additionalProperties": false,
+			"description": "Opening lines for the page tasks whose page is otherwise fixed markup: the client hand-authors heading + block, and this is the one part worth tailoring. Keyed by task id so the client looks the line up by the id it is already rendering, and so a new page task costs one property here rather than a new top-level field. Optional as a whole, and every key inside it is optional too: the model writes a key only for a page task it actually selected, so a run that selected none carries nothing. Outputs persisted before this field existed lack it; the client then creates the page without an intro paragraph.",
+			"properties": {
+				"add_contact_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence inviting the visitor to get in touch, grounded in what someone would contact this site about. The page carries a working contact form, so the prompt forbids naming an email address, phone number, or postal address here."
+				}
+			}
 		}
 	}
 }

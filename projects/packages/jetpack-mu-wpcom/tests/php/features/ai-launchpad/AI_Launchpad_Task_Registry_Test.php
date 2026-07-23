@@ -12,6 +12,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-contact-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
 require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
@@ -54,13 +56,17 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 * The lookup runs through WP_Query, which WorDBless cannot execute, so core's posts_pre_query filter
 	 * stands in for it. WorDBless restores hooks after each test; tear_down() handles the cache.
 	 *
-	 * @param int $draft_id The post id the lookup should return.
+	 * Keyed by marker meta, so a task only ever sees its own draft: every page task queries a different
+	 * marker, and a seeded gallery draft must not put the contact card in progress.
+	 *
+	 * @param int    $draft_id The post id the lookup should return.
+	 * @param string $meta_key The listener marker meta the lookup must be asking for.
 	 */
-	private function seed_marker_draft( $draft_id ) {
+	private function seed_marker_draft( $draft_id, $meta_key = AI_Launchpad_Gallery_Page_Listener::META_KEY ) {
 		add_filter(
 			'posts_pre_query',
-			static function ( $posts, $query ) use ( $draft_id ) {
-				if ( AI_Launchpad_Gallery_Page_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+			static function ( $posts, $query ) use ( $draft_id, $meta_key ) {
+				if ( $meta_key === $query->get( 'meta_key' ) ) {
 					return array( $draft_id );
 				}
 				return $posts;
@@ -90,6 +96,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	public static function provide_registry_task_ids() {
 		return array(
 			'the gallery page'     => array( 'add_gallery_page' ),
+			'the contact page'     => array( 'add_contact_page' ),
 			'the site icon'        => array( 'add_site_icon' ),
 			'the style variations' => array( 'pick_fonts_colors' ),
 			'Sensei LMS'           => array( 'install_sensei_lms' ),
@@ -219,6 +226,59 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The contact page gets the same in-progress treatment as the gallery, off its own marker: a saved but
+	 * unpublished contact draft reopens rather than creating a second page.
+	 */
+	public function test_the_contact_page_reports_its_own_in_progress_draft() {
+		$draft_id = 7171;
+		$this->seed_marker_draft( $draft_id, AI_Launchpad_Contact_Page_Listener::META_KEY );
+
+		$card = AI_Launchpad_Task_Registry::build( 'add_contact_page', 'Take enquiries.' );
+
+		$this->assertTrue( $card['in_progress'] );
+		$this->assertSame( 'Continue working on your contact page', $card['title'] );
+		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $card['calypso_path'] );
+	}
+
+	/**
+	 * Each page task looks up its own marker and no other. Every one of them is a draft page, so a lookup keyed
+	 * off "a draft exists" — or off another task's marker — would put the wrong card in progress and send its
+	 * CTA to somebody else's draft.
+	 */
+	public function test_the_page_tasks_do_not_share_a_marker_draft() {
+		$this->seed_marker_draft( 4343, AI_Launchpad_Gallery_Page_Listener::META_KEY );
+
+		$this->assertTrue(
+			AI_Launchpad_Task_Registry::build( 'add_gallery_page', '' )['in_progress'],
+			'the premise: this harness can produce an in-progress card at all'
+		);
+		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_contact_page', '' )['in_progress'] );
+	}
+
+	/**
+	 * The contact task completes from the shared status option, which is what its listener writes when the
+	 * marked page is first published.
+	 */
+	public function test_contact_page_completion_reads_the_status_option() {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'add_contact_page' ) );
+
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_contact_page' => true ) );
+
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'add_contact_page' ) );
+		$this->assertTrue( AI_Launchpad_Task_Registry::build( 'add_contact_page', '' )['completed'] );
+	}
+
+	/**
+	 * The contact task asks nothing of the site — the form block ships with Jetpack, which every site this
+	 * feature runs on has — so it declares no visibility and is offered everywhere, including on the classic
+	 * theme this harness runs.
+	 */
+	public function test_the_contact_task_is_visible_everywhere() {
+		$this->assertFalse( wp_is_block_theme(), 'the premise: this is the theme that hides pick_fonts_colors' );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'add_contact_page' ) );
+	}
+
+	/**
 	 * A registry task that declares a `calypso_path` renders its CTA from it, so a task with a fixed
 	 * destination needs no marker draft to be actionable.
 	 *
@@ -252,6 +312,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the site icon settings screen' => array( 'add_site_icon', 'options-general.php' ),
 			'the Styles variations screen'  => array( 'pick_fonts_colors', 'site-editor.php?p=/styles&section=/variations' ),
 			'the gallery, built on click'   => array( 'add_gallery_page', null ),
+			'the contact page, on click'    => array( 'add_contact_page', null ),
 			"Sensei LMS's installer"        => array( 'install_sensei_lms', 'plugin-install.php?tab=plugin-information&plugin=sensei-lms' ),
 		);
 	}
@@ -380,6 +441,11 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 				'pick_fonts_colors',
 				'Customize fonts and colors',
 				'Try a style variation to set the mood of your whole site at once.',
+			),
+			'the contact page'     => array(
+				'add_contact_page',
+				'Add a contact page',
+				'Give visitors a simple way to reach you, with a contact form ready to go.',
 			),
 			'Sensei LMS'           => array(
 				'install_sensei_lms',

@@ -95,6 +95,7 @@ describe( 'ctaKind', () => {
 		[ 'first_post_published_newsletter', 'first_post' ],
 		[ 'add_about_page', 'about_page' ],
 		[ 'add_gallery_page', 'gallery_page' ],
+		[ 'add_contact_page', 'contact_page' ],
 		// Pathless launch tasks open the launch flow.
 		[ 'site_launched', 'launch' ],
 		[ 'blog_launched', 'launch' ],
@@ -203,6 +204,15 @@ describe( 'isTaskActionable', () => {
 			assert.equal( isTaskActionable( subject, null, siteUrl ), expected );
 		} );
 	}
+
+	it( 'treats the contact page as a create-content task, actionable once the output exists', () => {
+		// It has no catalog deeplink of its own — the CTA is "create the page" — so it is actionable
+		// exactly when there is an output to build from, like the other create-content tasks.
+		const contact = task( { id: 'add_contact_page', calypso_path: null } );
+
+		assert.equal( isTaskActionable( contact, null ), false );
+		assert.equal( isTaskActionable( contact, fixture ), true );
+	} );
 } );
 
 describe( 'isCompleteOnClickTask', () => {
@@ -248,6 +258,7 @@ describe( 'resolveCtaUrl', () => {
 				createFirstPostDraft: async () => ( { post_id: 1, edit_url: '/wp-admin/post.php?post=1' } ),
 				createAboutPage: async () => ( { page_id: 2, edit_url: '/wp-admin/post.php?post=2' } ),
 				createGalleryPage: async () => ( { page_id: 3, edit_url: '/wp-admin/post.php?post=3' } ),
+				createContactPage: async () => ( { page_id: 4, edit_url: '/wp-admin/post.php?post=4' } ),
 			},
 		};
 	}
@@ -288,6 +299,16 @@ describe( 'resolveCtaUrl', () => {
 			'builds the gallery page and returns its editor URL',
 			{ id: 'add_gallery_page' },
 			'/wp-admin/post.php?post=3',
+		],
+		[
+			'writes the contact page and returns its editor URL',
+			{ id: 'add_contact_page' },
+			'/wp-admin/post.php?post=4',
+		],
+		[
+			'reopens the existing contact draft instead of creating a second page',
+			{ id: 'add_contact_page', in_progress: true, calypso_path: '/wp-admin/post.php?post=8' },
+			'/wp-admin/post.php?post=8',
 		],
 		[
 			'reopens the existing About draft instead of creating a new page',
@@ -353,6 +374,29 @@ describe( 'resolveCtaUrl', () => {
 
 		assert.deepEqual( received, [ fixture.inferred, fixture.about_page_draft, undefined ] );
 		assert.equal( legacyUrl, '/wp-admin/post.php?post=2' );
+	} );
+
+	it( 'hands the contact page its own intro, and undefined when the output carries none', async () => {
+		// page_intros is keyed by task id, so the contact task must be handed its own key and nothing
+		// else. The baseline fixture has no page_intros at all, standing in both for an output
+		// persisted before the field existed and for a run where the model chose to omit it.
+		const received: unknown[] = [];
+		const { handlers } = stubHandlers();
+		handlers.createContactPage = async ( intro?: string ) => {
+			received.push( intro );
+			return { page_id: 4, edit_url: '/wp-admin/post.php?post=4' };
+		};
+		const contactTask = task( { id: 'add_contact_page', calypso_path: null } );
+		const tailored: TailoredOutput = {
+			...fixture,
+			page_intros: { add_contact_page: 'Ask about a commission or a wholesale order.' },
+		};
+
+		await resolveCtaUrl( contactTask, tailored, handlers );
+		const legacyUrl = await resolveCtaUrl( contactTask, fixture, handlers );
+
+		assert.deepEqual( received, [ 'Ask about a commission or a wholesale order.', undefined ] );
+		assert.equal( legacyUrl, '/wp-admin/post.php?post=4' );
 	} );
 } );
 

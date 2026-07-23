@@ -73,6 +73,21 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		avoidWhen: 'a more specific page task already covers what the site needs.',
 	},
 	{
+		id: 'add_contact_page',
+		// Deliberately no `goals`. Whether people need to reach a person is a property of the niche, not
+		// of the wizard goal: a shop, a studio, a tutor and a B&B all need it and pick four different
+		// goals. It also keeps the entry out of the single-goal rule, since nothing in PHP restricts it.
+		//
+		// The menu already has a generic "add a page" and a dedicated About page, so this has to be
+		// separable from both or it is noise in the ranking: About says who is behind the site, this
+		// opens a channel back, and add_new_page defers to whichever specific task fits.
+		what: 'Creates a draft Contact page with a working contact form on it, introduced by an AI-written line.',
+		pickWhen:
+			'someone has to reach a person before anything can happen — an enquiry, a commission, a booking, a quote, a viewing, a wholesale order.',
+		avoidWhen:
+			'nobody is expected to write in: a site that only wants readers is served by add_about_page, which says who is behind it.',
+	},
+	{
 		id: 'update_about_page',
 		what: 'Reopens an existing About page to revise it.',
 		pickWhen: 'the site already has an About page that still holds placeholder copy.',
@@ -451,7 +466,7 @@ export function buildTailorPrompt(
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
-Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft.
+Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft. Add a FIFTH part, "page_intros", only when STEP 5 applies.
 
 Site name: ${ site_name }
 Goal: ${ goal }
@@ -495,6 +510,10 @@ Write starter content for the site's About page, grounded in the user's own desc
 - "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
 - "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
 
+============ STEP 5 - page_intros (only when it applies) ============
+Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.
+- "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
+
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
@@ -508,6 +527,9 @@ Return only a JSON object matching this schema. Do not include prose, code fence
   "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
-  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }
-}`;
+  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
+  "page_intros": { "add_contact_page": "..." }
+}
+
+Leave "page_intros" out altogether unless STEP 5 applies.`;
 }

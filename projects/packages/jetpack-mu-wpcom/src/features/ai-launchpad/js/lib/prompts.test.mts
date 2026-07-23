@@ -70,6 +70,28 @@ describe( 'TASK_ANNOTATIONS', () => {
 		assert.ok( generic.avoidWhen?.includes( 'install_sensei_lms' ) );
 	} );
 
+	it( 'makes the contact page distinguishable from the other page tasks', () => {
+		// The menu already offers a generic "add a page" and a dedicated About page. An annotation that
+		// does not separate this from both adds noise to the ranking instead of signal, which is the
+		// bare-id problem in miniature.
+		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
+		const contact = byId.add_contact_page;
+
+		assert.ok( contact, 'add_contact_page must be on the menu' );
+		assert.match( contact.what, /contact form/i );
+		// About is about who is behind the site; contact is about someone needing a reply.
+		assert.match( byId.add_about_page.pickWhen, /who is behind the site/i );
+		assert.ok(
+			contact.avoidWhen?.includes( 'add_about_page' ),
+			'the contact entry must say when About is the better pick'
+		);
+		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
+		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
+		// No goal affinity: whether people need to reach someone is a property of the niche, not of the
+		// wizard goal — a shop, a studio, a school and a B&B all need it and pick four different goals.
+		assert.equal( contact.goals, undefined );
+	} );
+
 	it( 'offers the gallery task and gives it no goal affinity', () => {
 		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
 
@@ -195,6 +217,18 @@ describe( 'buildTailorPrompt', () => {
 		[
 			'asks for a theme_category chosen from the showcase subject slugs',
 			[ '"theme_category"', 'travel-lifestyle', 'community-non-profit', /specific subject/i ],
+		],
+		// page_intros is keyed by task id and written only for a page task that was actually chosen,
+		// so the prompt has to say both things: which key, and that it is conditional on the pick.
+		[
+			'asks for a conditional page intro keyed by the task id it belongs to',
+			[ '"page_intros"', '"add_contact_page"', /only .*chose|chose none/i ],
+		],
+		// The whole reason this page is hand-authored: a confident, invented address or phone number
+		// on a real business's contact page is worse than none at all.
+		[
+			'forbids the model inventing contact details the site never gave it',
+			[ /never invent one/i, /phone/i ],
 		],
 	];
 	for ( const [ name, needles ] of REQUIRED ) {

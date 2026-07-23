@@ -23,6 +23,7 @@ require_once __DIR__ . '/class-ai-launchpad-subscribers-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-subscribe-block-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-gallery-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-contact-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 

@@ -9,6 +9,8 @@
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-contact-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
@@ -50,6 +52,29 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 			array(),
 			$unknown,
 			'The task table offers IDs defined by neither the catalog nor the AI Launchpad registry (they would be dropped at validation/enrichment): ' . implode( ', ', $unknown )
+		);
+	}
+
+	/**
+	 * Every task the registry defines must be annotated on the menu.
+	 *
+	 * The registry exists to make a task AI-selectable, and the only way the model can select one is to see it
+	 * in the annotated menu. A registry entry missing from the table is a task that builds, renders, completes
+	 * and is never once offered — the failure is silent in every other test, because each half works.
+	 *
+	 * The reverse direction is deliberately not asserted: the menu is mostly catalog ids, and
+	 * test_task_menu_is_subset_of_catalog_or_registry already covers ids from neither source.
+	 */
+	public function test_every_registry_task_is_offered_on_the_menu() {
+		preg_match_all( "/\bid: '([a-z0-9_]+)'/", $this->task_annotations_block(), $ids );
+		$this->assertNotEmpty( $ids[1], 'Could not parse TASK_ANNOTATIONS from prompts.ts.' );
+
+		$unoffered = array_values( array_diff( AI_Launchpad_Task_Registry::task_ids(), $ids[1] ) );
+
+		$this->assertSame(
+			array(),
+			$unoffered,
+			'The registry defines tasks the model is never offered, so they can only ever be backfilled: ' . implode( ', ', $unoffered )
 		);
 	}
 

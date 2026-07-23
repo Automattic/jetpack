@@ -19,6 +19,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-contact-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
@@ -370,6 +372,15 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Create your first gallery',
 				'Continue working on your gallery',
 			),
+			'contact page, built from the registry' => array(
+				'add_contact_page',
+				array( 'add_contact_page', 'site_launched' ),
+				'build',
+				AI_Launchpad_Contact_Page_Listener::META_KEY,
+				7171,
+				'Add a contact page',
+				'Continue working on your contact page',
+			),
 		);
 	}
 
@@ -585,6 +596,24 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$sell = $this->available_tasks( 'sell' );
 		$this->assertNotContains( 'add_gallery_page', $sell['available_task_ids'] );
 		$this->assertNotContains( 'add_gallery_page', $sell['renderable_task_ids'] );
+	}
+
+	/**
+	 * The contact page reaches the offered menu on any goal, including sell.
+	 *
+	 * Unlike the gallery, it carries no goal exclusion: a store needs a way to answer "do you ship to…?" as much
+	 * as a studio needs one for commissions. Checked on two unrelated goals, since a goal-keyed exclusion would
+	 * still pass a single-goal assertion.
+	 *
+	 * @param string $goal The goal slug.
+	 * @dataProvider provide_unrelated_goals
+	 */
+	#[DataProvider( 'provide_unrelated_goals' )]
+	public function test_available_tasks_offer_the_contact_page_task( $goal ) {
+		$data = $this->available_tasks( $goal );
+
+		$this->assertContains( 'add_contact_page', $data['available_task_ids'], 'not offered on ' . $goal );
+		$this->assertContains( 'add_contact_page', $data['renderable_task_ids'], 'not renderable on ' . $goal );
 	}
 
 	/**
@@ -2136,6 +2165,45 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$persisted_tasks = get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'];
 		$this->assertCount( 5, $persisted_tasks );
 		$this->assertNotContains( 'made_up_task', array_column( $persisted_tasks, 'id' ) );
+	}
+
+	/**
+	 * PUT /tailored accepts the optional page intros and persists them verbatim.
+	 *
+	 * The server never reads them — the client places them into the page it creates — but it does validate the
+	 * whole payload against the shared contract, whose objects are closed. A field missing from the contract
+	 * would therefore 422 the entire tailoring run rather than be quietly dropped, so this pins that the
+	 * server-side copy of the schema knows about the field the prompt now asks for.
+	 */
+	public function test_put_tailored_persists_the_optional_page_intros() {
+		$payload                = self::valid_payload();
+		$payload['page_intros'] = array( 'add_contact_page' => 'Ask about a commission or a wholesale order.' );
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			$payload['page_intros'],
+			get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['page_intros']
+		);
+	}
+
+	/**
+	 * An intro for a page task nothing knows how to create is rejected with the rest of the payload.
+	 *
+	 * The keys are task ids the client places by name, so an invented one is content for a page that will never
+	 * be built. Rejecting it is the same call every other object in the contract already makes, and it is what
+	 * keeps the field from becoming a free-text bag.
+	 */
+	public function test_put_tailored_rejects_a_page_intro_for_an_unknown_task() {
+		$payload                = self::valid_payload();
+		$payload['page_intros'] = array( 'add_faq_page' => 'Answers to what people ask most.' );
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+
+		$this->assertSame( 422, $result->get_status() );
+		$this->assertSame( 'ai_launchpad_invalid_payload', $result->get_data()['code'] );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
 	}
 
 	/**

@@ -55,11 +55,22 @@ export interface LaunchpadData {
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
-export type CtaKind = 'first_post' | 'about_page' | 'gallery_page' | 'launch' | 'deeplink';
+export type CtaKind =
+	| 'first_post'
+	| 'about_page'
+	| 'gallery_page'
+	| 'contact_page'
+	| 'launch'
+	| 'deeplink';
 
 const FIRST_POST_TASK_IDS = [ 'first_post_published', 'first_post_published_newsletter' ];
 // Create-content kinds are actionable only when the AI output is present.
-const CREATE_CONTENT_KINDS: CtaKind[] = [ 'first_post', 'about_page', 'gallery_page' ];
+const CREATE_CONTENT_KINDS: CtaKind[] = [
+	'first_post',
+	'about_page',
+	'gallery_page',
+	'contact_page',
+];
 // Launch tasks with no catalog deeplink: they open the wordpress.com launch flow.
 const LAUNCH_TASK_IDS = [
 	'site_launched',
@@ -86,6 +97,9 @@ export function ctaKind( taskId: string ): CtaKind {
 	}
 	if ( 'add_gallery_page' === taskId ) {
 		return 'gallery_page';
+	}
+	if ( 'add_contact_page' === taskId ) {
+		return 'contact_page';
 	}
 	if ( LAUNCH_TASK_IDS.includes( taskId ) ) {
 		return 'launch';
@@ -157,6 +171,9 @@ export interface CtaHandlers {
 	createGalleryPage: (
 		inferred: TailoredInferred
 	) => Promise< { page_id: number; edit_url: string } >;
+	createContactPage: (
+		intro: string | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
 }
 
 /**
@@ -210,6 +227,11 @@ export async function resolveCtaUrl(
 		url = ( await handlers.createAboutPage( output.about_page_draft ) ).edit_url;
 	} else if ( kind === 'gallery_page' && output ) {
 		url = ( await handlers.createGalleryPage( output.inferred ) ).edit_url;
+	} else if ( kind === 'contact_page' && output ) {
+		// Keyed by task id, so the page task reads its own line and nothing else. Undefined for an
+		// output persisted before page_intros existed, or a run where the model omitted the key —
+		// the page is still created, without the intro paragraph.
+		url = ( await handlers.createContactPage( output.page_intros?.add_contact_page ) ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {

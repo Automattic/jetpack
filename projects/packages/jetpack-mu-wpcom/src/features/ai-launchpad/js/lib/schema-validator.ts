@@ -109,6 +109,16 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 				},
 			},
 		},
+		// Optional, and optional key by key: a page intro exists only for a page task the model chose.
+		// Absent from `required` above rather than expressed as a conditional, which this validator
+		// cannot represent — see the JsonSchema interface for the keywords it supports.
+		page_intros: {
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				add_contact_page: { type: 'string', minLength: 1, maxLength: 200 },
+			},
+		},
 	},
 };
 

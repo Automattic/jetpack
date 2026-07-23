@@ -66,6 +66,36 @@ class AI_Launchpad_Task_Registry {
 					return AI_Launchpad_Gallery_Page_Listener::get_draft_id();
 				},
 			),
+
+			/*
+			 * The page is hand-authored markup — a heading, one AI-written line, and a Jetpack contact form —
+			 * not a block pattern. The pattern library carries no topical tags, so the gallery's niche scoring
+			 * cannot fire for a contact page, and the pattern it would settle on is map-only with a hardcoded
+			 * address and phone number on it. A wrong address stated confidently on a real business's contact
+			 * page is worse than none, so the form is the only channel the page offers.
+			 *
+			 * No `is_visible`: the form block ships with Jetpack, which is active on every site this feature
+			 * runs on, so the task asks nothing of the site. No `calypso_path` either — the CTA creates the
+			 * page client-side, as the gallery's does.
+			 */
+			'add_contact_page'   => array(
+				'title'             => static function () {
+					return __( 'Add a contact page', 'jetpack-mu-wpcom' );
+				},
+				'in_progress_title' => static function () {
+					return __( 'Continue working on your contact page', 'jetpack-mu-wpcom' );
+				},
+				'default_subtitle'  => static function () {
+					return __( 'Give visitors a simple way to reach you, with a contact form ready to go.', 'jetpack-mu-wpcom' );
+				},
+				'is_complete'       => static function () {
+					$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+					return ! empty( $statuses['add_contact_page'] );
+				},
+				'draft_id'          => static function () {
+					return AI_Launchpad_Contact_Page_Listener::get_draft_id();
+				},
+			),
 			'add_site_icon'      => array(
 				'title'            => static function () {
 					return __( 'Add your logo or site icon', 'jetpack-mu-wpcom' );

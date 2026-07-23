@@ -21,6 +21,7 @@ interface AgentOutput {
 	inferred: Record< string, string >;
 	first_post_draft: { title: string; paragraphs: string[] };
 	about_page_draft: { title: string; paragraphs: string[] };
+	page_intros?: Record< string, string >;
 }
 
 /**
@@ -109,6 +110,11 @@ describe( 'validateAgainstSchema', () => {
 		[ 'an inferred theme_category from the enum', out => ( out.inferred.theme_category = 'blog' ) ],
 		[ 'an inferred_goal from the enum', out => ( out.inferred.inferred_goal = 'portfolio' ) ],
 		[ 'a third About paragraph', out => out.about_page_draft.paragraphs.push( 'Come say hi.' ) ],
+		// page_intros is optional as a whole, and every key inside it is optional too: the model
+		// writes one only for a page task it actually chose, so an empty object is a valid "chose
+		// none" and the baseline's omission of the field is the pre-change persisted output.
+		[ 'a contact-page intro', out => ( out.page_intros = { add_contact_page: 'Say hello.' } ) ],
+		[ 'an empty page_intros object', out => ( out.page_intros = {} ) ],
 	];
 	for ( const [ label, mutate ] of ACCEPTED ) {
 		it( `accepts ${ label }`, () => assert.deepEqual( errorsAfter( mutate ), [] ) );
@@ -124,6 +130,14 @@ describe( 'validateAgainstSchema', () => {
 		[ 'a missing required field', out => without( out, 'first_post_draft' ) ],
 		[ 'a missing about_page_draft', out => without( out, 'about_page_draft' ) ],
 		[ 'a fourth About paragraph', out => out.about_page_draft.paragraphs.push( 'C.', 'D.' ) ],
+		// The keys are task ids the client knows how to place, so an invented one is a page nothing
+		// will ever render. Rejecting it is the same call the other objects here already make.
+		[ 'a page intro for an unknown task', out => ( out.page_intros = { add_faq_page: 'Hi.' } ) ],
+		[
+			'a page intro past the subtitle-length ceiling',
+			out => ( out.page_intros = { add_contact_page: 'x'.repeat( 201 ) } ),
+		],
+		[ 'an empty page intro', out => ( out.page_intros = { add_contact_page: '' } ) ],
 	];
 	for ( const [ label, mutate ] of REJECTED ) {
 		it( `rejects ${ label }`, () => assert.ok( errorsAfter( mutate ).length > 0 ) );
