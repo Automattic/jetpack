@@ -1,19 +1,5 @@
 .options-general-php {
 
-	#wpcom-fiverr-cta {
-		// Preview and button share the first line; the description wraps onto its
-		// own full-width line beneath them.
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 12px;
-
-		.description {
-			flex-basis: 100%;
-			margin: 0;
-		}
-	}
-
 	.wpcom-site-logo-preview {
 		inline-size: fit-content;
 		padding: 8px;
@@ -45,9 +31,28 @@
 	}
 
 	.button.wpcom-fiverr-cta-button {
+		margin-top: 0.4em;
+
 		svg {
 			vertical-align: middle;
 		}
+	}
+
+	.wpcom-site-logo {
+		// Logo-present state: the preview and the button share one line, with the
+		// description on its own line below (the empty state keeps its original
+		// stacked layout).
+		display: flex;
+		align-items: center;
+		gap: 12px;
+
+		.button.wpcom-fiverr-cta-button {
+			margin-top: 0;
+		}
+	}
+
+	.wpcom-site-logo + .description {
+		margin-top: 8px;
 	}
 
 	.button.wpcom-add-custom-address-button {
