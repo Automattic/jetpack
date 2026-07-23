@@ -193,10 +193,12 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function enable_inactive_menu() {
-		// Activating VideoPress requires a Jetpack connection, so don't offer the
-		// item while the site is disconnected. Checked here, at admin_menu time,
-		// so the item starts rendering as soon as the site gets connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		// Activating VideoPress from My Jetpack requires a connected user, so only
+		// offer the item to users with their own Jetpack connection. Checked here,
+		// at admin_menu time, so the item starts rendering as soon as the current
+		// user connects.
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() || ! $connection->is_user_connected() ) {
 			return;
 		}
 
