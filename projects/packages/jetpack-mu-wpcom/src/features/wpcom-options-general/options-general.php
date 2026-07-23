@@ -96,8 +96,11 @@ function wpcom_fiverr_cta() {
 		// populated state is still announced to assistive technology.
 		$logo_alt = trim( wp_strip_all_tags( (string) get_post_meta( $logo_id, '_wp_attachment_image_alt', true ) ) );
 		if ( '' === $logo_alt ) {
-			/* translators: %s: The site title. */
-			$logo_alt = sprintf( __( 'Current site logo for %s', 'jetpack-mu-wpcom' ), get_bloginfo( 'name' ) );
+			$site_name = get_bloginfo( 'name' );
+			$logo_alt  = $site_name
+				/* translators: %s: The site title. */
+				? sprintf( __( 'Current site logo for %s', 'jetpack-mu-wpcom' ), $site_name )
+				: __( 'Current site logo', 'jetpack-mu-wpcom' );
 		}
 		// Request a proportionally-scaled size rather than a square (which can select the
 		// hard-cropped thumbnail and show only the logo's center); CSS caps its dimensions.
