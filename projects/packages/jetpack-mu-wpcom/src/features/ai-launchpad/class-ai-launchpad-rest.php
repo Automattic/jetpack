@@ -99,6 +99,63 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * Tasks the model may pick only when the site's goal is one of the listed goals.
+	 *
+	 * These were prose rules in the tailoring prompt ("Only include woo_* if the goal is sell OR the user
+	 * explicitly mentions selling"). Prose is not enforcement: the model can ignore it, and when the
+	 * available-tasks lookup fails the prompt falls back to the unfiltered menu. Enforced here instead, at
+	 * both ends — the menu never offers them (available_task_ids) and PUT drops them (update_tailored).
+	 *
+	 * The free-text escape hatch is deliberately gone. The wizard goal is an explicit user choice, and the
+	 * escape hatch was the non-determinism being removed.
+	 *
+	 * The two directions of disagreement with a task's `goals` annotation in js/lib/prompts.ts are not
+	 * equivalent, and only one is acceptable:
+	 *
+	 * - Annotation BROADER than this map is fine. The annotation is soft affinity for the model, this is the
+	 *   hard rule, and a task can be a tasteful fit for a goal it is not permitted on — the rule still blocks
+	 *   it. The payment tasks are the live example: annotated for `newsletter` as well as `sell`, permitted
+	 *   only on `sell`.
+	 * - Annotation NARROWER than this map is a bug. It means a task the annotation itself calls goal-specific
+	 *   can be selected and persisted on any goal, which is the inappropriate-task problem this whole change
+	 *   exists to fix. `woo_tax`, `woo_marketing` and `woo_add_domain` were exactly that: annotated `sell`,
+	 *   unrestricted here, and renderable on a blog — their catalog gate
+	 *   (wpcom_launchpad_is_woocommerce_setup_visible) is goal-agnostic and passes on any WoA site with
+	 *   WooCommerce active, which is every site this feature runs on.
+	 *
+	 * So: every id annotated with a single goal belongs here, unless something else makes it unreachable.
+	 */
+	const GOAL_RESTRICTED_TASK_IDS = array(
+		'woo_products'             => 'sell',
+		'woo_customize_store'      => 'sell',
+		'woo_woocommerce_payments' => 'sell',
+		'woo_tax'                  => 'sell',
+		'woo_marketing'            => 'sell',
+		'woo_add_domain'           => 'sell',
+		'set_up_payments'          => 'sell',
+		'stripe_connected'         => 'sell',
+		'add_10_email_subscribers' => 'newsletter',
+		'import_subscribers'       => 'newsletter',
+		'newsletter_plan_created'  => 'newsletter',
+	);
+
+	/**
+	 * Tasks excluded for one specific goal and allowed on every other — the inverse of GOAL_RESTRICTED_TASK_IDS.
+	 *
+	 * Split into its own map rather than folded in behind a `!sell` marker, so neither map needs a value whose
+	 * meaning flips on a prefix and each docblock describes all of its own entries.
+	 *
+	 * `add_gallery_page` is excluded for sell so a store site cannot end up with both the store sequence and a
+	 * gallery, the mutual exclusion get_current_tasks() enforces structurally through its if/else. The entry has
+	 * no effect yet: the gallery is still a synthetic task the AI cannot pick, so PUT already drops it as an id
+	 * the catalog does not define and available_task_ids() never offers it. It starts mattering when the gallery
+	 * becomes AI-selectable.
+	 */
+	const GOAL_EXCLUDED_TASK_IDS = array(
+		'add_gallery_page' => 'sell',
+	);
+
+	/**
 	 * First-post tasks that can sit "in progress": the AI-created draft post exists but has not been published yet.
 	 *
 	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
@@ -679,8 +736,30 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$tasks       = array();
 
+		// The exclusions key off the goal, so prefer the wizard option: that is the user's own choice, written
+		// by the server. The payload's goal is only what the prompt asked the model to echo back, and keying
+		// enforcement off model-supplied data lets a wrong echo unlock the tasks the rule exists to withhold.
+		//
+		// Fall back to the payload when the option is missing: the wizard PUT is fire-and-forget in
+		// wizard/wizard.tsx, so it can lose the race against a prewarmed tailor and leave the goal unwritten
+		// at this point. The schema has already validated the payload's goal against the same six slugs.
+		$wizard       = get_option( self::OPTION_WIZARD );
+		$payload_goal = isset( $payload['inferred']['goal'] ) && is_string( $payload['inferred']['goal'] )
+			? $payload['inferred']['goal']
+			: '';
+		$goal         = isset( $wizard['goal'] ) && is_string( $wizard['goal'] ) && '' !== $wizard['goal']
+			? $wizard['goal']
+			: $payload_goal;
+		$excluded     = self::excluded_task_ids_for_goal( $goal );
+
 		foreach ( $payload['tasks'] as $task ) {
 			if ( ! isset( $definitions[ $task['id'] ] ) ) {
+				continue;
+			}
+
+			// Goal-restricted tasks are dropped even if the model picked them: the menu filter is advisory
+			// (a failed availability lookup falls back to the full menu), this is not.
+			if ( in_array( $task['id'], $excluded, true ) ) {
 				continue;
 			}
 
@@ -1000,6 +1079,34 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * The task ids that must not be offered to, or accepted from, the model for a given goal.
+	 *
+	 * The two maps read in opposite directions, and an unknown or empty goal matches neither: every
+	 * GOAL_RESTRICTED_TASK_IDS entry is excluded (it never got the goal it requires), while every
+	 * GOAL_EXCLUDED_TASK_IDS entry is allowed (it never hit the goal that excludes it).
+	 *
+	 * @param string $goal The selected goal.
+	 * @return string[]
+	 */
+	public static function excluded_task_ids_for_goal( $goal ) {
+		$excluded = array();
+
+		foreach ( self::GOAL_RESTRICTED_TASK_IDS as $task_id => $required_goal ) {
+			if ( $goal !== $required_goal ) {
+				$excluded[] = $task_id;
+			}
+		}
+
+		foreach ( self::GOAL_EXCLUDED_TASK_IDS as $task_id => $excluded_goal ) {
+			if ( $goal === $excluded_goal ) {
+				$excluded[] = $task_id;
+			}
+		}
+
+		return $excluded;
+	}
+
+	/**
 	 * The task ids that will actually render on this site for the given goal — the menu tailoring should choose from.
 	 *
 	 * Built by running the whole catalog through the real gate (visibility + force-visible overrides, and the sell
@@ -1028,9 +1135,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		);
 
+		$excluded = self::excluded_task_ids_for_goal( $goal );
+
 		return array(
-			'renderable' => array_column( $tasks, 'id' ),
-			'actionable' => array_column( $actionable, 'id' ),
+			'renderable' => array_values( array_diff( array_column( $tasks, 'id' ), $excluded ) ),
+			'actionable' => array_values( array_diff( array_column( $actionable, 'id' ), $excluded ) ),
 		);
 	}
 

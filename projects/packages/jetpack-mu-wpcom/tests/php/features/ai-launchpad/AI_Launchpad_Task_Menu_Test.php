@@ -1,14 +1,14 @@
 <?php
 /**
- * Guards against drift between the AI Launchpad prompt's TASK_MENU (JS) and the
+ * Guards against drift between the AI Launchpad prompt's annotated task table (JS) and the
  * canonical launchpad task catalog (PHP).
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
 /**
- * The prompt offers the model a hardcoded `TASK_MENU` (js/lib/prompts.ts) while
- * titles, CTAs, and completion all resolve through the canonical catalog
+ * The prompt offers the model a hardcoded `TASK_ANNOTATIONS` table (js/lib/prompts.ts)
+ * while titles, CTAs, and completion all resolve through the canonical catalog
  * (`wpcom_launchpad_get_task_definitions()`). The two lists are maintained
  * separately today — see the catalog-as-single-source refactor (DOTOBRD-472).
  * This test fails if the menu ever offers an ID the catalog doesn't define,
@@ -26,11 +26,11 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Every ID in the prompt's TASK_MENU must exist in the canonical catalog.
+	 * Every ID in the prompt's annotated task table must exist in the canonical catalog.
 	 */
 	public function test_task_menu_is_subset_of_catalog() {
 		$menu_ids = $this->parse_task_menu_ids();
-		$this->assertNotEmpty( $menu_ids, 'Could not parse TASK_MENU from prompts.ts.' );
+		$this->assertNotEmpty( $menu_ids, 'Could not parse TASK_ANNOTATIONS from prompts.ts.' );
 
 		$catalog_ids = array_keys( wpcom_launchpad_get_task_definitions() );
 		$unknown     = array_values( array_diff( $menu_ids, $catalog_ids ) );
@@ -43,7 +43,10 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Extracts the quoted task IDs from the TASK_MENU array in prompts.ts.
+	 * Extracts the task IDs from the TASK_ANNOTATIONS table in prompts.ts.
+	 *
+	 * The table body is terminated on the closing `];` at column zero, so the inline `goals: [ ... ]`
+	 * arrays inside entries do not end the match early.
 	 *
 	 * @return string[]
 	 */
@@ -55,12 +58,11 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 			return array();
 		}
 
-		// Capture the array body between `TASK_MENU ... = [` and the closing `]`.
-		if ( ! preg_match( '/TASK_MENU[^=]*=\s*\[(.*?)\]/s', $source, $block ) ) {
+		if ( ! preg_match( '/TASK_ANNOTATIONS[^=]*=\s*\[(.*?)^\];/ms', $source, $block ) ) {
 			return array();
 		}
 
-		preg_match_all( "/'([a-z0-9_]+)'/", $block[1], $ids );
+		preg_match_all( "/\bid: '([a-z0-9_]+)'/", $block[1], $ids );
 
 		return $ids[1];
 	}

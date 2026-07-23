@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { buildTailorPrompt, chooseTailoringMenu, TASK_MENU } from './prompts.ts';
+import { buildTailorPrompt, chooseTailoringMenu, TASK_ANNOTATIONS, TASK_MENU } from './prompts.ts';
 import type { WizardInput } from './types.ts';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
@@ -11,6 +11,34 @@ const CONTRACTS = resolve( __dirname, '../../contracts' );
 
 const fixtures = JSON.parse( readFileSync( resolve( CONTRACTS, 'eval-fixtures.json' ), 'utf8' ) )
 	.fixtures as Array< { name: string; input: WizardInput } >;
+
+const INPUT: WizardInput = {
+	goal: 'write',
+	site_name: 'Alpine Notes',
+	description: 'Personal blog about long-distance hiking in the Alps.',
+	locale: 'en',
+};
+
+describe( 'TASK_ANNOTATIONS', () => {
+	it( 'annotates every id offered by TASK_MENU', () => {
+		assert.deepEqual(
+			TASK_MENU,
+			TASK_ANNOTATIONS.map( entry => entry.id ),
+			'TASK_MENU must be derived from TASK_ANNOTATIONS'
+		);
+	} );
+
+	it( 'has no duplicate ids', () => {
+		assert.equal( new Set( TASK_MENU ).size, TASK_MENU.length );
+	} );
+
+	it( 'gives every entry a non-empty what and pick when', () => {
+		for ( const entry of TASK_ANNOTATIONS ) {
+			assert.ok( entry.what.length > 0, `${ entry.id } is missing "what"` );
+			assert.ok( entry.pickWhen.length > 0, `${ entry.id } is missing "pickWhen"` );
+		}
+	} );
+} );
 
 describe( 'buildTailorPrompt', () => {
 	for ( const fixture of fixtures ) {
@@ -22,13 +50,6 @@ describe( 'buildTailorPrompt', () => {
 		} );
 	}
 
-	it( 'lists every menu task ID', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		for ( const id of TASK_MENU ) {
-			assert.ok( prompt.includes( id ), `menu ID "${ id }" missing from prompt` );
-		}
-	} );
-
 	it( 'offers only the actionable theme task, not the legacy design tasks', () => {
 		// design_selected is always-complete and design_completed has no wp-admin
 		// completion path; both are consolidated onto site_theme_selected.
@@ -37,26 +58,87 @@ describe( 'buildTailorPrompt', () => {
 		assert.ok( ! TASK_MENU.includes( 'design_completed' ) );
 	} );
 
+	it( 'renders each offered task as an annotated block, not a bare id', () => {
+		const prompt = buildTailorPrompt( INPUT, [ 'first_post_published', 'site_launched' ] );
+
+		assert.match( prompt, /- id: first_post_published\n {2}what: .+\n {2}pick when: .+/ );
+	} );
+
+	it( 'offers only the available ids', () => {
+		const prompt = buildTailorPrompt( INPUT, [ 'first_post_published', 'site_launched' ] );
+
+		assert.ok( prompt.includes( '- id: first_post_published' ) );
+		assert.ok( ! prompt.includes( '- id: woo_products' ) );
+	} );
+
 	it( 'restricts the offered menu to the available tasks when given', () => {
 		const available = [ 'first_post_published', 'site_theme_selected', 'site_launched' ];
 		const prompt = buildTailorPrompt( fixtures[ 0 ].input, available );
 		// A menu section lists only the available ids...
 		for ( const id of available ) {
-			assert.ok( prompt.includes( '- ' + id ), `available ID "${ id }" missing from menu` );
+			assert.ok( prompt.includes( '- id: ' + id ), `available ID "${ id }" missing from menu` );
 		}
 		// ...and a menu-only task that is not available is dropped from the list.
 		const dropped = TASK_MENU.find( id => ! available.includes( id ) ) as string;
 		assert.ok(
-			! prompt.includes( '- ' + dropped ),
+			! prompt.includes( '- id: ' + dropped ),
 			`unavailable ID "${ dropped }" should be dropped`
 		);
 	} );
 
-	it( 'falls back to the full menu when the available list is empty', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input, [] );
+	it( 'falls back to the full menu when availability is unknown', () => {
+		const prompt = buildTailorPrompt( INPUT, [] );
+
 		for ( const id of TASK_MENU ) {
-			assert.ok( prompt.includes( '- ' + id ), `menu ID "${ id }" missing from prompt` );
+			assert.ok( prompt.includes( `- id: ${ id }` ), `${ id } missing from full menu` );
 		}
+	} );
+
+	it( 'renders optional fields only when present', () => {
+		const withAvoid = TASK_ANNOTATIONS.find( entry => entry.avoidWhen );
+		const withoutAvoid = TASK_ANNOTATIONS.find( entry => ! entry.avoidWhen );
+		assert.ok( withAvoid && withoutAvoid, 'table needs both shapes to exercise this' );
+
+		const prompt = buildTailorPrompt( INPUT, [ withAvoid.id, withoutAvoid.id ] );
+		const blocks = prompt.split( '- id: ' );
+		const plainBlock = blocks.find( block => block.startsWith( `${ withoutAvoid.id }\n` ) );
+
+		assert.ok( prompt.includes( `  avoid when: ${ withAvoid.avoidWhen }` ) );
+		assert.ok( plainBlock && ! plainBlock.includes( 'avoid when:' ) );
+	} );
+
+	it( 'no longer carries the goal rules that PHP now enforces', () => {
+		const prompt = buildTailorPrompt( INPUT, [] );
+
+		assert.ok( ! prompt.includes( 'if the goal is sell OR' ) );
+		assert.ok( ! prompt.includes( 'if the goal is newsletter OR' ) );
+		assert.ok( ! prompt.includes( 'order the commerce tasks store-first' ) );
+	} );
+
+	it( 'keeps the structural rules the server validates', () => {
+		const prompt = buildTailorPrompt( INPUT, [] );
+
+		assert.ok( prompt.includes( 'Return exactly 6 tasks.' ) );
+		assert.ok( prompt.includes( 'MUST be a launch task' ) );
+	} );
+
+	it( 'lists only server-enforced rules under the HARD RULES header', () => {
+		// The header promises the model that violations are rejected, so an unenforced rule here claims
+		// an authority the code does not back. Pinned to the exact strings, not just the count: swapping
+		// an enforced rule for a demoted one keeps the count at four and would otherwise pass.
+		//
+		// The first rule points at the menu but promises only catalog membership, which is what
+		// update_tailored() actually checks — a catalog id filtered off the menu is still accepted.
+		const prompt = buildTailorPrompt( INPUT, [] );
+		const block = prompt.slice( prompt.indexOf( 'HARD RULES' ) ).split( '\n\n' )[ 0 ];
+		const bullets = block.split( '\n' ).filter( line => line.startsWith( '- ' ) );
+
+		assert.deepEqual( bullets, [
+			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id the task catalog does not define, and rejects the whole list if too few tasks survive.',
+			'- Return exactly 6 tasks.',
+			'- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".',
+			'- Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].',
+		] );
 	} );
 
 	it( 'offers the actionable ids while enough of them remain on the menu', () => {

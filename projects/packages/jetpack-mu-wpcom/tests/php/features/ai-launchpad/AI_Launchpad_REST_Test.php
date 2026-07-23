@@ -428,6 +428,62 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The goal filter, not the catalog gate, is what keeps a goal-restricted task off the offered menu.
+	 *
+	 * Uses `add_10_email_subscribers` because it needs no setup to prove the point: it is in
+	 * FORCE_VISIBLE_TASK_IDS, so the catalog gate is bypassed and it is renderable on every goal, leaving the
+	 * newsletter restriction as the only thing that can remove it from a write menu.
+	 *
+	 * The woo ids prove the same thing but need a WoA site with WooCommerce active — see
+	 * test_available_tasks_excludes_commerce_on_a_woa_site_with_woocommerce_active(). Plain
+	 * test_available_tasks_endpoint_is_goal_aware() proves less than it appears to, because in the default
+	 * harness state (`is_woa_site()` false, no WooCommerce) the catalog gate hides the woo ids on every goal.
+	 */
+	public function test_available_tasks_applies_the_goal_filter_over_a_force_visible_task() {
+		wp_set_current_user( $this->admin_id );
+
+		$newsletter = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'newsletter' ) )->get_data();
+		$write      = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+
+		$this->assertContains( 'add_10_email_subscribers', $newsletter['available_task_ids'], 'force-visible, so it renders on its own goal' );
+		$this->assertNotContains( 'add_10_email_subscribers', $write['available_task_ids'], 'the goal filter is the only thing that can drop it here' );
+		$this->assertNotContains( 'add_10_email_subscribers', $write['renderable_task_ids'], 'the relaxed fallback menu is filtered too' );
+		$this->assertContains( 'first_post_published', $write['available_task_ids'] );
+	}
+
+	/**
+	 * On the site shape this feature actually ships to, the goal filter is the only thing keeping commerce
+	 * tasks off a blog's menu.
+	 *
+	 * `wpcom_launchpad_is_woocommerce_setup_visible()` is goal-agnostic: it asks whether the site is WoA and
+	 * WooCommerce is active, nothing more. AI Launchpad runs on Atomic, so on any such site with the plugin on,
+	 * every task behind that gate is catalog-visible on a hiking blog just as much as on a store — including
+	 * "Collect sales tax". Only GOAL_RESTRICTED_TASK_IDS stands between them and the menu.
+	 *
+	 * The default harness reports `is_woa_site()` false, which is why this needs the Status cache stubbed and
+	 * why the plain goal-aware test cannot reach this path.
+	 */
+	public function test_available_tasks_excludes_commerce_on_a_woa_site_with_woocommerce_active() {
+		wp_set_current_user( $this->admin_id );
+		\Automattic\Jetpack\Status\Cache::set( 'is_woa_site', true );
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
+
+		$write = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+		$sell  = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'sell' ) )->get_data();
+
+		update_option( 'active_plugins', array() );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		// The gate really is open in this state, so the write assertions below are not passing vacuously.
+		$this->assertContains( 'woo_tax', $sell['renderable_task_ids'], 'the woo gate passes on a WoA site with WooCommerce active' );
+
+		foreach ( array( 'woo_tax', 'woo_marketing', 'woo_add_domain', 'woo_products', 'woo_customize_store' ) as $id ) {
+			$this->assertNotContains( $id, $write['available_task_ids'], $id . ' must not reach a write menu' );
+			$this->assertNotContains( $id, $write['renderable_task_ids'], $id . ' must not reach the relaxed write menu' );
+		}
+	}
+
+	/**
 	 * The add_about_page task is hidden only by a REST-context quirk (its gate needs a page-template meta key that is
 	 * not registered during the request). It is force-visible, so it is offered as available.
 	 */
@@ -753,6 +809,87 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 2, $events );
 
 		remove_action( 'wpcom_ai_launchpad_tracks_event', $callback );
+	}
+
+	/**
+	 * A commerce task picked for a newsletter site is dropped at PUT rather than persisted.
+	 *
+	 * The menu filter is only advisory — a failed availability lookup leaves the prompt on the full menu — so
+	 * this write-path drop is the actual guarantee. The newsletter-restricted task in the same payload must
+	 * survive, so the drop is shown to be goal-aware rather than blanket.
+	 */
+	public function test_update_tailored_drops_commerce_tasks_on_a_newsletter_goal() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'newsletter' ), false );
+
+		$payload                     = self::valid_payload();
+		$payload['inferred']['goal'] = 'newsletter';
+		$payload['tasks'][2]         = array(
+			'id'       => 'add_10_email_subscribers',
+			'subtitle' => 'Bring your first ten readers on board.',
+		);
+		$payload['tasks'][3]         = array(
+			'id'       => 'woo_products',
+			'subtitle' => 'Add your first products.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+
+		$persisted = array_column( get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'], 'id' );
+		$this->assertNotContains( 'woo_products', $persisted, 'sell-only tasks are dropped on a newsletter goal' );
+		$this->assertContains( 'add_10_email_subscribers', $persisted, 'newsletter tasks survive on a newsletter goal' );
+		$this->assertContains( 'site_launched', $persisted );
+	}
+
+	/**
+	 * With no wizard option yet, the payload's goal keeps a sell site's commerce sequence intact.
+	 *
+	 * The wizard PUT is fire-and-forget in wizard/wizard.tsx, so a prewarmed tailor can land first and find the
+	 * option unwritten. Without the payload fallback the goal resolves to '', which matches no restriction and
+	 * therefore excludes every restricted task — stripping the store sequence from precisely the site built
+	 * around it. The fallback is what stops the race turning into a broken sell list.
+	 */
+	public function test_update_tailored_falls_back_to_the_payload_goal_when_the_wizard_has_not_landed() {
+		wp_set_current_user( $this->admin_id );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_wizard' ), 'this test only means anything with no wizard option' );
+
+		$payload                     = self::valid_payload();
+		$payload['inferred']['goal'] = 'sell';
+		$payload['tasks'][3]         = array(
+			'id'       => 'woo_products',
+			'subtitle' => 'Add your first products.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+
+		$persisted = array_column( get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'], 'id' );
+		$this->assertContains( 'woo_products', $persisted, 'a sell payload keeps its commerce tasks when the wizard option is missing' );
+	}
+
+	/**
+	 * The exclusions key off the wizard goal, not the goal the model echoed back.
+	 *
+	 * The payload's goal is model-supplied, so enforcing against it would let a wrong echo unlock exactly the
+	 * tasks the rule exists to withhold. Here the model claims "sell" on a site the user set to "newsletter".
+	 */
+	public function test_update_tailored_prefers_the_wizard_goal_over_the_payload_goal() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'newsletter' ), false );
+
+		$payload                     = self::valid_payload();
+		$payload['inferred']['goal'] = 'sell';
+		$payload['tasks'][3]         = array(
+			'id'       => 'woo_products',
+			'subtitle' => 'Add your first products.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+
+		$persisted = array_column( get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'], 'id' );
+		$this->assertNotContains( 'woo_products', $persisted );
 	}
 
 	/**

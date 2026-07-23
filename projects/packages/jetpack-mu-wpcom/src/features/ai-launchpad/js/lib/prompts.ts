@@ -1,59 +1,308 @@
-import type { WizardInput } from './types.ts';
+import type { GoalSlug, WizardInput } from './types.ts';
 
 /**
- * Allowed task IDs the model may pick from, drawn from the catalog. A PHP test
- * guards this list against catalog drift.
+ * An AI-facing description of one task on the menu.
  *
- * Catalog `id_map` twins are the same underlying task, so only one of each pair
- * is offered; the dropped twin remaps onto the kept one on read (see
- * wpcom_ai_launchpad_remap_task_id). Dropped: first_post_published_newsletter,
- * link_in_bio_launched, subscribers_added, drive_traffic.
+ * These strings are written for the model, not for users — they never render in the UI, and
+ * they deliberately do not reuse catalog title copy, which is too terse to disambiguate (three
+ * separate ids render as some variation of "change the design").
+ *
+ * Everything here is taste, including `goals` — the prompt tells the model to read it as an
+ * affinity, not a filter. Anything that must always hold is enforced deterministically in PHP —
+ * see AI_Launchpad_REST::GOAL_RESTRICTED_TASK_IDS and GOAL_EXCLUDED_TASK_IDS — because a rule
+ * stated only in prose is a rule the model can quietly ignore.
+ *
+ * The two lists may disagree in one direction only.
+ *
+ * `goals` BROADER than the PHP rule is fine — the split doing its job. A task can be a tasteful fit
+ * for a goal it is not allowed on; the rule still blocks it. The payment tasks are the live example,
+ * annotated for `newsletter` as well as `sell` but permitted only on `sell`. Do not "fix" that by
+ * widening the PHP rule.
+ *
+ * `goals` NARROWER than the PHP rule is a bug: a task this table calls goal-specific would be
+ * selectable on every goal. If you add a single-goal `goals` here, add the matching entry to
+ * GOAL_RESTRICTED_TASK_IDS too, or the annotation is the only thing holding it back — and
+ * annotations are not enforcement.
  */
-export const TASK_MENU: readonly string[] = [
-	'first_post_published',
-	'site_theme_selected',
-	'add_about_page',
-	'add_new_page',
-	'update_about_page',
-	'edit_page',
-	'design_edited',
-	'domain_claim',
-	'domain_upsell',
-	'domain_customize',
-	'verify_email',
-	'complete_profile',
-	'site_title',
-	'setup_general',
-	'site_launched',
-	'blog_launched',
-	'set_up_payments',
-	'stripe_connected',
-	'paid_offer_created',
-	'woo_products',
-	'woo_customize_store',
-	'woo_woocommerce_payments',
-	'woo_tax',
-	'woo_marketing',
-	'woo_add_domain',
-	'add_10_email_subscribers',
-	'import_subscribers',
-	'newsletter_plan_created',
-	'customize_welcome_message',
-	'enable_subscribers_modal',
-	'manage_subscribers',
-	'manage_paid_newsletter_plan',
-	'add_subscribe_block',
-	'earn_money',
-	'connect_social_media',
-	'sensei_setup',
-	'install_custom_plugin',
-	'setup_ssh',
-	'site_monitoring_page',
-	'mobile_app_installed',
-	'share_site',
-	'front_page_updated',
-	'start_building_your_audience',
+export interface TaskAnnotation {
+	/** Task id, matching the shared catalog or the AI Launchpad task registry. */
+	id: string;
+	/** What completing this task actually does. */
+	what: string;
+	/** The signal that makes this task a good fit. */
+	pickWhen: string;
+	/** Counter-signal, for judgement calls only. Never for rules that must hold. */
+	avoidWhen?: string;
+	/** Goal affinity, omitted for tasks that suit any site. */
+	goals?: readonly GoalSlug[];
+}
+
+/**
+ * The tasks the model may pick from, each described well enough to rank against a specific site.
+ *
+ * Catalog `id_map` twins are the same underlying task, so only one of each pair is offered; the
+ * dropped twin remaps onto the kept one on read (see wpcom_ai_launchpad_remap_task_id). Dropped:
+ * first_post_published_newsletter, link_in_bio_launched, subscribers_added, drive_traffic.
+ *
+ * A PHP test guards these ids against catalog drift.
+ */
+export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
+	{
+		id: 'first_post_published',
+		what: "Publishes the site's first blog post, pre-filled in the editor with an AI-written draft.",
+		pickWhen:
+			'the site publishes written content — a blog, a journal, essays, reviews, dispatches.',
+		goals: [ 'write', 'newsletter', 'educate' ],
+	},
+	{
+		id: 'site_theme_selected',
+		what: 'Opens the theme showcase, pre-filtered to a category matching the site, to pick a design.',
+		pickWhen: 'almost always — the theme frames how everything else on the site looks.',
+	},
+	{
+		id: 'add_about_page',
+		what: 'Creates a draft About page pre-filled with AI-written copy about this specific site.',
+		pickWhen: 'visitors will want to know who is behind the site or what it is for.',
+	},
+	{
+		id: 'add_new_page',
+		what: 'Opens the editor to create any new page from scratch, with no starting content.',
+		pickWhen: 'the site needs a page this menu has no dedicated task for.',
+		avoidWhen: 'a more specific page task already covers what the site needs.',
+	},
+	{
+		id: 'update_about_page',
+		what: 'Reopens an existing About page to revise it.',
+		pickWhen: 'the site already has an About page that still holds placeholder copy.',
+		avoidWhen: 'the site has no About page yet — use add_about_page instead.',
+	},
+	{
+		id: 'edit_page',
+		what: 'Opens an existing page for editing.',
+		pickWhen: 'the site already has pages whose starter copy needs replacing.',
+		avoidWhen: 'the site is brand new and has no pages worth editing.',
+	},
+	{
+		id: 'design_edited',
+		what: 'Opens the Site Editor to change layout, colors, and typography beyond the theme defaults.',
+		pickWhen: 'the look matters more than the words — visual, design-led, or brand-driven sites.',
+		avoidWhen:
+			'site_theme_selected is already on the list and the site has no strong visual identity yet.',
+	},
+	{
+		id: 'domain_claim',
+		what: "Claims the free one-year custom domain included with the site's plan.",
+		pickWhen: 'the site is a business, brand, or professional presence that needs its own address.',
+	},
+	{
+		id: 'domain_upsell',
+		what: 'Browses and buys a custom domain.',
+		pickWhen: 'the site needs a custom domain and no free one is available to claim.',
+		avoidWhen: 'domain_claim is available — a free domain beats a paid one.',
+	},
+	{
+		id: 'domain_customize',
+		what: 'Manages DNS and settings for a domain already connected to the site.',
+		pickWhen: 'the site already has a custom domain that needs configuring.',
+		avoidWhen: 'the site is still on a wordpress.com subdomain.',
+	},
+	{
+		id: 'verify_email',
+		what: "Confirms the account's email address.",
+		pickWhen: 'rarely — it is account housekeeping, not site building.',
+	},
+	{
+		id: 'complete_profile',
+		what: 'Fills in the public WordPress.com profile: display name, bio, avatar.',
+		pickWhen: 'the person is the product — authors, coaches, consultants, freelancers, artists.',
+		avoidWhen: 'the site represents a business or publication rather than an individual.',
+	},
+	{
+		id: 'site_title',
+		what: 'Sets the site title and tagline.',
+		pickWhen: 'rarely — the wizard already collected a name and description and saved them.',
+	},
+	{
+		id: 'setup_general',
+		what: 'Opens general site settings, covering the title and tagline.',
+		pickWhen: 'rarely — this duplicates site_title, and the wizard already set both fields.',
+	},
+	{
+		id: 'site_launched',
+		what: 'Takes the site public. The canonical launch task.',
+		pickWhen: 'always, as the final task.',
+	},
+	{
+		id: 'blog_launched',
+		what: 'Takes the site public, worded for a blog. An alternative launch task.',
+		pickWhen: 'never in preference to site_launched, which is canonical.',
+	},
+	{
+		id: 'set_up_payments',
+		what: 'Configures a payment method so the site can take money.',
+		pickWhen: 'the site sells something or collects payments from an audience.',
+		goals: [ 'sell', 'newsletter' ],
+	},
+	{
+		id: 'stripe_connected',
+		what: 'Connects a Stripe account so payments can be collected.',
+		pickWhen: 'the site takes payments and has no processor connected.',
+		goals: [ 'sell', 'newsletter' ],
+	},
+	{
+		id: 'paid_offer_created',
+		what: 'Creates a paid offer supporters can buy — a subscription, tier, or one-off product.',
+		pickWhen: 'the site earns directly from its audience rather than from retail products.',
+		goals: [ 'newsletter', 'educate' ],
+	},
+	{
+		id: 'woo_products',
+		what: 'Adds products to the WooCommerce store.',
+		pickWhen: 'the site sells physical or digital goods and the store exists but is empty.',
+		goals: [ 'sell' ],
+	},
+	{
+		id: 'woo_customize_store',
+		what: "Sets up the store's look and core settings in WooCommerce.",
+		pickWhen: 'the site is a shop and the store has not been configured yet.',
+		goals: [ 'sell' ],
+	},
+	{
+		id: 'woo_woocommerce_payments',
+		what: 'Turns on WooPayments so the store can accept card payments.',
+		pickWhen: 'the store needs a way to take money and has no processor set up.',
+		goals: [ 'sell' ],
+	},
+	{
+		id: 'woo_tax',
+		what: 'Configures sales tax collection for the store.',
+		pickWhen: 'the store is far enough along that tax matters — rarely a first-week task.',
+		goals: [ 'sell' ],
+	},
+	{
+		id: 'woo_marketing',
+		what: 'Opens WooCommerce marketing tools for promoting the store.',
+		pickWhen: 'the store already has products and needs customers.',
+		goals: [ 'sell' ],
+	},
+	{
+		id: 'woo_add_domain',
+		what: 'Adds a custom domain to the store.',
+		pickWhen: 'the store needs its own address and no other domain task is on the list.',
+		avoidWhen: 'domain_claim or domain_upsell is already offered.',
+		goals: [ 'sell' ],
+	},
+	{
+		id: 'add_10_email_subscribers',
+		what: 'Guides the site toward its first ten email subscribers.',
+		pickWhen: 'the site grows by email and has an audience to build from zero.',
+		goals: [ 'newsletter' ],
+	},
+	{
+		id: 'import_subscribers',
+		what: 'Imports an existing subscriber list from another service.',
+		pickWhen: 'the writer is moving an established audience over from elsewhere.',
+		avoidWhen: 'the site is starting from nothing and has no list to bring.',
+		goals: [ 'newsletter' ],
+	},
+	{
+		id: 'newsletter_plan_created',
+		what: 'Creates a paid newsletter tier readers can subscribe to.',
+		pickWhen: 'the writing itself is the product and readers would pay for it.',
+		goals: [ 'newsletter' ],
+	},
+	{
+		id: 'customize_welcome_message',
+		what: 'Writes the message new subscribers receive when they sign up.',
+		pickWhen: 'the site collects subscribers and their first impression is worth shaping.',
+		goals: [ 'newsletter', 'write' ],
+	},
+	{
+		id: 'enable_subscribers_modal',
+		what: 'Turns on the popup that invites readers to subscribe.',
+		pickWhen: 'the site wants subscribers and has content worth signing up for.',
+		avoidWhen: 'the site has no published content yet — the popup would interrupt an empty page.',
+	},
+	{
+		id: 'manage_subscribers',
+		what: 'Opens the subscriber management screen.',
+		pickWhen: 'the site already has subscribers to manage.',
+		avoidWhen: 'the subscriber list is empty — there is nothing to manage.',
+	},
+	{
+		id: 'manage_paid_newsletter_plan',
+		what: 'Opens management for an existing paid newsletter plan.',
+		pickWhen: 'a paid plan already exists and needs adjusting.',
+		avoidWhen: 'no paid plan has been created yet.',
+	},
+	{
+		id: 'add_subscribe_block',
+		what: 'Adds the Subscribe block to the site so visitors can sign up.',
+		pickWhen: 'the site wants readers to subscribe and has no sign-up form in its layout.',
+		goals: [ 'newsletter', 'write' ],
+	},
+	{
+		id: 'earn_money',
+		what: 'Opens the earnings tools for making money from the site.',
+		pickWhen: 'the site has an audience and wants to start earning from it.',
+		avoidWhen: 'the site has no content or audience yet.',
+	},
+	{
+		id: 'connect_social_media',
+		what: 'Connects social accounts so new posts share automatically.',
+		pickWhen: 'the site publishes regularly and wants to reach people beyond direct visitors.',
+	},
+	{
+		id: 'sensei_setup',
+		what: 'Finishes setting up Sensei, the course-building plugin.',
+		pickWhen: 'the site teaches through structured courses or lessons.',
+		goals: [ 'educate' ],
+	},
+	{
+		id: 'install_custom_plugin',
+		what: 'Installs a plugin from the WordPress plugin directory.',
+		pickWhen: 'the site needs functionality WordPress does not ship with.',
+	},
+	{
+		id: 'setup_ssh',
+		what: 'Sets up SSH access to the hosting environment.',
+		pickWhen: 'the site is run by a developer who works from the command line.',
+		avoidWhen: 'the owner is not technical — this is a developer tool.',
+	},
+	{
+		id: 'site_monitoring_page',
+		what: 'Opens uptime and performance metrics for the site.',
+		pickWhen: 'the site is already live and its reliability matters.',
+		avoidWhen: 'the site has not launched — there is nothing to monitor.',
+	},
+	{
+		id: 'mobile_app_installed',
+		what: 'Installs the Jetpack mobile app for managing the site from a phone.',
+		pickWhen:
+			'the owner will post from their phone — travel, food, photography, anything on the move.',
+	},
+	{
+		id: 'share_site',
+		what: 'Shares the site with other people.',
+		pickWhen: 'the site is live and ready for its first visitors.',
+		avoidWhen: 'the site has not launched or has no content worth sharing.',
+	},
+	{
+		id: 'front_page_updated',
+		what: 'Edits the homepage layout — the first thing every visitor sees.',
+		pickWhen: 'the homepage carries the message, as on a business, portfolio, or brand site.',
+		goals: [ 'build', 'portfolio', 'sell' ],
+	},
+	{
+		id: 'start_building_your_audience',
+		what: 'Opens the audience-growth tools.',
+		pickWhen: 'the site is published and ready to find readers.',
+		avoidWhen: 'nothing is published yet.',
+	},
 ];
+
+/** The task ids the model may pick from, derived from the annotated table. */
+export const TASK_MENU: readonly string[] = TASK_ANNOTATIONS.map( entry => entry.id );
 
 // The AI must return exactly six tasks, so the offered menu needs comfortable headroom beyond six.
 const MIN_TAILORING_MENU = 10;
@@ -76,6 +325,57 @@ export function chooseTailoringMenu(
 }
 
 /**
+ * Render one task as its annotated menu block.
+ *
+ * @param task - The annotation to render.
+ * @return The menu block, one field per line.
+ */
+function renderMenuEntry( task: TaskAnnotation ): string {
+	const lines = [
+		`- id: ${ task.id }`,
+		`  what: ${ task.what }`,
+		`  pick when: ${ task.pickWhen }`,
+	];
+	if ( task.avoidWhen ) {
+		lines.push( `  avoid when: ${ task.avoidWhen }` );
+	}
+	if ( task.goals?.length ) {
+		lines.push( `  goals: ${ task.goals.join( ', ' ) }` );
+	}
+	return lines.join( '\n' );
+}
+
+/**
+ * The rules whose violation the server actually rejects, stated to the model as a courtesy.
+ *
+ * Each one has a matching server-side check: ids the catalog does not define are dropped and a list
+ * that loses too many 422s, the schema pins `tasks` to exactly six, the launch task is checked
+ * explicitly, and sanitize_subtitle() rejects markup.
+ *
+ * Note the first rule points the model at the menu but only promises what update_tailored() actually
+ * checks, which is catalog membership. A catalog id filtered off the menu is still accepted.
+ *
+ * Nothing else belongs in this block. Its header promises the model that violations are rejected, so
+ * an unenforced rule here claims an authority the code does not back — the same taste-versus-
+ * enforcement confusion the annotated menu exists to remove. Guidance goes in the STEP sections
+ * instead, and anything that must always hold goes in PHP.
+ *
+ * A rule that can be impossible to satisfy must never live here. "At least one task must create
+ * content" used to, but the menu is filtered to actionable tasks: on a site that has already
+ * published a post and written an About page, no content task is left to offer, so enforcing it
+ * would 422 that site into the deterministic fallback on every run, permanently. It is now a
+ * preference in STEP 2.
+ *
+ * Extracted from the prompt template only so this comment has somewhere to live — a comment inside
+ * a template literal would render into the prompt.
+ */
+const HARD_RULES = `HARD RULES (do not break - the server rejects output that violates these):
+- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id the task catalog does not define, and rejects the whole list if too few tasks survive.
+- Return exactly 6 tasks.
+- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".
+- Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].`;
+
+/**
  * Build the single combined prompt sent to jetpack-ai-query, producing the
  * inferred blob, task list, and first-post draft in one JSON response. Hard rules
  * mirror the server-side validation so valid output is not rejected.
@@ -94,8 +394,8 @@ export function buildTailorPrompt(
 	// server would drop. Falls back to the full menu when availability is unknown (e.g. the lookup failed).
 	const menu =
 		availableTaskIds && availableTaskIds.length
-			? TASK_MENU.filter( id => availableTaskIds.includes( id ) )
-			: TASK_MENU;
+			? TASK_ANNOTATIONS.filter( task => availableTaskIds.includes( task.id ) )
+			: TASK_ANNOTATIONS;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
@@ -119,7 +419,7 @@ First, read the description closely and infer the site's context. You will use t
 - "tagline": a polished site tagline drafted from the description. Max 200 characters. Noun phrase or third person, not first-person.
 
 ============ STEP 2 - tasks ============
-Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Rank the whole menu by how useful each task is for this specific user and keep the top 6. Do not follow a fixed template - two different sites should get noticeably different lists.
+Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Each menu entry says what the task does, when it is a good fit, sometimes when to avoid it, and sometimes which goals it tends to suit - use that, not the id, to judge relevance. Treat the "goals" line as a soft affinity, never a filter: a task that does not list this site's goal is still fair game when it fits the site, and one that does list it still has to earn its place. Rank the whole menu and keep the top 6. Prefer a list that includes at least one task which creates something to publish (e.g. "first_post_published", "woo_products", or "add_about_page"), unless the menu offers none. Do not follow a fixed template - two different sites should get noticeably different lists.
 
 For each chosen task write a "subtitle" (max 200 characters) that is specific and engaging: reference the user's niche, audience, or what they will actually publish or sell, so the checklist reads as written for them. Avoid generic, interchangeable phrasing.
 
@@ -128,16 +428,9 @@ GOOD vs BAD subtitles (illustrations - adapt to the user's own niche, do not cop
 - For a handmade-ceramics studio, "site_theme_selected" -> GOOD: "Pick a clean, gallery-style theme that lets your ceramics photos take center stage." BAD: "Choose a theme."
 - For a weekly cycling newsletter, "first_post_published" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."
 
-HARD RULES (do not break - the server rejects output that violates these):
-- Every "id" MUST come from the menu below, verbatim. Never invent IDs. Drop any task you cannot map to a menu ID.
-- Return exactly 6 tasks.
-- At least one task must create content (e.g. "first_post_published", "woo_products", or "add_about_page").
-- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".
-- Only include "woo_products", "woo_customize_store", "set_up_payments", "stripe_connected", or "woo_woocommerce_payments" if the goal is sell OR the user explicitly mentions selling, products, store, shop, or commerce.
-- For the sell goal, order the commerce tasks store-first: "woo_customize_store", then "woo_products", then "set_up_payments", keeping the launch task last. Installing WooCommerce is added automatically as the first step, so do not include a task for it.
-- Only include "add_10_email_subscribers", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
-- For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
-- Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].
+One task is an exception to that push for specificity. For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
+
+${ HARD_RULES }
 
 ============ STEP 3 - first_post_draft ============
 Write a friendly starter blog post the user can edit and publish.
@@ -154,7 +447,7 @@ Write starter content for the site's About page, grounded in the user's own desc
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
 ============ available task menu ============
-${ menu.map( id => '- ' + id ).join( '\n' ) }
+${ menu.map( renderMenuEntry ).join( '\n\n' ) }
 
 ============ format ============
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
