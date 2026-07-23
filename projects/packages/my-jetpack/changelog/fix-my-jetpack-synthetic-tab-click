@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Record a tab-click analytics event only on a genuine tab change, not when the initial or normalized section is resolved on load. Also rewrite a stale or invalid section hash to the resolved section, so a redirect to the section route no longer leaves an unresolved URL in the address bar.
+Record the tab-click analytics event only on a real tab change, and rewrite a stale or invalid section hash to the section shown.
