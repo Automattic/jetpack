@@ -144,13 +144,14 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
  * "already announced" so old imports aren't re-announced on every visit. Mount once, near the top of
  * the subscribers dashboard.
  *
- * @param enabled - Whether to run at all. Gate this on the subscribers feature actually being
- *                usable by this visitor (connected + feature enabled): the dashboard shell mounts
- *                on every Newsletter page load — including the Settings tab, connection-gated users,
- *                and Settings-only sites — and without this gate each of those would poll the WP.com
- *                import endpoint (a 401/403 + retries for unconnected users). Pass `true` while the
- *                poll should stay alive even across tab changes, so an in-flight import still
- *                resolves if the user flips to Settings mid-import.
+ * @param enabled - Whether to run at all. Gate this on the subscribers feature being usable by this
+ *                visitor (connected + feature enabled) AND the Subscribers tab being active: the
+ *                dashboard shell mounts on every Newsletter page load — including the Settings tab,
+ *                connection-gated users, and Settings-only sites — and without this gate each of
+ *                those would poll the WP.com import endpoint (a 401/403 + retries for unconnected
+ *                users). An import started on the Subscribers tab keeps polling once the modal
+ *                closes (the user stays on the tab); if they leave for Settings mid-import it
+ *                resolves when they return — the list only matters on the Subscribers tab anyway.
  */
 export function useImportCompletionRefresh( enabled: boolean ): void {
 	const queryClient = useQueryClient();
