@@ -25,6 +25,13 @@
 	.stateIcon {
 		display: none;
 	}
+
+	// The hidden icon generates no flex box, so the start auto margin on
+	// `:first-child` stops centering; hand it to the first visible sibling so
+	// the text stays vertically centered.
+	.state > .stateIcon + * {
+		margin-block-start: auto;
+	}
 }
 
 // Keep the icon and text at their intrinsic size: flex children default to
