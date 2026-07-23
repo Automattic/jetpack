@@ -16,14 +16,6 @@ namespace Automattic\Jetpack\Plugin\Image_Metadata;
 abstract class Abstract_Transplanter {
 
 	/**
-	 * Check whether this transplanter handles a given MIME type.
-	 *
-	 * @param string $mime A MIME type such as `image/png`.
-	 * @return bool
-	 */
-	abstract public function supports( $mime );
-
-	/**
 	 * Read the provenance segments from a source file.
 	 *
 	 * @param string $source_path Absolute path to the source image.

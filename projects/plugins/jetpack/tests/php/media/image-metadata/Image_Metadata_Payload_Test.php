@@ -15,14 +15,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class Image_Metadata_Payload_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
-	public function test_exposes_format_and_segments() {
-		$payload = new Payload( 'image/png', array( 'chunk-a', 'chunk-b' ) );
-		$this->assertSame( 'image/png', $payload->get_format() );
+	public function test_exposes_segments() {
+		$payload = new Payload( array( 'chunk-a', 'chunk-b' ) );
 		$this->assertSame( array( 'chunk-a', 'chunk-b' ), $payload->get_segments() );
 		$this->assertFalse( $payload->is_empty() );
 	}
 
 	public function test_is_empty_when_no_segments() {
-		$this->assertTrue( ( new Payload( 'image/jpeg', array() ) )->is_empty() );
+		$this->assertTrue( ( new Payload( array() ) )->is_empty() );
 	}
 }

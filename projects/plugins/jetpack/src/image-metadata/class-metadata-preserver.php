@@ -105,21 +105,23 @@ final class Metadata_Preserver {
 
 		$dir = trailingslashit( dirname( $original ) );
 		foreach ( $this->output_files( $metadata, $original ) as $file ) {
-			$this->preserve_one( $dir . $file, $file, $payload, $original, $attachment_id );
+			$this->preserve_one( $dir . $file, $file, $payload, $transplanter, $mime, $original, $attachment_id );
 		}
 	}
 
 	/**
 	 * Transplant into a single derivative, honouring the idempotent skip.
 	 *
-	 * @param string  $path          Absolute derivative path.
-	 * @param string  $file          Derivative basename (for logging).
-	 * @param Payload $payload       Extracted provenance.
-	 * @param string  $original      Absolute original path (never rewritten).
-	 * @param int     $attachment_id Attachment post ID (for logging).
+	 * @param string                $path          Absolute derivative path.
+	 * @param string                $file          Derivative basename (for logging).
+	 * @param Payload               $payload       Extracted provenance.
+	 * @param Abstract_Transplanter $transplanter  Source transplanter (same one used to extract the payload).
+	 * @param string                $source_mime   Source MIME type the payload was extracted from.
+	 * @param string                $original      Absolute original path (never rewritten).
+	 * @param int                   $attachment_id Attachment post ID (for logging).
 	 * @return void
 	 */
-	private function preserve_one( $path, $file, Payload $payload, $original, $attachment_id ) {
+	private function preserve_one( $path, $file, Payload $payload, Abstract_Transplanter $transplanter, $source_mime, $original, $attachment_id ) {
 		if ( $path === $original || ! file_exists( $path ) ) {
 			return; // Never touch the original; skip missing sizes.
 		}
@@ -128,13 +130,11 @@ final class Metadata_Preserver {
 			return;
 		}
 
-		$check        = wp_check_filetype( $path );
-		$deriv_mime   = isset( $check['type'] ) ? $check['type'] : false;
-		$transplanter = $deriv_mime ? $this->transplanter_for( $deriv_mime ) : null;
-
-		// A derivative can differ from the source format; only copy when the
-		// derivative's transplanter handles the payload's source format.
-		if ( null === $transplanter || ! $transplanter->supports( $payload->get_format() ) ) {
+		// Only inject when the derivative is the same format as the source; a
+		// derivative in another format (e.g. a WebP of a PNG) is left alone.
+		$check      = wp_check_filetype( $path );
+		$deriv_mime = isset( $check['type'] ) ? $check['type'] : false;
+		if ( $deriv_mime !== $source_mime ) {
 			return;
 		}
 

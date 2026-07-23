@@ -42,12 +42,6 @@ class Image_Metadata_PNG_Transplanter_Test extends WP_UnitTestCase {
 		return $path;
 	}
 
-	public function test_supports_only_png() {
-		$transplanter = new PNG_Transplanter();
-		$this->assertTrue( $transplanter->supports( 'image/png' ) );
-		$this->assertFalse( $transplanter->supports( 'image/jpeg' ) );
-	}
-
 	public function test_extract_returns_xmp_but_not_exif() {
 		$payload = ( new PNG_Transplanter() )->extract( $this->temp_file( Image_Metadata_Fixtures::png_with_provenance() ) );
 
@@ -92,7 +86,7 @@ class Image_Metadata_PNG_Transplanter_Test extends WP_UnitTestCase {
 
 	public function test_inject_returns_false_for_empty_payload() {
 		$target = $this->temp_file( Image_Metadata_Fixtures::bare_png() );
-		$this->assertFalse( ( new PNG_Transplanter() )->inject( $target, new Payload( 'image/png', array() ) ) );
+		$this->assertFalse( ( new PNG_Transplanter() )->inject( $target, new Payload( array() ) ) );
 	}
 
 	public function test_extract_returns_null_for_non_png() {

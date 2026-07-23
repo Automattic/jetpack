@@ -14,13 +14,6 @@ namespace Automattic\Jetpack\Plugin\Image_Metadata;
 final class Payload {
 
 	/**
-	 * Source MIME type the segments were extracted from (e.g. `image/png`).
-	 *
-	 * @var string
-	 */
-	private $format;
-
-	/**
 	 * Raw, verbatim chunk/segment byte strings.
 	 *
 	 * @var string[]
@@ -30,21 +23,10 @@ final class Payload {
 	/**
 	 * Constructor.
 	 *
-	 * @param string   $format   Source MIME type.
 	 * @param string[] $segments Raw chunk/segment byte strings.
 	 */
-	public function __construct( $format, array $segments ) {
-		$this->format   = $format;
+	public function __construct( array $segments ) {
 		$this->segments = $segments;
-	}
-
-	/**
-	 * Get the source MIME type the segments were extracted from.
-	 *
-	 * @return string
-	 */
-	public function get_format() {
-		return $this->format;
 	}
 
 	/**

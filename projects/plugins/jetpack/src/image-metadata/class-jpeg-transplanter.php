@@ -25,16 +25,6 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 	const PHOTOSHOP_SIGNATURE     = "Photoshop 3.0\0";
 
 	/**
-	 * Check whether this transplanter handles a given MIME type.
-	 *
-	 * @param string $mime MIME type.
-	 * @return bool
-	 */
-	public function supports( $mime ) {
-		return 'image/jpeg' === $mime;
-	}
-
-	/**
 	 * Read the provenance segments from a source file.
 	 *
 	 * @param string $source_path Absolute path.
@@ -51,7 +41,7 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 				$segments[] = $segment['raw'];
 			}
 		}
-		return new Payload( 'image/jpeg', $segments );
+		return new Payload( $segments );
 	}
 
 	/**

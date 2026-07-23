@@ -41,12 +41,6 @@ class Image_Metadata_JPEG_Transplanter_Test extends WP_UnitTestCase {
 		return $path;
 	}
 
-	public function test_supports_only_jpeg() {
-		$transplanter = new JPEG_Transplanter();
-		$this->assertTrue( $transplanter->supports( 'image/jpeg' ) );
-		$this->assertFalse( $transplanter->supports( 'image/png' ) );
-	}
-
 	public function test_extract_returns_xmp_and_iptc_but_not_exif() {
 		$payload = ( new JPEG_Transplanter() )->extract( $this->temp_file( Image_Metadata_Fixtures::jpeg_with_provenance() ) );
 

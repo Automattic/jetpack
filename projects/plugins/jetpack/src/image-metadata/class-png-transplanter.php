@@ -37,16 +37,6 @@ final class PNG_Transplanter extends Abstract_Transplanter {
 	private static $text_chunk_types = array( 'tEXt', 'zTXt', 'iTXt' );
 
 	/**
-	 * Check whether this transplanter handles a given MIME type.
-	 *
-	 * @param string $mime MIME type.
-	 * @return bool
-	 */
-	public function supports( $mime ) {
-		return 'image/png' === $mime;
-	}
-
-	/**
 	 * Read the provenance segments from a source file.
 	 *
 	 * @param string $source_path Absolute path.
@@ -64,7 +54,7 @@ final class PNG_Transplanter extends Abstract_Transplanter {
 				$segments[] = $chunk['raw'];
 			}
 		}
-		return new Payload( 'image/png', $segments );
+		return new Payload( $segments );
 	}
 
 	/**
