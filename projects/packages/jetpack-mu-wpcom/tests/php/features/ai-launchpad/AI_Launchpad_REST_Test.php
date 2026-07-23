@@ -23,6 +23,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-events-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-video-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
@@ -392,6 +394,15 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Add an events page',
 				'Continue working on your events page',
 			),
+			'video page, built from the registry'   => array(
+				'add_video_page',
+				array( 'add_video_page', 'site_launched' ),
+				'build',
+				AI_Launchpad_Video_Page_Listener::META_KEY,
+				9191,
+				'Add a video page',
+				'Continue working on your video page',
+			),
 		);
 	}
 
@@ -612,10 +623,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * The registry's page tasks reach the offered menu on any goal, including sell.
 	 *
-	 * Unlike the gallery, neither carries a goal exclusion: a store needs a way to answer "do you ship to…?" as
-	 * much as a studio needs one for commissions, and a shop that runs a monthly market has dates to list just
-	 * as a yoga studio does. Checked on two unrelated goals, since a goal-keyed exclusion would still pass a
-	 * single-goal assertion.
+	 * Unlike the gallery, none carries a goal exclusion: a store needs a way to answer "do you ship to…?" as
+	 * much as a studio needs one for commissions, a shop that runs a monthly market has dates to list just as a
+	 * yoga studio does, and a site that films what it sells is not a different goal from one that photographs
+	 * it. Checked on two unrelated goals, since a goal-keyed exclusion would still pass a single-goal
+	 * assertion.
 	 *
 	 * @param string $goal The goal slug.
 	 * @dataProvider provide_unrelated_goals
@@ -624,7 +636,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	public function test_available_tasks_offer_the_registry_page_tasks( $goal ) {
 		$data = $this->available_tasks( $goal );
 
-		foreach ( array( 'add_contact_page', 'add_events_page' ) as $task_id ) {
+		foreach ( array( 'add_contact_page', 'add_events_page', 'add_video_page' ) as $task_id ) {
 			$this->assertContains( $task_id, $data['available_task_ids'], $task_id . ' is not offered on ' . $goal );
 			$this->assertContains( $task_id, $data['renderable_task_ids'], $task_id . ' is not renderable on ' . $goal );
 		}
@@ -2218,13 +2230,15 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'a contact-page intro' => array( array( 'add_contact_page' => 'Ask about a commission or a wholesale order.' ) ),
 			'an events-page intro' => array( array( 'add_events_page' => 'Come and throw a pot with us.' ) ),
-			'both at once'         => array(
+			'a video-page intro'   => array( array( 'add_video_page' => 'Every glaze test, filmed start to finish.' ) ),
+			'all at once'          => array(
 				array(
 					'add_contact_page' => 'Ask about a commission.',
 					'add_events_page'  => 'Come and throw a pot with us.',
+					'add_video_page'   => 'Every glaze test, filmed start to finish.',
 				),
 			),
-			'neither, chosen'      => array( array() ),
+			'none, chosen'         => array( array() ),
 		);
 	}
 

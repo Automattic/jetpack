@@ -61,6 +61,7 @@ export type CtaKind =
 	| 'gallery_page'
 	| 'contact_page'
 	| 'events_page'
+	| 'video_page'
 	| 'launch'
 	| 'deeplink';
 
@@ -72,6 +73,7 @@ const CREATE_CONTENT_KINDS: CtaKind[] = [
 	'gallery_page',
 	'contact_page',
 	'events_page',
+	'video_page',
 ];
 // Launch tasks with no catalog deeplink: they open the wordpress.com launch flow.
 const LAUNCH_TASK_IDS = [
@@ -105,6 +107,9 @@ export function ctaKind( taskId: string ): CtaKind {
 	}
 	if ( 'add_events_page' === taskId ) {
 		return 'events_page';
+	}
+	if ( 'add_video_page' === taskId ) {
+		return 'video_page';
 	}
 	if ( LAUNCH_TASK_IDS.includes( taskId ) ) {
 		return 'launch';
@@ -182,6 +187,9 @@ export interface CtaHandlers {
 	createEventsPage: (
 		intro: string | undefined
 	) => Promise< { page_id: number; edit_url: string } >;
+	createVideoPage: (
+		intro: string | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
 }
 
 /**
@@ -243,6 +251,8 @@ export async function resolveCtaUrl(
 	} else if ( kind === 'events_page' && output ) {
 		// Its own key, for the same reasons: the events page never reads the contact page's line.
 		url = ( await handlers.createEventsPage( output.page_intros?.add_events_page ) ).edit_url;
+	} else if ( kind === 'video_page' && output ) {
+		url = ( await handlers.createVideoPage( output.page_intros?.add_video_page ) ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {

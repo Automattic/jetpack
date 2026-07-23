@@ -125,6 +125,38 @@ class AI_Launchpad_Task_Registry {
 					return AI_Launchpad_Events_Page_Listener::get_draft_id();
 				},
 			),
+
+			/*
+			 * A heading, one AI-written line, and a single empty core/video block. Deliberately core/video and
+			 * not VideoPress: VideoPress is a plan-gated Jetpack module, so building the page on it would mean
+			 * declaring `is_visible` and withholding the task from every site that has not bought the plan —
+			 * and this is the only thing on the menu serving sites whose work is watched. core/video is on
+			 * every site, needs no plugin or plan, and takes a URL as readily as an upload.
+			 *
+			 * Not a block pattern either, and here that is a rights problem rather than a taste one. The
+			 * pattern library has no video category at all, and its only video-ish patterns each embed a
+			 * specific real third-party YouTube video, which no rewrite pass would strip.
+			 *
+			 * No `calypso_path` — the CTA creates the page client-side, as the contact and events pages do.
+			 */
+			'add_video_page'     => array(
+				'title'             => static function () {
+					return __( 'Add a video page', 'jetpack-mu-wpcom' );
+				},
+				'in_progress_title' => static function () {
+					return __( 'Continue working on your video page', 'jetpack-mu-wpcom' );
+				},
+				'default_subtitle'  => static function () {
+					return __( 'Give your videos a home on your site, ready for you to upload the first one.', 'jetpack-mu-wpcom' );
+				},
+				'is_complete'       => static function () {
+					$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+					return ! empty( $statuses['add_video_page'] );
+				},
+				'draft_id'          => static function () {
+					return AI_Launchpad_Video_Page_Listener::get_draft_id();
+				},
+			),
 			'add_site_icon'      => array(
 				'title'            => static function () {
 					return __( 'Add your logo or site icon', 'jetpack-mu-wpcom' );

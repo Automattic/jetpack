@@ -25,6 +25,7 @@ require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-gallery-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-contact-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-events-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-video-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 

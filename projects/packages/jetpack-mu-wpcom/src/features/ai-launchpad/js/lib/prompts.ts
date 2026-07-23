@@ -103,6 +103,24 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 			'nothing here happens at a set time and place: one-off work arranged privately between two people is add_contact_page, not a listing.',
 	},
 	{
+		id: 'add_video_page',
+		// No `goals`, for the same reason the gallery has none: the medium is a property of the niche, not
+		// of the wizard goal — a vlogger picks `write`, a music teacher `educate`, a dance company `build`,
+		// and a goal affinity here would suppress the task for whichever of them it left out.
+		//
+		// Fifth page task, and the one most likely to collapse into another: a gallery and a video page are
+		// both "show the work". The medium is the separator — still images you look at, video you watch —
+		// and it is the only separator the model can act on, so it has to be in both directions.
+		//
+		// This is the only entry serving the video niche: the round that dropped a VideoPress
+		// plugin-discovery task left nothing else behind it.
+		what: 'Creates a draft Videos page: a heading, an AI-written line, and one empty video block the user drops their own video or video URL into.',
+		pickWhen:
+			'the work is watched rather than read or looked at - vlogs, tutorials and how-tos, showreels, performances, recorded talks and classes, video podcasts, trailers, walkthroughs.',
+		avoidWhen:
+			'the work is still images: photographs, illustration, craft and design are add_gallery_page, which shows several at once.',
+	},
+	{
 		id: 'update_about_page',
 		what: 'Reopens an existing About page to revise it.',
 		pickWhen: 'the site already has an About page that still holds placeholder copy.',
@@ -529,6 +547,7 @@ Write starter content for the site's About page, grounded in the user's own desc
 Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.
 - "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
 - "add_events_page": one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.
+- "add_video_page": one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.
 
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
@@ -544,7 +563,7 @@ Return only a JSON object matching this schema. Do not include prose, code fence
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
-  "page_intros": { "add_contact_page": "...", "add_events_page": "..." }
+  "page_intros": { "add_contact_page": "...", "add_events_page": "...", "add_video_page": "..." }
 }
 
 Leave "page_intros" out altogether unless STEP 5 applies.`;

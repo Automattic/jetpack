@@ -118,6 +118,7 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 			properties: {
 				add_contact_page: { type: 'string', minLength: 1, maxLength: 200 },
 				add_events_page: { type: 'string', minLength: 1, maxLength: 200 },
+				add_video_page: { type: 'string', minLength: 1, maxLength: 200 },
 			},
 		},
 	},

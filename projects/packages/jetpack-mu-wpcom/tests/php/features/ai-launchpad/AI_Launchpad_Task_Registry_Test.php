@@ -16,6 +16,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-events-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-video-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
 require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
@@ -100,6 +102,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the gallery page'     => array( 'add_gallery_page' ),
 			'the contact page'     => array( 'add_contact_page' ),
 			'the events page'      => array( 'add_events_page' ),
+			'the video page'       => array( 'add_video_page' ),
 			'the site icon'        => array( 'add_site_icon' ),
 			'the style variations' => array( 'pick_fonts_colors' ),
 			'Sensei LMS'           => array( 'install_sensei_lms' ),
@@ -268,6 +271,12 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 				8181,
 				'Continue working on your events page',
 			),
+			'the video page'   => array(
+				'add_video_page',
+				AI_Launchpad_Video_Page_Listener::META_KEY,
+				9191,
+				'Continue working on your video page',
+			),
 		);
 	}
 
@@ -300,6 +309,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_contact_page', '' )['in_progress'] );
 		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_events_page', '' )['in_progress'] );
+		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_video_page', '' )['in_progress'] );
 	}
 
 	/**
@@ -320,9 +330,15 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Neither page task asks anything of the site — the contact form ships with Jetpack, and the events page is
-	 * core blocks — so neither declares a visibility gate, and both are offered everywhere, including on the
-	 * classic theme this harness runs.
+	 * No page task asks anything of the site — the contact form ships with Jetpack, and the events and video
+	 * pages are core blocks — so none declares a visibility gate, and all are offered everywhere, including on
+	 * the classic theme this harness runs.
+	 *
+	 * The video page is the one where that was a real choice rather than a default. Built on VideoPress it
+	 * would need a gate, because VideoPress is a plan-gated Jetpack module and the CTA would otherwise open a
+	 * block the site has never been sold; built on core/video it needs none, because core/video is on every
+	 * site and takes a URL as readily as an upload. A gate appearing here later means the block underneath
+	 * changed, and the task started being withheld from the sites it was written for.
 	 *
 	 * @param string $task_id The registry task id.
 	 * @dataProvider provide_page_task_ids
@@ -369,6 +385,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the gallery, built on click'   => array( 'add_gallery_page', null ),
 			'the contact page, on click'    => array( 'add_contact_page', null ),
 			'the events page, on click'     => array( 'add_events_page', null ),
+			'the video page, on click'      => array( 'add_video_page', null ),
 			"Sensei LMS's installer"        => array( 'install_sensei_lms', 'plugin-install.php?tab=plugin-information&plugin=sensei-lms' ),
 		);
 	}
@@ -507,6 +524,11 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 				'add_events_page',
 				'Add an events page',
 				'Give people one place to find out what is coming up and when.',
+			),
+			'the video page'       => array(
+				'add_video_page',
+				'Add a video page',
+				'Give your videos a home on your site, ready for you to upload the first one.',
 			),
 			'Sensei LMS'           => array(
 				'install_sensei_lms',

@@ -115,11 +115,16 @@ describe( 'validateAgainstSchema', () => {
 		// none" and the baseline's omission of the field is the pre-change persisted output.
 		[ 'a contact-page intro', out => ( out.page_intros = { add_contact_page: 'Say hello.' } ) ],
 		[ 'an events-page intro', out => ( out.page_intros = { add_events_page: 'Come along.' } ) ],
-		// Both at once: the keys are independent, so a run that picked two page tasks writes two.
+		[ 'a video-page intro', out => ( out.page_intros = { add_video_page: 'Take a look.' } ) ],
+		// All at once: the keys are independent, so a run that picked several page tasks writes several.
 		[
 			'an intro for every page task at once',
 			out =>
-				( out.page_intros = { add_contact_page: 'Say hello.', add_events_page: 'Come along.' } ),
+				( out.page_intros = {
+					add_contact_page: 'Say hello.',
+					add_events_page: 'Come along.',
+					add_video_page: 'Take a look.',
+				} ),
 		],
 		[ 'an empty page_intros object', out => ( out.page_intros = {} ) ],
 	];
@@ -148,6 +153,10 @@ describe( 'validateAgainstSchema', () => {
 		[
 			'an events-page intro past the subtitle-length ceiling',
 			out => ( out.page_intros = { add_events_page: 'x'.repeat( 201 ) } ),
+		],
+		[
+			'a video-page intro past the subtitle-length ceiling',
+			out => ( out.page_intros = { add_video_page: 'x'.repeat( 201 ) } ),
 		],
 	];
 	for ( const [ label, mutate ] of REJECTED ) {

@@ -18,6 +18,7 @@ import {
 	trackWizardCompleted,
 	type TaskStatus,
 } from '../lib/tracks.ts';
+import { createVideoPage } from '../lib/video-page.ts';
 import { Layout } from './layout.tsx';
 import {
 	nextIncompleteId,
@@ -255,6 +256,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 					createGalleryPage,
 					createContactPage,
 					createEventsPage,
+					createVideoPage,
 				},
 				siteUrl
 			);

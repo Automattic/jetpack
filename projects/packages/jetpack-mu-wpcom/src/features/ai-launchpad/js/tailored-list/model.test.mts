@@ -97,6 +97,7 @@ describe( 'ctaKind', () => {
 		[ 'add_gallery_page', 'gallery_page' ],
 		[ 'add_contact_page', 'contact_page' ],
 		[ 'add_events_page', 'events_page' ],
+		[ 'add_video_page', 'video_page' ],
 		// Pathless launch tasks open the launch flow.
 		[ 'site_launched', 'launch' ],
 		[ 'blog_launched', 'launch' ],
@@ -206,21 +207,18 @@ describe( 'isTaskActionable', () => {
 		} );
 	}
 
-	it( 'treats the contact page as a create-content task, actionable once the output exists', () => {
-		// It has no catalog deeplink of its own — the CTA is "create the page" — so it is actionable
-		// exactly when there is an output to build from, like the other create-content tasks.
-		const contact = task( { id: 'add_contact_page', calypso_path: null } );
+	// The hand-authored page tasks have no catalog deeplink of their own — the CTA is "create the
+	// page" — so each is actionable exactly when there is an output to build from, like the other
+	// create-content tasks. Listed rather than repeated, so a new page task cannot be added to
+	// CREATE_CONTENT_KINDS and forgotten here.
+	for ( const id of [ 'add_contact_page', 'add_events_page', 'add_video_page' ] ) {
+		it( `treats ${ id } as a create-content task, actionable once the output exists`, () => {
+			const subject = task( { id, calypso_path: null } );
 
-		assert.equal( isTaskActionable( contact, null ), false );
-		assert.equal( isTaskActionable( contact, fixture ), true );
-	} );
-
-	it( 'treats the events page as a create-content task, actionable once the output exists', () => {
-		const events = task( { id: 'add_events_page', calypso_path: null } );
-
-		assert.equal( isTaskActionable( events, null ), false );
-		assert.equal( isTaskActionable( events, fixture ), true );
-	} );
+			assert.equal( isTaskActionable( subject, null ), false );
+			assert.equal( isTaskActionable( subject, fixture ), true );
+		} );
+	}
 } );
 
 describe( 'isCompleteOnClickTask', () => {
@@ -268,6 +266,7 @@ describe( 'resolveCtaUrl', () => {
 				createGalleryPage: async () => ( { page_id: 3, edit_url: '/wp-admin/post.php?post=3' } ),
 				createContactPage: async () => ( { page_id: 4, edit_url: '/wp-admin/post.php?post=4' } ),
 				createEventsPage: async () => ( { page_id: 5, edit_url: '/wp-admin/post.php?post=5' } ),
+				createVideoPage: async () => ( { page_id: 6, edit_url: '/wp-admin/post.php?post=6' } ),
 			},
 		};
 	}
@@ -327,6 +326,16 @@ describe( 'resolveCtaUrl', () => {
 		[
 			'reopens the existing events draft instead of creating a second page',
 			{ id: 'add_events_page', in_progress: true, calypso_path: '/wp-admin/post.php?post=7' },
+			'/wp-admin/post.php?post=7',
+		],
+		[
+			'writes the video page and returns its editor URL',
+			{ id: 'add_video_page' },
+			'/wp-admin/post.php?post=6',
+		],
+		[
+			'reopens the existing video draft instead of creating a second page',
+			{ id: 'add_video_page', in_progress: true, calypso_path: '/wp-admin/post.php?post=7' },
 			'/wp-admin/post.php?post=7',
 		],
 		[
@@ -418,50 +427,44 @@ describe( 'resolveCtaUrl', () => {
 		assert.equal( legacyUrl, '/wp-admin/post.php?post=4' );
 	} );
 
-	it( 'hands each page task its own intro when the output carries both', async () => {
+	it( 'hands each page task its own intro when the output carries every one', async () => {
 		// The keyed lookup earns its shape only if a task reads its own key: an output where the model
-		// chose both page tasks must not put the contact line on the events page, or vice versa.
-		const received: Record< string, unknown[] > = { contact: [], events: [] };
+		// chose all three page tasks must not put the contact line on the events page, or the events
+		// line on the video page. Driven off one table so a fourth page task cannot be wired up and
+		// left out of this check.
+		const PAGE_TASKS = [
+			[ 'add_contact_page', 'createContactPage', 'Ask about a commission.' ],
+			[ 'add_events_page', 'createEventsPage', 'Throw a pot with us on a Saturday morning.' ],
+			[ 'add_video_page', 'createVideoPage', 'Every glaze test, filmed start to finish.' ],
+		] as const;
+
+		const received: Record< string, unknown[] > = {};
 		const { handlers } = stubHandlers();
-		handlers.createContactPage = async ( intro?: string ) => {
-			received.contact.push( intro );
-			return { page_id: 4, edit_url: '/wp-admin/post.php?post=4' };
-		};
-		handlers.createEventsPage = async ( intro?: string ) => {
-			received.events.push( intro );
-			return { page_id: 5, edit_url: '/wp-admin/post.php?post=5' };
-		};
+		const page_intros: Record< string, string > = {};
+		for ( const [ id, handler, intro ] of PAGE_TASKS ) {
+			received[ id ] = [];
+			page_intros[ id ] = intro;
+			( handlers as unknown as Record< string, unknown > )[ handler ] = async ( line?: string ) => {
+				received[ id ].push( line );
+				return { page_id: 1, edit_url: '/wp-admin/post.php?post=1' };
+			};
+		}
 		const tailored: TailoredOutput = {
 			...fixture,
-			page_intros: {
-				add_contact_page: 'Ask about a commission.',
-				add_events_page: 'Throw a pot with us on a Saturday morning.',
-			},
+			page_intros: page_intros as TailoredOutput[ 'page_intros' ],
 		};
 
-		await resolveCtaUrl(
-			task( { id: 'add_contact_page', calypso_path: null } ),
-			tailored,
-			handlers
-		);
-		await resolveCtaUrl(
-			task( { id: 'add_events_page', calypso_path: null } ),
-			tailored,
-			handlers
-		);
-		const legacyUrl = await resolveCtaUrl(
-			task( { id: 'add_events_page', calypso_path: null } ),
-			fixture,
-			handlers
-		);
+		for ( const [ id ] of PAGE_TASKS ) {
+			await resolveCtaUrl( task( { id, calypso_path: null } ), tailored, handlers );
+			// The baseline fixture has no page_intros at all, standing in both for an output persisted
+			// before the field existed and for a run where the model chose to omit it.
+			await resolveCtaUrl( task( { id, calypso_path: null } ), fixture, handlers );
+		}
 
-		// The trailing undefined is the third call: an output with no page_intros at all, standing for
-		// one persisted before the field existed and for a run where the model omitted it.
-		assert.deepEqual( received, {
-			contact: [ 'Ask about a commission.' ],
-			events: [ 'Throw a pot with us on a Saturday morning.', undefined ],
-		} );
-		assert.equal( legacyUrl, '/wp-admin/post.php?post=5' );
+		assert.deepEqual(
+			received,
+			Object.fromEntries( PAGE_TASKS.map( ( [ id, , intro ] ) => [ id, [ intro, undefined ] ] ) )
+		);
 	} );
 } );
 

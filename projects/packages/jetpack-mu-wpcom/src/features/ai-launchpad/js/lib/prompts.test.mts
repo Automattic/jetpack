@@ -115,6 +115,32 @@ describe( 'TASK_ANNOTATIONS', () => {
 		assert.equal( events.goals, undefined );
 	} );
 
+	it( 'makes the video page distinguishable from the gallery and the other page tasks', () => {
+		// Fifth page task, and the one at most risk of collapsing into another: a gallery and a video
+		// page are both "show the work", and the model will merge them unless the annotation makes the
+		// medium the separator — still images you look at, video you watch. This is also the only entry
+		// serving the video niche, since the round that dropped a VideoPress plugin-discovery task left
+		// nothing else behind it.
+		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
+		const video = byId.add_video_page;
+
+		assert.ok( video, 'add_video_page must be on the menu' );
+		assert.match( video.pickWhen, /watch/i );
+		// The block arrives empty, and the model has to know it is spending a slot on a page the user
+		// has to bring a video to.
+		assert.match( video.what, /empty|blank/i );
+		assert.ok(
+			video.avoidWhen?.includes( 'add_gallery_page' ),
+			'the video entry must say when still images make the gallery the better pick'
+		);
+		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
+		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
+		// No goal affinity, for the same reason the gallery has none: a vlogger, a music teacher and a
+		// dance company pick three different goals, and suppressing the task by goal would lose exactly
+		// the sites it exists for.
+		assert.equal( video.goals, undefined );
+	} );
+
 	it( 'offers the gallery task and gives it no goal affinity', () => {
 		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
 
@@ -258,6 +284,16 @@ describe( 'buildTailorPrompt', () => {
 		[
 			'asks for an events-page intro that states no date, venue or price',
 			[ '"add_events_page"', /do not (put|name) a date/i, /venue|address/i ],
+		],
+		// The video page's own key, and its own prohibition. The page holds one empty block, so an
+		// intro that describes a particular video promises something the page does not have; and this
+		// is an Automattic surface, so the line must not send visitors off to a video platform either.
+		// Matched as one line rather than as three loose needles: the key and its prohibitions have to be
+		// on the same STEP 5 bullet, or the model is either told to write a key the schema will reject or
+		// handed a key with no rules attached.
+		[
+			'asks for a video-page intro that describes no particular video and names no platform',
+			[ /^- "add_video_page": .*specific video.*platform or channel/m ],
 		],
 	];
 	for ( const [ name, needles ] of REQUIRED ) {
