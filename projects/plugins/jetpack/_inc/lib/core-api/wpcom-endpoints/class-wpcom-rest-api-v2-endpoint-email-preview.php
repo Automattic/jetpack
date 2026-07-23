@@ -45,11 +45,12 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 		$options = array(
 			'show_in_index'       => true,
 			'methods'             => 'GET',
-			// if this is not a wpcom site, we need to proxy the request to wpcom
-			'callback'            => ( ( new Host() )->is_wpcom_simple() ) ? array(
-				$this,
-				'email_preview',
-			) : array( $this, 'proxy_email_preview_to_wpcom' ),
+			'callback'            => ( ( new Host() )->is_wpcom_simple() )
+				? array( $this, 'email_preview' )
+				// On a non-wpcom site, proxy to WordPress.com with the user's token, falling back to the site's blog token.
+				: function ( $request ) {
+					return $this->proxy_request_to_wpcom( $request, '', 'user', true );
+				},
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
 				'id'     => array(
@@ -81,11 +82,8 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	/**
 	 * Checks whether the request may render an email preview.
 	 *
-	 * Unlike sending a test email, the preview only renders HTML from the site's own
-	 * post, so it does not need the requesting user's WordPress.com identity — a
-	 * site-level (blog token) connection is enough. The local `edit_post` check below
-	 * remains the authorization that makes this safe: a logged-in editor who can edit
-	 * the post can already see its content in wp-admin.
+	 * The preview only renders the site's own post, so it needs the site to be connected
+	 * but not the requesting user. The `edit_post` capability check is the authorization.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
@@ -94,9 +92,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	public function permissions_check( $request ) {
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
-		// On a self-hosted site, require the *site* to be connected before we can proxy the
-		// preview to WordPress.com. (Previously this required a user connection; the preview
-		// no longer does, so a blog-token connection is sufficient.)
+		// On a self-hosted site, the site must be connected before we can proxy the preview to WordPress.com.
 		if ( ! $is_wpcom_simple && ! ( new Manager() )->is_connected() ) {
 			return new WP_Error(
 				'rest_cannot_send_email_preview',
@@ -115,18 +111,14 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 			);
 		}
 
-		// A logged-in editor who can edit this post is authorized. On a self-hosted site this
-		// is the gate that makes the whole preview safe; on WordPress.com it authorizes
-		// user-token requests exactly as before.
+		// Authorize any user who can edit the post: the local editor on self-hosted, a user-token request on WordPress.com.
 		if ( current_user_can( 'edit_post', $post->ID ) ) {
 			return true;
 		}
 
-		// On WordPress.com, a request proxied with the site's blog token authenticates as
-		// user 0, so the edit_post check above fails. Authorize it by site ownership instead:
-		// the self-hosted endpoint already verified a local editor could edit this post before
-		// proxying, and the blog token is a server-to-server credential that never reaches the
-		// browser. Scoped to this read-only, site-specific preview only.
+		// On WordPress.com, a blog-token proxy authenticates as user 0 and fails the edit_post check
+		// above, so authorize it by site ownership instead. The self-hosted endpoint already verified a
+		// local editor could edit the post, and the blog token never reaches the browser.
 		if ( $is_wpcom_simple && $this->is_authorized_blog_token_request() ) {
 			return true;
 		}
@@ -139,28 +131,9 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	}
 
 	/**
-	 * Proxy the preview request to WordPress.com.
+	 * Whether the request is a valid blog-token request authorized for the current site.
 	 *
-	 * Runs only on non-wpcom sites. Uses the current user's token when they are
-	 * connected, otherwise falls back to the site-level (blog) token so an editor
-	 * whose WordPress.com account isn't connected can still preview. The blog token
-	 * stays server-to-server and is never exposed to the browser.
-	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 *
-	 * @return mixed|WP_Error Response from wpcom servers or an error.
-	 */
-	public function proxy_email_preview_to_wpcom( $request ) {
-		return $this->proxy_request_to_wpcom( $request, '', 'user', true );
-	}
-
-	/**
-	 * Whether the current request is a valid site-authorized blog-token request.
-	 *
-	 * Runs on WordPress.com for a preview proxied with a self-hosted site's blog token,
-	 * which authenticates as user 0. Delegates to the wpcom Jetpack auth helper (the same
-	 * one used by the blogging prompts endpoint) to confirm the blog token belongs to the
-	 * current Jetpack site.
+	 * Runs on WordPress.com, where a proxied blog token authenticates as user 0.
 	 *
 	 * @return bool True if the request is authorized for the current Jetpack site.
 	 */
