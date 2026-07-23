@@ -25,13 +25,20 @@ const AiReady = () => {
 };
 
 const Stage = () => {
-	const { setEnhancer } = useDispatch( aiStore );
+	const { setEnhancer, setLlmsTxt } = useDispatch( aiStore );
 	// AI gates on the seo-tools state, which lives in the Overview slice, so ensure
-	// both are available. A recovered AI payload is pushed into the store so the
-	// form (seeded from it) reflects it.
+	// both are available. Every slice of a recovered AI payload is pushed into
+	// the store so the form (seeded from it) reflects it.
 	const { status, retry } = useEnsureTabData( [
 		{ path: OVERVIEW_PATH },
-		{ path: AI_PATH, seed: body => setEnhancer( ( body as AiState ).enhancer ) },
+		{
+			path: AI_PATH,
+			seed: body => {
+				const ai = body as AiState;
+				setEnhancer( ai.enhancer );
+				setLlmsTxt( ai.llmsTxt );
+			},
+		},
 	] );
 
 	if ( status === 'loading' ) {

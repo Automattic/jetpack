@@ -2,7 +2,15 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import type { ContentRow, ContentPostType, SchemaType, SeoPostMeta } from './content-types';
+import { CONTENT_PATH, getPreloaded } from './get-preloaded';
+import type {
+	ContentData,
+	ContentPostType,
+	ContentRow,
+	PostTypeOption,
+	SchemaType,
+	SeoPostMeta,
+} from './content-types';
 
 // Only request the columns the Content tab renders, plus the SEO meta. Core
 // REST returns `meta` as an object keyed by the registered meta names.
@@ -31,10 +39,7 @@ const STATUSES = [ 'publish' ];
 // hold every record in memory.
 const PER_PAGE = 100;
 
-// The post types the Content tab covers.
-const POST_TYPES: ContentPostType[] = [ 'post', 'page' ];
-
-// The shape of a core REST post/page record, narrowed to what we read.
+// The shape of a core REST post type record, narrowed to what we read.
 interface SeoPostRecord {
 	id: number;
 	title?: { rendered?: string };
@@ -47,6 +52,7 @@ interface SeoPostRecord {
 export interface UseSeoPostsReturn {
 	items: ContentRow[];
 	isLoading: boolean;
+	postTypeOptions: PostTypeOption[];
 }
 
 /**
@@ -62,10 +68,10 @@ function toSchemaType( value: unknown ): SchemaType {
 }
 
 /**
- * Map a raw core REST post/page record to a Content table row, deriving the
+ * Map a raw core REST post type record to a Content table row, deriving the
  * factual SEO-field flags from its `meta`. Presence/state only — never a score.
  *
- * @param record - A core REST post/page record.
+ * @param record - A core REST post type record.
  * @return The corresponding {@link ContentRow}.
  */
 function toContentRow( record: SeoPostRecord ): ContentRow {
@@ -91,7 +97,7 @@ function toContentRow( record: SeoPostRecord ): ContentRow {
 	};
 }
 
-// The base query shared by both post types, so DataViews can filter, sort and
+// The base query shared by every post type, so DataViews can filter, sort and
 // paginate the merged set entirely client-side.
 const BASE_QUERY = {
 	context: 'edit',
@@ -108,7 +114,7 @@ const queries = new Map< string, object >();
 /**
  * The core-data query for one page of one post type, stable across calls.
  *
- * @param postType - The post type to query ('post' | 'page').
+ * @param postType - The post type to query.
  * @param page     - The 1-based page number.
  * @return The query object for that page.
  */
@@ -144,7 +150,7 @@ type CoreSelect = ( store: typeof coreStore ) => {
  * returns the records as they were *fetched* and never applies edits, so without
  * this the saved row would keep rendering its old SEO badges until a reload.
  *
- * @param record - A fetched core REST post/page record.
+ * @param record - A fetched core REST post type record.
  * @param edits  - The record's pending core-data edits, if any.
  * @return The record with its edited meta applied.
  */
@@ -171,7 +177,7 @@ interface PostTypeSelection {
  * reads the records and drives the requests.
  *
  * @param select   - The `useSelect` registry selector.
- * @param postType - The post type to read ('post' | 'page').
+ * @param postType - The post type to read.
  * @return The type's records plus its resolution state.
  */
 function selectPostType( select: CoreSelect, postType: ContentPostType ): PostTypeSelection {
@@ -209,28 +215,38 @@ function selectPostType( select: CoreSelect, postType: ContentPostType ): PostTy
 }
 
 /**
- * Fetch the Content tab's posts *and* pages from WordPress core REST and merge
- * them into a single list. Each type is paged through {@link PER_PAGE} records at
- * a time until its collection is exhausted, and mapped to a {@link ContentRow};
+ * Fetch the Content tab's supported post types from WordPress core REST and
+ * merge them into a single list. Each type is paged through {@link PER_PAGE}
+ * records at a time until its collection is exhausted, and mapped to a {@link ContentRow};
  * filtering, sorting and pagination happen client-side in the Content screen via
  * `filterSortAndPaginate`. The SEO meta comes back inside each record's `meta`
  * object via the registered `show_in_rest` post meta (no custom endpoint).
  *
- * @return The merged, mapped rows plus a combined loading state.
+ * @return The merged, mapped rows, post type options, and combined loading state.
  */
 export default function useSeoPosts(): UseSeoPostsReturn {
+	const contentData = getPreloaded< ContentData >( CONTENT_PATH );
+	const postTypes = contentData?.post_types ?? [];
 	const { records, isLoading } = useSelect( select => {
-		const selections = POST_TYPES.map( postType => selectPostType( select, postType ) );
+		const selections = postTypes.map( postType => selectPostType( select, postType.slug ) );
 
 		return {
 			records: selections.flatMap( selection => selection.records ),
-			// Show the loading state until *every* page of both types has
+			// Show the loading state until *every* page of every type has
 			// resolved, so the table doesn't flash a partial list.
 			isLoading: selections.some( selection => selection.isLoading ),
 		};
-	}, [] );
+	}, [ postTypes ] );
 
 	const items = useMemo( () => records.map( toContentRow ), [ records ] );
+	const postTypeOptions = useMemo(
+		() =>
+			postTypes.map( postType => ( {
+				value: postType.slug,
+				label: postType.label,
+			} ) ),
+		[ postTypes ]
+	);
 
-	return { items, isLoading };
+	return { items, isLoading: ! contentData || isLoading, postTypeOptions };
 }

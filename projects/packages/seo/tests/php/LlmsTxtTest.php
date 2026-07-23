@@ -19,6 +19,13 @@ use WP_Post;
 class LlmsTxtTest extends TestCase {
 
 	/**
+	 * Posts created by this test.
+	 *
+	 * @var int[]
+	 */
+	private $post_ids = array();
+
+	/**
 	 * Reset the enable option before each test.
 	 *
 	 * @return void
@@ -26,6 +33,24 @@ class LlmsTxtTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		delete_option( Llms_Txt::OPTION );
+	}
+
+	/**
+	 * Remove test content and post types.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		foreach ( $this->post_ids as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+		$this->post_ids = array();
+
+		if ( post_type_exists( 'seo_book' ) ) {
+			unregister_post_type( 'seo_book' );
+		}
+
+		parent::tearDown();
 	}
 
 	/**
@@ -147,6 +172,42 @@ class LlmsTxtTest extends TestCase {
 	}
 
 	/**
+	 * Invoke the private `summary` method.
+	 *
+	 * @param WP_Post $post Post to summarize.
+	 * @return string
+	 */
+	private function summary( WP_Post $post ): string {
+		$method = new ReflectionMethod( Llms_Txt::class, 'summary' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return (string) $method->invoke( null, $post );
+	}
+
+	/**
+	 * Insert and track a published post.
+	 *
+	 * @param array $fields Post fields.
+	 * @return WP_Post
+	 */
+	private function insert_post( array $fields ): WP_Post {
+		$post_id          = wp_insert_post(
+			array_merge(
+				array(
+					'post_status' => 'publish',
+					'post_title'  => 'Test post',
+					'post_type'   => 'post',
+				),
+				$fields
+			)
+		);
+		$this->post_ids[] = $post_id;
+
+		return get_post( $post_id );
+	}
+
+	/**
 	 * Password-protected posts are `publish` status but their content is
 	 * intentionally gated, so they're excluded from the public llms.txt entirely.
 	 *
@@ -180,5 +241,75 @@ class LlmsTxtTest extends TestCase {
 			)
 		);
 		$this->assertSame( 1, substr_count( $mixed, '](' ) );
+	}
+
+	/**
+	 * Public REST custom post types are included as their own sections.
+	 *
+	 * @return void
+	 */
+	public function test_generate_includes_supported_custom_post_type_section() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+		$this->insert_post(
+			array(
+				'post_type'    => 'seo_book',
+				'post_title'   => 'Practical Schema',
+				'post_excerpt' => 'A concise guide to schema markup.',
+			)
+		);
+
+		$output = Llms_Txt::generate();
+
+		$this->assertStringContainsString( "## Books\n\n", $output );
+		$this->assertStringContainsString( 'Practical Schema', $output );
+		$this->assertStringContainsString( 'A concise guide to schema markup.', $output );
+	}
+
+	/**
+	 * Raw paid or paywalled body content is never used as a public summary.
+	 *
+	 * @return void
+	 */
+	public function test_summary_omits_gated_body_content() {
+		$gates = array(
+			array( '_jetpack_memberships_contains_paid_content', '1', 'Paid meta secret' ),
+			array( '_jetpack_memberships_contains_paywalled_content', '1', 'Paywall meta secret' ),
+			array( '', '', '<!-- wp:premium-content/container -->Premium block secret<!-- /wp:premium-content/container -->' ),
+			array( '', '', '<!-- wp:jetpack/paywall -->Paywall block secret<!-- /wp:jetpack/paywall -->' ),
+		);
+
+		foreach ( $gates as $gate ) {
+			$post = $this->insert_post( array( 'post_content' => $gate[2] ) );
+			if ( '' !== $gate[0] ) {
+				update_post_meta( $post->ID, $gate[0], $gate[1] );
+			}
+
+			$this->assertSame( '', $this->summary( $post ) );
+		}
+	}
+
+	/**
+	 * A manually authored public excerpt remains safe to publish on gated posts.
+	 *
+	 * @return void
+	 */
+	public function test_summary_keeps_manual_excerpt_for_gated_content() {
+		$post = $this->insert_post(
+			array(
+				'post_content' => 'Subscriber-only body.',
+				'post_excerpt' => 'Public summary.',
+			)
+		);
+		update_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', '1' );
+
+		$this->assertSame( 'Public summary.', $this->summary( $post ) );
 	}
 }

@@ -597,12 +597,23 @@ class Initializer {
 	}
 
 	/**
+	 * Build the supported post type options for the Content tab.
+	 *
+	 * @return array{post_types:array<int,array{slug:string,label:string}>}
+	 */
+	public static function get_content_data() {
+		return array(
+			'post_types' => Post_Types::get_supported_content_type_options(),
+		);
+	}
+
+	/**
 	 * Post types the content-coverage counts span.
 	 *
 	 * @return string[]
 	 */
 	private static function coverage_post_types() {
-		return array( 'post', 'page' );
+		return Post_Types::get_supported_content_types();
 	}
 
 	/**
@@ -621,7 +632,7 @@ class Initializer {
 
 	/**
 	 * Factual content-coverage counts for the Overview card: how many published
-	 * posts/pages have each SEO field set. State, not a score — the card shows
+	 * supported content items have each SEO field set. State, not a score — the card shows
 	 * proportions + raw counts and lets the admin decide what matters.
 	 *
 	 * Served from {@see self::COVERAGE_COUNTS_TRANSIENT} when it's warm. The counts are read on
@@ -940,6 +951,7 @@ class Initializer {
 			'overview' => array( __CLASS__, 'get_overview_data' ),
 			'settings' => array( __CLASS__, 'get_settings_data' ),
 			'ai'       => array( __CLASS__, 'get_ai_data' ),
+			'content'  => array( __CLASS__, 'get_content_data' ),
 		);
 	}
 

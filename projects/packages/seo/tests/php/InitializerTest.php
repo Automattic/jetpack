@@ -30,6 +30,9 @@ class InitializerTest extends TestCase {
 	protected function tearDown(): void {
 		$this->reset_content();
 		$this->reset_coverage_cache();
+		if ( post_type_exists( 'seo_book' ) ) {
+			unregister_post_type( 'seo_book' );
+		}
 		parent::tearDown();
 	}
 
@@ -156,7 +159,20 @@ class InitializerTest extends TestCase {
 			'Every meta key a CASE arm counts must also be selected by the join.'
 		);
 
-		$this->assertSame( array( 'post', 'page' ), $post_types->invoke( null ) );
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
+		$this->assertContains( 'post', $post_types->invoke( null ) );
+		$this->assertContains( 'page', $post_types->invoke( null ) );
+		$this->assertContains( 'seo_book', $post_types->invoke( null ) );
+		$this->assertNotContains( 'attachment', $post_types->invoke( null ) );
 	}
 
 	/**
@@ -181,10 +197,20 @@ class InitializerTest extends TestCase {
 	 * The counts against real content. Every fixture here is one the query could plausibly
 	 * get wrong: a post with two rows for the same meta key must be counted once, not
 	 * twice; an empty-string value means "not set"; noindex only counts on an exact '1',
-	 * so '0' leaves the post search-visible; and drafts, trashed posts and other post types
-	 * are not part of the published set at all.
+	 * so '0' leaves the post search-visible; and drafts, trashed posts and unsupported
+	 * post types are not part of the published set at all.
 	 */
 	public function test_content_coverage_counts_published_posts_and_pages() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
 		// Published, everything set, and hidden from search.
 		$this->publish(
 			array(
@@ -217,6 +243,9 @@ class InitializerTest extends TestCase {
 		// A page counts alongside posts.
 		$this->publish( array( Initializer::META_DESCRIPTION => 'Page description' ), 'page' );
 
+		// A supported custom post type counts across every SEO surface.
+		$this->publish( array( Initializer::META_TITLE => 'Book title' ), 'seo_book' );
+
 		// None of these are part of the published set.
 		$this->publish( array( Initializer::META_TITLE => 'Draft title' ), 'post', 'draft' );
 		$this->publish( array( Initializer::META_TITLE => 'Trashed title' ), 'post', 'trash' );
@@ -224,11 +253,11 @@ class InitializerTest extends TestCase {
 
 		$this->assertSame(
 			array(
-				'total'               => 6,
+				'total'               => 7,
 				'with_schema'         => 1,
-				'with_title'          => 2,
+				'with_title'          => 3,
 				'with_description'    => 2,
-				'with_search_visible' => 5,
+				'with_search_visible' => 6,
 			),
 			$this->invoke_private( 'get_content_coverage' )
 		);
@@ -460,6 +489,29 @@ class InitializerTest extends TestCase {
 
 		$this->assertArrayHasKey( 'seo_enabled_for_site', $overview['plan'] );
 		$this->assertIsBool( $overview['plan']['seo_enabled_for_site'] );
+	}
+
+	/**
+	 * The Content tab receives the shared supported post type options.
+	 */
+	public function test_get_content_data_includes_supported_custom_post_types() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
+		$this->assertContains(
+			array(
+				'slug'  => 'seo_book',
+				'label' => 'Books',
+			),
+			Initializer::get_content_data()['post_types']
+		);
 	}
 
 	/**
