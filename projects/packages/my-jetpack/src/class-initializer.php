@@ -501,21 +501,15 @@ class Initializer {
 	 *
 	 * The card invites an existing self-hosted install to switch over to the new Jetpack SEO
 	 * dashboard (JETPACK-1700). Gating lives server-side, where the signals actually are. The
-	 * card shows only when all of:
+	 * card shows only when both of:
 	 *
-	 * - the new SEO product is available — the `rsm_jetpack_seo` feature filter is on (the SEO
-	 *   package autoloads regardless, so `class_exists()` alone isn't enough; the filter is the
-	 *   real availability switch and the same one the SEO package gates its own surface behind);
-	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
-	 *   the opt-in card is for self-hosted installs only;
-	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
-	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
-	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
-	 *   explicitly for clarity.
-	 *
-	 * Referenced through `class_exists()` rather than a hard composer dependency: both packages
-	 * ship inside the Jetpack plugin and the SEO surface is feature-flagged, so a guarded read of
-	 * its public API keeps this from adding plumbing to consumers that don't load SEO.
+	 * - the SEO package is loaded and new enough — checked with `method_exists()` because the SEO
+	 *   package isn't a composer dependency of My Jetpack, and an older bundled copy can ship the
+	 *   Initializer class without this method, so `class_exists()` alone would still fatal;
+	 * - the install hasn't opted in yet — `Initializer::is_optin_available()` is true. It returns
+	 *   `! is_seo_surface_visible()`, and the surface is already visible for WordPress.com (Simple +
+	 *   Atomic) and for self-hosted installs that have opted in, so "opt-in available" cleanly means
+	 *   "a self-hosted install that hasn't opted in" — no separate platform check is needed here.
 	 *
 	 * The on-success destination is computed by the opt-in endpoint itself; we only seed the card
 	 * with the same admin URL so the button has a sensible fallback before the request resolves.

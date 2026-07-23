@@ -368,12 +368,17 @@ class Jetpack_Plugin_Search {
 			}
 
 			/*
-			 * Only surface the SEO Tools hint once the new Jetpack SEO admin page is
-			 * available. The page is gated behind the `rsm_jetpack_seo` feature flag,
-			 * so without this gate the hint's CTAs would point to a page that isn't
-			 * registered yet.
+			 * Only surface the SEO Tools hint where the new Jetpack SEO admin page is
+			 * actually registered, so the hint's CTAs never point to a page that doesn't
+			 * exist. The SEO surface is registered for fresh installs, sites that have
+			 * opted in, and all WordPress.com sites; existing self-hosted installs that
+			 * haven't opted in don't have the page yet, so they skip the hint. Guarded
+			 * with class_exists because the SEO package isn't loaded in every context.
 			 */
-			if ( apply_filters( 'rsm_jetpack_seo', false ) ) {
+			if (
+				class_exists( 'Automattic\\Jetpack\\SEO\\Initializer' )
+				&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
+			) {
 				$searchable_modules[] = 'seo-tools';
 			}
 

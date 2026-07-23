@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update the SEO opt-in card's internal documentation after the `rsm_jetpack_seo` feature flag was removed (no behavior change in My Jetpack itself).
