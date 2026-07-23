@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -26,6 +27,27 @@ class Admin_UI_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
 		remove_action( 'admin_menu', array( Admin_UI::class, 'enable_menu' ), 1 );
 		$this->set_admin_menu_items( array() );
+		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		$this->reset_connection_status_cache();
+	}
+
+	/**
+	 * Make Connection\Manager::is_connected() return true by storing the
+	 * blog ID and blog token it checks for.
+	 */
+	private function mock_connected_site() {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		$this->reset_connection_status_cache();
+	}
+
+	/**
+	 * Reset the Connection\Manager::$is_connected static cache so each test
+	 * re-evaluates the connection options.
+	 */
+	private function reset_connection_status_cache() {
+		( new \ReflectionProperty( Connection_Manager::class, 'is_connected' ) )->setValue( null, null );
 	}
 
 	/**
@@ -102,6 +124,7 @@ class Admin_UI_Test extends BaseTestCase {
 	 * module inactive it queues the My Jetpack activation link, not the dashboard.
 	 */
 	public function test_enable_menu_registers_activation_link_when_module_inactive() {
+		$this->mock_connected_site();
 		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
 
 		$this->assertFalse( Status::is_active() );
@@ -142,6 +165,7 @@ class Admin_UI_Test extends BaseTestCase {
 	 * My Jetpack "add VideoPress" interstitial.
 	 */
 	public function test_enable_inactive_menu_queues_my_jetpack_link() {
+		$this->mock_connected_site();
 		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
 
 		Admin_UI::enable_inactive_menu();
@@ -160,7 +184,22 @@ class Admin_UI_Test extends BaseTestCase {
 	 * since the link would point to an unregistered page.
 	 */
 	public function test_enable_inactive_menu_bails_without_my_jetpack() {
+		$this->mock_connected_site();
 		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		Admin_UI::enable_inactive_menu();
+
+		$this->assertSame( array(), $this->get_admin_menu_items() );
+	}
+
+	/**
+	 * Test that no menu item is queued while Jetpack is not connected:
+	 * activating VideoPress requires a connection, so the item would be a
+	 * dead end. The check runs at admin_menu time, so the item starts
+	 * rendering as soon as the site gets connected.
+	 */
+	public function test_enable_inactive_menu_bails_when_jetpack_not_connected() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
 
 		Admin_UI::enable_inactive_menu();
 
