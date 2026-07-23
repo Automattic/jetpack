@@ -274,6 +274,22 @@ class LlmsTxtTest extends TestCase {
 	}
 
 	/**
+	 * Posts hidden from search engines are not advertised in llms.txt.
+	 *
+	 * @return void
+	 */
+	public function test_generate_excludes_noindexed_posts() {
+		$this->insert_post( array( 'post_title' => 'Visible Post' ) );
+		$hidden = $this->insert_post( array( 'post_title' => 'Hidden Post' ) );
+		update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+
+		$output = Llms_Txt::generate();
+
+		$this->assertStringContainsString( 'Visible Post', $output );
+		$this->assertStringNotContainsString( 'Hidden Post', $output );
+	}
+
+	/**
 	 * Raw paid or paywalled body content is never used as a public summary.
 	 *
 	 * @return void

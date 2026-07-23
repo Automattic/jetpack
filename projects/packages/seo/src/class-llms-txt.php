@@ -189,6 +189,18 @@ class Llms_Txt {
 			'has_password'     => false,
 			'posts_per_page'   => self::MAX_POSTS_PER_TYPE,
 			'suppress_filters' => false,
+			'meta_query'       => array(
+				'relation' => 'OR',
+				array(
+					'key'     => Content_Coverage::META_NOINDEX,
+					'compare' => 'NOT EXISTS',
+				),
+				array(
+					'key'     => Content_Coverage::META_NOINDEX,
+					'value'   => '1',
+					'compare' => '!=',
+				),
+			),
 		);
 
 		if ( 'page' === $post_type ) {

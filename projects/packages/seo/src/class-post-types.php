@@ -70,6 +70,8 @@ class Post_Types {
 			unset( $post_types[ $post_type ] );
 		}
 
+		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
+
 		uasort( $post_types, array( __CLASS__, 'sort_post_type_objects' ) );
 
 		return $post_types;
