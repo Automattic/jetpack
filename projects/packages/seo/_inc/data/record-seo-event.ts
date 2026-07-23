@@ -1,8 +1,21 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import type { SeoTab } from '../dashboard/dashboard-nav';
 
 /** The dashboard screen an event was fired from. */
 export type SeoTracksScreen = 'overview' | 'settings' | 'content' | 'geo';
+
+/**
+ * The reporting name for a dashboard tab. The GEO tab is still keyed `ai`
+ * internally (route, store, directory), but reports as `geo` so the Tracks data
+ * matches the user-facing name.
+ *
+ * @param tab - The internal tab id.
+ * @return The screen name to report.
+ */
+export function screenForTab( tab: SeoTab ): SeoTracksScreen {
+	return tab === 'ai' ? 'geo' : tab;
+}
 
 /**
  * Server-provided identifiers attached to every SEO event

@@ -2,7 +2,7 @@ import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { recordSeoEvent } from '../data/record-seo-event';
+import { recordSeoEvent, screenForTab } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
@@ -50,8 +50,7 @@ const DashboardPage = ( { active, showFooter = true, flush = false, children }: 
 			return;
 		}
 		screenViewRecorded = true;
-		// The tab is internally keyed `ai`; the GEO screen reports as `geo`.
-		recordSeoEvent( 'jetpack_seo_screen_viewed', active === 'ai' ? 'geo' : active );
+		recordSeoEvent( 'jetpack_seo_screen_viewed', screenForTab( active ) );
 	}, [ active ] );
 
 	return (

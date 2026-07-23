@@ -20,7 +20,7 @@ describe( 'EnableSeoCard', () => {
 	} );
 
 	it( 'renders the enable card', () => {
-		render( <EnableSeoCard /> );
+		render( <EnableSeoCard screen="overview" /> );
 
 		// "Enable SEO tools" is both the card title and the button label.
 		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toBeInTheDocument();
@@ -28,7 +28,7 @@ describe( 'EnableSeoCard', () => {
 	} );
 
 	it( 'calls setActive( true ) when the primary button is clicked', () => {
-		render( <EnableSeoCard /> );
+		render( <EnableSeoCard screen="overview" /> );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
@@ -36,10 +36,18 @@ describe( 'EnableSeoCard', () => {
 		expect( setActive ).toHaveBeenCalledWith( true );
 	} );
 
+	it( 'reports the screen it was rendered on, not always the Overview', () => {
+		// The card renders on every tab's module-off stage, so a hardcoded
+		// `overview` would misattribute enables from the other tabs.
+		render( <EnableSeoCard screen="geo" /> );
+
+		expect( useSeoToolsToggle ).toHaveBeenCalledWith( 'geo' );
+	} );
+
 	it( 'disables the button while toggling', () => {
 		useSeoToolsToggle.mockReturnValue( { isToggling: true, setActive } );
 
-		render( <EnableSeoCard /> );
+		render( <EnableSeoCard screen="overview" /> );
 
 		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toHaveAttribute(
 			'aria-disabled',

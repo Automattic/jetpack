@@ -3,17 +3,24 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import useSeoToolsToggle from '../data/use-seo-tools-toggle';
+import type { SeoTracksScreen } from '../data/record-seo-event';
 import type { FC } from 'react';
 
 /**
- * Shown on the Overview when the `seo-tools` module is inactive. Explains what
- * SEO tools do and offers a one-click enable. Activating reloads the page so
- * the rest of the SEO surface comes online (see `useSeoToolsToggle`).
+ * Shown when the `seo-tools` module is inactive. Explains what SEO tools do and
+ * offers a one-click enable. Activating reloads the page so the rest of the SEO
+ * surface comes online (see `useSeoToolsToggle`).
  *
+ * Rendered both on the Overview and, via `SeoDisabledStage`, on every other
+ * tab's module-off stage — hence the required `screen`, so the enable event
+ * reports where it was actually clicked.
+ *
+ * @param props        - Component props.
+ * @param props.screen - The screen this card is rendering on.
  * @return The enable-SEO-tools card.
  */
-const EnableSeoCard: FC = () => {
-	const { isToggling, setActive } = useSeoToolsToggle();
+const EnableSeoCard: FC< { screen: SeoTracksScreen } > = ( { screen } ) => {
+	const { isToggling, setActive } = useSeoToolsToggle( screen );
 
 	return (
 		<Card.Root>

@@ -1,4 +1,5 @@
 import DashboardPage from '../dashboard/dashboard-page';
+import { screenForTab } from '../data/record-seo-event';
 import EnableSeoCard from './enable-seo-card';
 import type { SeoTab } from '../dashboard/dashboard-nav';
 import type { FC } from 'react';
@@ -20,7 +21,7 @@ import type { FC } from 'react';
  */
 const SeoDisabledStage: FC< { active: SeoTab } > = ( { active } ) => (
 	<DashboardPage active={ active }>
-		<EnableSeoCard />
+		<EnableSeoCard screen={ screenForTab( active ) } />
 	</DashboardPage>
 );
 

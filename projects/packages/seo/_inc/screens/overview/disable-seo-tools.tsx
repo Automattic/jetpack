@@ -16,7 +16,7 @@ import type { FC } from 'react';
  * @return The disable-SEO-tools footer.
  */
 const DisableSeoTools: FC = () => {
-	const { isToggling, setActive } = useSeoToolsToggle();
+	const { isToggling, setActive } = useSeoToolsToggle( 'overview' );
 
 	return (
 		<Text variant="body-md" render={ <div /> } className={ styles.disable }>
