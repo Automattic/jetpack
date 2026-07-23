@@ -27,25 +27,25 @@ function wpcom_normalize_site_logo_id( $value ) {
  * Build the URL for editing the current site logo, and whether the block-theme
  * copy applies.
  *
- * Block themes edit the logo in the Site Editor's Identity screen (falling back to
- * the default Site Editor screen where that route may not exist yet). Classic
- * themes edit it in the Customizer, whose control ID depends on which logo
- * integration the theme supports — mirroring the logo-tool feature. The URL is
- * empty when no known logo control exists (e.g. a leftover `site_logo` option
- * under a classic theme without logo support), so callers can omit the link.
+ * Block themes edit the logo in the Site Editor's Identity screen; classic themes
+ * edit it in the Customizer, whose control ID depends on which logo integration
+ * the theme supports — mirroring the logo-tool feature. The URL is empty when no
+ * reliable destination exists (the Identity route is unavailable on older editors,
+ * or a classic theme without logo support retains a leftover `site_logo` option),
+ * so callers can omit the link.
  *
  * @return array{url:string, is_block:bool} The edit URL and block-theme flag.
  */
 function wpcom_site_logo_edit_link() {
 	if ( wp_is_block_theme() ) {
-		// The Identity screen shipped in Gutenberg 22.8 / WordPress 7.1; fall back to
-		// the default Site Editor screen when it may not be present.
+		// The Identity screen shipped in Gutenberg 22.8 / WordPress 7.1. Without it
+		// there is no reliable in-editor logo control to link to, so omit the link.
 		$has_identity = defined( 'GUTENBERG_VERSION' )
 			? version_compare( GUTENBERG_VERSION, '22.8', '>=' )
 			: version_compare( get_bloginfo( 'version' ), '7.1', '>=' );
 
 		return array(
-			'url'      => admin_url( $has_identity ? 'site-editor.php?p=%2Fidentity' : 'site-editor.php' ),
+			'url'      => $has_identity ? admin_url( 'site-editor.php?p=%2Fidentity' ) : '',
 			'is_block' => true,
 		);
 	}
