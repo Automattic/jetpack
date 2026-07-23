@@ -82,6 +82,8 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview_Test extends Jetpack_REST_TestCas
 	 */
 	public function tear_down() {
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
+		// Some tests swap in the site-only mock; remove it too so no filter leaks between tests.
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options_site_only' ) );
 
 		Jetpack_Options::delete_option( 'id' );
 
