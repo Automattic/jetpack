@@ -125,9 +125,10 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 
 	// Header status tag, matching the Enabled/Disabled tags on the other module
 	// headers: green when every crawler is allowed, red when every one is blocked,
-	// grey when it's a mix.
+	// grey when it's a mix. `statusLabel` typed `string` (not the inferred branded
+	// `TransformedText` of the first label) so the branches can assign other literals.
 	let statusIntent: 'stable' | 'high' | 'draft' = 'draft';
-	let statusLabel = partlyBlockedLabel;
+	let statusLabel: string = partlyBlockedLabel;
 	if ( allAllowed ) {
 		statusIntent = 'stable';
 		statusLabel = allowedLabel;
