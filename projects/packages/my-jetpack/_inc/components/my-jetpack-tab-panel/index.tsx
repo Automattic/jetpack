@@ -92,6 +92,20 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		tabStartTimeRef.current = Date.now();
 	}, [ currentTab ] );
 
+	// Canonicalize a stale or invalid section hash. `currentTab` already resolves
+	// such a hash to a real section for rendering, but `onTabSelect` only reacts to
+	// genuine tab changes, so the URL itself is left as-is. Interstitials redirect
+	// to `MyJetpackRoutes.Home` — the literal route pattern `/:section` — and rely on
+	// the page settling on a concrete URL; without this the address bar keeps
+	// `#/:section` (previously masked by the mount-time navigation this component no
+	// longer fires). Rewrite with `replace` so it emits no `tab_click` and adds no
+	// history entry.
+	useEffect( () => {
+		if ( params.section !== currentTab ) {
+			navigate( `/${ currentTab }`, { replace: true } );
+		}
+	}, [ params.section, currentTab, navigate ] );
+
 	useEffect( () => {
 		// Track tab view event
 		recordEvent( 'jetpack_myjetpack_tab_view', {

@@ -61,15 +61,22 @@ beforeEach( () => {
 describe( 'MyJetpackTabPanel', () => {
 	it( 'renders the single Products section directly, with no tab bar, on Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
+		mockSection = MY_JETPACK_SECTION_PRODUCTS;
 
 		render( <MyJetpackTabPanel /> );
 
 		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_PRODUCTS );
 		// The direct-render path renders no TabPanel, so there is no tab bar.
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
-		// No synthetic click; the page view still fires exactly once.
+		// The canonical Products hash needs no rewrite.
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		// No synthetic click; the view fires exactly once, attributed to Products.
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_tab_view',
+			expect.objectContaining( { tab_name: MY_JETPACK_SECTION_PRODUCTS } )
+		);
 	} );
 
 	it( 'does not record a tab click when the multi-section panel mounts', async () => {
@@ -86,8 +93,8 @@ describe( 'MyJetpackTabPanel', () => {
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
 	} );
 
-	it( 'does not record a tab click when mounting on a stale or invalid hash', async () => {
-		// Resolves to the default (Overview) rather than erroring or emitting a click.
+	it( 'canonicalizes a stale or invalid hash without recording a tab click', async () => {
+		// Resolves to the default (Overview) for rendering rather than erroring.
 		mockSection = 'does-not-exist';
 
 		render( <MyJetpackTabPanel /> );
@@ -95,8 +102,13 @@ describe( 'MyJetpackTabPanel', () => {
 			'Overview'
 		);
 
+		// The URL is rewritten to the resolved section via `replace`: no synthetic
+		// tab_click and no extra history entry (the interstitials' `/:section`
+		// redirect depends on this settling on a concrete hash).
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
-		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_OVERVIEW }`, {
+			replace: true,
+		} );
 	} );
 
 	it( 'records one tab click, with the resolved previous tab, on a genuine switch', async () => {
