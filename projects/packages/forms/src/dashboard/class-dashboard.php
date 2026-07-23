@@ -138,23 +138,39 @@ class Dashboard {
 	}
 
 	/**
-	 * Register translations for the wp-build script modules.
+	 * Relative path (from the plugin root) of the classic dashboard bundle whose
+	 * language-pack JSON the wp-build script modules borrow their translations from.
 	 *
-	 * The wp-build (@wordpress/boot) generator registers each route/page script
-	 * module with wp_register_script_module() but never calls
-	 * wp_set_script_module_translations(). Without it, core loads locale data for
-	 * these modules under the 'default' text domain (see
-	 * WP_Script_Modules::print_script_module_translations()), so the Forms UI
-	 * strings — which are registered under the 'jetpack-forms' text domain — fall
-	 * back to English.
+	 * @var string
+	 */
+	const WPBUILD_TRANSLATION_REFERENCE = 'jetpack_vendor/automattic/jetpack-forms/dist/dashboard/jetpack-forms-dashboard.js';
+
+	/**
+	 * Wire up translations for the wp-build script modules.
 	 *
-	 * We hook the generated `{page}_boot_dependencies` filter: it receives every
-	 * boot module id after the modules are registered and before translations are
-	 * printed in the footer, which is the right moment to set the text domain on
-	 * each Forms-owned module.
+	 * The Forms responses UI is built as WordPress script modules. Two gaps stop
+	 * their strings from being translated, and this method closes both:
 	 *
-	 * @todo Remove once @wordpress/boot's wp-build emits
-	 *       wp_set_script_module_translations() for plugin modules.
+	 * 1. Text domain — the wp-build (@wordpress/boot) generator registers each
+	 *    module with wp_register_script_module() but never calls
+	 *    wp_set_script_module_translations(). Without it core loads locale data
+	 *    under the 'default' text domain (see
+	 *    WP_Script_Modules::print_script_module_translations()), so strings
+	 *    registered under 'jetpack-forms' fall back to English. We hook the
+	 *    generated `{page}_boot_dependencies` filter — which receives every boot
+	 *    module id after the modules are registered and before translations are
+	 *    printed — to set the domain on each Forms-owned module.
+	 *
+	 * 2. File path — the public (translate.wordpress.org) language pack does not
+	 *    generate a per-module JSON keyed to each module's runtime URL, so core's
+	 *    md5(<module path>) lookup finds nothing. It does ship the monolithic
+	 *    classic dashboard bundle's JSON, which is a superset of every dashboard
+	 *    string. We rewrite the module lookup path to that bundle via
+	 *    `load_script_textdomain_relative_path` so core resolves an existing file.
+	 *
+	 * @todo Remove (1) once @wordpress/boot's wp-build emits
+	 *       wp_set_script_module_translations() for plugin modules, and (2) once
+	 *       the language pack generates per-module JSON at the modules' own paths.
 	 */
 	public static function set_module_translations() {
 		// Script-module translations require WP 7.0+.
@@ -186,6 +202,20 @@ class Dashboard {
 		// Both page variants (standalone and wp-admin-integrated) expose this filter.
 		add_filter( self::FORMS_WPBUILD_ADMIN_SLUG . '_boot_dependencies', $set_translations );
 		add_filter( 'jetpack-forms-responses_boot_dependencies', $set_translations );
+
+		// Resolve the modules' translations against the classic dashboard bundle's
+		// language-pack JSON (a superset of the dashboard strings that both
+		// translate.wordpress.org and .com already generate).
+		add_filter(
+			'load_script_textdomain_relative_path',
+			static function ( $relative ) {
+				if ( is_string( $relative ) && str_contains( $relative, 'jetpack_vendor/automattic/jetpack-forms/build/' ) ) {
+					return self::WPBUILD_TRANSLATION_REFERENCE;
+				}
+				return $relative;
+			},
+			20 // After WPCOM's Simple-site relative-path filter (priority 10).
+		);
 	}
 
 	/**

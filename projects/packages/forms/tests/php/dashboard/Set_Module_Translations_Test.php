@@ -11,6 +11,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use WorDBless\BaseTestCase;
 
+// Stub the WordPress 7.0 script-module translations API so the method runs and
+// its calls are observable on the WordPress < 7.0 test environment.
+require_once __DIR__ . '/stubs/wp-set-script-module-translations-global.php';
+require_once __DIR__ . '/stubs/wp-set-script-module-translations-namespaced.php';
+
 /**
  * Tests for the wp-build script-module translation registration.
  *
@@ -57,40 +62,21 @@ class Set_Module_Translations_Test extends BaseTestCase {
 	const CORE_MODULE = '@wordpress/boot';
 
 	/**
-	 * Read a registered script module's text domain via the WP 7.0 registry.
-	 *
-	 * @param string $id Script module id.
-	 * @return string The registered text domain, or 'default' when unset.
-	 */
-	private function get_module_textdomain( $id ) {
-		// @phan-suppress-next-line PhanUndeclaredMethod -- WP_Script_Modules::get_registered() is WP 7.0+; these tests are skipped on older versions in set_up().
-		$module = wp_script_modules()->get_registered( $id );
-
-		return is_array( $module ) ? ( $module['textdomain'] ?? 'default' ) : 'default';
-	}
-
-	/**
-	 * Skip on WordPress versions without the script-module translations API (< 7.0).
+	 * Reset the recorded calls before each test.
 	 */
 	public function set_up() {
 		parent::set_up();
-
-		if ( ! function_exists( 'wp_set_script_module_translations' ) ) {
-			$this->markTestSkipped( 'Script module translations require WordPress 7.0 or newer.' );
-		}
+		$GLOBALS['jetpack_forms_smt_calls'] = array();
 	}
 
 	/**
-	 * Remove registered filters and script modules after each test.
+	 * Remove registered filters and recorded calls after each test.
 	 */
 	public function tear_down() {
 		remove_all_filters( self::WPADMIN_HOOK );
 		remove_all_filters( self::STANDALONE_HOOK );
-
-		foreach ( array( self::FORMS_MODULE, self::FORMS_MODULE_ROUTE, self::CORE_MODULE ) as $id ) {
-			wp_deregister_script_module( $id );
-		}
-
+		remove_all_filters( 'load_script_textdomain_relative_path' );
+		unset( $GLOBALS['jetpack_forms_smt_calls'] );
 		parent::tear_down();
 	}
 
@@ -111,7 +97,43 @@ class Set_Module_Translations_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The filter must be a pass-through and never mutate the dependency list.
+	 * A Forms wp-build module path is rewritten to the classic dashboard bundle,
+	 * so core resolves an existing language-pack JSON.
+	 */
+	public function test_rewrites_forms_module_translation_path() {
+		Dashboard::set_module_translations();
+
+		$module_path = 'jetpack_vendor/automattic/jetpack-forms/build/routes/responses/content.min.js';
+
+		$this->assertSame(
+			Dashboard::WPBUILD_TRANSLATION_REFERENCE,
+			apply_filters( 'load_script_textdomain_relative_path', $module_path, 'https://example.org/' . $module_path, true )
+		);
+	}
+
+	/**
+	 * Non-Forms-module paths must pass through the relative-path filter unchanged.
+	 */
+	public function test_leaves_non_forms_paths_unchanged() {
+		Dashboard::set_module_translations();
+
+		$untouched = array(
+			'build/index.js',
+			// The classic dashboard bundle itself (dist/, not build/) must not be remapped.
+			Dashboard::WPBUILD_TRANSLATION_REFERENCE,
+			false,
+		);
+
+		foreach ( $untouched as $path ) {
+			$this->assertSame(
+				$path,
+				apply_filters( 'load_script_textdomain_relative_path', $path, 'https://example.org/x.js', true )
+			);
+		}
+	}
+
+	/**
+	 * The boot-dependencies filter must be a pass-through and never mutate the list.
 	 */
 	public function test_filter_returns_dependencies_unchanged() {
 		Dashboard::set_module_translations();
@@ -135,51 +157,57 @@ class Set_Module_Translations_Test extends BaseTestCase {
 	 * core (`@wordpress/*`) modules are left on the default domain.
 	 */
 	public function test_only_jetpack_forms_modules_get_translations() {
-		wp_register_script_module( self::FORMS_MODULE, 'https://example.org/content.js' );
-		wp_register_script_module( self::CORE_MODULE, 'https://example.org/boot.js' );
-
 		Dashboard::set_module_translations();
 
 		apply_filters(
 			self::WPADMIN_HOOK,
 			array(
 				array(
+					'import' => 'static',
+					'id'     => self::CORE_MODULE,
+				),
+				array(
+					'import' => 'static',
+					'id'     => '@wordpress/route',
+				),
+				array(
 					'import' => 'dynamic',
 					'id'     => self::FORMS_MODULE,
 				),
 				array(
 					'import' => 'static',
-					'id'     => self::CORE_MODULE,
+					'id'     => self::FORMS_MODULE_ROUTE,
 				),
 			)
 		);
 
-		$this->assertSame(
-			'jetpack-forms',
-			$this->get_module_textdomain( self::FORMS_MODULE ),
-			'Forms modules should be registered under the jetpack-forms text domain.'
-		);
+		$ids = wp_list_pluck( $GLOBALS['jetpack_forms_smt_calls'], 'id' );
 
-		$this->assertNotSame(
-			'jetpack-forms',
-			$this->get_module_textdomain( self::CORE_MODULE ),
-			'Core modules should keep the default text domain.'
-		);
+		$this->assertContains( self::FORMS_MODULE, $ids );
+		$this->assertContains( self::FORMS_MODULE_ROUTE, $ids );
+		$this->assertNotContains( self::CORE_MODULE, $ids );
+		$this->assertNotContains( '@wordpress/route', $ids );
+
+		foreach ( $GLOBALS['jetpack_forms_smt_calls'] as $call ) {
+			$this->assertSame(
+				'jetpack-forms',
+				$call['domain'],
+				'Forms modules should be registered under the jetpack-forms text domain.'
+			);
+		}
 	}
 
 	/**
 	 * Non-array input and malformed dependency entries must be handled safely.
 	 */
 	public function test_malformed_and_non_array_dependencies_are_skipped() {
-		wp_register_script_module( self::FORMS_MODULE, 'https://example.org/content.js' );
-
 		Dashboard::set_module_translations();
 
-		// A non-array value passes through untouched.
+		// A non-array value passes through untouched and records nothing.
 		$this->assertNull( apply_filters( self::WPADMIN_HOOK, null ) );
+		$this->assertSame( array(), $GLOBALS['jetpack_forms_smt_calls'] );
 
-		// Malformed entries (missing / empty / non-string id) are skipped without
-		// error, and the one valid Forms module is still registered.
+		// Entries without a usable string id are skipped.
 		apply_filters(
 			self::WPADMIN_HOOK,
 			array(
@@ -194,11 +222,12 @@ class Set_Module_Translations_Test extends BaseTestCase {
 				),
 				array(
 					'import' => 'dynamic',
-					'id'     => self::FORMS_MODULE,
+					'id'     => 'jetpack-forms/routes/forms/content',
 				),
 			)
 		);
 
-		$this->assertSame( 'jetpack-forms', $this->get_module_textdomain( self::FORMS_MODULE ) );
+		$ids = wp_list_pluck( $GLOBALS['jetpack_forms_smt_calls'], 'id' );
+		$this->assertSame( array( 'jetpack-forms/routes/forms/content' ), $ids );
 	}
 }
