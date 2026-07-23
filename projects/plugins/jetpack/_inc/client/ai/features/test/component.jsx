@@ -350,11 +350,11 @@ describe( 'AiFeatures rendering', () => {
 			'post-new.php?openSidebar=jetpack-ai-assistant'
 		);
 
-		// Image Studio has no URL-driven open mechanism (its bundle only adds
-		// click handlers on the Media Library), so the link stays upload.php.
+		// The Image Studio bundle opens Generate mode when the Media Library
+		// URL carries ai-assistant (handled bundle-side, param then stripped).
 		expect( screen.getByRole( 'link', { name: 'Try it out' } ) ).toHaveAttribute(
 			'href',
-			'upload.php'
+			'upload.php?ai-assistant'
 		);
 	} );
 } );
