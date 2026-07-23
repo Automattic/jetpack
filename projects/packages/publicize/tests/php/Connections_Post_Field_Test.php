@@ -322,7 +322,7 @@ class Connections_Post_Field_Test extends TestCase {
 	public function test_customize_per_network_defaults_on_with_custom_connection_template() {
 		$this->publicize->method( 'has_paid_features' )
 			->willReturn( true );
-		$this->set_active_plan_features( array( 'social-message-templates' ) );
+		$this->set_active_plan_features( array( 'social-enhanced-publishing' ) );
 		$this->set_cached_connection_with_template( 'Custom template' );
 		$this->reregister_publicize_post_meta();
 
@@ -341,7 +341,7 @@ class Connections_Post_Field_Test extends TestCase {
 	public function test_customize_per_network_defaults_off_without_custom_connection_template() {
 		$this->publicize->method( 'has_paid_features' )
 			->willReturn( true );
-		$this->set_active_plan_features( array( 'social-message-templates' ) );
+		$this->set_active_plan_features( array( 'social-enhanced-publishing' ) );
 		$this->set_cached_connection_with_template( '   ' );
 		$this->reregister_publicize_post_meta();
 
@@ -354,7 +354,7 @@ class Connections_Post_Field_Test extends TestCase {
 	public function test_customize_per_network_explicit_false_overrides_template_default() {
 		$this->publicize->method( 'has_paid_features' )
 			->willReturn( true );
-		$this->set_active_plan_features( array( 'social-message-templates' ) );
+		$this->set_active_plan_features( array( 'social-enhanced-publishing' ) );
 		$this->set_cached_connection_with_template( 'Custom template' );
 		$this->reregister_publicize_post_meta();
 

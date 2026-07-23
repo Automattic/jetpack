@@ -1133,7 +1133,7 @@ abstract class Publicize_Base {
 		/*
 		 * Default the share-message meta to the saved global template
 		 */
-		$message_default = Current_Plan::supports( 'social-message-templates' )
+		$message_default = $this->has_paid_features()
 			? ( new Jetpack_Social_Settings\Settings() )->get_message_template()
 			: '';
 
@@ -1286,7 +1286,7 @@ abstract class Publicize_Base {
 		);
 
 		$customize_per_network_default = (
-			Current_Plan::supports( 'social-message-templates' )
+			$this->has_paid_features()
 			&& $this->any_connection_has_custom_template()
 		);
 
