@@ -10,9 +10,8 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 /**
  * Normalize a site logo value to a positive attachment ID.
  *
- * The `site_logo` option and `custom_logo` theme mod may hold an attachment ID, a
- * legacy `array( 'id' => ... )`, or a WP_Error (core's site-logo filter can surface the
- * same error through either), so anything that is not a positive scalar resolves to 0.
+ * The value may hold an attachment ID, a legacy `array( 'id' => ... )`, or a WP_Error,
+ * so anything that is not a positive scalar resolves to 0.
  *
  * @param mixed $value The raw site_logo option or custom_logo theme mod value.
  * @return int A positive attachment ID, or 0 when none is usable.
@@ -31,12 +30,12 @@ function wpcom_fiverr_cta() {
 	// The Site Logo can be set from the Site Editor's Identity section. Core keeps the
 	// `site_logo` option and the `custom_logo` theme mod in sync, so read either one.
 	$logo_id = wpcom_normalize_site_logo_id( get_option( 'site_logo' ) );
-	if ( $logo_id < 1 ) {
+	if ( ! $logo_id ) {
 		$logo_id = wpcom_normalize_site_logo_id( get_theme_mod( 'custom_logo' ) );
 	}
 
 	$logo_img = '';
-	if ( $logo_id > 0 ) {
+	if ( $logo_id ) {
 		// A logo's own alt text is often empty, so fall back to the site title so the
 		// populated state is still announced to assistive technology.
 		$logo_alt = trim( wp_strip_all_tags( (string) get_post_meta( $logo_id, '_wp_attachment_image_alt', true ) ) );
