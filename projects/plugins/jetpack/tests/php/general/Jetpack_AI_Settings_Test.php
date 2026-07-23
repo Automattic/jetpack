@@ -252,21 +252,45 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Off-Simple the module is the master, but the setter keeps the
-	 * `jetpack_ai_enabled` option in step with the module's resulting state so
-	 * Jetpack Sync mirrors the right value to WordPress.com (Calypso / the MSD read
-	 * it). Without this, turning AI off leaves the synced option stale-truthy.
+	 * Off-Simple the module alone is the master: the setter must never write the
+	 * `jetpack_ai_enabled` option. WordPress.com reads the master state from the
+	 * synced active_modules list, and the option's only remaining off-Simple role
+	 * is the legacy pre-module opt-out that Jetpack::reconcile_ai_master_optout()
+	 * reads once — a write here would clobber that signal and re-create a second,
+	 * driftable source of truth.
 	 */
-	public function test_set_master_enabled_syncs_option_off_simple() {
+	public function test_set_master_enabled_leaves_option_untouched_off_simple() {
 		Constants::set_constant( 'IS_WPCOM', false );
-		// Module active and the option truthy; turning the master off must flip both.
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
-		update_option( Jetpack_AI_Settings::MASTER_OPTION, 1 );
+
+		// Seed the stored legacy opt-out. (Asserting on the stored representation
+		// is unreliable — the registered sanitizer casts to boolean and false
+		// round-trips as '' or a cached false — so the spies below carry the test.)
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
+
+		// Trip on any write or delete of the option, whatever the value.
+		$touches = 0;
+		$spy     = static function ( $value = null ) use ( &$touches ) {
+			++$touches;
+			return $value;
+		};
+		add_filter( 'pre_update_option_' . Jetpack_AI_Settings::MASTER_OPTION, $spy );
+		add_action( 'delete_option_' . Jetpack_AI_Settings::MASTER_OPTION, $spy );
 
 		Jetpack_AI_Settings::set_master_enabled( false );
+		$module_active_after_disable = ( new Modules() )->is_active( 'ai' );
 
-		$this->assertFalse( ( new Modules() )->is_active( 'ai' ), 'The module (authoritative master) is off.' );
-		$this->assertFalse( (bool) get_option( Jetpack_AI_Settings::MASTER_OPTION ), 'The synced option follows the module off-Simple.' );
+		Jetpack_AI_Settings::set_master_enabled( true );
+
+		remove_filter( 'pre_update_option_' . Jetpack_AI_Settings::MASTER_OPTION, $spy );
+		remove_action( 'delete_option_' . Jetpack_AI_Settings::MASTER_OPTION, $spy );
+
+		$this->assertFalse( $module_active_after_disable, 'The module (authoritative master) is off after disabling.' );
+		$this->assertSame( 0, $touches, 'The off-Simple setter must never write or delete the jetpack_ai_enabled option.' );
+
+		$stored = get_option( Jetpack_AI_Settings::MASTER_OPTION, 'ABSENT' );
+		$this->assertNotSame( 'ABSENT', $stored, 'The stored legacy opt-out is still present after master toggles.' );
+		$this->assertEmpty( $stored, 'The stored legacy opt-out still reads falsey after master toggles.' );
 	}
 
 	/**
@@ -379,19 +403,24 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The master switch and the owned per-feature options sync to WordPress.com.
+	 * The owned per-feature options sync to WordPress.com. The master option
+	 * deliberately does not: off-Simple the `ai` module is the master and its
+	 * state reaches WordPress.com via the synced active_modules callable.
 	 */
 	public function test_sync_options_whitelist() {
 		$whitelist = apply_filters( 'jetpack_sync_options_whitelist', array() );
 
-		$this->assertContains( 'jetpack_ai_enabled', $whitelist );
+		$this->assertNotContains( 'jetpack_ai_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_writing_assistant_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_image_editor_enabled', $whitelist );
 		$this->assertNotContains( 'jetpack_ai_image_label_enabled', $whitelist );
 	}
 
 	/**
-	 * The owned options are registered (register_setting on init).
+	 * The owned options are registered (register_setting on init). The master
+	 * option must stay OUT of core settings REST: off-Simple the module is the
+	 * master (a core-REST write would only clobber the legacy opt-out value),
+	 * and the dedicated feature-settings endpoint is the real writable surface.
 	 */
 	public function test_options_are_registered() {
 		Jetpack_AI_Settings::register_settings();
@@ -402,5 +431,8 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'jetpack_ai_writing_assistant_enabled', $registered );
 		$this->assertArrayHasKey( 'jetpack_ai_image_editor_enabled', $registered );
 		$this->assertArrayNotHasKey( 'jetpack_ai_image_label_enabled', $registered );
+
+		$this->assertFalse( $registered['jetpack_ai_enabled']['show_in_rest'], 'The master option is never exposed over core settings REST.' );
+		$this->assertTrue( (bool) $registered['jetpack_ai_writing_assistant_enabled']['show_in_rest'], 'Feature options stay REST-exposed off-Simple.' );
 	}
 }

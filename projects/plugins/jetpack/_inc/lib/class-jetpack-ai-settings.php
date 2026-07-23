@@ -148,7 +148,12 @@ class Jetpack_AI_Settings {
 					'type'              => 'boolean',
 					'description'       => $description,
 					'sanitize_callback' => 'rest_sanitize_boolean',
-					'show_in_rest'      => $show_in_rest,
+					// The master option is never exposed over core settings REST:
+					// off-Simple the `ai` module is the master and the option only
+					// holds the legacy pre-module opt-out (a core-REST write would
+					// clobber it without touching the real master); on Simple the
+					// dedicated feature-settings endpoint is the writable surface.
+					'show_in_rest'      => self::MASTER_OPTION === $option ? false : $show_in_rest,
 					'default'           => true,
 				)
 			);
@@ -156,18 +161,22 @@ class Jetpack_AI_Settings {
 	}
 
 	/**
-	 * Add the AI settings options to Jetpack Sync's option whitelist.
+	 * Add the per-feature AI options to Jetpack Sync's option whitelist.
 	 *
 	 * Atomic and self-hosted sites write these locally; syncing them lets
 	 * WordPress.com (Calypso, the multi-site dashboard) read toggle state and
 	 * is the prerequisite for mirroring the dashboard AI toggle later.
 	 *
+	 * The master switch is deliberately absent: off-Simple the `ai` module is
+	 * the master, and module state already reaches WordPress.com through the
+	 * synced `active_modules` callable — syncing the option as well would add
+	 * a second, driftable source of truth for the same bit.
+	 *
 	 * @param array $options Option names allowed to sync.
 	 * @return array Updated option names.
 	 */
 	public static function add_sync_options_whitelist( $options ) {
-		$options   = (array) $options;
-		$options[] = self::MASTER_OPTION;
+		$options = (array) $options;
 		foreach ( self::OWNED_FEATURES as $feature ) {
 			$options[] = self::FEATURE_OPTIONS[ $feature ];
 		}
@@ -250,7 +259,8 @@ class Jetpack_AI_Settings {
 	 * WordPress.com Simple no Jetpack modules run, so the `jetpack_ai_enabled`
 	 * option is the master. Everywhere else (self-hosted and Atomic) the `ai`
 	 * module is the real master switch, toggled through the standard Jetpack
-	 * module machinery; the option is only kept in sync for reference there.
+	 * module machinery; there the option only carries the legacy pre-module
+	 * value the one-time opt-out migration reads, and is never written again.
 	 *
 	 * @return bool
 	 */
@@ -281,14 +291,12 @@ class Jetpack_AI_Settings {
 			return;
 		}
 
+		// The module alone is the master off-Simple. The option is deliberately NOT
+		// written here: WordPress.com derives the master state from the synced
+		// `active_modules` callable, and the stored option must keep its legacy
+		// pre-module value so Jetpack::reconcile_ai_master_optout() can read an
+		// explicit opt-out on sites that upgrade later.
 		( new Modules() )->update_status( self::AI_MODULE, $enabled, false, false );
-
-		// The module is the authoritative master off-Simple, but keep the option in
-		// step with the module's *resulting* state so Jetpack Sync mirrors the right
-		// value to WordPress.com (Calypso / the multi-site dashboard read it — see
-		// self::add_sync_options_whitelist()). Reading it back means a blocked
-		// activation can't leave the synced option out of step with the module.
-		update_option( self::MASTER_OPTION, self::is_master_enabled() );
 	}
 
 	/**
