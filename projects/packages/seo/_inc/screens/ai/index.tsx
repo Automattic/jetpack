@@ -19,6 +19,11 @@ const llmsTxtHelp = __(
 );
 const enabledLabel = __( 'Enabled', 'jetpack-seo' );
 const disabledLabel = __( 'Disabled', 'jetpack-seo' );
+// Crawler-group status tags. Module-scope (not inline ternaries) so the
+// production minifier can't fold `cond ? __() : __()` and break i18n extraction.
+const allowedLabel = __( 'Allowed', 'jetpack-seo' );
+const blockedLabel = __( 'Blocked', 'jetpack-seo' );
+const partlyBlockedLabel = __( 'Partly blocked', 'jetpack-seo' );
 
 /**
  * Whether a crawler is currently blocked: an explicit override wins, otherwise
@@ -56,14 +61,11 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 		[ crawler.slug, onToggle ]
 	);
 
-	// Named variables (not `cond ? __() : __()`) so the production minifier can't
-	// fold the ternary into `__( cond ? … )`, which breaks i18n string extraction.
-	const allowedLabel = __( 'Allowed', 'jetpack-seo' );
-	const blockedLabel = __( 'Blocked', 'jetpack-seo' );
-
 	return (
 		<ToggleControl
 			label={ crawler.label }
+			// Module-scope labels (see top of file) so the production minifier can't
+			// fold `cond ? __() : __()` and break i18n extraction.
 			help={ blocked ? blockedLabel : allowedLabel }
 			checked={ ! blocked }
 			onChange={ handleChange }
@@ -117,7 +119,22 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 } ) => {
 	// "Allow all" is on only when every crawler in the group is allowed; toggling
 	// it writes the whole group in one save (see `setCrawlerGroupBlocked`).
-	const allAllowed = crawlers.every( crawler => ! isCrawlerBlocked( crawler, overrides ) );
+	const blockedCount = crawlers.filter( crawler => isCrawlerBlocked( crawler, overrides ) ).length;
+	const allAllowed = blockedCount === 0;
+	const allBlocked = crawlers.length > 0 && blockedCount === crawlers.length;
+
+	// Header status tag, matching the Enabled/Disabled tags on the other module
+	// headers: green when every crawler is allowed, red when every one is blocked,
+	// grey when it's a mix.
+	let statusIntent: 'stable' | 'high' | 'draft' = 'draft';
+	let statusLabel = partlyBlockedLabel;
+	if ( allAllowed ) {
+		statusIntent = 'stable';
+		statusLabel = allowedLabel;
+	} else if ( allBlocked ) {
+		statusIntent = 'high';
+		statusLabel = blockedLabel;
+	}
 
 	// Extracted (not an inline arrow) for a stable callback, matching CrawlerToggle.
 	// Switching "Allow all" *on* means "allow the whole group" (blocked = false).
@@ -127,15 +144,19 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	);
 
 	return (
-		// Collapsed by default (most people won't open these), but opened when a
-		// notice is present so its explanation and the disabled toggles are visible.
-		<CollapsibleCard.Root defaultOpen={ Boolean( notice ) }>
+		// Collapsed by default — most people won't open these. A notice (e.g. why the
+		// controls are disabled) sits between the header and the collapsible content,
+		// so it stays visible while the module is closed; only Content collapses.
+		<CollapsibleCard.Root>
 			<CollapsibleCard.Header>
-				<Card.Title>{ title }</Card.Title>
+				<Stack direction="row" justify="space-between" align="center" gap="sm">
+					<Card.Title>{ title }</Card.Title>
+					<Badge intent={ statusIntent }>{ statusLabel }</Badge>
+				</Stack>
 			</CollapsibleCard.Header>
+			{ notice }
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="md">
-					{ notice }
 					<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
 					<div className="jetpack-seo-ai__crawler-bulk">
 						<ToggleControl
@@ -314,7 +335,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// WordPress.com — the option doesn't exist on self-hosted.
 		const managedByPrivacySetting = crawlers.dataSharingOptOut;
 		const privacyNotice = managedByPrivacySetting ? (
-			<Notice.Root intent="info">
+			<Notice.Root intent="info" className="jetpack-seo-ai__crawler-notice">
 				<Notice.Description>
 					{ __(
 						'AI crawler access is set by your privacy settings while third-party sharing is turned off. Turn sharing on to manage individual crawlers here.',

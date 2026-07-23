@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import AiScreen from '../index';
 import type { AiState } from '../../../data/ai-types';
 import type { AiForm } from '../../../data/use-ai';
@@ -34,7 +34,7 @@ const crawlerForm = (
 	flags: Partial<
 		Pick<
 			NonNullable< AiState[ 'crawlers' ] >,
-			'staticRobotsTxt' | 'dataSharingOptOut' | 'pathBasedMultisite'
+			'staticRobotsTxt' | 'dataSharingOptOut' | 'pathBasedMultisite' | 'overrides'
 		>
 	> = {}
 ): AiForm => ( {
@@ -134,6 +134,28 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 		expect( screen.queryByText( 'AI answers and training' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'tags each group header with its allow/block status', () => {
+		// Defaults: answer engines allowed, training crawlers blocked.
+		render( <AiScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		const answerHeader = screen.getByRole( 'button', { name: /answer engines/i } );
+		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
+		expect( within( answerHeader ).getByText( 'Allowed' ) ).toBeInTheDocument();
+		expect( within( trainingHeader ).getByText( 'Blocked' ) ).toBeInTheDocument();
+	} );
+
+	it( 'tags a mixed group as partly blocked', () => {
+		// Allow one of the two training bots so the group is neither all-allowed nor all-blocked.
+		render(
+			<AiScreen
+				form={ crawlerForm( { overrides: { gptbot: false } } ) }
+				searchEnginesVisible
+				onManageVisibility={ noop }
+			/>
+		);
+		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
+		expect( within( trainingHeader ).getByText( 'Partly blocked' ) ).toBeInTheDocument();
+	} );
+
 	it( 'disables the crawler controls and links to the setting under the data-sharing opt-out', () => {
 		render(
 			<AiScreen
@@ -143,18 +165,17 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 			/>
 		);
 
-		// The modules stay visible so the user can see what's here...
-		expect( screen.getByText( 'Google Gemini (Google-Extended)' ) ).toBeInTheDocument();
-		// ...with an explanation and a link to the governing setting...
+		// The explanation + link sit in the header area, visible while the modules
+		// stay collapsed (the setting governs, so the user can just follow the link).
 		expect( screen.getAllByText( /third-party sharing is turned off/i ).length ).toBeGreaterThan(
 			0
 		);
 		const link = screen.getAllByRole( 'link', { name: /manage sharing settings/i } )[ 0 ];
 		expect( link ).toHaveAttribute( 'href', 'http://example.com/wp-admin/options-reading.php' );
-		// ...and the toggles disabled.
-		expect( screen.getAllByRole( 'checkbox' ).every( box => box.hasAttribute( 'disabled' ) ) ).toBe(
-			true
-		);
+		// The (collapsed) toggles are disabled — include hidden so the closed panel counts.
+		const boxes = screen.getAllByRole( 'checkbox', { hidden: true } );
+		expect( boxes.length ).toBeGreaterThan( 0 );
+		expect( boxes.every( box => box.hasAttribute( 'disabled' ) ) ).toBe( true );
 	} );
 
 	it( 'hides per-site controls on path-based multisite', () => {

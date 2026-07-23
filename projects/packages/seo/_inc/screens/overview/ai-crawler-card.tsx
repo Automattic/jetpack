@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, Stack } from '@wordpress/ui';
 import StatusDot from './status-dot';
+import styles from './style.module.scss';
 import type { AiCrawler, AiState } from '../../data/ai-types';
 import type { FC } from 'react';
 
@@ -91,7 +92,7 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 			<Card.Header>
 				<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
 			</Card.Header>
-			<Card.Content>
+			<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 				{ settingsApply ? (
 					<Stack direction="column" gap="xs">
 						<StatusDot
@@ -116,12 +117,12 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 				) : (
 					<StatusDot status="warn" label={ blockedLabel } />
 				) }
-				<div className="jetpack-seo-overview__card-footer">
+				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage AI crawlers', 'jetpack-seo' ) }
 					</Button>
-				</div>
-			</Card.Content>
+				</Stack>
+			</Stack>
 		</Card.Root>
 	);
 };

@@ -35,3 +35,10 @@
 	padding-block-end: var(--wpds-dimension-gap-md);
 	border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral);
 }
+
+// The "managed by your privacy setting" notice sits between the header and the
+// collapsible content, so it stays visible while the module is closed. Give it
+// breathing room from the header above.
+.jetpack-seo-ai__crawler-notice {
+	padding-block-start: var(--wpds-dimension-gap-sm);
+}
