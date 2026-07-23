@@ -12,13 +12,13 @@
 		// all stay visible: the medium-gray tiles reveal white logos while
 		// the light base keeps dark logos legible.
 		background-color: #f6f7f7;
-		background-image: conic-gradient(
-			#c3c4c7 25%,
-			transparent 0 50%,
-			#c3c4c7 0 75%,
-			transparent 0
-		);
+		background-image:
+			linear-gradient(45deg, #c3c4c7 25%, transparent 25%),
+			linear-gradient(-45deg, #c3c4c7 25%, transparent 25%),
+			linear-gradient(45deg, transparent 75%, #c3c4c7 75%),
+			linear-gradient(-45deg, transparent 75%, #c3c4c7 75%);
 		background-size: 16px 16px;
+		background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 
 		.wpcom-site-logo-preview-image {
 			display: block;
