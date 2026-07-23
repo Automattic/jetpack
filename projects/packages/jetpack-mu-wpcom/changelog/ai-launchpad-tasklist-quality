@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Launchpad: improve task selection by describing the task menu to the model, and let it pick the gallery task.
