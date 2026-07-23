@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { starEmpty } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -26,14 +25,6 @@ export type PostDetailHighlightsAttributes = Record< never, never >;
  * summary header, not repeated here.
  */
 export default {
-	name: 'jpa/post-detail-highlights',
-	title: __( 'Post highlights', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Views, comments, and likes for the post or page being viewed.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: starEmpty,
 	attributes: [] as WidgetAttributeField< PostDetailHighlightsAttributes >[],
 	example: {

@@ -14,7 +14,7 @@ export type SubscribersListAttributes = {
 	/**
 	 * Number of subscribers to show. Maps to the WPCOM stats `max` param.
 	 */
-	num?: number;
+	max?: number;
 };
 
 /**
@@ -24,22 +24,17 @@ export type SubscribersListAttributes = {
  * six most recent subscribers.
  */
 export default {
-	name: 'jpa/subscribers-list',
-	title: __( 'Latest Subscribers', 'jetpack-premium-analytics' ),
-	help: {
-		content: __( 'Your most recent subscribers.', 'jetpack-premium-analytics' ),
-	},
 	icon: people,
 	attributes: [
 		{
-			id: 'num',
+			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< SubscribersListAttributes >[],
 	example: {
 		attributes: {
-			num: 6,
+			max: 6,
 		},
 	},
 };

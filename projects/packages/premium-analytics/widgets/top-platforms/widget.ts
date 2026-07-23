@@ -29,26 +29,12 @@ export type TopPlatformsAttributes = {
  * so the widget host renders its control.
  */
 export default {
-	name: 'jpa/top-platforms',
-	title: __( 'Top Platforms', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'A breakdown of the operating systems and browsers your visitors used, sorted by views.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: chartBar,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			type: 'integer',
 		},
 		{
 			id: 'platformDimension',

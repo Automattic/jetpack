@@ -11,13 +11,15 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	LeaderboardLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
+	resolveLeaderboardRowAction,
+	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -27,7 +29,6 @@ import {
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { link } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -83,11 +84,13 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 }
 
 function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+	const href = safeHttpUrl( item.link );
+
 	return {
 		label: getItemLabel( item ),
 		value: item.views,
 		previousValue: item.previousValue,
-		...( item.link ? { href: item.link } : {} ),
+		...( href ? { href } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
@@ -153,34 +156,27 @@ function buildLeaderboardData(
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! hasChildren;
-		const label = (
-			<LeaderboardLabel
-				label={ row.label }
-				imageUrl={ row.icon ?? undefined }
-				imageAlt=""
-				imageFallback="hidden"
-				imageClassName={ styles.labelIcon }
-			/>
-		);
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: shouldRenderLink ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ label }
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'favicon', url: row.icon ?? undefined },
+				action: resolveLeaderboardRowAction( {
+					href: row.href,
+					hasChildren,
+					drillDown: onDrillDown
+						? {
+								onClick: () => onDrillDown( row ),
+								ariaLabel: sprintf(
+									/* translators: %s is the clicked link or domain label. */
+									__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
+									row.label
+								),
+						  }
+						: undefined,
+				} ),
+			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxCurrentClicks ),
 			previousValue,
@@ -192,15 +188,6 @@ function buildLeaderboardData(
 				withComparison && previousValue !== undefined
 					? calculateDelta( row.value, previousValue )
 					: undefined,
-			...( hasChildren &&
-				onDrillDown && {
-					onClick: () => onDrillDown( row ),
-					ariaLabel: sprintf(
-						/* translators: %s is the clicked link or domain label. */
-						__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
-						row.label
-					),
-				} ),
 		};
 	} );
 }

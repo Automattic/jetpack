@@ -1,35 +1,32 @@
-import { __ } from '@wordpress/i18n';
-import {
-	DASHBOARD_SECTION_IDS,
-	DEFAULT_SECTION_ID,
-	getDashboardSections,
-	resolveSectionId,
-} from './sections';
+import { resolveSectionId, type DashboardSection } from './sections';
 
-jest.mock( '@wordpress/i18n', () => ( {
-	__: jest.fn( ( text: string ) => text ),
-} ) );
+const SECTIONS: DashboardSection[] = [
+	{ id: 'analytics/traffic', slug: 'traffic', label: 'Traffic', order: 10, default_layout: [] },
+	{ id: 'analytics/insights', slug: 'insights', label: 'Insights', order: 20, default_layout: [] },
+	{
+		id: 'analytics/subscribers',
+		slug: 'subscribers',
+		label: 'Subscribers',
+		order: 30,
+		default_layout: [],
+	},
+];
 
-describe( 'dashboard sections', () => {
-	it( 'builds the ordered section definitions', () => {
-		expect( getDashboardSections() ).toEqual( [
-			{ id: 'traffic', label: 'Traffic' },
-			{ id: 'insights', label: 'Insights' },
-			{ id: 'subscribers', label: 'Subscribers' },
-			{ id: 'store', label: 'Store' },
-		] );
-
-		expect( __ ).toHaveBeenCalledWith( 'Traffic', 'jetpack-premium-analytics' );
+describe( 'resolveSectionId', () => {
+	it( 'keeps a slug matching an available section', () => {
+		expect( resolveSectionId( 'insights', SECTIONS ) ).toBe( 'insights' );
 	} );
 
-	it( 'keeps the default section first', () => {
-		expect( DEFAULT_SECTION_ID ).toBe( 'traffic' );
-		expect( DASHBOARD_SECTION_IDS[ 0 ] ).toBe( DEFAULT_SECTION_ID );
+	it( 'falls back to the first section by order for stale or unavailable slugs', () => {
+		expect( resolveSectionId( 'store', SECTIONS ) ).toBe( 'traffic' );
+		expect( resolveSectionId( 'missing', SECTIONS ) ).toBe( 'traffic' );
 	} );
 
-	it( 'resolves unknown section search values to the default section', () => {
-		expect( resolveSectionId( 'insights' ) ).toBe( 'insights' );
-		expect( resolveSectionId( 'missing' ) ).toBe( DEFAULT_SECTION_ID );
-		expect( resolveSectionId( undefined ) ).toBe( DEFAULT_SECTION_ID );
+	it( 'falls back to the first section when no value is given', () => {
+		expect( resolveSectionId( undefined, SECTIONS ) ).toBe( 'traffic' );
+	} );
+
+	it( 'returns an empty slug when no sections are available yet', () => {
+		expect( resolveSectionId( 'traffic', [] ) ).toBe( '' );
 	} );
 } );

@@ -20,7 +20,8 @@ export type TopPostsAttributes = {
 	/**
 	 * Maximum number of rows to display.
 	 */
-	num?: number;
+	max?: number;
+
 	/**
 	 * Which report the widget shows: published posts and pages (including the
 	 * homepage entry, via `skip_archives=1`), or archive pages (taxonomy,
@@ -41,24 +42,10 @@ export type TopPostsAttributes = {
  * rows, Posts & pages view. The date range comes from the dashboard picker.
  */
 export default {
-	name: 'jpa/stats-top-posts',
-	title: __( 'Most viewed', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Your most popular posts and pages, sorted by views.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: postList,
 	attributes: [
 		{
-			id: 'num',
+			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
@@ -76,7 +63,7 @@ export default {
 	] as WidgetAttributeField< TopPostsAttributes >[],
 	example: {
 		attributes: {
-			num: 10,
+			max: 10,
 			contentView: 'posts',
 		},
 	},

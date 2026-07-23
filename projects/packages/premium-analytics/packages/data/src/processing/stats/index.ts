@@ -15,8 +15,10 @@ export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
 export { aggregateStatsDrilldownRows } from './drilldown-rows';
 export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
 	StatsDrilldownRow,
-	StatsDrilldownSourceItem,
+	StatsDrilldownRowContext,
 	StatsDrilldownSourceReport,
 } from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
@@ -181,6 +183,7 @@ export type {
 export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
+	StatsSingleVideoPost,
 	StatsSingleVideoReport,
 } from './single-video';
 export type {

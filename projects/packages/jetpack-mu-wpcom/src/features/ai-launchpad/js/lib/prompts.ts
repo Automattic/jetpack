@@ -3,10 +3,14 @@ import type { WizardInput } from './types.ts';
 /**
  * Allowed task IDs the model may pick from, drawn from the catalog. A PHP test
  * guards this list against catalog drift.
+ *
+ * Catalog `id_map` twins are the same underlying task, so only one of each pair
+ * is offered; the dropped twin remaps onto the kept one on read (see
+ * wpcom_ai_launchpad_remap_task_id). Dropped: first_post_published_newsletter,
+ * link_in_bio_launched, subscribers_added, drive_traffic.
  */
 export const TASK_MENU: readonly string[] = [
 	'first_post_published',
-	'first_post_published_newsletter',
 	'site_theme_selected',
 	'add_about_page',
 	'add_new_page',
@@ -22,7 +26,6 @@ export const TASK_MENU: readonly string[] = [
 	'setup_general',
 	'site_launched',
 	'blog_launched',
-	'link_in_bio_launched',
 	'set_up_payments',
 	'stripe_connected',
 	'paid_offer_created',
@@ -33,7 +36,6 @@ export const TASK_MENU: readonly string[] = [
 	'woo_marketing',
 	'woo_add_domain',
 	'add_10_email_subscribers',
-	'subscribers_added',
 	'import_subscribers',
 	'newsletter_plan_created',
 	'customize_welcome_message',
@@ -50,7 +52,6 @@ export const TASK_MENU: readonly string[] = [
 	'mobile_app_installed',
 	'share_site',
 	'front_page_updated',
-	'drive_traffic',
 	'start_building_your_audience',
 ];
 
@@ -125,17 +126,17 @@ For each chosen task write a "subtitle" (max 200 characters) that is specific an
 GOOD vs BAD subtitles (illustrations - adapt to the user's own niche, do not copy):
 - For a handmade-ceramics studio, "add_about_page" -> GOOD: "Share the story behind your studio and what makes each handmade piece one of a kind." BAD: "Tell visitors who you are."
 - For a handmade-ceramics studio, "site_theme_selected" -> GOOD: "Pick a clean, gallery-style theme that lets your ceramics photos take center stage." BAD: "Choose a theme."
-- For a weekly cycling newsletter, "first_post_published_newsletter" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."
+- For a weekly cycling newsletter, "first_post_published" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."
 
 HARD RULES (do not break - the server rejects output that violates these):
 - Every "id" MUST come from the menu below, verbatim. Never invent IDs. Drop any task you cannot map to a menu ID.
 - Return exactly 6 tasks.
-- At least one task must create content (e.g. "first_post_published", "first_post_published_newsletter", "woo_products", or "add_about_page").
-- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", or "link_in_bio_launched".
+- At least one task must create content (e.g. "first_post_published", "woo_products", or "add_about_page").
+- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".
 - Only include "woo_products", "woo_customize_store", "set_up_payments", "stripe_connected", or "woo_woocommerce_payments" if the goal is sell OR the user explicitly mentions selling, products, store, shop, or commerce.
 - For the sell goal, order the commerce tasks store-first: "woo_customize_store", then "woo_products", then "set_up_payments", keeping the launch task last. Installing WooCommerce is added automatically as the first step, so do not include a task for it.
-- Only include "add_10_email_subscribers", "subscribers_added", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
-- For the social tasks "connect_social_media" and "drive_traffic", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
+- Only include "add_10_email_subscribers", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
+- For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].
 
 ============ STEP 3 - first_post_draft ============

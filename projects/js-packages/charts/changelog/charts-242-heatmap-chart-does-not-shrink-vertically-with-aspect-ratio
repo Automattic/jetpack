@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: keep aspectRatio charts within their parent on both axes so a height-constrained container no longer overflows vertically.

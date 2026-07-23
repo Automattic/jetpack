@@ -28,6 +28,11 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - **UI primitives.** Prefer `Stack` and the stable `Text` from `@wordpress/ui` over ad-hoc flexbox or raw `<span>`/`<div>` for layout and text. Do not use `__experimental*` exports from `@wordpress/components` (e.g. `__experimentalText`, `__experimentalHStack`) — use the stable `@wordpress/ui` equivalents. Exception: `__experimentalGrid` has no stable alternative yet and is acceptable to use for now.
 - **Theming.** Theming flows through `@wordpress/theme`'s `ThemeProvider` (unlocked via private APIs in Storybook; see `src/stories/chart-decorator.tsx`). Do not manually override DS tokens in stories or components to achieve theming — pass a color through `ThemeProvider` instead.
 - **Chart element styles.** Read chart element styles via `getElementStyles` from `GlobalChartsProvider`, not directly from `theme`. This is the supported path for color/style resolution across themes.
+- **Package CSS variables.** Package-owned custom properties follow
+  `--a8c-charts-{category}-{name}` (see `TOKENS.md` for the catalog and its
+  `--wpds-*` mappings). Charts reference `--a8c-charts-*` roles with the mapped
+  `var(--wpds-*, <spec-fallback>)` as the inline fallback; there is no runtime
+  emission yet (that is CHARTS-203).
 
 ## Documentation Workflow
 

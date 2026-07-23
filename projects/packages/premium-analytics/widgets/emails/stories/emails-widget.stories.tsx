@@ -22,9 +22,11 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailsRender, { EmailsLeaderboard, type EmailRow } from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
@@ -246,12 +248,7 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...props }
-			widgetType={ {
-				name: widgetDefinition.name,
-				title: widgetDefinition.title,
-				icon: widgetDefinition.icon,
-				presentation: 'framed',
-			} }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { max: 6, metric: 'opens' } }

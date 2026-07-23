@@ -27,7 +27,7 @@ class Jetpack_AI_Helper {
 	 * Simple the wpcom-endpoints classes are only loaded in REST requests,
 	 * while the preload needs the key during admin page loads.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @var string
 	 */
@@ -127,7 +127,7 @@ class Jetpack_AI_Helper {
 	 * Whether the current user has dismissed the Content Guidelines AI
 	 * empty-state banner.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @return bool
 	 */

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats widgets: Share the chart granularity and metric tab helpers across chart widgets.
