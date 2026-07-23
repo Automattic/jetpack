@@ -143,7 +143,10 @@ describe( 'validateAgainstSchema', () => {
 		[ 'an out-of-enum theme_category slug', out => ( out.inferred.theme_category = 'hiking' ) ],
 		[ 'an out-of-enum inferred_goal', out => ( out.inferred.inferred_goal = 'cook' ) ],
 		[ 'an unknown goal enum value', out => ( out.inferred.goal = 'cook' ) ],
-		[ 'additional properties', out => ( ( out as Record< string, unknown > ).extra = true ) ],
+		[
+			'additional properties',
+			out => ( ( out as unknown as Record< string, unknown > ).extra = true ),
+		],
 		[ 'a missing required field', out => without( out, 'first_post_draft' ) ],
 		[ 'a missing about_page_draft', out => without( out, 'about_page_draft' ) ],
 		[ 'a fourth About paragraph', out => out.about_page_draft.paragraphs.push( 'C.', 'D.' ) ],
