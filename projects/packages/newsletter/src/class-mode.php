@@ -486,13 +486,14 @@ class Mode {
 				height: 24px;
 				fill: currentColor;
 			}
-			#adminmenu .jetpack-newsletter-mode-header h3 {
+			#adminmenu .jetpack-newsletter-mode-header p {
 				margin: 0;
 				padding: 0;
 				/* Menu text color: wpcom sidebar-text var, light fallback for core schemes. */
 				color: var( --color-sidebar-text, #fff );
-				font-size: 15px;
-				font-weight: 600;
+				/* Match the left-nav link size/weight. */
+				font-size: 14px;
+				font-weight: 400;
 				line-height: 1.4;
 			}
 			/* Collapsed menu (#collapse-button → body.folded, or the responsive
@@ -503,7 +504,7 @@ class Mode {
 				padding-left: 0;
 				padding-right: 0;
 			}
-			body.folded #adminmenu .jetpack-newsletter-mode-header h3 {
+			body.folded #adminmenu .jetpack-newsletter-mode-header p {
 				display: none;
 			}
 			@media only screen and ( min-width: 783px ) and ( max-width: 960px ) {
@@ -512,7 +513,7 @@ class Mode {
 					padding-left: 0;
 					padding-right: 0;
 				}
-				.auto-fold #adminmenu .jetpack-newsletter-mode-header h3 {
+				.auto-fold #adminmenu .jetpack-newsletter-mode-header p {
 					display: none;
 				}
 			}
@@ -667,7 +668,7 @@ class Mode {
 		}
 
 		$header_markup = sprintf(
-			'<a href="%1$s" class="jetpack-newsletter-mode-exit" aria-label="%2$s"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z"></path></svg></a><h3>%3$s</h3>',
+			'<a href="%1$s" class="jetpack-newsletter-mode-exit" aria-label="%2$s"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z"></path></svg></a><p>%3$s</p>',
 			esc_url( admin_url() ),
 			esc_attr__( 'Exit Newsletter Mode', 'jetpack-newsletter' ),
 			/** "Newsletters" is a product surface name. */
