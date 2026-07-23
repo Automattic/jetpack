@@ -63,6 +63,18 @@ class AI_Launchpad_Goal_Exclusions_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The course-setup task is restricted to the educate goal.
+	 *
+	 * Its catalog gate (WoA + Sensei LMS active) already hides it almost everywhere, so the entry costs
+	 * nothing — but it is the one id annotated with a single goal, and without it the map's stated
+	 * invariant ("every id annotated with a single goal belongs here") has a lone unexplained exception.
+	 */
+	public function test_course_setup_is_restricted_to_educate() {
+		$this->assertContains( 'sensei_setup', AI_Launchpad_REST::excluded_task_ids_for_goal( 'write' ) );
+		$this->assertNotContains( 'sensei_setup', AI_Launchpad_REST::excluded_task_ids_for_goal( 'educate' ) );
+	}
+
+	/**
 	 * The gallery task is excluded from sell, preserving the store/gallery mutual exclusion.
 	 */
 	public function test_gallery_is_excluded_for_sell() {

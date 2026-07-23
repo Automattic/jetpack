@@ -962,6 +962,54 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A goal-restricted task cannot be smuggled past the exclusion under its id_map twin's name.
+	 *
+	 * `subscribers_added` is a catalog id deliberately kept off the menu, absent from GOAL_RESTRICTED_TASK_IDS,
+	 * and remapped onto the newsletter-restricted `import_subscribers` before build_tasks() renders it. Judging
+	 * the raw id let the twin walk past the exclusion and render as "Import existing subscribers" on a write
+	 * site: the same task, the same card, spelled the other way. The exclusion must judge the id that renders.
+	 */
+	public function test_update_tailored_drops_the_twin_of_a_goal_restricted_task() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'write' ), false );
+
+		$payload             = self::valid_payload();
+		$payload['tasks'][3] = array(
+			'id'       => 'subscribers_added',
+			'subtitle' => 'Bring your existing readers over.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+
+		$persisted = array_column( get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'], 'id' );
+		$this->assertNotContains( 'subscribers_added', $persisted, 'the twin must not survive the newsletter restriction' );
+		$this->assertNotContains( 'import_subscribers', $persisted, 'nor may it survive under the id it renders as' );
+	}
+
+	/**
+	 * A task that survives is persisted under the id it will render as, so the judged id and the rendered id
+	 * are the same id. Without that, a later reader of the persisted payload has to re-derive the mapping.
+	 */
+	public function test_update_tailored_persists_the_id_the_task_renders_as() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'write' ), false );
+
+		$payload             = self::valid_payload();
+		$payload['tasks'][3] = array(
+			'id'       => 'drive_traffic',
+			'subtitle' => 'Reach more readers.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+
+		$persisted = array_column( get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'], 'id' );
+		$this->assertContains( 'connect_social_media', $persisted );
+		$this->assertNotContains( 'drive_traffic', $persisted );
+	}
+
+	/**
 	 * Test that PUT /tailored seeds the reported set with the fresh list's born-completed tasks: a re-tailor
 	 * re-baselines (in lockstep with the skip/completed option resets), a still-complete task is not re-reported
 	 * afterwards, and — because the baseline exists from birth — a completion landing before any GET is still
@@ -1665,6 +1713,43 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		$this->assertNotContains( 'install_woocommerce', $ids );
 		$this->assertNotContains( 'setup_woocommerce_store', $ids );
+	}
+
+	/**
+	 * The rendered list is shaped by the goal the user chose, not the one the model echoed back.
+	 *
+	 * The write path already keys enforcement off the wizard option, so a payload echoing `sell` on a
+	 * newsletter site has every commerce task stripped from it. If the read path then injected the store
+	 * sequence off that same echo, the site would be told to install WooCommerce with nothing commercial
+	 * to follow it — the two paths must resolve the goal the same way, or they contradict each other.
+	 */
+	public function test_get_shapes_the_list_from_the_wizard_goal_not_the_echoed_one() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'newsletter' ), false );
+		$this->seed_output_for_goal( 'sell', 'organic coffee beans' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertNotContains( 'install_woocommerce', $ids );
+		$this->assertNotContains( 'setup_woocommerce_store', $ids );
+	}
+
+	/**
+	 * The same authority in the other direction: a sell site whose model echoed some other goal still gets
+	 * its store sequence. The echo is diagnostic, never the thing that decides.
+	 */
+	public function test_get_keeps_the_store_sequence_when_the_wizard_says_sell() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'sell' ), false );
+		$this->seed_output_for_goal( 'write', 'organic coffee beans' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertContains( 'install_woocommerce', $ids );
+		$this->assertContains( 'setup_woocommerce_store', $ids );
+		// The sell branch's theme guarantee comes with it, and the id list listeners read must agree.
+		$this->assertContains( 'site_theme_selected', $ids );
+		$this->assertContains( 'site_theme_selected', wpcom_ai_launchpad_get_ai_task_ids() );
 	}
 
 	/**

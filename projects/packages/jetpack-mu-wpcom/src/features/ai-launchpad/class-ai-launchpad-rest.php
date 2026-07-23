@@ -22,8 +22,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const MIN_VALID_TASKS = 4;
 
 	// `woo_launch_site`, `link_in_bio_launched`, and `videopress_launched` stay valid launch tasks so a stray AI
-	// emission passes PUT validation and is normalized to `site_launched` on read (see build_tasks), rather than
-	// failing the whole list into the deterministic fallback.
+	// emission passes PUT validation rather than failing the whole list into the deterministic fallback. It is
+	// normalized to `site_launched` as it is persisted (see update_tailored) and again on read (see build_tasks,
+	// which is what covers lists persisted before the write-side remap existed).
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
@@ -122,7 +123,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 *   (wpcom_launchpad_is_woocommerce_setup_visible) is goal-agnostic and passes on any WoA site with
 	 *   WooCommerce active, which is every site this feature runs on.
 	 *
-	 * So: every id annotated with a single goal belongs here, unless something else makes it unreachable.
+	 * So: every id annotated with a single goal belongs here. No exceptions — `sensei_setup` is listed even
+	 * though its catalog gate (WoA plus Sensei LMS active) already hides it almost everywhere, because a rule
+	 * with one documented exception is a rule the next auditor has to re-derive. AI_Launchpad_Task_Menu_Test
+	 * reads the annotations and fails if a single-goal one is missing here.
+	 *
+	 * The ids are matched after wpcom_ai_launchpad_remap_task_id(), so a twin of a restricted task is covered
+	 * by the entry for the id it renders as and must not be listed separately.
 	 */
 	const GOAL_RESTRICTED_TASK_IDS = array(
 		'woo_products'             => 'sell',
@@ -136,6 +143,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'add_10_email_subscribers' => 'newsletter',
 		'import_subscribers'       => 'newsletter',
 		'newsletter_plan_created'  => 'newsletter',
+		'sensei_setup'             => 'educate',
 	);
 
 	/**
@@ -461,7 +469,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			? $inferred['theme_category']
 			: '';
 
-		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+		// The same authority update_tailored() enforces against: the user's own wizard goal, not the
+		// model's echo of it. Anything else lets PUT strip a goal's tasks while GET injects them.
+		$goal = wpcom_ai_launchpad_resolve_goal( $payload );
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -733,30 +743,24 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$tasks       = array();
 
-		// The exclusions key off the goal, so prefer the wizard option: that is the user's own choice, written
-		// by the server. The payload's goal is only what the prompt asked the model to echo back, and keying
-		// enforcement off model-supplied data lets a wrong echo unlock the tasks the rule exists to withhold.
-		//
-		// Fall back to the payload when the option is missing: the wizard PUT is fire-and-forget in
-		// wizard/wizard.tsx, so it can lose the race against a prewarmed tailor and leave the goal unwritten
-		// at this point. The schema has already validated the payload's goal against the same six slugs.
-		$wizard       = get_option( self::OPTION_WIZARD );
-		$payload_goal = isset( $payload['inferred']['goal'] ) && is_string( $payload['inferred']['goal'] )
-			? $payload['inferred']['goal']
-			: '';
-		$goal         = isset( $wizard['goal'] ) && is_string( $wizard['goal'] ) && '' !== $wizard['goal']
-			? $wizard['goal']
-			: $payload_goal;
-		$excluded     = self::excluded_task_ids_for_goal( $goal );
+		// The exclusions key off the goal the user chose, resolved through the shared helper so this and the
+		// read path cannot disagree about which goal the site has.
+		$excluded = self::excluded_task_ids_for_goal( wpcom_ai_launchpad_resolve_goal( $payload ) );
 
 		foreach ( $payload['tasks'] as $task ) {
-			if ( ! isset( $definitions[ $task['id'] ] ) && ! AI_Launchpad_Task_Registry::has( $task['id'] ) ) {
+			// Judge — and persist — the id this task will actually render as. build_tasks() remaps broken and
+			// twinned ids on read, so checking the raw id would let a restricted task in under its other name:
+			// `subscribers_added` is off the menu and unrestricted, yet renders as the newsletter-restricted
+			// `import_subscribers`. The rule has to see the card, not the spelling.
+			$task_id = wpcom_ai_launchpad_remap_task_id( $task['id'] );
+
+			if ( ! isset( $definitions[ $task_id ] ) && ! AI_Launchpad_Task_Registry::has( $task_id ) ) {
 				continue;
 			}
 
 			// Goal-restricted tasks are dropped even if the model picked them: the menu filter is advisory
 			// (a failed availability lookup falls back to the full menu), this is not.
-			if ( in_array( $task['id'], $excluded, true ) ) {
+			if ( in_array( $task_id, $excluded, true ) ) {
 				continue;
 			}
 
@@ -766,7 +770,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 
 			$tasks[] = array(
-				'id'       => $task['id'],
+				'id'       => $task_id,
 				'subtitle' => $subtitle,
 			);
 		}

@@ -136,14 +136,15 @@ describe( 'buildTailorPrompt', () => {
 		// an authority the code does not back. Pinned to the exact strings, not just the count: swapping
 		// an enforced rule for a demoted one keeps the count at four and would otherwise pass.
 		//
-		// The first rule points at the menu but promises only catalog membership, which is what
-		// update_tailored() actually checks — a catalog id filtered off the menu is still accepted.
+		// The first rule points at the menu but promises only what update_tailored() actually checks:
+		// that the server can build the id, from the shared catalog or from its own registry. An id
+		// from either that the menu filter left off is still accepted.
 		const prompt = buildTailorPrompt( INPUT, [] );
 		const block = prompt.slice( prompt.indexOf( 'HARD RULES' ) ).split( '\n\n' )[ 0 ];
 		const bullets = block.split( '\n' ).filter( line => line.startsWith( '- ' ) );
 
 		assert.deepEqual( bullets, [
-			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id the task catalog does not define, and rejects the whole list if too few tasks survive.',
+			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize, and rejects the whole list if too few tasks survive.',
 			'- Return exactly 6 tasks.',
 			'- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".',
 			'- Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].',

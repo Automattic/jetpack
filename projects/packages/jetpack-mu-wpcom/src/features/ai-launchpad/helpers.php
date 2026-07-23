@@ -39,6 +39,38 @@ if ( ! function_exists( 'wpcom_ai_launchpad_remap_task_id' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_resolve_goal' ) ) {
+	/**
+	 * The site's goal, resolved once for every path that behaves differently because of it.
+	 *
+	 * The wizard option wins: it is the user's own choice, written by the server. `payload.inferred.goal`
+	 * is only what the prompt asked the model to echo back, so anything keyed off it can be driven by a
+	 * wrong echo — enforcement (update_tailored() drops the tasks the goal forbids) and shape
+	 * (get_current_tasks() leads a sell site with the store sequence) alike. Read and write must agree on
+	 * one authority, or a newsletter site can have every commerce task stripped at PUT and still be told
+	 * to install WooCommerce at GET.
+	 *
+	 * The payload is the fallback and only covers one race: the wizard PUT is fire-and-forget in
+	 * wizard/wizard.tsx, so a prewarmed tailor can land before the option is written. The output schema
+	 * has already validated the payload's goal against the same six slugs.
+	 *
+	 * @param array $payload The AI output payload — the persisted one on read, the incoming one at PUT.
+	 * @return string The goal slug, or '' when neither source holds one.
+	 */
+	function wpcom_ai_launchpad_resolve_goal( $payload ) {
+		$wizard = get_option( 'wpcom_ai_launchpad_wizard' );
+		if ( is_array( $wizard ) && isset( $wizard['goal'] ) && is_string( $wizard['goal'] ) && '' !== $wizard['goal'] ) {
+			return $wizard['goal'];
+		}
+
+		$inferred = is_array( $payload ) && isset( $payload['inferred'] ) && is_array( $payload['inferred'] )
+			? $payload['inferred']
+			: array();
+
+		return isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 	/**
 	 * The shared analytics context merged into every AI Launchpad Tracks event, mirroring the
@@ -142,9 +174,9 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 
 		// Sell sites always render a Choose-a-theme task (see AI_Launchpad_REST::get_current_tasks), so the
 		// switch_theme listener and skip validation must count it even when the AI did not pick one — and
-		// even when a partial write left the payload with an inferred goal but no task list.
-		$goal = isset( $payload['inferred']['goal'] ) && is_string( $payload['inferred']['goal'] ) ? $payload['inferred']['goal'] : '';
-		if ( 'sell' === $goal && ! in_array( 'site_theme_selected', $task_ids, true ) ) {
+		// even when a partial write left the payload with an inferred goal but no task list. Resolved
+		// through the shared helper so this mirror cannot disagree with the list it is mirroring.
+		if ( 'sell' === wpcom_ai_launchpad_resolve_goal( $payload ) && ! in_array( 'site_theme_selected', $task_ids, true ) ) {
 			$task_ids[] = 'site_theme_selected';
 		}
 
