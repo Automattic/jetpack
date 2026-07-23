@@ -8,13 +8,13 @@
  *
  * Persistence uses a STORE-INTENT model rather than a literal blocked list. The
  * durable option `jetpack_seo_ai_crawler_overrides` holds only *deviations* from
- * each bot's default policy (training crawlers blocked, answer engines allowed);
- * a bot with no stored override falls back to its default. This keeps the stored
- * map sparse and means newly added training crawlers are covered automatically
- * without a migration.
+ * each bot's default policy (training crawlers blocked, answer and mixed-use
+ * crawlers allowed); a bot with no stored override falls back to its default.
+ * This keeps the stored map sparse and means newly added training crawlers are
+ * covered automatically without a migration.
  *
  * Caveat: the `robots_txt` filter only feeds WordPress's *virtual* robots.txt.
- * A site serving a physical robots.txt file bypasses it entirely — a real
+ * A detected static file in the WordPress installation is not modified — a
  * limitation surfaced in the AI tab (see {@see self::has_static_robots_txt()}).
  *
  * @package automattic/jetpack-seo-package
@@ -52,9 +52,9 @@ class Ai_Crawlers {
 	 * `slug` is the stable key persisted in the override map and sent by the AI
 	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
-	 * cite in live AI answers, allowed by default) or `training` (collects to train
-	 * models, blocked by default), which drives the AI tab's two sections and the
-	 * per-type default.
+	 * cite in live AI answers), `training` (collects to train models), or `mixed`
+	 * (does both). Training crawlers are blocked by default; answer and mixed-use
+	 * crawlers are allowed.
 	 *
 	 * @return array<string, array<string, string>>
 	 */
@@ -83,7 +83,7 @@ class Ai_Crawlers {
 				'type'       => 'answer',
 			),
 			// Training crawlers collect content to train AI models. Blocked by
-			// default — blocking protects content with no AI-visibility downside.
+			// default.
 			'gptbot'             => array(
 				'label'      => __( 'ChatGPT (OpenAI)', 'jetpack-seo' ),
 				'user_agent' => 'GPTBot',
@@ -97,7 +97,7 @@ class Ai_Crawlers {
 			'google-extended'    => array(
 				'label'      => __( 'Google AI (Gemini)', 'jetpack-seo' ),
 				'user_agent' => 'Google-Extended',
-				'type'       => 'training',
+				'type'       => 'mixed',
 			),
 			'applebot-extended'  => array(
 				'label'      => __( 'Apple Intelligence', 'jetpack-seo' ),
@@ -144,6 +144,42 @@ class Ai_Crawlers {
 	}
 
 	/**
+	 * Whether WordPress.com's site-wide data-sharing opt-out is enabled.
+	 *
+	 * Its later `robots_txt` filter remains authoritative over per-bot settings.
+	 *
+	 * @return bool
+	 */
+	public static function has_data_sharing_opt_out() {
+		return (bool) get_option( 'wpcom_data_sharing_opt_out' );
+	}
+
+	/**
+	 * Whether the existing data-sharing policy forces a catalog bot to be blocked.
+	 *
+	 * @param string $slug Catalog slug.
+	 * @return bool
+	 */
+	private static function is_blocked_by_data_sharing_policy( $slug ) {
+		return self::has_data_sharing_opt_out()
+			&& in_array(
+				$slug,
+				array(
+					'amazonbot',
+					'applebot-extended',
+					'bytespider',
+					'ccbot',
+					'claudebot',
+					'google-extended',
+					'gptbot',
+					'meta-externalagent',
+					'perplexitybot',
+				),
+				true
+			);
+	}
+
+	/**
 	 * The resolved, sparse override map: `slug => bool` (true = blocked).
 	 *
 	 * Reads the stored option, drops unknown slugs, casts values to bool, and
@@ -186,6 +222,14 @@ class Ai_Crawlers {
 	 * @return bool
 	 */
 	public static function is_blocked( $slug ) {
+		$catalog = self::get_catalog();
+		if ( ! isset( $catalog[ $slug ] ) ) {
+			return false;
+		}
+		if ( self::is_blocked_by_data_sharing_policy( $slug ) ) {
+			return true;
+		}
+
 		$overrides = self::get_overrides();
 		return array_key_exists( $slug, $overrides )
 			? $overrides[ $slug ]
@@ -204,9 +248,10 @@ class Ai_Crawlers {
 		$overrides = self::get_overrides();
 		$blocked   = array();
 		foreach ( self::get_catalog() as $slug => $info ) {
-			$is_blocked = array_key_exists( $slug, $overrides )
-				? $overrides[ $slug ]
-				: ( 'training' === $info['type'] );
+			$is_blocked = self::is_blocked_by_data_sharing_policy( $slug )
+				|| ( array_key_exists( $slug, $overrides )
+					? $overrides[ $slug ]
+					: ( 'training' === $info['type'] ) );
 			if ( $is_blocked ) {
 				$blocked[] = $slug;
 			}
@@ -242,15 +287,26 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * Whether a physical `robots.txt` exists at the web root. The web server
-	 * serves that file directly, bypassing WordPress's virtual robots.txt — so our
-	 * `robots_txt` filter (and therefore these settings) never run. Common on
-	 * local, sandbox, and staging sites.
+	 * Whether a static `robots.txt` file exists in the WordPress installation
+	 * directory. These controls only change WordPress's virtual robots.txt and
+	 * cannot modify that file.
 	 *
 	 * @return bool
 	 */
 	public static function has_static_robots_txt() {
 		return file_exists( ABSPATH . 'robots.txt' );
+	}
+
+	/**
+	 * Whether this is a path-based multisite network.
+	 *
+	 * Such networks share one origin-level robots.txt, so per-site controls
+	 * cannot be represented safely.
+	 *
+	 * @return bool
+	 */
+	public static function is_path_based_multisite() {
+		return is_multisite() && ! is_subdomain_install();
 	}
 
 	/**
@@ -264,6 +320,13 @@ class Ai_Crawlers {
 	 */
 	public static function append_directives( $output, $public ) {
 		unset( $public );
+
+		// WordPress.com's existing privacy filter owns the site-wide opt-out and
+		// runs later at priority 12. Defer to it instead of emitting duplicate
+		// directives from this per-bot filter.
+		if ( self::is_path_based_multisite() || self::has_data_sharing_opt_out() ) {
+			return $output;
+		}
 
 		$catalog = self::get_catalog();
 		$blocked = self::get_blocked_slugs();
@@ -305,6 +368,8 @@ class Ai_Crawlers {
 			'searchEnginesVisible' => self::search_engines_allowed(),
 			'restrictedSubdomain'  => self::is_crawl_restricted_subdomain(),
 			'staticRobotsTxt'      => self::has_static_robots_txt(),
+			'dataSharingOptOut'    => self::has_data_sharing_opt_out(),
+			'pathBasedMultisite'   => self::is_path_based_multisite(),
 		);
 	}
 }

@@ -12,8 +12,8 @@ export interface AiCrawler {
 	label: string;
 	/** User-agent token written to the robots.txt `User-agent:` line. */
 	userAgent: string;
-	/** `answer` engines are allowed by default; `training` crawlers blocked. */
-	type: 'answer' | 'training';
+	/** Training crawlers are blocked by default; answer and mixed-use crawlers are allowed. */
+	type: 'answer' | 'training' | 'mixed';
 }
 
 export interface AiState {
@@ -48,7 +48,11 @@ export interface AiState {
 		searchEnginesVisible: boolean;
 		/** Whether the site is on a crawl-restricted `*.wpcomstaging.com` subdomain. */
 		restrictedSubdomain: boolean;
-		/** Whether a physical robots.txt at the web root may bypass these directives. */
+		/** Whether a static robots.txt file exists in the WordPress installation directory. */
 		staticRobotsTxt: boolean;
+		/** Whether WordPress.com's site-wide data-sharing opt-out overrides per-bot settings. */
+		dataSharingOptOut: boolean;
+		/** Whether the network shares one origin-level robots.txt across path-based sites. */
+		pathBasedMultisite: boolean;
 	};
 }
