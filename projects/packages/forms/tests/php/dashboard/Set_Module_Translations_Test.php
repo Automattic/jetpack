@@ -219,6 +219,7 @@ class Set_Module_Translations_Test extends BaseTestCase {
 		apply_filters(
 			self::WPADMIN_HOOK,
 			array(
+				'not-an-array-dependency',
 				array( 'import' => 'static' ),
 				array(
 					'import' => 'static',

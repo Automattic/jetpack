@@ -184,7 +184,7 @@ class Dashboard {
 			}
 
 			foreach ( $boot_dependencies as $dependency ) {
-				if ( empty( $dependency['id'] ) || ! is_string( $dependency['id'] ) ) {
+				if ( ! is_array( $dependency ) || empty( $dependency['id'] ) || ! is_string( $dependency['id'] ) ) {
 					continue;
 				}
 
