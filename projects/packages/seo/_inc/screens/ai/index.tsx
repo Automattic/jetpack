@@ -163,7 +163,10 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 			</CollapsibleCard.Header>
 			{ notice }
 			<CollapsibleCard.Content>
-				<Stack direction="column" gap="md">
+				{ /* `lg` gap between the description group and the controls group gives the
+				   "View your robots.txt" link room above the "Allow all" toggle; the controls
+				   keep their own tighter `md` rhythm in the nested Stack. */ }
+				<Stack direction="column" gap="lg">
 					<Stack direction="column" gap="xs">
 						<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
 						<Link
@@ -175,24 +178,26 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 							{ __( 'View your robots.txt', 'jetpack-seo' ) }
 						</Link>
 					</Stack>
-					<div className="jetpack-seo-ai__crawler-bulk">
-						<ToggleControl
-							label={ __( 'Allow all', 'jetpack-seo' ) }
-							checked={ allAllowed }
-							onChange={ handleToggleAll }
-							disabled={ disabled }
-							__nextHasNoMarginBottom
-						/>
-					</div>
-					{ crawlers.map( crawler => (
-						<CrawlerToggle
-							key={ crawler.slug }
-							crawler={ crawler }
-							blocked={ isCrawlerBlocked( crawler, overrides ) }
-							disabled={ disabled }
-							onToggle={ onToggle }
-						/>
-					) ) }
+					<Stack direction="column" gap="md">
+						<div className="jetpack-seo-ai__crawler-bulk">
+							<ToggleControl
+								label={ __( 'Allow all', 'jetpack-seo' ) }
+								checked={ allAllowed }
+								onChange={ handleToggleAll }
+								disabled={ disabled }
+								__nextHasNoMarginBottom
+							/>
+						</div>
+						{ crawlers.map( crawler => (
+							<CrawlerToggle
+								key={ crawler.slug }
+								crawler={ crawler }
+								blocked={ isCrawlerBlocked( crawler, overrides ) }
+								disabled={ disabled }
+								onToggle={ onToggle }
+							/>
+						) ) }
+					</Stack>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
