@@ -64,6 +64,15 @@ class Initializer {
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
 	/**
+	 * Subsystems a consumer may exclude from the aggregate init() via
+	 * update_init_options( array( 'skip' => ... ) ). The values are the same keys
+	 * the init_* methods pass to mark_initialized(). The rest_api, admin_ui, and
+	 * plugins_action_links subsystems are deliberately absent: the My Jetpack
+	 * products page and the red bubble depend on them, so they always boot.
+	 */
+	private const SKIPPABLE_SUBSYSTEMS = array( 'licensing', 'speed_score', 'explat', 'jitm', 'jetpack_manage' );
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -76,6 +85,16 @@ class Initializer {
 	 * @var array
 	 */
 	private static $initialized_subsystems = array();
+
+	/**
+	 * Initialization options for the aggregate init().
+	 *
+	 * Shaped as array( 'skip' => array( <subsystem key> => true ) ), written by
+	 * update_init_options() and read through is_subsystem_skipped().
+	 *
+	 * @var array
+	 */
+	private static $init_options = array();
 
 	/**
 	 * The Speed Score instance set up for My Jetpack, kept so it is only built once.
@@ -94,6 +113,10 @@ class Initializer {
 	 * `init()` (guarded only by `did_action`) behaves exactly as it did before the
 	 * subsystem split.
 	 *
+	 * Subsystems listed in the update_init_options() skip list are left unbooted
+	 * by this method; their one-shot marks stay untouched, so the individual
+	 * init_* methods can still boot them afterward.
+	 *
 	 * @return void
 	 */
 	public static function init() {
@@ -103,12 +126,22 @@ class Initializer {
 
 		self::load_plugins_action_links();
 		self::load_rest_api();
-		self::load_licensing();
-		self::load_speed_score();
+		if ( ! self::is_subsystem_skipped( 'licensing' ) ) {
+			self::load_licensing();
+		}
+		if ( ! self::is_subsystem_skipped( 'speed_score' ) ) {
+			self::load_speed_score();
+		}
 		self::load_admin_ui();
-		self::load_explat();
-		self::load_jitm();
-		self::load_jetpack_manage();
+		if ( ! self::is_subsystem_skipped( 'explat' ) ) {
+			self::load_explat();
+		}
+		if ( ! self::is_subsystem_skipped( 'jitm' ) ) {
+			self::load_jitm();
+		}
+		if ( ! self::is_subsystem_skipped( 'jetpack_manage' ) ) {
+			self::load_jetpack_manage();
+		}
 
 		/**
 		 * Fires after the My Jetpack package is initialized
@@ -116,6 +149,71 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
+	}
+
+	/**
+	 * Update the initialization options for the aggregate init().
+	 *
+	 * Lets a consumer opt out of parts of init(): every subsystem key listed in
+	 * $options['skip'] is left unbooted when init() runs. Only the subsystems in
+	 * SKIPPABLE_SUBSYSTEMS (licensing, speed_score, explat, jitm, jetpack_manage)
+	 * may be skipped; passing any other key -- including the always-on rest_api,
+	 * admin_ui, and plugins_action_links subsystems -- rejects that key with
+	 * _doing_it_wrong() and leaves it booting. Repeated calls are additive: each
+	 * call unions its keys into the skip set and keys are never un-skipped, so
+	 * independent configurators compose. The individual init_* methods ignore the
+	 * skip set: calling e.g. init_jitm() directly always boots JITM.
+	 *
+	 * Call this before Initializer::init() runs. In the Jetpack plugin that means
+	 * before Jetpack's plugins_loaded-priority-90 late initialization on eagerly
+	 * loaded requests, and before rest_api_init priority 0 on deferred ones --
+	 * simplest is at plugin load time. Calling it with a skip list after
+	 * my_jetpack_init has fired trips _doing_it_wrong(); the keys are still
+	 * recorded, but the already-completed init() is unaffected for this request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $options Initialization options. Supported keys:
+	 *                       'skip': string[] of subsystem keys to exclude from init().
+	 * @return void
+	 */
+	public static function update_init_options( array $options ): void {
+		if ( ! isset( $options['skip'] ) ) {
+			return;
+		}
+
+		if ( ! is_array( $options['skip'] ) ) {
+			_doing_it_wrong( __METHOD__, 'The "skip" option must be an array of subsystem keys.', '$$next-version$$' );
+			return;
+		}
+
+		if ( did_action( 'my_jetpack_init' ) ) {
+			_doing_it_wrong( __METHOD__, 'My Jetpack is already initialized; call update_init_options() before Initializer::init() runs for the skip list to take effect.', '$$next-version$$' );
+		}
+
+		foreach ( $options['skip'] as $subsystem ) {
+			if ( ! is_string( $subsystem ) || ! in_array( $subsystem, self::SKIPPABLE_SUBSYSTEMS, true ) ) {
+				$label = is_string( $subsystem ) ? $subsystem : gettype( $subsystem );
+				_doing_it_wrong( __METHOD__, esc_html( sprintf( '"%s" is not a skippable My Jetpack subsystem. Skippable subsystems: %s.', $label, implode( ', ', self::SKIPPABLE_SUBSYSTEMS ) ) ), '$$next-version$$' );
+				continue;
+			}
+			self::$init_options['skip'][ $subsystem ] = true;
+		}
+	}
+
+	/**
+	 * Whether the aggregate init() should skip a subsystem.
+	 *
+	 * Reads only the skip set built by update_init_options(). The individual
+	 * init_* methods deliberately do not consult this.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $subsystem Subsystem key, as passed to mark_initialized().
+	 * @return bool
+	 */
+	public static function is_subsystem_skipped( string $subsystem ): bool {
+		return isset( self::$init_options['skip'][ $subsystem ] );
 	}
 
 	/**
