@@ -172,7 +172,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 							openInNewTab
 							rel="noopener noreferrer"
 						>
-							{ __( 'View robots.txt', 'jetpack-seo' ) }
+							{ __( 'View your robots.txt', 'jetpack-seo' ) }
 						</Link>
 					</Stack>
 					<div className="jetpack-seo-ai__crawler-bulk">

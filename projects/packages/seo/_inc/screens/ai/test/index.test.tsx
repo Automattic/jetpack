@@ -161,7 +161,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 		render( <AiScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
 
 		// The link sits under the description, inside the collapsed panel — include hidden.
-		const links = screen.getAllByRole( 'link', { name: /view robots\.txt/i, hidden: true } );
+		const links = screen.getAllByRole( 'link', { name: /view your robots\.txt/i, hidden: true } );
 		expect( links ).toHaveLength( 2 ); // one per group
 		links.forEach( link =>
 			expect( link ).toHaveAttribute( 'href', 'http://example.com/robots.txt' )
